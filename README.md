@@ -9,8 +9,15 @@ One of the great new features of C# 6 is that it allows us to treat static class
 
 To use this library, simply include LanguageExt.Core.dll in your project.  And then stick `using LanguageExt;` at the top of each cs file that needs it.
 
+What C# issues are we trying to fix?  Well, we can only paper over the cracks, but here's a glossary:
 
-## Tuple support
+* Poor tuple support
+* Null reference problem
+* Lack of lambda and expression inference 
+* Void isn't a real type
+* List construction
+
+## Poor tuple support
 I've been crying out for proper tuple support for ages.  It looks like we're no closer with C# 6.  The standard way of creating them is ugly `Tuple.Create(foo,bar)` compared to functional languages where the syntax is often `(foo,bar)` and to consume them you must work with the standard properties of `Item1`..`ItemN`.  No more...
 
 ```C#
@@ -27,7 +34,7 @@ So consuming the tuple is now handled using `With`, which projects the `Item1`..
 ```
 This allows the tuple properties to have names, and it also allows for fluent handling of functions that return tuples.
 
-## null
+## Null reference problem
 `null` must be the biggest mistake in the whole of computer language history.  I realise the original designers of C# had to make pragmatic decisions, it's a shame this one slipped through though.  So, what to do about the 'null problem'?
 
 `null` is often used to indicate 'no value'.  i.e. the method called can't produce a value of the type it said it was going to produce, and therefore it gives you 'no value'.  The thing is the when the 'no value' instruction is passed to the consuming code, it gets assigned to a variable of type T, the same type that the function said it was going to return, except this variable now has a timebomb in it.  You must continually check if the value is null, if it's passed around it must be checked too.  
@@ -70,7 +77,7 @@ To smooth out the process of returning Option<T> types from methods there are so
     // Automatically converts the integer to a Some of int
     Option<int> ImplicitSomeConversion() => 1000;
 
-    // Automatically converts the integer to a None of int
+    // Automatically converts to a None of int
     Option<int> ImplicitNoneConversion() => None;
     
     // Will handle either a None or a Some returned
@@ -80,3 +87,37 @@ To smooth out the process of returning Option<T> types from methods there are so
             : None;
 ```
 
+For those of you who know what a monad is, then the `Option<T>` type implements `Select` and `SelectMany` and so can be use in LINQ expressions:
+
+```C#
+    var two = Some(2);
+    var four = Some(4);
+    var six = Some(6);
+
+    // This exprssion succeeds because all items to the right of 'in' are Some of int.
+    (from x in two
+     from y in four
+     from z in six
+     select x + y + z)
+    .Match(
+        Some: v => Assert.IsTrue(v == 12),
+        None: () => Assert.Fail("Shouldn't get here")
+    );
+
+    // This expression bails out once it gets to the None, and therefore doesn't calculate x+y+z
+    (from x in two
+     from y in four
+     from _ in Option<int>.None
+     from z in six
+     select x + y + z)
+    .Match(
+        Some: v => Assert.Fail("Shouldn't get here"),
+        None: () => Assert.IsTrue(true)
+    );
+```
+
+## Lack of lambda and expression inference 
+
+## Void isn't a real type
+
+## List construction
