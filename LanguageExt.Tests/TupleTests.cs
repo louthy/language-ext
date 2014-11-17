@@ -24,7 +24,7 @@ namespace LanguageExtTests
             Assert.IsTrue(t7.Item1 == "a" && t7.Item2 == "b" && t7.Item3 == "c" && t7.Item4 == "d" && t7.Item5 == "e" && t7.Item6 == "f" && t7.Item7 == "g");
         }
 
-        [Test] public void WithApplicationTests()
+        [Test] public void WithApplicationTests1()
         {
             tuple("a", "b").With((a, b) => Assert.IsTrue(a == "a" && b == "b"));
             tuple("a", "b", "c").With((a, b, c) => Assert.IsTrue(a == "a" && b == "b" && c == "c"));
@@ -33,5 +33,16 @@ namespace LanguageExtTests
             tuple("a", "b", "c", "d", "e", "f").With((a, b, c, d, e, f) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d" && e == "e" && f == "f"));
             tuple("a", "b", "c", "d", "e", "f", "g").With((a, b, c, d, e, f, g) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d" && e == "e" && f == "f" && g == "g"));
         }
+
+        [Test] public void WithApplicationTests2()
+        {
+            with( tuple("a", "b"), (a, b) => Assert.IsTrue(a == "a" && b == "b"));
+            with( tuple("a", "b", "c"), (a, b, c) => Assert.IsTrue(a == "a" && b == "b" && c == "c"));
+            with( tuple("a", "b", "c", "d"), (a, b, c, d) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d"));
+            with( tuple("a", "b", "c", "d", "e"), (a, b, c, d, e) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d" && e == "e"));
+            with( tuple("a", "b", "c", "d", "e", "f"), (a, b, c, d, e, f) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d" && e == "e" && f == "f"));
+            with( tuple("a", "b", "c", "d", "e", "f", "g"), (a, b, c, d, e, f, g) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d" && e == "e" && f == "f" && g == "g"));
+        }
+
     }
 }

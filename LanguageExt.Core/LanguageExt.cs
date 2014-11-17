@@ -15,12 +15,12 @@ public static partial class LanguageExt
     public static Either<R, L> Right<R, L>(R value) => new Either<R,L>(value);
     public static Either<R, L> Left<R, L>(L value) => new Either<R, L>(value);
 
-    public static R Match<T, R>(Option<T> option, Func<T, R> Some, Func<R> None) =>
+    public static R match<T, R>(Option<T> option, Func<T, R> Some, Func<R> None) =>
         option.IsSome
             ? Some(option.Value)
             : None();
 
-    public static Unit Match<T>(Option<T> option, Action<T> Some, Action None)
+    public static Unit match<T>(Option<T> option, Action<T> Some, Action None)
     {
         if (option.IsSome)
         {
@@ -33,12 +33,12 @@ public static partial class LanguageExt
         return Unit.Default;
     }
 
-    public static Ret Match<R, L, Ret>(Either<R, L> either, Func<R, Ret> Right, Func<L, Ret> Left) =>
+    public static Ret match<R, L, Ret>(Either<R, L> either, Func<R, Ret> Right, Func<L, Ret> Left) =>
         either.IsRight
             ? Right(either.RightValue)
             : Left(either.LeftValue);
 
-    public static Unit Match<R, L>(Either<R, L> either, Action<R> Right, Action<L> Left)
+    public static Unit match<R, L>(Either<R, L> either, Action<R> Right, Action<L> Left)
     {
         if (either.IsRight)
         {
@@ -118,6 +118,72 @@ public static partial class LanguageExt
     public static Tuple<T1, T2, T3, T4, T5, T6, T7> tuple<T1, T2, T3, T4, T5, T6, T7>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6, T7 item7) =>
         Tuple.Create(item1, item2, item3, item4, item5, item6, item7);
 
+    public static R with<T1, T2, R>(this Tuple<T1, T2> self, Func<T1, T2, R> func)
+    {
+        return func(self.Item1, self.Item2);
+    }
+
+    public static R with<T1, T2, T3, R>(this Tuple<T1, T2, T3> self, Func<T1, T2, T3, R> func)
+    {
+        return func(self.Item1, self.Item2, self.Item3);
+    }
+
+    public static R with<T1, T2, T3, T4, R>(this Tuple<T1, T2, T3, T4> self, Func<T1, T2, T3, T4, R> func)
+    {
+        return func(self.Item1, self.Item2, self.Item3, self.Item4);
+    }
+
+    public static R with<T1, T2, T3, T4, T5, R>(this Tuple<T1, T2, T3, T4, T5> self, Func<T1, T2, T3, T4, T5, R> func)
+    {
+        return func(self.Item1, self.Item2, self.Item3, self.Item4, self.Item5);
+    }
+
+    public static R with<T1, T2, T3, T4, T5, T6, R>(this Tuple<T1, T2, T3, T4, T5, T6> self, Func<T1, T2, T3, T4, T5, T6, R> func)
+    {
+        return func(self.Item1, self.Item2, self.Item3, self.Item4, self.Item5, self.Item6);
+    }
+
+    public static R with<T1, T2, T3, T4, T5, T6, T7, R>(this Tuple<T1, T2, T3, T4, T5, T6, T7> self, Func<T1, T2, T3, T4, T5, T6, T7, R> func)
+    {
+        return func(self.Item1, self.Item2, self.Item3, self.Item4, self.Item5, self.Item6, self.Item7);
+    }
+
+    public static Unit with<T1, T2>(this Tuple<T1, T2> self, Action<T1, T2> func)
+    {
+        func(self.Item1, self.Item2);
+        return Unit.Default;
+    }
+
+    public static Unit with<T1, T2, T3>(this Tuple<T1, T2, T3> self, Action<T1, T2, T3> func)
+    {
+        func(self.Item1, self.Item2, self.Item3);
+        return Unit.Default;
+    }
+
+    public static Unit with<T1, T2, T3, T4>(this Tuple<T1, T2, T3, T4> self, Action<T1, T2, T3, T4> func)
+    {
+        func(self.Item1, self.Item2, self.Item3, self.Item4);
+        return Unit.Default;
+    }
+
+    public static Unit with<T1, T2, T3, T4, T5>(this Tuple<T1, T2, T3, T4, T5> self, Action<T1, T2, T3, T4, T5> func)
+    {
+        func(self.Item1, self.Item2, self.Item3, self.Item4, self.Item5);
+        return Unit.Default;
+    }
+
+    public static Unit with<T1, T2, T3, T4, T5, T6>(this Tuple<T1, T2, T3, T4, T5, T6> self, Action<T1, T2, T3, T4, T5, T6> func)
+    {
+        func(self.Item1, self.Item2, self.Item3, self.Item4, self.Item5, self.Item6);
+        return Unit.Default;
+    }
+
+    public static Unit with<T1, T2, T3, T4, T5, T6, T7>(this Tuple<T1, T2, T3, T4, T5, T6, T7> self, Action<T1, T2, T3, T4, T5, T6, T7> func)
+    {
+        func(self.Item1, self.Item2, self.Item3, self.Item4, self.Item5, self.Item6, self.Item7);
+        return Unit.Default;
+    }
+
     public static IEnumerable<T> cons<T>(this T self, IEnumerable<T> tail)
     {
         yield return self;
@@ -145,6 +211,11 @@ public static partial class LanguageExt
 
     public static IEnumerable<T> filter<T>(this IEnumerable<T> list, Func<T,bool> predicate) =>
         list.Where(predicate);
+
+    public static int sum(this IEnumerable<int> list) => fold(list, 0, (x, s) => s + x);
+    public static float sum(this IEnumerable<float> list) => fold(list, 0.0f, (x, s) => s + x);
+    public static double sum(this IEnumerable<double> list) => fold(list, 0.0, (x, s) => s + x);
+    public static decimal sum(this IEnumerable<decimal> list) => fold(list, (decimal)0, (x, s) => s + x);
 
     public static S fold<S, T>(this IEnumerable<T> list, S state, Func<T, S, S> folder)
     {

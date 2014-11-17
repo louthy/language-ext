@@ -124,7 +124,7 @@ public static partial class LanguageExt
 public static class __EitherExt
 {
     public static LanguageExt.Either<UR,L> Select<TR, UR, L>(this LanguageExt.Either<TR, L> self, Func<TR, UR> map) =>
-        LanguageExt.Match(self,
+        LanguageExt.match(self,
             Right: t => LanguageExt.Either<UR, L>.Right(map(t)),
             Left: l => LanguageExt.Either<UR, L>.Left(l)
             );
@@ -133,9 +133,9 @@ public static class __EitherExt
         Func<TR, LanguageExt.Either<UR, L>> bind,
         Func<TR, UR, VR> project
         ) =>
-        LanguageExt.Match(self,
+        LanguageExt.match(self,
             Right: t =>
-                LanguageExt.Match(bind(t),
+                LanguageExt.match(bind(t),
                     Right: u => LanguageExt.Either<VR,L>.Right(project(t, u)),
                     Left: l => LanguageExt.Either<VR, L>.Left(l)
                 ),

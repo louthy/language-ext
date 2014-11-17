@@ -98,7 +98,7 @@ public static partial class LanguageExt
 public static class __OptionExt
 {
     public static LanguageExt.Option<U> Select<T, U>(this LanguageExt.Option<T> self, Func<T, U> map) =>
-        LanguageExt.Match(self,
+        LanguageExt.match(self,
             Some: t => LanguageExt.Option<U>.Some(map(t)),
             None: () => LanguageExt.Option<U>.None
             );
@@ -107,9 +107,9 @@ public static class __OptionExt
         Func<T, LanguageExt.Option<U>> bind,
         Func<T, U, V> project
         ) =>
-        LanguageExt.Match(self,
+        LanguageExt.match(self,
             Some: t =>
-                LanguageExt.Match(bind(t),
+                LanguageExt.match(bind(t),
                     Some: u => LanguageExt.Option<V>.Some(project(t, u)),
                     None: () => LanguageExt.Option<V>.None
                 ),

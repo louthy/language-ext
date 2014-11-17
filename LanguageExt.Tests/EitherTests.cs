@@ -23,10 +23,10 @@ namespace LanguageExtTests
         {
             var either = Right<int, string>(123);
 
-            Match(either, Right: i => Assert.IsTrue(i == 123),
+            match(either, Right: i => Assert.IsTrue(i == 123),
                           Left:  _ => Assert.Fail("Shouldn't get here") );
 
-            int c = Match(either, Right: i => i + 1,
+            int c = match(either, Right: i => i + 1,
                                   Left:  _ => 0 );
 
             Assert.IsTrue(c == 124);
@@ -49,10 +49,10 @@ namespace LanguageExtTests
         {
             var either = ItsLeft();
 
-            Match(either, Right: r => Assert.Fail("Shouldn't get here"),
+            match(either, Right: r => Assert.Fail("Shouldn't get here"),
                           Left:  l => Assert.IsTrue(l == "Left") );
 
-            int c = Match(either, Right: r => r + 1,
+            int c = match(either, Right: r => r + 1,
                                   Left:  l => 0 );
 
             Assert.IsTrue(c == 0);

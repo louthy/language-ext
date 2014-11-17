@@ -43,7 +43,9 @@
     <Compile Include="NullableExt.cs" />
     <Compile Include="Either.cs" />
     <Compile Include="Option.cs" />
+    <Compile Include="Parse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TryExt.cs" />
     <Compile Include="TupleExt.cs" />
     <Compile Include="Unit.cs" />
   </ItemGroup>
