@@ -39,7 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LanguageExt.cs" />
+    <Compile Include="Prelude.cs" />
     <Compile Include="List.cs" />
     <Compile Include="NullableExt.cs" />
     <Compile Include="Either.cs" />

@@ -80,6 +80,16 @@ namespace LanguageExt
             }
             return unit;
         }
+
+        public R Failure(Func<R> None) =>
+            IsRight
+                ? RightValue
+                : None();
+
+        public R Failure(R noneValue) =>
+            IsRight
+                ? RightValue
+                : noneValue;
     }
 
 

@@ -10,47 +10,33 @@ namespace LanguageExt
     public static partial class Prelude
     {
         public static Option<T> Some<T>(T value) => new Option<T>(value);
-
         public static OptionNone None => OptionNone.Default;
-
         public static Either<R, L> Right<R, L>(R value) => new Either<R, L>(value);
         public static Either<R, L> Left<R, L>(L value) => new Either<R, L>(value);
 
-        public static R match<T, R>(Option<T> option, Func<T, R> Some, Func<R> None) =>
-            option.IsSome
-                ? Some(option.Value)
-                : None();
+        public static T failure<T>(Option<T> option, Func<T> None) => 
+            option.Failure(None);
 
-        public static Unit match<T>(Option<T> option, Action<T> Some, Action None)
-        {
-            if (option.IsSome)
-            {
-                Some(option.Value);
-            }
-            else
-            {
-                None();
-            }
-            return Unit.Default;
-        }
+        public static T failure<T>(Option<T> option, T noneValue) =>
+            option.Failure(noneValue);
+
+        public static R match<T, R>(Option<T> option, Func<T, R> Some, Func<R> None) => 
+            option.Match(Some, None);
+
+        public static Unit match<T>(Option<T> option, Action<T> Some, Action None) => 
+            option.Match(Some, None);
+
+        public static R failure<R, L>(Either<R, L> either, Func<R> None) =>
+            either.Failure(None);
+
+        public static R failure<R, L>(Either<R, L> either, R noneValue) =>
+            either.Failure(noneValue);
 
         public static Ret match<R, L, Ret>(Either<R, L> either, Func<R, Ret> Right, Func<L, Ret> Left) =>
-            either.IsRight
-                ? Right(either.RightValue)
-                : Left(either.LeftValue);
+            either.Match(Right, Left);
 
-        public static Unit match<R, L>(Either<R, L> either, Action<R> Right, Action<L> Left)
-        {
-            if (either.IsRight)
-            {
-                Right(either.RightValue);
-            }
-            else
-            {
-                Left(either.LeftValue);
-            }
-            return Unit.Default;
-        }
+        public static Unit match<R, L>(Either<R, L> either, Action<R> Right, Action<L> Left) =>
+            either.Match(Right, Left);
 
         public static Func<R> fun<R>(Func<R> f) => f;
         public static Func<T1, R> fun<T1, R>(Func<T1, R> f) => f;
@@ -216,6 +202,23 @@ namespace LanguageExt
                     }
                     return value;
                 };
+        }
+
+        public static Func<T,T> id<T>() => (T id) => id;
+
+        public static void failwith(string message)
+        {
+            throw new Exception(message);
+        }
+
+        public static T failwith<T>(string message)
+        {
+            throw new Exception(message);
+        }
+
+        public static T raise<T>(Exception ex)
+        {
+            throw ex;
         }
     }
 }

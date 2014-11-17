@@ -47,6 +47,7 @@
     <Compile Include="MemoTests.cs" />
     <Compile Include="EitherTests.cs" />
     <Compile Include="OptionTests.cs" />
+    <Compile Include="TryTests.cs" />
     <Compile Include="TupleTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

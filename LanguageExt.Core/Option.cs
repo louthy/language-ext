@@ -66,8 +66,17 @@ namespace LanguageExt
             }
             return Unit.Default;
         }
-    }
 
+        public T Failure(Func<T> None) =>
+            IsSome
+                ? Value
+                : None();
+
+        public T Failure(T noneValue) =>
+            IsSome
+                ? Value
+                : noneValue;
+    }
 
     [Serializable]
     public class OptionIsNoneException : Exception

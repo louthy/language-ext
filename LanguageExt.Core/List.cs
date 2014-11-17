@@ -23,8 +23,11 @@ namespace LanguageExt
             list.Where(predicate);
 
         public static int sum(this IEnumerable<int> list) => fold(list, 0, (x, s) => s + x);
+
         public static float sum(this IEnumerable<float> list) => fold(list, 0.0f, (x, s) => s + x);
+
         public static double sum(this IEnumerable<double> list) => fold(list, 0.0, (x, s) => s + x);
+
         public static decimal sum(this IEnumerable<decimal> list) => fold(list, (decimal)0, (x, s) => s + x);
 
         public static S fold<S, T>(this IEnumerable<T> list, S state, Func<T, S, S> folder)
