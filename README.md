@@ -335,14 +335,14 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
     // function if successful.  Throws an exception if not.
     parseInt("123").Match(
         Some: UseTheInteger,
-        None: () => failwith("Not an integer")
+        None: failwith<int>("Not an integer")
         );
 
     // Attempts to parse the value, dispatches it to the UseTheInteger
     // function if successful.  Throws an exception if not.
     match( parseInt("123"),
         Some: UseTheInteger,
-        None: () => failwith("Not an integer")
+        None: failwith<int>("Not an integer")
         );
 ```
 
