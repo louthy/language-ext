@@ -251,6 +251,65 @@ The above can be written in a fluent style also:
     Assert.IsTrue(res == 120);
 ```
 
+Other list functions:
+`head`
+`headSafe` - returns `Option<T>`
+`tail`
+`foldr`
+`sum`
 
+## The awful 'out' parameter
+This has to be one of the most awful patterns in C#:
+
+```C#
+    int result;
+    if( Int32.TryParse(value, out result) )
+    {
+        ...
+    }
+    else
+    {
+        ...
+    }
+```
+There's all kinds of wrong there.  Essentially the function needs to return two pieces of information:
+* Whether the parse was a success or not
+* The successfully parsed value
+This is a common theme throughout the .NET framework.  For example on `IDictionary.TryGetValue`
+
+```C#
+    int value;
+    if( dict.TryGetValue("thing", out value) )
+    {
+       ...
+    }
+    else
+    {
+       ...
+    }
+```       
+
+So to solve it we now have methods that instead of returning `bool`, return `Option<T>`.  If the operation fails it returns `None`.  If it succeeds it returns `Some(the value)` which can then be matched.  Here's some usage examples:
+
+```C#
+    int value1 = parseInt("123").Failure(() => 0);
+
+    int value2 = failure(parseInt("123"), () => 0);
+
+    int value3 = parseInt("123").Failure(0);
+
+    int value4 = failure(parseInt("123"), 0);
+
+    parseInt("123").Match(
+        Some: v  => UseTheInteger(v),
+        None: () => failwith("Not an integer")
+        );
+
+    match( parseInt("123"),
+        Some: v => UseTheInteger(v),
+        None: () => failwith("Not an integer")
+        );
+```
+       
 ### Future
 There's more to come with this library.  Feel free to get in touch with any suggestions.
