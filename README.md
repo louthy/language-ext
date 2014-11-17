@@ -67,10 +67,10 @@ To access the value you must check that it's valid first:
         None: () => Assert.Fail("Shouldn't get here")
         );
 ```
-An alternative (more functional) way of matching is this:
+An alternative (functional) way of matching is this:
 
 ```C#
-    Match(optional, 
+    match( optional, 
         Some: v  => Assert.IsTrue(v == 123),
         None: () => Assert.Fail("Shouldn't get here") 
         );
