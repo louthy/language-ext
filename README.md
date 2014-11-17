@@ -127,7 +127,7 @@ Sometimes you just want to execute some specific behaviour when `None` is return
         Option<int> optional = None;
         
         // Defaults to 999 if optional is None
-        var value = optional.Failure(999);
+        int value = optional.Failure(999);
 ```
 
 You can also use a function to handle the failure:
@@ -137,7 +137,7 @@ You can also use a function to handle the failure:
         
         var backupInteger = fun( () => 999 );
         
-        var value = optional.Failure(backupInteger);
+        int value = optional.Failure(backupInteger);
 ```
 
 There are also functional variants of `failure`:
@@ -147,8 +147,8 @@ There are also functional variants of `failure`:
         
         var backupInteger = fun( () => 999 );
         
-        var value1 = failure(optional, 999);
-        var value2 = failure(optional, backupInteger);
+        int value1 = failure(optional, 999);
+        int value2 = failure(optional, backupInteger);
 ```
 
 Essentially you can think of `Failure` as `Match` where the `Some` branch always returns the wrapped value as-is.  Therefore there's no need for a `Some` function handler.
