@@ -43,7 +43,7 @@ As we all know it's only a matter of time before a null reference bug crops up b
 
 Functional languages use what's known as an 'option type'.  In F# it's called `Option` in Haskell it's called `Maybe`...
 
-## Option<T>
+## Optional
 It works in a very similar way to `Nullable<T>` except it works with all types rather than just value types.  It's a struct and therefore can't be null.  An instance can be created by either calling `Some(value)`, which represents a positive 'I have a value' response;  Or `None`, which is the equivalent of returning `null`.
 
 So why is it any better than returning `T` and using `null`.  It seems we can have a non-value response again right?  Yes, that's true, however you're forced to acknowledge that fact, and write code to handle both possible outcomes.  This bulletproofs your code.  
@@ -146,4 +146,45 @@ This will work for `Func<..>` and `Action<..>` types of up to seven generic argu
 
 ## Void isn't a real type
 
+Functional languages have a concept of a type that has one possible value, itself, called Unit.  As an example `bool` has two values: `true` and `false`.  `Unit` has one value, usually represents in functional languages as `()`.  You can imagine that methods that take no arguments actually take one argument of `()`.  Anyway, we can't use the `()` representation in C#, so `LanguageExt` now provides `unit`.
+
+```C#
+
+    public Unit Empty()
+    {
+        return unit;
+    }
+```
+
+`Unit` is the type and `unit` is the value.  It is used throughout the `LanguageExt` library instead of `void` so that it can be used with `Option` or `Either`.  
+
 ## List construction
+
+Support for `cons`, which is the functional way of constructing lists:
+```C#
+    var test = cons(1, cons(2, cons(3, cons(4, cons(5)))));
+
+    var array = test.ToArray();
+
+    Assert.IsTrue(array[0] == 1);
+    Assert.IsTrue(array[1] == 2);
+    Assert.IsTrue(array[2] == 3);
+    Assert.IsTrue(array[3] == 4);
+    Assert.IsTrue(array[4] == 5);
+```
+
+There are a couple of additional `cons` functions which don't strictly follow in the spirit of the well known functional cons 'operator', but they're damn useful:
+
+```C#
+    // Creates a list of one int 
+    var list = cons(1000);
+```
+
+```C#
+    // Creates a list of two ints
+    var list = cons(1000,2000);
+```
+Usually one would cons with an empty list.  But adding a function called empty seemed overkill, and would probably not do too well with C#'s type inference system.
+
+### Future
+There's more to come with this library.  Feel free to get in touch with any suggestions.
