@@ -15,7 +15,7 @@ What C# issues are we trying to fix?  Well, we can only paper over the cracks, b
 * Null reference problem
 * Lack of lambda and expression inference 
 * Void isn't a real type
-* List construction
+* List processing
 
 ## Poor tuple support
 I've been crying out for proper tuple support for ages.  It looks like we're no closer with C# 6.  The standard way of creating them is ugly `Tuple.Create(foo,bar)` compared to functional languages where the syntax is often `(foo,bar)` and to consume them you must work with the standard properties of `Item1`..`ItemN`.  No more...
@@ -168,11 +168,11 @@ Functional languages have a concept of a type that has one possible value, itsel
 
 `Unit` is the type and `unit` is the value.  It is used throughout the `LanguageExt` library instead of `void` so that it can be used with `Option` or `Either`.  
 
-## List construction
+## List processing
 
 Support for `cons`, which is the functional way of constructing lists:
 ```C#
-    var test = cons(1, cons(2, cons(3, cons(4, cons(5)))));
+    var test = cons(1, cons(2, cons(3, cons(4, list(5)))));
 
     var array = test.ToArray();
 
@@ -183,18 +183,48 @@ Support for `cons`, which is the functional way of constructing lists:
     Assert.IsTrue(array[4] == 5);
 ```
 
-There are a couple of additional `cons` functions which don't strictly follow in the spirit of the well known functional cons 'operator', but they're damn useful:
+There's an additional `list(...)` function which takes any number of parameters and turns them into a list:
 
 ```C#
-    // Creates a list of one int 
-    var list = cons(1000);
+    // Creates a list of five items
+     var test = list(1, 2, 3, 4, 5);
 ```
 
+Also `range`
+
 ```C#
-    // Creates a list of two ints
-    var list = cons(1000,2000);
+    // Creates a list of 1001 integers lazily.
+    var list = range(1000,2000);
 ```
-Usually one would cons with an empty list.  But adding a function called empty seemed overkill, and would probably not do too well with C#'s type inference system.
+Usually one would cons with an empty list.  But adding a function called empty seemed overkill, and would probably not do too well with C#'s type inference system, so create the first item with `list(<your first item>)`.
+
+Some of the standard list functions are available.  These are obviously duplicates of what's in LINQ:
+
+```C#
+    // Generates 10,20,30,40,50
+    var input = list(1, 2, 3, 4, 5);
+    var output1 = map(input, x => x * 10);
+
+    // Generates 30,40,50
+    var output2 = filter(output1, x => x > 20);
+
+    // Generates 120
+    var output3 = fold(output2, 0, (x, s) => s + x);
+
+    Assert.IsTrue(output3 == 120);
+```
+
+The above can be written in a fluent style also:
+
+```C#
+    var res = list(1, 2, 3, 4, 5)
+                .map(x => x * 10)
+                .filter(x => x > 20)
+                .fold(0, (x, s) => s + x);
+
+    Assert.IsTrue(res == 120);
+```
+
 
 ### Future
 There's more to come with this library.  Feel free to get in touch with any suggestions.
