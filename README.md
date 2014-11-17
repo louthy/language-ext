@@ -284,11 +284,11 @@ The above can be written in a fluent style also:
 ```
 
 Other list functions:
-`head`
-`headSafe` - returns `Option<T>`
-`tail`
-`foldr`
-`sum`
+* `head`
+* `headSafe` - returns `Option<T>`
+* `tail`
+* `foldr`
+* `sum`
 
 ## The awful 'out' parameter
 This has to be one of the most awful patterns in C#:
@@ -342,6 +342,27 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
         None: () => failwith("Not an integer")
         );
 ```
-       
+
+### The rest
+I haven't had time to document everything, so here's a quick list of what was missed:
+
+`Either<RIGHT,LEFT>` - Like `Option<T>`, however the 'failure' value which is `None` in `Option<T>` can have an alternative value in `Either`, and it's called `Left`.  `Right` is right, `Left` is wrong.  See the OptionEitherConfigSample for a demo.  Supports all the same functionality as `Option<T>`.
+
+`memo` - Caches a function's result the first time it's called
+
+`ignore` - Executes a function and ignores its result (returns `unit` instead)
+
+`Do` - Executes an action and returns `unit`
+
+`Nullable<T>.ToOption()` - Converts a `Nullable<T>` to an `Option<T>`
+
+`raise(exception)` - Throws the exception passed as an argument.  Useful in lambda's where a return value is needed.
+
+`failwith(message)` - Throws an Exception with the message provided.  Useful in lambda's where a return value is needed.
+
+`identity<T>()` - Identity function.  Returns the same value it was passed.
+
+`IDictionary.TryGetValue()` and `IReadOnlyDictionary.TryGetValue()` - Variants that return `Option<T>`.
+
 ### Future
 There's more to come with this library.  Feel free to get in touch with any suggestions.
