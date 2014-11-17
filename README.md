@@ -42,7 +42,7 @@ This allows the tuple properties to have names, and it also allows for fluent ha
 ## Null reference problem
 `null` must be the biggest mistake in the whole of computer language history.  I realise the original designers of C# had to make pragmatic decisions, it's a shame this one slipped through though.  So, what to do about the 'null problem'?
 
-`null` is often used to indicate 'no value'.  i.e. the method called can't produce a value of the type it said it was going to produce, and therefore it gives you 'no value'.  The thing is the when the 'no value' instruction is passed to the consuming code, it gets assigned to a variable of type T, the same type that the function said it was going to return, except this variable now has a timebomb in it.  You must continually check if the value is null, if it's passed around it must be checked too.  
+`null` is often used to indicate 'no value'.  i.e. the method called can't produce a value of the type it said it was going to produce, and therefore it gives you 'no value'.  The thing is that when the 'no value' instruction is passed to the consuming code, it gets assigned to a variable of type T, the same type that the function said it was going to return, except this variable now has a timebomb in it.  You must continually check if the value is null, if it's passed around it must be checked too.  
 
 As we all know it's only a matter of time before a null reference bug crops up because the variable wasn't checked.
 
