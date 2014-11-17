@@ -30,12 +30,12 @@ So consuming the tuple is now handled using `With`, which projects the `Item1`..
 
 ```C#
     var name = tuple("Paul","Louth");
-    var res = name.With( (first,last) => "Hello "+first+" "+last );
+    var res = name.With( (first,last) => "Hello \{first} \{last}" );
 ```
 Or, you can use a more functional approach:
 ```C#
     var name = tuple("Paul","Louth");
-    var res = with( name, (first,last) => "Hello "+first+" "+last );
+    var res = with( name, (first,last) => "Hello \{first} \{last}" );
 ```
 This allows the tuple properties to have names, and it also allows for fluent handling of functions that return tuples.
 
