@@ -97,9 +97,19 @@ It's actually nearly impossible to get a `null` out of a function, even if the `
         }
 ```
 
-That will compile.  However the `Option<T>` will notice what you're up to and give you a `None` anyway.  This is pretty important to remember.  
+That will compile.  However the `Option<T>` will notice what you're up to and give you a `None` anyway.  This is pretty important to remember.  Even if you do this, you'll get a `None`.  
 
-For those of you who know what a monad is, then the `Option<T>` type implements `Select` and `SelectMany` and so can be use in LINQ expressions:
+```C#
+        private Option<string> GetStringNone()
+        {
+            string nullStr = null;
+            return nullStr;
+        }
+```
+
+So `null` mostly goes away if you use `Option<T>`.
+
+For those of you who know what a monad is, then the `Option<T>` type implements `Select` and `SelectMany` and is therefore a monad and can be use in LINQ expressions:
 
 ```C#
     var two = Some(2);
@@ -130,7 +140,7 @@ For those of you who know what a monad is, then the `Option<T>` type implements 
 
 ## Lack of lambda and expression inference 
 
-One really annoying thing about the `var` type inference in C# is that it can't handle inline lamdas.  For example this won't compile, even though it's obvious it's a `Func<int>`.
+One really annoying thing about the `var` type inference in C# is that it can't handle inline lambdas.  For example this won't compile, even though it's obvious it's a `Func<int>`.
 ```C#
     var fn = () => 123;
 ```
