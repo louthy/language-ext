@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 /// <summary>
 /// Usage:  Add 'using LanguageExt' to your code.
@@ -129,15 +127,49 @@ public static partial class LanguageExt
         }
     }
 
-    public static IEnumerable<T> cons<T>(this T self, T tail)
+    public static IEnumerable<T> list<T>() => new T[0];
+
+    public static IEnumerable<T> list<T>(params T[] items) => items;
+
+    public static T head<T>(this IEnumerable<T> list) => list.First();
+
+    public static Option<T> headSafe<T>(this IEnumerable<T> list) =>
+        list.Take(1).Count() == 1
+            ? Some(list.First())
+            : None;
+
+    public static IEnumerable<T> tail<T>(this IEnumerable<T> list) => list.Skip(1);
+
+    public static IEnumerable<R> map<T, R>(this IEnumerable<T> list, Func<T,R> map) => 
+        list.Select(map);
+
+    public static IEnumerable<T> filter<T>(this IEnumerable<T> list, Func<T,bool> predicate) =>
+        list.Where(predicate);
+
+    public static S foldl<S, T>(this IEnumerable<T> list, S state, Func<T, S, S> folder)
     {
-        yield return self;
-        yield return tail;
+        foreach (var item in list)
+        {
+            state = folder(item, state);
+        }
+        return state;
     }
 
-    public static IEnumerable<T> cons<T>(this T self)
+    public static S foldr<S, T>(this IEnumerable<T> list, S state, Func<T, S, S> folder)
     {
-        yield return self;
+        foreach (var item in list.Reverse())
+        {
+            state = folder(item, state);
+        }
+        return state;
+    }
+
+    public static IEnumerable<int> range(int from, int to)
+    {
+        for (var i = from; i <= to; i++)
+        {
+            yield return i;
+        }
     }
 
     public static Func<T> memo<T>(Func<T> func)

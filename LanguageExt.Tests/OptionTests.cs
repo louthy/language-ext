@@ -96,10 +96,22 @@ namespace LanguageExtTests
             Assert.IsTrue(GetStringNone().IsNone);
         }
 
+        [Test] public void NullIsNoneTest2()
+        {
+            Assert.IsTrue(GetStringNone2().IsNone);
+        }
+
+
         private Option<string> GetStringNone()
         {
             string nullStr = null;
             return Some(nullStr);
+        }
+
+        private Option<string> GetStringNone2()
+        {
+            string nullStr = null;
+            return nullStr;
         }
 
         private Option<int> GetValue(bool select) =>
