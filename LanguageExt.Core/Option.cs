@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+using LanguageExt;
+using LanguageExt.Prelude;
 
-public static partial class LanguageExt
+namespace LanguageExt
 {
     public struct Option<T>
     {
@@ -94,24 +92,23 @@ public static partial class LanguageExt
     }
 }
 
-
 public static class __OptionExt
 {
-    public static LanguageExt.Option<U> Select<T, U>(this LanguageExt.Option<T> self, Func<T, U> map) =>
-        LanguageExt.match(self,
-            Some: t => LanguageExt.Option<U>.Some(map(t)),
-            None: () => LanguageExt.Option<U>.None
+    public static Option<U> Select<T, U>(this Option<T> self, Func<T, U> map) =>
+        match(self,
+            Some: t => Option<U>.Some(map(t)),
+            None: () => Option<U>.None
             );
 
-    public static LanguageExt.Option<V> SelectMany<T, U, V>(this LanguageExt.Option<T> self,
-        Func<T, LanguageExt.Option<U>> bind,
+    public static Option<V> SelectMany<T, U, V>(this Option<T> self,
+        Func<T, Option<U>> bind,
         Func<T, U, V> project
         ) =>
-        LanguageExt.match(self,
+        match(self,
             Some: t =>
-                LanguageExt.match(bind(t),
-                    Some: u => LanguageExt.Option<V>.Some(project(t, u)),
-                    None: () => LanguageExt.Option<V>.None
+                match(bind(t),
+                    Some: u => Option<V>.Some(project(t, u)),
+                    None: () => Option<V>.None
                 ),
             None: () => LanguageExt.Option<V>.None
             );

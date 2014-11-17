@@ -1,7 +1,8 @@
 ﻿using System.Linq;
-using System.Collections.Generic;
 using NUnit.Framework;
 using LanguageExt;
+using LanguageExt.Prelude;
+using LanguageExt.List;
 
 namespace LanguageExtTests
 {

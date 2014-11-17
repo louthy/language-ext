@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+using LanguageExt;
+using LanguageExt.Prelude;
 
-public static partial class LanguageExt
+namespace LanguageExt
 {
     public struct Either<R, L>
     {
@@ -26,7 +24,7 @@ public static partial class LanguageExt
             this.left = left;
         }
 
-        public static Either<R, L> Right(R value) => new Either<R,L>(value);
+        public static Either<R, L> Right(R value) => new Either<R, L>(value);
         public static Either<R, L> Left(L value) => new Either<R, L>(value);
 
         public bool IsRight { get; }
@@ -62,8 +60,8 @@ public static partial class LanguageExt
             }
         }
 
-        public static implicit operator Either<R,L>(R value) => Either<R, L>.Right(value);
-        public static implicit operator Either<R,L>(L value) => Either<R, L>.Left(value);
+        public static implicit operator Either<R, L>(R value) => Either<R, L>.Right(value);
+        public static implicit operator Either<R, L>(L value) => Either<R, L>.Left(value);
 
         public Ret Match<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
             IsRight
@@ -120,29 +118,28 @@ public static partial class LanguageExt
     }
 }
 
-
 public static class __EitherExt
 {
-    public static LanguageExt.Either<UR,L> Select<TR, UR, L>(this LanguageExt.Either<TR, L> self, Func<TR, UR> map) =>
-        LanguageExt.match(self,
-            Right: t => LanguageExt.Either<UR, L>.Right(map(t)),
-            Left: l => LanguageExt.Either<UR, L>.Left(l)
+    public static Either<UR, L> Select<TR, UR, L>(this Either<TR, L> self, Func<TR, UR> map) =>
+        match(self,
+            Right: t => Either<UR, L>.Right(map(t)),
+            Left: l => Either<UR, L>.Left(l)
             );
 
-    public static LanguageExt.Either<VR,L> SelectMany<TR, UR, VR, L>(this LanguageExt.Either<TR, L> self,
-        Func<TR, LanguageExt.Either<UR, L>> bind,
+    public static Either<VR, L> SelectMany<TR, UR, VR, L>(this Either<TR, L> self,
+        Func<TR, Either<UR, L>> bind,
         Func<TR, UR, VR> project
         ) =>
-        LanguageExt.match(self,
+        match(self,
             Right: t =>
-                LanguageExt.match(bind(t),
-                    Right: u => LanguageExt.Either<VR,L>.Right(project(t, u)),
-                    Left: l => LanguageExt.Either<VR, L>.Left(l)
+                match(bind(t),
+                    Right: u => Either<VR, L>.Right(project(t, u)),
+                    Left: l => Either<VR, L>.Left(l)
                 ),
-            Left: l => LanguageExt.Either<VR, L>.Left(l)
+            Left: l => Either<VR, L>.Left(l)
             );
 
-    public static IEnumerable<R> AsEnumerable<R,L>(this LanguageExt.Either<R, L> self)
+    public static IEnumerable<R> AsEnumerable<R, L>(this Either<R, L> self)
     {
         if (self.IsRight)
         {
@@ -153,7 +150,7 @@ public static class __EitherExt
         }
     }
 
-    public static IEnumerable<R> AsEnumerableOne<R,L>(this LanguageExt.Either<R,L> self)
+    public static IEnumerable<R> AsEnumerableOne<R, L>(this Either<R, L> self)
     {
         if (self.IsRight)
         {
