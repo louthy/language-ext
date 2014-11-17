@@ -1,13 +1,19 @@
 C# Functional Language Extensions
 =================================
 
-Using and abusing the features of C# 6 to provide lots of helper methods and types, which, if you squint, can look like extensions to the language itself.
+Using and abusing the features of C# 6 to provide lots of helper functions and types, which, if you squint, can look like extensions to the language itself.
 
 ## Introduction
 
 One of the great new features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static methods without qualifying them first.  This instantly gives us access to single term method names which look exactly like functions in functional languages.  I created this library to bring some of the functional world into C#.  It won't always sit well with the OO programmer, but I guess you can pick'n'choose what to work with.  There's still plenty here that will help day-to-day.
 
-To use this library, simply include LanguageExt.Core.dll in your project.  And then stick `using LanguageExt;` at the top of each cs file that needs it.
+To use this library, simply include LanguageExt.Core.dll in your project.  And then stick this at the top of each cs file that needs it:
+```C#
+using LanguageExt;
+using LanguageExt.Prelude;
+```
+
+`LanguageExt` contains the types, and `LanguageExt.Prelude` contains the helper functions.  There is also `LanguageExt.List`, more on that later.
 
 What C# issues are we trying to fix?  Well, we can only paper over the cracks, but here's a glossary:
 
@@ -15,7 +21,8 @@ What C# issues are we trying to fix?  Well, we can only paper over the cracks, b
 * Null reference problem
 * Lack of lambda and expression inference 
 * Void isn't a real type
-* List processing
+* List generators and processing
+* The awful 'out' parameter
 
 ## Poor tuple support
 I've been crying out for proper tuple support for ages.  It looks like we're no closer with C# 6.  The standard way of creating them is ugly `Tuple.Create(foo,bar)` compared to functional languages where the syntax is often `(foo,bar)` and to consume them you must work with the standard properties of `Item1`...`ItemN`.  No more...
@@ -173,7 +180,7 @@ Functional languages have a concept of a type that has one possible value, itsel
 
 `Unit` is the type and `unit` is the value.  It is used throughout the `LanguageExt` library instead of `void` so that it can be used with `Option` or `Either`.  
 
-## List processing
+## List generators and processing
 
 Support for `cons`, which is the functional way of constructing lists:
 ```C#
@@ -208,6 +215,8 @@ So now there's an additional `list(...)` function which takes any number of para
 
 This is much closer to the 'functional way'.
 
+(from this point on all functions require `using LanguageExt.List`)
+
 Also `range`:
 
 ```C#
@@ -215,7 +224,7 @@ Also `range`:
     var list = range(1000,2000);
 ```
 
-Some of the standard list functions are available.  These are obviously duplicates of what's in LINQ:
+Some of the standard list functions are available.  These are obviously duplicates of what's in LINQ, therefore they've been put into their own namespace:
 
 ```C#
     // Generates 10,20,30,40,50
