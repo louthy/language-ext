@@ -146,7 +146,7 @@ public static partial class LanguageExt
     public static IEnumerable<T> filter<T>(this IEnumerable<T> list, Func<T,bool> predicate) =>
         list.Where(predicate);
 
-    public static S foldl<S, T>(this IEnumerable<T> list, S state, Func<T, S, S> folder)
+    public static S fold<S, T>(this IEnumerable<T> list, S state, Func<T, S, S> folder)
     {
         foreach (var item in list)
         {
