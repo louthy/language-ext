@@ -71,7 +71,7 @@ To access the value you must check that it's valid first:
 ```C#
     optional.Match( 
         Some: v  => Assert.IsTrue(v == 123),
-        None: () => Assert.Fail("Shouldn't get here")
+        None: () => failwith("Shouldn't get here")
         );
 ```
 An alternative (functional) way of matching is this:
@@ -79,7 +79,7 @@ An alternative (functional) way of matching is this:
 ```C#
     match( optional, 
         Some: v  => Assert.IsTrue(v == 123),
-        None: () => Assert.Fail("Shouldn't get here") 
+        None: () => failwith("Shouldn't get here") 
         );
 ```
 
@@ -121,7 +121,39 @@ That will compile.  However the `Option<T>` will notice what you're up to and gi
 
 So `null` mostly goes away if you use `Option<T>`.
 
-For those of you who know what a monad is, then the `Option<T>` type implements `Select` and `SelectMany` and is therefore a monad and can be use in LINQ expressions:
+Sometimes you just want to execute some specific behaviour when `None` is returned so that you can provide a decent default value, or raise an exception.  That is what the `failure` method is for:
+
+```C#
+        Option<int> optional = None;
+        
+        // Defaults to 999 if optional is None
+        var value = optional.Failure(999);
+```
+
+You can also use a function to handle the failure:
+
+```C#
+        Option<int> optional = None;
+        
+        var backupInteger = fun( () => 999 );
+        
+        var value = optional.Failure(backupInteger);
+```
+
+There are also functional variants of `failure`:
+
+```C#
+        Option<int> optional = None;
+        
+        var backupInteger = fun( () => 999 );
+        
+        var value1 = failure(optional, 999);
+        var value2 = failure(optional, backupInteger);
+```
+
+Essentially you can think of `Failure` as `Match` where the `Some` branch always returns the wrapped value as-is.  Therefore there's no need for a `Some` function handler.
+
+If you know what a monad is, then the `Option<T>` type implements `Select` and `SelectMany` and is monadic.  Therefore it can be use in LINQ expressions:
 
 ```C#
     var two = Some(2);
@@ -135,7 +167,7 @@ For those of you who know what a monad is, then the `Option<T>` type implements 
      select x + y + z)
     .Match(
         Some: v => Assert.IsTrue(v == 12),
-        None: () => Assert.Fail("Shouldn't get here")
+        None: () => failwith("Shouldn't get here")
     );
 
     // This expression bails out once it gets to the None, and therefore doesn't calculate x+y+z
@@ -145,7 +177,7 @@ For those of you who know what a monad is, then the `Option<T>` type implements 
      from z in six
      select x + y + z)
     .Match(
-        Some: v => Assert.Fail("Shouldn't get here"),
+        Some: v => failwith("Shouldn't get here"),
         None: () => Assert.IsTrue(true)
     );
 ```
