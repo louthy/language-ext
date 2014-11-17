@@ -172,7 +172,7 @@ Functional languages have a concept of a type that has one possible value, itsel
 
 Support for `cons`, which is the functional way of constructing lists:
 ```C#
-    var test = cons(1, cons(2, cons(3, cons(4, list(5)))));
+    var test = cons(1, cons(2, cons(3, cons(4, cons(5, empty<int>())))));
 
     var array = test.ToArray();
 
@@ -183,20 +183,32 @@ Support for `cons`, which is the functional way of constructing lists:
     Assert.IsTrue(array[4] == 5);
 ```
 
-There's an additional `list(...)` function which takes any number of parameters and turns them into a list:
+Functional languages usually have additional list constructor syntax which makes the `cons` approach easier.  It usually looks something like this:
+
+```F#
+    let list = [1;2;3;4;5]
+```
+
+In C# it looks like this (or worse):
+
+```C#
+    var list = new int[] { 1, 2, 3, 4, 5 };
+```
+So now there's an additional `list(...)` function which takes any number of parameters and turns them into a list:
 
 ```C#
     // Creates a list of five items
      var test = list(1, 2, 3, 4, 5);
 ```
 
-Also `range`
+This is much closer to the 'functional way'.
+
+Also `range`:
 
 ```C#
     // Creates a list of 1001 integers lazily.
     var list = range(1000,2000);
 ```
-Usually one would cons with an empty list.  But adding a function called empty seemed overkill, and would probably not do too well with C#'s type inference system, so create the first item with `list(<your first item>)`.
 
 Some of the standard list functions are available.  These are obviously duplicates of what's in LINQ:
 
