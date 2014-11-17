@@ -91,6 +91,17 @@ namespace LanguageExtTests
             );
         }
 
+        [Test] public void NullIsNoneTest()
+        {
+            Assert.IsTrue(GetStringNone().IsNone);
+        }
+
+        private Option<string> GetStringNone()
+        {
+            string nullStr = null;
+            return Some(nullStr);
+        }
+
         private Option<int> GetValue(bool select) =>
             select
                 ? Some(1000)
