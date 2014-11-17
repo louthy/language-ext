@@ -204,7 +204,7 @@ namespace LanguageExt
                 };
         }
 
-        public static Func<T,T> id<T>() => (T id) => id;
+        public static Func<T,T> identity<T>() => (T id) => id;
 
         public static void failwith(string message)
         {

@@ -67,15 +67,9 @@ namespace LanguageExt
             return Unit.Default;
         }
 
-        public T Failure(Func<T> None) =>
-            IsSome
-                ? Value
-                : None();
+        public T Failure(Func<T> None) => Match(identity<T>(), None);
 
-        public T Failure(T noneValue) =>
-            IsSome
-                ? Value
-                : noneValue;
+        public T Failure(T noneValue) => Match(identity<T>(), () => noneValue);
     }
 
     [Serializable]

@@ -81,15 +81,9 @@ namespace LanguageExt
             return unit;
         }
 
-        public R Failure(Func<R> None) =>
-            IsRight
-                ? RightValue
-                : None();
+        public R Failure(Func<R> None) => Match(identity<R>(), _ => None());
 
-        public R Failure(R noneValue) =>
-            IsRight
-                ? RightValue
-                : noneValue;
+        public R Failure(R noneValue) => Match(identity<R>(), _ => noneValue);
     }
 
 
