@@ -5,7 +5,7 @@ Using and abusing the features of C# 6 to provide lots of helper methods and typ
 
 ## Introduction
 
-One of the great new features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static methods without qualifying them first.  This instantly gives us access to single term method names which look exactly like functions in functional languages.  I'm very much focussed on the functional paradigm at the moment, but I also have plenty of legacy C# to contend with.  So I created this library to bring some of the functional world into C#.
+One of the great new features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static methods without qualifying them first.  This instantly gives us access to single term method names which look exactly like functions in functional languages.  I created this library to bring some of the functional world into C#.  It won't always sit well with the OO programmer, but I guess you can pick'n'choose what to work with.  There's still plenty here that will help day-to-day.
 
 To use this library, simply include LanguageExt.Core.dll in your project.  And then stick `using LanguageExt;` at the top of each cs file that needs it.
 
@@ -18,7 +18,7 @@ What C# issues are we trying to fix?  Well, we can only paper over the cracks, b
 * List processing
 
 ## Poor tuple support
-I've been crying out for proper tuple support for ages.  It looks like we're no closer with C# 6.  The standard way of creating them is ugly `Tuple.Create(foo,bar)` compared to functional languages where the syntax is often `(foo,bar)` and to consume them you must work with the standard properties of `Item1`..`ItemN`.  No more...
+I've been crying out for proper tuple support for ages.  It looks like we're no closer with C# 6.  The standard way of creating them is ugly `Tuple.Create(foo,bar)` compared to functional languages where the syntax is often `(foo,bar)` and to consume them you must work with the standard properties of `Item1`...`ItemN`.  No more...
 
 ```C#
     var ab = tuple("a","b");
@@ -26,11 +26,16 @@ I've been crying out for proper tuple support for ages.  It looks like we're no 
 
 I chose the lower-case `tuple` to avoid conflicts between other types and existing code.  I think also tuples should be considered fundamental like `int`, and therefore deserves a lower-case name.  I do this with a number of other functions, I realise this might be painful for you stalwart OO guys, but I think this is a better approach.  Happy to discuss it however :)
 
-So consuming the tuple is now handled using `With`, which projects the `Item1`..`ItemN` onto a lambda function (or action):
+So consuming the tuple is now handled using `With`, which projects the `Item1`...`ItemN` onto a lambda function (or action):
 
 ```C#
     var name = tuple("Paul","Louth");
     var res = name.With( (first,last) => "Hello "+first+" "+last );
+```
+Or, you can use a more functional approach:
+```C#
+    var name = tuple("Paul","Louth");
+    var res = with( name, (first,last) => "Hello "+first+" "+last );
 ```
 This allows the tuple properties to have names, and it also allows for fluent handling of functions that return tuples.
 
