@@ -1,7 +1,7 @@
 C# Language Extensions
 ======================
 
-Using and abusing the features of C# 6 to provide lots of helper methods and types
+Using and abusing the features of C# 6 to provide lots of helper methods and types, which, if you squint, can look like extensions to the language itself.
 
 ## Introduction
 
