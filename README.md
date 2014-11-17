@@ -87,6 +87,18 @@ To smooth out the process of returning Option<T> types from methods there are so
             : None;
 ```
 
+It's actually nearly impossible to get a `null` out of a function, even if thr `T` in `Option<T>` is a reference type and you write `Some(null)`.  Firstly it won't compile, but you might think you can do this:
+
+```C#
+        private Option<string> GetStringNone()
+        {
+            string nullStr = null;
+            return Some(nullStr);
+        }
+```
+
+That will compile.  However the `Option<T>` will notice what you're up to and give you a `None` anyway.  This is pretty important to remember.  
+
 For those of you who know what a monad is, then the `Option<T>` type implements `Select` and `SelectMany` and so can be use in LINQ expressions:
 
 ```C#
@@ -117,6 +129,20 @@ For those of you who know what a monad is, then the `Option<T>` type implements 
 ```
 
 ## Lack of lambda and expression inference 
+
+One really annoying think about the `var` type inference in C# is that it can't handle inline lamdas.  For example this won't compile, even though it's obvious it's a `Func<int>`.
+```C#
+    var fn = () => 123;
+```
+There are some good reasons for this, so best not to bitch too much.  Instead use the `fun` function from this library:
+```C#
+    var fn = fun( () => 123 );
+```
+This will work for `Func<..>` and `Action<..>` types of up to seven generic arguments.  To do the same for `Expression<..>`, use the `expr` function:
+
+```C#
+    var e = expr( () => 123 );
+```
 
 ## Void isn't a real type
 
