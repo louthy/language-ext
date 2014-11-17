@@ -324,21 +324,24 @@ This is a common theme throughout the .NET framework.  For example on `IDictiona
 So to solve it we now have methods that instead of returning `bool`, return `Option<T>`.  If the operation fails it returns `None`.  If it succeeds it returns `Some(the value)` which can then be matched.  Here's some usage examples:
 
 ```C#
-    int value1 = parseInt("123").Failure(() => 0);
+    
+    // Attempts to parse the value, uses 0 if it can't
+    int value1 = parseInt("123").Failure(0);
 
-    int value2 = failure(parseInt("123"), () => 0);
+    // Attempts to parse the value, uses 0 if it can't
+    int value2 = failure(parseInt("123"), 0);
 
-    int value3 = parseInt("123").Failure(0);
-
-    int value4 = failure(parseInt("123"), 0);
-
+    // Attempts to parse the value, dispatches it to the UseTheInteger
+    // function if successful.  Throws an exception if not.
     parseInt("123").Match(
-        Some: v  => UseTheInteger(v),
+        Some: UseTheInteger,
         None: () => failwith("Not an integer")
         );
 
+    // Attempts to parse the value, dispatches it to the UseTheInteger
+    // function if successful.  Throws an exception if not.
     match( parseInt("123"),
-        Some: v => UseTheInteger(v),
+        Some: UseTheInteger,
         None: () => failwith("Not an integer")
         );
 ```
