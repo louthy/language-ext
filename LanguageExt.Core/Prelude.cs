@@ -206,19 +206,28 @@ namespace LanguageExt
 
         public static Func<T,T> identity<T>() => (T id) => id;
 
-        public static void failwith(string message)
+        public static Action failaction(string message)
         {
-            throw new Exception(message);
+            return () =>
+            {
+                throw new Exception(message);
+            };
         }
 
-        public static T failwith<T>(string message)
+        public static Func<T> failwith<T>(string message)
         {
-            throw new Exception(message);
+            return () =>
+            {
+                throw new Exception(message);
+            };
         }
 
-        public static T raise<T>(Exception ex)
+        public static Func<T> raise<T>(Exception ex)
         {
-            throw ex;
+            return () =>
+            {
+                throw ex;
+            };
         }
     }
 }
