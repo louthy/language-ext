@@ -10,7 +10,7 @@ namespace LanguageExtTests
 
         [Test] public void ConsTest1()
         {
-            var test = cons(1, cons(2, cons(3, cons(4, list(5)))));
+            var test = cons(1, cons(2, cons(3, cons(4, cons(5, empty<int>())))));
 
             var array = test.ToArray();
 

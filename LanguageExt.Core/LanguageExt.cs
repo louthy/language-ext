@@ -127,7 +127,7 @@ public static partial class LanguageExt
         }
     }
 
-    public static IEnumerable<T> list<T>() => new T[0];
+    public static IEnumerable<T> empty<T>() => new T[0];
 
     public static IEnumerable<T> list<T>(params T[] items) => items;
 
