@@ -178,7 +178,7 @@ Functional languages have a concept of a type that has one possible value, itsel
     }
 ```
 
-`Unit` is the type and `unit` is the value.  It is used throughout the `LanguageExt` library instead of `void` so that it can be used with `Option` or `Either`.  
+`Unit` is the type and `unit` is the value.  It is used throughout the `LanguageExt` library instead of `void`.  The primary reason is that if you want to program functionally then all functions should return a value and `void` isn't a first-class value.  This can help a lot with LINQ expressions for example.
 
 ## List generators and processing
 
