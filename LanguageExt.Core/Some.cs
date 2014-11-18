@@ -16,6 +16,8 @@ namespace LanguageExt
             Value = value;
         }
 
+
+        public static implicit operator Option<T>(Some<T> value) => Option<T>.Some(value.Value);
         public static implicit operator Some<T>(T value) => new Some<T>(value);
         public static implicit operator T(Some<T> value) => value.Value;
 

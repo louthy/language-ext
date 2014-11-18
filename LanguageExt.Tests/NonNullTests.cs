@@ -49,6 +49,16 @@ namespace LanguageExtTests
                 });
         }
 
+        [Test]
+        public void SomeCastsToOptionTest()
+        {
+            Some<string> some = "Hello";
+            Option<string> opt = some;
+
+            Assert.IsTrue(opt.IsSome && opt.Failure("") == "Hello");
+        }
+
+
         private Option<string> GetValue(bool select) =>
             select
                 ? Some("Hello")
