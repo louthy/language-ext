@@ -233,8 +233,10 @@ There is also an implicit cast from `Option<T>` to `Some<T>`.  This doesn't real
     Greet(GetValue(true));
 
     // This will throw a ValueIsNoneException
-    Greet(GetValue(true));
+    Greet(GetValue(false));
 ```
+
+I wouldn't necessarily advise doing this.  It's much better to use `match` and be forced to implement code for both possible outcomes of an `Option<T>`.  But under certain circumstances this may be more convenient.
 
 ## Lack of lambda and expression inference 
 
