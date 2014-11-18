@@ -81,15 +81,24 @@ An alternative (functional) way of matching is this:
         None: () => failwith<int>("Shouldn't get here") 
         );
 ```
+Yet another alternative matching method is this:
+An alternative (functional) way of matching is this:
+
+```C#
+    optional
+        .Some( v  => Assert.IsTrue(v == 123) )
+        .None( () => failwith<int>("Shouldn't get here") );
+```
+So choose you're preferred method and stick with it.  It's probably best not to mix styles.
 
 To smooth out the process of returning Option<T> types from methods there are some implicit conversion operators:
 
 ```C#
     // Automatically converts the integer to a Some of int
-    Option<int> ImplicitSomeConversion() => 1000;
+    Option<int> GetValue() => 1000;
 
     // Automatically converts to a None of int
-    Option<int> ImplicitNoneConversion() => None;
+    Option<int> GetValue() => None;
     
     // Will handle either a None or a Some returned
     Option<int> GetValue(bool select) =>
@@ -116,6 +125,15 @@ That will compile.  However the `Option<T>` will notice what you're up to and gi
         string nullStr = null;
         return nullStr;
     }
+```
+
+As well as the protection of the internal value of `Option<T>`, there's protection for the return value of the `Some` and `None` handler functions.  You can't return `null` from those either, an exception will be thrown.
+
+```C#
+    // This will throw a ResultIsNullException exception
+    GetValue(true)
+      .Some(x => (string)null)
+      .None((string)null);
 ```
 
 So `null` goes away if you use `Option<T>`.
@@ -179,6 +197,45 @@ If you know what a monad is, then the `Option<T>` type implements `Select` and `
         Some: v => failwith<int>("Shouldn't get here"),
         None: () => Assert.IsTrue(true)
     );
+```
+## if( arg == null ) throw new ArgumentIsNullException("arg")
+Another horrible side-effect of `null` is having to bullet-proof every function that take reference arguments.  This is truly tedious.  Instead use this:
+```C#
+    public void Foo( Some<string> arg )
+    {
+        string value = arg;
+    }
+```
+By wrapping `string` as `Some<string>` we get free runtime `null` checking. Essentially it's impossible for `null` to propagate through a system if you wrap the type.  As you can see the `arg` variable casts automatically to its inner-type, or you can get the inner-value like so:
+```C#
+    public void Foo( Some<string> arg )
+    {
+        string value = arg.Value;
+    }
+```
+If you're wondering how it works, well `Some<T>` is a `struct`, and has implicit conversation operators that convert a type of `T` to a type of `Some<T>`.  The constructor of `Some<T>` ensures that the value of `T` has a non-null value.
+
+There is also an implicit cast from `Option<T>` to `Some<T>`.  This doesn't really help keep your code more robust, because, just like passing `null` around, it will blow up if the `Option<T>` is `None`.  However, it will blow-up at the earliest possible point, which should at least make tracking issues easier. 
+
+```C#
+    // Returns a Some("Hello") or a None
+    private Option<string> GetValue(bool select) =>
+        select
+            ? Some("Hello")
+            : None;
+
+    public void Greet( Some<string> value )
+    {
+        Console.WriteLine(value);
+    }
+    
+    ...
+    
+    // This will succeed
+    Greet(GetValue(true));
+
+    // This will throw a ValueIsNoneException
+    Greet(GetValue(true));
 ```
 
 ## Lack of lambda and expression inference 
