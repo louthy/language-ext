@@ -443,7 +443,7 @@ I haven't had time to document everything, so here's a quick list of what was mi
 
 Type or function | Description
 -----------------|------------
-`Either<Right,Left>` | Like `Option<T>`, however the `None` in `Option<T>` is called `Left` in `Either`, and `Some` is called.  Just remember: `Right` is right, `Left` is wrong.  Both `Right` and `Left` can hold values.  And they can be different types.  See the OptionEitherConfigSample for a demo.  Supports all the same functionality as `Option<T>`.
+`Either<Right,Left>` | Like `Option<T>`, however the `None` in `Option<T>` is called `Left` in `Either`, and `Some` is called `Right`.  Just remember: `Right` is right, `Left` is wrong.  Both `Right` and `Left` can hold values.  And they can be different types.  See the OptionEitherConfigSample for a demo.  Supports all the same functionality as `Option<T>`.
 `memo` | Caches a function's result the first time it's called
 `ignore` | Takes one argument which it ignores and returns `unit` instead.
 `Nullable<T>.ToOption()` | Converts a `Nullable<T>` to an `Option<T>`
