@@ -387,8 +387,10 @@ This has to be one of the most awful patterns in C#:
     }
 ```
 There's all kinds of wrong there.  Essentially the function needs to return two pieces of information:
+
 * Whether the parse was a success or not
 * The successfully parsed value
+
 This is a common theme throughout the .NET framework.  For example on `IDictionary.TryGetValue`
 
 ```C#
