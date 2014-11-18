@@ -70,7 +70,7 @@ To access the value you must check that it's valid first:
 ```C#
     optional.Match( 
         Some: v  => Assert.IsTrue(v == 123),
-        None: failaction("Shouldn't get here")
+        None: () => failwith<int>("Shouldn't get here")
         );
 ```
 An alternative (functional) way of matching is this:
@@ -78,7 +78,7 @@ An alternative (functional) way of matching is this:
 ```C#
     match( optional, 
         Some: v  => Assert.IsTrue(v == 123),
-        None: failaction("Shouldn't get here") 
+        None: () => failwith<int>("Shouldn't get here") 
         );
 ```
 
@@ -166,7 +166,7 @@ If you know what a monad is, then the `Option<T>` type implements `Select` and `
      select x + y + z)
     .Match(
         Some: v => Assert.IsTrue(v == 12),
-        None: () => failwith("Shouldn't get here")
+        None: () => failwith<int>("Shouldn't get here")
     );
 
     // This expression bails out once it gets to the None, and therefore doesn't calculate x+y+z
@@ -176,7 +176,7 @@ If you know what a monad is, then the `Option<T>` type implements `Select` and `
      from z in six
      select x + y + z)
     .Match(
-        Some: v => failwith("Shouldn't get here"),
+        Some: v => failwith<int>("Shouldn't get here"),
         None: () => Assert.IsTrue(true)
     );
 ```
@@ -419,14 +419,14 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
     // function if successful.  Throws an exception if not.
     parseInt("123").Match(
         Some: UseTheInteger,
-        None: failwith<int>("Not an integer")
+        None: () => failwith<int>("Not an integer")
         );
 
     // Attempts to parse the value, dispatches it to the UseTheInteger
     // function if successful.  Throws an exception if not.
     match( parseInt("123"),
         Some: UseTheInteger,
-        None: failwith<int>("Not an integer")
+        None: () => failwith<int>("Not an integer")
         );
 ```
 
