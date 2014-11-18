@@ -218,7 +218,7 @@ Functional languages have a concept of a type that has one possible value, itsel
 
 ## Mutable lists and dictionaries
 
-So there's a great library on NuGet called Immutable Collections.  Which extends the `System.Collections` namespace.  It brings performant immutable lists, dictionaries, etc. to C#.  However, this:
+With the new 'get only' property syntax with C# 6 it's now much easier to create immutable types.  Which everyone should do.  However there's still going to be a bias towards mutable collections.  There's a great library on NuGet called Immutable Collections.  Which sits in the `System.Collections.Immutable` namespace.  It brings performant immutable lists, dictionaries, etc. to C#.  However, this:
 
 ```C#
     var list = ImmutableList.Create<string>();
@@ -229,7 +229,7 @@ Compared to this:
 ```
 Is annoying.  There's clearly going to be a bias toward the shorter, easier to type, better known method of creating lists.  In functional languages collections are often baked in (because they're so fundamental), with lightweight and simple syntax for generating and modifying them.  So let's have some of that...
 
-Support for `cons`, which is the functional way of constructing lists:
+There's support for `cons`, which is the functional way of constructing lists:
 ```C#
     var test = cons(1, cons(2, cons(3, cons(4, cons(5, empty<int>())))));
 
@@ -328,7 +328,7 @@ Instead you can use:
 ```C#
     var dict = map<string,int>();
 ```
-Also you can pass in a list of tuples or key-value pairs, which will create a `ImmutableDictionary.Builder` before generating the immutable dictionery itself:
+Also you can pass in a list of tuples or key-value pairs, which will create a `ImmutableDictionary.Builder` before generating the immutable dictionary itself:
 ```C#
     var m = map<int, string>(
                tuple(1, "a"),
@@ -345,8 +345,8 @@ This allows for branching based on whether the item is in the map or not:
 ```C#
     // Find the item, do some processing on it and return.
     var res = match( find(m, 100),
-                        v => "Hello" + v,
-                        () => "failed"
+                        Some: v  => "Hello" + v,
+                        None: () => "failed"
                    );
                    
     // Find the item and return it.  If it's not there, return "failed"
@@ -361,7 +361,7 @@ To set an item call:
     var m2 = set(m, 1, "x");
 ```
 
-`map` functions:
+`map` functions (`using LanguageExt.Map`):
 * `add`
 * `set`
 * `remove`
@@ -372,7 +372,7 @@ To set an item call:
 * `filter`
 * more coming...
 
-## The awful 'out' parameter
+## The awful `out` parameter
 This has to be one of the most awful patterns in C#:
 
 ```C#
