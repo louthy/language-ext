@@ -53,12 +53,37 @@ namespace LanguageExtTests
             Assert.IsTrue(output3 == 120);
         }
 
+        [Test] public void ReduceTest()
+        {
+            // Generates 10,20,30,40,50
+            var input = list(1, 2, 3, 4, 5);
+            var output1 = map(input, x => x * 10);
+
+            // Generates 30,40,50
+            var output2 = filter(output1, x => x > 20);
+
+            // Generates 120
+            var output3 = reduce(output2, (x, s) => s + x);
+
+            Assert.IsTrue(output3 == 120);
+        }
+
         [Test] public void MapTestFluent()
         {
             var res = list(1, 2, 3, 4, 5)
                         .map(x => x * 10)
                         .filter(x => x > 20)
                         .fold(0, (x, s) => s + x);
+
+            Assert.IsTrue(res == 120);
+        }
+
+        [Test] public void ReduceTestFluent()
+        {
+            var res = list(1, 2, 3, 4, 5)
+                        .map(x => x * 10)
+                        .filter(x => x > 20)
+                        .reduce((x, s) => s + x);
 
             Assert.IsTrue(res == 120);
         }

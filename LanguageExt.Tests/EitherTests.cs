@@ -35,7 +35,7 @@ namespace LanguageExtTests
 
         [Test] public void LeftGeneratorTestsObject()
         {
-            var either = ItsLeft();
+            var either = ItsLeft;
 
             either.Match( Right: r => Assert.Fail("Shouldn't get here"),
                           Left:  l => Assert.IsTrue(l == "Left") );
@@ -48,7 +48,7 @@ namespace LanguageExtTests
 
         [Test] public void LeftGeneratorTestsFunction()
         {
-            var either = ItsLeft();
+            var either = ItsLeft;
 
             match(either, Right: r => Assert.Fail("Shouldn't get here"),
                           Left:  l => Assert.IsTrue(l == "Left") );
@@ -61,9 +61,9 @@ namespace LanguageExtTests
 
         [Test] public void SomeLinqTest()
         {
-           (from x in Two()
-            from y in Four()
-            from z in Six()
+           (from x in Two
+            from y in Four
+            from z in Six
             select x + y + z)
            .Match(
              Right: r => Assert.IsTrue(r == 12),
@@ -73,10 +73,10 @@ namespace LanguageExtTests
 
         [Test] public void LeftLinqTest()
         {
-            (from x in Two()
-             from y in Four()
-             from _ in ItsLeft()
-             from z in Six()
+            (from x in Two
+             from y in Four
+             from _ in ItsLeft
+             from z in Six
              select x + y + z)
             .Match(
               r => Assert.Fail("Shouldn't get here"),
@@ -84,17 +84,23 @@ namespace LanguageExtTests
             );
         }
 
-        private Either<int, string> GetValue(bool select) =>
-            select
-                ? Right<int, string>(1000)
-                : Left<int, string>("Left");
+        private Either<int, string> GetValue(bool select)
+        {
+            if (select)
+            {
+                return 1000;
+            }
+            else
+            {
+                return "Left";
+            }
+        }
 
         private Either<int, string> ImplicitConversion() => 1000;
 
-        private Either<int, string> ItsLeft() => "Left";
-
-        private Either<int, string> Two() => 2;
-        private Either<int, string> Four() => 4;
-        private Either<int, string> Six() => 6;
+        private Either<int, string> ItsLeft => "Left";
+        private Either<int, string> Two => 2;
+        private Either<int, string> Four => 4;
+        private Either<int, string> Six => 6;
     }
 }
