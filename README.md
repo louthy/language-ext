@@ -118,7 +118,7 @@ That will compile.  However the `Option<T>` will notice what you're up to and gi
     }
 ```
 
-So `null` mostly goes away if you use `Option<T>`.
+So `null` goes away if you use `Option<T>`.
 
 Sometimes you just want to execute some specific behaviour when `None` is returned so that you can provide a decent default value, or raise an exception.  That is what the `failure` method is for:
 
@@ -185,16 +185,22 @@ If you know what a monad is, then the `Option<T>` type implements `Select` and `
 
 One really annoying thing about the `var` type inference in C# is that it can't handle inline lambdas.  For example this won't compile, even though it's obvious it's a `Func<int>`.
 ```C#
-    var fn = () => 123;
+    var add = (int x, int y) => x + y;
 ```
 There are some good reasons for this, so best not to bitch too much.  Instead use the `fun` function from this library:
 ```C#
-    var fn = fun( () => 123 );
+    var add = fun( (int x, int y) => x + y );
 ```
-This will work for `Func<..>` and `Action<..>` types of up to seven generic arguments.  To do the same for `Expression<..>`, use the `expr` function:
+This will work for `Func<..>` and `Action<..>` types of up to seven generic arguments.  `Action<..>` will be converted to `Func<..,Unit>`.  To maintain an `Action` use the `act` function instead:
+```C#
+    var log = act( (int x) => Console.WriteLine(x) );
+```
+If you pass a `Func<..>` to `act` then its return value will be dropped.  So `Func<R>` becomes `Action`, and `Func<T,R>` will become `Action<T>`.
+
+To do the same for `Expression<..>`, use the `expr` function:
 
 ```C#
-    var e = expr( () => 123 );
+    var add = expr( (int x, int y) => x + y );
 ```
 
 Note, if you're creating a `Func` or `Action` that take parameters, you must provide the type:
@@ -241,6 +247,8 @@ There's support for `cons`, which is the functional way of constructing lists:
     Assert.IsTrue(array[3] == 4);
     Assert.IsTrue(array[4] == 5);
 ```
+
+Note, this isn't the strict definition of `cons`, but it's a pragmatic implementation that returns an `IEnumerable<T>`, is lazy, and behaves the same.
 
 Functional languages usually have additional list constructor syntax which makes the `cons` approach easier.  It usually looks something like this:
 
@@ -437,9 +445,7 @@ I haven't had time to document everything, so here's a quick list of what was mi
 
 `memo` - Caches a function's result the first time it's called
 
-`ignore` - Executes a function and ignores its result (returns `unit` instead)
-
-`Do` - Executes an action and returns `unit`
+`ignore` - Takes one argument which it ignores and returns `unit` instead.
 
 `Nullable<T>.ToOption()` - Converts a `Nullable<T>` to an `Option<T>`
 
