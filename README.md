@@ -82,8 +82,6 @@ An alternative (functional) way of matching is this:
         );
 ```
 Yet another alternative matching method is this:
-An alternative (functional) way of matching is this:
-
 ```C#
     optional
         .Some( v  => Assert.IsTrue(v == 123) )
