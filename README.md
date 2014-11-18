@@ -5,7 +5,7 @@ Using and abusing the features of C# 6 to provide lots of helper functions and t
 
 ## Introduction
 
-One of the great new features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static methods without qualifying them first.  This instantly gives us access to single term method names which look exactly like functions in functional languages.  I created this library to bring some of the functional world into C#.  It won't always sit well with the OO programmer, but I guess you can pick'n'choose what to work with.  There's still plenty here that will help day-to-day.
+One of the great new features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static methods without qualifying them first.  This instantly gives us access to single term method names which look exactly like functions in functional languages.  This library brings some of the functional world into C#.  It won't always sit well with the OO programmer, especially the choice of lowercase names for a lot of functions and the seeming 'globalness' of a lot of the library; but I guess you can pick'n'choose what to work with.  There's still plenty here that will help day-to-day.
 
 To use this library, simply include LanguageExt.Core.dll in your project.  And then stick this at the top of each cs file that needs it:
 ```C#
@@ -13,15 +13,15 @@ using LanguageExt;
 using LanguageExt.Prelude;
 ```
 
-`LanguageExt` contains the types, and `LanguageExt.Prelude` contains the helper functions.  There is also `LanguageExt.List`, more on that later.
+`LanguageExt` contains the types, and `LanguageExt.Prelude` contains the helper functions.  There is also `LanguageExt.List` and `LanguageExt.Map`, more on those later.
 
-What C# issues are we trying to fix?  Well, we can only paper over the cracks, but here's a glossary:
+What C# issues are we trying to fix?  Well, we can only paper over the cracks, but here's a summary:
 
 * Poor tuple support
 * Null reference problem
 * Lack of lambda and expression inference 
 * Void isn't a real type
-* List generators and processing
+* Mutable lists and dictionaries
 * The awful 'out' parameter
 
 ## Poor tuple support
@@ -31,9 +31,9 @@ I've been crying out for proper tuple support for ages.  It looks like we're no 
     var ab = tuple("a","b");
 ```
 
-I chose the lower-case `tuple` to avoid conflicts between other types and existing code.  I think also tuples should be considered fundamental like `int`, and therefore deserves a lower-case name.  I do this with a number of other functions, I realise this might be painful for you stalwart OO guys, but I think this is a better approach.  Happy to discuss it however :)
+Now isn't that nice?  I chose the lower-case `tuple` to avoid conflicts between other types and existing code.  I think also tuples should be considered fundamental like `int`, and therefore deserves a lower-case name.  I do this with a number of other functions, I realise this might be painful for you stalwart C# guys, but I think this is a better approach.  Happy to discuss it however :)
 
-So consuming the tuple is now handled using `With`, which projects the `Item1`...`ItemN` onto a lambda function (or action):
+Consuming the tuple is now handled using `With`, which projects the `Item1`...`ItemN` onto a lambda function (or action):
 
 ```C#
     var name = tuple("Paul","Louth");
@@ -49,23 +49,22 @@ This allows the tuple properties to have names, and it also allows for fluent ha
 ## Null reference problem
 `null` must be the biggest mistake in the whole of computer language history.  I realise the original designers of C# had to make pragmatic decisions, it's a shame this one slipped through though.  So, what to do about the 'null problem'?
 
-`null` is often used to indicate 'no value'.  i.e. the method called can't produce a value of the type it said it was going to produce, and therefore it gives you 'no value'.  The thing is that when the 'no value' instruction is passed to the consuming code, it gets assigned to a variable of type T, the same type that the function said it was going to return, except this variable now has a timebomb in it.  You must continually check if the value is null, if it's passed around it must be checked too.  
+`null` is often used to indicate 'no value'.  i.e. the method called can't produce a value of the type it said it was going to produce, and therefore it gives you 'no value'.  The thing is that when 'no value' is passed to the consuming code, it gets assigned to a variable of type T, the same type that the function said it was going to return, except this variable now has a timebomb in it.  You must continually check if the value is `null`, if it's passed around it must be checked too.  
 
-As we all know it's only a matter of time before a null reference bug crops up because the variable wasn't checked.
+As we all know it's only a matter of time before a null reference bug crops up because the variable wasn't checked.  It puts C# in the realm of the dynamic languages, where you can't trust the value you're being given.
 
-Functional languages use what's known as an 'option type'.  In F# it's called `Option` in Haskell it's called `Maybe`...
+Functional languages use what's known as an 'option type'.  In F# it's called `Option` in Haskell it's called `Maybe`.  In the next section we'll see how it's used.
 
-## Optional
+## Option
 It works in a very similar way to `Nullable<T>` except it works with all types rather than just value types.  It's a `struct` and therefore can't be `null`.  An instance can be created by either calling `Some(value)`, which represents a positive 'I have a value' response;  Or `None`, which is the equivalent of returning `null`.
 
-So why is it any better than returning `T` and using `null`?  It seems we can have a non-value response again right?  Yes, that's true, however you're forced to acknowledge that fact, and write code to handle both possible outcomes because you can't get to the underlying value without acknowledging the possibility of the two states that the value could be in.  This bulletproofs your code.  You're also explicitly telling any other programmers that use your method: "This method might not return a value, make sure you deal with that".  This explicit declaration is very powerful.
+So why is it any better than returning `T` and using `null`?  It seems we can have a non-value response again right?  Yes, that's true, however you're forced to acknowledge that fact, and write code to handle both possible outcomes because you can't get to the underlying value without acknowledging the possibility of the two states that the value could be in.  This bulletproofs your code.  You're also explicitly telling any other programmers that: "This method might not return a value, make sure you deal with that".  This explicit declaration is very powerful.
 
 This is how you create an `Option<int>`:
 
 ```C#
 var optional = Some(123);
 ```
-
 To access the value you must check that it's valid first:
 
 ```C#
@@ -102,21 +101,21 @@ To smooth out the process of returning Option<T> types from methods there are so
 It's actually nearly impossible to get a `null` out of a function, even if the `T` in `Option<T>` is a reference type and you write `Some(null)`.  Firstly it won't compile, but you might think you can do this:
 
 ```C#
-        private Option<string> GetStringNone()
-        {
-            string nullStr = null;
-            return Some(nullStr);
-        }
+    private Option<string> GetStringNone()
+    {
+        string nullStr = null;
+        return Some(nullStr);
+    }
 ```
 
 That will compile.  However the `Option<T>` will notice what you're up to and give you a `None` anyway.  This is pretty important to remember.  Even if you do this, you'll get a `None`.  
 
 ```C#
-        private Option<string> GetStringNone()
-        {
-            string nullStr = null;
-            return nullStr;
-        }
+    private Option<string> GetStringNone()
+    {
+        string nullStr = null;
+        return nullStr;
+    }
 ```
 
 So `null` mostly goes away if you use `Option<T>`.
@@ -124,36 +123,36 @@ So `null` mostly goes away if you use `Option<T>`.
 Sometimes you just want to execute some specific behaviour when `None` is returned so that you can provide a decent default value, or raise an exception.  That is what the `failure` method is for:
 
 ```C#
-        Option<int> optional = None;
+    Option<int> optional = None;
         
-        // Defaults to 999 if optional is None
-        int value = optional.Failure(999);
+    // Defaults to 999 if optional is None
+    int value = optional.Failure(999);
 ```
 
 You can also use a function to handle the failure:
 
 ```C#
-        Option<int> optional = None;
+    Option<int> optional = None;
         
-        var backupInteger = fun( () => 999 );
+    var backupInteger = fun( () => 999 );
         
-        int value = optional.Failure(backupInteger);
+    int value = optional.Failure(backupInteger);
 ```
 
 There are also functional variants of `failure`:
 
 ```C#
-        Option<int> optional = None;
+    Option<int> optional = None;
         
-        var backupInteger = fun( () => 999 );
+    var backupInteger = fun( () => 999 );
         
-        int value1 = failure(optional, 999);
-        int value2 = failure(optional, backupInteger);
+    int value1 = failure(optional, 999);
+    int value2 = failure(optional, backupInteger);
 ```
 
-Essentially you can think of `Failure` as `Match` where the `Some` branch always returns the wrapped value as-is.  Therefore there's no need for a `Some` function handler.
+Essentially you can think of `Failure` as `Match` where the `Some` branch always returns the wrapped value 'as is'.  Therefore there's no need for a `Some` function handler.
 
-If you know what a monad is, then the `Option<T>` type implements `Select` and `SelectMany` and is monadic.  Therefore it can be use in LINQ expressions:
+If you know what a monad is, then the `Option<T>` type implements `Select` and `SelectMany` and is monadic.  Therefore it can be use in LINQ expressions.  
 
 ```C#
     var two = Some(2);
@@ -198,12 +197,17 @@ This will work for `Func<..>` and `Action<..>` types of up to seven generic argu
     var e = expr( () => 123 );
 ```
 
-## Void isn't a real type
-
-Functional languages have a concept of a type that has one possible value, itself, called Unit.  As an example `bool` has two values: `true` and `false`.  `Unit` has one value, usually represents in functional languages as `()`.  You can imagine that methods that take no arguments actually take one argument of `()`.  Anyway, we can't use the `()` representation in C#, so `LanguageExt` now provides `unit`.
+Note, if you're creating a `Func` or `Action` that take parameters, you must provide the type:
 
 ```C#
+    var add = fun( (int x, int y) => x + y );
+```
 
+## Void isn't a real type
+
+Functional languages have a concept of a type that has one possible value, itself, called `Unit`.  As an example `bool` has two values: `true` and `false`.  `Unit` has one value, usually represented in functional languages as `()`.  You can imagine that methods that take no arguments, do in fact take one argument of `()`.  Anyway, we can't use the `()` representation in C#, so `LanguageExt` now provides `unit`.
+
+```C#
     public Unit Empty()
     {
         return unit;
@@ -212,7 +216,18 @@ Functional languages have a concept of a type that has one possible value, itsel
 
 `Unit` is the type and `unit` is the value.  It is used throughout the `LanguageExt` library instead of `void`.  The primary reason is that if you want to program functionally then all functions should return a value and `void` isn't a first-class value.  This can help a lot with LINQ expressions for example.
 
-## List generators and processing
+## Mutable lists and dictionaries
+
+So there's a great library on NuGet called Immutable Collections.  Which extends the `System.Collections` namespace.  It brings performant immutable lists, dictionaries, etc. to C#.  However, this:
+
+```C#
+    var list = ImmutableList.Create<string>();
+```
+Compared to this:
+```C#
+    var list = new List<string>();
+```
+Is annoying.  There's clearly going to be a bias toward the shorter, easier to type, better known method of creating lists.  In functional languages collections are often baked in (because they're so fundamental), with lightweight and simple syntax for generating and modifying them.  So let's have some of that...
 
 Support for `cons`, which is the functional way of constructing lists:
 ```C#
@@ -233,21 +248,28 @@ Functional languages usually have additional list constructor syntax which makes
     let list = [1;2;3;4;5]
 ```
 
-In C# it looks like this (or worse):
+In C# it looks like this:
 
 ```C#
     var list = new int[] { 1, 2, 3, 4, 5 };
 ```
-So now there's an additional `list(...)` function which takes any number of parameters and turns them into a list:
+Or worse:
+```C#
+    var list = new List<int>();
+    list.Add(1);
+    list.Add(2);
+    list.Add(3);
+    list.Add(4);
+    list.Add(5);
+```
+So we provide `list(...)` function which takes any number of parameters and turns them into a list:
 
 ```C#
     // Creates a list of five items
      var test = list(1, 2, 3, 4, 5);
 ```
 
-This is much closer to the 'functional way'.
-
-(from this point on all functions require `using LanguageExt.List`)
+This is much closer to the 'functional way'.  It also returns `IImmutableList<T>`.  So it's now easier to use immutable-lists than the mutable ones.  
 
 Also `range`:
 
@@ -256,7 +278,7 @@ Also `range`:
     var list = range(1000,2000);
 ```
 
-Some of the standard list functions are available.  These are obviously duplicates of what's in LINQ, therefore they've been put into their own namespace:
+Some of the standard list functions are available.  These are obviously duplicates of what's in LINQ, therefore they've been put into their own `LanguageExt.List` namespace:
 
 ```C#
     // Generates 10,20,30,40,50
@@ -288,7 +310,67 @@ Other list functions:
 * `headSafe` - returns `Option<T>`
 * `tail`
 * `foldr`
+* `reduce`
+* `each`
+* `append`
+* `rev`
 * `sum`
+* more coming...
+
+We also support dictionaries.  Again the word Dictionary is such a pain to type, especially when they have a perfectly valid alternative name in the functional world: `map`.
+
+To create an immutable map, you no longer have to type:
+
+```C#
+    var dict = ImmutableDictionary.Create<string,int>();
+```
+Instead you can use:
+```C#
+    var dict = map<string,int>();
+```
+Also you can pass in a list of tuples or key-value pairs, which will create a `ImmutableDictionary.Builder` before generating the immutable dictionery itself:
+```C#
+    var m = map<int, string>(
+               tuple(1, "a"),
+               tuple(2, "b"),
+               tuple(3, "c")
+            );
+```
+To read an item call:
+```C#
+    Option<string> result = find(m, 1);
+```
+This allows for branching based on whether the item is in the map or not:
+
+```C#
+    // Find the item, do some processing on it and return.
+    var res = match( find(m, 100),
+                        v => "Hello" + v,
+                        () => "failed"
+                   );
+                   
+    // Find the item and return it.  If it's not there, return "failed"
+    var res = find(m, 100).Failure("failed");                   
+    
+    // Find the item and return it.  If it's not there, return "failed"
+    var res = failure( find(m, 100), "failed" );
+```
+
+To set an item call:
+```C#
+    var m2 = set(m, 1, "x");
+```
+
+`map` functions:
+* `add`
+* `set`
+* `remove`
+* `contains`
+* `find`
+* `each`
+* `map`
+* `filter`
+* more coming...
 
 ## The awful 'out' parameter
 This has to be one of the most awful patterns in C#:
