@@ -205,7 +205,7 @@ Another horrible side-effect of `null` is having to bullet-proof every function 
         ...
     }
 ```
-By wrapping `string` as `Some<string>` we get free runtime `null` checking. Essentially it's impossible for `null` to propagate through if you wrap the type.  As you can see the `arg` variable casts automatically to the `string value`.  You can get the inner-value like so also:
+By wrapping `string` as `Some<string>` we get free runtime `null` checking. Essentially it's impossible for `null` to propagate through.  As you can see (above) the `arg` variable casts automatically to `string value`.  It's also possible to get at the inner-value like so:
 ```C#
     public void Foo( Some<string> arg )
     {
@@ -215,7 +215,7 @@ By wrapping `string` as `Some<string>` we get free runtime `null` checking. Esse
 ```
 If you're wondering how it works, well `Some<T>` is a `struct`, and has implicit conversation operators that convert a type of `T` to a type of `Some<T>`.  The constructor of `Some<T>` ensures that the value of `T` has a non-null value.
 
-There is also an implicit cast operator from `Some<T>` to `Option<T>`.  The `Some<T>` will automatically put the `Option<T>` into a `Some` state.  It's not possible to cast from `Option<T>` to `Some<T>`, because the `Option<T>` could be in a `None` state which wouid cause the `Some<T>` to throw an exception.  So you must explicitly `match` to extract the `Some` value.
+There is also an implicit cast operator from `Some<T>` to `Option<T>`.  The `Some<T>` will automatically put the `Option<T>` into a `Some` state.  It's not possible to go the other way and cast from `Option<T>` to `Some<T>`, because the `Option<T>` could be in a `None` state which wouid cause the `Some<T>` to throw `ValueIsNullException`.  We want to avoid exceptions being thrown, so you must explicitly `match` to extract the `Some` value.
 
 ## Lack of lambda and expression inference 
 
