@@ -204,7 +204,7 @@ Another horrible side-effect of `null` is having to bullet-proof every function 
         string value = arg;
     }
 ```
-By wrapping `string` as `Some<string>` we get free runtime `null` checking. Essentially it's impossible for `null` to propagate through a system if you wrap the type.  As you can see the `arg` variable casts automatically to its inner-type, or you can get the inner-value like so:
+By wrapping `string` as `Some<string>` we get free runtime `null` checking. Essentially it's impossible for `null` to propagate through if you wrap the type.  As you can see the `arg` variable casts automatically to the `string value`.  You can get the inner-value like so also:
 ```C#
     public void Foo( Some<string> arg )
     {
@@ -212,31 +212,6 @@ By wrapping `string` as `Some<string>` we get free runtime `null` checking. Esse
     }
 ```
 If you're wondering how it works, well `Some<T>` is a `struct`, and has implicit conversation operators that convert a type of `T` to a type of `Some<T>`.  The constructor of `Some<T>` ensures that the value of `T` has a non-null value.
-
-There is also an implicit cast from `Option<T>` to `Some<T>`.  This doesn't really help keep your code more robust, because, just like passing `null` around, it will blow up if the `Option<T>` is `None`.  However, it will blow-up at the earliest possible point, which should at least make tracking issues easier. 
-
-```C#
-    // Returns a Some("Hello") or a None
-    private Option<string> GetValue(bool select) =>
-        select
-            ? Some("Hello")
-            : None;
-
-    public void Greet( Some<string> value )
-    {
-        Console.WriteLine(value);
-    }
-    
-    ...
-    
-    // This will succeed
-    Greet(GetValue(true));
-
-    // This will throw a ValueIsNoneException
-    Greet(GetValue(false));
-```
-
-I wouldn't necessarily advise doing this.  It's much better to use `match` and be forced to implement code for both possible outcomes of an `Option<T>`.  But under certain circumstances this may be more convenient.
 
 ## Lack of lambda and expression inference 
 
