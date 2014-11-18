@@ -191,7 +191,14 @@ There are some good reasons for this, so best not to bitch too much.  Instead us
 ```C#
     var fn = fun( () => 123 );
 ```
-This will work for `Func<..>` and `Action<..>` types of up to seven generic arguments.  To do the same for `Expression<..>`, use the `expr` function:
+This will work for `Func<..>` and `Action<..>` types of up to seven generic arguments.  `Action<..>` will be converted to `Func<..,Unit>`.  To maintain an `Action` use the `act` function instead:
+
+```C#
+    var fn = act( (int x) => Console.WriteLine(x) );
+```
+If you pass a `Func<..>` to `act` then its return value will be dropped.  So `Func<R>` becomes `Action`, and `Func<T,R>` will become `Action<T>`.
+
+To do the same for `Expression<..>`, use the `expr` function:
 
 ```C#
     var e = expr( () => 123 );
@@ -440,8 +447,6 @@ I haven't had time to document everything, so here's a quick list of what was mi
 `memo` - Caches a function's result the first time it's called
 
 `ignore` - Executes a function and ignores its result (returns `unit` instead)
-
-`Do` - Executes an action and returns `unit`
 
 `Nullable<T>.ToOption()` - Converts a `Nullable<T>` to an `Option<T>`
 
