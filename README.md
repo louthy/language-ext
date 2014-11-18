@@ -87,7 +87,7 @@ Yet another alternative matching method is this:
         .Some( v  => Assert.IsTrue(v == 123) )
         .None( () => failwith<int>("Shouldn't get here") );
 ```
-So choose you're preferred method and stick with it.  It's probably best not to mix styles.
+So choose your preferred method and stick with it.  It's probably best not to mix styles.
 
 To smooth out the process of returning Option<T> types from methods there are some implicit conversion operators:
 
