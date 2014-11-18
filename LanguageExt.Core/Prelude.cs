@@ -16,16 +16,16 @@ namespace LanguageExt
         public static Either<R, L> Right<R, L>(R value) => new Either<R, L>(value);
         public static Either<R, L> Left<R, L>(L value) => new Either<R, L>(value);
 
-        public static T failure<T>(Option<T> option, Func<T> None) => 
+        public static T failure<T>(Option<T> option, Func<T> None) =>
             option.Failure(None);
 
         public static T failure<T>(Option<T> option, T noneValue) =>
             option.Failure(noneValue);
 
-        public static R match<T, R>(Option<T> option, Func<T, R> Some, Func<R> None) => 
+        public static R match<T, R>(Option<T> option, Func<T, R> Some, Func<R> None) =>
             option.Match(Some, None);
 
-        public static Unit match<T>(Option<T> option, Action<T> Some, Action None) => 
+        public static Unit match<T>(Option<T> option, Action<T> Some, Action None) =>
             option.Match(Some, None);
 
         public static R failure<R, L>(Either<R, L> either, Func<R> None) =>
@@ -48,14 +48,25 @@ namespace LanguageExt
         public static Func<T1, T2, T3, T4, T5, R> fun<T1, T2, T3, T4, T5, R>(Func<T1, T2, T3, T4, T5, R> f) => f;
         public static Func<T1, T2, T3, T4, T5, T6, R> fun<T1, T2, T3, T4, T5, T6, R>(Func<T1, T2, T3, T4, T5, T6, R> f) => f;
         public static Func<T1, T2, T3, T4, T5, T6, T7, R> fun<T1, T2, T3, T4, T5, T6, T7, R>(Func<T1, T2, T3, T4, T5, T6, T7, R> f) => f;
-        public static Action fun(Action f) => f;
-        public static Action<T1> fun<T1>(Action<T1> f) => f;
-        public static Action<T1, T2> fun<T1, T2>(Action<T1, T2> f) => f;
-        public static Action<T1, T2, T3> fun<T1, T2, T3>(Action<T1, T2, T3> f) => f;
-        public static Action<T1, T2, T3, T4> fun<T1, T2, T3, T4>(Action<T1, T2, T3, T4> f) => f;
-        public static Action<T1, T2, T3, T4, T5> fun<T1, T2, T3, T4, T5>(Action<T1, T2, T3, T4, T5> f) => f;
-        public static Action<T1, T2, T3, T4, T5, T6> fun<T1, T2, T3, T4, T5, T6>(Action<T1, T2, T3, T4, T5, T6> f) => f;
-        public static Action<T1, T2, T3, T4, T5, T6, T7> fun<T1, T2, T3, T4, T5, T6, T7>(Action<T1, T2, T3, T4, T5, T6, T7> f) => f;
+
+        public static Func<Unit> fun(Action f) => () => { f(); return unit; };
+        public static Func<T1,Unit> fun<T1>(Action<T1> f) => (a1) => { f(a1); return unit; };
+        public static Func<T1, T2, Unit> fun<T1, T2>(Action<T1, T2> f) => (a1,a2) => { f(a1,a2); return unit; };
+        public static Func<T1, T2, T3, Unit> fun<T1, T2, T3>(Action<T1, T2, T3> f) => (a1, a2, a3) => { f(a1, a2, a3); return unit; };
+        public static Func<T1, T2, T3, T4, Unit> fun<T1, T2, T3, T4>(Action<T1, T2, T3, T4> f) => (a1, a2, a3, a4) => { f(a1, a2, a3, a4); return unit; };
+        public static Func<T1, T2, T3, T4, T5, Unit> fun<T1, T2, T3, T4, T5>(Action<T1, T2, T3, T4, T5> f) => (a1, a2, a3, a4, a5) => { f(a1, a2, a3, a4, a5); return unit; };
+        public static Func<T1, T2, T3, T4, T5, T6, Unit> fun<T1, T2, T3, T4, T5, T6>(Action<T1, T2, T3, T4, T5, T6> f) => (a1, a2, a3, a4, a5, a6) => { f(a1, a2, a3, a4, a5, a6); return unit; };
+        public static Func<T1, T2, T3, T4, T5, T6, T7, Unit> fun<T1, T2, T3, T4, T5, T6, T7>(Action<T1, T2, T3, T4, T5, T6, T7> f) => (a1, a2, a3, a4, a5, a6, a7) => { f(a1, a2, a3, a4, a5, a6, a7); return unit; };
+
+        public static Action act(Action f) => f;
+        public static Action<T1> act<T1>(Action<T1> f) => f;
+        public static Action<T1, T2> act<T1, T2>(Action<T1, T2> f) => f;
+        public static Action<T1, T2, T3> act<T1, T2, T3>(Action<T1, T2, T3> f) => f;
+        public static Action<T1, T2, T3, T4> act<T1, T2, T3, T4>(Action<T1, T2, T3, T4> f) => f;
+        public static Action<T1, T2, T3, T4, T5> act<T1, T2, T3, T4, T5>(Action<T1, T2, T3, T4, T5> f) => f;
+        public static Action<T1, T2, T3, T4, T5, T6> act<T1, T2, T3, T4, T5, T6>(Action<T1, T2, T3, T4, T5, T6> f) => f;
+        public static Action<T1, T2, T3, T4, T5, T6, T7> act<T1, T2, T3, T4, T5, T6, T7>(Action<T1, T2, T3, T4, T5, T6, T7> f) => f;
+
 
         public static Expression<Func<R>> expr<R>(Expression<Func<R>> f) => f;
         public static Expression<Func<T1, R>> expr<T1, R>(Expression<Func<T1, R>> f) => f;
@@ -76,11 +87,6 @@ namespace LanguageExt
 
         public static Unit unit => Unit.Default;
 
-        public static Unit Do(Action action)
-        {
-            action();
-            return unit;
-        }
         public static Unit ignore<R>(Func<R> func)
         {
             func();
@@ -236,20 +242,14 @@ namespace LanguageExt
             };
         }
 
-        public static Func<T> failwith<T>(string message)
+        public static R failwith<R>(string message)
         {
-            return () =>
-            {
-                throw new Exception(message);
-            };
+            throw new Exception(message);
         }
 
-        public static Func<T> raise<T>(Exception ex)
+        public static R raise<R>(Exception ex)
         {
-            return () =>
-            {
-                throw ex;
-            };
+            throw ex;
         }
     }
 }

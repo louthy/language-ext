@@ -50,7 +50,7 @@ namespace LanguageExt
         public static T reduce<T>(this IImmutableList<T> list, Func<T, T, T> reducer) =>
             match(headSafe(list),
                 Some: x => fold(tail(list), x, reducer),
-                None: failwith<T>("Input list was empty")
+                None: () => failwith<T>("Input list was empty")
             );
 
         public static Unit each<T>(this IImmutableList<T> list, Action<T> action)

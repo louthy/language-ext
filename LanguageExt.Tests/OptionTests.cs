@@ -71,7 +71,7 @@ namespace LanguageExtTests
             select x + y + z)
            .Match(
              Some: v => Assert.IsTrue(v == 12),
-             None: () => Assert.Fail("Shouldn't get here")
+             None: failaction("Shouldn't get here")
            );
         }
 
@@ -87,7 +87,7 @@ namespace LanguageExtTests
              from z in six
              select x + y + z)
             .Match(
-              Some: v => Assert.Fail("Shouldn't get here"),
+              Some: v => failwith<int>("Shouldn't get here"),
               None: () => Assert.IsTrue(true)
             );
         }
