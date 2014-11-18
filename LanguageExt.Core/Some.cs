@@ -31,5 +31,14 @@ namespace LanguageExt
 
         public static implicit operator Some<T>(T value) => new Some<T>(value);
         public static implicit operator T(Some<T> value) => value.Value;
+
+        public override string ToString() =>
+            Value.ToString();
+
+        public override int GetHashCode() =>
+            Value.GetHashCode();
+
+        public override bool Equals(object obj) =>
+            Value.Equals(obj);
     }
 }

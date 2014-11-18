@@ -78,6 +78,21 @@ namespace LanguageExt
 
         public SomeContext<T, R> Some<R>(Func<T, R> someHandler) =>
             new SomeContext<T, R>(this,someHandler);
+
+        public override string ToString() =>
+            IsSome
+                ? Value.ToString()
+                : "[None]";
+
+        public override int GetHashCode() =>
+            IsSome
+                ? Value.GetHashCode()
+                : 0;
+
+        public override bool Equals(object obj) =>
+            IsSome
+                ? Value.Equals(obj)
+                : false;
     }
 
     public struct SomeContext<T, R>

@@ -93,6 +93,21 @@ namespace LanguageExt
 
         public EitherContext<R, L, Ret> Right<Ret>(Func<R, Ret> rightHandler) =>
             new EitherContext<R, L, Ret>(this, rightHandler);
+
+        public override string ToString() =>
+            IsRight
+                ? RightValue.ToString()
+                : LeftValue.ToString();
+
+        public override int GetHashCode() =>
+            IsRight
+                ? RightValue.GetHashCode()
+                : LeftValue.GetHashCode();
+
+        public override bool Equals(object obj) =>
+            IsRight
+                ? RightValue.Equals(obj)
+                : LeftValue.Equals(obj);
     }
 
     public struct EitherContext<R, L, Ret>
