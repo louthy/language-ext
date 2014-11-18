@@ -182,6 +182,11 @@ namespace LanguageExt
             }
         }
 
+        public static IImmutableList<T> cons<T>(this T self, IImmutableList<T> tail)
+        {
+            return tail.Insert(0, self);
+        }
+
         public static IEnumerable<T> empty<T>() => 
             new T[0];
             

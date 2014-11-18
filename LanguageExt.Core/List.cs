@@ -8,6 +8,15 @@ namespace LanguageExt
 {
     public static partial class List
     {
+        public static IImmutableList<T> add<T>(this IImmutableList<T> self, T value) =>
+            self.Add(value);
+
+        public static IImmutableList<T> remove<T>(this IImmutableList<T> self, T value) =>
+            self.Remove(value);
+
+        public static IImmutableList<T> removeAt<T>(this IImmutableList<T> self, int index) =>
+            self.RemoveAt(index);
+
         public static T head<T>(this IImmutableList<T> list) => list.First();
 
         public static Option<T> headSafe<T>(this IImmutableList<T> list) =>

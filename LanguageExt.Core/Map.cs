@@ -15,8 +15,8 @@ namespace LanguageExt
         public static IImmutableDictionary<K, V> add<K, V>(this IImmutableDictionary<K, V> self, Tuple<K,V> kv) =>
             self.Add(kv.Item1, kv.Item2);
 
-        public static Unit remove<K, V>(this IImmutableDictionary<K, V> self, K key, V value) =>
-            ignore(self.Remove(key));
+        public static IImmutableDictionary<K, V> remove<K, V>(this IImmutableDictionary<K, V> self, K key, V value) =>
+            self.Remove(key);
 
         public static bool contains<K, V>(this IImmutableDictionary<K, V> self, K key) =>
             self.ContainsKey(key);
