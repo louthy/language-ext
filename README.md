@@ -441,7 +441,7 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
 ### The rest
 I haven't had time to document everything, so here's a quick list of what was missed:
 
-`Either<RIGHT,LEFT>` - Like `Option<T>`, however the 'failure' value which is `None` in `Option<T>` can have an alternative value in `Either`, and it's called `Left`.  `Right` is right, `Left` is wrong.  See the OptionEitherConfigSample for a demo.  Supports all the same functionality as `Option<T>`.
+`Either<Right,Left>` - Like `Option<T>`, however the `None` in `Option<T>` is called `Left` in `Either`, and `Some` is called.  Just remember: `Right` is right, `Left` is wrong.  Both `Right` and `Left` can hold values.  And they can be different types.  See the OptionEitherConfigSample for a demo.  Supports all the same functionality as `Option<T>`.
 
 `memo` - Caches a function's result the first time it's called
 
