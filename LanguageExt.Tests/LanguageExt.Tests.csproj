@@ -34,6 +34,10 @@
       <HintPath>..\LanguageExt.Core\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=1.1.32.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\System.Collections.Immutable.1.1.32-beta\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -44,6 +48,7 @@
   <ItemGroup>
     <Compile Include="FunTests.cs" />
     <Compile Include="ListTests.cs" />
+    <Compile Include="MapTests.cs" />
     <Compile Include="MemoTests.cs" />
     <Compile Include="EitherTests.cs" />
     <Compile Include="OptionTests.cs" />

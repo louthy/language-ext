@@ -4,6 +4,9 @@ namespace LanguageExt
 {
     public static partial class Prelude
     {
+        public static T convert<T>(string text) =>
+            (T)Convert.ChangeType(text, typeof(T));
+
         public static Option<long> parseLong(string value)
         {
             long result;
@@ -116,6 +119,5 @@ namespace LanguageExt
                 ? Some(result)
                 : None;
         }
-
     }
 }

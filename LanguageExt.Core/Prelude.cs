@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq.Expressions;
 
 namespace LanguageExt
@@ -178,10 +180,27 @@ namespace LanguageExt
             }
         }
 
-        public static IEnumerable<T> empty<T>() => new T[0];
+        public static IImmutableList<T> empty<T>() => 
+            ImmutableList.Create<T>();
 
-        public static IEnumerable<T> list<T>(params T[] items) => items;
+        public static IImmutableList<T> list<T>(params T[] items) => 
+            ImmutableList.Create<T>(items);
 
+        public static IEnumerable<int> range(int from, int to) =>
+            Enumerable.Range(from, to);
+
+        public static IImmutableDictionary<K, V> map<K, V>() =>
+            ImmutableDictionary.Create<K, V>();
+
+        public static IImmutableDictionary<K, V> map<K, V>(params Tuple<K, V>[] items) =>
+            map(items.Select(i => new KeyValuePair<K, V>(i.Item1, i.Item2)).ToArray());
+
+        public static IImmutableDictionary<K, V> map<K, V>(params KeyValuePair<K, V>[] items)
+        {
+            var builder = ImmutableDictionary.CreateBuilder<K, V>();
+            builder.AddRange(items);
+            return builder.ToImmutableDictionary();
+        }
 
         public static Func<T> memo<T>(Func<T> func)
         {
