@@ -183,7 +183,7 @@ If you know what a monad is, then the `Option<T>` type implements `Select` and `
 
 ## Lack of lambda and expression inference 
 
-One really annoying thing about the `var` type inference in C# is that it can't handle inline lambdas.  For example this won't compile, even though it's obvious it's a `Func<int>`.
+One really annoying thing about the `var` type inference in C# is that it can't handle inline lambdas.  For example this won't compile, even though it's obvious it's a `Func<int,int,int>`.
 ```C#
     var add = (int x, int y) => x + y;
 ```
