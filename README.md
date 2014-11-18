@@ -202,6 +202,7 @@ Another horrible side-effect of `null` is having to bullet-proof every function 
     public void Foo( Some<string> arg )
     {
         string value = arg;
+        ...
     }
 ```
 By wrapping `string` as `Some<string>` we get free runtime `null` checking. Essentially it's impossible for `null` to propagate through if you wrap the type.  As you can see the `arg` variable casts automatically to the `string value`.  You can get the inner-value like so also:
@@ -209,9 +210,12 @@ By wrapping `string` as `Some<string>` we get free runtime `null` checking. Esse
     public void Foo( Some<string> arg )
     {
         string value = arg.Value;
+        ...
     }
 ```
 If you're wondering how it works, well `Some<T>` is a `struct`, and has implicit conversation operators that convert a type of `T` to a type of `Some<T>`.  The constructor of `Some<T>` ensures that the value of `T` has a non-null value.
+
+There is also an implicit cast operator from `Some<T>` to `Option<T>`.  The `Some<T>` will automatically put the `Option<T>` into a `Some` state.  It's not possible to cast from `Option<T>` to `Some<T>`, because the `Option<T>` could be in a `None` state which wouid cause the `Some<T>` to throw an exception.  So you must explicitly `match` to extract the `Some` value.
 
 ## Lack of lambda and expression inference 
 
