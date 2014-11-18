@@ -70,7 +70,7 @@ To access the value you must check that it's valid first:
 ```C#
     optional.Match( 
         Some: v  => Assert.IsTrue(v == 123),
-        None: () => failwith("Shouldn't get here")
+        None: failaction("Shouldn't get here")
         );
 ```
 An alternative (functional) way of matching is this:
@@ -78,7 +78,7 @@ An alternative (functional) way of matching is this:
 ```C#
     match( optional, 
         Some: v  => Assert.IsTrue(v == 123),
-        None: () => failwith("Shouldn't get here") 
+        None: failaction("Shouldn't get here") 
         );
 ```
 
