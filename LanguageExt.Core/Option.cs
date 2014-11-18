@@ -5,7 +5,7 @@ using LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public struct Option<T>
+    public struct Option<T> : IOptionalValue
     {
         T value;
 
@@ -49,10 +49,15 @@ namespace LanguageExt
 
         public static implicit operator Option<T>(OptionNone none) => Option<T>.None;
 
+        private static U CheckNullReturn<U>(U value, string location) =>
+            value == null
+                ? raise<U>(new ResultIsNullException("'\{location}' result is null.  Not allowed."))
+                : value;
+
         public R Match<R>(Func<T, R> Some, Func<R> None) =>
             IsSome
-                ? Some(Value)
-                : None();
+                ? CheckNullReturn(Some(Value), "Some")
+                : CheckNullReturn(None(), "None");
 
         public Unit Match(Action<T> Some, Action None)
         {
@@ -70,24 +75,34 @@ namespace LanguageExt
         public T Failure(Func<T> None) => Match(identity<T>(), None);
 
         public T Failure(T noneValue) => Match(identity<T>(), () => noneValue);
+
+        public SomeContext<T, R> Some<R>(Func<T, R> someHandler) =>
+            new SomeContext<T, R>(this,someHandler);
     }
 
-    [Serializable]
-    public class OptionIsNoneException : Exception
+    public struct SomeContext<T, R>
     {
-        public OptionIsNoneException()
-            : base("Option isn't set.")
+        Option<T> option;
+        Func<T, R> someHandler;
+
+        internal SomeContext(Option<T> option, Func<T, R> someHandler)
         {
+            this.option = option;
+            this.someHandler = someHandler;
         }
 
-        public OptionIsNoneException(string message) : base(message)
+        public R None(Func<R> noneHandler)
         {
+            return match(option, someHandler, noneHandler);
         }
 
-        public OptionIsNoneException(string message, Exception innerException) : base(message, innerException)
+        public R None(R noneValue)
         {
+            return match(option, someHandler, () => noneValue);
         }
     }
+
+
 
     public struct OptionNone
     {

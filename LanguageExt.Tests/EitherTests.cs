@@ -12,7 +12,7 @@ namespace LanguageExtTests
             var either = Right<int,string>(123);
 
             either.Match( Right: i => Assert.IsTrue(i == 123),
-                          Left: _  => Assert.Fail("Shouldn't get here") );
+                          Left:  _ => Assert.Fail("Shouldn't get here") );
 
             int c = either.Match( Right: i  => i + 1, 
                                   Left: _ => 0 );
@@ -83,6 +83,46 @@ namespace LanguageExtTests
               l => Assert.IsTrue(l == "Left")
             );
         }
+
+        [Test] public void EitherFluentSomeNoneTest()
+        {
+            int res1 = GetValue(true)
+                        .Right(r => r + 10)
+                        .Left (l => l.Length);
+
+            int res2 = GetValue(false)
+                        .Right(r => r + 10)
+                        .Left (l => l.Length);
+
+            Assert.IsTrue(res1 == 1010);
+            Assert.IsTrue(res2 == 4);
+        }
+
+
+        [Test]
+        public void NullInRightOrLeftTest()
+        {
+            Assert.Throws(
+                typeof(ResultIsNullException),
+                () =>
+                {
+                    GetValue(true)
+                       .Right(x => (string)null)
+                       .Left( y => (string)null);
+                }
+            );
+
+            Assert.Throws(
+                typeof(ResultIsNullException),
+                () =>
+                {
+                    GetValue(false)
+                       .Right(x => (string)null)
+                       .Left( y => (string)null);
+                }
+            );
+        }
+
 
         private Either<int, string> GetValue(bool select)
         {

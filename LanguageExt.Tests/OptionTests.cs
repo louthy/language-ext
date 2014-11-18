@@ -102,6 +102,42 @@ namespace LanguageExtTests
             Assert.IsTrue(GetStringNone2().IsNone);
         }
 
+        [Test] public void OptionFluentSomeNoneTest()
+        {
+            int res1 = GetValue(true)
+                        .Some(x => x + 10)
+                        .None(0);
+
+            int res2 = GetValue(false)
+                        .Some(x => x + 10)
+                        .None(() => 0);
+
+            Assert.IsTrue(res1 == 1010);
+            Assert.IsTrue(res2 == 0);
+        }
+
+        [Test] public void NullInSomeOrNoneTest()
+        {
+            Assert.Throws(
+                typeof(ResultIsNullException),
+                () =>
+                {
+                   GetValue(true)
+                      .Some(x => (string)null)
+                      .None((string)null);
+                }
+            );
+
+            Assert.Throws(
+                typeof(ResultIsNullException),
+                () =>
+                {
+                    GetValue(false)
+                       .Some(x => (string)null)
+                       .None((string)null);
+                }
+            );
+        }
 
         private Option<string> GetStringNone()
         {

@@ -51,6 +51,7 @@
     <Compile Include="MapTests.cs" />
     <Compile Include="MemoTests.cs" />
     <Compile Include="EitherTests.cs" />
+    <Compile Include="NonNullTests.cs" />
     <Compile Include="OptionTests.cs" />
     <Compile Include="TryTests.cs" />
     <Compile Include="TupleTests.cs" />

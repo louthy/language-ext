@@ -43,7 +43,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions.cs" />
+    <Compile Include="IOptionalValue.cs" />
     <Compile Include="Map.cs" />
+    <Compile Include="Some.cs" />
     <Compile Include="Prelude.cs" />
     <Compile Include="List.cs" />
     <Compile Include="NullableExt.cs" />

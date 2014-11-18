@@ -63,10 +63,16 @@ namespace LanguageExt
         public static implicit operator Either<R, L>(R value) => Either<R, L>.Right(value);
         public static implicit operator Either<R, L>(L value) => Either<R, L>.Left(value);
 
+        private static T CheckNullReturn<T>(T value, string location) =>
+            value == null
+                ? raise<T>(new ResultIsNullException("'\{location}' result is null.  Not allowed."))
+                : value;
+
+
         public Ret Match<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
             IsRight
-                ? Right(RightValue)
-                : Left(LeftValue);
+                ? CheckNullReturn(Right(RightValue),"Right")
+                : CheckNullReturn(Left(LeftValue),"Left");
 
         public Unit Match(Action<R> Right, Action<L> Left)
         {
@@ -84,6 +90,26 @@ namespace LanguageExt
         public R Failure(Func<R> None) => Match(identity<R>(), _ => None());
 
         public R Failure(R noneValue) => Match(identity<R>(), _ => noneValue);
+
+        public EitherContext<R, L, Ret> Right<Ret>(Func<R, Ret> rightHandler) =>
+            new EitherContext<R, L, Ret>(this, rightHandler);
+    }
+
+    public struct EitherContext<R, L, Ret>
+    {
+        Either<R, L> either;
+        Func<R, Ret> rightHandler;
+
+        internal EitherContext(Either<R,L> either, Func<R, Ret> rightHandler)
+        {
+            this.either = either;
+            this.rightHandler = rightHandler;
+        }
+
+        public Ret Left(Func<L, Ret> leftHandler)
+        {
+            return match(either, rightHandler, leftHandler);
+        }
     }
 
 

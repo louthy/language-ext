@@ -29,7 +29,7 @@ namespace LanguageExtTests
 
             var res = match(
                         find(m2, 100),
-                            v => v,
+                            v  => v,
                             () => "failed"
                       );
 
