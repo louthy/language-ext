@@ -16,7 +16,7 @@ namespace LanguageExt
             self.Add(kv.Item1, kv.Item2);
 
         public static Unit remove<K, V>(this IImmutableDictionary<K, V> self, K key, V value) =>
-            ignore( () => self.Remove(key) );
+            ignore(self.Remove(key));
 
         public static bool contains<K, V>(this IImmutableDictionary<K, V> self, K key) =>
             self.ContainsKey(key);
@@ -36,7 +36,7 @@ namespace LanguageExt
                 : None;
 
         public static Unit each<K, V>(this IImmutableDictionary<K, V> self, Action<K, V> action) =>
-            ignore(() => each<K>(self.Keys, key => action(key, self[key])));
+            ignore(each<K>(self.Keys, key => action(key, self[key])));
 
         public static IImmutableDictionary<K, U> map<K, T, U>(this IImmutableDictionary<K, T> m, Func<T, U> f) =>
             m.Select(kv => new KeyValuePair<K, U>(kv.Key, f(kv.Value))).ToImmutableDictionary();

@@ -67,6 +67,15 @@ namespace LanguageExt
         public static Action<T1, T2, T3, T4, T5, T6> act<T1, T2, T3, T4, T5, T6>(Action<T1, T2, T3, T4, T5, T6> f) => f;
         public static Action<T1, T2, T3, T4, T5, T6, T7> act<T1, T2, T3, T4, T5, T6, T7>(Action<T1, T2, T3, T4, T5, T6, T7> f) => f;
 
+        public static Action act<R>(Func<R> f) => () => f();
+        public static Action<T1> act<T1, R>(Func<T1, R> f) => a1 => f(a1);
+        public static Action<T1, T2> act<T1, T2, R>(Func<T1, T2, R> f) => (a1,a2) => f(a1,a2);
+        public static Action<T1, T2, T3> act<T1, T2, T3, R>(Func<T1, T2, T3, R> f) => (a1, a2, a3) => f(a1, a2, a3);
+        public static Action<T1, T2, T3, T4> act<T1, T2, T3, T4, R>(Func<T1, T2, T3, T4, R> f) => (a1, a2, a3, a4) => f(a1, a2, a3, a4);
+        public static Action<T1, T2, T3, T4, T5> act<T1, T2, T3, T4, T5, R>(Func<T1, T2, T3, T4, T5, R> f) => (a1, a2, a3, a4, a5) => f(a1, a2, a3, a4, a5);
+        public static Action<T1, T2, T3, T4, T5, T6> act<T1, T2, T3, T4, T5, T6, R>(Func<T1, T2, T3, T4, T5, T6, R> f) => (a1, a2, a3, a4, a5, a6) => f(a1, a2, a3, a4, a5, a6);
+        public static Action<T1, T2, T3, T4, T5, T6, T7> act<T1, T2, T3, T4, T5, T6, T7, R>(Func<T1, T2, T3, T4, T5, T6, T7, R> f) => (a1, a2, a3, a4, a5, a6, a7) => f(a1, a2, a3, a4, a5, a6, a7);
+
 
         public static Expression<Func<R>> expr<R>(Expression<Func<R>> f) => f;
         public static Expression<Func<T1, R>> expr<T1, R>(Expression<Func<T1, R>> f) => f;
@@ -87,9 +96,8 @@ namespace LanguageExt
 
         public static Unit unit => Unit.Default;
 
-        public static Unit ignore<R>(Func<R> func)
+        public static Unit ignore<T>(T anything)
         {
-            func();
             return unit;
         }
 
@@ -111,35 +119,23 @@ namespace LanguageExt
         public static Tuple<T1, T2, T3, T4, T5, T6, T7> tuple<T1, T2, T3, T4, T5, T6, T7>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6, T7 item7) =>
             Tuple.Create(item1, item2, item3, item4, item5, item6, item7);
 
-        public static R with<T1, T2, R>(this Tuple<T1, T2> self, Func<T1, T2, R> func)
-        {
-            return func(self.Item1, self.Item2);
-        }
+        public static R with<T1, T2, R>(this Tuple<T1, T2> self, Func<T1, T2, R> func) =>
+            func(self.Item1, self.Item2);
 
-        public static R with<T1, T2, T3, R>(this Tuple<T1, T2, T3> self, Func<T1, T2, T3, R> func)
-        {
-            return func(self.Item1, self.Item2, self.Item3);
-        }
+        public static R with<T1, T2, T3, R>(this Tuple<T1, T2, T3> self, Func<T1, T2, T3, R> func) =>
+            func(self.Item1, self.Item2, self.Item3);
 
-        public static R with<T1, T2, T3, T4, R>(this Tuple<T1, T2, T3, T4> self, Func<T1, T2, T3, T4, R> func)
-        {
-            return func(self.Item1, self.Item2, self.Item3, self.Item4);
-        }
+        public static R with<T1, T2, T3, T4, R>(this Tuple<T1, T2, T3, T4> self, Func<T1, T2, T3, T4, R> func) =>
+            func(self.Item1, self.Item2, self.Item3, self.Item4);
 
-        public static R with<T1, T2, T3, T4, T5, R>(this Tuple<T1, T2, T3, T4, T5> self, Func<T1, T2, T3, T4, T5, R> func)
-        {
-            return func(self.Item1, self.Item2, self.Item3, self.Item4, self.Item5);
-        }
+        public static R with<T1, T2, T3, T4, T5, R>(this Tuple<T1, T2, T3, T4, T5> self, Func<T1, T2, T3, T4, T5, R> func) =>
+            func(self.Item1, self.Item2, self.Item3, self.Item4, self.Item5);
 
-        public static R with<T1, T2, T3, T4, T5, T6, R>(this Tuple<T1, T2, T3, T4, T5, T6> self, Func<T1, T2, T3, T4, T5, T6, R> func)
-        {
-            return func(self.Item1, self.Item2, self.Item3, self.Item4, self.Item5, self.Item6);
-        }
+        public static R with<T1, T2, T3, T4, T5, T6, R>(this Tuple<T1, T2, T3, T4, T5, T6> self, Func<T1, T2, T3, T4, T5, T6, R> func) =>
+            func(self.Item1, self.Item2, self.Item3, self.Item4, self.Item5, self.Item6);
 
-        public static R with<T1, T2, T3, T4, T5, T6, T7, R>(this Tuple<T1, T2, T3, T4, T5, T6, T7> self, Func<T1, T2, T3, T4, T5, T6, T7, R> func)
-        {
-            return func(self.Item1, self.Item2, self.Item3, self.Item4, self.Item5, self.Item6, self.Item7);
-        }
+        public static R with<T1, T2, T3, T4, T5, T6, T7, R>(this Tuple<T1, T2, T3, T4, T5, T6, T7> self, Func<T1, T2, T3, T4, T5, T6, T7, R> func) =>
+            func(self.Item1, self.Item2, self.Item3, self.Item4, self.Item5, self.Item6, self.Item7);
 
         public static Unit with<T1, T2>(this Tuple<T1, T2> self, Action<T1, T2> func)
         {
