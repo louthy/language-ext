@@ -196,7 +196,7 @@ If you know what a monad is, then the `Option<T>` type implements `Select` and `
         None: () => Assert.IsTrue(true)
     );
 ```
-## if( arg == null ) throw new ArgumentIsNullException("arg")
+## if( arg == null ) throw new ArgumentNullException("arg")
 Another horrible side-effect of `null` is having to bullet-proof every function that take reference arguments.  This is truly tedious.  Instead use this:
 ```C#
     public void Foo( Some<string> arg )
