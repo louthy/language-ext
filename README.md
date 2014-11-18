@@ -441,21 +441,16 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
 ### The rest
 I haven't had time to document everything, so here's a quick list of what was missed:
 
-`Either<Right,Left>` - Like `Option<T>`, however the `None` in `Option<T>` is called `Left` in `Either`, and `Some` is called.  Just remember: `Right` is right, `Left` is wrong.  Both `Right` and `Left` can hold values.  And they can be different types.  See the OptionEitherConfigSample for a demo.  Supports all the same functionality as `Option<T>`.
-
-`memo` - Caches a function's result the first time it's called
-
-`ignore` - Takes one argument which it ignores and returns `unit` instead.
-
-`Nullable<T>.ToOption()` - Converts a `Nullable<T>` to an `Option<T>`
-
-`raise(exception)` - Throws the exception passed as an argument.  Useful in lambda's where a return value is needed.
-
-`failwith(message)` - Throws an Exception with the message provided.  Useful in lambda's where a return value is needed.
-
-`identity<T>()` - Identity function.  Returns the same value it was passed.
-
-`IDictionary.TryGetValue()` and `IReadOnlyDictionary.TryGetValue()` - Variants that return `Option<T>`.
+Type or function | Description
+-----------------|------------
+`Either<Right,Left>` | Like `Option<T>`, however the `None` in `Option<T>` is called `Left` in `Either`, and `Some` is called.  Just remember: `Right` is right, `Left` is wrong.  Both `Right` and `Left` can hold values.  And they can be different types.  See the OptionEitherConfigSample for a demo.  Supports all the same functionality as `Option<T>`.
+`memo` | Caches a function's result the first time it's called
+`ignore` | Takes one argument which it ignores and returns `unit` instead.
+`Nullable<T>.ToOption()` | Converts a `Nullable<T>` to an `Option<T>`
+`raise(exception)` | Throws the exception passed as an argument.  Useful in lambda's where a return value is needed.
+`failwith(message)` | Throws an Exception with the message provided.  Useful in lambda's where a return value is needed.
+`identity<T>()` | Identity function.  Returns the same value it was passed.
+`IDictionary.TryGetValue()` and `IReadOnlyDictionary.TryGetValue()` | Variants that return `Option<T>`.
 
 ### Future
 There's more to come with this library.  Feel free to get in touch with any suggestions.
