@@ -242,6 +242,8 @@ There's support for `cons`, which is the functional way of constructing lists:
     Assert.IsTrue(array[4] == 5);
 ```
 
+Note, this isn't the strict definition of `cons`, but it's a pragmatic implementation that returns an `IEnumerable<T>`, is lazy, and behaves the same.
+
 Functional languages usually have additional list constructor syntax which makes the `cons` approach easier.  It usually looks something like this:
 
 ```F#
