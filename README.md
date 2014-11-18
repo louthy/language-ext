@@ -183,7 +183,7 @@ If you know what a monad is, then the `Option<T>` type implements `Select` and `
 
 ## Lack of lambda and expression inference 
 
-One really annoying thing about the `var` type inference in C# is that it can't handle inline lambdas.  For example this won't compile, even though it's obvious it's a `Func<int>`.
+One really annoying thing about the `var` type inference in C# is that it can't handle inline lambdas.  For example this won't compile, even though it's obvious it's a `Func<int,int,int>`.
 ```C#
     var add = (int x, int y) => x + y;
 ```
@@ -441,21 +441,16 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
 ### The rest
 I haven't had time to document everything, so here's a quick list of what was missed:
 
-`Either<RIGHT,LEFT>` - Like `Option<T>`, however the 'failure' value which is `None` in `Option<T>` can have an alternative value in `Either`, and it's called `Left`.  `Right` is right, `Left` is wrong.  See the OptionEitherConfigSample for a demo.  Supports all the same functionality as `Option<T>`.
-
-`memo` - Caches a function's result the first time it's called
-
-`ignore` - Takes one argument which it ignores and returns `unit` instead.
-
-`Nullable<T>.ToOption()` - Converts a `Nullable<T>` to an `Option<T>`
-
-`raise(exception)` - Throws the exception passed as an argument.  Useful in lambda's where a return value is needed.
-
-`failwith(message)` - Throws an Exception with the message provided.  Useful in lambda's where a return value is needed.
-
-`identity<T>()` - Identity function.  Returns the same value it was passed.
-
-`IDictionary.TryGetValue()` and `IReadOnlyDictionary.TryGetValue()` - Variants that return `Option<T>`.
+Type or function | Description
+-----------------|------------
+`Either<Right,Left>` | Like `Option<T>`, however the `None` in `Option<T>` is called `Left` in `Either`, and `Some` is called `Right`.  Just remember: `Right` is right, `Left` is wrong.  Both `Right` and `Left` can hold values.  And they can be different types.  See the OptionEitherConfigSample for a demo.  Supports all the same functionality as `Option<T>`.
+`memo` | Caches a function's result the first time it's called
+`ignore` | Takes one argument which it ignores and returns `unit` instead.
+`Nullable<T>.ToOption()` | Converts a `Nullable<T>` to an `Option<T>`
+`raise(exception)` | Throws the exception passed as an argument.  Useful in lambda's where a return value is needed.
+`failwith(message)` | Throws an Exception with the message provided.  Useful in lambda's where a return value is needed.
+`identity<T>()` | Identity function.  Returns the same value it was passed.
+`IDictionary.TryGetValue()` and `IReadOnlyDictionary.TryGetValue()` | Variants that return `Option<T>`.
 
 ### Future
 There's more to come with this library.  Feel free to get in touch with any suggestions.
