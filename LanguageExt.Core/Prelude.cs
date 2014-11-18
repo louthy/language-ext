@@ -180,7 +180,10 @@ namespace LanguageExt
             }
         }
 
-        public static IImmutableList<T> empty<T>() => 
+        public static IEnumerable<T> empty<T>() => 
+            new T[0];
+            
+        public static IImmutableList<T> list<T>() => 
             ImmutableList.Create<T>();
 
         public static IImmutableList<T> list<T>(params T[] items) => 
