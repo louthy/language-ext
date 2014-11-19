@@ -6,6 +6,7 @@ namespace LanguageExt
     public struct Some<T> where T : class
     {
         readonly bool initialised;
+
         public Some(T value)
         {
             if (value == null)
@@ -15,6 +16,7 @@ namespace LanguageExt
             Value = value;
             initialised = true;
         }
+
         public T Value { get; }
 
         private U CheckInitialised<U>(U value) =>
