@@ -221,6 +221,44 @@ If you're wondering how it works, well `Some<T>` is a `struct`, and has implicit
 
 There is also an implicit cast operator from `Some<T>` to `Option<T>`.  The `Some<T>` will automatically put the `Option<T>` into a `Some` state.  It's not possible to go the other way and cast from `Option<T>` to `Some<T>`, because the `Option<T>` could be in a `None` state which wouid cause the `Some<T>` to throw `ValueIsNullException`.  We want to avoid exceptions being thrown, so you must explicitly `match` to extract the `Some` value.
 
+There is one weakness to this approach, and that is that if you add a member property or field to a class which is a  `struct`, and if you don't initialise it, then C# is happy to go along with that.  This is the reason why you shouldn't normally include reference members inside structs (or if you do, have a strategy for dealing with it).
+
+`Some<T>` unfortunately falls victim to this, it wraps a reference of type T.  Therefore it can't realistically create a useful default.  C# also doesn't call the default constructor for a `struct` in these circumstances.  So there's no way to catch the problem early.  For example:
+
+```C#
+    class SomeClass
+    {
+        public Some<string> SomeValue = "Hello";
+        public Some<string> SomeOtherValue;
+    }
+    
+    ...
+    
+    public void Greet(Some<string> arg)
+    {
+        Console.WriteLine(arg);
+    }
+    
+    ...
+    
+    public void App()
+    {
+        var obj = new SomeClass();
+        Greet(obj.SomeValue);
+        Greet(obj.SomeOtherValue);
+    }
+```
+In the example above `Greet(obj.SomeOtherValue);` will work until `arg` is used inside of the `Greet` function.  So that puts us back into the `null` realm.  There's nothing (that I'm aware of) that can be done about this.  `Some<T>` will throw a useful `SomeNotInitialisedException`, which should make life a little easier.
+```
+    "Unitialised Some<T> in class member declaration."
+```
+So what's the best plan of attack to mitigate this?
+
+* Don't use `Some<T>` for class members.  That means the class logic might have to deal with `null` however.
+* Or, always initialise `Some<T>` class members.  Mistakes do happen though.
+
+There's no silver bullet here unfortunately.
+
 ## Lack of lambda and expression inference 
 
 One really annoying thing about the `var` type inference in C# is that it can't handle inline lambdas.  For example this won't compile, even though it's obvious it's a `Func<int,int,int>`.
