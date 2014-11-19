@@ -284,6 +284,10 @@ To do the same for `Expression<..>`, use the `expr` function:
 Note, if you're creating a `Func` or `Action` that take parameters, you must provide the type:
 
 ```C#
+    // Won't compile
+    var add = fun( (x, y) => x + y );
+
+    // Wil compile
     var add = fun( (int x, int y) => x + y );
 ```
 
