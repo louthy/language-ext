@@ -5,7 +5,11 @@ Using and abusing the features of C# 6 to provide lots of helper functions and t
 
 ## Introduction
 
-One of the great new features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static methods without qualifying them first.  This instantly gives us access to single term method names which look exactly like functions in functional languages.  This library brings some of the functional world into C#.  It won't always sit well with the OO programmer, especially the choice of lowercase names for a lot of functions and the seeming 'globalness' of a lot of the library; but I guess you can pick'n'choose what to work with.  There's still plenty here that will help day-to-day.
+One of the great new features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static methods without qualifying them first.  This instantly gives us access to single term method names which look exactly like functions in functional languages.  This library brings some of the functional world into C#.  It won't always sit well with the seasoned C# OO-only programmer, especially the choice of lowercase names for a lot of functions and the seeming 'globalness' of a lot of the library.  
+
+I can understand that much of this library is non-idiomatic; But when you think of the journey C# has been on, is idiomatic necessarily right?  A lot of C#'s idioms are inherited from Java and C# 1.0.  Since then we've had generics, closures, Func, LINQ, async...  C# as a language is becoming more and more like a  functional language on every release.  In fact the bulk of the new features are either inspired by or directly taken from features in functional languages.  So perhaps it's time to move the C# idioms closer to the functional world's idioms?
+
+Even if you don't agree, I guess you can pick 'n' choose what to work with.  There's still plenty here that will help day-to-day.
 
 To use this library, simply include LanguageExt.Core.dll in your project.  And then stick this at the top of each cs file that needs it:
 ```C#
@@ -31,7 +35,7 @@ I've been crying out for proper tuple support for ages.  It looks like we're no 
     var ab = tuple("a","b");
 ```
 
-Now isn't that nice?  I chose the lower-case `tuple` to avoid conflicts between other types and existing code.  I think also tuples should be considered fundamental like `int`, and therefore deserves a lower-case name.  I do this with a number of other functions, I realise this might be painful for you stalwart C# guys, but I think this is a better approach.  Happy to discuss it however :)
+Now isn't that nice?  I chose the lower-case `tuple` to avoid conflicts between other types and existing code.  I think also tuples should be considered fundamental like `int`, and therefore deserves a lower-case name.  
 
 Consuming the tuple is now handled using `With`, which projects the `Item1`...`ItemN` onto a lambda function (or action):
 
@@ -202,16 +206,20 @@ Another horrible side-effect of `null` is having to bullet-proof every function 
     public void Foo( Some<string> arg )
     {
         string value = arg;
+        ...
     }
 ```
-By wrapping `string` as `Some<string>` we get free runtime `null` checking. Essentially it's impossible for `null` to propagate through if you wrap the type.  As you can see the `arg` variable casts automatically to the `string value`.  You can get the inner-value like so also:
+By wrapping `string` as `Some<string>` we get free runtime `null` checking. Essentially it's impossible for `null` to propagate through.  As you can see (above) the `arg` variable casts automatically to `string value`.  It's also possible to get at the inner-value like so:
 ```C#
     public void Foo( Some<string> arg )
     {
         string value = arg.Value;
+        ...
     }
 ```
 If you're wondering how it works, well `Some<T>` is a `struct`, and has implicit conversation operators that convert a type of `T` to a type of `Some<T>`.  The constructor of `Some<T>` ensures that the value of `T` has a non-null value.
+
+There is also an implicit cast operator from `Some<T>` to `Option<T>`.  The `Some<T>` will automatically put the `Option<T>` into a `Some` state.  It's not possible to go the other way and cast from `Option<T>` to `Some<T>`, because the `Option<T>` could be in a `None` state which wouid cause the `Some<T>` to throw `ValueIsNullException`.  We want to avoid exceptions being thrown, so you must explicitly `match` to extract the `Some` value.
 
 ## Lack of lambda and expression inference 
 
