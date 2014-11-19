@@ -25,7 +25,7 @@ namespace LanguageExt
                 : raise<U>( new SomeNotInitialisedException(typeof(T)) );
 
         public static implicit operator Option<T>(Some<T> value) =>
-            value.CheckInitialised(Option<T>.Some(value.Value));
+            Option<T>.Some(value.Value);
 
         public static implicit operator Some<T>(T value) => 
             new Some<T>(value);
