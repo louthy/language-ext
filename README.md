@@ -209,7 +209,7 @@ Another horrible side-effect of `null` is having to bullet-proof every function 
         ...
     }
 ```
-By wrapping `string` as `Some<string>` we get free runtime `null` checking. Essentially it's impossible for `null` to propagate through.  As you can see (above) the `arg` variable casts automatically to `string value`.  It's also possible to get at the inner-value like so:
+By wrapping `string` as `Some<string>` we get free runtime `null` checking. Essentially it's impossible (well, almost) for `null` to propagate through.  As you can see (above) the `arg` variable casts automatically to `string value`.  It's also possible to get at the inner-value like so:
 ```C#
     public void Foo( Some<string> arg )
     {
