@@ -60,7 +60,7 @@ As we all know it's only a matter of time before a null reference bug crops up b
 Functional languages use what's known as an 'option type'.  In F# it's called `Option` in Haskell it's called `Maybe`.  In the next section we'll see how it's used.
 
 ## Option
-It works in a very similar way to `Nullable<T>` except it works with all types rather than just value types.  It's a `struct` and therefore can't be `null`.  An instance can be created by either calling `Some(value)`, which represents a positive 'I have a value' response;  Or `None`, which is the equivalent of returning `null`.
+`Option<T>` works in a very similar way to `Nullable<T>` except it works with all types rather than just value types.  It's a `struct` and therefore can't be `null`.  An instance can be created by either calling `Some(value)`, which represents a positive 'I have a value' response;  Or `None`, which is the equivalent of returning `null`.
 
 So why is it any better than returning `T` and using `null`?  It seems we can have a non-value response again right?  Yes, that's true, however you're forced to acknowledge that fact, and write code to handle both possible outcomes because you can't get to the underlying value without acknowledging the possibility of the two states that the value could be in.  This bulletproofs your code.  You're also explicitly telling any other programmers that: "This method might not return a value, make sure you deal with that".  This explicit declaration is very powerful.
 
@@ -209,7 +209,7 @@ Another horrible side-effect of `null` is having to bullet-proof every function 
         ...
     }
 ```
-By wrapping `string` as `Some<string>` we get free runtime `null` checking. Essentially it's impossible for `null` to propagate through.  As you can see (above) the `arg` variable casts automatically to `string value`.  It's also possible to get at the inner-value like so:
+By wrapping `string` as `Some<string>` we get free runtime `null` checking. Essentially it's impossible (well, almost) for `null` to propagate through.  As you can see (above) the `arg` variable casts automatically to `string value`.  It's also possible to get at the inner-value like so:
 ```C#
     public void Foo( Some<string> arg )
     {
@@ -284,6 +284,10 @@ To do the same for `Expression<..>`, use the `expr` function:
 Note, if you're creating a `Func` or `Action` that take parameters, you must provide the type:
 
 ```C#
+    // Won't compile
+    var add = fun( (x, y) => x + y );
+
+    // Wil compile
     var add = fun( (int x, int y) => x + y );
 ```
 
