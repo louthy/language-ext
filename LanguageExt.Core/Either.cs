@@ -7,8 +7,8 @@ namespace LanguageExt
 {
     public struct Either<R, L>
     {
-        R right;
-        L left;
+        readonly R right;
+        readonly L left;
 
         public Either(R right)
         {
@@ -124,41 +124,6 @@ namespace LanguageExt
         public Ret Left(Func<L, Ret> leftHandler)
         {
             return match(either, rightHandler, leftHandler);
-        }
-    }
-
-
-    [Serializable]
-    public class EitherIsNotRightException : Exception
-    {
-        public EitherIsNotRightException()
-            : base("Either is not right.")
-        {
-        }
-
-        public EitherIsNotRightException(string message) : base(message)
-        {
-        }
-
-        public EitherIsNotRightException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-    }
-
-    [Serializable]
-    public class EitherIsNotLeftException : Exception
-    {
-        public EitherIsNotLeftException()
-            : base("Either is not left.")
-        {
-        }
-
-        public EitherIsNotLeftException(string message) : base(message)
-        {
-        }
-
-        public EitherIsNotLeftException(string message, Exception innerException) : base(message, innerException)
-        {
         }
     }
 }

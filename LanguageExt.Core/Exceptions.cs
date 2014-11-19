@@ -6,6 +6,15 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
+    public class SomeNotInitialisedException : Exception
+    {
+        public SomeNotInitialisedException(Type type)
+            : 
+            base("Unitialised Some<"+type.Name+"> in class member declaration.")
+        {
+        }
+    }
+
     public class ValueIsNoneException : Exception
     {
         public ValueIsNoneException()
@@ -68,6 +77,42 @@ namespace LanguageExt
         }
 
         public OptionIsNoneException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
+
+
+
+    [Serializable]
+    public class EitherIsNotRightException : Exception
+    {
+        public EitherIsNotRightException()
+            : base("Either is not right.")
+        {
+        }
+
+        public EitherIsNotRightException(string message) : base(message)
+        {
+        }
+
+        public EitherIsNotRightException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
+
+    [Serializable]
+    public class EitherIsNotLeftException : Exception
+    {
+        public EitherIsNotLeftException()
+            : base("Either is not left.")
+        {
+        }
+
+        public EitherIsNotLeftException(string message) : base(message)
+        {
+        }
+
+        public EitherIsNotLeftException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }

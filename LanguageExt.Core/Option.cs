@@ -7,7 +7,7 @@ namespace LanguageExt
 {
     public struct Option<T> : IOptionalValue
     {
-        T value;
+        readonly T value;
 
         public Option(T value)
         {

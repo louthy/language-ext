@@ -78,5 +78,45 @@ namespace LanguageExtTests
         {
             Console.WriteLine(arg);
         }
+
+        [Test]
+        public void AssignToSomeAfterDeclaration()
+        {
+            Some<string> val;
+            val = "Hello";
+            Assert.IsTrue(val.Value != null);
+            Greet(val);
+        }
+
+        [Test]
+        public void AssignToSomeMemberAfterDeclaration()
+        {
+            var obj = new SomeClass();
+
+            obj.SomeOtherValue = "123";
+            Console.WriteLine(obj.SomeOtherValue);
+            Assert.IsTrue(obj.SomeValue == "Hello");
+            Assert.IsTrue(obj.SomeOtherValue != null);
+            Greet(obj.SomeOtherValue);
+        }
+
+
+        [Test]
+        public void AccessUninitialisedSomeMember()
+        {
+            var obj = new SomeClass();
+            Assert.Throws(
+                typeof(SomeNotInitialisedException),
+                () => {
+                    Greet(obj.SomeOtherValue);
+                }
+            );
+        }
+    }
+
+    class SomeClass
+    {
+        public Some<string> SomeValue = "Hello";
+        public Some<string> SomeOtherValue;
     }
 }
