@@ -5,7 +5,7 @@ using LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public struct Either<R, L>
+    public struct EitherUnsafe<R, L>
     {
         enum EitherState : byte
         {
@@ -18,31 +18,25 @@ namespace LanguageExt
         readonly R right;
         readonly L left;
 
-        private Either(R right)
+        private EitherUnsafe(R right)
         {
             this.state = EitherState.IsRight;
             this.right = right;
             this.left = default(L);
         }
 
-        private Either(L left)
+        private EitherUnsafe(L left)
         {
             this.state = EitherState.IsLeft;
             this.right = default(R);
             this.left = left;
         }
 
-        internal static Either<R, L> Right(R value) => 
-            new Either<R, L>(value);
+        internal static EitherUnsafe<R, L> Right(R value) => 
+            new EitherUnsafe<R, L>(value);
 
-        internal static Either<R, L> Left(L value) => 
-            new Either<R, L>(value);
-
-        internal static Either<R, L> RightUnsafe(R value) =>
-            new Either<R, L>(value);
-
-        internal static Either<R, L> LeftUnsafe(L value) =>
-            new Either<R, L>(value);
+        internal static EitherUnsafe<R, L> Left(L value) => 
+            new EitherUnsafe<R, L>(value);
 
         public bool IsRight =>
             CheckInitialised(state == EitherState.IsRight);
@@ -64,29 +58,18 @@ namespace LanguageExt
                     : raise<L>(new EitherIsNotLeftException())
             );
 
-        public static implicit operator Either<R, L>(R value) =>
-            value == null
-                ? raise<Either<R, L>>(new ValueIsNullException())
-                : Either<R, L>.Right(value);
+        public static implicit operator EitherUnsafe<R, L>(R value) =>
+            EitherUnsafe<R, L>.Right(value);
 
-        public static implicit operator Either<R, L>(L value) =>
-            value == null
-                ? raise<Either<R, L>>(new ValueIsNullException())
-                : Either<R, L>.Left(value);
+        public static implicit operator EitherUnsafe<R, L>(L value) =>
+            EitherUnsafe<R, L>.Left(value);
 
-
-        private T CheckNullReturn<T>(T value, string location) =>
-            value == null
-                ? raise<T>(new ResultIsNullException("'\{location}' result is null.  Not allowed."))
-                : value;
-
-
-        public Ret Match<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
+        public Ret MatchUnsafe<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
             IsRight
-                ? CheckNullReturn(Right(RightValue),"Right")
-                : CheckNullReturn(Left(LeftValue),"Left");
+                ? Right(RightValue)
+                : Left(LeftValue);
 
-        public Unit Match(Action<R> Right, Action<L> Left)
+        public Unit MatchUnsafe(Action<R> Right, Action<L> Left)
         {
             if (IsRight)
             {
@@ -99,14 +82,14 @@ namespace LanguageExt
             return unit;
         }
 
-        public R Failure(Func<R> None) => 
-            Match(identity<R>(), _ => None());
+        public R FailureUnsafe(Func<R> None) =>
+            MatchUnsafe(identity<R>(), _ => None());
 
-        public R Failure(R noneValue) => 
-            Match(identity<R>(), _ => noneValue);
+        public R FailureUnsafe(R noneValue) =>
+            MatchUnsafe(identity<R>(), _ => noneValue);
 
-        public EitherContext<R, L, Ret> Right<Ret>(Func<R, Ret> rightHandler) =>
-            new EitherContext<R, L, Ret>(this, rightHandler);
+        public EitherUnsafeContext<R, L, Ret> Right<Ret>(Func<R, Ret> rightHandler) =>
+            new EitherUnsafeContext<R, L, Ret>(this, rightHandler);
 
         public override string ToString() =>
             IsRight
@@ -141,12 +124,12 @@ namespace LanguageExt
                 : value;
     }
 
-    public struct EitherContext<R, L, Ret>
+    public struct EitherUnsafeContext<R, L, Ret>
     {
-        Either<R, L> either;
+        EitherUnsafe<R, L> either;
         Func<R, Ret> rightHandler;
 
-        internal EitherContext(Either<R,L> either, Func<R, Ret> rightHandler)
+        internal EitherUnsafeContext(EitherUnsafe<R,L> either, Func<R, Ret> rightHandler)
         {
             this.either = either;
             this.rightHandler = rightHandler;
@@ -154,33 +137,33 @@ namespace LanguageExt
 
         public Ret Left(Func<L, Ret> leftHandler)
         {
-            return match(either, rightHandler, leftHandler);
+            return matchUnsafe(either, rightHandler, leftHandler);
         }
     }
 }
 
-public static class __EitherExt
+public static class __EitherUnsafeExt
 {
-    public static Either<UR, L> Select<TR, UR, L>(this Either<TR, L> self, Func<TR, UR> map) =>
-        match(self,
-            Right: t => Either<UR, L>.Right(map(t)),
-            Left: l => Either<UR, L>.Left(l)
+    public static EitherUnsafe<UR, L> Select<TR, UR, L>(this EitherUnsafe<TR, L> self, Func<TR, UR> map) =>
+        matchUnsafe(self,
+            Right: t => EitherUnsafe<UR, L>.Right(map(t)),
+            Left: l => EitherUnsafe<UR, L>.Left(l)
             );
 
-    public static Either<VR, L> SelectMany<TR, UR, VR, L>(this Either<TR, L> self,
-        Func<TR, Either<UR, L>> bind,
+    public static EitherUnsafe<VR, L> SelectMany<TR, UR, VR, L>(this EitherUnsafe<TR, L> self,
+        Func<TR, EitherUnsafe<UR, L>> bind,
         Func<TR, UR, VR> project
         ) =>
-        match(self,
+        matchUnsafe(self,
             Right: t =>
-                match(bind(t),
-                    Right: u => Either<VR, L>.Right(project(t, u)),
-                    Left: l => Either<VR, L>.Left(l)
+                matchUnsafe(bind(t),
+                    Right: u => EitherUnsafe<VR, L>.Right(project(t, u)),
+                    Left: l => EitherUnsafe<VR, L>.Left(l)
                 ),
-            Left: l => Either<VR, L>.Left(l)
+            Left: l => EitherUnsafe<VR, L>.Left(l)
             );
 
-    public static IEnumerable<R> AsEnumerable<R, L>(this Either<R, L> self)
+    public static IEnumerable<R> AsEnumerable<R, L>(this EitherUnsafe<R, L> self)
     {
         if (self.IsRight)
         {
@@ -191,7 +174,7 @@ public static class __EitherExt
         }
     }
 
-    public static IEnumerable<R> AsEnumerableOne<R, L>(this Either<R, L> self)
+    public static IEnumerable<R> AsEnumerableOne<R, L>(this EitherUnsafe<R, L> self)
     {
         if (self.IsRight)
         {

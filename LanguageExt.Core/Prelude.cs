@@ -22,7 +22,7 @@ namespace LanguageExt
         public static Option<T> Some<T>(T value) =>
             value == null
                 ? raise<Option<T>>(new ValueIsNullException())
-                : new Option<T>(value);
+                : Option<T>.Some(value);
 
         /// <summary>
         /// Create a Some of T from a Nullable<T> (Option<T>)
@@ -43,8 +43,8 @@ namespace LanguageExt
         /// <typeparam name="T">T</typeparam>
         /// <param name="value">Value to make optional</param>
         /// <returns>Option<T> in a Some state</returns>
-        public static Option<T> SomeUnsafe<T>(T value) =>
-            new Option<T>(value, true, true);
+        public static OptionUnsafe<T> SomeUnsafe<T>(T value) =>
+            OptionUnsafe<T>.Some(value);
 
         /// <summary>
         /// 'No value' state of Option<T>.  
@@ -52,15 +52,12 @@ namespace LanguageExt
         public static OptionNone None => 
             OptionNone.Default;
 
+
         public static Either<R, L> Right<R, L>(R value) =>
-            value == null 
-                ? raise<Either<R, L>>(new ValueIsNullException())
-                : Either<R, L>.Right(value);
+            Either<R, L>.Right(value);
 
         public static Either<R, L> Left<R, L>(L value) =>
-            value == null
-                ? raise<Either<R, L>>(new ValueIsNullException())
-                : Either<R, L>.Left(value);
+            Either<R, L>.Left(value);
 
         public static Either<R, L> Right<R, L>(Nullable<R> value) where R : struct =>
             value == null
@@ -72,11 +69,13 @@ namespace LanguageExt
                 ? raise<Either<R, L>>(new ValueIsNullException())
                 : Either<R, L>.Left(value.Value);
 
-        public static Either<R, L> RightUnsafe<R, L>(R value) =>
-            Either<R, L>.RightUnsafe(value);
 
-        public static Either<R, L> LeftUnsafe<R, L>(L value) =>
-            Either<R, L>.LeftUnsafe(value);
+        public static EitherUnsafe<R, L> RightUnsafe<R, L>(R value) =>
+            EitherUnsafe<R, L>.Right(value);
+
+        public static EitherUnsafe<R, L> LeftUnsafe<R, L>(L value) =>
+            EitherUnsafe<R, L>.Left(value);
+
 
         public static T failure<T>(Option<T> option, Func<T> None) =>
             option.Failure(None);
@@ -90,6 +89,20 @@ namespace LanguageExt
         public static Unit match<T>(Option<T> option, Action<T> Some, Action None) =>
             option.Match(Some, None);
 
+
+        public static T failureUnsafe<T>(OptionUnsafe<T> option, Func<T> None) =>
+            option.FailureUnsafe(None);
+
+        public static T failure<T>(OptionUnsafe<T> option, T noneValue) =>
+            option.FailureUnsafe(noneValue);
+
+        public static R matchUnsafe<T, R>(OptionUnsafe<T> option, Func<T, R> Some, Func<R> None) =>
+            option.MatchUnsafe(Some, None);
+
+        public static Unit matchUnsafe<T>(OptionUnsafe<T> option, Action<T> Some, Action None) =>
+            option.MatchUnsafe(Some, None);
+
+
         public static R failure<R, L>(Either<R, L> either, Func<R> None) =>
             either.Failure(None);
 
@@ -101,6 +114,19 @@ namespace LanguageExt
 
         public static Unit match<R, L>(Either<R, L> either, Action<R> Right, Action<L> Left) =>
             either.Match(Right, Left);
+
+
+        public static R failureUnsafe<R, L>(EitherUnsafe<R, L> either, Func<R> None) =>
+            either.FailureUnsafe(None);
+
+        public static R failureUnsafe<R, L>(EitherUnsafe<R, L> either, R noneValue) =>
+            either.FailureUnsafe(noneValue);
+
+        public static Ret matchUnsafe<R, L, Ret>(EitherUnsafe<R, L> either, Func<R, Ret> Right, Func<L, Ret> Left) =>
+            either.MatchUnsafe(Right, Left);
+
+        public static Unit matchUnsafe<R, L>(EitherUnsafe<R, L> either, Action<R> Right, Action<L> Left) =>
+            either.MatchUnsafe(Right, Left);
 
         public static Func<R> fun<R>(Func<R> f) => f;
         public static Func<T1, R> fun<T1, R>(Func<T1, R> f) => f;

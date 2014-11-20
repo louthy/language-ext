@@ -5,31 +5,34 @@ using LanguageExt.Prelude;
 
 namespace LanguageExt
 {
+    /// <summary>
+    /// Option<T> can be in two states:
+    ///     1. Some(x) -- which means there is a value stored inside
+    ///     2. None    -- which means there's no value stored inside
+    /// To extract the value you must use the 'match' function.
+    /// </summary>
     public struct Option<T> : IOptionalValue
     {
         readonly T value;
 
-        internal Option(T value, bool isSome, bool isUnsafe)
+        private Option(T value, bool isSome)
         {
             this.IsSome = isSome;
             this.value = value;
-            this.IsUnsafe = isUnsafe;
         }
 
-        public Option(T value) 
-            : this (value,value != null, false)
+        private Option(T value) 
+            : this (value,value != null)
             {}
 
         public Option() 
-            : this(default(T), false, false)
+            : this(default(T), false)
             {}
 
         public static Option<T> Some(T value) => 
             new Option<T>(value);
 
         public static readonly Option<T> None = new Option<T>();
-
-        public bool IsUnsafe { get; }
 
         public bool IsSome { get; }
 
@@ -50,11 +53,9 @@ namespace LanguageExt
             Option<T>.None;
 
         private U CheckNullReturn<U>(U value, string location) =>
-            IsUnsafe
-                ? value
-                : value == null
-                    ? raise<U>(new ResultIsNullException("'\{location}' result is null.  Not allowed."))
-                    : value;
+            value == null
+                ? raise<U>(new ResultIsNullException("'\{location}' result is null.  Not allowed."))
+                : value;
 
         public R Match<R>(Func<T, R> Some, Func<R> None) =>
             IsSome
@@ -128,14 +129,14 @@ namespace LanguageExt
     {
         public static Option<T> Cast<T>(T value) =>
             value == null
-                ? new Option<T>()
-                : new Option<T>(value);
+                ? Option<T>.None
+                : Option<T>.Some(value);
 
 
         public static Option<T> Cast<T>(Nullable<T> value) where T : struct =>
             value == null
-                ? new Option<T>()
-                : new Option<T>(value.Value);
+                ? Option<T>.None
+                : Option<T>.Some(value.Value);
     }
 }
 

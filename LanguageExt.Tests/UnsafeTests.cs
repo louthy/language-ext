@@ -10,9 +10,9 @@ namespace LanguageExtTests
         [Test]
         public void AssignmentTests()
         {
-            Option<string> str = SomeUnsafe((string)null);
+            OptionUnsafe<string> str = SomeUnsafe((string)null);
 
-            string res = match(
+            string res = matchUnsafe(
                             str,
                             Some: v => v,
                             None: () => "failed"
