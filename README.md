@@ -1,3 +1,5 @@
+![lang-ext](http://www.4four.org/images/lang-ext-logo.png)
+
 C# Functional Language Extensions
 =================================
 
