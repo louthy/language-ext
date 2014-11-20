@@ -552,7 +552,7 @@ Type or function | Description
 `stack<T>()` | ImmutableStack.Create<T>()
 `array<T>()` | ImmutableArray.Create<T>()
 `queue<T>()` | ImmutableQueue.Create<T>()
-`freeze<T>()` | Converts an IEnumerable<T> to an IImmutableList<T>
+`freeze<T>(list)` | Converts an IEnumerable<T> to an IImmutableList<T>
 `memo<T>(fn)` | Caches a function's result the first time it's called
 `memo<T,R>(fn)` | Caches a result of a function once for each unique parameter passed to it
 `ignore` | Takes one argument which it ignores and returns `unit` instead.
