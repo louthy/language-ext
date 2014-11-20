@@ -546,7 +546,7 @@ I haven't had time to document everything, so here's a quick list of what was mi
 
 Type or function | Description
 -----------------|------------
-`TryOption<T>` | The same as `Option<T>` except it also handles exceptions.  It has a third handler called Fail.
+`TryOption<T>` | The same as `Option<T>` except it also handles exceptions.  It has a third state called `Fail`.
 `Either<Right,Left>` | Like `Option<T>`, however the `None` in `Option<T>` is called `Left` in `Either`, and `Some` is called `Right`.  Just remember: `Right` is right, `Left` is wrong.  Both `Right` and `Left` can hold values.  And they can be different types.  See the OptionEitherConfigSample for a demo.  Supports all the same functionality as `Option<T>`.
 `SomeUnsafe()`, `RightUnsafe()`, `LeftUnsafe()` | These methods accept that sometimes `null` is a valid result, but you still want an option of saying `None`.  They allow `null` to propagate through, and it removes the `null` checks from the return value of `match`
 `set<T>()` | ImmutableHashSet.Create<T>()
