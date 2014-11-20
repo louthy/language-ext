@@ -56,7 +56,8 @@
     <Compile Include="Option.cs" />
     <Compile Include="Parse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TryExt.cs" />
+    <Compile Include="Try.cs" />
+    <Compile Include="TryOutExt.cs" />
     <Compile Include="TupleExt.cs" />
     <Compile Include="Unit.cs" />
   </ItemGroup>

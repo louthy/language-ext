@@ -5,7 +5,7 @@ using System;
 namespace LanguageExtTests
 {
     [TestFixture]
-    public class TryTests
+    public class TryOutTests
     {
         [Test] public void OutTest()
         {

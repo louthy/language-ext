@@ -128,6 +128,20 @@ namespace LanguageExt
         public static Unit matchUnsafe<R, L>(EitherUnsafe<R, L> either, Action<R> Right, Action<L> Left) =>
             either.MatchUnsafe(Right, Left);
 
+
+        public static T failure<T>(Try<T> tryDel, Func<T> Fail) =>
+            tryDel.Failure(Fail);
+
+        public static T failure<T>(Try<T> tryDel, T failValue) =>
+            tryDel.Failure(failValue);
+
+        public static R match<T, R>(Try<T> tryDel, Func<T, R> Succ, Func<Exception,R> Fail) =>
+            tryDel.Match(Succ, Fail);
+
+        public static Unit match<T>(Try<T> tryDel, Action<T> Succ, Action<Exception> Fail) =>
+            tryDel.Match(Succ, Fail);
+
+
         public static Func<R> fun<R>(Func<R> f) => f;
         public static Func<T1, R> fun<T1, R>(Func<T1, R> f) => f;
         public static Func<T1, T2, R> fun<T1, T2, R>(Func<T1, T2, R> f) => f;
