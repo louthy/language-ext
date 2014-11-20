@@ -1,3 +1,5 @@
+![lang-ext](http://www.4four.org/images/lang-ext-logo.png)
+
 C# Functional Language Extensions
 =================================
 
@@ -121,7 +123,7 @@ It's actually nearly impossible to get a `null` out of a function, even if the `
     }
 ```
 
-That will compile.  However the `Option<T>` will notice what you're up to and give you a `None` anyway.  This is pretty important to remember.  Even if you do this, you'll get a `None`.  
+That will compile, but at runtime will throw a `ValueIsNullException`.  If you do this (below) you'll get a `None`.  
 
 ```C#
     private Option<string> GetStringNone()
@@ -130,6 +132,21 @@ That will compile.  However the `Option<T>` will notice what you're up to and gi
         return nullStr;
     }
 ```
+
+These are the coercion rules:
+
+Converts from |  Converts to
+--------------|-------------
+`x` | `Some(x)`
+`null` | `None`
+`None` | `None`
+`Some(x)` | `Some(x)`
+`Some(null)` | `ValueIsNullException`
+`Some(None)` | `Some(None)`
+`Some(Some(x))` | `Some(Some(x))`
+`Some(Nullable null)` | `ValueIsNullException`
+`Some(Nullable x)` | `Some(x)`
+
 
 As well as the protection of the internal value of `Option<T>`, there's protection for the return value of the `Some` and `None` handler functions.  You can't return `null` from those either, an exception will be thrown.
 
@@ -528,6 +545,7 @@ I haven't had time to document everything, so here's a quick list of what was mi
 Type or function | Description
 -----------------|------------
 `Either<Right,Left>` | Like `Option<T>`, however the `None` in `Option<T>` is called `Left` in `Either`, and `Some` is called `Right`.  Just remember: `Right` is right, `Left` is wrong.  Both `Right` and `Left` can hold values.  And they can be different types.  See the OptionEitherConfigSample for a demo.  Supports all the same functionality as `Option<T>`.
+`SomeUnsafe()`, `RightUnsafe()`, `LeftUnsafe()` | These methods accept that sometimes `null` is a valid result, but you still want an option of saying `None`.  They allow `null` to propagate through, and it removes the `null` checks from the return value of `match`
 `memo` | Caches a function's result the first time it's called
 `ignore` | Takes one argument which it ignores and returns `unit` instead.
 `Nullable<T>.ToOption()` | Converts a `Nullable<T>` to an `Option<T>`
