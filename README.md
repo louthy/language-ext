@@ -137,8 +137,8 @@ Converts from |  Converts to
 --------------|-------------
 `x` | `Some(x)`
 `null` | `None`
-`Some(x)` | `Some(x)`
 `None` | `None`
+`Some(x)` | `Some(x)`
 `Some(null)` | `ValueIsNullException`
 `Some(None)` | `Some(None)`
 `Some(Some(x))` | `Some(Some(x))`
