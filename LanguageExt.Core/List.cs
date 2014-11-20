@@ -24,14 +24,14 @@ namespace LanguageExt
                 ? Some(list.First())
                 : None;
 
-        public static IImmutableList<T> tail<T>(this IImmutableList<T> list) => 
-            list.Skip(1).ToImmutableList();
+        public static IImmutableList<T> tail<T>(this IImmutableList<T> list) =>
+            freeze( list.Skip(1) );
 
         public static IImmutableList<R> map<T, R>(this IImmutableList<T> list, Func<T, R> map) =>
-            list.Select(map).ToImmutableList();
+            freeze( list.Select(map) );
 
         public static IImmutableList<T> filter<T>(this IImmutableList<T> list, Func<T, bool> predicate) =>
-            list.Where(predicate).ToImmutableList();
+            freeze( list.Where(predicate) );
 
         public static int sum(this IImmutableList<int> list) => fold(list, 0, (x, s) => s + x);
 
@@ -42,10 +42,10 @@ namespace LanguageExt
         public static decimal sum(this IImmutableList<decimal> list) => fold(list, (decimal)0, (x, s) => s + x);
 
         public static IImmutableList<T> rev<T>(this IImmutableList<T> list) =>
-            list.Reverse().ToImmutableList();
+            freeze( list.Reverse() );
 
         public static IImmutableList<T> append<T>(this IImmutableList<T> lhs, IImmutableList<T> rhs) =>
-            lhs.Concat(rhs).ToImmutableList();
+            freeze( lhs.Concat(rhs) );
 
         public static S fold<S, T>(this IImmutableList<T> list, S state, Func<T, S, S> folder)
         {
@@ -61,6 +61,15 @@ namespace LanguageExt
                 Some: x => fold(tail(list), x, reducer),
                 None: () => failwith<T>("Input list was empty")
             );
+
+        public static IImmutableList<T> freeze<T>(this IEnumerable<T> self) =>
+            self.ToImmutableList();
+
+        public static IImmutableList<V> zip<T, U, V>(this IImmutableList<T> self, IEnumerable<U> other, Func<T, U, V> zipper) =>
+            freeze(self.Zip(other, zipper));
+
+        public static int length<T>(this IImmutableList<T> self) =>
+           self.Count;
 
         public static Unit each<T>(this IImmutableList<T> list, Action<T> action)
         {

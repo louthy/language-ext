@@ -2,6 +2,7 @@
 using System.Console;
 using System.Configuration.ConfigurationManager;
 using LanguageExt;
+using LanguageExt.List;
 using LanguageExt.Prelude;
 
 namespace ConfigSample

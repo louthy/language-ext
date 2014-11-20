@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq.Expressions;
+using System.Collections.Concurrent;
 
 namespace LanguageExt
 {
@@ -233,36 +234,66 @@ namespace LanguageExt
             return Unit.Default;
         }
 
-        public static IEnumerable<T> cons<T>(this T self, IEnumerable<T> tail)
+        /// <summary>
+        /// Construct a list from head and tail
+        /// head becomes the first item in the list
+        /// Is lazy
+        /// </summary>
+        public static IEnumerable<T> cons<T>(this T head, IEnumerable<T> tail)
         {
-            yield return self;
+            yield return head;
             foreach (var item in tail)
             {
                 yield return item;
             }
         }
 
-        public static IImmutableList<T> cons<T>(this T self, IImmutableList<T> tail) =>
-            tail.Insert(0, self);
+        /// <summary>
+        /// Construct a list from head and tail
+        /// </summary>
+        public static IImmutableList<T> cons<T>(this T head, IImmutableList<T> tail) =>
+            tail.Insert(0, head);
 
+        /// <summary>
+        /// Create an empty IEnumerable<T>
+        /// </summary>
         public static IEnumerable<T> empty<T>() => 
             new T[0];
-            
+
+        /// <summary>
+        /// Create an immutable list
+        /// </summary>
         public static IImmutableList<T> list<T>() => 
             ImmutableList.Create<T>();
 
+        /// <summary>
+        /// Create an immutable list
+        /// </summary>
         public static IImmutableList<T> list<T>(params T[] items) => 
             ImmutableList.Create<T>(items);
 
+        /// <summary>
+        /// Lazily generate a range of integers.  
+        /// from and to are inclusive.
+        /// </summary>
         public static IEnumerable<int> range(int from, int to) =>
             Enumerable.Range(from, to);
 
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
         public static IImmutableDictionary<K, V> map<K, V>() =>
             ImmutableDictionary.Create<K, V>();
 
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
         public static IImmutableDictionary<K, V> map<K, V>(params Tuple<K, V>[] items) =>
             map(items.Select(i => new KeyValuePair<K, V>(i.Item1, i.Item2)).ToArray());
 
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
         public static IImmutableDictionary<K, V> map<K, V>(params KeyValuePair<K, V>[] items)
         {
             var builder = ImmutableDictionary.CreateBuilder<K, V>();
@@ -270,27 +301,121 @@ namespace LanguageExt
             return builder.ToImmutableDictionary();
         }
 
+        /// <summary>
+        /// Create an immutable queue
+        /// </summary>
+        public static ImmutableArray<T> array<T>() =>
+            ImmutableArray.Create<T>();
+
+        /// <summary>
+        /// Create an immutable queue
+        /// </summary>
+        public static ImmutableArray<T> array<T>(T item) =>
+            ImmutableArray.Create<T>(item);
+
+        /// <summary>
+        /// Create an immutable queue
+        /// </summary>
+        public static ImmutableArray<T> array<T>(params T[] items) =>
+            ImmutableArray.Create<T>(items);
+
+        /// <summary>
+        /// Create an immutable queue
+        /// </summary>
+        public static IImmutableQueue<T> queue<T>() =>
+            ImmutableQueue.Create<T>();
+
+        /// <summary>
+        /// Create an immutable queue
+        /// </summary>
+        public static IImmutableQueue<T> queue<T>(T item) =>
+            ImmutableQueue.Create<T>();
+
+        /// <summary>
+        /// Create an immutable queue
+        /// </summary>
+        public static IImmutableQueue<T> queue<T>(params T[] items) =>
+            ImmutableQueue.Create<T>(items);
+
+        /// <summary>
+        /// Create an immutable stack
+        /// </summary>
+        public static IImmutableStack<T> stack<T>() =>
+            ImmutableStack.Create<T>();
+
+        /// <summary>
+        /// Create an immutable stack
+        /// </summary>
+        public static IImmutableStack<T> stack<T>(T item) =>
+            ImmutableStack.Create<T>();
+
+        /// <summary>
+        /// Create an immutable stack
+        /// </summary>
+        public static IImmutableStack<T> stack<T>(params T[] items) =>
+            ImmutableStack.Create<T>(items);
+
+        /// <summary>
+        /// Create an immutable set
+        /// </summary>
+        public static IImmutableSet<T> set<T>() =>
+            ImmutableHashSet.Create<T>();
+
+        /// <summary>
+        /// Create an immutable set
+        /// </summary>
+        public static IImmutableSet<T> set<T>(T item) =>
+            ImmutableHashSet.Create<T>(item);
+
+        /// <summary>
+        /// Create an immutable set
+        /// </summary>
+        public static IImmutableSet<T> set<T>(params T[] items) =>
+            ImmutableHashSet.Create<T>(items);
+
+        /// <summary>
+        /// Returns a Func<T> that wraps func.  The first
+        /// call to the resulting Func<T> will cache the result.
+        /// Subsequent calls return the cached item.
+        /// </summary>
         public static Func<T> memo<T>(Func<T> func)
         {
-            var objectLock = new Object();
-            T value = default(T);
-            return () =>
-                {
-                    if (objectLock != null)
-                    {
-                        lock (objectLock)
-                        {
-                            if (objectLock != null)
-                            {
-                                value = func();
-                            }
-                        }
-                        objectLock = null;
-                    }
-                    return value;
-                };
+            var value = new Lazy<T>(func, true);
+            return () => value.Value;
         }
 
+        /// <summary>
+        /// Returns a Func<T,R> that wraps func.  Each time the resulting
+        /// Func<T,R> is called with a new value, its result is cached.
+        /// Subsequent calls use the cached value.  
+        /// 
+        /// Remarks: Uses a ConcurrentDictionary for the cache and is thread-safe
+        /// </summary>
+        public static Func<T, R> memo<T, R>(Func<T, R> func)
+        {
+            var cache = new ConcurrentDictionary<T, R>();
+            var syncMap = new ConcurrentDictionary<T, object>();
+            return inp =>
+            {
+                R res;
+                if (!cache.TryGetValue(inp, out res))
+                {
+                    var sync = syncMap.GetOrAdd(inp, new object());
+                    lock (sync)
+                    {
+                        res = cache.GetOrAdd(inp, func);
+                    }
+                    syncMap.TryRemove(inp, out sync);
+                }
+                return res;
+            };
+        }
+
+        /// <summary>
+        /// Generates an identity function
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static Func<T,T> identity<T>() => (T id) => id;
 
         public static Action failaction(string message) =>

@@ -45,7 +45,7 @@ namespace LanguageExtTests
                         tuple(3, "c")
                      );
 
-            var m2 = set(m1, 1, "x");
+            var m2 = setItem(m1, 1, "x");
 
             match( 
                 find(m1,1), 
