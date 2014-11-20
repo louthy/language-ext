@@ -7,61 +7,62 @@ namespace LanguageExt
 {
     public struct Either<R, L>
     {
+        enum EitherState : byte
+        {
+            IsUninitialised= 0,
+            IsLeft = 1,
+            IsRight = 2   
+        }
+
+        readonly EitherState state;
         readonly R right;
         readonly L left;
 
         public Either(R right)
         {
-            this.IsRight = right != null;
+            this.state = EitherState.IsRight;
             this.right = right;
             this.left = default(L);
         }
 
         public Either(L left)
         {
-            this.IsRight = false;
+            this.state = EitherState.IsLeft;
             this.right = default(R);
             this.left = left;
         }
 
-        public static Either<R, L> Right(R value) => new Either<R, L>(value);
-        public static Either<R, L> Left(L value) => new Either<R, L>(value);
+        public static Either<R, L> Right(R value) => 
+            new Either<R, L>(value);
 
-        public bool IsRight { get; }
-        public bool IsLeft => !IsRight;
+        public static Either<R, L> Left(L value) => 
+            new Either<R, L>(value);
 
-        internal R RightValue
-        {
-            get
-            {
-                if (IsRight)
-                {
-                    return right;
-                }
-                else
-                {
-                    throw new EitherIsNotRightException();
-                }
-            }
-        }
+        public bool IsRight =>
+            CheckInitialised(state == EitherState.IsRight);
 
-        internal L LeftValue
-        {
-            get
-            {
-                if (IsLeft)
-                {
-                    return left;
-                }
-                else
-                {
-                    throw new EitherIsNotLeftException();
-                }
-            }
-        }
+        public bool IsLeft =>
+            CheckInitialised(state == EitherState.IsLeft);
 
-        public static implicit operator Either<R, L>(R value) => Either<R, L>.Right(value);
-        public static implicit operator Either<R, L>(L value) => Either<R, L>.Left(value);
+        internal R RightValue =>
+            CheckInitialised(
+                IsRight 
+                    ? right
+                    : raise<R>(new EitherIsNotRightException())
+            );
+
+        internal L LeftValue =>
+            CheckInitialised(
+                IsLeft
+                    ? left
+                    : raise<L>(new EitherIsNotLeftException())
+            );
+
+        public static implicit operator Either<R, L>(R value) => 
+            Either<R, L>.Right(value);
+
+        public static implicit operator Either<R, L>(L value) => 
+            Either<R, L>.Left(value);
 
         private static T CheckNullReturn<T>(T value, string location) =>
             value == null
@@ -87,9 +88,11 @@ namespace LanguageExt
             return unit;
         }
 
-        public R Failure(Func<R> None) => Match(identity<R>(), _ => None());
+        public R Failure(Func<R> None) => 
+            Match(identity<R>(), _ => None());
 
-        public R Failure(R noneValue) => Match(identity<R>(), _ => noneValue);
+        public R Failure(R noneValue) => 
+            Match(identity<R>(), _ => noneValue);
 
         public EitherContext<R, L, Ret> Right<Ret>(Func<R, Ret> rightHandler) =>
             new EitherContext<R, L, Ret>(this, rightHandler);
@@ -108,6 +111,11 @@ namespace LanguageExt
             IsRight
                 ? RightValue.Equals(obj)
                 : LeftValue.Equals(obj);
+
+        private U CheckInitialised<U>(U value) =>
+            state == EitherState.IsUninitialised
+                ? raise<U>(new EitherNotInitialisedException())
+                : value;
     }
 
     public struct EitherContext<R, L, Ret>

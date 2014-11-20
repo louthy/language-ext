@@ -116,4 +116,21 @@ namespace LanguageExt
         {
         }
     }
+
+    [Serializable]
+    public class EitherNotInitialisedException : Exception
+    {
+        public EitherNotInitialisedException()
+            : base("Unitialised Either<T> in class member declaration.")
+        {
+        }
+
+        public EitherNotInitialisedException(string message) : base(message)
+        {
+        }
+
+        public EitherNotInitialisedException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
 }

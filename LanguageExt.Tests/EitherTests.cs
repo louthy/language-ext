@@ -137,7 +137,6 @@ namespace LanguageExtTests
         }
 
         private Either<int, string> ImplicitConversion() => 1000;
-
         private Either<int, string> ItsLeft => "Left";
         private Either<int, string> Two => 2;
         private Either<int, string> Four => 4;

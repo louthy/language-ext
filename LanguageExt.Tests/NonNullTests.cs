@@ -100,6 +100,28 @@ namespace LanguageExtTests
             Greet(obj.SomeOtherValue);
         }
 
+        [Test]
+        public void AccessUninitialisedEitherMember()
+        {
+            var obj = new EitherClass();
+
+            match(obj.EitherValue,
+                Right: r => Console.WriteLine(r),
+                Left: l => Console.WriteLine(l)
+            );
+
+            Assert.Throws(
+                typeof(EitherNotInitialisedException),
+                () => {
+
+                    match(obj.EitherOtherValue,
+                        Right: r => Console.WriteLine(r),
+                        Left: l => Console.WriteLine(l)
+                    );
+                }
+            );
+        }
+
 
         [Test]
         public void AccessUninitialisedSomeMember()
@@ -119,4 +141,11 @@ namespace LanguageExtTests
         public Some<string> SomeValue = "Hello";
         public Some<string> SomeOtherValue;
     }
+
+    class EitherClass
+    {
+        public Either<string, int> EitherValue = "Hello";
+        public Either<string, int> EitherOtherValue;
+    }
+
 }
