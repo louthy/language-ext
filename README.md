@@ -553,8 +553,8 @@ Type or function | Description
 `array<T>()` | ImmutableArray.Create<T>()
 `queue<T>()` | ImmutableQueue.Create<T>()
 `freeze<T>()` | Converts an IEnumerable<T> to an IImmutableList<T>
-`memo<T>()` | Caches a function's result the first time it's called
-`memo<T,R>()` | Caches a result of a function once for each unique parameter passed to it
+`memo<T>(fn)` | Caches a function's result the first time it's called
+`memo<T,R>(fn)` | Caches a result of a function once for each unique parameter passed to it
 `ignore` | Takes one argument which it ignores and returns `unit` instead.
 `Nullable<T>.ToOption()` | Converts a `Nullable<T>` to an `Option<T>`
 `raise(exception)` | Throws the exception passed as an argument.  Useful in lambda's where a return value is needed.
