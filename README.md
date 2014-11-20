@@ -131,6 +131,21 @@ That will compile, but at runtime will throw a `ValueIsNullException`.  If you d
     }
 ```
 
+These are the coercion rules:
+
+Converts from |  Converts to
+--------------|-------------
+`x` | `Some(x)`
+`null` | `None`
+`Some(x)` | `Some(x)`
+`None` | `None`
+`Some(null)` | `ValueIsNullException`
+`Some(None)` | `Some(None)`
+`Some(Some(x))` | `Some(Some(x))`
+`Some(Nullable null)` | `ValueIsNullException`
+`Some(Nullable x)` | `Some(x)`
+
+
 As well as the protection of the internal value of `Option<T>`, there's protection for the return value of the `Some` and `None` handler functions.  You can't return `null` from those either, an exception will be thrown.
 
 ```C#
