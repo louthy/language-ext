@@ -264,8 +264,8 @@ namespace LanguageExt
         /// Converts the Try to an enumerable of T
         /// </summary>
         /// <returns>
-        /// Succ: A list with one T in
-        /// Error: An empty list
+        /// Some: A list with one T in
+        /// None|Fail: An empty list
         /// </returns>
         public static IEnumerable<T> AsEnumerableOne<T>(this TryOption<T> self)
         {
@@ -280,8 +280,8 @@ namespace LanguageExt
         /// Converts the Try to an infinite enumerable of T
         /// </summary>
         /// <returns>
-        /// Succ: An infinite list of T
-        /// Error: An empty list
+        /// Some: An infinite list of T
+        /// None|Fail: An empty list
         /// </returns>
         public static IEnumerable<T> AsEnumerable<T>(this TryOption<T> self)
         {

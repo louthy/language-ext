@@ -138,6 +138,12 @@ namespace LanguageExt
         public static R match<T, R>(TryOption<T> tryDel, Func<T, R> Some, Func<R> None, Func<Exception,R> Fail) =>
             tryDel.Match(Some, None, Fail);
 
+        public static R match<T, R>(TryOption<T> tryDel, Func<T, R> Some, R None, Func<Exception, R> Fail) =>
+            tryDel.Match(Some, None, Fail);
+
+        public static R match<T, R>(TryOption<T> tryDel, Func<T, R> Some, Func<R> None, R Fail) =>
+            tryDel.Match(Some, None, Fail);
+
         public static Unit match<T>(TryOption<T> tryDel, Action<T> Some, Action None, Action<Exception> Fail) =>
             tryDel.Match(Some, None, Fail);
 
