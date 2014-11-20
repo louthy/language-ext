@@ -11,18 +11,20 @@ namespace LanguageExtTests
         [Test]
         public void TryMatchSuccessTest1()
         {
-            GetValue(true).Match(
-                Succ: v => Assert.IsTrue(v == "Hello, World"),
-                Fail: e => Assert.Fail()
+            GetSomeValue(true).Match(
+                Some: v  => Assert.IsTrue(v == "Hello, World"),
+                None: () => Assert.Fail(),
+                Fail: e  => Assert.Fail()
             );
         }
 
         [Test]
         public void TryMatchFailTest1()
         {
-            GetValue(false).Match(
-                Succ: v => Assert.Fail(),
-                Fail: e => Assert.IsTrue(e.Message == "Whoops")
+            GetFailValue().Match(
+                Some: v  => Assert.Fail(),
+                None: () => Assert.Fail(),
+                Fail: e  => Assert.IsTrue(e.Message == "Whoops")
             );
         }
 
@@ -31,21 +33,22 @@ namespace LanguageExtTests
         {
             match( 
                 GetValue(true),
-                Succ: v => Assert.IsTrue(v == "Hello, World"),
-                Fail: e => Assert.Fail()
+                Some: v  => Assert.IsTrue(v == "Hello, World"),
+                None: () => Assert.Fail(),
+                Fail: e  => Assert.Fail()
             );
         }
 
         [Test]
-        public void FuncTryMatchFailTest1()
+        public void FuncTryMatchNoneTest1()
         {
             match(
                 GetValue(false),
-                Succ: v => Assert.Fail(),
-                Fail: e => Assert.IsTrue(e.Message == "Whoops")
+                Some: v  => Assert.Fail(),
+                None: () => Assert.IsTrue(true),
+                Fail: e  => Assert.Fail()
             );
         }
-
 
         [Test]
         public void FuncFailureTryMatchSuccessTest1()
@@ -63,9 +66,18 @@ namespace LanguageExtTests
                 );
         }
 
-        public Try<string> GetValue(bool select) =>
+        public TryOption<string> GetSomeValue(bool select) =>
+            () => select
+                ? Some("Hello, World")
+                : None;
+
+        public TryOption<string> GetValue(bool select) =>
             () => select
                 ? "Hello, World"
-                : failwith<string>("Whoops");
+                : (string)null;
+
+        public TryOption<string> GetFailValue() =>
+            () => failwith<string>("Whoops");
+
     }
 }

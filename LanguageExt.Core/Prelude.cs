@@ -129,17 +129,17 @@ namespace LanguageExt
             either.MatchUnsafe(Right, Left);
 
 
-        public static T failure<T>(Try<T> tryDel, Func<T> Fail) =>
+        public static T failure<T>(TryOption<T> tryDel, Func<T> Fail) =>
             tryDel.Failure(Fail);
 
-        public static T failure<T>(Try<T> tryDel, T failValue) =>
+        public static T failure<T>(TryOption<T> tryDel, T failValue) =>
             tryDel.Failure(failValue);
 
-        public static R match<T, R>(Try<T> tryDel, Func<T, R> Succ, Func<Exception,R> Fail) =>
-            tryDel.Match(Succ, Fail);
+        public static R match<T, R>(TryOption<T> tryDel, Func<T, R> Some, Func<R> None, Func<Exception,R> Fail) =>
+            tryDel.Match(Some, None, Fail);
 
-        public static Unit match<T>(Try<T> tryDel, Action<T> Succ, Action<Exception> Fail) =>
-            tryDel.Match(Succ, Fail);
+        public static Unit match<T>(TryOption<T> tryDel, Action<T> Some, Action None, Action<Exception> Fail) =>
+            tryDel.Match(Some, None, Fail);
 
 
         public static Func<R> fun<R>(Func<R> f) => f;
@@ -418,7 +418,7 @@ namespace LanguageExt
         /// call to the resulting Func<T> will cache the result.
         /// Subsequent calls return the cached item.
         /// </summary>
-        public static Func<T> memo<T>(Func<T> func)
+        public static Func<T> memo<T>(this Func<T> func)
         {
             var value = new Lazy<T>(func, true);
             return () => value.Value;
@@ -431,7 +431,7 @@ namespace LanguageExt
         /// 
         /// Remarks: Uses a ConcurrentDictionary for the cache and is thread-safe
         /// </summary>
-        public static Func<T, R> memo<T, R>(Func<T, R> func)
+        public static Func<T, R> memo<T, R>(this Func<T, R> func)
         {
             var cache = new ConcurrentDictionary<T, R>();
             var syncMap = new ConcurrentDictionary<T, object>();

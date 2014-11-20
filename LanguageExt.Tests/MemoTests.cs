@@ -29,7 +29,9 @@ namespace LanguageExtTests
         {
             var fix = 0;
 
-            var m = memo( (int x) => x + fix );
+            Func<int, int> fn = x => x + fix;
+
+            var m = fn.memo();
 
             var nums1 = map(freeze(range(0, 100)), i => m(i));
 
