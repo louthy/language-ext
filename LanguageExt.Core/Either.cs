@@ -11,38 +11,53 @@ namespace LanguageExt
         {
             IsUninitialised= 0,
             IsLeft = 1,
-            IsRight = 2   
+            IsRight = 2,
+            IsLeftUnsafe = 3,
+            IsRightUnsafe = 4
         }
 
         readonly EitherState state;
         readonly R right;
         readonly L left;
 
-        public Either(R right)
+        internal Either(R right, bool isUnsafe)
         {
-            this.state = EitherState.IsRight;
+            this.state = isUnsafe
+                ? EitherState.IsRightUnsafe
+                : EitherState.IsRight;
             this.right = right;
             this.left = default(L);
         }
 
-        public Either(L left)
+        internal Either(L left, bool isUnsafe)
         {
-            this.state = EitherState.IsLeft;
+            this.state = isUnsafe
+                ? EitherState.IsLeftUnsafe
+                : EitherState.IsLeft;
             this.right = default(R);
             this.left = left;
         }
 
-        public static Either<R, L> Right(R value) => 
-            new Either<R, L>(value);
+        internal static Either<R, L> Right(R value) => 
+            new Either<R, L>(value, false);
 
-        public static Either<R, L> Left(L value) => 
-            new Either<R, L>(value);
+        internal static Either<R, L> Left(L value) => 
+            new Either<R, L>(value, false);
+
+        internal static Either<R, L> RightUnsafe(R value) =>
+            new Either<R, L>(value, true);
+
+        internal static Either<R, L> LeftUnsafe(L value) =>
+            new Either<R, L>(value, true);
+
+        public bool IsUnsafe =>
+            state == EitherState.IsLeftUnsafe || state == EitherState.IsRightUnsafe;
 
         public bool IsRight =>
-            CheckInitialised(state == EitherState.IsRight);
+            CheckInitialised(state == EitherState.IsRight || state == EitherState.IsRightUnsafe);
 
         public bool IsLeft =>
-            CheckInitialised(state == EitherState.IsLeft);
+            CheckInitialised(state == EitherState.IsLeft || state == EitherState.IsLeftUnsafe);
 
         internal R RightValue =>
             CheckInitialised(
@@ -64,10 +79,12 @@ namespace LanguageExt
         public static implicit operator Either<R, L>(L value) => 
             Either<R, L>.Left(value);
 
-        private static T CheckNullReturn<T>(T value, string location) =>
-            value == null
-                ? raise<T>(new ResultIsNullException("'\{location}' result is null.  Not allowed."))
-                : value;
+        private T CheckNullReturn<T>(T value, string location) =>
+            IsUnsafe 
+                ? value
+                : value == null
+                    ? raise<T>(new ResultIsNullException("'\{location}' result is null.  Not allowed."))
+                    : value;
 
 
         public Ret Match<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
@@ -99,18 +116,30 @@ namespace LanguageExt
 
         public override string ToString() =>
             IsRight
-                ? RightValue.ToString()
-                : LeftValue.ToString();
+                ? RightValue == null
+                    ? "[R:null]"
+                    : RightValue.ToString()
+                : LeftValue == null
+                    ? "[L:null]"
+                    :  LeftValue.ToString();
 
         public override int GetHashCode() =>
             IsRight
-                ? RightValue.GetHashCode()
-                : LeftValue.GetHashCode();
+                ? RightValue == null
+                    ? 0
+                    : RightValue.GetHashCode()
+                : LeftValue == null
+                    ? 0
+                    : LeftValue.GetHashCode();
 
         public override bool Equals(object obj) =>
             IsRight
-                ? RightValue.Equals(obj)
-                : LeftValue.Equals(obj);
+                ? RightValue == null
+                    ? false
+                    : RightValue.Equals(obj)
+                : LeftValue == null
+                    ? false
+                    : LeftValue.Equals(obj);
 
         private U CheckInitialised<U>(U value) =>
             state == EitherState.IsUninitialised

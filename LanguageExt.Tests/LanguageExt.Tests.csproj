@@ -56,6 +56,7 @@
     <Compile Include="TryTests.cs" />
     <Compile Include="TupleTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnsafeTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj">

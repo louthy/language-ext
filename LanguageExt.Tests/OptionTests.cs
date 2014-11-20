@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using LanguageExt;
 using LanguageExt.Prelude;
+using System;
 
 namespace LanguageExtTests
 {
@@ -92,12 +93,18 @@ namespace LanguageExtTests
             );
         }
 
-        [Test] public void NullIsNoneTest()
+        [Test] public void NullIsNotSomeTest()
         {
-            Assert.IsTrue(GetStringNone().IsNone);
+            Assert.Throws(
+                typeof(ValueIsNullException),
+                () =>
+                {
+                    GetStringNone();
+                }
+            );
         }
 
-        [Test] public void NullIsNoneTest2()
+        [Test] public void NullIsNoneTest()
         {
             Assert.IsTrue(GetStringNone2().IsNone);
         }
@@ -139,22 +146,57 @@ namespace LanguageExtTests
             );
         }
 
+        [Test] public void NullableTest()
+        {
+            var res = GetNullable(true)
+                        .Some(v => v)
+                        .None(() => 0);
+
+            Assert.IsTrue(res == 1000);
+        }
+
+        [Test]
+        public void NullableDenySomeNullTest()
+        {
+            Assert.Throws(
+                    typeof(ValueIsNullException),
+                    () =>
+                    {
+                        var res = GetNullable(false)
+                                    .Some(v => v)
+                                    .None(() => 0);
+                    }
+                );
+        }
+
         private Option<string> GetStringNone()
         {
+            // This should fail
             string nullStr = null;
             return Some(nullStr);
         }
 
         private Option<string> GetStringNone2()
         {
+            // This should be coerced to None
             string nullStr = null;
             return nullStr;
         }
+
+        private Option<int> GetNullable(bool select) =>
+            select
+                ? Some( (int?)1000 )
+                : Some( (int?)null );
 
         private Option<int> GetValue(bool select) =>
             select
                 ? Some(1000)
                 : None;
+
+        private Option<Option<int>> GetSomeOptionValue(bool select) =>
+            select
+                ? Some(Some(1000))
+                : Some(Option<int>.None);
 
         private Option<int> ImplicitConversion() => 1000;
 

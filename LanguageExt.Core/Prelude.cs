@@ -11,10 +11,71 @@ namespace LanguageExt
     /// </summary>
     public static partial class Prelude
     {
-        public static Option<T> Some<T>(T value) => new Option<T>(value);
-        public static OptionNone None => OptionNone.Default;
-        public static Either<R, L> Right<R, L>(R value) => new Either<R, L>(value);
-        public static Either<R, L> Left<R, L>(L value) => new Either<R, L>(value);
+        /// <summary>
+        /// Create a Some of T (Option<T>)
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="value">Non-null value to be made optional</param>
+        /// <returns>Option<T> in a Some state or throws ValueIsNullException
+        /// if value == null.</returns>
+        public static Option<T> Some<T>(T value) =>
+            value == null
+                ? raise<Option<T>>(new ValueIsNullException())
+                : new Option<T>(value);
+
+        /// <summary>
+        /// Create a Some of T from a Nullable<T> (Option<T>)
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="value">Non-null value to be made optional</param>
+        /// <returns>Option<T> in a Some state or throws ValueIsNullException
+        /// if value == null</returns>
+        public static Option<T> Some<T>(Nullable<T> value) where T : struct =>
+            value.HasValue
+                ? Option<T>.Some(value.Value) 
+                : raise<Option<T>>(new ValueIsNullException());
+
+        /// <summary>
+        /// Create a Some of T (Option<T>).  Use the to wrap any-type without coercian.
+        /// That means you can wrap null, Nullable<T>, or Option<T> to get Option<Option<T>>
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="value">Value to make optional</param>
+        /// <returns>Option<T> in a Some state</returns>
+        public static Option<T> SomeUnsafe<T>(T value) =>
+            new Option<T>(value, true, true);
+
+        /// <summary>
+        /// 'No value' state of Option<T>.  
+        /// </summary>
+        public static OptionNone None => 
+            OptionNone.Default;
+
+        public static Either<R, L> Right<R, L>(R value) =>
+            value == null 
+                ? raise<Either<R, L>>(new ValueIsNullException())
+                : Either<R, L>.Right(value);
+
+        public static Either<R, L> Left<R, L>(L value) =>
+            value == null
+                ? raise<Either<R, L>>(new ValueIsNullException())
+                : Either<R, L>.Left(value);
+
+        public static Either<R, L> Right<R, L>(Nullable<R> value) where R : struct =>
+            value == null
+                ? raise<Either<R, L>>(new ValueIsNullException())
+                : Either<R, L>.Right(value.Value);
+
+        public static Either<R, L> Left<R, L>(Nullable<L> value) where L : struct =>
+            value == null
+                ? raise<Either<R, L>>(new ValueIsNullException())
+                : Either<R, L>.Left(value.Value);
+
+        public static Either<R, L> RightUnsafe<R, L>(R value) =>
+            Either<R, L>.RightUnsafe(value);
+
+        public static Either<R, L> LeftUnsafe<R, L>(L value) =>
+            Either<R, L>.LeftUnsafe(value);
 
         public static T failure<T>(Option<T> option, Func<T> None) =>
             option.Failure(None);
@@ -94,12 +155,11 @@ namespace LanguageExt
         public static Expression<Action<T1, T2, T3, T4, T5, T6>> expr<T1, T2, T3, T4, T5, T6>(Expression<Action<T1, T2, T3, T4, T5, T6>> f) => f;
         public static Expression<Action<T1, T2, T3, T4, T5, T6, T7>> expr<T1, T2, T3, T4, T5, T6, T7>(Expression<Action<T1, T2, T3, T4, T5, T6, T7>> f) => f;
 
-        public static Unit unit => Unit.Default;
+        public static Unit unit => 
+            Unit.Default;
 
-        public static Unit ignore<T>(T anything)
-        {
-            return unit;
-        }
+        public static Unit ignore<T>(T anything) => 
+            unit;
 
         public static Tuple<T1, T2> tuple<T1, T2>(T1 item1, T2 item2) =>
             Tuple.Create(item1, item2);
@@ -182,10 +242,8 @@ namespace LanguageExt
             }
         }
 
-        public static IImmutableList<T> cons<T>(this T self, IImmutableList<T> tail)
-        {
-            return tail.Insert(0, self);
-        }
+        public static IImmutableList<T> cons<T>(this T self, IImmutableList<T> tail) =>
+            tail.Insert(0, self);
 
         public static IEnumerable<T> empty<T>() => 
             new T[0];
@@ -235,13 +293,8 @@ namespace LanguageExt
 
         public static Func<T,T> identity<T>() => (T id) => id;
 
-        public static Action failaction(string message)
-        {
-            return () =>
-            {
-                throw new Exception(message);
-            };
-        }
+        public static Action failaction(string message) =>
+            () => { throw new Exception(message); };
 
         public static R failwith<R>(string message)
         {

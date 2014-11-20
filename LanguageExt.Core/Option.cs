@@ -9,50 +9,52 @@ namespace LanguageExt
     {
         readonly T value;
 
-        public Option(T value)
+        internal Option(T value, bool isSome, bool isUnsafe)
         {
-            this.IsSome = value != null;
+            this.IsSome = isSome;
             this.value = value;
+            this.IsUnsafe = isUnsafe;
         }
 
-        public Option()
-        {
-            this.IsSome = false;
-            this.value = default(T);
-        }
+        public Option(T value) 
+            : this (value,value != null, false)
+            {}
 
-        public static Option<T> Some(T value) => new Option<T>(value);
+        public Option() 
+            : this(default(T), false, false)
+            {}
+
+        public static Option<T> Some(T value) => 
+            new Option<T>(value);
+
         public static readonly Option<T> None = new Option<T>();
 
-        public bool IsSome { get; }
-        public bool IsNone => !IsSome;
+        public bool IsUnsafe { get; }
 
-        internal T Value
-        {
-            get
-            {
-                if (IsSome)
-                {
-                    return value;
-                }
-                else
-                {
-                    throw new OptionIsNoneException();
-                }
-            }
-        }
+        public bool IsSome { get; }
+
+        public bool IsNone => 
+            !IsSome;
+
+        internal T Value =>
+            IsSome
+                ? value
+                : raise<T>(new OptionIsNoneException());
 
         public static implicit operator Option<T>(T value) =>
             value == null
                 ? Option<T>.None
                 : Option<T>.Some(value);
 
-        public static implicit operator Option<T>(OptionNone none) => Option<T>.None;
+        public static implicit operator Option<T>(OptionNone none) => 
+            Option<T>.None;
 
-        private static U CheckNullReturn<U>(U value, string location) =>
-            value == null
-                ? raise<U>(new ResultIsNullException("'\{location}' result is null.  Not allowed."))
-                : value;
+        private U CheckNullReturn<U>(U value, string location) =>
+            IsUnsafe
+                ? value
+                : value == null
+                    ? raise<U>(new ResultIsNullException("'\{location}' result is null.  Not allowed."))
+                    : value;
 
         public R Match<R>(Func<T, R> Some, Func<R> None) =>
             IsSome
@@ -72,25 +74,29 @@ namespace LanguageExt
             return Unit.Default;
         }
 
-        public T Failure(Func<T> None) => Match(identity<T>(), None);
+        public T Failure(Func<T> None) => 
+            Match(identity<T>(), None);
 
-        public T Failure(T noneValue) => Match(identity<T>(), () => noneValue);
+        public T Failure(T noneValue) => 
+            Match(identity<T>(), () => noneValue);
 
         public SomeContext<T, R> Some<R>(Func<T, R> someHandler) =>
             new SomeContext<T, R>(this,someHandler);
 
         public override string ToString() =>
             IsSome
-                ? Value.ToString()
+                ? Value == null 
+                    ? "[null]"
+                    :  Value.ToString()
                 : "[None]";
 
         public override int GetHashCode() =>
-            IsSome
+            IsSome && Value != null
                 ? Value.GetHashCode()
                 : 0;
 
         public override bool Equals(object obj) =>
-            IsSome
+            IsSome && Value != null
                 ? Value.Equals(obj)
                 : false;
     }
@@ -106,22 +112,30 @@ namespace LanguageExt
             this.someHandler = someHandler;
         }
 
-        public R None(Func<R> noneHandler)
-        {
-            return match(option, someHandler, noneHandler);
-        }
+        public R None(Func<R> noneHandler) =>
+            match(option, someHandler, noneHandler);
 
-        public R None(R noneValue)
-        {
-            return match(option, someHandler, () => noneValue);
-        }
+        public R None(R noneValue) =>
+            match(option, someHandler, () => noneValue);
     }
-
-
 
     public struct OptionNone
     {
         public static OptionNone Default = new OptionNone();
+    }
+
+    internal static class Option
+    {
+        public static Option<T> Cast<T>(T value) =>
+            value == null
+                ? new Option<T>()
+                : new Option<T>(value);
+
+
+        public static Option<T> Cast<T>(Nullable<T> value) where T : struct =>
+            value == null
+                ? new Option<T>()
+                : new Option<T>(value.Value);
     }
 }
 
@@ -129,7 +143,7 @@ public static class __OptionExt
 {
     public static Option<U> Select<T, U>(this Option<T> self, Func<T, U> map) =>
         match(self,
-            Some: t => Option<U>.Some(map(t)),
+            Some: t => Option.Cast<U>(map(t)),
             None: () => Option<U>.None
             );
 
@@ -140,7 +154,7 @@ public static class __OptionExt
         match(self,
             Some: t =>
                 match(bind(t),
-                    Some: u => Option<V>.Some(project(t, u)),
+                    Some: u => Option.Cast<V>(project(t, u)),
                     None: () => Option<V>.None
                 ),
             None: () => LanguageExt.Option<V>.None
