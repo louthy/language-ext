@@ -424,6 +424,7 @@ Other list functions:
 * `append`
 * `rev`
 * `sum`
+* `zip`
 * more coming...
 
 We also support dictionaries.  Again the word Dictionary is such a pain to type, especially when they have a perfectly valid alternative name in the functional world: `map`.
@@ -467,7 +468,7 @@ This allows for branching based on whether the item is in the map or not:
 
 To set an item call:
 ```C#
-    var m2 = set(m, 1, "x");
+    var m2 = setItem(m, 1, "x");
 ```
 
 `map` functions (`using LanguageExt.Map`):
@@ -479,6 +480,7 @@ To set an item call:
 * `each`
 * `map`
 * `filter`
+* `length`
 * more coming...
 
 ## The awful `out` parameter
@@ -546,6 +548,11 @@ Type or function | Description
 -----------------|------------
 `Either<Right,Left>` | Like `Option<T>`, however the `None` in `Option<T>` is called `Left` in `Either`, and `Some` is called `Right`.  Just remember: `Right` is right, `Left` is wrong.  Both `Right` and `Left` can hold values.  And they can be different types.  See the OptionEitherConfigSample for a demo.  Supports all the same functionality as `Option<T>`.
 `SomeUnsafe()`, `RightUnsafe()`, `LeftUnsafe()` | These methods accept that sometimes `null` is a valid result, but you still want an option of saying `None`.  They allow `null` to propagate through, and it removes the `null` checks from the return value of `match`
+`set()` | ImmutableHashSet.Create<T>()
+`stack()` | ImmutableStack.Create<T>()
+`array()` | ImmutableArray.Create<T>()
+`queue()` | ImmutableQueue.Create<T>()
+`freeze()` | Converts an IEnumerable<T> to an IImmutableList<T>
 `memo` | Caches a function's result the first time it's called
 `ignore` | Takes one argument which it ignores and returns `unit` instead.
 `Nullable<T>.ToOption()` | Converts a `Nullable<T>` to an `Option<T>`
