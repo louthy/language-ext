@@ -306,7 +306,7 @@ Note, if you're creating a `Func` or `Action` that take parameters, you must pro
     // Won't compile
     var add = fun( (x, y) => x + y );
 
-    // Wil compile
+    // Will compile
     var add = fun( (int x, int y) => x + y );
 ```
 
@@ -360,7 +360,8 @@ Functional languages usually have additional list constructor syntax which makes
 In C# it looks like this:
 
 ```C#
-    var list = new int[] { 1, 2, 3, 4, 5 };
+    var array = new int[] { 1, 2, 3, 4, 5 };
+    var list = new List<int> { 1, 2, 3, 4, 5 };
 ```
 Or worse:
 ```C#
