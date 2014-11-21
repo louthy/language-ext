@@ -250,7 +250,7 @@ namespace LanguageExt
         {
             var res = self.Try();
             return res.IsFaulted
-                ? Option<R>.None
+                ? new TryOptionResult<R>(res.Exception)
                 : res.Value.Map(mapper);
         };
 
@@ -259,7 +259,7 @@ namespace LanguageExt
             var res = self.Try();
             return !res.IsFaulted && res.Value.IsSome
                 ? binder(res.Value.Value)()
-                : Option<R>.None;
+                : new TryOptionResult<R>(res.Exception);
         };
 
         public static IEnumerable<T> AsEnumerable<T>(this TryOption<T> self)
