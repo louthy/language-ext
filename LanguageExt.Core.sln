@@ -11,15 +11,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{EA06
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConfigSample", "ConfigSample", "{ECEFA3BA-3FB0-47B7-88DC-BAD58A585CE8}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{F754A0D9-AF18-48FB-A6AA-34BF16D424AE}"
-	ProjectSection(SolutionItems) = preProject
-		nuget\LanguageExt.0.0.1-beta.nupkg = nuget\LanguageExt.0.0.1-beta.nupkg
-		nuget\LanguageExt.0.0.1.nuspec = nuget\LanguageExt.0.0.1.nuspec
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigSample", "Samples\ConfigSample\ConfigSample.csproj", "{A7EE05DA-2BA4-4435-8452-BD10D2E3641D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D8AB85F0-AD17-47E8-A40C-4971A3E4B8AE}"
+	ProjectSection(SolutionItems) = preProject
+		Performance1.psess = Performance1.psess
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU

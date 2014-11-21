@@ -7,6 +7,13 @@ namespace LanguageExt
     {
         readonly bool initialised;
 
+        public Some()
+        {
+            initialised = false;
+            Value = default(T);
+            throw new SomeNotInitialisedException(typeof(T));
+        }
+
         public Some(T value)
         {
             if (value == null)
