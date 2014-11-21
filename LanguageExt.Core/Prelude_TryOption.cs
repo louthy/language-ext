@@ -1,0 +1,45 @@
+﻿using System;
+using System.Linq.Expressions;
+using System.Collections.Concurrent;
+
+namespace LanguageExt
+{
+    /// <summary>
+    /// Usage:  Add 'using LanguageExt.Prelude' to your code.
+    /// </summary>
+    public static partial class Prelude
+    {
+        public static T failure<T>(TryOption<T> tryDel, Func<T> Fail) =>
+            tryDel.Failure(Fail);
+
+        public static T failure<T>(TryOption<T> tryDel, T failValue) =>
+            tryDel.Failure(failValue);
+
+        public static R match<T, R>(TryOption<T> tryDel, Func<T, R> Some, Func<R> None, Func<Exception, R> Fail) =>
+            tryDel.Match(Some, None, Fail);
+
+        public static R match<T, R>(TryOption<T> tryDel, Func<T, R> Some, R None, Func<Exception, R> Fail) =>
+            tryDel.Match(Some, None, Fail);
+
+        public static R match<T, R>(TryOption<T> tryDel, Func<T, R> Some, Func<R> None, R Fail) =>
+            tryDel.Match(Some, None, Fail);
+
+        public static Unit match<T>(TryOption<T> tryDel, Action<T> Some, Action None, Action<Exception> Fail) =>
+            tryDel.Match(Some, None, Fail);
+
+        public static S fold<S, T>(TryOption<T> tryDel, S state, Func<S, T, S> folder) =>
+            tryDel.Fold(state, folder);
+
+        public static int count<T>(TryOption<T> tryDel) =>
+            tryDel.Count();
+
+        public static bool exists<T>(TryOption<T> tryDel, Predicate<T> pred) =>
+            tryDel.Exists(pred);
+
+        public static TryOption<R> map<T, R>(TryOption<T> tryDel, Func<T, R> mapper) =>
+            tryDel.Map(mapper);
+
+        public static TryOption<R> bind<T, R>(TryOption<T> tryDel, Func<T, TryOption<R>> binder) =>
+            tryDel.Bind(binder);
+    }
+}

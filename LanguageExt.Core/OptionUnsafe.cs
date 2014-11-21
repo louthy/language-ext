@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using LanguageExt;
 using LanguageExt.Prelude;
@@ -98,6 +99,43 @@ namespace LanguageExt
             IsSome && Value != null
                 ? Value.Equals(obj)
                 : false;
+
+        public int Count =>
+            IsSome ? 1 : 0;
+
+        public S Fold<S>(S state, Func<S, T, S> folder) =>
+            IsSome
+                ? folder(state, Value)
+                : state;
+
+        public bool Exists(Predicate<T> pred) =>
+            IsSome
+                ? pred(Value)
+                : false;
+
+        public OptionUnsafe<R> Map<R>(Func<T,R> mapper) =>
+            IsSome
+                ? OptionUnsafe<R>.Some(mapper(Value))
+                : OptionUnsafe<R>.None;
+
+        public OptionUnsafe<R> Bind<R>(Func<T, OptionUnsafe<R>> binder) =>
+            IsSome
+                ? binder(Value)
+                : OptionUnsafe<R>.None;
+
+        public IEnumerable<T> AsEnumerable()
+        {
+            if (IsSome)
+            {
+                yield return Value;
+            }
+        }
+
+        public List<T> ToList() =>
+            AsEnumerable().ToList();
+
+        public T[] ToArray() =>
+            AsEnumerable().ToArray();
     }
 
     public struct SomeUnsafeContext<T, R>
@@ -135,11 +173,8 @@ namespace LanguageExt
 
 public static class __OptionUnsafeExt
 {
-    public static OptionUnsafe<U> Select<T, U>(this OptionUnsafe<T> self, Func<T, U> map) =>
-        matchUnsafe(self,
-            Some: t => OptionUnsafe.Cast<U>(map(t)),
-            None: () => OptionUnsafe<U>.None
-            );
+    public static OptionUnsafe<U> Select<T, U>(this OptionUnsafe<T> self, Func<T, U> map) => 
+        self.Map(map);
 
     public static OptionUnsafe<V> SelectMany<T, U, V>(this OptionUnsafe<T> self,
         Func<T, OptionUnsafe<U>> bind,
@@ -153,13 +188,4 @@ public static class __OptionUnsafeExt
                 ),
             None: () => OptionUnsafe<V>.None
             );
-
-
-    public static IEnumerable<T> AsEnumerable<T>(this OptionUnsafe<T> self)
-    {
-        if (self.IsSome)
-        {
-            yield return self.Value;
-        }
-    }
 }

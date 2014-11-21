@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using LanguageExt.Prelude;
 
@@ -213,20 +214,55 @@ namespace LanguageExt
             );
         }
 
-        /// <summary>
-        /// Converts the TryOption to an infinite enumerable of T
-        /// </summary>
-        /// <returns>
-        /// Some: An infinite list of T
-        /// None|Fail: An empty list
-        /// </returns>
+        public static int Count<T>(this TryOption<T> self) =>
+            self.Try().Value.IsSome ? 1 : 0;
+
+        public static S Fold<S, T>(this TryOption<T> self, S state, Func<S, T, S> folder)
+        {
+            var res = self.Try();
+            return !res.IsFaulted && res.Value.IsSome
+                ? folder(state, res.Value.Value)
+                : state;
+        }
+
+        public static bool Exists<T>(this TryOption<T> self, Predicate<T> pred)
+        {
+            var res = self.Try();
+            return !res.IsFaulted && res.Value.IsSome
+                ? pred(res.Value.Value)
+                : false;
+        }
+
+        public static TryOption<R> Map<T, R>(this TryOption<T> self, Func<T, R> mapper) => () =>
+        {
+            var res = self.Try();
+            return !res.IsFaulted && res.Value.IsSome
+                ? Option.Cast<R>(mapper(res.Value.Value))
+                : Option<R>.None;
+        };
+
+        public static TryOption<R> Bind<T, R>(this TryOption<T> self, Func<T, TryOption<R>> binder) => () =>
+        {
+            var res = self.Try();
+            return !res.IsFaulted && res.Value.IsSome
+                ? binder(res.Value.Value)()
+                : Option<R>.None;
+        };
+
         public static IEnumerable<T> AsEnumerable<T>(this TryOption<T> self)
         {
-            var res = self();
-            if (res.IsFaulted || res.Value.IsNone)
-                yield break;
-            else
+            var res = self.Try();
+            if (!res.IsFaulted && res.Value.IsSome)
+            {
                 yield return res.Value.Value;
+            }
         }
+
+        public static List<T> ToList<T>(this TryOption<T> self) =>
+            self.AsEnumerable().ToList();
+
+        public static T[] ToArray<T>(this TryOption<T> self) =>
+            self.AsEnumerable().ToArray();
+
     }
 }

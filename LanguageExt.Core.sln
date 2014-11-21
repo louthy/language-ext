@@ -13,11 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConfigSample", "ConfigSampl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigSample", "Samples\ConfigSample\ConfigSample.csproj", "{A7EE05DA-2BA4-4435-8452-BD10D2E3641D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D8AB85F0-AD17-47E8-A40C-4971A3E4B8AE}"
-	ProjectSection(SolutionItems) = preProject
-		Performance1.psess = Performance1.psess
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true

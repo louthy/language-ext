@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using LanguageExt;
 using LanguageExt.Prelude;
@@ -100,6 +101,43 @@ namespace LanguageExt
             IsSome && Value != null
                 ? Value.Equals(obj)
                 : false;
+
+        public int Count =>
+            IsSome ? 1 : 0;
+
+        public S Fold<S>(S state, Func<S, T, S> folder) =>
+            IsSome
+                ? folder(state, Value)
+                : state;
+
+        public bool Exists(Predicate<T> pred) =>
+            IsSome
+                ? pred(Value)
+                : false;
+
+        public Option<R> Map<R>(Func<T, R> mapper) =>
+            IsSome
+                ? Option.Cast<R>(mapper(Value))
+                : Option<R>.None;
+
+        public Option<R> Bind<R>(Func<T, Option<R>> binder) =>
+            IsSome
+                ? binder(Value)
+                : Option<R>.None;
+
+        public IEnumerable<T> AsEnumerable()
+        {
+            if (IsSome)
+            {
+                yield return Value;
+            }
+        }
+
+        public List<T> ToList() =>
+            AsEnumerable().ToList();
+
+        public T[] ToArray() =>
+            AsEnumerable().ToArray();
     }
 
     public struct SomeContext<T, R>
@@ -142,11 +180,8 @@ namespace LanguageExt
 
 public static class __OptionExt
 {
-    public static Option<U> Select<T, U>(this Option<T> self, Func<T, U> map) =>
-        match(self,
-            Some: t => Option.Cast<U>(map(t)),
-            None: () => Option<U>.None
-            );
+    public static Option<U> Select<T, U>(this Option<T> self, Func<T, U> map) => 
+        self.Map(map);
 
     public static Option<V> SelectMany<T, U, V>(this Option<T> self,
         Func<T, Option<U>> bind,
@@ -158,14 +193,6 @@ public static class __OptionExt
                     Some: u => Option.Cast<V>(project(t, u)),
                     None: () => Option<V>.None
                 ),
-            None: () => LanguageExt.Option<V>.None
+            None: () => Option<V>.None
             );
-
-    public static IEnumerable<T> AsEnumerable<T>(this LanguageExt.Option<T> self)
-    {
-        if (self.IsSome)
-        {
-            yield return self.Value;
-        }
-    }
 }

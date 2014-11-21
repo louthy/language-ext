@@ -51,6 +51,15 @@
     <Compile Include="IOptionalValue.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="OptionUnsafe.cs" />
+    <Compile Include="Prelude_Collections.cs" />
+    <Compile Include="Prelude_Either.cs" />
+    <Compile Include="Prelude_EitherUnsafe.cs" />
+    <Compile Include="Prelude_Func.cs" />
+    <Compile Include="Prelude_Memoize.cs" />
+    <Compile Include="Prelude_Option.cs" />
+    <Compile Include="Prelude_OptionUnsafe.cs" />
+    <Compile Include="Prelude_TryOption.cs" />
+    <Compile Include="Prelude_Tuple.cs" />
     <Compile Include="Some.cs" />
     <Compile Include="Prelude.cs" />
     <Compile Include="List.cs" />
