@@ -11,13 +11,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{EA06
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConfigSample", "ConfigSample", "{ECEFA3BA-3FB0-47B7-88DC-BAD58A585CE8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigSample", "ConfigSample\ConfigSample.csproj", "{A7EE05DA-2BA4-4435-8452-BD10D2E3641D}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{F754A0D9-AF18-48FB-A6AA-34BF16D424AE}"
 	ProjectSection(SolutionItems) = preProject
 		nuget\LanguageExt.0.0.1-beta.nupkg = nuget\LanguageExt.0.0.1-beta.nupkg
 		nuget\LanguageExt.0.0.1.nuspec = nuget\LanguageExt.0.0.1.nuspec
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigSample", "Samples\ConfigSample\ConfigSample.csproj", "{A7EE05DA-2BA4-4435-8452-BD10D2E3641D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -214,22 +214,6 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Converts the TryOption to an enumerable of T
-        /// </summary>
-        /// <returns>
-        /// Some: A list with one T in
-        /// None|Fail: An empty list
-        /// </returns>
-        public static IEnumerable<T> AsEnumerableOne<T>(this TryOption<T> self)
-        {
-            var res = self();
-            if (res.IsFaulted || res.Value.IsNone)
-                yield break;
-            else
-                yield return res.Value.Value;
-        }
-
-        /// <summary>
         /// Converts the TryOption to an infinite enumerable of T
         /// </summary>
         /// <returns>
@@ -242,7 +226,7 @@ namespace LanguageExt
             if (res.IsFaulted || res.Value.IsNone)
                 yield break;
             else
-                while (true) yield return res.Value.Value;
+                yield return res.Value.Value;
         }
     }
 }

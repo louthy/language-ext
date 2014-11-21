@@ -2,7 +2,7 @@
 using LanguageExt;
 using LanguageExt.Prelude;
 
-public static class __TryExt
+public static class __TryOutExt
 {
     public static Option<V> TryGetValue<K, V>(this IDictionary<K, V> self, K key)
     {

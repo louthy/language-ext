@@ -154,18 +154,8 @@ public static class __OptionUnsafeExt
             None: () => OptionUnsafe<V>.None
             );
 
-    public static IEnumerable<T> AsEnumerable<T>(this OptionUnsafe<T> self)
-    {
-        if (self.IsSome)
-        {
-            while (true)
-            {
-                yield return self.Value;
-            }
-        }
-    }
 
-    public static IEnumerable<T> AsEnumerableOne<T>(this OptionUnsafe<T> self)
+    public static IEnumerable<T> AsEnumerable<T>(this OptionUnsafe<T> self)
     {
         if (self.IsSome)
         {

@@ -165,17 +165,6 @@ public static class __OptionExt
     {
         if (self.IsSome)
         {
-            while (true)
-            {
-                yield return self.Value;
-            }
-        }
-    }
-
-    public static IEnumerable<T> AsEnumerableOne<T>(this LanguageExt.Option<T> self)
-    {
-        if (self.IsSome)
-        {
             yield return self.Value;
         }
     }

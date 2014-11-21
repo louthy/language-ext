@@ -167,17 +167,6 @@ public static class __EitherUnsafeExt
     {
         if (self.IsRight)
         {
-            while (true)
-            {
-                yield return self.RightValue;
-            }
-        }
-    }
-
-    public static IEnumerable<R> AsEnumerableOne<R, L>(this EitherUnsafe<R, L> self)
-    {
-        if (self.IsRight)
-        {
             yield return self.RightValue;
         }
     }

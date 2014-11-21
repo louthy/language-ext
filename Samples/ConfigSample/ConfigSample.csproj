@@ -54,7 +54,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj">
+    <ProjectReference Include="..\..\LanguageExt.Core\LanguageExt.Core.csproj">
       <Project>{c0fa07a0-8b83-4fa5-acfb-14185d5c4484}</Project>
       <Name>LanguageExt.Core</Name>
     </ProjectReference>
