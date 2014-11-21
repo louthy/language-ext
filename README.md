@@ -306,7 +306,7 @@ Note, if you're creating a `Func` or `Action` that take parameters, you must pro
     // Won't compile
     var add = fun( (x, y) => x + y );
 
-    // Wil compile
+    // Will compile
     var add = fun( (int x, int y) => x + y );
 ```
 
