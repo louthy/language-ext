@@ -214,31 +214,44 @@ namespace LanguageExt
             );
         }
 
-        public static int Count<T>(this TryOption<T> self) =>
-            self.Try().Value.IsSome ? 1 : 0;
+        public static int Count<T>(this TryOption<T> self)
+        {
+            var res = self.Try();
+            return res.IsFaulted
+                ? 0
+                : res.Value.Count;
+        }
+
+        public static bool ForAll<T>(this TryOption<T> self, Predicate<T> pred)
+        {
+            var res = self.Try();
+            return res.IsFaulted
+                ? false
+                : res.Value.ForAll(pred);
+        }
 
         public static S Fold<S, T>(this TryOption<T> self, S state, Func<S, T, S> folder)
         {
             var res = self.Try();
-            return !res.IsFaulted && res.Value.IsSome
-                ? folder(state, res.Value.Value)
-                : state;
+            return res.IsFaulted
+                ? state
+                : res.Value.Fold(state, folder);
         }
 
         public static bool Exists<T>(this TryOption<T> self, Predicate<T> pred)
         {
             var res = self.Try();
-            return !res.IsFaulted && res.Value.IsSome
-                ? pred(res.Value.Value)
-                : false;
+            return res.IsFaulted
+                ? false
+                : res.Value.Exists(pred);
         }
 
         public static TryOption<R> Map<T, R>(this TryOption<T> self, Func<T, R> mapper) => () =>
         {
             var res = self.Try();
-            return !res.IsFaulted && res.Value.IsSome
-                ? Option.Cast<R>(mapper(res.Value.Value))
-                : Option<R>.None;
+            return res.IsFaulted
+                ? Option<R>.None
+                : res.Value.Map(mapper);
         };
 
         public static TryOption<R> Bind<T, R>(this TryOption<T> self, Func<T, TryOption<R>> binder) => () =>

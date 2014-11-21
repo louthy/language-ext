@@ -49,7 +49,7 @@ namespace LanguageExt
 
         public static S fold<S, T>(this IImmutableList<T> list, S state, Func<T, S, S> folder)
         {
-            each(list, item => { state = folder(item, state); } );
+            forall(list, item => { state = folder(item, state); } );
             return state;
         }
 
@@ -71,7 +71,7 @@ namespace LanguageExt
         public static int length<T>(this IImmutableList<T> self) =>
            self.Count;
 
-        public static Unit each<T>(this IImmutableList<T> list, Action<T> action)
+        public static Unit forall<T>(this IImmutableList<T> list, Action<T> action)
         {
             foreach (var item in list)
             {
@@ -80,7 +80,7 @@ namespace LanguageExt
             return unit;
         }
 
-        public static Unit each<T>(this IEnumerable<T> list, Action<T> action)
+        public static Unit forall<T>(this IEnumerable<T> list, Action<T> action)
         {
             foreach (var item in list)
             {

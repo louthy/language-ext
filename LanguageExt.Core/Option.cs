@@ -105,6 +105,11 @@ namespace LanguageExt
         public int Count =>
             IsSome ? 1 : 0;
 
+        public bool ForAll(Predicate<T> pred) =>
+            IsSome
+                ? pred(Value)
+                : true;
+
         public S Fold<S>(S state, Func<S, T, S> folder) =>
             IsSome
                 ? folder(state, Value)

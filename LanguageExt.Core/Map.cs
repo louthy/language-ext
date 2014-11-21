@@ -35,8 +35,8 @@ namespace LanguageExt
                 ? Some(self[key])
                 : None;
 
-        public static Unit each<K, V>(this IImmutableDictionary<K, V> self, Action<K, V> action) =>
-            ignore(each<K>(self.Keys, key => action(key, self[key])));
+        public static Unit forall<K, V>(this IImmutableDictionary<K, V> self, Action<K, V> action) =>
+            ignore(forall<K>(self.Keys, key => action(key, self[key])));
 
         public static IImmutableDictionary<K, U> map<K, T, U>(this IImmutableDictionary<K, T> m, Func<T, U> f) =>
             m.Select(kv => new KeyValuePair<K, U>(kv.Key, f(kv.Value))).ToImmutableDictionary();
