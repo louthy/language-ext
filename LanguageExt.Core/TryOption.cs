@@ -5,13 +5,12 @@ using LanguageExt.Prelude;
 namespace LanguageExt
 {
     /// <summary>
-    /// The Try monad delegate
+    /// TryOption delegate
     /// </summary>
     public delegate TryOptionResult<T> TryOption<T>();
 
     /// <summary>
-    /// Holds the state of the error monad during the bind function
-    /// If IsFaulted == true then the bind function will be cancelled.
+    /// Holds the state of the TryOption post invocation.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public struct TryOptionResult<T>
@@ -19,64 +18,39 @@ namespace LanguageExt
         internal readonly Option<T> Value;
         internal Exception Exception;
 
-        /// <summary>
-        /// Ctor
-        /// </summary>
         public TryOptionResult(Option<T> value)
         {
             Value = value;
             Exception = null;
         }
 
-        /// <summary>
-        /// Ctor
-        /// </summary>
         public TryOptionResult(Exception e)
         {
             Exception = e;
             Value = default(T);
         }
 
-        public static implicit operator TryOptionResult<T>(Option<T> value)
-        {
-            return new TryOptionResult<T>(value);
-        }
+        public static implicit operator TryOptionResult<T>(Option<T> value) =>
+            new TryOptionResult<T>(value);
 
-        public static implicit operator TryOptionResult<T>(T value)
-        {
-            return new TryOptionResult<T>(Option.Cast(value));
-        }
+        public static implicit operator TryOptionResult<T>(T value) =>
+            new TryOptionResult<T>(Option.Cast(value));
 
-        /// <summary>
-        /// True if faulted
-        /// </summary>
-        public bool IsFaulted
-        {
-            get
-            {
-                return Exception != null;
-            }
-        }
+        internal bool IsFaulted => Exception != null;
 
-        /// <summary>
-        /// ToString override
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return IsFaulted
+        public override string ToString() =>
+            IsFaulted
                 ? Exception.ToString()
                 : Value.ToString();
-        }
     }
 
     /// <summary>
-    /// Extension methods for the error monad
+    /// Extension methods for the TryOption monad
     /// </summary>
-    public static class __TryMonadExt
+    public static class __TryOptionExt
     {
         /// <summary>
-        /// Returns the value of the Try or a default if faulted
+        /// Returns the Some(value) of the TryOption or a default if it's None or Fail
         /// </summary>
         public static T Failure<T>(this TryOption<T> self, T defaultValue)
         {
@@ -90,7 +64,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Returns the value of the Try or a default if faulted
+        /// Returns the Some(value) of the TryOption or a default if it's None or Fail
         /// </summary>
         public static T Failure<T>(this TryOption<T> self, Func<T> defaultAction)
         {
@@ -101,9 +75,6 @@ namespace LanguageExt
                 return res.Value.Value;
         }
 
-        /// <summary>
-        /// Pattern matching
-        /// </summary>
         public static R Match<T, R>(this TryOption<T> self, Func<T, R> Some, Func<R> None, Func<Exception, R> Fail)
         {
             var res = self.Try();
@@ -112,9 +83,6 @@ namespace LanguageExt
                 : match(res.Value, Some, None);
         }
 
-        /// <summary>
-        /// Pattern matching
-        /// </summary>
         public static R Match<T, R>(this TryOption<T> self, Func<T, R> Some, R None, Func<Exception, R> Fail)
         {
             var res = self.Try();
@@ -123,9 +91,6 @@ namespace LanguageExt
                 : match(res.Value, Some, () => None);
         }
 
-        /// <summary>
-        /// Pattern matching
-        /// </summary>
         public static R Match<T, R>(this TryOption<T> self, Func<T, R> Some, Func<R> None, R Fail)
         {
             if (Fail == null) throw new ArgumentNullException("Fail");
@@ -136,9 +101,6 @@ namespace LanguageExt
                 : match(res.Value, Some, None);
         }
 
-        /// <summary>
-        /// Pattern matching
-        /// </summary>
         public static R Match<T, R>(this TryOption<T> self, Func<T, R> Some, R None, R Fail)
         {
             if (Fail == null) throw new ArgumentNullException("Fail");
@@ -149,9 +111,6 @@ namespace LanguageExt
                 : match(res.Value, Some, () => None);
         }
 
-        /// <summary>
-        /// Pattern matching
-        /// </summary>
         public static Unit Match<T>(this TryOption<T> self, Action<T> Some, Action None, Action<Exception> Fail)
         {
             var res = self.Try();
@@ -176,9 +135,6 @@ namespace LanguageExt
             }
         }
 
-        /// <summary>
-        /// Select
-        /// </summary>
         public static TryOption<U> Select<T, U>(this TryOption<T> self, Func<Option<T>, Option<U>> select)
         {
             return new TryOption<U>(() =>
@@ -209,9 +165,6 @@ namespace LanguageExt
             });
         }
 
-        /// <summary>
-        /// SelectMany
-        /// </summary>
         public static TryOption<V> SelectMany<T, U, V>(
             this TryOption<T> self,
             Func<Option<T>, TryOption<U>> select,
@@ -261,7 +214,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Converts the Try to an enumerable of T
+        /// Converts the TryOption to an enumerable of T
         /// </summary>
         /// <returns>
         /// Some: A list with one T in
@@ -277,7 +230,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Converts the Try to an infinite enumerable of T
+        /// Converts the TryOption to an infinite enumerable of T
         /// </summary>
         /// <returns>
         /// Some: An infinite list of T
