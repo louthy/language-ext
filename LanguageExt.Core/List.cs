@@ -108,14 +108,21 @@ namespace LanguageExt
             Func<T, IEnumerable<T>, R> More
             )
         {
-            var head = list.Take(1).ToList();
-            var tail = list.Skip(1);
+            if (list == null)
+            {
+                return Empty();
+            }
+            else
+            {
+                var head = list.Take(1).ToList();
+                var tail = list.Skip(1);
 
-            return head.Count == 0
-                ? Empty()
-                : tail.Take(1).Count() == 0
-                    ? One(head.First())
-                    : More(head.First(), tail);
+                return head.Count == 0
+                    ? Empty()
+                    : tail.Take(1).Count() == 0
+                        ? One(head.First())
+                        : More(head.First(), tail);
+            }
         }
     }
 }
