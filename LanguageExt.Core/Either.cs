@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using LanguageExt;
 using LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public struct Either<R, L>
+    public struct Either<R, L> : IEnumerable<R>
     {
         enum EitherState : byte
         {
@@ -139,6 +141,64 @@ namespace LanguageExt
             state == EitherState.IsUninitialised
                 ? raise<U>(new EitherNotInitialisedException())
                 : value;
+
+        public int Count =>
+            IsRight ? 1 : 0;
+
+        public bool ForAll(Func<R,bool> pred) =>
+            IsRight
+                ? pred(RightValue)
+                : true;
+
+        public S Fold<S>(S state, Func<S, R, S> folder) =>
+            IsRight
+                ? folder(state, RightValue)
+                : state;
+
+        public bool Exists(Func<R, bool> pred) =>
+            IsRight
+                ? pred(RightValue)
+                : false;
+
+        public Either<Ret,L> Map<Ret>(Func<R, Ret> mapper) =>
+            IsRight
+                ? CastRight<Ret, L>(mapper(RightValue))
+                : Either<Ret, L>.Left(LeftValue);
+
+        public Either<Ret,L> Bind<Ret>(Func<R, Either<Ret,L>> binder) =>
+            IsRight
+                ? binder(RightValue)
+                : Either<Ret, L>.Left(LeftValue);
+
+        public List<R> ToList() =>
+            AsEnumerable().ToList();
+
+        public R[] ToArray() =>
+            AsEnumerable().ToArray();
+
+        public IEnumerable<R> AsEnumerable()
+        {
+            if (IsRight)
+            {
+                yield return RightValue;
+            }
+        }
+
+        public IEnumerator<R> GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
+
+        private static Either<NR, NL> CastRight<NR, NL>(NR right) =>
+            right == null
+                ? raise<Either<NR, NL>>(new ValueIsNullException())
+                : Either<NR, NL>.Right(right);
+
+        private static Either<NR, NL> CastLeft<NR, NL>(NL left) =>
+            left == null
+                ? raise<Either<NR, NL>>(new ValueIsNullException())
+                : Either<NR, NL>.Left(left);
     }
 
     public struct EitherContext<R, L, Ret>
@@ -180,11 +240,6 @@ public static class __EitherExt
             Left: l => Either<VR, L>.Left(l)
             );
 
-    public static IEnumerable<R> AsEnumerable<R, L>(this Either<R, L> self)
-    {
-        if (self.IsRight)
-        {
-            yield return self.RightValue;
-        }
-    }
+    public static bool Where<R, L>(this Either<R, L> self, Func<R, bool> pred) =>
+        self.Exists(pred);
 }

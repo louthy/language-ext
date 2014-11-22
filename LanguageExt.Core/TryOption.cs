@@ -222,7 +222,7 @@ namespace LanguageExt
                 : res.Value.Count;
         }
 
-        public static bool ForAll<T>(this TryOption<T> self, Predicate<T> pred)
+        public static bool ForAll<T>(this TryOption<T> self, Func<T, bool> pred)
         {
             var res = self.Try();
             return res.IsFaulted
@@ -238,13 +238,16 @@ namespace LanguageExt
                 : res.Value.Fold(state, folder);
         }
 
-        public static bool Exists<T>(this TryOption<T> self, Predicate<T> pred)
+        public static bool Exists<T>(this TryOption<T> self, Func<T,bool> pred)
         {
             var res = self.Try();
             return res.IsFaulted
                 ? false
                 : res.Value.Exists(pred);
         }
+
+        public static bool Where<T>(this TryOption<T> self, Func<T, bool> pred) =>
+            self.Exists(pred);
 
         public static TryOption<R> Map<T, R>(this TryOption<T> self, Func<T, R> mapper) => () =>
         {

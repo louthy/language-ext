@@ -27,5 +27,24 @@ namespace LanguageExt
 
         public static Unit matchUnsafe<R, L>(EitherUnsafe<R, L> either, Action<R> Right, Action<L> Left) =>
             either.MatchUnsafe(Right, Left);
+
+        public static S foldUnsafe<S, R, L>(EitherUnsafe<R, L> either, S state, Func<S, R, S> folder) =>
+            either.FoldUnsafe(state, folder);
+
+        public static bool forallUnsafe<R, L>(EitherUnsafe<R, L> either, Func<R, bool> pred) =>
+            either.ForAllUnsafe(pred);
+
+        public static int count<R, L>(EitherUnsafe<R, L> either) =>
+            either.Count;
+
+        public static bool existsUnsafe<R, L>(EitherUnsafe<R, L> either, Func<R, bool> pred) =>
+            either.ExistsUnsafe(pred);
+
+        public static EitherUnsafe<Ret, L> mapUnsafe<R, L, Ret>(EitherUnsafe<R, L> either, Func<R, Ret> mapper) =>
+            either.MapUnsafe(mapper);
+
+        public static EitherUnsafe<Ret, L> bindUnsafe<R, L, Ret>(EitherUnsafe<R, L> either, Func<R, EitherUnsafe<Ret, L>> binder) =>
+            either.BindUnsafe(binder);
+
     }
 }

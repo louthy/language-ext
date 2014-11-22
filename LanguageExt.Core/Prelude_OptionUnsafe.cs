@@ -32,13 +32,13 @@ namespace LanguageExt
         public static S foldUnsafe<S, T>(OptionUnsafe<T> option, S state, Func<S, T, S> folder) =>
             option.Fold(state, folder);
 
-        public static bool forallUnsafe<T>(OptionUnsafe<T> option, Predicate<T> pred) =>
+        public static bool forallUnsafe<T>(OptionUnsafe<T> option, Func<T, bool> pred) =>
             option.ForAll(pred);
 
         public static int count<T>(OptionUnsafe<T> option) =>
             option.Count;
 
-        public static bool existsUnsafe<T>(OptionUnsafe<T> option, Predicate<T> pred) =>
+        public static bool existsUnsafe<T>(OptionUnsafe<T> option, Func<T, bool> pred) =>
             option.Exists(pred);
 
         public static OptionUnsafe<R> mapUnsafe<T, R>(OptionUnsafe<T> option, Func<T, R> mapper) =>

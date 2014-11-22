@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using LanguageExt;
 using LanguageExt.Prelude;
+using System.Collections;
 
 namespace LanguageExt
 {
@@ -12,7 +13,7 @@ namespace LanguageExt
     ///     2. None    -- which means there's no value stored inside
     /// To extract the value you must use the 'match' function.
     /// </summary>
-    public struct Option<T> : IOptionalValue
+    public struct Option<T> : IOptionalValue, IEnumerable<T>
     {
         readonly T value;
 
@@ -105,7 +106,7 @@ namespace LanguageExt
         public int Count =>
             IsSome ? 1 : 0;
 
-        public bool ForAll(Predicate<T> pred) =>
+        public bool ForAll(Func<T,bool> pred) =>
             IsSome
                 ? pred(Value)
                 : true;
@@ -115,7 +116,7 @@ namespace LanguageExt
                 ? folder(state, Value)
                 : state;
 
-        public bool Exists(Predicate<T> pred) =>
+        public bool Exists(Func<T,bool> pred) =>
             IsSome
                 ? pred(Value)
                 : false;
@@ -130,6 +131,12 @@ namespace LanguageExt
                 ? binder(Value)
                 : Option<R>.None;
 
+        public List<T> ToList() =>
+            AsEnumerable().ToList();
+
+        public T[] ToArray() =>
+            AsEnumerable().ToArray();
+
         public IEnumerable<T> AsEnumerable()
         {
             if (IsSome)
@@ -138,11 +145,11 @@ namespace LanguageExt
             }
         }
 
-        public List<T> ToList() =>
-            AsEnumerable().ToList();
+        public IEnumerator<T> GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
 
-        public T[] ToArray() =>
-            AsEnumerable().ToArray();
+        IEnumerator IEnumerable.GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
     }
 
     public struct SomeContext<T, R>
@@ -200,4 +207,7 @@ public static class __OptionExt
                 ),
             None: () => Option<V>.None
             );
+
+    public static bool Where<T>(this OptionUnsafe<T> self, Func<T, bool> pred) =>
+        self.Exists(pred);
 }

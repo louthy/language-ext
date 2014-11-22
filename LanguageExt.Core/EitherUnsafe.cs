@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using LanguageExt;
 using LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public struct EitherUnsafe<R, L>
+    public struct EitherUnsafe<R, L> : IEnumerable<R>
     {
         enum EitherState : byte
         {
@@ -122,6 +124,55 @@ namespace LanguageExt
             state == EitherState.IsUninitialised
                 ? raise<U>(new EitherNotInitialisedException())
                 : value;
+
+        public int Count =>
+            IsRight ? 1 : 0;
+
+        public bool ForAllUnsafe(Func<R, bool> pred) =>
+            IsRight
+                ? pred(RightValue)
+                : true;
+
+        public S FoldUnsafe<S>(S state, Func<S, R, S> folder) =>
+            IsRight
+                ? folder(state, RightValue)
+                : state;
+
+        public bool ExistsUnsafe(Func<R, bool> pred) =>
+            IsRight
+                ? pred(RightValue)
+                : false;
+
+        public EitherUnsafe<Ret, L> MapUnsafe<Ret>(Func<R, Ret> mapper) =>
+            IsRight
+                ? mapper(RightValue)
+                : EitherUnsafe<Ret, L>.Left(LeftValue);
+
+        public EitherUnsafe<Ret, L> BindUnsafe<Ret>(Func<R, EitherUnsafe<Ret, L>> binder) =>
+            IsRight
+                ? binder(RightValue)
+                : EitherUnsafe<Ret, L>.Left(LeftValue);
+
+        public List<R> ToList() =>
+            AsEnumerable().ToList();
+
+        public R[] ToArray() =>
+            AsEnumerable().ToArray();
+
+        public IEnumerable<R> AsEnumerable()
+        {
+            if (IsRight)
+            {
+                yield return RightValue;
+            }
+        }
+
+        public IEnumerator<R> GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
+
     }
 
     public struct EitherUnsafeContext<R, L, Ret>
@@ -163,11 +214,6 @@ public static class __EitherUnsafeExt
             Left: l => EitherUnsafe<VR, L>.Left(l)
             );
 
-    public static IEnumerable<R> AsEnumerable<R, L>(this EitherUnsafe<R, L> self)
-    {
-        if (self.IsRight)
-        {
-            yield return self.RightValue;
-        }
-    }
+    public static bool Where<R, L>(this EitherUnsafe<R, L> self, Func<R, bool> pred) =>
+        self.ExistsUnsafe(pred);
 }

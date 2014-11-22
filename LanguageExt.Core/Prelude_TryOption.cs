@@ -30,13 +30,13 @@ namespace LanguageExt
         public static S fold<S, T>(TryOption<T> tryDel, S state, Func<S, T, S> folder) =>
             tryDel.Fold(state, folder);
 
-        public static bool forall<T>(TryOption<T> tryDel, Predicate<T> pred) =>
+        public static bool forall<T>(TryOption<T> tryDel, Func<T, bool> pred) =>
             tryDel.ForAll(pred);
 
         public static int count<T>(TryOption<T> tryDel) =>
             tryDel.Count();
 
-        public static bool exists<T>(TryOption<T> tryDel, Predicate<T> pred) =>
+        public static bool exists<T>(TryOption<T> tryDel, Func<T, bool> pred) =>
             tryDel.Exists(pred);
 
         public static TryOption<R> map<T, R>(TryOption<T> tryDel, Func<T, R> mapper) =>

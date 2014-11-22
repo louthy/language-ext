@@ -46,13 +46,13 @@ namespace LanguageExt
         public static S fold<S, T>(Option<T> option, S state, Func<S, T, S> folder) =>
             option.Fold(state, folder);
 
-        public static bool forall<T>(Option<T> option, Predicate<T> pred) =>
+        public static bool forall<T>(Option<T> option, Func<T, bool> pred) =>
             option.ForAll(pred);
 
         public static int count<T>(Option<T> option) =>
             option.Count;
 
-        public static bool exists<T>(Option<T> option, Predicate<T> pred) =>
+        public static bool exists<T>(Option<T> option, Func<T, bool> pred) =>
             option.Exists(pred);
 
         public static Option<R> map<T, R>(Option<T> option, Func<T, R> mapper) =>

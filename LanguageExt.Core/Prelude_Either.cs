@@ -36,5 +36,24 @@ namespace LanguageExt
 
         public static Unit match<R, L>(Either<R, L> either, Action<R> Right, Action<L> Left) =>
             either.Match(Right, Left);
+
+        public static S fold<S, R, L>(Either<R,L> either, S state, Func<S, R, S> folder) =>
+            either.Fold(state, folder);
+
+        public static bool forall<R, L>(Either<R, L> either, Func<R, bool> pred) =>
+            either.ForAll(pred);
+
+        public static int count<R, L>(Either<R, L> either) =>
+            either.Count;
+
+        public static bool exists<R, L>(Either<R, L> either, Func<R, bool> pred) =>
+            either.Exists(pred);
+
+        public static Either<Ret, L> map<R, L, Ret>(Either<R, L> either, Func<R, Ret> mapper) =>
+            either.Map(mapper);
+
+        public static Either<Ret, L> bind<R, L, Ret>(Either<R, L> either, Func<R, Either<Ret, L>> binder) =>
+            either.Bind(binder);
+
     }
 }

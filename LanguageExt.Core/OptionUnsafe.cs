@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using LanguageExt;
 using LanguageExt.Prelude;
+using System.Collections;
 
 namespace LanguageExt
 {
@@ -15,7 +16,7 @@ namespace LanguageExt
     /// is expressly forbidden for Option<T>.  That is what makes this
     /// type 'unsafe'.  
     /// </summary>
-    public struct OptionUnsafe<T> : IOptionalValue
+    public struct OptionUnsafe<T> : IOptionalValue, IEnumerable<T>
     {
         readonly T value;
 
@@ -103,7 +104,7 @@ namespace LanguageExt
         public int Count =>
             IsSome ? 1 : 0;
 
-        public bool ForAll(Predicate<T> pred) =>
+        public bool ForAll(Func<T,bool> pred) =>
             IsSome
                 ? pred(Value)
                 : true;
@@ -113,7 +114,7 @@ namespace LanguageExt
                 ? folder(state, Value)
                 : state;
 
-        public bool Exists(Predicate<T> pred) =>
+        public bool Exists(Func<T,bool> pred) =>
             IsSome
                 ? pred(Value)
                 : false;
@@ -135,6 +136,12 @@ namespace LanguageExt
                 yield return Value;
             }
         }
+
+        public IEnumerator<T> GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
 
         public List<T> ToList() =>
             AsEnumerable().ToList();
@@ -193,4 +200,7 @@ public static class __OptionUnsafeExt
                 ),
             None: () => OptionUnsafe<V>.None
             );
+
+    public static bool Where<T>(this OptionUnsafe<T> self, Func<T, bool> pred) =>
+        self.Exists(pred);
 }
