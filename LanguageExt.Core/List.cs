@@ -124,5 +124,96 @@ namespace LanguageExt
                         : More(head.First(), tail);
             }
         }
+
+        /// <summary>
+        /// List matching
+        /// TODO: Optimise these, too many repeated pulls from the IEnumerable
+        /// </summary>
+        public static R Match<T, R>(this IEnumerable<T> list,
+            Func<R> Empty,
+            Func<T, R> One,
+            Func<T, T, R> Two,
+            Func<T, IEnumerable<T>, R> More
+            ) =>
+            Match(list, Empty, One, (x, xs) =>
+                xs.Take(2).Count() == 1
+                    ? Two(x, xs.First())
+                    : More(x,xs)
+            );
+
+        /// <summary>
+        /// List matching
+        /// TODO: Optimise these, too many repeated pulls from the IEnumerable
+        /// </summary>
+        public static R Match<T, R>(this IEnumerable<T> list,
+            Func<R> Empty,
+            Func<T, R> One,
+            Func<T, T, R> Two,
+            Func<T, T, T, R> Three,
+            Func<T, IEnumerable<T>, R> More
+            ) =>
+            Match(list, Empty, One, Two, (x, xs) =>
+                xs.Take(3).Count() < 3
+                    ? Three(x, xs.First(), xs.Skip(1).First())
+                    : More(x, xs)
+            );
+
+        /// <summary>
+        /// List matching
+        /// TODO: Optimise these, too many repeated pulls from the IEnumerable
+        /// </summary>
+        public static R Match<T, R>(this IEnumerable<T> list,
+            Func<R> Empty,
+            Func<T, R> One,
+            Func<T, T, R> Two,
+            Func<T, T, T, R> Three,
+            Func<T, T, T, T, R> Four,
+            Func<T, IEnumerable<T>, R> More
+            ) =>
+            Match(list, Empty, One, Two, Three, (x, xs) =>
+                xs.Take(4).Count() < 4
+                    ? Four(x, xs.First(), xs.Skip(1).First(), xs.Skip(2).First())
+                    : More(x, xs)
+            );
+
+        /// <summary>
+        /// List matching
+        /// TODO: Optimise these, too many repeated pulls from the IEnumerable
+        /// </summary>
+        public static R Match<T, R>(this IEnumerable<T> list,
+            Func<R> Empty,
+            Func<T, R> One,
+            Func<T, T, R> Two,
+            Func<T, T, T, R> Three,
+            Func<T, T, T, T, R> Four,
+            Func<T, T, T, T, T, R> Five,
+            Func<T, IEnumerable<T>, R> More
+            ) =>
+            Match(list, Empty, One, Two, Three, Four, (x, xs) =>
+                xs.Take(5).Count() < 5
+                    ? Five(x, xs.First(), xs.Skip(1).First(), xs.Skip(2).First(), xs.Skip(3).First())
+                    : More(x, xs)
+            );
+
+        /// <summary>
+        /// List matching
+        /// TODO: Optimise these, too many repeated pulls from the IEnumerable
+        /// </summary>
+        public static R Match<T, R>(this IEnumerable<T> list,
+            Func<R> Empty,
+            Func<T, R> One,
+            Func<T, T, R> Two,
+            Func<T, T, T, R> Three,
+            Func<T, T, T, T, R> Four,
+            Func<T, T, T, T, T, R> Five,
+            Func<T, T, T, T, T, T, R> Six,
+            Func<T, IEnumerable<T>, R> More
+            ) =>
+            Match(list, Empty, One, Two, Three, Four, Five, (x, xs) =>
+                xs.Take(6).Count() < 6
+                    ? Six(x, xs.First(), xs.Skip(1).First(), xs.Skip(2).First(), xs.Skip(3).First(), xs.Skip(4).First())
+                    : More(x, xs)
+            );
+
     }
 }

@@ -38,10 +38,9 @@ namespace LanguageExt
 
         /// <summary>
         /// Lazily generate a range of integers.  
-        /// from and to are inclusive.
         /// </summary>
-        public static IEnumerable<int> range(int from, int to) =>
-            Enumerable.Range(from, to);
+        public static IEnumerable<int> range(int from, int count) =>
+            Enumerable.Range(from, count);
 
         /// <summary>
         /// Create an immutable map
@@ -167,8 +166,67 @@ namespace LanguageExt
         public static R match<T, R>(IEnumerable<T> list,
             Func<R> Empty,
             Func<T, R> One,
-            Func<T, IEnumerable<T>, R> More
-            ) =>
+            Func<T, IEnumerable<T>, R> More ) =>
             list.Match(Empty, One, More);
+
+        /// <summary>
+        /// List matching
+        /// </summary>
+        public static R match<T, R>(IEnumerable<T> list,
+            Func<R> Empty,
+            Func<T, R> One,
+            Func<T, T, R> Two,
+            Func<T, IEnumerable<T>, R> More) =>
+            list.Match(Empty, One, Two, More);
+
+        /// <summary>
+        /// List matching
+        /// </summary>
+        public static R match<T, R>(IEnumerable<T> list,
+            Func<R> Empty,
+            Func<T, R> One,
+            Func<T, T, R> Two,
+            Func<T, T, T, R> Three,
+            Func<T, IEnumerable<T>, R> More) =>
+            list.Match(Empty, One, Two, Three, More);
+
+        /// <summary>
+        /// List matching
+        /// </summary>
+        public static R match<T, R>(IEnumerable<T> list,
+            Func<R> Empty,
+            Func<T, R> One,
+            Func<T, T, R> Two,
+            Func<T, T, T, R> Three,
+            Func<T, T, T, T, R> Four,
+            Func<T, IEnumerable<T>, R> More) =>
+            list.Match(Empty, One, Two, Three, Four, More);
+
+        /// <summary>
+        /// List matching
+        /// </summary>
+        public static R match<T, R>(IEnumerable<T> list,
+            Func<R> Empty,
+            Func<T, R> One,
+            Func<T, T, R> Two,
+            Func<T, T, T, R> Three,
+            Func<T, T, T, T, R> Four,
+            Func<T, T, T, T, T, R> Five,
+            Func<T, IEnumerable<T>, R> More) =>
+            list.Match(Empty, One, Two, Three, Four, Five, More);
+
+        /// <summary>
+        /// List matching
+        /// </summary>
+        public static R match<T, R>(IEnumerable<T> list,
+            Func<R> Empty,
+            Func<T, R> One,
+            Func<T, T, R> Two,
+            Func<T, T, T, R> Three,
+            Func<T, T, T, T, R> Four,
+            Func<T, T, T, T, T, R> Five,
+            Func<T, T, T, T, T, T, R> Six,
+            Func<T, IEnumerable<T>, R> More) =>
+            list.Match(Empty, One, Two, Three, Four, Five, Six, More);
     }
 }
