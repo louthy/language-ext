@@ -265,19 +265,24 @@ namespace LanguageExt
                 : new TryOptionResult<R>(res.Exception);
         };
 
-        public static IEnumerable<T> AsEnumerable<T>(this TryOption<T> self)
+        public static IEnumerable<Either<T,Exception>> AsEnumerable<T>(this TryOption<T> self)
         {
             var res = self.Try();
-            if (!res.IsFaulted && res.Value.IsSome)
+
+            if (res.IsFaulted)
+            {
+                yield return res.Exception;
+            }
+            else if (res.Value.IsSome)
             {
                 yield return res.Value.Value;
             }
         }
 
-        public static List<T> ToList<T>(this TryOption<T> self) =>
+        public static List<Either<T, Exception>> ToList<T>(this TryOption<T> self) =>
             self.AsEnumerable().ToList();
 
-        public static T[] ToArray<T>(this TryOption<T> self) =>
+        public static Either<T, Exception>[] ToArray<T>(this TryOption<T> self) =>
             self.AsEnumerable().ToArray();
 
     }

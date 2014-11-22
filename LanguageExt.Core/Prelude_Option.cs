@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace LanguageExt
 {
@@ -60,5 +62,53 @@ namespace LanguageExt
 
         public static Option<R> bind<T, R>(Option<T> option, Func<T, Option<R>> binder) =>
             option.Bind(binder);
+
+        public static IEnumerable<R> match<T, R>(IEnumerable<Option<T>> list,
+            Func<T, IEnumerable<R>> Some,
+            Func<IEnumerable<R>> None
+            ) =>
+            list.Match(
+                None,
+                opt => opt.Some(v => Some(v)).None(None),
+                (x, xs) => x.Some(v => Some(v)).None(None).Concat(match(xs, Some, None)) // TODO: Flatten recursion
+            );
+
+        public static IEnumerable<R> Match<T, R>(this IEnumerable<Option<T>> list,
+            Func<T, IEnumerable<R>> Some,
+            Func<IEnumerable<R>> None
+            ) =>
+            match(list, Some, None);
+
+        public static IEnumerable<R> match<T, R>(IEnumerable<Option<T>> list,
+            Func<T, IEnumerable<R>> Some,
+            IEnumerable<R> None
+            ) =>
+            match(list, Some, () => None);
+
+        public static IEnumerable<R> Match<T, R>(this IEnumerable<Option<T>> list,
+            Func<T, IEnumerable<R>> Some,
+            IEnumerable<R> None
+            ) =>
+            match(list, Some, () => None);
+
+        public static IEnumerable<T> failure<T>(IEnumerable<Option<T>> list,
+            Func<IEnumerable<T>> None
+            ) =>
+            match(list, v => new T[1] { v }, None);
+
+        public static IEnumerable<T> Failure<T>(this IEnumerable<Option<T>> list,
+            Func<IEnumerable<T>> None
+            ) =>
+            match(list, v => new T[1] { v }, None);
+
+        public static IEnumerable<T> failure<T>(IEnumerable<Option<T>> list,
+            IEnumerable<T> None
+            ) =>
+            match(list, v => new T[1] { v }, () => None);
+
+        public static IEnumerable<T> Failure<T>(this IEnumerable<Option<T>> list,
+            IEnumerable<T> None
+            ) =>
+            match(list, v => new T[1] { v }, () => None);
     }
 }

@@ -110,5 +110,24 @@ namespace LanguageExt
 
         public static bool forall<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
             list.All(pred);
+
+        /// <summary>
+        /// List matching
+        /// </summary>
+        public static R Match<T, R>(this IEnumerable<T> list,
+            Func<R> Empty,
+            Func<T, R> One,
+            Func<T, IEnumerable<T>, R> More
+            )
+        {
+            var head = list.Take(1).ToList();
+            var tail = list.Skip(1);
+
+            return head.Count == 0
+                ? Empty()
+                : tail.Take(1).Count() == 0
+                    ? One(head.First())
+                    : More(head.First(), tail);
+        }
     }
 }

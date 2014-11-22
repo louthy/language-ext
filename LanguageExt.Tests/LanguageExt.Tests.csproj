@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="FunTests.cs" />
     <Compile Include="LinqTests.cs" />
+    <Compile Include="ListMatchingTests.cs" />
     <Compile Include="ListTests.cs" />
     <Compile Include="MapTests.cs" />
     <Compile Include="MemoTests.cs" />

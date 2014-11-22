@@ -111,7 +111,11 @@ namespace LanguageExtTests
         [Test]
         public void WithTryOptionSomeList()
         {
-            var res = (from v in GetTryOptionValue(true).AsEnumerable()
+            var res = (from v in match( 
+                                     GetTryOptionValue(true).AsEnumerable(), 
+                                     Right: r => list(r),
+                                     Left:  l => list<int>()
+                                 )
                        from r in range(1, 10)
                        select v * r)
                       .ToList();
@@ -124,7 +128,7 @@ namespace LanguageExtTests
         [Test]
         public void WithTryOptionNoneList()
         {
-            var res = (from v in GetTryOptionValue(false).AsEnumerable()
+            var res = (from v in GetTryOptionValue(false).AsEnumerable().Failure( list<int>() )
                        from r in range(1, 10)
                        select v * r)
                       .ToList();
@@ -135,7 +139,12 @@ namespace LanguageExtTests
         [Test]
         public void WithTryOptionErrorList()
         {
-            var res = (from v in GetTryOptionError().AsEnumerable()
+            match( GetTryOptionError().AsEnumerable().First(),
+                Right: r => Assert.Fail(),
+                Left:  e => Assert.IsTrue(true)
+            );
+
+            var res = (from v in GetTryOptionError().AsEnumerable().FailWithEmpty()
                        from r in range(1, 10)
                        select v * r)
                       .ToList();

@@ -81,7 +81,7 @@ namespace LanguageExt
         public T FailureUnsafe(T noneValue) =>
             MatchUnsafe(identity<T>(), () => noneValue);
 
-        public SomeUnsafeContext<T, R> Some<R>(Func<T, R> someHandler) =>
+        public SomeUnsafeContext<T, R> SomeUnsafe<R>(Func<T, R> someHandler) =>
             new SomeUnsafeContext<T, R>(this, someHandler);
 
         public override string ToString() =>

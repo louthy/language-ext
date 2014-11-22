@@ -161,5 +161,14 @@ namespace LanguageExt
         public static IImmutableSet<T> set<T>(params T[] items) =>
             ImmutableHashSet.Create<T>(items);
 
+        /// <summary>
+        /// List matching
+        /// </summary>
+        public static R match<T, R>(IEnumerable<T> list,
+            Func<R> Empty,
+            Func<T, R> One,
+            Func<T, IEnumerable<T>, R> More
+            ) =>
+            list.Match(Empty, One, More);
     }
 }
