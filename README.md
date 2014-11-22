@@ -417,6 +417,7 @@ The above can be written in a fluent style also:
 
 `list` functions (`using LanguageExt.List`):
 * `add`
+* `addRange`
 * `append`
 * `head`
 * `headSafe` - returns `Option<T>`
@@ -483,6 +484,7 @@ To set an item call:
 
 `map` functions (`using LanguageExt.Map`):
 * `add`
+* `addRange`
 * `contains`
 * `filter`
 * `find`
