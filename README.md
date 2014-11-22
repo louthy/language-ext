@@ -415,16 +415,25 @@ The above can be written in a fluent style also:
     Assert.IsTrue(res == 120);
 ```
 
-Other list functions:
+`list` functions (`using LanguageExt.List`):
+* `add`
+* `append`
 * `head`
 * `headSafe` - returns `Option<T>`
-* `tail`
+* `forall`
+* `filter`
+* `fold`
 * `foldr`
+* `iter`
+* `iteri`
+* `map`
+* `mapi`
 * `reduce`
-* `each`
-* `append`
+* `remove`
+* `removeAt`
 * `rev`
 * `sum`
+* `tail`
 * `zip`
 * more coming...
 
@@ -474,14 +483,17 @@ To set an item call:
 
 `map` functions (`using LanguageExt.Map`):
 * `add`
-* `set`
-* `remove`
 * `contains`
-* `find`
-* `each`
-* `map`
 * `filter`
+* `find`
+* `forall`
+* `iter`
+* `iteri`
 * `length`
+* `map`
+* `mapi`
+* `remove`
+* `setItem`
 * more coming...
 
 ## The awful `out` parameter
