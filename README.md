@@ -415,6 +415,51 @@ The above can be written in a fluent style also:
     Assert.IsTrue(res == 120);
 ```
 
+### List pattern matching
+
+Here we implement the standard functional pattern for matching on list elements.  In our version you must provide 3 handlers:
+
+* One for an empty list
+* One for a list with a single item in it
+* One for a list with more than one item in it
+
+```C#
+    public int Sum(IEnumerable<int> list) =>
+        match( list,
+               ()      => 0,
+               x       => x,
+               (x, xs) => x + Sum(xs) );
+
+    public int Product(IEnumerable<int> list) =>
+        list.Match(
+            ()      => 0,
+            x       => x,
+            (x, xs) => x * Product(xs) );
+
+    public void RecursiveMatchSumTest()
+    {
+        var list0 = list<int>();
+        var list1 = list(10);
+        var list5 = list(10,20,30,40,50);
+        
+        Assert.IsTrue(Sum(list0) == 0);
+        Assert.IsTrue(Sum(list1) == 10);
+        Assert.IsTrue(Sum(list5) == 150);
+    }
+
+    public void RecursiveMatchProductTest()
+    {
+        var list0 = list<int>();
+        var list1 = list(10);
+        var list5 = list(10, 20, 30, 40, 50);
+
+        Assert.IsTrue(Product(list0) == 0);
+        Assert.IsTrue(Product(list1) == 10);
+        Assert.IsTrue(Product(list5) == 12000000);
+    }
+```
+Those patterns should be very familiar to anyone who's ventured into the functional world.  For those that haven't, the `(x,xs)` convention might seem odd.  `x` is the item at the head of the list - `list.First()` in LINQ world.  `xs`, i.e. 'many X-es' is the tail of the list - `list.Skip(1)` in LINQ.  This recursive pattern of working on the head of the list until the list runs out is pretty much how loops are done in the funcitonal world.  Be wary of recursive processing however.  C# will happily blow up the stack after a few thousand iterations.  
+
 `list` functions (`using LanguageExt.List`):
 * `add`
 * `addRange`
