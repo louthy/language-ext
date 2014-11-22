@@ -336,6 +336,8 @@ Compared to this:
 ```
 Is annoying.  There's clearly going to be a bias toward the shorter, easier to type, better known method of creating lists.  In functional languages collections are often baked in (because they're so fundamental), with lightweight and simple syntax for generating and modifying them.  So let's have some of that...
 
+### Lists
+
 There's support for `cons`, which is the functional way of constructing lists:
 ```C#
     var test = cons(1, cons(2, cons(3, cons(4, cons(5, empty<int>())))));
@@ -482,6 +484,8 @@ Those patterns should be very familiar to anyone who's ventured into the functio
 * `tail`
 * `zip`
 * more coming...
+
+### Maps
 
 We also support dictionaries.  Again the word Dictionary is such a pain to type, especially when they have a perfectly valid alternative name in the functional world: `map`.
 
