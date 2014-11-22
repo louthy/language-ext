@@ -8,14 +8,17 @@ namespace LanguageExt
 {
     public static partial class List
     {
-        public static IImmutableList<T> add<T>(this IImmutableList<T> self, T value) =>
-            self.Add(value);
+        public static IImmutableList<T> add<T>(this IImmutableList<T> list, T value) =>
+            list.Add(value);
 
-        public static IImmutableList<T> remove<T>(this IImmutableList<T> self, T value) =>
-            self.Remove(value);
+        public static IImmutableList<T> addRange<T>(this IImmutableList<T> list, IEnumerable<T> value) =>
+            list.AddRange(value);
 
-        public static IImmutableList<T> removeAt<T>(this IImmutableList<T> self, int index) =>
-            self.RemoveAt(index);
+        public static IImmutableList<T> remove<T>(this IImmutableList<T> list, T value) =>
+            list.Remove(value);
+
+        public static IImmutableList<T> removeAt<T>(this IImmutableList<T> list, int index) =>
+            list.RemoveAt(index);
 
         public static T head<T>(this IImmutableList<T> list) => list.First();
 
@@ -92,25 +95,20 @@ namespace LanguageExt
             return unit;
         }
 
-        public static bool forall<T>(this IImmutableList<T> list, Predicate<T> pred)
+        public static Unit iteri<T>(this IEnumerable<T> list, Action<int,T> action)
         {
-            bool state = true;
+            int i = 0;
             foreach (var item in list)
             {
-                state = state && pred(item);
+                action(i++,item);
             }
-            return state;
+            return unit;
         }
 
-        public static bool forall<T>(this IEnumerable<T> list, Predicate<T> pred)
-        {
-            bool state = true;
-            foreach (var item in list)
-            {
-                state = state && pred(item);
-            }
-            return state;
-        }
+        public static bool forall<T>(this IImmutableList<T> list, Func<T, bool> pred) =>
+            list.All(pred);
 
+        public static bool forall<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
+            list.All(pred);
     }
 }
