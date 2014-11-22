@@ -30,6 +30,9 @@ namespace LanguageExt
         public static IImmutableList<R> map<T, R>(this IImmutableList<T> list, Func<T, R> map) =>
             freeze( list.Select(map) );
 
+        public static IImmutableList<R> mapi<T, R>(this IImmutableList<T> list, Func<int, T, R> map) =>
+            freeze(zip(list, range(0, Int32.MaxValue), (t, i) => map(i, t)));
+
         public static IImmutableList<T> filter<T>(this IImmutableList<T> list, Func<T, bool> predicate) =>
             freeze( list.Where(predicate) );
 
@@ -49,7 +52,7 @@ namespace LanguageExt
 
         public static S fold<S, T>(this IImmutableList<T> list, S state, Func<T, S, S> folder)
         {
-            forall(list, item => { state = folder(item, state); } );
+            iter(list, item => { state = folder(item, state); } );
             return state;
         }
 
@@ -71,7 +74,7 @@ namespace LanguageExt
         public static int length<T>(this IImmutableList<T> self) =>
            self.Count;
 
-        public static Unit forall<T>(this IImmutableList<T> list, Action<T> action)
+        public static Unit iter<T>(this IImmutableList<T> list, Action<T> action)
         {
             foreach (var item in list)
             {
@@ -80,13 +83,33 @@ namespace LanguageExt
             return unit;
         }
 
-        public static Unit forall<T>(this IEnumerable<T> list, Action<T> action)
+        public static Unit iter<T>(this IEnumerable<T> list, Action<T> action)
         {
             foreach (var item in list)
             {
                 action(item);
             }
             return unit;
+        }
+
+        public static bool forall<T>(this IImmutableList<T> list, Predicate<T> pred)
+        {
+            bool state = true;
+            foreach (var item in list)
+            {
+                state = state && pred(item);
+            }
+            return state;
+        }
+
+        public static bool forall<T>(this IEnumerable<T> list, Predicate<T> pred)
+        {
+            bool state = true;
+            foreach (var item in list)
+            {
+                state = state && pred(item);
+            }
+            return state;
         }
 
     }

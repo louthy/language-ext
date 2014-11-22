@@ -142,6 +142,8 @@ namespace LanguageExtTests
         public Some<string> SomeOtherValue;
     }
 
+    //#Disable Warning CS0649
+
     class EitherClass
     {
         public Either<string, int> EitherValue = "Hello";

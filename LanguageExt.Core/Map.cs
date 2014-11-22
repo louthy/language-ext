@@ -35,13 +35,23 @@ namespace LanguageExt
                 ? Some(self[key])
                 : None;
 
-        public static Unit forall<K, V>(this IImmutableDictionary<K, V> self, Action<K, V> action) =>
-            ignore(forall<K>(self.Keys, key => action(key, self[key])));
+        public static Unit iter<K, V>(this IImmutableDictionary<K, V> self, Action<K, V> action) =>
+            ignore(iter<K>(self.Keys, key => action(key, self[key])));
+
+        public static bool forall<K, V>(this IImmutableDictionary<K, V> self, Func<K,V,bool> pred)
+        {
+            bool state = true;
+            foreach (var item in self)
+            {
+                state = state && pred(item.Key, item.Value);
+            }
+            return state;
+        }
 
         public static IImmutableDictionary<K, U> map<K, T, U>(this IImmutableDictionary<K, T> m, Func<T, U> f) =>
             m.Select(kv => new KeyValuePair<K, U>(kv.Key, f(kv.Value))).ToImmutableDictionary();
 
-        public static IImmutableDictionary<K, U> map<K, T, U>(this IImmutableDictionary<K, T> m, Func<K, T, U> f) =>
+        public static IImmutableDictionary<K, U> mapi<K, T, U>(this IImmutableDictionary<K, T> m, Func<K, T, U> f) =>
             m.Select(kv => new KeyValuePair<K, U>(kv.Key, f(kv.Key, kv.Value))).ToImmutableDictionary();
 
         public static IImmutableDictionary<K,T> filter<K, T>(this IImmutableDictionary<K,T> m, Func<T, bool> predicate) =>
