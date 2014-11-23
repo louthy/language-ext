@@ -386,8 +386,14 @@ This is much closer to the 'functional way'.  It also returns `IImmutableList<T>
 Also `range`:
 
 ```C#
-    // Creates a list of 1000 integers lazily (starting at 500).
+    // Creates a sequence of 1000 integers lazily (starting at 500).
     var list = range(500,1000);
+    
+    // Produces: [0, 10, 20, 30, 40]
+    var list = range(0,50,10);
+    
+    // Produces: ['a,'b','c','d','e']
+    var chars = range('a','e');
 ```
 
 Some of the standard list functions are available.  These are obviously duplicates of what's in LINQ, therefore they've been put into their own `LanguageExt.List` namespace:
