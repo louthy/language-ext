@@ -69,6 +69,12 @@ namespace LanguageExt
         public static IImmutableDictionary<K,T> filter<K, T>(this IImmutableDictionary<K,T> map, Func<T, bool> predicate) =>
             map.Where(kv => predicate(kv.Value)).ToImmutableDictionary();
 
+        public static IImmutableDictionary<K, T> choose<K, T>(this IImmutableDictionary<K, T> map, Func<T, Option<T>> selector) =>
+            Map.map(filter(Map.map(map, selector), t => t.IsSome), t => t.Value);
+
+        public static IImmutableDictionary<K, T> choosei<K, T>(this IImmutableDictionary<K, T> map, Func<K, T, Option<T>> selector) =>
+            Map.map(filter(mapi(map, selector), t => t.IsSome), t => t.Value);
+
         public static int length<K, T>(this IImmutableDictionary<K, T> map) =>
             map.Count;
 

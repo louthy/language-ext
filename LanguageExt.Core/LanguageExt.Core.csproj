@@ -60,13 +60,14 @@
     <Compile Include="Prelude_OptionUnsafe.cs" />
     <Compile Include="Prelude_TryOption.cs" />
     <Compile Include="Prelude_Tuple.cs" />
+    <Compile Include="Range.cs" />
     <Compile Include="Some.cs" />
     <Compile Include="Prelude.cs" />
     <Compile Include="List.cs" />
     <Compile Include="NullableExt.cs" />
     <Compile Include="Either.cs" />
     <Compile Include="Option.cs" />
-    <Compile Include="Parse.cs" />
+    <Compile Include="Prelude_Parse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TryOption.cs" />
     <Compile Include="TryOutExt.cs" />

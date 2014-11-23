@@ -39,6 +39,17 @@ namespace LanguageExt
         public static IEnumerable<T> filter<T>(this IEnumerable<T> list, Func<T, bool> predicate) =>
             list.Where(predicate);
 
+        public static IEnumerable<T> choose<T>(this IEnumerable<T> list, Func<T, Option<T>> selector) =>
+            map(filter(map(list, selector), t => t.IsSome), t => t.Value);
+
+        public static IEnumerable<T> choosei<T>(this IEnumerable<T> list, Func<int, T, Option<T>> selector) =>
+            map(filter(mapi(list, selector), t => t.IsSome), t => t.Value);
+
+        public static IEnumerable<R> collect<T, R>(this IEnumerable<T> list, Func<T, IEnumerable<R>> map) =>
+            from t in list
+            from r in map(t)
+            select r;
+
         public static int sum(this IEnumerable<int> list) => fold(list, 0, (x, s) => s + x);
 
         public static float sum(this IEnumerable<float> list) => fold(list, 0.0f, (x, s) => s + x);
@@ -55,11 +66,14 @@ namespace LanguageExt
 
         public static S fold<S, T>(this IEnumerable<T> list, S state, Func<T, S, S> folder)
         {
-            iter(list, item => { state = folder(item, state); } );
+            foreach (var item in list)
+            {
+                state = folder(item, state);
+            }
             return state;
         }
 
-        public static S foldr<S, T>(this IEnumerable<T> list, S state, Func<T, S, S> folder) =>
+        public static S foldBack<S, T>(this IEnumerable<T> list, S state, Func<T, S, S> folder) =>
             fold(rev(list), state, folder);
 
         public static T reduce<T>(this IEnumerable<T> list, Func<T, T, T> reducer) =>
@@ -67,6 +81,28 @@ namespace LanguageExt
                 Some: x => fold(tail(list), x, reducer),
                 None: () => failwith<T>("Input list was empty")
             );
+
+        public static IEnumerable<S> scan<S, T>(this IEnumerable<T> list, S state, Func<T, S, S> folder)
+        {
+            yield return state;
+            foreach (var item in list)
+            {
+                state = folder(item, state);
+                yield return state;
+            }
+        }
+
+        public static IEnumerable<S> scanBack<S, T>(this IEnumerable<T> list, S state, Func<T, S, S> folder) =>
+            scan(rev(list), state, folder);
+
+        public static Option<T> find<T>(this IEnumerable<T> list, Func<T, bool> pred)
+        {
+            foreach (var item in list)
+            {
+                if (pred(item)) return Some(item);
+            }
+            return None;
+        }
 
         public static IImmutableList<T> freeze<T>(this IEnumerable<T> self) =>
             self.ToImmutableList();

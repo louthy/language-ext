@@ -39,8 +39,48 @@ namespace LanguageExt
         /// <summary>
         /// Lazily generate a range of integers.  
         /// </summary>
-        public static IEnumerable<int> range(int from, int count) =>
-            Enumerable.Range(from, count);
+        public static IntegerRange range(int from, int count, int step = 1) =>
+            new IntegerRange(from, count, step);
+
+        /// <summary>
+        /// Lazily generate a range of chars.  
+        /// 
+        ///   Remarks:
+        ///     Can go in a positive direction ('a'..'z') as well as negative ('z'..'a')
+        /// </summary>
+        public static CharRange range(char from, char to) =>
+            new CharRange(from, to);
+
+        /// <summary>
+        /// Lazily generate integers from any number of provided ranges
+        /// </summary>
+        public static IEnumerable<int> range(params IntegerRange[] ranges) =>
+            from range in ranges
+            from i in range
+            select i;
+
+        /// <summary>
+        /// Lazily generate chars from any number of provided ranges
+        /// </summary>
+        public static IEnumerable<char> range(params CharRange[] ranges) =>
+            from range in ranges
+            from c in range
+            select c;
+
+        /// <summary>
+        /// Generates a sequence of T using the provided delegate to initialise
+        /// each item.
+        /// </summary>
+        public static IEnumerable<T> init<T>(int count,Func<int,T> generator) =>
+            from i in range(0, count)
+            select generator(i);
+
+        /// <summary>
+        /// Generates a sequence that contains one repeated value.
+        /// </summary>
+        public static IEnumerable<T> repeat<T>(T item, int count) =>
+            from _ in range(0, count)
+            select item;
 
         /// <summary>
         /// Create an immutable map
