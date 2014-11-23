@@ -13,7 +13,7 @@ namespace LanguageExtTests
         {
             var m1 = map<int, string>();
             m1 = add(m1, 100, "hello");
-            Assert.IsTrue(m1.Count == 1 && contains(m1,100));
+            Assert.IsTrue(m1.Count == 1 && containsKey(m1,100));
         }
 
         [Test]

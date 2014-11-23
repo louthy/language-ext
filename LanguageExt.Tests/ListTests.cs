@@ -77,9 +77,9 @@ namespace LanguageExtTests
         public void MapTestFluent()
         {
             var res = list(1, 2, 3, 4, 5)
-                        .map(x => x * 10)
-                        .filter(x => x > 20)
-                        .fold(0, (x, s) => s + x);
+                        .Map(x => x * 10)
+                        .Filter(x => x > 20)
+                        .Fold(0, (x, s) => s + x);
 
             Assert.IsTrue(res == 120);
         }
@@ -88,9 +88,9 @@ namespace LanguageExtTests
         public void ReduceTestFluent()
         {
             var res = list(1, 2, 3, 4, 5)
-                        .map(x => x * 10)
-                        .filter(x => x > 20)
-                        .reduce((x, s) => s + x);
+                        .Map(x => x * 10)
+                        .Filter(x => x > 20)
+                        .Reduce((x, s) => s + x);
 
             Assert.IsTrue(res == 120);
         }
