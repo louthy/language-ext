@@ -130,15 +130,9 @@ namespace LanguageExt
         /// <summary>
         /// Create an immutable list
         /// </summary>
-        public static IImmutableList<T> list<T>(Option<T> option) =>
-            List.freeze(option.ToList());
-
-        /// <summary>
-        /// Create an immutable list
-        /// </summary>
-        public static IImmutableList<T> list<T>(OptionUnsafe<T> option) =>
-            List.freeze(option.ToList());
-
+        public static IImmutableList<T> toList<T>(IEnumerable<T> items) =>
+            ImmutableList.CreateRange(items);
+        
         /// <summary>
         /// Create an immutable queue
         /// </summary>
@@ -158,6 +152,12 @@ namespace LanguageExt
             ImmutableArray.Create<T>(items);
 
         /// <summary>
+        /// Create an immutable array
+        /// </summary>
+        public static ImmutableArray<T> toArray<T>(IEnumerable<T> items) =>
+            ImmutableArray.CreateRange(items);
+
+        /// <summary>
         /// Create an immutable queue
         /// </summary>
         public static IImmutableQueue<T> queue<T>() =>
@@ -174,6 +174,13 @@ namespace LanguageExt
         /// </summary>
         public static IImmutableQueue<T> queue<T>(params T[] items) =>
             ImmutableQueue.Create<T>(items);
+
+
+        /// <summary>
+        /// Create an immutable queue
+        /// </summary>
+        public static IImmutableQueue<T> toQueue<T>(IEnumerable<T> items) =>
+            ImmutableQueue.CreateRange<T>(items);
 
         /// <summary>
         /// Create an immutable stack
@@ -194,6 +201,12 @@ namespace LanguageExt
             ImmutableStack.Create<T>(items);
 
         /// <summary>
+        /// Create an immutable stack
+        /// </summary>
+        public static IImmutableStack<T> toStack<T>(IEnumerable<T> items) =>
+            ImmutableStack.CreateRange<T>(items);
+
+        /// <summary>
         /// Create an immutable set
         /// </summary>
         public static IImmutableSet<T> set<T>() =>
@@ -210,6 +223,12 @@ namespace LanguageExt
         /// </summary>
         public static IImmutableSet<T> set<T>(params T[] items) =>
             ImmutableHashSet.Create<T>(items);
+
+        /// <summary>
+        /// Create an immutable set
+        /// </summary>
+        public static IImmutableSet<T> toSet<T>(IEnumerable<T> items) =>
+            ImmutableHashSet.CreateRange<T>(items);
 
         /// <summary>
         /// List matching

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace LanguageExt
 {
@@ -96,5 +97,12 @@ namespace LanguageExt
             IEnumerable<T> None
             ) =>
             matchUnsafe(list, v => new T[1] { v }, () => None);
+
+
+        public static IImmutableList<T> toList<T>(OptionUnsafe<T> option) =>
+            option.ToList();
+
+        public static ImmutableArray<T> toArray<T>(OptionUnsafe<T> option) =>
+            option.ToArray();
     }
 }

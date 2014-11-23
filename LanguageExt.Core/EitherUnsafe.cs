@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using LanguageExt;
 using LanguageExt.Prelude;
+using System.Collections.Immutable;
 
 namespace LanguageExt
 {
@@ -153,11 +154,11 @@ namespace LanguageExt
                 ? binder(RightValue)
                 : EitherUnsafe<Ret, L>.Left(LeftValue);
 
-        public List<R> ToList() =>
-            AsEnumerable().ToList();
+        public IImmutableList<R> ToList() =>
+            Prelude.toList(AsEnumerable());
 
-        public R[] ToArray() =>
-            AsEnumerable().ToArray();
+        public ImmutableArray<R> ToArray() =>
+            Prelude.toArray(AsEnumerable());
 
         public IEnumerable<R> AsEnumerable()
         {

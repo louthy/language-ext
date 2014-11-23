@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace LanguageExt
@@ -110,5 +111,11 @@ namespace LanguageExt
             IEnumerable<T> None
             ) =>
             match(list, v => new T[1] { v }, () => None);
+
+        public static IImmutableList<T> toList<T>(Option<T> option) =>
+            option.ToList();
+
+        public static ImmutableArray<T> toArray<T>(Option<T> option) =>
+            option.ToArray();
     }
 }

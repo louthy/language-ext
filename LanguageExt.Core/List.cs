@@ -106,10 +106,10 @@ namespace LanguageExt
         }
 
         public static IImmutableList<T> freeze<T>(IEnumerable<T> list) =>
-            list.ToImmutableList();
+            Prelude.toList(list);
 
         public static IEnumerable<V> zip<T, U, V>(IEnumerable<T> list, IEnumerable<U> other, Func<T, U, V> zipper) =>
-            freeze(list.Zip(other, zipper));
+            list.Zip(other, zipper);
 
         public static int length<T>(IEnumerable<T> list) =>
            list.Count();

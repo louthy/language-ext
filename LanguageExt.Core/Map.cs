@@ -175,6 +175,5 @@ public static class __MapExt
 
     public static bool Exists<K, V>(this IImmutableDictionary<K, V> map, Func<KeyValuePair<K, V>, bool> pred) =>
         LanguageExt.Map.exists(map, pred);
-
 }
 

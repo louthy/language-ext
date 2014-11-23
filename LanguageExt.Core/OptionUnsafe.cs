@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using LanguageExt;
 using LanguageExt.Prelude;
 using System.Collections;
+using System.Collections.Immutable;
 
 namespace LanguageExt
 {
@@ -143,11 +144,11 @@ namespace LanguageExt
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 
-        public List<T> ToList() =>
-            AsEnumerable().ToList();
+        public IImmutableList<T> ToList() =>
+            Prelude.toList(AsEnumerable());
 
-        public T[] ToArray() =>
-            AsEnumerable().ToArray();
+        public ImmutableArray<T> ToArray() =>
+            Prelude.toArray(AsEnumerable());
     }
 
     public struct SomeUnsafeContext<T, R>

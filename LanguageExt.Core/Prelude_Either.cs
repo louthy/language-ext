@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace LanguageExt
 {
@@ -108,5 +109,11 @@ namespace LanguageExt
 
         public static IEnumerable<R> FailWithEmpty<R, L>(this IEnumerable<Either<R, L>> list) =>
             failWithEmpty(list);
+
+        public static IImmutableList<R> toList<R, L>(Either<R, L> either) =>
+            either.ToList();
+
+        public static ImmutableArray<R> toArray<R, L>(Either<R, L> either) =>
+            either.ToArray();
     }
 }

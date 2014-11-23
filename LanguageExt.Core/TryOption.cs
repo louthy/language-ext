@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using LanguageExt.Prelude;
+using System.Collections.Immutable;
 
 namespace LanguageExt
 {
@@ -279,11 +280,10 @@ namespace LanguageExt
             }
         }
 
-        public static List<Either<T, Exception>> ToList<T>(this TryOption<T> self) =>
-            self.AsEnumerable().ToList();
+        public static IImmutableList<Either<T, Exception>> ToList<T>(this TryOption<T> self) =>
+            Prelude.toList(self.AsEnumerable());
 
-        public static Either<T, Exception>[] ToArray<T>(this TryOption<T> self) =>
-            self.AsEnumerable().ToArray();
-
+        public static ImmutableArray<Either<T, Exception>> ToArray<T>(this TryOption<T> self) =>
+            Prelude.toArray(self.AsEnumerable());
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 
 namespace LanguageExt
 {
@@ -44,5 +45,11 @@ namespace LanguageExt
 
         public static TryOption<R> bind<T, R>(TryOption<T> tryDel, Func<T, TryOption<R>> binder) =>
             tryDel.Bind(binder);
+
+        public static IImmutableList<Either<T, Exception>> toList<T>(TryOption<T> tryDel) =>
+            tryDel.ToList();
+
+        public static ImmutableArray<Either<T, Exception>> toArray<T>(TryOption<T> tryDel) =>
+            tryDel.ToArray();
     }
 }
