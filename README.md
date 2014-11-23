@@ -429,7 +429,6 @@ Here we implement the standard functional pattern for matching on list elements.
     public int Sum(IEnumerable<int> list) =>
         match( list,
                ()      => 0,
-               x       => x,
                (x, xs) => x + Sum(xs) );
 
     public int Product(IEnumerable<int> list) =>
