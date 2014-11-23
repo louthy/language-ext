@@ -503,7 +503,8 @@ Instead you can use:
 ```C#
     var dict = map<string,int>();
 ```
-Also you can pass in a list of tuples or key-value pairs, which will create a `ImmutableDictionary.Builder` before generating the immutable dictionary itself:
+Also you can pass in a list of tuples or key-value pairs:
+
 ```C#
     var m = map( tuple(1, "a"),
                  tuple(2, "b"),
