@@ -104,6 +104,29 @@ namespace LanguageExt
         /// </summary>
         public static R Match<T, R>(this IEnumerable<T> list,
             Func<R> Empty,
+            Func<T, IEnumerable<T>, R> More
+            )
+        {
+            if (list == null)
+            {
+                return Empty();
+            }
+            else
+            {
+                var head = list.Take(1).ToList();
+                var tail = list.Skip(1);
+
+                return head.Count == 0
+                    ? Empty()
+                    : More(head.First(), tail);
+            }
+        }
+
+        /// <summary>
+        /// List matching
+        /// </summary>
+        public static R Match<T, R>(this IEnumerable<T> list,
+            Func<R> Empty,
             Func<T, R> One,
             Func<T, IEnumerable<T>, R> More
             )

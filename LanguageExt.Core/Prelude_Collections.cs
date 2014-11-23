@@ -165,6 +165,14 @@ namespace LanguageExt
         /// </summary>
         public static R match<T, R>(IEnumerable<T> list,
             Func<R> Empty,
+            Func<T, IEnumerable<T>, R> More) =>
+            list.Match(Empty, More);
+
+        /// <summary>
+        /// List matching
+        /// </summary>
+        public static R match<T, R>(IEnumerable<T> list,
+            Func<R> Empty,
             Func<T, R> One,
             Func<T, IEnumerable<T>, R> More ) =>
             list.Match(Empty, One, More);
