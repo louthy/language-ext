@@ -410,9 +410,9 @@ The above can be written in a fluent style also:
 
 ```C#
     var res = list(1, 2, 3, 4, 5)
-                .map(x => x * 10)
-                .filter(x => x > 20)
-                .fold(0, (x, s) => s + x);
+                .Map(x => x * 10)
+                .Filter(x => x > 20)
+                .Fold(0, (x, s) => s + x);
 
     Assert.IsTrue(res == 120);
 ```
@@ -466,12 +466,15 @@ Those patterns should be very familiar to anyone who's ventured into the functio
 * `add`
 * `addRange`
 * `append`
+* `collect`
+* `choose`
+* `choosei`
 * `head`
 * `headSafe` - returns `Option<T>`
 * `forall`
 * `filter`
 * `fold`
-* `foldr`
+* `foldBack`
 * `iter`
 * `iteri`
 * `map`
@@ -480,6 +483,8 @@ Those patterns should be very familiar to anyone who's ventured into the functio
 * `remove`
 * `removeAt`
 * `rev`
+* `scan`
+* `scanBack`
 * `sum`
 * `tail`
 * `zip`
@@ -534,7 +539,10 @@ To set an item call:
 `map` functions (`using LanguageExt.Map`):
 * `add`
 * `addRange`
+* `choose`
+* `choosei`
 * `contains`
+* `containsKey`
 * `filter`
 * `find`
 * `forall`
