@@ -61,6 +61,7 @@
     <Compile Include="Prelude_TryOption.cs" />
     <Compile Include="Prelude_Tuple.cs" />
     <Compile Include="Range.cs" />
+    <Compile Include="Set.cs" />
     <Compile Include="Some.cs" />
     <Compile Include="Prelude.cs" />
     <Compile Include="List.cs" />

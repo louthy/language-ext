@@ -253,11 +253,8 @@ namespace LanguageExt
     }
 }
 
-
-
 public static class __ListExt
 {
-
     /// <summary>
     /// List matching
     /// </summary>
