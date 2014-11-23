@@ -50,12 +50,12 @@ namespace LanguageExtTests
             var matcher = fun( (IEnumerable<int> lst) =>
                lst.Match(
                    () => 0,
-                   x => 1,
-                   (x, xx) => 2,
-                   (x, xx, xs) => 3,
-                   (x, xx, xxx, xs) => 4,
-                   (x, xx, xxx, xxxx, xs) => 5,
-                   (x, xx, xxx, xxxx, xxxxx, xs) => 6,
+                   a => 1,
+                   (a, b) => 2,
+                   (a, b, c) => 3,
+                   (a, b, c, d) => 4,
+                   (a, b, c, d, e) => 5,
+                   (a, b, c, d, e, f) => 6,
                    (x, xs) => xs.Count() + 1
                ) );
 
@@ -87,12 +87,12 @@ namespace LanguageExtTests
               match(
                   lst,
                   () => 0,
-                  x => 1,
-                  (x, xx) => 2,
-                  (x, xx, xs) => 3,
-                  (x, xx, xxx, xs) => 4,
-                  (x, xx, xxx, xxxx, xs) => 5,
-                  (x, xx, xxx, xxxx, xxxxx, xs) => 6,
+                  a => 1,
+                  (a, b) => 2,
+                  (a, b, c) => 3,
+                  (a, b, c, d) => 4,
+                  (a, b, c, d, e) => 5,
+                  (a, b, c, d, e, f) => 6,
                   (x, xs) => xs.Count() + 1
               ));
 

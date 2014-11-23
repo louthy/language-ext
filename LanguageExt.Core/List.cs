@@ -214,6 +214,5 @@ namespace LanguageExt
                     ? Six(x, xs.First(), xs.Skip(1).First(), xs.Skip(2).First(), xs.Skip(3).First(), xs.Skip(4).First())
                     : More(x, xs)
             );
-
     }
 }
