@@ -173,5 +173,25 @@ namespace LanguageExtTests
             }
         }
 
+        [Test]
+        public void UnfoldTest()
+        {
+            var test = list(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181);
+
+            var fibs = take(unfold(tuple(0, 1), (tup) => with(tup, (a, b) => Some(tuple(a, tuple(b, a + b))))), 20);
+
+            Assert.IsTrue( test.SequenceEqual(fibs) );
+        }
+
+        [Test]
+        public void UnfoldTupleTest()
+        {
+            var test = list(0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181);
+
+            var fibs = take( unfold( tuple(0, 1), (a, b) => Some(tuple(a, b, a + b)) ), 20);
+
+            Assert.IsTrue(test.SequenceEqual(fibs));
+        }
+
     }
 }

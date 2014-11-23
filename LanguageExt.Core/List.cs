@@ -34,7 +34,7 @@ namespace LanguageExt
         public static IEnumerable<R> map<T, R>(IEnumerable<T> list, Func<T, R> map) =>
             list.Select(map);
 
-        public static IEnumerable<R> mapi<T, R>(IEnumerable<T> list, Func<int, T, R> map) =>
+        public static IEnumerable<R> map<T, R>(IEnumerable<T> list, Func<int, T, R> map) =>
             zip(list, range(0, Int32.MaxValue), (t, i) => map(i, t));
 
         public static IEnumerable<T> filter<T>(IEnumerable<T> list, Func<T, bool> predicate) =>
@@ -43,8 +43,8 @@ namespace LanguageExt
         public static IEnumerable<T> choose<T>(IEnumerable<T> list, Func<T, Option<T>> selector) =>
             map(filter(map(list, selector), t => t.IsSome), t => t.Value);
 
-        public static IEnumerable<T> choosei<T>(IEnumerable<T> list, Func<int, T, Option<T>> selector) =>
-            map(filter(mapi(list, selector), t => t.IsSome), t => t.Value);
+        public static IEnumerable<T> choose<T>(IEnumerable<T> list, Func<int, T, Option<T>> selector) =>
+            map(filter(map(list, selector), t => t.IsSome), t => t.Value);
 
         public static IEnumerable<R> collect<T, R>(IEnumerable<T> list, Func<T, IEnumerable<R>> map) =>
             from t in list
@@ -123,7 +123,7 @@ namespace LanguageExt
             return unit;
         }
 
-        public static Unit iteri<T>(IEnumerable<T> list, Action<int, T> action)
+        public static Unit iter<T>(IEnumerable<T> list, Action<int, T> action)
         {
             int i = 0;
             foreach (var item in list)
@@ -135,8 +135,125 @@ namespace LanguageExt
 
         public static bool forall<T>(IEnumerable<T> list, Func<T, bool> pred) =>
             list.All(pred);
+
+        public static IEnumerable<T> distinct<T>(IEnumerable<T> list) =>
+            list.Distinct();
+
+        public static IEnumerable<T> distinct<T>(IEnumerable<T> list, Func<T, T, bool> compare) =>
+            list.Distinct(new EqCompare<T>(compare));
+
+        public static IEnumerable<T> take<T>(IEnumerable<T> list, int count) =>
+            list.Take(count);
+
+        public static IEnumerable<T> takeWhile<T>(IEnumerable<T> list, Func<T,bool> pred) =>
+            list.TakeWhile(pred);
+
+        public static IEnumerable<T> takeWhile<T>(IEnumerable<T> list, Func<T, int, bool> pred) =>
+            list.TakeWhile(pred);
+
+        public static IEnumerable<T> unfold<S, T>(S state, Func<S, Option<Tuple<T, S>>> unfolder)
+        {
+            while (true)
+            {
+                var res = unfolder(state);
+                if (res.IsNone)
+                {
+                    yield break;
+                }
+                else
+                {
+                    state = res.Value.Item2;
+                    yield return res.Value.Item1;
+                }
+            }
+        }
+
+        public static IEnumerable<T> unfold<S1, S2, T>(Tuple<S1,S2> state, Func<S1, S2, Option<Tuple<T, S1, S2>>> unfolder)
+        {
+            while (true)
+            {
+                var res = unfolder(state.Item1,state.Item2);
+                if (res.IsNone)
+                {
+                    yield break;
+                }
+                else
+                {
+                    state = Tuple.Create(res.Value.Item2, res.Value.Item3);
+                    yield return res.Value.Item1;
+                }
+            }
+        }
+
+        public static IEnumerable<T> unfold<S1, S2, S3, T>(Tuple<S1, S2, S3> state, Func<S1, S2, S3, Option<Tuple<T, S1, S2, S3>>> unfolder)
+        {
+            while (true)
+            {
+                var res = unfolder(state.Item1, state.Item2, state.Item3);
+                if (res.IsNone)
+                {
+                    yield break;
+                }
+                else
+                {
+                    state = Tuple.Create(res.Value.Item2, res.Value.Item3, res.Value.Item4);
+                    yield return res.Value.Item1;
+                }
+            }
+        }
+
+        public static IEnumerable<T> unfold<S1, S2, S3, S4, T>(Tuple<S1, S2, S3, S4> state, Func<S1, S2, S3, S4, Option<Tuple<T, S1, S2, S3, S4>>> unfolder)
+        {
+            while (true)
+            {
+                var res = unfolder(state.Item1, state.Item2, state.Item3, state.Item4);
+                if (res.IsNone)
+                {
+                    yield break;
+                }
+                else
+                {
+                    state = Tuple.Create(res.Value.Item2, res.Value.Item3, res.Value.Item4, res.Value.Item5);
+                    yield return res.Value.Item1;
+                }
+            }
+        }
+
+        public static bool exists<T>(IEnumerable<T> list, Func<T, bool> pred)
+        {
+            foreach (var item in list)
+            {
+                if (pred(item))
+                    return true;
+            }
+            return false;
+        }
+    }
+
+    class EqCompare<T> : IEqualityComparer<T>
+    {
+        readonly Func<T, T, bool> compare;
+
+        public EqCompare(Func<T, T, bool> compare)
+        {
+            this.compare = compare;
+        }
+
+        public bool Equals(T x, T y) =>
+            x == null && y == null
+                ? true
+                : x == null || y == null
+                    ? false
+                    : compare(x, y);
+
+        public int GetHashCode(T obj) =>
+            obj == null
+                ? 0
+                : obj.GetHashCode();
     }
 }
+
+
 
 public static class __ListExt
 {
@@ -293,8 +410,8 @@ public static class __ListExt
     public static IEnumerable<R> Map<T, R>(this IEnumerable<T> list, Func<T, R> map) =>
         List.map(list, map);
 
-    public static IEnumerable<R> Mapi<T, R>(this IEnumerable<T> list, Func<int, T, R> map) =>
-        List.mapi(list, map);
+    public static IEnumerable<R> Map<T, R>(this IEnumerable<T> list, Func<int, T, R> map) =>
+        List.map(list, map);
 
     public static IEnumerable<T> Filter<T>(this IEnumerable<T> list, Func<T, bool> predicate) =>
         List.filter(list, predicate);
@@ -302,8 +419,8 @@ public static class __ListExt
     public static IEnumerable<T> Choose<T>(this IEnumerable<T> list, Func<T, Option<T>> selector) =>
         List.choose(list, selector);
 
-    public static IEnumerable<T> Choosei<T>(this IEnumerable<T> list, Func<int, T, Option<T>> selector) =>
-        List.choosei(list, selector);
+    public static IEnumerable<T> Choose<T>(this IEnumerable<T> list, Func<int, T, Option<T>> selector) =>
+        List.choose(list, selector);
 
     public static IEnumerable<R> Collect<T, R>(this IEnumerable<T> list, Func<T, IEnumerable<R>> map) =>
         List.collect(list, map);
@@ -341,9 +458,15 @@ public static class __ListExt
     public static Unit Iter<T>(this IEnumerable<T> list, Action<T> action) =>
         List.iter(list, action);
 
-    public static Unit Iteri<T>(this IEnumerable<T> list, Action<int, T> action) =>
-        List.iteri(list, action);
+    public static Unit Iter<T>(this IEnumerable<T> list, Action<int, T> action) =>
+        List.iter(list, action);
 
     public static bool ForAll<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
         List.forall(list, pred);
+
+    public static IEnumerable<T> Distinct<T>(IEnumerable<T> list, Func<T, T, bool> compare) =>
+        List.distinct(list, compare);
+
+    public static bool Exists<T>(IEnumerable<T> list, Func<T, bool> pred) =>
+        List.exists(list, pred);
 }

@@ -49,7 +49,7 @@ namespace LanguageExt
         public static Unit iter<K, V>(IImmutableDictionary<K, V> map, Action<V> action) =>
             iter<K>(map.Keys, key => action(map[key]));
 
-        public static Unit iteri<K, V>(IImmutableDictionary<K, V> map, Action<K, V> action) =>
+        public static Unit iter<K, V>(IImmutableDictionary<K, V> map, Action<K, V> action) =>
             iter<K>(map.Keys, key => action(key, map[key]));
 
         public static bool forall<K, V>(IImmutableDictionary<K, V> map, Func<K, V, bool> pred) =>
@@ -64,25 +64,55 @@ namespace LanguageExt
         public static IImmutableDictionary<K, U> map<K, T, U>(IImmutableDictionary<K, T> map, Func<T, U> f) =>
             map.Select(kv => new KeyValuePair<K, U>(kv.Key, f(kv.Value))).ToImmutableDictionary();
 
-        public static IImmutableDictionary<K, U> mapi<K, T, U>(IImmutableDictionary<K, T> map, Func<K, T, U> f) =>
+        public static IImmutableDictionary<K, U> map<K, T, U>(IImmutableDictionary<K, T> map, Func<K, T, U> f) =>
             map.Select(kv => new KeyValuePair<K, U>(kv.Key, f(kv.Key, kv.Value))).ToImmutableDictionary();
 
         public static IImmutableDictionary<K, T> filter<K, T>(IImmutableDictionary<K, T> map, Func<T, bool> predicate) =>
             map.Where(kv => predicate(kv.Value)).ToImmutableDictionary();
 
         public static IImmutableDictionary<K, T> choose<K, T>(IImmutableDictionary<K, T> map, Func<T, Option<T>> selector) =>
-            LanguageExt.Map.map(filter(LanguageExt.Map.map(map, selector), t => t.IsSome), t => t.Value);
+            Map.map(filter(Map.map(map, selector), t => t.IsSome), t => t.Value);
 
-        public static IImmutableDictionary<K, T> choosei<K, T>(IImmutableDictionary<K, T> map, Func<K, T, Option<T>> selector) =>
-            LanguageExt.Map.map(filter(mapi(map, selector), t => t.IsSome), t => t.Value);
+        public static IImmutableDictionary<K, T> choose<K, T>(IImmutableDictionary<K, T> map, Func<K, T, Option<T>> selector) =>
+            Map.map(filter(Map.map(map, selector), t => t.IsSome), t => t.Value);
 
         public static int length<K, T>(IImmutableDictionary<K, T> map) =>
             map.Count;
 
         public static S fold<S, K, V>(IImmutableDictionary<K, V> map, S state, Func<K, V, S, S> folder)
         {
-            iteri(map, (key, value) => { state = folder(key, value, state); });
+            iter(map, (key, value) => { state = folder(key, value, state); });
             return state;
+        }
+
+        public static bool exists<K, V>(IImmutableDictionary<K, V> map, Func<K, V, bool> pred)
+        {
+            foreach (var key in map.Keys)
+            {
+                if ( pred(key, map[key]) )
+                    return true;
+            }
+            return false;
+        }
+
+        public static bool exists<K, V>(IImmutableDictionary<K, V> map, Func<Tuple<K, V>, bool> pred)
+        {
+            foreach (var key in map.Keys)
+            {
+                if (pred(Tuple.Create(key, map[key])))
+                    return true;
+            }
+            return false;
+        }
+
+        public static bool exists<K, V>(IImmutableDictionary<K, V> map, Func<KeyValuePair<K, V>, bool> pred)
+        {
+            foreach (var keyValue in map)
+            {
+                if (pred(keyValue))
+                    return true;
+            }
+            return false;
         }
     }
 }
@@ -104,8 +134,8 @@ public static class __MapExt
     public static Unit Iter<K, V>(this IImmutableDictionary<K, V> map, Action<V> action) =>
         LanguageExt.Map.iter(map, action);
 
-    public static Unit Iteri<K, V>(this IImmutableDictionary<K, V> map, Action<K, V> action) =>
-        LanguageExt.Map.iteri(map, action);
+    public static Unit Iter<K, V>(this IImmutableDictionary<K, V> map, Action<K, V> action) =>
+        LanguageExt.Map.iter(map, action);
 
     public static bool ForAll<K, V>(this IImmutableDictionary<K, V> map, Func<K, V, bool> pred) =>
         LanguageExt.Map.forall(map, pred);
@@ -120,7 +150,7 @@ public static class __MapExt
         LanguageExt.Map.map(map, f);
 
     public static IImmutableDictionary<K, U> Mapi<K, T, U>(this IImmutableDictionary<K, T> map, Func<K, T, U> f) =>
-        LanguageExt.Map.mapi(map, f);
+        LanguageExt.Map.map(map, f);
 
     public static IImmutableDictionary<K, T> Filter<K, T>(this IImmutableDictionary<K, T> map, Func<T, bool> predicate) =>
         LanguageExt.Map.filter(map, predicate);
@@ -128,13 +158,23 @@ public static class __MapExt
     public static IImmutableDictionary<K, T> Choose<K, T>(this IImmutableDictionary<K, T> map, Func<T, Option<T>> selector) =>
         LanguageExt.Map.choose(map, selector);
 
-    public static IImmutableDictionary<K, T> Choosei<K, T>(this IImmutableDictionary<K, T> map, Func<K, T, Option<T>> selector) =>
-        LanguageExt.Map.choosei(map, selector);
+    public static IImmutableDictionary<K, T> Choose<K, T>(this IImmutableDictionary<K, T> map, Func<K, T, Option<T>> selector) =>
+        LanguageExt.Map.choose(map, selector);
 
     public static int Length<K, T>(this IImmutableDictionary<K, T> map) =>
         LanguageExt.Map.length(map);
 
     public static S Fold<S, K, V>(this IImmutableDictionary<K, V> map, S state, Func<K, V, S, S> folder) =>
         LanguageExt.Map.fold(map, state, folder);
+
+    public static bool Exists<K, V>(this IImmutableDictionary<K, V> map, Func<K, V, bool> pred) =>
+        LanguageExt.Map.exists(map, pred);
+
+    public static bool Exists<K, V>(this IImmutableDictionary<K, V> map, Func<Tuple<K, V>, bool> pred) =>
+        LanguageExt.Map.exists(map,pred);
+
+    public static bool Exists<K, V>(this IImmutableDictionary<K, V> map, Func<KeyValuePair<K, V>, bool> pred) =>
+        LanguageExt.Map.exists(map, pred);
+
 }
 
