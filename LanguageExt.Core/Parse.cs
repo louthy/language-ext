@@ -6,6 +6,11 @@ namespace LanguageExt
     {
         public static Option<T> convert<T>(string text)
         {
+            if (text == null)
+            {
+                throw new ArgumentNullException(nameof(text));
+            }
+
             try
             {
                 var val = (T)Convert.ChangeType(text, typeof(T));
