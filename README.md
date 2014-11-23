@@ -423,7 +423,7 @@ Here we implement the standard functional pattern for matching on list elements.
 
 * One for an empty list
 * One for a non-empty list
-* 
+
 However, you can provide up to seven handlers, one for an empty list and six for deconstructing the first six items at the head of the list.
 
 ```C#
@@ -470,7 +470,6 @@ _Be wary of recursive processing however.  C# will happily blow up the stack aft
 * `append`
 * `collect`
 * `choose`
-* `choosei`
 * `head`
 * `headSafe` - returns `Option<T>`
 * `forall`
@@ -480,7 +479,6 @@ _Be wary of recursive processing however.  C# will happily blow up the stack aft
 * `iter`
 * `iteri`
 * `map`
-* `mapi`
 * `reduce`
 * `remove`
 * `removeAt`
@@ -542,17 +540,15 @@ To set an item call:
 * `add`
 * `addRange`
 * `choose`
-* `choosei`
 * `contains`
 * `containsKey`
+* `exists`
 * `filter`
 * `find`
 * `forall`
 * `iter`
-* `iteri`
 * `length`
 * `map`
-* `mapi`
 * `remove`
 * `setItem`
 * more coming...
