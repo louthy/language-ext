@@ -19,11 +19,9 @@ namespace LanguageExtTests
         [Test]
         public void MapGeneratorAndMatchTest()
         {
-            var m2 = map<int, string>(
-                        tuple(1, "a"),
-                        tuple(2, "b"),
-                        tuple(3, "c")
-                     );
+            var m2 = map( tuple(1, "a"),
+                          tuple(2, "b"),
+                          tuple(3, "c") );
 
             m2 = add(m2, 100, "world");
 
@@ -39,11 +37,9 @@ namespace LanguageExtTests
         [Test]
         public void MapSetTest()
         {
-            var m1 = map<int, string>(
-                        tuple(1, "a"),
-                        tuple(2, "b"),
-                        tuple(3, "c")
-                     );
+            var m1 = map( tuple(1, "a"),
+                          tuple(2, "b"),
+                          tuple(3, "c") );
 
             var m2 = setItem(m1, 1, "x");
 

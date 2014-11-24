@@ -11,6 +11,10 @@ namespace LanguageExt
     {
         public IntegerRange(int from, int count, int step = 1)
         {
+            if (count < 1)
+            {
+                throw new ArgumentException("'count' should be greater than zero.");
+            }
             From = from;
             Count = count;
             Step = step;
@@ -33,10 +37,21 @@ namespace LanguageExt
 
         public IEnumerable<int> AsEnumerable()
         {
-            var to = From + Count;
-            for (var i = From; i < to; i += Step)
+            if (Step > 0)
             {
-                yield return i;
+                var to = From + Count;
+                for (var i = From; i < to; i += Step)
+                {
+                    yield return i;
+                }
+            }
+            else
+            {
+                var to = From - Count;
+                for (var i = From; i > to; i += Step)
+                {
+                    yield return i;
+                }
             }
         }
 

@@ -70,6 +70,7 @@
     <Compile Include="Option.cs" />
     <Compile Include="Prelude_Parse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Stack.cs" />
     <Compile Include="TryOption.cs" />
     <Compile Include="TryOutExt.cs" />
     <Compile Include="TupleExt.cs" />

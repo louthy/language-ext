@@ -55,6 +55,7 @@
     <Compile Include="EitherTests.cs" />
     <Compile Include="NonNullTests.cs" />
     <Compile Include="OptionTests.cs" />
+    <Compile Include="StackTests.cs" />
     <Compile Include="TryMonadTests.cs" />
     <Compile Include="TryOutTests.cs" />
     <Compile Include="TupleTests.cs" />
