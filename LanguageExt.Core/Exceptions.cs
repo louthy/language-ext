@@ -10,7 +10,7 @@ namespace LanguageExt
     {
         public SomeNotInitialisedException(Type type)
             : 
-            base("Unitialised Some<"+type.Name+"> in class member declaration.")
+            base("Unitialised Some<"+type.Name+">.")
         {
         }
     }
