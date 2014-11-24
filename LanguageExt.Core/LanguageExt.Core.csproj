@@ -60,6 +60,7 @@
     <Compile Include="Prelude_OptionUnsafe.cs" />
     <Compile Include="Prelude_TryOption.cs" />
     <Compile Include="Prelude_Tuple.cs" />
+    <Compile Include="Queue.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="Set.cs" />
     <Compile Include="Some.cs" />
