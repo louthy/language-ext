@@ -507,33 +507,39 @@ Instead you can use:
 Also you can pass in a list of tuples or key-value pairs:
 
 ```C#
-    var m = map( tuple(1, "a"),
-                 tuple(2, "b"),
-                 tuple(3, "c") );
+    var people = map( tuple(1, "Rod"),
+                      tuple(2, "Jane"),
+                      tuple(3, "Freddy") );
 ```
 To read an item call:
 ```C#
-    Option<string> result = find(m, 1);
+    Option<string> result = find(people, 1);
 ```
 This allows for branching based on whether the item is in the map or not:
 
 ```C#
     // Find the item, do some processing on it and return.
-    var res = match( find(m, 100),
-                        Some: v  => "Hello" + v,
-                        None: () => "failed"
-                   );
+    var res = match( find(people, 100),
+                     Some: v  => "Hello " + v,
+                     None: () => "failed" );
                    
     // Find the item and return it.  If it's not there, return "failed"
-    var res = find(m, 100).Failure("failed");                   
+    var res = find(people, 100).Failure("failed");                   
     
     // Find the item and return it.  If it's not there, return "failed"
-    var res = failure( find(m, 100), "failed" );
+    var res = failure( find(people, 100), "failed" );
 ```
+Because checking for the existence of something in a dictionary (`find`), and then matching on its result is very common, there is a more convenient `match` override:
+```C#
+    // Find the item, do some processing on it and return.
+    var res = match( people, 1,
+                     Some: v  => "Hello " + v,
+                     None: () => "failed" );
+```                   
 
 To set an item call:
 ```C#
-    var m2 = setItem(m, 1, "x");
+    var newThings = setItem(people, 1, "Zippy");
 ```
 
 `map` functions (`using LanguageExt.Map`):
