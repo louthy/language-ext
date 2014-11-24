@@ -483,7 +483,6 @@ _Be wary of recursive processing however.  C# will happily blow up the stack aft
 * `fold`
 * `foldBack`
 * `iter`
-* `iteri`
 * `map`
 * `reduce`
 * `remove`
