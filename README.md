@@ -199,25 +199,21 @@ If you know what a monad is, then the `Option<T>` type implements `Select` and `
     var six = Some(6);
 
     // This exprssion succeeds because all items to the right of 'in' are Some of int.
-    (from x in two
-     from y in four
-     from z in six
-     select x + y + z)
-    .Match(
-        Some: v => Assert.IsTrue(v == 12),
-        None: () => failwith<int>("Shouldn't get here")
-    );
+    match( from x in two
+           from y in four
+           from z in six
+           select x + y + z,
+           Some: v => Assert.IsTrue(v == 12),
+           None: () => failwith<int>("Shouldn't get here") );
 
     // This expression bails out once it gets to the None, and therefore doesn't calculate x+y+z
-    (from x in two
-     from y in four
-     from _ in Option<int>.None
-     from z in six
-     select x + y + z)
-    .Match(
-        Some: v => failwith<int>("Shouldn't get here"),
-        None: () => Assert.IsTrue(true)
-    );
+    match( from x in two
+           from y in four
+           from _ in Option<int>.None
+           from z in six
+           select x + y + z,
+           Some: v => failwith<int>("Shouldn't get here"),
+           None: () => Assert.IsTrue(true) );
 ```
 ## if( arg == null ) throw new ArgumentNullException("arg")
 Another horrible side-effect of `null` is having to bullet-proof every function that take reference arguments.  This is truly tedious.  Instead use this:
