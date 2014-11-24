@@ -57,7 +57,7 @@ namespace LanguageExt
 
         private U CheckNullReturn<U>(U value, string location) =>
             value == null
-                ? raise<U>(new ResultIsNullException("'\{location}' result is null.  Not allowed."))
+                ? raise<U>(new ResultIsNullException("'" + location + "' result is null.  Not allowed."))
                 : value;
 
         public R Match<R>(Func<T, R> Some, Func<R> None) =>

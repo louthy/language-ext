@@ -80,7 +80,7 @@ namespace LanguageExt
 
         private T CheckNullReturn<T>(T value, string location) =>
             value == null
-                ? raise<T>(new ResultIsNullException("'\{location}' result is null.  Not allowed."))
+                ? raise<T>(new ResultIsNullException("'"+location+"' result is null.  Not allowed."))
                 : value;
 
 

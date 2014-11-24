@@ -66,14 +66,12 @@ namespace LanguageExtTests
             var four = Some(4);
             var six = Some(6);
 
-           (from x in two
-            from y in four
-            from z in six
-            select x + y + z)
-           .Match(
-             Some: v => Assert.IsTrue(v == 12),
-             None: failaction("Shouldn't get here")
-           );
+           match( from x in two
+                  from y in four
+                  from z in six
+                  select x + y + z,
+                  Some: v => Assert.IsTrue(v == 12),
+                  None: failaction("Shouldn't get here") );
         }
 
         [Test] public void NoneLinqTest()
@@ -82,15 +80,13 @@ namespace LanguageExtTests
             var four = Some(4);
             var six = Some(6);
 
-            (from x in two
-             from y in four
-             from _ in Option<int>.None
-             from z in six
-             select x + y + z)
-            .Match(
-              Some: v => failwith<int>("Shouldn't get here"),
-              None: () => Assert.IsTrue(true)
-            );
+            match( from x in two
+                   from y in four
+                   from _ in Option<int>.None
+                   from z in six
+                   select x + y + z,
+                   Some: v => failwith<int>("Shouldn't get here"),
+                   None: () => Assert.IsTrue(true) );
         }
 
         [Test] public void NullIsNotSomeTest()

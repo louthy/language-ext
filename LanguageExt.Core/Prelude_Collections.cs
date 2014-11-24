@@ -312,5 +312,10 @@ namespace LanguageExt
                    Some,
                    None );
 
+        public static Unit match<K, V>(IImmutableDictionary<K, V> map, K key, Action<V> Some, Action None) =>
+            match(Map.find(map, key),
+                   Some,
+                   None);
+
     }
 }

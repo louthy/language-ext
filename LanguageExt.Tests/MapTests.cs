@@ -26,10 +26,10 @@ namespace LanguageExtTests
             m2 = add(m2, 100, "world");
 
             var res = match(
-                        find(m2, 100),
-                            v  => v,
-                            () => "failed"
-                      );
+                m2, 100,
+                v  => v,
+                () => "failed"
+            );
 
             Assert.IsTrue(res == "world");
         }
@@ -44,7 +44,7 @@ namespace LanguageExtTests
             var m2 = setItem(m1, 1, "x");
 
             match( 
-                find(m1,1), 
+                m1, 1, 
                 Some: v => Assert.IsTrue(v == "a"), 
                 None: () => Assert.Fail() 
                 );
