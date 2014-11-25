@@ -80,6 +80,9 @@ namespace LanguageExt
         public static T reduce<T>(IImmutableQueue<T> queue, Func<T, T, T> reducer) =>
             List.reduce(queue, reducer);
 
+        public static T reduceBack<T>(IImmutableQueue<T> queue, Func<T, T, T> reducer) =>
+            List.reduceBack(queue, reducer);
+
         public static IEnumerable<S> scan<S, T>(IImmutableQueue<T> queue, S state, Func<T, S, S> folder) =>
             List.scan(queue, state, folder);
 
@@ -138,63 +141,66 @@ public static class __QueueExt
     public static Option<T> Peek<T>(this IImmutableQueue<T> queue) =>
         Queue.peek(queue);
 
-    public static IEnumerable<R> Map<T, R>(this IImmutableQueue<T> list, Func<T, R> map) =>
-        List.map(list, map);
+    public static IEnumerable<R> Map<T, R>(this IImmutableQueue<T> queue, Func<T, R> map) =>
+        List.map(queue, map);
 
-    public static IEnumerable<R> Map<T, R>(this IImmutableQueue<T> list, Func<int, T, R> map) =>
-        List.map(list, map);
+    public static IEnumerable<R> Map<T, R>(this IImmutableQueue<T> queue, Func<int, T, R> map) =>
+        List.map(queue, map);
 
-    public static IEnumerable<T> Filter<T>(this IImmutableQueue<T> list, Func<T, bool> predicate) =>
-        List.filter(list, predicate);
+    public static IEnumerable<T> Filter<T>(this IImmutableQueue<T> queue, Func<T, bool> predicate) =>
+        List.filter(queue, predicate);
 
-    public static IEnumerable<T> Choose<T>(this IImmutableQueue<T> list, Func<T, Option<T>> selector) =>
-        List.choose(list, selector);
+    public static IEnumerable<T> Choose<T>(this IImmutableQueue<T> queue, Func<T, Option<T>> selector) =>
+        List.choose(queue, selector);
 
-    public static IEnumerable<T> Choose<T>(this IImmutableQueue<T> list, Func<int, T, Option<T>> selector) =>
-        List.choose(list, selector);
+    public static IEnumerable<T> Choose<T>(this IImmutableQueue<T> queue, Func<int, T, Option<T>> selector) =>
+        List.choose(queue, selector);
 
-    public static IEnumerable<R> Collect<T, R>(this IImmutableQueue<T> list, Func<T, IEnumerable<R>> map) =>
-        List.collect(list, map);
+    public static IEnumerable<R> Collect<T, R>(this IImmutableQueue<T> queue, Func<T, IEnumerable<R>> map) =>
+        List.collect(queue, map);
 
-    public static IEnumerable<T> Rev<T>(this IImmutableQueue<T> list) =>
-        List.rev(list);
+    public static IEnumerable<T> Rev<T>(this IImmutableQueue<T> queue) =>
+        List.rev(queue);
 
     public static IEnumerable<T> Append<T>(this IImmutableQueue<T> lhs, IEnumerable<T> rhs) =>
         List.append(lhs, rhs);
 
-    public static S Fold<S, T>(this IImmutableQueue<T> list, S state, Func<T, S, S> folder) =>
-        List.fold(list, state, folder);
+    public static S Fold<S, T>(this IImmutableQueue<T> queue, S state, Func<T, S, S> folder) =>
+        List.fold(queue, state, folder);
 
-    public static S FoldBack<S, T>(this IImmutableQueue<T> list, S state, Func<T, S, S> folder) =>
-        List.foldBack(list, state, folder);
+    public static S FoldBack<S, T>(this IImmutableQueue<T> queue, S state, Func<T, S, S> folder) =>
+        List.foldBack(queue, state, folder);
 
-    public static T Reduce<T>(this IImmutableQueue<T> list, Func<T, T, T> reducer) =>
-        List.reduce(list, reducer);
+    public static T ReduceBack<T>(this IImmutableQueue<T> queue, Func<T, T, T> reducer) =>
+        List.reduceBack(queue, reducer);
 
-    public static IEnumerable<S> Scan<S, T>(this IImmutableQueue<T> list, S state, Func<T, S, S> folder) =>
-        List.scan(list, state, folder);
+    public static T Reduce<T>(this IImmutableQueue<T> queue, Func<T, T, T> reducer) =>
+        List.reduce(queue, reducer);
 
-    public static IEnumerable<S> ScanBack<S, T>(this IImmutableQueue<T> list, S state, Func<T, S, S> folder) =>
-        List.scanBack(list, state, folder);
+    public static IEnumerable<S> Scan<S, T>(this IImmutableQueue<T> queue, S state, Func<T, S, S> folder) =>
+        List.scan(queue, state, folder);
 
-    public static Option<T> Find<T>(this IImmutableQueue<T> list, Func<T, bool> pred) =>
-        List.find(list, pred);
+    public static IEnumerable<S> ScanBack<S, T>(this IImmutableQueue<T> queue, S state, Func<T, S, S> folder) =>
+        List.scanBack(queue, state, folder);
 
-    public static int Length<T>(this IImmutableQueue<T> list) =>
-        List.length(list);
+    public static Option<T> Find<T>(this IImmutableQueue<T> queue, Func<T, bool> pred) =>
+        List.find(queue, pred);
 
-    public static Unit Iter<T>(this IImmutableQueue<T> list, Action<T> action) =>
-        List.iter(list, action);
+    public static int Length<T>(this IImmutableQueue<T> queue) =>
+        List.length(queue);
 
-    public static Unit Iter<T>(this IImmutableQueue<T> list, Action<int, T> action) =>
-        List.iter(list, action);
+    public static Unit Iter<T>(this IImmutableQueue<T> queue, Action<T> action) =>
+        List.iter(queue, action);
 
-    public static bool ForAll<T>(this IImmutableQueue<T> list, Func<T, bool> pred) =>
-        List.forall(list, pred);
+    public static Unit Iter<T>(this IImmutableQueue<T> queue, Action<int, T> action) =>
+        List.iter(queue, action);
 
-    public static IEnumerable<T> Distinct<T>(IImmutableQueue<T> list, Func<T, T, bool> compare) =>
-        List.distinct(list, compare);
+    public static bool ForAll<T>(this IImmutableQueue<T> queue, Func<T, bool> pred) =>
+        List.forall(queue, pred);
 
-    public static bool Exists<T>(IImmutableQueue<T> list, Func<T, bool> pred) =>
-        List.exists(list, pred);
+    public static IEnumerable<T> Distinct<T>(IImmutableQueue<T> queue, Func<T, T, bool> compare) =>
+        List.distinct(queue, compare);
+
+    public static bool Exists<T>(IImmutableQueue<T> queue, Func<T, bool> pred) =>
+        List.exists(queue, pred);
 }

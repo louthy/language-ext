@@ -83,6 +83,9 @@ namespace LanguageExt
                 None: () => failwith<T>("Input list was empty")
             );
 
+        public static T reduceBack<T>(IEnumerable<T> list, Func<T, T, T> reducer) =>
+            reduce(rev(list), reducer);
+
         public static IEnumerable<S> scan<S, T>(IEnumerable<T> list, S state, Func<T, S, S> folder)
         {
             yield return state;
@@ -436,6 +439,9 @@ public static class __ListExt
 
     public static T Reduce<T>(this IEnumerable<T> list, Func<T, T, T> reducer) =>
         List.reduce(list, reducer);
+
+    public static T ReduceBack<T>(this IEnumerable<T> list, Func<T, T, T> reducer) =>
+        List.reduceBack(list, reducer);
 
     public static IEnumerable<S> Scan<S, T>(this IEnumerable<T> list, S state, Func<T, S, S> folder) =>
         List.scan(list, state, folder);
