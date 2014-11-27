@@ -67,15 +67,15 @@ namespace LanguageExtTests
             var pid = spawn<string>("SpawnAndKillProcess", msg => value = msg);
             tell(pid, "1");
 
-            Thread.Sleep(100);
+            Thread.Sleep(200);
 
             kill(pid);
 
-            Thread.Sleep(100);
+            Thread.Sleep(200);
 
             tell(pid, "2");
 
-            Thread.Sleep(100);
+            Thread.Sleep(200);
 
             Assert.IsTrue(value == "1");
             Assert.IsTrue(length(children()) == 0);
@@ -106,18 +106,53 @@ namespace LanguageExtTests
 
             tell(pid, "1");
 
-            Thread.Sleep(100);
+            Thread.Sleep(200);
 
             kill(pid);
 
-            Thread.Sleep(100);
+            Thread.Sleep(200);
 
             tell(pid, "2");
 
-            Thread.Sleep(100);
+            Thread.Sleep(200);
 
             Assert.IsTrue(value == "1");
             Assert.IsTrue(length(children()) == 0);
+        }
+
+        [Test]
+        public void MassiveSpawnAndKillHierarchy()
+        {
+            restart();
+
+            Func<Unit> setup = null;
+
+            var actor = fun((Unit s, string msg) =>
+            {
+                iter(children(), child => tell(child, msg));
+            });
+
+            int count = 0;
+
+            setup = fun(() =>
+            {
+                int level = Int32.Parse(self().Name.Value.Split('_').First()) + 1;
+                if (level < 7)
+                {
+                    iter(range(0, 5), i => spawn(level + "_" + i, setup, actor));
+                }
+
+                count++; 
+            });
+
+            var zero = spawn("0", setup, actor);
+            tell(zero, "Hello");
+
+            // crude, but whatever
+            while (count < 19300)
+            {
+                Thread.Sleep(50);
+            }
         }
     }
 }

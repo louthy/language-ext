@@ -124,12 +124,12 @@ namespace LanguageExt
             {
                 if (Processes.ContainsKey(name))
                 {
-                    Processes = Processes.Add(name, process);
+                    // TODO: Create a Exception type 
+                    throw new Exception("Process already registered");
                 }
                 else
                 {
-                    // TODO: Create a Exception type 
-                    throw new Exception("Process already registered");
+                    Processes = Processes.Add(name, process);
                 }
             }
             return unit;

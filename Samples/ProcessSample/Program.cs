@@ -15,6 +15,9 @@ namespace ProcessSample
     {
         static void Main(string[] args)
         {
+            //TestBed.RunTests();
+            //return;
+
             var ping = ProcessId.None;
             var pong = ProcessId.None;
 

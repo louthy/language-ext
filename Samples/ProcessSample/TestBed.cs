@@ -17,6 +17,7 @@ namespace ProcessSample
     {
         public static void RunTests()
         {
+            MassiveSpawnAndKillHierarchy();
             SpawnAndKillProcess();
             SpawnAndKillHierarchy();
         }
@@ -77,6 +78,38 @@ namespace ProcessSample
 
             Debug.Assert(value == "1");
             Debug.Assert(length(children()) == 0);
+        }
+
+        public static void MassiveSpawnAndKillHierarchy()
+        {
+            restart();
+
+            Func<Unit> setup = null;
+
+            var actor = fun((Unit s, string msg) =>
+            {
+                iter(children(), child => tell(child, msg));
+                Console.WriteLine(self() + " : " + msg);
+            });
+
+            int count = 0;
+
+            setup = fun(() =>
+            {
+                Console.WriteLine("spawn: " + self() + ".  "+ (count++));
+
+                int level = Int32.Parse(self().Name.Value.Split('_').First()) + 1;
+                if (level < 7)
+                {
+                    iter(range(0, 5), i => spawn(level + "_" + i, setup, actor));
+                }
+            });
+
+            var zero = spawn("0", setup, actor);
+
+            tell(zero, "Hello");
+
+            Console.ReadKey();
         }
     }
 }
