@@ -142,10 +142,12 @@ namespace LanguageExt
         }
 
         public static IProcess GetProcess(ProcessId pid) =>
-            pid.Value == "/root"
-                ? ActorContext.Root
-                : ActorContext.Store.ContainsKey(pid.Value)
-                    ? ActorContext.Store[pid.Value]
-                    : ActorContext.Store[ActorContext.DeadLetters.Value]; // TODO:
+            with(ActorContext.Store, store =>
+                pid.Value == "/root"
+                    ? ActorContext.Root
+                    : store.ContainsKey(pid.Value)
+                        ? store[pid.Value]
+                        : store[ActorContext.DeadLetters.Value]
+                );
     }
 }

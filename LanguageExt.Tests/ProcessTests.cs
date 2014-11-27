@@ -120,39 +120,55 @@ namespace LanguageExtTests
             Assert.IsTrue(length(children()) == 0);
         }
 
+        public static int DepthMax(int depth) =>
+            depth == 0
+                ? 1
+                : (int)Math.Pow(5, (double)depth) + DepthMax(depth - 1);
+
         [Test]
         public void MassiveSpawnAndKillHierarchy()
         {
-            restart();
-
             Func<Unit> setup = null;
+            int count = 0;
+            int depth = 6;
+            int nodes = 5;
+            int max = DepthMax(depth);
+
+            restart();
 
             var actor = fun((Unit s, string msg) =>
             {
+                Interlocked.Increment(ref count);
                 iter(children(), child => tell(child, msg));
             });
 
-            int count = 0;
-
             setup = fun(() =>
             {
-                int level = Int32.Parse(self().Name.Value.Split('_').First()) + 1;
-                if (level < 7)
-                {
-                    iter(range(0, 5), i => spawn(level + "_" + i, setup, actor));
-                }
+                Interlocked.Increment(ref count);
 
-                count++; 
+                int level = Int32.Parse(self().Name.Value.Split('_').First()) + 1;
+                if (level <= depth)
+                {
+                    iter(range(0, nodes), i => spawn(level + "_" + i, setup, actor));
+                }
             });
 
             var zero = spawn("0", setup, actor);
+
+            while (count < max) Thread.Sleep(50);
+            count = 0;
+
             tell(zero, "Hello");
 
             // crude, but whatever
-            while (count < 19300)
-            {
-                Thread.Sleep(50);
-            }
+            while (count < max) Thread.Sleep(50);
+            count = 0;
+
+            shutdown(zero);
+
+            Thread.Sleep(3000);
+
+            Assert.IsTrue(children(user()).Count() == 0);
         }
     }
 }

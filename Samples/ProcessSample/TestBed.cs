@@ -80,36 +80,71 @@ namespace ProcessSample
             Debug.Assert(length(children()) == 0);
         }
 
+        public static int DepthMax(int depth) =>
+            depth == 0
+                ? 1
+                : (int)Math.Pow(5, (double)depth) + DepthMax(depth - 1);
+
         public static void MassiveSpawnAndKillHierarchy()
         {
             restart();
+
+            int count = 0;
+            int depth = 6;
+            int nodes = 5;
+            int max = DepthMax(depth);
+
+            Console.WriteLine("Max: " + max);
 
             Func<Unit> setup = null;
 
             var actor = fun((Unit s, string msg) =>
             {
+                Interlocked.Increment(ref count);
                 iter(children(), child => tell(child, msg));
                 Console.WriteLine(self() + " : " + msg);
             });
 
-            int count = 0;
-
             setup = fun(() =>
             {
-                Console.WriteLine("spawn: " + self() + ".  "+ (count++));
+                Interlocked.Increment(ref count);
+
+                Console.WriteLine("spawn: " + self() + "\t"+ count);
 
                 int level = Int32.Parse(self().Name.Value.Split('_').First()) + 1;
-                if (level < 7)
+                if (level <= depth)
                 {
-                    iter(range(0, 5), i => spawn(level + "_" + i, setup, actor));
+                    iter(range(0, nodes), i => spawn(level + "_" + i, setup, actor));
                 }
             });
 
             var zero = spawn("0", setup, actor);
 
+            while (count < max) Thread.Sleep(10);
+            count = 0;
+
+
             tell(zero, "Hello");
 
+
+            while (count < max) Thread.Sleep(10);
+            count = 0;
+
+            ShowChildren(user());
+
+            shutdown(zero);
+
+            Thread.Sleep(3000);
+
+            ShowChildren(user());
+
             Console.ReadKey();
+        }
+
+        public static void ShowChildren(ProcessId pid)
+        {
+            Console.WriteLine(pid);
+            iter(children(pid), ShowChildren);
         }
     }
 }
