@@ -94,11 +94,11 @@ namespace LanguageExt
             ActorContext.Self.Parent;
 
         /// <summary>
-        /// System process ID
+        /// User process ID
         /// </summary>
         /// <returns></returns>
-        public static ProcessId system() =>
-            ActorContext.System.Id;
+        public static ProcessId user() =>
+            ActorContext.User.Id;
 
         /// <summary>
         /// Sender process ID

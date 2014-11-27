@@ -14,6 +14,8 @@ namespace LanguageExt
     {
         static Subject<object> deadLetterSubject = new Subject<object>();
 
+        static IProcess root;
+        static IProcess user;
         static IProcess system;
         static IProcess deadLetters;
         static IProcess noSender;
@@ -37,10 +39,17 @@ namespace LanguageExt
 
             Processes = map<string, ProcessId>();
             Store = map(tuple("", (IProcess)null));
-            self = system = new Actor<Unit, string>(new ProcessId(), new ProcessName("system"), (Unit state, string msg) => state, () => unit);
 
-            deadLetters = new Actor<Unit, object>(self.Id, "dead-letters", (state, msg) => { deadLetterSubject.OnNext(msg); return state; }, () => unit);
-            noSender = new Actor<Unit, object>(self.Id, "no-sender", (state, msg) => state, () => unit);
+            // Root
+            root = new Actor<Unit, string>(new ProcessId(), new ProcessName("root"), (Unit state, string msg) => state, () => unit);
+
+            // Top tier
+            system = new Actor<Unit, string>(root.Id, new ProcessName("system"), (Unit state, string msg) => state, () => unit);
+            self = user = new Actor<Unit, string>(root.Id, new ProcessName("user"), (Unit state, string msg) => state, () => unit);
+
+            // Second tier
+            deadLetters = new Actor<Unit, object>(system.Id, "dead-letters", (state, msg) => { deadLetterSubject.OnNext(msg); return state; }, () => unit);
+            noSender = new Actor<Unit, object>(system.Id, "no-sender", (state, msg) => state, () => unit);
 
             return unit;
         }
@@ -86,47 +95,28 @@ namespace LanguageExt
             private set;
         }
 
-        public static IProcess Self
-        {
-            get
-            {
-                return self == null
-                    ? system
-                    : self;
-            }
-        }
+        public static IProcess Self =>
+            self == null
+                ? system
+                : self;
 
-        public static IProcess System
-        {
-            get
-            {
-                return system;
-            }
-        }
+        public static IProcess Root =>
+            root;
 
-        public static ProcessId Sender
-        {
-            get
-            {
-                return sender;
-            }
-        }
+        public static IProcess User =>
+            user;
 
-        public static ProcessId NoSender
-        {
-            get
-            {
-                return noSender.Id;
-            }
-        }
+        public static IProcess System =>
+            system;
 
-        public static ProcessId DeadLetters
-        {
-            get
-            {
-                return deadLetters.Id;
-            }
-        }
+        public static ProcessId Sender =>
+            sender;
+
+        public static ProcessId NoSender =>
+            noSender.Id;
+
+        public static ProcessId DeadLetters =>
+            deadLetters.Id;
 
         public static Unit Register(string name, ProcessId process)
         {
@@ -152,8 +142,8 @@ namespace LanguageExt
         }
 
         public static IProcess GetProcess(ProcessId pid) =>
-            pid.Value == "/system"
-                ? ActorContext.System
+            pid.Value == "/root"
+                ? ActorContext.Root
                 : ActorContext.Store.ContainsKey(pid.Value)
                     ? ActorContext.Store[pid.Value]
                     : ActorContext.Store[ActorContext.DeadLetters.Value]; // TODO:
