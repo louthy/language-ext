@@ -37,10 +37,5 @@ namespace LanguageExt
         /// Shutdown
         /// </summary>
         Unit Shutdown(bool unlinkFromParent = true);
-
-        /// <summary>
-        /// Suspend
-        /// </summary>
-        Unit Suspend();
     }
 }

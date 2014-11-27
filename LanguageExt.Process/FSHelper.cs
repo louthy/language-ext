@@ -43,10 +43,6 @@ namespace LanguageExt
                             {
                                 switch (msg.GetType().Name)
                                 {
-                                    case "SystemSuspendMessage":
-                                        self.Suspend();
-                                        break;
-
                                     case "SystemShutdownMessage":
                                         self.Shutdown();
                                         active = false;

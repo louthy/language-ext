@@ -11,7 +11,6 @@ namespace LanguageExt
         public override Message.Type MessageType => Message.Type.System;
 
         public static SystemMessage Shutdown => new SystemShutdownMessage();
-        public static SystemMessage Suspend => new SystemSuspendMessage();
         public static SystemMessage Restart => new SystemRestartMessage();
         public static SystemMessage LinkChild(ProcessId pid) => new SystemLinkChildMessage(pid);
         public static SystemMessage UnLinkChild(ProcessId pid) => new SystemUnLinkChildMessage(pid);
@@ -19,10 +18,6 @@ namespace LanguageExt
     }
 
     internal class SystemShutdownMessage : SystemMessage
-    {
-    }
-
-    internal class SystemSuspendMessage : SystemMessage
     {
     }
 

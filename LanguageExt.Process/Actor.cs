@@ -145,10 +145,6 @@ namespace LanguageExt
             }
         }
 
-        // TODO: This doesn't do anything
-        public Unit Suspend() =>
-            SendMessageToChildren(SystemMessage.Suspend);
-
         /// <summary>
         /// Disowns a child processes
         /// </summary>
@@ -225,11 +221,7 @@ namespace LanguageExt
 
         public Unit Tell(object message)
         {
-            if (message == null)
-            {
-                // TODO: Throw
-                return unit;
-            }
+            if (message == null) throw new ArgumentNullException(nameof(message));
 
             if (!typeof(T).IsAssignableFrom(message.GetType()))
             {
@@ -254,22 +246,14 @@ namespace LanguageExt
 
         public Unit TellUserControl(UserControlMessage message)
         {
-            if (message == null)
-            {
-                return unit;
-            }
-
+            if (message == null) throw new ArgumentNullException(nameof(message));
             userMailbox.Post(message);
             return unit;
         }
 
         public Unit TellSystem(SystemMessage message)
         {
-            if (message == null)
-            {
-                return unit;
-            }
-
+            if (message == null) throw new ArgumentNullException(nameof(message));
             systemMailbox.Post(message);
             return unit;
         }
