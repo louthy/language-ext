@@ -9,6 +9,8 @@ namespace LanguageExt
     internal class UserControlMessage : Message
     {
         public override Message.Type MessageType => Message.Type.UserControl;
+
+        public static UserControlMessage Shutdown => new UserControlShutdownMessage();
     }
 
     internal class UserMessage : UserControlMessage
@@ -31,10 +33,4 @@ namespace LanguageExt
     {
         public override Message.Type MessageType => Message.Type.UserControl;
     }
-
-    internal class UserControlKillMessage : UserControlMessage
-    {
-        public override Message.Type MessageType => Message.Type.UserControl;
-    }
-
 }

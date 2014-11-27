@@ -27,15 +27,12 @@ namespace LanguageExt
         /// <param name="name">Name of the child-process</param>
         /// <param name="messageHandler">Function that is the process</param>
         /// <returns>A ProcessId that can be passed around</returns>
-        public static ProcessId spawn<S, T>(ProcessName name, Func<S> setup, Func<S, T, S> messageHandler)
-        {
-            // TODO: Not safe.  Can end up with two processes being created with the same 
-            // name, and one will usurp the other.
-            var self = (IProcessInternal)ActorContext.Self;
-            return match(self.GetChildProcess(name),
-                         Some: _ => raise<IProcess>(new NamedProcessAlreadyExistsException()),
-                         None: () => self.AddChildProcess( new Actor<S, T>(ActorContext.Self.Id, name, messageHandler, setup) ) ).Id;
-        }
+        public static ProcessId spawn<S, T>(ProcessName name, Func<S> setup, Func<S, T, S> messageHandler) =>
+            with((IProcessInternal)ActorContext.Self,
+                self => match(self.GetChildProcess(name),
+                            Some: _ => raise<IProcess>(new NamedProcessAlreadyExistsException()),
+                            None: () => self.AddChildProcess(new Actor<S, T>(ActorContext.Self.Id, name, messageHandler, setup))).Id
+            );
 
         /// <summary>
         /// Register the name with the process
@@ -52,11 +49,35 @@ namespace LanguageExt
             ActorContext.Processes.Keys;
 
         /// <summary>
-        /// Use within a process to end it
+        /// Forces the current running process to shutdown.  The kill message 
+        /// jumps ahead of any messages already in the queue.
         /// </summary>
-        /// <returns></returns>
         public static Unit kill() =>
             raise<Unit>(new SystemKillActorException());
+
+        /// <summary>
+        /// Forces the process to shutdown.  The kill message jumps ahead
+        /// of any messages already in the queue.
+        /// </summary>
+        public static Unit kill(ProcessId pid) =>
+            tell(pid, SystemMessage.Shutdown);
+
+        /// <summary>
+        /// Shutdown a running process.
+        /// This differs from kill() in that the shutdown message just joins
+        /// the back of the queue like all other messages.
+        /// </summary>
+        public static Unit shutdown() =>
+            shutdown(self());
+
+        /// <summary>
+        /// Shutdown a running process.
+        /// This differs from kill() in that the shutdown message just joins
+        /// the back of the queue like all other messages.
+        /// </summary>
+        /// <returns></returns>
+        public static Unit shutdown(ProcessId pid) =>
+            tell(pid, UserControlMessage.Shutdown);
 
         /// <summary>
         /// Current process ID
@@ -64,6 +85,13 @@ namespace LanguageExt
         /// <returns></returns>
         public static ProcessId self() =>
             ActorContext.Self.Id;
+
+        /// <summary>
+        /// Parent process ID
+        /// </summary>
+        /// <returns></returns>
+        public static ProcessId parent() =>
+            ActorContext.Self.Parent;
 
         /// <summary>
         /// System process ID
@@ -86,33 +114,31 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pid">Process ID</param>
         /// <param name="message">Message to send</param>
-        public static Unit tell<T>(ProcessId pid, T message)
-        {
-            var store = ActorContext.Store;
-            var path = pid.Value;
+        public static Unit tell<T>(ProcessId pid, T message) =>
+            with((IProcessInternal)ActorContext.GetProcess(pid),
+                pi => 
+                    message is SystemMessage
+                        ? pi.TellSystem(message as SystemMessage)
+                        : message is UserControlMessage
+                            ? pi.TellUserControl(message as UserControlMessage)
+                            : pi.Tell(message) );
 
-            var process = path == "/system"
-                ? ActorContext.System
-                : store.ContainsKey(path)
-                    ? store[path]
-                    : store[ActorContext.DeadLetters.Value]; // TODO:
+        /// <summary>
+        /// Get the child processes of the process provided
+        /// </summary>
+        public static IEnumerable<ProcessId> children(ProcessId pid) =>
+            ActorContext.GetProcess(pid).Children;
 
-            var pi = (IProcessInternal)process;
+        /// <summary>
+        /// Get the child processes of the running process
+        /// </summary>
+        public static IEnumerable<ProcessId> children() =>
+            children(ActorContext.Self.Id);
 
-            if (message is SystemMessage)
-            {
-                pi.TellSystem(message as SystemMessage);
-            }
-            else if(message is UserControlMessage)
-            {
-                pi.TellUserControl(message as UserControlMessage);
-            }
-            else
-            {
-                pi.Tell(message);
-            }
-
-            return unit;
-        }
+        /// <summary>
+        /// Shutdown all processes and restart
+        /// </summary>
+        public static Unit restart() =>
+            ActorContext.Restart();
     }
 }

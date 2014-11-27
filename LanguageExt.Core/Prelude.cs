@@ -21,6 +21,30 @@ namespace LanguageExt
             unit;
 
         /// <summary>
+        /// Projects a value into a lambda
+        /// Useful when one needs to declare a local variable which breaks your
+        /// expression.  This allows you to keep the expression going.
+        /// </summary>
+        public static R with<T, R>(T value, Func<T, R> project) =>
+            project(value);
+
+        /// <summary>
+        /// Projects values into a lambda
+        /// Useful when one needs to declare a local variable which breaks your
+        /// expression.  This allows you to keep the expression going.
+        /// </summary>
+        public static R with<T1, T2, R>(T1 value1, T2 value2, Func<T1, T2, R> project) =>
+            project(value1,value2);
+
+        /// <summary>
+        /// Projects values into a lambda
+        /// Useful when one needs to declare a local variable which breaks your
+        /// expression.  This allows you to keep the expression going.
+        /// </summary>
+        public static R with<T1, T2, T3, R>(T1 value1, T2 value2, T3 value3, Func<T1, T2, T3, R> project) =>
+            project(value1, value2, value3);
+
+        /// <summary>
         /// Generates an identity function
         /// </summary>
         /// <typeparam name="T"></typeparam>

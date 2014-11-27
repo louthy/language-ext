@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigSample", "Samples\Con
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Process", "LanguageExt.Process\LanguageExt.Process.csproj", "{D1AB41C6-8B45-4E01-8400-97D2779034DF}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProcessSample", "ProcessSample", "{32EA6A24-3B1C-4D58-9D0A-A270BDA21C72}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PingPongSample", "PingPongSample", "{32EA6A24-3B1C-4D58-9D0A-A270BDA21C72}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessSample", "Samples\ProcessSample\ProcessSample.csproj", "{9F322287-FF91-4DC8-9467-DF300091042B}"
 EndProject

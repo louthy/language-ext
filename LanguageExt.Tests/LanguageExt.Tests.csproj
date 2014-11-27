@@ -55,6 +55,7 @@
     <Compile Include="EitherTests.cs" />
     <Compile Include="NonNullTests.cs" />
     <Compile Include="OptionTests.cs" />
+    <Compile Include="ProcessTests.cs" />
     <Compile Include="StackTests.cs" />
     <Compile Include="TryMonadTests.cs" />
     <Compile Include="TryOutTests.cs" />
@@ -66,6 +67,10 @@
     <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj">
       <Project>{c0fa07a0-8b83-4fa5-acfb-14185d5c4484}</Project>
       <Name>LanguageExt.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LanguageExt.Process\LanguageExt.Process.csproj">
+      <Project>{d1ab41c6-8b45-4e01-8400-97d2779034df}</Project>
+      <Name>LanguageExt.Process</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -17,22 +17,32 @@ namespace LanguageExt
         static IProcess system;
         static IProcess deadLetters;
         static IProcess noSender;
-        [ThreadStatic]
-        static IProcess self;
-        [ThreadStatic]
-        static ProcessId sender;
+        [ThreadStatic] static IProcess self;
+        [ThreadStatic] static ProcessId sender;
 
         static object processesLock = new object();
         static object storeLock = new object();
 
         static ActorContext()
         {
-            Processes = map<string, ProcessId>();
-            Store = map(tuple("",(IProcess)null));
-            self = system = new Actor<Unit,string>(new ProcessId(), new ProcessName("system"), (Unit state, string msg) => state, () => unit);
+            Restart();
+        }
 
-            deadLetters = new Actor<Unit, object>(self.Id, "dead-letters", (state, msg) => { deadLetterSubject.OnNext(msg); return state;  }, () => unit);
+        public static Unit Restart()
+        {
+            if (system != null)
+            {
+                system.Shutdown();
+            }
+
+            Processes = map<string, ProcessId>();
+            Store = map(tuple("", (IProcess)null));
+            self = system = new Actor<Unit, string>(new ProcessId(), new ProcessName("system"), (Unit state, string msg) => state, () => unit);
+
+            deadLetters = new Actor<Unit, object>(self.Id, "dead-letters", (state, msg) => { deadLetterSubject.OnNext(msg); return state; }, () => unit);
             noSender = new Actor<Unit, object>(self.Id, "no-sender", (state, msg) => state, () => unit);
+
+            return unit;
         }
 
         public static Unit AddToStore(ProcessId id, IProcess process)
@@ -51,7 +61,7 @@ namespace LanguageExt
             return unit;
         }
 
-        public static Unit RemoveFromStore(ProcessId id, IProcess process)
+        public static Unit RemoveFromStore(ProcessId id)
         {
             lock (storeLock)
             {
@@ -59,11 +69,6 @@ namespace LanguageExt
                 if (Store.ContainsKey(path))
                 {
                     Store = Store.Remove(path);
-                }
-                else
-                {
-                    // TODO: Create a Exception type 
-                    throw new Exception("Process not registered");
                 }
             }
             return unit;
@@ -85,7 +90,9 @@ namespace LanguageExt
         {
             get
             {
-                return self;
+                return self == null
+                    ? system
+                    : self;
             }
         }
 
@@ -143,5 +150,12 @@ namespace LanguageExt
             ActorContext.self = self;
             ActorContext.sender = sender;
         }
+
+        public static IProcess GetProcess(ProcessId pid) =>
+            pid.Value == "/system"
+                ? ActorContext.System
+                : ActorContext.Store.ContainsKey(pid.Value)
+                    ? ActorContext.Store[pid.Value]
+                    : ActorContext.Store[ActorContext.DeadLetters.Value]; // TODO:
     }
 }

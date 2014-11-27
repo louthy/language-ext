@@ -21,7 +21,7 @@ namespace LanguageExt
                         });
                     }));
 
-        public static Tuple<Action,FSharpMailboxProcessor<SystemMessage>> StartSystemMailbox(IProcess self, ProcessId supervisor, Func<Unit, SystemMessage, Unit> actor, Func<Unit> setup)
+        public static Tuple<Action,FSharpMailboxProcessor<SystemMessage>> StartSystemMailbox(IProcess self, ProcessId supervisor)
         {
             bool active = true;
             Action quit = () => active = false;
@@ -31,8 +31,6 @@ namespace LanguageExt
 
                     CreateAsync<Microsoft.FSharp.Core.Unit>(async () =>
                     {
-                        var state = setup();
-
                         while (active)
                         {
                             var msg = await FSharpAsync.StartAsTask(mbox.Receive(FSharpOption<int>.None), FSharpOption<TaskCreationOptions>.None, FSharpOption<CancellationToken>.None);
@@ -46,12 +44,10 @@ namespace LanguageExt
                                 switch (msg.GetType().Name)
                                 {
                                     case "SystemSuspendMessage":
-                                        Console.WriteLine("SYS: Suspend - " + self.Id);
                                         self.Suspend();
                                         break;
 
                                     case "SystemShutdownMessage":
-                                        Console.WriteLine("SYS: Shutdown - " + self.Id);
                                         self.Shutdown();
                                         active = false;
                                         break;
@@ -61,25 +57,30 @@ namespace LanguageExt
                                         break;
 
                                     case "SystemRestartMessage":
-                                        Console.WriteLine("SYS: Restart - " + self.Id);
                                         self.Restart();
+                                        break;
+
+                                    case "SystemUnLinkChildMessage":
+                                        ((IProcessInternal)self).UnlinkChild(((SystemUnLinkChildMessage)msg).ChildId);
                                         break;
                                 }
                             }
                         }
+
                         return null;
                     })
             );
 
             var mailbox = FSharpMailboxProcessor<SystemMessage>.Start(body, FSharpOption<CancellationToken>.None);
             mailbox.Error += (object sender, Exception args) =>
-                               Process.tell(supervisor,new SystemChildIsFaultedMessage(self.Name, self.Id, args));
+                               Process.tell(supervisor, SystemMessage.ChildIsFaulted(self.Id, args));
             return tuple(quit,mailbox);
         }
 
         public static Tuple<Action,FSharpMailboxProcessor<UserControlMessage>> StartUserMailbox<S, T>(IProcess self, ProcessId supervisor, Func<S, T, S> actor, Func<S> setup)
         {
             bool active = true;
+            S state = default(S);
             Action quit = () => active = false;
 
             var body = FuncConvert.ToFSharpFunc<FSharpMailboxProcessor<UserControlMessage>, FSharpAsync<Microsoft.FSharp.Core.Unit>>(
@@ -88,7 +89,7 @@ namespace LanguageExt
                     CreateAsync<Microsoft.FSharp.Core.Unit>(async () =>
                     {
                         ActorContext.SetContext(self, ActorContext.NoSender);
-                        S state = setup();
+                        state = setup();
 
                         while (active)
                         {
@@ -111,28 +112,28 @@ namespace LanguageExt
                                     switch (msg.GetType().Name)
                                     {
                                         case "UserControlShutdownMessage":
-                                            Console.WriteLine("UC: Shutdown - " + self.Id);
                                             self.Shutdown();
                                             active = false;
                                             break;
-
-                                        case "UserControlKillMessage":
-                                            Console.WriteLine("UC: KILL! - " + self.Id);
-                                            throw new SystemKillActorException();
                                     }
                                 }
                             }
                         }
+
+                        (state as IDisposable)?.Dispose();
+
                         return null;
                     })
             );
 
             var mailbox = FSharpMailboxProcessor<UserControlMessage>.Start(body, FSharpOption<CancellationToken>.None);
-            mailbox.Error += (object sender, Exception args) => 
-                Process.tell(supervisor, new SystemChildIsFaultedMessage(self.Name, self.Id, args));
+            mailbox.Error += (object sender, Exception args) =>
+            {
+                Process.tell(supervisor, SystemMessage.ChildIsFaulted(self.Id, args));
+                (state as IDisposable)?.Dispose();
+            };
 
             return tuple(quit, mailbox);
         }
-
     }
 }

@@ -12,7 +12,7 @@ namespace LanguageExt
 
         public ProcessId(string path)
         {
-            if (path.Length == 0)
+            if (path == null || path.Length == 0)
             {
                 throw new InvalidProcessIdException();
             }
@@ -37,6 +37,11 @@ namespace LanguageExt
             Parts == null
                 ? ""
                 : "/" + String.Join("/", Parts);
+
+        public ProcessName Name =>
+            Parts == null
+                ? ""
+                : Parts.Last();
 
         public static implicit operator ProcessId(string value) =>
             new ProcessId(value);

@@ -24,6 +24,11 @@ namespace LanguageExt
         ProcessId Parent { get; }
 
         /// <summary>
+        /// Child processes
+        /// </summary>
+        IEnumerable<ProcessId> Children { get; }
+
+        /// <summary>
         /// Clears the state (keeps the mailbox items)
         /// </summary>
         Unit Restart();
@@ -31,11 +36,11 @@ namespace LanguageExt
         /// <summary>
         /// Shutdown
         /// </summary>
-        void Shutdown();
+        Unit Shutdown(bool unlinkFromParent = true);
 
         /// <summary>
         /// Suspend
         /// </summary>
-        void Suspend();
+        Unit Suspend();
     }
 }

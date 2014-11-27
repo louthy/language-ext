@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using LanguageExt.Prelude;
+using LanguageExt.List;
 
 namespace LanguageExt
 {
@@ -25,6 +26,7 @@ namespace LanguageExt
 
         public Actor(ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<S> setup )
         {
+            if (setup == null) throw new ArgumentNullException(nameof(setup));
             if (actor == null) throw new ArgumentNullException(nameof(actor));
 
             actorFn = actor;
@@ -33,34 +35,38 @@ namespace LanguageExt
             Name = name;
             Id = new ProcessId(parent.Value + "/" + name);
 
-            with( FSHelper.StartUserMailbox(this, Parent, actor, setup), (q, mb) =>
-            {
-                userMailboxQuit = q;
-                userMailbox = mb;
-            });
-            with( FSHelper.StartSystemMailbox(this, Parent, ProcessSystemMailbox, SystemMailboxInit), (q, mb) =>
-            {
-                systemMailboxQuit = q;
-                systemMailbox = mb;
-            });
-
+            StartMailboxes();
 
             ActorContext.AddToStore(Id, this);
         }
 
-        private Unit SystemMailboxInit()
+        public void StartMailboxes()
         {
-            return unit;
+            with(FSHelper.StartUserMailbox(this, Parent, actorFn, setupFn), (q, mb) =>
+            {
+                userMailboxQuit = q;
+                userMailbox = mb;
+            });
+
+            with(FSHelper.StartSystemMailbox(this, Parent), (q, mb) =>
+            {
+                systemMailboxQuit = q;
+                systemMailbox = mb;
+            });
         }
 
-        private Unit SendMessageToChildren(object msg)
-        {
-            foreach (var child in children)
-            {
-                Process.tell(child.Value.Id, msg);
-            }
-            return unit;
-        }
+        /// <summary>
+        /// Child processes
+        /// </summary>
+        public IEnumerable<ProcessId> Children =>
+            from c in children
+            select c.Value.Id;
+
+        /// <summary>
+        /// Send the same message to all children
+        /// </summary>
+        private Unit SendMessageToChildren(object msg) =>
+            iter(children, child => Process.tell(child.Value.Id, msg));
 
         /// <summary>
         /// An exception has happened in a child process.
@@ -76,19 +82,27 @@ namespace LanguageExt
         /// <returns></returns>
         public Unit HandleFaultedChild(SystemChildIsFaultedMessage msg)
         {
-
-            //Process.tell(childExMsg.ChildId, new Suspend());
             if (exceptionIs<SystemKillActorException>(msg.Exception))
             {
-                Console.WriteLine(msg.ChildId + " user killed!");
-                Process.tell(msg.ChildId, new SystemShutdownMessage());
+                Process.tell(msg.ChildId, SystemMessage.Shutdown);
+                PurgeChild(msg.ChildId);
             }
             else
             {
-                Console.WriteLine(msg.ChildId + " faulted!");
-                Process.tell(msg.ChildId, new SystemRestartMessage());
+                Process.tell(msg.ChildId, SystemMessage.Restart);
             }
             return unit;
+        }
+
+        /// <summary>
+        /// Remove the child from our child list, and from the ActorContext.Store
+        /// </summary>
+        /// <param name="childName"></param>
+        private Unit PurgeChild(ProcessId child)
+        {
+            IProcess temp;
+            children.TryRemove(child.Name.Value, out temp);
+            return ActorContext.RemoveFromStore(child);
         }
 
         /// <summary>
@@ -98,10 +112,10 @@ namespace LanguageExt
         {
             lock(actorLock)
             {
-                var msgs = new Queue<UserControlMessage>();
+                // Take a copy of the messages from the dead mailbox
+                var msgs = new Queue<UserControlMessage>(userMailbox.CurrentQueueLength);
                 while (userMailbox.CurrentQueueLength > 0)
                 {
-                    //if (userMailbox.CurrentQueueLength % 1000 == 0) Console.WriteLine("Q trans " + userMailbox.CurrentQueueLength);
                     UserControlMessage userMessage = FSharpAsync.StartAsTask(
                                                         userMailbox.Receive(FSharpOption<int>.None),
                                                         FSharpOption<TaskCreationOptions>.None,
@@ -114,50 +128,47 @@ namespace LanguageExt
                     }
                 }
 
-                var oldMailbox = userMailbox;
-
                 // We shutdown the children, because we're about to restart which will
                 // recreate them.
-                Shutdown();
+                Shutdown(false);
 
-                with( FSHelper.StartUserMailbox(this, Parent, actorFn, setupFn), (q, mb) =>
-                {
-                    userMailboxQuit = q;
-                    userMailbox = mb;
-                });
+                // Start new mailboxes
+                StartMailboxes();
 
+                // Copy the old messages 
                 while (msgs.Count > 0)
                 {
                     userMailbox.Post(msgs.Dequeue());
                 }
 
-                with( FSHelper.StartSystemMailbox(this, Parent, ProcessSystemMailbox, SystemMailboxInit), (q, mb) =>
-                {
-                    systemMailboxQuit = q;
-                    systemMailbox = mb;
-                });
                 return unit;
             }
         }
 
-        private Unit ProcessSystemMailbox(Unit state, SystemMessage msg)
-        {
-            return unit;
-        }
-
         // TODO: This doesn't do anything
-        public void Suspend()
-        {
-            SendMessageToChildren(new SystemSuspendMessage());
-        }
+        public Unit Suspend() =>
+            SendMessageToChildren(SystemMessage.Suspend);
 
-        public void Shutdown()
+        /// <summary>
+        /// Disowns a child processes
+        /// </summary>
+        /// <param name="pid"></param>
+        /// <returns></returns>
+        public Unit UnlinkChild(ProcessId pid) =>
+            PurgeChild(pid);
+
+        /// <summary>
+        /// Shutdown everything from this node down
+        /// </summary>
+        /// <param name="unlinkFromParent">Flag if we should tell the parent we're leaving</param>
+        public Unit Shutdown(bool unlinkFromParent = true)
         {
             lock (actorLock)
             {
                 foreach (var child in children)
                 {
                     child.Value.Shutdown();
+                    PurgeChild(child.Value.Id);
                 }
                 children.Clear();
 
@@ -171,7 +182,13 @@ namespace LanguageExt
                     systemMailboxQuit();
                     systemMailbox.Post(null);
                 }
+
+                if (unlinkFromParent && Parent.Value != "")
+                {
+                    Process.tell(Parent, SystemMessage.UnLinkChild(Id));
+                }
             }
+            return unit;
         }
 
         /// <summary>
@@ -198,15 +215,13 @@ namespace LanguageExt
         /// <summary>
         /// Add a child process
         /// </summary>
-        public IProcess AddChildProcess(Some<IProcess> process)
-        {
-            return children.AddOrUpdate(process.Value.Name.Value, process.Value,
+        public IProcess AddChildProcess(Some<IProcess> process) =>
+            children.AddOrUpdate(process.Value.Name.Value, process.Value,
                 (n,p)=>
                 {
                     p.Shutdown();
                     return process.Value;
                 } );
-        }
 
         public Unit Tell(object message)
         {
@@ -216,7 +231,7 @@ namespace LanguageExt
                 return unit;
             }
 
-            if (!message.GetType().IsAssignableFrom(typeof(T)))
+            if (!typeof(T).IsAssignableFrom(message.GetType()))
             {
                 Process.tell(ActorContext.DeadLetters, message);
                 return unit;

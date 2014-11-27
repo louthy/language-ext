@@ -14,5 +14,6 @@ namespace LanguageExt
         Unit TellSystem(SystemMessage message);
         Unit TellUserControl(UserControlMessage message);
         Unit Tell(object message);
+        Unit UnlinkChild(ProcessId pid);
     }
 }
