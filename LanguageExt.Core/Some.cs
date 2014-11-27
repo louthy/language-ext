@@ -3,7 +3,7 @@ using LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public struct Some<T> where T : class
+    public struct Some<T>
     {
         readonly bool initialised;
 

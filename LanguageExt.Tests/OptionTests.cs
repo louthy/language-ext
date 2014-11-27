@@ -71,7 +71,7 @@ namespace LanguageExtTests
                   from z in six
                   select x + y + z,
                   Some: v => Assert.IsTrue(v == 12),
-                  None: failaction("Shouldn't get here") );
+                  None: failwith("Shouldn't get here") );
         }
 
         [Test] public void NoneLinqTest()

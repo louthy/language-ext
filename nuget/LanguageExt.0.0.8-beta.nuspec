@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>LanguageExt</id>
+        <version>0.0.8-beta</version>
+        <title>C# Functional Language Extensions</title>
+        <authors>Paul Louth</authors>
+        <licenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/louthy/language-ext</projectUrl>
+        <iconUrl>http://www.4four.org/images/lang-ext-logo.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Using and abusing the features of C# 6 to provide lots of functions and types, which, if you squint, can look like extensions to the language itself. 
+
+This package brings functional helpers for classic C# problems:
+
+Poor tuple support
+Null reference problem
+Lack of lambda and expression inference
+Void isn't a real type
+Mutable lists and dictionaries
+The awful 'out' parameter</description>
+        <summary />
+        <releaseNotes>## List matching
+
+Improved list matching.  There are many more overrides for deconstructing the head items from a list (up to six elements). e.g.
+
+    // The fewest number of elements deconstructed
+    int Product(IEnumerable&lt;int&gt; list) =&gt;
+        match(list,
+            ()      =&gt; 1,
+            (x, xs) =&gt; x * Product(xs));
+
+    // The most
+    int GetLength(IEnumerable&lt;int&gt; list) =&gt;
+        match(
+            lst,
+            () =&gt; 0,
+            a =&gt; 1,
+            (a, b) =&gt; 2,
+            (a, b, c) =&gt; 3,
+            (a, b, c, d) =&gt; 4,
+            (a, b, c, d, e) =&gt; 5,
+            (a, b, c, d, e, f) =&gt; 6,
+            (x, xs) =&gt; xs.Count() + 1
+        );
+
+Also, a `null` list is considered empty.
+
+## range
+
+Additional `range()` variants:
+
+* Ranges with different step sizes - `range(0,100,10)`
+* range of ranges - `range( range(0,100), range(200,100) )`
+* range of chars - `range('a','z')`
+
+## List
+
+Additional functions:
+
+* `repeat`
+* `init` - generate a sequence where each step calls a generator function with the index
+* `initInfinite` 
+* `choose`
+* `collect`
+* `scan`
+* `scanBack`
+* `find`
+* `distinct`
+* `take`
+* `takeWhile`
+* `unfold`
+* `exists`
+
+__Breaking changes__
+
+* `foldr` renamed `foldBack`
+* Removed the variants of `map` and `iter` (`mapi` and `iteri`) and just used overloading instead
+* Fluent variants now use Pascal Case naming
+
+## Map
+
+Additional function:
+
+* `exists`
+
+__Breaking changes__
+
+* `contains` renamed `containsKey`
+* Fluent variants now use Pascal Case naming
+
+## Set
+
+Additional functions:
+
+* `add`
+* `compare`
+* `length`
+* `difference`
+* `exists`
+* `filter`
+* `intersect`
+* `map`
+* `contains`
+* `remove`
+* `isSubset`
+* `isProperSubset`
+
+## Tuple
+
+__Breaking change__
+
+* Removed `this` from `with`, they shouldn't be extension methods because `With` is already performing that duty.
+
+## Assorted updates
+
+* `convert` returns `Option&lt;T&gt;`
+* Added `TryGetValue` for `ImmutableDictionary` and `ImmutableSet`
+* Added `AsEnumerable()` extension to `Nullable&lt;T&gt;`
+* Functions for converting IEnumerable to immutable collections: `toList`, `toArray`, `toSet`, `toQueue`, `toStack`</releaseNotes>
+        <tags>C# Functional Language Extension</tags>
+        <dependencies>
+            <group targetFramework=".NETFramework4.5">
+                <dependency id="System.Collections.Immutable" version="1.1.32-beta" />
+            </group>
+        </dependencies>
+        <frameworkAssemblies>
+            <frameworkAssembly assemblyName="System" targetFramework="" />
+        </frameworkAssemblies>
+    </metadata>
+    <files>
+        <file src="content\ConcurrentHashtable.License.txt" target="content\ConcurrentHashtable.License.txt" />
+        <file src="lib\ConcurrentHashtable.dll" target="lib\ConcurrentHashtable.dll" />
+        <file src="..\lib\LanguageExt.Core.dll" target="lib\LanguageExt.Core.dll" />
+    </files>
+</package>

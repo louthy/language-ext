@@ -27,7 +27,7 @@ namespace LanguageExt
         /// <returns></returns>
         public static Func<T,T> identity<T>() => (T id) => id;
 
-        public static Action failaction(string message) =>
+        public static Action failwith(string message) =>
             () => { throw new Exception(message); };
 
         public static R failwith<R>(string message)
@@ -38,6 +38,13 @@ namespace LanguageExt
         public static R raise<R>(Exception ex)
         {
             throw ex;
+        }
+
+        public static bool exceptionIs<E>(Exception e)
+        {
+            if (e is E) return true;
+            if (e.InnerException == null) return false;
+            return exceptionIs<E>(e.InnerException);
         }
     }
 }
