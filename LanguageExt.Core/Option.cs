@@ -209,6 +209,6 @@ public static class __OptionExt
             None: () => Option<V>.None
             );
 
-    public static bool Where<T>(this OptionUnsafe<T> self, Func<T, bool> pred) =>
+    public static bool Where<T>(this Option<T> self, Func<T, bool> pred) =>
         self.Exists(pred);
 }
