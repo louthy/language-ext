@@ -119,17 +119,21 @@ namespace LanguageExt
             registered;
 
         public static ProcessId Register(ProcessName name, ProcessId process) =>
-                with(registered as IProcessInternal,
-                    self => match(self.GetChildProcess(name),
-                        Some: _ => failwith<IProcess>("Process already registered"),
-                        None: () => self.AddChildProcess( new ActorProxy(
-                                                            registered.Id,
-                                                            name,
-                                                            ActorProxyTemplate.Registered,
-                                                            () => new ActorProxyConfig(process) ) ) ) ).Id;
+            with(registered as IProcessInternal,
+                self => match(self.GetChildProcess(name),
+                    Some: _ => failwith<IProcess>("Process '"+ name + "' already registered"),
+                    None: () => self.AddChildProcess( new ActorProxy(
+                                                        registered.Id,
+                                                        name,
+                                                        ActorProxyTemplate.Registered,
+                                                        () => new ActorProxyConfig(process) ) ) ) ).Id;
 
         public static Unit UnRegister(ProcessName name) =>
-            Process.kill(registered.Id + "/" + name);
+            with(registered.Id + ProcessId.Sep.ToString() + name,
+                id =>
+                    Store.ContainsKey(id)
+                        ? Process.kill(id)
+                        : unit);
 
         public static void SetContext(IProcess self, ProcessId sender)
         {
