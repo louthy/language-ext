@@ -53,6 +53,9 @@ namespace LanguageExt
         public static Either<Ret, L> map<R, L, Ret>(Either<R, L> either, Func<R, Ret> mapper) =>
             either.Map(mapper);
 
+        public static bool filter<R, L>(Either<R, L> either, Func<R, bool> pred) =>
+            either.Filter(pred);
+
         public static Either<Ret, L> bind<R, L, Ret>(Either<R, L> either, Func<R, Either<Ret, L>> binder) =>
             either.Bind(binder);
 
@@ -66,46 +69,46 @@ namespace LanguageExt
                 (x, xs) => x.Right(v => Right(v)).Left(v => Left(v)).Concat(match(xs, Right, Left)) // TODO: Flatten recursion
             );
 
-        public static IEnumerable<Ret> Match<R, L, Ret>(this IEnumerable<Either<R, L>> list,
-            Func<R, IEnumerable<Ret>> Right,
-            Func<L, IEnumerable<Ret>> Left
-            ) =>
-            match(list, Right, Left);
-
         public static IEnumerable<Ret> match<R, L, Ret>(IEnumerable<Either<R, L>> list,
             Func<R, IEnumerable<Ret>> Right,
             IEnumerable<Ret> Left
             ) =>
             match(list, Right, _ => Left);
 
-        public static IEnumerable<Ret> Match<R, L, Ret>(this IEnumerable<Either<R, L>> list,
-            Func<R, IEnumerable<Ret>> Right,
-            IEnumerable<Ret> Left
-            ) =>
-            match(list,Right,Left);
-
         public static IEnumerable<R> failure<R, L>(IEnumerable<Either<R, L>> list,
             Func<L, IEnumerable<R>> Left
             ) =>
             match(list, r => new R[1] { r }, Left);
-
-        public static IEnumerable<R> Failure<R, L>(this IEnumerable<Either<R, L>> list,
-            Func<L, IEnumerable<R>> Left
-            ) =>
-            failure(list, Left);
 
         public static IEnumerable<R> failure<R, L>(IEnumerable<Either<R, L>> list,
             IEnumerable<R> Left
             ) =>
             match(list, r => new R[1] { r }, _ => Left);
 
+        public static IEnumerable<R> failWithEmpty<R, L>(IEnumerable<Either<R, L>> list) =>
+            match(list, r => new R[1] { r }, _ => new R[0]);
+
+        public static IEnumerable<Ret> Match<R, L, Ret>(this IEnumerable<Either<R, L>> list,
+            Func<R, IEnumerable<Ret>> Right,
+            Func<L, IEnumerable<Ret>> Left
+            ) =>
+            match(list, Right, Left);
+
+        public static IEnumerable<Ret> Match<R, L, Ret>(this IEnumerable<Either<R, L>> list,
+            Func<R, IEnumerable<Ret>> Right,
+            IEnumerable<Ret> Left
+            ) =>
+            match(list, Right, Left);
+
+        public static IEnumerable<R> Failure<R, L>(this IEnumerable<Either<R, L>> list,
+            Func<L, IEnumerable<R>> Left
+            ) =>
+            failure(list, Left);
+
         public static IEnumerable<R> Failure<R, L>(this IEnumerable<Either<R, L>> list,
             IEnumerable<R> Left
             ) =>
             failure(list, Left);
-
-        public static IEnumerable<R> failWithEmpty<R, L>(IEnumerable<Either<R, L>> list) =>
-            match(list, r => new R[1] { r }, _ => new R[0]);
 
         public static IEnumerable<R> FailWithEmpty<R, L>(this IEnumerable<Either<R, L>> list) =>
             failWithEmpty(list);

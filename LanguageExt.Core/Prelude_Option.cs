@@ -61,6 +61,9 @@ namespace LanguageExt
         public static Option<R> map<T, R>(Option<T> option, Func<T, R> mapper) =>
             option.Map(mapper);
 
+        public static bool filter<T>(Option<T> option, Func<T, bool> pred) =>
+            option.Filter(pred);
+
         public static Option<R> bind<T, R>(Option<T> option, Func<T, Option<R>> binder) =>
             option.Bind(binder);
 
@@ -74,30 +77,13 @@ namespace LanguageExt
                 (x, xs) => x.Some(v => Some(v)).None(None).Concat(match(xs, Some, None)) // TODO: Flatten recursion
             );
 
-        public static IEnumerable<R> Match<T, R>(this IEnumerable<Option<T>> list,
-            Func<T, IEnumerable<R>> Some,
-            Func<IEnumerable<R>> None
-            ) =>
-            match(list, Some, None);
-
         public static IEnumerable<R> match<T, R>(IEnumerable<Option<T>> list,
             Func<T, IEnumerable<R>> Some,
             IEnumerable<R> None
             ) =>
             match(list, Some, () => None);
 
-        public static IEnumerable<R> Match<T, R>(this IEnumerable<Option<T>> list,
-            Func<T, IEnumerable<R>> Some,
-            IEnumerable<R> None
-            ) =>
-            match(list, Some, () => None);
-
         public static IEnumerable<T> failure<T>(IEnumerable<Option<T>> list,
-            Func<IEnumerable<T>> None
-            ) =>
-            match(list, v => new T[1] { v }, None);
-
-        public static IEnumerable<T> Failure<T>(this IEnumerable<Option<T>> list,
             Func<IEnumerable<T>> None
             ) =>
             match(list, v => new T[1] { v }, None);
@@ -106,6 +92,23 @@ namespace LanguageExt
             IEnumerable<T> None
             ) =>
             match(list, v => new T[1] { v }, () => None);
+
+        public static IEnumerable<R> Match<T, R>(this IEnumerable<Option<T>> list,
+            Func<T, IEnumerable<R>> Some,
+            Func<IEnumerable<R>> None
+            ) =>
+            match(list, Some, None);
+
+        public static IEnumerable<R> Match<T, R>(this IEnumerable<Option<T>> list,
+            Func<T, IEnumerable<R>> Some,
+            IEnumerable<R> None
+            ) =>
+            match(list, Some, () => None);
+
+        public static IEnumerable<T> Failure<T>(this IEnumerable<Option<T>> list,
+            Func<IEnumerable<T>> None
+            ) =>
+            match(list, v => new T[1] { v }, None);
 
         public static IEnumerable<T> Failure<T>(this IEnumerable<Option<T>> list,
             IEnumerable<T> None

@@ -79,10 +79,10 @@ namespace LanguageExt
         }
 
         public T Failure(Func<T> None) => 
-            Match(identity<T>(), None);
+            Match(identity, None);
 
         public T Failure(T noneValue) => 
-            Match(identity<T>(), () => noneValue);
+            Match(identity, () => noneValue);
 
         public SomeContext<T, R> Some<R>(Func<T, R> someHandler) =>
             new SomeContext<T, R>(this,someHandler);
@@ -127,6 +127,9 @@ namespace LanguageExt
                 ? Option.Cast<R>(mapper(Value))
                 : Option<R>.None;
 
+        public bool Filter(Func<T, bool> pred) =>
+            Exists(pred);
+
         public Option<R> Bind<R>(Func<T, Option<R>> binder) =>
             IsSome
                 ? binder(Value)
@@ -155,8 +158,8 @@ namespace LanguageExt
 
     public struct SomeContext<T, R>
     {
-        Option<T> option;
-        Func<T, R> someHandler;
+        readonly Option<T> option;
+        readonly Func<T, R> someHandler;
 
         internal SomeContext(Option<T> option, Func<T, R> someHandler)
         {
@@ -210,5 +213,5 @@ public static class __OptionExt
             );
 
     public static bool Where<T>(this Option<T> self, Func<T, bool> pred) =>
-        self.Exists(pred);
+        self.Filter(pred);
 }

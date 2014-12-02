@@ -285,5 +285,46 @@ namespace LanguageExt
 
         public static ImmutableArray<Either<T, Exception>> ToArray<T>(this TryOption<T> self) =>
             Prelude.toArray(self.AsEnumerable());
+
+        public static TrySomeContext<T, R> Some<T, R>(this TryOption<T> self, Func<T, R> someHandler) =>
+            new TrySomeContext<T, R>(self, someHandler);
+    }
+
+    public struct TrySomeContext<T, R>
+    {
+        readonly TryOption<T> option;
+        readonly Func<T, R> someHandler;
+
+        internal TrySomeContext(TryOption<T> option, Func<T, R> someHandler)
+        {
+            this.option = option;
+            this.someHandler = someHandler;
+        }
+
+        public TryNoneContext<T, R> None(Func<R> noneHandler) =>
+            new TryNoneContext<T, R>(option, someHandler, noneHandler);
+
+        public TryNoneContext<T, R> None(R noneValue) =>
+            new TryNoneContext<T, R>(option, someHandler, () => noneValue);
+    }
+
+    public struct TryNoneContext<T, R>
+    {
+        readonly TryOption<T> option;
+        readonly Func<T, R> someHandler;
+        readonly Func<R> noneHandler;
+
+        internal TryNoneContext(TryOption<T> option, Func<T, R> someHandler, Func<R> noneHandler)
+        {
+            this.option = option;
+            this.someHandler = someHandler;
+            this.noneHandler = noneHandler;
+        }
+
+        public R Fail(Func<Exception,R> failHandler) =>
+            option.Match(someHandler, noneHandler, failHandler);
+
+        public R Fail(R failValue) =>
+            option.Match(someHandler, noneHandler, _ => failValue);
     }
 }

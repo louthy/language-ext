@@ -7,6 +7,9 @@ using LanguageExt.Prelude;
 
 namespace LanguageExt
 {
+    /// <summary>
+    /// TODO: Tidy this up, the helper has stopped being a helper
+    /// </summary>
     internal class FSHelper
     {
         public static FSharpAsync<A> CreateAsync<A>(Func<Task<A>> f) =>
@@ -41,28 +44,27 @@ namespace LanguageExt
                             }
                             else
                             {
-                                switch (msg.GetType().Name)
+                                switch (msg.Tag)
                                 {
-                                    case "SystemShutdownMessage":
+                                    case SystemMessageTag.Shutdown:
                                         self.Shutdown();
                                         active = false;
                                         break;
 
-                                    case "SystemChildIsFaultedMessage":
+                                    case SystemMessageTag.ChildIsFaulted:
                                         ((IProcessInternal)self).HandleFaultedChild((SystemChildIsFaultedMessage)msg);
                                         break;
 
-                                    case "SystemRestartMessage":
+                                    case SystemMessageTag.Restart:
                                         self.Restart();
                                         break;
 
-                                    case "SystemUnLinkChildMessage":
+                                    case SystemMessageTag.UnLinkChild:
                                         ((IProcessInternal)self).UnlinkChild(((SystemUnLinkChildMessage)msg).ChildId);
                                         break;
                                 }
                             }
                         }
-
                         return null;
                     })
             );
@@ -105,9 +107,9 @@ namespace LanguageExt
                                 }
                                 else if (msg.MessageType == Message.Type.UserControl)
                                 {
-                                    switch (msg.GetType().Name)
+                                    switch (msg.Tag)
                                     {
-                                        case "UserControlShutdownMessage":
+                                        case UserControlMessageTag.Shutdown:
                                             self.Shutdown();
                                             active = false;
                                             break;

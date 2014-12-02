@@ -103,10 +103,10 @@ namespace LanguageExt
         }
 
         public R Failure(Func<R> None) => 
-            Match(identity<R>(), _ => None());
+            Match(identity, _ => None());
 
         public R Failure(R noneValue) => 
-            Match(identity<R>(), _ => noneValue);
+            Match(identity, _ => noneValue);
 
         public EitherContext<R, L, Ret> Right<Ret>(Func<R, Ret> rightHandler) =>
             new EitherContext<R, L, Ret>(this, rightHandler);
@@ -166,6 +166,9 @@ namespace LanguageExt
                 ? CastRight<Ret, L>(mapper(RightValue))
                 : Either<Ret, L>.Left(LeftValue);
 
+        public bool Filter(Func<R, bool> pred) =>
+            Exists(pred);
+
         public Either<Ret,L> Bind<Ret>(Func<R, Either<Ret,L>> binder) =>
             IsRight
                 ? binder(RightValue)
@@ -204,8 +207,8 @@ namespace LanguageExt
 
     public struct EitherContext<R, L, Ret>
     {
-        Either<R, L> either;
-        Func<R, Ret> rightHandler;
+        readonly Either<R, L> either;
+        readonly Func<R, Ret> rightHandler;
 
         internal EitherContext(Either<R,L> either, Func<R, Ret> rightHandler)
         {
@@ -242,5 +245,5 @@ public static class __EitherExt
             );
 
     public static bool Where<R, L>(this Either<R, L> self, Func<R, bool> pred) =>
-        self.Exists(pred);
+        self.Filter(pred);
 }

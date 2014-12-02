@@ -33,22 +33,25 @@ namespace LanguageExt
             option.MatchUnsafe(Some, None);
 
         public static S foldUnsafe<S, T>(OptionUnsafe<T> option, S state, Func<S, T, S> folder) =>
-            option.Fold(state, folder);
+            option.FoldUnsafe(state, folder);
 
         public static bool forallUnsafe<T>(OptionUnsafe<T> option, Func<T, bool> pred) =>
-            option.ForAll(pred);
+            option.ForAllUnsafe(pred);
 
         public static int count<T>(OptionUnsafe<T> option) =>
             option.Count;
 
         public static bool existsUnsafe<T>(OptionUnsafe<T> option, Func<T, bool> pred) =>
-            option.Exists(pred);
+            option.ExistsUnsafe(pred);
 
         public static OptionUnsafe<R> mapUnsafe<T, R>(OptionUnsafe<T> option, Func<T, R> mapper) =>
-            option.Map(mapper);
+            option.MapUnsafe(mapper);
+
+        public static bool filterUnsafe<T>(OptionUnsafe<T> option, Func<T, bool> pred) =>
+            option.FilterUnsafe(pred);
 
         public static OptionUnsafe<R> bindUnsafe<T, R>(OptionUnsafe<T> option, Func<T, OptionUnsafe<R>> binder) =>
-            option.Bind(binder);
+            option.BindUnsafe(binder);
 
         public static IEnumerable<R> matchUnsafe<T, R>(IEnumerable<OptionUnsafe<T>> list,
             Func<T, IEnumerable<R>> Some,
@@ -60,30 +63,13 @@ namespace LanguageExt
                 (x, xs) => x.SomeUnsafe(v => Some(v)).None(None).Concat(matchUnsafe(xs, Some, None)) // TODO: Flatten recursion
             );
 
-        public static IEnumerable<R> MatchUnsafe<T, R>(this IEnumerable<OptionUnsafe<T>> list,
-            Func<T, IEnumerable<R>> Some,
-            Func<IEnumerable<R>> None
-            ) =>
-            matchUnsafe(list, Some, None);
-
         public static IEnumerable<R> matchUnsafe<T, R>(IEnumerable<OptionUnsafe<T>> list,
             Func<T, IEnumerable<R>> Some,
             IEnumerable<R> None
             ) =>
             matchUnsafe(list, Some, () => None);
 
-        public static IEnumerable<R> MatchUnsafe<T, R>(this IEnumerable<OptionUnsafe<T>> list,
-            Func<T, IEnumerable<R>> Some,
-            IEnumerable<R> None
-            ) =>
-            matchUnsafe(list, Some, () => None);
-
         public static IEnumerable<T> failureUnsafe<T>(IEnumerable<OptionUnsafe<T>> list,
-            Func<IEnumerable<T>> None
-            ) =>
-            matchUnsafe(list, v => new T[1] { v }, None);
-
-        public static IEnumerable<T> FailureUnsafe<T>(this IEnumerable<OptionUnsafe<T>> list,
             Func<IEnumerable<T>> None
             ) =>
             matchUnsafe(list, v => new T[1] { v }, None);
@@ -92,6 +78,23 @@ namespace LanguageExt
             IEnumerable<T> None
             ) =>
             matchUnsafe(list, v => new T[1] { v }, () => None);
+
+        public static IEnumerable<R> MatchUnsafe<T, R>(this IEnumerable<OptionUnsafe<T>> list,
+            Func<T, IEnumerable<R>> Some,
+            Func<IEnumerable<R>> None
+            ) =>
+            matchUnsafe(list, Some, None);
+
+        public static IEnumerable<R> MatchUnsafe<T, R>(this IEnumerable<OptionUnsafe<T>> list,
+            Func<T, IEnumerable<R>> Some,
+            IEnumerable<R> None
+            ) =>
+            matchUnsafe(list, Some, () => None);
+
+        public static IEnumerable<T> FailureUnsafe<T>(this IEnumerable<OptionUnsafe<T>> list,
+            Func<IEnumerable<T>> None
+            ) =>
+            matchUnsafe(list, v => new T[1] { v }, None);
 
         public static IEnumerable<T> FailureUnsafe<T>(this IEnumerable<OptionUnsafe<T>> list,
             IEnumerable<T> None

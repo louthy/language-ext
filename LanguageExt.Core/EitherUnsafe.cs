@@ -86,10 +86,10 @@ namespace LanguageExt
         }
 
         public R FailureUnsafe(Func<R> None) =>
-            MatchUnsafe(identity<R>(), _ => None());
+            MatchUnsafe(identity, _ => None());
 
         public R FailureUnsafe(R noneValue) =>
-            MatchUnsafe(identity<R>(), _ => noneValue);
+            MatchUnsafe(identity, _ => noneValue);
 
         public EitherUnsafeContext<R, L, Ret> Right<Ret>(Func<R, Ret> rightHandler) =>
             new EitherUnsafeContext<R, L, Ret>(this, rightHandler);
@@ -149,6 +149,9 @@ namespace LanguageExt
                 ? mapper(RightValue)
                 : EitherUnsafe<Ret, L>.Left(LeftValue);
 
+        public bool FilterUnsafe(Func<R, bool> pred) =>
+            ExistsUnsafe(pred);
+
         public EitherUnsafe<Ret, L> BindUnsafe<Ret>(Func<R, EitherUnsafe<Ret, L>> binder) =>
             IsRight
                 ? binder(RightValue)
@@ -178,8 +181,8 @@ namespace LanguageExt
 
     public struct EitherUnsafeContext<R, L, Ret>
     {
-        EitherUnsafe<R, L> either;
-        Func<R, Ret> rightHandler;
+        readonly EitherUnsafe<R, L> either;
+        readonly Func<R, Ret> rightHandler;
 
         internal EitherUnsafeContext(EitherUnsafe<R,L> either, Func<R, Ret> rightHandler)
         {
@@ -216,5 +219,5 @@ public static class __EitherUnsafeExt
             );
 
     public static bool Where<R, L>(this EitherUnsafe<R, L> self, Func<R, bool> pred) =>
-        self.ExistsUnsafe(pred);
+        self.FilterUnsafe(pred);
 }

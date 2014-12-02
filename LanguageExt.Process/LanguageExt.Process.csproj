@@ -68,7 +68,6 @@
     <Compile Include="ProcessPrelude.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SystemMessage.cs" />
-    <Compile Include="Trampoline.cs" />
     <Compile Include="UserControlMessage.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -45,11 +45,9 @@ namespace LanguageExt
             project(value1, value2, value3);
 
         /// <summary>
-        /// Generates an identity function
+        /// Identity function
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static Func<T,T> identity<T>() => (T id) => id;
+        public static T identity<T>(T x) => x;
 
         public static Action failwith(string message) =>
             () => { throw new Exception(message); };

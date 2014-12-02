@@ -6,9 +6,16 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    internal class UserControlMessage : Message
+    internal enum UserControlMessageTag
+    {
+        User,
+        Shutdown
+    }
+
+    internal abstract class UserControlMessage : Message
     {
         public override Message.Type MessageType => Message.Type.UserControl;
+        public abstract UserControlMessageTag Tag { get; }
 
         public static UserControlMessage Shutdown => new UserControlShutdownMessage();
     }
@@ -16,6 +23,7 @@ namespace LanguageExt
     internal class UserMessage : UserControlMessage
     {
         public override Message.Type MessageType => Message.Type.User;
+        public override UserControlMessageTag Tag => UserControlMessageTag.User;
 
         public UserMessage(object message, ProcessId sender, ProcessId replyTo)
         {
@@ -32,5 +40,6 @@ namespace LanguageExt
     internal class UserControlShutdownMessage : UserControlMessage
     {
         public override Message.Type MessageType => Message.Type.UserControl;
+        public override UserControlMessageTag Tag => UserControlMessageTag.Shutdown;
     }
 }
