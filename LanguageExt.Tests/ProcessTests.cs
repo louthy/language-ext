@@ -19,13 +19,13 @@ namespace LanguageExtTests
         [Test]
         public void PubSubTest()
         {
-            restartAll();
+            shutdownAll();
 
             // Spawn a process
             var pid = spawn<string>("pubsub", msg =>
             {
                 // Publish anything we're sent
-                publish(msg);
+                pub(msg);
             });
 
             string value = null;
@@ -44,7 +44,7 @@ namespace LanguageExtTests
         [Test]
         public void RegisterTest()
         {
-            restartAll();
+            shutdownAll();
 
             string value = null;
             var pid = spawn<string>("reg-proc", msg => value = msg);
@@ -72,7 +72,7 @@ namespace LanguageExtTests
         [Test]
         public void SpawnProcess()
         {
-            restartAll();
+            shutdownAll();
 
             string value = null;
             var pid = spawn<string>("SpawnProcess", msg => value = msg );
@@ -88,7 +88,7 @@ namespace LanguageExtTests
         [Test]
         public void SpawnErrorSurviveProcess()
         {
-            restartAll();
+            shutdownAll();
 
             int value = 0;
             int count = 0;
@@ -114,7 +114,7 @@ namespace LanguageExtTests
         [Test]
         public void SpawnAndKillProcess()
         {
-            restartAll();
+            shutdownAll();
 
             string value = null;
             var pid = spawn<string>("SpawnAndKillProcess", msg => value = msg);
@@ -137,7 +137,7 @@ namespace LanguageExtTests
         [Test]
         public void SpawnAndKillHierarchy()
         {
-            restartAll();
+            shutdownAll();
 
             string value = null;
             ProcessId parentId;
@@ -187,7 +187,7 @@ namespace LanguageExtTests
             int nodes = 5;
             int max = DepthMax(depth);
 
-            restartAll();
+            shutdownAll();
 
             var actor = fun((Action<Unit, string>)((Unit s, string msg) =>
             {

@@ -145,7 +145,7 @@ namespace LanguageExt
         /// Publish a message for any listening subscribers
         /// </summary>
         /// <param name="message">Message to publish</param>
-        public static Unit publish<T>(T message) =>
+        public static Unit pub<T>(T message) =>
             ObservableRouter.Publish(ActorContext.Self.Id, message);
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace LanguageExt
         /// <summary>
         /// Shutdown all processes and restart
         /// </summary>
-        public static Unit restartAll() =>
+        public static Unit shutdownAll() =>
             ActorContext.Restart();
 
         /// <summary>

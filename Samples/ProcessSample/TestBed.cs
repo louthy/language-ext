@@ -24,7 +24,7 @@ namespace ProcessSample
 
         public static void SpawnAndKillProcess()
         {
-            restartAll();
+            shutdownAll();
 
             string value = null;
             ProcessId pid = spawn<string>("SpawnAndKillProcess", msg => value = msg);
@@ -49,7 +49,7 @@ namespace ProcessSample
 
         public static void SpawnAndKillHierarchy()
         {
-            restartAll();
+            shutdownAll();
 
             string value = null;
             ProcessId parentId;
@@ -87,7 +87,7 @@ namespace ProcessSample
 
         public static void MassiveSpawnAndKillHierarchy()
         {
-            restartAll();
+            shutdownAll();
 
             int count = 0;
             int depth = 6;
