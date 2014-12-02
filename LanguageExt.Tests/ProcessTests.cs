@@ -17,6 +17,34 @@ namespace LanguageExtTests
     public class ProcessTests
     {
         [Test]
+        public void RegisterTest()
+        {
+            restart();
+
+            string value = null;
+            var pid = spawn<string>("reg-proc", msg => value = msg);
+
+            var regid = register("woooo amazing", pid);
+
+            Assert.IsTrue(registered().Count() == 1);
+            Assert.IsTrue(registered().First().Value == "/root/system/registered/woooo amazing");
+
+            tell(regid, "hello");
+
+            Thread.Sleep(100);
+
+            Assert.IsTrue(value == "hello");
+
+            Thread.Sleep(100);
+
+            unregister("woooo amazing");
+
+            Thread.Sleep(100);
+
+            Assert.IsTrue(registered().Count() == 0);
+        }
+
+        [Test]
         public void SpawnProcess()
         {
             restart();

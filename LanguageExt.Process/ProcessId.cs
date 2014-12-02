@@ -8,7 +8,7 @@ namespace LanguageExt
 {
     public struct ProcessId
     {
-        internal ProcessName[] Parts;
+        ProcessName[] Parts;
 
         public ProcessId(string path)
         {
@@ -51,6 +51,8 @@ namespace LanguageExt
 
         public override int GetHashCode() =>
             Value.GetHashCode();
+
+        public bool IsValid => Parts != null;
 
         public static ProcessId None => ActorContext.NoSender;
     }

@@ -13,7 +13,7 @@ namespace LanguageExt
         Unit HandleFaultedChild(SystemChildIsFaultedMessage message);
         Unit TellSystem(SystemMessage message);
         Unit TellUserControl(UserControlMessage message);
-        Unit Tell(object message);
+        Unit Tell(object message, ProcessId sender);
         Unit UnlinkChild(ProcessId pid);
     }
 }

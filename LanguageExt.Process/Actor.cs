@@ -40,7 +40,32 @@ namespace LanguageExt
             ActorContext.AddToStore(Id, this);
         }
 
-        public void StartMailboxes()
+        /// <summary>
+        /// Process path
+        /// </summary>
+        public ProcessId Id { get; }
+
+        /// <summary>
+        /// Process name
+        /// </summary>
+        public ProcessName Name { get; }
+
+        /// <summary>
+        /// Parent process
+        /// </summary>
+        public ProcessId Parent { get; }
+
+        /// <summary>
+        /// Child processes
+        /// </summary>
+        public IEnumerable<ProcessId> Children =>
+            from c in children
+            select c.Value.Id;
+
+        /// <summary>
+        /// Creates a user and system mailbox
+        /// </summary>
+        private void StartMailboxes()
         {
             with(FSHelper.StartUserMailbox(this, Parent, actorFn, setupFn), (q, mb) =>
             {
@@ -54,13 +79,6 @@ namespace LanguageExt
                 systemMailbox = mb;
             });
         }
-
-        /// <summary>
-        /// Child processes
-        /// </summary>
-        public IEnumerable<ProcessId> Children =>
-            from c in children
-            select c.Value.Id;
 
         /// <summary>
         /// Send the same message to all children
@@ -188,21 +206,6 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Process path
-        /// </summary>
-        public ProcessId Id { get; }
-
-        /// <summary>
-        /// Process name
-        /// </summary>
-        public ProcessName Name { get; }
-
-        /// <summary>
-        /// Parent process
-        /// </summary>
-        public ProcessId Parent { get; }
-
-        /// <summary>
         /// Get a child process by name
         /// </summary>
         public Option<IProcess> GetChildProcess(ProcessName name) =>
@@ -219,7 +222,7 @@ namespace LanguageExt
                     return process.Value;
                 } );
 
-        public Unit Tell(object message)
+        public Unit Tell(object message, ProcessId sender)
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
 
@@ -231,15 +234,13 @@ namespace LanguageExt
 
             lock (actorLock)
             {
-                userMailbox.Post(new UserMessage(
-                    message, 
-                    ActorContext.Self == null 
-                        ? ActorContext.NoSender 
-                        : ActorContext.Self.Id,
-                    ActorContext.Self == null
+                sender = sender.IsValid
+                    ? sender
+                    : ActorContext.Self == null
                         ? ActorContext.NoSender
-                        : ActorContext.Self.Id
-                    ));
+                        : ActorContext.Self.Id;
+
+                userMailbox.Post(new UserMessage( message, sender, sender ));
             }
             return unit;
         }

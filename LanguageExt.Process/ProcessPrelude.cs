@@ -39,14 +39,21 @@ namespace LanguageExt
         /// </summary>
         /// <param name="name">Name to register under</param>
         /// <param name="process">Process to be registered</param>
-        public static Unit register(string name, ProcessId process) =>
+        public static ProcessId register(ProcessName name, ProcessId process) =>
             ActorContext.Register(name, process);
+
+        /// <summary>
+        /// Un-register the process associated with the name
+        /// </summary>
+        /// <param name="name">Name of the process to un-register</param>
+        public static Unit unregister(ProcessName name) =>
+            ActorContext.UnRegister(name);
 
         /// <summary>
         /// Registry of named processes for discovery
         /// </summary>
-        public static IEnumerable<string> registered() =>
-            ActorContext.Processes.Keys;
+        public static IEnumerable<ProcessId> registered() =>
+            ActorContext.Registered.Children;
 
         /// <summary>
         /// Forces the current running process to shutdown.  The kill message 
@@ -114,14 +121,14 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pid">Process ID</param>
         /// <param name="message">Message to send</param>
-        public static Unit tell<T>(ProcessId pid, T message) =>
+        public static Unit tell<T>(ProcessId pid, T message, ProcessId sender = default(ProcessId) ) =>
             with((IProcessInternal)ActorContext.GetProcess(pid),
                 pi => 
                     message is SystemMessage
                         ? pi.TellSystem(message as SystemMessage)
                         : message is UserControlMessage
                             ? pi.TellUserControl(message as UserControlMessage)
-                            : pi.Tell(message) );
+                            : pi.Tell(message, sender) );
 
         /// <summary>
         /// Get the child processes of the process provided

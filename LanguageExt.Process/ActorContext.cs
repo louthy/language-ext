@@ -19,6 +19,7 @@ namespace LanguageExt
         static IProcess system;
         static IProcess deadLetters;
         static IProcess noSender;
+        static IProcess registered;
         [ThreadStatic] static IProcess self;
         [ThreadStatic] static ProcessId sender;
 
@@ -32,24 +33,26 @@ namespace LanguageExt
 
         public static Unit Restart()
         {
+            ActorConfig config = ActorConfig.Default;
+
             if (system != null)
             {
                 system.Shutdown();
             }
 
-            Processes = map<string, ProcessId>();
             Store = map(tuple("", (IProcess)null));
 
             // Root
-            root = new Actor<Unit, string>(new ProcessId(), new ProcessName("root"), (Unit state, string msg) => state, () => unit);
+            root = new Actor<Unit, string>(new ProcessId(), config.RootProcessName, (Unit state, string msg) => state, () => unit);
 
             // Top tier
-            system = new Actor<Unit, string>(root.Id, new ProcessName("system"), (Unit state, string msg) => state, () => unit);
-            self = user = new Actor<Unit, string>(root.Id, new ProcessName("user"), (Unit state, string msg) => state, () => unit);
+            system = new Actor<Unit, string>(root.Id, config.SystemProcessName, (Unit state, string msg) => state, () => unit);
+            self = user = new Actor<Unit, string>(root.Id, config.UserProcessName, (Unit state, string msg) => state, () => unit);
 
             // Second tier
-            deadLetters = new Actor<Unit, object>(system.Id, "dead-letters", (state, msg) => { deadLetterSubject.OnNext(msg); return state; }, () => unit);
-            noSender = new Actor<Unit, object>(system.Id, "no-sender", (state, msg) => state, () => unit);
+            deadLetters = new Actor<Unit, object>(system.Id, config.DeadLettersProcessName, (state, msg) => { deadLetterSubject.OnNext(msg); return state; }, () => unit);
+            noSender = new Actor<Unit, object>(system.Id, config.NoSenderProcessName, (state, msg) => state, () => unit);
+            registered = new Actor<Unit, object>(system.Id, config.RegisteredProcessName, (state, msg) => state, () => unit);
 
             return unit;
         }
@@ -89,12 +92,6 @@ namespace LanguageExt
             private set;
         }
 
-        public static IImmutableDictionary<string, ProcessId> Processes
-        {
-            get;
-            private set;
-        }
-
         public static IProcess Self =>
             self == null
                 ? system
@@ -118,22 +115,21 @@ namespace LanguageExt
         public static ProcessId DeadLetters =>
             deadLetters.Id;
 
-        public static Unit Register(string name, ProcessId process)
-        {
-            lock(processesLock)
-            {
-                if (Processes.ContainsKey(name))
-                {
-                    // TODO: Create a Exception type 
-                    throw new Exception("Process already registered");
-                }
-                else
-                {
-                    Processes = Processes.Add(name, process);
-                }
-            }
-            return unit;
-        }
+        public static IProcess Registered =>
+            registered;
+
+        public static ProcessId Register(ProcessName name, ProcessId process) =>
+                with(registered as IProcessInternal,
+                    self => match(self.GetChildProcess(name),
+                        Some: _ => failwith<IProcess>("Process already registered"),
+                        None: () => self.AddChildProcess( new ActorProxy(
+                                                            registered.Id,
+                                                            name,
+                                                            ActorProxyTemplate.Registered,
+                                                            () => new ActorProxyConfig(process) ) ) ) ).Id;
+
+        public static Unit UnRegister(ProcessName name) =>
+            Process.kill(registered.Id + "/" + name);
 
         public static void SetContext(IProcess self, ProcessId sender)
         {
@@ -143,11 +139,9 @@ namespace LanguageExt
 
         public static IProcess GetProcess(ProcessId pid) =>
             with(ActorContext.Store, store =>
-                pid.Value == "/root"
-                    ? ActorContext.Root
-                    : store.ContainsKey(pid.Value)
-                        ? store[pid.Value]
-                        : store[ActorContext.DeadLetters.Value]
+                store.ContainsKey(pid.Value)
+                    ? store[pid.Value]
+                    : store[ActorContext.DeadLetters.Value]
                 );
     }
 }

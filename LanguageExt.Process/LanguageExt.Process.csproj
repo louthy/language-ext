@@ -57,7 +57,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actor.cs" />
+    <Compile Include="ActorConfig.cs" />
     <Compile Include="ActorContext.cs" />
+    <Compile Include="ActorProxy.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="FSHelper.cs" />
     <Compile Include="Message.cs" />
