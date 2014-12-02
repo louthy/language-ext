@@ -21,7 +21,7 @@ using LanguageExt;
 using LanguageExt.Prelude;
 ```
 
-`LanguageExt` contains the types, and `LanguageExt.Prelude` contains the helper functions.  There is also `LanguageExt.List` and `LanguageExt.Map`, more on those later.
+`LanguageExt` contains the types, and `LanguageExt.Prelude` contains the helper functions.  There is also `LanguageExt.List`, `LanguageExt.Map`, `LanguageExt.Queue`, `LanguageExt.Set`, `LanguageExt.Stack`, and `LanguageExt.Process` (more on those later).
 
 What C# issues are we trying to fix?  Well, we can only paper over the cracks, but here's a summary:
 
