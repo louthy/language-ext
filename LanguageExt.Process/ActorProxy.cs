@@ -32,7 +32,7 @@ namespace LanguageExt
         public static Func<ActorProxyConfig, object, ActorProxyConfig> Registered => 
             (config,msg) =>
             {
-                Process.tell(config.Destination, msg, Process.sender());
+                Process.tell(config.Destination, msg, Process.Sender);
                 return config;
             };
     }

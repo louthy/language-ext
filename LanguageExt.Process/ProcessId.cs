@@ -16,14 +16,14 @@ namespace LanguageExt
             {
                 throw new InvalidProcessIdException();
             }
-            if (path[0] != '/')
+            if (path[0] != ProcessId.Sep)
             {
                 throw new InvalidProcessIdException();
             }
             try
             {
                 Parts = path.Substring(1)
-                            .Split('/')
+                            .Split(ProcessId.Sep)
                             .Select(p => new ProcessName(p))
                             .ToArray();
             }
@@ -36,7 +36,7 @@ namespace LanguageExt
         public string Value =>
             Parts == null
                 ? ""
-                : "/" + String.Join("/", Parts);
+                : ProcessId.Sep + String.Join(ProcessId.Sep.ToString(), Parts);
 
         public ProcessName Name =>
             Parts == null
@@ -55,5 +55,7 @@ namespace LanguageExt
         public bool IsValid => Parts != null;
 
         public static ProcessId None => ActorContext.NoSender;
+
+        public static char Sep => '/';
     }
 }

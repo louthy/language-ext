@@ -33,7 +33,7 @@ namespace LanguageExt
             setupFn = setup;
             Parent = parent;
             Name = name;
-            Id = new ProcessId(parent.Value + "/" + name);
+            Id = new ProcessId(parent.Value + ProcessId.Sep + name);
 
             StartMailboxes();
 

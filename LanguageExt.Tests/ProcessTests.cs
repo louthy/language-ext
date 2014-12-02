@@ -17,17 +17,42 @@ namespace LanguageExtTests
     public class ProcessTests
     {
         [Test]
+        public void PubSubTest()
+        {
+            restartAll();
+
+            // Spawn a process
+            var pid = spawn<string>("pubsub", msg =>
+            {
+                // Publish anything we're sent
+                publish(msg);
+            });
+
+            string value = null;
+
+            // Subscribe to the processes 'string' publications
+            var sub = subs(pid, (string v) => value = v);
+
+            // Send string message to the process
+            tell(pid, "hello");
+
+            Thread.Sleep(100);
+
+            Assert.IsTrue(value == "hello");
+        }
+
+        [Test]
         public void RegisterTest()
         {
-            restart();
+            restartAll();
 
             string value = null;
             var pid = spawn<string>("reg-proc", msg => value = msg);
 
-            var regid = register("woooo amazing", pid);
+            var regid = reg("woooo amazing", pid);
 
-            Assert.IsTrue(registered().Count() == 1);
-            Assert.IsTrue(registered().First().Value == "/root/system/registered/woooo amazing");
+            Assert.IsTrue(Registered.Count() == 1);
+            Assert.IsTrue(Registered.First().Value == "/root/system/registered/woooo amazing");
 
             tell(regid, "hello");
 
@@ -37,17 +62,17 @@ namespace LanguageExtTests
 
             Thread.Sleep(100);
 
-            unregister("woooo amazing");
+            unreg("woooo amazing");
 
             Thread.Sleep(100);
 
-            Assert.IsTrue(registered().Count() == 0);
+            Assert.IsTrue(Registered.Count() == 0);
         }
 
         [Test]
         public void SpawnProcess()
         {
-            restart();
+            restartAll();
 
             string value = null;
             var pid = spawn<string>("SpawnProcess", msg => value = msg );
@@ -63,7 +88,7 @@ namespace LanguageExtTests
         [Test]
         public void SpawnErrorSurviveProcess()
         {
-            restart();
+            restartAll();
 
             int value = 0;
             int count = 0;
@@ -89,7 +114,7 @@ namespace LanguageExtTests
         [Test]
         public void SpawnAndKillProcess()
         {
-            restart();
+            restartAll();
 
             string value = null;
             var pid = spawn<string>("SpawnAndKillProcess", msg => value = msg);
@@ -106,13 +131,13 @@ namespace LanguageExtTests
             Thread.Sleep(200);
 
             Assert.IsTrue(value == "1");
-            Assert.IsTrue(length(children()) == 0);
+            Assert.IsTrue(length(Children) == 0);
         }
 
         [Test]
         public void SpawnAndKillHierarchy()
         {
-            restart();
+            restartAll();
 
             string value = null;
             ProcessId parentId;
@@ -120,7 +145,7 @@ namespace LanguageExtTests
             var pid = spawn<Unit, string>("SpawnAndKillHierarchy.TopLevel", 
                 () =>
                     {
-                        parentId = parent();
+                        parentId = Parent;
 
                         spawn<string>("SpawnAndKillHierarchy.ChildLevel", msg => value = msg);
                         return unit;
@@ -145,7 +170,7 @@ namespace LanguageExtTests
             Thread.Sleep(200);
 
             Assert.IsTrue(value == "1");
-            Assert.IsTrue(length(children()) == 0);
+            Assert.IsTrue(length(Children) == 0);
         }
 
         public static int DepthMax(int depth) =>
@@ -162,19 +187,19 @@ namespace LanguageExtTests
             int nodes = 5;
             int max = DepthMax(depth);
 
-            restart();
+            restartAll();
 
-            var actor = fun((Unit s, string msg) =>
+            var actor = fun((Action<Unit, string>)((Unit s, string msg) =>
             {
                 Interlocked.Increment(ref count);
-                iter(children(), child => tell(child, msg));
-            });
+                iter((IEnumerable<ProcessId>)Process.Children, child => tell(child, msg));
+            }));
 
             setup = fun(() =>
             {
                 Interlocked.Increment(ref count);
 
-                int level = Int32.Parse(self().Name.Value.Split('_').First()) + 1;
+                int level = Int32.Parse(Self.Name.Value.Split('_').First()) + 1;
                 if (level <= depth)
                 {
                     iter(range(0, nodes), i => spawn(level + "_" + i, setup, actor));
@@ -196,7 +221,7 @@ namespace LanguageExtTests
 
             Thread.Sleep(3000);
 
-            Assert.IsTrue(children(user()).Count() == 0);
+            Assert.IsTrue(children(User).Count() == 0);
         }
     }
 }

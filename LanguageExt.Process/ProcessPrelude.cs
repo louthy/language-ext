@@ -8,8 +8,47 @@ namespace LanguageExt
     /// <summary>
     /// Usage:  Add 'using LanguageExt.Process' to your code.
     /// </summary>
-    public static partial class Process
+    public static class Process
     {
+        /// <summary>
+        /// Registry of named processes for discovery
+        /// </summary>
+        public static IEnumerable<ProcessId> Registered =>
+            ActorContext.Registered.Children;
+
+        /// <summary>
+        /// Current process ID
+        /// </summary>
+        public static ProcessId Self =>
+            ActorContext.Self.Id;
+
+        /// <summary>
+        /// Parent process ID
+        /// </summary>
+        public static ProcessId Parent =>
+            ActorContext.Self.Parent;
+
+        /// <summary>
+        /// User process ID
+        /// The User process is the default entry process
+        /// </summary>
+        public static ProcessId User =>
+            ActorContext.User.Id;
+
+        /// <summary>
+        /// Sender process ID
+        /// Always valid even if there's not a sender (the 'NoSender' process ID will
+        /// be provided).
+        /// </summary>
+        public static ProcessId Sender =>
+            ActorContext.Sender;
+
+        /// <summary>
+        /// Get the child processes of the running process
+        /// </summary>
+        public static IEnumerable<ProcessId> Children =>
+            children(ActorContext.Self.Id);
+
         /// <summary>
         /// Create a new child-process by name
         /// </summary>
@@ -35,25 +74,26 @@ namespace LanguageExt
             );
 
         /// <summary>
+        /// Register self as a named process
+        /// </summary>
+        /// <param name="name">Name to register under</param>
+        public static ProcessId reg(ProcessName name) =>
+            ActorContext.Register(name, Self);
+
+        /// <summary>
         /// Register the name with the process
         /// </summary>
         /// <param name="name">Name to register under</param>
         /// <param name="process">Process to be registered</param>
-        public static ProcessId register(ProcessName name, ProcessId process) =>
+        public static ProcessId reg(ProcessName name, ProcessId process) =>
             ActorContext.Register(name, process);
 
         /// <summary>
         /// Un-register the process associated with the name
         /// </summary>
         /// <param name="name">Name of the process to un-register</param>
-        public static Unit unregister(ProcessName name) =>
+        public static Unit unreg(ProcessName name) =>
             ActorContext.UnRegister(name);
-
-        /// <summary>
-        /// Registry of named processes for discovery
-        /// </summary>
-        public static IEnumerable<ProcessId> registered() =>
-            ActorContext.Registered.Children;
 
         /// <summary>
         /// Forces the current running process to shutdown.  The kill message 
@@ -63,58 +103,29 @@ namespace LanguageExt
             raise<Unit>(new SystemKillActorException());
 
         /// <summary>
-        /// Forces the process to shutdown.  The kill message jumps ahead
-        /// of any messages already in the queue.
+        /// Forces the specified process to shutdown.  The kill message jumps 
+        /// ahead of any messages already in the queue.
         /// </summary>
         public static Unit kill(ProcessId pid) =>
             tell(pid, SystemMessage.Shutdown);
 
         /// <summary>
-        /// Shutdown a running process.
+        /// Shutdown the currently running process.
         /// This differs from kill() in that the shutdown message just joins
-        /// the back of the queue like all other messages.
+        /// the back of the queue like all other messages allowing any backlog
+        /// to be processed first.
         /// </summary>
         public static Unit shutdown() =>
-            shutdown(self());
+            shutdown(Self);
 
         /// <summary>
-        /// Shutdown a running process.
+        /// Shutdown a specified running process.
         /// This differs from kill() in that the shutdown message just joins
-        /// the back of the queue like all other messages.
+        /// the back of the queue like all other messagesallowing any backlog
+        /// to be processed first.
         /// </summary>
-        /// <returns></returns>
         public static Unit shutdown(ProcessId pid) =>
             tell(pid, UserControlMessage.Shutdown);
-
-        /// <summary>
-        /// Current process ID
-        /// </summary>
-        /// <returns></returns>
-        public static ProcessId self() =>
-            ActorContext.Self.Id;
-
-        /// <summary>
-        /// Parent process ID
-        /// </summary>
-        /// <returns></returns>
-        public static ProcessId parent() =>
-            ActorContext.Self.Parent;
-
-        /// <summary>
-        /// User process ID
-        /// </summary>
-        /// <returns></returns>
-        public static ProcessId user() =>
-            ActorContext.User.Id;
-
-        /// <summary>
-        /// Sender process ID
-        /// Always valid even if there's not a sender (the 'NoSender' process ID will
-        /// be provided).
-        /// </summary>
-        /// <returns></returns>
-        public static ProcessId sender() =>
-            ActorContext.Sender;
 
         /// <summary>
         /// Send a message to a process
@@ -131,21 +142,62 @@ namespace LanguageExt
                             : pi.Tell(message, sender) );
 
         /// <summary>
+        /// Publish a message for any listening subscribers
+        /// </summary>
+        /// <param name="message">Message to publish</param>
+        public static Unit publish<T>(T message) =>
+            ObservableRouter.Publish(ActorContext.Self.Id, message);
+
+        /// <summary>
         /// Get the child processes of the process provided
         /// </summary>
         public static IEnumerable<ProcessId> children(ProcessId pid) =>
             ActorContext.GetProcess(pid).Children;
 
         /// <summary>
-        /// Get the child processes of the running process
-        /// </summary>
-        public static IEnumerable<ProcessId> children() =>
-            children(ActorContext.Self.Id);
-
-        /// <summary>
         /// Shutdown all processes and restart
         /// </summary>
-        public static Unit restart() =>
+        public static Unit restartAll() =>
             ActorContext.Restart();
+
+        /// <summary>
+        /// Subscribe to the process's observable stream.
+        /// NOTE: The process can publish any number of types, any published messages
+        ///       not of type T will be ignored.
+        /// </summary>
+        public static IDisposable subs<T>(ProcessId pid, IObserver<T> observer) =>
+            ObservableRouter.Subscribe(pid, observer);
+
+        /// <summary>
+        /// Subscribe to the process's observable stream.
+        /// NOTE: The process can publish any number of types, any published messages
+        ///       not of type T will be ignored.
+        /// </summary>
+        public static IDisposable subs<T>(ProcessId pid, Action<T> onNext, Action<Exception> onError, Action onComplete) =>
+            ObservableRouter.Subscribe(pid, onNext, onError, onComplete);
+
+        /// <summary>
+        /// Subscribe to the process's observable stream.
+        /// NOTE: The process can publish any number of types, any published messages
+        ///       not of type T will be ignored.
+        /// </summary>
+        public static IDisposable subs<T>(ProcessId pid, Action<T> onNext, Action<Exception> onError) =>
+            ObservableRouter.Subscribe(pid, onNext, onError, () => { });
+
+        /// <summary>
+        /// Subscribe to the process's observable stream.
+        /// NOTE: The process can publish any number of types, any published messages
+        ///       not of type T will be ignored.
+        /// </summary>
+        public static IDisposable subs<T>(ProcessId pid, Action<T> onNext) =>
+            ObservableRouter.Subscribe(pid, onNext, ex => { }, () => { });
+
+        /// <summary>
+        /// Subscribe to the process's observable stream.
+        /// NOTE: The process can publish any number of types, any published messages
+        ///       not of type T will be ignored.
+        /// </summary>
+        public static IDisposable subs<T>(ProcessId pid, Action<T> onNext, Action onComplete) =>
+            ObservableRouter.Subscribe(pid, onNext, ex => { }, onComplete);
     }
 }

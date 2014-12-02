@@ -24,7 +24,7 @@ namespace ProcessSample
 
         public static void SpawnAndKillProcess()
         {
-            restart();
+            restartAll();
 
             string value = null;
             ProcessId pid = spawn<string>("SpawnAndKillProcess", msg => value = msg);
@@ -42,14 +42,14 @@ namespace ProcessSample
 
             Debug.Assert(value == "1");
 
-            var kids = children();
+            var kids = Children;
             var len = length(kids);
             Debug.Assert(len == 0);
         }
 
         public static void SpawnAndKillHierarchy()
         {
-            restart();
+            restartAll();
 
             string value = null;
             ProcessId parentId;
@@ -57,7 +57,7 @@ namespace ProcessSample
             var pid = spawn<Unit, string>("SpawnAndKillHierarchy.TopLevel",
                 () =>
                 {
-                    parentId = parent();
+                    parentId = Parent;
 
                     spawn<string>("SpawnAndKillHierarchy.ChildLevel", msg => value = msg);
                     return unit;
@@ -77,7 +77,7 @@ namespace ProcessSample
             Thread.Sleep(100);
 
             Debug.Assert(value == "1");
-            Debug.Assert(length(children()) == 0);
+            Debug.Assert(length(Children) == 0);
         }
 
         public static int DepthMax(int depth) =>
@@ -87,7 +87,7 @@ namespace ProcessSample
 
         public static void MassiveSpawnAndKillHierarchy()
         {
-            restart();
+            restartAll();
 
             int count = 0;
             int depth = 6;
@@ -98,20 +98,20 @@ namespace ProcessSample
 
             Func<Unit> setup = null;
 
-            var actor = fun((Unit s, string msg) =>
+            var actor = fun((Action<Unit, string>)((Unit s, string msg) =>
             {
                 Interlocked.Increment(ref count);
-                iter(children(), child => tell(child, msg));
-                Console.WriteLine(self() + " : " + msg);
-            });
+                iter((IEnumerable<ProcessId>)LanguageExt.Process.Children, child => tell(child, msg));
+                Console.WriteLine(Self + " : " + msg);
+            }));
 
             setup = fun(() =>
             {
                 Interlocked.Increment(ref count);
 
-                Console.WriteLine("spawn: " + self() + "\t"+ count);
+                Console.WriteLine("spawn: " + Self + "\t"+ count);
 
-                int level = Int32.Parse(self().Name.Value.Split('_').First()) + 1;
+                int level = Int32.Parse(Self.Name.Value.Split('_').First()) + 1;
                 if (level <= depth)
                 {
                     iter(range(0, nodes), i => spawn(level + "_" + i, setup, actor));
@@ -130,13 +130,13 @@ namespace ProcessSample
             while (count < max) Thread.Sleep(10);
             count = 0;
 
-            ShowChildren(user());
+            ShowChildren(User);
 
             shutdown(zero);
 
             Thread.Sleep(3000);
 
-            ShowChildren(user());
+            ShowChildren(User);
 
             Console.ReadKey();
         }

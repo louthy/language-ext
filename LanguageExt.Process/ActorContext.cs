@@ -23,7 +23,6 @@ namespace LanguageExt
         [ThreadStatic] static IProcess self;
         [ThreadStatic] static ProcessId sender;
 
-        static object processesLock = new object();
         static object storeLock = new object();
 
         static ActorContext()
@@ -33,6 +32,8 @@ namespace LanguageExt
 
         public static Unit Restart()
         {
+            ObservableRouter.Restart();
+
             ActorConfig config = ActorConfig.Default;
 
             if (system != null)
@@ -67,7 +68,6 @@ namespace LanguageExt
                     Store[path].Dispose();
                     Store = Store.Remove(path);
                 }
-                // TODO: Create a Exception type 
                 Store = Store.Add(path, process);
             }
             return unit;
