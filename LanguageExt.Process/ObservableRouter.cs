@@ -82,14 +82,14 @@ namespace LanguageExt
 
         public static IDisposable Subscribe<T>(ProcessId id, IObserver<T> observer) =>
             EnsureInStore(id, (store, path) =>
-                (from obj in Store[path]
+                (from obj in store[path]
                  where obj is T
                  select (T)obj)
                 .Subscribe(observer));
 
         public static IDisposable Subscribe<T>(ProcessId id, Action<T> onNext, Action<Exception> onError, Action onComplete) =>
             EnsureInStore(id, (store, path) =>
-                (from obj in Store[path]
+                (from obj in store[path]
                  where obj is T
                  select (T)obj)
                 .Subscribe(onNext, onError, onComplete));
