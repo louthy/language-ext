@@ -12,8 +12,6 @@ namespace LanguageExt
 {
     internal static class ActorContext
     {
-        static Subject<object> deadLetterSubject = new Subject<object>();
-
         static IProcess root;
         static IProcess user;
         static IProcess system;
@@ -44,16 +42,17 @@ namespace LanguageExt
             Store = map(tuple("", (IProcess)null));
 
             // Root
-            root = new Actor<Unit, string>(new ProcessId(), config.RootProcessName, (Unit state, string msg) => state, () => unit);
+            root        = new Actor<Unit, object>(new ProcessId(), config.RootProcessName, Process.pub);
 
             // Top tier
-            system = new Actor<Unit, string>(root.Id, config.SystemProcessName, (Unit state, string msg) => state, () => unit);
-            self = user = new Actor<Unit, string>(root.Id, config.UserProcessName, (Unit state, string msg) => state, () => unit);
+            system      = new Actor<Unit, object>(root.Id, config.SystemProcessName, Process.pub);
+            self = user = new Actor<Unit, object>(root.Id, config.UserProcessName, Process.pub);
 
             // Second tier
-            deadLetters = new Actor<Unit, object>(system.Id, config.DeadLettersProcessName, (state, msg) => { deadLetterSubject.OnNext(msg); return state; }, () => unit);
-            noSender = new Actor<Unit, object>(system.Id, config.NoSenderProcessName, (state, msg) => state, () => unit);
-            registered = new Actor<Unit, object>(system.Id, config.RegisteredProcessName, (state, msg) => state, () => unit);
+            deadLetters = new Actor<Unit, object>(system.Id, config.DeadLettersProcessName, Process.pub);
+
+            noSender    = new Actor<Unit, object>(system.Id, config.NoSenderProcessName, Process.pub);
+            registered  = new Actor<Unit, object>(system.Id, config.RegisteredProcessName, Process.pub);
 
             return unit;
         }
@@ -94,7 +93,7 @@ namespace LanguageExt
 
         public static IProcess Self =>
             self == null
-                ? system
+                ? user
                 : self;
 
         public static IProcess Root =>

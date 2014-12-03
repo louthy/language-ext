@@ -24,7 +24,7 @@ namespace LanguageExt
         ConcurrentDictionary<string, IProcess> children = new ConcurrentDictionary<string, IProcess>();
         object actorLock = new object();
 
-        public Actor(ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<S> setup )
+        public Actor(ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<S> setup)
         {
             if (setup == null) throw new ArgumentNullException(nameof(setup));
             if (actor == null) throw new ArgumentNullException(nameof(actor));
@@ -39,6 +39,16 @@ namespace LanguageExt
 
             ActorContext.AddToStore(Id, this);
         }
+
+        public Actor(ProcessId parent, ProcessName name, Func<T, Unit> actor)
+            :
+            this(parent,name,(s,t) => { actor(t); return default(S); }, () => default(S) )
+            {}
+
+        public Actor(ProcessId parent, ProcessName name, Action<T> actor)
+            :
+            this(parent, name, (s, t) => { actor(t); return default(S); }, () => default(S))
+        { }
 
         /// <summary>
         /// Process path
