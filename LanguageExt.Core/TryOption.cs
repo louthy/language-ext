@@ -321,11 +321,20 @@ public static class __TryOptionExt
     }
 
     public static IImmutableList<Either<T, Exception>> ToList<T>(this TryOption<T> self) =>
-        Prelude.toList(self.AsEnumerable());
+        toList(self.AsEnumerable());
 
     public static ImmutableArray<Either<T, Exception>> ToArray<T>(this TryOption<T> self) =>
-        Prelude.toArray(self.AsEnumerable());
+        toArray(self.AsEnumerable());
 
     public static TrySomeContext<T, R> Some<T, R>(this TryOption<T> self, Func<T, R> someHandler) =>
         new TrySomeContext<T, R>(self, someHandler);
+
+    public static string AsString<T>(this TryOption<T> self) =>
+        match(self,
+            Some: v => v == null
+                        ? "Some(null)"
+                        : String.Format("Some({0})", v),
+            None: () => "None",
+            Fail: ex => "Fail(" + ex.Message + ")"
+        );
 }

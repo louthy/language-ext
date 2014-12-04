@@ -90,9 +90,9 @@ namespace LanguageExt
         public override string ToString() =>
             IsSome
                 ? Value == null 
-                    ? "[null]"
-                    :  Value.ToString()
-                : "[None]";
+                    ? "Some(null)"
+                    :  String.Format("Some({0})",Value)
+                : "None";
 
         public override int GetHashCode() =>
             IsSome && Value != null

@@ -97,11 +97,11 @@ namespace LanguageExt
         public override string ToString() =>
             IsRight
                 ? RightValue == null
-                    ? "[R:null]"
-                    : RightValue.ToString()
+                    ? "Right(null)"
+                    : String.Format("Right({0})", RightValue)
                 : LeftValue == null
-                    ? "[L:null]"
-                    :  LeftValue.ToString();
+                    ? "Left(null)"
+                    : String.Format("Left({0})", LeftValue);
 
         public override int GetHashCode() =>
             IsRight
