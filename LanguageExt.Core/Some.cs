@@ -5,12 +5,13 @@ namespace LanguageExt
 {
     public struct Some<T>
     {
+        readonly T value;
         readonly bool initialised;
 
         public Some()
         {
             initialised = false;
-            Value = default(T);
+            value = default(T);
             throw new SomeNotInitialisedException(typeof(T));
         }
 
@@ -20,11 +21,12 @@ namespace LanguageExt
             {
                 throw new ValueIsNullException("Value is null when expecting Some(x)");
             }
-            Value = value;
+            this.value = value;
             initialised = true;
         }
 
-        public T Value { get; }
+        public T Value => 
+            CheckInitialised(value);
 
         private U CheckInitialised<U>(U value) =>
             initialised
@@ -38,15 +40,15 @@ namespace LanguageExt
             new Some<T>(value);
 
         public static implicit operator T(Some<T> value) => 
-            value.CheckInitialised(value.Value);
+            value.Value;
 
         public override string ToString() =>
-            CheckInitialised(Value.ToString());
+            Value.ToString();
 
         public override int GetHashCode() =>
-            CheckInitialised(Value.GetHashCode());
+            Value.GetHashCode();
 
         public override bool Equals(object obj) =>
-            CheckInitialised(Value.Equals(obj));
+            Value.Equals(obj);
     }
 }
