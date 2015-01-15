@@ -193,5 +193,20 @@ namespace LanguageExtTests
             Assert.IsTrue(test.SequenceEqual(fibs));
         }
 
+        [Test]
+        public void UnfoldSingleTest()
+        {
+            var e = new Exception("Outer", new Exception("Inner"));
+
+            var list = unfold(e, (state) =>
+                           state == null
+                               ? None
+                               : option(state.InnerException)
+                               );
+
+            var res = list.ToList();
+
+            Assert.IsTrue(res[0].Message == "Outer" && res[1].Message == "Inner");
+        }
     }
 }

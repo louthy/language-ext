@@ -158,6 +158,7 @@ namespace LanguageExt
         {
             while (true)
             {
+                yield return state;
                 var res = unfolder(state);
                 if (res.IsNone)
                 {
