@@ -30,9 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ConcurrentHashtable">
-      <HintPath>..\lib\ConcurrentHashtable.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.1.32.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <Private>True</Private>
@@ -46,6 +43,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConcurrentHashTable\DictionaryBase.cs" />
+    <Compile Include="ConcurrentHashTable\Hasher.cs" />
+    <Compile Include="ConcurrentHashTable\IMaintainable.cs" />
+    <Compile Include="ConcurrentHashTable\InternalWeakDictionaryWeakValueBase.cs" />
+    <Compile Include="ConcurrentHashTable\Key.cs" />
+    <Compile Include="ConcurrentHashTable\KeyComparer.cs" />
+    <Compile Include="ConcurrentHashTable\MaintenanceWorker.cs" />
+    <Compile Include="ConcurrentHashTable\Stacktype.cs" />
+    <Compile Include="ConcurrentHashTable\TransformedCollection.cs" />
+    <Compile Include="ConcurrentHashTable\WeakDictionary.0.cs" />
+    <Compile Include="ConcurrentHashTable\WeakValueRef.cs" />
     <Compile Include="EitherUnsafe.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="IOptionalValue.cs" />
@@ -79,6 +87,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ConcurrentHashTable\license.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
