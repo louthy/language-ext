@@ -154,6 +154,23 @@ namespace LanguageExt
         public static IEnumerable<T> takeWhile<T>(IEnumerable<T> list, Func<T, int, bool> pred) =>
             list.TakeWhile(pred);
 
+        public static IEnumerable<S> unfold<S>(S state, Func<S, Option<S>> unfolder)
+        {
+            while (true)
+            {
+                var res = unfolder(state);
+                if (res.IsNone)
+                {
+                    yield break;
+                }
+                else
+                {
+                    state = res.Value;
+                    yield return res.Value;
+                }
+            }
+        }
+
         public static IEnumerable<T> unfold<S, T>(S state, Func<S, Option<Tuple<T, S>>> unfolder)
         {
             while (true)

@@ -34,6 +34,19 @@ namespace LanguageExt
                 ? Option<T>.Some(value.Value)
                 : raise<Option<T>>(new ValueIsNullException());
 
+        /// <summary>
+        /// Create an Option
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="value">Non-null value to be made optional</param>
+        /// <returns>If the value is null it will be None else Some(value)</returns>
+        public static Option<T> option<T>(T value) =>
+            value == null
+                ? Option<T>.None
+                : Option<T>.Some(value);
+
         public static T failure<T>(Option<T> option, Func<T> None) =>
             option.Failure(None);
 
