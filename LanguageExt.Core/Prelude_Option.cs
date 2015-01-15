@@ -42,7 +42,7 @@ namespace LanguageExt
         /// <typeparam name="T">T</typeparam>
         /// <param name="value">Non-null value to be made optional</param>
         /// <returns>If the value is null it will be None else Some(value)</returns>
-        public static Option<T> option<T>(T value) =>
+        public static Option<T> Optional<T>(T value) =>
             value == null
                 ? Option<T>.None
                 : Option<T>.Some(value);

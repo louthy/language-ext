@@ -201,7 +201,7 @@ namespace LanguageExtTests
             var list = unfold(e, (state) =>
                            state == null
                                ? None
-                               : option(state.InnerException)
+                               : Optional(state.InnerException)
                                );
 
             var res = list.ToList();
