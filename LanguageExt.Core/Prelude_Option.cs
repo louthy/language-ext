@@ -37,8 +37,6 @@ namespace LanguageExt
         /// <summary>
         /// Create an Option
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="value"></param>
         /// <typeparam name="T">T</typeparam>
         /// <param name="value">Non-null value to be made optional</param>
         /// <returns>If the value is null it will be None else Some(value)</returns>
@@ -46,6 +44,17 @@ namespace LanguageExt
             value == null
                 ? Option<T>.None
                 : Option<T>.Some(value);
+
+        /// <summary>
+        /// Create an Option
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="value">Non-null value to be made optional</param>
+        /// <returns>If the value is null it will be None else Some(value)</returns>
+        public static Option<T> Optional<T>(Nullable<T> value) where T : struct =>
+            value.HasValue
+                ? Option<T>.Some(value.Value)
+                : Option<T>.None;
 
         public static T failure<T>(Option<T> option, Func<T> None) =>
             option.Failure(None);
