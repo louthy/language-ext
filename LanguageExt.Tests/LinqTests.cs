@@ -152,6 +152,74 @@ namespace LanguageExtTests
             Assert.IsTrue(res.Count() == 0);
         }
 
+        [Test]
+        public void WhereOptionTest()
+        {
+            var res1 = from v in GetOptionValue(true)
+                       where v == 10
+                       select v;
+
+            Assert.IsTrue(res1.Failure(0) == 10);
+
+            var res2 = from v in GetOptionValue(false)
+                       where v == 10
+                       select v;
+
+            Assert.IsTrue(res2.Failure(0) == 0);
+        }
+
+        [Test]
+        public void WhereOptionUnsafeTest()
+        {
+            var res1 = from v in GetOptionUnsafeValue(true)
+                       where v == 10
+                       select v;
+
+            Assert.IsTrue(res1.FailureUnsafe(0) == 10);
+
+            var res2 = from v in GetOptionUnsafeValue(false)
+                       where v == 10
+                       select v;
+
+            Assert.IsTrue(res2.FailureUnsafe(0) == 0);
+        }
+
+
+        [Test]
+        public void WhereTryOptionTest()
+        {
+            var res1 = from v in GetTryOptionValue(0)
+                       where v == 10
+                       select v;
+
+            Assert.IsTrue(res1.Failure(0) == 10);
+
+            var res2 = from v in GetTryOptionValue(1)
+                       where v == 10
+                       select v;
+
+            Assert.IsTrue(res2.Failure(0) == 0);
+
+            var res3 = match(from v in GetTryOptionValue(2)
+                             where v == 10
+                             select v,
+                             Some: x  => 1,
+                             None: () => 2,
+                             Fail: ex => 3);
+
+            Assert.IsTrue(res3 == 3);
+        }
+
+        private TryOption<int> GetTryOptionValue(int state) => () =>
+        {
+            switch (state)
+            {
+                case 0: return Some(10);
+                case 1: return None;
+                default: throw new Exception("eerrr");
+            }
+        };
+
         private Option<int> GetOptionValue(bool select) =>
             select
                 ? Some(10)

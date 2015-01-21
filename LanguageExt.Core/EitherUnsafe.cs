@@ -217,7 +217,4 @@ public static class __EitherUnsafeExt
                 ),
             Left: l => EitherUnsafe<VR, L>.Left(l)
             );
-
-    public static bool Where<R, L>(this EitherUnsafe<R, L> self, Func<R, bool> pred) =>
-        self.FilterUnsafe(pred);
 }

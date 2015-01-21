@@ -212,6 +212,8 @@ public static class __OptionExt
             None: () => Option<V>.None
             );
 
-    public static bool Where<T>(this Option<T> self, Func<T, bool> pred) =>
-        self.Filter(pred);
+    public static Option<T> Where<T>(this Option<T> self, Func<T, bool> pred) =>
+        self.Filter(pred)
+            ? self
+            : None;
 }

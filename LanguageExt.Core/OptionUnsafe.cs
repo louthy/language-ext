@@ -205,6 +205,8 @@ public static class __OptionUnsafeExt
             None: () => OptionUnsafe<V>.None
             );
 
-    public static bool Where<T>(this OptionUnsafe<T> self, Func<T, bool> pred) =>
-        self.FilterUnsafe(pred);
+    public static OptionUnsafe<T> Where<T>(this OptionUnsafe<T> self, Func<T, bool> pred) =>
+        self.FilterUnsafe(pred)
+            ? self
+            : None;
 }

@@ -243,7 +243,4 @@ public static class __EitherExt
                 ),
             Left: l => Either<VR, L>.Left(l)
             );
-
-    public static bool Where<R, L>(this Either<R, L> self, Func<R, bool> pred) =>
-        self.Filter(pred);
 }

@@ -38,6 +38,9 @@ namespace LanguageExt
         public static implicit operator TryOptionResult<T>(T value) =>
             new TryOptionResult<T>(Option.Cast(value));
 
+        public static implicit operator TryOptionResult<T>(OptionNone value) =>
+            new TryOptionResult<T>(Option<T>.None);
+
         internal bool IsFaulted => Exception != null;
 
         public override string ToString() =>
@@ -287,8 +290,15 @@ public static class __TryOptionExt
             : res.Value.Exists(pred);
     }
 
-    public static bool Where<T>(this TryOption<T> self, Func<T, bool> pred) =>
-        self.Exists(pred);
+    public static TryOption<T> Where<T>(this TryOption<T> self, Func<T, bool> pred)
+    {
+        var res = self.Try();
+        return res.IsFaulted || res.Value.IsNone
+            ? () => res
+            : pred(res.Value.Value)
+                ? self
+                : () => None;
+    }
 
     public static TryOption<R> Map<T, R>(this TryOption<T> self, Func<T, R> mapper) => () =>
     {
