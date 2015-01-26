@@ -149,6 +149,22 @@ namespace LanguageExt
             }
         }
 
+        public Either<T, L> ToEither<L>(L defaultLeftValue) =>
+            IsSome
+                ? Prelude.Right<T, L>(Value)
+                : Prelude.Left<T, L>(defaultLeftValue);
+
+        public Either<T, L> ToEither<L>(Func<L> Left) =>
+            IsSome
+                ? Prelude.Right<T, L>(Value)
+                : Prelude.Left<T, L>(Left());
+
+        public TryOption<T> ToTryOption<L>(L defaultLeftValue)
+        {
+            var self = this;
+            return () => self;
+        }
+
         public IEnumerator<T> GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 

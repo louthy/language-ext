@@ -22,9 +22,19 @@ namespace LanguageExt
         /// Convert an F# Option into a LanguageExt Option
         /// </summary>
         public static FSharpOption<T> fs<T>(this Option<T> option) =>
-            match(option,
-                  Some: v =>  FSharpOption<T>.Some(v),
-                  None: () => FSharpOption<T>.None);
+            option.IsNone
+                ? FSharpOption<T>.None
+                : match(option,
+                     Some: v =>  FSharpOption<T>.Some(v),
+                     None: () => failwith<FSharpOption<T>>("returns null, so can't use the None branch"));
+
+        /// <summary>
+        /// Convert an F# Option into a LanguageExt Option
+        /// </summary>
+        public static FSharpOption<T> fs<T>(this OptionUnsafe<T> option) =>
+            matchUnsafe(option,
+                Some: v => FSharpOption<T>.Some(v),
+                None: () => FSharpOption<T>.None);
 
         /// <summary>
         /// Convert an F# List into an IEnumerable<T>
