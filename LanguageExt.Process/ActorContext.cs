@@ -118,7 +118,7 @@ namespace LanguageExt
             registered;
 
         public static ProcessId Register(ProcessName name, ProcessId process) =>
-            with(registered as IProcessInternal,
+            map(registered as IProcessInternal,
                 self => match(self.GetChildProcess(name),
                     Some: _ => failwith<IProcess>("Process '"+ name + "' already registered"),
                     None: () => self.AddChildProcess( new ActorProxy(
@@ -128,7 +128,7 @@ namespace LanguageExt
                                                         () => new ActorProxyConfig(process) ) ) ) ).Id;
 
         public static Unit UnRegister(ProcessName name) =>
-            with(registered.Id + ProcessId.Sep.ToString() + name,
+            map(registered.Id + ProcessId.Sep.ToString() + name,
                 id =>
                     Store.ContainsKey(id)
                         ? Process.kill(id)
@@ -141,7 +141,7 @@ namespace LanguageExt
         }
 
         public static IProcess GetProcess(ProcessId pid) =>
-            with(ActorContext.Store, store =>
+            map(ActorContext.Store, store =>
                 store.ContainsKey(pid.Value)
                     ? store[pid.Value]
                     : store[ActorContext.DeadLetters.Value]

@@ -27,16 +27,12 @@ namespace LanguageExt
             this.value = value;
         }
 
-        private OptionUnsafe(T value)
-            : this(value, value != null)
-        { }
-
         public OptionUnsafe()
             : this(default(T), false)
         { }
 
         public static OptionUnsafe<T> Some(T value) =>
-            new OptionUnsafe<T>(value);
+            new OptionUnsafe<T>(value, true);
 
         public static readonly OptionUnsafe<T> None = new OptionUnsafe<T>();
 
@@ -51,12 +47,10 @@ namespace LanguageExt
                 : raise<T>(new OptionIsNoneException());
 
         public static implicit operator OptionUnsafe<T>(T value) =>
-            value == null
-                ? OptionUnsafe<T>.None
-                : OptionUnsafe<T>.Some(value);
+            Some(value);
 
         public static implicit operator OptionUnsafe<T>(OptionNone none) =>
-            OptionUnsafe<T>.None;
+            None;
 
         public R MatchUnsafe<R>(Func<T, R> Some, Func<R> None) =>
             IsSome
@@ -98,9 +92,18 @@ namespace LanguageExt
                 : 0;
 
         public override bool Equals(object obj) =>
-            IsSome && Value != null
-                ? Value.Equals(obj)
-                : false;
+            obj is OptionUnsafe<T>
+                ? map(this, (OptionUnsafe<T>)obj, (lhs, rhs) =>
+                    lhs.IsNone && rhs.IsNone
+                        ? true
+                        : lhs.IsNone || rhs.IsNone
+                            ? false
+                            : lhs.Value == null
+                                ? rhs.Value == null
+                                : lhs.Value.Equals(rhs.Value))
+                : IsSome
+                    ? Value.Equals(obj)
+                    : false;
 
         public int Count =>
             IsSome ? 1 : 0;
@@ -152,6 +155,24 @@ namespace LanguageExt
 
         public ImmutableArray<T> ToArray() =>
             Prelude.toArray(AsEnumerable());
+
+        public static bool operator ==(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
+            lhs.Equals(rhs);
+
+        public static bool operator !=(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
+            !lhs.Equals(rhs);
+
+        public static OptionUnsafe<T> operator |(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
+            lhs.IsSome
+                ? lhs
+                : rhs;
+
+        public static bool operator true(OptionUnsafe<T> value) =>
+            value.IsSome;
+
+        public static bool operator false(OptionUnsafe<T> value) =>
+            value.IsNone;
+
     }
 
     public struct SomeUnsafeContext<T, R>

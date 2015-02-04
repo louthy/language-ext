@@ -100,9 +100,16 @@ namespace LanguageExt
                 : 0;
 
         public override bool Equals(object obj) =>
-            IsSome && Value != null
-                ? Value.Equals(obj)
-                : false;
+            obj is Option<T>
+                ? map(this, (Option<T>)obj, (lhs, rhs) =>
+                      lhs.IsNone && rhs.IsNone
+                          ? true
+                          : lhs.IsNone || rhs.IsNone
+                              ? false
+                              : lhs.Value.Equals(rhs.Value))
+                : IsSome
+                    ? Value.Equals(obj)
+                    : false;
 
         public int Count =>
             IsSome ? 1 : 0;
@@ -170,6 +177,23 @@ namespace LanguageExt
 
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
+
+        public static bool operator ==(Option<T> lhs, Option<T> rhs) =>
+            lhs.Equals(rhs);
+
+        public static bool operator !=(Option<T> lhs, Option<T> rhs) =>
+            !lhs.Equals(rhs);
+
+        public static Option<T> operator |(Option<T> lhs, Option<T> rhs) =>
+            lhs.IsSome
+                ? lhs
+                : rhs;
+
+        public static bool operator true(Option<T> value) =>
+            value.IsSome;
+
+        public static bool operator false(Option<T> value) =>
+            value.IsNone;
     }
 
     public struct SomeContext<T, R>

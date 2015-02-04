@@ -67,7 +67,7 @@ namespace LanguageExt
         /// <param name="messageHandler">Function that is the process</param>
         /// <returns>A ProcessId that can be passed around</returns>
         public static ProcessId spawn<S, T>(ProcessName name, Func<S> setup, Func<S, T, S> messageHandler) =>
-            with((IProcessInternal)ActorContext.Self,
+            map((IProcessInternal)ActorContext.Self,
                 self => match(self.GetChildProcess(name),
                             Some: _ => raise<IProcess>(new NamedProcessAlreadyExistsException()),
                             None: () => self.AddChildProcess(new Actor<S, T>(ActorContext.Self.Id, name, messageHandler, setup))).Id
@@ -133,7 +133,7 @@ namespace LanguageExt
         /// <param name="pid">Process ID</param>
         /// <param name="message">Message to send</param>
         public static Unit tell<T>(ProcessId pid, T message, ProcessId sender = default(ProcessId) ) =>
-            with((IProcessInternal)ActorContext.GetProcess(pid),
+            map((IProcessInternal)ActorContext.GetProcess(pid),
                 pi => 
                     message is SystemMessage
                         ? pi.TellSystem(message as SystemMessage)

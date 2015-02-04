@@ -112,14 +112,20 @@ namespace LanguageExt
                     ? 0
                     : LeftValue.GetHashCode();
 
+
         public override bool Equals(object obj) =>
-            IsRight
-                ? RightValue == null
-                    ? false
-                    : RightValue.Equals(obj)
-                : LeftValue == null
-                    ? false
-                    : LeftValue.Equals(obj);
+            obj is EitherUnsafe<R, L>
+                ? map(this, (EitherUnsafe<R, L>)obj, (lhs, rhs) =>
+                      lhs.IsLeft && rhs.IsLeft
+                          ? lhs.LeftValue == null 
+                                ? rhs.LeftValue == null
+                                : lhs.LeftValue.Equals(rhs.LeftValue)
+                          : lhs.IsLeft || rhs.IsLeft
+                              ? false
+                              : lhs.RightValue == null
+                                    ? rhs.RightValue == null
+                                    : lhs.RightValue.Equals(rhs.RightValue))
+                : false;
 
         private U CheckInitialised<U>(U value) =>
             state == EitherState.IsUninitialised
@@ -162,6 +168,23 @@ namespace LanguageExt
 
         public ImmutableArray<R> ToArray() =>
             Prelude.toArray(AsEnumerable());
+
+        public static bool operator ==(EitherUnsafe<R, L> lhs, EitherUnsafe<R, L> rhs) =>
+            lhs.Equals(rhs);
+
+        public static bool operator !=(EitherUnsafe<R, L> lhs, EitherUnsafe<R, L> rhs) =>
+            !lhs.Equals(rhs);
+
+        public static EitherUnsafe<R, L> operator |(EitherUnsafe<R, L> lhs, EitherUnsafe<R, L> rhs) =>
+            lhs.IsRight
+                ? lhs
+                : rhs;
+
+        public static bool operator true(EitherUnsafe<R, L> value) =>
+            value.IsRight;
+
+        public static bool operator false(EitherUnsafe<R, L> value) =>
+            value.IsLeft;
 
         public IEnumerable<R> AsEnumerable()
         {

@@ -8,46 +8,50 @@ namespace LanguageExtTests
     [TestFixture]
     public class OptionTests
     {
-        [Test] public void SomeGeneratorTestsObject()
+        [Test]
+        public void SomeGeneratorTestsObject()
         {
             var optional = Some(123);
 
-            optional.Match( Some: i  => Assert.IsTrue(i == 123),
-                            None: () => Assert.Fail("Shouldn't get here") );
+            optional.Match(Some: i => Assert.IsTrue(i == 123),
+                           None: () => Assert.Fail("Shouldn't get here"));
 
-            int c = optional.Match( Some: i  => i + 1, 
-                                    None: () => 0 );
+            int c = optional.Match(Some: i => i + 1,
+                                   None: () => 0);
 
             Assert.IsTrue(c == 124);
         }
 
-        [Test] public void SomeGeneratorTestsFunction()
+        [Test]
+        public void SomeGeneratorTestsFunction()
         {
             var optional = Some(123);
 
-            match(optional, Some: i  => Assert.IsTrue(i == 123),
-                            None: () => Assert.Fail("Shouldn't get here") );
+            match(optional, Some: i => Assert.IsTrue(i == 123),
+                            None: () => Assert.Fail("Shouldn't get here"));
 
             int c = match(optional, Some: i => i + 1,
-                                    None: () => 0 );
+                                    None: () => 0);
 
             Assert.IsTrue(c == 124);
         }
 
-        [Test] public void NoneGeneratorTestsObject()
+        [Test]
+        public void NoneGeneratorTestsObject()
         {
             Option<int> optional = None;
 
             optional.Match(Some: i => Assert.Fail("Shouldn't get here"),
                            None: () => Assert.IsTrue(true));
 
-            int c = optional.Match( Some: i => i + 1,
-                                    None: () => 0);
+            int c = optional.Match(Some: i => i + 1,
+                                   None: () => 0);
 
             Assert.IsTrue(c == 0);
         }
 
-        [Test] public void NoneGeneratorTestsFunction()
+        [Test]
+        public void NoneGeneratorTestsFunction()
         {
             Option<int> optional = None;
 
@@ -60,36 +64,39 @@ namespace LanguageExtTests
             Assert.IsTrue(c == 0);
         }
 
-        [Test] public void SomeLinqTest()
+        [Test]
+        public void SomeLinqTest()
         {
             var two = Some(2);
             var four = Some(4);
             var six = Some(6);
 
-           match( from x in two
+            match(from x in two
                   from y in four
                   from z in six
                   select x + y + z,
-                  Some: v => Assert.IsTrue(v == 12),
-                  None: failwith("Shouldn't get here") );
+                   Some: v => Assert.IsTrue(v == 12),
+                   None: failwith("Shouldn't get here"));
         }
 
-        [Test] public void NoneLinqTest()
+        [Test]
+        public void NoneLinqTest()
         {
             var two = Some(2);
             var four = Some(4);
             var six = Some(6);
 
-            match( from x in two
-                   from y in four
-                   from _ in Option<int>.None
-                   from z in six
-                   select x + y + z,
+            match(from x in two
+                  from y in four
+                  from _ in Option<int>.None
+                  from z in six
+                  select x + y + z,
                    Some: v => failwith<int>("Shouldn't get here"),
-                   None: () => Assert.IsTrue(true) );
+                   None: () => Assert.IsTrue(true));
         }
 
-        [Test] public void NullIsNotSomeTest()
+        [Test]
+        public void NullIsNotSomeTest()
         {
             Assert.Throws(
                 typeof(ValueIsNullException),
@@ -100,12 +107,14 @@ namespace LanguageExtTests
             );
         }
 
-        [Test] public void NullIsNoneTest()
+        [Test]
+        public void NullIsNoneTest()
         {
             Assert.IsTrue(GetStringNone2().IsNone);
         }
 
-        [Test] public void OptionFluentSomeNoneTest()
+        [Test]
+        public void OptionFluentSomeNoneTest()
         {
             int res1 = GetValue(true)
                         .Some(x => x + 10)
@@ -119,15 +128,16 @@ namespace LanguageExtTests
             Assert.IsTrue(res2 == 0);
         }
 
-        [Test] public void NullInSomeOrNoneTest()
+        [Test]
+        public void NullInSomeOrNoneTest()
         {
             Assert.Throws(
                 typeof(ResultIsNullException),
                 () =>
                 {
-                   GetValue(true)
-                      .Some(x => (string)null)
-                      .None((string)null);
+                    GetValue(true)
+                       .Some(x => (string)null)
+                       .None((string)null);
                 }
             );
 
@@ -142,7 +152,8 @@ namespace LanguageExtTests
             );
         }
 
-        [Test] public void NullableTest()
+        [Test]
+        public void NullableTest()
         {
             var res = GetNullable(true)
                         .Some(v => v)
@@ -181,8 +192,8 @@ namespace LanguageExtTests
 
         private Option<int> GetNullable(bool select) =>
             select
-                ? Some( (int?)1000 )
-                : Some( (int?)null );
+                ? Some((int?)1000)
+                : Some((int?)null);
 
         private Option<int> GetValue(bool select) =>
             select

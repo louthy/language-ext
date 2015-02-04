@@ -22,7 +22,7 @@ namespace LanguageExtTests
         public void EmptyStackPop()
         {
             var test = stack<int>();
-            var res = with(pop(test), (stack, value) => value);
+            var res = map(pop(test), (stack, value) => value);
 
             Assert.IsTrue(res.IsNone);
         }
@@ -50,10 +50,10 @@ namespace LanguageExtTests
 
         public void Popping5(IImmutableStack<int> test)
         {
-            test = with(pop(test), (stack, value) => { Assert.IsTrue(value.IsSome); return stack; });
-            test = with(pop(test), (stack, value) => { Assert.IsTrue(value.IsSome); return stack; });
-            test = with(pop(test), (stack, value) => { Assert.IsTrue(value.IsSome); return stack; });
-            test = with(pop(test), (stack, value) => { Assert.IsTrue(value.IsSome); return stack; });
+            test = map(pop(test), (stack, value) => { Assert.IsTrue(value.IsSome); return stack; });
+            test = map(pop(test), (stack, value) => { Assert.IsTrue(value.IsSome); return stack; });
+            test = map(pop(test), (stack, value) => { Assert.IsTrue(value.IsSome); return stack; });
+            test = map(pop(test), (stack, value) => { Assert.IsTrue(value.IsSome); return stack; });
             match(peek(test),
                 Some: v => Assert.IsTrue(v == 1),
                 None: () => Assert.Fail()
@@ -83,7 +83,7 @@ namespace LanguageExtTests
         }
 
         public int Sum(IImmutableStack<int> stack) =>
-            with( pop(stack), (newstack, option) =>
+            map( pop(stack), (newstack, option) =>
                 match(option,
                     Some: value => value + Sum(newstack),
                     None: ()    => 0

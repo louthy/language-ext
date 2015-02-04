@@ -130,13 +130,14 @@ namespace LanguageExt
                     : LeftValue.GetHashCode();
 
         public override bool Equals(object obj) =>
-            IsRight
-                ? RightValue == null
-                    ? false
-                    : RightValue.Equals(obj)
-                : LeftValue == null
-                    ? false
-                    : LeftValue.Equals(obj);
+            obj is Either<R, L>
+                ? map(this, (Either<R, L>)obj, (lhs, rhs) =>
+                      lhs.IsLeft && rhs.IsLeft
+                          ? lhs.LeftValue.Equals(rhs.LeftValue)
+                          : lhs.IsLeft || rhs.IsLeft
+                              ? false
+                              : lhs.RightValue.Equals(rhs.RightValue))
+                : false;
 
         private U CheckInitialised<U>(U value) =>
             state == EitherState.IsUninitialised
@@ -193,6 +194,23 @@ namespace LanguageExt
 
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
+
+        public static bool operator ==(Either<R, L> lhs, Either<R, L> rhs) =>
+            lhs.Equals(rhs);
+
+        public static bool operator !=(Either<R, L> lhs, Either<R, L> rhs) =>
+            !lhs.Equals(rhs);
+
+        public static Either<R, L> operator |(Either<R, L> lhs, Either<R, L> rhs) =>
+            lhs.IsRight
+                ? lhs
+                : rhs;
+
+        public static bool operator true(Either<R, L> value) =>
+            value.IsRight;
+
+        public static bool operator false(Either<R, L> value) =>
+            value.IsLeft;
 
         private static Either<NR, NL> CastRight<NR, NL>(NR right) =>
             right == null

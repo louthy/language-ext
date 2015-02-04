@@ -77,13 +77,13 @@ namespace LanguageExt
         /// </summary>
         private void StartMailboxes()
         {
-            with(FSHelper.StartUserMailbox(this, Parent, actorFn, setupFn), (q, mb) =>
+            map(FSHelper.StartUserMailbox(this, Parent, actorFn, setupFn), (q, mb) =>
             {
                 userMailboxQuit = q;
                 userMailbox = mb;
             });
 
-            with(FSHelper.StartSystemMailbox(this, Parent), (q, mb) =>
+            map(FSHelper.StartSystemMailbox(this, Parent), (q, mb) =>
             {
                 systemMailboxQuit = q;
                 systemMailbox = mb;

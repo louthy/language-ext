@@ -54,6 +54,8 @@
     <Compile Include="MemoTests.cs" />
     <Compile Include="EitherTests.cs" />
     <Compile Include="NonNullTests.cs" />
+    <Compile Include="EitherCoalesceTests.cs" />
+    <Compile Include="OptionCoalesceTests.cs" />
     <Compile Include="OptionTests.cs" />
     <Compile Include="ProcessTests.cs" />
     <Compile Include="StackTests.cs" />

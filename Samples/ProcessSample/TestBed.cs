@@ -17,9 +17,27 @@ namespace ProcessSample
     {
         public static void RunTests()
         {
+            UnsafeOptionTest();
             MassiveSpawnAndKillHierarchy();
             SpawnAndKillProcess();
             SpawnAndKillHierarchy();
+        }
+
+        public static void UnsafeOptionTest()
+        {
+            string empty = null;
+            OptionUnsafe<string> optional1 = None;
+            OptionUnsafe<string> optional2 = None;
+
+            var value = optional1 || optional2 || SomeUnsafe(empty);
+            if (value == "fred")
+            {
+                Console.WriteLine("Yay");
+            }
+            else
+            {
+                Console.WriteLine("Nay");
+            }
         }
 
         public static void SpawnAndKillProcess()
