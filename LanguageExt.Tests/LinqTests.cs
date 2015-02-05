@@ -210,6 +210,20 @@ namespace LanguageExtTests
             Assert.IsTrue(res3 == 3);
         }
 
+        [Test]
+        public void OptionAndOrTest()
+        {
+            Option<int> optional1 = None;
+            Option<int> optional2 = Some(10);
+            Option<int> optional3 = Some(20);
+
+            var res = from x in optional1 || optional2
+                      from y in optional3
+                      select x + y;
+
+            Assert.IsTrue(res == Some(30));
+        }
+
         private TryOption<int> GetTryOptionValue(int state) => () =>
         {
             switch (state)
