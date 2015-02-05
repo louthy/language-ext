@@ -41,16 +41,16 @@ I've been crying out for proper tuple support for ages.  It looks like we're no 
 
 Now isn't that nice?  I chose the lower-case `tuple` to avoid conflicts between other types and existing code.  I think also tuples should be considered fundamental like `int`, and therefore deserves a lower-case name.  
 
-Consuming the tuple is now handled using `With`, which projects the `Item1`...`ItemN` onto a lambda function (or action):
+Consuming the tuple is now handled using `Map`, which projects the `Item1`...`ItemN` onto a lambda function (or action):
 
 ```C#
     var name = tuple("Paul","Louth");
-    var res = name.With( (first,last) => "Hello \{first} \{last}" );
+    var res = name.Map( (first,last) => "Hello \{first} \{last}" );
 ```
 Or, you can use a more functional approach:
 ```C#
     var name = tuple("Paul","Louth");
-    var res = with( name, (first,last) => "Hello \{first} \{last}" );
+    var res = map( name, (first,last) => "Hello \{first} \{last}" );
 ```
 This allows the tuple properties to have names, and it also allows for fluent handling of functions that return tuples.
 
@@ -97,7 +97,7 @@ Yet another alternative matching method is this:
 ```
 So choose your preferred method and stick with it.  It's probably best not to mix styles.
 
-To smooth out the process of returning Option<T> types from methods there are some implicit conversion operators:
+To smooth out the process of returning `Option<T>` types from methods there are some implicit conversion operators and constructors:
 
 ```C#
     // Automatically converts the integer to a Some of int
@@ -111,6 +111,20 @@ To smooth out the process of returning Option<T> types from methods there are so
         select
             ? Some(1000)
             : None;
+            
+    // Converts a null value to None and a non-null value to Some(value)
+    Option<string> GetValue()
+    {
+        string value = GetValueFromNonTrustedApi();
+        return Optional(value);
+    }
+            
+    // Converts a null value to None and a non-null value to Some(value)
+    Option<string> GetValue()
+    {
+        string value = GetValueFromNonTrustedApi();
+        return value;
+    }
 ```
 
 It's actually nearly impossible to get a `null` out of a function, even if the `T` in `Option<T>` is a reference type and you write `Some(null)`.  Firstly it won't compile, but you might think you can do this:
@@ -123,7 +137,7 @@ It's actually nearly impossible to get a `null` out of a function, even if the `
     }
 ```
 
-That will compile, but at runtime will throw a `ValueIsNullException`.  If you do this (below) you'll get a `None`.  
+That will compile, but at runtime will throw a `ValueIsNullException`.  If you do either of these (below) you'll get a `None`.  
 
 ```C#
     private Option<string> GetStringNone()
@@ -131,6 +145,13 @@ That will compile, but at runtime will throw a `ValueIsNullException`.  If you d
         string nullStr = null;
         return nullStr;
     }
+
+    private Option<string> GetStringNone()
+    {
+        string nullStr = null;
+        return Optional(nullStr);
+    }
+
 ```
 
 These are the coercion rules:
@@ -146,6 +167,10 @@ Converts from |  Converts to
 `Some(Some(x))` | `Some(Some(x))`
 `Some(Nullable null)` | `ValueIsNullException`
 `Some(Nullable x)` | `Some(x)`
+`Optional(x)` | `Some(x)`
+`Optional(null)` | `None`
+`Optional(Nullable null)` | `None`
+`Optional(Nullable x)` | `Some(x)`
 
 
 As well as the protection of the internal value of `Option<T>`, there's protection for the return value of the `Some` and `None` handler functions.  You can't return `null` from those either, an exception will be thrown.
