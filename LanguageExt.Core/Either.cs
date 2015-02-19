@@ -8,7 +8,7 @@ using System.Collections.Immutable;
 
 namespace LanguageExt
 {
-    public struct Either<R, L> : IEnumerable<R>
+    public struct Either<L, R> : IEnumerable<R>
     {
         enum EitherState : byte
         {
@@ -35,17 +35,17 @@ namespace LanguageExt
             this.left = left;
         }
 
-        internal static Either<R, L> Right(R value) => 
-            new Either<R, L>(value);
+        internal static Either<L, R> Right(R value) => 
+            new Either<L, R>(value);
 
-        internal static Either<R, L> Left(L value) => 
-            new Either<R, L>(value);
+        internal static Either<L, R> Left(L value) => 
+            new Either<L, R>(value);
 
-        internal static Either<R, L> RightUnsafe(R value) =>
-            new Either<R, L>(value);
+        internal static Either<L, R> RightUnsafe(R value) =>
+            new Either<L, R>(value);
 
-        internal static Either<R, L> LeftUnsafe(L value) =>
-            new Either<R, L>(value);
+        internal static Either<L, R> LeftUnsafe(L value) =>
+            new Either<L, R>(value);
 
         public bool IsRight =>
             CheckInitialised(state == EitherState.IsRight);
@@ -67,15 +67,15 @@ namespace LanguageExt
                     : raise<L>(new EitherIsNotLeftException())
             );
 
-        public static implicit operator Either<R, L>(R value) =>
+        public static implicit operator Either<L, R>(R value) =>
             value == null
-                ? raise<Either<R, L>>(new ValueIsNullException())
-                : Either<R, L>.Right(value);
+                ? raise<Either<L, R>>(new ValueIsNullException())
+                : Either<L, R>.Right(value);
 
-        public static implicit operator Either<R, L>(L value) =>
+        public static implicit operator Either<L, R>(L value) =>
             value == null
-                ? raise<Either<R, L>>(new ValueIsNullException())
-                : Either<R, L>.Left(value);
+                ? raise<Either<L, R>>(new ValueIsNullException())
+                : Either<L, R>.Left(value);
 
 
         private T CheckNullReturn<T>(T value, string location) =>
@@ -130,8 +130,8 @@ namespace LanguageExt
                     : LeftValue.GetHashCode();
 
         public override bool Equals(object obj) =>
-            obj is Either<R, L>
-                ? map(this, (Either<R, L>)obj, (lhs, rhs) =>
+            obj is Either<L, R>
+                ? map(this, (Either<L, R>)obj, (lhs, rhs) =>
                       lhs.IsLeft && rhs.IsLeft
                           ? lhs.LeftValue.Equals(rhs.LeftValue)
                           : lhs.IsLeft || rhs.IsLeft
@@ -147,7 +147,7 @@ namespace LanguageExt
         public int Count =>
             IsRight ? 1 : 0;
 
-        public bool ForAll(Func<R,bool> pred) =>
+        public bool ForAll(Func<R, bool> pred) =>
             IsRight
                 ? pred(RightValue)
                 : true;
@@ -162,24 +162,24 @@ namespace LanguageExt
                 ? pred(RightValue)
                 : false;
 
-        public Either<Ret,L> Map<Ret>(Func<R, Ret> mapper) =>
+        public Either<L, Ret> Map<Ret>(Func<R, Ret> mapper) =>
             IsRight
-                ? CastRight<Ret, L>(mapper(RightValue))
-                : Either<Ret, L>.Left(LeftValue);
+                ? CastRight<L, Ret>(mapper(RightValue))
+                : Either<L, Ret>.Left(LeftValue);
 
         public bool Filter(Func<R, bool> pred) =>
             Exists(pred);
 
-        public Either<Ret,L> Bind<Ret>(Func<R, Either<Ret,L>> binder) =>
+        public Either<L, Ret> Bind<Ret>(Func<R, Either<L, Ret>> binder) =>
             IsRight
                 ? binder(RightValue)
-                : Either<Ret, L>.Left(LeftValue);
+                : Either<L, Ret>.Left(LeftValue);
 
         public IImmutableList<R> ToList() =>
-            Prelude.toList(AsEnumerable());
+            toList(AsEnumerable());
 
         public ImmutableArray<R> ToArray() =>
-            Prelude.toArray(AsEnumerable());
+            toArray(AsEnumerable());
 
         public IEnumerable<R> AsEnumerable()
         {
@@ -195,40 +195,40 @@ namespace LanguageExt
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 
-        public static bool operator ==(Either<R, L> lhs, Either<R, L> rhs) =>
+        public static bool operator ==(Either<L, R> lhs, Either<L, R> rhs) =>
             lhs.Equals(rhs);
 
-        public static bool operator !=(Either<R, L> lhs, Either<R, L> rhs) =>
+        public static bool operator !=(Either<L, R> lhs, Either<L, R> rhs) =>
             !lhs.Equals(rhs);
 
-        public static Either<R, L> operator |(Either<R, L> lhs, Either<R, L> rhs) =>
+        public static Either<L, R> operator |(Either<L, R> lhs, Either<L, R> rhs) =>
             lhs.IsRight
                 ? lhs
                 : rhs;
 
-        public static bool operator true(Either<R, L> value) =>
+        public static bool operator true(Either<L, R> value) =>
             value.IsRight;
 
-        public static bool operator false(Either<R, L> value) =>
+        public static bool operator false(Either<L, R> value) =>
             value.IsLeft;
 
-        private static Either<NR, NL> CastRight<NR, NL>(NR right) =>
+        private static Either<NL, NR> CastRight<NL, NR>(NR right) =>
             right == null
-                ? raise<Either<NR, NL>>(new ValueIsNullException())
-                : Either<NR, NL>.Right(right);
+                ? raise<Either<NL, NR>>(new ValueIsNullException())
+                : Either<NL, NR>.Right(right);
 
-        private static Either<NR, NL> CastLeft<NR, NL>(NL left) =>
+        private static Either<NL, NR> CastLeft<NL, NR>(NL left) =>
             left == null
-                ? raise<Either<NR, NL>>(new ValueIsNullException())
-                : Either<NR, NL>.Left(left);
+                ? raise<Either<NL, NR>>(new ValueIsNullException())
+                : Either<NL, NR>.Left(left);
     }
 
     public struct EitherContext<R, L, Ret>
     {
-        readonly Either<R, L> either;
+        readonly Either<L, R> either;
         readonly Func<R, Ret> rightHandler;
 
-        internal EitherContext(Either<R,L> either, Func<R, Ret> rightHandler)
+        internal EitherContext(Either<L, R> either, Func<R, Ret> rightHandler)
         {
             this.either = either;
             this.rightHandler = rightHandler;
@@ -243,22 +243,22 @@ namespace LanguageExt
 
 public static class __EitherExt
 {
-    public static Either<UR, L> Select<TR, UR, L>(this Either<TR, L> self, Func<TR, UR> map) =>
+    public static Either<L, UR> Select<L, TR, UR>(this Either<L, TR> self, Func<TR, UR> map) =>
         match(self,
-            Right: t => Either<UR, L>.Right(map(t)),
-            Left: l => Either<UR, L>.Left(l)
+            Right: t => Either<L, UR>.Right(map(t)),
+            Left: l => Either<L, UR>.Left(l)
             );
 
-    public static Either<VR, L> SelectMany<TR, UR, VR, L>(this Either<TR, L> self,
-        Func<TR, Either<UR, L>> bind,
+    public static Either<L, VR> SelectMany<L, TR, UR, VR>(this Either<L, TR> self,
+        Func<TR, Either<L, UR>> bind,
         Func<TR, UR, VR> project
         ) =>
         match(self,
             Right: t =>
                 match(bind(t),
-                    Right: u => Either<VR, L>.Right(project(t, u)),
-                    Left: l => Either<VR, L>.Left(l)
+                    Right: u => Either<L, VR>.Right(project(t, u)),
+                    Left: l => Either<L, VR>.Left(l)
                 ),
-            Left: l => Either<VR, L>.Left(l)
+            Left: l => Either<L, VR>.Left(l)
             );
 }

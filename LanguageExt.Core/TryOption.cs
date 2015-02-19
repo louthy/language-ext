@@ -316,7 +316,7 @@ public static class __TryOptionExt
             : new TryOptionResult<R>(res.Exception);
     };
 
-    public static IEnumerable<Either<T, Exception>> AsEnumerable<T>(this TryOption<T> self)
+    public static IEnumerable<Either<Exception, T>> AsEnumerable<T>(this TryOption<T> self)
     {
         var res = self.Try();
 
@@ -330,10 +330,10 @@ public static class __TryOptionExt
         }
     }
 
-    public static IImmutableList<Either<T, Exception>> ToList<T>(this TryOption<T> self) =>
+    public static IImmutableList<Either<Exception, T>> ToList<T>(this TryOption<T> self) =>
         toList(self.AsEnumerable());
 
-    public static ImmutableArray<Either<T, Exception>> ToArray<T>(this TryOption<T> self) =>
+    public static ImmutableArray<Either<Exception, T>> ToArray<T>(this TryOption<T> self) =>
         toArray(self.AsEnumerable());
 
     public static TrySomeContext<T, R> Some<T, R>(this TryOption<T> self, Func<T, R> someHandler) =>

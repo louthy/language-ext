@@ -8,7 +8,7 @@ using System.Collections.Immutable;
 
 namespace LanguageExt
 {
-    public struct EitherUnsafe<R, L> : IEnumerable<R>
+    public struct EitherUnsafe<L, R> : IEnumerable<R>
     {
         enum EitherState : byte
         {
@@ -35,11 +35,11 @@ namespace LanguageExt
             this.left = left;
         }
 
-        internal static EitherUnsafe<R, L> Right(R value) => 
-            new EitherUnsafe<R, L>(value);
+        internal static EitherUnsafe<L, R> Right(R value) => 
+            new EitherUnsafe<L, R>(value);
 
-        internal static EitherUnsafe<R, L> Left(L value) => 
-            new EitherUnsafe<R, L>(value);
+        internal static EitherUnsafe<L, R> Left(L value) => 
+            new EitherUnsafe<L, R>(value);
 
         public bool IsRight =>
             CheckInitialised(state == EitherState.IsRight);
@@ -61,11 +61,11 @@ namespace LanguageExt
                     : raise<L>(new EitherIsNotLeftException())
             );
 
-        public static implicit operator EitherUnsafe<R, L>(R value) =>
-            EitherUnsafe<R, L>.Right(value);
+        public static implicit operator EitherUnsafe<L, R>(R value) =>
+            EitherUnsafe<L, R>.Right(value);
 
-        public static implicit operator EitherUnsafe<R, L>(L value) =>
-            EitherUnsafe<R, L>.Left(value);
+        public static implicit operator EitherUnsafe<L, R>(L value) =>
+            EitherUnsafe<L, R>.Left(value);
 
         public Ret MatchUnsafe<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
             IsRight
@@ -91,8 +91,8 @@ namespace LanguageExt
         public R FailureUnsafe(R noneValue) =>
             MatchUnsafe(identity, _ => noneValue);
 
-        public EitherUnsafeContext<R, L, Ret> Right<Ret>(Func<R, Ret> rightHandler) =>
-            new EitherUnsafeContext<R, L, Ret>(this, rightHandler);
+        public EitherUnsafeContext<L, R, Ret> Right<Ret>(Func<R, Ret> rightHandler) =>
+            new EitherUnsafeContext<L, R, Ret>(this, rightHandler);
 
         public override string ToString() =>
             IsRight
@@ -114,8 +114,8 @@ namespace LanguageExt
 
 
         public override bool Equals(object obj) =>
-            obj is EitherUnsafe<R, L>
-                ? map(this, (EitherUnsafe<R, L>)obj, (lhs, rhs) =>
+            obj is EitherUnsafe<L, R>
+                ? map(this, (EitherUnsafe<L, R>)obj, (lhs, rhs) =>
                       lhs.IsLeft && rhs.IsLeft
                           ? lhs.LeftValue == null 
                                 ? rhs.LeftValue == null
@@ -150,18 +150,18 @@ namespace LanguageExt
                 ? pred(RightValue)
                 : false;
 
-        public EitherUnsafe<Ret, L> MapUnsafe<Ret>(Func<R, Ret> mapper) =>
+        public EitherUnsafe<L, Ret> MapUnsafe<Ret>(Func<R, Ret> mapper) =>
             IsRight
                 ? mapper(RightValue)
-                : EitherUnsafe<Ret, L>.Left(LeftValue);
+                : EitherUnsafe<L, Ret>.Left(LeftValue);
 
         public bool FilterUnsafe(Func<R, bool> pred) =>
             ExistsUnsafe(pred);
 
-        public EitherUnsafe<Ret, L> BindUnsafe<Ret>(Func<R, EitherUnsafe<Ret, L>> binder) =>
+        public EitherUnsafe<L, Ret> BindUnsafe<Ret>(Func<R, EitherUnsafe<L, Ret>> binder) =>
             IsRight
                 ? binder(RightValue)
-                : EitherUnsafe<Ret, L>.Left(LeftValue);
+                : EitherUnsafe<L, Ret>.Left(LeftValue);
 
         public IImmutableList<R> ToList() =>
             Prelude.toList(AsEnumerable());
@@ -169,21 +169,21 @@ namespace LanguageExt
         public ImmutableArray<R> ToArray() =>
             Prelude.toArray(AsEnumerable());
 
-        public static bool operator ==(EitherUnsafe<R, L> lhs, EitherUnsafe<R, L> rhs) =>
+        public static bool operator ==(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
             lhs.Equals(rhs);
 
-        public static bool operator !=(EitherUnsafe<R, L> lhs, EitherUnsafe<R, L> rhs) =>
+        public static bool operator !=(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
             !lhs.Equals(rhs);
 
-        public static EitherUnsafe<R, L> operator |(EitherUnsafe<R, L> lhs, EitherUnsafe<R, L> rhs) =>
+        public static EitherUnsafe<L, R> operator |(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
             lhs.IsRight
                 ? lhs
                 : rhs;
 
-        public static bool operator true(EitherUnsafe<R, L> value) =>
+        public static bool operator true(EitherUnsafe<L, R> value) =>
             value.IsRight;
 
-        public static bool operator false(EitherUnsafe<R, L> value) =>
+        public static bool operator false(EitherUnsafe<L, R> value) =>
             value.IsLeft;
 
         public IEnumerable<R> AsEnumerable()
@@ -202,12 +202,12 @@ namespace LanguageExt
 
     }
 
-    public struct EitherUnsafeContext<R, L, Ret>
+    public struct EitherUnsafeContext<L, R, Ret>
     {
-        readonly EitherUnsafe<R, L> either;
+        readonly EitherUnsafe<L, R> either;
         readonly Func<R, Ret> rightHandler;
 
-        internal EitherUnsafeContext(EitherUnsafe<R,L> either, Func<R, Ret> rightHandler)
+        internal EitherUnsafeContext(EitherUnsafe<L, R> either, Func<R, Ret> rightHandler)
         {
             this.either = either;
             this.rightHandler = rightHandler;
@@ -222,22 +222,22 @@ namespace LanguageExt
 
 public static class __EitherUnsafeExt
 {
-    public static EitherUnsafe<UR, L> Select<TR, UR, L>(this EitherUnsafe<TR, L> self, Func<TR, UR> map) =>
+    public static EitherUnsafe<L, UR> Select<L, TR, UR>(this EitherUnsafe<L, TR> self, Func<TR, UR> map) =>
         matchUnsafe(self,
-            Right: t => EitherUnsafe<UR, L>.Right(map(t)),
-            Left: l => EitherUnsafe<UR, L>.Left(l)
+            Right: t => EitherUnsafe<L, UR>.Right(map(t)),
+            Left: l => EitherUnsafe<L, UR>.Left(l)
             );
 
-    public static EitherUnsafe<VR, L> SelectMany<TR, UR, VR, L>(this EitherUnsafe<TR, L> self,
-        Func<TR, EitherUnsafe<UR, L>> bind,
+    public static EitherUnsafe<L, VR> SelectMany<L, TR, UR, VR>(this EitherUnsafe<L, TR> self,
+        Func<TR, EitherUnsafe<L, UR>> bind,
         Func<TR, UR, VR> project
         ) =>
         matchUnsafe(self,
             Right: t =>
                 matchUnsafe(bind(t),
-                    Right: u => EitherUnsafe<VR, L>.Right(project(t, u)),
-                    Left: l => EitherUnsafe<VR, L>.Left(l)
+                    Right: u => EitherUnsafe<L, VR>.Right(project(t, u)),
+                    Left: l => EitherUnsafe<L, VR>.Left(l)
                 ),
-            Left: l => EitherUnsafe<VR, L>.Left(l)
+            Left: l => EitherUnsafe<L, VR>.Left(l)
             );
 }

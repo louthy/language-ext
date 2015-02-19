@@ -156,15 +156,15 @@ namespace LanguageExt
             }
         }
 
-        public Either<T, L> ToEither<L>(L defaultLeftValue) =>
+        public Either<L, T> ToEither<L>(L defaultLeftValue) =>
             IsSome
-                ? Prelude.Right<T, L>(Value)
-                : Prelude.Left<T, L>(defaultLeftValue);
+                ? Prelude.Right<L, T>(Value)
+                : Prelude.Left<L, T>(defaultLeftValue);
 
-        public Either<T, L> ToEither<L>(Func<L> Left) =>
+        public Either<L, T> ToEither<L>(Func<L> Left) =>
             IsSome
-                ? Prelude.Right<T, L>(Value)
-                : Prelude.Left<T, L>(Left());
+                ? Prelude.Right<L, T>(Value)
+                : Prelude.Left<L, T>(Left());
 
         public TryOption<T> ToTryOption<L>(L defaultLeftValue)
         {

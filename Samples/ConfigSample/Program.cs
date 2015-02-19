@@ -70,7 +70,7 @@ namespace ConfigSample
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static Either<int, string> GetIntegerValue(Some<string> key) =>
+        public static Either<string, int> GetIntegerValue(Some<string> key) =>
             match
             (
                 GetValue(key),
@@ -78,10 +78,10 @@ namespace ConfigSample
                     match
                     (
                         parseInt(str),
-                        Some: result => Right<int, string>(result),
-                        None: () => Left<int, string>("Not a valid int: " + str)
+                        Some: result => Right<string, int>(result),
+                        None: () => Left<string, int>("Not a valid int: " + str)
                     ),
-                None: () => Left<int, string>("Key doesn't exist: " + key)
+                None: () => Left<string, int>("Key doesn't exist: " + key)
             );
     }
 }

@@ -244,7 +244,7 @@ namespace LanguageExtTests
                 ? SomeUnsafe(10)
                 : None;
 
-        private Either<int, string> GetEitherValue(bool select)
+        private Either<string, int> GetEitherValue(bool select)
         {
             if (select)
                 return 10;
@@ -252,7 +252,7 @@ namespace LanguageExtTests
                 return "left";
         }
 
-        private EitherUnsafe<int, string> GetEitherUnsafeValue(bool select)
+        private EitherUnsafe<string, int> GetEitherUnsafeValue(bool select)
         {
             if (select)
                 return 10;

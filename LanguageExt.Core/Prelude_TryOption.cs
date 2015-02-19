@@ -46,10 +46,10 @@ namespace LanguageExt
         public static TryOption<R> bind<T, R>(TryOption<T> tryDel, Func<T, TryOption<R>> binder) =>
             tryDel.Bind(binder);
 
-        public static IImmutableList<Either<T, Exception>> toList<T>(TryOption<T> tryDel) =>
+        public static IImmutableList<Either<Exception, T>> toList<T>(TryOption<T> tryDel) =>
             tryDel.ToList();
 
-        public static ImmutableArray<Either<T, Exception>> toArray<T>(TryOption<T> tryDel) =>
+        public static ImmutableArray<Either<Exception, T>> toArray<T>(TryOption<T> tryDel) =>
             tryDel.ToArray();
     }
 }

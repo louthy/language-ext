@@ -9,7 +9,7 @@ namespace LanguageExtTests
     {
         [Test] public void RightGeneratorTestsObject()
         {
-            var either = Right<int,string>(123);
+            var either = Right<string, int>(123);
 
             either.Match( Right: i => Assert.IsTrue(i == 123),
                           Left:  _ => Assert.Fail("Shouldn't get here") );
@@ -22,7 +22,7 @@ namespace LanguageExtTests
 
         [Test] public void SomeGeneratorTestsFunction()
         {
-            var either = Right<int, string>(123);
+            var either = Right<string, int>(123);
 
             match(either, Right: i => Assert.IsTrue(i == 123),
                           Left:  _ => Assert.Fail("Shouldn't get here") );
@@ -124,7 +124,7 @@ namespace LanguageExtTests
         }
 
 
-        private Either<int, string> GetValue(bool select)
+        private Either<string, int> GetValue(bool select)
         {
             if (select)
             {
@@ -136,10 +136,10 @@ namespace LanguageExtTests
             }
         }
 
-        private Either<int, string> ImplicitConversion() => 1000;
-        private Either<int, string> ItsLeft => "Left";
-        private Either<int, string> Two => 2;
-        private Either<int, string> Four => 4;
-        private Either<int, string> Six => 6;
+        private Either<string, int> ImplicitConversion() => 1000;
+        private Either<string, int> ItsLeft => "Left";
+        private Either<string, int> Two => 2;
+        private Either<string, int> Four => 4;
+        private Either<string, int> Six => 6;
     }
 }
