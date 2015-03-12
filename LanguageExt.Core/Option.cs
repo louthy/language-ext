@@ -5,6 +5,7 @@ using LanguageExt;
 using LanguageExt.Prelude;
 using System.Collections;
 using System.Collections.Immutable;
+using System.ComponentModel;
 
 namespace LanguageExt
 {
@@ -14,6 +15,7 @@ namespace LanguageExt
     ///     2. None    -- which means there's no value stored inside
     /// To extract the value you must use the 'match' function.
     /// </summary>
+    [TypeConverter(typeof(OptionalTypeConverter))]
     public struct Option<T> : IOptionalValue, IEnumerable<T>
     {
         readonly T value;
@@ -61,6 +63,11 @@ namespace LanguageExt
                 : value;
 
         public R Match<R>(Func<T, R> Some, Func<R> None) =>
+            IsSome
+                ? CheckNullReturn(Some(Value), "Some")
+                : CheckNullReturn(None(), "None");
+
+        public object MatchUntyped(Func<object, object> Some, Func<object> None) =>
             IsSome
                 ? CheckNullReturn(Some(Value), "Some")
                 : CheckNullReturn(None(), "None");
@@ -194,6 +201,9 @@ namespace LanguageExt
 
         public static bool operator false(Option<T> value) =>
             value.IsNone;
+
+        public Type GetUnderlyingType() =>
+            typeof(T);
     }
 
     public struct SomeContext<T, R>

@@ -17,5 +17,9 @@ namespace LanguageExt
         {
             get;
         }
+
+        object MatchUntyped(Func<object, object> Some, Func<object> None);
+
+        Type GetUnderlyingType();
     }
 }

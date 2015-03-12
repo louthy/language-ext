@@ -1,9 +1,12 @@
 ﻿using LanguageExt;
 using LanguageExt.Prelude;
+using System;
+using System.ComponentModel;
 
 namespace LanguageExt
 {
-    public struct Some<T>
+    [TypeConverter(typeof(SomeTypeConverter))]
+    public struct Some<T> : IOptionalValue
     {
         readonly T value;
         readonly bool initialised;
@@ -50,5 +53,25 @@ namespace LanguageExt
 
         public override bool Equals(object obj) =>
             Value.Equals(obj);
+
+        public bool IsSome =>
+            initialised;
+
+        public bool IsNone =>
+            !initialised;
+
+        public object MatchUntyped(Func<object, object> Some, Func<object> None) =>
+            IsSome
+                ? Some(value)
+                : None();
+
+        public Type GetUnderlyingType() =>
+            typeof(T);
+    }
+
+    public static class Some
+    {
+        public static Some<T> Create<T>(T x) =>
+            new Some<T>(x);
     }
 }

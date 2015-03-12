@@ -5,6 +5,7 @@ using LanguageExt;
 using LanguageExt.Prelude;
 using System.Collections;
 using System.Collections.Immutable;
+using System.ComponentModel;
 
 namespace LanguageExt
 {
@@ -17,6 +18,7 @@ namespace LanguageExt
     /// is expressly forbidden for Option<T>.  That is what makes this
     /// type 'unsafe'.  
     /// </summary>
+    [TypeConverter(typeof(OptionalTypeConverter))]
     public struct OptionUnsafe<T> : IOptionalValue, IEnumerable<T>
     {
         readonly T value;
@@ -24,6 +26,12 @@ namespace LanguageExt
         private OptionUnsafe(T value, bool isSome)
         {
             this.IsSome = isSome;
+            this.value = value;
+        }
+
+        private OptionUnsafe(T value)
+        {
+            this.IsSome = true;
             this.value = value;
         }
 
@@ -53,6 +61,11 @@ namespace LanguageExt
             None;
 
         public R MatchUnsafe<R>(Func<T, R> Some, Func<R> None) =>
+            IsSome
+                ? Some(Value)
+                : None();
+
+        public object MatchUntyped(Func<object, object> Some, Func<object> None) =>
             IsSome
                 ? Some(Value)
                 : None();
@@ -173,6 +186,8 @@ namespace LanguageExt
         public static bool operator false(OptionUnsafe<T> value) =>
             value.IsNone;
 
+        public Type GetUnderlyingType() =>
+            typeof(T);
     }
 
     public struct SomeUnsafeContext<T, R>
