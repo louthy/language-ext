@@ -159,7 +159,7 @@ namespace LanguageExt
             destinationType == simpleType                   ? x
           : destinationType == typeof(InstanceDescriptor)   ? NewInstanceDesc(value)
           : x == null                                       ? ConvertToValueNull(context, culture, destinationType, baseConvertTo)
-          : SimpleConvertTo(x,context,culture,destinationType);
+          : SimpleConvertTo(x,context,culture,destinationType,baseConvertTo);
 
         private object MatchConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType, ConvertToDel baseConvertTo) =>
             (value as IOptionalValue)?.MatchUntyped(
