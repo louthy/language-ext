@@ -71,6 +71,13 @@ namespace TvdP.Collections
             return obj is WeakValueRef<V> && this.Equals((WeakValueRef<V>)obj);
         }
 
+        public override int GetHashCode()
+        {
+            return _valueReference.IsAlive
+                ? _valueReference.Target.GetHashCode()
+                : 0;
+        }
+
         //no relyable hashcode.
 
         #endregion

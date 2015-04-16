@@ -142,5 +142,8 @@ namespace LanguageExt
 
         public static ImmutableArray<T> toArray<T>(Option<T> option) =>
             option.ToArray();
+
+        public static IQueryable<T> toQuery<T>(Option<T> option) =>
+            option.AsQueryable();
     }
 }

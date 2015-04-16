@@ -23,10 +23,18 @@ namespace LanguageExt
 
         public static T head<T>(IEnumerable<T> list) => list.First();
 
+        [Obsolete("headSafe has been deprecated, please use headOrNone")]
         public static Option<T> headSafe<T>(IEnumerable<T> list) =>
-            list.Take(1).Count() == 1
-                ? Some(list.First())
-                : None;
+            (from x in list
+             select Some(x))
+            .DefaultIfEmpty(None)
+            .FirstOrDefault();
+
+        public static Option<T> headOrNone<T>(IEnumerable<T> list) =>
+            (from x in list
+             select Some(x))
+            .DefaultIfEmpty(None)
+            .FirstOrDefault();
 
         public static IEnumerable<T> tail<T>(IEnumerable<T> list) =>
             list.Skip(1);
@@ -51,13 +59,17 @@ namespace LanguageExt
             from r in map(t)
             select r;
 
-        public static int sum(IEnumerable<int> list) => fold(list, 0, (x, s) => s + x);
+        public static int sum(IEnumerable<int> list) => 
+            fold(list, 0, (x, s) => s + x);
 
-        public static float sum(IEnumerable<float> list) => fold(list, 0.0f, (x, s) => s + x);
+        public static float sum(IEnumerable<float> list) => 
+            fold(list, 0.0f, (x, s) => s + x);
 
-        public static double sum(IEnumerable<double> list) => fold(list, 0.0, (x, s) => s + x);
+        public static double sum(IEnumerable<double> list) => 
+            fold(list, 0.0, (x, s) => s + x);
 
-        public static decimal sum(IEnumerable<decimal> list) => fold(list, (decimal)0, (x, s) => s + x);
+        public static decimal sum(IEnumerable<decimal> list) => 
+            fold(list, (decimal)0, (x, s) => s + x);
 
         public static IEnumerable<T> rev<T>(IEnumerable<T> list) =>
             list.Reverse();
@@ -78,7 +90,7 @@ namespace LanguageExt
             fold(rev(list), state, folder);
 
         public static T reduce<T>(IEnumerable<T> list, Func<T, T, T> reducer) =>
-            match(headSafe(list),
+            match(headOrNone(list),
                 Some: x => fold(tail(list), x, reducer),
                 None: () => failwith<T>("Input list was empty")
             );
@@ -419,8 +431,12 @@ public static class __ListExt
     public static T Head<T>(this IEnumerable<T> list) =>
         List.head(list);
 
+    [Obsolete("HeadSafe has been deprecated, please use HeadOrNone")]
     public static Option<T> HeadSafe<T>(this IEnumerable<T> list) =>
         List.headSafe(list);
+
+    public static Option<T> HeadOrNone<T>(this IEnumerable<T> list) =>
+        List.headOrNone(list);
 
     public static IEnumerable<T> Tail<T>(this IEnumerable<T> list) =>
         List.tail(list);

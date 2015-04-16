@@ -107,5 +107,8 @@ namespace LanguageExt
 
         public static ImmutableArray<T> toArray<T>(OptionUnsafe<T> option) =>
             option.ToArray();
+
+        public static IQueryable<T> toQuery<T>(OptionUnsafe<T> option) =>
+            option.AsQueryable();
     }
 }

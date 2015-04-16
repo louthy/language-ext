@@ -118,5 +118,8 @@ namespace LanguageExt
 
         public static ImmutableArray<R> toArray<L, R>(Either<L, R> either) =>
             either.ToArray();
+
+        public static IQueryable<R> toQuery<L, R>(Either<L, R> either) =>
+            either.AsQueryable();
     }
 }

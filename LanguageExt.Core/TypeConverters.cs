@@ -106,17 +106,33 @@ namespace LanguageExt
             this.emptyStringIsNone = emptyStringIsNone;
         }
 
-        public InstanceDescriptor NewInstanceDesc(object value) =>
+        public bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType, CanConvertDel baseCanConvertFrom) =>
+            sourceType == simpleType ? true
+          : simpleTypeConverter == null ? baseCanConvertFrom(context, sourceType)
+          : simpleTypeConverter.CanConvertFrom(context, sourceType);
+
+        public object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value, ConvertFromDel baseConvertFrom) =>
+            value == null ? None
+          : value.GetType() == simpleType ? methods(simpleType)?.Invoke(null, new[] { value })
+          : IfEmptyStringIsNone(value) ? None
+          : SimpleConvertFrom(context, culture, value, baseConvertFrom);
+
+        public bool CanConvertTo(ITypeDescriptorContext context, Type destinationType, CanConvertDel baseCanConvertTo) =>
+            destinationType == simpleType ? true
+          : destinationType == typeof(InstanceDescriptor) ? true
+          : SimpleCanConvertTo(context, destinationType, baseCanConvertTo);
+
+        public object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType, ConvertToDel baseConvertTo) =>
+            value == null
+                ? ConvertToValueNull(context, culture, destinationType, baseConvertTo)
+                : MatchConvertTo(context, culture, value, destinationType, baseConvertTo);
+
+        private InstanceDescriptor NewInstanceDesc(object value) =>
             new InstanceDescriptor(
                 type.GetConstructor(new Type[] { simpleType }),
                 new object[] { value },
                 true
                 );
-
-        public bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType, CanConvertDel baseCanConvertFrom) =>
-            sourceType == simpleType        ? true
-          : simpleTypeConverter == null     ? baseCanConvertFrom(context, sourceType)
-          : simpleTypeConverter.CanConvertFrom(context, sourceType);
 
         private bool IfEmptyStringIsNone(object value) =>
             emptyStringIsNone && value is string && String.IsNullOrEmpty(value as string);
@@ -129,21 +145,10 @@ namespace LanguageExt
                     new[] { simpleTypeConverter.ConvertFrom(context, culture, value) } 
                     );            
 
-        public object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value, ConvertFromDel baseConvertFrom) =>
-            value == null                   ? None
-          : value.GetType() == simpleType   ? methods(simpleType)?.Invoke(null, new[] { value })
-          : IfEmptyStringIsNone(value)      ? None
-          : SimpleConvertFrom(context,culture,value,baseConvertFrom);
-
         private bool SimpleCanConvertTo(ITypeDescriptorContext context, Type destinationType, CanConvertDel baseCanConvertTo) =>
             simpleTypeConverter == null
                 ? baseCanConvertTo(context,destinationType)
                 : simpleTypeConverter.CanConvertTo(context, destinationType);
-
-        public bool CanConvertTo(ITypeDescriptorContext context, Type destinationType, CanConvertDel baseCanConvertTo) =>
-            destinationType == simpleType                   ? true
-          : destinationType == typeof(InstanceDescriptor)   ? true
-          : SimpleCanConvertTo(context,destinationType,baseCanConvertTo);
 
         private object ConvertToValueNull(ITypeDescriptorContext context, CultureInfo culture, Type destinationType, ConvertToDel baseConvertTo ) =>
             destinationType == typeof(string)
@@ -165,10 +170,5 @@ namespace LanguageExt
             (value as IOptionalValue)?.MatchUntyped(
                 Some: x  => IsSomeConvertTo(x, context, culture, value, destinationType, baseConvertTo),
                 None: () => ConvertToValueNull(context, culture, destinationType, baseConvertTo));
-
-        public object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType, ConvertToDel baseConvertTo) =>
-            value == null
-                ? ConvertToValueNull(context, culture, destinationType, baseConvertTo)
-                : MatchConvertTo(context, culture, value, destinationType, baseConvertTo);
     }
 }

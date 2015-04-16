@@ -54,7 +54,7 @@ namespace TvdP.Collections
 #endif
     internal class StrongKeyComparer<E> : IKeyComparer<StrongKey<E>>
     {
-        public IEqualityComparer<E> _equalityComparer;
+        public IEqualityComparer<E> _equalityComparer = null;
 
         #region IKeyComparer<StrongKey<E>> Members
 

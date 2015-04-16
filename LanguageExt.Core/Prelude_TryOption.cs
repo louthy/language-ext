@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace LanguageExt
 {
@@ -51,5 +52,9 @@ namespace LanguageExt
 
         public static ImmutableArray<Either<Exception, T>> toArray<T>(TryOption<T> tryDel) =>
             tryDel.ToArray();
+
+        public static IQueryable<Either<Exception, T>> toQuery<T>(TryOption<T> tryDel) =>
+            tryDel.ToList().AsQueryable();
+            
     }
 }

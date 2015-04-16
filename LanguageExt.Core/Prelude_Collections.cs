@@ -231,6 +231,18 @@ namespace LanguageExt
             ImmutableHashSet.CreateRange<T>(items);
 
         /// <summary>
+        /// Create a queryable
+        /// </summary>
+        public static IQueryable<T> query<T>(params T[] items) =>
+            toQuery(items);
+
+        /// <summary>
+        /// Convert to queryable
+        /// </summary>
+        public static IQueryable<T> toQuery<T>(IEnumerable<T> items) =>
+            items.AsQueryable();
+
+        /// <summary>
         /// List matching
         /// </summary>
         public static R match<T, R>(IEnumerable<T> list,
