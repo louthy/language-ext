@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using LanguageExt;
-using LanguageExt.Prelude;
+using static LanguageExt.Prelude;
 using System.Collections.Immutable;
 
 public static class __TryOutExt

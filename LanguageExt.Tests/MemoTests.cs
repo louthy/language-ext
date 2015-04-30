@@ -1,8 +1,8 @@
 ﻿using NUnit.Framework;
 using System;
-using System.Linq;
-using LanguageExt.List;
-using LanguageExt.Prelude;
+using LanguageExt;
+using static LanguageExt.List;
+using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
 {
@@ -14,7 +14,7 @@ namespace LanguageExtTests
             var saved = DateTime.Now;
             var date = saved;
 
-            var f = memo(() => date.ToString());
+            var f = Prelude.memo(() => date.ToString());
 
             var res1 = f();
 

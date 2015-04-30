@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using LanguageExt;
-using LanguageExt.Prelude;
 using System.Collections;
 using System.Collections.Immutable;
 using System.ComponentModel;
+using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -34,10 +34,6 @@ namespace LanguageExt
             this.IsSome = true;
             this.value = value;
         }
-
-        public OptionUnsafe()
-            : this(default(T), false)
-        { }
 
         public static OptionUnsafe<T> Some(T value) =>
             new OptionUnsafe<T>(value, true);

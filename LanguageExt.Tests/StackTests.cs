@@ -1,6 +1,6 @@
-﻿using LanguageExt.List;
-using LanguageExt.Prelude;
-using LanguageExt.Stack;
+﻿using static LanguageExt.Prelude;
+using static LanguageExt.List;
+using static LanguageExt.Stack;
 using NUnit.Framework;
 using System.Collections.Immutable;
 

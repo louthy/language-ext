@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using LanguageExt;
-using LanguageExt.Prelude;
 using System.Collections.Immutable;
+using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {

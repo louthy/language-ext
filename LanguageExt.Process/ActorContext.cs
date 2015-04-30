@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-using LanguageExt.Prelude;
 using System.Collections.Immutable;
 using System.Reactive.Subjects;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {

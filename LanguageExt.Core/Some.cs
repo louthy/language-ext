@@ -1,7 +1,6 @@
-﻿using LanguageExt;
-using LanguageExt.Prelude;
-using System;
+﻿using System;
 using System.ComponentModel;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -10,13 +9,6 @@ namespace LanguageExt
     {
         readonly T value;
         readonly bool initialised;
-
-        public Some()
-        {
-            initialised = false;
-            value = default(T);
-            throw new SomeNotInitialisedException(typeof(T));
-        }
 
         public Some(T value)
         {

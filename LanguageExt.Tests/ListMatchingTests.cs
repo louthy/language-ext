@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using LanguageExt;
-using LanguageExt.Prelude;
+using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
 {

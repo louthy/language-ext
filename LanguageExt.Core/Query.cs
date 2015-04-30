@@ -2,9 +2,9 @@
 using System.Collections.Immutable;
 using System.Linq;
 using System.Collections.Generic;
-using LanguageExt;
-using LanguageExt.Prelude;
 using System.Linq.Expressions;
+using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {

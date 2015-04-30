@@ -4,12 +4,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using LanguageExt.Prelude;
-using LanguageExt.List;
+using static LanguageExt.Prelude;
+using static LanguageExt.List;
 
 namespace LanguageExt
 {

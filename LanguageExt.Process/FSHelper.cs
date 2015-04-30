@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.FSharp.Control;
 using Microsoft.FSharp.Core;
 using System.Threading;
-using LanguageExt.Prelude;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {

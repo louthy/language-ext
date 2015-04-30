@@ -3,9 +3,8 @@ using System.Linq;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
-using LanguageExt;
-using LanguageExt.Prelude;
 using System.ComponentModel.Design.Serialization;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -27,7 +26,7 @@ namespace LanguageExt
                         select info)
                        .First();
 
-            methods = memo((Type valueType) => optional.MakeGenericMethod(valueType));
+            methods = Prelude.memo((Type valueType) => optional.MakeGenericMethod(valueType));
         }
 
         public OptionalTypeConverter(Type type)
@@ -62,7 +61,7 @@ namespace LanguageExt
                           select info)
                          .First();
 
-            methods = memo((Type valueType) => someCreate.MakeGenericMethod(valueType));
+            methods = Prelude.memo((Type valueType) => someCreate.MakeGenericMethod(valueType));
         }
 
         public SomeTypeConverter(Type type)

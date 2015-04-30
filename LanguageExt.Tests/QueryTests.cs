@@ -1,9 +1,6 @@
-﻿using System;
-using System.Linq;
-using NUnit.Framework;
-using LanguageExt;
-using LanguageExt.Prelude;
-using LanguageExt.Query;
+﻿using NUnit.Framework;
+using static LanguageExt.Prelude;
+using static LanguageExt.Query;
 
 namespace LanguageExtTests
 {

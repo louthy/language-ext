@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 using System.Reactive.Subjects;
 using System.Reactive.Linq;
 
-using LanguageExt.Prelude;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {

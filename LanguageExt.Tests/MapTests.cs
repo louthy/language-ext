@@ -1,6 +1,5 @@
-﻿using LanguageExt;
-using LanguageExt.Prelude;
-using LanguageExt.Map;
+﻿using static LanguageExt.Prelude;
+using static LanguageExt.Map;
 using NUnit.Framework;
 
 namespace LanguageExtTests

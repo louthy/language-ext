@@ -1,9 +1,7 @@
-﻿using System;
-using System.Console;
-using System.Configuration.ConfigurationManager;
+﻿using static System.Console;
+using static System.Configuration.ConfigurationManager;
 using LanguageExt;
-using LanguageExt.List;
-using LanguageExt.Prelude;
+using static LanguageExt.Prelude;
 
 namespace ConfigSample
 {

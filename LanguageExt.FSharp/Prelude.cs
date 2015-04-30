@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.FSharp.Core;
 using Microsoft.FSharp.Collections;
-using LanguageExt;
-using LanguageExt.Prelude;
+using static LanguageExt.Prelude;
 using System.Collections.Immutable;
 
 namespace LanguageExt

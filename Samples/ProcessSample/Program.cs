@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
-
 using LanguageExt;
-using LanguageExt.Prelude;
-using LanguageExt.Process;
+using static LanguageExt.Prelude;
+using static LanguageExt.Process;
 
 namespace ProcessSample
 {

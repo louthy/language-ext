@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using LanguageExt.Prelude;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {

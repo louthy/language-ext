@@ -1,7 +1,6 @@
 ﻿using NUnit.Framework;
 using LanguageExt;
-using LanguageExt.Prelude;
-using System;
+using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
 {

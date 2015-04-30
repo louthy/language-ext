@@ -1,6 +1,4 @@
 ﻿using System;
-using LanguageExt.Prelude;
-using LanguageExt.List;
 
 namespace LanguageExt
 {

@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using LanguageExt;
-using LanguageExt.Prelude;
+using static LanguageExt.Prelude;
 using System.Collections;
 using System.Collections.Immutable;
 using System.ComponentModel;
@@ -28,10 +27,6 @@ namespace LanguageExt
 
         private Option(T value) 
             : this (value,value != null)
-            {}
-
-        public Option() 
-            : this(default(T), false)
             {}
 
         public static Option<T> Some(T value) => 

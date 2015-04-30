@@ -2,8 +2,8 @@
 using System.Linq;
 using NUnit.Framework;
 using LanguageExt;
-using LanguageExt.Prelude;
-using LanguageExt.List;
+using static LanguageExt.Prelude;
+using static LanguageExt.List;
 
 namespace LanguageExtTests
 {
@@ -14,7 +14,7 @@ namespace LanguageExtTests
         [Test]
         public void ConsTest1()
         {
-            var test = cons(1, cons(2, cons(3, cons(4, cons(5, empty<int>())))));
+            var test = Prelude.cons(1, Prelude.cons(2, Prelude.cons(3, Prelude.cons(4, Prelude.cons(5, empty<int>())))));
 
             var array = test.ToArray();
 
