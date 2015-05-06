@@ -40,12 +40,6 @@ namespace LanguageExt
         internal static Either<L, R> Left(L value) => 
             new Either<L, R>(value);
 
-        internal static Either<L, R> RightUnsafe(R value) =>
-            new Either<L, R>(value);
-
-        internal static Either<L, R> LeftUnsafe(L value) =>
-            new Either<L, R>(value);
-
         public bool IsRight =>
             CheckInitialised(state == EitherState.IsRight);
 
