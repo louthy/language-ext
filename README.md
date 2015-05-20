@@ -566,7 +566,7 @@ To set an item call:
     var newThings = setItem(people, 1, "Zippy");
 ```
 
-`map` functions (`using LanguageExt.Map`):
+`map` functions (`using static LanguageExt.Map`):
 * `add`
 * `addRange`
 * `choose`
