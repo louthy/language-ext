@@ -10,7 +10,7 @@ namespace LanguageExt
     public static class FSharp
     {
         /// <summary>
-        /// Convert a LanguageExt Option into a F# Option
+        /// Convert a F# Option into a LanguageExt Option 
         /// </summary>
         public static Option<T> fs<T>(FSharpOption<T> fsOption) =>
             FSharpOption<T>.get_IsSome(fsOption)
@@ -18,7 +18,7 @@ namespace LanguageExt
                 : None;
 
         /// <summary>
-        /// Convert an F# Option into a LanguageExt Option
+        /// Convert a LanguageExt Option into an F# Option 
         /// </summary>
         public static FSharpOption<T> fs<T>(this Option<T> option) =>
             option.IsNone
@@ -28,7 +28,7 @@ namespace LanguageExt
                      None: () => failwith<FSharpOption<T>>("returns null, so can't use the None branch"));
 
         /// <summary>
-        /// Convert an F# Option into a LanguageExt Option
+        /// Convert a LanguageExt OptionUnsafe into an F# Option 
         /// </summary>
         public static FSharpOption<T> fs<T>(this OptionUnsafe<T> option) =>
             matchUnsafe(option,
@@ -48,13 +48,13 @@ namespace LanguageExt
             ListModule.OfSeq(list);
 
         /// <summary>
-        /// Convert an F# Map into a LanguageExt Map
+        /// Convert an F# Map into a LanguageExt Map (IImmutableDictionary<K, V>)
         /// </summary>
         public static IImmutableDictionary<K, V> fs<K, V>(FSharpMap<K, V> fsMap) =>
             Map.addRange( map<K, V>(), List.map(fsMap, identity) );
 
         /// <summary>
-        /// Convert a LanguageExt Map into an F# Map
+        /// Convert a LanguageExt Map (IImmutableDictionary<K, V>) into an F# Map
         /// </summary>
         public static FSharpMap<K, V> fs<K, V>(IImmutableDictionary<K, V> map) =>
             MapModule.OfSeq(List.map(map, kv => Tuple.Create(kv.Key, kv.Value)));
