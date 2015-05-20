@@ -17,7 +17,7 @@ Even if you don't agree, I guess you can pick 'n' choose what to work with.  The
 To use this library, simply include LanguageExt.Core.dll in your project.  And then stick this at the top of each cs file that needs it:
 ```C#
 using LanguageExt;
-using LanguageExt.Prelude;
+using static LanguageExt.Prelude;
 ```
 
 `LanguageExt` contains the types, and `LanguageExt.Prelude` contains the helper functions.  There is also `LanguageExt.List`, `LanguageExt.Map`, `LanguageExt.Queue`, `LanguageExt.Set`, `LanguageExt.Stack`, and `LanguageExt.Process` (more on those later).
@@ -416,7 +416,7 @@ Also `range`:
     var chars = range('a','e');
 ```
 
-Some of the standard list functions are available.  These are obviously duplicates of what's in LINQ, therefore they've been put into their own `LanguageExt.List` namespace:
+Some of the standard list functions are available.  These are obviously duplicates of what's in LINQ, therefore they've been put into their own `using static LanguageExt.List` namespace:
 
 ```C#
     // Generates 10,20,30,40,50
@@ -566,7 +566,7 @@ To set an item call:
     var newThings = setItem(people, 1, "Zippy");
 ```
 
-`map` functions (`using LanguageExt.Map`):
+`map` functions (`using static LanguageExt.Map`):
 * `add`
 * `addRange`
 * `choose`
