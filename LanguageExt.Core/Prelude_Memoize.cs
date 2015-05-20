@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using TvdP.Collections;
 
 namespace LanguageExt
 {
@@ -27,26 +26,26 @@ namespace LanguageExt
         /// 
         /// Remarks: 
         ///     Thread-safe and memory-leak safe.  
-        ///     R is limited to reference types.
         /// </summary>
-        public static Func<T, R> memo<T, R>(this Func<T, R> func) where R : class
+        public static Func<T, R> memo<T, R>(this Func<T, R> func)
         {
-            var cache = new WeakDictionary<T, R>();
+            var cache = new WeakDict<T, R>();
             var syncMap = new ConcurrentDictionary<T, object>();
+
             return inp =>
-            {
-                R res;
-                if (!cache.TryGetValue(inp, out res))
-                {
-                    var sync = syncMap.GetOrAdd(inp, new object());
-                    lock (sync)
+                matchUnsafe(cache.TryGetValue(inp),
+                    Some: x => x,
+                    None: () =>
                     {
-                        res = cache.GetOrAdd(inp, func);
-                    }
-                    syncMap.TryRemove(inp, out sync);
-                }
-                return res;
-            };
+                        R res;
+                        var sync = syncMap.GetOrAdd(inp, new object());
+                        lock (sync)
+                        {
+                            res = cache.GetOrAdd(inp, func);
+                        }
+                        syncMap.TryRemove(inp, out sync);
+                        return res;
+                    });
         }
 
         /// <summary>
@@ -77,6 +76,91 @@ namespace LanguageExt
                 }
                 return res;
             };
+        }
+
+        /// <summary>
+        /// Used internally by the memo function.  It wraps a concurrent dictionary that has 
+        /// its value objects wrapped in a WeakReference<OnFinalise<...>>
+        /// The OnFinalise type is a private class within WeakDict and does nothing but hold
+        /// the value and an Action to call when its finalised.  So when the WeakReference is
+        /// collected by the GC, it forces the finaliser to be called on the OnFinalise object,
+        /// which in turn executes the action which renmoves it from the ConcurrentDictionary.  
+        /// That means that both the key and value are collected when the GC fires rather than 
+        /// just the value.  That should mitigate a memory leak of keys.
+        /// </summary>
+        private class WeakDict<T, R>
+        {
+            private class OnFinalise<V>
+            {
+                public readonly V Value;
+                readonly Action onFinalise;
+
+                public OnFinalise(Action onFinalise, V value)
+                {
+                    this.Value = value;
+                    this.onFinalise = onFinalise;
+                }
+
+                ~OnFinalise()
+                {
+                    onFinalise();
+                }
+            }
+
+            ConcurrentDictionary<T, WeakReference<OnFinalise<R>>> dict = new ConcurrentDictionary<T, WeakReference<OnFinalise<R>>>();
+
+            private WeakReference<OnFinalise<R>> NewRef(T key, Func<T, R> addFunc) =>
+                new WeakReference<OnFinalise<R>>(
+                    new OnFinalise<R>(() =>
+                        {
+                            WeakReference<OnFinalise<R>> ignore = null;
+                            dict.TryRemove(key, out ignore);
+                        },
+                        addFunc(key)));
+
+            public OptionUnsafe<R> TryGetValue(T key)
+            {
+                WeakReference<OnFinalise<R>> res = null;
+                OnFinalise<R> target = null;
+                return dict.TryGetValue(key, out res)
+                    ? res.TryGetTarget(out target)
+                        ? SomeUnsafe(target.Value)
+                        : None
+                    : None;
+            }
+
+            public R GetOrAdd(T key, Func<T, R> addFunc)
+            {
+                var res = dict.GetOrAdd(key, _ => NewRef(key, addFunc));
+
+                OnFinalise<R> target = null;
+                if (res.TryGetTarget(out target))
+                {
+                    return target.Value;
+                }
+                else
+                {
+                    var upd = NewRef(key, addFunc);
+                    res = dict.AddOrUpdate(key, upd, (_, __) => upd);
+                    if (res.TryGetTarget(out target))
+                    {
+                        return target.Value;
+                    }
+                    else
+                    {
+                        // This is a best guess of why the target can't be got.
+                        // It might not be the best approach, perhaps a retry, or a 
+                        // better/more-descriptive exception.
+                        throw new OutOfMemoryException();
+                    }
+                }
+            }
+
+            public bool TryRemove(T key)
+            {
+                WeakReference<OnFinalise<R>> ignore = null;
+                return dict.TryRemove(key, out ignore);
+            }
         }
     }
 }

@@ -36,7 +36,7 @@ namespace LanguageExt
             var paramT = Expression.Parameter(typeof(T), "t");
             var paramI = Expression.Parameter(typeof(int), "i");
 
-            return zip(list, range(0, Int32.MaxValue).AsQueryable(),
+            return zip(list, range(0, Int32.MaxValue),
                 Expression.Lambda<Func<T, int, R>>(
                     Expression.Invoke(map, paramI, paramT),
                     paramT,
@@ -112,8 +112,8 @@ namespace LanguageExt
         public static IImmutableList<T> freeze<T>(IQueryable<T> list) =>
             toList(list);
 
-        public static IQueryable<V> zip<T, U, V>(IQueryable<T> list, IQueryable<U> other, Expression<Func<T, U, V>> zipper) =>
-            list.Zip(other, zipper);
+        public static IQueryable<V> zip<T, U, V>(IQueryable<T> list, IEnumerable<U> other, Expression<Func<T, U, V>> zipper) =>
+            Queryable.Zip(list, other, zipper);
 
         public static int length<T>(IQueryable<T> list) =>
             list.Count();
@@ -211,7 +211,7 @@ public static class __QueryExt
     public static IImmutableList<T> Freeze<T>(this IQueryable<T> list) =>
         Query.freeze(list);
 
-    public static IQueryable<V> Zip<T, U, V>(this IQueryable<T> list, IQueryable<U> other, Expression<Func<T, U, V>> zipper) =>
+    public static IQueryable<V> Zip<T, U, V>(this IQueryable<T> list, IEnumerable<U> other, Expression<Func<T, U, V>> zipper) =>
         Query.zip(list, other, zipper);
 
     public static int Length<T>(this IQueryable<T> list) =>

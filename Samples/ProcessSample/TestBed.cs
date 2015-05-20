@@ -14,10 +14,39 @@ namespace ProcessSample
     {
         public static void RunTests()
         {
+            MemoTest();
             UnsafeOptionTest();
             MassiveSpawnAndKillHierarchy();
             SpawnAndKillProcess();
             SpawnAndKillHierarchy();
+        }
+
+        public static void MemoTest()
+        {
+            var fix = 0;
+            var count = 10000;
+
+            Func<int, int> fn = x => x + fix;
+
+            var m = fn.memo();
+
+            var nums1 = map(range(0, count), i => m(i)).ToList();
+
+            fix = 1000;
+
+            var nums2 = map(range(0, count), i => m(i)).ToList();
+
+
+            var res = length(
+                filter(
+                    zip(
+                        nums1, 
+                        nums2, 
+                        (a, b) => a == b
+                        ), 
+                        v => v
+                    )
+                ) == count;
         }
 
         public static void UnsafeOptionTest()

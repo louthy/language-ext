@@ -9,7 +9,8 @@ namespace LanguageExtTests
     [TestFixture]
     public class MemoTests
     {
-        [Test] public void MemoTest1()
+        [Test]
+        public void MemoTest1()
         {
             var saved = DateTime.Now;
             var date = saved;
@@ -29,25 +30,49 @@ namespace LanguageExtTests
         public void MemoTest2()
         {
             var fix = 0;
+            var count = 100;
 
             Func<int, int> fn = x => x + fix;
 
             var m = fn.memoUnsafe();
 
-            var nums1 = map(range(0, 100), i => m(i));
+            var nums1 = map(range(0, count), i => m(i));
 
             fix = 1000;
 
-            var nums2 = map(range(0, 100), i => m(i));
+            var nums2 = map(range(0, count), i => m(i));
 
             Assert.IsTrue(
-                length(filter(zip(nums1, nums2, (a, b) => a == b), v => v)) == 100
+                length(filter(zip(nums1, nums2, (a, b) => a == b), v => v)) == count
                 );
         }
 
-/*      
-    Uncomment this if you have time on your hands
-  
+        [Test]
+        public void MemoTest3()
+        {
+            GC.Collect();
+
+            var fix = 0;
+            var count = 1000;
+
+            Func<int, int> fn = x => x + fix;
+
+            var m = fn.memo();
+
+            var nums1 = freeze(map(range(0, count), i => m(i)));
+
+            fix = 1000;
+
+            var nums2 = freeze(map(range(0, count), i => m(i)));
+
+            Assert.IsTrue(
+                length(filter(zip(nums1, nums2, (a, b) => a == b), v => v)) == count
+                );
+        }
+
+        /*      
+            Uncomment this if you have time on your hands
+
         [Test]
         public void MemoMemoryTest()
         {
@@ -56,11 +81,12 @@ namespace LanguageExtTests
             Func<int, string> fn = x => x.ToString();
             var m = fn.memo();
 
-            range(0, Int32.MaxValue).each(i => m(i));
+            range(0, Int32.MaxValue).Iter(i => m(i));
 
             var mbFinish = GC.GetTotalMemory(false) / 1048576L;
 
             Assert.IsTrue(mbFinish - mbStart < 30);
-        }*/
+        }
+            */
     }
 }
