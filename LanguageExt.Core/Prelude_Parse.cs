@@ -8,7 +8,7 @@ namespace LanguageExt
         {
             if (text == null)
             {
-                throw new ArgumentNullException(nameof(text));
+                return None;
             }
 
             try
