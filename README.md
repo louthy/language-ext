@@ -70,29 +70,29 @@ So why is it any better than returning `T` and using `null`?  It seems we can ha
 This is how you create an `Option<int>`:
 
 ```C#
-var optional = Some(123);
+    var optional = Some(123);
 ```
 To access the value you must check that it's valid first:
 
 ```C#
     int x = optional.Match( 
-        Some: v  => v * 2,
-        None: () => 0 
-        );
+                Some: v  => v * 2,
+                None: () => 0 
+                );
 ```
 An alternative (functional) way of matching is this:
 
 ```C#
     int x = match( optional, 
-        Some: v  => v * 2,
-        None: () => 0     
-        );
+                Some: v  => v * 2,
+                None: () => 0     
+                );
 ```
 Yet another alternative matching method is this:
 ```C#
     int x = optional
-        .Some( v  => v * 2 )
-        .None( () => 0 );
+               .Some( v  => v * 2 )
+               .None( () => 0 );
 ```
 So choose your preferred method and stick with it.  It's probably best not to mix styles.
 
