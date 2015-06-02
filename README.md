@@ -75,34 +75,34 @@ var optional = Some(123);
 To access the value you must check that it's valid first:
 
 ```C#
-    optional.Match( 
-        Some: v  => Assert.IsTrue(v == 123),
-        None: () => failwith<int>("Shouldn't get here")
+    int x = optional.Match( 
+        Some: v  => v * 2,
+        None: () => 0 
         );
 ```
 An alternative (functional) way of matching is this:
 
 ```C#
-    match( optional, 
-        Some: v  => Assert.IsTrue(v == 123),
-        None: () => failwith<int>("Shouldn't get here") 
+    int x = match( optional, 
+        Some: v  => v * 2,
+        None: () => 0     
         );
 ```
 Yet another alternative matching method is this:
 ```C#
-    optional
-        .Some( v  => Assert.IsTrue(v == 123) )
-        .None( () => failwith<int>("Shouldn't get here") );
+    int x = optional
+        .Some( v  => v * 2 )
+        .None( () => 0 );
 ```
 So choose your preferred method and stick with it.  It's probably best not to mix styles.
 
 To smooth out the process of returning `Option<T>` types from methods there are some implicit conversion operators and constructors:
 
 ```C#
-    // Automatically converts the integer to a Some of int
+    // Implicitly converts the integer to a Some of int
     Option<int> GetValue() => 1000;
 
-    // Automatically converts to a None of int
+    // Implicitly converts to a None of int
     Option<int> GetValue() => None;
     
     // Will handle either a None or a Some returned
@@ -111,14 +111,14 @@ To smooth out the process of returning `Option<T>` types from methods there are 
             ? Some(1000)
             : None;
             
-    // Converts a null value to None and a non-null value to Some(value)
+    // Explicitly converts a null value to None and a non-null value to Some(value)
     Option<string> GetValue()
     {
         string value = GetValueFromNonTrustedApi();
         return Optional(value);
     }
             
-    // Converts a null value to None and a non-null value to Some(value)
+    // Implicitly converts a null value to None and a non-null value to Some(value)
     Option<string> GetValue()
     {
         string value = GetValueFromNonTrustedApi();
@@ -218,26 +218,29 @@ Essentially you can think of `Failure` as `Match` where the `Some` branch always
 If you know what a monad is, then the `Option<T>` type implements `Select` and `SelectMany` and is monadic.  Therefore it can be use in LINQ expressions.  
 
 ```C#
-    var two = Some(2);
-    var four = Some(4);
-    var six = Some(6);
+    Option<int> two = Some(2);
+    Option<int> four = Some(4);
+    Option<int> six = Some(6);
+    Option<int> none = None;
 
-    // This exprssion succeeds because all items to the right of 'in' are Some of int.
-    match( from x in two
-           from y in four
-           from z in six
-           select x + y + z,
-           Some: v => Assert.IsTrue(v == 12),
-           None: () => failwith<int>("Shouldn't get here") );
+    // This exprssion succeeds because all items to the right of 'in' are Some of int
+    // and therefore it lands in the Some lambda.
+    int r = match( from x in two
+                   from y in four
+                   from z in six
+                   select x + y + z,
+                   Some: v => v * 2,
+                   None: () => 0 );     // r == 24
 
     // This expression bails out once it gets to the None, and therefore doesn't calculate x+y+z
-    match( from x in two
-           from y in four
-           from _ in Option<int>.None
-           from z in six
-           select x + y + z,
-           Some: v => failwith<int>("Shouldn't get here"),
-           None: () => Assert.IsTrue(true) );
+    // and lands in the None lambda
+    int r = match( from x in two
+                   from y in four
+                   from _ in none
+                   from z in six
+                   select x + y + z,
+                   Some: v => v * 2,
+                   None: () => 0 );     // r == 0
 ```
 ## if( arg == null ) throw new ArgumentNullException("arg")
 Another horrible side-effect of `null` is having to bullet-proof every function that take reference arguments.  This is truly tedious.  Instead use this:
