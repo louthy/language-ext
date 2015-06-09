@@ -20,11 +20,22 @@ namespace LanguageExt
         public static OptionUnsafe<T> SomeUnsafe<T>(T value) =>
             OptionUnsafe<T>.Some(value);
 
+        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifNoneUnsafe' instead")]
         public static T failureUnsafe<T>(OptionUnsafe<T> option, Func<T> None) =>
             option.FailureUnsafe(None);
 
-        public static T failure<T>(OptionUnsafe<T> option, T noneValue) =>
+        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifNoneUnsafe' instead")]
+        public static T failureUnsafe<T>(OptionUnsafe<T> option, T noneValue) =>
             option.FailureUnsafe(noneValue);
+
+        public static Unit ifSomeUnsafe<T>(OptionUnsafe<T> option, Action<T> Some) =>
+            option.IfSomeUnsafe(Some);
+
+        public static T ifNoneUnsafe<T>(OptionUnsafe<T> option, Func<T> None) =>
+            option.IfNoneUnsafe(None);
+
+        public static T ifNoneUnsafe<T>(OptionUnsafe<T> option, T noneValue) =>
+            option.IfNoneUnsafe(noneValue);
 
         public static R matchUnsafe<T, R>(OptionUnsafe<T> option, Func<T, R> Some, Func<R> None) =>
             option.MatchUnsafe(Some, None);

@@ -83,5 +83,11 @@ namespace LanguageExtTests
             var value = either1 || either2 || either3 || (string)null;
             Assert.IsTrue(value == null);
         }
+
+        [Test]
+        public void TryFun()
+        {
+            TryOption<int> x = () => 100;
+        }
     }
 }

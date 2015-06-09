@@ -87,6 +87,11 @@ namespace LanguageExt
         public R Fail(R failValue) =>
             option.Match(someHandler, noneHandler, _ => failValue);
     }
+
+    public static class TryOptionConfig
+    {
+        public static Action<Exception> ErrorLogger = ex => {};
+    }
 }
 
 /// <summary>
@@ -97,6 +102,7 @@ public static class __TryOptionExt
     /// <summary>
     /// Returns the Some(value) of the TryOption or a default if it's None or Fail
     /// </summary>
+    [Obsolete("'Failure' has been deprecated.  Please use 'IfNone|IfNoneOrFail' instead")]
     public static T Failure<T>(this TryOption<T> self, T defaultValue)
     {
         if (defaultValue == null) throw new ArgumentNullException("defaultValue");
@@ -111,11 +117,66 @@ public static class __TryOptionExt
     /// <summary>
     /// Returns the Some(value) of the TryOption or a default if it's None or Fail
     /// </summary>
+    [Obsolete("'Failure' has been deprecated.  Please use 'IfNone|IfNoneOrFail' instead")]
     public static T Failure<T>(this TryOption<T> self, Func<T> defaultAction)
     {
         var res = self.Try();
         if (res.IsFaulted || res.Value.IsNone)
             return defaultAction();
+        else
+            return res.Value.Value;
+    }
+
+    /// <summary>
+    /// Invokes the someHandler if TryOption is in the Some state, otherwise nothing
+    /// happens.
+    /// </summary>
+    public static Unit IfSome<T>(this TryOption<T> self, Action<T> someHandler)
+    {
+        var res = self.Try();
+        if (res.Value.IsSome)
+        {
+            someHandler(res.Value.Value);
+        }
+        return unit;
+    }
+
+    /// <summary>
+    /// Returns the Some(value) of the TryOption or a default if it's None or Fail
+    /// </summary>
+    public static T IfNone<T>(this TryOption<T> self, T defaultValue)
+    {
+        if (defaultValue == null) throw new ArgumentNullException("defaultValue");
+
+        var res = self.Try();
+        if (res.IsFaulted || res.Value.IsNone)
+            return defaultValue;
+        else
+            return res.Value.Value;
+    }
+
+    /// <summary>
+    /// Returns the Some(value) of the TryOption or a default if it's None or Fail
+    /// </summary>
+    public static T IfNone<T>(this TryOption<T> self, Func<T> defaultAction)
+    {
+        var res = self.Try();
+        if (res.IsFaulted || res.Value.IsNone)
+            return defaultAction();
+        else
+            return res.Value.Value;
+    }
+
+    public static T IfNoneOrFail<T>(
+        this TryOption<T> self, 
+        Func<T> None,
+        Func<Exception,T> Fail)
+    {
+        var res = self.Try();
+        if (res.Value.IsNone)
+            return None();
+        else if (res.IsFaulted)
+            return Fail(res.Exception);
         else
             return res.Value.Value;
     }
@@ -176,6 +237,7 @@ public static class __TryOptionExt
         }
         catch (Exception e)
         {
+            TryOptionConfig.ErrorLogger(e);
             return new TryOptionResult<T>(e);
         }
     }
@@ -193,6 +255,7 @@ public static class __TryOptionExt
             }
             catch (Exception e)
             {
+                TryOptionConfig.ErrorLogger(e);
                 return new TryOptionResult<U>(e);
             }
 
@@ -203,6 +266,7 @@ public static class __TryOptionExt
             }
             catch (Exception e)
             {
+                TryOptionConfig.ErrorLogger(e);
                 return new TryOptionResult<U>(e);
             }
 
@@ -228,6 +292,7 @@ public static class __TryOptionExt
                 }
                 catch (Exception e)
                 {
+                    TryOptionConfig.ErrorLogger(e);
                     return new TryOptionResult<V>(e);
                 }
 
@@ -240,6 +305,7 @@ public static class __TryOptionExt
                 }
                 catch (Exception e)
                 {
+                    TryOptionConfig.ErrorLogger(e);
                     return new TryOptionResult<V>(e);
                 }
 
@@ -250,6 +316,7 @@ public static class __TryOptionExt
                 }
                 catch (Exception e)
                 {
+                    TryOptionConfig.ErrorLogger(e);
                     return new TryOptionResult<V>(e);
                 }
 

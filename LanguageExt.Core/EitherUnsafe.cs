@@ -61,10 +61,10 @@ namespace LanguageExt
             );
 
         public static implicit operator EitherUnsafe<L, R>(R value) =>
-            EitherUnsafe<L, R>.Right(value);
+            Right(value);
 
         public static implicit operator EitherUnsafe<L, R>(L value) =>
-            EitherUnsafe<L, R>.Left(value);
+            Left(value);
 
         public Ret MatchUnsafe<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
             IsRight
@@ -84,11 +84,41 @@ namespace LanguageExt
             return unit;
         }
 
+        [Obsolete("'FailureUnsafe' has been deprecated.  Please use 'IfLeftUnsafe' instead")]
         public R FailureUnsafe(Func<R> None) =>
             MatchUnsafe(identity, _ => None());
 
+        [Obsolete("'FailureUnsafe' has been deprecated.  Please use 'IfLeftUnsafe' instead")]
         public R FailureUnsafe(R noneValue) =>
             MatchUnsafe(identity, _ => noneValue);
+
+        /// <summary>
+        /// Matches on Left only.  Therefore Right is an identity function. 
+        /// </summary>
+        public R IfLeftUnsafe(Func<R> Left) =>
+            MatchUnsafe(identity, _ => Left());
+
+        /// <summary>
+        /// Matches on Left only.  Therefore Right is an identity function. 
+        /// </summary>
+        public R IfLeftUnsafe(R leftValue) =>
+            MatchUnsafe(identity, _ => leftValue);
+
+        /// <summary>
+        /// Invokes the rightHandler if EitherUnsafe is in the Right state, otherwise nothing
+        /// happens.
+        /// </summary>
+        public Unit IfRightUnsafe(Action<R> rightHandler)
+        {
+            if (IsRight)
+            {
+                rightHandler(right);
+            }
+            return unit;
+        }
+
+        public EitherUnsafeContext<L, R, Unit> Right(Action<R> rightHandler) =>
+            new EitherUnsafeContext<L, R, Unit>(this, fun(rightHandler));
 
         public EitherUnsafeContext<L, R, Ret> Right<Ret>(Func<R, Ret> rightHandler) =>
             new EitherUnsafeContext<L, R, Ret>(this, rightHandler);
@@ -163,10 +193,10 @@ namespace LanguageExt
                 : EitherUnsafe<L, Ret>.Left(LeftValue);
 
         public IImmutableList<R> ToList() =>
-            Prelude.toList(AsEnumerable());
+            toList(AsEnumerable());
 
         public ImmutableArray<R> ToArray() =>
-            Prelude.toArray(AsEnumerable());
+            toArray(AsEnumerable());
 
         public static bool operator ==(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
             lhs.Equals(rhs);

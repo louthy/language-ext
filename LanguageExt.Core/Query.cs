@@ -118,25 +118,6 @@ namespace LanguageExt
         public static int length<T>(IQueryable<T> list) =>
             list.Count();
 
-        public static Unit iter<T>(IQueryable<T> list, Action<T> action)
-        {
-            foreach (var item in list)
-            {
-                action(item);
-            }
-            return unit;
-        }
-
-        public static Unit iter<T>(IQueryable<T> list, Action<int, T> action)
-        {
-            int i = 0;
-            foreach (var item in list)
-            {
-                action(i++, item);
-            }
-            return unit;
-        }
-
         public static bool forall<T>(IQueryable<T> list, Expression<Func<T, bool>> pred) =>
             list.All(pred);
 
@@ -216,12 +197,6 @@ public static class __QueryExt
 
     public static int Length<T>(this IQueryable<T> list) =>
         Query.length(list);
-
-    public static Unit Iter<T>(this IQueryable<T> list, Action<T> action) =>
-        Query.iter(list, action);
-
-    public static Unit Iter<T>(this IQueryable<T> list, Action<int, T> action) =>
-        Query.iter(list, action);
 
     public static bool ForAll<T>(this IQueryable<T> list, Expression<Func<T, bool>> pred) =>
         Query.forall(list, pred);

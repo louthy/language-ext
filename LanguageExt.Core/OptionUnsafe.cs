@@ -79,9 +79,30 @@ namespace LanguageExt
             return Unit.Default;
         }
 
+        /// <summary>
+        /// Invokes the someHandler if OptionUnsafe is in the Some state, otherwise nothing
+        /// happens.
+        /// </summary>
+        public Unit IfSomeUnsafe(Action<T> someHandler)
+        {
+            if (IsSome)
+            {
+                someHandler(value);
+            }
+            return unit;
+        }
+
+        public T IfNoneUnsafe(Func<T> None) =>
+            MatchUnsafe(identity, None);
+
+        public T IfNoneUnsafe(T noneValue) =>
+            MatchUnsafe(identity, () => noneValue);
+
+        [Obsolete("'FailureUnsafe' has been deprecated.  Please use 'IfNoneUnsafe' instead")]
         public T FailureUnsafe(Func<T> None) =>
             MatchUnsafe(identity, None);
 
+        [Obsolete("'FailureUnsafe' has been deprecated.  Please use 'IfNoneUnsafe' instead")]
         public T FailureUnsafe(T noneValue) =>
             MatchUnsafe(identity, () => noneValue);
 

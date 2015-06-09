@@ -80,9 +80,30 @@ namespace LanguageExt
             return Unit.Default;
         }
 
+        /// <summary>
+        /// Invokes the someHandler if Option is in the Some state, otherwise nothing
+        /// happens.
+        /// </summary>
+        public Unit IfSome(Action<T> someHandler)
+        {
+            if (IsSome)
+            {
+                someHandler(value);
+            }
+            return unit;
+        }
+
+        public T IfNone(Func<T> None) =>
+            Match(identity, None);
+
+        public T IfNone(T noneValue) =>
+            Match(identity, () => noneValue);
+
+        [Obsolete("'Failure' has been deprecated.  Please use 'IfNone' instead")]
         public T Failure(Func<T> None) => 
             Match(identity, None);
 
+        [Obsolete("'Failure' has been deprecated.  Please use 'IfNone' instead")]
         public T Failure(T noneValue) => 
             Match(identity, () => noneValue);
 

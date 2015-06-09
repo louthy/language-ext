@@ -26,11 +26,22 @@ namespace LanguageExt
                 ? raise<Either<L, R>>(new ValueIsNullException())
                 : Either<L, R>.Left(value.Value);
 
+        [Obsolete("'failure' has been deprecated.  Please use 'ifLeft' instead")]
         public static R failure<L, R>(Either<L, R> either, Func<R> None) =>
             either.Failure(None);
 
+        [Obsolete("'failure' has been deprecated.  Please use 'ifLeft' instead")]
         public static R failure<L, R>(Either<L, R> either, R noneValue) =>
             either.Failure(noneValue);
+
+        public static R ifLeft<L, R>(Either<L, R> either, Func<R> None) =>
+            either.IfLeft(None);
+
+        public static R ifLeft<L, R>(Either<L, R> either, R noneValue) =>
+            either.IfLeft(noneValue);
+
+        public static Unit ifRight<L, R>(Either<L, R> either, Action<R> Right) =>
+            either.IfRight(Right);
 
         public static Ret match<L, R, Ret>(Either<L, R> either, Func<R, Ret> Right, Func<L, Ret> Left) =>
             either.Match(Right, Left);

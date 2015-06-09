@@ -56,11 +56,22 @@ namespace LanguageExt
                 ? Option<T>.Some(value.Value)
                 : Option<T>.None;
 
+        [Obsolete("'failure' has been deprecated.  Please use 'ifNone' instead")]
         public static T failure<T>(Option<T> option, Func<T> None) =>
             option.Failure(None);
 
+        [Obsolete("'failure' has been deprecated.  Please use 'ifNone' instead")]
         public static T failure<T>(Option<T> option, T noneValue) =>
             option.Failure(noneValue);
+
+        public static Unit ifSome<T>(Option<T> option, Action<T> Some) => 
+            option.IfSome(Some);
+
+        public static T ifNone<T>(Option<T> option, Func<T> None) =>
+            option.IfNone(None);
+
+        public static T ifNone<T>(Option<T> option, T noneValue) =>
+            option.IfNone(noneValue);
 
         public static R match<T, R>(Option<T> option, Func<T, R> Some, Func<R> None) =>
             option.Match(Some, None);

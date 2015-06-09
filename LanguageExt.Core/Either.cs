@@ -95,14 +95,44 @@ namespace LanguageExt
             return unit;
         }
 
+        [Obsolete("'Failure' has been deprecated.  Please use 'Left' instead")]
         public R Failure(Func<R> None) => 
             Match(identity, _ => None());
 
+        [Obsolete("'Failure' has been deprecated.  Please use 'Left' instead")]
         public R Failure(R noneValue) => 
             Match(identity, _ => noneValue);
 
-        public EitherContext<R, L, Ret> Right<Ret>(Func<R, Ret> rightHandler) =>
-            new EitherContext<R, L, Ret>(this, rightHandler);
+        /// <summary>
+        /// Matches on Left only.  Therefore Right is an identity function. 
+        /// </summary>
+        public R IfLeft(Func<R> Left) =>
+            Match(identity, _ => Left());
+
+        /// <summary>
+        /// Matches on Left only.  Therefore Right is an identity function. 
+        /// </summary>
+        public R IfLeft(R leftValue) =>
+            Match(identity, _ => leftValue);
+
+        /// <summary>
+        /// Invokes the rightHandler if Either is in the Right state, otherwise nothing
+        /// happens.
+        /// </summary>
+        public Unit IfRight(Action<R> rightHandler)
+        {
+            if (IsRight)
+            {
+                rightHandler(right);
+            }
+            return unit;
+        }
+
+        public EitherContext<L, R, Unit> Right(Action<R> rightHandler) =>
+            new EitherContext<L, R, Unit>(this, fun(rightHandler));
+
+        public EitherContext<L, R, Ret> Right<Ret>(Func<R, Ret> rightHandler) =>
+            new EitherContext<L, R, Ret>(this, rightHandler);
 
         public override string ToString() =>
             IsRight
@@ -216,7 +246,7 @@ namespace LanguageExt
                 : Either<NL, NR>.Left(left);
     }
 
-    public struct EitherContext<R, L, Ret>
+    public struct EitherContext<L, R, Ret>
     {
         readonly Either<L, R> either;
         readonly Func<R, Ret> rightHandler;

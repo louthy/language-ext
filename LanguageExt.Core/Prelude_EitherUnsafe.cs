@@ -16,11 +16,22 @@ namespace LanguageExt
         public static EitherUnsafe<L, R> LeftUnsafe<L, R>(L value) =>
             EitherUnsafe<L, R>.Left(value);
 
+        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifLeftUnsafe' instead")]
         public static R failureUnsafe<L, R>(EitherUnsafe<L, R> either, Func<R> None) =>
             either.FailureUnsafe(None);
 
+        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifLeftUnsafe' instead")]
         public static R failureUnsafe<L, R>(EitherUnsafe<L, R> either, R noneValue) =>
             either.FailureUnsafe(noneValue);
+
+        public static R ifLeft<L, R>(EitherUnsafe<L, R> either, Func<R> Left) =>
+            either.IfLeftUnsafe(Left);
+
+        public static R ifLeft<L, R>(EitherUnsafe<L, R> either, R leftValue) =>
+            either.IfLeftUnsafe(leftValue);
+
+        public static Unit ifRightUnsafe<L, R>(EitherUnsafe<L, R> either, Action<R> Right) =>
+            either.IfRightUnsafe(Right);
 
         public static Ret matchUnsafe<L, R, Ret>(EitherUnsafe<L, R> either, Func<R, Ret> Right, Func<L, Ret> Left) =>
             either.MatchUnsafe(Right, Left);

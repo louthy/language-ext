@@ -53,7 +53,7 @@ namespace LanguageExtTests
         public void FuncFailureTryMatchSuccessTest1()
         {
             Assert.IsTrue(
-                failure(GetValue(true), "failed") == "Hello, World"
+                ifNone(GetValue(true), "failed") == "Hello, World"
                 );
         }
 
@@ -61,7 +61,7 @@ namespace LanguageExtTests
         public void FuncFailureTryMatchFailTest1()
         {
             Assert.IsTrue(
-                failure(GetValue(false), "failed") == "failed"
+                ifNone(GetValue(false), "failed") == "failed"
                 );
         }
 

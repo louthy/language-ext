@@ -11,11 +11,22 @@ namespace LanguageExt
     /// </summary>
     public static partial class Prelude
     {
+        [Obsolete("'failure' has been deprecated.  Please use 'ifNone|ifNoneOrFail' instead")]
         public static T failure<T>(TryOption<T> tryDel, Func<T> Fail) =>
             tryDel.Failure(Fail);
 
+        [Obsolete("'failure' has been deprecated.  Please use 'ifNone|ifNoneOrFail' instead")]
         public static T failure<T>(TryOption<T> tryDel, T failValue) =>
             tryDel.Failure(failValue);
+
+        public static T ifNone<T>(TryOption<T> tryDel, Func<T> None) =>
+            tryDel.IfNone(None);
+
+        public static T ifNone<T>(TryOption<T> tryDel, T noneValue) =>
+            tryDel.IfNone(noneValue);
+
+        public static T ifNoneOrFail<T>(TryOption<T> tryDel, Func<T> None, Func<Exception,T> Fail) =>
+            tryDel.IfNoneOrFail(None,Fail);
 
         public static R match<T, R>(TryOption<T> tryDel, Func<T, R> Some, Func<R> None, Func<Exception, R> Fail) =>
             tryDel.Match(Some, None, Fail);
@@ -55,6 +66,8 @@ namespace LanguageExt
 
         public static IQueryable<Either<Exception, T>> toQuery<T>(TryOption<T> tryDel) =>
             tryDel.ToList().AsQueryable();
-            
+
+        public static TryOption<T> tryfun<T>(Func<TryOption<T>> tryDel) => () => 
+            tryDel()();
     }
 }

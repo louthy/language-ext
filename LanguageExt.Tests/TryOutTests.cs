@@ -8,13 +8,13 @@ namespace LanguageExtTests
     {
         [Test] public void OutTest()
         {
-            int value1 = parseInt("123").Failure(() => 0);
+            int value1 = parseInt("123").IfNone(() => 0);
 
-            int value2 = failure(parseInt("123"), () => 0);
+            int value2 = ifNone(parseInt("123"), () => 0);
 
-            int value3 = parseInt("123").Failure(0);
+            int value3 = parseInt("123").IfNone(0);
 
-            int value4 = failure(parseInt("123"), 0);
+            int value4 = ifNone(parseInt("123"), 0);
 
             Assert.IsTrue(value1 == 123);
             Assert.IsTrue(value2 == 123);
@@ -31,7 +31,7 @@ namespace LanguageExtTests
                 None: () => failwith<int>("Not an integer")
                 );
 
-            int value5 = failure(parseInt("XXX"), 0);
+            int value5 = ifNone(parseInt("XXX"), 0);
             Assert.IsTrue(value5 == 0);
         }
 

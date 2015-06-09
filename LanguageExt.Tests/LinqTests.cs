@@ -156,13 +156,13 @@ namespace LanguageExtTests
                        where v == 10
                        select v;
 
-            Assert.IsTrue(res1.Failure(0) == 10);
+            Assert.IsTrue(res1.IfNone(0) == 10);
 
             var res2 = from v in GetOptionValue(false)
                        where v == 10
                        select v;
 
-            Assert.IsTrue(res2.Failure(0) == 0);
+            Assert.IsTrue(res2.IfNone(0) == 0);
         }
 
         [Test]
@@ -172,13 +172,13 @@ namespace LanguageExtTests
                        where v == 10
                        select v;
 
-            Assert.IsTrue(res1.FailureUnsafe(0) == 10);
+            Assert.IsTrue(res1.IfNoneUnsafe(0) == 10);
 
             var res2 = from v in GetOptionUnsafeValue(false)
                        where v == 10
                        select v;
 
-            Assert.IsTrue(res2.FailureUnsafe(0) == 0);
+            Assert.IsTrue(res2.IfNoneUnsafe(0) == 0);
         }
 
 
@@ -189,13 +189,13 @@ namespace LanguageExtTests
                        where v == 10
                        select v;
 
-            Assert.IsTrue(res1.Failure(0) == 10);
+            Assert.IsTrue(res1.IfNone(0) == 10);
 
             var res2 = from v in GetTryOptionValue(1)
                        where v == 10
                        select v;
 
-            Assert.IsTrue(res2.Failure(0) == 0);
+            Assert.IsTrue(res2.IfNone(0) == 0);
 
             var res3 = match(from v in GetTryOptionValue(2)
                              where v == 10
