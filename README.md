@@ -84,11 +84,10 @@ An alternative (functional) way of matching is this:
 
 ```C#
     int x = match( optional, 
-                Some: v  => v * 2,
-                None: () => 0     
-                );
+                   Some: v  => v * 2,
+                   None: () => 0 );
 ```
-Yet another alternative matching method is this:
+Yet another alternative (fluent) matching method is this:
 ```C#
     int x = optional
                .Some( v  => v * 2 )
