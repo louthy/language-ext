@@ -117,8 +117,8 @@ namespace LanguageExt
             return unit;
         }
 
-        public EitherUnsafeContext<L, R, Unit> Right(Action<R> rightHandler) =>
-            new EitherUnsafeContext<L, R, Unit>(this, fun(rightHandler));
+        public EitherUnsafeUnitContext<L, R> Right(Action<R> rightHandler) =>
+            new EitherUnsafeUnitContext<L, R>(this, rightHandler);
 
         public EitherUnsafeContext<L, R, Ret> Right<Ret>(Func<R, Ret> rightHandler) =>
             new EitherUnsafeContext<L, R, Ret>(this, rightHandler);
@@ -243,6 +243,23 @@ namespace LanguageExt
         }
 
         public Ret Left(Func<L, Ret> leftHandler)
+        {
+            return matchUnsafe(either, rightHandler, leftHandler);
+        }
+    }
+
+    public struct EitherUnsafeUnitContext<L, R>
+    {
+        readonly EitherUnsafe<L, R> either;
+        readonly Action<R> rightHandler;
+
+        internal EitherUnsafeUnitContext(EitherUnsafe<L, R> either, Action<R> rightHandler)
+        {
+            this.either = either;
+            this.rightHandler = rightHandler;
+        }
+
+        public Unit Left(Action<L> leftHandler)
         {
             return matchUnsafe(either, rightHandler, leftHandler);
         }

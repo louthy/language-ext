@@ -68,6 +68,21 @@ namespace LanguageExt
             new TryNoneContext<T, R>(option, someHandler, () => noneValue);
     }
 
+    public struct TrySomeUnitContext<T>
+    {
+        readonly TryOption<T> option;
+        readonly Action<T> someHandler;
+
+        internal TrySomeUnitContext(TryOption<T> option, Action<T> someHandler)
+        {
+            this.option = option;
+            this.someHandler = someHandler;
+        }
+
+        public TryNoneUnitContext<T> None(Action noneHandler) =>
+            new TryNoneUnitContext<T>(option, someHandler, noneHandler);
+    }
+
     public struct TryNoneContext<T, R>
     {
         readonly TryOption<T> option;
@@ -86,6 +101,23 @@ namespace LanguageExt
 
         public R Fail(R failValue) =>
             option.Match(someHandler, noneHandler, _ => failValue);
+    }
+
+    public struct TryNoneUnitContext<T>
+    {
+        readonly TryOption<T> option;
+        readonly Action<T> someHandler;
+        readonly Action noneHandler;
+
+        internal TryNoneUnitContext(TryOption<T> option, Action<T> someHandler, Action noneHandler)
+        {
+            this.option = option;
+            this.someHandler = someHandler;
+            this.noneHandler = noneHandler;
+        }
+
+        public Unit Fail(Action<Exception> failHandler) =>
+            option.Match(someHandler, noneHandler, failHandler);
     }
 
     public static class TryOptionConfig
@@ -408,6 +440,9 @@ public static class __TryOptionExt
 
     public static TrySomeContext<T, R> Some<T, R>(this TryOption<T> self, Func<T, R> someHandler) =>
         new TrySomeContext<T, R>(self, someHandler);
+
+    public static TrySomeUnitContext<T> Some<T>(this TryOption<T> self, Action<T> someHandler) =>
+        new TrySomeUnitContext<T>(self, someHandler);
 
     public static string AsString<T>(this TryOption<T> self) =>
         match(self,

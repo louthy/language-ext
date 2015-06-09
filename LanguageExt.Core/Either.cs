@@ -128,8 +128,8 @@ namespace LanguageExt
             return unit;
         }
 
-        public EitherContext<L, R, Unit> Right(Action<R> rightHandler) =>
-            new EitherContext<L, R, Unit>(this, fun(rightHandler));
+        public EitherUnitContext<L, R> Right(Action<R> rightHandler) =>
+            new EitherUnitContext<L, R>(this, rightHandler);
 
         public EitherContext<L, R, Ret> Right<Ret>(Func<R, Ret> rightHandler) =>
             new EitherContext<L, R, Ret>(this, rightHandler);
@@ -277,6 +277,23 @@ namespace LanguageExt
         }
 
         public Ret Left(Func<L, Ret> leftHandler)
+        {
+            return match(either, rightHandler, leftHandler);
+        }
+    }
+
+    public struct EitherUnitContext<L, R>
+    {
+        readonly Either<L, R> either;
+        readonly Action<R> rightHandler;
+
+        internal EitherUnitContext(Either<L, R> either, Action<R> rightHandler)
+        {
+            this.either = either;
+            this.rightHandler = rightHandler;
+        }
+
+        public Unit Left(Action<L> leftHandler)
         {
             return match(either, rightHandler, leftHandler);
         }

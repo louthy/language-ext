@@ -107,6 +107,9 @@ namespace LanguageExt
         public T Failure(T noneValue) => 
             Match(identity, () => noneValue);
 
+        public SomeUnitContext<T> Some<R>(Action<T> someHandler) =>
+            new SomeUnitContext<T>(this, someHandler);
+
         public SomeContext<T, R> Some<R>(Func<T, R> someHandler) =>
             new SomeContext<T, R>(this,someHandler);
 
@@ -166,10 +169,10 @@ namespace LanguageExt
                 : Option<R>.None;
 
         public IImmutableList<T> ToList() =>
-            Prelude.toList(AsEnumerable());
+            toList(AsEnumerable());
 
         public ImmutableArray<T> ToArray() =>
-            Prelude.toArray(AsEnumerable());
+            toArray(AsEnumerable());
 
         public IEnumerable<T> AsEnumerable()
         {
@@ -248,6 +251,21 @@ namespace LanguageExt
 
         public R None(R noneValue) =>
             match(option, someHandler, () => noneValue);
+    }
+
+    public struct SomeUnitContext<T>
+    {
+        readonly Option<T> option;
+        readonly Action<T> someHandler;
+
+        internal SomeUnitContext(Option<T> option, Action<T> someHandler)
+        {
+            this.option = option;
+            this.someHandler = someHandler;
+        }
+
+        public Unit None(Action noneHandler) =>
+            match(option, someHandler, noneHandler);
     }
 
     public struct OptionNone

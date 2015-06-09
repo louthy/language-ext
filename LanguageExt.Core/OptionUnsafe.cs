@@ -106,6 +106,9 @@ namespace LanguageExt
         public T FailureUnsafe(T noneValue) =>
             MatchUnsafe(identity, () => noneValue);
 
+        public SomeUnsafeUnitContext<T> SomeUnsafe<R>(Action<T> someHandler) =>
+            new SomeUnsafeUnitContext<T>(this, someHandler);
+
         public SomeUnsafeContext<T, R> SomeUnsafe<R>(Func<T, R> someHandler) =>
             new SomeUnsafeContext<T, R>(this, someHandler);
 
@@ -233,6 +236,21 @@ namespace LanguageExt
 
         public R None(R noneValue) =>
             matchUnsafe(option, someHandler, () => noneValue);
+    }
+
+    public struct SomeUnsafeUnitContext<T>
+    {
+        readonly OptionUnsafe<T> option;
+        readonly Action<T> someHandler;
+
+        internal SomeUnsafeUnitContext(OptionUnsafe<T> option, Action<T> someHandler)
+        {
+            this.option = option;
+            this.someHandler = someHandler;
+        }
+
+        public Unit None(Action noneHandler) =>
+            matchUnsafe(option, someHandler, noneHandler);
     }
 
     internal static class OptionUnsafe
