@@ -174,6 +174,16 @@ namespace LanguageExt
             }
         }
 
+        public EitherUnsafe<L, T> ToEitherUnsafe<L>(L defaultLeftValue) =>
+            IsSome
+                ? RightUnsafe<L, T>(Value)
+                : LeftUnsafe<L, T>(defaultLeftValue);
+
+        public EitherUnsafe<L, T> ToEitherUnsafe<L>(Func<L> Left) =>
+            IsSome
+                ? RightUnsafe<L, T>(Value)
+                : LeftUnsafe<L, T>(Left());
+
         public IEnumerator<T> GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 

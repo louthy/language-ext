@@ -229,6 +229,9 @@ public static class __TryOptionExt
         return Unit.Default;
     }
 
+    public static Option<T> ToOption<T>(this TryOption<T> self) =>
+        self.Try().Value;
+
     private static TryOptionResult<T> Try<T>(this TryOption<T> self)
     {
         try

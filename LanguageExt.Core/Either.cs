@@ -11,7 +11,7 @@ namespace LanguageExt
     {
         enum EitherState : byte
         {
-            IsUninitialised= 0,
+            IsUninitialised = 0,
             IsLeft = 1,
             IsRight = 2
         }
@@ -34,10 +34,10 @@ namespace LanguageExt
             this.left = left;
         }
 
-        internal static Either<L, R> Right(R value) => 
+        internal static Either<L, R> Right(R value) =>
             new Either<L, R>(value);
 
-        internal static Either<L, R> Left(L value) => 
+        internal static Either<L, R> Left(L value) =>
             new Either<L, R>(value);
 
         public bool IsRight =>
@@ -48,7 +48,7 @@ namespace LanguageExt
 
         internal R RightValue =>
             CheckInitialised(
-                IsRight 
+                IsRight
                     ? right
                     : raise<R>(new EitherIsNotRightException())
             );
@@ -73,14 +73,14 @@ namespace LanguageExt
 
         private T CheckNullReturn<T>(T value, string location) =>
             value == null
-                ? raise<T>(new ResultIsNullException("'"+location+"' result is null.  Not allowed."))
+                ? raise<T>(new ResultIsNullException("'" + location + "' result is null.  Not allowed."))
                 : value;
 
 
         public Ret Match<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
             IsRight
-                ? CheckNullReturn(Right(RightValue),"Right")
-                : CheckNullReturn(Left(LeftValue),"Left");
+                ? CheckNullReturn(Right(RightValue), "Right")
+                : CheckNullReturn(Left(LeftValue), "Left");
 
         public Unit Match(Action<R> Right, Action<L> Left)
         {
@@ -96,11 +96,11 @@ namespace LanguageExt
         }
 
         [Obsolete("'Failure' has been deprecated.  Please use 'Left' instead")]
-        public R Failure(Func<R> None) => 
+        public R Failure(Func<R> None) =>
             Match(identity, _ => None());
 
         [Obsolete("'Failure' has been deprecated.  Please use 'Left' instead")]
-        public R Failure(R noneValue) => 
+        public R Failure(R noneValue) =>
             Match(identity, _ => noneValue);
 
         /// <summary>
@@ -210,6 +210,25 @@ namespace LanguageExt
             {
                 yield return RightValue;
             }
+        }
+
+        public Option<R> ToOption() =>
+            IsRight
+                ? Some(RightValue)
+                : None;
+
+        public EitherUnsafe<L, R> ToEitherUnsafe() =>
+            IsRight
+                ? RightUnsafe<L, R>(RightValue)
+                : LeftUnsafe<L, R>(LeftValue);
+
+        public TryOption<R> ToTryOption()
+        {
+            var self = this;
+            return () =>
+                self.IsRight
+                    ? Some(self.RightValue)
+                    : None;
         }
 
         public IEnumerator<R> GetEnumerator() =>
