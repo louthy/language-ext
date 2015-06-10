@@ -84,11 +84,10 @@ An alternative (functional) way of matching is this:
 
 ```C#
     int x = match( optional, 
-                Some: v  => v * 2,
-                None: () => 0     
-                );
+                   Some: v  => v * 2,
+                   None: () => 0 );
 ```
-Yet another alternative matching method is this:
+Yet another alternative (fluent) matching method is this:
 ```C#
     int x = optional
                .Some( v  => v * 2 )
@@ -176,46 +175,46 @@ As well as the protection of the internal value of `Option<T>`, there's protecti
 
 ```C#
     // This will throw a ResultIsNullException exception
-    GetValue(true)
-      .Some(x => (string)null)
-      .None((string)null);
+    string res = GetValue(true)
+                     .Some(x => (string)null)
+                     .None((string)null);
 ```
 
 So `null` goes away if you use `Option<T>`.
 
-Sometimes you just want to execute some specific behaviour when `None` is returned so that you can provide a decent default value, or raise an exception.  That is what the `failure` method is for:
+Sometimes you just want to execute some specific behaviour when `None` is returned so that you can provide a decent default value, or raise an exception.  That is what the `IfNone` method is for:
 
 ```C#
     Option<int> optional = None;
         
     // Defaults to 999 if optional is None
-    int value = optional.Failure(999);
+    int value = optional.IfNone(999);
 ```
 
-You can also use a function to handle the failure:
+You can also use a function to handle `None`:
 
 ```C#
     Option<int> optional = None;
         
-    var backupInteger = fun( () => 999 );
+    var backup = fun( () => 999 );
         
-    int value = optional.Failure(backupInteger);
+    int value = optional.IfNone(backup);
 ```
 
-There are also functional variants of `failure`:
+There are also functional variants of `IfNone`:
 
 ```C#
     Option<int> optional = None;
         
-    var backupInteger = fun( () => 999 );
+    var backup  = fun( () => 999 );
         
-    int value1 = failure(optional, 999);
-    int value2 = failure(optional, backupInteger);
+    int value1 = ifNone(optional, 999);
+    int value2 = ifNone(optional, backup);
 ```
 
-Essentially you can think of `Failure` as `Match` where the `Some` branch always returns the wrapped value 'as is'.  Therefore there's no need for a `Some` function handler.
+Essentially you can think of `IfNone` as `Match` where the `Some` branch always returns the wrapped value 'as is'.  Therefore there's no need for a `Some` function handler.
 
-If you know what a monad is, then the `Option<T>` type implements `Select` and `SelectMany` and is monadic.  Therefore it can be use in LINQ expressions.  
+The `Option<T>` type also implements `Select` and `SelectMany` and is therefore monadic.  That means it can be use in LINQ expressions.  
 
 ```C#
     Option<int> two = Some(2);
@@ -551,10 +550,10 @@ This allows for branching based on whether the item is in the map or not:
                      None: () => "failed" );
                    
     // Find the item and return it.  If it's not there, return "failed"
-    var res = find(people, 100).Failure("failed");                   
+    var res = find(people, 100).IfNone("failed");                   
     
     // Find the item and return it.  If it's not there, return "failed"
-    var res = failure( find(people, 100), "failed" );
+    var res = ifNone( find(people, 100), "failed" );
 ```
 Because checking for the existence of something in a dictionary (`find`), and then matching on its result is very common, there is a more convenient `match` override:
 ```C#
@@ -624,24 +623,21 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
 ```C#
     
     // Attempts to parse the value, uses 0 if it can't
-    int value1 = parseInt("123").Failure(0);
+    int res = parseInt("123").IfNone(0);
 
     // Attempts to parse the value, uses 0 if it can't
-    int value2 = failure(parseInt("123"), 0);
+    int res = ifNone(parseInt("123"), 0);
 
-    // Attempts to parse the value, dispatches it to the UseTheInteger
-    // function if successful.  Throws an exception if not.
-    parseInt("123").Match(
-        Some: UseTheInteger,
-        None: () => failwith<int>("Not an integer")
-        );
+    // Attempts to parse the value, doubles it if can, returns 0 otherwise
+    int res = parseInt("123").Match(
+                  Some: x => x * 2,
+                 None: () => 0
+              );
 
-    // Attempts to parse the value, dispatches it to the UseTheInteger
-    // function if successful.  Throws an exception if not.
-    match( parseInt("123"),
-        Some: UseTheInteger,
-        None: () => failwith<int>("Not an integer")
-        );
+    // Attempts to parse the value, doubles it if can, returns 0 otherwise
+    int res = match( parseInt("123"),
+                     Some: x => x * 2,
+                     None: () => 0 );
 ```
 
 ### The rest
