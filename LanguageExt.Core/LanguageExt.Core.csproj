@@ -31,9 +31,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Collections.Immutable, Version=1.1.34.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\System.Collections.Immutable.1.1.34-rc\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+    <Reference Include="System.Collections.Immutable, Version=1.1.36.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.1.36\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -46,6 +46,7 @@
     <Compile Include="EitherUnsafe.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="IOptionalValue.cs" />
+    <Compile Include="Prelude_Monad.cs" />
     <Compile Include="Query.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="OptionUnsafe.cs" />
@@ -60,6 +61,7 @@
     <Compile Include="Prelude_Tuple.cs" />
     <Compile Include="Queue.cs" />
     <Compile Include="Range.cs" />
+    <Compile Include="Reader.cs" />
     <Compile Include="Set.cs" />
     <Compile Include="Some.cs" />
     <Compile Include="Prelude.cs" />
@@ -70,11 +72,13 @@
     <Compile Include="Prelude_Parse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Stack.cs" />
+    <Compile Include="State.cs" />
     <Compile Include="TryOption.cs" />
     <Compile Include="TryOutExt.cs" />
     <Compile Include="TupleExt.cs" />
     <Compile Include="TypeConverters.cs" />
     <Compile Include="Unit.cs" />
+    <Compile Include="Writer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
