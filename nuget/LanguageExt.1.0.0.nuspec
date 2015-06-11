@@ -25,54 +25,50 @@
             Powerful 'prelude' which you include by `using static LanguageExt.Prelude` (in C# 6) that covers many of the basic functional language core library functions and types (from `using LanguageExt`):
 
                 Pattern matching
-                Lambda type-inference: `var fn = fun( (int x, int y) => x + y );`
-                `Option<T>`, `OptionUnsafe<T>`, `Either<L,R>`, `EitherUnsafe<L,R>` and `TryOption<T>` monads (probably the most complete implementations you'll find in the .NET world)
+                Lambda type-inference: `var fn = fun( (int x, int y) =&gt; x + y );`
+                `Option&lt;T&gt;`, `OptionUnsafe&lt;T&gt;`, `Either&lt;L,R&gt;`, `EitherUnsafe&lt;L,R&gt;` and `TryOption&lt;T&gt;` monads (probably the most complete implementations you'll find in the .NET world)
                 `tuple(a,b,...)` - `Tuple` construction without typing `Tuple.Create(a,b,...)` as well as `map` to project the `Item1..ItemN` properties onto named values.
-                `List` - immutable list support (`cons`,`empty`,`range`,`init`,`initInfinite`,`repeat`,`add`,`addRange`,`remove`,`removeAt`,`head`,`headSafe`,`headOrNone`,`tail`,`map`,`filter`,`choose`,`collect`,`sum`,`rev`,`append`,`fold`,`foldBack`,`reduce`,`reduceBack`,`scan`,`scanBack`,`find`,`freeze`,`length`,`iter`,`forall`,`distinct`,`take`,`takeWhile`,`unfold`,`exists`)
-                `Map` - immutable map support (`add`,`addRange`,`remove`,`containsKey`,`contains`,`setItem`,`find`,`iter`,`forall`,`map`,`filter`,`choose`,`length`,`fold`,`exists`)
-                `Set` - immutable set support (`add`,`compare`,`length`,`difference`,`exists`,`filter`,`intersect`,`map`,`contains`,`remove`,`isSubset`, `isProperSubset`)
-                `Queue` - immutable queue support (`deq`,`deqUnsafe`,`peek`,`peekUnsafe`,`clear`,`map`,`filter`,`choose`,`collect`,`rev`,`append`,`fold`,`foldBack`,`reduce`,`reduceBack`,`scan`,`scanBack`,`find`,`zip`,`length`,`iter`,`forall`,`distinct`,`take`,`takeWhile`,`exists`)
+                `List` - immutable list 
+                `Map` - immutable map                                                
+                `Set` - immutable set
                 `memo` - Memoization with auto-cache purging using weak-references
-                `Unit` - unit type
                 `Writer` monad
                 `Reader` monad
                 `State` monad
-                Extension methods and replacement functions for dealing with `out` (Int32.TryParse, IDictionary.TryGetValue, etc.)
-        </description>
+                Extension methods and replacement functions for dealing with `out` (Int32.TryParse, IDictionary.TryGetValue, etc.)</description>
         <summary />
-        <releaseNotes>
-            Now that System.Collections.Immutable has been fully released (as version 1.1.36) we can now do a full release of Language-ext.  
+        <releaseNotes>Now that System.Collections.Immutable has been fully released (as version 1.1.36) we can now do a full release of Language-ext.  
 
             So here is version 1.0.0!
 
             Additions:
-                New `Reader<E,T>` monad
+                New `Reader&lt;E,T&gt;` monad
                     `Prelude.Reader` constructor function
                     `Prelude.ask` function
                     `Prelude.local` function
-                New `Writer<W,T>` monad    
+                New `Writer&lt;W,T&gt;` monad    
                     `Prelude.Writer` constructor function
                     `Prelude.tell` function
-                New `State<S,T>` monad
+                New `State&lt;S,T&gt;` monad
                     `Prelude.State` constructor function
                     `Prelude.get` function
                     `Prelude.put` function
-                `Option<T>`
+                `Option&lt;T&gt;`
                     `IfSome` method for dispatching actions and ignoring `None`
                     `Prelude.ifSome` as above
                     `IfNone` method (replaces `Failure`)
                     `Prelude.ifNone` function (replaces `Prelude.failure`)
-                    `ToEither` converts an `Option<T>` to an `Either<L,T>` (you must provide a default(L) value or func incase the Option is in a None state)
-                    `ToEitherUnsafe` converts an `Option<T>` to an `EitherUnsafe<L,T>` (you must provide a default(L) value or func incase the Option is in a None state)
+                    `ToEither` converts an `Option&lt;T&gt;` to an `Either&lt;L,T&gt;` (you must provide a default(L) value or func incase the Option is in a None state)
+                    `ToEitherUnsafe` converts an `Option&lt;T&gt;` to an `EitherUnsafe&lt;L,T&gt;` (you must provide a default(L) value or func incase the Option is in a None state)
                     `Some` fluent method now also supports `Action`
-                `OptionUnsafe<T>`
+                `OptionUnsafe&lt;T&gt;`
                     `IfSomeUnsafe` method for dispatching actions and ignoring `None` 
                     `Prelude.ifSomeUnsafe` as above
                     `IfNoneUnsafe` method (replaces `FailureUnsafe`)
                     `Prelude.ifNoneUnsafe` function (replaces `Prelude.failureUnsafe`)
-                    `ToEitherUnsafe` converts an `OptionUnsafe<T>` to an `EitherUnsafe<L,T>` (you must provide a default(L) value or func incase the OptionUnsafe is in a None state)
+                    `ToEitherUnsafe` converts an `OptionUnsafe&lt;T&gt;` to an `EitherUnsafe&lt;L,T&gt;` (you must provide a default(L) value or func incase the OptionUnsafe is in a None state)
                     `Some` fluent method now also supports `Action`
-                `TryOption<T>`
+                `TryOption&lt;T&gt;`
                     `IfSome` method for dispatching actions and ignoring `None` or `Fail`
                     `Prelude.ifSome` as above
                     `IfNone` method (replaces `Failure`)
@@ -81,18 +77,18 @@
                     `Prelude.ifNoneOrFail` as above
                     `TryOptionConfig.ErrorLogger` static variable which can be used to attach error logging behaviour to the `Fail` state of `TryOption`
                     `Prelude.tryfun` function wraps a `TryOption` in a `Func`
-                    `ToOption` converts a `TryOption<T>` to a `Option<T>` (Fail becomes None)
+                    `ToOption` converts a `TryOption&lt;T&gt;` to a `Option&lt;T&gt;` (Fail becomes None)
                     `Some` fluent method now also supports `Action`
-                `Either<L,R>`
+                `Either&lt;L,R&gt;`
                     `IfRight` method for dispatching actions and ignoring `Left`
                     `Prelude.ifRight` as above
                     `IfLeft` method (replaces `Failure`)
                     `Prelude.ifLeft` method (replaces `Prelude.failure`)
                     `Right` fluent method now also supports `Action`
-                    `ToOption` converts an `Either<L,R>` to an `Option<R>` (L becomes None)
-                    `ToTryOption` converts an `Either<L,R>` to a `TryOption<R>`
-                    `ToEitherUnsafe` converts an `Either<L,R>` to an `EitherUnsafe<L,R>` (L becomes None)
-                `EitherUnsafe<L,R>`
+                    `ToOption` converts an `Either&lt;L,R&gt;` to an `Option&lt;R&gt;` (L becomes None)
+                    `ToTryOption` converts an `Either&lt;L,R&gt;` to a `TryOption&lt;R&gt;`
+                    `ToEitherUnsafe` converts an `Either&lt;L,R&gt;` to an `EitherUnsafe&lt;L,R&gt;` (L becomes None)
+                `EitherUnsafe&lt;L,R&gt;`
                     `IfRightUnsafe` method for dispatching actions and ignoring `Left`
                     `Prelude.ifRightUnsafe` as above
                     `IfLeftUnsafe` method (replaces `FailureUnsafe`)
@@ -100,7 +96,7 @@
                     `Right` fluent method now also supports `Action`
 
             Updates:
-                `Prelude.convert<T>` now returns `None` if input is `null` (it previously threw an exception)
+                `Prelude.convert&lt;T&gt;` now returns `None` if input is `null` (it previously threw an exception)
 
             Fixes:
                 Query.zip would go into an infinite loop. Fixed.
@@ -110,10 +106,9 @@
                 Dependency on ConcurrentHashTable
                 `failure` and `Failure` (for `ifNone`, `IfNone`, `ifLeft`, etc.)
                 Iter extension method in Query, it was causing resolution problems for the compiler.
-                Removed `RightUnsafe` and `LeftUnsafe` from `Either`, these were a hangover from when `EitherUnsafe` didn't exist and `Either` had a dual role.  This isn't needed any more.
-
-        </releaseNotes>
-        <tags>C# Functional Language Extension</tags>
+                Removed `RightUnsafe` and `LeftUnsafe` from `Either`, these were a hangover from when `EitherUnsafe` didn't exist and `Either` had a dual role.  This isn't needed any more.</releaseNotes>
+        <copyright>Paul Louth 2015</copyright>
+        <tags>C# Functional Language Extension Monad Option Either Reader Writer State List Set Map Queue Memo Memoization Immutable Lambda Pattern Matching Tuple</tags>
         <dependencies>
             <group targetFramework=".NETFramework4.5">
                 <dependency id="System.Collections.Immutable" version="1.1.36" />
