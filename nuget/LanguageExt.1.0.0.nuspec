@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>LanguageExt</id>
+        <version>1.0.0</version>
+        <title>C# Functional Language Extensions</title>
+        <authors>Paul Louth</authors>
+        <licenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/louthy/language-ext</projectUrl>
+        <iconUrl>http://www.4four.org/images/lang-ext-logo.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Use and abuse the features of C#, which, if you squint, can look like extensions to the language itself.  This package is a functional 'toolkit' and also solves some of the annoyances with C#, namely:
+
+            * Poor tuple support
+            * Null reference problem
+            * Lack of lambda and expression inference
+            * Void isn't a real type
+            * Mutable lists, dictionaries, sets, queues, etc.
+            * The awful 'out' parameter
+
+        The library very heavily focusses on correctness, to give you the tools needed to write safe declarative code.
+
+        Features:
+
+            Powerful 'prelude' which you include by `using static LanguageExt.Prelude` (in C# 6) that covers many of the basic functional language core library functions and types (from `using LanguageExt`):
+
+                Pattern matching
+                Lambda type-inference: `var fn = fun( (int x, int y) => x + y );`
+                `Option<T>`, `OptionUnsafe<T>`, `Either<L,R>`, `EitherUnsafe<L,R>` and `TryOption<T>` monads (probably the most complete implementations you'll find in the .NET world)
+                `tuple(a,b,...)` - `Tuple` construction without typing `Tuple.Create(a,b,...)` as well as `map` to project the `Item1..ItemN` properties onto named values.
+                `List` - immutable list support (`cons`,`empty`,`range`,`init`,`initInfinite`,`repeat`,`add`,`addRange`,`remove`,`removeAt`,`head`,`headSafe`,`headOrNone`,`tail`,`map`,`filter`,`choose`,`collect`,`sum`,`rev`,`append`,`fold`,`foldBack`,`reduce`,`reduceBack`,`scan`,`scanBack`,`find`,`freeze`,`length`,`iter`,`forall`,`distinct`,`take`,`takeWhile`,`unfold`,`exists`)
+                `Map` - immutable map support (`add`,`addRange`,`remove`,`containsKey`,`contains`,`setItem`,`find`,`iter`,`forall`,`map`,`filter`,`choose`,`length`,`fold`,`exists`)
+                `Set` - immutable set support (`add`,`compare`,`length`,`difference`,`exists`,`filter`,`intersect`,`map`,`contains`,`remove`,`isSubset`, `isProperSubset`)
+                `Queue` - immutable queue support (`deq`,`deqUnsafe`,`peek`,`peekUnsafe`,`clear`,`map`,`filter`,`choose`,`collect`,`rev`,`append`,`fold`,`foldBack`,`reduce`,`reduceBack`,`scan`,`scanBack`,`find`,`zip`,`length`,`iter`,`forall`,`distinct`,`take`,`takeWhile`,`exists`)
+                `memo` - Memoization with auto-cache purging using weak-references
+                `Unit` - unit type
+                `Writer` monad
+                `Reader` monad
+                `State` monad
+                Extension methods and replacement functions for dealing with `out` (Int32.TryParse, IDictionary.TryGetValue, etc.)
+        </description>
+        <summary />
+        <releaseNotes>
+            Now that System.Collections.Immutable has been fully released (as version 1.1.36) we can now do a full release of Language-ext.  
+
+            So here is version 1.0.0!
+
+            Additions:
+                New `Reader<E,T>` monad
+                    `Prelude.Reader` constructor function
+                    `Prelude.ask` function
+                    `Prelude.local` function
+                New `Writer<W,T>` monad    
+                    `Prelude.Writer` constructor function
+                    `Prelude.tell` function
+                New `State<S,T>` monad
+                    `Prelude.State` constructor function
+                    `Prelude.get` function
+                    `Prelude.put` function
+                `Option<T>`
+                    `IfSome` method for dispatching actions and ignoring `None`
+                    `Prelude.ifSome` as above
+                    `IfNone` method (replaces `Failure`)
+                    `Prelude.ifNone` function (replaces `Prelude.failure`)
+                    `ToEither` converts an `Option<T>` to an `Either<L,T>` (you must provide a default(L) value or func incase the Option is in a None state)
+                    `ToEitherUnsafe` converts an `Option<T>` to an `EitherUnsafe<L,T>` (you must provide a default(L) value or func incase the Option is in a None state)
+                    `Some` fluent method now also supports `Action`
+                `OptionUnsafe<T>`
+                    `IfSomeUnsafe` method for dispatching actions and ignoring `None` 
+                    `Prelude.ifSomeUnsafe` as above
+                    `IfNoneUnsafe` method (replaces `FailureUnsafe`)
+                    `Prelude.ifNoneUnsafe` function (replaces `Prelude.failureUnsafe`)
+                    `ToEitherUnsafe` converts an `OptionUnsafe<T>` to an `EitherUnsafe<L,T>` (you must provide a default(L) value or func incase the OptionUnsafe is in a None state)
+                    `Some` fluent method now also supports `Action`
+                `TryOption<T>`
+                    `IfSome` method for dispatching actions and ignoring `None` or `Fail`
+                    `Prelude.ifSome` as above
+                    `IfNone` method (replaces `Failure`)
+                    `Prelude.ifNone` function (replaces `Prelude.failure`)
+                    `IfNoneOrFail` method for handling both failure states separately (Some state uses identity function)
+                    `Prelude.ifNoneOrFail` as above
+                    `TryOptionConfig.ErrorLogger` static variable which can be used to attach error logging behaviour to the `Fail` state of `TryOption`
+                    `Prelude.tryfun` function wraps a `TryOption` in a `Func`
+                    `ToOption` converts a `TryOption<T>` to a `Option<T>` (Fail becomes None)
+                    `Some` fluent method now also supports `Action`
+                `Either<L,R>`
+                    `IfRight` method for dispatching actions and ignoring `Left`
+                    `Prelude.ifRight` as above
+                    `IfLeft` method (replaces `Failure`)
+                    `Prelude.ifLeft` method (replaces `Prelude.failure`)
+                    `Right` fluent method now also supports `Action`
+                    `ToOption` converts an `Either<L,R>` to an `Option<R>` (L becomes None)
+                    `ToTryOption` converts an `Either<L,R>` to a `TryOption<R>`
+                    `ToEitherUnsafe` converts an `Either<L,R>` to an `EitherUnsafe<L,R>` (L becomes None)
+                `EitherUnsafe<L,R>`
+                    `IfRightUnsafe` method for dispatching actions and ignoring `Left`
+                    `Prelude.ifRightUnsafe` as above
+                    `IfLeftUnsafe` method (replaces `FailureUnsafe`)
+                    `Prelude.ifLeftUnsafe` method (replaces `Prelude.failureUnsafe`)
+                    `Right` fluent method now also supports `Action`
+
+            Updates:
+                `Prelude.convert<T>` now returns `None` if input is `null` (it previously threw an exception)
+
+            Fixes:
+                Query.zip would go into an infinite loop. Fixed.
+                Comments
+
+            Deprecated:
+                Dependency on ConcurrentHashTable
+                `failure` and `Failure` (for `ifNone`, `IfNone`, `ifLeft`, etc.)
+                Iter extension method in Query, it was causing resolution problems for the compiler.
+                Removed `RightUnsafe` and `LeftUnsafe` from `Either`, these were a hangover from when `EitherUnsafe` didn't exist and `Either` had a dual role.  This isn't needed any more.
+
+        </releaseNotes>
+        <tags>C# Functional Language Extension</tags>
+        <dependencies>
+            <group targetFramework=".NETFramework4.5">
+                <dependency id="System.Collections.Immutable" version="1.1.36" />
+            </group>
+        </dependencies>
+        <frameworkAssemblies>
+            <frameworkAssembly assemblyName="System" targetFramework="" />
+        </frameworkAssemblies>
+    </metadata>
+    <files>
+        <file src="..\lib\LanguageExt.Core.dll" target="lib\LanguageExt.Core.dll" />
+    </files>
+</package>
