@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LanguageExt
 {
@@ -37,7 +34,7 @@ namespace LanguageExt
         /// <param name="value"></param>
         /// <returns>Writer monad</returns>
         public static Writer<Out, Unit> tell<Out>(Out value) => () => 
-            new WriterResult<Out, Unit>(Unit.Default, new Out[1] { value });
+            new WriterResult<Out, Unit>(unit, new Out[1] { value });
 
         /// <summary>
         /// Reader monad constructor

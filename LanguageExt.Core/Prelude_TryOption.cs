@@ -19,6 +19,9 @@ namespace LanguageExt
         public static T failure<T>(TryOption<T> tryDel, T failValue) =>
             tryDel.Failure(failValue);
 
+        public static Unit ifSome<T>(TryOption<T> tryDel, Action<T> Some) =>
+            tryDel.IfSome(Some);
+
         public static T ifNone<T>(TryOption<T> tryDel, Func<T> None) =>
             tryDel.IfNone(None);
 
