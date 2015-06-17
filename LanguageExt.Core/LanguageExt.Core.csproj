@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EitherUnsafe.cs" />
+    <Compile Include="ExceptionMatch.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="IOptionalValue.cs" />
     <Compile Include="Prelude_Monad.cs" />

@@ -10,16 +10,41 @@ using System.Diagnostics;
 
 namespace ProcessSample
 {
+    /// <summary>
+    /// This is just a dumping ground I use for debugging the library, you can ignore this.
+    /// </summary>
     class TestBed
     {
         public static void RunTests()
         {
+            ExTest4();
             MemoTest();
             UnsafeOptionTest();
             MassiveSpawnAndKillHierarchy();
             SpawnAndKillProcess();
             SpawnAndKillHierarchy();
         }
+
+        public static void ExTest4()
+        {
+            string x = match(Number<Exception>(9),
+                              Succ: v => "Worked",
+                              Fail: ex => ex.Match<string>()
+                                            .With<SystemException>(e => "It's a system exception")
+                                            .With<ArgumentNullException>(e => "Arg null")
+                                            .Otherwise("Not handled"));
+
+            if (x == "Not handled")
+            {
+                Console.WriteLine("Eq");
+            }
+        }
+
+        private static Try<int> Number<T>(int x) where T : Exception, new() => () =>
+            x % 2 == 0
+                ? x
+                : raise<int>(new T());
+
 
         public static void MemoTest()
         {

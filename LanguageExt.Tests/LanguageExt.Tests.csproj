@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EqualityTests.cs" />
+    <Compile Include="ExceptionMatching.cs" />
     <Compile Include="FunTests.cs" />
     <Compile Include="LinqTests.cs" />
     <Compile Include="ListMatchingTests.cs" />

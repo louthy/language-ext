@@ -8,6 +8,32 @@ namespace LanguageExtTests
     public class TryOptionMonadTests
     {
         [Test]
+        public void TryOddNumber1()
+        {
+            var res = match( from x in OddNumberCrash(10)
+                             from y in OddNumberCrash(10)
+                             from z in OddNumberCrash(10)
+                             select x * y * z,
+                             Succ: v => v,
+                             Fail: 0 );
+
+            Assert.IsTrue(res == 1000);
+        }
+
+        [Test]
+        public void TryOddNumber2()
+        {
+            var res = match( from x in OddNumberCrash(10)
+                             from y in OddNumberCrash(9)
+                             from z in OddNumberCrash(10)
+                             select x * y * z,
+                             Succ: v => v,
+                             Fail: 0 );
+
+            Assert.IsTrue(res == 0);
+        }
+
+        [Test]
         public void TryLinq1()
         {
             var res = match( from x in Num(10)
@@ -109,5 +135,13 @@ namespace LanguageExtTests
             () => select
                 ? x
                 : failwith<int>("Failed!");
+
+        Try<int> OddNumberCrash(int x) => () =>
+        {
+            if (x % 2 == 0)
+                return x;
+            else
+                throw new System.Exception("Any exception");
+        };
     }
 }
