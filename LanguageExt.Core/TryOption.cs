@@ -50,46 +50,46 @@ namespace LanguageExt
     }
 
 
-    public struct TrySomeContext<T, R>
+    public struct TryOptionSomeContext<T, R>
     {
         readonly TryOption<T> option;
         readonly Func<T, R> someHandler;
 
-        internal TrySomeContext(TryOption<T> option, Func<T, R> someHandler)
+        internal TryOptionSomeContext(TryOption<T> option, Func<T, R> someHandler)
         {
             this.option = option;
             this.someHandler = someHandler;
         }
 
-        public TryNoneContext<T, R> None(Func<R> noneHandler) =>
-            new TryNoneContext<T, R>(option, someHandler, noneHandler);
+        public TryOptionNoneContext<T, R> None(Func<R> noneHandler) =>
+            new TryOptionNoneContext<T, R>(option, someHandler, noneHandler);
 
-        public TryNoneContext<T, R> None(R noneValue) =>
-            new TryNoneContext<T, R>(option, someHandler, () => noneValue);
+        public TryOptionNoneContext<T, R> None(R noneValue) =>
+            new TryOptionNoneContext<T, R>(option, someHandler, () => noneValue);
     }
 
-    public struct TrySomeUnitContext<T>
+    public struct TryOptionSomeUnitContext<T>
     {
         readonly TryOption<T> option;
         readonly Action<T> someHandler;
 
-        internal TrySomeUnitContext(TryOption<T> option, Action<T> someHandler)
+        internal TryOptionSomeUnitContext(TryOption<T> option, Action<T> someHandler)
         {
             this.option = option;
             this.someHandler = someHandler;
         }
 
-        public TryNoneUnitContext<T> None(Action noneHandler) =>
-            new TryNoneUnitContext<T>(option, someHandler, noneHandler);
+        public TryOptionNoneUnitContext<T> None(Action noneHandler) =>
+            new TryOptionNoneUnitContext<T>(option, someHandler, noneHandler);
     }
 
-    public struct TryNoneContext<T, R>
+    public struct TryOptionNoneContext<T, R>
     {
         readonly TryOption<T> option;
         readonly Func<T, R> someHandler;
         readonly Func<R> noneHandler;
 
-        internal TryNoneContext(TryOption<T> option, Func<T, R> someHandler, Func<R> noneHandler)
+        internal TryOptionNoneContext(TryOption<T> option, Func<T, R> someHandler, Func<R> noneHandler)
         {
             this.option = option;
             this.someHandler = someHandler;
@@ -103,13 +103,13 @@ namespace LanguageExt
             option.Match(someHandler, noneHandler, _ => failValue);
     }
 
-    public struct TryNoneUnitContext<T>
+    public struct TryOptionNoneUnitContext<T>
     {
         readonly TryOption<T> option;
         readonly Action<T> someHandler;
         readonly Action noneHandler;
 
-        internal TryNoneUnitContext(TryOption<T> option, Action<T> someHandler, Action noneHandler)
+        internal TryOptionNoneUnitContext(TryOption<T> option, Action<T> someHandler, Action noneHandler)
         {
             this.option = option;
             this.someHandler = someHandler;
@@ -287,6 +287,8 @@ public static class __TryOptionExt
                 resT = self();
                 if (resT.IsFaulted)
                     return new TryOptionResult<U>(resT.Exception);
+                if (resT.Value.IsNone)
+                    return new TryOptionResult<U>(None);
             }
             catch (Exception e)
             {
@@ -324,6 +326,8 @@ public static class __TryOptionExt
                     resT = self();
                     if (resT.IsFaulted)
                         return new TryOptionResult<V>(resT.Exception);
+                    if (resT.Value.IsNone)
+                        return new TryOptionResult<V>(None);
                 }
                 catch (Exception e)
                 {
@@ -337,6 +341,8 @@ public static class __TryOptionExt
                     resU = select(resT.Value)();
                     if (resU.IsFaulted)
                         return new TryOptionResult<V>(resU.Exception);
+                    if (resU.Value.IsNone)
+                        return new TryOptionResult<V>(None);
                 }
                 catch (Exception e)
                 {
@@ -438,11 +444,11 @@ public static class __TryOptionExt
     public static ImmutableArray<Either<Exception, T>> ToArray<T>(this TryOption<T> self) =>
         toArray(self.AsEnumerable());
 
-    public static TrySomeContext<T, R> Some<T, R>(this TryOption<T> self, Func<T, R> someHandler) =>
-        new TrySomeContext<T, R>(self, someHandler);
+    public static TryOptionSomeContext<T, R> Some<T, R>(this TryOption<T> self, Func<T, R> someHandler) =>
+        new TryOptionSomeContext<T, R>(self, someHandler);
 
-    public static TrySomeUnitContext<T> Some<T>(this TryOption<T> self, Action<T> someHandler) =>
-        new TrySomeUnitContext<T>(self, someHandler);
+    public static TryOptionSomeUnitContext<T> Some<T>(this TryOption<T> self, Action<T> someHandler) =>
+        new TryOptionSomeUnitContext<T>(self, someHandler);
 
     public static string AsString<T>(this TryOption<T> self) =>
         match(self,

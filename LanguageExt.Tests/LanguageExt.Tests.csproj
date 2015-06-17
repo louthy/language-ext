@@ -62,6 +62,7 @@
     <Compile Include="OptionTests.cs" />
     <Compile Include="ProcessTests.cs" />
     <Compile Include="StackTests.cs" />
+    <Compile Include="TryOptionMonadTests.cs" />
     <Compile Include="TryMonadTests.cs" />
     <Compile Include="TryOutTests.cs" />
     <Compile Include="TupleTests.cs" />

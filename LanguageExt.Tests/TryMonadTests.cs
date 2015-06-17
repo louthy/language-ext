@@ -5,14 +5,52 @@ using static LanguageExt.Prelude;
 namespace LanguageExtTests
 {
     [TestFixture]
-    public class TryMonadTests
+    public class TryOptionMonadTests
     {
+        [Test]
+        public void TryLinq1()
+        {
+            var res = match( from x in Num(10)
+                             from y in Num(10)
+                             from z in Num(10)
+                             select x * y * z,
+                             Succ: v => v,
+                             Fail: 0 );
+
+            Assert.IsTrue(res == 1000);
+        }
+
+        [Test]
+        public void TryLinq2()
+        {
+            var res = match( from x in Num(10)
+                             from y in Num(10)
+                             from z in Num(10,false)
+                             select x * y * z,
+                             Succ: v => v,
+                             Fail: 0 );
+
+            Assert.IsTrue(res == 0);
+        }
+
+        [Test]
+        public void TryLinq3()
+        {
+            var res = match(from x in Num(10, false)
+                            from y in Num(10)
+                            from z in Num(10)
+                            select x * y * z,
+                             Succ: v => v,
+                             Fail: 0);
+
+            Assert.IsTrue(res == 0);
+        }
+
         [Test]
         public void TryMatchSuccessTest1()
         {
-            GetSomeValue(true).Match(
-                Some: v  => Assert.IsTrue(v == "Hello, World"),
-                None: () => Assert.Fail(),
+            GetValue(true).Match(
+                Succ: v  => Assert.IsTrue(v == "Hello, World"),
                 Fail: e  => Assert.Fail()
             );
         }
@@ -20,10 +58,9 @@ namespace LanguageExtTests
         [Test]
         public void TryMatchFailTest1()
         {
-            GetFailValue().Match(
-                Some: v  => Assert.Fail(),
-                None: () => Assert.Fail(),
-                Fail: e  => Assert.IsTrue(e.Message == "Whoops")
+            GetValue(false).Match(
+                Succ: v  => Assert.Fail(),
+                Fail: e  => Assert.IsTrue(e.Message == "Failed!")
             );
         }
 
@@ -32,8 +69,7 @@ namespace LanguageExtTests
         {
             match( 
                 GetValue(true),
-                Some: v  => Assert.IsTrue(v == "Hello, World"),
-                None: () => Assert.Fail(),
+                Succ: v  => Assert.IsTrue(v == "Hello, World"),
                 Fail: e  => Assert.Fail()
             );
         }
@@ -43,9 +79,8 @@ namespace LanguageExtTests
         {
             match(
                 GetValue(false),
-                Some: v  => Assert.Fail(),
-                None: () => Assert.IsTrue(true),
-                Fail: e  => Assert.Fail()
+                Succ: v  => Assert.Fail(),
+                Fail: e => Assert.IsTrue(e.Message == "Failed!")
             );
         }
 
@@ -53,7 +88,7 @@ namespace LanguageExtTests
         public void FuncFailureTryMatchSuccessTest1()
         {
             Assert.IsTrue(
-                ifNone(GetValue(true), "failed") == "Hello, World"
+                ifFail(GetValue(true), "failed") == "Hello, World"
                 );
         }
 
@@ -61,22 +96,18 @@ namespace LanguageExtTests
         public void FuncFailureTryMatchFailTest1()
         {
             Assert.IsTrue(
-                ifNone(GetValue(false), "failed") == "failed"
+                ifFail(GetValue(false), "failed") == "failed"
                 );
         }
 
-        public TryOption<string> GetSomeValue(bool select) =>
-            () => select
-                ? Some("Hello, World")
-                : None;
-
-        public TryOption<string> GetValue(bool select) =>
+        public Try<string> GetValue(bool select) =>
             () => select
                 ? "Hello, World"
-                : (string)null;
+                : failwith<string>("Failed!");
 
-        public TryOption<string> GetFailValue() =>
-            () => failwith<string>("Whoops");
-
+        public Try<int> Num(int x, bool select = true) =>
+            () => select
+                ? x
+                : failwith<int>("Failed!");
     }
 }
