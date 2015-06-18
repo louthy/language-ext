@@ -86,7 +86,7 @@ namespace LanguageExt
             option.ForAll(pred);
 
         public static int count<T>(Option<T> option) =>
-            option.Count;
+            option.Count();
 
         public static bool exists<T>(Option<T> option, Func<T, bool> pred) =>
             option.Exists(pred);
@@ -94,7 +94,7 @@ namespace LanguageExt
         public static Option<R> map<T, R>(Option<T> option, Func<T, R> mapper) =>
             option.Map(mapper);
 
-        public static bool filter<T>(Option<T> option, Func<T, bool> pred) =>
+        public static Option<T> filter<T>(Option<T> option, Func<T, bool> pred) =>
             option.Filter(pred);
 
         public static Option<R> bind<T, R>(Option<T> option, Func<T, Option<R>> binder) =>
@@ -156,5 +156,155 @@ namespace LanguageExt
 
         public static IQueryable<T> toQuery<T>(Option<T> option) =>
             option.AsQueryable();
+
+        // 
+        // Option<IEnumerable<T>>
+        // 
+
+        public static S fold<S, T>(Option<IEnumerable<T>> option, S state, Func<S, T, S> folder) =>
+            option.Fold(state, folder);
+
+        public static bool forall<T>(Option<IEnumerable<T>> option, Func<T, bool> pred) =>
+            option.ForAll(pred);
+
+        public static int count<T>(Option<IEnumerable<T>> option) =>
+            option.Count();
+
+        public static bool exists<T>(Option<IEnumerable<T>> option, Func<T, bool> pred) =>
+            option.Exists(pred);
+
+        public static Option<IEnumerable<R>> map<T, R>(Option<IEnumerable<T>> option, Func<T, R> mapper) =>
+            option.Map(mapper);
+
+        public static Option<IEnumerable<T>> filter<T>(Option<IEnumerable<T>> option, Func<T, bool> pred) =>
+            option.Filter(pred);
+
+        public static Option<IEnumerable<R>> bind<T, R>(Option<IEnumerable<T>> option, Func<T, Option<R>> binder) =>
+            option.Bind(binder);
+
+        // 
+        // Option<IImmutableList<T>>
+        // 
+
+        public static S fold<S, T>(Option<IImmutableList<T>> option, S state, Func<S, T, S> folder) =>
+            option.Fold(state, folder);
+
+        public static bool forall<T>(Option<IImmutableList<T>> option, Func<T, bool> pred) =>
+            option.ForAll(pred);
+
+        public static int count<T>(Option<IImmutableList<T>> option) =>
+            option.Count();
+
+        public static bool exists<T>(Option<IImmutableList<T>> option, Func<T, bool> pred) =>
+            option.Exists(pred);
+
+        public static Option<IImmutableList<R>> map<T, R>(Option<IImmutableList<T>> option, Func<T, R> mapper) =>
+            option.Map(mapper);
+
+        public static Option<IImmutableList<T>> filter<T>(Option<IImmutableList<T>> option, Func<T, bool> pred) =>
+            option.Filter(pred);
+
+        public static Option<IImmutableList<R>> bind<T, R>(Option<IImmutableList<T>> option, Func<T, Option<R>> binder) =>
+            option.Bind(binder);
+
+        // 
+        // Option<Option<T>>
+        // 
+
+        public static S fold<S, T>(Option<Option<T>> option, S state, Func<S, T, S> folder) =>
+            option.Fold(state, folder);
+
+        public static bool forall<T>(Option<Option<T>> option, Func<T, bool> pred) =>
+            option.ForAll(pred);
+
+        public static int count<T>(Option<Option<T>> option) =>
+            option.Count();
+
+        public static bool exists<T>(Option<Option<T>> option, Func<T, bool> pred) =>
+            option.Exists(pred);
+
+        public static Option<Option<R>> map<T, R>(Option<Option<T>> option, Func<T, R> mapper) =>
+            option.Map(mapper);
+
+        public static Option<Option<T>> filter<T>(Option<Option<T>> option, Func<T, bool> pred) =>
+            option.Filter(pred);
+
+        public static Option<Option<R>> bind<T, R>(Option<Option<T>> option, Func<T, Option<R>> binder) =>
+            option.Bind(binder);
+
+        // 
+        // Option<TryOption<T>>
+        // 
+
+        public static S fold<S, T>(Option<TryOption<T>> option, S state, Func<S, T, S> folder) =>
+            option.Fold(state, folder);
+
+        public static bool forall<T>(Option<TryOption<T>> option, Func<T, bool> pred) =>
+            option.ForAll(pred);
+
+        public static int count<T>(Option<TryOption<T>> option) =>
+            option.Count();
+
+        public static bool exists<T>(Option<TryOption<T>> option, Func<T, bool> pred) =>
+            option.Exists(pred);
+
+        public static Option<TryOption<R>> map<T, R>(Option<TryOption<T>> option, Func<T, R> mapper) =>
+            option.Map(mapper);
+
+        public static Option<TryOption<T>> filter<T>(Option<TryOption<T>> option, Func<T, bool> pred) =>
+            option.Filter(pred);
+
+        public static Option<TryOption<R>> bind<T, R>(Option<TryOption<T>> option, Func<T, TryOption<R>> binder) =>
+            option.Bind(binder);
+
+        // 
+        // Option<Try<T>>
+        // 
+
+        public static S fold<S, T>(Option<Try<T>> option, S state, Func<S, T, S> folder) =>
+            option.Fold(state, folder);
+
+        public static bool forall<T>(Option<Try<T>> option, Func<T, bool> pred) =>
+            option.ForAll(pred);
+
+        public static int count<T>(Option<Try<T>> option) =>
+            option.Count();
+
+        public static bool exists<T>(Option<Try<T>> option, Func<T, bool> pred) =>
+            option.Exists(pred);
+
+        public static Option<Try<R>> map<T, R>(Option<Try<T>> option, Func<T, R> mapper) =>
+            option.Map(mapper);
+
+        public static Option<Try<T>> filter<T>(Option<Try<T>> option, Func<T, bool> pred) =>
+            option.Filter(pred);
+
+        public static Option<Try<R>> bind<T, R>(Option<Try<T>> option, Func<T, Try<R>> binder) =>
+            option.Bind(binder);
+
+        // 
+        // Option<Either<L,R>>
+        // 
+
+        public static S fold<L, R, S>(Option<Either<L, R>> option, S state, Func<S, R, S> folder) =>
+            option.Fold(state, folder);
+
+        public static bool forall<L,R>(Option<Either<L, R>> option, Func<R, bool> pred) =>
+            option.ForAll(pred);
+
+        public static int count<L, R>(Option<Either<L, R>> option) =>
+            option.Count();
+
+        public static bool exists<L, R>(Option<Either<L, R>> option, Func<R, bool> pred) =>
+            option.Exists(pred);
+
+        public static Option<Either<L, R2>> map<L, R, R2>(Option<Either<L, R>> option, Func<R, R2> mapper) =>
+            option.Map(mapper);
+
+        public static Option<Either<Unit, R>> filter<L, R>(Option<Either<L, R>> option, Func<R, bool> pred) =>
+            option.Filter(pred);
+
+        public static Option<Either<L, R2>> bind<L, R, R2>(Option<Either<L, R>> option, Func<R, Either<L, R2>> binder) =>
+            option.Bind(binder);
     }
 }

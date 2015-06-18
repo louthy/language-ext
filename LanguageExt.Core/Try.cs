@@ -310,6 +310,19 @@ public static class __TryExt
             : mapper(res.Value);
     };
 
+    public static Try<T> Filter<T>(this Try<T> self, Func<T, bool> pred)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? () => res
+            : pred(res.Value)
+                ? self
+                : () => new TryResult<T>(new Exception("Filtered"));
+    }
+
+    public static Try<T> Where<T>(this Try<T> self, Func<T, bool> pred) =>
+        self.Filter(pred);
+
     public static Try<R> Bind<T, R>(this Try<T> self, Func<T, Try<R>> binder) => () =>
     {
         var res = self.Try();

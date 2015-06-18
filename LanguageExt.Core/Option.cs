@@ -4,6 +4,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Collections;
 using System.Collections.Immutable;
+using System.Linq;
 using System.ComponentModel;
 
 namespace LanguageExt
@@ -15,7 +16,7 @@ namespace LanguageExt
     /// To extract the value you must use the 'match' function.
     /// </summary>
     [TypeConverter(typeof(OptionalTypeConverter))]
-    public struct Option<T> : IOptionalValue, IEnumerable<T>
+    public class Option<T> : IOptionalValue, IEnumerable<T>
     {
         readonly T value;
 
@@ -136,37 +137,6 @@ namespace LanguageExt
                 : IsSome
                     ? Value.Equals(obj)
                     : false;
-
-        public int Count =>
-            IsSome ? 1 : 0;
-
-        public bool ForAll(Func<T,bool> pred) =>
-            IsSome
-                ? pred(Value)
-                : true;
-
-        public S Fold<S>(S state, Func<S, T, S> folder) =>
-            IsSome
-                ? folder(state, Value)
-                : state;
-
-        public bool Exists(Func<T,bool> pred) =>
-            IsSome
-                ? pred(Value)
-                : false;
-
-        public Option<R> Map<R>(Func<T, R> mapper) =>
-            IsSome
-                ? Option.Cast<R>(mapper(Value))
-                : Option<R>.None;
-
-        public bool Filter(Func<T, bool> pred) =>
-            Exists(pred);
-
-        public Option<R> Bind<R>(Func<T, Option<R>> binder) =>
-            IsSome
-                ? binder(Value)
-                : Option<R>.None;
 
         public IImmutableList<T> ToList() =>
             toList(AsEnumerable());
@@ -290,6 +260,43 @@ namespace LanguageExt
 
 public static class __OptionExt
 {
+    public static int Count<T>(this Option<T> self) =>
+        self.IsSome 
+            ? 1 
+            : 0;
+
+    public static bool ForAll<T>(this Option<T> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? pred(self.Value)
+            : true;
+
+    public static S Fold<T, S>(this Option<T> self, S state, Func<S, T, S> folder) =>
+        self.IsSome
+            ? folder(state, self.Value)
+            : state;
+
+    public static bool Exists<T>(this Option<T> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? pred(self.Value)
+            : false;
+
+    public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> mapper) =>
+        self.IsSome
+            ? Option.Cast(mapper(self.Value))
+            : Option<R>.None;
+
+    public static Option<T> Filter<T>(this Option<T> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? pred(self.Value)
+                ? self
+                : None
+            : self;
+
+    public static Option<R> Bind<T, R>(this Option<T> self, Func<T, Option<R>> binder) =>
+        self.IsSome
+            ? binder(self.Value)
+            : Option<R>.None;
+
     public static Option<U> Select<T, U>(this Option<T> self, Func<T, U> map) => 
         self.Map(map);
 
@@ -309,5 +316,384 @@ public static class __OptionExt
     public static Option<T> Where<T>(this Option<T> self, Func<T, bool> pred) =>
         self.Filter(pred)
             ? self
+            : None;
+
+    // 
+    // Option<IEnumerable<T>> extensions 
+    // 
+
+    public static int Count<T>(this Option<IEnumerable<T>> self) =>
+        self.IsSome
+            ? List.length(self.Value)
+            : 0;
+
+    public static bool ForAll<T>(this Option<IEnumerable<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? List.forall(self.Value, pred)
+            : true;
+
+    public static S Fold<T, S>(this Option<IEnumerable<T>> self, S state, Func<S, T, S> folder) =>
+        self.IsSome
+            ? List.fold(self.Value, state, folder)
+            : state;
+
+    public static bool Exists<T>(this Option<IEnumerable<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? List.exists(self.Value, pred)
+            : false;
+
+    public static Option<IEnumerable<R>> Map<T, R>(this Option<IEnumerable<T>> self, Func<T, R> mapper) =>
+        self.IsSome
+            ? Option.Cast(List.map(self.Value, mapper))
+            : None;
+
+    public static Option<IEnumerable<T>> Filter<T>(this Option<IEnumerable<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? Some(List.filter(self.Value, pred))
+            : self;
+
+    public static Option<IEnumerable<R>> Bind<T, R>(this Option<IEnumerable<T>> self, Func<T, Option<R>> binder) =>
+        self.IsSome
+            ? Some(from x in self.Value
+                   let y = binder(x)
+                   where y.IsSome
+                   select y.Value)
+            : None;
+
+    public static Option<IEnumerable<U>> Select<T, U>(this Option<IEnumerable<T>> self, Func<T, U> map) =>
+        self.IsSome
+            ? Some(from x in self.Value
+                   select map(x))
+            : None;
+
+    public static Option<IEnumerable<V>> SelectMany<T, U, V>(this Option<IEnumerable<T>> self,
+        Func<T, Option<U>> bind,
+        Func<T, U, V> project
+        ) =>
+        match(self,
+            Some: tlist =>
+                Some( from t in tlist
+                      let x = match(bind(t),
+                                  Some: u => Option.Cast<V>(project(t, u)),
+                                  None: () => Option<V>.None )
+                      where x.IsSome
+                      select x.Value ),
+            None: () => Option<IEnumerable<V>>.None
+            );
+
+    public static Option<IEnumerable<T>> Where<T>(this Option<IEnumerable<T>> self, Func<T, bool> pred) =>
+        self.Filter(pred);
+
+    // 
+    // Option<IImmutableList<T>> extensions 
+    // 
+
+    public static int Count<T>(this Option<IImmutableList<T>> self) =>
+        self.IsSome
+            ? List.length(self.Value)
+            : 0;
+
+    public static bool ForAll<T>(this Option<IImmutableList<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? List.forall(self.Value, pred)
+            : true;
+
+    public static S Fold<T, S>(this Option<IImmutableList<T>> self, S state, Func<S, T, S> folder) =>
+        self.IsSome
+            ? List.fold(self.Value, state, folder)
+            : state;
+
+    public static bool Exists<T>(this Option<IImmutableList<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? List.exists(self.Value, pred)
+            : false;
+
+    public static Option<IImmutableList<R>> Map<T, R>(this Option<IImmutableList<T>> self, Func<T, R> mapper) =>
+        self.IsSome
+            ? Option.Cast(List.map(self.Value, mapper).Freeze())
+            : None;
+
+    public static Option<IImmutableList<T>> Filter<T>(this Option<IImmutableList<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? Some(List.filter(self.Value, pred).Freeze())
+            : self;
+
+    public static Option<IImmutableList<R>> Bind<T, R>(this Option<IImmutableList<T>> self, Func<T, Option<R>> binder) =>
+        self.IsSome
+            ? Some((from x in self.Value
+                    let y = binder(x)
+                    where y.IsSome
+                    select y.Value).Freeze())
+            : None;
+
+    public static Option<IImmutableList<U>> Select<T, U>(this Option<IImmutableList<T>> self, Func<T, U> map) =>
+        self.IsSome
+            ? Some((from x in self.Value
+                    select map(x)).Freeze())
+            : None;
+
+    public static Option<IImmutableList<V>> SelectMany<T, U, V>(this Option<IImmutableList<T>> self,
+        Func<T, Option<U>> bind,
+        Func<T, U, V> project
+        ) =>
+        match(self,
+            Some: tlist =>
+                Some((from t in tlist
+                      let x = match(bind(t),
+                                  Some: u => Option.Cast<V>(project(t, u)),
+                                  None: () => Option<V>.None)
+                      where x.IsSome
+                      select x.Value).Freeze()),
+            None: () => Option<IImmutableList<V>>.None
+            );
+
+    public static Option<IImmutableList<T>> Where<T>(this Option<IImmutableList<T>> self, Func<T, bool> pred) =>
+        self.Filter(pred);
+
+
+    // 
+    // Option<Option<T>> extensions 
+    // 
+
+    public static int Count<T>(this Option<Option<T>> self) =>
+        self.IsSome
+            ? self.Value.Count()
+            : 0;
+
+    public static bool ForAll<T>(this Option<Option<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? self.Value.ForAll(pred)
+            : true;
+
+    public static S Fold<T, S>(this Option<Option<T>> self, S state, Func<S, T, S> folder) =>
+        self.IsSome
+            ? self.Value.Fold(state, folder)
+            : state;
+
+    public static bool Exists<T>(this Option<Option<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? self.Value.Exists(pred)
+            : false;
+
+    public static Option<Option<R>> Map<T, R>(this Option<Option<T>> self, Func<T, R> mapper) =>
+        self.IsSome
+            ? Option.Cast(self.Value.Map(mapper))
+            : None;
+
+    public static Option<Option<T>> Filter<T>(this Option<Option<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? Some(self.Value.Filter(pred))
+            : self;
+
+    public static Option<Option<R>> Bind<T, R>(this Option<Option<T>> self, Func<T, Option<R>> binder) =>
+        self.IsSome
+            ? Some(self.Value.Bind(binder))
+            : None;
+
+    public static Option<Option<U>> Select<T, U>(this Option<Option<T>> self, Func<T, U> map) =>
+        self.IsSome
+            ? Some(self.Value.Map(map))
+            : None;
+
+    public static Option<Option<V>> SelectMany<T, U, V>(this Option<Option<T>> self,
+        Func<T, Option<U>> bind,
+        Func<T, U, V> project
+        ) =>
+        self.IsSome
+            ? Some( match( self.Value.Bind(bind), 
+                           Some: x =>  Optional(project(self.Value.Value,x)),
+                           None: () => None ) )
+            : None;
+
+    public static Option<Option<T>> Where<T>(this Option<Option<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? Some(self.Value.Filter(pred))
+            : None;
+
+    // 
+    // Option<TryOption<T>> extensions 
+    // 
+
+    public static int Count<T>(this Option<TryOption<T>> self) =>
+        self.IsSome
+            ? self.Value.Count()
+            : 0;
+
+    public static bool ForAll<T>(this Option<TryOption<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? self.Value.ForAll(pred)
+            : true;
+
+    public static S Fold<T, S>(this Option<TryOption<T>> self, S state, Func<S, T, S> folder) =>
+        self.IsSome
+            ? self.Value.Fold(state, folder)
+            : state;
+
+    public static bool Exists<T>(this Option<TryOption<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? self.Value.Exists(pred)
+            : false;
+
+    public static Option<TryOption<R>> Map<T, R>(this Option<TryOption<T>> self, Func<T, R> mapper) =>
+        self.IsSome
+            ? Option.Cast(self.Value.Map(mapper))
+            : None;
+
+    public static Option<TryOption<T>> Filter<T>(this Option<TryOption<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? Some(self.Value.Filter(pred))
+            : self;
+
+    public static Option<TryOption<R>> Bind<T, R>(this Option<TryOption<T>> self, Func<T, TryOption<R>> binder) =>
+        self.IsSome
+            ? Some(self.Value.Bind(binder))
+            : None;
+
+    public static Option<TryOption<U>> Select<T, U>(this Option<TryOption<T>> self, Func<T, U> map) =>
+        self.IsSome
+            ? Some(self.Value.Map(map))
+            : None;
+
+    public static Option<TryOption<V>> SelectMany<T, U, V>(this Option<TryOption<T>> self,
+        Func<T, TryOption<U>> bind,
+        Func<T, U, V> project
+        ) =>
+            match( self,
+                   tryopt => tryopt.Match(
+                                    Some: t => bind(t).Match(
+                                                Some: u  => Option<TryOption<V>>.Some(() => project(t,u)),
+                                                None: () => Option<TryOption<V>>.None, 
+                                                Fail: ex => Option<TryOption<V>>.None),
+                                    None: () => Option<TryOption<V>>.None,
+                                    Fail: ex => Option<TryOption<V>>.None
+                                    ),
+                   () => Option<TryOption<V>>.None );
+
+
+    public static Option<TryOption<T>> Where<T>(this Option<TryOption<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? Some(self.Value.Filter(pred))
+            : None;
+
+    // 
+    // Option<TryOption<T>> extensions 
+    // 
+
+    public static int Count<T>(this Option<Try<T>> self) =>
+        self.IsSome
+            ? self.Value.Count()
+            : 0;
+
+    public static bool ForAll<T>(this Option<Try<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? self.Value.ForAll(pred)
+            : true;
+
+    public static S Fold<T, S>(this Option<Try<T>> self, S state, Func<S, T, S> folder) =>
+        self.IsSome
+            ? self.Value.Fold(state, folder)
+            : state;
+
+    public static bool Exists<T>(this Option<Try<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? self.Value.Exists(pred)
+            : false;
+
+    public static Option<Try<R>> Map<T, R>(this Option<Try<T>> self, Func<T, R> mapper) =>
+        self.IsSome
+            ? Option.Cast(self.Value.Map(mapper))
+            : None;
+
+    public static Option<Try<T>> Filter<T>(this Option<Try<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? Some(self.Value.Filter(pred))
+            : self;
+
+    public static Option<Try<R>> Bind<T, R>(this Option<Try<T>> self, Func<T, Try<R>> binder) =>
+        self.IsSome
+            ? Some(self.Value.Bind(binder))
+            : None;
+
+    public static Option<Try<U>> Select<T, U>(this Option<Try<T>> self, Func<T, U> map) =>
+        self.IsSome
+            ? Some(self.Value.Map(map))
+            : None;
+
+    public static Option<Try<V>> SelectMany<T, U, V>(this Option<Try<T>> self,
+        Func<T, Try<U>> bind,
+        Func<T, U, V> project
+        ) =>
+            match(self,
+                   tryopt => tryopt.Match(
+                                    Succ: t => bind(t).Match(
+                                                Succ: u => Option<Try<V>>.Some(() => project(t, u)),
+                                                Fail: ex => Option<Try<V>>.None),
+                                    Fail: ex => Option<Try<V>>.None
+                                    ),
+                   () => Option<Try<V>>.None);
+
+
+    public static Option<Try<T>> Where<T>(this Option<Try<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? Some(self.Value.Filter(pred))
+            : None;
+
+    // 
+    // Option<Either<L,R>> extensions 
+    // 
+
+    public static int Count<L, R>(this Option<Either<L, R>> self) =>
+        self.IsSome
+            ? self.Value.Count()
+            : 0;
+
+    public static bool ForAll<L, R>(this Option<Either<L, R>> self, Func<R, bool> pred) =>
+        self.IsSome
+            ? self.Value.ForAll(pred)
+            : true;
+
+    public static S Fold<L, R, S>(this Option<Either<L, R>> self, S state, Func<S, R, S> folder) =>
+        self.IsSome
+            ? self.Value.Fold(state, folder)
+            : state;
+
+    public static bool Exists<L, R>(this Option<Either<L, R>> self, Func<R, bool> pred) =>
+        self.IsSome
+            ? self.Value.Exists(pred)
+            : false;
+
+    public static Option<Either<L, R2>> Map<L, R, R2>(this Option<Either<L, R>> self, Func<R, R2> mapper) =>
+        self.IsSome
+            ? Option.Cast(self.Value.Map(mapper))
+            : None;
+
+    public static Option<Either<Unit, R>> Filter<L, R>(this Option<Either<L, R>> self, Func<R, bool> pred) =>
+        self.IsSome
+            ? Some(self.Value.Filter(pred))
+            : None;
+
+    public static Option<Either<L, R2>> Bind<L, R, R2>(this Option<Either<L, R>> self, Func<R, Either<L, R2>> binder) =>
+        self.IsSome
+            ? Some(self.Value.Bind(binder))
+            : None;
+
+    public static Option<Either<L, U>> Select<L, R, U>(this Option<Either<L, R>> self, Func<R, U> map) =>
+        self.IsSome
+            ? Some(self.Value.Map(map))
+            : None;
+
+    public static Option<Either<L, V>> SelectMany<L, R, U, V>(this Option<Either<L, R>> self,
+        Func<R, Either<L, U>> bind,
+        Func<R, U, V> project
+        ) =>
+        self.IsSome
+            ? Some(self.Value.Bind(bind).Match(
+                       Right: r => Right<L,V>(project(self.Value.RightValue, r)),
+                       Left:  l => Left<L,V>(l)))
+            : None;
+
+    public static Option<Either<Unit, R>> Where<L, R>(this Option<Either<L, R>> self, Func<R, bool> pred) =>
+        self.IsSome
+            ? Some(self.Value.Filter(pred))
             : None;
 }

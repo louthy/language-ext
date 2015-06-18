@@ -167,37 +167,6 @@ namespace LanguageExt
                 ? raise<U>(new EitherNotInitialisedException())
                 : value;
 
-        public int Count =>
-            IsRight ? 1 : 0;
-
-        public bool ForAll(Func<R, bool> pred) =>
-            IsRight
-                ? pred(RightValue)
-                : true;
-
-        public S Fold<S>(S state, Func<S, R, S> folder) =>
-            IsRight
-                ? folder(state, RightValue)
-                : state;
-
-        public bool Exists(Func<R, bool> pred) =>
-            IsRight
-                ? pred(RightValue)
-                : false;
-
-        public Either<L, Ret> Map<Ret>(Func<R, Ret> mapper) =>
-            IsRight
-                ? CastRight<L, Ret>(mapper(RightValue))
-                : Either<L, Ret>.Left(LeftValue);
-
-        public bool Filter(Func<R, bool> pred) =>
-            Exists(pred);
-
-        public Either<L, Ret> Bind<Ret>(Func<R, Either<L, Ret>> binder) =>
-            IsRight
-                ? binder(RightValue)
-                : Either<L, Ret>.Left(LeftValue);
-
         public IImmutableList<R> ToList() =>
             toList(AsEnumerable());
 
@@ -253,7 +222,10 @@ namespace LanguageExt
 
         public static bool operator false(Either<L, R> value) =>
             value.IsLeft;
+    }
 
+    public static class Either
+    {
         private static Either<NL, NR> CastRight<NL, NR>(NR right) =>
             right == null
                 ? raise<Either<NL, NR>>(new ValueIsNullException())
@@ -302,6 +274,40 @@ namespace LanguageExt
 
 public static class __EitherExt
 {
+    public static int Count<L, R>(this Either<L,R> self) =>
+        self.IsRight ? 1 : 0;
+
+    public static bool ForAll<L, R>(this Either<L, R> self, Func<R, bool> pred) =>
+        self.IsRight
+            ? pred(self.RightValue)
+            : true;
+
+    public static S Fold<L,R,S>(this Either<L, R> self, S state, Func<S, R, S> folder) =>
+        self.IsRight
+            ? folder(state, self.RightValue)
+            : state;
+
+    public static bool Exists<L, R>(this Either<L, R> self, Func<R, bool> pred) =>
+        self.IsRight
+            ? pred(self.RightValue)
+            : false;
+
+    public static Either<L, Ret> Map<L, R, Ret>(this Either<L, R> self, Func<R, Ret> mapper) =>
+        self.IsRight
+            ? Right<L, Ret>(mapper(self.RightValue))
+            : Left<L, Ret>(self.LeftValue);
+
+    public static Either<Unit, R> Filter<L, R>(this Either<L, R> self, Func<R, bool> pred) =>
+        self.Exists(pred)
+            ? Right<Unit,R>(self.RightValue)
+            : Left<Unit,R>(unit);
+
+    public static Either<L, Ret> Bind<L,R,Ret>(this Either<L, R> self, Func<R, Either<L, Ret>> binder) =>
+        self.IsRight
+            ? binder(self.RightValue)
+            : Either<L, Ret>.Left(self.LeftValue);
+    
+
     public static Either<L, UR> Select<L, TR, UR>(this Either<L, TR> self, Func<TR, UR> map) =>
         match(self,
             Right: t => Either<L, UR>.Right(map(t)),

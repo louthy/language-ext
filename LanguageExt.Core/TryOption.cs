@@ -371,7 +371,7 @@ public static class __TryOptionExt
         var res = self.Try();
         return res.IsFaulted
             ? 0
-            : res.Value.Count;
+            : res.Value.Count();
     }
 
     public static bool ForAll<T>(this TryOption<T> self, Func<T, bool> pred)
@@ -398,7 +398,7 @@ public static class __TryOptionExt
             : res.Value.Exists(pred);
     }
 
-    public static TryOption<T> Where<T>(this TryOption<T> self, Func<T, bool> pred)
+    public static TryOption<T> Filter<T>(this TryOption<T> self, Func<T, bool> pred)
     {
         var res = self.Try();
         return res.IsFaulted || res.Value.IsNone
@@ -407,6 +407,9 @@ public static class __TryOptionExt
                 ? self
                 : () => None;
     }
+
+    public static TryOption<T> Where<T>(this TryOption<T> self, Func<T, bool> pred) =>
+        self.Filter(pred);
 
     public static TryOption<R> Map<T, R>(this TryOption<T> self, Func<T, R> mapper) => () =>
     {

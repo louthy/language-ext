@@ -71,10 +71,10 @@ namespace LanguageExt
         public static IEnumerable<T> append<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) =>
             List.append(lhs, rhs);
 
-        public static S fold<S, T>(IImmutableQueue<T> queue, S state, Func<T, S, S> folder) =>
+        public static S fold<S, T>(IImmutableQueue<T> queue, S state, Func<S, T, S> folder) =>
             List.fold(queue, state, folder);
 
-        public static S foldBack<S, T>(IImmutableQueue<T> queue, S state, Func<T, S, S> folder) =>
+        public static S foldBack<S, T>(IImmutableQueue<T> queue, S state, Func<S, T, S> folder) =>
             List.foldBack(queue, state, folder);
 
         public static T reduce<T>(IImmutableQueue<T> queue, Func<T, T, T> reducer) =>
@@ -83,10 +83,10 @@ namespace LanguageExt
         public static T reduceBack<T>(IImmutableQueue<T> queue, Func<T, T, T> reducer) =>
             List.reduceBack(queue, reducer);
 
-        public static IEnumerable<S> scan<S, T>(IImmutableQueue<T> queue, S state, Func<T, S, S> folder) =>
+        public static IEnumerable<S> scan<S, T>(IImmutableQueue<T> queue, S state, Func<S, T, S> folder) =>
             List.scan(queue, state, folder);
 
-        public static IEnumerable<S> scanBack<S, T>(IImmutableQueue<T> queue, S state, Func<T, S, S> folder) =>
+        public static IEnumerable<S> scanBack<S, T>(IImmutableQueue<T> queue, S state, Func<S, T, S> folder) =>
             List.scanBack(queue, state, folder);
 
         public static Option<T> find<T>(IImmutableQueue<T> queue, Func<T, bool> pred) =>
@@ -165,10 +165,10 @@ public static class __QueueExt
     public static IEnumerable<T> Append<T>(this IImmutableQueue<T> lhs, IEnumerable<T> rhs) =>
         List.append(lhs, rhs);
 
-    public static S Fold<S, T>(this IImmutableQueue<T> queue, S state, Func<T, S, S> folder) =>
+    public static S Fold<S, T>(this IImmutableQueue<T> queue, S state, Func<S, T, S> folder) =>
         List.fold(queue, state, folder);
 
-    public static S FoldBack<S, T>(this IImmutableQueue<T> queue, S state, Func<T, S, S> folder) =>
+    public static S FoldBack<S, T>(this IImmutableQueue<T> queue, S state, Func<S, T, S> folder) =>
         List.foldBack(queue, state, folder);
 
     public static T ReduceBack<T>(this IImmutableQueue<T> queue, Func<T, T, T> reducer) =>
@@ -177,10 +177,10 @@ public static class __QueueExt
     public static T Reduce<T>(this IImmutableQueue<T> queue, Func<T, T, T> reducer) =>
         List.reduce(queue, reducer);
 
-    public static IEnumerable<S> Scan<S, T>(this IImmutableQueue<T> queue, S state, Func<T, S, S> folder) =>
+    public static IEnumerable<S> Scan<S, T>(this IImmutableQueue<T> queue, S state, Func<S, T, S> folder) =>
         List.scan(queue, state, folder);
 
-    public static IEnumerable<S> ScanBack<S, T>(this IImmutableQueue<T> queue, S state, Func<T, S, S> folder) =>
+    public static IEnumerable<S> ScanBack<S, T>(this IImmutableQueue<T> queue, S state, Func<S, T, S> folder) =>
         List.scanBack(queue, state, folder);
 
     public static Option<T> Find<T>(this IImmutableQueue<T> queue, Func<T, bool> pred) =>

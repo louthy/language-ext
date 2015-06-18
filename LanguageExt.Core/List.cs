@@ -60,16 +60,16 @@ namespace LanguageExt
             select r;
 
         public static int sum(IEnumerable<int> list) => 
-            fold(list, 0, (x, s) => s + x);
+            fold(list, 0, (s, x) => s + x);
 
         public static float sum(IEnumerable<float> list) => 
-            fold(list, 0.0f, (x, s) => s + x);
+            fold(list, 0.0f, (s, x) => s + x);
 
         public static double sum(IEnumerable<double> list) => 
-            fold(list, 0.0, (x, s) => s + x);
+            fold(list, 0.0, (s, x) => s + x);
 
         public static decimal sum(IEnumerable<decimal> list) => 
-            fold(list, (decimal)0, (x, s) => s + x);
+            fold(list, (decimal)0, (s, x) => s + x);
 
         public static IEnumerable<T> rev<T>(IEnumerable<T> list) =>
             list.Reverse();
@@ -77,16 +77,16 @@ namespace LanguageExt
         public static IEnumerable<T> append<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) =>
             lhs.Concat(rhs);
 
-        public static S fold<S, T>(IEnumerable<T> list, S state, Func<T, S, S> folder)
+        public static S fold<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder)
         {
             foreach (var item in list)
             {
-                state = folder(item, state);
+                state = folder(state, item);
             }
             return state;
         }
 
-        public static S foldBack<S, T>(IEnumerable<T> list, S state, Func<T, S, S> folder) =>
+        public static S foldBack<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder) =>
             fold(rev(list), state, folder);
 
         public static T reduce<T>(IEnumerable<T> list, Func<T, T, T> reducer) =>
@@ -98,17 +98,17 @@ namespace LanguageExt
         public static T reduceBack<T>(IEnumerable<T> list, Func<T, T, T> reducer) =>
             reduce(rev(list), reducer);
 
-        public static IEnumerable<S> scan<S, T>(IEnumerable<T> list, S state, Func<T, S, S> folder)
+        public static IEnumerable<S> scan<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder)
         {
             yield return state;
             foreach (var item in list)
             {
-                state = folder(item, state);
+                state = folder(state, item);
                 yield return state;
             }
         }
 
-        public static IEnumerable<S> scanBack<S, T>(IEnumerable<T> list, S state, Func<T, S, S> folder) =>
+        public static IEnumerable<S> scanBack<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder) =>
             scan(rev(list), state, folder);
 
         public static Option<T> find<T>(IEnumerable<T> list, Func<T, bool> pred)
@@ -465,10 +465,10 @@ public static class __ListExt
     public static IEnumerable<T> Append<T>(this IEnumerable<T> lhs, IEnumerable<T> rhs) =>
         List.append(lhs, rhs);
 
-    public static S Fold<S, T>(this IEnumerable<T> list, S state, Func<T, S, S> folder) =>
+    public static S Fold<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
         List.fold(list, state, folder);
 
-    public static S FoldBack<S, T>(this IEnumerable<T> list, S state, Func<T, S, S> folder) =>
+    public static S FoldBack<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
         List.foldBack(list, state, folder);
 
     public static T Reduce<T>(this IEnumerable<T> list, Func<T, T, T> reducer) =>
@@ -477,10 +477,10 @@ public static class __ListExt
     public static T ReduceBack<T>(this IEnumerable<T> list, Func<T, T, T> reducer) =>
         List.reduceBack(list, reducer);
 
-    public static IEnumerable<S> Scan<S, T>(this IEnumerable<T> list, S state, Func<T, S, S> folder) =>
+    public static IEnumerable<S> Scan<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
         List.scan(list, state, folder);
 
-    public static IEnumerable<S> ScanBack<S, T>(this IEnumerable<T> list, S state, Func<T, S, S> folder) =>
+    public static IEnumerable<S> ScanBack<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
         List.scanBack(list, state, folder);
 
     public static Option<T> Find<T>(this IEnumerable<T> list, Func<T, bool> pred) =>

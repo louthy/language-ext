@@ -82,19 +82,12 @@ namespace LanguageExt
         public static IQueryable<T> append<T>(IQueryable<T> lhs, IQueryable<T> rhs) =>
             lhs.Concat(rhs);
 
-        public static S fold<S, T>(IQueryable<T> list, S state, Expression<Func<T, S, S>> folder)
+        public static S fold<S, T>(IQueryable<T> list, S state, Expression<Func<S, T, S>> folder)
         {
-            var paramS = Expression.Parameter(typeof(S), "s");
-            var paramT = Expression.Parameter(typeof(T), "t");
-
-            return list.Aggregate(state,
-                Expression.Lambda<Func<S, T, S>>(
-                    Expression.Invoke(folder, paramS, paramT),
-                    paramS,
-                    paramT));
+            return list.Aggregate(state, folder);
         }
 
-        public static S foldBack<S, T>(IQueryable<T> list, S state, Expression<Func<T, S, S>> folder) =>
+        public static S foldBack<S, T>(IQueryable<T> list, S state, Expression<Func<S, T, S>> folder) =>
             fold(rev(list), state, folder);
 
         public static T reduce<T>(IQueryable<T> list, Expression<Func<T, T, T>> reducer) =>
@@ -177,10 +170,10 @@ public static class __QueryExt
     public static IQueryable<T> Append<T>(this IQueryable<T> lhs, IQueryable<T> rhs) =>
         Query.append(lhs, rhs);
 
-    public static S Fold<S, T>(this IQueryable<T> list, S state, Expression<Func<T, S, S>> folder) =>
+    public static S Fold<S, T>(this IQueryable<T> list, S state, Expression<Func<S, T, S>> folder) =>
         Query.fold(list, state, folder);
 
-    public static S FoldBack<S, T>(this IQueryable<T> list, S state, Expression<Func<T, S, S>> folder) =>
+    public static S FoldBack<S, T>(this IQueryable<T> list, S state, Expression<Func<S, T, S>> folder) =>
         Query.foldBack(list, state, folder);
 
     public static T Reduce<T>(this IQueryable<T> list, Expression<Func<T, T, T>> reducer) =>

@@ -52,6 +52,7 @@
     <Compile Include="FunTests.cs" />
     <Compile Include="LinqTests.cs" />
     <Compile Include="ListMatchingTests.cs" />
+    <Compile Include="OptionTTests.cs" />
     <Compile Include="QueryTests.cs" />
     <Compile Include="ListTests.cs" />
     <Compile Include="MapTests.cs" />

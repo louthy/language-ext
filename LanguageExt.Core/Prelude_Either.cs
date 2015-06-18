@@ -56,7 +56,7 @@ namespace LanguageExt
             either.ForAll(pred);
 
         public static int count<L, R>(Either<L, R> either) =>
-            either.Count;
+            either.Count();
 
         public static bool exists<L, R>(Either<L, R> either, Func<R, bool> pred) =>
             either.Exists(pred);
@@ -64,7 +64,7 @@ namespace LanguageExt
         public static Either<L, Ret> map<L, R, Ret>(Either<L, R> either, Func<R, Ret> mapper) =>
             either.Map(mapper);
 
-        public static bool filter<L, R>(Either<L, R> either, Func<R, bool> pred) =>
+        public static Either<Unit, R> filter<L, R>(Either<L, R> either, Func<R, bool> pred) =>
             either.Filter(pred);
 
         public static Either<L, Ret> bind<L, R, Ret>(Either<L, R> either, Func<R, Either<L, Ret>> binder) =>
