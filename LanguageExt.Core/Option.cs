@@ -16,7 +16,7 @@ namespace LanguageExt
     /// To extract the value you must use the 'match' function.
     /// </summary>
     [TypeConverter(typeof(OptionalTypeConverter))]
-    public class Option<T> : IOptionalValue, IEnumerable<T>
+    public struct Option<T> : IOptionalValue, IEnumerable<T>
     {
         readonly T value;
 
