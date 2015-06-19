@@ -580,8 +580,6 @@ namespace LanguageExt
                 ? true
                 : pred(node.Key, node.Value)
                     ? ForAll(node.Left, pred) && ForAll(node.Right, pred)
-                        ? true
-                        : false
                     : false;
 
         public static bool Exists<K, V>(Map<K, V> node, Func<K, V, bool> pred) where K : IComparable<K> =>
@@ -589,9 +587,7 @@ namespace LanguageExt
                 ? false
                 : pred(node.Key, node.Value)
                     ? true
-                    : ForAll(node.Left, pred) && ForAll(node.Right, pred)
-                        ? true
-                        : false;
+                    : ForAll(node.Left, pred) || ForAll(node.Right, pred);
 
         public static Map<K, V> Filter<K, V>(Map<K, V> node, Func<K, V, bool> pred) where K : IComparable<K> =>
             node.Tag == MapTag.Empty
