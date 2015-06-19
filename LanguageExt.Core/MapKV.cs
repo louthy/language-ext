@@ -93,6 +93,7 @@ namespace LanguageExt
         /// or none do.
         /// </summary>
         /// <param name="range">Range of tuples to add</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
         /// <returns>New Map with the items added</returns>
         public Map<K, V> AddRange(IEnumerable<Tuple<K, V>> range)
         {
@@ -109,12 +110,12 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Adds a range of items to the map atomically: either all add
-        /// or none do.
+        /// Adds a range of items to the map atomically.  If any of the keys exist already
+        /// then they're ignored.
         /// </summary>
         /// <param name="range">Range of tuples to add</param>
         /// <returns>New Map with the items added</returns>
-        public Try<Map<K, V>> TryAddRange(IEnumerable<Tuple<K, V>> range) => () =>
+        public Map<K, V> TryAddRange(IEnumerable<Tuple<K, V>> range)
         {
             if (range == null)
             {
@@ -124,10 +125,31 @@ namespace LanguageExt
             var self = this;
             foreach (var item in range)
             {
-                self = MapModule.Add(self, item.Item1, item.Item2);
+                self = MapModule.TryAdd(self, item.Item1, item.Item2);
             }
             return self;
-        };
+        }
+
+        /// <summary>
+        /// Adds a range of items to the map atomically.  If any of the keys exist already
+        /// then they're replaced.
+        /// </summary>
+        /// <param name="range">Range of tuples to add</param>
+        /// <returns>New Map with the items added</returns>
+        public Map<K, V> TryAddOrUpdateRange(IEnumerable<Tuple<K, V>> range)
+        {
+            if (range == null)
+            {
+                return this;
+            }
+
+            var self = this;
+            foreach (var item in range)
+            {
+                self = MapModule.AddOrUpdate(self, item.Item1, item.Item2);
+            }
+            return self;
+        }
 
         /// <summary>
         /// Updates an existing item
