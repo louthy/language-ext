@@ -97,21 +97,20 @@ namespace LanguageExt
         /// Create an immutable map
         /// </summary>
         public static Map<K, V> map<K, V>() where K : IComparable<K> =>
-            Map.create<K, V>();
+            Map.empty<K, V>();
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
         public static Map<K, V> map<K, V>(params Tuple<K, V>[] items) where K : IComparable<K> =>
-            Map.create<K,V>().AddRange(items);
+            Map.createRange(items);
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
         public static Map<K, V> map<K, V>(params KeyValuePair<K, V>[] items) where K : IComparable<K> =>
-            Map.create<K, V>()
-               .AddRange(from x in items
-                         select tuple(x.Key,x.Value));
+            Map.createRange(from x in items
+                            select tuple(x.Key,x.Value));
 
         /// <summary>
         /// Create an immutable list

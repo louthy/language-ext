@@ -15,6 +15,9 @@ namespace LanguageExt
         public static Lst<T> create<T>(params T[] items) =>
             new Lst<T>(items);
 
+        public static Lst<T> createRange<T>(IEnumerable<T> items) =>
+            new Lst<T>(items);
+
         public static Lst<T> add<T>(Lst<T> list, T value) =>
             list.Add(value);
 

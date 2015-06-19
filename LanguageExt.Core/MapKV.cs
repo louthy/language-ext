@@ -60,9 +60,11 @@ namespace LanguageExt
         /// <summary>
         /// Atomically adds a new item to the map
         /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
         /// <exception cref="ArgumentException">Throws ArgumentException if the key already exists</exception>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         public Map<K, V> Add(K key, V value)
         {
@@ -75,8 +77,10 @@ namespace LanguageExt
         /// Atomically adds a new item to the map.
         /// If the key already exists, then the new item is ignored
         /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         public Map<K, V> TryAdd(K key, V value)
         {
@@ -89,8 +93,10 @@ namespace LanguageExt
         /// Atomically adds a new item to the map.
         /// If the key already exists, the new item replaces it.
         /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         public Map<K, V> AddOrUpdate(K key, V value)
         {
@@ -102,8 +108,10 @@ namespace LanguageExt
         /// <summary>
         /// Atomically adds a range of items to the map.
         /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
         /// <param name="range">Range of tuples to add</param>
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         public Map<K, V> AddRange(IEnumerable<Tuple<K, V>> range)
         {
@@ -114,6 +122,8 @@ namespace LanguageExt
             var self = this;
             foreach (var item in range)
             {
+                if (item.Item1 == null) throw new ArgumentNullException(nameof(item.Item1));
+                if (item.Item2 == null) throw new ArgumentNullException(nameof(item.Item2));
                 self = MapModule.Add(self, item.Item1, item.Item2);
             }
             return self;
@@ -123,7 +133,9 @@ namespace LanguageExt
         /// Atomically adds a range of items to the map.  If any of the keys exist already
         /// then they're ignored.
         /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
         /// <param name="range">Range of tuples to add</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         public Map<K, V> TryAddRange(IEnumerable<Tuple<K, V>> range)
         {
@@ -135,7 +147,34 @@ namespace LanguageExt
             var self = this;
             foreach (var item in range)
             {
+                if (item.Item1 == null) throw new ArgumentNullException(nameof(item.Item1));
+                if (item.Item2 == null) throw new ArgumentNullException(nameof(item.Item2));
                 self = MapModule.TryAdd(self, item.Item1, item.Item2);
+            }
+            return self;
+        }
+
+        /// <summary>
+        /// Atomically adds a range of items to the map.  If any of the keys exist already
+        /// then they're ignored.
+        /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
+        /// <param name="range">Range of KeyValuePairs to add</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
+        /// <returns>New Map with the items added</returns>
+        public Map<K, V> TryAddRange(IEnumerable<KeyValuePair<K, V>> range)
+        {
+            if (range == null)
+            {
+                return this;
+            }
+
+            var self = this;
+            foreach (var item in range)
+            {
+                if (item.Key == null) throw new ArgumentNullException(nameof(item.Key));
+                if (item.Value == null) throw new ArgumentNullException(nameof(item.Value));
+                self = MapModule.TryAdd(self, item.Key, item.Value);
             }
             return self;
         }
@@ -144,7 +183,9 @@ namespace LanguageExt
         /// Atomically adds a range of items to the map.  If any of the keys exist already
         /// then they're replaced.
         /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
         /// <param name="range">Range of tuples to add</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         public Map<K, V> TryAddOrUpdateRange(IEnumerable<Tuple<K, V>> range)
         {
@@ -156,7 +197,34 @@ namespace LanguageExt
             var self = this;
             foreach (var item in range)
             {
+                if (item.Item1 == null) throw new ArgumentNullException(nameof(item.Item1));
+                if (item.Item2 == null) throw new ArgumentNullException(nameof(item.Item2));
                 self = MapModule.AddOrUpdate(self, item.Item1, item.Item2);
+            }
+            return self;
+        }
+
+        /// <summary>
+        /// Atomically adds a range of items to the map.  If any of the keys exist already
+        /// then they're replaced.
+        /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
+        /// <param name="range">Range of KeyValuePairs to add</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
+        /// <returns>New Map with the items added</returns>
+        public Map<K, V> TryAddOrUpdateRange(IEnumerable<KeyValuePair<K, V>> range)
+        {
+            if (range == null)
+            {
+                return this;
+            }
+
+            var self = this;
+            foreach (var item in range)
+            {
+                if (item.Key == null) throw new ArgumentNullException(nameof(item.Key));
+                if (item.Value == null) throw new ArgumentNullException(nameof(item.Value));
+                self = MapModule.AddOrUpdate(self, item.Key, item.Value);
             }
             return self;
         }
@@ -164,8 +232,10 @@ namespace LanguageExt
         /// <summary>
         /// Atomically updates an existing item
         /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         public Map<K, V> SetItem(K key, V value)
         {
@@ -177,8 +247,10 @@ namespace LanguageExt
         /// <summary>
         /// Atomically updates an existing item
         /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         public Try<Map<K, V>> TrySetItem(K key, V value) => () =>
         {
@@ -213,6 +285,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="keyFrom">Range start (inclusive)</param>
         /// <param name="keyTo">Range to (inclusive)</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
         /// <returns>Range of values</returns>
         public IEnumerable<V> FindRange(K keyFrom, K keyTo)
         {
@@ -258,16 +331,14 @@ namespace LanguageExt
         /// <summary>
         /// Atomically maps the map to a new map
         /// </summary>
-        /// <param name="key">Key to check</param>
-        /// <returns>True if an item with the key supplied is in the map</returns>
+        /// <returns>Mapped items in a new map</returns>
         public Map<K, U> Select<U>(Func<V, U> mapper) =>
             MapModule.Map(this, mapper);
 
         /// <summary>
         /// Atomically maps the map to a new map
         /// </summary>
-        /// <param name="key">Key to check</param>
-        /// <returns>True if an item with the key supplied is in the map</returns>
+        /// <returns>Mapped items in a new map</returns>
         public Map<K, U> Select<U>(Func<K, V, U> mapper) =>
             MapModule.Map(this, mapper);
 
@@ -364,8 +435,9 @@ namespace LanguageExt
             MapModule.Iter(this, (k, v) => action(new KeyValuePair<K, V>(k, v)));
 
         /// <summary>
-        /// Equivalent to 'filter' but the filtering is done based on whether the returned
-        /// Option is Some or None.  (item is removed if None)
+        /// Equivalent to map and filter but the filtering is done based on whether the returned
+        /// Option is Some or None.  If the item is None then it's filtered out, if not the the
+        /// mapped Some value is used.
         /// </summary>
         /// <param name="selector">Predicate</param>
         /// <returns>Filtered map</returns>
@@ -373,8 +445,9 @@ namespace LanguageExt
             MapModule.Choose(this, selector);
 
         /// <summary>
-        /// Equivalent to 'filter' but the filtering is done based on whether the returned
-        /// Option is Some or None.  (item is removed if None)
+        /// Equivalent to map and filter but the filtering is done based on whether the returned
+        /// Option is Some or None.  If the item is None then it's filtered out, if not the the
+        /// mapped Some value is used.
         /// </summary>
         /// <param name="selector">Predicate</param>
         /// <returns>Filtered map</returns>
@@ -414,6 +487,7 @@ namespace LanguageExt
         /// <summary>
         /// Clears all items from the map 
         /// </summary>
+        /// <remarks>Functionally equivalent to calling Map.empty as the original structure is untouched</remarks>
         /// <returns>Empty map</returns>
         public Map<K, V> Clear() =>
             Empty<K, V>.Default;
@@ -656,10 +730,10 @@ namespace LanguageExt
         }
 
         public static Map<K, V> Choose<K, V>(Map<K, V> node, Func<K, V, Option<V>> selector) where K : IComparable<K> =>
-            Filter(node, (k,v) => selector(k,v).IsSome);
+            Map(Filter(Map(node, selector), n => n.IsSome), n => n.Value);
 
         public static Map<K, V> Choose<K, V>(Map<K, V> node, Func<V, Option<V>> selector) where K : IComparable<K> =>
-            Filter(node, x => selector(x).IsSome);
+            Map(Filter(Map(node, selector), n => n.IsSome), n => n.Value);
 
         public static Unit Iter<K, V>(Map<K, V> node, Action<K, V> action) where K : IComparable<K>
         {
@@ -713,15 +787,20 @@ namespace LanguageExt
                     ? Balance(Make(node.Key, node.Value, Filter(node.Left, pred), Filter(node.Right, pred)))
                     : Balance(Filter(AddTreeToRight(node.Left, node.Right), pred));
 
+        private static T CheckNull<T>(T value, string context) =>
+            value == null
+                ? failwith<T>("Null result not allowed in " + context)
+                : value;
+
         public static Map<K, U> Map<K, V, U>(Map<K, V> node, Func<V, U> mapper) where K : IComparable<K> =>
             node.Tag == MapTag.Empty
                 ? Empty<K, U>.Default
-                : new Node<K, U>(node.Height, node.Count, node.Key, mapper(node.Value), Map(node.Left, mapper), Map(node.Right, mapper));
+                : new Node<K, U>(node.Height, node.Count, node.Key, CheckNull(mapper(node.Value),"map delegate"), Map(node.Left, mapper), Map(node.Right, mapper));
 
         public static Map<K, U> Map<K, V, U>(Map<K, V> node, Func<K, V, U> mapper) where K : IComparable<K> =>
             node.Tag == MapTag.Empty
                 ? Empty<K, U>.Default
-                : new Node<K, U>(node.Height, node.Count, node.Key, mapper(node.Key, node.Value), Map(node.Left, mapper), Map(node.Right, mapper));
+                : new Node<K, U>(node.Height, node.Count, node.Key, CheckNull(mapper(node.Key, node.Value), "map delegate"), Map(node.Left, mapper), Map(node.Right, mapper));
 
         public static Map<K, V> Add<K, V>(Map<K, V> node, K key, V value) where K : IComparable<K>
         {
