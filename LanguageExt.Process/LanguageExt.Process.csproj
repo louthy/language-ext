@@ -63,6 +63,7 @@
     <Compile Include="Exceptions.cs" />
     <Compile Include="FSHelper.cs" />
     <Compile Include="Message.cs" />
+    <Compile Include="NullProcess.cs" />
     <Compile Include="ObservableRouter.cs" />
     <Compile Include="ProcessName.cs" />
     <Compile Include="IProcess.cs" />
