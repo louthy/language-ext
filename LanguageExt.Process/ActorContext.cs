@@ -84,7 +84,7 @@ namespace LanguageExt
             return unit;
         }
 
-        public static IImmutableDictionary<string, IProcess> Store
+        public static Map<string, IProcess> Store
         {
             get;
             private set;

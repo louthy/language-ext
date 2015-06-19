@@ -5,175 +5,117 @@ using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.List;
+using System.Collections;
 
 namespace LanguageExt
 {
     public static partial class Map
     {
-        public static IImmutableDictionary<K, V> add<K, V>(IImmutableDictionary<K, V> map, K key, V value) =>
+        public static Map<K, V> create<K, V>() where K : IComparable<K> =>
+            new Empty<K, V>();
+
+        public static Map<K, V> add<K, V>(Map<K, V> map, K key, V value) where K : IComparable<K> =>
             map.Add(key, value);
 
-        public static IImmutableDictionary<K, V> add<K, V>(IImmutableDictionary<K, V> map, params Tuple<K, V>[] keyValues) =>
+        public static Map<K, V> add<K, V>(Map<K, V> map, params Tuple<K, V>[] keyValues) where K : IComparable<K> =>
             keyValues.Count() == 0
                 ? map
                 : keyValues.Count() == 1
                     ? map.Add(keyValues[0].Item1, keyValues[0].Item2)
                     : addRange(map, keyValues);
 
-        public static IImmutableDictionary<K, V> addRange<K, V>(IImmutableDictionary<K, V> map, IEnumerable<Tuple<K, V>> keyValues) =>
-            addRange(map, keyValues.Select(kv => new KeyValuePair<K, V>(kv.Item1, kv.Item2)));
-
-        public static IImmutableDictionary<K, V> addRange<K, V>(IImmutableDictionary<K, V> map, IEnumerable<KeyValuePair<K, V>> keyValues) =>
+        public static Map<K, V> addRange<K, V>(Map<K, V> map, IEnumerable<Tuple<K, V>> keyValues) where K : IComparable<K> =>
             map.AddRange(keyValues);
 
-        public static IImmutableDictionary<K, V> remove<K, V>(IImmutableDictionary<K, V> map, K key, V value) =>
+        public static Map<K, V> addRange<K, V>(Map<K, V> map, IEnumerable<KeyValuePair<K, V>> keyValues) where K : IComparable<K> =>
+            addRange(map, keyValues.Select(t => tuple(t.Key,t.Value)));
+
+        public static Map<K, V> remove<K, V>(Map<K, V> map, K key) where K : IComparable<K> =>
             map.Remove(key);
 
-        public static bool containsKey<K, V>(IImmutableDictionary<K, V> map, K key) =>
+        public static bool containsKey<K, V>(Map<K, V> map, K key) where K : IComparable<K> =>
             map.ContainsKey(key);
 
-        public static bool contains<K, V>(IImmutableDictionary<K, V> map, KeyValuePair<K, V> kv) =>
+        public static bool contains<K, V>(Map<K, V> map, KeyValuePair<K, V> kv) where K : IComparable<K> =>
+            map.Contains(tuple(kv.Key,kv.Value));
+
+        public static bool contains<K, V>(Map<K, V> map, Tuple<K, V> kv) where K : IComparable<K> =>
             map.Contains(kv);
 
-        public static bool contains<K, V>(IImmutableDictionary<K, V> map, Tuple<K, V> kv) =>
-            map.Contains(new KeyValuePair<K, V>(kv.Item1, kv.Item2));
-
-        public static IImmutableDictionary<K, V> setItem<K, V>(IImmutableDictionary<K, V> map, K key, V value) =>
+        public static Map<K, V> setItem<K, V>(Map<K, V> map, K key, V value) where K : IComparable<K> =>
             map.SetItem(key, value);
 
-        public static Option<V> find<K, V>(IImmutableDictionary<K, V> map, K key) =>
-            containsKey(map, key)
-                ? Some(map[key])
-                : None;
+        public static Option<V> find<K, V>(Map<K, V> map, K key) where K : IComparable<K> =>
+            map.Find(key);
 
-        public static Unit iter<K, V>(IImmutableDictionary<K, V> map, Action<V> action) =>
-            iter<K>(map.Keys, key => action(map[key]));
+        public static Unit iter<K, V>(Map<K, V> map, Action<V> action) where K : IComparable<K> =>
+            List.iter<Tuple<K,V>>(map.AsEnumerable(), kv => action(kv.Item2));
 
-        public static Unit iter<K, V>(IImmutableDictionary<K, V> map, Action<K, V> action) =>
-            iter<K>(map.Keys, key => action(key, map[key]));
+        public static Unit iter<K, V>(Map<K, V> map, Action<K, V> action) where K : IComparable<K> =>
+            List.iter<Tuple<K, V>>(map.AsEnumerable(), kv => action(kv.Item1, kv.Item2));
 
-        public static bool forall<K, V>(IImmutableDictionary<K, V> map, Func<K, V, bool> pred) =>
-            map.All(kv => pred(kv.Key, kv.Value));
+        public static bool forall<K, V>(Map<K, V> map, Func<K, V, bool> pred) where K : IComparable<K> =>
+            map.ForAll(kv => pred(kv.Item1, kv.Item2));
 
-        public static bool forall<K, V>(IImmutableDictionary<K, V> map, Func<Tuple<K, V>, bool> pred) =>
-            map.All(kv => pred(tuple(kv.Key, kv.Value)));
+        public static bool forall<K, V>(Map<K, V> map, Func<Tuple<K, V>, bool> pred) where K : IComparable<K> =>
+            map.ForAll(kv => pred(tuple(kv.Item1, kv.Item2)));
 
-        public static bool forall<K, V>(IImmutableDictionary<K, V> map, Func<KeyValuePair<K, V>, bool> pred) =>
-            map.All(kv => pred(kv));
+        public static bool forall<K, V>(Map<K, V> map, Func<KeyValuePair<K, V>, bool> pred) where K : IComparable<K> =>
+            map.ForAll(kv => pred(new KeyValuePair<K, V>(kv.Item1,kv.Item2)));
 
-        public static IImmutableDictionary<K, U> map<K, T, U>(IImmutableDictionary<K, T> map, Func<T, U> f) =>
-            map.Select(kv => new KeyValuePair<K, U>(kv.Key, f(kv.Value))).ToImmutableDictionary();
+        public static Map<K, U> map<K, T, U>(Map<K, T> map, Func<T, U> f) where K : IComparable<K> =>
+            map.Select(f);
 
-        public static IImmutableDictionary<K, U> map<K, T, U>(IImmutableDictionary<K, T> map, Func<K, T, U> f) =>
-            map.Select(kv => new KeyValuePair<K, U>(kv.Key, f(kv.Key, kv.Value))).ToImmutableDictionary();
+        public static Map<K, U> map<K, T, U>(Map<K, T> map, Func<K, T, U> f) where K : IComparable<K> =>
+            map.Select(f);
 
-        public static IImmutableDictionary<K, T> filter<K, T>(IImmutableDictionary<K, T> map, Func<T, bool> predicate) =>
-            map.Where(kv => predicate(kv.Value)).ToImmutableDictionary();
+        public static Map<K, T> filter<K, T>(Map<K, T> map, Func<T, bool> predicate) where K : IComparable<K> =>
+            map.Filter(predicate);
 
-        public static IImmutableDictionary<K, T> choose<K, T>(IImmutableDictionary<K, T> map, Func<T, Option<T>> selector) =>
+        public static Map<K, T> choose<K, T>(Map<K, T> map, Func<T, Option<T>> selector) where K : IComparable<K> =>
             Map.map(filter(Map.map(map, selector), t => t.IsSome), t => t.Value);
 
-        public static IImmutableDictionary<K, T> choose<K, T>(IImmutableDictionary<K, T> map, Func<K, T, Option<T>> selector) =>
+        public static Map<K, T> choose<K, T>(Map<K, T> map, Func<K, T, Option<T>> selector) where K : IComparable<K> =>
             Map.map(filter(Map.map(map, selector), t => t.IsSome), t => t.Value);
 
-        public static int length<K, T>(IImmutableDictionary<K, T> map) =>
+        public static int length<K, T>(Map<K, T> map) where K : IComparable<K> =>
             map.Count;
 
-        public static S fold<S, K, V>(IImmutableDictionary<K, V> map, S state, Func<K, V, S, S> folder)
+        public static S fold<S, K, V>(Map<K, V> map, S state, Func<K, V, S, S> folder) where K : IComparable<K>
         {
             iter(map, (key, value) => { state = folder(key, value, state); });
             return state;
         }
 
-        public static bool exists<K, V>(IImmutableDictionary<K, V> map, Func<K, V, bool> pred)
-        {
-            foreach (var key in map.Keys)
-            {
-                if ( pred(key, map[key]) )
-                    return true;
-            }
-            return false;
-        }
+        public static bool exists<K, V>(Map<K, V> map, Func<K, V, bool> pred) where K : IComparable<K> =>
+            map.Exists(pred);
 
-        public static bool exists<K, V>(IImmutableDictionary<K, V> map, Func<Tuple<K, V>, bool> pred)
-        {
-            foreach (var key in map.Keys)
-            {
-                if (pred(Tuple.Create(key, map[key])))
-                    return true;
-            }
-            return false;
-        }
+        public static bool exists<K, V>(Map<K, V> map, Func<Tuple<K, V>, bool> pred) where K : IComparable<K> =>
+            map.Exists(pred);
 
-        public static bool exists<K, V>(IImmutableDictionary<K, V> map, Func<KeyValuePair<K, V>, bool> pred)
-        {
-            foreach (var keyValue in map)
-            {
-                if (pred(keyValue))
-                    return true;
-            }
-            return false;
-        }
+        public static bool exists<K, V>(Map<K, V> map, Func<KeyValuePair<K, V>, bool> pred) where K : IComparable<K> =>
+            map.Exists(pred);
     }
 }
 
 public static class __MapExt
 {
-    public static IImmutableDictionary<K, V> Add<K, V>(this IImmutableDictionary<K, V> map, params Tuple<K, V>[] keyValues) =>
-        LanguageExt.Map.add(map, keyValues);
-
-    public static IImmutableDictionary<K, V> AddRange<K, V>(this IImmutableDictionary<K, V> map, IEnumerable<Tuple<K, V>> keyValues) =>
-        LanguageExt.Map.addRange(map, keyValues);
-
-    public static bool Contains<K, V>(this IImmutableDictionary<K, V> map, Tuple<K, V> kv) =>
-        LanguageExt.Map.contains(map, kv);
-
-    public static Option<V> Find<K, V>(this IImmutableDictionary<K, V> map, K key) =>
-        LanguageExt.Map.find(map, key);
-
-    public static Unit Iter<K, V>(this IImmutableDictionary<K, V> map, Action<V> action) =>
+    public static Unit Iter<K, V>(this Map<K, V> map, Action<V> action) where K : IComparable<K> =>
         LanguageExt.Map.iter(map, action);
 
-    public static Unit Iter<K, V>(this IImmutableDictionary<K, V> map, Action<K, V> action) =>
+    public static Unit Iter<K, V>(this Map<K, V> map, Action<K, V> action) where K : IComparable<K> =>
         LanguageExt.Map.iter(map, action);
 
-    public static bool ForAll<K, V>(this IImmutableDictionary<K, V> map, Func<K, V, bool> pred) =>
-        LanguageExt.Map.forall(map, pred);
-
-    public static bool ForAll<K, V>(this IImmutableDictionary<K, V> map, Func<Tuple<K, V>, bool> pred) =>
-        LanguageExt.Map.forall(map, pred);
-
-    public static bool ForAll<K, V>(this IImmutableDictionary<K, V> map, Func<KeyValuePair<K, V>, bool> pred) =>
-        LanguageExt.Map.forall(map, pred);
-
-    public static IImmutableDictionary<K, U> Map<K, T, U>(this IImmutableDictionary<K, T> map, Func<T, U> f) =>
-        LanguageExt.Map.map(map, f);
-
-    public static IImmutableDictionary<K, U> Mapi<K, T, U>(this IImmutableDictionary<K, T> map, Func<K, T, U> f) =>
-        LanguageExt.Map.map(map, f);
-
-    public static IImmutableDictionary<K, T> Filter<K, T>(this IImmutableDictionary<K, T> map, Func<T, bool> predicate) =>
-        LanguageExt.Map.filter(map, predicate);
-
-    public static IImmutableDictionary<K, T> Choose<K, T>(this IImmutableDictionary<K, T> map, Func<T, Option<T>> selector) =>
+    public static Map<K, T> Choose<K, T>(this Map<K, T> map, Func<T, Option<T>> selector) where K : IComparable<K> =>
         LanguageExt.Map.choose(map, selector);
 
-    public static IImmutableDictionary<K, T> Choose<K, T>(this IImmutableDictionary<K, T> map, Func<K, T, Option<T>> selector) =>
+    public static Map<K, T> Choose<K, T>(this Map<K, T> map, Func<K, T, Option<T>> selector) where K : IComparable<K> =>
         LanguageExt.Map.choose(map, selector);
 
-    public static int Length<K, T>(this IImmutableDictionary<K, T> map) =>
+    public static int Length<K, T>(this Map<K, T> map) where K : IComparable<K> =>
         LanguageExt.Map.length(map);
 
-    public static S Fold<S, K, V>(this IImmutableDictionary<K, V> map, S state, Func<K, V, S, S> folder) =>
+    public static S Fold<S, K, V>(this Map<K, V> map, S state, Func<K, V, S, S> folder) where K : IComparable<K> =>
         LanguageExt.Map.fold(map, state, folder);
-
-    public static bool Exists<K, V>(this IImmutableDictionary<K, V> map, Func<K, V, bool> pred) =>
-        LanguageExt.Map.exists(map, pred);
-
-    public static bool Exists<K, V>(this IImmutableDictionary<K, V> map, Func<Tuple<K, V>, bool> pred) =>
-        LanguageExt.Map.exists(map,pred);
-
-    public static bool Exists<K, V>(this IImmutableDictionary<K, V> map, Func<KeyValuePair<K, V>, bool> pred) =>
-        LanguageExt.Map.exists(map, pred);
 }
 

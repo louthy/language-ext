@@ -96,24 +96,22 @@ namespace LanguageExt
         /// <summary>
         /// Create an immutable map
         /// </summary>
-        public static IImmutableDictionary<K, V> map<K, V>() =>
-            ImmutableDictionary.Create<K, V>();
+        public static Map<K, V> map<K, V>() where K : IComparable<K> =>
+            Map.create<K, V>();
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
-        public static IImmutableDictionary<K, V> map<K, V>(params Tuple<K, V>[] items) =>
-            map(items.Select(i => new KeyValuePair<K, V>(i.Item1, i.Item2)).ToArray());
+        public static Map<K, V> map<K, V>(params Tuple<K, V>[] items) where K : IComparable<K> =>
+            Map.create<K,V>().AddRange(items);
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
-        public static IImmutableDictionary<K, V> map<K, V>(params KeyValuePair<K, V>[] items)
-        {
-            var builder = ImmutableDictionary.CreateBuilder<K, V>();
-            builder.AddRange(items);
-            return builder.ToImmutableDictionary();
-        }
+        public static Map<K, V> map<K, V>(params KeyValuePair<K, V>[] items) where K : IComparable<K> =>
+            Map.create<K, V>()
+               .AddRange(from x in items
+                         select tuple(x.Key,x.Value));
 
         /// <summary>
         /// Create an immutable list
@@ -319,12 +317,12 @@ namespace LanguageExt
             Func<T, IEnumerable<T>, R> More) =>
             list.Match(Empty, One, Two, Three, Four, Five, Six, More);
 
-        public static R match<K, V, R>(IImmutableDictionary<K, V> map, K key, Func<V, R> Some, Func<R> None) =>
+        public static R match<K, V, R>(Map<K, V> map, K key, Func<V, R> Some, Func<R> None) where K : IComparable<K> =>
             match( Map.find(map, key),
                    Some,
                    None );
 
-        public static Unit match<K, V>(IImmutableDictionary<K, V> map, K key, Action<V> Some, Action None) =>
+        public static Unit match<K, V>(Map<K, V> map, K key, Action<V> Some, Action None) where K : IComparable<K> =>
             match(Map.find(map, key),
                    Some,
                    None);

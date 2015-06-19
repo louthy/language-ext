@@ -32,7 +32,7 @@ namespace LanguageExtTests
 
         private class Bindings
         {
-            public readonly IImmutableDictionary<string, int> Map;
+            public readonly Map<string, int> Map;
             public Bindings(params Tuple<string, int>[] items)
             {
                 Map = map(items);

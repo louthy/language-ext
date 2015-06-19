@@ -187,6 +187,24 @@ public static class __TryExt
         }
     }
 
+    public static T IfFailThrow<T>(this Try<T> self)
+    {
+        try
+        {
+            var res = self();
+            if (res.IsFaulted)
+            {
+                throw res.Exception;
+            }
+            return res.Value;
+        }
+        catch (Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            throw;
+        }
+    }
+
     public static Try<U> Select<T, U>(this Try<T> self, Func<T, U> select)
     {
         return new Try<U>(() =>

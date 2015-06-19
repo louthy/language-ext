@@ -23,16 +23,16 @@ namespace LanguageExt
 
         public static void Restart()
         {
-            Store = ImmutableDictionary.Create<string, Subject<object>>();
+            Store = Map.create<string, Subject<object>>();
         }
 
-        static IImmutableDictionary<string, Subject<object>> Store
+        static Map<string, Subject<object>> Store
         {
             get;
             set;
         }
 
-        public static IImmutableDictionary<string, Subject<object>> AddToStore(ProcessId id)
+        public static Map<string, Subject<object>> AddToStore(ProcessId id)
         {
             lock (storeLock)
             {
@@ -49,7 +49,7 @@ namespace LanguageExt
             }
         }
 
-        public static IImmutableDictionary<string, Subject<object>> RemoveFromStore(ProcessId id)
+        public static Map<string, Subject<object>> RemoveFromStore(ProcessId id)
         {
             lock (storeLock)
             {
@@ -63,7 +63,7 @@ namespace LanguageExt
             }
         }
 
-        private static R EnsureInStore<R>(ProcessId id, Func<IImmutableDictionary<string, Subject<object>>,string,R> f)
+        private static R EnsureInStore<R>(ProcessId id, Func<Map<string, Subject<object>>,string,R> f)
         {
             var store = Store;
             var path = id.ToString();

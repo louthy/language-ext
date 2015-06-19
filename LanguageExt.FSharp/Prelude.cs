@@ -48,9 +48,9 @@ namespace LanguageExt
             ListModule.OfSeq(list);
 
         /// <summary>
-        /// Convert an F# Map into a LanguageExt Map (IImmutableDictionary<K, V>)
+        /// Convert an F# Map into a LanguageExt Map (Map<K, V>)
         /// </summary>
-        public static IImmutableDictionary<K, V> fs<K, V>(FSharpMap<K, V> fsMap) =>
+        public static Map<K, V> fs<K, V>(FSharpMap<K, V> fsMap) where K : IComparable<K> =>
             Map.addRange( map<K, V>(), List.map(fsMap, identity) );
 
         /// <summary>
@@ -58,5 +58,10 @@ namespace LanguageExt
         /// </summary>
         public static FSharpMap<K, V> fs<K, V>(IImmutableDictionary<K, V> map) =>
             MapModule.OfSeq(List.map(map, kv => Tuple.Create(kv.Key, kv.Value)));
+        /// <summary>
+        /// Convert a LanguageExt Map (Map<K, V>) into an F# Map
+        /// </summary>
+        public static FSharpMap<K, V> fs<K, V>(Map<K, V> map) where K : IComparable<K> =>
+            MapModule.OfSeq(map.AsEnumerable());
     }
 }

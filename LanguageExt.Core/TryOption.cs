@@ -119,11 +119,6 @@ namespace LanguageExt
         public Unit Fail(Action<Exception> failHandler) =>
             option.Match(someHandler, noneHandler, failHandler);
     }
-
-    public static class TryOptionConfig
-    {
-        public static Action<Exception> ErrorLogger = ex => {};
-    }
 }
 
 /// <summary>
@@ -272,8 +267,27 @@ public static class __TryOptionExt
         }
         catch (Exception e)
         {
-            TryOptionConfig.ErrorLogger(e);
+            TryConfig.ErrorLogger(e);
             return new TryOptionResult<T>(e);
+        }
+    }
+
+
+    public static Option<T> IfFailThrow<T>(this TryOption<T> self)
+    {
+        try
+        {
+            var res = self();
+            if (res.IsFaulted)
+            {
+                throw res.Exception;
+            }
+            return res.Value;
+        }
+        catch (Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            throw;
         }
     }
 
@@ -292,7 +306,7 @@ public static class __TryOptionExt
             }
             catch (Exception e)
             {
-                TryOptionConfig.ErrorLogger(e);
+                TryConfig.ErrorLogger(e);
                 return new TryOptionResult<U>(e);
             }
 
@@ -303,7 +317,7 @@ public static class __TryOptionExt
             }
             catch (Exception e)
             {
-                TryOptionConfig.ErrorLogger(e);
+                TryConfig.ErrorLogger(e);
                 return new TryOptionResult<U>(e);
             }
 
@@ -331,7 +345,7 @@ public static class __TryOptionExt
                 }
                 catch (Exception e)
                 {
-                    TryOptionConfig.ErrorLogger(e);
+                    TryConfig.ErrorLogger(e);
                     return new TryOptionResult<V>(e);
                 }
 
@@ -346,7 +360,7 @@ public static class __TryOptionExt
                 }
                 catch (Exception e)
                 {
-                    TryOptionConfig.ErrorLogger(e);
+                    TryConfig.ErrorLogger(e);
                     return new TryOptionResult<V>(e);
                 }
 
@@ -357,7 +371,7 @@ public static class __TryOptionExt
                 }
                 catch (Exception e)
                 {
-                    TryOptionConfig.ErrorLogger(e);
+                    TryConfig.ErrorLogger(e);
                     return new TryOptionResult<V>(e);
                 }
 
