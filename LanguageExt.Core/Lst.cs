@@ -52,7 +52,7 @@ namespace LanguageExt
         {
             get
             {
-                throw new NotImplementedException();
+                return Count;
             }
         }
 
@@ -60,7 +60,7 @@ namespace LanguageExt
         {
             get
             {
-                throw new NotImplementedException();
+                return this[index];
             }
         }
 
@@ -71,11 +71,14 @@ namespace LanguageExt
 
         public Lst<T> Add(T value)
         {
+            if (value == null) throw new ArgumentNullException("'value' cannot be null.");
             return Wrap(lst.Add(value));
         }
 
         public Lst<T> AddRange(IEnumerable<T> items)
         {
+            if (items == null) return this;
+            if (items.Any(x => x == null)) throw new ArgumentNullException("'items' cannot be null.");
             return Wrap(lst.AddRange(items));
         }
 
@@ -96,11 +99,14 @@ namespace LanguageExt
 
         public Lst<T> Insert(int index, T element)
         {
+            if (element == null) throw new ArgumentNullException("'element' cannot be null.");
             return Wrap(lst.Insert(index,element));
         }
 
         public Lst<T> InsertRange(int index, IEnumerable<T> items)
         {
+            if (items == null) return this;
+            if (items.Any(x => x == null)) throw new ArgumentNullException("'items' cannot be null.");
             return Wrap(lst.InsertRange(index,items));
         }
 
@@ -146,11 +152,14 @@ namespace LanguageExt
 
         public Lst<T> Replace(T oldValue, T newValue, IEqualityComparer<T> equalityComparer)
         {
+            if (oldValue == null) return this;
+            if (newValue == null) throw new ArgumentNullException("'newValue' cannot be null.");
             return Wrap(lst.Replace(oldValue,newValue,equalityComparer));
         }
 
         public Lst<T> SetItem(int index, T value)
         {
+            if (value == null) throw new ArgumentNullException("'value' cannot be null.");
             return Wrap(lst.SetItem(index, value));
         }
 
@@ -176,21 +185,27 @@ namespace LanguageExt
 
         IImmutableList<T> IImmutableList<T>.Add(T value)
         {
+            if (value == null) throw new ArgumentNullException("'value' cannot be null.");
             return lst.Add(value);
         }
 
         IImmutableList<T> IImmutableList<T>.AddRange(IEnumerable<T> items)
         {
+            if (items == null) return this;
+            if (items.Any(x => x == null)) throw new ArgumentNullException("'items' cannot be null.");
             return lst.AddRange(items);
         }
 
         IImmutableList<T> IImmutableList<T>.Insert(int index, T element)
         {
+            if (element == null) throw new ArgumentNullException("'element' cannot be null.");
             return lst.Insert(index,element);
         }
 
         IImmutableList<T> IImmutableList<T>.InsertRange(int index, IEnumerable<T> items)
         {
+            if (items == null) return this;
+            if (items.Any(x => x == null)) throw new ArgumentNullException("'items' cannot be null.");
             return lst.InsertRange(index,items);
         }
 
@@ -221,11 +236,14 @@ namespace LanguageExt
 
         IImmutableList<T> IImmutableList<T>.SetItem(int index, T value)
         {
+            if (value == null) throw new ArgumentNullException("'value' cannot be null.");
             return lst.SetItem(index, value);
         }
 
         IImmutableList<T> IImmutableList<T>.Replace(T oldValue, T newValue, IEqualityComparer<T> equalityComparer)
         {
+            if (oldValue == null) return this;
+            if (newValue == null) throw new ArgumentNullException("'newValue' cannot be null.");
             return lst.Replace(oldValue, newValue, equalityComparer);
         }
 
