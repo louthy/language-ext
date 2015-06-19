@@ -17,12 +17,30 @@ namespace ProcessSample
     {
         public static void RunTests()
         {
+            LinqTest();
             ExTest4();
             MemoTest();
             UnsafeOptionTest();
             MassiveSpawnAndKillHierarchy();
             SpawnAndKillProcess();
             SpawnAndKillHierarchy();
+        }
+
+        private static TryOption<int> GetTryOptionValue(bool select) => () =>
+            select
+                ? Some(10)
+                : None;
+
+        public static void LinqTest()
+        {
+            var res = (from v in match(
+                                     GetTryOptionValue(true).AsEnumerable(),
+                                     Right: r => list(r),
+                                     Left: l => list<int>()
+                                 )
+                       from r in range(1, 10)
+                       select v * r)
+                      .ToList();
         }
 
         public static void ExTest4()

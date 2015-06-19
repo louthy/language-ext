@@ -167,7 +167,7 @@ namespace LanguageExt
                 ? raise<U>(new EitherNotInitialisedException())
                 : value;
 
-        public IImmutableList<R> ToList() =>
+        public Lst<R> ToList() =>
             toList(AsEnumerable());
 
         public ImmutableArray<R> ToArray() =>

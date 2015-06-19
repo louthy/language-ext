@@ -114,7 +114,7 @@ namespace LanguageExt
         public static IEnumerable<R> FailWithEmpty<L, R>(this IEnumerable<EitherUnsafe<L, R>> list) =>
             failWithEmpty(list);
 
-        public static IImmutableList<R> toList<L, R>(EitherUnsafe<L, R> either) =>
+        public static Lst<R> toList<L, R>(EitherUnsafe<L, R> either) =>
             either.ToList();
 
         public static ImmutableArray<R> toArray<L, R>(EitherUnsafe<L, R> either) =>

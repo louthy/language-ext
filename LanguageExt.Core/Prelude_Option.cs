@@ -148,7 +148,7 @@ namespace LanguageExt
             ) =>
             match(list, v => new T[1] { v }, () => None);
 
-        public static IImmutableList<T> toList<T>(Option<T> option) =>
+        public static Lst<T> toList<T>(Option<T> option) =>
             option.ToList();
 
         public static ImmutableArray<T> toArray<T>(Option<T> option) =>
@@ -183,28 +183,28 @@ namespace LanguageExt
             option.Bind(binder);
 
         // 
-        // Option<IImmutableList<T>>
+        // Option<Lst<T>>
         // 
 
-        public static S fold<S, T>(Option<IImmutableList<T>> option, S state, Func<S, T, S> folder) =>
+        public static S fold<S, T>(Option<Lst<T>> option, S state, Func<S, T, S> folder) =>
             option.Fold(state, folder);
 
-        public static bool forall<T>(Option<IImmutableList<T>> option, Func<T, bool> pred) =>
+        public static bool forall<T>(Option<Lst<T>> option, Func<T, bool> pred) =>
             option.ForAll(pred);
 
-        public static int count<T>(Option<IImmutableList<T>> option) =>
+        public static int count<T>(Option<Lst<T>> option) =>
             option.Count();
 
-        public static bool exists<T>(Option<IImmutableList<T>> option, Func<T, bool> pred) =>
+        public static bool exists<T>(Option<Lst<T>> option, Func<T, bool> pred) =>
             option.Exists(pred);
 
-        public static Option<IImmutableList<R>> map<T, R>(Option<IImmutableList<T>> option, Func<T, R> mapper) =>
+        public static Option<Lst<R>> map<T, R>(Option<Lst<T>> option, Func<T, R> mapper) =>
             option.Map(mapper);
 
-        public static Option<IImmutableList<T>> filter<T>(Option<IImmutableList<T>> option, Func<T, bool> pred) =>
+        public static Option<Lst<T>> filter<T>(Option<Lst<T>> option, Func<T, bool> pred) =>
             option.Filter(pred);
 
-        public static Option<IImmutableList<R>> bind<T, R>(Option<IImmutableList<T>> option, Func<T, Option<R>> binder) =>
+        public static Option<Lst<R>> bind<T, R>(Option<Lst<T>> option, Func<T, Option<R>> binder) =>
             option.Bind(binder);
 
         // 

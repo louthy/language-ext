@@ -58,7 +58,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Adds a new item to the map
+        /// Atomically adds a new item to the map
         /// </summary>
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
@@ -72,7 +72,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Adds a new item to the map
+        /// Atomically adds a new item to the map.
         /// If the key already exists, then the new item is ignored
         /// </summary>
         /// <param name="key">Key</param>
@@ -86,7 +86,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Adds a new item to the map
+        /// Atomically adds a new item to the map.
         /// If the key already exists, the new item replaces it.
         /// </summary>
         /// <param name="key">Key</param>
@@ -100,8 +100,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Adds a range of items to the map atomically: either all add
-        /// or none do.
+        /// Atomically adds a range of items to the map.
         /// </summary>
         /// <param name="range">Range of tuples to add</param>
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
@@ -121,7 +120,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Adds a range of items to the map atomically.  If any of the keys exist already
+        /// Atomically adds a range of items to the map.  If any of the keys exist already
         /// then they're ignored.
         /// </summary>
         /// <param name="range">Range of tuples to add</param>
@@ -142,7 +141,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Adds a range of items to the map atomically.  If any of the keys exist already
+        /// Atomically adds a range of items to the map.  If any of the keys exist already
         /// then they're replaced.
         /// </summary>
         /// <param name="range">Range of tuples to add</param>
@@ -163,7 +162,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Updates an existing item
+        /// Atomically updates an existing item
         /// </summary>
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
@@ -176,7 +175,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Updates an existing item
+        /// Atomically updates an existing item
         /// </summary>
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
@@ -189,7 +188,7 @@ namespace LanguageExt
         };
 
         /// <summary>
-        /// Remove item from the map
+        /// Atomically removes an item from the map
         /// If the key doesn't exists, the request is ignored.
         /// </summary>
         /// <param name="key">Key</param>
@@ -257,7 +256,7 @@ namespace LanguageExt
                 );
 
         /// <summary>
-        /// Checks for existence of a key in the map
+        /// Atomically maps the map to a new map
         /// </summary>
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
@@ -265,7 +264,7 @@ namespace LanguageExt
             MapModule.Map(this, mapper);
 
         /// <summary>
-        /// Checks for existence of a key in the map
+        /// Atomically maps the map to a new map
         /// </summary>
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
@@ -273,7 +272,7 @@ namespace LanguageExt
             MapModule.Map(this, mapper);
 
         /// <summary>
-        /// Filter out items that return false when a predicate is applied
+        /// Atomically filter out items that return false when a predicate is applied
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
@@ -328,32 +327,203 @@ namespace LanguageExt
         public bool Exists(Func<KeyValuePair<K, V>, bool> pred) =>
             MapModule.Exists(this, (k, v) => pred(new KeyValuePair<K, V>(k, v)));
 
+        /// <summary>
+        /// Atomically iterate through all key/value pairs in the map (in order) and execute an
+        /// action on each
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>Unit</returns>
         public Unit Iter(Action<K, V> action) =>
             MapModule.Iter(this, action);
 
+        /// <summary>
+        /// Atomically iterate through all values in the map (in order) and execute an
+        /// action on each
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>Unit</returns>
         public Unit Iter(Action<V> action) =>
             MapModule.Iter(this, action);
 
+        /// <summary>
+        /// Atomically iterate through all key/value pairs (as tuples) in the map (in order) 
+        /// and execute an action on each
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>Unit</returns>
         public Unit Iter(Action<Tuple<K, V>> action) =>
             MapModule.Iter(this, (k, v) => action(new Tuple<K, V>(k, v)));
 
+        /// <summary>
+        /// Atomically iterate through all key/value pairs in the map (in order) and execute an
+        /// action on each
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>Unit</returns>
         public Unit Iter(Action<KeyValuePair<K,V>> action) =>
             MapModule.Iter(this, (k, v) => action(new KeyValuePair<K, V>(k, v)));
 
+        /// <summary>
+        /// Equivalent to 'filter' but the filtering is done based on whether the returned
+        /// Option is Some or None.  (item is removed if None)
+        /// </summary>
+        /// <param name="selector">Predicate</param>
+        /// <returns>Filtered map</returns>
         public Map<K, V> Choose(Func<K, V, Option<V>> selector) =>
             MapModule.Choose(this, selector);
 
+        /// <summary>
+        /// Equivalent to 'filter' but the filtering is done based on whether the returned
+        /// Option is Some or None.  (item is removed if None)
+        /// </summary>
+        /// <param name="selector">Predicate</param>
+        /// <returns>Filtered map</returns>
         public Map<K, V> Choose(Func<V, Option<V>> selector) =>
             MapModule.Choose(this,selector);
 
+        /// <summary>
+        /// Atomically folds all items in the map (in order) using the folder function provided.
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Folded state</returns>
         public S Fold<S>(S state, Func<S, K, V, S> folder) =>
             MapModule.Fold(this, state, folder);
 
+        /// <summary>
+        /// Atomically folds all items in the map (in order) using the folder function provided.
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Folded state</returns>
         public S Fold<S>(S state, Func<S, V, S> folder) =>
             MapModule.Fold(this, state, folder);
 
+        /// <summary>
+        /// Atomically folds all items in the map (in order) using the folder function provided.
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Folded state</returns>
         public S Fold<S>(S state, Func<S, K, S> folder) =>
             MapModule.Fold(this, state, folder);
+
+        /// <summary>
+        /// Clears all items from the map 
+        /// </summary>
+        /// <returns>Empty map</returns>
+        public Map<K, V> Clear() =>
+            Empty<K, V>.Default;
+
+        /// <summary>
+        /// Atomically adds a range of items to the map
+        /// </summary>
+        /// <param name="range">Range of KeyValuePairs to add</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
+        /// <returns>New Map with the items added</returns>
+        public Map<K, V> AddRange(IEnumerable<KeyValuePair<K, V>> pairs) =>
+            AddRange(from kv in pairs
+                     select tuple(kv.Key, kv.Value));
+
+        /// <summary>
+        /// Atomically sets a series of items using the KeyValuePairs provided
+        /// </summary>
+        /// <param name="items">Items to set</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
+        /// <returns>New map with the items set</returns>
+        public Map<K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items)
+        {
+            var self = this;
+            foreach (var item in items)
+            {
+                self = MapModule.SetItem(self, item.Key, item.Value);
+            }
+            return self;
+        }
+
+        /// <summary>
+        /// Atomically sets a series of items using the Tuples provided
+        /// </summary>
+        /// <param name="items">Items to set</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
+        /// <returns>New map with the items set</returns>
+        public Map<K, V> SetItems(IEnumerable<Tuple<K, V>> items)
+        {
+            var self = this;
+            foreach (var item in items)
+            {
+                self = MapModule.SetItem(self, item.Item1, item.Item2);
+            }
+            return self;
+        }
+
+        /// <summary>
+        /// Atomically removes a set of keys from the map
+        /// </summary>
+        /// <param name="keys">Keys to remove</param>
+        /// <returns>New map with the items removed</returns>
+        public Map<K, V> RemoveRange(IEnumerable<K> keys)
+        {
+            var self = this;
+            foreach (var key in keys)
+            {
+                self = MapModule.Remove(self, key);
+            }
+            return self;
+        }
+        
+        /// <summary>
+        /// Returns true if a Key/Value pair exists in the map
+        /// </summary>
+        /// <param name="pair">Pair to find</param>
+        /// <returns>True if exists, false otherwise</returns>
+        public bool Contains(KeyValuePair<K, V> pair) =>
+            match(MapModule.TryFind(this, pair.Key),
+                  Some: v => ReferenceEquals(v, pair.Value),
+                  None: () => false);
+
+        /// <summary>
+        /// TryGetValue
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        [Obsolete("TryGetValue is obsolete, use TryFind instead")]
+        public bool TryGetValue(K key, out V value)
+        {
+            var res = match(Find(key),
+                            Some: x => tuple(x, true),
+                            None: () => tuple(default(V), false));
+            value = res.Item1;
+            return res.Item2;
+        }
+
+        /// <summary>
+        /// Enumerable of map keys
+        /// </summary>
+        public IEnumerable<K> Keys
+        {
+            get
+            {
+                return from x in MapModule.ToEnumerable(this)
+                       select x.Item1;
+            }
+        }
+
+        /// <summary>
+        /// Enumerable of map values
+        /// </summary>
+        public IEnumerable<V> Values
+        {
+            get
+            {
+                return from x in MapModule.ToEnumerable(this)
+                       select x.Item2;
+            }
+        }
 
         #region IEnumerable interface
         /// <summary>
@@ -370,108 +540,48 @@ namespace LanguageExt
 
         public IEnumerable<Tuple<K, V>> AsEnumerable() =>
             MapModule.ToEnumerable(this);
+
+        IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
+            (from x in MapModule.ToEnumerable(this)
+             select new KeyValuePair<K, V>(x.Item1, x.Item2)).GetEnumerator();
         #endregion
 
         #region IImmutableDictionary interface
-        public IImmutableDictionary<K, V> Clear()
-        {
-            return Empty<K, V>.Default;
-        }
+        IImmutableDictionary<K, V> IImmutableDictionary<K, V>.Add(K key, V value) =>
+            MapModule.Add(this, key, value);
 
-        IImmutableDictionary<K, V> IImmutableDictionary<K, V>.Add(K key, V value)
-        {
-            return MapModule.Add(this, key, value);
-        }
+        IImmutableDictionary<K, V> IImmutableDictionary<K, V>.SetItem(K key, V value) =>
+            MapModule.SetItem(this, key, value);
 
-        public IImmutableDictionary<K, V> AddRange(IEnumerable<KeyValuePair<K, V>> pairs)
-        {
-            return AddRange(from kv in pairs
-                            select tuple(kv.Key, kv.Value));
-        }
-
-        IImmutableDictionary<K, V> IImmutableDictionary<K, V>.SetItem(K key, V value)
-        {
-            return MapModule.SetItem(this, key, value);
-        }
-
-        public IImmutableDictionary<K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items)
-        {
-            var self = this;
-            foreach (var item in items)
-            {
-                self = MapModule.Add(self, item.Key, item.Value);
-            }
-            return self;
-        }
-
-        public IImmutableDictionary<K, V> RemoveRange(IEnumerable<K> keys)
-        {
-            var self = this;
-            foreach (var key in keys)
-            {
-                self = MapModule.Remove(self, key);
-            }
-            return self;
-        }
-
-        IImmutableDictionary<K, V> IImmutableDictionary<K, V>.Remove(K key)
-        {
-            return MapModule.Remove(this, key);
-        }
-
-        public bool Contains(KeyValuePair<K, V> pair)
-        {
-            return match(MapModule.TryFind(this, pair.Key),
-                         Some: v => ReferenceEquals(v, pair.Value),
-                         None: () => false);
-        }
+        IImmutableDictionary<K, V> IImmutableDictionary<K, V>.Remove(K key) =>
+            MapModule.Remove(this, key);
 
         public bool TryGetKey(K equalKey, out K actualKey)
         {
+            // TODO: Not sure of the behaviour here
             throw new NotImplementedException();
         }
 
-        public bool TryGetValue(K key, out V value)
-        {
-            var res = match(Find(key),
-                            Some: x => tuple(x, true),
-                            None: () => tuple(default(V), false));
-            value = res.Item1;
-            return res.Item2;
-        }
+        IImmutableDictionary<K, V> IImmutableDictionary<K, V>.Clear() =>
+            Clear();
 
-        IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator()
-        {
-            return (from x in MapModule.ToEnumerable(this)
-                    select new KeyValuePair<K, V>(x.Item1, x.Item2)).GetEnumerator();
-        }
+        IImmutableDictionary<K, V> IImmutableDictionary<K, V>.AddRange(IEnumerable<KeyValuePair<K, V>> pairs) =>
+            AddRange(pairs);
 
-        public IEnumerable<K> Keys
-        {
-            get
-            {
-                return from x in MapModule.ToEnumerable(this)
-                       select x.Item1;
-            }
-        }
+        IImmutableDictionary<K, V> IImmutableDictionary<K, V>.SetItems(IEnumerable<KeyValuePair<K, V>> items) =>
+            SetItems(items);
 
-        public IEnumerable<V> Values
-        {
-            get
-            {
-                return from x in MapModule.ToEnumerable(this)
-                       select x.Item2;
-            }
-        }
+        IImmutableDictionary<K, V> IImmutableDictionary<K, V>.RemoveRange(IEnumerable<K> keys) =>
+            RemoveRange(keys);
         #endregion
 
         #region Internal
-        internal abstract short Height
+        internal abstract byte Height
         {
             get;
         }
 
-        internal abstract short BalanceFactor
+        internal abstract int BalanceFactor
         {
             get;
         }
@@ -852,7 +962,7 @@ namespace LanguageExt
         }
 
         public static Map<K, V> Make<K, V>(K k, V v, Map<K, V> l, Map<K, V> r) where K : IComparable<K> =>
-            new Node<K, V>((short)(1 + Math.Max(l.Height, r.Height)), l.Count + r.Count + 1, k, v, l, r);
+            new Node<K, V>((byte)(1 + Math.Max(l.Height, r.Height)), l.Count + r.Count + 1, k, v, l, r);
 
         public static Map<K, V> Balance<K, V>(Map<K, V> node) where K : IComparable<K> =>
             node.BalanceFactor >= 2
@@ -901,7 +1011,7 @@ namespace LanguageExt
             }
         }
 
-        internal override short Height
+        internal override byte Height
         {
             get
             {
@@ -909,7 +1019,7 @@ namespace LanguageExt
             }
         }
 
-        internal override short BalanceFactor
+        internal override int BalanceFactor
         {
             get
             {
@@ -961,14 +1071,14 @@ namespace LanguageExt
     public class Node<K, V> : Map<K, V> where K : IComparable<K>
     {
         readonly int count;
-        readonly short height;
+        readonly byte height;
 
         public readonly K key;
         public readonly V value;
         public readonly Map<K, V> left;
         public readonly Map<K, V> right;
 
-        internal Node(short h, int c, K key, V value, Map<K, V> left, Map<K, V> right)
+        internal Node(byte h, int c, K key, V value, Map<K, V> left, Map<K, V> right)
         {
             this.height = h;
             this.count = c;
@@ -989,7 +1099,7 @@ namespace LanguageExt
             }
         }
 
-        internal override short Height
+        internal override byte Height
         {
             get
             {
@@ -997,11 +1107,11 @@ namespace LanguageExt
             }
         }
 
-        internal override short BalanceFactor
+        internal override int BalanceFactor
         {
             get
             {
-                return (short)(Left.Height - Right.Height);
+                return ((int)Left.Height) - ((int)Right.Height);
             }
         }
 

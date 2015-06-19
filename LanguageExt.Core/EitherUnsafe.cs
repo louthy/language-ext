@@ -192,7 +192,7 @@ namespace LanguageExt
                 ? binder(RightValue)
                 : EitherUnsafe<L, Ret>.Left(LeftValue);
 
-        public IImmutableList<R> ToList() =>
+        public Lst<R> ToList() =>
             toList(AsEnumerable());
 
         public ImmutableArray<R> ToArray() =>

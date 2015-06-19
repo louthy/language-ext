@@ -99,3 +99,21 @@ namespace LanguageExt
     }
 }
 
+public static class __MapExt
+{
+    /// <summary>
+    /// Atomically maps the map to a new map
+    /// </summary>
+    /// <param name="key">Key to check</param>
+    /// <returns>True if an item with the key supplied is in the map</returns>
+    public static Map<K, U> Map<K, V, U>(this Map<K, V> self, Func<V, U> mapper) where K : IComparable<K> =>
+        self.Select(mapper);
+
+    /// <summary>
+    /// Atomically maps the map to a new map
+    /// </summary>
+    /// <param name="key">Key to check</param>
+    /// <returns>True if an item with the key supplied is in the map</returns>
+    public static Map<K, U> Map<K, V, U>(this Map<K, V> self, Func<K, V, U> mapper) where K : IComparable<K> =>
+        self.Select(mapper);
+}

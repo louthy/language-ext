@@ -47,6 +47,7 @@
     <Compile Include="ExceptionMatch.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="IOptionalValue.cs" />
+    <Compile Include="Lst.cs" />
     <Compile Include="MapKV.cs" />
     <Compile Include="Prelude_Monad.cs" />
     <Compile Include="Prelude_Try.cs" />

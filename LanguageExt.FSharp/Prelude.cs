@@ -48,6 +48,12 @@ namespace LanguageExt
             ListModule.OfSeq(list);
 
         /// <summary>
+        /// Convert an LanguageExt List (Lst<T>) into an F# List
+        /// </summary>
+        public static FSharpList<T> fs<T>(Lst<T> list) =>
+            ListModule.OfSeq(list);
+
+        /// <summary>
         /// Convert an F# Map into a LanguageExt Map (Map<K, V>)
         /// </summary>
         public static Map<K, V> fs<K, V>(FSharpMap<K, V> fsMap) where K : IComparable<K> =>

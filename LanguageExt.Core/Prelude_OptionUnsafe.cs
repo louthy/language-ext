@@ -113,7 +113,7 @@ namespace LanguageExt
             matchUnsafe(list, v => new T[1] { v }, () => None);
 
 
-        public static IImmutableList<T> toList<T>(OptionUnsafe<T> option) =>
+        public static Lst<T> toList<T>(OptionUnsafe<T> option) =>
             option.ToList();
 
         public static ImmutableArray<T> toArray<T>(OptionUnsafe<T> option) =>

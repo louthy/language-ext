@@ -138,7 +138,7 @@ namespace LanguageExt
                     ? Value.Equals(obj)
                     : false;
 
-        public IImmutableList<T> ToList() =>
+        public Lst<T> ToList() =>
             toList(AsEnumerable());
 
         public ImmutableArray<T> ToArray() =>
@@ -385,40 +385,40 @@ public static class __OptionExt
         self.Filter(pred);
 
     // 
-    // Option<IImmutableList<T>> extensions 
+    // Option<Lst<T>> extensions 
     // 
 
-    public static int Count<T>(this Option<IImmutableList<T>> self) =>
+    public static int Count<T>(this Option<Lst<T>> self) =>
         self.IsSome
             ? List.length(self.Value)
             : 0;
 
-    public static bool ForAll<T>(this Option<IImmutableList<T>> self, Func<T, bool> pred) =>
+    public static bool ForAll<T>(this Option<Lst<T>> self, Func<T, bool> pred) =>
         self.IsSome
             ? List.forall(self.Value, pred)
             : true;
 
-    public static S Fold<T, S>(this Option<IImmutableList<T>> self, S state, Func<S, T, S> folder) =>
+    public static S Fold<T, S>(this Option<Lst<T>> self, S state, Func<S, T, S> folder) =>
         self.IsSome
             ? List.fold(self.Value, state, folder)
             : state;
 
-    public static bool Exists<T>(this Option<IImmutableList<T>> self, Func<T, bool> pred) =>
+    public static bool Exists<T>(this Option<Lst<T>> self, Func<T, bool> pred) =>
         self.IsSome
             ? List.exists(self.Value, pred)
             : false;
 
-    public static Option<IImmutableList<R>> Map<T, R>(this Option<IImmutableList<T>> self, Func<T, R> mapper) =>
+    public static Option<Lst<R>> Map<T, R>(this Option<Lst<T>> self, Func<T, R> mapper) =>
         self.IsSome
             ? Option.Cast(List.map(self.Value, mapper).Freeze())
             : None;
 
-    public static Option<IImmutableList<T>> Filter<T>(this Option<IImmutableList<T>> self, Func<T, bool> pred) =>
+    public static Option<Lst<T>> Filter<T>(this Option<Lst<T>> self, Func<T, bool> pred) =>
         self.IsSome
             ? Some(List.filter(self.Value, pred).Freeze())
             : self;
 
-    public static Option<IImmutableList<R>> Bind<T, R>(this Option<IImmutableList<T>> self, Func<T, Option<R>> binder) =>
+    public static Option<Lst<R>> Bind<T, R>(this Option<Lst<T>> self, Func<T, Option<R>> binder) =>
         self.IsSome
             ? Some((from x in self.Value
                     let y = binder(x)
@@ -426,13 +426,13 @@ public static class __OptionExt
                     select y.Value).Freeze())
             : None;
 
-    public static Option<IImmutableList<U>> Select<T, U>(this Option<IImmutableList<T>> self, Func<T, U> map) =>
+    public static Option<Lst<U>> Select<T, U>(this Option<Lst<T>> self, Func<T, U> map) =>
         self.IsSome
             ? Some((from x in self.Value
                     select map(x)).Freeze())
             : None;
 
-    public static Option<IImmutableList<V>> SelectMany<T, U, V>(this Option<IImmutableList<T>> self,
+    public static Option<Lst<V>> SelectMany<T, U, V>(this Option<Lst<T>> self,
         Func<T, Option<U>> bind,
         Func<T, U, V> project
         ) =>
@@ -444,10 +444,10 @@ public static class __OptionExt
                                   None: () => Option<V>.None)
                       where x.IsSome
                       select x.Value).Freeze()),
-            None: () => Option<IImmutableList<V>>.None
+            None: () => Option<Lst<V>>.None
             );
 
-    public static Option<IImmutableList<T>> Where<T>(this Option<IImmutableList<T>> self, Func<T, bool> pred) =>
+    public static Option<Lst<T>> Where<T>(this Option<Lst<T>> self, Func<T, bool> pred) =>
         self.Filter(pred);
 
 

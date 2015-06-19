@@ -27,7 +27,7 @@ namespace LanguageExt
         /// <summary>
         /// Construct a list from head and tail
         /// </summary>
-        public static IImmutableList<T> cons<T>(this T head, IImmutableList<T> tail) =>
+        public static Lst<T> cons<T>(this T head, Lst<T> tail) =>
             tail.Insert(0, head);
 
         /// <summary>
@@ -116,20 +116,20 @@ namespace LanguageExt
         /// <summary>
         /// Create an immutable list
         /// </summary>
-        public static IImmutableList<T> list<T>() =>
-            ImmutableList.Create<T>();
+        public static Lst<T> list<T>() =>
+            new Lst<T>();
 
         /// <summary>
         /// Create an immutable list
         /// </summary>
-        public static IImmutableList<T> list<T>(params T[] items) =>
-            ImmutableList.Create<T>(items);
+        public static Lst<T> list<T>(params T[] items) =>
+            new Lst<T>(items);
 
         /// <summary>
         /// Create an immutable list
         /// </summary>
-        public static IImmutableList<T> toList<T>(IEnumerable<T> items) =>
-            ImmutableList.CreateRange(items);
+        public static Lst<T> toList<T>(IEnumerable<T> items) =>
+            new Lst<T>(items);
         
         /// <summary>
         /// Create an immutable queue

@@ -193,7 +193,7 @@ namespace LanguageExt
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 
-        public IImmutableList<T> ToList() =>
+        public Lst<T> ToList() =>
             Prelude.toList(AsEnumerable());
 
         public ImmutableArray<T> ToArray() =>

@@ -9,16 +9,22 @@ namespace LanguageExt
 {
     public static partial class List
     {
-        public static IImmutableList<T> add<T>(IImmutableList<T> list, T value) =>
+        public static Lst<T> create<T>() =>
+            new Lst<T>();
+
+        public static Lst<T> create<T>(params T[] items) =>
+            new Lst<T>(items);
+
+        public static Lst<T> add<T>(Lst<T> list, T value) =>
             list.Add(value);
 
-        public static IImmutableList<T> addRange<T>(IImmutableList<T> list, IEnumerable<T> value) =>
+        public static Lst<T> addRange<T>(Lst<T> list, IEnumerable<T> value) =>
             list.AddRange(value);
 
-        public static IImmutableList<T> remove<T>(IImmutableList<T> list, T value) =>
+        public static Lst<T> remove<T>(Lst<T> list, T value) =>
             list.Remove(value);
 
-        public static IImmutableList<T> removeAt<T>(IImmutableList<T> list, int index) =>
+        public static Lst<T> removeAt<T>(Lst<T> list, int index) =>
             list.RemoveAt(index);
 
         public static T head<T>(IEnumerable<T> list) => list.First();
@@ -120,7 +126,7 @@ namespace LanguageExt
             return None;
         }
 
-        public static IImmutableList<T> freeze<T>(IEnumerable<T> list) =>
+        public static Lst<T> freeze<T>(IEnumerable<T> list) =>
             Prelude.toList(list);
 
         public static IEnumerable<V> zip<T, U, V>(IEnumerable<T> list, IEnumerable<U> other, Func<T, U, V> zipper) =>
@@ -486,7 +492,7 @@ public static class __ListExt
     public static Option<T> Find<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
         List.find(list, pred);
 
-    public static IImmutableList<T> Freeze<T>(this IEnumerable<T> list) =>
+    public static Lst<T> Freeze<T>(this IEnumerable<T> list) =>
         List.freeze(list);
 
     public static int Length<T>(this IEnumerable<T> list) =>

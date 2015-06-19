@@ -47,7 +47,7 @@ namespace LanguageExt
         public static Try<R> bind<T, R>(Try<T> tryDel, Func<T, Try<R>> binder) =>
             tryDel.Bind(binder);
 
-        public static IImmutableList<Either<Exception, T>> toList<T>(Try<T> tryDel) =>
+        public static Lst<Either<Exception, T>> toList<T>(Try<T> tryDel) =>
             tryDel.ToList();
 
         public static ImmutableArray<Either<Exception, T>> toArray<T>(Try<T> tryDel) =>

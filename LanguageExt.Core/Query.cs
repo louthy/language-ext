@@ -102,7 +102,7 @@ namespace LanguageExt
         public static Option<T> find<T>(IQueryable<T> list, Expression<Func<T, bool>> pred) =>
             headOrNone(filter(list, pred));
 
-        public static IImmutableList<T> freeze<T>(IQueryable<T> list) =>
+        public static Lst<T> freeze<T>(IQueryable<T> list) =>
             toList(list);
 
         public static IQueryable<V> zip<T, U, V>(IQueryable<T> list, IEnumerable<U> other, Expression<Func<T, U, V>> zipper) =>
@@ -182,7 +182,7 @@ public static class __QueryExt
     public static T ReduceBack<T>(this IQueryable<T> list, Expression<Func<T, T, T>> reducer) =>
         Query.reduceBack(list, reducer);
 
-    public static IImmutableList<T> Freeze<T>(this IQueryable<T> list) =>
+    public static Lst<T> Freeze<T>(this IQueryable<T> list) =>
         Query.freeze(list);
 
     public static IQueryable<V> Zip<T, U, V>(this IQueryable<T> list, IEnumerable<U> other, Expression<Func<T, U, V>> zipper) =>

@@ -363,7 +363,7 @@ public static class __TryExt
         }
     }
 
-    public static IImmutableList<Either<Exception, T>> ToList<T>(this Try<T> self) =>
+    public static Lst<Either<Exception, T>> ToList<T>(this Try<T> self) =>
         toList(self.AsEnumerable());
 
     public static ImmutableArray<Either<Exception, T>> ToArray<T>(this Try<T> self) =>
