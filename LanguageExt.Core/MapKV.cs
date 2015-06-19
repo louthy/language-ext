@@ -185,7 +185,7 @@ namespace LanguageExt
         /// <param name="range">Range of tuples to add</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
-        public Map<K, V> TryAddOrUpdateRange(IEnumerable<Tuple<K, V>> range)
+        public Map<K, V> AddOrUpdateRange(IEnumerable<Tuple<K, V>> range)
         {
             if (range == null)
             {
@@ -210,7 +210,7 @@ namespace LanguageExt
         /// <param name="range">Range of KeyValuePairs to add</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
-        public Map<K, V> TryAddOrUpdateRange(IEnumerable<KeyValuePair<K, V>> range)
+        public Map<K, V> AddOrUpdateRange(IEnumerable<KeyValuePair<K, V>> range)
         {
             if (range == null)
             {

@@ -122,8 +122,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="range">Range of tuples to add</param>
         /// <returns>New Map with the items added</returns>
-        public static Map<K, V> tryAddOrUpdateRange<K, V>(Map<K, V> map, IEnumerable<Tuple<K, V>> range) where K : IComparable<K> =>
-            map.TryAddOrUpdateRange(range);
+        public static Map<K, V> addOrUpdateRange<K, V>(Map<K, V> map, IEnumerable<Tuple<K, V>> range) where K : IComparable<K> =>
+            map.AddOrUpdateRange(range);
 
         /// <summary>
         /// Atomically adds a range of items to the map.  If any of the keys exist already
@@ -133,8 +133,8 @@ namespace LanguageExt
         /// <param name="range">Range of KeyValuePairs to add</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
-        public static Map<K, V> tryAddOrUpdateRange<K, V>(Map<K, V> map, IEnumerable<KeyValuePair<K, V>> range) where K : IComparable<K> =>
-            map.TryAddOrUpdateRange(range);
+        public static Map<K, V> addOrUpdateRange<K, V>(Map<K, V> map, IEnumerable<KeyValuePair<K, V>> range) where K : IComparable<K> =>
+            map.AddOrUpdateRange(range);
 
         /// <summary>
         /// Atomically removes an item from the map
