@@ -47,6 +47,17 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Length (alias for Count)
+        /// </summary>
+        public int Length
+        {
+            get
+            {
+                return Count;
+            }
+        }
+
+        /// <summary>
         /// Adds a new item to the map
         /// </summary>
         /// <param name="key">Key</param>
@@ -317,6 +328,32 @@ namespace LanguageExt
         public bool Exists(Func<KeyValuePair<K, V>, bool> pred) =>
             MapModule.Exists(this, (k, v) => pred(new KeyValuePair<K, V>(k, v)));
 
+        public Unit Iter(Action<K, V> action) =>
+            MapModule.Iter(this, action);
+
+        public Unit Iter(Action<V> action) =>
+            MapModule.Iter(this, action);
+
+        public Unit Iter(Action<Tuple<K, V>> action) =>
+            MapModule.Iter(this, (k, v) => action(new Tuple<K, V>(k, v)));
+
+        public Unit Iter(Action<KeyValuePair<K,V>> action) =>
+            MapModule.Iter(this, (k, v) => action(new KeyValuePair<K, V>(k, v)));
+
+        public Map<K, V> Choose(Func<K, V, Option<V>> selector) =>
+            MapModule.Choose(this, selector);
+
+        public Map<K, V> Choose(Func<V, Option<V>> selector) =>
+            MapModule.Choose(this,selector);
+
+        public S Fold<S>(S state, Func<S, K, V, S> folder) =>
+            MapModule.Fold(this, state, folder);
+
+        public S Fold<S>(S state, Func<S, V, S> folder) =>
+            MapModule.Fold(this, state, folder);
+
+        public S Fold<S>(S state, Func<S, K, S> folder) =>
+            MapModule.Fold(this, state, folder);
 
         #region IEnumerable interface
         /// <summary>
@@ -469,21 +506,90 @@ namespace LanguageExt
 
     internal static class MapModule
     {
-        public static bool ForAll<K, V>(Map<K, V> map, Func<K, V, bool> pred) where K : IComparable<K> =>
-            map.Tag == MapTag.Empty
+        public static S Fold<S, K, V>(Map<K, V> node, S state, Func<S, K, V, S> folder) where K : IComparable<K>
+        {
+            if (node.Tag == MapTag.Empty)
+            {
+                return state;
+            }
+
+            state = Fold(node.Left, state, folder);
+            state = folder(state, node.Key, node.Value);
+            state = Fold(node.Right, state, folder);
+            return state;
+        }
+
+        public static S Fold<S, K, V>(Map<K, V> node, S state, Func<S, V, S> folder) where K : IComparable<K>
+        {
+            if (node.Tag == MapTag.Empty)
+            {
+                return state;
+            }
+
+            state = Fold(node.Left, state, folder);
+            state = folder(state, node.Value);
+            state = Fold(node.Right, state, folder);
+            return state;
+        }
+
+        public static S Fold<S, K, V>(Map<K, V> node, S state, Func<S, K, S> folder) where K : IComparable<K>
+        {
+            if (node.Tag == MapTag.Empty)
+            {
+                return state;
+            }
+
+            state = Fold(node.Left, state, folder);
+            state = folder(state, node.Key);
+            state = Fold(node.Right, state, folder);
+            return state;
+        }
+
+        public static Map<K, V> Choose<K, V>(Map<K, V> node, Func<K, V, Option<V>> selector) where K : IComparable<K> =>
+            Filter(node, (k,v) => selector(k,v).IsSome);
+
+        public static Map<K, V> Choose<K, V>(Map<K, V> node, Func<V, Option<V>> selector) where K : IComparable<K> =>
+            Filter(node, x => selector(x).IsSome);
+
+        public static Unit Iter<K, V>(Map<K, V> node, Action<K, V> action) where K : IComparable<K>
+        {
+            if (node.Tag == MapTag.Empty)
+            {
+                return unit;
+            }
+            Iter(node.Left, action);
+            action(node.Key, node.Value);
+            Iter(node.Right, action);
+            return unit;
+        }
+
+        public static Unit Iter<K, V>(Map<K, V> node, Action<V> action) where K : IComparable<K>
+        {
+            if (node.Tag == MapTag.Empty)
+            {
+                return unit;
+            }
+            Iter(node.Left, action);
+            action(node.Value);
+            Iter(node.Right, action);
+            return unit;
+        }
+
+        public static bool ForAll<K, V>(Map<K, V> node, Func<K, V, bool> pred) where K : IComparable<K> =>
+            node.Tag == MapTag.Empty
                 ? true
-                : pred(map.Key, map.Value)
-                    ? ForAll(map.Left, pred) && ForAll(map.Right, pred)
+                : pred(node.Key, node.Value)
+                    ? ForAll(node.Left, pred) && ForAll(node.Right, pred)
                         ? true
                         : false
                     : false;
 
-        public static bool Exists<K, V>(Map<K, V> map, Func<K, V, bool> pred) where K : IComparable<K> =>
-            map.Tag == MapTag.Empty
+        public static bool Exists<K, V>(Map<K, V> node, Func<K, V, bool> pred) where K : IComparable<K> =>
+            node.Tag == MapTag.Empty
                 ? false
-                : pred(map.Key, map.Value)
+                : pred(node.Key, node.Value)
                     ? true
-                    : ForAll(map.Left, pred) && ForAll(map.Right, pred)
+                    : ForAll(node.Left, pred) && ForAll(node.Right, pred)
                         ? true
                         : false;
 
@@ -491,15 +597,15 @@ namespace LanguageExt
             node.Tag == MapTag.Empty
                 ? node
                 : pred(node.Key, node.Value)
-                    ? new Node<K, V>(node.Height, node.Count, node.Key, node.Value, Filter(node.Left, pred), Filter(node.Right, pred))
-                    : Filter(AddTreeToRight(node.Left, node.Right), pred);
+                    ? Balance(Make(node.Key, node.Value, Filter(node.Left, pred), Filter(node.Right, pred)))
+                    : Balance(Filter(AddTreeToRight(node.Left, node.Right), pred));
 
         public static Map<K, V> Filter<K, V>(Map<K, V> node, Func<V, bool> pred) where K : IComparable<K> =>
             node.Tag == MapTag.Empty
                 ? node
                 : pred(node.Value)
-                    ? new Node<K, V>(node.Height, node.Count, node.Key, node.Value, Filter(node.Left, pred), Filter(node.Right, pred))
-                    : Filter(AddTreeToRight(node.Left, node.Right), pred);
+                    ? Balance(Make(node.Key, node.Value, Filter(node.Left, pred), Filter(node.Right, pred)))
+                    : Balance(Filter(AddTreeToRight(node.Left, node.Right), pred));
 
         public static Map<K, U> Map<K, V, U>(Map<K, V> node, Func<V, U> mapper) where K : IComparable<K> =>
             node.Tag == MapTag.Empty

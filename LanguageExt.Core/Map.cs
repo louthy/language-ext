@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
-using static LanguageExt.List;
-using System.Collections;
 
 namespace LanguageExt
 {
@@ -49,10 +47,10 @@ namespace LanguageExt
             map.Find(key);
 
         public static Unit iter<K, V>(Map<K, V> map, Action<V> action) where K : IComparable<K> =>
-            List.iter<Tuple<K,V>>(map.AsEnumerable(), kv => action(kv.Item2));
+            map.Iter(action);
 
         public static Unit iter<K, V>(Map<K, V> map, Action<K, V> action) where K : IComparable<K> =>
-            List.iter<Tuple<K, V>>(map.AsEnumerable(), kv => action(kv.Item1, kv.Item2));
+            map.Iter(action);
 
         public static bool forall<K, V>(Map<K, V> map, Func<K, V, bool> pred) where K : IComparable<K> =>
             map.ForAll(kv => pred(kv.Item1, kv.Item2));
@@ -73,19 +71,22 @@ namespace LanguageExt
             map.Filter(predicate);
 
         public static Map<K, T> choose<K, T>(Map<K, T> map, Func<T, Option<T>> selector) where K : IComparable<K> =>
-            Map.map(filter(Map.map(map, selector), t => t.IsSome), t => t.Value);
+            map.Choose(selector);
 
         public static Map<K, T> choose<K, T>(Map<K, T> map, Func<K, T, Option<T>> selector) where K : IComparable<K> =>
-            Map.map(filter(Map.map(map, selector), t => t.IsSome), t => t.Value);
+            map.Choose(selector);
 
         public static int length<K, T>(Map<K, T> map) where K : IComparable<K> =>
             map.Count;
 
-        public static S fold<S, K, V>(Map<K, V> map, S state, Func<K, V, S, S> folder) where K : IComparable<K>
-        {
-            iter(map, (key, value) => { state = folder(key, value, state); });
-            return state;
-        }
+        public static S fold<S, K, V>(Map<K, V> map, S state, Func<S, K, V, S> folder) where K : IComparable<K> =>
+            map.Fold(state, folder);
+
+        public static S fold<S, K, V>(Map<K, V> map, S state, Func<S, K, S> folder) where K : IComparable<K> =>
+            map.Fold(state, folder);
+
+        public static S fold<S, K, V>(Map<K, V> map, S state, Func<S, V, S> folder) where K : IComparable<K> =>
+            map.Fold(state, folder);
 
         public static bool exists<K, V>(Map<K, V> map, Func<K, V, bool> pred) where K : IComparable<K> =>
             map.Exists(pred);
@@ -96,26 +97,5 @@ namespace LanguageExt
         public static bool exists<K, V>(Map<K, V> map, Func<KeyValuePair<K, V>, bool> pred) where K : IComparable<K> =>
             map.Exists(pred);
     }
-}
-
-public static class __MapExt
-{
-    public static Unit Iter<K, V>(this Map<K, V> map, Action<V> action) where K : IComparable<K> =>
-        LanguageExt.Map.iter(map, action);
-
-    public static Unit Iter<K, V>(this Map<K, V> map, Action<K, V> action) where K : IComparable<K> =>
-        LanguageExt.Map.iter(map, action);
-
-    public static Map<K, T> Choose<K, T>(this Map<K, T> map, Func<T, Option<T>> selector) where K : IComparable<K> =>
-        LanguageExt.Map.choose(map, selector);
-
-    public static Map<K, T> Choose<K, T>(this Map<K, T> map, Func<K, T, Option<T>> selector) where K : IComparable<K> =>
-        LanguageExt.Map.choose(map, selector);
-
-    public static int Length<K, T>(this Map<K, T> map) where K : IComparable<K> =>
-        LanguageExt.Map.length(map);
-
-    public static S Fold<S, K, V>(this Map<K, V> map, S state, Func<K, V, S, S> folder) where K : IComparable<K> =>
-        LanguageExt.Map.fold(map, state, folder);
 }
 
