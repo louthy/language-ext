@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LanguageExt;
 using static LanguageExt.Prelude;
-using System.Collections.Immutable;
 
 namespace LanguageExt
 {
@@ -599,6 +597,15 @@ namespace LanguageExt
             }
         }
 
+        public IDictionary<K, V> ToDictionary() =>
+            new Dictionary<K, V>((IDictionary<K,V>)this);
+
+        public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<Tuple<K,V>, KR> keySelector, Func<Tuple<K, V>, VR> valueSelector) =>
+            AsEnumerable().ToDictionary(x => keySelector(x), x => valueSelector(x));
+
+        public IImmutableDictionary<K, V> ToImmutableDictionary() =>
+            ImmutableDictionary.CreateRange<K, V>(from x in AsEnumerable()
+                                                  select new KeyValuePair<K, V>(x.Item1,x.Item2));
         #region IEnumerable interface
         /// <summary>
         /// GetEnumerator - IEnumerable interface
