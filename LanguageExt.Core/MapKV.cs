@@ -21,7 +21,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="K">Key type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
-    public abstract class Map<K, V> : IEnumerable<Tuple<K, V>>, IImmutableDictionary<K,V> where K : IComparable<K>
+    public abstract class Map<K, V> : IEnumerable<Tuple<K, V>>, IImmutableDictionary<K,V>
     {
         /// <summary>
         /// 'this' accessor
@@ -68,7 +68,7 @@ namespace LanguageExt
         {
             if (key == null) throw new ArgumentNullException(nameof(key));
             if (value == null) throw new ArgumentNullException(nameof(value));
-            return MapModule.Add(this, key, value);
+            return MapModule.Add(this, key, value, Comparer<K>.Default);
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace LanguageExt
         {
             if (key == null) throw new ArgumentNullException(nameof(key));
             if (value == null) throw new ArgumentNullException(nameof(value));
-            return MapModule.TryAdd(this, key, value);
+            return MapModule.TryAdd(this, key, value, Comparer<K>.Default);
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace LanguageExt
             {
                 if (item.Item1 == null) throw new ArgumentNullException(nameof(item.Item1));
                 if (item.Item2 == null) throw new ArgumentNullException(nameof(item.Item2));
-                self = MapModule.Add(self, item.Item1, item.Item2);
+                self = MapModule.Add(self, item.Item1, item.Item2, Comparer<K>.Default);
             }
             return self;
         }
@@ -150,7 +150,7 @@ namespace LanguageExt
             {
                 if (item.Item1 == null) throw new ArgumentNullException(nameof(item.Item1));
                 if (item.Item2 == null) throw new ArgumentNullException(nameof(item.Item2));
-                self = MapModule.TryAdd(self, item.Item1, item.Item2);
+                self = MapModule.TryAdd(self, item.Item1, item.Item2, Comparer<K>.Default);
             }
             return self;
         }
@@ -175,7 +175,7 @@ namespace LanguageExt
             {
                 if (item.Key == null) throw new ArgumentNullException(nameof(item.Key));
                 if (item.Value == null) throw new ArgumentNullException(nameof(item.Value));
-                self = MapModule.TryAdd(self, item.Key, item.Value);
+                self = MapModule.TryAdd(self, item.Key, item.Value, Comparer<K>.Default);
             }
             return self;
         }
@@ -200,7 +200,7 @@ namespace LanguageExt
             {
                 if (item.Item1 == null) throw new ArgumentNullException(nameof(item.Item1));
                 if (item.Item2 == null) throw new ArgumentNullException(nameof(item.Item2));
-                self = MapModule.AddOrUpdate(self, item.Item1, item.Item2);
+                self = MapModule.AddOrUpdate(self, item.Item1, item.Item2, Comparer<K>.Default);
             }
             return self;
         }
@@ -225,7 +225,7 @@ namespace LanguageExt
             {
                 if (item.Key == null) throw new ArgumentNullException(nameof(item.Key));
                 if (item.Value == null) throw new ArgumentNullException(nameof(item.Value));
-                self = MapModule.AddOrUpdate(self, item.Key, item.Value);
+                self = MapModule.AddOrUpdate(self, item.Key, item.Value, Comparer<K>.Default);
             }
             return self;
         }
@@ -239,7 +239,7 @@ namespace LanguageExt
         public Map<K, V> Remove(K key) =>
             key == null
                 ? this
-                : MapModule.Remove(this, key);
+                : MapModule.Remove(this, key, Comparer<K>.Default);
 
         /// <summary>
         /// Retrieve a value from the map by key
@@ -249,7 +249,7 @@ namespace LanguageExt
         public Option<V> Find(K key) =>
             key == null
                 ? None
-                : MapModule.TryFind(this, key);
+                : MapModule.TryFind(this, key, Comparer<K>.Default);
 
         /// <summary>
         /// Retrieve a value from the map by key and pattern match the
@@ -260,7 +260,7 @@ namespace LanguageExt
         public R Find<R>(K key, Func<V, R> Some, Func<R> None) =>
             key == null
                 ? None()
-                : match(MapModule.TryFind(this, key), Some, None);
+                : match(MapModule.TryFind(this, key, Comparer<K>.Default), Some, None);
 
         /// <summary>
         /// Atomically updates an existing item
@@ -274,7 +274,7 @@ namespace LanguageExt
         {
             if (key == null) throw new ArgumentNullException(nameof(key));
             if (value == null) throw new ArgumentNullException(nameof(value));
-            return MapModule.SetItem(this, key, value);
+            return MapModule.SetItem(this, key, value, Comparer<K>.Default);
         }
 
         /// <summary>
@@ -288,7 +288,7 @@ namespace LanguageExt
         public Map<K,V> SetItem(K key, Func<V, V> Some) =>
             key == null
                 ? this
-                : match(MapModule.TryFind(this, key), 
+                : match(MapModule.TryFind(this, key, Comparer<K>.Default), 
                         Some: x  => SetItem(key, MapModule.CheckNull(Some(x),"Some delegate")), 
                         None: () => raise<Map<K,V>>(new ArgumentException("Key not found in Map")));
 
@@ -305,7 +305,7 @@ namespace LanguageExt
         {
             if (key == null) return this;
             if (value == null) throw new ArgumentNullException(nameof(value));
-            return MapModule.TrySetItem(this, key, value);
+            return MapModule.TrySetItem(this, key, value, Comparer<K>.Default);
         }
 
         /// <summary>
@@ -320,7 +320,7 @@ namespace LanguageExt
         public Map<K, V> TrySetItem(K key, Func<V, V> Some) =>
             key == null
                 ? this
-                : match(MapModule.TryFind(this, key),
+                : match(MapModule.TryFind(this, key, Comparer<K>.Default),
                         Some: x  => SetItem(key, MapModule.CheckNull(Some(x),"Some delegate")),
                         None: () => this);
 
@@ -338,7 +338,7 @@ namespace LanguageExt
         public Map<K, V> TrySetItem(K key, Func<V, V> Some, Func<Map<K,V>, Map<K, V>> None) =>
             key == null
                 ? this
-                : match(MapModule.TryFind(this, key),
+                : match(MapModule.TryFind(this, key, Comparer<K>.Default),
                         Some: x  => SetItem(key, MapModule.CheckNull(Some(x),"Some delegate")),
                         None: () => MapModule.CheckNull(None(this),"None delegate"));
 
@@ -355,7 +355,7 @@ namespace LanguageExt
         {
             if (key == null) throw new ArgumentNullException(nameof(key));
             if (value == null) throw new ArgumentNullException(nameof(value));
-            return MapModule.AddOrUpdate(this, key, value);
+            return MapModule.AddOrUpdate(this, key, value, Comparer<K>.Default);
         }
 
         /// <summary>
@@ -369,7 +369,7 @@ namespace LanguageExt
         public Map<K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None) =>
             key == null
                 ? this
-                : match(MapModule.TryFind(this, key),
+                : match(MapModule.TryFind(this, key, Comparer<K>.Default),
                         Some: x  => SetItem(key, MapModule.CheckNull(Some(x),"Some delegate")),
                         None: () => Add(key, MapModule.CheckNull(None(),"None delegate")));
 
@@ -387,7 +387,7 @@ namespace LanguageExt
 
             return key == null
                 ? this
-                : match(MapModule.TryFind(this, key),
+                : match(MapModule.TryFind(this, key, Comparer<K>.Default),
                         Some: x => SetItem(key, MapModule.CheckNull(Some(x), "Some delegate")),
                         None: () => Add(key, None));
         }
@@ -403,9 +403,9 @@ namespace LanguageExt
         {
             if (keyFrom == null) throw new ArgumentNullException(nameof(keyFrom));
             if (keyTo == null) throw new ArgumentNullException(nameof(keyTo));
-            return  keyFrom.CompareTo(keyTo) > 0
-                ? MapModule.FindRange(this, keyTo, keyFrom)
-                : MapModule.FindRange(this, keyFrom, keyTo);
+            return Comparer<K>.Default.Compare(keyFrom,keyTo) > 0
+                ? MapModule.FindRange(this, keyTo, keyFrom, Comparer<K>.Default)
+                : MapModule.FindRange(this, keyFrom, keyTo, Comparer<K>.Default);
         }
 
         /// <summary>
@@ -676,7 +676,7 @@ namespace LanguageExt
             {
                 if (item.Key == null) continue;
                 if (item.Value == null) throw new ArgumentNullException(nameof(item.Value));
-                self = MapModule.SetItem(self, item.Key, item.Value);
+                self = MapModule.SetItem(self, item.Key, item.Value, Comparer<K>.Default);
             }
             return self;
         }
@@ -695,7 +695,7 @@ namespace LanguageExt
             {
                 if (item.Item1 == null) continue;
                 if (item.Item2 == null) throw new ArgumentNullException(nameof(item.Item2));
-                self = MapModule.SetItem(self, item.Item1, item.Item2);
+                self = MapModule.SetItem(self, item.Item1, item.Item2, Comparer<K>.Default);
             }
             return self;
         }
@@ -713,7 +713,7 @@ namespace LanguageExt
             {
                 if (item.Key == null) continue;
                 if (item.Value == null) throw new ArgumentNullException(nameof(item.Value));
-                self = MapModule.TrySetItem(self, item.Key, item.Value);
+                self = MapModule.TrySetItem(self, item.Key, item.Value, Comparer<K>.Default);
             }
             return self;
         }
@@ -731,7 +731,7 @@ namespace LanguageExt
             {
                 if (item.Item1 == null) continue;
                 if (item.Item2 == null) throw new ArgumentNullException(nameof(item.Item2));
-                self = MapModule.TrySetItem(self, item.Item1, item.Item2);
+                self = MapModule.TrySetItem(self, item.Item1, item.Item2, Comparer<K>.Default);
             }
             return self;
         }
@@ -765,7 +765,7 @@ namespace LanguageExt
             var self = this;
             foreach (var key in keys)
             {
-                self = MapModule.Remove(self, key);
+                self = MapModule.Remove(self, key, Comparer<K>.Default);
             }
             return self;
         }
@@ -776,7 +776,7 @@ namespace LanguageExt
         /// <param name="pair">Pair to find</param>
         /// <returns>True if exists, false otherwise</returns>
         public bool Contains(KeyValuePair<K, V> pair) =>
-            match(MapModule.TryFind(this, pair.Key),
+            match(MapModule.TryFind(this, pair.Key, Comparer<K>.Default),
                   Some: v => ReferenceEquals(v, pair.Value),
                   None: () => false);
 
@@ -852,13 +852,13 @@ namespace LanguageExt
 
         #region IImmutableDictionary interface
         IImmutableDictionary<K, V> IImmutableDictionary<K, V>.Add(K key, V value) =>
-            MapModule.Add(this, key, value);
+            MapModule.Add(this, key, value, Comparer<K>.Default);
 
         IImmutableDictionary<K, V> IImmutableDictionary<K, V>.SetItem(K key, V value) =>
-            MapModule.SetItem(this, key, value);
+            MapModule.SetItem(this, key, value, Comparer<K>.Default);
 
         IImmutableDictionary<K, V> IImmutableDictionary<K, V>.Remove(K key) =>
-            MapModule.Remove(this, key);
+            MapModule.Remove(this, key, Comparer<K>.Default);
 
         public bool TryGetKey(K equalKey, out K actualKey)
         {
@@ -920,7 +920,7 @@ namespace LanguageExt
 
     internal static class MapModule
     {
-        public static S Fold<S, K, V>(Map<K, V> node, S state, Func<S, K, V, S> folder) where K : IComparable<K>
+        public static S Fold<S, K, V>(Map<K, V> node, S state, Func<S, K, V, S> folder)
         {
             if (node.Tag == MapTag.Empty)
             {
@@ -933,7 +933,7 @@ namespace LanguageExt
             return state;
         }
 
-        public static S Fold<S, K, V>(Map<K, V> node, S state, Func<S, V, S> folder) where K : IComparable<K>
+        public static S Fold<S, K, V>(Map<K, V> node, S state, Func<S, V, S> folder)
         {
             if (node.Tag == MapTag.Empty)
             {
@@ -946,7 +946,7 @@ namespace LanguageExt
             return state;
         }
 
-        public static S Fold<S, K, V>(Map<K, V> node, S state, Func<S, K, S> folder) where K : IComparable<K>
+        public static S Fold<S, K, V>(Map<K, V> node, S state, Func<S, K, S> folder)
         {
             if (node.Tag == MapTag.Empty)
             {
@@ -959,13 +959,13 @@ namespace LanguageExt
             return state;
         }
 
-        public static Map<K, V> Choose<K, V>(Map<K, V> node, Func<K, V, Option<V>> selector) where K : IComparable<K> =>
+        public static Map<K, V> Choose<K, V>(Map<K, V> node, Func<K, V, Option<V>> selector) =>
             Map(Filter(Map(node, selector), n => n.IsSome), n => n.Value);
 
-        public static Map<K, V> Choose<K, V>(Map<K, V> node, Func<V, Option<V>> selector) where K : IComparable<K> =>
+        public static Map<K, V> Choose<K, V>(Map<K, V> node, Func<V, Option<V>> selector) =>
             Map(Filter(Map(node, selector), n => n.IsSome), n => n.Value);
 
-        public static Unit Iter<K, V>(Map<K, V> node, Action<K, V> action) where K : IComparable<K>
+        public static Unit Iter<K, V>(Map<K, V> node, Action<K, V> action) 
         {
             if (node.Tag == MapTag.Empty)
             {
@@ -977,7 +977,7 @@ namespace LanguageExt
             return unit;
         }
 
-        public static Unit Iter<K, V>(Map<K, V> node, Action<V> action) where K : IComparable<K>
+        public static Unit Iter<K, V>(Map<K, V> node, Action<V> action) 
         {
             if (node.Tag == MapTag.Empty)
             {
@@ -989,35 +989,35 @@ namespace LanguageExt
             return unit;
         }
 
-        public static bool ForAll<K, V>(Map<K, V> node, Func<K, V, bool> pred) where K : IComparable<K> =>
+        public static bool ForAll<K, V>(Map<K, V> node, Func<K, V, bool> pred) =>
             node.Tag == MapTag.Empty
                 ? true
                 : pred(node.Key, node.Value)
                     ? ForAll(node.Left, pred) && ForAll(node.Right, pred)
                     : false;
 
-        public static bool Exists<K, V>(Map<K, V> node, Func<K, V, bool> pred) where K : IComparable<K> =>
+        public static bool Exists<K, V>(Map<K, V> node, Func<K, V, bool> pred) =>
             node.Tag == MapTag.Empty
                 ? false
                 : pred(node.Key, node.Value)
                     ? true
                     : ForAll(node.Left, pred) || ForAll(node.Right, pred);
 
-        public static Map<K, V> Filter<K, V>(Map<K, V> node, Func<K, V, bool> pred) where K : IComparable<K> =>
+        public static Map<K, V> Filter<K, V>(Map<K, V> node, Func<K, V, bool> pred) =>
             node.Tag == MapTag.Empty
                 ? node
                 : pred(node.Key, node.Value)
                     ? Balance(Make(node.Key, node.Value, Filter(node.Left, pred), Filter(node.Right, pred)))
                     : Balance(Filter(AddTreeToRight(node.Left, node.Right), pred));
 
-        public static Map<K, V> Filter<K, V>(Map<K, V> node, Func<K, bool> pred) where K : IComparable<K> =>
+        public static Map<K, V> Filter<K, V>(Map<K, V> node, Func<K, bool> pred) =>
             node.Tag == MapTag.Empty
                 ? node
                 : pred(node.Key)
                     ? Balance(Make(node.Key, node.Value, Filter(node.Left, pred), Filter(node.Right, pred)))
                     : Balance(Filter(AddTreeToRight(node.Left, node.Right), pred));
 
-        public static Map<K, V> Filter<K, V>(Map<K, V> node, Func<V, bool> pred) where K : IComparable<K> =>
+        public static Map<K, V> Filter<K, V>(Map<K, V> node, Func<V, bool> pred) =>
             node.Tag == MapTag.Empty
                 ? node
                 : pred(node.Value)
@@ -1029,30 +1029,30 @@ namespace LanguageExt
                 ? failwith<T>("Null result not allowed in " + context)
                 : value;
 
-        public static Map<K, U> Map<K, V, U>(Map<K, V> node, Func<V, U> mapper) where K : IComparable<K> =>
+        public static Map<K, U> Map<K, V, U>(Map<K, V> node, Func<V, U> mapper) =>
             node.Tag == MapTag.Empty
                 ? Empty<K, U>.Default
                 : new Node<K, U>(node.Height, node.Count, node.Key, CheckNull(mapper(node.Value),"map delegate"), Map(node.Left, mapper), Map(node.Right, mapper));
 
-        public static Map<K, U> Map<K, V, U>(Map<K, V> node, Func<K, V, U> mapper) where K : IComparable<K> =>
+        public static Map<K, U> Map<K, V, U>(Map<K, V> node, Func<K, V, U> mapper) =>
             node.Tag == MapTag.Empty
                 ? Empty<K, U>.Default
                 : new Node<K, U>(node.Height, node.Count, node.Key, CheckNull(mapper(node.Key, node.Value), "map delegate"), Map(node.Left, mapper), Map(node.Right, mapper));
 
-        public static Map<K, V> Add<K, V>(Map<K, V> node, K key, V value) where K : IComparable<K>
+        public static Map<K, V> Add<K, V>(Map<K, V> node, K key, V value, Comparer<K> comparer)
         {
             if (node.Tag == MapTag.Empty)
             {
                 return new Node<K, V>(1, 1, key, value, Empty<K, V>.Default, Empty<K, V>.Default);
             }
-            var cmp = key.CompareTo(node.Key);
+            var cmp = comparer.Compare(key,node.Key);
             if (cmp < 0)
             {
-                return Balance(Make(node.Key, node.Value, Add(node.Left, key, value), node.Right));
+                return Balance(Make(node.Key, node.Value, Add(node.Left, key, value, comparer), node.Right));
             }
             else if (cmp > 0)
             {
-                return Balance(Make(node.Key, node.Value, node.Left, Add(node.Right, key, value)));
+                return Balance(Make(node.Key, node.Value, node.Left, Add(node.Right, key, value, comparer)));
             }
             else
             {
@@ -1060,20 +1060,20 @@ namespace LanguageExt
             }
         }
 
-        public static Map<K, V> SetItem<K, V>(Map<K, V> node, K key, V value) where K : IComparable<K>
+        public static Map<K, V> SetItem<K, V>(Map<K, V> node, K key, V value, Comparer<K> comparer)
         {
             if (node.Tag == MapTag.Empty)
             {
                 throw new ArgumentException("Key not found in Map");
             }
-            var cmp = key.CompareTo(node.Key);
+            var cmp = comparer.Compare(key, node.Key);
             if (cmp < 0)
             {
-                return Balance(Make(node.Key, node.Value, SetItem(node.Left, key, value), node.Right));
+                return Balance(Make(node.Key, node.Value, SetItem(node.Left, key, value, comparer), node.Right));
             }
             else if (cmp > 0)
             {
-                return Balance(Make(node.Key, node.Value, node.Left, SetItem(node.Right, key, value)));
+                return Balance(Make(node.Key, node.Value, node.Left, SetItem(node.Right, key, value, comparer)));
             }
             else
             {
@@ -1081,20 +1081,20 @@ namespace LanguageExt
             }
         }
 
-        public static Map<K, V> TrySetItem<K, V>(Map<K, V> node, K key, V value) where K : IComparable<K>
+        public static Map<K, V> TrySetItem<K, V>(Map<K, V> node, K key, V value, Comparer<K> comparer) 
         {
             if (node.Tag == MapTag.Empty)
             {
                 return node;
             }
-            var cmp = key.CompareTo(node.Key);
+            var cmp = comparer.Compare(key,node.Key);
             if (cmp < 0)
             {
-                return Balance(Make(node.Key, node.Value, TrySetItem(node.Left, key, value), node.Right));
+                return Balance(Make(node.Key, node.Value, TrySetItem(node.Left, key, value, comparer), node.Right));
             }
             else if (cmp > 0)
             {
-                return Balance(Make(node.Key, node.Value, node.Left, TrySetItem(node.Right, key, value)));
+                return Balance(Make(node.Key, node.Value, node.Left, TrySetItem(node.Right, key, value, comparer)));
             }
             else
             {
@@ -1102,20 +1102,20 @@ namespace LanguageExt
             }
         }
 
-        public static Map<K, V> TryAdd<K, V>(Map<K, V> node, K key, V value) where K : IComparable<K>
+        public static Map<K, V> TryAdd<K, V>(Map<K, V> node, K key, V value, Comparer<K> comparer)
         {
             if (node.Tag == MapTag.Empty)
             {
                 return new Node<K, V>(1, 1, key, value, Empty<K, V>.Default, Empty<K, V>.Default);
             }
-            var cmp = key.CompareTo(node.Key);
+            var cmp = comparer.Compare(key, node.Key);
             if (cmp < 0)
             {
-                return Balance(Make(node.Key, node.Value, TryAdd(node.Left, key, value), node.Right));
+                return Balance(Make(node.Key, node.Value, TryAdd(node.Left, key, value, comparer), node.Right));
             }
             else if (cmp > 0)
             {
-                return Balance(Make(node.Key, node.Value, node.Left, TryAdd(node.Right, key, value)));
+                return Balance(Make(node.Key, node.Value, node.Left, TryAdd(node.Right, key, value, comparer)));
             }
             else
             {
@@ -1123,20 +1123,20 @@ namespace LanguageExt
             }
         }
 
-        public static Map<K, V> AddOrUpdate<K, V>(Map<K, V> node, K key, V value) where K : IComparable<K>
+        public static Map<K, V> AddOrUpdate<K, V>(Map<K, V> node, K key, V value, Comparer<K> comparer) 
         {
             if (node.Tag == MapTag.Empty)
             {
                 return new Node<K, V>(1, 1, key, value, Empty<K, V>.Default, Empty<K, V>.Default);
             }
-            var cmp = key.CompareTo(node.Key);
+            var cmp = comparer.Compare(key,node.Key);
             if (cmp < 0)
             {
-                return Balance(Make(node.Key, node.Value, AddOrUpdate(node.Left, key, value), node.Right));
+                return Balance(Make(node.Key, node.Value, AddOrUpdate(node.Left, key, value, comparer), node.Right));
             }
             else if (cmp > 0)
             {
-                return Balance(Make(node.Key, node.Value, node.Left, AddOrUpdate(node.Right, key, value)));
+                return Balance(Make(node.Key, node.Value, node.Left, AddOrUpdate(node.Right, key, value, comparer)));
             }
             else
             {
@@ -1144,25 +1144,25 @@ namespace LanguageExt
             }
         }
 
-        public static Map<K, V> AddTreeToRight<K, V>(Map<K, V> node, Map<K, V> toAdd) where K : IComparable<K> =>
+        public static Map<K, V> AddTreeToRight<K, V>(Map<K, V> node, Map<K, V> toAdd) =>
             node.Tag == MapTag.Empty
                 ? toAdd
                 : Balance(Make(node.Key, node.Value, node.Left, AddTreeToRight(node.Right, toAdd)));
 
-        public static Map<K, V> Remove<K, V>(Map<K, V> node, K key) where K : IComparable<K>
+        public static Map<K, V> Remove<K, V>(Map<K, V> node, K key, Comparer<K> comparer)
         {
             if (node.Tag == MapTag.Empty)
             {
                 return node;
             }
-            var cmp = key.CompareTo(node.Key);
+            var cmp = comparer.Compare(key, node.Key);
             if (cmp < 0)
             {
-                return Balance(Make(node.Key, node.Value, Remove(node.Left, key), node.Right));
+                return Balance(Make(node.Key, node.Value, Remove(node.Left, key, comparer), node.Right));
             }
             else if (cmp > 0)
             {
-                return Balance(Make(node.Key, node.Value, node.Left, Remove(node.Right, key)));
+                return Balance(Make(node.Key, node.Value, node.Left, Remove(node.Right, key, comparer)));
             }
             else
             {
@@ -1170,20 +1170,20 @@ namespace LanguageExt
             }
         }
 
-        public static V Find<K, V>(Map<K, V> node, K key) where K : IComparable<K>
+        public static V Find<K, V>(Map<K, V> node, K key, Comparer<K> comparer)
         {
             if (node.Tag == MapTag.Empty)
             {
                 throw new ArgumentException("Key not found in Map");
             }
-            var cmp = key.CompareTo(node.Key);
+            var cmp = comparer.Compare(key,node.Key);
             if (cmp < 0)
             {
-                return Find(node.Left, key);
+                return Find(node.Left, key, comparer);
             }
             else if (cmp > 0)
             {
-                return Find(node.Right, key);
+                return Find(node.Right, key, comparer);
             }
             else
             {
@@ -1191,7 +1191,7 @@ namespace LanguageExt
             }
         }
 
-        public static IEnumerable<Tuple<K, V>> ToEnumerable<K, V>(Map<K, V> node) where K : IComparable<K>
+        public static IEnumerable<Tuple<K, V>> ToEnumerable<K, V>(Map<K, V> node)
         {
             if (node.Tag == MapTag.Empty)
             {
@@ -1212,54 +1212,54 @@ namespace LanguageExt
         /// TODO: I suspect this is suboptimal, it would be better with a customer Enumerator 
         /// that maintains a stack of nodes to retrace.
         /// </summary>
-        public static IEnumerable<V> FindRange<K, V>(Map<K, V> node, K a, K b) where K : IComparable<K>
+        public static IEnumerable<V> FindRange<K, V>(Map<K, V> node, K a, K b, Comparer<K> comparer)
         {
             if (node.Tag == MapTag.Empty)
             {
                 yield break;
             }
-            if (node.Key.CompareTo(a) < 0)
+            if (comparer.Compare(node.Key,a) < 0)
             {
-                foreach (var item in FindRange(node.Right, a, b))
+                foreach (var item in FindRange(node.Right, a, b, comparer))
                 {
                     yield return item;
                 }
             }
-            else if (node.Key.CompareTo(b) > 0)
+            else if (comparer.Compare(node.Key, b) > 0)
             {
-                foreach (var item in FindRange(node.Left, a, b))
+                foreach (var item in FindRange(node.Left, a, b, comparer))
                 {
                     yield return item;
                 }
             }
             else
             {
-                foreach (var item in FindRange(node.Left, a, b))
+                foreach (var item in FindRange(node.Left, a, b, comparer))
                 {
                     yield return item;
                 }
                 yield return node.Value;
-                foreach (var item in FindRange(node.Right, a, b))
+                foreach (var item in FindRange(node.Right, a, b, comparer))
                 {
                     yield return item;
                 }
             }
         }
 
-        public static Option<V> TryFind<K, V>(Map<K, V> node, K key) where K : IComparable<K>
+        public static Option<V> TryFind<K, V>(Map<K, V> node, K key, Comparer<K> comparer)
         {
             if (node.Tag == MapTag.Empty)
             {
                 return None;
             }
-            var cmp = key.CompareTo(node.Key);
+            var cmp = comparer.Compare(key,node.Key);
             if (cmp < 0)
             {
-                return TryFind(node.Left, key);
+                return TryFind(node.Left, key, comparer);
             }
             else if (cmp > 0)
             {
-                return TryFind(node.Right, key);
+                return TryFind(node.Right, key, comparer);
             }
             else
             {
@@ -1267,7 +1267,7 @@ namespace LanguageExt
             }
         }
 
-        public static Map<K, V> Skip<K, V>(Map<K, V> node, int amount) where K : IComparable<K>
+        public static Map<K, V> Skip<K, V>(Map<K, V> node, int amount)
         {
             if (amount == 0 || node.Tag == MapTag.Empty)
             {
@@ -1302,10 +1302,10 @@ namespace LanguageExt
             }
         }
 
-        public static Map<K, V> Make<K, V>(K k, V v, Map<K, V> l, Map<K, V> r) where K : IComparable<K> =>
+        public static Map<K, V> Make<K, V>(K k, V v, Map<K, V> l, Map<K, V> r) =>
             new Node<K, V>((byte)(1 + Math.Max(l.Height, r.Height)), l.Count + r.Count + 1, k, v, l, r);
 
-        public static Map<K, V> Balance<K, V>(Map<K, V> node) where K : IComparable<K> =>
+        public static Map<K, V> Balance<K, V>(Map<K, V> node) =>
             node.BalanceFactor >= 2
                 ? node.Left.BalanceFactor >= 1
                     ? RotRight(node)
@@ -1316,28 +1316,28 @@ namespace LanguageExt
                         : DblRotLeft(node)
                     : node;
 
-        public static Map<K, V> RotRight<K, V>(Map<K, V> node) where K : IComparable<K> =>
+        public static Map<K, V> RotRight<K, V>(Map<K, V> node) =>
             node.Tag == MapTag.Empty || node.Left.Tag == MapTag.Empty
                 ? node
                 : Make(node.Left.Key, node.Left.Value, node.Left.Left, Make(node.Key, node.Value, node.Left.Right, node.Right));
 
-        public static Map<K, V> RotLeft<K, V>(Map<K, V> node) where K : IComparable<K> =>
+        public static Map<K, V> RotLeft<K, V>(Map<K, V> node) =>
             node.Tag == MapTag.Empty || node.Right.Tag == MapTag.Empty
                 ? node
                 : Make(node.Right.Key, node.Right.Value, Make(node.Key, node.Value, node.Left, node.Right.Left), node.Right.Right);
 
-        public static Map<K, V> DblRotRight<K, V>(Map<K, V> node) where K : IComparable<K> =>
+        public static Map<K, V> DblRotRight<K, V>(Map<K, V> node) =>
             node.Tag == MapTag.Empty
                 ? node
                 : RotRight(Make(node.Key, node.Value, RotLeft(node.Left), node.Right));
 
-        public static Map<K, V> DblRotLeft<K, V>(Map<K, V> node) where K : IComparable<K> =>
+        public static Map<K, V> DblRotLeft<K, V>(Map<K, V> node) =>
             node.Tag == MapTag.Empty
                 ? node
                 : RotLeft(Make(node.Key, node.Value, node.Left, RotRight(node.Right)));
     }
 
-    public class Empty<K, V> : Map<K, V> where K : IComparable<K>
+    public class Empty<K, V> : Map<K, V>
     {
         public static readonly Map<K, V> Default = new Empty<K, V>();
 
@@ -1409,7 +1409,7 @@ namespace LanguageExt
         }
     }
 
-    public class Node<K, V> : Map<K, V> where K : IComparable<K>
+    public class Node<K, V> : Map<K, V>
     {
         readonly int count;
         readonly byte height;

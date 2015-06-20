@@ -263,10 +263,12 @@ public static class __OptionExt
     // 
     // Option<T> extensions 
     // 
+    public static Unit Iter<T>(this Option<T> self, Action<T> action) =>
+        self.IfSome(action);
 
     public static int Count<T>(this Option<T> self) =>
-        self.IsSome 
-            ? 1 
+        self.IsSome
+            ? 1
             : 0;
 
     public static bool ForAll<T>(this Option<T> self, Func<T, bool> pred) =>
@@ -274,15 +276,15 @@ public static class __OptionExt
             ? pred(self.Value)
             : true;
 
-    public static S Fold<T, S>(this Option<T> self, S state, Func<S, T, S> folder) =>
-        self.IsSome
-            ? folder(state, self.Value)
-            : state;
-
     public static bool Exists<T>(this Option<T> self, Func<T, bool> pred) =>
         self.IsSome
             ? pred(self.Value)
             : false;
+
+    public static S Fold<S, T>(this Option<T> self, S state, Func<S, T, S> folder) =>
+        self.IsSome
+            ? folder(state, self.Value)
+            : state;
 
     public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> mapper) =>
         self.IsSome
@@ -301,7 +303,7 @@ public static class __OptionExt
             ? binder(self.Value)
             : Option<R>.None;
 
-    public static Option<U> Select<T, U>(this Option<T> self, Func<T, U> map) => 
+    public static Option<U> Select<T, U>(this Option<T> self, Func<T, U> map) =>
         self.Map(map);
 
     public static Option<V> SelectMany<T, U, V>(this Option<T> self,
@@ -325,6 +327,11 @@ public static class __OptionExt
     // 
     // Option<IEnumerable<T>> extensions 
     // 
+
+    public static Unit Iter<T>(this Option<IEnumerable<T>> self, Action<T> action) =>
+        self.IsSome
+            ? self.Value.Iter(action)
+            : Unit.Default;
 
     public static int Count<T>(this Option<IEnumerable<T>> self) =>
         self.IsSome
@@ -389,6 +396,11 @@ public static class __OptionExt
     // 
     // Option<Lst<T>> extensions 
     // 
+
+    public static Unit Iter<T>(this Option<Lst<T>> self, Action<T> action) =>
+        self.IsSome
+            ? self.Value.Iter(action)
+            : Unit.Default;
 
     public static int Count<T>(this Option<Lst<T>> self) =>
         self.IsSome
@@ -455,94 +467,109 @@ public static class __OptionExt
     // Option<Map<T>> extensions 
     // 
 
-    public static int Count<K,V>(this Option<Map<K, V>> self) where K : IComparable<K> =>
+    public static Unit Iter<K,V>(this Option<Map<K,V>> self, Action<V> action) =>
+        self.IsSome
+            ? self.Value.Iter(action)
+            : Unit.Default;
+
+    public static Unit Iter<K, V>(this Option<Map<K, V>> self, Action<K, V> action) =>
+        self.IsSome
+            ? self.Value.Iter(action)
+            : Unit.Default;
+
+    public static int Count<K,V>(this Option<Map<K, V>> self) =>
         self.IsSome
             ? self.Value.Count()
             : 0;
 
-    public static bool ForAll<K, V>(this Option<Map<K, V>> self, Func<K, bool> pred) where K : IComparable<K> =>
+    public static bool ForAll<K, V>(this Option<Map<K, V>> self, Func<K, bool> pred) =>
         self.IsSome
             ? self.Value.ForAll(pred)
             : true;
 
-    public static bool ForAll<K, V>(this Option<Map<K, V>> self, Func<V, bool> pred) where K : IComparable<K> =>
+    public static bool ForAll<K, V>(this Option<Map<K, V>> self, Func<V, bool> pred) =>
         self.IsSome
             ? self.Value.ForAll(pred)
             : true;
 
-    public static bool ForAll<K, V>(this Option<Map<K, V>> self, Func<K, V, bool> pred) where K : IComparable<K> =>
+    public static bool ForAll<K, V>(this Option<Map<K, V>> self, Func<K, V, bool> pred) =>
         self.IsSome
             ? self.Value.ForAll(pred)
             : true;
 
-    public static S Fold<K, V, S>(this Option<Map<K, V>> self, S state, Func<S, K, V, S> folder) where K : IComparable<K> =>
+    public static S Fold<K, V, S>(this Option<Map<K, V>> self, S state, Func<S, K, V, S> folder) =>
         self.IsSome
             ? self.Value.Fold(state, folder)
             : state;
 
-    public static S Fold<K, V, S>(this Option<Map<K, V>> self, S state, Func<S, V, S> folder) where K : IComparable<K> =>
+    public static S Fold<K, V, S>(this Option<Map<K, V>> self, S state, Func<S, V, S> folder) =>
         self.IsSome
             ? self.Value.Fold(state, folder)
             : state;
 
-    public static S Fold<K, V, S>(this Option<Map<K, V>> self, S state, Func<S, K, S> folder) where K : IComparable<K> =>
+    public static S Fold<K, V, S>(this Option<Map<K, V>> self, S state, Func<S, K, S> folder) =>
         self.IsSome
             ? self.Value.Fold(state, folder)
             : state;
 
-    public static bool Exists<K, V>(this Option<Map<K, V>> self, Func<K, V, bool> pred) where K : IComparable<K> =>
+    public static bool Exists<K, V>(this Option<Map<K, V>> self, Func<K, V, bool> pred) =>
         self.IsSome
             ? self.Value.Exists(pred)
             : false;
 
-    public static bool Exists<K, V>(this Option<Map<K, V>> self, Func<K, bool> pred) where K : IComparable<K> =>
+    public static bool Exists<K, V>(this Option<Map<K, V>> self, Func<K, bool> pred) =>
         self.IsSome
             ? self.Value.Exists(pred)
             : false;
 
-    public static bool Exists<K, V>(this Option<Map<K, V>> self, Func<V, bool> pred) where K : IComparable<K> =>
+    public static bool Exists<K, V>(this Option<Map<K, V>> self, Func<V, bool> pred) =>
         self.IsSome
             ? self.Value.Exists(pred)
             : false;
 
-    public static Option<Map<K, R>> Map<K, V, R>(this Option<Map<K, V>> self, Func<K, V, R> mapper) where K : IComparable<K> =>
+    public static Option<Map<K, R>> Map<K, V, R>(this Option<Map<K, V>> self, Func<K, V, R> mapper) =>
         self.IsSome
             ? Option.Cast(self.Value.Map(mapper))
             : None;
 
-    public static Option<Map<K, R>> Map<K, V, R>(this Option<Map<K, V>> self, Func<V, R> mapper) where K : IComparable<K> =>
+    public static Option<Map<K, R>> Map<K, V, R>(this Option<Map<K, V>> self, Func<V, R> mapper) =>
         self.IsSome
             ? Option.Cast(self.Value.Map(mapper))
             : None;
 
-    public static Option<Map<K, V>> Filter<K, V>(this Option<Map<K, V>> self, Func<K, V, bool> pred) where K : IComparable<K> =>
+    public static Option<Map<K, V>> Filter<K, V>(this Option<Map<K, V>> self, Func<K, V, bool> pred) =>
         self.IsSome
             ? Some(self.Value.Filter(pred))
             : self;
 
-    public static Option<Map<K, V>> Filter<K, V>(this Option<Map<K, V>> self, Func<V, bool> pred) where K : IComparable<K> =>
+    public static Option<Map<K, V>> Filter<K, V>(this Option<Map<K, V>> self, Func<V, bool> pred) =>
         self.IsSome
             ? Some(self.Value.Filter(pred))
             : self;
 
-    public static Option<Map<K, V>> Filter<K, V>(this Option<Map<K, V>> self, Func<K, bool> pred) where K : IComparable<K> =>
+    public static Option<Map<K, V>> Filter<K, V>(this Option<Map<K, V>> self, Func<K, bool> pred) =>
         self.IsSome
             ? Some(self.Value.Filter(pred))
             : self;
 
-    public static Option<Map<K, V>> Where<K, V>(this Option<Map<K, V>> self, Func<K, V, bool> pred) where K : IComparable<K> =>
+    public static Option<Map<K, V>> Where<K, V>(this Option<Map<K, V>> self, Func<K, V, bool> pred) =>
         self.Filter(pred);
 
-    public static Option<Map<K, V>> Where<K, V>(this Option<Map<K, V>> self, Func<K, bool> pred) where K : IComparable<K> =>
+    public static Option<Map<K, V>> Where<K, V>(this Option<Map<K, V>> self, Func<K, bool> pred) =>
         self.Filter(pred);
 
-    public static Option<Map<K, V>> Where<K, V>(this Option<Map<K, V>> self, Func<V, bool> pred) where K : IComparable<K> =>
+    public static Option<Map<K, V>> Where<K, V>(this Option<Map<K, V>> self, Func<V, bool> pred) =>
         self.Filter(pred);
 
 
     // 
     // Option<Option<T>> extensions 
     // 
+
+    public static Unit Iter<T>(this Option<Option<T>> self, Action<T> action) =>
+        self.IsSome
+            ? self.Value.Iter(action)
+            : Unit.Default;
 
     public static int Count<T>(this Option<Option<T>> self) =>
         self.IsSome
@@ -602,6 +629,11 @@ public static class __OptionExt
     // 
     // Option<TryOption<T>> extensions 
     // 
+
+    public static Unit Iter<T>(this Option<TryOption<T>> self, Action<T> action) =>
+        self.IsSome
+            ? self.Value.Iter(action)
+            : Unit.Default;
 
     public static int Count<T>(this Option<TryOption<T>> self) =>
         self.IsSome
@@ -668,6 +700,11 @@ public static class __OptionExt
     // Option<Try<T>> extensions 
     // 
 
+    public static Unit Iter<T>(this Option<Try<T>> self, Action<T> action) =>
+        self.IsSome
+            ? self.Value.Iter(action)
+            : Unit.Default;
+
     public static int Count<T>(this Option<Try<T>> self) =>
         self.IsSome
             ? self.Value.Count()
@@ -730,6 +767,11 @@ public static class __OptionExt
     // 
     // Option<Either<L,R>> extensions 
     // 
+
+    public static Unit Iter<L, R>(this Option<Either<L, R>> self, Action<R> action) =>
+        self.IsSome
+            ? self.Value.Iter(action)
+            : Unit.Default;
 
     public static int Count<L, R>(this Option<Either<L, R>> self) =>
         self.IsSome

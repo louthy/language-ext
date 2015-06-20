@@ -15,25 +15,25 @@ namespace LanguageExt
         /// <param name="map">Map to clear</param>
         /// <remarks>Functionally equivalent to calling Map.empty as the original structure is untouched</remarks>
         /// <returns>Empty map</returns>
-        public static Map<K, V> clear<K, V>(Map<K, V> map) where K : IComparable<K> =>
+        public static Map<K, V> clear<K, V>(Map<K, V> map) =>
             map.Clear();
 
         /// <summary>
         /// Creates a new empty Map
         /// </summary>
-        public static Map<K, V> empty<K, V>() where K : IComparable<K> =>
+        public static Map<K, V> empty<K, V>() =>
             new Empty<K, V>();
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided
         /// </summary>
-        public static Map<K, V> create<K, V>(params Tuple<K, V>[] keyValues) where K : IComparable<K> =>
+        public static Map<K, V> create<K, V>(params Tuple<K, V>[] keyValues) =>
             empty<K,V>().AddRange(keyValues);
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided
         /// </summary>
-        public static Map<K, V> createRange<K, V>(IEnumerable<Tuple<K, V>> keyValues) where K : IComparable<K> =>
+        public static Map<K, V> createRange<K, V>(IEnumerable<Tuple<K, V>> keyValues) =>
             empty<K, V>().AddRange(keyValues);
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if the key already exists</exception>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
-        public static Map<K, V> add<K, V>(Map<K, V> map, K key, V value) where K : IComparable<K> =>
+        public static Map<K, V> add<K, V>(Map<K, V> map, K key, V value) =>
             map.Add(key, value);
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace LanguageExt
         /// <param name="value">Value</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
-        public static Map<K, V> tryAdd<K, V>(Map<K, V> map, K key, V value) where K : IComparable<K> =>
+        public static Map<K, V> tryAdd<K, V>(Map<K, V> map, K key, V value) =>
             map.TryAdd(key, value);
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace LanguageExt
         /// and the value already set for the key</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
-        public static Map<K, V> tryAdd<K,V>(Map<K, V> map, K key, V value, Func<Map<K, V>, V, Map<K, V>> Fail) where K : IComparable<K> =>
+        public static Map<K, V> tryAdd<K,V>(Map<K, V> map, K key, V value, Func<Map<K, V>, V, Map<K, V>> Fail) =>
             map.TryAdd(key, value, Fail);
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace LanguageExt
         /// <param name="value">Value</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
-        public static Map<K, V> addOrUpdate<K, V>(Map<K, V> map, K key, V value) where K : IComparable<K> =>
+        public static Map<K, V> addOrUpdate<K, V>(Map<K, V> map, K key, V value) =>
             map.AddOrUpdate(key, value);
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if None returns null</exception>
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
-        public static Map<K, V> addOrUpdate<K, V>(Map<K, V> map, K key, Func<V, V> Some, Func<V> None) where K : IComparable<K> =>
+        public static Map<K, V> addOrUpdate<K, V>(Map<K, V> map, K key, Func<V, V> Some, Func<V> None) =>
             map.AddOrUpdate(key, Some, None);
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException if None is null</exception>
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
-        public static Map<K, V> addOrUpdate<K, V>(Map<K, V> map, K key, Func<V, V> Some, V None) where K : IComparable<K> =>
+        public static Map<K, V> addOrUpdate<K, V>(Map<K, V> map, K key, Func<V, V> Some, V None) =>
             map.AddOrUpdate(key, Some, None);
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
-        public static Map<K, V> addRange<K, V>(Map<K, V> map, IEnumerable<Tuple<K, V>> keyValues) where K : IComparable<K> =>
+        public static Map<K, V> addRange<K, V>(Map<K, V> map, IEnumerable<Tuple<K, V>> keyValues) =>
             map.AddRange(keyValues);
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
-        public static Map<K, V> addRange<K, V>(Map<K, V> map, IEnumerable<KeyValuePair<K, V>> keyValues) where K : IComparable<K> =>
+        public static Map<K, V> addRange<K, V>(Map<K, V> map, IEnumerable<KeyValuePair<K, V>> keyValues) =>
             map.AddRange(keyValues);
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace LanguageExt
         /// <param name="range">Range of tuples to add</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
-        public static Map<K, V> tryAddRange<K, V>(Map<K, V> map, IEnumerable<Tuple<K, V>> keyValues) where K : IComparable<K> =>
+        public static Map<K, V> tryAddRange<K, V>(Map<K, V> map, IEnumerable<Tuple<K, V>> keyValues) =>
             map.TryAddRange(keyValues);
 
         /// <summary>
@@ -150,7 +150,7 @@ namespace LanguageExt
         /// <param name="range">Range of KeyValuePairs to add</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
-        public static Map<K, V> tryAddRange<K, V>(Map<K, V> map, IEnumerable<KeyValuePair<K, V>> keyValues) where K : IComparable<K> =>
+        public static Map<K, V> tryAddRange<K, V>(Map<K, V> map, IEnumerable<KeyValuePair<K, V>> keyValues) =>
             map.TryAddRange(keyValues);
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="range">Range of tuples to add</param>
         /// <returns>New Map with the items added</returns>
-        public static Map<K, V> addOrUpdateRange<K, V>(Map<K, V> map, IEnumerable<Tuple<K, V>> range) where K : IComparable<K> =>
+        public static Map<K, V> addOrUpdateRange<K, V>(Map<K, V> map, IEnumerable<Tuple<K, V>> range) =>
             map.AddOrUpdateRange(range);
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace LanguageExt
         /// <param name="range">Range of KeyValuePairs to add</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
-        public static Map<K, V> addOrUpdateRange<K, V>(Map<K, V> map, IEnumerable<KeyValuePair<K, V>> range) where K : IComparable<K> =>
+        public static Map<K, V> addOrUpdateRange<K, V>(Map<K, V> map, IEnumerable<KeyValuePair<K, V>> range) =>
             map.AddOrUpdateRange(range);
 
         /// <summary>
@@ -179,7 +179,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key</param>
         /// <returns>New map with the item removed</returns>
-        public static Map<K, V> remove<K, V>(Map<K, V> map, K key) where K : IComparable<K> =>
+        public static Map<K, V> remove<K, V>(Map<K, V> map, K key) =>
             map.Remove(key);
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
-        public static bool containsKey<K, V>(Map<K, V> map, K key) where K : IComparable<K> =>
+        public static bool containsKey<K, V>(Map<K, V> map, K key) =>
             map.ContainsKey(key);
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
-        public static bool contains<K, V>(Map<K, V> map, KeyValuePair<K, V> kv) where K : IComparable<K> =>
+        public static bool contains<K, V>(Map<K, V> map, KeyValuePair<K, V> kv) =>
             map.Contains(tuple(kv.Key,kv.Value));
 
         /// <summary>
@@ -203,7 +203,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
-        public static bool contains<K, V>(Map<K, V> map, Tuple<K, V> kv) where K : IComparable<K> =>
+        public static bool contains<K, V>(Map<K, V> map, Tuple<K, V> kv) =>
             map.Contains(kv);
 
         /// <summary>
@@ -214,7 +214,7 @@ namespace LanguageExt
         /// <param name="value">Value</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
-        public static Map<K, V> setItem<K, V>(Map<K, V> map, K key, V value) where K : IComparable<K> =>
+        public static Map<K, V> setItem<K, V>(Map<K, V> map, K key, V value) =>
             map.SetItem(key, value);
 
         /// <summary>
@@ -226,7 +226,7 @@ namespace LanguageExt
         /// <param name="value">Value</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the value is null</exception>
         /// <returns>New Map with the item added</returns>
-        public static Map<K, V> trySetItem<K, V>(Map<K, V> map, K key, V value) where K : IComparable<K> =>
+        public static Map<K, V> trySetItem<K, V>(Map<K, V> map, K key, V value) =>
             map.TrySetItem(key, value);
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <param name="Some">delegate to map the existing value to a new one before setting</param>
         /// <returns>New map with the item set</returns>
-        public static Map<K, V> trySetItem<K, V>(Map<K, V> map, K key, Func<V, V> Some) where K : IComparable<K> =>
+        public static Map<K, V> trySetItem<K, V>(Map<K, V> map, K key, Func<V, V> Some) =>
             map.TrySetItem(key, Some);
 
         /// <summary>
@@ -251,7 +251,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <exception cref="Exception">Throws Exception if None returns null</exception>
         /// <returns>New map with the item set</returns>
-        public static Map<K, V> trySetItem<K, V>(Map<K, V> map, K key, Func<V,V> Some, Func<Map<K,V>,Map<K,V>> None) where K : IComparable<K> =>
+        public static Map<K, V> trySetItem<K, V>(Map<K, V> map, K key, Func<V,V> Some, Func<Map<K,V>,Map<K,V>> None) =>
             map.TrySetItem(key, Some, None);
 
         /// <summary>
@@ -260,7 +260,7 @@ namespace LanguageExt
         /// <param name="items">Items to set</param>
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
-        public static Map<K, V> setItems<K, V>(Map<K, V> map, IEnumerable<Tuple<K, V>> items) where K : IComparable<K> =>
+        public static Map<K, V> setItems<K, V>(Map<K, V> map, IEnumerable<Tuple<K, V>> items) =>
             map.SetItems(items);
 
         /// <summary>
@@ -269,7 +269,7 @@ namespace LanguageExt
         /// <param name="items">Items to set</param>
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
-        public static Map<K, V> setItems<K, V>(Map<K, V> map, IEnumerable<KeyValuePair<K, V>> items) where K : IComparable<K> =>
+        public static Map<K, V> setItems<K, V>(Map<K, V> map, IEnumerable<KeyValuePair<K, V>> items) =>
             map.SetItems(items);
 
         /// <summary>
@@ -278,7 +278,7 @@ namespace LanguageExt
         /// <param name="items">Items to set</param>
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
-        public static Map<K, V> trySetItems<K, V>(Map<K, V> map, IEnumerable<Tuple<K, V>> items) where K : IComparable<K> =>
+        public static Map<K, V> trySetItems<K, V>(Map<K, V> map, IEnumerable<Tuple<K, V>> items) =>
             map.SetItems(items);
 
         /// <summary>
@@ -287,7 +287,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="items">Items to set</param>
         /// <returns>New map with the items set</returns>
-        public static Map<K, V> trySetItems<K, V>(Map<K, V> map, IEnumerable<KeyValuePair<K, V>> items) where K : IComparable<K> =>
+        public static Map<K, V> trySetItems<K, V>(Map<K, V> map, IEnumerable<KeyValuePair<K, V>> items) =>
             map.TrySetItems(items);
 
         /// <summary>
@@ -298,7 +298,7 @@ namespace LanguageExt
         /// <param name="keys">Keys of items to set</param>
         /// <param name="Some">Function map the existing item to a new one</param>
         /// <returns>New map with the items set</returns>
-        public static Map<K, V> trySetItems<K, V>(Map<K, V> map,IEnumerable<K> keys, Func<V, V> Some) where K : IComparable<K> =>
+        public static Map<K, V> trySetItems<K, V>(Map<K, V> map,IEnumerable<K> keys, Func<V, V> Some) =>
             map.TrySetItems(keys,Some);
 
         /// <summary>
@@ -306,7 +306,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
-        public static Option<V> find<K, V>(Map<K, V> map, K key) where K : IComparable<K> =>
+        public static Option<V> find<K, V>(Map<K, V> map, K key) =>
             map.Find(key);
 
         /// <summary>
@@ -315,7 +315,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
-        public static R find<K, V, R>(Map<K, V> map, K key, Func<V, R> Some, Func<R> None) where K : IComparable<K> =>
+        public static R find<K, V, R>(Map<K, V> map, K key, Func<V, R> Some, Func<R> None) =>
             map.Find(key,Some,None);
 
         /// <summary>
@@ -324,7 +324,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key to find</param>
         /// <returns>New map with the mapped value</returns>
-        public static Map<K,V> setItem<K, V>(Map<K, V> map, K key, Func<V, V> mapper) where K : IComparable<K> =>
+        public static Map<K,V> setItem<K, V>(Map<K, V> map, K key, Func<V, V> mapper) =>
             map.SetItem(key, mapper);
 
         /// <summary>
@@ -334,7 +334,7 @@ namespace LanguageExt
         /// <param name="keyTo">Range to (inclusive)</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
         /// <returns>Range of values</returns>
-        public static IEnumerable<V> findRange<K, V>(Map<K, V> map, K keyFrom, K keyTo) where K : IComparable<K> =>
+        public static IEnumerable<V> findRange<K, V>(Map<K, V> map, K keyFrom, K keyTo) =>
             map.FindRange(keyFrom, keyTo);
 
         /// <summary>
@@ -343,7 +343,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="amount">Amount to skip</param>
         /// <returns>New tree</returns>
-        public static Map<K, V> skip<K, V>(Map<K, V> map, int amount) where K : IComparable<K> =>
+        public static Map<K, V> skip<K, V>(Map<K, V> map, int amount) =>
             map.Skip(amount);
 
         /// <summary>
@@ -352,7 +352,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="action">Action to execute</param>
         /// <returns>Unit</returns>
-        public static Unit iter<K, V>(Map<K, V> map, Action<V> action) where K : IComparable<K> =>
+        public static Unit iter<K, V>(Map<K, V> map, Action<V> action) =>
             map.Iter(action);
 
         /// <summary>
@@ -361,7 +361,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="action">Action to execute</param>
         /// <returns>Unit</returns>
-        public static Unit iter<K, V>(Map<K, V> map, Action<K, V> action) where K : IComparable<K> =>
+        public static Unit iter<K, V>(Map<K, V> map, Action<K, V> action) =>
             map.Iter(action);
 
         /// <summary>
@@ -369,7 +369,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
-        public static bool forall<K, V>(Map<K, V> map, Func<V, bool> pred) where K : IComparable<K> =>
+        public static bool forall<K, V>(Map<K, V> map, Func<V, bool> pred) =>
             map.ForAll(pred);
 
         /// <summary>
@@ -377,7 +377,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
-        public static bool forall<K, V>(Map<K, V> map, Func<K, bool> pred) where K : IComparable<K> =>
+        public static bool forall<K, V>(Map<K, V> map, Func<K, bool> pred) =>
             map.ForAll(pred);
 
         /// <summary>
@@ -385,7 +385,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
-        public static bool forall<K, V>(Map<K, V> map, Func<K, V, bool> pred) where K : IComparable<K> =>
+        public static bool forall<K, V>(Map<K, V> map, Func<K, V, bool> pred) =>
             map.ForAll(pred);
 
         /// <summary>
@@ -393,7 +393,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
-        public static bool forall<K, V>(Map<K, V> map, Func<Tuple<K, V>, bool> pred) where K : IComparable<K> =>
+        public static bool forall<K, V>(Map<K, V> map, Func<Tuple<K, V>, bool> pred) =>
             map.ForAll(pred);
 
         /// <summary>
@@ -401,21 +401,21 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
-        public static bool forall<K, V>(Map<K, V> map, Func<KeyValuePair<K, V>, bool> pred) where K : IComparable<K> =>
+        public static bool forall<K, V>(Map<K, V> map, Func<KeyValuePair<K, V>, bool> pred) =>
             map.ForAll(pred);
 
         /// <summary>
         /// Atomically maps the map to a new map
         /// </summary>
         /// <returns>Mapped items in a new map</returns>
-        public static Map<K, U> map<K, T, U>(Map<K, T> map, Func<T, U> f) where K : IComparable<K> =>
+        public static Map<K, U> map<K, T, U>(Map<K, T> map, Func<T, U> f) =>
             map.Select(f);
 
         /// <summary>
         /// Atomically maps the map to a new map
         /// </summary>
         /// <returns>Mapped items in a new map</returns>
-        public static Map<K, U> map<K, T, U>(Map<K, T> map, Func<K, T, U> f) where K : IComparable<K> =>
+        public static Map<K, U> map<K, T, U>(Map<K, T> map, Func<K, T, U> f) =>
             map.Select(f);
 
         /// <summary>
@@ -423,7 +423,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
-        public static Map<K, V> filter<K, V>(Map<K, V> map, Func<V, bool> predicate) where K : IComparable<K> =>
+        public static Map<K, V> filter<K, V>(Map<K, V> map, Func<V, bool> predicate) =>
             map.Filter(predicate);
 
         /// <summary>
@@ -431,7 +431,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
-        public static Map<K, V> filter<K, V>(Map<K, V> map, Func<K, bool> predicate) where K : IComparable<K> =>
+        public static Map<K, V> filter<K, V>(Map<K, V> map, Func<K, bool> predicate) =>
             map.Filter(predicate);
 
         /// <summary>
@@ -439,7 +439,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
-        public static Map<K, V> filter<K, V>(Map<K, V> map, Func<K, V, bool> predicate) where K : IComparable<K> =>
+        public static Map<K, V> filter<K, V>(Map<K, V> map, Func<K, V, bool> predicate) =>
             map.Filter(predicate);
 
         /// <summary>
@@ -449,7 +449,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="selector">Predicate</param>
         /// <returns>Filtered map</returns>
-        public static Map<K, T> choose<K, T>(Map<K, T> map, Func<T, Option<T>> selector) where K : IComparable<K> =>
+        public static Map<K, T> choose<K, T>(Map<K, T> map, Func<T, Option<T>> selector) =>
             map.Choose(selector);
 
         /// <summary>
@@ -459,13 +459,13 @@ namespace LanguageExt
         /// </summary>
         /// <param name="selector">Predicate</param>
         /// <returns>Filtered map</returns>
-        public static Map<K, T> choose<K, T>(Map<K, T> map, Func<K, T, Option<T>> selector) where K : IComparable<K> =>
+        public static Map<K, T> choose<K, T>(Map<K, T> map, Func<K, T, Option<T>> selector) =>
             map.Choose(selector);
 
         /// <summary>
         /// Number of items in the map
         /// </summary>
-        public static int length<K, T>(Map<K, T> map) where K : IComparable<K> =>
+        public static int length<K, T>(Map<K, T> map) =>
             map.Count;
 
         /// <summary>
@@ -475,7 +475,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Folded state</returns>
-        public static S fold<S, K, V>(Map<K, V> map, S state, Func<S, K, V, S> folder) where K : IComparable<K> =>
+        public static S fold<S, K, V>(Map<K, V> map, S state, Func<S, K, V, S> folder) =>
             map.Fold(state, folder);
 
         /// <summary>
@@ -485,7 +485,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Folded state</returns>
-        public static S fold<S, K, V>(Map<K, V> map, S state, Func<S, K, S> folder) where K : IComparable<K> =>
+        public static S fold<S, K, V>(Map<K, V> map, S state, Func<S, K, S> folder) =>
             map.Fold(state, folder);
 
         /// <summary>
@@ -495,7 +495,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Folded state</returns>
-        public static S fold<S, K, V>(Map<K, V> map, S state, Func<S, V, S> folder) where K : IComparable<K> =>
+        public static S fold<S, K, V>(Map<K, V> map, S state, Func<S, V, S> folder) =>
             map.Fold(state, folder);
 
         /// <summary>
@@ -503,7 +503,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
-        public static bool exists<K, V>(Map<K, V> map, Func<K, V, bool> pred) where K : IComparable<K> =>
+        public static bool exists<K, V>(Map<K, V> map, Func<K, V, bool> pred) =>
             map.Exists(pred);
 
         /// <summary>
@@ -511,7 +511,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
-        public static bool exists<K, V>(Map<K, V> map, Func<Tuple<K, V>, bool> pred) where K : IComparable<K> =>
+        public static bool exists<K, V>(Map<K, V> map, Func<Tuple<K, V>, bool> pred) =>
             map.Exists(pred);
 
         /// <summary>
@@ -519,7 +519,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
-        public static bool exists<K, V>(Map<K, V> map, Func<KeyValuePair<K, V>, bool> pred) where K : IComparable<K> =>
+        public static bool exists<K, V>(Map<K, V> map, Func<KeyValuePair<K, V>, bool> pred) =>
             map.Exists(pred);
 
         /// <summary>
@@ -527,7 +527,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
-        public static bool exists<K, V>(Map<K, V> map, Func<K, bool> pred) where K : IComparable<K> =>
+        public static bool exists<K, V>(Map<K, V> map, Func<K, bool> pred) =>
             map.Exists(pred);
 
         /// <summary>
@@ -535,7 +535,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
-        public static bool exists<K, V>(Map<K, V> map, Func<V, bool> pred) where K : IComparable<K> =>
+        public static bool exists<K, V>(Map<K, V> map, Func<V, bool> pred) =>
             map.Exists(pred);
     }
 }
@@ -546,19 +546,60 @@ public static class __MapExt
     /// Atomically maps the map to a new map
     /// </summary>
     /// <returns>Mapped items in a new map</returns>
-    public static Map<K, U> Map<K, V, U>(this Map<K, V> self, Func<V, U> mapper) where K : IComparable<K> =>
+    public static Map<K, U> Map<K, V, U>(this Map<K, V> self, Func<V, U> mapper) =>
         self.Select(mapper);
 
     /// <summary>
     /// Atomically maps the map to a new map
     /// </summary>
     /// <returns>Mapped items in a new map</returns>
-    public static Map<K, U> Map<K, V, U>(this Map<K, V> self, Func<K, V, U> mapper) where K : IComparable<K> =>
+    public static Map<K, U> Map<K, V, U>(this Map<K, V> self, Func<K, V, U> mapper) =>
         self.Select(mapper);
 
     /// <summary>
     /// Number of items in the map
     /// </summary>
-    public static int Count<K, V>(this Map<K, V> self) where K : IComparable<K> =>
+    public static int Count<K, V>(this Map<K, V> self) =>
         self.Count;
+
+    public static Option<T> Find<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey) =>
+        self.Find(outerKey, b => b.Find(innerKey), () => None);
+
+    public static R Find<A, B, T, R>(this Map<A, Map<B, T>> self, A outerKey, B innerKey, Func<T, R> Some, Func<R> None) =>
+        self.Find(outerKey, b => b.Find(innerKey, Some, None), None);
+
+    public static Map<A, Map<B, T>> AddOrUpdate<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey, Func<T, T> Some, Func<T> None) =>
+        self.AddOrUpdate(
+            outerKey,
+            b => b.AddOrUpdate(innerKey,Some,None),
+            () => map(tuple(innerKey, None()))
+        );
+
+    public static Map<A, Map<B, T>> AddOrUpdate<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey, T value) =>
+        self.AddOrUpdate(
+            outerKey,
+            b => b.AddOrUpdate(innerKey, _ => value, value),
+            () => map(tuple(innerKey, value))
+        );
+
+    public static Map<A, Map<B, T>> Remove<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey) 
+    {
+        var b = self.Find(outerKey);
+        if (b.IsSome)
+        {
+            var bv = b.Value.Remove(innerKey);
+            if (bv.Count() == 0)
+            {
+                return self.Remove(outerKey);
+            }
+            else
+            {
+                return self.SetItem(outerKey, bv);
+            }
+        }
+        else
+        {
+            return self;
+        }
+    }
 }

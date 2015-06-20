@@ -288,6 +288,9 @@ public static class __TryExt
         );
     }
 
+    public static Unit Iter<T>(this Try<T> self, Action<T> action) =>
+        self.IfSucc(action);
+
     public static int Count<T>(this Try<T> self)
     {
         var res = self.Try();

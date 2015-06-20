@@ -380,6 +380,9 @@ public static class __TryOptionExt
         );
     }
 
+    public static Unit Iter<T>(this TryOption<T> self, Action<T> action) =>
+        self.IfSome(action);
+
     public static int Count<T>(this TryOption<T> self)
     {
         var res = self.Try();

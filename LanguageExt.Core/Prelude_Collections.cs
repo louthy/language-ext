@@ -96,19 +96,19 @@ namespace LanguageExt
         /// <summary>
         /// Create an immutable map
         /// </summary>
-        public static Map<K, V> map<K, V>() where K : IComparable<K> =>
+        public static Map<K, V> map<K, V>() =>
             Map.empty<K, V>();
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
-        public static Map<K, V> map<K, V>(params Tuple<K, V>[] items) where K : IComparable<K> =>
+        public static Map<K, V> map<K, V>(params Tuple<K, V>[] items) =>
             Map.createRange(items);
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
-        public static Map<K, V> map<K, V>(params KeyValuePair<K, V>[] items) where K : IComparable<K> =>
+        public static Map<K, V> map<K, V>(params KeyValuePair<K, V>[] items) =>
             Map.createRange(from x in items
                             select tuple(x.Key,x.Value));
 
@@ -316,12 +316,12 @@ namespace LanguageExt
             Func<T, IEnumerable<T>, R> More) =>
             list.Match(Empty, One, Two, Three, Four, Five, Six, More);
 
-        public static R match<K, V, R>(Map<K, V> map, K key, Func<V, R> Some, Func<R> None) where K : IComparable<K> =>
+        public static R match<K, V, R>(Map<K, V> map, K key, Func<V, R> Some, Func<R> None) =>
             match( Map.find(map, key),
                    Some,
                    None );
 
-        public static Unit match<K, V>(Map<K, V> map, K key, Action<V> Some, Action None) where K : IComparable<K> =>
+        public static Unit match<K, V>(Map<K, V> map, K key, Action<V> Some, Action None) =>
             match(Map.find(map, key),
                    Some,
                    None);
