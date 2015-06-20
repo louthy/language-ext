@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -19,6 +20,36 @@ namespace LanguageExt
     /// </summary>
     public static class ReaderExt
     {
+        // 
+        // Reader<Env,T> extensions 
+        // 
+        public static Reader<Env,Unit> Iter<Env, T>(this Reader<Env, T> self, Action<T> action)
+        {
+            return env =>
+            {
+                action(self(env));
+                return unit;
+            };
+        }
+
+        public static int Count<Env, T>(this Reader<Env, T> self) => 
+            1;
+
+        public static Reader<Env, bool> ForAll<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
+            env => pred(self(env));
+
+        public static Reader<Env,bool> Exists<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
+            env =>pred(self(env));
+
+        public static Reader<Env, S> Fold<Env, S, T>(this Reader<Env, T> self, S state, Func<S, T, S> folder) =>
+            env => folder(state, self(env));
+
+        public static Reader<Env, R> Map<Env, T, R>(this Reader<Env, T> self, Func<T, R> mapper) =>
+            env => mapper(self(env));
+
+        public static Reader<Env, R> Bind<Env, T, R>(this Reader<Env, T> self, Func<T, Reader<Env, R>> binder) =>
+            env => binder(self(env))(env);
+
         /// <summary>
         /// Select
         /// </summary>

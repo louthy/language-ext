@@ -376,19 +376,12 @@ public static class __OptionExt
             : None;
 
     public static Option<IEnumerable<V>> SelectMany<T, U, V>(this Option<IEnumerable<T>> self,
-        Func<T, Option<U>> bind,
+        Func<T, IEnumerable<U>> bind,
         Func<T, U, V> project
         ) =>
-        match(self,
-            Some: tlist =>
-                Some( from t in tlist
-                      let x = match(bind(t),
-                                  Some: u => Option.Cast<V>(project(t, u)),
-                                  None: () => Option<V>.None )
-                      where x.IsSome
-                      select x.Value ),
-            None: () => Option<IEnumerable<V>>.None
-            );
+        self.IsSome
+            ? Some(self.Value.SelectMany(bind, project))
+            : None;
 
     public static Option<IEnumerable<T>> Where<T>(this Option<IEnumerable<T>> self, Func<T, bool> pred) =>
         self.Filter(pred);
@@ -446,19 +439,12 @@ public static class __OptionExt
             : None;
 
     public static Option<Lst<V>> SelectMany<T, U, V>(this Option<Lst<T>> self,
-        Func<T, Option<U>> bind,
+        Func<T, IEnumerable<U>> bind,
         Func<T, U, V> project
         ) =>
-        match(self,
-            Some: tlist =>
-                Some((from t in tlist
-                      let x = match(bind(t),
-                                  Some: u => Option.Cast<V>(project(t, u)),
-                                  None: () => Option<V>.None)
-                      where x.IsSome
-                      select x.Value).Freeze()),
-            None: () => Option<Lst<V>>.None
-            );
+        self.IsSome
+            ? Some(self.Value.SelectMany(bind, project).Freeze())
+            : None;
 
     public static Option<Lst<T>> Where<T>(this Option<Lst<T>> self, Func<T, bool> pred) =>
         self.Filter(pred);
@@ -616,9 +602,7 @@ public static class __OptionExt
         Func<T, U, V> project
         ) =>
         self.IsSome
-            ? Some( match( self.Value.Bind(bind), 
-                           Some: x =>  Optional(project(self.Value.Value,x)),
-                           None: () => None ) )
+            ? Some(self.Value.SelectMany(bind, project))
             : None;
 
     public static Option<Option<T>> Where<T>(this Option<Option<T>> self, Func<T, bool> pred) =>
@@ -676,20 +660,12 @@ public static class __OptionExt
             : None;
 
     public static Option<TryOption<V>> SelectMany<T, U, V>(this Option<TryOption<T>> self,
-        Func<T, TryOption<U>> bind,
-        Func<T, U, V> project
+        Func<Option<T>, TryOption<U>> bind,
+        Func<Option<T>, Option<U>, Option<V>> project
         ) =>
-            match( self,
-                   tryopt => tryopt.Match(
-                                    Some: t => bind(t).Match(
-                                                Some: u  => Option<TryOption<V>>.Some(() => project(t,u)),
-                                                None: () => Option<TryOption<V>>.None, 
-                                                Fail: ex => Option<TryOption<V>>.None),
-                                    None: () => Option<TryOption<V>>.None,
-                                    Fail: ex => Option<TryOption<V>>.None
-                                    ),
-                   () => Option<TryOption<V>>.None );
-
+        self.IsSome
+            ? Some(self.Value.SelectMany(bind, project))
+            : None;
 
     public static Option<TryOption<T>> Where<T>(this Option<TryOption<T>> self, Func<T, bool> pred) =>
         self.IsSome
@@ -749,15 +725,9 @@ public static class __OptionExt
         Func<T, Try<U>> bind,
         Func<T, U, V> project
         ) =>
-            match(self,
-                   tryopt => tryopt.Match(
-                                    Succ: t => bind(t).Match(
-                                                Succ: u => Option<Try<V>>.Some(() => project(t, u)),
-                                                Fail: ex => Option<Try<V>>.None),
-                                    Fail: ex => Option<Try<V>>.None
-                                    ),
-                   () => Option<Try<V>>.None);
-
+            self.IsSome
+                ? Some(self.Value.SelectMany(bind, project))
+                : None;
 
     public static Option<Try<T>> Where<T>(this Option<Try<T>> self, Func<T, bool> pred) =>
         self.IsSome
@@ -818,13 +788,63 @@ public static class __OptionExt
         Func<R, U, V> project
         ) =>
         self.IsSome
-            ? Some(self.Value.Bind(bind).Match(
-                       Right: r => Right<L,V>(project(self.Value.RightValue, r)),
-                       Left:  l => Left<L,V>(l)))
+            ? Some(self.Value.SelectMany(bind, project))
             : None;
 
     public static Option<Either<Unit, R>> Where<L, R>(this Option<Either<L, R>> self, Func<R, bool> pred) =>
         self.IsSome
             ? Some(self.Value.Filter(pred))
+            : None;
+
+    // 
+    // Option<Reader<Env,T>> extensions 
+    // 
+
+    public static Reader<Env,Unit> Iter<Env, T>(this Option<Reader<Env, T>> self, Action<T> action) =>
+        self.IsSome
+            ? self.Value.Iter(action)
+            : env => Unit.Default;
+
+    public static int Count<Env, T>(this Option<Reader<Env, T>> self) =>
+        self.IsSome
+            ? self.Value.Count()
+            : 0;
+
+    public static Reader<Env, bool> ForAll<Env, T>(this Option<Reader<Env, T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? self.Value.ForAll(pred)
+            : env => true;
+
+    public static Reader<Env, S> Fold<Env, S, T>(this Option<Reader<Env, T>> self, S state, Func<S, T, S> folder) =>
+        self.IsSome
+            ? self.Value.Fold(state, folder)
+            : env => state;
+
+    public static Reader<Env, bool> Exists<Env, T>(this Option<Reader<Env, T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? self.Value.Exists(pred)
+            : env => false;
+
+    public static Option<Reader<Env, R>> Map<Env, T, R>(this Option<Reader<Env, T>> self, Func<T, R> mapper) =>
+        self.IsSome
+            ? Option.Cast(self.Value.Map(mapper))
+            : None;
+
+    public static Option<Reader<Env, R>> Bind<Env, T, R>(this Option<Reader<Env, T>> self, Func<T, Reader<Env, R>> binder) =>
+        self.IsSome
+            ? Some(self.Value.Bind(binder))
+            : None;
+
+    public static Option<Reader<Env, U>> Select<Env, T, U>(this Option<Reader<Env, T>> self, Func<T, U> map) =>
+        self.IsSome
+            ? Some(self.Value.Map(map))
+            : None;
+
+    public static Option<Reader<Env, V>> SelectMany<Env, T, U, V>(this Option<Reader<Env, T>> self,
+        Func<T, Reader<Env, U>> bind,
+        Func<T, U, V> project
+        ) =>
+        self.IsSome
+            ? Some(self.Value.SelectMany(bind, project))
             : None;
 }
