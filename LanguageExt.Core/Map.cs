@@ -62,6 +62,21 @@ namespace LanguageExt
 
         /// <summary>
         /// Atomically adds a new item to the map.
+        /// If the key already exists then the Fail handler is called with the unaltered map 
+        /// and the value already set for the key, it expects a new map returned.
+        /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
+        /// <param name="key">Key</param>
+        /// <param name="value">Value</param>
+        /// <param name="Fail">Delegate to handle failure, you're given the unaltered map 
+        /// and the value already set for the key</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
+        /// <returns>New Map with the item added</returns>
+        public static Map<K, V> tryAdd<K,V>(Map<K, V> map, K key, V value, Func<Map<K, V>, V, Map<K, V>> Fail) where K : IComparable<K> =>
+            map.TryAdd(key, value, Fail);
+
+        /// <summary>
+        /// Atomically adds a new item to the map.
         /// If the key already exists, the new item replaces it.
         /// </summary>
         /// <remarks>Null is not allowed for a Key or a Value</remarks>
@@ -71,6 +86,28 @@ namespace LanguageExt
         /// <returns>New Map with the item added</returns>
         public static Map<K, V> addOrUpdate<K, V>(Map<K, V> map, K key, V value) where K : IComparable<K> =>
             map.AddOrUpdate(key, value);
+
+        /// <summary>
+        /// Retrieve a value from the map by key, map it to a new value,
+        /// put it back.  If it doesn't exist, add a new one based on None result.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <exception cref="Exception">Throws Exception if None returns null</exception>
+        /// <exception cref="Exception">Throws Exception if Some returns null</exception>
+        /// <returns>New map with the mapped value</returns>
+        public static Map<K, V> addOrUpdate<K, V>(Map<K, V> map, K key, Func<V, V> Some, Func<V> None) where K : IComparable<K> =>
+            map.AddOrUpdate(key, Some, None);
+
+        /// <summary>
+        /// Retrieve a value from the map by key, map it to a new value,
+        /// put it back.  If it doesn't exist, add a new one based on None result.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException if None is null</exception>
+        /// <exception cref="Exception">Throws Exception if Some returns null</exception>
+        /// <returns>New map with the mapped value</returns>
+        public static Map<K, V> addOrUpdate<K, V>(Map<K, V> map, K key, Func<V, V> Some, V None) where K : IComparable<K> =>
+            map.AddOrUpdate(key, Some, None);
 
         /// <summary>
         /// Atomically adds a range of items to the map.
@@ -181,16 +218,88 @@ namespace LanguageExt
             map.SetItem(key, value);
 
         /// <summary>
-        /// Atomically updates an existing item, unless it already exists, in which case 
+        /// Atomically updates an existing item, unless it doesn't exist, in which case 
         /// it is ignored
         /// </summary>
         /// <remarks>Null is not allowed for a Key or a Value</remarks>
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
-        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the value is null</exception>
         /// <returns>New Map with the item added</returns>
         public static Map<K, V> trySetItem<K, V>(Map<K, V> map, K key, V value) where K : IComparable<K> =>
             map.TrySetItem(key, value);
+
+        /// <summary>
+        /// Atomically sets an item by first retrieving it, applying a map (Some), and then putting 
+        /// it back. Silently fails if the value doesn't exist.
+        /// </summary>
+        /// <param name="key">Key to set</param>
+        /// <exception cref="Exception">Throws Exception if Some returns null</exception>
+        /// <param name="Some">delegate to map the existing value to a new one before setting</param>
+        /// <returns>New map with the item set</returns>
+        public static Map<K, V> trySetItem<K, V>(Map<K, V> map, K key, Func<V, V> Some) where K : IComparable<K> =>
+            map.TrySetItem(key, Some);
+
+        /// <summary>
+        /// Atomically sets an item by first retrieving it, applying a map, and then putting it back.
+        /// Calls the None delegate to return a new map if the item can't be found
+        /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
+        /// <param name="key">Key</param>
+        /// <param name="Some">delegate to map the existing value to a new one before setting</param>
+        /// <param name="None">delegate to return a new map if the item can't be found</param>
+        /// <exception cref="Exception">Throws Exception if Some returns null</exception>
+        /// <exception cref="Exception">Throws Exception if None returns null</exception>
+        /// <returns>New map with the item set</returns>
+        public static Map<K, V> trySetItem<K, V>(Map<K, V> map, K key, Func<V,V> Some, Func<Map<K,V>,Map<K,V>> None) where K : IComparable<K> =>
+            map.TrySetItem(key, Some, None);
+
+        /// <summary>
+        /// Atomically sets a series of items using the Tuples provided
+        /// </summary>
+        /// <param name="items">Items to set</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
+        /// <returns>New map with the items set</returns>
+        public static Map<K, V> setItems<K, V>(Map<K, V> map, IEnumerable<Tuple<K, V>> items) where K : IComparable<K> =>
+            map.SetItems(items);
+
+        /// <summary>
+        /// Atomically sets a series of items using the KeyValuePairs provided
+        /// </summary>
+        /// <param name="items">Items to set</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
+        /// <returns>New map with the items set</returns>
+        public static Map<K, V> setItems<K, V>(Map<K, V> map, IEnumerable<KeyValuePair<K, V>> items) where K : IComparable<K> =>
+            map.SetItems(items);
+
+        /// <summary>
+        /// Atomically sets a series of items using the Tuples provided.
+        /// </summary>
+        /// <param name="items">Items to set</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
+        /// <returns>New map with the items set</returns>
+        public static Map<K, V> trySetItems<K, V>(Map<K, V> map, IEnumerable<Tuple<K, V>> items) where K : IComparable<K> =>
+            map.SetItems(items);
+
+        /// <summary>
+        /// Atomically sets a series of items using the KeyValuePairs provided.  If any of the 
+        /// items don't exist then they're silently ignored.
+        /// </summary>
+        /// <param name="items">Items to set</param>
+        /// <returns>New map with the items set</returns>
+        public static Map<K, V> trySetItems<K, V>(Map<K, V> map, IEnumerable<KeyValuePair<K, V>> items) where K : IComparable<K> =>
+            map.TrySetItems(items);
+
+        /// <summary>
+        /// Atomically sets a series of items using the keys provided to find the items
+        /// and the Some delegate maps to a new value.  If the items don't exist then
+        /// they're silently ignored.
+        /// </summary>
+        /// <param name="keys">Keys of items to set</param>
+        /// <param name="Some">Function map the existing item to a new one</param>
+        /// <returns>New map with the items set</returns>
+        public static Map<K, V> trySetItems<K, V>(Map<K, V> map,IEnumerable<K> keys, Func<V, V> Some) where K : IComparable<K> =>
+            map.TrySetItems(keys,Some);
 
         /// <summary>
         /// Retrieve a value from the map by key
@@ -217,33 +326,6 @@ namespace LanguageExt
         /// <returns>New map with the mapped value</returns>
         public static Map<K,V> setItem<K, V>(Map<K, V> map, K key, Func<V, V> mapper) where K : IComparable<K> =>
             map.SetItem(key, mapper);
-
-        /// <summary>
-        /// Retrieve a value from the map by key, map it to a new value,
-        /// put it back.
-        /// </summary>
-        /// <param name="key">Key to find</param>
-        /// <returns>New map with the mapped value</returns>
-        public static Map<K, V> trySetItem<K, V>(Map<K, V> map, K key, Func<V, V> mapper) where K : IComparable<K> =>
-            map.TrySetItem(key, mapper);
-
-        /// <summary>
-        /// Retrieve a value from the map by key, map it to a new value,
-        /// put it back.  If it doesn't exist, add a new one based on None result.
-        /// </summary>
-        /// <param name="key">Key to find</param>
-        /// <returns>New map with the mapped value</returns>
-        public static Map<K, V> addOrUpdate<K, V>(Map<K, V> map, K key, Func<V, V> Some, Func<V> None) where K : IComparable<K> =>
-            map.AddOrUpdate(key, Some, None);
-
-        /// <summary>
-        /// Retrieve a value from the map by key, map it to a new value,
-        /// put it back.  If it doesn't exist, add a new one based on None result.
-        /// </summary>
-        /// <param name="key">Key to find</param>
-        /// <returns>New map with the mapped value</returns>
-        public static Map<K, V> addOrUpdate<K, V>(Map<K, V> map, K key, Func<V, V> Some, V None) where K : IComparable<K> =>
-            map.AddOrUpdate(key, Some, None);
 
         /// <summary>
         /// Retrieve a range of values 

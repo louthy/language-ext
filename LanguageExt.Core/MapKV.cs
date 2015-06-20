@@ -89,18 +89,21 @@ namespace LanguageExt
 
         /// <summary>
         /// Atomically adds a new item to the map.
-        /// If the key already exists, the new item replaces it.
+        /// If the key already exists then the Fail handler is called with the unaltered map 
+        /// and the value already set for the key, it expects a new map returned.
         /// </summary>
         /// <remarks>Null is not allowed for a Key or a Value</remarks>
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
+        /// <param name="Fail">Delegate to handle failure, you're given the unaltered map 
+        /// and the value already set for the key</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
-        public Map<K, V> AddOrUpdate(K key, V value)
+        public Map<K, V> TryAdd(K key, V value, Func<Map<K,V>, V, Map<K, V>> Fail)
         {
             if (key == null) throw new ArgumentNullException(nameof(key));
             if (value == null) throw new ArgumentNullException(nameof(value));
-            return MapModule.AddOrUpdate(this, key, value);
+            return Find(key, v => Fail(this, v), () => Add(key, value));
         }
 
         /// <summary>
@@ -228,37 +231,6 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Atomically updates an existing item
-        /// </summary>
-        /// <remarks>Null is not allowed for a Key or a Value</remarks>
-        /// <param name="key">Key</param>
-        /// <param name="value">Value</param>
-        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
-        /// <returns>New Map with the item added</returns>
-        public Map<K, V> SetItem(K key, V value)
-        {
-            if (key == null) throw new ArgumentNullException(nameof(key));
-            if (value == null) throw new ArgumentNullException(nameof(value));
-            return MapModule.SetItem(this, key, value);
-        }
-
-        /// <summary>
-        /// Atomically updates an existing item, unless it already exists, in which case 
-        /// it is ignored
-        /// </summary>
-        /// <remarks>Null is not allowed for a Key or a Value</remarks>
-        /// <param name="key">Key</param>
-        /// <param name="value">Value</param>
-        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
-        /// <returns>New Map with the item added</returns>
-        public Map<K, V> TrySetItem(K key, V value)
-        {
-            if (key == null) throw new ArgumentNullException(nameof(key));
-            if (value == null) throw new ArgumentNullException(nameof(value));
-            return MapModule.TrySetItem(this, key, value);
-        }
-
-        /// <summary>
         /// Atomically removes an item from the map
         /// If the key doesn't exists, the request is ignored.
         /// </summary>
@@ -291,56 +263,134 @@ namespace LanguageExt
                 : match(MapModule.TryFind(this, key), Some, None);
 
         /// <summary>
-        /// Retrieve a value from the map by key, map it to a new value,
-        /// put it back.
+        /// Atomically updates an existing item
         /// </summary>
-        /// <param name="key">Key to find</param>
-        /// <returns>New map with the mapped value</returns>
-        public Map<K,V> SetItem(K key, Func<V, V> map) =>
-            key == null
-                ? this
-                : match(MapModule.TryFind(this, key), 
-                        Some: x  => SetItem(key, map(x)), 
-                        None: () => raise<Map<K,V>>(new ArgumentException("Key not found in Map")));
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
+        /// <param name="key">Key</param>
+        /// <param name="value">Value</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
+        /// <returns>New Map with the item added</returns>
+        public Map<K, V> SetItem(K key, V value)
+        {
+            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            return MapModule.SetItem(this, key, value);
+        }
 
         /// <summary>
         /// Retrieve a value from the map by key, map it to a new value,
         /// put it back.
         /// </summary>
-        /// <param name="key">Key to find</param>
+        /// <param name="key">Key to set</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if the item isn't found</exception>
+        /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
-        public Map<K, V> TrySetItem(K key, Func<V, V> map) =>
+        public Map<K,V> SetItem(K key, Func<V, V> Some) =>
+            key == null
+                ? this
+                : match(MapModule.TryFind(this, key), 
+                        Some: x  => SetItem(key, MapModule.CheckNull(Some(x),"Some delegate")), 
+                        None: () => raise<Map<K,V>>(new ArgumentException("Key not found in Map")));
+
+        /// <summary>
+        /// Atomically updates an existing item, unless it doesn't exist, in which case 
+        /// it is ignored
+        /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
+        /// <param name="key">Key</param>
+        /// <param name="value">Value</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the value is null</exception>
+        /// <returns>New Map with the item added</returns>
+        public Map<K, V> TrySetItem(K key, V value)
+        {
+            if (key == null) return this;
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            return MapModule.TrySetItem(this, key, value);
+        }
+
+        /// <summary>
+        /// Atomically sets an item by first retrieving it, applying a map, and then putting it back.
+        /// Silently fails if the value doesn't exist
+        /// </summary>
+        /// <param name="key">Key to set</param>
+        /// <param name="Some">delegate to map the existing value to a new one before setting</param>
+        /// <exception cref="Exception">Throws Exception if Some returns null</exception>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
+        /// <returns>New map with the item set</returns>
+        public Map<K, V> TrySetItem(K key, Func<V, V> Some) =>
             key == null
                 ? this
                 : match(MapModule.TryFind(this, key),
-                        Some: x  => SetItem(key, map(x)),
+                        Some: x  => SetItem(key, MapModule.CheckNull(Some(x),"Some delegate")),
                         None: () => this);
+
+        /// <summary>
+        /// Atomically sets an item by first retrieving it, applying a map, and then putting it back.
+        /// Calls the None delegate to return a new map if the item can't be found
+        /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
+        /// <param name="key">Key</param>
+        /// <param name="Some">delegate to map the existing value to a new one before setting</param>
+        /// <param name="None">delegate to return a new map if the item can't be found</param>
+        /// <exception cref="Exception">Throws Exception if Some returns null</exception>
+        /// <exception cref="Exception">Throws Exception if None returns null</exception>
+        /// <returns>New map with the item set</returns>
+        public Map<K, V> TrySetItem(K key, Func<V, V> Some, Func<Map<K,V>, Map<K, V>> None) =>
+            key == null
+                ? this
+                : match(MapModule.TryFind(this, key),
+                        Some: x  => SetItem(key, MapModule.CheckNull(Some(x),"Some delegate")),
+                        None: () => MapModule.CheckNull(None(this),"None delegate"));
+
+        /// <summary>
+        /// Atomically adds a new item to the map.
+        /// If the key already exists, the new item replaces it.
+        /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
+        /// <param name="key">Key</param>
+        /// <param name="value">Value</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
+        /// <returns>New Map with the item added</returns>
+        public Map<K, V> AddOrUpdate(K key, V value)
+        {
+            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            return MapModule.AddOrUpdate(this, key, value);
+        }
 
         /// <summary>
         /// Retrieve a value from the map by key, map it to a new value,
         /// put it back.  If it doesn't exist, add a new one based on None result.
         /// </summary>
         /// <param name="key">Key to find</param>
+        /// <exception cref="Exception">Throws Exception if None returns null</exception>
+        /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
         public Map<K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None) =>
             key == null
                 ? this
                 : match(MapModule.TryFind(this, key),
-                        Some: x  => SetItem(key, Some(x)),
-                        None: () => Add(key, None()));
+                        Some: x  => SetItem(key, MapModule.CheckNull(Some(x),"Some delegate")),
+                        None: () => Add(key, MapModule.CheckNull(None(),"None delegate")));
 
         /// <summary>
         /// Retrieve a value from the map by key, map it to a new value,
         /// put it back.  If it doesn't exist, add a new one based on None result.
         /// </summary>
         /// <param name="key">Key to find</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException if None is null</exception>
+        /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
-        public Map<K, V> AddOrUpdate(K key, Func<V, V> Some, V None) =>
-            key == null
+        public Map<K, V> AddOrUpdate(K key, Func<V, V> Some, V None)
+        {
+            if (None == null) throw new ArgumentNullException("None");
+
+            return key == null
                 ? this
                 : match(MapModule.TryFind(this, key),
-                        Some: x => SetItem(key, Some(x)),
+                        Some: x => SetItem(key, MapModule.CheckNull(Some(x), "Some delegate")),
                         None: () => Add(key, None));
+        }
 
         /// <summary>
         /// Retrieve a range of values 
@@ -620,26 +670,87 @@ namespace LanguageExt
         /// <returns>New map with the items set</returns>
         public Map<K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items)
         {
+            if (items == null) return this;
             var self = this;
             foreach (var item in items)
             {
+                if (item.Key == null) continue;
+                if (item.Value == null) throw new ArgumentNullException(nameof(item.Value));
                 self = MapModule.SetItem(self, item.Key, item.Value);
             }
             return self;
         }
 
         /// <summary>
-        /// Atomically sets a series of items using the Tuples provided
+        /// Atomically sets a series of items using the Tuples provided.
         /// </summary>
         /// <param name="items">Items to set</param>
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
         public Map<K, V> SetItems(IEnumerable<Tuple<K, V>> items)
         {
+            if (items == null) return this;
             var self = this;
             foreach (var item in items)
             {
+                if (item.Item1 == null) continue;
+                if (item.Item2 == null) throw new ArgumentNullException(nameof(item.Item2));
                 self = MapModule.SetItem(self, item.Item1, item.Item2);
+            }
+            return self;
+        }
+
+        /// <summary>
+        /// Atomically sets a series of items using the KeyValuePairs provided.  If any of the 
+        /// items don't exist then they're silently ignored.
+        /// </summary>
+        /// <param name="items">Items to set</param>
+        /// <returns>New map with the items set</returns>
+        public Map<K, V> TrySetItems(IEnumerable<KeyValuePair<K, V>> items)
+        {
+            var self = this;
+            foreach (var item in items)
+            {
+                if (item.Key == null) continue;
+                if (item.Value == null) throw new ArgumentNullException(nameof(item.Value));
+                self = MapModule.TrySetItem(self, item.Key, item.Value);
+            }
+            return self;
+        }
+
+        /// <summary>
+        /// Atomically sets a series of items using the Tuples provided  If any of the 
+        /// items don't exist then they're silently ignored.
+        /// </summary>
+        /// <param name="items">Items to set</param>
+        /// <returns>New map with the items set</returns>
+        public Map<K, V> TrySetItems(IEnumerable<Tuple<K, V>> items)
+        {
+            var self = this;
+            foreach (var item in items)
+            {
+                if (item.Item1 == null) continue;
+                if (item.Item2 == null) throw new ArgumentNullException(nameof(item.Item2));
+                self = MapModule.TrySetItem(self, item.Item1, item.Item2);
+            }
+            return self;
+        }
+
+        /// <summary>
+        /// Atomically sets a series of items using the keys provided to find the items
+        /// and the Some delegate maps to a new value.  If the items don't exist then
+        /// they're silently ignored.
+        /// </summary>
+        /// <param name="keys">Keys of items to set</param>
+        /// <param name="Some">Function map the existing item to a new one</param>
+        /// <returns>New map with the items set</returns>
+        public Map<K, V> TrySetItems(IEnumerable<K> keys, Func<V,V> Some)
+        {
+            var self = this;
+            foreach (var key in keys)
+            {
+                if (key == null) continue;
+                self = TrySetItem(key, Some);
             }
             return self;
         }
@@ -913,7 +1024,7 @@ namespace LanguageExt
                     ? Balance(Make(node.Key, node.Value, Filter(node.Left, pred), Filter(node.Right, pred)))
                     : Balance(Filter(AddTreeToRight(node.Left, node.Right), pred));
 
-        private static T CheckNull<T>(T value, string context) =>
+        internal static T CheckNull<T>(T value, string context) =>
             value == null
                 ? failwith<T>("Null result not allowed in " + context)
                 : value;
