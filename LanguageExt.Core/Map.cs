@@ -181,23 +181,51 @@ namespace LanguageExt
             map.SetItem(key, value);
 
         /// <summary>
-        /// Atomically updates an existing item
+        /// Atomically updates an existing item, unless it already exists, in which case 
+        /// it is ignored
         /// </summary>
         /// <remarks>Null is not allowed for a Key or a Value</remarks>
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
-        public static Try<Map<K, V>> trySetItem<K, V>(Map<K, V> map, K key, V value) where K : IComparable<K> =>
+        public static Map<K, V> trySetItem<K, V>(Map<K, V> map, K key, V value) where K : IComparable<K> =>
             map.TrySetItem(key, value);
 
         /// <summary>
         /// Retrieve a value from the map by key
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
         public static Option<V> find<K, V>(Map<K, V> map, K key) where K : IComparable<K> =>
             map.Find(key);
+
+        /// <summary>
+        /// Retrieve a value from the map by key and pattern match the
+        /// result.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found value</returns>
+        public static R find<K, V, R>(Map<K, V> map, K key, Func<V, R> Some, Func<R> None) where K : IComparable<K> =>
+            map.Find(key,Some,None);
+
+        /// <summary>
+        /// Retrieve a value from the map by key, map it to a new value,
+        /// put it back.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>New map with the mapped value</returns>
+        public static Map<K,V> findAndSetItem<K, V>(Map<K, V> map, K key, Func<V, V> mapper) where K : IComparable<K> =>
+            map.FindAndSetItem(key, mapper);
+
+        /// <summary>
+        /// Retrieve a value from the map by key, map it to a new value,
+        /// put it back.  If it doesn't exist, add a new one based on None result.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>New map with the mapped value</returns>
+        public static Map<K, V> findAndSetOrAddItem<K, V>(Map<K, V> map, K key, Func<V, V> Some, Func<V> None) where K : IComparable<K> =>
+            map.FindAndSetOrAddItem(key, Some, None);
 
         /// <summary>
         /// Retrieve a range of values 
@@ -206,7 +234,7 @@ namespace LanguageExt
         /// <param name="keyTo">Range to (inclusive)</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
         /// <returns>Range of values</returns>
-        public static IEnumerable<V> FindRange<K, V>(Map<K, V> map, K keyFrom, K keyTo) where K : IComparable<K> =>
+        public static IEnumerable<V> findRange<K, V>(Map<K, V> map, K keyFrom, K keyTo) where K : IComparable<K> =>
             map.FindRange(keyFrom, keyTo);
 
         /// <summary>
@@ -215,7 +243,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="amount">Amount to skip</param>
         /// <returns>New tree</returns>
-        public static Map<K, V> Skip<K, V>(Map<K, V> map, int amount) where K : IComparable<K> =>
+        public static Map<K, V> skip<K, V>(Map<K, V> map, int amount) where K : IComparable<K> =>
             map.Skip(amount);
 
         /// <summary>

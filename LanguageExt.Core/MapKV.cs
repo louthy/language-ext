@@ -243,19 +243,20 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Atomically updates an existing item
+        /// Atomically updates an existing item, unless it already exists, in which case 
+        /// it is ignored
         /// </summary>
         /// <remarks>Null is not allowed for a Key or a Value</remarks>
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
-        public Try<Map<K, V>> TrySetItem(K key, V value) => () =>
+        public Map<K, V> TrySetItem(K key, V value)
         {
             if (key == null) throw new ArgumentNullException(nameof(key));
             if (value == null) throw new ArgumentNullException(nameof(value));
-            return MapModule.SetItem(this, key, value);
-        };
+            return MapModule.TrySetItem(this, key, value);
+        }
 
         /// <summary>
         /// Atomically removes an item from the map
@@ -271,12 +272,49 @@ namespace LanguageExt
         /// <summary>
         /// Retrieve a value from the map by key
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
         public Option<V> Find(K key) =>
             key == null
                 ? None
                 : MapModule.TryFind(this, key);
+
+        /// <summary>
+        /// Retrieve a value from the map by key and pattern match the
+        /// result.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found value</returns>
+        public R Find<R>(K key, Func<V, R> Some, Func<R> None) =>
+            key == null
+                ? None()
+                : match(MapModule.TryFind(this, key), Some, None);
+
+        /// <summary>
+        /// Retrieve a value from the map by key, map it to a new value,
+        /// put it back.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>New map with the mapped value</returns>
+        public Map<K,V> FindAndSetItem(K key, Func<V, V> map) =>
+            key == null
+                ? this
+                : match(MapModule.TryFind(this, key), 
+                        Some: x => SetItem(key, map(x)), 
+                        None: () => this);
+
+        /// <summary>
+        /// Retrieve a value from the map by key, map it to a new value,
+        /// put it back.  If it doesn't exist, add a new one based on None result.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>New map with the mapped value</returns>
+        public Map<K, V> FindAndSetOrAddItem(K key, Func<V, V> Some, Func<V> None) =>
+            key == null
+                ? this
+                : match(MapModule.TryFind(this, key),
+                        Some: x  => SetItem(key, Some(x)),
+                        None: () => Add(key, None()));
 
         /// <summary>
         /// Retrieve a range of values 
@@ -844,6 +882,27 @@ namespace LanguageExt
             else if (cmp > 0)
             {
                 return Balance(Make(node.Key, node.Value, node.Left, SetItem(node.Right, key, value)));
+            }
+            else
+            {
+                return new Node<K, V>(node.Height, node.Count, node.Key, value, node.Left, node.Right);
+            }
+        }
+
+        public static Map<K, V> TrySetItem<K, V>(Map<K, V> node, K key, V value) where K : IComparable<K>
+        {
+            if (node.Tag == MapTag.Empty)
+            {
+                return node;
+            }
+            var cmp = key.CompareTo(node.Key);
+            if (cmp < 0)
+            {
+                return Balance(Make(node.Key, node.Value, TrySetItem(node.Left, key, value), node.Right));
+            }
+            else if (cmp > 0)
+            {
+                return Balance(Make(node.Key, node.Value, node.Left, TrySetItem(node.Right, key, value)));
             }
             else
             {
