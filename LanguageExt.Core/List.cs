@@ -510,9 +510,12 @@ public static class __ListExt
     public static bool ForAll<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
         List.forall(list, pred);
 
-    public static IEnumerable<T> Distinct<T>(IEnumerable<T> list, Func<T, T, bool> compare) =>
+    public static IEnumerable<T> Distinct<T>(this IEnumerable<T> list, Func<T, T, bool> compare) =>
         List.distinct(list, compare);
 
-    public static bool Exists<T>(IEnumerable<T> list, Func<T, bool> pred) =>
+    public static bool Exists<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
         List.exists(list, pred);
+
+    public static IEnumerable<R> Bind<T, R>(this IEnumerable<T> self, Func<T, IEnumerable<R>> binder) =>
+        self.SelectMany(x => binder(x));
 }

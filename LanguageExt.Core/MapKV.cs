@@ -45,14 +45,14 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Length (alias for Count)
+        /// Alias of Count
         /// </summary>
         public int Length
         {
             get
             {
                 return Count;
-            }
+            } 
         }
 
         /// <summary>
@@ -387,6 +387,22 @@ namespace LanguageExt
             MapModule.Filter(this, pred);
 
         /// <summary>
+        /// Atomically filter out items that return false when a predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>New map with items filtered</returns>
+        public Map<K, V> Filter(Func<K, bool> pred) =>
+            MapModule.Filter(this, pred);
+
+        /// <summary>
+        /// Atomically filter out items that return false when a predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>New map with items filtered</returns>
+        public Map<K, V> Filter(Func<K, V, bool> pred) =>
+            MapModule.Filter(this, pred);
+
+        /// <summary>
         /// Return true if all items in the map return true when the predicate is applied
         /// </summary>
         /// <param name="pred">Predicate</param>
@@ -411,6 +427,22 @@ namespace LanguageExt
             MapModule.ForAll(this, (k, v) => pred(new KeyValuePair<K, V>(k, v)));
 
         /// <summary>
+        /// Return true if all items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        public bool ForAll(Func<K, bool> pred) =>
+            MapModule.ForAll(this, (k,v) => pred(k));
+
+        /// <summary>
+        /// Return true if all items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        public bool ForAll(Func<V, bool> pred) =>
+            MapModule.ForAll(this, (k, v) => pred(v));
+
+        /// <summary>
         /// Return true if *any* items in the map return true when the predicate is applied
         /// </summary>
         /// <param name="pred">Predicate</param>
@@ -433,6 +465,22 @@ namespace LanguageExt
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         public bool Exists(Func<KeyValuePair<K, V>, bool> pred) =>
             MapModule.Exists(this, (k, v) => pred(new KeyValuePair<K, V>(k, v)));
+
+        /// <summary>
+        /// Return true if *any* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        public bool Exists(Func<K, bool> pred) =>
+            MapModule.Exists(this, (k, _) => pred(k));
+
+        /// <summary>
+        /// Return true if *any* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        public bool Exists(Func<V, bool> pred) =>
+            MapModule.Exists(this, (_, v) => pred(v));
 
         /// <summary>
         /// Atomically iterate through all key/value pairs in the map (in order) and execute an
@@ -825,6 +873,13 @@ namespace LanguageExt
                     ? Balance(Make(node.Key, node.Value, Filter(node.Left, pred), Filter(node.Right, pred)))
                     : Balance(Filter(AddTreeToRight(node.Left, node.Right), pred));
 
+        public static Map<K, V> Filter<K, V>(Map<K, V> node, Func<K, bool> pred) where K : IComparable<K> =>
+            node.Tag == MapTag.Empty
+                ? node
+                : pred(node.Key)
+                    ? Balance(Make(node.Key, node.Value, Filter(node.Left, pred), Filter(node.Right, pred)))
+                    : Balance(Filter(AddTreeToRight(node.Left, node.Right), pred));
+
         public static Map<K, V> Filter<K, V>(Map<K, V> node, Func<V, bool> pred) where K : IComparable<K> =>
             node.Tag == MapTag.Empty
                 ? node
@@ -1016,6 +1071,10 @@ namespace LanguageExt
             }
         }
 
+        /// <summary>
+        /// TODO: I suspect this is suboptimal, it would be better with a customer Enumerator 
+        /// that maintains a stack of nodes to retrace.
+        /// </summary>
         public static IEnumerable<V> FindRange<K, V>(Map<K, V> node, K a, K b) where K : IComparable<K>
         {
             if (node.Tag == MapTag.Empty)

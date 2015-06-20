@@ -269,8 +269,24 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        public static bool forall<K, V>(Map<K, V> map, Func<V, bool> pred) where K : IComparable<K> =>
+            map.ForAll(pred);
+
+        /// <summary>
+        /// Return true if all items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        public static bool forall<K, V>(Map<K, V> map, Func<K, bool> pred) where K : IComparable<K> =>
+            map.ForAll(pred);
+
+        /// <summary>
+        /// Return true if all items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
         public static bool forall<K, V>(Map<K, V> map, Func<K, V, bool> pred) where K : IComparable<K> =>
-            map.ForAll(kv => pred(kv.Item1, kv.Item2));
+            map.ForAll(pred);
 
         /// <summary>
         /// Return true if all items in the map return true when the predicate is applied
@@ -278,7 +294,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         public static bool forall<K, V>(Map<K, V> map, Func<Tuple<K, V>, bool> pred) where K : IComparable<K> =>
-            map.ForAll(kv => pred(tuple(kv.Item1, kv.Item2)));
+            map.ForAll(pred);
 
         /// <summary>
         /// Return true if all items in the map return true when the predicate is applied
@@ -286,7 +302,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         public static bool forall<K, V>(Map<K, V> map, Func<KeyValuePair<K, V>, bool> pred) where K : IComparable<K> =>
-            map.ForAll(kv => pred(new KeyValuePair<K, V>(kv.Item1,kv.Item2)));
+            map.ForAll(pred);
 
         /// <summary>
         /// Atomically maps the map to a new map
@@ -307,7 +323,23 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
-        public static Map<K, T> filter<K, T>(Map<K, T> map, Func<T, bool> predicate) where K : IComparable<K> =>
+        public static Map<K, V> filter<K, V>(Map<K, V> map, Func<V, bool> predicate) where K : IComparable<K> =>
+            map.Filter(predicate);
+
+        /// <summary>
+        /// Atomically filter out items that return false when a predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>New map with items filtered</returns>
+        public static Map<K, V> filter<K, V>(Map<K, V> map, Func<K, bool> predicate) where K : IComparable<K> =>
+            map.Filter(predicate);
+
+        /// <summary>
+        /// Atomically filter out items that return false when a predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>New map with items filtered</returns>
+        public static Map<K, V> filter<K, V>(Map<K, V> map, Func<K, V, bool> predicate) where K : IComparable<K> =>
             map.Filter(predicate);
 
         /// <summary>
@@ -389,6 +421,22 @@ namespace LanguageExt
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         public static bool exists<K, V>(Map<K, V> map, Func<KeyValuePair<K, V>, bool> pred) where K : IComparable<K> =>
             map.Exists(pred);
+
+        /// <summary>
+        /// Return true if *any* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        public static bool exists<K, V>(Map<K, V> map, Func<K, bool> pred) where K : IComparable<K> =>
+            map.Exists(pred);
+
+        /// <summary>
+        /// Return true if *any* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        public static bool exists<K, V>(Map<K, V> map, Func<V, bool> pred) where K : IComparable<K> =>
+            map.Exists(pred);
     }
 }
 
@@ -407,4 +455,10 @@ public static class __MapExt
     /// <returns>Mapped items in a new map</returns>
     public static Map<K, U> Map<K, V, U>(this Map<K, V> self, Func<K, V, U> mapper) where K : IComparable<K> =>
         self.Select(mapper);
+
+    /// <summary>
+    /// Number of items in the map
+    /// </summary>
+    public static int Count<K, V>(this Map<K, V> self) where K : IComparable<K> =>
+        self.Count;
 }
