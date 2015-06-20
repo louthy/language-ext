@@ -224,8 +224,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key to find</param>
         /// <returns>New map with the mapped value</returns>
-        public static Map<K, V> setItem<K, V>(Map<K, V> map, K key, Func<K, V, V> mapper) where K : IComparable<K> =>
-            map.SetItem(key, mapper);
+        public static Map<K, V> trySetItem<K, V>(Map<K, V> map, K key, Func<V, V> mapper) where K : IComparable<K> =>
+            map.TrySetItem(key, mapper);
 
         /// <summary>
         /// Retrieve a value from the map by key, map it to a new value,

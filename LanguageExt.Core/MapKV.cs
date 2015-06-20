@@ -300,8 +300,8 @@ namespace LanguageExt
             key == null
                 ? this
                 : match(MapModule.TryFind(this, key), 
-                        Some: x => SetItem(key, map(x)), 
-                        None: () => this);
+                        Some: x  => SetItem(key, map(x)), 
+                        None: () => raise<Map<K,V>>(new ArgumentException("Key not found in Map")));
 
         /// <summary>
         /// Retrieve a value from the map by key, map it to a new value,
@@ -309,11 +309,11 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key to find</param>
         /// <returns>New map with the mapped value</returns>
-        public Map<K, V> SetItem(K key, Func<K, V, V> map) =>
+        public Map<K, V> TrySetItem(K key, Func<V, V> map) =>
             key == null
                 ? this
                 : match(MapModule.TryFind(this, key),
-                        Some: x => SetItem(key, map(key, x)),
+                        Some: x  => SetItem(key, map(x)),
                         None: () => this);
 
         /// <summary>
