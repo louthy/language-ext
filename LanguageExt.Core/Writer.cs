@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -29,6 +30,32 @@ namespace LanguageExt
     /// </summary>
     public static class WriterExt
     {
+        public static Unit Iter<Out, T>(this Writer<Out, T> self, Action<T> action)
+        {
+            action(self().Value);
+            return unit;
+        }
+
+        public static int Count<Out, T>(this Writer<Out, T> self) =>
+            1;
+
+        public static bool ForAll<Out, T>(this Writer<Out, T> self, Func<T, bool> pred) =>
+            pred(self().Value);
+
+        public static bool Exists<Out, T>(this Writer<Out, T> self, Func<T, bool> pred) =>
+            pred(self().Value);
+
+        public static S Fold<Out, S, T>(this Writer<Out, T> self, S state, Func<S, T, S> folder) =>
+            folder(state, self().Value);
+
+        public static Writer<Out, R> Map<Out, T, R>(this Writer<Out, T> self, Func<T, R> mapper) =>
+            self.Select(mapper);
+
+        public static Writer<Out, R> Bind<Out, T, R>(this Writer<Out, T> self, Func<T, Writer<Out, R>> binder) =>
+            from x in self
+            from y in binder(x)
+            select y;
+
         /// <summary>
         /// Select
         /// </summary>

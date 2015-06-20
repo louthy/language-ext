@@ -847,4 +847,115 @@ public static class __OptionExt
         self.IsSome
             ? Some(self.Value.SelectMany(bind, project))
             : None;
+
+
+    // 
+    // Option<Writer<Out,T>> extensions 
+    // 
+
+    public static Unit Iter<Out, T>(this Option<Writer<Out, T>> self, Action<T> action) =>
+        self.IsSome
+            ? self.Value.Iter(action)
+            : Unit.Default;
+
+    public static int Count<Out, T>(this Option<Writer<Out, T>> self) =>
+        self.IsSome
+            ? self.Value.Count()
+            : 0;
+
+    public static bool ForAll<Out, T>(this Option<Writer<Out, T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? self.Value.ForAll(pred)
+            : true;
+
+    public static S Fold<Out, S, T>(this Option<Writer<Out, T>> self, S state, Func<S, T, S> folder) =>
+        self.IsSome
+            ? self.Value.Fold(state, folder)
+            : state;
+
+    public static bool Exists<Out, T>(this Option<Writer<Out, T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? self.Value.Exists(pred)
+            : false;
+
+    public static Option<Writer<Out, R>> Map<Out, T, R>(this Option<Writer<Out, T>> self, Func<T, R> mapper) =>
+        self.IsSome
+            ? Option.Cast(self.Value.Map(mapper))
+            : None;
+
+    public static Option<Writer<Out, R>> Bind<Out, T, R>(this Option<Writer<Out, T>> self, Func<T, Writer<Out, R>> binder) =>
+        self.IsSome
+            ? Some(self.Value.Bind(binder))
+            : None;
+
+    public static Option<Writer<Out, U>> Select<Out, T, U>(this Option<Writer<Out, T>> self, Func<T, U> map) =>
+        self.IsSome
+            ? Some(self.Value.Map(map))
+            : None;
+
+    public static Option<Writer<Out, V>> SelectMany<Out, T, U, V>(this Option<Writer<Out, T>> self,
+        Func<T, Writer<Out, U>> bind,
+        Func<T, U, V> project
+        ) =>
+        self.IsSome
+            ? Some(self.Value.SelectMany(bind, project))
+            : None;
+
+    // 
+    // Option<State<S,T>> extensions 
+    // 
+
+    public static State<S, Unit> Iter<S, T>(this Option<State<S, T>> self, Action<T> action) =>
+        self.IsSome
+            ? self.Value.Iter(action)
+            : s => new StateResult<S,Unit>(s,Unit.Default);
+
+    public static int Count<S, T>(this Option<State<S, T>> self) =>
+        self.IsSome
+            ? self.Value.Count()
+            : 0;
+
+    public static State<S, bool> ForAll<S, T>(this Option<State<S, T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? self.Value.ForAll(pred)
+            : s => new StateResult<S, bool>(s, true);
+
+    public static State<S, FState> Fold<S, T, FState>(this Option<State<S, T>> self, FState state, Func<FState, T, FState> folder) =>
+        self.IsSome
+            ? self.Value.Fold(state, folder)
+            : s => new StateResult<S, FState>(s, state);
+
+    public static State<S, Unit> Fold<S, T>(this Option<State<S, T>> self, Func<S, T, S> folder) =>
+        self.IsSome
+            ? self.Value.Fold(folder)
+            : s => new StateResult<S, Unit>(s, unit);
+
+    public static State<S, bool> Exists<S, T>(this Option<State<S, T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? self.Value.Exists(pred)
+            : s => new StateResult<S, bool>(s, false);
+
+    public static Option<State<S, R>> Map<S, T, R>(this Option<State<S, T>> self, Func<T, R> mapper) =>
+        self.IsSome
+            ? Option.Cast(self.Value.Map(mapper))
+            : None;
+
+    public static Option<State<S, R>> Bind<S, T, R>(this Option<State<S, T>> self, Func<T, State<S, R>> binder) =>
+        self.IsSome
+            ? Some(self.Value.Bind(binder))
+            : None;
+
+    public static Option<State<S, U>> Select<S, T, U>(this Option<State<S, T>> self, Func<T, U> map) =>
+        self.IsSome
+            ? Some(self.Value.Map(map))
+            : None;
+
+    public static Option<State<S, V>> SelectMany<S, T, U, V>(this Option<State<S, T>> self,
+        Func<T, State<S, U>> bind,
+        Func<T, U, V> project
+        ) =>
+        self.IsSome
+            ? Some(self.Value.SelectMany(bind, project))
+            : None;
+
 }

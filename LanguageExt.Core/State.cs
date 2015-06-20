@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -30,6 +31,40 @@ namespace LanguageExt
 
     public static class StateExt
     {
+        public static State<S, Unit> Iter<S, T>(this State<S, T> self, Action<T> action)
+        {
+            return s =>
+            {
+                action(self(s).Value);
+                return new StateResult<S, Unit>(s,unit);
+            };
+        }
+
+        public static int Count<S, T>(this State<S, T> self) =>
+            1;
+
+        public static State<S, bool> ForAll<S, T>(this State<S, T> self, Func<T, bool> pred) =>
+            from x in self
+            select pred(x);
+
+        public static State<S, bool> Exists<S, T>(this State<S, T> self, Func<T, bool> pred) =>
+            from x in self
+            select pred(x);
+
+        public static State<S, FState> Fold<S, T, FState>(this State<S, T> self, FState state, Func<FState, T, FState> folder) =>
+            s => new StateResult<S, FState>(s,folder(state, self(s).Value));
+
+        public static State<S, Unit> Fold<S, T>(this State<S, T> self, Func<S, T, S> folder) =>
+            s => new StateResult<S, Unit>(folder(s, self(s).Value), unit);
+
+        public static State<S, R> Map<S, T, R>(this State<S, T> self, Func<T, R> mapper) =>
+            self.Select(mapper);
+
+        public static State<S, R> Bind<S, T, R>(this State<S, T> self, Func<T, State<S, R>> binder) =>
+            from x in self
+            from y in binder(x)
+            select y;
+
         public static State<S, U> Select<S, T, U>(this State<S, T> self, Func<T, U> map)
         {
             if (map == null) throw new ArgumentNullException("map");

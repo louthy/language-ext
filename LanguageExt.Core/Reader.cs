@@ -20,9 +20,6 @@ namespace LanguageExt
     /// </summary>
     public static class ReaderExt
     {
-        // 
-        // Reader<Env,T> extensions 
-        // 
         public static Reader<Env,Unit> Iter<Env, T>(this Reader<Env, T> self, Action<T> action)
         {
             return env =>
