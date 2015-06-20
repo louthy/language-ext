@@ -296,7 +296,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key to find</param>
         /// <returns>New map with the mapped value</returns>
-        public Map<K,V> FindAndSetItem(K key, Func<V, V> map) =>
+        public Map<K,V> SetItem(K key, Func<V, V> map) =>
             key == null
                 ? this
                 : match(MapModule.TryFind(this, key), 
@@ -305,16 +305,42 @@ namespace LanguageExt
 
         /// <summary>
         /// Retrieve a value from the map by key, map it to a new value,
+        /// put it back.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>New map with the mapped value</returns>
+        public Map<K, V> SetItem(K key, Func<K, V, V> map) =>
+            key == null
+                ? this
+                : match(MapModule.TryFind(this, key),
+                        Some: x => SetItem(key, map(key, x)),
+                        None: () => this);
+
+        /// <summary>
+        /// Retrieve a value from the map by key, map it to a new value,
         /// put it back.  If it doesn't exist, add a new one based on None result.
         /// </summary>
         /// <param name="key">Key to find</param>
         /// <returns>New map with the mapped value</returns>
-        public Map<K, V> FindAndSetOrAddItem(K key, Func<V, V> Some, Func<V> None) =>
+        public Map<K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None) =>
             key == null
                 ? this
                 : match(MapModule.TryFind(this, key),
                         Some: x  => SetItem(key, Some(x)),
                         None: () => Add(key, None()));
+
+        /// <summary>
+        /// Retrieve a value from the map by key, map it to a new value,
+        /// put it back.  If it doesn't exist, add a new one based on None result.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>New map with the mapped value</returns>
+        public Map<K, V> AddOrUpdate(K key, Func<V, V> Some, V None) =>
+            key == null
+                ? this
+                : match(MapModule.TryFind(this, key),
+                        Some: x => SetItem(key, Some(x)),
+                        None: () => Add(key, None));
 
         /// <summary>
         /// Retrieve a range of values 

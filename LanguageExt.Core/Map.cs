@@ -215,8 +215,17 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key to find</param>
         /// <returns>New map with the mapped value</returns>
-        public static Map<K,V> findAndSetItem<K, V>(Map<K, V> map, K key, Func<V, V> mapper) where K : IComparable<K> =>
-            map.FindAndSetItem(key, mapper);
+        public static Map<K,V> setItem<K, V>(Map<K, V> map, K key, Func<V, V> mapper) where K : IComparable<K> =>
+            map.SetItem(key, mapper);
+
+        /// <summary>
+        /// Retrieve a value from the map by key, map it to a new value,
+        /// put it back.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>New map with the mapped value</returns>
+        public static Map<K, V> setItem<K, V>(Map<K, V> map, K key, Func<K, V, V> mapper) where K : IComparable<K> =>
+            map.SetItem(key, mapper);
 
         /// <summary>
         /// Retrieve a value from the map by key, map it to a new value,
@@ -224,8 +233,17 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key to find</param>
         /// <returns>New map with the mapped value</returns>
-        public static Map<K, V> findAndSetOrAddItem<K, V>(Map<K, V> map, K key, Func<V, V> Some, Func<V> None) where K : IComparable<K> =>
-            map.FindAndSetOrAddItem(key, Some, None);
+        public static Map<K, V> addOrUpdate<K, V>(Map<K, V> map, K key, Func<V, V> Some, Func<V> None) where K : IComparable<K> =>
+            map.AddOrUpdate(key, Some, None);
+
+        /// <summary>
+        /// Retrieve a value from the map by key, map it to a new value,
+        /// put it back.  If it doesn't exist, add a new one based on None result.
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>New map with the mapped value</returns>
+        public static Map<K, V> addOrUpdate<K, V>(Map<K, V> map, K key, Func<V, V> Some, V None) where K : IComparable<K> =>
+            map.AddOrUpdate(key, Some, None);
 
         /// <summary>
         /// Retrieve a range of values 
