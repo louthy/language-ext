@@ -61,7 +61,6 @@ namespace LanguageExtTests
             var opt = Some(list(1, 2, 3, 4, 5));
 
             var res = from x in opt
-                      from y in x
                       select x * 2;
 
             match(res,
@@ -111,7 +110,6 @@ namespace LanguageExtTests
             opt = Some<Option<int>>(None);
 
             res = from x in opt
-                  from y in x
                   select x * 2;
 
             NU.Assert.IsTrue(res.IfNone(0).IfNone(1) == 1);
