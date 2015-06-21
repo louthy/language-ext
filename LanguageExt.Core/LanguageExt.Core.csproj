@@ -55,6 +55,7 @@
     <Compile Include="Lst.cs" />
     <Compile Include="MapKV.cs" />
     <Compile Include="MapT.cs" />
+    <Compile Include="MapT.Linq.cs" />
     <Compile Include="OptionT.Linq.cs" />
     <Compile Include="OptionT.cs" />
     <Compile Include="Prelude_Monad.cs" />

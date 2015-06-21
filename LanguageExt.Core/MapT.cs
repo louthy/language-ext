@@ -178,12 +178,6 @@ namespace LanguageExt.Trans
         public static Map<K, IEnumerable<R>> BindT<K, T, R>(this Map<K, IEnumerable<T>> self, Func<T, IEnumerable<R>> binder) =>
             self.MapT(x => x.Bind(binder));
 
-        public static Map<K, IEnumerable<U>> Select<K, T, U>(this Map<K, IEnumerable<T>> self, Func<T, U> map) =>
-            self.MapT(map);
-
-        public static Map<K, IEnumerable<T>> Where<K, T>(this Map<K, IEnumerable<T>> self, Func<T, bool> pred) =>
-            self.FilterT(pred);
-
         // 
         // Map<Lst<T>> extensions 
         // 
@@ -232,12 +226,6 @@ namespace LanguageExt.Trans
 
         public static Map<K, Lst<R>> BindT<K, T, R>(this Map<K, Lst<T>> self, Func<T, Lst<R>> binder) =>
             self.MapT(x => List.createRange(x.BindT(binder)));
-
-        public static Map<K, Lst<U>> Select<K, T, U>(this Map<K, Lst<T>> self, Func<T, U> map) =>
-            self.MapT(x => List.createRange(x.MapT(map)));
-
-        public static Map<K, Lst<T>> Where<K, T>(this Map<K, Lst<T>> self, Func<T, bool> pred) =>
-            self.MapT(x => List.createRange(x.FilterT(pred)));
 
         // 
         // Map<Map<T>> extensions 
@@ -439,17 +427,6 @@ namespace LanguageExt.Trans
         public static Map<K, Option<R>> Bind<K, T, R>(this Map<K, Option<T>> self, Func<T, Option<R>> binder) =>
             self.Map(x => x.Bind(binder));
 
-        public static Map<K, Option<U>> Select<K, T, U>(this Map<K, Option<T>> self, Func<T, U> map) =>
-            self.Map(x => x.Select(map));
-
-        public static Map<K, Option<V>> SelectMany<K, T, U, V>(this Map<K, Option<T>> self,
-            Func<T, Option<U>> bind,
-            Func<T, U, V> project
-            ) =>
-            self.Map(x => x.SelectMany(bind, project));
-
-        public static Map<K, Option<T>> Where<K, T>(this Map<K, Option<T>> self, Func<T, bool> pred) =>
-            self.Map(x => x.Filter(pred));
 
         // 
         // IEnumerable<TryOption<T>> extensions 
@@ -504,17 +481,6 @@ namespace LanguageExt.Trans
         public static Map<K, TryOption<R>> Bind<K, T, R>(this Map<K, TryOption<T>> self, Func<T, TryOption<R>> binder) =>
             self.Map(x => x.Bind(binder));
 
-        public static Map<K, TryOption<U>> Select<K, T, U>(this Map<K, TryOption<T>> self, Func<T, U> map) =>
-            self.Map(x => x.Map(map));
-
-        public static Map<K, TryOption<V>> SelectMany<K, T, U, V>(this Map<K, TryOption<T>> self,
-            Func<T, TryOption<U>> bind,
-            Func<T, U, V> project
-            ) =>
-            self.Map(x => x.SelectMany(bind, project));
-
-        public static Map<K, TryOption<T>> Where<K, T>(this Map<K, TryOption<T>> self, Func<T, bool> pred) =>
-            self.Map(x => x.Filter(pred));
 
         // 
         // IEnumerable<Try<T>> extensions 
@@ -568,18 +534,6 @@ namespace LanguageExt.Trans
 
         public static Map<K, Try<R>> Bind<K, T, R>(this Map<K, Try<T>> self, Func<T, Try<R>> binder) =>
             self.Map(x => x.Bind(binder));
-
-        public static Map<K, Try<U>> Select<K, T, U>(this Map<K, Try<T>> self, Func<T, U> map) =>
-            self.Map(x => x.Map(map));
-
-        public static Map<K, Try<V>> SelectMany<K, T, U, V>(this Map<K, Try<T>> self,
-            Func<T, Try<U>> bind,
-            Func<T, U, V> project
-            ) =>
-            self.Map(x => x.SelectMany(bind, project));
-
-        public static Map<K, Try<T>> Where<K, T>(this Map<K, Try<T>> self, Func<T, bool> pred) =>
-            self.Map(x => x.Filter(pred));
 
 
         // 
@@ -635,17 +589,6 @@ namespace LanguageExt.Trans
         public static Map<K, Either<L, R2>> Bind<K, L, R, R2>(this Map<K, Either<L, R>> self, Func<R, Either<L, R2>> binder) =>
             self.Map(x => x.Bind(binder));
 
-        public static Map<K, Either<L, R2>> Select<K, L, R, R2>(this Map<K, Either<L, R>> self, Func<R, R2> map) =>
-            self.Map(x => x.Map(map));
-
-        public static Map<K, Either<L, R3>> SelectMany<K, L, R, R2, R3>(this Map<K, Either<L, R>> self,
-            Func<R, Either<L, R2>> bind,
-            Func<R, R2, R3> project
-            ) =>
-            self.Map(x => x.SelectMany(bind, project));
-
-        public static Map<K, Either<Unit, R>> Where<K, L, R>(this Map<K, Either<L, R>> self, Func<R, bool> pred) =>
-            self.Map(x => x.Filter(pred));
 
         // 
         // Map<K, Writer<Out,T>> extensions 
@@ -703,14 +646,6 @@ namespace LanguageExt.Trans
         public static Map<K, Writer<Out, R>> Bind<K, Out, T, R>(this Map<K, Writer<Out, T>> self, Func<T, Writer<Out, R>> binder) =>
             self.Map(x => x.Bind(binder));
 
-        public static Map<K, Writer<Out, U>> Select<K, Out, T, U>(this Map<K, Writer<Out, T>> self, Func<T, U> map) =>
-            self.Map(x => x.Map(map));
-
-        public static Map<K, Writer<Out, V>> SelectMany<K, Out, T, U, V>(this Map<K, Writer<Out, T>> self,
-            Func<T, Writer<Out, U>> bind,
-            Func<T, U, V> project
-            ) =>
-            self.Map(x => x.SelectMany(bind, project));
 
         // 
         // Map<K, Reader<Env,T>> extensions 
@@ -779,16 +714,6 @@ namespace LanguageExt.Trans
 
         public static Map<K, Reader<Env, R>> Bind<K, Env, T, R>(this Map<K, Reader<Env, T>> self, Func<T, Reader<Env, R>> binder) =>
             self.Map(x => x.Bind(binder));
-
-        public static Map<K, Reader<Env, U>> Select<K, Env, T, U>(this Map<K, Reader<Env, T>> self, Func<T, U> map) =>
-            self.Map(x => x.Map(map));
-
-        public static Map<K, Reader<Env, V>> SelectMany<K, Env, T, U, V>(this Map<K, Reader<Env, T>> self,
-            Func<T, Reader<Env, U>> bind,
-            Func<T, U, V> project
-            ) =>
-            self.Map(x => x.SelectMany(bind, project));
-
 
         // 
         // Map<K, <State<S,T>> extensions 
@@ -869,14 +794,5 @@ namespace LanguageExt.Trans
 
         public static Map<K, State<S, R>> Bind<K, S, T, R>(this Map<K, State<S, T>> self, Func<T, State<S, R>> binder) =>
             self.Map(x => x.Bind(binder));
-
-        public static Map<K, State<S, U>> Select<K, S, T, U>(this Map<K, State<S, T>> self, Func<T, U> map) =>
-            self.Map(x => x.Map(map));
-
-        public static Map<K, State<S, V>> SelectMany<K, S, T, U, V>(this Map<K, State<S, T>> self,
-            Func<T, State<S, U>> bind,
-            Func<T, U, V> project
-            ) =>
-            self.Map(x => x.SelectMany(bind, project));
     }
 }
