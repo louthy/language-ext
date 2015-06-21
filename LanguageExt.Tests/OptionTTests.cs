@@ -83,7 +83,6 @@ namespace LanguageExtTests
             var opt = Some(map(tuple(1, "A"), tuple(2, "B"), tuple(3, "C"), tuple(4, "D"), tuple(5, "E")));
 
             var res = from x in opt
-                      from y in x
                       select x.ToLower();
 
             match(res,
@@ -105,7 +104,6 @@ namespace LanguageExtTests
             var opt = Some(Some(100));
 
             var res = from x in opt
-                      from y in x
                       select x * 2;
 
             NU.Assert.IsTrue(res.IfNone(0).IfNone(0) == 200);
@@ -125,7 +123,6 @@ namespace LanguageExtTests
             Option<TryOption<int>> opt = Some<TryOption<int>>(() => Some(100));
 
             var res = from x in opt
-                      from y in x
                       select x * 2;
 
             NU.Assert.IsTrue(res.IfNone(() => 0).IfNone(0) == 200);
@@ -133,7 +130,6 @@ namespace LanguageExtTests
             opt = Some<TryOption<int>>(() => None);
 
             res = from x in opt
-                  from y in x
                   select x * 2;
 
             NU.Assert.IsTrue(res.IfNone(() => 0).IfNone(1) == 1);
@@ -145,7 +141,6 @@ namespace LanguageExtTests
             var opt = Some(Right<string, int>(100));
 
             var res = from x in opt
-                      from y in x
                       select x * 2;
 
             NU.Assert.IsTrue(res.IfNone(0).IfLeft(0) == 200);
@@ -153,7 +148,6 @@ namespace LanguageExtTests
             opt = Some(Left<string, int>("left"));
 
             res = from x in opt
-                  from y in x
                   select x * 2;
 
             NU.Assert.IsTrue(res.IfNone(0).IfLeft(1) == 1);
