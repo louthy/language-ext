@@ -259,7 +259,7 @@ public static class __TryOptionExt
     public static Option<T> ToOption<T>(this TryOption<T> self) =>
         self.Try().Value;
 
-    private static TryOptionResult<T> Try<T>(this TryOption<T> self)
+    public static TryOptionResult<T> Try<T>(this TryOption<T> self)
     {
         try
         {
@@ -291,7 +291,7 @@ public static class __TryOptionExt
         }
     }
 
-    public static TryOption<U> Select<T, U>(this TryOption<T> self, Func<Option<T>, Option<U>> select)
+    public static TryOption<U> Select<T, U>(this TryOption<T> self, Func<T, U> select)
     {
         return new TryOption<U>(() =>
         {
@@ -313,7 +313,7 @@ public static class __TryOptionExt
             Option<U> resU;
             try
             {
-                resU = select(resT.Value);
+                resU = select(resT.Value.Value);
             }
             catch (Exception e)
             {
@@ -327,8 +327,8 @@ public static class __TryOptionExt
 
     public static TryOption<V> SelectMany<T, U, V>(
         this TryOption<T> self,
-        Func<Option<T>, TryOption<U>> select,
-        Func<Option<T>, Option<U>, Option<V>> bind
+        Func<T, TryOption<U>> select,
+        Func<T, U, V> bind
         )
     {
         return new TryOption<V>(
@@ -352,7 +352,7 @@ public static class __TryOptionExt
                 TryOptionResult<U> resU;
                 try
                 {
-                    resU = select(resT.Value)();
+                    resU = select(resT.Value.Value)();
                     if (resU.IsFaulted)
                         return new TryOptionResult<V>(resU.Exception);
                     if (resU.Value.IsNone)
@@ -367,7 +367,7 @@ public static class __TryOptionExt
                 Option<V> resV;
                 try
                 {
-                    resV = bind(resT.Value, resU.Value);
+                    resV = bind(resT.Value.Value, resU.Value.Value);
                 }
                 catch (Exception e)
                 {
@@ -425,24 +425,16 @@ public static class __TryOptionExt
                 : () => None;
     }
 
+    public static TryOption<R> Map<T, R>(this TryOption<T> self, Func<T, R> mapper) =>
+        self.Select(mapper);
+
+    public static TryOption<R> Bind<T, R>(this TryOption<T> self, Func<T, TryOption<R>> binder) =>
+        from x in self
+        from y in binder(x)
+        select y;
+
     public static TryOption<T> Where<T>(this TryOption<T> self, Func<T, bool> pred) =>
         self.Filter(pred);
-
-    public static TryOption<R> Map<T, R>(this TryOption<T> self, Func<T, R> mapper) => () =>
-    {
-        var res = self.Try();
-        return res.IsFaulted
-            ? new TryOptionResult<R>(res.Exception)
-            : res.Value.Map(mapper);
-    };
-
-    public static TryOption<R> Bind<T, R>(this TryOption<T> self, Func<T, TryOption<R>> binder) => () =>
-    {
-        var res = self.Try();
-        return !res.IsFaulted && res.Value.IsSome
-            ? binder(res.Value.Value)()
-            : new TryOptionResult<R>(res.Exception);
-    };
 
     public static IEnumerable<Either<Exception, T>> AsEnumerable<T>(this TryOption<T> self)
     {

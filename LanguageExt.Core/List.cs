@@ -295,7 +295,7 @@ namespace LanguageExt
     }
 }
 
-public static class __ListExt
+public static class __EnumnerableExt
 {
     /// <summary>
     /// List matching

@@ -20,6 +20,15 @@ namespace LanguageExt
     /// </summary>
     public static class ReaderExt
     {
+        public static Reader<Env, IEnumerable<T>> AsEnumerable<Env, T>(this Reader<Env, T> self) =>
+            from x in self
+            select (new T[1] { x }).AsEnumerable();
+
+        public static IEnumerable<T> AsEnumerable<Env, T>(this Reader<Env, T> self, Env env)
+        {
+            yield return self(env);
+        }
+
         public static Reader<Env,Unit> Iter<Env, T>(this Reader<Env, T> self, Action<T> action)
         {
             return env =>

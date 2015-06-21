@@ -31,6 +31,15 @@ namespace LanguageExt
 
     public static class StateExt
     {
+        public static State<S, IEnumerable<T>> AsEnumerable<S, T>(this State<S, T> self) =>
+            from x in self
+            select (new T[1] { x }).AsEnumerable();
+
+        public static IEnumerable<T> AsEnumerable<S, T>(this State<S, T> self, S state)
+        {
+            yield return self(state).Value;
+        }
+
         public static State<S, Unit> Iter<S, T>(this State<S, T> self, Action<T> action)
         {
             return s =>

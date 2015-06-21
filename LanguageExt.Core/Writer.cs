@@ -30,6 +30,11 @@ namespace LanguageExt
     /// </summary>
     public static class WriterExt
     {
+        public static IEnumerable<T> AsEnumerable<Out, T>(this Writer<Out, T> self)
+        {
+            yield return self().Value;
+        }
+
         public static Unit Iter<Out, T>(this Writer<Out, T> self, Action<T> action)
         {
             action(self().Value);

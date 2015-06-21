@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EnumerableTTests.cs" />
     <Compile Include="EqualityTests.cs" />
     <Compile Include="ExceptionMatching.cs" />
     <Compile Include="FunTests.cs" />
