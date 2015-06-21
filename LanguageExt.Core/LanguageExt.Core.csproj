@@ -46,13 +46,16 @@
     <Compile Include="EitherT.cs" />
     <Compile Include="EitherUnsafe.cs" />
     <Compile Include="EnumerableT.cs" />
+    <Compile Include="EnumerableT.Linq.cs" />
     <Compile Include="ExceptionMatch.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="IOptionalValue.cs" />
     <Compile Include="ListT.cs" />
+    <Compile Include="ListT.Linq.cs" />
     <Compile Include="Lst.cs" />
     <Compile Include="MapKV.cs" />
     <Compile Include="MapT.cs" />
+    <Compile Include="OptionT.Linq.cs" />
     <Compile Include="OptionT.cs" />
     <Compile Include="Prelude_Monad.cs" />
     <Compile Include="Prelude_Try.cs" />

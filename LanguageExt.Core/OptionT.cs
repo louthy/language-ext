@@ -100,21 +100,6 @@ namespace LanguageExt.Trans
                                  .MapT(x => x.Value))
                 : None;
 
-        public static Option<IEnumerable<U>> Select<T, U>(this Option<IEnumerable<T>> self, Func<T, U> map) =>
-            self.IsSome
-                ? Some(self.Value.MapT(map))
-                : None;
-
-        public static Option<IEnumerable<V>> SelectMany<T, U, V>(this Option<IEnumerable<T>> self,
-            Func<T, IEnumerable<U>> bind,
-            Func<T, U, V> project
-            ) =>
-            self.IsSome
-                ? Some(self.Value.SelectMany(bind, project))
-                : None;
-
-        public static Option<IEnumerable<T>> Where<T>(this Option<IEnumerable<T>> self, Func<T, bool> pred) =>
-            self.MapT(x => x.FilterT(pred));
 
         // 
         // Option<Lst<T>> extensions 
@@ -160,21 +145,6 @@ namespace LanguageExt.Trans
                 ? Some(self.Value.BindT(binder))
                 : None;
 
-        public static Option<Lst<U>> Select<T, U>(this Option<Lst<T>> self, Func<T, U> map) =>
-            self.IsSome
-                ? Some(self.Value.MapT(map).Freeze())
-                : None;
-
-        public static Option<Lst<V>> SelectMany<T, U, V>(this Option<Lst<T>> self,
-            Func<T, IEnumerable<U>> bind,
-            Func<T, U, V> project
-            ) =>
-            self.IsSome
-                ? Some(self.Value.SelectMany(bind, project).Freeze())
-                : None;
-
-        public static Option<Lst<T>> Where<T>(this Option<Lst<T>> self, Func<T, bool> pred) =>
-            self.FilterT(pred);
 
         // 
         // Option<Map<T>> extensions 
@@ -319,23 +289,6 @@ namespace LanguageExt.Trans
                 ? Some(self.Value.BindT(binder))
                 : None;
 
-        public static Option<Option<U>> Select<T, U>(this Option<Option<T>> self, Func<T, U> map) =>
-            self.IsSome
-                ? Some(self.Value.MapT(map))
-                : None;
-
-        public static Option<Option<V>> SelectMany<T, U, V>(this Option<Option<T>> self,
-            Func<T, Option<U>> bind,
-            Func<T, U, V> project
-            ) =>
-            self.IsSome
-                ? Some(self.Value.SelectMany(bind, project))
-                : None;
-
-        public static Option<Option<T>> Where<T>(this Option<Option<T>> self, Func<T, bool> pred) =>
-            self.IsSome
-                ? Some(self.Value.FilterT(pred))
-                : None;
 
         // 
         // Option<TryOption<T>> extensions 
@@ -379,24 +332,6 @@ namespace LanguageExt.Trans
         public static Option<TryOption<R>> BindT<T, R>(this Option<TryOption<T>> self, Func<T, TryOption<R>> binder) =>
             self.IsSome
                 ? Some(self.Value.BindT(binder))
-                : None;
-
-        public static Option<TryOption<U>> Select<T, U>(this Option<TryOption<T>> self, Func<T, U> map) =>
-            self.IsSome
-                ? Some(self.Value.MapT(map))
-                : None;
-
-        public static Option<TryOption<V>> SelectMany<T, U, V>(this Option<TryOption<T>> self,
-            Func<T, TryOption<U>> bind,
-            Func<T, U, V> project
-            ) =>
-            self.IsSome
-                ? Some(self.Value.SelectMany(bind, project))
-                : None;
-
-        public static Option<TryOption<T>> Where<T>(this Option<TryOption<T>> self, Func<T, bool> pred) =>
-            self.IsSome
-                ? Some(self.Value.FilterT(pred))
                 : None;
 
         // 
@@ -443,24 +378,6 @@ namespace LanguageExt.Trans
                 ? Some(self.Value.Bind(binder))
                 : None;
 
-        public static Option<Try<U>> Select<T, U>(this Option<Try<T>> self, Func<T, U> map) =>
-            self.IsSome
-                ? Some(self.Value.MapT(map))
-                : None;
-
-        public static Option<Try<V>> SelectMany<T, U, V>(this Option<Try<T>> self,
-            Func<T, Try<U>> bind,
-            Func<T, U, V> project
-            ) =>
-                self.IsSome
-                    ? Some(self.Value.SelectMany(bind, project))
-                    : None;
-
-        public static Option<Try<T>> Where<T>(this Option<Try<T>> self, Func<T, bool> pred) =>
-            self.IsSome
-                ? Some(self.Value.FilterT(pred))
-                : None;
-
         // 
         // Option<Either<L,R>> extensions 
         // 
@@ -505,23 +422,6 @@ namespace LanguageExt.Trans
                 ? Some(self.Value.BindT(binder))
                 : None;
 
-        public static Option<Either<L, U>> Select<L, R, U>(this Option<Either<L, R>> self, Func<R, U> map) =>
-            self.IsSome
-                ? Some(self.Value.MapT(map))
-                : None;
-
-        public static Option<Either<L, V>> SelectMany<L, R, U, V>(this Option<Either<L, R>> self,
-            Func<R, Either<L, U>> bind,
-            Func<R, U, V> project
-            ) =>
-            self.IsSome
-                ? Some(self.Value.SelectMany(bind, project))
-                : None;
-
-        public static Option<Either<Unit, R>> Where<L, R>(this Option<Either<L, R>> self, Func<R, bool> pred) =>
-            self.IsSome
-                ? Some(self.Value.FilterT(pred))
-                : None;
 
         // 
         // Option<Reader<Env,T>> extensions 
@@ -562,19 +462,6 @@ namespace LanguageExt.Trans
                 ? Some(self.Value.BindT(binder))
                 : None;
 
-        public static Option<Reader<Env, U>> Select<Env, T, U>(this Option<Reader<Env, T>> self, Func<T, U> map) =>
-            self.IsSome
-                ? Some(self.Value.MapT(map))
-                : None;
-
-        public static Option<Reader<Env, V>> SelectMany<Env, T, U, V>(this Option<Reader<Env, T>> self,
-            Func<T, Reader<Env, U>> bind,
-            Func<T, U, V> project
-            ) =>
-            self.IsSome
-                ? Some(self.Value.SelectMany(bind, project))
-                : None;
-
 
         // 
         // Option<Writer<Out,T>> extensions 
@@ -613,19 +500,6 @@ namespace LanguageExt.Trans
         public static Option<Writer<Out, R>> BindT<Out, T, R>(this Option<Writer<Out, T>> self, Func<T, Writer<Out, R>> binder) =>
             self.IsSome
                 ? Some(self.Value.BindT(binder))
-                : None;
-
-        public static Option<Writer<Out, U>> Select<Out, T, U>(this Option<Writer<Out, T>> self, Func<T, U> map) =>
-            self.IsSome
-                ? Some(self.Value.MapT(map))
-                : None;
-
-        public static Option<Writer<Out, V>> SelectMany<Out, T, U, V>(this Option<Writer<Out, T>> self,
-            Func<T, Writer<Out, U>> bind,
-            Func<T, U, V> project
-            ) =>
-            self.IsSome
-                ? Some(self.Value.SelectMany(bind, project))
                 : None;
 
         // 
@@ -672,17 +546,5 @@ namespace LanguageExt.Trans
                 ? Some(self.Value.BindT(binder))
                 : None;
 
-        public static Option<State<S, U>> Select<S, T, U>(this Option<State<S, T>> self, Func<T, U> map) =>
-            self.IsSome
-                ? Some(self.Value.MapT(map))
-                : None;
-
-        public static Option<State<S, V>> SelectMany<S, T, U, V>(this Option<State<S, T>> self,
-            Func<T, State<S, U>> bind,
-            Func<T, U, V> project
-            ) =>
-            self.IsSome
-                ? Some(self.Value.SelectMany(bind, project))
-                : None;
     }
 }
