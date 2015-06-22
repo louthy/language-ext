@@ -14,7 +14,7 @@ namespace LanguageExtTests
         [Test]
         public void WriterTest()
         {
-            var logNumber = fun((int x) => Writer(x, list("Got number: " + x)));
+            var logNumber = fun((int x) => Writer(x, List("Got number: " + x)));
 
             var multWithLog = from a in logNumber(3)
                               from b in logNumber(5)
@@ -35,7 +35,7 @@ namespace LanguageExtTests
             public readonly Map<string, int> Map;
             public Bindings(params Tuple<string, int>[] items)
             {
-                Map = map(items);
+                Map = Map(items);
             }
 
             public static Bindings New(params Tuple<string, int>[] items)
@@ -47,16 +47,16 @@ namespace LanguageExtTests
         [Test]
         public void ReaderAskTest()
         {
-            var lookupVar = fun((string name, Bindings bindings) => Map.find(bindings.Map, name).IfNone(0));
+            var lookupVar = fun((string name, Bindings bindings) => LanguageExt.Map.find(bindings.Map, name).IfNone(0));
 
-            var calcIsCountCorrect = from   count    in ask<Bindings, int>(env => lookupVar("count", env))
+            var calcIsCountCorrect = from   count    in ask((Bindings env) => lookupVar("count", env))
                                      from   bindings in ask<Bindings, int>()
-                                     select count == Map.length(bindings.Map);
+                                     select count == LanguageExt.Map.length(bindings.Map);
 
             var sampleBindings = Bindings.New(
-                                    tuple("count", 3), 
-                                    tuple("1", 1), 
-                                    tuple("b", 2)
+                                    Tuple("count", 3), 
+                                    Tuple("1", 1), 
+                                    Tuple("b", 2)
                                     );
 
             bool res = calcIsCountCorrect(sampleBindings);

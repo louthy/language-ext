@@ -16,7 +16,7 @@ namespace LanguageExt
     /// To extract the value you must use the 'match' function.
     /// </summary>
     [TypeConverter(typeof(OptionalTypeConverter))]
-    public struct Option<T> : IOptionalValue, IEnumerable<T>
+    public struct Option<T> : IOptionalValue, IEnumerable<T>, IComparable<Option<T>>, IComparable<T>
     {
         readonly T value;
 
@@ -203,6 +203,18 @@ namespace LanguageExt
 
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
+
+        public int CompareTo(Option<T> other) =>
+            IsNone && other.IsNone
+                ? 0
+                : IsNone
+                    ? -1
+                    : Comparer<T>.Default.Compare(Value, other.Value);
+
+        public int CompareTo(T other) =>
+            IsNone
+                ? -1
+                : Comparer<T>.Default.Compare(Value, other);
     }
 
     public struct SomeContext<T, R>

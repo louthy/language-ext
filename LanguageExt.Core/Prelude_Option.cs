@@ -10,6 +10,12 @@ namespace LanguageExt
     /// </summary>
     public static partial class Prelude
     {
+        public static bool isSome<T>(Option<T> value) =>
+            value.IsSome;
+
+        public static bool isNone<T>(Option<T> value) =>
+            value.IsNone;
+
         /// <summary>
         /// Create a Some of T (Option<T>)
         /// </summary>

@@ -15,7 +15,7 @@ namespace LanguageExtTests
         public void WithOptionSomeList()
         {
             var res = (from v in GetOptionValue(true).AsEnumerable()
-                       from r in range(1, 10)
+                       from r in Range(1, 10)
                        select v * r)
                       .ToList();
 
@@ -28,7 +28,7 @@ namespace LanguageExtTests
         public void WithOptionNoneList()
         {
             var res = (from v in GetOptionValue(false).AsEnumerable()
-                       from r in range(1, 10)
+                       from r in Range(1, 10)
                        select v * r)
                       .ToList();
 
@@ -39,7 +39,7 @@ namespace LanguageExtTests
         public void WithOptionUnsafeSomeList()
         {
             var res = (from v in GetOptionUnsafeValue(true).AsEnumerable()
-                       from r in range(1, 10)
+                       from r in Range(1, 10)
                        select v * r)
                       .ToList();
 
@@ -52,7 +52,7 @@ namespace LanguageExtTests
         public void WithOptionUnsafeNoneList()
         {
             var res = (from v in GetOptionUnsafeValue(false).AsEnumerable()
-                       from r in range(1, 10)
+                       from r in Range(1, 10)
                        select v * r)
                       .ToList();
 
@@ -63,7 +63,7 @@ namespace LanguageExtTests
         public void WithEitherRightList()
         {
             var res = (from v in GetEitherValue(true)
-                       from r in range(1, 10)
+                       from r in Range(1, 10)
                        select v * r)
                       .ToList();
 
@@ -76,7 +76,7 @@ namespace LanguageExtTests
         public void WithEitherLeftList()
         {
             var res = (from v in GetEitherValue(false)
-                       from r in range(1, 10)
+                       from r in Range(1, 10)
                        select v * r)
                       .ToList();
 
@@ -87,7 +87,7 @@ namespace LanguageExtTests
         public void WithEitherUnsafeRightList()
         {
             var res = (from v in GetEitherUnsafeValue(true)
-                       from r in range(1, 10)
+                       from r in Range(1, 10)
                        select v * r)
                       .ToList();
 
@@ -100,7 +100,7 @@ namespace LanguageExtTests
         public void WithEitherUnsafeLeftList()
         {
             var res = (from v in GetEitherUnsafeValue(false)
-                       from r in range(1, 10)
+                       from r in Range(1, 10)
                        select v * r)
                       .ToList();
 
@@ -112,10 +112,10 @@ namespace LanguageExtTests
         {
             var res = (from v in match( 
                                      GetTryOptionValue(true).AsEnumerable(), 
-                                     Right: r => list(r),
-                                     Left:  l => list<int>()
+                                     Right: r => List(r),
+                                     Left:  l => List<int>()
                                  )
-                       from r in range(1, 10)
+                       from r in Range(1, 10)
                        select v * r)
                       .ToList();
 
@@ -127,8 +127,8 @@ namespace LanguageExtTests
         [Test]
         public void WithTryOptionNoneList()
         {
-            var res = (from v in GetTryOptionValue(false).AsEnumerable().Failure( list<int>() )
-                       from r in range(1, 10)
+            var res = (from v in GetTryOptionValue(false).AsEnumerable().Failure( List<int>() )
+                       from r in Range(1, 10)
                        select v * r)
                       .ToList();
 
@@ -144,7 +144,7 @@ namespace LanguageExtTests
             );
 
             var res = (from v in GetTryOptionError().AsEnumerable().FailWithEmpty()
-                       from r in range(1, 10)
+                       from r in Range(1, 10)
                        select v * r)
                       .ToList();
 

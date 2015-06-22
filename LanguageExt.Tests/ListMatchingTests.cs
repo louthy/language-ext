@@ -13,9 +13,9 @@ namespace LanguageExtTests
         [Test]
         public void RecursiveMatchSumTest()
         {
-            var list0 = list<int>();
-            var list1 = list(10);
-            var list5 = list(10,20,30,40,50);
+            var list0 = List<int>();
+            var list1 = List(10);
+            var list5 = List(10,20,30,40,50);
 
             Assert.IsTrue(Sum(list0) == 0);
             Assert.IsTrue(Sum(list1) == 10);
@@ -31,9 +31,9 @@ namespace LanguageExtTests
         [Test]
         public void RecursiveMatchProductTest()
         {
-            var list0 = list<int>();
-            var list1 = list(10);
-            var list5 = list(10, 20, 30, 40, 50);
+            var list0 = List<int>();
+            var list1 = List(10);
+            var list5 = List(10, 20, 30, 40, 50);
 
             Assert.IsTrue(Product(list0) == 0);
             Assert.IsTrue(Product(list1) == 10);
@@ -49,9 +49,9 @@ namespace LanguageExtTests
         [Test]
         public void AnotherRecursiveMatchSumTest()
         {
-            var list0 = list<int>();
-            var list1 = list(10);
-            var list5 = list(10, 20, 30, 40, 50);
+            var list0 = List<int>();
+            var list1 = List(10);
+            var list5 = List(10, 20, 30, 40, 50);
 
             Assert.IsTrue(AnotherSum(list0) == 0);
             Assert.IsTrue(AnotherSum(list1) == 10);
@@ -66,9 +66,9 @@ namespace LanguageExtTests
         [Test]
         public void AnotherRecursiveMatchProductTest()
         {
-            var list0 = list<int>();
-            var list1 = list(10);
-            var list5 = list(10, 20, 30, 40, 50);
+            var list0 = List<int>();
+            var list1 = List(10);
+            var list5 = List(10, 20, 30, 40, 50);
 
             Assert.IsTrue(AnotherProduct(list0) == 1);
             Assert.IsTrue(AnotherProduct(list1) == 10);
@@ -84,14 +84,14 @@ namespace LanguageExtTests
         public void Match6Fluent()
         {
             IEnumerable<int> listN = null;
-            var list0 = list<int>();
-            var list1 = list(10);
-            var list2 = list(10, 20);
-            var list3 = list(10, 20, 30);
-            var list4 = list(10, 20, 30, 40);
-            var list5 = list(10, 20, 30, 40, 50);
-            var list6 = list(10, 20, 30, 40, 50, 60);
-            var list100 = range(1, 100);
+            var list0 = List<int>();
+            var list1 = List(10);
+            var list2 = List(10, 20);
+            var list3 = List(10, 20, 30);
+            var list4 = List(10, 20, 30, 40);
+            var list5 = List(10, 20, 30, 40, 50);
+            var list6 = List(10, 20, 30, 40, 50, 60);
+            var list100 = Range(1, 100);
 
             var matcher = fun( (IEnumerable<int> lst) =>
                lst.Match(
@@ -120,14 +120,14 @@ namespace LanguageExtTests
         public void Match6Func()
         {
             IEnumerable<int> listN = null;
-            var list0 = list<int>();
-            var list1 = list(10);
-            var list2 = list(10, 20);
-            var list3 = list(10, 20, 30);
-            var list4 = list(10, 20, 30, 40);
-            var list5 = list(10, 20, 30, 40, 50);
-            var list6 = list(10, 20, 30, 40, 50, 60);
-            var list100 = range(1, 100);
+            var list0 = List<int>();
+            var list1 = List(10);
+            var list2 = List(10, 20);
+            var list3 = List(10, 20, 30);
+            var list4 = List(10, 20, 30, 40);
+            var list5 = List(10, 20, 30, 40, 50);
+            var list6 = List(10, 20, 30, 40, 50, 60);
+            var list100 = Range(1, 100);
 
             var matcher = fun((IEnumerable<int> lst) =>
               match(

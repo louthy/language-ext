@@ -15,7 +15,7 @@ namespace LanguageExt
         /// head becomes the first item in the list
         /// Is lazy
         /// </summary>
-        public static IEnumerable<T> cons<T>(this T head, IEnumerable<T> tail)
+        public static IEnumerable<T> Cons<T>(this T head, IEnumerable<T> tail)
         {
             yield return head;
             foreach (var item in tail)
@@ -27,19 +27,13 @@ namespace LanguageExt
         /// <summary>
         /// Construct a list from head and tail
         /// </summary>
-        public static Lst<T> cons<T>(this T head, Lst<T> tail) =>
+        public static Lst<T> Cons<T>(this T head, Lst<T> tail) =>
             tail.Insert(0, head);
-
-        /// <summary>
-        /// Create an empty IEnumerable<T>
-        /// </summary>
-        public static IEnumerable<T> empty<T>() =>
-            new T[0];
 
         /// <summary>
         /// Lazily generate a range of integers.  
         /// </summary>
-        public static IntegerRange range(int from, int count, int step = 1) =>
+        public static IntegerRange Range(int from, int count, int step = 1) =>
             new IntegerRange(from, count, step);
 
         /// <summary>
@@ -48,13 +42,13 @@ namespace LanguageExt
         ///   Remarks:
         ///     Can go in a positive direction ('a'..'z') as well as negative ('z'..'a')
         /// </summary>
-        public static CharRange range(char from, char to) =>
+        public static CharRange Range(char from, char to) =>
             new CharRange(from, to);
 
         /// <summary>
         /// Lazily generate integers from any number of provided ranges
         /// </summary>
-        public static IEnumerable<int> range(params IntegerRange[] ranges) =>
+        public static IEnumerable<int> Range(params IntegerRange[] ranges) =>
             from range in ranges
             from i in range
             select i;
@@ -62,7 +56,7 @@ namespace LanguageExt
         /// <summary>
         /// Lazily generate chars from any number of provided ranges
         /// </summary>
-        public static IEnumerable<char> range(params CharRange[] ranges) =>
+        public static IEnumerable<char> Range(params CharRange[] ranges) =>
             from range in ranges
             from c in range
             select c;
@@ -72,7 +66,7 @@ namespace LanguageExt
         /// each item.
         /// </summary>
         public static IEnumerable<T> init<T>(int count,Func<int,T> generator) =>
-            from i in range(0, count)
+            from i in Range(0, count)
             select generator(i);
 
         /// <summary>
@@ -83,45 +77,45 @@ namespace LanguageExt
         /// 
         /// </summary>
         public static IEnumerable<T> initInfinite<T>(Func<int, T> generator) =>
-            from i in range(0, Int32.MaxValue)
+            from i in Range(0, Int32.MaxValue)
             select generator(i);
 
         /// <summary>
         /// Generates a sequence that contains one repeated value.
         /// </summary>
         public static IEnumerable<T> repeat<T>(T item, int count) =>
-            from _ in range(0, count)
+            from _ in Range(0, count)
             select item;
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
-        public static Map<K, V> map<K, V>() =>
-            Map.empty<K, V>();
+        public static Map<K, V> Map<K, V>() =>
+            LanguageExt.Map.empty<K, V>();
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
-        public static Map<K, V> map<K, V>(params Tuple<K, V>[] items) =>
-            Map.createRange(items);
+        public static Map<K, V> Map<K, V>(params Tuple<K, V>[] items) =>
+            LanguageExt.Map.createRange(items);
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
-        public static Map<K, V> map<K, V>(params KeyValuePair<K, V>[] items) =>
-            Map.createRange(from x in items
-                            select tuple(x.Key,x.Value));
+        public static Map<K, V> Map<K, V>(params KeyValuePair<K, V>[] items) =>
+            LanguageExt.Map.createRange(from x in items
+                            select Tuple(x.Key,x.Value));
 
         /// <summary>
         /// Create an immutable list
         /// </summary>
-        public static Lst<T> list<T>() =>
+        public static Lst<T> List<T>() =>
             new Lst<T>();
 
         /// <summary>
         /// Create an immutable list
         /// </summary>
-        public static Lst<T> list<T>(params T[] items) =>
+        public static Lst<T> List<T>(params T[] items) =>
             new Lst<T>(items);
 
         /// <summary>
@@ -133,19 +127,19 @@ namespace LanguageExt
         /// <summary>
         /// Create an immutable queue
         /// </summary>
-        public static ImmutableArray<T> array<T>() =>
+        public static ImmutableArray<T> Array<T>() =>
             ImmutableArray.Create<T>();
 
         /// <summary>
         /// Create an immutable queue
         /// </summary>
-        public static ImmutableArray<T> array<T>(T item) =>
+        public static ImmutableArray<T> Array<T>(T item) =>
             ImmutableArray.Create<T>(item);
 
         /// <summary>
         /// Create an immutable queue
         /// </summary>
-        public static ImmutableArray<T> array<T>(params T[] items) =>
+        public static ImmutableArray<T> Array<T>(params T[] items) =>
             ImmutableArray.Create<T>(items);
 
         /// <summary>
@@ -157,19 +151,19 @@ namespace LanguageExt
         /// <summary>
         /// Create an immutable queue
         /// </summary>
-        public static IImmutableQueue<T> queue<T>() =>
+        public static IImmutableQueue<T> Queue<T>() =>
             ImmutableQueue.Create<T>();
 
         /// <summary>
         /// Create an immutable queue
         /// </summary>
-        public static IImmutableQueue<T> queue<T>(T item) =>
+        public static IImmutableQueue<T> Queue<T>(T item) =>
             ImmutableQueue.Create<T>();
 
         /// <summary>
         /// Create an immutable queue
         /// </summary>
-        public static IImmutableQueue<T> queue<T>(params T[] items) =>
+        public static IImmutableQueue<T> Queue<T>(params T[] items) =>
             ImmutableQueue.Create<T>(items);
 
 
@@ -182,19 +176,19 @@ namespace LanguageExt
         /// <summary>
         /// Create an immutable stack
         /// </summary>
-        public static IImmutableStack<T> stack<T>() =>
+        public static IImmutableStack<T> Stack<T>() =>
             ImmutableStack.Create<T>();
 
         /// <summary>
         /// Create an immutable stack
         /// </summary>
-        public static IImmutableStack<T> stack<T>(T item) =>
+        public static IImmutableStack<T> Stack<T>(T item) =>
             ImmutableStack.Create<T>();
 
         /// <summary>
         /// Create an immutable stack
         /// </summary>
-        public static IImmutableStack<T> stack<T>(params T[] items) =>
+        public static IImmutableStack<T> Stack<T>(params T[] items) =>
             ImmutableStack.Create<T>(items);
 
         /// <summary>
@@ -206,19 +200,19 @@ namespace LanguageExt
         /// <summary>
         /// Create an immutable set
         /// </summary>
-        public static IImmutableSet<T> set<T>() =>
+        public static IImmutableSet<T> Set<T>() =>
             ImmutableHashSet.Create<T>();
 
         /// <summary>
         /// Create an immutable set
         /// </summary>
-        public static IImmutableSet<T> set<T>(T item) =>
+        public static IImmutableSet<T> Set<T>(T item) =>
             ImmutableHashSet.Create<T>(item);
 
         /// <summary>
         /// Create an immutable set
         /// </summary>
-        public static IImmutableSet<T> set<T>(params T[] items) =>
+        public static IImmutableSet<T> Set<T>(params T[] items) =>
             ImmutableHashSet.Create<T>(items);
 
         /// <summary>
@@ -230,7 +224,7 @@ namespace LanguageExt
         /// <summary>
         /// Create a queryable
         /// </summary>
-        public static IQueryable<T> query<T>(params T[] items) =>
+        public static IQueryable<T> Query<T>(params T[] items) =>
             toQuery(items);
 
         /// <summary>
@@ -317,14 +311,170 @@ namespace LanguageExt
             list.Match(Empty, One, Two, Three, Four, Five, Six, More);
 
         public static R match<K, V, R>(Map<K, V> map, K key, Func<V, R> Some, Func<R> None) =>
-            match( Map.find(map, key),
+            match(LanguageExt.Map.find(map, key),
                    Some,
                    None );
 
         public static Unit match<K, V>(Map<K, V> map, K key, Action<V> Some, Action None) =>
-            match(Map.find(map, key),
+            match(LanguageExt.Map.find(map, key),
                    Some,
                    None);
 
+
+        /// <summary>
+        /// Create a queryable
+        /// </summary>
+        [Obsolete("Use 'Query'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static IQueryable<T> query<T>(params T[] items) =>
+            toQuery(items);
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        [Obsolete("Use 'Map'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static Map<K, V> map<K, V>() =>
+            LanguageExt.Map.empty<K, V>();
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        [Obsolete("Use 'Map'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static Map<K, V> map<K, V>(params Tuple<K, V>[] items) =>
+            LanguageExt.Map.createRange(items);
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        [Obsolete("Use 'Map'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static Map<K, V> map<K, V>(params KeyValuePair<K, V>[] items) =>
+            LanguageExt.Map.createRange(from x in items
+                                        select Tuple(x.Key, x.Value));
+
+        /// <summary>
+        /// Create an immutable list
+        /// </summary>
+        [Obsolete("Use 'List'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static Lst<T> list<T>() =>
+            new Lst<T>();
+
+        /// <summary>
+        /// Create an immutable list
+        /// </summary>
+        [Obsolete("Use 'List'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static Lst<T> list<T>(params T[] items) =>
+            new Lst<T>(items);
+
+        /// <summary>
+        /// Create an immutable queue
+        /// </summary>
+        [Obsolete("Use 'Array'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static ImmutableArray<T> array<T>() =>
+            ImmutableArray.Create<T>();
+
+        /// <summary>
+        /// Create an immutable queue
+        /// </summary>
+        [Obsolete("Use 'Array'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static ImmutableArray<T> array<T>(T item) =>
+            ImmutableArray.Create<T>(item);
+
+        /// <summary>
+        /// Create an immutable queue
+        /// </summary>
+        [Obsolete("Use 'Array'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static ImmutableArray<T> array<T>(params T[] items) =>
+            ImmutableArray.Create<T>(items);
+
+        /// <summary>
+        /// Create an immutable set
+        /// </summary>
+        [Obsolete("Use 'Set'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static IImmutableSet<T> set<T>() =>
+            ImmutableHashSet.Create<T>();
+
+        /// <summary>
+        /// Create an immutable set
+        /// </summary>
+        [Obsolete("Use 'Set'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static IImmutableSet<T> set<T>(T item) =>
+            ImmutableHashSet.Create<T>(item);
+
+        /// <summary>
+        /// Create an immutable set
+        /// </summary>
+        [Obsolete("Use 'Set'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static IImmutableSet<T> set<T>(params T[] items) =>
+            ImmutableHashSet.Create<T>(items);
+
+        /// <summary>
+        /// Create an immutable stack
+        /// </summary>
+        [Obsolete("Use 'Stack'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static IImmutableStack<T> stack<T>() =>
+            ImmutableStack.Create<T>();
+
+        /// <summary>
+        /// Create an immutable stack
+        /// </summary>
+        [Obsolete("Use 'Stack'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static IImmutableStack<T> stack<T>(T item) =>
+            ImmutableStack.Create<T>();
+
+        /// <summary>
+        /// Create an empty IEnumerable<T>
+        /// </summary>
+        [Obsolete("Use List.empty")]
+        public static Lst<T> empty<T>() =>
+            new Lst<T>();
+
+        /// <summary>
+        /// Construct a list from head and tail
+        /// head becomes the first item in the list
+        /// Is lazy
+        /// </summary>
+        [Obsolete("Use 'Cons'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static IEnumerable<T> cons<T>(this T head, IEnumerable<T> tail)
+        {
+            yield return head;
+            foreach (var item in tail)
+            {
+                yield return item;
+            }
+        }
+
+        /// <summary>
+        /// Construct a list from head and tail
+        /// </summary>
+        [Obsolete("Use 'Cons'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static Lst<T> cons<T>(this T head, Lst<T> tail) =>
+            tail.Insert(0, head);
+
+        /// <summary>
+        /// Lazily generate a range of chars.  
+        /// 
+        ///   Remarks:
+        ///     Can go in a positive direction ('a'..'z') as well as negative ('z'..'a')
+        /// </summary>
+        [Obsolete("Use 'Range'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static CharRange range(char from, char to) =>
+            new CharRange(from, to);
+
+        /// <summary>
+        /// Lazily generate integers from any number of provided ranges
+        /// </summary>
+        [Obsolete("Use 'Range'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static IEnumerable<int> range(params IntegerRange[] ranges) =>
+            from range in ranges
+            from i in range
+            select i;
+
+        /// <summary>
+        /// Lazily generate chars from any number of provided ranges
+        /// </summary>
+        [Obsolete("Use 'Range'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static IEnumerable<char> range(params CharRange[] ranges) =>
+            from range in ranges
+            from c in range
+            select c;
     }
 }

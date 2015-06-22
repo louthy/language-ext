@@ -15,7 +15,7 @@ namespace LanguageExtTests
         [Test]
         public void MapGeneratorTest()
         {
-            var m1 = map<int, string>();
+            var m1 = Map<int, string>();
             m1 = add(m1, 100, "hello");
             Assert.IsTrue(m1.Count == 1 && containsKey(m1,100));
         }
@@ -23,9 +23,9 @@ namespace LanguageExtTests
         [Test]
         public void MapGeneratorAndMatchTest()
         {
-            var m2 = map( tuple(1, "a"),
-                          tuple(2, "b"),
-                          tuple(3, "c") );
+            var m2 = Map( Tuple(1, "a"),
+                          Tuple(2, "b"),
+                          Tuple(3, "c") );
 
             m2 = add(m2, 100, "world");
 
@@ -41,9 +41,9 @@ namespace LanguageExtTests
         [Test]
         public void MapSetTest()
         {
-            var m1 = map( tuple(1, "a"),
-                          tuple(2, "b"),
-                          tuple(3, "c") );
+            var m1 = Map( Tuple(1, "a"),
+                          Tuple(2, "b"),
+                          Tuple(3, "c") );
 
             var m2 = setItem(m1, 1, "x");
 
@@ -63,25 +63,25 @@ namespace LanguageExtTests
         [Test]
         public void MapAddInOrderTest()
         {
-            var m = map(tuple(1, 1));
+            var m = Map(Tuple(1, 1));
             m.Find(1).IfNone(() => failwith<int>("Broken"));
 
-            m = map(tuple(1, 1), tuple(2, 2));
+            m = Map(Tuple(1, 1), Tuple(2, 2));
             m.Find(1).IfNone(() => failwith<int>("Broken"));
             m.Find(2).IfNone(() => failwith<int>("Broken"));
 
-            m = map(tuple(1, 1), tuple(2, 2), tuple(3, 3));
+            m = Map(Tuple(1, 1), Tuple(2, 2), Tuple(3, 3));
             m.Find(1).IfNone(() => failwith<int>("Broken"));
             m.Find(2).IfNone(() => failwith<int>("Broken"));
             m.Find(3).IfNone(() => failwith<int>("Broken"));
 
-            m = map(tuple(1, 1), tuple(2, 2), tuple(3, 3), tuple(4, 4));
+            m = Map(Tuple(1, 1), Tuple(2, 2), Tuple(3, 3), Tuple(4, 4));
             m.Find(1).IfNone(() => failwith<int>("Broken"));
             m.Find(2).IfNone(() => failwith<int>("Broken"));
             m.Find(3).IfNone(() => failwith<int>("Broken"));
             m.Find(4).IfNone(() => failwith<int>("Broken"));
 
-            m = map(tuple(1, 1), tuple(2, 2), tuple(3, 3), tuple(4, 4), tuple(5, 5));
+            m = Map(Tuple(1, 1), Tuple(2, 2), Tuple(3, 3), Tuple(4, 4), Tuple(5, 5));
             m.Find(1).IfNone(() => failwith<int>("Broken"));
             m.Find(2).IfNone(() => failwith<int>("Broken"));
             m.Find(3).IfNone(() => failwith<int>("Broken"));
@@ -92,22 +92,22 @@ namespace LanguageExtTests
         [Test]
         public void MapAddInReverseOrderTest()
         {
-            var m = map(tuple(2, 2), tuple(1, 1));
+            var m = Map(Tuple(2, 2), Tuple(1, 1));
             m.Find(1).IfNone(() => failwith<int>("Broken"));
             m.Find(2).IfNone(() => failwith<int>("Broken"));
 
-            m = map(tuple(3, 3), tuple(2, 2), tuple(1, 1));
+            m = Map(Tuple(3, 3), Tuple(2, 2), Tuple(1, 1));
             m.Find(1).IfNone(() => failwith<int>("Broken"));
             m.Find(2).IfNone(() => failwith<int>("Broken"));
             m.Find(3).IfNone(() => failwith<int>("Broken"));
 
-            m = map(tuple(4, 4), tuple(3, 3), tuple(2, 2), tuple(1, 1));
+            m = Map(Tuple(4, 4), Tuple(3, 3), Tuple(2, 2), Tuple(1, 1));
             m.Find(1).IfNone(() => failwith<int>("Broken"));
             m.Find(2).IfNone(() => failwith<int>("Broken"));
             m.Find(3).IfNone(() => failwith<int>("Broken"));
             m.Find(4).IfNone(() => failwith<int>("Broken"));
 
-            m = map(tuple(5, 5), tuple(4, 4), tuple(3, 3), tuple(2, 2), tuple(1, 1));
+            m = Map(Tuple(5, 5), Tuple(4, 4), Tuple(3, 3), Tuple(2, 2), Tuple(1, 1));
             m.Find(1).IfNone(() => failwith<int>("Broken"));
             m.Find(2).IfNone(() => failwith<int>("Broken"));
             m.Find(3).IfNone(() => failwith<int>("Broken"));
@@ -118,14 +118,14 @@ namespace LanguageExtTests
         [Test]
         public void MapAddInMixedOrderTest()
         {
-            var m = map(tuple(5, 5), tuple(1, 1), tuple(3, 3), tuple(2, 2), tuple(4, 4));
+            var m = Map(Tuple(5, 5), Tuple(1, 1), Tuple(3, 3), Tuple(2, 2), Tuple(4, 4));
             m.Find(1).IfNone(() => failwith<int>("Broken"));
             m.Find(2).IfNone(() => failwith<int>("Broken"));
             m.Find(3).IfNone(() => failwith<int>("Broken"));
             m.Find(4).IfNone(() => failwith<int>("Broken"));
             m.Find(5).IfNone(() => failwith<int>("Broken"));
 
-            m = map(tuple(1, 1), tuple(3, 3), tuple(5, 5), tuple(2, 2), tuple(4, 4));
+            m = Map(Tuple(1, 1), Tuple(3, 3), Tuple(5, 5), Tuple(2, 2), Tuple(4, 4));
             m.Find(1).IfNone(() => failwith<int>("Broken"));
             m.Find(2).IfNone(() => failwith<int>("Broken"));
             m.Find(3).IfNone(() => failwith<int>("Broken"));
@@ -137,11 +137,11 @@ namespace LanguageExtTests
         [Test]
         public void MapRemoveTest()
         {
-            var m = map(tuple(1, "a"),
-                        tuple(2, "b"),
-                        tuple(3, "c"),
-                        tuple(4, "d"),
-                        tuple(5, "e"));
+            var m = Map(Tuple(1, "a"),
+                        Tuple(2, "b"),
+                        Tuple(3, "c"),
+                        Tuple(4, "d"),
+                        Tuple(5, "e"));
 
             m.Find(1).IfNone(() => failwith<string>("Broken 1"));
             m.Find(2).IfNone(() => failwith<string>("Broken 2"));
@@ -187,10 +187,10 @@ namespace LanguageExtTests
         {
             int max = 100000;
 
-            var items = LanguageExt.List.map(range(1, max), _ => tuple(Guid.NewGuid(), Guid.NewGuid()))
+            var items = LanguageExt.List.map(Range(1, max), _ => Tuple(Guid.NewGuid(), Guid.NewGuid()))
                                         .ToDictionary(kv => kv.Item1, kv => kv.Item2);
 
-            var m = map<Guid, Guid>().AddRange(items);
+            var m = Map<Guid, Guid>().AddRange(items);
             Assert.IsTrue(m.Count == max);
 
             foreach (var item in items)

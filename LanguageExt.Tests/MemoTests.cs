@@ -36,11 +36,11 @@ namespace LanguageExtTests
 
             var m = fn.memoUnsafe();
 
-            var nums1 = map(range(0, count), i => m(i));
+            var nums1 = map(Range(0, count), i => m(i));
 
             fix = 1000;
 
-            var nums2 = map(range(0, count), i => m(i));
+            var nums2 = map(Range(0, count), i => m(i));
 
             Assert.IsTrue(
                 length(filter(zip(nums1, nums2, (a, b) => a == b), v => v)) == count
@@ -59,11 +59,11 @@ namespace LanguageExtTests
 
             var m = fn.memo();
 
-            var nums1 = freeze(map(range(0, count), i => m(i)));
+            var nums1 = freeze(map(Range(0, count), i => m(i)));
 
             fix = 1000;
 
-            var nums2 = freeze(map(range(0, count), i => m(i)));
+            var nums2 = freeze(map(Range(0, count), i => m(i)));
 
             Assert.IsTrue(
                 length(filter(zip(nums1, nums2, (a, b) => a == b), v => v)) == count

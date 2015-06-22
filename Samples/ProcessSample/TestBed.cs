@@ -51,7 +51,7 @@ namespace ProcessSample
 
         public static void WrappedListTest()
         {
-            var opt = Some(list(1, 2, 3, 4, 5));
+            var opt = Some(List(1, 2, 3, 4, 5));
             var res = opt.FoldT(0, (s, v) => s + v);
             var mopt = opt.MapT(x => x * 2);
             var mres = mopt.FoldT(0, (s, v) => s + v);
@@ -70,7 +70,7 @@ namespace ProcessSample
 
         public static void WrappedListLinqTest()
         {
-            var opt = Some(list(1, 2, 3, 4, 5));
+            var opt = Some(List(1, 2, 3, 4, 5));
 
             var res = from x in opt
                       select x * 2;
@@ -97,10 +97,10 @@ namespace ProcessSample
         {
             var res = (from v in match(
                                      GetTryOptionValue(true).AsEnumerable(),
-                                     Right: r => list(r),
-                                     Left: l => list<int>()
+                                     Right: r => List(r),
+                                     Left: l => List<int>()
                                  )
-                       from r in range(1, 10)
+                       from r in Range(1, 10)
                        select v * r)
                       .ToList();
         }
@@ -135,11 +135,11 @@ namespace ProcessSample
 
             var m = fn.memo();
 
-            var nums1 = map(range(0, count), i => m(i)).ToList();
+            var nums1 = map(Range(0, count), i => m(i)).ToList();
 
             fix = 1000;
 
-            var nums2 = map(range(0, count), i => m(i)).ToList();
+            var nums2 = map(Range(0, count), i => m(i)).ToList();
 
 
             var res = length(
@@ -263,7 +263,7 @@ namespace ProcessSample
                 int level = Int32.Parse(Self.Name.Value.Split('_').First()) + 1;
                 if (level <= depth)
                 {
-                    iter(range(0, nodes), i => spawn(level + "_" + i, setup, actor));
+                    iter(Range(0, nodes), i => spawn(level + "_" + i, setup, actor));
                 }
             });
 

@@ -11,13 +11,11 @@ namespace LanguageExt
     /// </summary>
     public static partial class Prelude
     {
-        [Obsolete("'failure' has been deprecated.  Please use 'ifNone|ifNoneOrFail' instead")]
-        public static T failure<T>(TryOption<T> tryDel, Func<T> Fail) =>
-            tryDel.Failure(Fail);
+        public static bool isSome<T>(TryOption<T> value) =>
+            value.Try().Value.IsSome;
 
-        [Obsolete("'failure' has been deprecated.  Please use 'ifNone|ifNoneOrFail' instead")]
-        public static T failure<T>(TryOption<T> tryDel, T failValue) =>
-            tryDel.Failure(failValue);
+        public static bool isNone<T>(TryOption<T> value) =>
+            value.Try().Value.IsNone;
 
         public static Unit ifSome<T>(TryOption<T> tryDel, Action<T> Some) =>
             tryDel.IfSome(Some);
@@ -72,5 +70,13 @@ namespace LanguageExt
 
         public static TryOption<T> tryfun<T>(Func<TryOption<T>> tryDel) => () => 
             tryDel()();
+
+        [Obsolete("'failure' has been deprecated.  Please use 'ifNone|ifNoneOrFail' instead")]
+        public static T failure<T>(TryOption<T> tryDel, Func<T> Fail) =>
+            tryDel.Failure(Fail);
+
+        [Obsolete("'failure' has been deprecated.  Please use 'ifNone|ifNoneOrFail' instead")]
+        public static T failure<T>(TryOption<T> tryDel, T failValue) =>
+            tryDel.Failure(failValue);
     }
 }

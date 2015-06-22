@@ -6,18 +6,18 @@
 <#@ output extension=".cs" #>
 <# 
     var types = new [] {
-        Tuple.Create("IEnumerable", "!T",        "EnumerableCtor<!T>(FUNC)",       "default(T)"),              
+        Tuple.Create("IEnumerable", "!T",        "EnumerableCtor<!T>(FUNC)",       "self.FirstOrDefault()"),
         Tuple.Create("Option",      "!T",        "FUNC",                           "self.IsSome ? self.Value : default(T)"),
         Tuple.Create("OptionUnsafe","!T",        "FUNC",                           "self.IsSome ? self.Value : default(T)"),
-        Tuple.Create("Lst",         "!T",        "Prelude.list(FUNC)",             "default(T)"),
-        Tuple.Create("Map",         "K, !T",     "MapCtor<K,!T>(FUNC)",            "default(T)"),
+        Tuple.Create("Lst",         "!T",        "Prelude.list(FUNC)",             "self.FirstOrDefault()"),
+        Tuple.Create("Map",         "K, !T",     "MapCtor<K,!T>(FUNC)",            "self.Values.FirstOrDefault()"),
         Tuple.Create("TryOption",   "!T",        "() => FUNC",                     "self.Try().Value.IfNone(default(T))"),
         Tuple.Create("Try",         "!T",        "() => FUNC",                     "self.Try().Value"),
         Tuple.Create("Either",      "L, !T",     "FUNC",                           "self.IsRight ? self.RightValue : default(T)"),
         Tuple.Create("EitherUnsafe","L, !T",     "FUNC",                           "self.IsRight ? self.RightValue : default(T)"),
       //Tuple.Create("Reader",      "Env, !T",   "ReaderCtor<Env,!T>(FUNC)",       "default(T)"),
-        Tuple.Create("Writer",      "Out, !T",   "Prelude.Writer<Out,!T>(FUNC)",   "default(T)"),              
-      //Tuple.Create("State",       "State, !T", "StateCtor<State,!T>(FUNC)",      "default(T)"),                
+        Tuple.Create("Writer",      "Out, !T",   "Prelude.Writer<Out,!T>(FUNC)",   "self().Value"),
+      //Tuple.Create("State",       "State, !T", "StateCtor<State,!T>(FUNC)",      "default(T)"),
     };
 
     var funcs = new [] {
@@ -25,73 +25,73 @@
         // Value
         //
         Tuple.Create(
-            "public static T ValueT<ARGS_T>(this TYPE self) => VALUE;",
-            "public static RETURN_ONE_T ValueT<ARGS_T>(this TYPE self) => self.MapT(x => x.ValueT());"),
+            "internal static T ValueT<ARGS_T>(this TYPE self) => VALUE;",
+            "internal static RETURN_ONE_T ValueT<ARGS_T>(this TYPE self) => self.MapT(x => x.ValueT());"),
         //
         // Sum
         //
         Tuple.Create(
-            "public static int SumT<ARGS_INT>(this TYPE_INT self) => self.Sum();",
+            "internal static int SumT<ARGS_INT>(this TYPE_INT self) => self.Sum();",
             "public static int SumT<ARGS_INT>(this TYPE_INT self) => self.MapT(x => x.SumT()).Sum();"),
         //
         // Count
         //
         Tuple.Create(
-            "public static int CountT<ARGS_T>(this TYPE self) => self.Count();",
+            "internal static int CountT<ARGS_T>(this TYPE self) => self.Count();",
             "public static int CountT<ARGS_T>(this TYPE self) => self.Map(x => x.CountT()).Sum();"),
         //
         // Bind
         //
         Tuple.Create(
-            "public static RETURN_U BindT<ARGS_TU>(this TYPE self, Func<T, RETURN_U> binder) => self.Bind(binder);",
+            "internal static RETURN_U BindT<ARGS_TU>(this TYPE self, Func<T, RETURN_U> binder) => self.Bind(binder);",
             "public static RETURN_U BindT<ARGS_TU>(this TYPE self, Func<T, INNER_U> binder) => self.MapT(x => x.BindT(binder));"),
         //
         // Exists
         //
         Tuple.Create(
-            "public static bool ExistsT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.Exists(pred);",
+            "internal static bool ExistsT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.Exists(pred);",
             "public static bool ExistsT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);"),
         //
         // Filter
         //
         Tuple.Create(
-            "public static RETURN_T FilterT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.Filter(pred);",
+            "internal static RETURN_T FilterT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.Filter(pred);",
             "public static RETURN_T FilterT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));"),
         //
         // Fold
         //
         Tuple.Create(
-            "public static V FoldT<ARGS_T, V>(this TYPE self, V state, Func<V, T, V> fold) => self.Fold(state,fold);",
+            "internal static V FoldT<ARGS_T, V>(this TYPE self, V state, Func<V, T, V> fold) => self.Fold(state,fold);",
             "public static V FoldT<ARGS_T, V>(this TYPE self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));"),
         //
         // ForAll
         //
         Tuple.Create(
-            "public static bool ForAllT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.ForAll(pred);",
+            "internal static bool ForAllT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.ForAll(pred);",
             "public static bool ForAllT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);"),
         //
         // Iter
         //
         Tuple.Create(
-            "public static Unit IterT<ARGS_T>(this TYPE self, Action<T> action) => self.Iter(action);",
+            "internal static Unit IterT<ARGS_T>(this TYPE self, Action<T> action) => self.Iter(action);",
             "public static Unit IterT<ARGS_T>(this TYPE self, Action<T> action) => self.Iter(x => x.IterT(action));"),
         //
         // Map
         //
         Tuple.Create(
-            "public static RETURN_U MapT<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.Map(mapper);",
+            "internal static RETURN_U MapT<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.Map(mapper);",
             "public static RETURN_U MapT<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));"),
         //
         // Select
         //
         Tuple.Create(
-            "public static RETURN_U Select<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.Map(mapper);",
+            "internal static RETURN_U Select<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.Map(mapper);",
             "public static RETURN_U Select<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));"),
         //
         // Where
         //
         Tuple.Create(
-            "public static RETURN_T Where<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.Filter(pred);",
+            "internal static RETURN_T Where<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.Filter(pred);",
             "public static RETURN_T Where<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));"),
         //
         // SelectMany
@@ -103,13 +103,13 @@
         // SelectMany
         //
         //Tuple.Create(
-        //    "public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, U> bind, Func<T,U,V> project) => self.Select(x => project(x, bind(x)));",
+        //    "internal static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, U> bind, Func<T,U,V> project) => self.Select(x => project(x, bind(x)));",
         //    "public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));"),
         //
         // Lift
         //
         Tuple.Create(
-            "public static T LiftT<ARGS_T>(this TYPE self) => self.ValueT();",
+            "public static T Lift<ARGS_T>(this TYPE self) => self.ValueT();",
             "public static T LiftT<ARGS_T>(this TYPE self) => self.ValueT().ValueT();"),
    };
 #>
@@ -124,7 +124,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Trans
 {
-    internal static partial class HKTInternal
+    public static partial class HKTInternal
     {
         <# foreach(var prefunc in funcs.Select( f => f.Item1))
            {
@@ -184,6 +184,12 @@ namespace LanguageExt.Trans
                        var innerTypeInt   = String.Format("{0}<{1}>", inner.Item1, inner.Item2.Replace("!T","int"));
                        var innerTypeBool  = String.Format("{0}<{1}>", inner.Item1, inner.Item2.Replace("!T","bool"));
 
+                       var outerTypeT     = String.Format("{0}<{1}>", outer.Item1, inner.Item2.Replace("!T","T"));
+                       var outerTypeU     = String.Format("{0}<{1}>", outer.Item1, inner.Item2.Replace("!T","U"));
+                       var outerTypeV     = String.Format("{0}<{1}>", outer.Item1, inner.Item2.Replace("!T","V"));
+                       var outerTypeInt   = String.Format("{0}<{1}>", outer.Item1, inner.Item2.Replace("!T","int"));
+                       var outerTypeBool  = String.Format("{0}<{1}>", outer.Item1, inner.Item2.Replace("!T","bool"));
+
                        var fqtype = String.Format("{0}<{1}>", outer.Item1, outer.Item2.Replace("!T",innerTypeT));
                        var inttype = String.Format("{0}<{1}>", outer.Item1, outer.Item2.Replace("!T",innerTypeInt));
                        var booltype = String.Format("{0}<{1}>", outer.Item1, outer.Item2.Replace("!T",innerTypeBool));
@@ -216,6 +222,13 @@ namespace LanguageExt.Trans
                                      .Replace("INNER_T", innerTypeT)
                                      .Replace("INNER_U", innerTypeU)
                                      .Replace("INNER_V", innerTypeV)
+                                     .Replace("INNER_INT", innerTypeInt)
+                                     .Replace("INNER_BOOL", innerTypeBool)
+                                     .Replace("OUTER_T", innerTypeT)
+                                     .Replace("OUTER_U", innerTypeU)
+                                     .Replace("OUTER_V", innerTypeV)
+                                     .Replace("OUTER_INT", innerTypeInt)
+                                     .Replace("OUTER_BOOL", innerTypeBool)
                                      .Replace("ARGS_INT", args.Replace("!T, ","").Replace(", !T","").Replace("!T",""))
                                      .Replace("ARGS_BOOL", args.Replace("!T, ","").Replace(", !T","").Replace("!T",""))
                                      .Replace("ARGS_TUV", args.Replace("!T","T") + ", U, V")

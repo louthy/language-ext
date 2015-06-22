@@ -200,7 +200,7 @@ namespace LanguageExtTests
                 int level = Int32.Parse(Self.Name.Value.Split('_').First()) + 1;
                 if (level <= depth)
                 {
-                    iter(range(0, nodes), i => spawn(level + "_" + i, setup, actor));
+                    iter(Range(0, nodes), i => spawn(level + "_" + i, setup, actor));
                 }
             });
 

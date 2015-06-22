@@ -12,7 +12,7 @@ namespace LanguageExtTests
         [Test]
         public void EmptyStackPeek()
         {
-            var test = stack<int>();
+            var test = Stack<int>();
             var res = peek(test);
 
             Assert.IsTrue(res.IsNone);
@@ -21,7 +21,7 @@ namespace LanguageExtTests
         [Test]
         public void EmptyStackPop()
         {
-            var test = stack<int>();
+            var test = Stack<int>();
             var res = map(pop(test), (stack, value) => value);
 
             Assert.IsTrue(res.IsNone);
@@ -30,14 +30,14 @@ namespace LanguageExtTests
         [Test]
         public void Popping1()
         {
-            var test = stack<int>(1, 2, 3, 4, 5);
+            var test = Stack<int>(1, 2, 3, 4, 5);
             Popping5(test);
         }
 
         [Test]
         public void Popping2()
         {
-            var test = stack<int>();
+            var test = Stack<int>();
 
             test = push(test, 1);
             test = push(test, 2);
@@ -63,7 +63,7 @@ namespace LanguageExtTests
         [Test]
         public void CollectionFunctions()
         {
-            var stack = toStack(range(1,100));
+            var stack = toStack(Range(1,100));
 
             Assert.IsTrue(exists(stack, v => v == 50));
             Assert.IsTrue(length(stack) == 100);
@@ -75,7 +75,7 @@ namespace LanguageExtTests
         [Test]
         public void RecursiveSumTest()
         {
-            var values = toStack(range(1, 10));
+            var values = toStack(Range(1, 10));
 
             var res = Sum(values);
 

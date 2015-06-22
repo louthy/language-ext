@@ -72,7 +72,7 @@ namespace LanguageExt
             var mailbox = FSharpMailboxProcessor<SystemMessage>.Start(body, FSharpOption<CancellationToken>.None);
             mailbox.Error += (object sender, Exception args) =>
                                Process.tell(supervisor, SystemMessage.ChildIsFaulted(self.Id, args));
-            return tuple(quit,mailbox);
+            return Tuple(quit,mailbox);
         }
 
         public static Tuple<Action,FSharpMailboxProcessor<UserControlMessage>> StartUserMailbox<S, T>(IProcess self, ProcessId supervisor, Func<S, T, S> actor, Func<S> setup)
@@ -131,7 +131,7 @@ namespace LanguageExt
                 (state as IDisposable)?.Dispose();
             };
 
-            return tuple(quit, mailbox);
+            return Tuple(quit, mailbox);
         }
     }
 }

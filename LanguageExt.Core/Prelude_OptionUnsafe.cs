@@ -10,6 +10,12 @@ namespace LanguageExt
     /// </summary>
     public static partial class Prelude
     {
+        public static bool isSome<T>(OptionUnsafe<T> value) =>
+            value.IsSome;
+
+        public static bool isNone<T>(OptionUnsafe<T> value) =>
+            value.IsNone;
+
         /// <summary>
         /// Create a Some of T (OptionUnsafe<T>).  Use the to wrap any-type without coercian.
         /// That means you can wrap null, Nullable<T>, or Option<T> to get Option<Option<T>>

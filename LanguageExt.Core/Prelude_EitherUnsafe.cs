@@ -10,19 +10,17 @@ namespace LanguageExt
     /// </summary>
     public static partial class Prelude
     {
+        public static bool isRight<L, R>(EitherUnsafe<L, R> value) =>
+            value.IsRight;
+
+        public static bool isLeft<L, R>(EitherUnsafe<L, R> value) =>
+            value.IsLeft;
+
         public static EitherUnsafe<L, R> RightUnsafe<L, R>(R value) =>
             EitherUnsafe<L, R>.Right(value);
 
         public static EitherUnsafe<L, R> LeftUnsafe<L, R>(L value) =>
             EitherUnsafe<L, R>.Left(value);
-
-        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifLeftUnsafe' instead")]
-        public static R failureUnsafe<L, R>(EitherUnsafe<L, R> either, Func<R> None) =>
-            either.FailureUnsafe(None);
-
-        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifLeftUnsafe' instead")]
-        public static R failureUnsafe<L, R>(EitherUnsafe<L, R> either, R noneValue) =>
-            either.FailureUnsafe(noneValue);
 
         public static R ifLeft<L, R>(EitherUnsafe<L, R> either, Func<R> Left) =>
             either.IfLeftUnsafe(Left);
@@ -122,5 +120,14 @@ namespace LanguageExt
 
         public static IQueryable<R> toQuery<L, R>(EitherUnsafe<L, R> either) =>
             either.AsQueryable();
+
+        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifLeftUnsafe' instead")]
+        public static R failureUnsafe<L, R>(EitherUnsafe<L, R> either, Func<R> None) =>
+            either.FailureUnsafe(None);
+
+        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifLeftUnsafe' instead")]
+        public static R failureUnsafe<L, R>(EitherUnsafe<L, R> either, R noneValue) =>
+            either.FailureUnsafe(noneValue);
+
     }
 }

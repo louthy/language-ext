@@ -456,7 +456,7 @@ namespace LanguageExt
         /// <returns>New Map with the items added</returns>
         public Map<K, V> AddRange(IEnumerable<KeyValuePair<K, V>> pairs) =>
             AddRange(from kv in pairs
-                     select tuple(kv.Key, kv.Value));
+                     select Tuple(kv.Key, kv.Value));
 
         /// <summary>
         /// Atomically sets a series of items using the KeyValuePairs provided
@@ -586,8 +586,8 @@ namespace LanguageExt
         public bool TryGetValue(K key, out V value)
         {
             var res = match(Find(key),
-                            Some: x => tuple(x, true),
-                            None: () => tuple(default(V), false));
+                            Some: x => Tuple(x, true),
+                            None: () => Tuple(default(V), false));
             value = res.Item1;
             return res.Item2;
         }
@@ -997,7 +997,7 @@ namespace LanguageExt
             {
                 yield return item;
             }
-            yield return tuple(node.Key, node.Value);
+            yield return Tuple(node.Key, node.Value);
             foreach (var item in ToEnumerable(node.Right))
             {
                 yield return item;

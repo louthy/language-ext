@@ -12,7 +12,7 @@ namespace LanguageExtTests
         [NU.Test]
         public void WrappedListTest()
         {
-            var lst = list(list(1, 2, 3, 4, 5), list(1, 2, 3, 4, 5), list(1, 2, 3, 4, 5));
+            var lst = List(List(1, 2, 3, 4, 5), List(1, 2, 3, 4, 5), List(1, 2, 3, 4, 5));
             var res = lst.FoldT(0, (s, v) => s + v);
             var mlst = lst.MapT(x => x * 2);
             var mres = mlst.FoldT(0, (s, v) => s + v);
@@ -22,7 +22,7 @@ namespace LanguageExtTests
             NU.Assert.IsTrue(lst.CountT() == 15, "(lst) Expected 15 got " + lst.CountT());
             NU.Assert.IsTrue(mlst.CountT() == 15, "(mlst) Expected 15 got " + mlst.CountT());
 
-            lst = list<Lst<int>>();
+            lst = List<Lst<int>>();
             res = lst.FoldT(0, (s, v) => s + v);
 
             NU.Assert.IsTrue(res == 0, "Fold results, expected 0 got " + res);
@@ -32,27 +32,27 @@ namespace LanguageExtTests
         [NU.Test]
         public void WrappedMapTest()
         {
-            var lst = list(
-                          map(
-                              tuple(1, "A"), 
-                              tuple(2, "B"), 
-                              tuple(3, "C"), 
-                              tuple(4, "D"), 
-                              tuple(5, "E")
+            var lst = List(
+                          Map(
+                              Tuple(1, "A"), 
+                              Tuple(2, "B"), 
+                              Tuple(3, "C"), 
+                              Tuple(4, "D"), 
+                              Tuple(5, "E")
                           ),
-                          map(
-                              tuple(1, "A"),
-                              tuple(2, "B"),
-                              tuple(3, "C"),
-                              tuple(4, "D"),
-                              tuple(5, "E")
+                          Map(
+                              Tuple(1, "A"),
+                              Tuple(2, "B"),
+                              Tuple(3, "C"),
+                              Tuple(4, "D"),
+                              Tuple(5, "E")
                           ),
-                          map(
-                              tuple(1, "A"),
-                              tuple(2, "B"),
-                              tuple(3, "C"),
-                              tuple(4, "D"),
-                              tuple(5, "E")
+                          Map(
+                              Tuple(1, "A"),
+                              Tuple(2, "B"),
+                              Tuple(3, "C"),
+                              Tuple(4, "D"),
+                              Tuple(5, "E")
                           )
                       );
             var res = lst.FoldT("", (s, v) => s + v);

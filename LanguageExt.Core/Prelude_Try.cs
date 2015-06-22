@@ -11,6 +11,12 @@ namespace LanguageExt
     /// </summary>
     public static partial class Prelude
     {
+        public static bool isSucc<T>(Try<T> value) =>
+            !isFail(value);
+
+        public static bool isFail<T>(Try<T> value) =>
+            value.Try().IsFaulted;
+
         public static Unit ifSucc<T>(Try<T> tryDel, Action<T> Succ) =>
             tryDel.IfSucc(Succ);
 

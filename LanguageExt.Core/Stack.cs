@@ -15,7 +15,7 @@ namespace LanguageExt
         {
             T value;
             var newStack = stack.Pop(out value);
-            return tuple(newStack, value);
+            return Tuple(newStack, value);
         }
 
         public static T peekUnsafe<T>(IImmutableStack<T> stack) =>
@@ -27,11 +27,11 @@ namespace LanguageExt
             {
                 T value;
                 var newStack = stack.Pop(out value);
-                return tuple(newStack, Some(value));
+                return Tuple(newStack, Some(value));
             }
             catch (InvalidOperationException)
             {
-                return tuple(stack, Option<T>.None);
+                return Tuple(stack, Option<T>.None);
             }
         }
 
@@ -130,77 +130,77 @@ namespace LanguageExt
 public static class __StackExt
 {
     public static Tuple<IImmutableStack<T>, T> PopUnsafe<T>(this IImmutableStack<T> stack) =>
-        Stack.popUnsafe(stack);
+        LanguageExt.Stack.popUnsafe(stack);
 
     public static Tuple<IImmutableStack<T>, Option<T>> Pop<T>(this IImmutableStack<T> stack) =>
-        Stack.pop(stack);
+        LanguageExt.Stack.pop(stack);
 
     public static T PeekUnsafe<T>(this IImmutableStack<T> stack) =>
-        Stack.peekUnsafe(stack);
+        LanguageExt.Stack.peekUnsafe(stack);
 
     public static Option<T> Peek<T>(this IImmutableStack<T> stack) =>
-        Stack.peek(stack);
+        LanguageExt.Stack.peek(stack);
 
     public static IEnumerable<R> Map<T, R>(this IImmutableStack<T> stack, Func<T, R> map) =>
-        List.map(stack, map);
+        LanguageExt.List.map(stack, map);
 
     public static IEnumerable<R> Map<T, R>(this IImmutableStack<T> stack, Func<int, T, R> map) =>
-        List.map(stack, map);
+        LanguageExt.List.map(stack, map);
 
     public static IEnumerable<T> Filter<T>(this IImmutableStack<T> stack, Func<T, bool> predicate) =>
-        List.filter(stack, predicate);
+        LanguageExt.List.filter(stack, predicate);
 
     public static IEnumerable<T> Choose<T>(this IImmutableStack<T> stack, Func<T, Option<T>> selector) =>
-        List.choose(stack, selector);
+        LanguageExt.List.choose(stack, selector);
 
     public static IEnumerable<T> Choose<T>(this IImmutableStack<T> stack, Func<int, T, Option<T>> selector) =>
-        List.choose(stack, selector);
+        LanguageExt.List.choose(stack, selector);
 
     public static IEnumerable<R> Collect<T, R>(this IImmutableStack<T> stack, Func<T, IEnumerable<R>> map) =>
-        List.collect(stack, map);
+        LanguageExt.List.collect(stack, map);
 
     public static IEnumerable<T> Rev<T>(this IImmutableStack<T> stack) =>
-        List.rev(stack);
+        LanguageExt.List.rev(stack);
 
     public static IEnumerable<T> Append<T>(this IImmutableStack<T> lhs, IEnumerable<T> rhs) =>
-        List.append(lhs, rhs);
+        LanguageExt.List.append(lhs, rhs);
 
     public static S Fold<S, T>(this IImmutableStack<T> stack, S state, Func<S, T, S> folder) =>
-        List.fold(stack, state, folder);
+        LanguageExt.List.fold(stack, state, folder);
 
     public static S FoldBack<S, T>(this IImmutableStack<T> stack, S state, Func<S, T, S> folder) =>
-        List.foldBack(stack, state, folder);
+        LanguageExt.List.foldBack(stack, state, folder);
 
     public static T ReduceBack<T>(IImmutableStack<T> stack, Func<T, T, T> reducer) =>
-        List.reduceBack(stack, reducer);
+        LanguageExt.List.reduceBack(stack, reducer);
 
     public static T Reduce<T>(this IImmutableStack<T> stack, Func<T, T, T> reducer) =>
-        List.reduce(stack, reducer);
+        LanguageExt.List.reduce(stack, reducer);
 
     public static IEnumerable<S> Scan<S, T>(this IImmutableStack<T> stack, S state, Func<S, T, S> folder) =>
-        List.scan(stack, state, folder);
+        LanguageExt.List.scan(stack, state, folder);
 
     public static IEnumerable<S> ScanBack<S, T>(this IImmutableStack<T> stack, S state, Func<S, T, S> folder) =>
-        List.scanBack(stack, state, folder);
+        LanguageExt.List.scanBack(stack, state, folder);
 
     public static Option<T> Find<T>(this IImmutableStack<T> stack, Func<T, bool> pred) =>
-        List.find(stack, pred);
+        LanguageExt.List.find(stack, pred);
 
     public static int Length<T>(this IImmutableStack<T> stack) =>
-        List.length(stack);
+        LanguageExt.List.length(stack);
 
     public static Unit Iter<T>(this IImmutableStack<T> stack, Action<T> action) =>
-        List.iter(stack, action);
+        LanguageExt.List.iter(stack, action);
 
     public static Unit Iter<T>(this IImmutableStack<T> stack, Action<int, T> action) =>
-        List.iter(stack, action);
+        LanguageExt.List.iter(stack, action);
 
     public static bool ForAll<T>(this IImmutableStack<T> stack, Func<T, bool> pred) =>
-        List.forall(stack, pred);
+        LanguageExt.List.forall(stack, pred);
 
     public static IEnumerable<T> Distinct<T>(IImmutableStack<T> stack, Func<T, T, bool> compare) =>
-        List.distinct(stack, compare);
+        LanguageExt.List.distinct(stack, compare);
 
     public static bool Exists<T>(IImmutableStack<T> stack, Func<T, bool> pred) =>
-        List.exists(stack, pred);
+        LanguageExt.List.exists(stack, pred);
 }

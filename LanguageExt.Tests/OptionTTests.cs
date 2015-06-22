@@ -12,7 +12,7 @@ namespace LanguageExtTests
         [NU.Test]
         public void WrappedListTest()
         {
-            var opt = Some(list(1, 2, 3, 4, 5));
+            var opt = Some(List(1, 2, 3, 4, 5));
             var res = opt.FoldT(0, (s, v) => s + v);
             var mopt = opt.MapT(x => x * 2);
             var mres = mopt.FoldT(0, (s, v) => s + v);
@@ -32,7 +32,7 @@ namespace LanguageExtTests
         [NU.Test]
         public void WrappedMapTest()
         {
-            var opt = Some(map(tuple(1, "A"), tuple(2, "B"), tuple(3, "C"), tuple(4, "D"), tuple(5, "E")));
+            var opt = Some(Map(Tuple(1, "A"), Tuple(2, "B"), Tuple(3, "C"), Tuple(4, "D"), Tuple(5, "E")));
             var res = opt.FoldT("", (s, v) => s + v);
             var mopt = opt.MapT(x => x.ToLower());
             var mres = mopt.FoldT("", (s, v) => s + v);
@@ -57,43 +57,27 @@ namespace LanguageExtTests
         [NU.Test]
         public void WrappedListLinqTest()
         {
-            var opt = Some(list(1, 2, 3, 4, 5));
+            var opt = Some(List(1, 2, 3, 4, 5));
 
             var res = from x in opt
                       select x * 2;
 
-            match(res,
-                Some: x =>
-                {
-                    NU.Assert.IsTrue(x[0] == 2);
-                    NU.Assert.IsTrue(x[1] == 4);
-                    NU.Assert.IsTrue(x[2] == 6);
-                    NU.Assert.IsTrue(x[3] == 8);
-                    NU.Assert.IsTrue(x[4] == 10);
-                },
-                None: () => NU.Assert.Fail()
-            );
+            var total = res.SumT();
+
+            NU.Assert.IsTrue(total == 30);
         }
 
         [NU.Test]
         public void WrappedMapLinqTest()
         {
-            var opt = Some(map(tuple(1, "A"), tuple(2, "B"), tuple(3, "C"), tuple(4, "D"), tuple(5, "E")));
+            var opt = Some(Map(Tuple(1, "A"), Tuple(2, "B"), Tuple(3, "C"), Tuple(4, "D"), Tuple(5, "E")));
 
             var res = from x in opt
                       select x.ToLower();
 
-            match(res,
-                Some: x =>
-                {
-                    NU.Assert.IsTrue(x[1] == "a");
-                    NU.Assert.IsTrue(x[2] == "b");
-                    NU.Assert.IsTrue(x[3] == "c");
-                    NU.Assert.IsTrue(x[4] == "d");
-                    NU.Assert.IsTrue(x[5] == "e");
-                },
-                None: () => NU.Assert.Fail()
-            );
+            var fd = res.FoldT("", (s, x) => s + x);
+
+            NU.Assert.IsTrue(fd == "abcde");
         }
 
         [NU.Test]
@@ -105,7 +89,7 @@ namespace LanguageExtTests
                       from y in x
                       select y * 2;
 
-            NU.Assert.IsTrue(res.IfNone(0).IfNone(0) == 200);
+            NU.Assert.IsTrue(res.LiftT() == 200);
 
             opt = Some(Some<Option<int>>(None));
 
@@ -113,7 +97,7 @@ namespace LanguageExtTests
                   from y in x
                   select y * 2;
 
-            NU.Assert.IsTrue(res.IfNone(0).IfNone(1) == 1);
+            NU.Assert.IsTrue(res.LiftT() == 0);
         }
 
         [NU.Test]
@@ -124,14 +108,14 @@ namespace LanguageExtTests
             var res = from x in opt
                       select x * 2;
 
-            NU.Assert.IsTrue(res.IfNone(0).IfNone(0) == 200);
+            NU.Assert.IsTrue(res.LiftT() == 200);
 
             opt = Some<Option<int>>(None);
 
             res = from x in opt
                   select x * 2;
 
-            NU.Assert.IsTrue(res.IfNone(0).IfNone(1) == 1);
+            NU.Assert.IsTrue(res.LiftT() == 0);
         }
 
         [NU.Test]
@@ -142,14 +126,14 @@ namespace LanguageExtTests
             var res = from x in opt
                       select x * 2;
 
-            NU.Assert.IsTrue(res.IfNone(() => 0).IfNone(0) == 200);
+            NU.Assert.IsTrue(res.LiftT() == 200);
 
             opt = Some<TryOption<int>>(() => None);
 
             res = from x in opt
                   select x * 2;
 
-            NU.Assert.IsTrue(res.IfNone(() => 0).IfNone(1) == 1);
+            NU.Assert.IsTrue(res.LiftT() == 0);
         }
 
         [NU.Test]
@@ -160,14 +144,62 @@ namespace LanguageExtTests
             var res = from x in opt
                       select x * 2;
 
-            NU.Assert.IsTrue(res.IfNone(0).IfLeft(0) == 200);
+            NU.Assert.IsTrue(res.LiftT() == 200);
 
             opt = Some(Left<string, int>("left"));
 
             res = from x in opt
                   select x * 2;
 
-            NU.Assert.IsTrue(res.IfNone(0).IfLeft(1) == 1);
+            NU.Assert.IsTrue(res.LiftT() == 0);
+        }
+
+        [NU.Test]
+        public void WrappedListOfOptionsTest1()
+        {
+            var opt = List(Some(1), Some(2), Some(3), Some(4), Some(5));
+
+            opt = from x in opt
+                  where x > 2
+                  select x;
+
+            NU.Assert.IsTrue(opt.Count() == 5, "Count should be 5, is: " + opt.Count());
+            NU.Assert.IsTrue(opt[0] == None, "opt[1] != None. Is: "+opt[0]);
+            NU.Assert.IsTrue(opt[1] == None, "opt[2] != None. Is : " + opt[1]);
+            NU.Assert.IsTrue(opt[2] == Some(3), "opt[3] != Some(3)");
+            NU.Assert.IsTrue(opt[3] == Some(4), "opt[4] != Some(4)");
+            NU.Assert.IsTrue(opt[4] == Some(5), "opt[5] != Some(5)");
+
+            opt = opt.Filter(isSome);
+
+            NU.Assert.IsTrue(opt.Count() == 3, "Count should be 3, is: " + opt.Count());
+            NU.Assert.IsTrue(opt[0] == Some(3), "opt[0] != Some(3)");
+            NU.Assert.IsTrue(opt[1] == Some(4), "opt[1] != Some(4)");
+            NU.Assert.IsTrue(opt[2] == Some(5), "opt[2] != Some(5)");
+
+        }
+
+        [NU.Test]
+        public void WrappedListOfOptionsTest2()
+        {
+            var opt = List(Some(1), Some(2), Some(3), Some(4), Some(5));
+
+            opt = opt.FilterT(x => x > 2);
+
+            NU.Assert.IsTrue(opt.Count() == 5, "Count should be 5, is: " + opt.Count());
+            NU.Assert.IsTrue(opt[0] == None, "opt[1] != None. Is: " + opt[0]);
+            NU.Assert.IsTrue(opt[1] == None, "opt[2] != None. Is: " + opt[1]);
+            NU.Assert.IsTrue(opt[2] == Some(3), "opt[3] != Some(3), Is: "+ opt[2]);
+            NU.Assert.IsTrue(opt[3] == Some(4), "opt[4] != Some(4), Is: " + opt[3]);
+            NU.Assert.IsTrue(opt[4] == Some(5), "opt[5] != Some(5), Is: " + opt[4]);
+
+            opt = opt.Filter(isSome);
+
+            NU.Assert.IsTrue(opt.Count() == 3, "Count should be 3, is: " + opt.Count());
+            NU.Assert.IsTrue(opt[0] == Some(3), "opt[0] != Some(3)");
+            NU.Assert.IsTrue(opt[1] == Some(4), "opt[1] != Some(4)");
+            NU.Assert.IsTrue(opt[2] == Some(5), "opt[2] != Some(5)");
+
         }
 
         /*

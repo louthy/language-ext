@@ -15,7 +15,7 @@ namespace LanguageExt
         {
             T value;
             var newqueue = queue.Dequeue(out value);
-            return tuple(newqueue, value);
+            return Tuple(newqueue, value);
         }
 
         public static Tuple<IImmutableQueue<T>, Option<T>> deq<T>(IImmutableQueue<T> queue)
@@ -24,11 +24,11 @@ namespace LanguageExt
             {
                 T value;
                 var newqueue = queue.Dequeue(out value);
-                return tuple(newqueue, Some(value));
+                return Tuple(newqueue, Some(value));
             }
             catch (InvalidOperationException)
             {
-                return tuple(queue, Option<T>.None);
+                return Tuple(queue, Option<T>.None);
             }
         }
 
@@ -130,77 +130,77 @@ namespace LanguageExt
 public static class __QueueExt
 {
     public static Tuple<IImmutableQueue<T>, T> PopUnsafe<T>(this IImmutableQueue<T> queue) =>
-        Queue.deqUnsafe(queue);
+        LanguageExt.Queue.deqUnsafe(queue);
 
     public static Tuple<IImmutableQueue<T>, Option<T>> Pop<T>(this IImmutableQueue<T> queue) =>
-        Queue.deq(queue);
+        LanguageExt.Queue.deq(queue);
 
     public static T PeekUnsafe<T>(this IImmutableQueue<T> queue) =>
-        Queue.peekUnsafe(queue);
+        LanguageExt.Queue.peekUnsafe(queue);
 
     public static Option<T> Peek<T>(this IImmutableQueue<T> queue) =>
-        Queue.peek(queue);
+        LanguageExt.Queue.peek(queue);
 
     public static IEnumerable<R> Map<T, R>(this IImmutableQueue<T> queue, Func<T, R> map) =>
-        List.map(queue, map);
+        LanguageExt.List.map(queue, map);
 
     public static IEnumerable<R> Map<T, R>(this IImmutableQueue<T> queue, Func<int, T, R> map) =>
-        List.map(queue, map);
+        LanguageExt.List.map(queue, map);
 
     public static IEnumerable<T> Filter<T>(this IImmutableQueue<T> queue, Func<T, bool> predicate) =>
-        List.filter(queue, predicate);
+        LanguageExt.List.filter(queue, predicate);
 
     public static IEnumerable<T> Choose<T>(this IImmutableQueue<T> queue, Func<T, Option<T>> selector) =>
-        List.choose(queue, selector);
+        LanguageExt.List.choose(queue, selector);
 
     public static IEnumerable<T> Choose<T>(this IImmutableQueue<T> queue, Func<int, T, Option<T>> selector) =>
-        List.choose(queue, selector);
+        LanguageExt.List.choose(queue, selector);
 
     public static IEnumerable<R> Collect<T, R>(this IImmutableQueue<T> queue, Func<T, IEnumerable<R>> map) =>
-        List.collect(queue, map);
+        LanguageExt.List.collect(queue, map);
 
     public static IEnumerable<T> Rev<T>(this IImmutableQueue<T> queue) =>
-        List.rev(queue);
+        LanguageExt.List.rev(queue);
 
     public static IEnumerable<T> Append<T>(this IImmutableQueue<T> lhs, IEnumerable<T> rhs) =>
-        List.append(lhs, rhs);
+        LanguageExt.List.append(lhs, rhs);
 
     public static S Fold<S, T>(this IImmutableQueue<T> queue, S state, Func<S, T, S> folder) =>
-        List.fold(queue, state, folder);
+        LanguageExt.List.fold(queue, state, folder);
 
     public static S FoldBack<S, T>(this IImmutableQueue<T> queue, S state, Func<S, T, S> folder) =>
-        List.foldBack(queue, state, folder);
+        LanguageExt.List.foldBack(queue, state, folder);
 
     public static T ReduceBack<T>(this IImmutableQueue<T> queue, Func<T, T, T> reducer) =>
-        List.reduceBack(queue, reducer);
+        LanguageExt.List.reduceBack(queue, reducer);
 
     public static T Reduce<T>(this IImmutableQueue<T> queue, Func<T, T, T> reducer) =>
-        List.reduce(queue, reducer);
+        LanguageExt.List.reduce(queue, reducer);
 
     public static IEnumerable<S> Scan<S, T>(this IImmutableQueue<T> queue, S state, Func<S, T, S> folder) =>
-        List.scan(queue, state, folder);
+        LanguageExt.List.scan(queue, state, folder);
 
     public static IEnumerable<S> ScanBack<S, T>(this IImmutableQueue<T> queue, S state, Func<S, T, S> folder) =>
-        List.scanBack(queue, state, folder);
+        LanguageExt.List.scanBack(queue, state, folder);
 
     public static Option<T> Find<T>(this IImmutableQueue<T> queue, Func<T, bool> pred) =>
-        List.find(queue, pred);
+        LanguageExt.List.find(queue, pred);
 
     public static int Length<T>(this IImmutableQueue<T> queue) =>
-        List.length(queue);
+        LanguageExt.List.length(queue);
 
     public static Unit Iter<T>(this IImmutableQueue<T> queue, Action<T> action) =>
-        List.iter(queue, action);
+        LanguageExt.List.iter(queue, action);
 
     public static Unit Iter<T>(this IImmutableQueue<T> queue, Action<int, T> action) =>
-        List.iter(queue, action);
+        LanguageExt.List.iter(queue, action);
 
     public static bool ForAll<T>(this IImmutableQueue<T> queue, Func<T, bool> pred) =>
-        List.forall(queue, pred);
+        LanguageExt.List.forall(queue, pred);
 
     public static IEnumerable<T> Distinct<T>(IImmutableQueue<T> queue, Func<T, T, bool> compare) =>
-        List.distinct(queue, compare);
+        LanguageExt.List.distinct(queue, compare);
 
     public static bool Exists<T>(IImmutableQueue<T> queue, Func<T, bool> pred) =>
-        List.exists(queue, pred);
+        LanguageExt.List.exists(queue, pred);
 }

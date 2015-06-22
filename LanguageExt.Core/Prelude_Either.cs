@@ -10,6 +10,12 @@ namespace LanguageExt
     /// </summary>
     public static partial class Prelude
     {
+        public static bool isRight<L, R>(Either<L, R> value) =>
+            value.IsRight;
+
+        public static bool isLeft<L, R>(Either<L, R> value) =>
+            value.IsLeft;
+
         public static Either<L, R> Right<L, R>(R value) =>
             Either<L, R>.Right(value);
 
@@ -25,14 +31,6 @@ namespace LanguageExt
             value == null
                 ? raise<Either<L, R>>(new ValueIsNullException())
                 : Either<L, R>.Left(value.Value);
-
-        [Obsolete("'failure' has been deprecated.  Please use 'ifLeft' instead")]
-        public static R failure<L, R>(Either<L, R> either, Func<R> None) =>
-            either.Failure(None);
-
-        [Obsolete("'failure' has been deprecated.  Please use 'ifLeft' instead")]
-        public static R failure<L, R>(Either<L, R> either, R noneValue) =>
-            either.Failure(noneValue);
 
         public static R ifLeft<L, R>(Either<L, R> either, Func<R> None) =>
             either.IfLeft(None);
@@ -132,5 +130,14 @@ namespace LanguageExt
 
         public static IQueryable<R> toQuery<L, R>(Either<L, R> either) =>
             either.AsQueryable();
+
+        [Obsolete("'failure' has been deprecated.  Please use 'ifLeft' instead")]
+        public static R failure<L, R>(Either<L, R> either, Func<R> None) =>
+            either.Failure(None);
+
+        [Obsolete("'failure' has been deprecated.  Please use 'ifLeft' instead")]
+        public static R failure<L, R>(Either<L, R> either, R noneValue) =>
+            either.Failure(noneValue);
+
     }
 }

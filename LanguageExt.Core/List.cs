@@ -9,6 +9,12 @@ namespace LanguageExt
 {
     public static partial class List
     {
+        /// <summary>
+        /// Create an empty IEnumerable<T>
+        /// </summary>
+        public static Lst<T> empty<T>() =>
+            new Lst<T>();
+
         public static Lst<T> create<T>() =>
             new Lst<T>();
 
@@ -52,7 +58,7 @@ namespace LanguageExt
             list.Select(map);
 
         public static IEnumerable<R> map<T, R>(IEnumerable<T> list, Func<int, T, R> map) =>
-            zip(list, range(0, Int32.MaxValue), (t, i) => map(i, t));
+            zip(list, Range(0, Int32.MaxValue), (t, i) => map(i, t));
 
         public static IEnumerable<T> filter<T>(IEnumerable<T> list, Func<T, bool> predicate) =>
             list.Where(predicate);
@@ -221,7 +227,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    state = Tuple.Create(res.Value.Item2, res.Value.Item3);
+                    state = System.Tuple.Create(res.Value.Item2, res.Value.Item3);
                     yield return res.Value.Item1;
                 }
             }
@@ -238,7 +244,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    state = Tuple.Create(res.Value.Item2, res.Value.Item3, res.Value.Item4);
+                    state = System.Tuple.Create(res.Value.Item2, res.Value.Item3, res.Value.Item4);
                     yield return res.Value.Item1;
                 }
             }
@@ -255,7 +261,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    state = Tuple.Create(res.Value.Item2, res.Value.Item3, res.Value.Item4, res.Value.Item5);
+                    state = System.Tuple.Create(res.Value.Item2, res.Value.Item3, res.Value.Item4, res.Value.Item5);
                     yield return res.Value.Item1;
                 }
             }
@@ -438,83 +444,83 @@ public static class __EnumnerableExt
         );
 
     public static T Head<T>(this IEnumerable<T> list) =>
-        List.head(list);
+        LanguageExt.List.head(list);
 
     [Obsolete("HeadSafe has been deprecated, please use HeadOrNone")]
     public static Option<T> HeadSafe<T>(this IEnumerable<T> list) =>
-        List.headSafe(list);
+        LanguageExt.List.headSafe(list);
 
     public static Option<T> HeadOrNone<T>(this IEnumerable<T> list) =>
-        List.headOrNone(list);
+        LanguageExt.List.headOrNone(list);
 
     public static IEnumerable<T> Tail<T>(this IEnumerable<T> list) =>
-        List.tail(list);
+        LanguageExt.List.tail(list);
 
     public static IEnumerable<R> Map<T, R>(this IEnumerable<T> list, Func<T, R> map) =>
-        List.map(list, map);
+        LanguageExt.List.map(list, map);
 
     public static IEnumerable<R> Map<T, R>(this IEnumerable<T> list, Func<int, T, R> map) =>
-        List.map(list, map);
+        LanguageExt.List.map(list, map);
 
     public static IEnumerable<T> Filter<T>(this IEnumerable<T> list, Func<T, bool> predicate) =>
-        List.filter(list, predicate);
+        LanguageExt.List.filter(list, predicate);
 
     public static IEnumerable<T> Choose<T>(this IEnumerable<T> list, Func<T, Option<T>> selector) =>
-        List.choose(list, selector);
+        LanguageExt.List.choose(list, selector);
 
     public static IEnumerable<T> Choose<T>(this IEnumerable<T> list, Func<int, T, Option<T>> selector) =>
-        List.choose(list, selector);
+        LanguageExt.List.choose(list, selector);
 
     public static IEnumerable<R> Collect<T, R>(this IEnumerable<T> list, Func<T, IEnumerable<R>> map) =>
-        List.collect(list, map);
+        LanguageExt.List.collect(list, map);
 
     public static IEnumerable<T> Rev<T>(this IEnumerable<T> list) =>
-        List.rev(list);
+        LanguageExt.List.rev(list);
 
     public static IEnumerable<T> Append<T>(this IEnumerable<T> lhs, IEnumerable<T> rhs) =>
-        List.append(lhs, rhs);
+        LanguageExt.List.append(lhs, rhs);
 
     public static S Fold<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
-        List.fold(list, state, folder);
+        LanguageExt.List.fold(list, state, folder);
 
     public static S FoldBack<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
-        List.foldBack(list, state, folder);
+        LanguageExt.List.foldBack(list, state, folder);
 
     public static T Reduce<T>(this IEnumerable<T> list, Func<T, T, T> reducer) =>
-        List.reduce(list, reducer);
+        LanguageExt.List.reduce(list, reducer);
 
     public static T ReduceBack<T>(this IEnumerable<T> list, Func<T, T, T> reducer) =>
-        List.reduceBack(list, reducer);
+        LanguageExt.List.reduceBack(list, reducer);
 
     public static IEnumerable<S> Scan<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
-        List.scan(list, state, folder);
+        LanguageExt.List.scan(list, state, folder);
 
     public static IEnumerable<S> ScanBack<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
-        List.scanBack(list, state, folder);
+        LanguageExt.List.scanBack(list, state, folder);
 
     public static Option<T> Find<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
-        List.find(list, pred);
+        LanguageExt.List.find(list, pred);
 
     public static Lst<T> Freeze<T>(this IEnumerable<T> list) =>
-        List.freeze(list);
+        LanguageExt.List.freeze(list);
 
     public static int Length<T>(this IEnumerable<T> list) =>
-        List.length(list);
+        LanguageExt.List.length(list);
 
     public static Unit Iter<T>(this IEnumerable<T> list, Action<T> action) =>
-        List.iter(list, action);
+        LanguageExt.List.iter(list, action);
 
     public static Unit Iter<T>(this IEnumerable<T> list, Action<int, T> action) =>
-        List.iter(list, action);
+        LanguageExt.List.iter(list, action);
 
     public static bool ForAll<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
-        List.forall(list, pred);
+        LanguageExt.List.forall(list, pred);
 
     public static IEnumerable<T> Distinct<T>(this IEnumerable<T> list, Func<T, T, bool> compare) =>
-        List.distinct(list, compare);
+        LanguageExt.List.distinct(list, compare);
 
     public static bool Exists<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
-        List.exists(list, pred);
+        LanguageExt.List.exists(list, pred);
 
     public static IEnumerable<R> Bind<T, R>(this IEnumerable<T> self, Func<T, IEnumerable<R>> binder) =>
         self.SelectMany(x => binder(x));

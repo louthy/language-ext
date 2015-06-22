@@ -196,7 +196,7 @@ namespace LanguageExt
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
         public static bool contains<K, V>(Map<K, V> map, KeyValuePair<K, V> kv) =>
-            map.Contains(tuple(kv.Key,kv.Value));
+            map.Contains(Tuple(kv.Key,kv.Value));
 
         /// <summary>
         /// Checks for existence of a key in the map
@@ -792,14 +792,14 @@ public static class __MapExt
         self.AddOrUpdate(
             outerKey,
             b => b.AddOrUpdate(innerKey, Some, None),
-            () => map(tuple(innerKey, None()))
+            () => Prelude.Map(Tuple(innerKey, None()))
         );
 
     public static Map<A, Map<B, T>> AddOrUpdate<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey, T value) =>
         self.AddOrUpdate(
             outerKey,
             b => b.AddOrUpdate(innerKey, _ => value, value),
-            () => map(tuple(innerKey, value))
+            () => Prelude.Map(Tuple(innerKey, value))
         );
 
     public static Map<A, Map<B, T>> Remove<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey)

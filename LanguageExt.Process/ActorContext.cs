@@ -38,7 +38,7 @@ namespace LanguageExt
                 system.Shutdown();
             }
 
-            Store = map(tuple("", (IProcess)new NullProcess()));
+            Store = Map(Tuple("", (IProcess)new NullProcess()));
 
             // Root
             root        = new Actor<Unit, object>(new ProcessId(), config.RootProcessName, Process.pub);

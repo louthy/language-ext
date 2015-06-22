@@ -266,11 +266,14 @@ namespace LanguageExt
             new Lst<T>(this.Where(pred));
     }
 
-    public static class Testing
+    public static class LstExt
     {
         public static Lst<V> SelectMany<T, U, V>(this Lst<T> self, Func<T, Lst<U>> bind, Func<T, U, V> project)
         {
             return new Lst<V>(self.AsEnumerable().SelectMany(bind, project));
         }
+
+        public static int Count<T>(this Lst<T> self) =>
+            self.Count;
     }
 }

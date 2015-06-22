@@ -7,23 +7,23 @@ namespace LanguageExt
     /// </summary>
     public static partial class Prelude
     {
-        public static Tuple<T1, T2> tuple<T1, T2>(T1 item1, T2 item2) =>
-            Tuple.Create(item1, item2);
+        public static Tuple<T1, T2> Tuple<T1, T2>(T1 item1, T2 item2) =>
+            System.Tuple.Create(item1, item2);
 
-        public static Tuple<T1, T2, T3> tuple<T1, T2, T3>(T1 item1, T2 item2, T3 item3) =>
-            Tuple.Create(item1, item2, item3);
+        public static Tuple<T1, T2, T3> Tuple<T1, T2, T3>(T1 item1, T2 item2, T3 item3) =>
+            System.Tuple.Create(item1, item2, item3);
 
-        public static Tuple<T1, T2, T3, T4> tuple<T1, T2, T3, T4>(T1 item1, T2 item2, T3 item3, T4 item4) =>
-            Tuple.Create(item1, item2, item3, item4);
+        public static Tuple<T1, T2, T3, T4> Tuple<T1, T2, T3, T4>(T1 item1, T2 item2, T3 item3, T4 item4) =>
+            System.Tuple.Create(item1, item2, item3, item4);
 
-        public static Tuple<T1, T2, T3, T4, T5> tuple<T1, T2, T3, T4, T5>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5) =>
-            Tuple.Create(item1, item2, item3, item4, item5);
+        public static Tuple<T1, T2, T3, T4, T5> Tuple<T1, T2, T3, T4, T5>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5) =>
+            System.Tuple.Create(item1, item2, item3, item4, item5);
 
-        public static Tuple<T1, T2, T3, T4, T5, T6> tuple<T1, T2, T3, T4, T5, T6>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6) =>
-            Tuple.Create(item1, item2, item3, item4, item5, item6);
+        public static Tuple<T1, T2, T3, T4, T5, T6> Tuple<T1, T2, T3, T4, T5, T6>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6) =>
+            System.Tuple.Create(item1, item2, item3, item4, item5, item6);
 
-        public static Tuple<T1, T2, T3, T4, T5, T6, T7> tuple<T1, T2, T3, T4, T5, T6, T7>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6, T7 item7) =>
-            Tuple.Create(item1, item2, item3, item4, item5, item6, item7);
+        public static Tuple<T1, T2, T3, T4, T5, T6, T7> Tuple<T1, T2, T3, T4, T5, T6, T7>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6, T7 item7) =>
+            System.Tuple.Create(item1, item2, item3, item4, item5, item6, item7);
 
         public static R map<T1, T2, R>(Tuple<T1, T2> self, Func<T1, T2, R> func) =>
             func(self.Item1, self.Item2);
@@ -145,5 +145,30 @@ namespace LanguageExt
             func(self.Item1, self.Item2, self.Item3, self.Item4, self.Item5, self.Item6, self.Item7);
             return Unit.Default;
         }
+
+        [Obsolete("Use 'Tuple'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static Tuple<T1, T2> tuple<T1, T2>(T1 item1, T2 item2) =>
+            System.Tuple.Create(item1, item2);
+
+        [Obsolete("Use 'Tuple'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static Tuple<T1, T2, T3> tuple<T1, T2, T3>(T1 item1, T2 item2, T3 item3) =>
+            System.Tuple.Create(item1, item2, item3);
+
+        [Obsolete("Use 'Tuple'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static Tuple<T1, T2, T3, T4> tuple<T1, T2, T3, T4>(T1 item1, T2 item2, T3 item3, T4 item4) =>
+            System.Tuple.Create(item1, item2, item3, item4);
+
+        [Obsolete("Use 'Tuple'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static Tuple<T1, T2, T3, T4, T5> tuple<T1, T2, T3, T4, T5>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5) =>
+            System.Tuple.Create(item1, item2, item3, item4, item5);
+
+        [Obsolete("Use 'Tuple'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static Tuple<T1, T2, T3, T4, T5, T6> tuple<T1, T2, T3, T4, T5, T6>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6) =>
+            System.Tuple.Create(item1, item2, item3, item4, item5, item6);
+
+        [Obsolete("Use 'Tuple'.  All constructor functions are renamed to have their first letter as a capital.")]
+        public static Tuple<T1, T2, T3, T4, T5, T6, T7> tuple<T1, T2, T3, T4, T5, T6, T7>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6, T7 item7) =>
+            System.Tuple.Create(item1, item2, item3, item4, item5, item6, item7);
+
     }
 }

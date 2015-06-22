@@ -36,7 +36,7 @@ namespace LanguageExt
             var paramT = Expression.Parameter(typeof(T), "t");
             var paramI = Expression.Parameter(typeof(int), "i");
 
-            return zip(list, range(0, Int32.MaxValue),
+            return zip(list, Range(0, Int32.MaxValue),
                 Expression.Lambda<Func<T, int, R>>(
                     Expression.Invoke(map, paramI, paramT),
                     paramT,
@@ -134,69 +134,69 @@ namespace LanguageExt
 public static class __QueryExt
 {
     public static T Head<T>(this IQueryable<T> list) =>
-        Query.head(list);
+        LanguageExt.Query.head(list);
 
     [Obsolete("HeadSafe has been deprecated, please use HeadOrNone")]
     public static Option<T> HeadSafe<T>(this IQueryable<T> list) =>
-        Query.headSafe(list);
+        LanguageExt.Query.headSafe(list);
 
     public static Option<T> HeadOrNone<T>(this IQueryable<T> list) =>
-        Query.headOrNone(list);
+        LanguageExt.Query.headOrNone(list);
 
     public static IQueryable<T> Tail<T>(this IQueryable<T> list) =>
-        Query.tail(list);
+        LanguageExt.Query.tail(list);
 
     public static IQueryable<R> Map<T, R>(this IQueryable<T> list, Expression<Func<T, R>> map) =>
-        Query.map(list, map);
+        LanguageExt.Query.map(list, map);
 
     public static IQueryable<R> Map<T, R>(this IQueryable<T> list, Expression<Func<int, T, R>> map) =>
-        Query.map(list, map);
+        LanguageExt.Query.map(list, map);
 
     public static IQueryable<T> Filter<T>(this IQueryable<T> list, Expression<Func<T, bool>> predicate) =>
-        Query.filter(list, predicate);
+        LanguageExt.Query.filter(list, predicate);
 
     public static IQueryable<T> Choose<T>(this IQueryable<T> list, Expression<Func<T, Option<T>>> selector) =>
-        Query.choose(list, selector);
+        LanguageExt.Query.choose(list, selector);
 
     public static IQueryable<T> Choose<T>(this IQueryable<T> list, Expression<Func<int, T, Option<T>>> selector) =>
-        Query.choose(list, selector);
+        LanguageExt.Query.choose(list, selector);
 
     public static IQueryable<R> Collect<T, R>(this IQueryable<T> list, Expression<Func<T, IEnumerable<R>>> map) =>
-        Query.collect(list, map);
+        LanguageExt.Query.collect(list, map);
 
     public static IQueryable<T> Rev<T>(this IQueryable<T> list) =>
-        Query.rev(list);
+        LanguageExt.Query.rev(list);
 
     public static IQueryable<T> Append<T>(this IQueryable<T> lhs, IQueryable<T> rhs) =>
-        Query.append(lhs, rhs);
+        LanguageExt.Query.append(lhs, rhs);
 
     public static S Fold<S, T>(this IQueryable<T> list, S state, Expression<Func<S, T, S>> folder) =>
-        Query.fold(list, state, folder);
+        LanguageExt.Query.fold(list, state, folder);
 
     public static S FoldBack<S, T>(this IQueryable<T> list, S state, Expression<Func<S, T, S>> folder) =>
-        Query.foldBack(list, state, folder);
+        LanguageExt.Query.foldBack(list, state, folder);
 
     public static T Reduce<T>(this IQueryable<T> list, Expression<Func<T, T, T>> reducer) =>
-        Query.reduce(list, reducer);
+        LanguageExt.Query.reduce(list, reducer);
 
     public static T ReduceBack<T>(this IQueryable<T> list, Expression<Func<T, T, T>> reducer) =>
-        Query.reduceBack(list, reducer);
+        LanguageExt.Query.reduceBack(list, reducer);
 
     public static Lst<T> Freeze<T>(this IQueryable<T> list) =>
-        Query.freeze(list);
+        LanguageExt.Query.freeze(list);
 
     public static IQueryable<V> Zip<T, U, V>(this IQueryable<T> list, IEnumerable<U> other, Expression<Func<T, U, V>> zipper) =>
-        Query.zip(list, other, zipper);
+        LanguageExt.Query.zip(list, other, zipper);
 
     public static int Length<T>(this IQueryable<T> list) =>
-        Query.length(list);
+        LanguageExt.Query.length(list);
 
     public static bool ForAll<T>(this IQueryable<T> list, Expression<Func<T, bool>> pred) =>
-        Query.forall(list, pred);
+        LanguageExt.Query.forall(list, pred);
 
     public static IQueryable<T> Distinct<T>(IQueryable<T> list) =>
-        Query.distinct(list);
+        LanguageExt.Query.distinct(list);
 
     public static bool Exists<T>(IQueryable<T> list, Expression<Func<T, bool>> pred) =>
-        Query.exists(list, pred);
+        LanguageExt.Query.exists(list, pred);
 }
