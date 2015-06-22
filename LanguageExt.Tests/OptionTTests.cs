@@ -1,7 +1,6 @@
 ﻿using static LanguageExt.Prelude;
 using LanguageExt;
 using LanguageExt.Trans;
-using LanguageExt.Trans.Linq;
 
 using NU = NUnit.Framework;
 
@@ -34,11 +33,11 @@ namespace LanguageExtTests
         public void WrappedMapTest()
         {
             var opt = Some(map(tuple(1, "A"), tuple(2, "B"), tuple(3, "C"), tuple(4, "D"), tuple(5, "E")));
-            var res = opt.FoldT(0, (s, v) => s + v);
+            var res = opt.FoldT("", (s, v) => s + v);
             var mopt = opt.MapT(x => x.ToLower());
-            var mres = mopt.FoldT(0, (s, v) => s + v);
+            var mres = mopt.FoldT("", (s, v) => s + v);
 
-            NU.Assert.IsTrue(res == 15);
+            NU.Assert.IsTrue(res == "ABCDE");
             NU.Assert.IsTrue(opt.CountT() == 5);
             NU.Assert.IsTrue(mopt.CountT() == 5);
 
@@ -95,6 +94,26 @@ namespace LanguageExtTests
                 },
                 None: () => NU.Assert.Fail()
             );
+        }
+
+        [NU.Test]
+        public void WrappedOptionOptionLinqTest()
+        {
+            var opt = Some(Some(Some(100)));
+
+            var res = from x in opt
+                      from y in x
+                      select y * 2;
+
+            NU.Assert.IsTrue(res.IfNone(0).IfNone(0) == 200);
+
+            opt = Some(Some<Option<int>>(None));
+
+            res = from x in opt
+                  from y in x
+                  select y * 2;
+
+            NU.Assert.IsTrue(res.IfNone(0).IfNone(1) == 1);
         }
 
         [NU.Test]

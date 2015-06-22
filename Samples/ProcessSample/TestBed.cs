@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using LanguageExt;
+using LanguageExt.Trans;
 using static LanguageExt.List;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
@@ -17,6 +18,9 @@ namespace ProcessSample
     {
         public static void RunTests()
         {
+            WrappedOptionOptionLinqTest();
+            WrappedListLinqTest();
+            WrappedListTest();
             LinqTest();
             ExTest4();
             MemoTest();
@@ -24,6 +28,64 @@ namespace ProcessSample
             MassiveSpawnAndKillHierarchy();
             SpawnAndKillProcess();
             SpawnAndKillHierarchy();
+        }
+
+        public static void WrappedOptionOptionLinqTest()
+        {
+            var opt = Some(Some(Some(100)));
+
+            var res = from x in opt
+                      from y in x
+                      select y * 2;
+
+            Debug.Assert(res.IfNone(0).IfNone(0) == 200);
+
+            opt = Some(Some<Option<int>>(None));
+
+            res = from x in opt
+                  from y in x
+                  select y * 2;
+
+            Debug.Assert(res.IfNone(0).IfNone(1) == 1);
+        }
+
+        public static void WrappedListTest()
+        {
+            var opt = Some(list(1, 2, 3, 4, 5));
+            var res = opt.FoldT(0, (s, v) => s + v);
+            var mopt = opt.MapT(x => x * 2);
+            var mres = mopt.FoldT(0, (s, v) => s + v);
+
+            Debug.Assert(res == 15, "Expected 15, but got " + res);
+            Debug.Assert(mres == 30, "Expected 30, but got " + mres);
+            Debug.Assert(opt.CountT() == 5, "opt != 5, (" + opt.CountT() + ")");
+            Debug.Assert(mopt.CountT() == 5, "mopt != 5, (" + mopt.CountT() + ")");
+
+            opt = None;
+            res = opt.FoldT(0, (s, v) => s + v);
+
+            Debug.Assert(res == 0, "res != 0, got " + res);
+            Debug.Assert(opt.CountT() == 0, "opt.Count() != 0, got " + opt.CountT());
+        }
+
+        public static void WrappedListLinqTest()
+        {
+            var opt = Some(list(1, 2, 3, 4, 5));
+
+            var res = from x in opt
+                      select x * 2;
+
+            match(res,
+                Some: x =>
+                {
+                    Debug.Assert(x[0] == 2);
+                    Debug.Assert(x[1] == 4);
+                    Debug.Assert(x[2] == 6);
+                    Debug.Assert(x[3] == 8);
+                    Debug.Assert(x[4] == 10);
+                },
+                None: () => Debug.Assert(false)
+            );
         }
 
         private static TryOption<int> GetTryOptionValue(bool select) => () =>

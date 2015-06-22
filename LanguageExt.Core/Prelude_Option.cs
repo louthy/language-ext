@@ -155,6 +155,6 @@ namespace LanguageExt
             option.ToArray();
 
         public static IQueryable<T> toQuery<T>(Option<T> option) =>
-            option.AsQueryable();
+            option.AsEnumerable().AsQueryable();
     }
 }

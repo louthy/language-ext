@@ -174,7 +174,7 @@ public static class __TryExt
             : Optional(res.Value);
     };
 
-    private static TryResult<T> Try<T>(this Try<T> self)
+    public static TryResult<T> Try<T>(this Try<T> self)
     {
         try
         {
@@ -377,6 +377,9 @@ public static class __TryExt
 
     public static TrySuccUnitContext<T> Succ<T>(this Try<T> self, Action<T> succHandler) =>
         new TrySuccUnitContext<T>(self, succHandler);
+
+    public static int Sum(this Try<int> self) =>
+        self.Try().Value;
 
     public static string AsString<T>(this Try<T> self) =>
         match(self,

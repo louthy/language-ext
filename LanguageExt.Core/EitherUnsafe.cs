@@ -286,4 +286,41 @@ public static class __EitherUnsafeExt
                 ),
             Left: l => EitherUnsafe<L, VR>.Left(l)
             );
+
+    public static int Count<L, R>(this EitherUnsafe<L, R> self) =>
+        self.IsRight ? 1 : 0;
+
+    public static bool ForAll<L, R>(this EitherUnsafe<L, R> self, Func<R, bool> pred) =>
+        self.IsRight
+            ? pred(self.RightValue)
+            : true;
+
+    public static S Fold<L, R, S>(this EitherUnsafe<L, R> self, S state, Func<S, R, S> folder) =>
+        self.IsRight
+            ? folder(state, self.RightValue)
+            : state;
+
+    public static bool Exists<L, R>(this EitherUnsafe<L, R> self, Func<R, bool> pred) =>
+        self.IsRight
+            ? pred(self.RightValue)
+            : false;
+
+    public static EitherUnsafe<L, Ret> Map<L, R, Ret>(this EitherUnsafe<L, R> self, Func<R, Ret> mapper) =>
+        self.IsRight
+            ? RightUnsafe<L, Ret>(mapper(self.RightValue))
+            : LeftUnsafe<L, Ret>(self.LeftValue);
+
+    public static EitherUnsafe<L, Ret> Bind<L, R, Ret>(this EitherUnsafe<L, R> self, Func<R, EitherUnsafe<L, Ret>> binder) =>
+        self.IsRight
+            ? binder(self.RightValue)
+            : EitherUnsafe<L, Ret>.Left(self.LeftValue);
+
+    public static EitherUnsafe<L, R> Where<L, R>(this EitherUnsafe<L, R> self, Func<R, bool> pred) =>
+        Filter(self, pred);
+
+    public static EitherUnsafe<L, R> Filter<L, R>(this EitherUnsafe<L, R> self, Func<R, bool> pred) =>
+        matchUnsafe(self,
+            Right: t => pred(t) ? EitherUnsafe<L, R>.Right(t) : EitherUnsafe<L, R>.Left(default(L)),
+            Left: l => EitherUnsafe<L, R>.Left(l)
+            );
 }

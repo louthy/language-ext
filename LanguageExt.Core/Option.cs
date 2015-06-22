@@ -178,12 +178,6 @@ namespace LanguageExt
             return () => self;
         }
 
-        public IEnumerator<T> GetEnumerator() =>
-            AsEnumerable().GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() =>
-            AsEnumerable().GetEnumerator();
-
         public static bool operator ==(Option<T> lhs, Option<T> rhs) =>
             lhs.Equals(rhs);
 
@@ -203,6 +197,12 @@ namespace LanguageExt
 
         public Type GetUnderlyingType() =>
             typeof(T);
+
+        public IEnumerator<T> GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
     }
 
     public struct SomeContext<T, R>
@@ -243,7 +243,7 @@ namespace LanguageExt
         public static OptionNone Default = new OptionNone();
     }
 
-    internal static class Option
+    internal static class OptionCast
     {
         public static Option<T> Cast<T>(T value) =>
             value == null
@@ -288,8 +288,8 @@ public static class __OptionExt
 
     public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> mapper) =>
         self.IsSome
-            ? Option.Cast(mapper(self.Value))
-            : Option<R>.None;
+            ? OptionCast.Cast(mapper(self.Value))
+            : None;
 
     public static Option<T> Filter<T>(this Option<T> self, Func<T, bool> pred) =>
         self.IsSome
@@ -301,7 +301,7 @@ public static class __OptionExt
     public static Option<R> Bind<T, R>(this Option<T> self, Func<T, Option<R>> binder) =>
         self.IsSome
             ? binder(self.Value)
-            : Option<R>.None;
+            : None;
 
     public static Option<U> Select<T, U>(this Option<T> self, Func<T, U> map) =>
         self.Map(map);
@@ -313,14 +313,19 @@ public static class __OptionExt
         match(self,
             Some: t =>
                 match(bind(t),
-                    Some: u => Option.Cast<V>(project(t, u)),
-                    None: () => Option<V>.None
+                    Some: u  => OptionCast.Cast<V>(project(t, u)),
+                    None: () => None
                 ),
-            None: () => Option<V>.None
+            None: () => None
             );
 
     public static Option<T> Where<T>(this Option<T> self, Func<T, bool> pred) =>
         self.Filter(pred)
             ? self
             : None;
+
+    public static int Sum(this Option<int> self) =>
+        self.IsSome
+            ? self.Value
+            : 0;
 }

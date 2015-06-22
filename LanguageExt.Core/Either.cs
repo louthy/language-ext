@@ -297,16 +297,19 @@ public static class __EitherExt
             ? Right<L, Ret>(mapper(self.RightValue))
             : Left<L, Ret>(self.LeftValue);
 
-    public static Either<Unit, R> Filter<L, R>(this Either<L, R> self, Func<R, bool> pred) =>
-        self.Exists(pred)
-            ? Right<Unit,R>(self.RightValue)
-            : Left<Unit,R>(unit);
-
     public static Either<L, Ret> Bind<L,R,Ret>(this Either<L, R> self, Func<R, Either<L, Ret>> binder) =>
         self.IsRight
             ? binder(self.RightValue)
             : Either<L, Ret>.Left(self.LeftValue);
-    
+
+    public static Either<L, R> Where<L, R>(this Either<L, R> self, Func<R, bool> pred) =>
+        Filter(self, pred);
+
+    public static Either<L, R> Filter<L, R>(this Either<L, R> self, Func<R, bool> pred) =>
+        match(self,
+            Right: t => pred(t) ? Either<L, R>.Right(t) : Either<L, R>.Left(default(L)),
+            Left: l => Either<L, R>.Left(l)
+            );
 
     public static Either<L, UR> Select<L, TR, UR>(this Either<L, TR> self, Func<TR, UR> map) =>
         match(self,

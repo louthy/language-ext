@@ -4,6 +4,8 @@ using NUnit.Framework;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
+using LanguageExt.Trans;
+
 namespace LanguageExtTests
 {
     [TestFixture]
@@ -12,7 +14,7 @@ namespace LanguageExtTests
         [Test]
         public void WithOptionSomeList()
         {
-            var res = (from v in GetOptionValue(true)
+            var res = (from v in GetOptionValue(true).AsEnumerable()
                        from r in range(1, 10)
                        select v * r)
                       .ToList();
@@ -25,7 +27,7 @@ namespace LanguageExtTests
         [Test]
         public void WithOptionNoneList()
         {
-            var res = (from v in GetOptionValue(false)
+            var res = (from v in GetOptionValue(false).AsEnumerable()
                        from r in range(1, 10)
                        select v * r)
                       .ToList();
@@ -36,7 +38,7 @@ namespace LanguageExtTests
         [Test]
         public void WithOptionUnsafeSomeList()
         {
-            var res = (from v in GetOptionUnsafeValue(true)
+            var res = (from v in GetOptionUnsafeValue(true).AsEnumerable()
                        from r in range(1, 10)
                        select v * r)
                       .ToList();
@@ -49,7 +51,7 @@ namespace LanguageExtTests
         [Test]
         public void WithOptionUnsafeNoneList()
         {
-            var res = (from v in GetOptionUnsafeValue(false)
+            var res = (from v in GetOptionUnsafeValue(false).AsEnumerable()
                        from r in range(1, 10)
                        select v * r)
                       .ToList();

@@ -765,4 +765,16 @@ public static class __MapExt
     /// <returns>Folded state</returns>
     public static S Fold<K, V, S>(this Map<K, V> self, S state, Func<S, K, S> folder) =>
         MapModule.Fold(self, state, folder);
+
+    public static Map<K, U> Bind<K, T, U>(this Map<K, T> self, Func<T, Map<K, U>> binder) =>
+        failwith<Map<K, U>>("Map<K,V> doesn't support Bind.");
+
+    public static Map<K, U> SelectMany<K, T, U>(this Map<K, T> self, Func<T, Map<K, U>> binder) =>
+        failwith<Map<K, U>>("Map<K,V> doesn't support Bind or SelectMany.");
+
+    public static Map<K, V> SelectMany<K, T, U, V>(this Map<K, T> self, Func<T, Map<K, U>> binder, Func<T,U,V> project) =>
+        failwith<Map<K, V>>("Map<K,V> doesn't support Bind or SelectMany.");
+
+    public static int Sum<K>(this Map<K, int> self) =>
+        self.Values.Sum();
 }

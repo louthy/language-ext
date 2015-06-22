@@ -101,5 +101,12 @@ namespace LanguageExt
                 return new StateResult<S, V>(resU.State, resV);
             };
         }
+
+        public static State<S, T> Filter<S, T>(this State<S, T> self, Func<T, bool> pred) =>
+            env => failwith<StateResult<S, T>>("State doesn't support Where or Filter");
+
+        public static State<S, T> Where<S, T>(this State<S, T> self, Func<T, bool> pred) =>
+            env => failwith<StateResult<S, T>>("State doesn't support Where or Filter");
+
     }
 }

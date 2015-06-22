@@ -270,6 +270,9 @@ namespace LanguageExt
 
 public static class __OptionUnsafeExt
 {
+    // 
+    // OptionUnsafe<T> extensions 
+    // 
     public static OptionUnsafe<U> Select<T, U>(this OptionUnsafe<T> self, Func<T, U> map) => 
         self.MapUnsafe(map);
 
@@ -290,4 +293,49 @@ public static class __OptionUnsafeExt
         self.FilterUnsafe(pred)
             ? self
             : None;
+
+    public static Unit Iter<T>(this OptionUnsafe<T> self, Action<T> action) =>
+        self.IfSomeUnsafe(action);
+
+    public static int Count<T>(this OptionUnsafe<T> self) =>
+        self.IsSome
+            ? 1
+            : 0;
+
+    public static bool ForAll<T>(this OptionUnsafe<T> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? pred(self.Value)
+            : true;
+
+    public static bool Exists<T>(this OptionUnsafe<T> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? pred(self.Value)
+            : false;
+
+    public static S Fold<S, T>(this OptionUnsafe<T> self, S state, Func<S, T, S> folder) =>
+        self.IsSome
+            ? folder(state, self.Value)
+            : state;
+
+    public static OptionUnsafe<R> Map<T, R>(this OptionUnsafe<T> self, Func<T, R> mapper) =>
+        self.IsSome
+            ? OptionUnsafe.Cast(mapper(self.Value))
+            : None;
+
+    public static OptionUnsafe<T> Filter<T>(this OptionUnsafe<T> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? pred(self.Value)
+                ? self
+                : None
+            : self;
+
+    public static OptionUnsafe<R> Bind<T, R>(this OptionUnsafe<T> self, Func<T, OptionUnsafe<R>> binder) =>
+        self.IsSome
+            ? binder(self.Value)
+            : None;
+
+    public static int Sum(this OptionUnsafe<int> self) =>
+        self.IsSome
+            ? self.Value
+            : 0;
 }

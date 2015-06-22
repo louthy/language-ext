@@ -53,6 +53,12 @@ namespace LanguageExt
         public static Reader<Env, R> Map<Env, T, R>(this Reader<Env, T> self, Func<T, R> mapper) =>
             env => mapper(self(env));
 
+        public static Reader<Env, T> Filter<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
+            env => failwith<T>("Reader doesn't support Where or Filter");
+
+        public static Reader<Env, T> Where<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
+            env => failwith<T>("Reader doesn't support Where or Filter");
+
         public static Reader<Env, R> Bind<Env, T, R>(this Reader<Env, T> self, Func<T, Reader<Env, R>> binder) =>
             env => binder(self(env))(env);
 

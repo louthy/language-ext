@@ -64,7 +64,7 @@ namespace LanguageExt
         public static Either<L, Ret> map<L, R, Ret>(Either<L, R> either, Func<R, Ret> mapper) =>
             either.Map(mapper);
 
-        public static Either<Unit, R> filter<L, R>(Either<L, R> either, Func<R, bool> pred) =>
+        public static Either<L, R> filter<L, R>(Either<L, R> either, Func<R, bool> pred) =>
             either.Filter(pred);
 
         public static Either<L, Ret> bind<L, R, Ret>(Either<L, R> either, Func<R, Either<L, Ret>> binder) =>

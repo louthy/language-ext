@@ -251,5 +251,26 @@ namespace LanguageExt
         {
             return lst.GetEnumerator();
         }
+
+
+        public S Fold<S>(S state, Func<S, T, S> folder) =>
+            this.Aggregate(state, folder);
+
+        public Lst<U> Map<U>(Func<T, U> map) =>
+            new Lst<U>(this.Select(map));
+
+        public Lst<U> Bind<U>(Func<T, Lst<U>> bind) =>
+            new Lst<U>(this.SelectMany(bind));
+
+        public Lst<T> Filter(Func<T,bool> pred) =>
+            new Lst<T>(this.Where(pred));
+    }
+
+    public static class Testing
+    {
+        public static Lst<V> SelectMany<T, U, V>(this Lst<T> self, Func<T, Lst<U>> bind, Func<T, U, V> project)
+        {
+            return new Lst<V>(self.AsEnumerable().SelectMany(bind, project));
+        }
     }
 }

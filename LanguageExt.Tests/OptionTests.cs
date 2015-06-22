@@ -84,10 +84,11 @@ namespace LanguageExtTests
             var two = Some(2);
             var four = Some(4);
             var six = Some(6);
+            Option<int> none = None;
 
             match(from x in two
                   from y in four
-                  from _ in Option<int>.None
+                  from _ in none
                   from z in six
                   select x + y + z,
                    Some: v => failwith<int>("Shouldn't get here"),

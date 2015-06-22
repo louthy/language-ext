@@ -96,5 +96,14 @@ namespace LanguageExt
                 return new WriterResult<W, V>(resV, resT.Output.Concat(resU.Output));
             };
         }
+
+        public static Writer<W, T> Filter<W, T>(this Writer<W, T> self, Func<T, bool> pred) =>
+            () => failwith<WriterResult<W,T>>("Writer doesn't support Where or Filter");
+
+        public static Writer<W, T> Where<W, T>(this Writer<W, T> self, Func<T, bool> pred) =>
+            () => failwith<WriterResult<W, T>>("Writer doesn't support Where or Filter");
+
+        public static int Sum<Out>(this Writer<Out, int> self) =>
+            self().Value;
     }
 }

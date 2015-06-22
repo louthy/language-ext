@@ -36,7 +36,7 @@ namespace LanguageExt
             new TryOptionResult<T>(value);
 
         public static implicit operator TryOptionResult<T>(T value) =>
-            new TryOptionResult<T>(Option.Cast(value));
+            new TryOptionResult<T>(OptionCast.Cast(value));
 
         public static implicit operator TryOptionResult<T>(OptionNone value) =>
             new TryOptionResult<T>(Option<T>.None);
@@ -461,6 +461,9 @@ public static class __TryOptionExt
 
     public static TryOptionSomeUnitContext<T> Some<T>(this TryOption<T> self, Action<T> someHandler) =>
         new TryOptionSomeUnitContext<T>(self, someHandler);
+
+    public static int Sum(this TryOption<int> self) =>
+        self.Try().Value.Value;
 
     public static string AsString<T>(this TryOption<T> self) =>
         match(self,

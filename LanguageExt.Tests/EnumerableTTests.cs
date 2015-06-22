@@ -55,11 +55,11 @@ namespace LanguageExtTests
                               tuple(5, "E")
                           )
                       );
-            var res = lst.FoldT(0, (s, v) => s + v);
+            var res = lst.FoldT("", (s, v) => s + v);
             var mlst = lst.MapT(x => x.ToLower());
-            var mres = mlst.FoldT(0, (s, v) => s + v);
+            var mres = mlst.FoldT("", (s, v) => s + v);
 
-            NU.Assert.IsTrue(res == 45, "Expected 45, got "+res);
+            NU.Assert.IsTrue(res == "ABCDEABCDEABCDE", "Expected ABCDEABCDEABCDE, got " + res);
             NU.Assert.IsTrue(lst.CountT() == 15, "(lst) Expected 15, got " + lst.CountT());
             NU.Assert.IsTrue(mlst.CountT() == 15, "(mlst) Expected 15, got " + mlst.CountT());
 
