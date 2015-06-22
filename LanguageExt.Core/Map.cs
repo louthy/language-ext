@@ -777,4 +777,49 @@ public static class __MapExt
 
     public static int Sum<K>(this Map<K, int> self) =>
         self.Values.Sum();
+
+    //
+    // Map<A<Map<B,C>>
+    //
+
+    public static Option<T> Find<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey) =>
+        self.Find(outerKey, b => b.Find(innerKey), () => None);
+
+    public static R Find<A, B, T, R>(this Map<A, Map<B, T>> self, A outerKey, B innerKey, Func<T, R> Some, Func<R> None) =>
+        self.Find(outerKey, b => b.Find(innerKey, Some, None), None);
+
+    public static Map<A, Map<B, T>> AddOrUpdate<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey, Func<T, T> Some, Func<T> None) =>
+        self.AddOrUpdate(
+            outerKey,
+            b => b.AddOrUpdate(innerKey, Some, None),
+            () => map(tuple(innerKey, None()))
+        );
+
+    public static Map<A, Map<B, T>> AddOrUpdate<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey, T value) =>
+        self.AddOrUpdate(
+            outerKey,
+            b => b.AddOrUpdate(innerKey, _ => value, value),
+            () => map(tuple(innerKey, value))
+        );
+
+    public static Map<A, Map<B, T>> Remove<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey)
+    {
+        var b = self.Find(outerKey);
+        if (b.IsSome)
+        {
+            var bv = b.Value.Remove(innerKey);
+            if (bv.Count() == 0)
+            {
+                return self.Remove(outerKey);
+            }
+            else
+            {
+                return self.SetItem(outerKey, bv);
+            }
+        }
+        else
+        {
+            return self;
+        }
+    }
 }
