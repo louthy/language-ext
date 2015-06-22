@@ -1,6 +1,8 @@
 ﻿using static LanguageExt.Prelude;
+using static LanguageExt.List;
 using LanguageExt;
 using LanguageExt.Trans;
+using LanguageExt.Trans.Linq;
 
 using NU = NUnit.Framework;
 
@@ -13,9 +15,9 @@ namespace LanguageExtTests
         public void WrappedListTest()
         {
             var opt = Some(List(1, 2, 3, 4, 5));
-            var res = opt.FoldT(0, (s, v) => s + v);
-            var mopt = opt.MapT(x => x * 2);
-            var mres = mopt.FoldT(0, (s, v) => s + v);
+            var res = foldT(opt, 0, (s, v) => s + v);
+            var mopt = mapT(opt, x => x * 2);
+            var mres = foldT(mopt, 0, (s, v) => s + v);
 
             NU.Assert.IsTrue(res == 15, "Expected 15, but got " + res);
             NU.Assert.IsTrue(mres == 30, "Expected 30, but got " + mres);
@@ -62,7 +64,7 @@ namespace LanguageExtTests
             var res = from x in opt
                       select x * 2;
 
-            var total = res.SumT();
+            var total = sumT(res);
 
             NU.Assert.IsTrue(total == 30);
         }
@@ -75,7 +77,7 @@ namespace LanguageExtTests
             var res = from x in opt
                       select x.ToLower();
 
-            var fd = res.FoldT("", (s, x) => s + x);
+            var fd = foldT(res, "", (s, x) => s + x);
 
             NU.Assert.IsTrue(fd == "abcde");
         }

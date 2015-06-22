@@ -253,7 +253,7 @@ namespace LanguageExt
             matchUnsafe(option, someHandler, noneHandler);
     }
 
-    internal static class OptionUnsafe
+    internal static class OptionUnsafeCast
     {
         public static OptionUnsafe<T> Cast<T>(T value) =>
             value == null
@@ -283,7 +283,7 @@ public static class __OptionUnsafeExt
         matchUnsafe(self,
             Some: t =>
                 matchUnsafe(bind(t),
-                    Some: u => OptionUnsafe.Cast<V>(project(t, u)),
+                    Some: u => OptionUnsafeCast.Cast<V>(project(t, u)),
                     None: () => OptionUnsafe<V>.None
                 ),
             None: () => OptionUnsafe<V>.None
@@ -319,7 +319,7 @@ public static class __OptionUnsafeExt
 
     public static OptionUnsafe<R> Map<T, R>(this OptionUnsafe<T> self, Func<T, R> mapper) =>
         self.IsSome
-            ? OptionUnsafe.Cast(mapper(self.Value))
+            ? OptionUnsafeCast.Cast(mapper(self.Value))
             : None;
 
     public static OptionUnsafe<T> Filter<T>(this OptionUnsafe<T> self, Func<T, bool> pred) =>

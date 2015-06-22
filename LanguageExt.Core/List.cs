@@ -38,13 +38,6 @@ namespace LanguageExt
 
         public static T head<T>(IEnumerable<T> list) => list.First();
 
-        [Obsolete("headSafe has been deprecated, please use headOrNone")]
-        public static Option<T> headSafe<T>(IEnumerable<T> list) =>
-            (from x in list
-             select Some(x))
-            .DefaultIfEmpty(None)
-            .FirstOrDefault();
-
         public static Option<T> headOrNone<T>(IEnumerable<T> list) =>
             (from x in list
              select Some(x))
@@ -276,6 +269,13 @@ namespace LanguageExt
             }
             return false;
         }
+
+        [Obsolete("headSafe has been deprecated, please use headOrNone")]
+        public static Option<T> headSafe<T>(IEnumerable<T> list) =>
+            (from x in list
+             select Some(x))
+            .DefaultIfEmpty(None)
+            .FirstOrDefault();
     }
 
     class EqCompare<T> : IEqualityComparer<T>
@@ -448,7 +448,7 @@ public static class __EnumnerableExt
 
     [Obsolete("HeadSafe has been deprecated, please use HeadOrNone")]
     public static Option<T> HeadSafe<T>(this IEnumerable<T> list) =>
-        LanguageExt.List.headSafe(list);
+        LanguageExt.List.headOrNone(list);
 
     public static Option<T> HeadOrNone<T>(this IEnumerable<T> list) =>
         LanguageExt.List.headOrNone(list);

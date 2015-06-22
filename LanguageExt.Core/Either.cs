@@ -224,7 +224,7 @@ namespace LanguageExt
             value.IsLeft;
     }
 
-    public static class Either
+    public static class EitherCast
     {
         private static Either<NL, NR> CastRight<NL, NR>(NR right) =>
             right == null
