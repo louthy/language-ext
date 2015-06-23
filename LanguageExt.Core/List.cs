@@ -524,4 +524,264 @@ public static class __EnumnerableExt
 
     public static IEnumerable<R> Bind<T, R>(this IEnumerable<T> self, Func<T, IEnumerable<R>> binder) =>
         self.SelectMany(x => binder(x));
+
+    public static IEnumerable<V> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, Lst<U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            foreach (var u in bind(t))
+            {
+                yield return project(t, u);
+            }
+        }
+    }
+
+    public static IEnumerable<V> SelectMany<K, T, U, V>(this IEnumerable<T> self, Func<T, Map<K, U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            foreach (var u in bind(t).Values)
+            {
+                yield return project(t, u);
+            }
+        }
+    }
+
+    public static IEnumerable<V> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, Option<U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            var resU = bind(t);
+            if( resU.IsSome )
+            {
+                yield return project(t, resU.Value);
+            }
+        }
+    }
+
+    public static IEnumerable<V> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            var resU = bind(t);
+            if (resU.IsSome)
+            {
+                yield return project(t, resU.Value);
+            }
+        }
+    }
+
+    public static IEnumerable<V> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, Try<U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            var resU = bind(t).Try();
+            if (!resU.IsFaulted)
+            {
+                yield return project(t, resU.Value);
+            }
+        }
+    }
+
+    public static IEnumerable<V> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            var resU = bind(t).Try();
+            if (!resU.IsFaulted && resU.Value.IsSome)
+            {
+                yield return project(t, resU.Value.Value);
+            }
+        }
+    }
+
+    public static IEnumerable<V> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, Reader<T, U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            var resU = bind(t)(t);
+            if (!resU.IsBottom)
+            {
+                yield return project(t, resU.Value);
+            }
+        }
+    }
+
+    public static Writer<Out, IEnumerable<V>> SelectMany<Out, T, U, V>(this IEnumerable<T> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project)
+    {
+        return () =>
+        {
+            var res = new System.Collections.Generic.List<V>();
+            foreach (var t in self)
+            {
+                var resU = bind(t)();
+                if (!resU.IsBottom)
+                {
+                    res.Add(project(t, resU.Value));
+                }
+            }
+            return res;
+        };
+    }
+
+    public static IEnumerable<V> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, State<T, U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            var resU = bind(t)(t);
+            if (!resU.IsBottom)
+            {
+                yield return project(t, resU.Value);
+            }
+        }
+    }
+
+
+
+
+    public static IEnumerable<V> SelectMany<T, U, V>(this Lst<T> self, Func<T, Lst<U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            foreach (var u in bind(t))
+            {
+                yield return project(t, u);
+            }
+        }
+    }
+
+    public static IEnumerable<V> SelectMany<K, T, U, V>(this Lst<T> self, Func<T, Map<K, U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            foreach (var u in bind(t).Values)
+            {
+                yield return project(t, u);
+            }
+        }
+    }
+
+    public static IEnumerable<V> SelectMany<T, U, V>(this Lst<T> self, Func<T, Option<U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            var resU = bind(t);
+            if (resU.IsSome)
+            {
+                yield return project(t, resU.Value);
+            }
+        }
+    }
+
+    public static IEnumerable<V> SelectMany<T, U, V>(this Lst<T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            var resU = bind(t);
+            if (resU.IsSome)
+            {
+                yield return project(t, resU.Value);
+            }
+        }
+    }
+
+    public static IEnumerable<V> SelectMany<T, U, V>(this Lst<T> self, Func<T, Try<U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            var resU = bind(t).Try();
+            if (!resU.IsFaulted)
+            {
+                yield return project(t, resU.Value);
+            }
+        }
+    }
+
+    public static IEnumerable<V> SelectMany<T, U, V>(this Lst<T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            var resU = bind(t).Try();
+            if (!resU.IsFaulted && resU.Value.IsSome)
+            {
+                yield return project(t, resU.Value.Value);
+            }
+        }
+    }
+
+    public static IEnumerable<V> SelectMany<T, U, V>(this Lst<T> self, Func<T, Reader<T, U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            var resU = bind(t)(t);
+            if (!resU.IsBottom)
+            {
+                yield return project(t, resU.Value);
+            }
+        }
+    }
+
+    public static Reader<Env, IEnumerable<V>> SelectMany<Env, T, U, V>(this Lst<T> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project)
+    {
+        return env =>
+        {
+            var res = new System.Collections.Generic.List<V>();
+            foreach (var t in self)
+            {
+                var resU = bind(t)(env);
+                if (!resU.IsBottom)
+                {
+                    res.Add(project(t, resU.Value));
+                }
+            }
+            return res;
+        };
+    }
+
+    public static Writer<Out, IEnumerable<V>> SelectMany<Out, T, U, V>(this Lst<T> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project)
+    {
+        return () =>
+        {
+            var res = new System.Collections.Generic.List<V>();
+            foreach (var t in self)
+            {
+                var resU = bind(t)();
+                if (!resU.IsBottom)
+                {
+                    res.Add(project(t, resU.Value));
+                }
+            }
+            return res;
+        };
+    }
+
+    public static IEnumerable<V> SelectMany<T, U, V>(this Lst<T> self, Func<T, State<T, U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            var resU = bind(t)(t);
+            if (!resU.IsBottom)
+            {
+                yield return project(t, resU.Value);
+            }
+        }
+    }
+
+    public static State<S, IEnumerable<V>> SelectMany<S, T, U, V>(this Lst<T> self, Func<T, State<S, U>> bind, Func<T, U, V> project)
+    {
+        return state =>
+        {
+            var res = new System.Collections.Generic.List<V>();
+            foreach (var t in self)
+            {
+                var resU = bind(t)(state);
+                if (!resU.IsBottom)
+                {
+                    res.Add(project(t, resU.Value));
+                }
+            }
+            return res;
+        };
+    }
+
 }

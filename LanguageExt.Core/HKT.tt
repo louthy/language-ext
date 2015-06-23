@@ -119,6 +119,12 @@
         Tuple.Create(
             "",
             "public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, INNER_U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));"),
+        //
+        // SelectMany
+        //
+        Tuple.Create(
+            "internal static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, U> bind, Func<T,U,V> project) => self.Select(x => project(x, bind(x)));",
+            "public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));"),
    };
 #>
 using System; 
