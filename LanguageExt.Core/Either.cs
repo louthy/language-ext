@@ -7,7 +7,13 @@ using System.Collections.Immutable;
 
 namespace LanguageExt
 {
-    public struct Either<L, R> : IEnumerable<R>
+    public struct Either<L, R> :
+        IEither,
+        IEnumerable<R>, 
+        IComparable<Either<L,R>>, 
+        IComparable<R>, 
+        IEquatable<Either<L, R>>, 
+        IEquatable<R>
     {
         enum EitherState : byte
         {
@@ -222,6 +228,51 @@ namespace LanguageExt
 
         public static bool operator false(Either<L, R> value) =>
             value.IsLeft;
+
+        public int CompareTo(Either<L, R> other) =>
+            IsLeft && other.IsLeft
+                ? Comparer<L>.Default.Compare(LeftValue, other.LeftValue)
+                : IsRight && other.IsRight
+                    ? Comparer<R>.Default.Compare(RightValue, other.RightValue)
+                    : IsLeft
+                        ? -1
+                        : 1;
+
+        public int CompareTo(R other) =>
+            IsRight
+                ? Comparer<R>.Default.Compare(RightValue, other)
+                : -1;
+
+        public int CompareTo(L other) =>
+            IsRight
+                ? -1
+                : Comparer<L>.Default.Compare(LeftValue, other);
+
+        public bool Equals(R other) =>
+            IsRight
+                ? EqualityComparer<R>.Default.Equals(RightValue, other)
+                : false;
+
+        public bool Equals(L other) =>
+            IsLeft
+                ? EqualityComparer<L>.Default.Equals(LeftValue, other)
+                : false;
+
+        public bool Equals(Either<L, R> other) =>
+            IsRight
+                ? other.Equals(RightValue)
+                : other.Equals(LeftValue);
+
+        public TResult MatchUntyped<TResult>(Func<object, TResult> Right, Func<object, TResult> Left) =>
+            IsRight
+                ? Right(RightValue)
+                : Left(LeftValue);
+
+        public Type GetUnderlyingRightType() =>
+            typeof(R);
+
+        public Type GetUnderlyingLeftType() =>
+            typeof(L);
     }
 
     public static class EitherCast

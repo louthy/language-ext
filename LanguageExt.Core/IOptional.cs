@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    public interface IOptionalValue
+    public interface IOptional
     {
         bool IsSome
         {
@@ -18,7 +18,7 @@ namespace LanguageExt
             get;
         }
 
-        object MatchUntyped(Func<object, object> Some, Func<object> None);
+        R MatchUntyped<R>(Func<object, R> Some, Func<R> None);
 
         Type GetUnderlyingType();
     }

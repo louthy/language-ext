@@ -53,7 +53,7 @@ namespace LanguageExt
         /// <typeparam name="Env">Environment</typeparam>
         /// <typeparam name="T">Wrapped type</typeparam>
         /// <returns>Reader monad with the environment in as the wrapped value</returns>
-        public static Reader<Env, Env> ask<Env, T>() =>
+        public static Reader<Env, Env> ask<Env>() =>
             env => new ReaderResult<Env>(env);
 
         /// <summary>
@@ -64,18 +64,8 @@ namespace LanguageExt
         /// <typeparam name="T">Wrapped type</typeparam>
         /// <typeparam name="R">Mapped value</typeparam>
         /// <returns>Reader monad with the mapped environment in as the wrapped value</returns>
-        public static Reader<Env, R> ask<Env, T, R>(Func<Env, R> map) =>
+        public static Reader<Env, R> asks<Env, R>(Func<Env, R> map) =>
             env => new ReaderResult<R>(map(env));
-
-        /// <summary>
-        /// Reader monad 'ask'
-        /// Gets the 'environment' and maps it
-        /// </summary>
-        /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="T">Wrapped type</typeparam>
-        /// <returns>Reader monad with the mapped environment in as the wrapped value</returns>
-        public static Reader<Env, T> ask<Env, T>(Func<Env, T> map) =>
-            env => new ReaderResult<T>(map(env));
 
         /// <summary>
         /// Executes a computation in a modified environment

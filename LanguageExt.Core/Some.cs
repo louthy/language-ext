@@ -5,7 +5,7 @@ using static LanguageExt.Prelude;
 namespace LanguageExt
 {
     [TypeConverter(typeof(SomeTypeConverter))]
-    public struct Some<T> : IOptionalValue
+    public struct Some<T> : IOptional
     {
         readonly T value;
         readonly bool initialised;
@@ -52,7 +52,7 @@ namespace LanguageExt
         public bool IsNone =>
             !initialised;
 
-        public object MatchUntyped(Func<object, object> Some, Func<object> None) =>
+        public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
             IsSome
                 ? Some(value)
                 : None();

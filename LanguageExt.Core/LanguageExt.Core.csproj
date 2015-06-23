@@ -51,7 +51,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>HKT.tt</DependentUpon>
     </Compile>
-    <Compile Include="IOptionalValue.cs" />
+    <Compile Include="IEither.cs" />
+    <Compile Include="IOptional.cs" />
     <Compile Include="Lst.cs" />
     <Compile Include="MapKV.cs" />
     <Compile Include="Prelude_Monad.cs" />

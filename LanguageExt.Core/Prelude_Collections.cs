@@ -476,5 +476,17 @@ namespace LanguageExt
             from range in ranges
             from c in range
             select c;
+
+
+        public static V foldX<T, V>(IEnumerable<IEnumerable<T>> self, V state, Func<V, T, V> fold) =>
+            self.Fold(state, (s, x) => x.Fold(s, fold));
+
+        public static Reader<Env, V> foldX<T, Env, V>(
+            OptionUnsafe<Reader<Env, T>> self,
+            V state,
+            Func<V, T, V> fold
+            ) =>
+            env => self.Fold(state, (s, r) => r.Fold(s, fold)(env));
+
     }
 }

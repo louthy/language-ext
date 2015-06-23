@@ -49,8 +49,8 @@ namespace LanguageExtTests
         {
             var lookupVar = fun((string name, Bindings bindings) => LanguageExt.Map.find(bindings.Map, name).IfNone(0));
 
-            var calcIsCountCorrect = from   count    in ask((Bindings env) => lookupVar("count", env))
-                                     from   bindings in ask<Bindings, int>()
+            var calcIsCountCorrect = from   count    in asks((Bindings env) => lookupVar("count", env))
+                                     from   bindings in ask<Bindings>()
                                      select count == LanguageExt.Map.length(bindings.Map);
 
             var sampleBindings = Bindings.New(
@@ -67,7 +67,7 @@ namespace LanguageExtTests
         [Test]
         public void ReaderLocalTest()
         {
-            var calculateContentLen = from content in ask<string, int>()
+            var calculateContentLen = from content in ask<string>()
                                       select content.Length;
 
             var calculateModifiedContentLen = local(content => "Prefix " + content, calculateContentLen);
@@ -78,6 +78,23 @@ namespace LanguageExtTests
 
             Assert.IsTrue(modifiedLen.Value == 12);
             Assert.IsTrue(len.Value == 5);
+        }
+
+        [Test]
+        public void ReaderBottomTest()
+        {
+            var v1 = Reader<int, int>(10);
+            var v2 = Reader<int, int>(10);
+
+            var rdr = from x in v1
+                      from y in v2
+                      from c in ask<int>()
+                      where x * c > 50 && y * c > 50
+                      select (x + y) * c;
+
+            Assert.IsTrue(rdr(10) == 200);
+            Assert.IsTrue(rdr(2) == 0);
+            Assert.IsTrue(rdr(2).IsBottom);
         }
 
         [Test]
@@ -93,5 +110,23 @@ namespace LanguageExtTests
             Assert.IsTrue(r.Value == 12);
             Assert.IsTrue(r.State == "hello, world");
         }
+
+        [Test]
+        public void StateBottomTest()
+        {
+            var v1 = State<int, int>(10);
+            var v2 = State<int, int>(10);
+
+            var rdr = from x in v1
+                      from y in v2
+                      from c in get<int>()
+                      where x * c > 50 && y * c > 50
+                      select (x + y) * c;
+
+            Assert.IsTrue(rdr(10) == 200);
+            Assert.IsTrue(rdr(2) == 0);
+            Assert.IsTrue(rdr(2).IsBottom);
+        }
+
     }
 }

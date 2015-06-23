@@ -166,7 +166,7 @@ namespace LanguageExt
           : SimpleConvertTo(x,context,culture,destinationType,baseConvertTo);
 
         private object MatchConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType, ConvertToDel baseConvertTo) =>
-            (value as IOptionalValue)?.MatchUntyped(
+            (value as IOptional)?.MatchUntyped(
                 Some: x  => IsSomeConvertTo(x, context, culture, value, destinationType, baseConvertTo),
                 None: () => ConvertToValueNull(context, culture, destinationType, baseConvertTo));
     }

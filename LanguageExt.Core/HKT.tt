@@ -6,18 +6,18 @@
 <#@ output extension=".cs" #>
 <# 
     var types = new [] {
-        T("IEnumerable", "!T",        "self.FirstOrDefault()",                          false, "List"),
-        T("Option",      "!T",        "self.IsSome ? self.Value : default(T)",          false),
-        T("OptionUnsafe","!T",        "self.IsSome ? self.Value : default(T)",          false),
-        T("Lst",         "!T",        "self.FirstOrDefault()",                          false, "List"),
-        T("Map",         "K, !T",     "self.Values.FirstOrDefault()",                   false),
-        T("TryOption",   "!T",        "self.Try().Value.IfNone(default(T))",            false),
-        T("Try",         "!T",        "self.Try().Value",                               false),
-        T("Either",      "L, !T",     "self.IsRight ? self.RightValue : default(T)",    false),
-        T("EitherUnsafe","L, !T",     "self.IsRight ? self.RightValue : default(T)",    false),
-        T("Reader",      "Env, !T",   "self",                                           true),
-        T("Writer",      "Out, !T",   "self().Value",                                   false),
-        T("State",       "State, !T", "self",                                           true),
+        T("IEnumerable", "!T",        "self.FirstOrDefault()",                          DelType.Not, "List"),
+        T("Option",      "!T",        "self.IsSome ? self.Value : default(T)",          DelType.Not),
+        T("OptionUnsafe","!T",        "self.IsSome ? self.Value : default(T)",          DelType.Not),
+        T("Lst",         "!T",        "self.FirstOrDefault()",                          DelType.Not, "List"),
+        T("Map",         "K, !T",     "self.Values.FirstOrDefault()",                   DelType.Not),
+        T("TryOption",   "!T",        "self.Try().Value.IfNone(default(T))",            DelType.Not),
+        T("Try",         "!T",        "self.Try().Value",                               DelType.Not),
+        T("Either",      "L, !T",     "self.IsRight ? self.RightValue : default(T)",    DelType.Not),
+        T("EitherUnsafe","L, !T",     "self.IsRight ? self.RightValue : default(T)",    DelType.Not),
+        T("Reader",      "Env, !T",   "self",                                           DelType.Func1),
+        T("Writer",      "Out, !T",   "self",                                           DelType.Func0),
+        T("State",       "State, !T", "self",                                           DelType.Func1),
     };
 
     var monadFuncs = new [] {
@@ -25,7 +25,7 @@
         // Value
         //
         Tuple.Create(
-            "internal static RETURN_ONE_T InnerValue<ARGS_T>(this TYPE self) =>VALUE;",
+            "internal static RETURN_ONE_T InnerValue<ARGS_T>(this TYPE self) => VALUE;",
             "internal static RETURN_ONE_T ValueT<ARGS_T>(this TYPE self) => self.MapT(x=> x.InnerValue()).InnerValue();",
             ""),
         //
@@ -33,15 +33,15 @@
         //
         Tuple.Create(
             "internal static RETURN_ONE_INT SumT<ARGS_INT>(this TYPE_INT self) => self.Sum();",
-            "public static RETURN_ONE_INT SumT<ARGS_INT>(this TYPE_INT self) =>DEL_ARGS self.MapT(x => x.SumT()DEL_INVOKE_ONE).Sum();",
-            "public static RETURN_ONE_INT sumT<ARGS_INT>(TYPE_INT self) =>DEL_ARGS self.MapT(x => x.SumT()DEL_INVOKE_ONE).Sum();"),
+            "public static RETURN_ONE_INT SumT<ARGS_INT>(this TYPE_INT self) => self.MapT(x => x.SumT()).SumT();",
+            "public static RETURN_ONE_INT sumT<ARGS_INT>(TYPE_INT self) => self.MapT(x => x.SumT()).SumT();"),
         //
         // Count
         //
         Tuple.Create(
-            "internal static RETURN_ONE_INT CountT<ARGS_T>(this TYPE self) =>DEL_ARGS self.Count();",
-            "public static RETURN_ONE_INT CountT<ARGS_T>(this TYPE self) => self.Map(x => x.CountT()).SumT();",
-            "public static RETURN_ONE_INT countT<ARGS_T>(TYPE self) => self.Map(x => x.CountT()).SumT();"),
+            "internal static RETURN_ONE_INT CountT<ARGS_T>(this TYPE self) => self.Count();",
+            "public static RETURN_ONE_INT CountT<ARGS_T>(this TYPE self) => self.MapT(x => x.CountT()).SumT();",
+            "public static RETURN_ONE_INT countT<ARGS_T>(TYPE self) => self.MapT(x => x.CountT()).SumT();"),
         //
         // Bind
         //
@@ -54,8 +54,8 @@
         //
         Tuple.Create(
             "internal static RETURN_ONE_BOOL ExistsT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.Exists(pred);",
-            "public static RETURN_ONE_BOOL ExistsT<ARGS_T>(this TYPE self, Func<T, bool> pred) =>DEL_ARGS self.MapT(x => x.ExistsT(pred)DEL_INVOKE).Exists(x=>x);",
-            "public static RETURN_ONE_BOOL existsT<ARGS_T>(TYPE self, Func<T, bool> pred) =>DEL_ARGS self.MapT(x => x.ExistsT(pred)DEL_INVOKE).Exists(x=>x);"),
+            "public static RETURN_ONE_BOOL ExistsT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);",
+            "public static RETURN_ONE_BOOL existsT<ARGS_T>(TYPE self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);"),
         //
         // Filter
         //
@@ -68,8 +68,8 @@
         //
         Tuple.Create(
             "internal static RETURN_ONE_V FoldT<ARGS_T, V>(this TYPE self, V state, Func<V, T, V> fold) => self.Fold(state,fold);",
-            "public static RETURN_ONE_V FoldT<ARGS_T, V>(this TYPE self, V state, Func<V, T, V> fold) =>DEL_ARGS self.Fold(state, (s,x) => x.FoldT(s,fold)DEL_INVOKE);",
-            "public static RETURN_ONE_V foldT<ARGS_T, V>(TYPE self, V state, Func<V, T, V> fold) =>DEL_ARGS self.Fold(state, (s,x) => x.FoldT(s,fold)DEL_INVOKE);"),
+            "public static RETURN_ONE_V FoldT<ARGS_T, V>(this TYPE self, V state, Func<V, T, V> fold) =>DEL_ARGS self.FoldT(state,(s,x) => x.FoldT(s, fold)DEL_INVOKE_ONE);",
+            "public static RETURN_ONE_V foldT<ARGS_T, V>(TYPE self, V state, Func<V, T, V> fold) =>DEL_ARGS self.FoldT(state,(s,x) => x.FoldT(s, fold)DEL_INVOKE_ONE);"),
         //
         // ForAll
         //
@@ -82,8 +82,8 @@
         //
         Tuple.Create(
             "internal static RETURN_ONE_UNIT IterT<ARGS_T>(this TYPE self, Action<T> action) => self.Iter(action);",
-            "public static RETURN_ONE_UNIT IterT<ARGS_T>(this TYPE self, Action<T> action) =>DEL_ARGS self.Iter(x => x.IterT(action)DEL_INVOKE);",
-            "public static RETURN_ONE_UNIT iterT<ARGS_T>(TYPE self, Action<T> action) =>DEL_ARGS self.Iter(x => x.IterT(action)DEL_INVOKE);"),
+            "public static RETURN_ONE_UNIT IterT<ARGS_T>(this TYPE self, Action<T> action) =>DEL_ARGS self.IterT(x => x.IterT(action)DEL_INVOKE);",
+            "public static RETURN_ONE_UNIT iterT<ARGS_T>(TYPE self, Action<T> action) =>DEL_ARGS self.IterT(x => x.IterT(action)DEL_INVOKE);"),
         //
         // Map
         //
@@ -95,9 +95,16 @@
         // Lift
         //
         Tuple.Create(
-            "public static RETURN_ONE_T Lift<ARGS_T>(this TYPE self) => self.InnerValue();",
-            "public static RETURN_ONE_T LiftT<ARGS_T>(this TYPE self) => self.ValueT();",
-            "public static RETURN_ONE_T liftT<ARGS_T>(TYPE self) => self.ValueT();"),
+            "public static RETURN_ONE_T Lift<ARGS_T>(this TYPE self) where T : struct => self.InnerValue();",
+            "public static RETURN_ONE_T LiftT<ARGS_T>(this TYPE self) where T : struct => self.ValueT();",
+            "public static RETURN_ONE_T liftT<ARGS_T>(TYPE self) where T : struct => self.ValueT();"),
+        //
+        // LiftUnsafe
+        //
+        Tuple.Create(
+            "public static RETURN_ONE_T LiftUnsafe<ARGS_T>(this TYPE self) where T : class => self.InnerValue();",
+            "public static RETURN_ONE_T LiftUnsafeT<ARGS_T>(this TYPE self) where T : class => self.ValueT();",
+            "public static RETURN_ONE_T liftUnsafeT<ARGS_T>(TYPE self) where T : class => self.ValueT();"),
    };
 
    var linqFuncs = new [] {
@@ -167,21 +174,21 @@ namespace LanguageExt.Trans
         public readonly string Args;
         public readonly string Value;
         public readonly string TypeAlias;
-        public readonly bool DelegateTakesArg;
+        public readonly DelType DelType;
 
-        public TypeDesc(string name, string args, string value, bool delegateTakesArg, string typeAlias = null)
+        public TypeDesc(string name, string args, string value, DelType delType, string typeAlias = null)
         {
             Name = name;
             Args = args;
             Value = value;
-            DelegateTakesArg = delegateTakesArg;
+            DelType = delType;
             TypeAlias = typeAlias ?? Name;
         }
     }
 
-    public TypeDesc T(string name, string args, string value, bool delegateTakesArg, string typeAlias = null)
+    public TypeDesc T(string name, string args, string value, DelType delType, string typeAlias = null)
     {
-        return new TypeDesc(name,args,value,delegateTakesArg,typeAlias);
+        return new TypeDesc(name,args,value,delType,typeAlias);
     }
 
     public string GenerateInnerFuncs(string ns, IEnumerable<string> funcs, IEnumerable<TypeDesc> types, int tabs)
@@ -211,7 +218,7 @@ namespace LanguageExt.Trans
         return String.Join("\r\n",
                    from outer in types
                    from inner in types
-                   where !(outer.DelegateTakesArg && inner.DelegateTakesArg && outer.Args != inner.Args)
+                   where !(outer.DelType >= 0 && inner.DelType >= 0 && outer.Args != inner.Args)
                    select 
                        all(
                            pre(outer),
@@ -251,7 +258,7 @@ namespace LanguageExt.Trans
 
     public string TypeGenOne(TypeDesc type, string oneArg)
     {
-        if( type.DelegateTakesArg )
+        if( type.DelType >= 0 )
         {
             return String.Format("{0}<{1}>", type.Name, TypeArgsGen(type,oneArg));
         }
@@ -263,17 +270,27 @@ namespace LanguageExt.Trans
 
     public string TypeGenOne(TypeDesc outer, TypeDesc inner, string oneArg)
     {
-        if( outer.DelegateTakesArg )
+        if( outer.DelType >= 0 )
         {
             return TypeGenOne(outer,TypeGenOne(inner,oneArg));
         }
-        else if( inner.DelegateTakesArg )
+        else if( inner.DelType >= 0 )
         {
             return TypeGenOne(inner,oneArg);
         }
         else
         {
             return oneArg;
+        }
+    }
+
+    public string DelArgs(TypeDesc type)
+    {
+        switch(type.DelType)
+        {
+            case DelType.Func0: return " ()=>";
+            case DelType.Func1: return " args =>";
+            default: return "";
         }
     }
 
@@ -317,33 +334,29 @@ namespace LanguageExt.Trans
                    .Replace("ARGS_INT", type.Args.Replace(", !T","").Replace("!T",""))
                    .Replace("ARGS_BOOL", type.Args.Replace(", !T","").Replace("!T",""))
                    .Replace("VALUE",type.Value)
-                   .Replace("DEL_ARGS", type.DelegateTakesArg ? " arg =>" : "")
-                   .Replace("DEL_INVOKE_ONE", type.DelegateTakesArg ? "(arg).Value" : "")
-                   .Replace("DEL_INVOKE", type.DelegateTakesArg ? "(arg)" : "")
+                   .Replace("DEL_ARGS", DelArgs(type) )
+                   .Replace("DEL_INVOKE_ONE", DelInvokeOne(type))
+                   .Replace("DEL_INVOKE", DelInvoke(type))
                    .Replace("<>","");
     }
 
-    public string DelInvoke(TypeDesc outer, TypeDesc inner)
+    public string DelInvoke(TypeDesc type)
     {
-        if(inner.DelegateTakesArg)
+        switch(type.DelType)
         {
-            return "(arg)";
-        }
-        else
-        {
-            return "";
+            case DelType.Func0: return "()";
+            case DelType.Func1: return "(args)";
+            default: return "";
         }
     }
     
-    public string DelInvokeOne(TypeDesc outer, TypeDesc inner)
+    public string DelInvokeOne(TypeDesc type)
     {
-        if(inner.DelegateTakesArg)
+        switch(type.DelType)
         {
-            return "(arg).Value";
-        }
-        else
-        {
-            return "";
+            case DelType.Func0: return "().Value";
+            case DelType.Func1: return "(args).Value";
+            default: return "";
         }
     }
 
@@ -424,10 +437,17 @@ namespace LanguageExt.Trans
                    .Replace("ARGS_TUV", args.Replace("!T","T") + ", U, V")
                    .Replace("ARGS_TU", args.Replace("!T","T") + ", U")
                    .Replace("ARGS_T", args.Replace("!T","T"))
-                   .Replace("DEL_ARGS", innerType.DelegateTakesArg ? " arg => " : "")
-                   .Replace("DEL_INVOKE_ONE", DelInvokeOne(outerType,innerType))
-                   .Replace("DEL_INVOKE", DelInvoke(outerType,innerType))
+                   .Replace("DEL_ARGS", DelArgs(innerType))
+                   .Replace("DEL_INVOKE_ONE", DelInvokeOne(innerType))
+                   .Replace("DEL_INVOKE", DelInvoke(innerType))
                    .Replace("<>","");    
     }
+
+    public enum DelType
+    {
+        Not    = -1,
+        Func0  = 0,
+        Func1  = 1
+    };
 #>
 

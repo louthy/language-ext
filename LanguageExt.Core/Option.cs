@@ -16,7 +16,13 @@ namespace LanguageExt
     /// To extract the value you must use the 'match' function.
     /// </summary>
     [TypeConverter(typeof(OptionalTypeConverter))]
-    public struct Option<T> : IOptionalValue, IEnumerable<T>, IComparable<Option<T>>, IComparable<T>
+    public struct Option<T> : 
+        IOptional, 
+        IEnumerable<T>, 
+        IComparable<Option<T>>, 
+        IComparable<T>, 
+        IEquatable<Option<T>>, 
+        IEquatable<T>
     {
         readonly T value;
 
@@ -63,7 +69,7 @@ namespace LanguageExt
                 ? CheckNullReturn(Some(Value), "Some")
                 : CheckNullReturn(None(), "None");
 
-        public object MatchUntyped(Func<object, object> Some, Func<object> None) =>
+        public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
             IsSome
                 ? CheckNullReturn(Some(Value), "Some")
                 : CheckNullReturn(None(), "None");
@@ -215,6 +221,18 @@ namespace LanguageExt
             IsNone
                 ? -1
                 : Comparer<T>.Default.Compare(Value, other);
+
+        public bool Equals(T other) =>
+            IsNone
+                ? false
+                : EqualityComparer<T>.Default.Equals(Value, other);
+
+        public bool Equals(Option<T> other) =>
+            IsNone && other.IsNone
+                ? true
+                : IsSome && other.IsSome
+                    ? EqualityComparer<T>.Default.Equals(Value, other.Value)
+                    : false;
     }
 
     public struct SomeContext<T, R>

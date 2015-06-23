@@ -20,14 +20,19 @@ namespace LanguageExt
     /// </summary>
     public struct ReaderResult<T>
     {
-        public readonly T Value;
+        readonly T value;
         public readonly bool IsBottom;
 
         internal ReaderResult(T value, bool isBottom = false)
         {
-            Value = value;
+            this.value = value;
             IsBottom = isBottom;
         }
+
+        public T Value =>
+            IsBottom
+                ? default(T)
+                : value;
 
         public static implicit operator ReaderResult<T>(T value) =>
            new ReaderResult<T>(value);
@@ -47,44 +52,68 @@ namespace LanguageExt
 
         public static IEnumerable<T> AsEnumerable<Env, T>(this Reader<Env, T> self, Env env)
         {
-            yield return self(env).Value;
+            var res = self(env);
+            if (!res.IsBottom)
+            {
+                yield return res.Value;
+            }
         }
 
-        public static Reader<Env,Unit> Iter<Env, T>(this Reader<Env, T> self, Action<T> action)
+        public static Reader<Env, Unit> Iter<Env, T>(this Reader<Env, T> self, Action<T> action) =>
+            env => bmap(self(env), x => action(x) );
+
+        public static Reader<Env, int> Count<Env, T>(this Reader<Env, T> self) =>
+            env => bmap(self(env), x => 1);
+
+        public static Reader<Env, int> Sum<Env>(this Reader<Env, int> self) =>
+            env => bmap(self(env), x => x);
+
+        public static Reader<Env, bool> ForAll<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
+            env => bmap(self(env), x => pred(x));
+
+        public static Reader<Env,bool> Exists<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
+            env => bmap(self(env),x => pred(x));
+
+        public static Reader<Env, S> Fold<Env, S, T>(this Reader<Env, T> self, S state, Func<S, T, S> folder) =>
+            env => bmap(self(env), x => folder(state, x));
+
+        public static Reader<Env, R> Map<Env, T, R>(this Reader<Env, T> self, Func<T, R> mapper) =>
+            env => new ReaderResult<R>(bmap(self(env),mapper));
+
+        public static Reader<Env, T> Filter<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
+            self.Where(pred);
+
+        private static ReaderResult<R> bmap<T, R>(ReaderResult<T> r, Func<T, R> f) =>
+            r.IsBottom
+                ? new ReaderResult<R>(default(R), true)
+                : new ReaderResult<R>(f(r.Value), false);
+
+        private static ReaderResult<Unit> bmap<T>(ReaderResult<T> r, Action<T> f) 
+        {
+            if (r.IsBottom)
+            {
+                return new ReaderResult<Unit>(unit, true);
+            }
+            else
+            {
+                f(r.Value);
+                return new ReaderResult<Unit>(unit, false);
+            }
+        }
+
+        public static Reader<Env, T> Where<Env, T>(this Reader<Env, T> self, Func<T, bool> pred)
         {
             return env =>
             {
-                action(self(env).Value);
-                return new ReaderResult<Unit>(unit);
+                var val = self(env);
+                return new ReaderResult<T>(val, !pred(val));
             };
         }
 
-        public static int Count<Env, T>(this Reader<Env, T> self) => 
-            1;
-
-        public static Reader<Env,int> Sum<Env>(this Reader<Env, int> self) =>
-            env => self(env);
-
-        public static Reader<Env, bool> ForAll<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
-            env => new ReaderResult<bool>(pred(self(env).Value));
-
-        public static Reader<Env,bool> Exists<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
-            env => new ReaderResult<bool>(pred(self(env).Value));
-
-        public static Reader<Env, S> Fold<Env, S, T>(this Reader<Env, T> self, S state, Func<S, T, S> folder) =>
-            env => new ReaderResult<S>(folder(state, self(env).Value));
-
-        public static Reader<Env, R> Map<Env, T, R>(this Reader<Env, T> self, Func<T, R> mapper) =>
-            env => new ReaderResult<R>(mapper(self(env).Value));
-
-        public static Reader<Env, T> Filter<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
-            env => failwith<ReaderResult<T>>("Reader doesn't support Where or Filter");
-
-        public static Reader<Env, T> Where<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
-            env => failwith<ReaderResult<T>>("Reader doesn't support Where or Filter");
-
         public static Reader<Env, R> Bind<Env, T, R>(this Reader<Env, T> self, Func<T, Reader<Env, R>> binder) =>
-            env => new ReaderResult<R>(binder(self(env).Value)(env).Value);
+            from x in self
+            from y in binder(x)
+            select y;
 
         /// <summary>
         /// Select
@@ -92,7 +121,13 @@ namespace LanguageExt
         public static Reader<E, U> Select<E, T, U>(this Reader<E, T> self, Func<T, U> select)
         {
             if (select == null) throw new ArgumentNullException("select");
-            return (E env) => new ReaderResult<U>(select(self(env).Value));
+            return (E env) =>
+            {
+                var resT = self(env);
+                return resT.IsBottom
+                    ? new ReaderResult<U>(default(U), true)
+                    : new ReaderResult<U>(select(resT.Value));
+            };
         }
 
         /// <summary>
@@ -108,9 +143,11 @@ namespace LanguageExt
             if (project == null) throw new ArgumentNullException("project");
             return (E env) =>
             {
-                var resT = self(env).Value;
-                var resU = bind(resT);
-                var resV = project(resT, resU(env).Value);
+                var resT = self(env);
+                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                var resU = bind(resT.Value)(env);
+                if (resU.IsBottom) new ReaderResult<V>(default(V), true);
+                var resV = project(resT, resU.Value);
                 return new ReaderResult<V>(resV);
             };
         }

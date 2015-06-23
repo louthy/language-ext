@@ -7,7 +7,13 @@ using System.Collections.Immutable;
 
 namespace LanguageExt
 {
-    public struct EitherUnsafe<L, R> : IEnumerable<R>
+    public struct EitherUnsafe<L, R> :
+        IEither,
+        IEnumerable<R>,
+        IComparable<EitherUnsafe<L, R>>,
+        IComparable<R>,
+        IEquatable<EitherUnsafe<L, R>>,
+        IEquatable<R>
     {
         enum EitherState : byte
         {
@@ -229,6 +235,50 @@ namespace LanguageExt
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 
+        public int CompareTo(EitherUnsafe<L, R> other) =>
+            IsLeft && other.IsLeft
+                ? Comparer<L>.Default.Compare(LeftValue, other.LeftValue)
+                : IsRight && other.IsRight
+                    ? Comparer<R>.Default.Compare(RightValue, other.RightValue)
+                    : IsLeft
+                        ? -1
+                        : 1;
+
+        public int CompareTo(R other) =>
+            IsRight
+                ? Comparer<R>.Default.Compare(RightValue, other)
+                : -1;
+
+        public int CompareTo(L other) =>
+            IsRight
+                ? -1
+                : Comparer<L>.Default.Compare(LeftValue, other);
+
+        public bool Equals(R other) =>
+            IsRight
+                ? EqualityComparer<R>.Default.Equals(RightValue, other)
+                : false;
+
+        public bool Equals(L other) =>
+            IsLeft
+                ? EqualityComparer<L>.Default.Equals(LeftValue, other)
+                : false;
+
+        public bool Equals(EitherUnsafe<L, R> other) =>
+            IsRight
+                ? other.Equals(RightValue)
+                : other.Equals(LeftValue);
+
+        public TResult MatchUntyped<TResult>(Func<object, TResult> Right, Func<object, TResult> Left) =>
+            IsRight
+                ? Right(RightValue)
+                : Left(LeftValue);
+
+        public Type GetUnderlyingRightType() =>
+            typeof(R);
+
+        public Type GetUnderlyingLeftType() =>
+            typeof(L);
     }
 
     public struct EitherUnsafeContext<L, R, Ret>

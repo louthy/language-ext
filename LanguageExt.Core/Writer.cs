@@ -25,6 +25,12 @@ namespace LanguageExt
             Output = output;
             IsBottom = isBottom;
         }
+
+        public static implicit operator WriterResult<Out, T>(T value) =>
+           new WriterResult<Out, T>(value, new Out[0]);
+
+        public static implicit operator T(WriterResult<Out, T> value) =>
+           value.Value;
     }
 
     /// <summary>
@@ -34,26 +40,37 @@ namespace LanguageExt
     {
         public static IEnumerable<T> AsEnumerable<Out, T>(this Writer<Out, T> self)
         {
-            yield return self().Value;
+            var res = self();
+            if (!res.IsBottom)
+            {
+                yield return self().Value;
+            }
         }
 
-        public static Unit Iter<Out, T>(this Writer<Out, T> self, Action<T> action)
+        public static Writer<Out,Unit> Iter<Out, T>(this Writer<Out, T> self, Action<T> action)
         {
-            action(self().Value);
-            return unit;
+            return () =>
+            {
+                var res = self();
+                if (!res.IsBottom)
+                {
+                    action(res.Value);
+                }
+                return unit;
+            };
         }
 
-        public static int Count<Out, T>(this Writer<Out, T> self) =>
-            1;
+        public static Writer<Out,int> Count<Out, T>(this Writer<Out, T> self) => () =>
+            bmap(self(), x => 1);
 
-        public static bool ForAll<Out, T>(this Writer<Out, T> self, Func<T, bool> pred) =>
-            pred(self().Value);
+        public static Writer<Out, bool> ForAll<Out, T>(this Writer<Out, T> self, Func<T, bool> pred) => () =>
+            bmap(self(), x => pred(x));
 
-        public static bool Exists<Out, T>(this Writer<Out, T> self, Func<T, bool> pred) =>
-            pred(self().Value);
+        public static Writer<Out,bool> Exists<Out, T>(this Writer<Out, T> self, Func<T, bool> pred) => () =>
+            bmap(self(), x => pred(x));
 
-        public static S Fold<Out, S, T>(this Writer<Out, T> self, S state, Func<S, T, S> folder) =>
-            folder(state, self().Value);
+        public static Writer<Out, S> Fold<Out, S, T>(this Writer<Out, T> self, S state, Func<S, T, S> folder) => () =>
+            bmap(self(), x => folder(state, x));
 
         public static Writer<Out, R> Map<Out, T, R>(this Writer<Out, T> self, Func<T, R> mapper) =>
             self.Select(mapper);
@@ -72,6 +89,7 @@ namespace LanguageExt
             return () =>
             {
                 var resT = self();
+                if (resT.IsBottom) return new WriterResult<W, U>(default(U), resT.Output, true);
                 var resU = select(resT.Value);
                 return new WriterResult<W, U>(resU, resT.Output);
             };
@@ -92,20 +110,45 @@ namespace LanguageExt
             return () =>
             {
                 var resT = self();
+                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resT.Output, true);
                 var resU = bind(resT.Value).Invoke();
+                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resU.Output, true);
                 var resV = project(resT.Value, resU.Value);
-
                 return new WriterResult<W, V>(resV, resT.Output.Concat(resU.Output));
             };
         }
 
         public static Writer<W, T> Filter<W, T>(this Writer<W, T> self, Func<T, bool> pred) =>
-            () => failwith<WriterResult<W,T>>("Writer doesn't support Where or Filter");
+            self.Where(pred);
 
-        public static Writer<W, T> Where<W, T>(this Writer<W, T> self, Func<T, bool> pred) =>
-            () => failwith<WriterResult<W, T>>("Writer doesn't support Where or Filter");
+        public static Writer<W, T> Where<W, T>(this Writer<W, T> self, Func<T, bool> pred)
+        {
+            return () =>
+            {
+                var res = self();
+                return new WriterResult<W, T>(res.Value, res.Output, !pred(res.Value));
+            };
+        }
 
-        public static int Sum<Out>(this Writer<Out, int> self) =>
-            self().Value;
+        public static Writer<W, int> Sum<W>(this Writer<W, int> self) =>
+            () => bmap(self(), x => x);
+
+        private static WriterResult<W, R> bmap<W, T, R>(WriterResult<W, T> r, Func<T, R> f) =>
+            r.IsBottom
+                ? new WriterResult<W, R>(default(R), r.Output, true)
+                : new WriterResult<W, R>(f(r.Value), r.Output, false);
+
+        private static WriterResult<W, Unit> bmap<W, T>(WriterResult<W, T> r, Action<T> f)
+        {
+            if (r.IsBottom)
+            {
+                return new WriterResult<W, Unit>(unit, r.Output, true);
+            }
+            else
+            {
+                f(r.Value);
+                return new WriterResult<W, Unit>(unit, r.Output, false);
+            }
+        }
     }
 }
