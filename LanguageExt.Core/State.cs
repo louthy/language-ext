@@ -220,7 +220,7 @@ namespace LanguageExt
             };
         }
 
-        public static State<S, V> SelectMany<S, T, U, V>(
+        public static State<S, Option<V>> SelectMany<S, T, U, V>(
             this State<S, T> self,
             Func<T, Option<U>> bind,
             Func<T, U, V> project
@@ -232,15 +232,15 @@ namespace LanguageExt
             return (S state) =>
             {
                 var resT = self(state);
-                if (resT.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
+                if (resT.IsBottom) return new StateResult<S, Option<V>>(resT.State, default(Option<V>), true);
                 var resU = bind(resT.Value);
-                if (resU.IsNone) return new StateResult<S, V>(resT.State, default(V), true);
+                if (resU.IsNone) return new StateResult<S, Option<V>>(resT.State, default(Option<V>), true);
                 var resV = project(resT.Value, resU.Value);
-                return new StateResult<S, V>(resT.State, resV);
+                return new StateResult<S, Option<V>>(resT.State, resV);
             };
         }
 
-        public static State<S, V> SelectMany<S, T, U, V>(
+        public static State<S, OptionUnsafe<V>> SelectMany<S, T, U, V>(
             this State<S, T> self,
             Func<T, OptionUnsafe<U>> bind,
             Func<T, U, V> project
@@ -252,15 +252,15 @@ namespace LanguageExt
             return (S state) =>
             {
                 var resT = self(state);
-                if (resT.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
+                if (resT.IsBottom) return new StateResult<S, OptionUnsafe<V>>(resT.State, default(OptionUnsafe<V>), true);
                 var resU = bind(resT.Value);
-                if (resU.IsNone) return new StateResult<S, V>(resT.State, default(V), true);
+                if (resU.IsNone) return new StateResult<S, OptionUnsafe<V>>(resT.State, default(OptionUnsafe<V>), true);
                 var resV = project(resT.Value, resU.Value);
-                return new StateResult<S, V>(resT.State, resV);
+                return new StateResult<S, OptionUnsafe<V>>(resT.State, resV);
             };
         }
 
-        public static State<S, V> SelectMany<S, T, U, V>(
+        public static State<S, TryOption<V>> SelectMany<S, T, U, V>(
             this State<S, T> self,
             Func<T, TryOption<U>> bind,
             Func<T, U, V> project
@@ -272,15 +272,19 @@ namespace LanguageExt
             return (S state) =>
             {
                 var resT = self(state);
-                if (resT.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
-                var resU = bind(resT.Value).Try();
-                if (resU.IsFaulted || resU.Value.IsNone) return new StateResult<S, V>(resT.State, default(V), true);
-                var resV = project(resT.Value, resU.Value.Value);
-                return new StateResult<S, V>(resT.State, resV);
+                if (resT.IsBottom) return new StateResult<S, TryOption<V>>(resT.State, default(TryOption<V>), true);
+
+                return new StateResult<S, TryOption<V>>(resT.State, () =>
+                {
+                    var resU = bind(resT.Value).Try();
+                    if (resU.IsFaulted) return new TryOptionResult<V>(resU.Exception);
+                    if (resU.Value.IsNone) return new TryOptionResult<V>(None);
+                    return new TryOptionResult<V>(project(resT.Value, resU.Value.Value));
+                });
             };
         }
 
-        public static State<S, V> SelectMany<S, T, U, V>(
+        public static State<S, Try<V>> SelectMany<S, T, U, V>(
             this State<S, T> self,
             Func<T, Try<U>> bind,
             Func<T, U, V> project
@@ -292,17 +296,20 @@ namespace LanguageExt
             return (S state) =>
             {
                 var resT = self(state);
-                if (resT.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
-                var resU = bind(resT.Value).Try();
-                if (resU.IsFaulted) return new StateResult<S, V>(resT.State, default(V), true);
-                var resV = project(resT.Value, resU.Value);
-                return new StateResult<S, V>(resT.State, resV);
+                if (resT.IsBottom) return new StateResult<S, Try<V>>(resT.State, default(Try<V>), true);
+
+                return new StateResult<S, Try<V>>(resT.State, () =>
+                 {
+                     var resU = bind(resT.Value).Try();
+                     if (resU.IsFaulted) return new TryResult<V>(resU.Exception);
+                     return new TryResult<V>(project(resT.Value, resU.Value));
+                 });
             };
         }
 
-        public static State<S, V> SelectMany<S, L, T, U, V>(
+        public static State<S, Either<L, V>> SelectMany<S, L, T, U, V>(
             this State<S, T> self,
-            Func<T, Either<L,U>> bind,
+            Func<T, Either<L, U>> bind,
             Func<T, U, V> project
             )
         {
@@ -312,15 +319,14 @@ namespace LanguageExt
             return (S state) =>
             {
                 var resT = self(state);
-                if (resT.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
+                if (resT.IsBottom) return new StateResult<S, Either<L, V>>(resT.State, default(Either<L, V>), true);
                 var resU = bind(resT.Value);
-                if (resU.IsLeft) return new StateResult<S, V>(resT.State, default(V), true);
-                var resV = project(resT.Value, resU.RightValue);
-                return new StateResult<S, V>(resT.State, resV);
+                if (resU.IsLeft) return new StateResult<S, Either<L, V>>(resT.State, default(Either<L, V>), true);
+                return new StateResult<S, Either<L, V>>(resT.State, project(resT.Value, resU.RightValue));
             };
         }
 
-        public static State<S, V> SelectMany<S, L, T, U, V>(
+        public static State<S, EitherUnsafe<L, V>> SelectMany<S, L, T, U, V>(
             this State<S, T> self,
             Func<T, EitherUnsafe<L, U>> bind,
             Func<T, U, V> project
@@ -332,17 +338,16 @@ namespace LanguageExt
             return (S state) =>
             {
                 var resT = self(state);
-                if (resT.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
+                if (resT.IsBottom) return new StateResult<S, EitherUnsafe<L, V>>(resT.State, default(EitherUnsafe<L, V>), true);
                 var resU = bind(resT.Value);
-                if (resU.IsLeft) return new StateResult<S, V>(resT.State, default(V), true);
-                var resV = project(resT.Value, resU.RightValue);
-                return new StateResult<S, V>(resT.State, resV);
+                if (resU.IsLeft) return new StateResult<S, EitherUnsafe<L, V>>(resT.State, default(EitherUnsafe<L, V>), true);
+                return new StateResult<S, EitherUnsafe<L, V>>(resT.State, project(resT.Value, resU.RightValue));
             };
         }
 
-        public static State<S, V> SelectMany<S, T, U, V>(
+        public static State<S, Reader<E, V>> SelectMany<S, E, T, U, V>(
             this State<S, T> self,
-            Func<T, Reader<T, U>> bind,
+            Func<T, Reader<E, U>> bind,
             Func<T, U, V> project
             )
         {
@@ -352,15 +357,18 @@ namespace LanguageExt
             return (S state) =>
             {
                 var resT = self(state);
-                if (resT.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
-                var resU = bind(resT.Value)(resT.Value);
-                if (resU.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
-                var resV = project(resT.Value, resU.Value);
-                return new StateResult<S, V>(resT.State, resV);
+                if (resT.IsBottom) return new StateResult<S, Reader<E, V>>(resT.State, default(Reader<E, V>), true);
+
+                return new StateResult<S, Reader<E, V>>(resT.State, (E env) =>
+                {
+                    var resU = bind(resT.Value)(env);
+                    if (resU.IsBottom) return new ReaderResult<V>(default(V), true);
+                    return new ReaderResult<V>(project(resT.Value, resU.Value));
+                });
             };
         }
 
-        public static State<S, V> SelectMany<S, Out, T, U, V>(
+        public static State<S, Writer<Out, V>> SelectMany<S, Out, T, U, V>(
             this State<S, T> self,
             Func<T, Writer<Out, U>> bind,
             Func<T, U, V> project
@@ -372,11 +380,14 @@ namespace LanguageExt
             return (S state) =>
             {
                 var resT = self(state);
-                if (resT.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
-                var resU = bind(resT.Value)();
-                if (resU.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
-                var resV = project(resT.Value, resU.Value);
-                return new StateResult<S, V>(resT.State, resV);
+                if (resT.IsBottom) return new StateResult<S, Writer<Out, V>>(resT.State, default(Writer<Out, V>), true);
+
+                return new StateResult<S, Writer<Out, V>>(resT.State, () =>
+                {
+                    var resU = bind(resT.Value)();
+                    if (resU.IsBottom) return new WriterResult<Out, V>(default(V), resU.Output, true);
+                    return new WriterResult<Out, V>(project(resT.Value, resU.Value), resU.Output);
+                });
             };
         }
     }
