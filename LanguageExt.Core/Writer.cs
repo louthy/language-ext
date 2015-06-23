@@ -156,7 +156,7 @@ namespace LanguageExt
         /// </summary>
         public static Writer<W, IEnumerable<V>> SelectMany<W, T, U, V>(
             this Writer<W, T> self,
-            Func<T, Writer<W, IEnumerable<U>>> bind,
+            Func<T, IEnumerable<U>> bind,
             Func<T, U, V> project
         )
         {
@@ -166,11 +166,9 @@ namespace LanguageExt
             return () =>
             {
                 var resT = self();
-                if (resT.IsBottom) return new WriterResult<W, IEnumerable<V>>(new V[0], resT.Output, true);
-                var resU = bind(resT.Value)();
-                if (resU.IsBottom) return new WriterResult<W, IEnumerable<V>>(new V[0], resU.Output, true);
-                var resV = resU.Value.Select(x => project(resT.Value, x));
-                return new WriterResult<W, IEnumerable<V>>(resV, resT.Output.Concat(resU.Output));
+                if (resT.IsBottom) return new WriterResult<W, IEnumerable<V>>(List<V>(), resT.Output, true);
+                var resU = bind(resT.Value);
+                return new WriterResult<W, IEnumerable<V>>(resU.Select(x => project(resT.Value, x)), resT.Output);
             };
         }
 
@@ -179,7 +177,7 @@ namespace LanguageExt
         /// </summary>
         public static Writer<W, Map<K,V>> SelectMany<W, K, T, U, V>(
             this Writer<W, T> self,
-            Func<T, Writer<W, Map<K,U>>> bind,
+            Func<T, Map<K,U>> bind,
             Func<T, U, V> project
         )
         {
@@ -189,11 +187,9 @@ namespace LanguageExt
             return () =>
             {
                 var resT = self();
-                if (resT.IsBottom) return new WriterResult<W, Map<K, V>>(Map<K,V>(), resT.Output, true);
-                var resU = bind(resT.Value)();
-                if (resU.IsBottom) return new WriterResult<W, Map<K, V>>(Map<K,V>(), resU.Output, true);
-                var resV = resU.Value.Select(x => project(resT.Value, x));
-                return new WriterResult<W, Map<K, V>>(resV, resT.Output.Concat(resU.Output));
+                if (resT.IsBottom) return new WriterResult<W, Map<K, V>>(Map<K, V>(), resT.Output, true);
+                var resU = bind(resT.Value);
+                return new WriterResult<W, Map<K,V>>(resU.Select(x => project(resT.Value, x)), resT.Output);
             };
         }
         /// <summary>
@@ -201,7 +197,7 @@ namespace LanguageExt
         /// </summary>
         public static Writer<W, Lst<V>> SelectMany<W, T, U, V>(
             this Writer<W, T> self,
-            Func<T, Writer<W, Lst<U>>> bind,
+            Func<T, Lst<U>> bind,
             Func<T, U, V> project
         )
         {
@@ -212,19 +208,18 @@ namespace LanguageExt
             {
                 var resT = self();
                 if (resT.IsBottom) return new WriterResult<W, Lst<V>>(List<V>(), resT.Output, true);
-                var resU = bind(resT.Value)();
-                if (resU.IsBottom) return new WriterResult<W, Lst<V>>(List<V>(), resU.Output, true);
-                var resV = resU.Value.Select(x => project(resT.Value, x));
-                return new WriterResult<W, Lst<V>>(List.createRange(resV), resT.Output.Concat(resU.Output));
+                var resU = bind(resT.Value);
+                var resV = resU.Select(x => project(resT.Value, x));
+                return new WriterResult<W, Lst<V>>(List.createRange(resV), resT.Output);
             };
         }
 
         /// <summary>
         /// Select Many - Option
         /// </summary>
-        public static Writer<W, V> SelectMany<W, T, U, V>(
+        public static Writer<W, Option<V>> SelectMany<W, T, U, V>(
             this Writer<W, T> self,
-            Func<T, Writer<W, Option<U>>> bind,
+            Func<T, Option<U>> bind,
             Func<T, U, V> project
         )
         {
@@ -234,19 +229,19 @@ namespace LanguageExt
             return () =>
             {
                 var resT = self();
-                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resT.Output, true);
-                var resU = bind(resT.Value)();
-                if (resU.IsBottom || resU.Value.IsNone) return new WriterResult<W, V>(default(V), resU.Output, true);
-                return new WriterResult<W, V>(project(resT.Value, resU.Value.Value), resT.Output.Concat(resU.Output));
+                if (resT.IsBottom) return new WriterResult<W, Option<V>>(None, resT.Output, true);
+                var resU = bind(resT.Value);
+                if (resU.IsNone) return new WriterResult<W, Option<V>>(default(Option<V>), resT.Output, true);
+                return new WriterResult<W, Option<V>>(project(resT.Value, resU.Value), resT.Output);
             };
         }
 
         /// <summary>
         /// Select Many - OptionUnsafe
         /// </summary>
-        public static Writer<W, V> SelectMany<W, T, U, V>(
+        public static Writer<W, OptionUnsafe<V>> SelectMany<W, T, U, V>(
             this Writer<W, T> self,
-            Func<T, Writer<W, OptionUnsafe<U>>> bind,
+            Func<T, OptionUnsafe<U>> bind,
             Func<T, U, V> project
         )
         {
@@ -256,19 +251,19 @@ namespace LanguageExt
             return () =>
             {
                 var resT = self();
-                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resT.Output, true);
-                var resU = bind(resT.Value)();
-                if (resU.IsBottom || resU.Value.IsNone) return new WriterResult<W, V>(default(V), resU.Output, true);
-                return new WriterResult<W, V>(project(resT.Value, resU.Value.Value), resT.Output.Concat(resU.Output));
+                if (resT.IsBottom) return new WriterResult<W, OptionUnsafe<V>>(None, resT.Output, true);
+                var resU = bind(resT.Value);
+                if (resU.IsNone) return new WriterResult<W, OptionUnsafe<V>>(default(OptionUnsafe<V>), resT.Output, true);
+                return new WriterResult<W, OptionUnsafe<V>>(project(resT.Value, resU.Value), resT.Output);
             };
         }
 
         /// <summary>
         /// Select Many - Try
         /// </summary>
-        public static Writer<W, V> SelectMany<W, T, U, V>(
+        public static Writer<W, Try<V>> SelectMany<W, T, U, V>(
             this Writer<W, T> self,
-            Func<T, Writer<W, Try<U>>> bind,
+            Func<T, Try<U>> bind,
             Func<T, U, V> project
         )
         {
@@ -277,22 +272,42 @@ namespace LanguageExt
 
             return () =>
             {
-                var resT = self();
-                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resT.Output, true);
-                var resU = bind(resT.Value)();
-                if (resU.IsBottom) return new WriterResult<W, V>(default(V), resU.Output, true);
-                var resUU = resU.Value.Try();
-                if (resUU.IsFaulted) return new WriterResult<W, V>(default(V), resU.Output, true);
-                return new WriterResult<W, V>(project(resT.Value, resUU.Value), resT.Output.Concat(resU.Output));
+                IEnumerable<W> output = null;
+                bool bottom = false;
+
+                return new WriterResult<W, Try<V>>(() =>
+                {
+                    var resT = self();
+                    if (resT.IsBottom)
+                    {
+                        return new TryResult<V>(new Exception("Bottom"));
+                    }
+                    try
+                    {
+                        var resU = bind(resT.Value)();
+                        if (resU.IsFaulted)
+                        {
+                            return new TryResult<V>(resU.Exception);
+                        }
+                        return new TryResult<V>(project(resT.Value, resU.Value));
+                    }
+                    catch (Exception e)
+                    {
+                        return new TryResult<V>(e);
+                    }
+                },
+               output,
+               bottom
+               );
             };
         }
 
         /// <summary>
         /// Select Many - TryOption
         /// </summary>
-        public static Writer<W, V> SelectMany<W, T, U, V>(
+        public static Writer<W, TryOption<V>> SelectMany<W, T, U, V>(
             this Writer<W, T> self,
-            Func<T, Writer<W, TryOption<U>>> bind,
+            Func<T, TryOption<U>> bind,
             Func<T, U, V> project
         )
         {
@@ -301,22 +316,46 @@ namespace LanguageExt
 
             return () =>
             {
-                var resT = self();
-                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resT.Output, true);
-                var resU = bind(resT.Value)();
-                if (resU.IsBottom) return new WriterResult<W, V>(default(V), resU.Output, true);
-                var resUU = resU.Value.Try();
-                if (resUU.IsFaulted || resUU.Value.IsNone) return new WriterResult<W, V>(default(V), resU.Output, true);
-                return new WriterResult<W, V>(project(resT.Value, resUU.Value.Value), resT.Output.Concat(resU.Output));
+                IEnumerable<W> output = null;
+                bool bottom = false;
+
+                return new WriterResult<W, TryOption<V>>(() =>
+                {
+                    var resT = self();
+                    if (resT.IsBottom)
+                    {
+                        return new TryOptionResult<V>(None);
+                    }
+                    try
+                    {
+                        var resU = bind(resT.Value)();
+                        if (resU.IsFaulted)
+                        {
+                            return new TryOptionResult<V>(resU.Exception);
+                        }
+                        if (resU.Value.IsNone)
+                        {
+                            return new TryOptionResult<V>(None);
+                        }
+                        return new TryOptionResult<V>(project(resT.Value, resU.Value.Value));
+                    }
+                    catch (Exception e)
+                    {
+                        return new TryOptionResult<V>(e);
+                    }
+                },
+               output,
+               bottom
+               );
             };
         }
 
         /// <summary>
         /// Select Many - Either
         /// </summary>
-        public static Writer<W, V> SelectMany<W, L, T, U, V>(
+        public static Writer<W, Either<L, V>> SelectMany<W, L, T, U, V>(
             this Writer<W, T> self,
-            Func<T, Writer<W, Either<L, U>>> bind,
+            Func<T, Either<L, U>> bind,
             Func<T, U, V> project
         )
         {
@@ -326,19 +365,19 @@ namespace LanguageExt
             return () =>
             {
                 var resT = self();
-                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resT.Output, true);
-                var resU = bind(resT.Value)();
-                if (resU.IsBottom || resU.Value.IsLeft) return new WriterResult<W, V>(default(V), resU.Output, true);
-                return new WriterResult<W, V>(project(resT.Value, resU.Value.RightValue), resT.Output.Concat(resU.Output));
+                if (resT.IsBottom) return new WriterResult<W, Either<L, V>>(default(Either<L, V>), resT.Output, true);
+                var resU = bind(resT.Value);
+                if (resU.IsLeft) return new WriterResult<W, Either<L, V>>(default(Either<L, V>), resT.Output, true);
+                return new WriterResult<W, Either<L, V>>(project(resT.Value, resU.RightValue), resT.Output);
             };
         }
 
         /// <summary>
         /// Select Many - EitherUnsafe
         /// </summary>
-        public static Writer<W, V> SelectMany<W, L, T, U, V>(
+        public static Writer<W, EitherUnsafe<L, V>> SelectMany<W, L, T, U, V>(
             this Writer<W, T> self,
-            Func<T, Writer<W, EitherUnsafe<L, U>>> bind,
+            Func<T, EitherUnsafe<L, U>> bind,
             Func<T, U, V> project
         )
         {
@@ -348,19 +387,19 @@ namespace LanguageExt
             return () =>
             {
                 var resT = self();
-                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resT.Output, true);
-                var resU = bind(resT.Value)();
-                if (resU.IsBottom || resU.Value.IsLeft) return new WriterResult<W, V>(default(V), resU.Output, true);
-                return new WriterResult<W, V>(project(resT.Value, resU.Value.RightValue), resT.Output.Concat(resU.Output));
+                if (resT.IsBottom) return new WriterResult<W, EitherUnsafe<L, V>>(default(EitherUnsafe<L, V>), resT.Output, true);
+                var resU = bind(resT.Value);
+                if (resU.IsLeft) return new WriterResult<W, EitherUnsafe<L, V>>(default(EitherUnsafe<L, V>), resT.Output, true);
+                return new WriterResult<W, EitherUnsafe<L, V>>(project(resT.Value, resU.RightValue), resT.Output);
             };
         }
 
         /// <summary>
         /// Select Many - State
         /// </summary>
-        public static Writer<W, V> SelectMany<W, L, T, U, V>(
+        public static Writer<W, State<S,V>> SelectMany<W, S, T, U, V>(
             this Writer<W, T> self,
-            Func<T, Writer<W, State<T, U>>> bind,
+            Func<T, State<S, U>> bind,
             Func<T, U, V> project
         )
         {
@@ -369,22 +408,38 @@ namespace LanguageExt
 
             return () =>
             {
-                var resT = self();
-                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resT.Output, true);
-                var resU = bind(resT.Value)();
-                if (resU.IsBottom) return new WriterResult<W, V>(default(V), resU.Output, true);
-                var res = resU.Value(resT.Value);
-                if (res.IsBottom) return new WriterResult<W, V>(default(V), resU.Output, true);
-                return new WriterResult<W, V>(project(resT.Value, res.Value), resT.Output.Concat(resU.Output));
+                IEnumerable<W> output = null;
+                bool isBottom = false;
+
+                return new WriterResult<W, State<S, V>>((S state) =>
+                {
+                    var resT = self();
+                    if (resT.IsBottom)
+                    {
+                        isBottom = resT.IsBottom;
+                        return new StateResult<S, V>(state, default(V), true);
+                    }
+                    var resU = bind(resT.Value)(state);
+                    if (resU.IsBottom)
+                    {
+                        isBottom = resT.IsBottom;
+                        return new StateResult<S, V>(state, default(V), true);
+                    }
+                    output = resT.Output;
+                    return new StateResult<S, V>(resU.State, project(resT.Value, resU.Value), false);
+                },
+                output,
+                isBottom
+                );
             };
         }
 
         /// <summary>
         /// Select Many - Reader
         /// </summary>
-        public static Writer<W, V> SelectMany<W, L, T, U, V>(
+        public static Writer<W, Reader<Env, V>> SelectMany<W, Env, T, U, V>(
             this Writer<W, T> self,
-            Func<T, Writer<W, Reader<T, U>>> bind,
+            Func<T, Reader<Env, U>> bind,
             Func<T, U, V> project
         )
         {
@@ -393,13 +448,26 @@ namespace LanguageExt
 
             return () =>
             {
-                var resT = self();
-                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resT.Output, true);
-                var resU = bind(resT.Value)();
-                if (resU.IsBottom) return new WriterResult<W, V>(default(V), resU.Output, true);
-                var res = resU.Value(resT.Value);
-                if (res.IsBottom) return new WriterResult<W, V>(default(V), resU.Output, true);
-                return new WriterResult<W, V>(project(resT.Value, res.Value), resT.Output.Concat(resU.Output));
+                IEnumerable<W> output = null;
+                bool isBottom = false;
+
+                return new WriterResult<W, Reader<Env, V>>((Env env) =>
+                {
+                    var resT = self();
+                    isBottom = resT.IsBottom;
+                    if (resT.IsBottom)
+                    {
+                        return new ReaderResult<V>(default(V), true);
+                    }
+                    var resU = bind(resT.Value)(env);
+                    isBottom = resT.IsBottom;
+                    if (resU.IsBottom)
+                    {
+                        return new ReaderResult<V>(default(V), true);
+                    }
+                    output = resT.Output;
+                    return new ReaderResult<V>(project(resT.Value, resU.Value));
+                }, output, false);
             };
         }
     }
