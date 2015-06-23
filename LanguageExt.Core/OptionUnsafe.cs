@@ -382,17 +382,17 @@ public static class __OptionUnsafeExt
     }
 
 
-    public static OptionUnsafe<IEnumerable<V>> SelectMany<T, U, V>(this OptionUnsafe<T> self,
+    public static IEnumerable<V> SelectMany<T, U, V>(this OptionUnsafe<T> self,
         Func<T, IEnumerable<U>> bind,
         Func<T, U, V> project
         )
     {
         if (self.IsNone) return new V[0];
         var resU = bind(self.Value);
-        return SomeUnsafe(resU.Select(x => project(self.Value, x)));
+        return resU.Select(x => project(self.Value, x));
     }
 
-    public static OptionUnsafe<Lst<V>> SelectMany<T, U, V>(this OptionUnsafe<T> self,
+    public static Lst<V> SelectMany<T, U, V>(this OptionUnsafe<T> self,
         Func<T, Lst<U>> bind,
         Func<T, U, V> project
         )

@@ -370,17 +370,17 @@ public static class __OptionExt
         return Optional(project(self.Value, resU.Value));
     }
 
-    public static Option<IEnumerable<V>> SelectMany<T, U, V>(this Option<T> self,
+    public static IEnumerable<V> SelectMany<T, U, V>(this Option<T> self,
         Func<T, IEnumerable<U>> bind,
         Func<T, U, V> project
         )
     {
         if (self.IsNone) return new V[0];
         var resU = bind(self.Value);
-        return Some(resU.Select(x => project(self.Value, x)));
+        return resU.Select(x => project(self.Value, x));
     }
 
-    public static Option<Lst<V>> SelectMany<T, U, V>(this Option<T> self,
+    public static Lst<V> SelectMany<T, U, V>(this Option<T> self,
         Func<T, Lst<U>> bind,
         Func<T, U, V> project
         )

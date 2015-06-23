@@ -548,7 +548,7 @@ public static class __EnumnerableExt
         }
     }
 
-    public static IEnumerable<Option<V>> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, Option<U>> bind, Func<T, U, V> project)
+    public static IEnumerable<V> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, Option<U>> bind, Func<T, U, V> project)
     {
         foreach (var t in self)
         {
@@ -557,14 +557,10 @@ public static class __EnumnerableExt
             {
                 yield return project(t, resU.Value);
             }
-            else
-            {
-                yield return None;
-            }
         }
     }
 
-    public static IEnumerable<OptionUnsafe<V>> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project)
+    public static IEnumerable<V> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project)
     {
         foreach (var t in self)
         {
@@ -573,47 +569,31 @@ public static class __EnumnerableExt
             {
                 yield return project(t, resU.Value);
             }
-            else
+        }
+    }
+
+    public static IEnumerable<V> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, Try<U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            var u = bind(t).Try();
+            if (!u.IsFaulted)
             {
-                yield return None;
+                yield return project(t, u.Value);
             }
         }
     }
 
-    public static IEnumerable<Try<V>> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, Try<U>> bind, Func<T, U, V> project)
+    public static IEnumerable<V> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project)
     {
-        return self.Map((T t) =>
+        foreach (var t in self)
         {
-            return new Try<V>(() =>
+            var u = bind(t).Try();
+            if (!u.IsFaulted && !u.Value.IsNone)
             {
-                var u = bind(t).Try();
-                if (u.IsFaulted)
-                {
-                    return new TryResult<V>(u.Exception);
-                }
-                return new TryResult<V>(project(t, u.Value));
-            });
-        });
-    }
-
-    public static IEnumerable<TryOption<V>> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project)
-    {
-        return self.Map((T t) =>
-        {
-            return new TryOption<V>(() =>
-            {
-                var u = bind(t).Try();
-                if (u.IsFaulted)
-                {
-                    return new TryOptionResult<V>(u.Exception);
-                }
-                if (u.Value.IsNone)
-                {
-                    return new TryOptionResult<V>(None);
-                }
-                return new TryOptionResult<V>(project(t, u.Value.Value));
-            });
-        });
+                yield return project(t, u.Value.Value);
+            }
+        }
     }
 
     public static IEnumerable<Reader<Env, V>> SelectMany<Env, T, U, V>(this Lst<T> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project)
