@@ -21,12 +21,20 @@ namespace LanguageExt
     {
         public readonly T Value;
         public readonly S State;
+        public readonly bool IsBottom;
 
-        internal StateResult(S state, T value)
+        internal StateResult(S state, T value, bool isBottom = false)
         {
             Value = value;
             State = state;
+            IsBottom = isBottom;
         }
+
+        public static implicit operator StateResult<S,T>(T value) =>
+           new StateResult<S,T>(default(S),value);        // TODO:  Not a good idea
+
+        public static implicit operator T(StateResult<S,T> value) =>
+           value.Value;
     }
 
     public static class StateExt
@@ -103,10 +111,12 @@ namespace LanguageExt
         }
 
         public static State<S, T> Filter<S, T>(this State<S, T> self, Func<T, bool> pred) =>
-            env => failwith<StateResult<S, T>>("State doesn't support Where or Filter");
+            state => failwith<StateResult<S, T>>("State doesn't support Where or Filter");
 
         public static State<S, T> Where<S, T>(this State<S, T> self, Func<T, bool> pred) =>
-            env => failwith<StateResult<S, T>>("State doesn't support Where or Filter");
+            state => failwith<StateResult<S, T>>("State doesn't support Where or Filter");
 
+        public static State<S, int> Sum<S>(this State<S, int> self) =>
+            state => new StateResult<S, int>(state, self(state));
     }
 }

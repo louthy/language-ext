@@ -59,7 +59,7 @@ namespace LanguageExtTests
                                     Tuple("b", 2)
                                     );
 
-            bool res = calcIsCountCorrect(sampleBindings);
+            bool res = calcIsCountCorrect(sampleBindings).Value;
 
             Assert.IsTrue(res);
         }
@@ -76,8 +76,8 @@ namespace LanguageExtTests
             var modifiedLen = calculateModifiedContentLen(s);
             var len = calculateContentLen(s);
 
-            Assert.IsTrue(modifiedLen == 12);
-            Assert.IsTrue(len == 5);
+            Assert.IsTrue(modifiedLen.Value == 12);
+            Assert.IsTrue(len.Value == 5);
         }
 
         [Test]

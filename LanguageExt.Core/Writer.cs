@@ -16,12 +16,14 @@ namespace LanguageExt
     {
         public readonly T Value;
         public readonly IEnumerable<Out> Output;
+        public readonly bool IsBottom;
 
-        internal WriterResult(T value, IEnumerable<Out> output)
+        internal WriterResult(T value, IEnumerable<Out> output, bool isBottom = false)
         {
             if (output == null) throw new ArgumentNullException("output");
             Value = value;
             Output = output;
+            IsBottom = isBottom;
         }
     }
 

@@ -13,7 +13,28 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="Env">Environment</typeparam>
     /// <typeparam name="T">The wrapped type</typeparam>
-    public delegate T Reader<Env, T>(Env environment);
+    public delegate ReaderResult<T> Reader<Env, T>(Env environment);
+
+    /// <summary>
+    /// State result.
+    /// </summary>
+    public struct ReaderResult<T>
+    {
+        public readonly T Value;
+        public readonly bool IsBottom;
+
+        internal ReaderResult(T value, bool isBottom = false)
+        {
+            Value = value;
+            IsBottom = isBottom;
+        }
+
+        public static implicit operator ReaderResult<T>(T value) =>
+           new ReaderResult<T>(value);
+
+        public static implicit operator T(ReaderResult<T> value) =>
+           value.Value;
+    }
 
     /// <summary>
     /// Reader monad extensions
@@ -26,41 +47,44 @@ namespace LanguageExt
 
         public static IEnumerable<T> AsEnumerable<Env, T>(this Reader<Env, T> self, Env env)
         {
-            yield return self(env);
+            yield return self(env).Value;
         }
 
         public static Reader<Env,Unit> Iter<Env, T>(this Reader<Env, T> self, Action<T> action)
         {
             return env =>
             {
-                action(self(env));
-                return unit;
+                action(self(env).Value);
+                return new ReaderResult<Unit>(unit);
             };
         }
 
         public static int Count<Env, T>(this Reader<Env, T> self) => 
             1;
 
+        public static Reader<Env,int> Sum<Env>(this Reader<Env, int> self) =>
+            env => self(env);
+
         public static Reader<Env, bool> ForAll<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
-            env => pred(self(env));
+            env => new ReaderResult<bool>(pred(self(env).Value));
 
         public static Reader<Env,bool> Exists<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
-            env =>pred(self(env));
+            env => new ReaderResult<bool>(pred(self(env).Value));
 
         public static Reader<Env, S> Fold<Env, S, T>(this Reader<Env, T> self, S state, Func<S, T, S> folder) =>
-            env => folder(state, self(env));
+            env => new ReaderResult<S>(folder(state, self(env).Value));
 
         public static Reader<Env, R> Map<Env, T, R>(this Reader<Env, T> self, Func<T, R> mapper) =>
-            env => mapper(self(env));
+            env => new ReaderResult<R>(mapper(self(env).Value));
 
         public static Reader<Env, T> Filter<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
-            env => failwith<T>("Reader doesn't support Where or Filter");
+            env => failwith<ReaderResult<T>>("Reader doesn't support Where or Filter");
 
         public static Reader<Env, T> Where<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
-            env => failwith<T>("Reader doesn't support Where or Filter");
+            env => failwith<ReaderResult<T>>("Reader doesn't support Where or Filter");
 
         public static Reader<Env, R> Bind<Env, T, R>(this Reader<Env, T> self, Func<T, Reader<Env, R>> binder) =>
-            env => binder(self(env))(env);
+            env => new ReaderResult<R>(binder(self(env).Value)(env).Value);
 
         /// <summary>
         /// Select
@@ -68,7 +92,7 @@ namespace LanguageExt
         public static Reader<E, U> Select<E, T, U>(this Reader<E, T> self, Func<T, U> select)
         {
             if (select == null) throw new ArgumentNullException("select");
-            return (E env) => select(self(env));
+            return (E env) => new ReaderResult<U>(select(self(env).Value));
         }
 
         /// <summary>
@@ -84,10 +108,10 @@ namespace LanguageExt
             if (project == null) throw new ArgumentNullException("project");
             return (E env) =>
             {
-                var resT = self(env);
+                var resT = self(env).Value;
                 var resU = bind(resT);
-                var resV = project(resT, resU(env));
-                return resV;
+                var resV = project(resT, resU(env).Value);
+                return new ReaderResult<V>(resV);
             };
         }
     }
