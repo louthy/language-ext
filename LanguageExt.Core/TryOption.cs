@@ -159,6 +159,20 @@ public static class __TryOptionExt
     /// Invokes the someHandler if TryOption is in the Some state, otherwise nothing
     /// happens.
     /// </summary>
+    public static Unit IfSome<T>(this TryOption<T> self, Func<T,Unit> someHandler)
+    {
+        var res = self.Try();
+        if (res.Value.IsSome)
+        {
+            someHandler(res.Value.Value);
+        }
+        return unit;
+    }
+
+    /// <summary>
+    /// Invokes the someHandler if TryOption is in the Some state, otherwise nothing
+    /// happens.
+    /// </summary>
     public static Unit IfSome<T>(this TryOption<T> self, Action<T> someHandler)
     {
         var res = self.Try();

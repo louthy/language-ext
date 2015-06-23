@@ -85,6 +85,20 @@ namespace LanguageExt
             return Unit.Default;
         }
 
+       
+        /// <summary>
+        /// Invokes the someHandler if OptionUnsafe is in the Some state, otherwise nothing
+        /// happens.
+        /// </summary>
+        public Unit IfSomeUnsafe(Func<T, Unit> someHandler)
+        {
+            if (IsSome)
+            {
+                someHandler(value);
+            }
+            return unit;
+        }
+
         /// <summary>
         /// Invokes the someHandler if OptionUnsafe is in the Some state, otherwise nothing
         /// happens.

@@ -177,7 +177,7 @@ namespace LanguageExtTests
                        from y in NoWorky(x)
                        select y;
 
-            Assert.IsTrue(res2.Lift("World").IsNone);
+            Assert.IsTrue(res2.LiftT("World").IsNone);
         }
 
         [Test]
@@ -189,21 +189,21 @@ namespace LanguageExtTests
                 select y
                 );
 
-            Assert.IsTrue(res("World").IsBottom);
+            Assert.IsTrue(res.LiftT("World").IsNone);
 
             var res2 =
                 from x in ask<string>()
                 from y in tryfun(() => Hello(Error()))
                 select y;
 
-            Assert.IsTrue(res2.Lift("World").IsNone);
+            Assert.IsTrue(res2.LiftT("World").IsNone);
 
             var res3 =
                 from x in ask<string>()
                 from y in tryfun(() => Hello2(Error()))
                 select y;
 
-            Assert.IsTrue(res3("World").IsBottom);
+            res3.Lift("World").IfSome(x => failwith<Unit>("wrong"));
 
         }
 

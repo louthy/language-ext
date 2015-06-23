@@ -100,6 +100,19 @@ namespace LanguageExt
             return unit;
         }
 
+        /// <summary>
+        /// Invokes the someHandler if Option is in the Some state, otherwise nothing
+        /// happens.
+        /// </summary>
+        public Unit IfSome(Func<T,Unit> someHandler)
+        {
+            if (IsSome)
+            {
+                someHandler(value);
+            }
+            return unit;
+        }
+
         public T IfNone(Func<T> None) =>
             Match(identity, None);
 

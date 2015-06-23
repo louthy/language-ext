@@ -272,16 +272,13 @@ namespace LanguageExt
 
             return () =>
             {
-                IEnumerable<W> output = null;
-                bool bottom = false;
-
+                var resT = self();
+                if (resT.IsBottom)
+                {
+                    return new WriterResult<W, Try<V>>(default(Try<V>), resT.Output, true);
+                }
                 return new WriterResult<W, Try<V>>(() =>
                 {
-                    var resT = self();
-                    if (resT.IsBottom)
-                    {
-                        return new TryResult<V>(new Exception("Bottom"));
-                    }
                     try
                     {
                         var resU = bind(resT.Value)();
@@ -296,9 +293,7 @@ namespace LanguageExt
                         return new TryResult<V>(e);
                     }
                 },
-               output,
-               bottom
-               );
+                resT.Output);
             };
         }
 
@@ -316,16 +311,13 @@ namespace LanguageExt
 
             return () =>
             {
-                IEnumerable<W> output = null;
-                bool bottom = false;
-
+                var resT = self();
+                if (resT.IsBottom)
+                {
+                    return new WriterResult<W, TryOption<V>>(default(TryOption<V>), resT.Output, true);
+                }
                 return new WriterResult<W, TryOption<V>>(() =>
                 {
-                    var resT = self();
-                    if (resT.IsBottom)
-                    {
-                        return new TryOptionResult<V>(None);
-                    }
                     try
                     {
                         var resU = bind(resT.Value)();
@@ -344,9 +336,7 @@ namespace LanguageExt
                         return new TryOptionResult<V>(e);
                     }
                 },
-               output,
-               bottom
-               );
+                resT.Output);
             };
         }
 
@@ -408,29 +398,21 @@ namespace LanguageExt
 
             return () =>
             {
-                IEnumerable<W> output = null;
-                bool isBottom = false;
-
+                var resT = self();
+                if (resT.IsBottom)
+                {
+                    return new WriterResult<W, State<S, V>>(default(State<S, V>), resT.Output, true);
+                }
                 return new WriterResult<W, State<S, V>>((S state) =>
                 {
-                    var resT = self();
-                    if (resT.IsBottom)
-                    {
-                        isBottom = resT.IsBottom;
-                        return new StateResult<S, V>(state, default(V), true);
-                    }
                     var resU = bind(resT.Value)(state);
                     if (resU.IsBottom)
                     {
-                        isBottom = resT.IsBottom;
                         return new StateResult<S, V>(state, default(V), true);
                     }
-                    output = resT.Output;
                     return new StateResult<S, V>(resU.State, project(resT.Value, resU.Value), false);
                 },
-                output,
-                isBottom
-                );
+                resT.Output);
             };
         }
 
@@ -448,26 +430,20 @@ namespace LanguageExt
 
             return () =>
             {
-                IEnumerable<W> output = null;
-                bool isBottom = false;
-
+                var resT = self();
+                if (resT.IsBottom)
+                {
+                    return new WriterResult<W, Reader<Env, V>>(default(Reader<Env, V>), resT.Output, true);
+                }
                 return new WriterResult<W, Reader<Env, V>>((Env env) =>
                 {
-                    var resT = self();
-                    isBottom = resT.IsBottom;
-                    if (resT.IsBottom)
-                    {
-                        return new ReaderResult<V>(default(V), true);
-                    }
                     var resU = bind(resT.Value)(env);
-                    isBottom = resT.IsBottom;
                     if (resU.IsBottom)
                     {
                         return new ReaderResult<V>(default(V), true);
                     }
-                    output = resT.Output;
                     return new ReaderResult<V>(project(resT.Value, resU.Value));
-                }, output, false);
+                }, resT.Output);
             };
         }
     }

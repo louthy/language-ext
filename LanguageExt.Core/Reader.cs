@@ -155,7 +155,7 @@ namespace LanguageExt
         /// <summary>
         /// Select Many - to Try
         /// </summary>
-        public static Reader<E, V> SelectMany<E, T, U, V>(
+        public static Reader<E, Try<V>> SelectMany<E, T, U, V>(
             this Reader<E, T> self,
             Func<T, Try<U>> bind,
             Func<T, U, V> project
@@ -166,18 +166,21 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
-                var resU = bind(resT.Value).Try();
-                if (resU.IsFaulted) return new ReaderResult<V>(default(V), true);
-                var resV = project(resT, resU.Value);
-                return new ReaderResult<V>(resV);
+                if (resT.IsBottom) return new ReaderResult<Try<V>>(default(Try<V>), true);
+
+                return new ReaderResult<Try<V>>(() =>
+                {
+                    var resU = bind(resT.Value).Try();
+                    if (resU.IsFaulted) return new TryResult<V>(resU.Exception);
+                    return new TryResult<V>(project(resT, resU.Value));
+                });
             };
         }
 
         /// <summary>
         /// Select Many - to TryOption
         /// </summary>
-        public static Reader<E, V> SelectMany<E, T, U, V>(
+        public static Reader<E, TryOption<V>> SelectMany<E, T, U, V>(
             this Reader<E, T> self,
             Func<T, TryOption<U>> bind,
             Func<T, U, V> project
@@ -188,18 +191,22 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
-                var resU = bind(resT.Value).Try();
-                if (resU.IsFaulted || resU.Value.IsNone) return new ReaderResult<V>(default(V), true);
-                var resV = project(resT, resU.Value.Value);
-                return new ReaderResult<V>(resV);
+                if (resT.IsBottom) return new ReaderResult<TryOption<V>>(default(TryOption<V>), true);
+
+                return new ReaderResult<TryOption<V>>(() =>
+                {
+                    var resU = bind(resT.Value).Try();
+                    if (resU.IsFaulted) return new TryOptionResult<V>(resU.Exception);
+                    if (resU.Value.IsNone) return new TryOptionResult<V>(None);
+                    return new TryOptionResult<V>(project(resT, resU.Value.Value));
+                });
             };
         }
 
         /// <summary>
         /// Select Many - to Option
         /// </summary>
-        public static Reader<E, V> SelectMany<E, T, U, V>(
+        public static Reader<E, Option<V>> SelectMany<E, T, U, V>(
             this Reader<E, T> self,
             Func<T, Option<U>> bind,
             Func<T, U, V> project
@@ -210,18 +217,18 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
+                if (resT.IsBottom) return new ReaderResult<Option<V>>(default(Option<V>), true);
                 var resU = bind(resT.Value);
-                if (resU.IsNone) return new ReaderResult<V>(default(V), true);
+                if (resU.IsNone) return new ReaderResult<Option<V>>(default(Option<V>), true);
                 var resV = project(resT, resU.Value);
-                return new ReaderResult<V>(resV);
+                return new ReaderResult<Option<V>>(resV);
             };
         }
 
         /// <summary>
         /// Select Many - to OptionUnsafe
         /// </summary>
-        public static Reader<E, V> SelectMany<E, T, U, V>(
+        public static Reader<E, OptionUnsafe<V>> SelectMany<E, T, U, V>(
             this Reader<E, T> self,
             Func<T, OptionUnsafe<U>> bind,
             Func<T, U, V> project
@@ -232,18 +239,18 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
+                if (resT.IsBottom) return new ReaderResult<OptionUnsafe<V>>(default(OptionUnsafe<V>), true);
                 var resU = bind(resT.Value);
-                if (resU.IsNone) return new ReaderResult<V>(default(V), true);
+                if (resU.IsNone) return new ReaderResult<OptionUnsafe<V>>(default(OptionUnsafe<V>), true);
                 var resV = project(resT, resU.Value);
-                return new ReaderResult<V>(resV);
+                return new ReaderResult<OptionUnsafe<V>>(resV);
             };
         }
 
         /// <summary>
         /// Select Many - to Either
         /// </summary>
-        public static Reader<E, V> SelectMany<E, L, T, U, V>(
+        public static Reader<E, Either<L, V>> SelectMany<E, L, T, U, V>(
             this Reader<E, T> self,
             Func<T, Either<L, U>> bind,
             Func<T, U, V> project
@@ -254,18 +261,18 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
+                if (resT.IsBottom) return new ReaderResult<Either<L, V>>(default(Either<L, V>), true);
                 var resU = bind(resT.Value);
-                if (resU.IsLeft) return new ReaderResult<V>(default(V), true);
+                if (resU.IsLeft) return new ReaderResult<Either<L, V>>(default(Either<L, V>), true);
                 var resV = project(resT, resU.RightValue);
-                return new ReaderResult<V>(resV);
+                return new ReaderResult<Either<L, V>>(resV);
             };
         }
 
         /// <summary>
         /// Select Many - to EitherUnsafe
         /// </summary>
-        public static Reader<E, V> SelectMany<E, L, T, U, V>(
+        public static Reader<E, EitherUnsafe<L,V>> SelectMany<E, L, T, U, V>(
             this Reader<E, T> self,
             Func<T, EitherUnsafe<L, U>> bind,
             Func<T, U, V> project
@@ -276,11 +283,11 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
+                if (resT.IsBottom) return new ReaderResult<EitherUnsafe<L, V>>(default(EitherUnsafe<L, V>), true);
                 var resU = bind(resT.Value);
-                if (resU.IsLeft) return new ReaderResult<V>(default(V), true);
+                if (resU.IsLeft) return new ReaderResult<EitherUnsafe<L, V>>(default(EitherUnsafe<L, V>), true);
                 var resV = project(resT, resU.RightValue);
-                return new ReaderResult<V>(resV);
+                return new ReaderResult<EitherUnsafe<L, V>>(resV);
             };
         }
 
@@ -350,7 +357,7 @@ namespace LanguageExt
         /// <summary>
         /// Select Many - to Map
         /// </summary>
-        public static Reader<E, V> SelectMany<E, W, T, U, V>(
+        public static Reader<E, Writer<W, V>> SelectMany<E, W, T, U, V>(
             this Reader<E, T> self,
             Func<T, Writer<W, U>> bind,
             Func<T, U, V> project
@@ -361,19 +368,23 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
-                var resU = bind(resT.Value)();
-                if( resU.IsBottom ) return new ReaderResult<V>(default(V), true);
-                return new ReaderResult<V>(project(resT.Value, resU.Value));
+                if (resT.IsBottom) return new ReaderResult<Writer<W, V>>(default(Writer<W, V>), true);
+
+                return new ReaderResult<Writer<W, V>>(() =>
+                {
+                    var resU = bind(resT.Value)();
+                    if (resU.IsBottom) return new WriterResult<W, V>(default(V), resU.Output, true);
+                    return new WriterResult<W, V>(project(resT.Value, resU.Value), resU.Output);
+                });
             };
         }
 
         /// <summary>
         /// Select Many - to Map
         /// </summary>
-        public static Reader<E, V> SelectMany<E, T, U, V>(
+        public static Reader<E, State<S,V>> SelectMany<S, E, T, U, V>(
             this Reader<E, T> self,
-            Func<T, State<E, U>> bind,
+            Func<T, State<S, U>> bind,
             Func<T, U, V> project
             )
         {
@@ -382,10 +393,14 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
-                var resU = bind(resT.Value)(env);
-                if (resU.IsBottom) return new ReaderResult<V>(default(V), true);
-                return new ReaderResult<V>(project(resT.Value, resU.Value));
+                if (resT.IsBottom) return new ReaderResult<State<S, V>>(default(State<S, V>), true);
+
+                return new ReaderResult<State<S, V>>((S state) =>
+                {
+                    var resU = bind(resT.Value)(state);
+                    if (resU.IsBottom) return new StateResult<S, V>(state, default(V), true);
+                    return new StateResult<S, V>(state, project(resT.Value, resU.Value));
+                });
             };
         }
     }
