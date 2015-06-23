@@ -150,5 +150,257 @@ namespace LanguageExt
                 return new WriterResult<W, Unit>(unit, r.Output, false);
             }
         }
+
+        /// <summary>
+        /// Select Many - IEnumerable
+        /// </summary>
+        public static Writer<W, IEnumerable<V>> SelectMany<W, T, U, V>(
+            this Writer<W, T> self,
+            Func<T, Writer<W, IEnumerable<U>>> bind,
+            Func<T, U, V> project
+        )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return () =>
+            {
+                var resT = self();
+                if (resT.IsBottom) return new WriterResult<W, IEnumerable<V>>(new V[0], resT.Output, true);
+                var resU = bind(resT.Value)();
+                if (resU.IsBottom) return new WriterResult<W, IEnumerable<V>>(new V[0], resU.Output, true);
+                var resV = resU.Value.Select(x => project(resT.Value, x));
+                return new WriterResult<W, IEnumerable<V>>(resV, resT.Output.Concat(resU.Output));
+            };
+        }
+
+        /// <summary>
+        /// Select Many - Map
+        /// </summary>
+        public static Writer<W, Map<K,V>> SelectMany<W, K, T, U, V>(
+            this Writer<W, T> self,
+            Func<T, Writer<W, Map<K,U>>> bind,
+            Func<T, U, V> project
+        )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return () =>
+            {
+                var resT = self();
+                if (resT.IsBottom) return new WriterResult<W, Map<K, V>>(Map<K,V>(), resT.Output, true);
+                var resU = bind(resT.Value)();
+                if (resU.IsBottom) return new WriterResult<W, Map<K, V>>(Map<K,V>(), resU.Output, true);
+                var resV = resU.Value.Select(x => project(resT.Value, x));
+                return new WriterResult<W, Map<K, V>>(resV, resT.Output.Concat(resU.Output));
+            };
+        }
+        /// <summary>
+        /// Select Many - Lst
+        /// </summary>
+        public static Writer<W, Lst<V>> SelectMany<W, T, U, V>(
+            this Writer<W, T> self,
+            Func<T, Writer<W, Lst<U>>> bind,
+            Func<T, U, V> project
+        )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return () =>
+            {
+                var resT = self();
+                if (resT.IsBottom) return new WriterResult<W, Lst<V>>(List<V>(), resT.Output, true);
+                var resU = bind(resT.Value)();
+                if (resU.IsBottom) return new WriterResult<W, Lst<V>>(List<V>(), resU.Output, true);
+                var resV = resU.Value.Select(x => project(resT.Value, x));
+                return new WriterResult<W, Lst<V>>(List.createRange(resV), resT.Output.Concat(resU.Output));
+            };
+        }
+
+        /// <summary>
+        /// Select Many - Option
+        /// </summary>
+        public static Writer<W, V> SelectMany<W, T, U, V>(
+            this Writer<W, T> self,
+            Func<T, Writer<W, Option<U>>> bind,
+            Func<T, U, V> project
+        )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return () =>
+            {
+                var resT = self();
+                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resT.Output, true);
+                var resU = bind(resT.Value)();
+                if (resU.IsBottom || resU.Value.IsNone) return new WriterResult<W, V>(default(V), resU.Output, true);
+                return new WriterResult<W, V>(project(resT.Value, resU.Value.Value), resT.Output.Concat(resU.Output));
+            };
+        }
+
+        /// <summary>
+        /// Select Many - OptionUnsafe
+        /// </summary>
+        public static Writer<W, V> SelectMany<W, T, U, V>(
+            this Writer<W, T> self,
+            Func<T, Writer<W, OptionUnsafe<U>>> bind,
+            Func<T, U, V> project
+        )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return () =>
+            {
+                var resT = self();
+                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resT.Output, true);
+                var resU = bind(resT.Value)();
+                if (resU.IsBottom || resU.Value.IsNone) return new WriterResult<W, V>(default(V), resU.Output, true);
+                return new WriterResult<W, V>(project(resT.Value, resU.Value.Value), resT.Output.Concat(resU.Output));
+            };
+        }
+
+        /// <summary>
+        /// Select Many - Try
+        /// </summary>
+        public static Writer<W, V> SelectMany<W, T, U, V>(
+            this Writer<W, T> self,
+            Func<T, Writer<W, Try<U>>> bind,
+            Func<T, U, V> project
+        )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return () =>
+            {
+                var resT = self();
+                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resT.Output, true);
+                var resU = bind(resT.Value)();
+                if (resU.IsBottom) return new WriterResult<W, V>(default(V), resU.Output, true);
+                var resUU = resU.Value.Try();
+                if (resUU.IsFaulted) return new WriterResult<W, V>(default(V), resU.Output, true);
+                return new WriterResult<W, V>(project(resT.Value, resUU.Value), resT.Output.Concat(resU.Output));
+            };
+        }
+
+        /// <summary>
+        /// Select Many - TryOption
+        /// </summary>
+        public static Writer<W, V> SelectMany<W, T, U, V>(
+            this Writer<W, T> self,
+            Func<T, Writer<W, TryOption<U>>> bind,
+            Func<T, U, V> project
+        )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return () =>
+            {
+                var resT = self();
+                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resT.Output, true);
+                var resU = bind(resT.Value)();
+                if (resU.IsBottom) return new WriterResult<W, V>(default(V), resU.Output, true);
+                var resUU = resU.Value.Try();
+                if (resUU.IsFaulted || resUU.Value.IsNone) return new WriterResult<W, V>(default(V), resU.Output, true);
+                return new WriterResult<W, V>(project(resT.Value, resUU.Value.Value), resT.Output.Concat(resU.Output));
+            };
+        }
+
+        /// <summary>
+        /// Select Many - Either
+        /// </summary>
+        public static Writer<W, V> SelectMany<W, L, T, U, V>(
+            this Writer<W, T> self,
+            Func<T, Writer<W, Either<L, U>>> bind,
+            Func<T, U, V> project
+        )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return () =>
+            {
+                var resT = self();
+                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resT.Output, true);
+                var resU = bind(resT.Value)();
+                if (resU.IsBottom || resU.Value.IsLeft) return new WriterResult<W, V>(default(V), resU.Output, true);
+                return new WriterResult<W, V>(project(resT.Value, resU.Value.RightValue), resT.Output.Concat(resU.Output));
+            };
+        }
+
+        /// <summary>
+        /// Select Many - EitherUnsafe
+        /// </summary>
+        public static Writer<W, V> SelectMany<W, L, T, U, V>(
+            this Writer<W, T> self,
+            Func<T, Writer<W, EitherUnsafe<L, U>>> bind,
+            Func<T, U, V> project
+        )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return () =>
+            {
+                var resT = self();
+                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resT.Output, true);
+                var resU = bind(resT.Value)();
+                if (resU.IsBottom || resU.Value.IsLeft) return new WriterResult<W, V>(default(V), resU.Output, true);
+                return new WriterResult<W, V>(project(resT.Value, resU.Value.RightValue), resT.Output.Concat(resU.Output));
+            };
+        }
+
+        /// <summary>
+        /// Select Many - State
+        /// </summary>
+        public static Writer<W, V> SelectMany<W, L, T, U, V>(
+            this Writer<W, T> self,
+            Func<T, Writer<W, State<T, U>>> bind,
+            Func<T, U, V> project
+        )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return () =>
+            {
+                var resT = self();
+                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resT.Output, true);
+                var resU = bind(resT.Value)();
+                if (resU.IsBottom) return new WriterResult<W, V>(default(V), resU.Output, true);
+                var res = resU.Value(resT.Value);
+                if (res.IsBottom) return new WriterResult<W, V>(default(V), resU.Output, true);
+                return new WriterResult<W, V>(project(resT.Value, res.Value), resT.Output.Concat(resU.Output));
+            };
+        }
+
+        /// <summary>
+        /// Select Many - Reader
+        /// </summary>
+        public static Writer<W, V> SelectMany<W, L, T, U, V>(
+            this Writer<W, T> self,
+            Func<T, Writer<W, Reader<T, U>>> bind,
+            Func<T, U, V> project
+        )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return () =>
+            {
+                var resT = self();
+                if (resT.IsBottom) return new WriterResult<W, V>(default(V), resT.Output, true);
+                var resU = bind(resT.Value)();
+                if (resU.IsBottom) return new WriterResult<W, V>(default(V), resU.Output, true);
+                var res = resU.Value(resT.Value);
+                if (res.IsBottom) return new WriterResult<W, V>(default(V), resU.Output, true);
+                return new WriterResult<W, V>(project(resT.Value, res.Value), resT.Output.Concat(resU.Output));
+            };
+        }
     }
 }

@@ -336,19 +336,6 @@ public static class __OptionExt
     public static Option<U> Select<T, U>(this Option<T> self, Func<T, U> map) =>
         self.Map(map);
 
-    public static Option<V> SelectMany<T, U, V>(this Option<T> self,
-        Func<T, Option<U>> bind,
-        Func<T, U, V> project
-        ) =>
-        match(self,
-            Some: t =>
-                match(bind(t),
-                    Some: u  => OptionCast.Cast<V>(project(t, u)),
-                    None: () => None
-                ),
-            None: () => None
-            );
-
     public static Option<T> Where<T>(this Option<T> self, Func<T, bool> pred) =>
         self.Filter(pred)
             ? self
@@ -358,4 +345,133 @@ public static class __OptionExt
         self.IsSome
             ? self.Value
             : 0;
+
+    public static Option<V> SelectMany<T, U, V>(this Option<T> self,
+        Func<T, Option<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value);
+        if (resU.IsNone) return None;
+        return Optional(project(self.Value, resU.Value));
+    }
+
+    public static IEnumerable<V> SelectMany<T, U, V>(this Option<T> self,
+        Func<T, IEnumerable<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return new V[0];
+        var resU = bind(self.Value);
+        return resU.Select(x => project(self.Value, x));
+    }
+
+    public static Lst<V> SelectMany<T, U, V>(this Option<T> self,
+        Func<T, Lst<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return List<V>();
+        var resU = bind(self.Value);
+        return LanguageExt.List.createRange((resU.Select(x => project(self.Value, x))));
+    }
+
+    public static Map<K, V> SelectMany<K, T, U, V>(this Option<T> self,
+        Func<T, Map<K, U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return Prelude.Map<K, V>();
+        var resU = bind(self.Value);
+        return resU.Select(x => project(self.Value, x));
+    }
+
+    public static Option<V> SelectMany<T, U, V>(this Option<T> self,
+        Func<T, OptionUnsafe<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value);
+        if (resU.IsNone) return None;
+        return Optional(project(self.Value, resU.Value));
+    }
+
+    public static Option<V> SelectMany<L, T, U, V>(this Option<T> self,
+        Func<T, Either<L, U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value);
+        if (resU.IsLeft) return None;
+        return Optional(project(self.Value, resU.RightValue));
+    }
+
+    public static Option<V> SelectMany<L, T, U, V>(this Option<T> self,
+        Func<T, EitherUnsafe<L, U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value);
+        if (resU.IsLeft || resU.RightValue == null) return None;
+        return Optional(project(self.Value, resU.RightValue));
+    }
+
+    public static Option<V> SelectMany<T, U, V>(this Option<T> self,
+        Func<T, TryOption<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value).Try();
+        if (resU.IsFaulted || resU.Value.IsNone) return None;
+        return Optional(project(self.Value, resU.Value.Value));
+    }
+
+    public static Option<V> SelectMany<T, U, V>(this Option<T> self,
+        Func<T, Try<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value).Try();
+        if (resU.IsFaulted) return None;
+        return Optional(project(self.Value, resU.Value));
+    }
+
+    public static Option<V> SelectMany<T, U, V>(this Option<T> self,
+        Func<T, Reader<T, U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value)(self.Value);
+        if (resU.IsBottom) return None;
+        return Optional(project(self.Value, resU.Value));
+    }
+
+    public static Option<V> SelectMany<Out, T, U, V>(this Option<T> self,
+        Func<T, Writer<Out, U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value)();
+        if (resU.IsBottom) return None;
+        return Optional(project(self.Value, resU.Value));
+    }
+
+    public static Option<V> SelectMany<T, U, V>(this Option<T> self,
+        Func<T, State<T, U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value)(self.Value);
+        if (resU.IsBottom) return None;
+        return Optional(project(self.Value, resU.Value));
+    }
 }

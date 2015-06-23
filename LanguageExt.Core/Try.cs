@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
@@ -237,57 +238,6 @@ public static class __TryExt
         });
     }
 
-    public static Try<V> SelectMany<T, U, V>(
-        this Try<T> self,
-        Func<T, Try<U>> select,
-        Func<T, U, V> bind
-        )
-    {
-        return new Try<V>(
-            () =>
-            {
-                TryResult<T> resT;
-                try
-                {
-                    resT = self();
-                    if (resT.IsFaulted)
-                        return new TryResult<V>(resT.Exception);
-                }
-                catch (Exception e)
-                {
-                    TryConfig.ErrorLogger(e);
-                    return new TryResult<V>(e);
-                }
-
-                TryResult<U> resU;
-                try
-                {
-                    resU = select(resT.Value)();
-                    if (resU.IsFaulted)
-                        return new TryResult<V>(resU.Exception);
-                }
-                catch (Exception e)
-                {
-                    TryConfig.ErrorLogger(e);
-                    return new TryResult<V>(e);
-                }
-
-                V resV;
-                try
-                {
-                    resV = bind(resT.Value, resU.Value);
-                }
-                catch (Exception e)
-                {
-                    TryConfig.ErrorLogger(e);
-                    return new TryResult<V>(e);
-                }
-
-                return new TryResult<V>(resV);
-            }
-        );
-    }
-
     public static Unit Iter<T>(this Try<T> self, Action<T> action) =>
         self.IfSucc(action);
 
@@ -312,7 +262,7 @@ public static class __TryExt
         var res = self.Try();
         return res.IsFaulted
             ? state
-            : folder(state,res.Value);
+            : folder(state, res.Value);
     }
 
     public static bool Exists<T>(this Try<T> self, Func<T, bool> pred)
@@ -360,7 +310,7 @@ public static class __TryExt
         {
             yield return res.Exception;
         }
-        else 
+        else
         {
             yield return res.Value;
         }
@@ -388,4 +338,425 @@ public static class __TryExt
                       : String.Format("Succ({0})", v),
             Fail: ex => "Fail(" + ex.Message + ")"
         );
+
+    public static IEnumerable<V> SelectMany<T, U, V>(
+        this Try<T> self,
+        Func<T, IEnumerable<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        TryResult<T> resT;
+        try
+        {
+            resT = self();
+            if (resT.IsFaulted)
+                return new V[0];
+        }
+        catch (Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            return new V[0];
+        }
+
+        IEnumerable<U> resU;
+        try
+        {
+            resU = bind(resT.Value);
+        }
+        catch (Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            return new V[0];
+        }
+
+        try
+        {
+            return resU.Select(x => project(resT.Value, x));
+        }
+        catch (Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            return new V[0];
+        }
+    }
+
+    public static IEnumerable<V> SelectMany<T, U, V>(
+        this Try<T> self,
+        Func<T, Lst<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        TryResult<T> resT;
+        try
+        {
+            resT = self();
+            if (resT.IsFaulted)
+                return List<V>();
+        }
+        catch (Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            return List<V>();
+        }
+
+        IEnumerable<U> resU;
+        try
+        {
+            resU = bind(resT.Value);
+        }
+        catch (Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            return List<V>();
+        }
+
+        try
+        {
+            return LanguageExt.List.createRange(resU.Select(x => project(resT.Value, x)));
+        }
+        catch (Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            return List<V>();
+        }
+    }
+
+    public static Map<K, V> SelectMany<K, T, U, V>(
+        this Try<T> self,
+        Func<T, Map<K, U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        TryResult<T> resT;
+        try
+        {
+            resT = self();
+            if (resT.IsFaulted)
+                return Prelude.Map<K, V>();
+        }
+        catch (Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            return Prelude.Map<K, V>();
+        }
+
+        Map<K, U> resU;
+        try
+        {
+            resU = bind(resT.Value);
+        }
+        catch (Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            return Prelude.Map<K, V>();
+        }
+
+        try
+        {
+            return resU.Select(x => project(resT.Value, x));
+        }
+        catch (Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            return Prelude.Map<K, V>();
+        }
+    }
+
+    public static Try<Option<V>> SelectMany<T, U, V>(
+          this Try<T> self,
+          Func<T, Option<U>> bind,
+          Func<T, U, V> project
+          )
+    {
+        return new Try<Option<V>>(
+            () =>
+            {
+                TryResult<T> resT;
+                try
+                {
+                    resT = self();
+                    if (resT.IsFaulted)
+                        return new TryResult<Option<V>>(resT.Exception);
+                }
+                catch (Exception e)
+                {
+                    TryConfig.ErrorLogger(e);
+                    return new TryResult<Option<V>>(e);
+                }
+
+                Option<U> resU;
+                try
+                {
+                    resU = bind(resT.Value);
+                    if (resU.IsNone) return new TryResult<Option<V>>(None);
+                }
+                catch (Exception e)
+                {
+                    TryConfig.ErrorLogger(e);
+                    return new TryResult<Option<V>>(e);
+                }
+
+                Option<V> resV;
+                try
+                {
+                    resV = project(resT.Value, resU.Value);
+                }
+                catch (Exception e)
+                {
+                    TryConfig.ErrorLogger(e);
+                    return new TryResult<Option<V>>(e);
+                }
+
+                return new TryResult<Option<V>>(resV);
+            }
+        );
+    }
+
+    public static Try<OptionUnsafe<V>> SelectMany<T, U, V>(
+         this Try<T> self,
+         Func<T, OptionUnsafe<U>> bind,
+         Func<T, U, V> project
+         )
+    {
+        return new Try<OptionUnsafe<V>>(
+            () =>
+            {
+                TryResult<T> resT;
+                try
+                {
+                    resT = self();
+                    if (resT.IsFaulted)
+                        return new TryResult<OptionUnsafe<V>>(resT.Exception);
+                }
+                catch (Exception e)
+                {
+                    TryConfig.ErrorLogger(e);
+                    return new TryResult<OptionUnsafe<V>>(e);
+                }
+
+                OptionUnsafe<U> resU;
+                try
+                {
+                    resU = bind(resT.Value);
+                    if (resU.IsNone) return new TryResult<OptionUnsafe<V>>(None);
+                }
+                catch (Exception e)
+                {
+                    TryConfig.ErrorLogger(e);
+                    return new TryResult<OptionUnsafe<V>>(e);
+                }
+
+                OptionUnsafe<V> resV;
+                try
+                {
+                    resV = project(resT.Value, resU.Value);
+                }
+                catch (Exception e)
+                {
+                    TryConfig.ErrorLogger(e);
+                    return new TryResult<OptionUnsafe<V>>(e);
+                }
+
+                return new TryResult<OptionUnsafe<V>>(resV);
+            }
+        );
+    }
+
+    public static Try<V> SelectMany<T, U, V>(
+          this Try<T> self,
+          Func<T, Try<U>> bind,
+          Func<T, U, V> project
+          )
+    {
+        return new Try<V>(
+            () =>
+            {
+                TryResult<T> resT;
+                try
+                {
+                    resT = self();
+                    if (resT.IsFaulted)
+                        return new TryResult<V>(resT.Exception);
+                }
+                catch (Exception e)
+                {
+                    TryConfig.ErrorLogger(e);
+                    return new TryResult<V>(e);
+                }
+
+                TryResult<U> resU;
+                try
+                {
+                    resU = bind(resT.Value).Try();
+                    if (resU.IsFaulted)
+                        return new TryResult<V>(resU.Exception);
+                }
+                catch (Exception e)
+                {
+                    TryConfig.ErrorLogger(e);
+                    return new TryResult<V>(e);
+                }
+
+                V resV;
+                try
+                {
+                    resV = project(resT.Value, resU.Value);
+                }
+                catch (Exception e)
+                {
+                    TryConfig.ErrorLogger(e);
+                    return new TryResult<V>(e);
+                }
+
+                return new TryResult<V>(resV);
+            }
+        );
+    }
+
+    public static Reader<Env, V> SelectMany<Env, T, U, V>(
+          this Try<T> self,
+          Func<T, Reader<Env, U>> bind,
+          Func<T, U, V> project
+          )
+    {
+        return env =>
+        {
+            TryResult<T> resT;
+            try
+            {
+                resT = self();
+                if (resT.IsFaulted)
+                    return new ReaderResult<V>(default(V), true);
+            }
+            catch (Exception e)
+            {
+                TryConfig.ErrorLogger(e);
+                return new ReaderResult<V>(default(V), true);
+            }
+
+            ReaderResult<U> resU;
+            try
+            {
+                resU = bind(resT.Value)(env);
+                if (resU.IsBottom)
+                    return new ReaderResult<V>(default(V), true);
+            }
+            catch (Exception e)
+            {
+                TryConfig.ErrorLogger(e);
+                return new ReaderResult<V>(default(V), true);
+            }
+
+            V resV;
+            try
+            {
+                resV = project(resT.Value, resU.Value);
+            }
+            catch (Exception e)
+            {
+                TryConfig.ErrorLogger(e);
+                return new ReaderResult<V>(default(V), true);
+            }
+
+            return new ReaderResult<V>(default(V), true);
+        };
+    }
+
+    public static Writer<Out, V> SelectMany<Out, T, U, V>(
+          this Try<T> self,
+          Func<T, Writer<Out, U>> bind,
+          Func<T, U, V> project
+          )
+    {
+        return () =>
+        {
+            TryResult<T> resT;
+            try
+            {
+                resT = self();
+                if (resT.IsFaulted)
+                    return new WriterResult<Out, V>(default(V), new Out[0], true);
+            }
+            catch (Exception e)
+            {
+                TryConfig.ErrorLogger(e);
+                return new WriterResult<Out, V>(default(V), new Out[0], true);
+            }
+
+            WriterResult<Out, U> resU;
+            try
+            {
+                resU = bind(resT.Value)();
+                if (resU.IsBottom)
+                    return new WriterResult<Out, V>(default(V), new Out[0], true);
+            }
+            catch (Exception e)
+            {
+                TryConfig.ErrorLogger(e);
+                return new WriterResult<Out, V>(default(V), new Out[0], true);
+            }
+
+            V resV;
+            try
+            {
+                resV = project(resT.Value, resU.Value);
+            }
+            catch (Exception e)
+            {
+                TryConfig.ErrorLogger(e);
+                return new WriterResult<Out, V>(default(V), new Out[0], true);
+            }
+
+            return new WriterResult<Out, V>(resV, resU.Output);
+        };
+    }
+
+    public static State<S, V> SelectMany<S, T, U, V>(
+          this Try<T> self,
+          Func<T, State<S, U>> bind,
+          Func<T, U, V> project
+          )
+    {
+        return state =>
+        {
+            TryResult<T> resT;
+            try
+            {
+                resT = self();
+                if (resT.IsFaulted)
+                    return new StateResult<S, V>(state, default(V), true);
+            }
+            catch (Exception e)
+            {
+                TryConfig.ErrorLogger(e);
+                return new StateResult<S, V>(state, default(V), true);
+            }
+
+            StateResult<S, U> resU;
+            try
+            {
+                resU = bind(resT.Value)(state);
+                if (resU.IsBottom)
+                    return new StateResult<S, V>(state, default(V), true);
+            }
+            catch (Exception e)
+            {
+                TryConfig.ErrorLogger(e);
+                return new StateResult<S, V>(state, default(V), true);
+            }
+
+            V resV;
+            try
+            {
+                resV = project(resT.Value, resU.Value);
+            }
+            catch (Exception e)
+            {
+                TryConfig.ErrorLogger(e);
+                return new StateResult<S, V>(state, default(V), true);
+            }
+
+            return new StateResult<S, V>(resU.State, resV);
+        };
+    }
 }

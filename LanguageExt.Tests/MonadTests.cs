@@ -163,5 +163,31 @@ namespace LanguageExtTests
             Assert.IsTrue(z.LiftT().Lift() == Some(1));
             Assert.IsTrue(z.LiftT().LiftT() == 1);
         }
+
+        [Test]
+        public void ReaderTryOptionLinqTest()
+        {
+            var res = from x in ask<string>()
+                      from y in Hello(x)
+                      select y;
+
+            Assert.IsTrue(res.LiftT("World") == "Hello, World");
+
+            var res2 = from x in ask<string>()
+                       from y in NoWorky(x)
+                       select y;
+
+            Assert.IsTrue(res2.Lift("World").IsNone);
+        }
+
+        private static Try<Option<string>> Hello(string who)
+        {
+            return () => Some("Hello, " + who);
+        }
+
+        private static Try<Option<string>> NoWorky(string who)
+        {
+            return () => Some(failwith<string>("fail!"));
+        }
     }
 }

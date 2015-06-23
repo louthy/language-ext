@@ -153,5 +153,231 @@ namespace LanguageExt
                 return new StateResult<S, Unit>(r.State, unit, false);
             }
         }
+
+        /// <summary>
+        /// SelectMany -> IEnumerable
+        /// </summary>
+        public static State<S, IEnumerable<V>> SelectMany<S, T, U, V>(
+            this State<S, T> self,
+            Func<T, IEnumerable<U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return (S state) =>
+            {
+                var resT = self(state);
+                if (resT.IsBottom) return new StateResult<S, IEnumerable<V>>(resT.State, new V [0], true);
+                var resU = bind(resT.Value);
+                var resV = resU.Select( x => project(resT.Value, x));
+                return new StateResult<S, IEnumerable<V>>(resT.State, resV);
+            };
+        }
+
+        /// <summary>
+        /// SelectMany -> Lst
+        /// </summary>
+        public static State<S, Lst<V>> SelectMany<S, T, U, V>(
+            this State<S, T> self,
+            Func<T, Lst<U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return (S state) =>
+            {
+                var resT = self(state);
+                if (resT.IsBottom) return new StateResult<S, Lst<V>>(resT.State, List<V>(), true);
+                var resU = bind(resT.Value);
+                var resV = resU.Select(x => project(resT.Value, x));
+                return new StateResult<S, Lst<V>>(resT.State, List.createRange(resV));
+            };
+        }
+
+        /// <summary>
+        /// SelectMany -> Map
+        /// </summary>
+        public static State<S, Map<K, V>> SelectMany<S, K, T, U, V>(
+            this State<S, T> self,
+            Func<T, Map<K, U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return (S state) =>
+            {
+                var resT = self(state);
+                if (resT.IsBottom) return new StateResult<S, Map<K, V>>(resT.State, Map<K,V>(), true);
+                var resU = bind(resT.Value);
+                var resV = resU.Select(x => project(resT.Value, x));
+                return new StateResult<S, Map<K, V>>(resT.State, resV);
+            };
+        }
+
+        public static State<S, V> SelectMany<S, T, U, V>(
+            this State<S, T> self,
+            Func<T, Option<U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return (S state) =>
+            {
+                var resT = self(state);
+                if (resT.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
+                var resU = bind(resT.Value);
+                if (resU.IsNone) return new StateResult<S, V>(resT.State, default(V), true);
+                var resV = project(resT.Value, resU.Value);
+                return new StateResult<S, V>(resT.State, resV);
+            };
+        }
+
+        public static State<S, V> SelectMany<S, T, U, V>(
+            this State<S, T> self,
+            Func<T, OptionUnsafe<U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return (S state) =>
+            {
+                var resT = self(state);
+                if (resT.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
+                var resU = bind(resT.Value);
+                if (resU.IsNone) return new StateResult<S, V>(resT.State, default(V), true);
+                var resV = project(resT.Value, resU.Value);
+                return new StateResult<S, V>(resT.State, resV);
+            };
+        }
+
+        public static State<S, V> SelectMany<S, T, U, V>(
+            this State<S, T> self,
+            Func<T, TryOption<U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return (S state) =>
+            {
+                var resT = self(state);
+                if (resT.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
+                var resU = bind(resT.Value).Try();
+                if (resU.IsFaulted || resU.Value.IsNone) return new StateResult<S, V>(resT.State, default(V), true);
+                var resV = project(resT.Value, resU.Value.Value);
+                return new StateResult<S, V>(resT.State, resV);
+            };
+        }
+
+        public static State<S, V> SelectMany<S, T, U, V>(
+            this State<S, T> self,
+            Func<T, Try<U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return (S state) =>
+            {
+                var resT = self(state);
+                if (resT.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
+                var resU = bind(resT.Value).Try();
+                if (resU.IsFaulted) return new StateResult<S, V>(resT.State, default(V), true);
+                var resV = project(resT.Value, resU.Value);
+                return new StateResult<S, V>(resT.State, resV);
+            };
+        }
+
+        public static State<S, V> SelectMany<S, L, T, U, V>(
+            this State<S, T> self,
+            Func<T, Either<L,U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return (S state) =>
+            {
+                var resT = self(state);
+                if (resT.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
+                var resU = bind(resT.Value);
+                if (resU.IsLeft) return new StateResult<S, V>(resT.State, default(V), true);
+                var resV = project(resT.Value, resU.RightValue);
+                return new StateResult<S, V>(resT.State, resV);
+            };
+        }
+
+        public static State<S, V> SelectMany<S, L, T, U, V>(
+            this State<S, T> self,
+            Func<T, EitherUnsafe<L, U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return (S state) =>
+            {
+                var resT = self(state);
+                if (resT.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
+                var resU = bind(resT.Value);
+                if (resU.IsLeft) return new StateResult<S, V>(resT.State, default(V), true);
+                var resV = project(resT.Value, resU.RightValue);
+                return new StateResult<S, V>(resT.State, resV);
+            };
+        }
+
+        public static State<S, V> SelectMany<S, T, U, V>(
+            this State<S, T> self,
+            Func<T, Reader<T, U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return (S state) =>
+            {
+                var resT = self(state);
+                if (resT.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
+                var resU = bind(resT.Value)(resT.Value);
+                if (resU.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
+                var resV = project(resT.Value, resU.Value);
+                return new StateResult<S, V>(resT.State, resV);
+            };
+        }
+
+        public static State<S, V> SelectMany<S, Out, T, U, V>(
+            this State<S, T> self,
+            Func<T, Writer<Out, U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+
+            return (S state) =>
+            {
+                var resT = self(state);
+                if (resT.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
+                var resU = bind(resT.Value)();
+                if (resU.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
+                var resV = project(resT.Value, resU.Value);
+                return new StateResult<S, V>(resT.State, resV);
+            };
+        }
     }
 }

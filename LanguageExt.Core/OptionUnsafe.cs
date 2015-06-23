@@ -306,19 +306,6 @@ public static class __OptionUnsafeExt
     public static OptionUnsafe<U> Select<T, U>(this OptionUnsafe<T> self, Func<T, U> map) => 
         self.MapUnsafe(map);
 
-    public static OptionUnsafe<V> SelectMany<T, U, V>(this OptionUnsafe<T> self,
-        Func<T, OptionUnsafe<U>> bind,
-        Func<T, U, V> project
-        ) =>
-        matchUnsafe(self,
-            Some: t =>
-                matchUnsafe(bind(t),
-                    Some: u => OptionUnsafeCast.Cast<V>(project(t, u)),
-                    None: () => OptionUnsafe<V>.None
-                ),
-            None: () => OptionUnsafe<V>.None
-            );
-
     public static OptionUnsafe<T> Where<T>(this OptionUnsafe<T> self, Func<T, bool> pred) =>
         self.FilterUnsafe(pred)
             ? self
@@ -368,4 +355,134 @@ public static class __OptionUnsafeExt
         self.IsSome
             ? self.Value
             : 0;
+
+    public static OptionUnsafe<V> SelectMany<T, U, V>(this OptionUnsafe<T> self,
+        Func<T, OptionUnsafe<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value);
+        if (resU.IsNone) return None;
+        return project(self.Value, resU.Value);
+    }
+
+    public static IEnumerable<V> SelectMany<T, U, V>(this OptionUnsafe<T> self,
+        Func<T, IEnumerable<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return new V[0];
+        var resU = bind(self.Value);
+        return resU.Select(x => project(self.Value, x));
+    }
+
+    public static Lst<V> SelectMany<T, U, V>(this OptionUnsafe<T> self,
+        Func<T, Lst<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return List<V>();
+        var resU = bind(self.Value);
+        return LanguageExt.List.createRange((resU.Select(x => project(self.Value, x))));
+    }
+
+    public static Map<K, V> SelectMany<K, T, U, V>(this OptionUnsafe<T> self,
+        Func<T, Map<K, U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return Prelude.Map<K, V>();
+        var resU = bind(self.Value);
+        return resU.Select(x => project(self.Value, x));
+    }
+
+    public static OptionUnsafe<V> SelectMany<T, U, V>(this OptionUnsafe<T> self,
+        Func<T, Option<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value);
+        if (resU.IsNone) return None;
+        return project(self.Value, resU.Value);
+    }
+
+    public static OptionUnsafe<V> SelectMany<L, T, U, V>(this OptionUnsafe<T> self,
+        Func<T, Either<L, U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value);
+        if (resU.IsLeft) return None;
+        return project(self.Value, resU.RightValue);
+    }
+
+    public static OptionUnsafe<V> SelectMany<L, T, U, V>(this Option<T> self,
+        Func<T, EitherUnsafe<L, U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value);
+        if (resU.IsLeft || resU.RightValue == null) return None;
+        return project(self.Value, resU.RightValue);
+    }
+
+    public static OptionUnsafe<V> SelectMany<T, U, V>(this Option<T> self,
+        Func<T, TryOption<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value).Try();
+        if (resU.IsFaulted || resU.Value.IsNone) return None;
+        return project(self.Value, resU.Value.Value);
+    }
+
+    public static OptionUnsafe<V> SelectMany<T, U, V>(this Option<T> self,
+        Func<T, Try<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value).Try();
+        if (resU.IsFaulted) return None;
+        return project(self.Value, resU.Value);
+    }
+
+    public static OptionUnsafe<V> SelectMany<T, U, V>(this OptionUnsafe<T> self,
+        Func<T, Reader<T, U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value)(self.Value);
+        if (resU.IsBottom) return None;
+        return project(self.Value, resU.Value);
+    }
+
+    public static OptionUnsafe<V> SelectMany<Out, T, U, V>(this Option<T> self,
+        Func<T, Writer<Out, U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value)();
+        if (resU.IsBottom) return None;
+        return project(self.Value, resU.Value);
+    }
+
+    public static OptionUnsafe<V> SelectMany<T, U, V>(this Option<T> self,
+        Func<T, State<T, U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value)(self.Value);
+        if (resU.IsBottom) return None;
+        return project(self.Value, resU.Value);
+    }
+
 }

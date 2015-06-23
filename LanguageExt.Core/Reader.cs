@@ -151,5 +151,242 @@ namespace LanguageExt
                 return new ReaderResult<V>(resV);
             };
         }
+
+        /// <summary>
+        /// Select Many - to Try
+        /// </summary>
+        public static Reader<E, V> SelectMany<E, T, U, V>(
+            this Reader<E, T> self,
+            Func<T, Try<U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+            return (E env) =>
+            {
+                var resT = self(env);
+                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                var resU = bind(resT.Value).Try();
+                if (resU.IsFaulted) new ReaderResult<V>(default(V), true);
+                var resV = project(resT, resU.Value);
+                return new ReaderResult<V>(resV);
+            };
+        }
+
+        /// <summary>
+        /// Select Many - to TryOption
+        /// </summary>
+        public static Reader<E, V> SelectMany<E, T, U, V>(
+            this Reader<E, T> self,
+            Func<T, TryOption<U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+            return (E env) =>
+            {
+                var resT = self(env);
+                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                var resU = bind(resT.Value).Try();
+                if (resU.IsFaulted || resU.Value.IsNone) new ReaderResult<V>(default(V), true);
+                var resV = project(resT, resU.Value.Value);
+                return new ReaderResult<V>(resV);
+            };
+        }
+
+        /// <summary>
+        /// Select Many - to Option
+        /// </summary>
+        public static Reader<E, V> SelectMany<E, T, U, V>(
+            this Reader<E, T> self,
+            Func<T, Option<U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+            return (E env) =>
+            {
+                var resT = self(env);
+                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                var resU = bind(resT.Value);
+                if (resU.IsNone) new ReaderResult<V>(default(V), true);
+                var resV = project(resT, resU.Value);
+                return new ReaderResult<V>(resV);
+            };
+        }
+
+        /// <summary>
+        /// Select Many - to OptionUnsafe
+        /// </summary>
+        public static Reader<E, V> SelectMany<E, T, U, V>(
+            this Reader<E, T> self,
+            Func<T, OptionUnsafe<U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+            return (E env) =>
+            {
+                var resT = self(env);
+                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                var resU = bind(resT.Value);
+                if (resU.IsNone) new ReaderResult<V>(default(V), true);
+                var resV = project(resT, resU.Value);
+                return new ReaderResult<V>(resV);
+            };
+        }
+
+        /// <summary>
+        /// Select Many - to Either
+        /// </summary>
+        public static Reader<E, V> SelectMany<E, L, T, U, V>(
+            this Reader<E, T> self,
+            Func<T, Either<L, U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+            return (E env) =>
+            {
+                var resT = self(env);
+                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                var resU = bind(resT.Value);
+                if (resU.IsLeft) new ReaderResult<V>(default(V), true);
+                var resV = project(resT, resU.RightValue);
+                return new ReaderResult<V>(resV);
+            };
+        }
+
+        /// <summary>
+        /// Select Many - to EitherUnsafe
+        /// </summary>
+        public static Reader<E, V> SelectMany<E, L, T, U, V>(
+            this Reader<E, T> self,
+            Func<T, EitherUnsafe<L, U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+            return (E env) =>
+            {
+                var resT = self(env);
+                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                var resU = bind(resT.Value);
+                if (resU.IsLeft) new ReaderResult<V>(default(V), true);
+                var resV = project(resT, resU.RightValue);
+                return new ReaderResult<V>(resV);
+            };
+        }
+
+        /// <summary>
+        /// Select Many - to IEnumerable
+        /// </summary>
+        public static Reader<E, IEnumerable<V>> SelectMany<E, T, U, V>(
+            this Reader<E, T> self,
+            Func<T, IEnumerable<U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+            return (E env) =>
+            {
+                var resT = self(env);
+                if (resT.IsBottom) new ReaderResult<IEnumerable<V>>(new V [0], true);
+                var resU = bind(resT.Value);
+                var resV = resU.Select(x => project(resT, x));
+                return new ReaderResult<IEnumerable<V>>(resV);
+            };
+        }
+
+        /// <summary>
+        /// Select Many - to Lst
+        /// </summary>
+        public static Reader<E, Lst<V>> SelectMany<E, T, U, V>(
+            this Reader<E, T> self,
+            Func<T, Lst<U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+            return (E env) =>
+            {
+                var resT = self(env);
+                if (resT.IsBottom) new ReaderResult<Lst<V>>(List<V>(), true);
+                var resU = bind(resT.Value);
+                var resV = resU.Select(x => project(resT, x));
+                return new ReaderResult<Lst<V>>(List.createRange(resV));
+            };
+        }
+
+        /// <summary>
+        /// Select Many - to Map
+        /// </summary>
+        public static Reader<E, Map<K, V>> SelectMany<E, K, T, U, V>(
+            this Reader<E, T> self,
+            Func<T, Map<K, U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+            return (E env) =>
+            {
+                var resT = self(env);
+                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                var resU = bind(resT.Value);
+                var resV = resU.Map( x => project(resT, x) );
+                return new ReaderResult<Map<K,V>>(resV);
+            };
+        }
+
+        /// <summary>
+        /// Select Many - to Map
+        /// </summary>
+        public static Reader<E, V> SelectMany<E, W, T, U, V>(
+            this Reader<E, T> self,
+            Func<T, Writer<W, U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+            return (E env) =>
+            {
+                var resT = self(env);
+                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                var resU = bind(resT.Value)();
+                if( resU.IsBottom ) new ReaderResult<V>(default(V), true);
+                return new ReaderResult<V>(project(resT.Value, resU.Value));
+            };
+        }
+
+        /// <summary>
+        /// Select Many - to Map
+        /// </summary>
+        public static Reader<E, V> SelectMany<E, T, U, V>(
+            this Reader<E, T> self,
+            Func<T, State<E, U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+            return (E env) =>
+            {
+                var resT = self(env);
+                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                var resU = bind(resT.Value)(env);
+                if (resU.IsBottom) new ReaderResult<V>(default(V), true);
+                return new ReaderResult<V>(project(resT.Value, resU.Value));
+            };
+        }
     }
 }
