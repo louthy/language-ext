@@ -1,9 +1,9 @@
 ﻿using NUnit.Framework;
 using LanguageExt;
+using LanguageExt.Trans;
+using LanguageExt.Trans.Linq;
 using static LanguageExt.List;
 using static LanguageExt.Prelude;
-using System.Collections.Immutable;
-using System.Collections.Generic;
 using System;
 
 namespace LanguageExtTests
@@ -49,13 +49,13 @@ namespace LanguageExtTests
         {
             var lookupVar = fun((string name, Bindings bindings) => LanguageExt.Map.find(bindings.Map, name).IfNone(0));
 
-            var calcIsCountCorrect = from   count    in asks((Bindings env) => lookupVar("count", env))
-                                     from   bindings in ask<Bindings>()
+            var calcIsCountCorrect = from count in asks((Bindings env) => lookupVar("count", env))
+                                     from bindings in ask<Bindings>()
                                      select count == LanguageExt.Map.length(bindings.Map);
 
             var sampleBindings = Bindings.New(
-                                    Tuple("count", 3), 
-                                    Tuple("1", 1), 
+                                    Tuple("count", 3),
+                                    Tuple("1", 1),
                                     Tuple("b", 2)
                                     );
 
@@ -101,8 +101,8 @@ namespace LanguageExtTests
         public void StateTest()
         {
             var comp = from inp in get<string>()
-                       let  hw  =  inp + ", world"
-                       from _   in put(hw)
+                       let hw = inp + ", world"
+                       from _ in put(hw)
                        select hw.Length;
 
             var r = comp("hello");
@@ -128,5 +128,40 @@ namespace LanguageExtTests
             Assert.IsTrue(rdr(2).IsBottom);
         }
 
+        [Test]
+        public void ReaderListSumFoldTest()
+        {
+            var v1 = Reader<int, Lst<int>>(List(1, 2, 3, 4, 5));
+            var v2 = Reader<int, Lst<int>>(List(1, 2, 3, 4, 5));
+
+            var rdr = from x in v1.SumT()
+                      from y in v2.FoldT(0, (s, v) => s + v * 2)
+                      from c in ask<int>()
+                      where x * c > 50 && y * c > 50
+                      select (x + y) * c;
+
+            Assert.IsTrue(rdr(10) == 450);
+            Assert.IsTrue(rdr(2) == 0);
+            Assert.IsTrue(rdr(2).IsBottom);
+        }
+
+        [Test]
+        public void LiftTest()
+        {
+            var x = List(None, Some(1), Some(2), Some(3), Some(4));
+
+            Assert.IsTrue(x.Lift() == None);
+            Assert.IsTrue(x.LiftT() == 0);
+
+            var y = List(Some(1), Some(2), Some(3), Some(4));
+
+            Assert.IsTrue(y.Lift() == Some(1));
+            Assert.IsTrue(y.LiftT() == 1);
+
+            var z = Some(Some(Some(Some(1))));
+
+            Assert.IsTrue(z.LiftT().Lift() == Some(1));
+            Assert.IsTrue(z.LiftT().LiftT() == 1);
+        }
     }
 }
