@@ -616,6 +616,25 @@ public static class __EnumnerableExt
         });
     }
 
+    public static IEnumerable<Reader<Env, V>> SelectMany<Env, T, U, V>(this Lst<T> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project)
+    {
+        foreach (var t in self)
+        {
+            yield return (env =>
+            {
+                var resU = bind(t)(env);
+                if (resU.IsBottom)
+                {
+                    return new ReaderResult<V>(default(V), true);
+                }
+                else
+                {
+                    return new ReaderResult<V>(project(t, resU.Value));
+                }
+            });
+        }
+    }
+
     public static IEnumerable<Reader<Env, V>> SelectMany<Env, T, U, V>(this IEnumerable<T> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project)
     {
         foreach (var t in self)
