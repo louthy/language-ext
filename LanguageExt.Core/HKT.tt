@@ -17,7 +17,7 @@
         T("EitherUnsafe","L, !T",     "self.IsRight ? self.RightValue : default(T)",    false),
         T("Reader",      "Env, !T",   "self",                                           true),
         T("Writer",      "Out, !T",   "self().Value",                                   false),
-    //  T("State",       "State, !T", "self",                                           true),
+        T("State",       "State, !T", "self",                                           true),
     };
 
     var monadFuncs = new [] {
@@ -211,6 +211,7 @@ namespace LanguageExt.Trans
         return String.Join("\r\n",
                    from outer in types
                    from inner in types
+                   where !(outer.DelegateTakesArg && inner.DelegateTakesArg && outer.Args != inner.Args)
                    select 
                        all(
                            pre(outer),
@@ -322,6 +323,30 @@ namespace LanguageExt.Trans
                    .Replace("<>","");
     }
 
+    public string DelInvoke(TypeDesc outer, TypeDesc inner)
+    {
+        if(inner.DelegateTakesArg)
+        {
+            return "(arg)";
+        }
+        else
+        {
+            return "";
+        }
+    }
+    
+    public string DelInvokeOne(TypeDesc outer, TypeDesc inner)
+    {
+        if(inner.DelegateTakesArg)
+        {
+            return "(arg).Value";
+        }
+        else
+        {
+            return "";
+        }
+    }
+
     public string GenerateOuterFunc(
         string func, 
         TypeDesc outerType, 
@@ -400,8 +425,8 @@ namespace LanguageExt.Trans
                    .Replace("ARGS_TU", args.Replace("!T","T") + ", U")
                    .Replace("ARGS_T", args.Replace("!T","T"))
                    .Replace("DEL_ARGS", innerType.DelegateTakesArg ? " arg => " : "")
-                   .Replace("DEL_INVOKE_ONE", innerType.DelegateTakesArg ? "(arg).Value" : "")
-                   .Replace("DEL_INVOKE", innerType.DelegateTakesArg ? "(arg)" : "")
+                   .Replace("DEL_INVOKE_ONE", DelInvokeOne(outerType,innerType))
+                   .Replace("DEL_INVOKE", DelInvoke(outerType,innerType))
                    .Replace("<>","");    
     }
 #>

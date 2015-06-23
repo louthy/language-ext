@@ -147,6 +147,18 @@ namespace LanguageExt
         public static IEnumerable<Writer<Out, U>> mapT<T, Out, U>(IEnumerable<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, Out>(IEnumerable<Writer<Out, T>> self) => self.ValueT();
     }
+    public static partial class List {
+        public static State<State, int> sumT<State>(IEnumerable<State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> countT<T, State>(IEnumerable<State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static IEnumerable<State<State, U>> bindT<T, State, U>(IEnumerable<State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<T, State>(IEnumerable<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static IEnumerable<State<State, T>> filterT<T, State>(IEnumerable<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<T, State, V>(IEnumerable<State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> forAllT<T, State>(IEnumerable<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> iterT<T, State>(IEnumerable<State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static IEnumerable<State<State, U>> mapT<T, State, U>(IEnumerable<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<T, State>(IEnumerable<State<State, T>> self) => self.ValueT();
+    }
     public static partial class Option {
         public static int sumT(Option<IEnumerable<int>> self) => self.MapT(x => x.SumT()).Sum();
         public static int countT<T>(Option<IEnumerable<T>> self) => self.Map(x => x.CountT()).SumT();
@@ -278,6 +290,18 @@ namespace LanguageExt
         public static Unit iterT<T, Out>(Option<Writer<Out, T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
         public static Option<Writer<Out, U>> mapT<T, Out, U>(Option<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, Out>(Option<Writer<Out, T>> self) => self.ValueT();
+    }
+    public static partial class Option {
+        public static State<State, int> sumT<State>(Option<State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> countT<T, State>(Option<State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static Option<State<State, U>> bindT<T, State, U>(Option<State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<T, State>(Option<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static Option<State<State, T>> filterT<T, State>(Option<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<T, State, V>(Option<State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> forAllT<T, State>(Option<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> iterT<T, State>(Option<State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static Option<State<State, U>> mapT<T, State, U>(Option<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<T, State>(Option<State<State, T>> self) => self.ValueT();
     }
     public static partial class OptionUnsafe {
         public static int sumT(OptionUnsafe<IEnumerable<int>> self) => self.MapT(x => x.SumT()).Sum();
@@ -411,6 +435,18 @@ namespace LanguageExt
         public static OptionUnsafe<Writer<Out, U>> mapT<T, Out, U>(OptionUnsafe<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, Out>(OptionUnsafe<Writer<Out, T>> self) => self.ValueT();
     }
+    public static partial class OptionUnsafe {
+        public static State<State, int> sumT<State>(OptionUnsafe<State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> countT<T, State>(OptionUnsafe<State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static OptionUnsafe<State<State, U>> bindT<T, State, U>(OptionUnsafe<State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<T, State>(OptionUnsafe<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static OptionUnsafe<State<State, T>> filterT<T, State>(OptionUnsafe<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<T, State, V>(OptionUnsafe<State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> forAllT<T, State>(OptionUnsafe<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> iterT<T, State>(OptionUnsafe<State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static OptionUnsafe<State<State, U>> mapT<T, State, U>(OptionUnsafe<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<T, State>(OptionUnsafe<State<State, T>> self) => self.ValueT();
+    }
     public static partial class List {
         public static int sumT(Lst<IEnumerable<int>> self) => self.MapT(x => x.SumT()).Sum();
         public static int countT<T>(Lst<IEnumerable<T>> self) => self.Map(x => x.CountT()).SumT();
@@ -542,6 +578,18 @@ namespace LanguageExt
         public static Unit iterT<T, Out>(Lst<Writer<Out, T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
         public static Lst<Writer<Out, U>> mapT<T, Out, U>(Lst<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, Out>(Lst<Writer<Out, T>> self) => self.ValueT();
+    }
+    public static partial class List {
+        public static State<State, int> sumT<State>(Lst<State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> countT<T, State>(Lst<State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static Lst<State<State, U>> bindT<T, State, U>(Lst<State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<T, State>(Lst<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static Lst<State<State, T>> filterT<T, State>(Lst<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<T, State, V>(Lst<State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> forAllT<T, State>(Lst<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> iterT<T, State>(Lst<State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static Lst<State<State, U>> mapT<T, State, U>(Lst<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<T, State>(Lst<State<State, T>> self) => self.ValueT();
     }
     public static partial class Map {
         public static int sumT<K>(Map<K, IEnumerable<int>> self) => self.MapT(x => x.SumT()).Sum();
@@ -675,6 +723,18 @@ namespace LanguageExt
         public static Map<K, Writer<Out, U>> mapT<K, T, Out, U>(Map<K, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<K, T, Out>(Map<K, Writer<Out, T>> self) => self.ValueT();
     }
+    public static partial class Map {
+        public static State<State, int> sumT<K, State>(Map<K, State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> countT<K, T, State>(Map<K, State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static Map<K, State<State, U>> bindT<K, T, State, U>(Map<K, State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<K, T, State>(Map<K, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static Map<K, State<State, T>> filterT<K, T, State>(Map<K, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<K, T, State, V>(Map<K, State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> forAllT<K, T, State>(Map<K, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> iterT<K, T, State>(Map<K, State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static Map<K, State<State, U>> mapT<K, T, State, U>(Map<K, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<K, T, State>(Map<K, State<State, T>> self) => self.ValueT();
+    }
     public static partial class TryOption {
         public static int sumT(TryOption<IEnumerable<int>> self) => self.MapT(x => x.SumT()).Sum();
         public static int countT<T>(TryOption<IEnumerable<T>> self) => self.Map(x => x.CountT()).SumT();
@@ -806,6 +866,18 @@ namespace LanguageExt
         public static Unit iterT<T, Out>(TryOption<Writer<Out, T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
         public static TryOption<Writer<Out, U>> mapT<T, Out, U>(TryOption<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, Out>(TryOption<Writer<Out, T>> self) => self.ValueT();
+    }
+    public static partial class TryOption {
+        public static State<State, int> sumT<State>(TryOption<State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> countT<T, State>(TryOption<State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static TryOption<State<State, U>> bindT<T, State, U>(TryOption<State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<T, State>(TryOption<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static TryOption<State<State, T>> filterT<T, State>(TryOption<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<T, State, V>(TryOption<State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> forAllT<T, State>(TryOption<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> iterT<T, State>(TryOption<State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static TryOption<State<State, U>> mapT<T, State, U>(TryOption<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<T, State>(TryOption<State<State, T>> self) => self.ValueT();
     }
     public static partial class Try {
         public static int sumT(Try<IEnumerable<int>> self) => self.MapT(x => x.SumT()).Sum();
@@ -939,6 +1011,18 @@ namespace LanguageExt
         public static Try<Writer<Out, U>> mapT<T, Out, U>(Try<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, Out>(Try<Writer<Out, T>> self) => self.ValueT();
     }
+    public static partial class Try {
+        public static State<State, int> sumT<State>(Try<State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> countT<T, State>(Try<State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static Try<State<State, U>> bindT<T, State, U>(Try<State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<T, State>(Try<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static Try<State<State, T>> filterT<T, State>(Try<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<T, State, V>(Try<State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> forAllT<T, State>(Try<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> iterT<T, State>(Try<State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static Try<State<State, U>> mapT<T, State, U>(Try<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<T, State>(Try<State<State, T>> self) => self.ValueT();
+    }
     public static partial class Either {
         public static int sumT<L>(Either<L, IEnumerable<int>> self) => self.MapT(x => x.SumT()).Sum();
         public static int countT<L, T>(Either<L, IEnumerable<T>> self) => self.Map(x => x.CountT()).SumT();
@@ -1071,6 +1155,18 @@ namespace LanguageExt
         public static Either<L, Writer<Out, U>> mapT<L, T, Out, U>(Either<L, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T, Out>(Either<L, Writer<Out, T>> self) => self.ValueT();
     }
+    public static partial class Either {
+        public static State<State, int> sumT<L, State>(Either<L, State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> countT<L, T, State>(Either<L, State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static Either<L, State<State, U>> bindT<L, T, State, U>(Either<L, State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<L, T, State>(Either<L, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static Either<L, State<State, T>> filterT<L, T, State>(Either<L, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<L, T, State, V>(Either<L, State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> forAllT<L, T, State>(Either<L, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> iterT<L, T, State>(Either<L, State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static Either<L, State<State, U>> mapT<L, T, State, U>(Either<L, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<L, T, State>(Either<L, State<State, T>> self) => self.ValueT();
+    }
     public static partial class EitherUnsafe {
         public static int sumT<L>(EitherUnsafe<L, IEnumerable<int>> self) => self.MapT(x => x.SumT()).Sum();
         public static int countT<L, T>(EitherUnsafe<L, IEnumerable<T>> self) => self.Map(x => x.CountT()).SumT();
@@ -1202,6 +1298,18 @@ namespace LanguageExt
         public static Unit iterT<L, T, Out>(EitherUnsafe<L, Writer<Out, T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
         public static EitherUnsafe<L, Writer<Out, U>> mapT<L, T, Out, U>(EitherUnsafe<L, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T, Out>(EitherUnsafe<L, Writer<Out, T>> self) => self.ValueT();
+    }
+    public static partial class EitherUnsafe {
+        public static State<State, int> sumT<L, State>(EitherUnsafe<L, State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> countT<L, T, State>(EitherUnsafe<L, State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static EitherUnsafe<L, State<State, U>> bindT<L, T, State, U>(EitherUnsafe<L, State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<L, T, State>(EitherUnsafe<L, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static EitherUnsafe<L, State<State, T>> filterT<L, T, State>(EitherUnsafe<L, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<L, T, State, V>(EitherUnsafe<L, State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> forAllT<L, T, State>(EitherUnsafe<L, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> iterT<L, T, State>(EitherUnsafe<L, State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static EitherUnsafe<L, State<State, U>> mapT<L, T, State, U>(EitherUnsafe<L, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<L, T, State>(EitherUnsafe<L, State<State, T>> self) => self.ValueT();
     }
     public static partial class Reader {
         public static Reader<Env, int> sumT<Env>(Reader<Env, IEnumerable<int>> self) => self.MapT(x => x.SumT()).Sum();
@@ -1467,6 +1575,150 @@ namespace LanguageExt
         public static Writer<Out, Writer<Out, U>> mapT<Out, T, U>(Writer<Out, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Out, T>(Writer<Out, Writer<Out, T>> self) => self.ValueT();
     }
+    public static partial class Writer {
+        public static State<State, int> sumT<Out, State>(Writer<Out, State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> countT<Out, T, State>(Writer<Out, State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static Writer<Out, State<State, U>> bindT<Out, T, State, U>(Writer<Out, State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<Out, T, State>(Writer<Out, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static Writer<Out, State<State, T>> filterT<Out, T, State>(Writer<Out, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<Out, T, State, V>(Writer<Out, State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> forAllT<Out, T, State>(Writer<Out, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> iterT<Out, T, State>(Writer<Out, State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static Writer<Out, State<State, U>> mapT<Out, T, State, U>(Writer<Out, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<Out, T, State>(Writer<Out, State<State, T>> self) => self.ValueT();
+    }
+    public static partial class State {
+        public static State<State, int> sumT<State>(State<State, IEnumerable<int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> countT<State, T>(State<State, IEnumerable<T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, IEnumerable<U>> bindT<State, T, U>(State<State, IEnumerable<T>> self, Func<T, IEnumerable<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<State, T>(State<State, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, IEnumerable<T>> filterT<State, T>(State<State, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<State, T, V>(State<State, IEnumerable<T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> forAllT<State, T>(State<State, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> iterT<State, T>(State<State, IEnumerable<T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, IEnumerable<U>> mapT<State, T, U>(State<State, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<State, T>(State<State, IEnumerable<T>> self) => self.ValueT();
+    }
+    public static partial class State {
+        public static State<State, int> sumT<State>(State<State, Option<int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> countT<State, T>(State<State, Option<T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, Option<U>> bindT<State, T, U>(State<State, Option<T>> self, Func<T, Option<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<State, T>(State<State, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, Option<T>> filterT<State, T>(State<State, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<State, T, V>(State<State, Option<T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> forAllT<State, T>(State<State, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> iterT<State, T>(State<State, Option<T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, Option<U>> mapT<State, T, U>(State<State, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<State, T>(State<State, Option<T>> self) => self.ValueT();
+    }
+    public static partial class State {
+        public static State<State, int> sumT<State>(State<State, OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> countT<State, T>(State<State, OptionUnsafe<T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, OptionUnsafe<U>> bindT<State, T, U>(State<State, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<State, T>(State<State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, OptionUnsafe<T>> filterT<State, T>(State<State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<State, T, V>(State<State, OptionUnsafe<T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> forAllT<State, T>(State<State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> iterT<State, T>(State<State, OptionUnsafe<T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, OptionUnsafe<U>> mapT<State, T, U>(State<State, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<State, T>(State<State, OptionUnsafe<T>> self) => self.ValueT();
+    }
+    public static partial class State {
+        public static State<State, int> sumT<State>(State<State, Lst<int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> countT<State, T>(State<State, Lst<T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, Lst<U>> bindT<State, T, U>(State<State, Lst<T>> self, Func<T, Lst<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<State, T>(State<State, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, Lst<T>> filterT<State, T>(State<State, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<State, T, V>(State<State, Lst<T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> forAllT<State, T>(State<State, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> iterT<State, T>(State<State, Lst<T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, Lst<U>> mapT<State, T, U>(State<State, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<State, T>(State<State, Lst<T>> self) => self.ValueT();
+    }
+    public static partial class State {
+        public static State<State, int> sumT<State, K>(State<State, Map<K, int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> countT<State, T, K>(State<State, Map<K, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, Map<K, U>> bindT<State, T, K, U>(State<State, Map<K, T>> self, Func<T, Map<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<State, T, K>(State<State, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, Map<K, T>> filterT<State, T, K>(State<State, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<State, T, K, V>(State<State, Map<K, T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> forAllT<State, T, K>(State<State, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> iterT<State, T, K>(State<State, Map<K, T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, Map<K, U>> mapT<State, T, K, U>(State<State, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<State, T, K>(State<State, Map<K, T>> self) => self.ValueT();
+    }
+    public static partial class State {
+        public static State<State, int> sumT<State>(State<State, TryOption<int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> countT<State, T>(State<State, TryOption<T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, TryOption<U>> bindT<State, T, U>(State<State, TryOption<T>> self, Func<T, TryOption<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<State, T>(State<State, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, TryOption<T>> filterT<State, T>(State<State, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<State, T, V>(State<State, TryOption<T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> forAllT<State, T>(State<State, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> iterT<State, T>(State<State, TryOption<T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, TryOption<U>> mapT<State, T, U>(State<State, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<State, T>(State<State, TryOption<T>> self) => self.ValueT();
+    }
+    public static partial class State {
+        public static State<State, int> sumT<State>(State<State, Try<int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> countT<State, T>(State<State, Try<T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, Try<U>> bindT<State, T, U>(State<State, Try<T>> self, Func<T, Try<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<State, T>(State<State, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, Try<T>> filterT<State, T>(State<State, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<State, T, V>(State<State, Try<T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> forAllT<State, T>(State<State, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> iterT<State, T>(State<State, Try<T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, Try<U>> mapT<State, T, U>(State<State, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<State, T>(State<State, Try<T>> self) => self.ValueT();
+    }
+    public static partial class State {
+        public static State<State, int> sumT<State, L>(State<State, Either<L, int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> countT<State, T, L>(State<State, Either<L, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, Either<L, U>> bindT<State, T, L, U>(State<State, Either<L, T>> self, Func<T, Either<L, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<State, T, L>(State<State, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, Either<L, T>> filterT<State, T, L>(State<State, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<State, T, L, V>(State<State, Either<L, T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> forAllT<State, T, L>(State<State, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> iterT<State, T, L>(State<State, Either<L, T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, Either<L, U>> mapT<State, T, L, U>(State<State, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<State, T, L>(State<State, Either<L, T>> self) => self.ValueT();
+    }
+    public static partial class State {
+        public static State<State, int> sumT<State, L>(State<State, EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> countT<State, T, L>(State<State, EitherUnsafe<L, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, EitherUnsafe<L, U>> bindT<State, T, L, U>(State<State, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<State, T, L>(State<State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, EitherUnsafe<L, T>> filterT<State, T, L>(State<State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<State, T, L, V>(State<State, EitherUnsafe<L, T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> forAllT<State, T, L>(State<State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> iterT<State, T, L>(State<State, EitherUnsafe<L, T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, EitherUnsafe<L, U>> mapT<State, T, L, U>(State<State, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<State, T, L>(State<State, EitherUnsafe<L, T>> self) => self.ValueT();
+    }
+    public static partial class State {
+        public static State<State, int> sumT<State, Out>(State<State, Writer<Out, int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> countT<State, T, Out>(State<State, Writer<Out, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, Writer<Out, U>> bindT<State, T, Out, U>(State<State, Writer<Out, T>> self, Func<T, Writer<Out, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> existsT<State, T, Out>(State<State, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, Writer<Out, T>> filterT<State, T, Out>(State<State, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> foldT<State, T, Out, V>(State<State, Writer<Out, T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> forAllT<State, T, Out>(State<State, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> iterT<State, T, Out>(State<State, Writer<Out, T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, Writer<Out, U>> mapT<State, T, Out, U>(State<State, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> liftT<State, T, Out>(State<State, Writer<Out, T>> self) => self.ValueT();
+    }
+    public static partial class State {
+        public static State<State, State<State, int>> sumT<State>(State<State, State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, State<State, int>> countT<State, T>(State<State, State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, State<State, U>> bindT<State, T, U>(State<State, State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, State<State, bool>> existsT<State, T>(State<State, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static State<State, State<State, T>> filterT<State, T>(State<State, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, State<State, V>> foldT<State, T, V>(State<State, State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, State<State, bool>> forAllT<State, T>(State<State, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, State<State, Unit>> iterT<State, T>(State<State, State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static State<State, State<State, U>> mapT<State, T, U>(State<State, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, State<State, T>> liftT<State, T>(State<State, State<State, T>> self) => self.ValueT();
+    }
 }
 
 namespace LanguageExt.Trans
@@ -1614,6 +1866,19 @@ namespace LanguageExt.Trans
         internal static Writer<Out, U> MapT<Out, T, U>(this Writer<Out, T> self, Func<T, U> mapper) => self.Map(mapper);
         public static T Lift<Out, T>(this Writer<Out, T> self) => self.InnerValue();
     }
+    public static partial class StateMonad {
+        internal static State<State, T> InnerValue<State, T>(this State<State, T> self) =>self;
+        internal static State<State, int> SumT<State>(this State<State, int> self) => self.Sum();
+        internal static State<State, int> CountT<State, T>(this State<State, T> self) => arg => self.Count();
+        internal static State<State, U> BindT<State, T, U>(this State<State, T> self, Func<T, State<State, U>> binder) => self.Bind(binder);
+        internal static State<State, bool> ExistsT<State, T>(this State<State, T> self, Func<T, bool> pred) => self.Exists(pred);
+        internal static State<State, T> FilterT<State, T>(this State<State, T> self, Func<T, bool> pred) => self.Filter(pred);
+        internal static State<State, V> FoldT<State, T, V>(this State<State, T> self, V state, Func<V, T, V> fold) => self.Fold(state,fold);
+        internal static State<State, bool> ForAllT<State, T>(this State<State, T> self, Func<T, bool> pred) => self.ForAll(pred);
+        internal static State<State, Unit> IterT<State, T>(this State<State, T> self, Action<T> action) => self.Iter(action);
+        internal static State<State, U> MapT<State, T, U>(this State<State, T> self, Func<T, U> mapper) => self.Map(mapper);
+        public static State<State, T> Lift<State, T>(this State<State, T> self) => self.InnerValue();
+    }
     public static partial class ListTMonad {
         internal static T ValueT<T>(this IEnumerable<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         public static int SumT(this IEnumerable<IEnumerable<int>> self) => self.MapT(x => x.SumT()).Sum();
@@ -1756,6 +2021,19 @@ namespace LanguageExt.Trans
         public static Unit IterT<T, Out>(this IEnumerable<Writer<Out, T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
         public static IEnumerable<Writer<Out, U>> MapT<T, Out, U>(this IEnumerable<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T LiftT<T, Out>(this IEnumerable<Writer<Out, T>> self) => self.ValueT();
+    }
+    public static partial class ListTMonad {
+        internal static State<State, T> ValueT<T, State>(this IEnumerable<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<State>(this IEnumerable<State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> CountT<T, State>(this IEnumerable<State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static IEnumerable<State<State, U>> BindT<T, State, U>(this IEnumerable<State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<T, State>(this IEnumerable<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static IEnumerable<State<State, T>> FilterT<T, State>(this IEnumerable<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<T, State, V>(this IEnumerable<State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> ForAllT<T, State>(this IEnumerable<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> IterT<T, State>(this IEnumerable<State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static IEnumerable<State<State, U>> MapT<T, State, U>(this IEnumerable<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<T, State>(this IEnumerable<State<State, T>> self) => self.ValueT();
     }
     public static partial class OptionTMonad {
         internal static T ValueT<T>(this Option<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -1900,6 +2178,19 @@ namespace LanguageExt.Trans
         public static Option<Writer<Out, U>> MapT<T, Out, U>(this Option<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T LiftT<T, Out>(this Option<Writer<Out, T>> self) => self.ValueT();
     }
+    public static partial class OptionTMonad {
+        internal static State<State, T> ValueT<T, State>(this Option<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<State>(this Option<State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> CountT<T, State>(this Option<State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static Option<State<State, U>> BindT<T, State, U>(this Option<State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<T, State>(this Option<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static Option<State<State, T>> FilterT<T, State>(this Option<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<T, State, V>(this Option<State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> ForAllT<T, State>(this Option<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> IterT<T, State>(this Option<State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static Option<State<State, U>> MapT<T, State, U>(this Option<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<T, State>(this Option<State<State, T>> self) => self.ValueT();
+    }
     public static partial class OptionUnsafeTMonad {
         internal static T ValueT<T>(this OptionUnsafe<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         public static int SumT(this OptionUnsafe<IEnumerable<int>> self) => self.MapT(x => x.SumT()).Sum();
@@ -2042,6 +2333,19 @@ namespace LanguageExt.Trans
         public static Unit IterT<T, Out>(this OptionUnsafe<Writer<Out, T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
         public static OptionUnsafe<Writer<Out, U>> MapT<T, Out, U>(this OptionUnsafe<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T LiftT<T, Out>(this OptionUnsafe<Writer<Out, T>> self) => self.ValueT();
+    }
+    public static partial class OptionUnsafeTMonad {
+        internal static State<State, T> ValueT<T, State>(this OptionUnsafe<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<State>(this OptionUnsafe<State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> CountT<T, State>(this OptionUnsafe<State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static OptionUnsafe<State<State, U>> BindT<T, State, U>(this OptionUnsafe<State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<T, State>(this OptionUnsafe<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static OptionUnsafe<State<State, T>> FilterT<T, State>(this OptionUnsafe<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<T, State, V>(this OptionUnsafe<State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> ForAllT<T, State>(this OptionUnsafe<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> IterT<T, State>(this OptionUnsafe<State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static OptionUnsafe<State<State, U>> MapT<T, State, U>(this OptionUnsafe<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<T, State>(this OptionUnsafe<State<State, T>> self) => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T>(this Lst<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2186,6 +2490,19 @@ namespace LanguageExt.Trans
         public static Lst<Writer<Out, U>> MapT<T, Out, U>(this Lst<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T LiftT<T, Out>(this Lst<Writer<Out, T>> self) => self.ValueT();
     }
+    public static partial class ListTMonad {
+        internal static State<State, T> ValueT<T, State>(this Lst<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<State>(this Lst<State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> CountT<T, State>(this Lst<State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static Lst<State<State, U>> BindT<T, State, U>(this Lst<State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<T, State>(this Lst<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static Lst<State<State, T>> FilterT<T, State>(this Lst<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<T, State, V>(this Lst<State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> ForAllT<T, State>(this Lst<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> IterT<T, State>(this Lst<State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static Lst<State<State, U>> MapT<T, State, U>(this Lst<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<T, State>(this Lst<State<State, T>> self) => self.ValueT();
+    }
     public static partial class MapTMonad {
         internal static T ValueT<K, T>(this Map<K, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         public static int SumT<K>(this Map<K, IEnumerable<int>> self) => self.MapT(x => x.SumT()).Sum();
@@ -2328,6 +2645,19 @@ namespace LanguageExt.Trans
         public static Unit IterT<K, T, Out>(this Map<K, Writer<Out, T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
         public static Map<K, Writer<Out, U>> MapT<K, T, Out, U>(this Map<K, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T LiftT<K, T, Out>(this Map<K, Writer<Out, T>> self) => self.ValueT();
+    }
+    public static partial class MapTMonad {
+        internal static State<State, T> ValueT<K, T, State>(this Map<K, State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<K, State>(this Map<K, State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> CountT<K, T, State>(this Map<K, State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static Map<K, State<State, U>> BindT<K, T, State, U>(this Map<K, State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<K, T, State>(this Map<K, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static Map<K, State<State, T>> FilterT<K, T, State>(this Map<K, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<K, T, State, V>(this Map<K, State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> ForAllT<K, T, State>(this Map<K, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> IterT<K, T, State>(this Map<K, State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static Map<K, State<State, U>> MapT<K, T, State, U>(this Map<K, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<K, T, State>(this Map<K, State<State, T>> self) => self.ValueT();
     }
     public static partial class TryOptionTMonad {
         internal static T ValueT<T>(this TryOption<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2472,6 +2802,19 @@ namespace LanguageExt.Trans
         public static TryOption<Writer<Out, U>> MapT<T, Out, U>(this TryOption<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T LiftT<T, Out>(this TryOption<Writer<Out, T>> self) => self.ValueT();
     }
+    public static partial class TryOptionTMonad {
+        internal static State<State, T> ValueT<T, State>(this TryOption<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<State>(this TryOption<State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> CountT<T, State>(this TryOption<State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static TryOption<State<State, U>> BindT<T, State, U>(this TryOption<State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<T, State>(this TryOption<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static TryOption<State<State, T>> FilterT<T, State>(this TryOption<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<T, State, V>(this TryOption<State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> ForAllT<T, State>(this TryOption<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> IterT<T, State>(this TryOption<State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static TryOption<State<State, U>> MapT<T, State, U>(this TryOption<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<T, State>(this TryOption<State<State, T>> self) => self.ValueT();
+    }
     public static partial class TryTMonad {
         internal static T ValueT<T>(this Try<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         public static int SumT(this Try<IEnumerable<int>> self) => self.MapT(x => x.SumT()).Sum();
@@ -2614,6 +2957,19 @@ namespace LanguageExt.Trans
         public static Unit IterT<T, Out>(this Try<Writer<Out, T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
         public static Try<Writer<Out, U>> MapT<T, Out, U>(this Try<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T LiftT<T, Out>(this Try<Writer<Out, T>> self) => self.ValueT();
+    }
+    public static partial class TryTMonad {
+        internal static State<State, T> ValueT<T, State>(this Try<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<State>(this Try<State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> CountT<T, State>(this Try<State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static Try<State<State, U>> BindT<T, State, U>(this Try<State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<T, State>(this Try<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static Try<State<State, T>> FilterT<T, State>(this Try<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<T, State, V>(this Try<State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> ForAllT<T, State>(this Try<State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> IterT<T, State>(this Try<State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static Try<State<State, U>> MapT<T, State, U>(this Try<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<T, State>(this Try<State<State, T>> self) => self.ValueT();
     }
     public static partial class EitherTMonad {
         internal static T ValueT<L, T>(this Either<L, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2758,6 +3114,19 @@ namespace LanguageExt.Trans
         public static Either<L, Writer<Out, U>> MapT<L, T, Out, U>(this Either<L, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T LiftT<L, T, Out>(this Either<L, Writer<Out, T>> self) => self.ValueT();
     }
+    public static partial class EitherTMonad {
+        internal static State<State, T> ValueT<L, T, State>(this Either<L, State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<L, State>(this Either<L, State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> CountT<L, T, State>(this Either<L, State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static Either<L, State<State, U>> BindT<L, T, State, U>(this Either<L, State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<L, T, State>(this Either<L, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static Either<L, State<State, T>> FilterT<L, T, State>(this Either<L, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<L, T, State, V>(this Either<L, State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> ForAllT<L, T, State>(this Either<L, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> IterT<L, T, State>(this Either<L, State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static Either<L, State<State, U>> MapT<L, T, State, U>(this Either<L, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<L, T, State>(this Either<L, State<State, T>> self) => self.ValueT();
+    }
     public static partial class EitherUnsafeTMonad {
         internal static T ValueT<L, T>(this EitherUnsafe<L, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         public static int SumT<L>(this EitherUnsafe<L, IEnumerable<int>> self) => self.MapT(x => x.SumT()).Sum();
@@ -2900,6 +3269,19 @@ namespace LanguageExt.Trans
         public static Unit IterT<L, T, Out>(this EitherUnsafe<L, Writer<Out, T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
         public static EitherUnsafe<L, Writer<Out, U>> MapT<L, T, Out, U>(this EitherUnsafe<L, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T LiftT<L, T, Out>(this EitherUnsafe<L, Writer<Out, T>> self) => self.ValueT();
+    }
+    public static partial class EitherUnsafeTMonad {
+        internal static State<State, T> ValueT<L, T, State>(this EitherUnsafe<L, State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<L, State>(this EitherUnsafe<L, State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> CountT<L, T, State>(this EitherUnsafe<L, State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static EitherUnsafe<L, State<State, U>> BindT<L, T, State, U>(this EitherUnsafe<L, State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<L, T, State>(this EitherUnsafe<L, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static EitherUnsafe<L, State<State, T>> FilterT<L, T, State>(this EitherUnsafe<L, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<L, T, State, V>(this EitherUnsafe<L, State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> ForAllT<L, T, State>(this EitherUnsafe<L, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> IterT<L, T, State>(this EitherUnsafe<L, State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static EitherUnsafe<L, State<State, U>> MapT<L, T, State, U>(this EitherUnsafe<L, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<L, T, State>(this EitherUnsafe<L, State<State, T>> self) => self.ValueT();
     }
     public static partial class ReaderTMonad {
         internal static Reader<Env, T> ValueT<Env, T>(this Reader<Env, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3187,6 +3569,162 @@ namespace LanguageExt.Trans
         public static Writer<Out, Writer<Out, U>> MapT<Out, T, U>(this Writer<Out, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T LiftT<Out, T>(this Writer<Out, Writer<Out, T>> self) => self.ValueT();
     }
+    public static partial class WriterTMonad {
+        internal static State<State, T> ValueT<Out, T, State>(this Writer<Out, State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<Out, State>(this Writer<Out, State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, int> CountT<Out, T, State>(this Writer<Out, State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static Writer<Out, State<State, U>> BindT<Out, T, State, U>(this Writer<Out, State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<Out, T, State>(this Writer<Out, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static Writer<Out, State<State, T>> FilterT<Out, T, State>(this Writer<Out, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<Out, T, State, V>(this Writer<Out, State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, bool> ForAllT<Out, T, State>(this Writer<Out, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, Unit> IterT<Out, T, State>(this Writer<Out, State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static Writer<Out, State<State, U>> MapT<Out, T, State, U>(this Writer<Out, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<Out, T, State>(this Writer<Out, State<State, T>> self) => self.ValueT();
+    }
+    public static partial class StateTMonad {
+        internal static State<State, T> ValueT<State, T>(this State<State, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<State>(this State<State, IEnumerable<int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> CountT<State, T>(this State<State, IEnumerable<T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, IEnumerable<U>> BindT<State, T, U>(this State<State, IEnumerable<T>> self, Func<T, IEnumerable<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<State, T>(this State<State, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, IEnumerable<T>> FilterT<State, T>(this State<State, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<State, T, V>(this State<State, IEnumerable<T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> ForAllT<State, T>(this State<State, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> IterT<State, T>(this State<State, IEnumerable<T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, IEnumerable<U>> MapT<State, T, U>(this State<State, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<State, T>(this State<State, IEnumerable<T>> self) => self.ValueT();
+    }
+    public static partial class StateTMonad {
+        internal static State<State, T> ValueT<State, T>(this State<State, Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<State>(this State<State, Option<int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> CountT<State, T>(this State<State, Option<T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, Option<U>> BindT<State, T, U>(this State<State, Option<T>> self, Func<T, Option<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<State, T>(this State<State, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, Option<T>> FilterT<State, T>(this State<State, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<State, T, V>(this State<State, Option<T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> ForAllT<State, T>(this State<State, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> IterT<State, T>(this State<State, Option<T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, Option<U>> MapT<State, T, U>(this State<State, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<State, T>(this State<State, Option<T>> self) => self.ValueT();
+    }
+    public static partial class StateTMonad {
+        internal static State<State, T> ValueT<State, T>(this State<State, OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<State>(this State<State, OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> CountT<State, T>(this State<State, OptionUnsafe<T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, OptionUnsafe<U>> BindT<State, T, U>(this State<State, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<State, T>(this State<State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, OptionUnsafe<T>> FilterT<State, T>(this State<State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<State, T, V>(this State<State, OptionUnsafe<T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> ForAllT<State, T>(this State<State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> IterT<State, T>(this State<State, OptionUnsafe<T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, OptionUnsafe<U>> MapT<State, T, U>(this State<State, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<State, T>(this State<State, OptionUnsafe<T>> self) => self.ValueT();
+    }
+    public static partial class StateTMonad {
+        internal static State<State, T> ValueT<State, T>(this State<State, Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<State>(this State<State, Lst<int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> CountT<State, T>(this State<State, Lst<T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, Lst<U>> BindT<State, T, U>(this State<State, Lst<T>> self, Func<T, Lst<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<State, T>(this State<State, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, Lst<T>> FilterT<State, T>(this State<State, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<State, T, V>(this State<State, Lst<T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> ForAllT<State, T>(this State<State, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> IterT<State, T>(this State<State, Lst<T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, Lst<U>> MapT<State, T, U>(this State<State, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<State, T>(this State<State, Lst<T>> self) => self.ValueT();
+    }
+    public static partial class StateTMonad {
+        internal static State<State, T> ValueT<State, T, K>(this State<State, Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<State, K>(this State<State, Map<K, int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> CountT<State, T, K>(this State<State, Map<K, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, Map<K, U>> BindT<State, T, K, U>(this State<State, Map<K, T>> self, Func<T, Map<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<State, T, K>(this State<State, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, Map<K, T>> FilterT<State, T, K>(this State<State, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<State, T, K, V>(this State<State, Map<K, T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> ForAllT<State, T, K>(this State<State, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> IterT<State, T, K>(this State<State, Map<K, T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, Map<K, U>> MapT<State, T, K, U>(this State<State, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<State, T, K>(this State<State, Map<K, T>> self) => self.ValueT();
+    }
+    public static partial class StateTMonad {
+        internal static State<State, T> ValueT<State, T>(this State<State, TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<State>(this State<State, TryOption<int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> CountT<State, T>(this State<State, TryOption<T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, TryOption<U>> BindT<State, T, U>(this State<State, TryOption<T>> self, Func<T, TryOption<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<State, T>(this State<State, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, TryOption<T>> FilterT<State, T>(this State<State, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<State, T, V>(this State<State, TryOption<T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> ForAllT<State, T>(this State<State, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> IterT<State, T>(this State<State, TryOption<T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, TryOption<U>> MapT<State, T, U>(this State<State, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<State, T>(this State<State, TryOption<T>> self) => self.ValueT();
+    }
+    public static partial class StateTMonad {
+        internal static State<State, T> ValueT<State, T>(this State<State, Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<State>(this State<State, Try<int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> CountT<State, T>(this State<State, Try<T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, Try<U>> BindT<State, T, U>(this State<State, Try<T>> self, Func<T, Try<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<State, T>(this State<State, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, Try<T>> FilterT<State, T>(this State<State, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<State, T, V>(this State<State, Try<T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> ForAllT<State, T>(this State<State, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> IterT<State, T>(this State<State, Try<T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, Try<U>> MapT<State, T, U>(this State<State, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<State, T>(this State<State, Try<T>> self) => self.ValueT();
+    }
+    public static partial class StateTMonad {
+        internal static State<State, T> ValueT<State, T, L>(this State<State, Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<State, L>(this State<State, Either<L, int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> CountT<State, T, L>(this State<State, Either<L, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, Either<L, U>> BindT<State, T, L, U>(this State<State, Either<L, T>> self, Func<T, Either<L, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<State, T, L>(this State<State, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, Either<L, T>> FilterT<State, T, L>(this State<State, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<State, T, L, V>(this State<State, Either<L, T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> ForAllT<State, T, L>(this State<State, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> IterT<State, T, L>(this State<State, Either<L, T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, Either<L, U>> MapT<State, T, L, U>(this State<State, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<State, T, L>(this State<State, Either<L, T>> self) => self.ValueT();
+    }
+    public static partial class StateTMonad {
+        internal static State<State, T> ValueT<State, T, L>(this State<State, EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<State, L>(this State<State, EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> CountT<State, T, L>(this State<State, EitherUnsafe<L, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, EitherUnsafe<L, U>> BindT<State, T, L, U>(this State<State, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<State, T, L>(this State<State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, EitherUnsafe<L, T>> FilterT<State, T, L>(this State<State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<State, T, L, V>(this State<State, EitherUnsafe<L, T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> ForAllT<State, T, L>(this State<State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> IterT<State, T, L>(this State<State, EitherUnsafe<L, T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, EitherUnsafe<L, U>> MapT<State, T, L, U>(this State<State, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<State, T, L>(this State<State, EitherUnsafe<L, T>> self) => self.ValueT();
+    }
+    public static partial class StateTMonad {
+        internal static State<State, T> ValueT<State, T, Out>(this State<State, Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, int> SumT<State, Out>(this State<State, Writer<Out, int>> self) => self.MapT(x => x.SumT()).Sum();
+        public static State<State, int> CountT<State, T, Out>(this State<State, Writer<Out, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, Writer<Out, U>> BindT<State, T, Out, U>(this State<State, Writer<Out, T>> self, Func<T, Writer<Out, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, bool> ExistsT<State, T, Out>(this State<State, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).Exists(x=>x);
+        public static State<State, Writer<Out, T>> FilterT<State, T, Out>(this State<State, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, V> FoldT<State, T, Out, V>(this State<State, Writer<Out, T>> self, V state, Func<V, T, V> fold) => self.Fold(state, (s,x) => x.FoldT(s,fold));
+        public static State<State, bool> ForAllT<State, T, Out>(this State<State, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static State<State, Unit> IterT<State, T, Out>(this State<State, Writer<Out, T>> self, Action<T> action) => self.Iter(x => x.IterT(action));
+        public static State<State, Writer<Out, U>> MapT<State, T, Out, U>(this State<State, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, T> LiftT<State, T, Out>(this State<State, Writer<Out, T>> self) => self.ValueT();
+    }
+    public static partial class StateTMonad {
+        internal static State<State, State<State, T>> ValueT<State, T>(this State<State, State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static State<State, State<State, int>> SumT<State>(this State<State, State<State, int>> self) => arg =>  self.MapT(x => x.SumT()(arg).Value).Sum();
+        public static State<State, State<State, int>> CountT<State, T>(this State<State, State<State, T>> self) => self.Map(x => x.CountT()).SumT();
+        public static State<State, State<State, U>> BindT<State, T, U>(this State<State, State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static State<State, State<State, bool>> ExistsT<State, T>(this State<State, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ExistsT(pred)(arg)).Exists(x=>x);
+        public static State<State, State<State, T>> FilterT<State, T>(this State<State, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static State<State, State<State, V>> FoldT<State, T, V>(this State<State, State<State, T>> self, V state, Func<V, T, V> fold) => arg =>  self.Fold(state, (s,x) => x.FoldT(s,fold)(arg));
+        public static State<State, State<State, bool>> ForAllT<State, T>(this State<State, State<State, T>> self, Func<T, bool> pred) => arg =>  self.MapT(x => x.ForAllT(pred)(arg)).ForAll(x=>x);
+        public static State<State, State<State, Unit>> IterT<State, T>(this State<State, State<State, T>> self, Action<T> action) => arg =>  self.Iter(x => x.IterT(action)(arg));
+        public static State<State, State<State, U>> MapT<State, T, U>(this State<State, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static State<State, State<State, T>> LiftT<State, T>(this State<State, State<State, T>> self) => self.ValueT();
+    }
 
     namespace Linq
     {
@@ -3233,6 +3771,10 @@ namespace LanguageExt.Trans
         public static partial class WriterMonad {
             internal static Writer<Out, U> Select<Out, T, U>(this Writer<Out, T> self, Func<T, U> mapper) => self.Map(mapper);
             internal static Writer<Out, T> Where<Out, T>(this Writer<Out, T> self, Func<T, bool> pred) => self.Filter(pred);
+        }
+        public static partial class StateMonad {
+            internal static State<State, U> Select<State, T, U>(this State<State, T> self, Func<T, U> mapper) => self.Map(mapper);
+            internal static State<State, T> Where<State, T>(this State<State, T> self, Func<T, bool> pred) => self.Filter(pred);
         }
         public static partial class ListTMonad {
             public static IEnumerable<IEnumerable<U>> Select<T, U>(this IEnumerable<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
@@ -3289,6 +3831,11 @@ namespace LanguageExt.Trans
             public static IEnumerable<Writer<Out, T>> Where<T, Out>(this IEnumerable<Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static IEnumerable<Writer<Out, V>> SelectMany<T, Out, U, V>(this IEnumerable<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
+        public static partial class ListTMonad {
+            public static IEnumerable<State<State, U>> Select<T, State, U>(this IEnumerable<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static IEnumerable<State<State, T>> Where<T, State>(this IEnumerable<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static IEnumerable<State<State, V>> SelectMany<T, State, U, V>(this IEnumerable<State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
         public static partial class OptionTMonad {
             public static Option<IEnumerable<U>> Select<T, U>(this Option<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Option<IEnumerable<T>> Where<T>(this Option<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
@@ -3343,6 +3890,11 @@ namespace LanguageExt.Trans
             public static Option<Writer<Out, U>> Select<T, Out, U>(this Option<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Option<Writer<Out, T>> Where<T, Out>(this Option<Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static Option<Writer<Out, V>> SelectMany<T, Out, U, V>(this Option<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class OptionTMonad {
+            public static Option<State<State, U>> Select<T, State, U>(this Option<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Option<State<State, T>> Where<T, State>(this Option<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Option<State<State, V>> SelectMany<T, State, U, V>(this Option<State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionUnsafeTMonad {
             public static OptionUnsafe<IEnumerable<U>> Select<T, U>(this OptionUnsafe<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
@@ -3399,6 +3951,11 @@ namespace LanguageExt.Trans
             public static OptionUnsafe<Writer<Out, T>> Where<T, Out>(this OptionUnsafe<Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static OptionUnsafe<Writer<Out, V>> SelectMany<T, Out, U, V>(this OptionUnsafe<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
+        public static partial class OptionUnsafeTMonad {
+            public static OptionUnsafe<State<State, U>> Select<T, State, U>(this OptionUnsafe<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static OptionUnsafe<State<State, T>> Where<T, State>(this OptionUnsafe<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static OptionUnsafe<State<State, V>> SelectMany<T, State, U, V>(this OptionUnsafe<State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
         public static partial class ListTMonad {
             public static Lst<IEnumerable<U>> Select<T, U>(this Lst<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Lst<IEnumerable<T>> Where<T>(this Lst<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
@@ -3453,6 +4010,11 @@ namespace LanguageExt.Trans
             public static Lst<Writer<Out, U>> Select<T, Out, U>(this Lst<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Lst<Writer<Out, T>> Where<T, Out>(this Lst<Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static Lst<Writer<Out, V>> SelectMany<T, Out, U, V>(this Lst<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class ListTMonad {
+            public static Lst<State<State, U>> Select<T, State, U>(this Lst<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Lst<State<State, T>> Where<T, State>(this Lst<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Lst<State<State, V>> SelectMany<T, State, U, V>(this Lst<State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class MapTMonad {
             public static Map<K, IEnumerable<U>> Select<K, T, U>(this Map<K, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
@@ -3509,6 +4071,11 @@ namespace LanguageExt.Trans
             public static Map<K, Writer<Out, T>> Where<K, T, Out>(this Map<K, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static Map<K, Writer<Out, V>> SelectMany<K, T, Out, U, V>(this Map<K, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
+        public static partial class MapTMonad {
+            public static Map<K, State<State, U>> Select<K, T, State, U>(this Map<K, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Map<K, State<State, T>> Where<K, T, State>(this Map<K, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Map<K, State<State, V>> SelectMany<K, T, State, U, V>(this Map<K, State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
         public static partial class TryOptionTMonad {
             public static TryOption<IEnumerable<U>> Select<T, U>(this TryOption<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static TryOption<IEnumerable<T>> Where<T>(this TryOption<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
@@ -3563,6 +4130,11 @@ namespace LanguageExt.Trans
             public static TryOption<Writer<Out, U>> Select<T, Out, U>(this TryOption<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static TryOption<Writer<Out, T>> Where<T, Out>(this TryOption<Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static TryOption<Writer<Out, V>> SelectMany<T, Out, U, V>(this TryOption<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class TryOptionTMonad {
+            public static TryOption<State<State, U>> Select<T, State, U>(this TryOption<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static TryOption<State<State, T>> Where<T, State>(this TryOption<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static TryOption<State<State, V>> SelectMany<T, State, U, V>(this TryOption<State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryTMonad {
             public static Try<IEnumerable<U>> Select<T, U>(this Try<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
@@ -3619,6 +4191,11 @@ namespace LanguageExt.Trans
             public static Try<Writer<Out, T>> Where<T, Out>(this Try<Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static Try<Writer<Out, V>> SelectMany<T, Out, U, V>(this Try<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
+        public static partial class TryTMonad {
+            public static Try<State<State, U>> Select<T, State, U>(this Try<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Try<State<State, T>> Where<T, State>(this Try<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Try<State<State, V>> SelectMany<T, State, U, V>(this Try<State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
         public static partial class EitherTMonad {
             public static Either<L, IEnumerable<U>> Select<L, T, U>(this Either<L, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Either<L, IEnumerable<T>> Where<L, T>(this Either<L, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
@@ -3674,6 +4251,11 @@ namespace LanguageExt.Trans
             public static Either<L, Writer<Out, T>> Where<L, T, Out>(this Either<L, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static Either<L, Writer<Out, V>> SelectMany<L, T, Out, U, V>(this Either<L, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
+        public static partial class EitherTMonad {
+            public static Either<L, State<State, U>> Select<L, T, State, U>(this Either<L, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Either<L, State<State, T>> Where<L, T, State>(this Either<L, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Either<L, State<State, V>> SelectMany<L, T, State, U, V>(this Either<L, State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
         public static partial class EitherUnsafeTMonad {
             public static EitherUnsafe<L, IEnumerable<U>> Select<L, T, U>(this EitherUnsafe<L, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static EitherUnsafe<L, IEnumerable<T>> Where<L, T>(this EitherUnsafe<L, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
@@ -3728,6 +4310,11 @@ namespace LanguageExt.Trans
             public static EitherUnsafe<L, Writer<Out, U>> Select<L, T, Out, U>(this EitherUnsafe<L, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static EitherUnsafe<L, Writer<Out, T>> Where<L, T, Out>(this EitherUnsafe<L, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static EitherUnsafe<L, Writer<Out, V>> SelectMany<L, T, Out, U, V>(this EitherUnsafe<L, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class EitherUnsafeTMonad {
+            public static EitherUnsafe<L, State<State, U>> Select<L, T, State, U>(this EitherUnsafe<L, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static EitherUnsafe<L, State<State, T>> Where<L, T, State>(this EitherUnsafe<L, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static EitherUnsafe<L, State<State, V>> SelectMany<L, T, State, U, V>(this EitherUnsafe<L, State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ReaderTMonad {
             public static Reader<Env, IEnumerable<U>> Select<Env, T, U>(this Reader<Env, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
@@ -3838,6 +4425,66 @@ namespace LanguageExt.Trans
             public static Writer<Out, Writer<Out, U>> Select<Out, T, U>(this Writer<Out, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Writer<Out, Writer<Out, T>> Where<Out, T>(this Writer<Out, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static Writer<Out, Writer<Out, V>> SelectMany<Out, T, U, V>(this Writer<Out, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class WriterTMonad {
+            public static Writer<Out, State<State, U>> Select<Out, T, State, U>(this Writer<Out, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Writer<Out, State<State, T>> Where<Out, T, State>(this Writer<Out, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Writer<Out, State<State, V>> SelectMany<Out, T, State, U, V>(this Writer<Out, State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class StateTMonad {
+            public static State<State, IEnumerable<U>> Select<State, T, U>(this State<State, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static State<State, IEnumerable<T>> Where<State, T>(this State<State, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static State<State, IEnumerable<V>> SelectMany<State, T, U, V>(this State<State, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class StateTMonad {
+            public static State<State, Option<U>> Select<State, T, U>(this State<State, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static State<State, Option<T>> Where<State, T>(this State<State, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static State<State, Option<V>> SelectMany<State, T, U, V>(this State<State, Option<T>> self, Func<T, Option<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class StateTMonad {
+            public static State<State, OptionUnsafe<U>> Select<State, T, U>(this State<State, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static State<State, OptionUnsafe<T>> Where<State, T>(this State<State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static State<State, OptionUnsafe<V>> SelectMany<State, T, U, V>(this State<State, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class StateTMonad {
+            public static State<State, Lst<U>> Select<State, T, U>(this State<State, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static State<State, Lst<T>> Where<State, T>(this State<State, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static State<State, Lst<V>> SelectMany<State, T, U, V>(this State<State, Lst<T>> self, Func<T, Lst<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class StateTMonad {
+            public static State<State, Map<K, U>> Select<State, T, K, U>(this State<State, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static State<State, Map<K, T>> Where<State, T, K>(this State<State, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static State<State, Map<K, V>> SelectMany<State, T, K, U, V>(this State<State, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class StateTMonad {
+            public static State<State, TryOption<U>> Select<State, T, U>(this State<State, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static State<State, TryOption<T>> Where<State, T>(this State<State, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static State<State, TryOption<V>> SelectMany<State, T, U, V>(this State<State, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class StateTMonad {
+            public static State<State, Try<U>> Select<State, T, U>(this State<State, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static State<State, Try<T>> Where<State, T>(this State<State, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static State<State, Try<V>> SelectMany<State, T, U, V>(this State<State, Try<T>> self, Func<T, Try<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class StateTMonad {
+            public static State<State, Either<L, U>> Select<State, T, L, U>(this State<State, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static State<State, Either<L, T>> Where<State, T, L>(this State<State, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static State<State, Either<L, V>> SelectMany<State, T, L, U, V>(this State<State, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class StateTMonad {
+            public static State<State, EitherUnsafe<L, U>> Select<State, T, L, U>(this State<State, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static State<State, EitherUnsafe<L, T>> Where<State, T, L>(this State<State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static State<State, EitherUnsafe<L, V>> SelectMany<State, T, L, U, V>(this State<State, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class StateTMonad {
+            public static State<State, Writer<Out, U>> Select<State, T, Out, U>(this State<State, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static State<State, Writer<Out, T>> Where<State, T, Out>(this State<State, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static State<State, Writer<Out, V>> SelectMany<State, T, Out, U, V>(this State<State, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class StateTMonad {
+            public static State<State, State<State, U>> Select<State, T, U>(this State<State, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static State<State, State<State, T>> Where<State, T>(this State<State, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static State<State, State<State, V>> SelectMany<State, T, U, V>(this State<State, State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
     }
 }
