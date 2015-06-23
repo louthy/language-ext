@@ -636,9 +636,6 @@ public static class __EnumnerableExt
         }
     }
 
-
-
-
     public static IEnumerable<V> SelectMany<T, U, V>(this Lst<T> self, Func<T, Lst<U>> bind, Func<T, U, V> project)
     {
         foreach (var t in self)

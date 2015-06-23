@@ -144,9 +144,9 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
                 var resU = bind(resT.Value)(env);
-                if (resU.IsBottom) new ReaderResult<V>(default(V), true);
+                if (resU.IsBottom) return new ReaderResult<V>(default(V), true);
                 var resV = project(resT, resU.Value);
                 return new ReaderResult<V>(resV);
             };
@@ -166,9 +166,9 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
                 var resU = bind(resT.Value).Try();
-                if (resU.IsFaulted) new ReaderResult<V>(default(V), true);
+                if (resU.IsFaulted) return new ReaderResult<V>(default(V), true);
                 var resV = project(resT, resU.Value);
                 return new ReaderResult<V>(resV);
             };
@@ -188,9 +188,9 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
                 var resU = bind(resT.Value).Try();
-                if (resU.IsFaulted || resU.Value.IsNone) new ReaderResult<V>(default(V), true);
+                if (resU.IsFaulted || resU.Value.IsNone) return new ReaderResult<V>(default(V), true);
                 var resV = project(resT, resU.Value.Value);
                 return new ReaderResult<V>(resV);
             };
@@ -210,9 +210,9 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
                 var resU = bind(resT.Value);
-                if (resU.IsNone) new ReaderResult<V>(default(V), true);
+                if (resU.IsNone) return new ReaderResult<V>(default(V), true);
                 var resV = project(resT, resU.Value);
                 return new ReaderResult<V>(resV);
             };
@@ -232,9 +232,9 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
                 var resU = bind(resT.Value);
-                if (resU.IsNone) new ReaderResult<V>(default(V), true);
+                if (resU.IsNone) return new ReaderResult<V>(default(V), true);
                 var resV = project(resT, resU.Value);
                 return new ReaderResult<V>(resV);
             };
@@ -254,9 +254,9 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
                 var resU = bind(resT.Value);
-                if (resU.IsLeft) new ReaderResult<V>(default(V), true);
+                if (resU.IsLeft) return new ReaderResult<V>(default(V), true);
                 var resV = project(resT, resU.RightValue);
                 return new ReaderResult<V>(resV);
             };
@@ -276,9 +276,9 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
                 var resU = bind(resT.Value);
-                if (resU.IsLeft) new ReaderResult<V>(default(V), true);
+                if (resU.IsLeft) return new ReaderResult<V>(default(V), true);
                 var resV = project(resT, resU.RightValue);
                 return new ReaderResult<V>(resV);
             };
@@ -298,7 +298,7 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) new ReaderResult<IEnumerable<V>>(new V [0], true);
+                if (resT.IsBottom) return new ReaderResult<IEnumerable<V>>(new V [0], true);
                 var resU = bind(resT.Value);
                 var resV = resU.Select(x => project(resT, x));
                 return new ReaderResult<IEnumerable<V>>(resV);
@@ -319,7 +319,7 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) new ReaderResult<Lst<V>>(List<V>(), true);
+                if (resT.IsBottom) return new ReaderResult<Lst<V>>(List<V>(), true);
                 var resU = bind(resT.Value);
                 var resV = resU.Select(x => project(resT, x));
                 return new ReaderResult<Lst<V>>(List.createRange(resV));
@@ -340,7 +340,7 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                if (resT.IsBottom) return new ReaderResult<Map<K,V>>(Map<K,V>(), true);
                 var resU = bind(resT.Value);
                 var resV = resU.Map( x => project(resT, x) );
                 return new ReaderResult<Map<K,V>>(resV);
@@ -361,9 +361,9 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
                 var resU = bind(resT.Value)();
-                if( resU.IsBottom ) new ReaderResult<V>(default(V), true);
+                if( resU.IsBottom ) return new ReaderResult<V>(default(V), true);
                 return new ReaderResult<V>(project(resT.Value, resU.Value));
             };
         }
@@ -382,9 +382,9 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) new ReaderResult<V>(default(V), true);
+                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
                 var resU = bind(resT.Value)(env);
-                if (resU.IsBottom) new ReaderResult<V>(default(V), true);
+                if (resU.IsBottom) return new ReaderResult<V>(default(V), true);
                 return new ReaderResult<V>(project(resT.Value, resU.Value));
             };
         }

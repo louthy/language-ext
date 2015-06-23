@@ -62,7 +62,17 @@ namespace LanguageExt
         public static IQueryable<Either<Exception, T>> toQuery<T>(Try<T> tryDel) =>
             tryDel.ToList().AsQueryable();
 
-        public static Try<T> tryfun<T>(Func<Try<T>> tryDel) => () => 
-            tryDel()();
+        public static Try<T> tryfun<T>(Func<Try<T>> tryDel) => () =>
+        {
+            try
+            {
+                return tryDel().Try();
+            }
+            catch (Exception e)
+            {
+                return new TryResult<T>(e);
+            }
+        };
+            
     }
 }

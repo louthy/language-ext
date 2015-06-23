@@ -110,5 +110,56 @@ namespace LanguageExt
         /// <returns>State monad with state set and with a Unit value</returns>
         public static State<S, Unit> put<S>(S state) =>
             _ => new StateResult<S, Unit>(state, unit);
+
+        public static Reader<Env, T> tryread<Env, T>(Func<Reader<Env, T>> tryDel) => env =>
+        {
+            try
+            {
+                return (from x in tryDel()
+                        select x)(env);
+            }
+            catch
+            {
+                return new ReaderResult<T>(default(T), true);
+            }
+        };
+
+        public static State<S, T> trystate<S, T>(Func<State<S, T>> tryDel) => state =>
+        {
+            try
+            {
+                return (from x in tryDel()
+                        select x)(state);
+            }
+            catch
+            {
+                return new StateResult<S, T>(state, default(T), true);
+            }
+        };
+
+        public static Writer<Out, T> trywrite<Out, T>(Func<Writer<Out, T>> tryDel) => () =>
+        {
+            try
+            {
+                return (from x in tryDel()
+                        select x)();
+            }
+            catch
+            {
+                return new WriterResult<Out, T>(default(T), new Out[0], true);
+            }
+        };
+
+        public static Try<Reader<Env, T>> tryfun<Env, T>(Func<Reader<Env, T>> tryDel) =>
+            () => from x in tryDel()
+                  select x;
+
+        public static Try<State<S, T>> tryfun<S, T>(Func<State<S, T>> tryDel) => 
+            () => from x in tryDel()
+                  select x;
+
+        public static Try<Writer<Out, T>> tryfun<Out, T>(Func<Writer<Out, T>> tryDel) =>
+            () => from x in tryDel()
+                  select x;
     }
 }

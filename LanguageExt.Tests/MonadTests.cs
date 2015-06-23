@@ -180,14 +180,40 @@ namespace LanguageExtTests
             Assert.IsTrue(res2.Lift("World").IsNone);
         }
 
-        private static Try<Option<string>> Hello(string who)
+        [Test]
+        public void ReaderTryErrorLinqTest()
         {
-            return () => Some("Hello, " + who);
+            var res = tryread(() => 
+                from x in ask<string>()
+                from y in Hello(Error())
+                select y
+                );
+
+            Assert.IsTrue(res("World").IsBottom);
+
+            var res2 =
+                from x in ask<string>()
+                from y in tryfun(() => Hello(Error()))
+                select y;
+
+            Assert.IsTrue(res2.Lift("World").IsNone);
+
+            var res3 =
+                from x in ask<string>()
+                from y in tryfun(() => Hello2(Error()))
+                select y;
+
+            Assert.IsTrue(res3("World").IsBottom);
+
         }
 
-        private static Try<Option<string>> NoWorky(string who)
+        private static string Error()
         {
-            return () => Some(failwith<string>("fail!"));
+            throw new Exception("Nooooo");
         }
+
+        private static TryOption<string> Hello2(string who) => () => Some("Hello, " + who);
+        private static Try<Option<string>> Hello(string who) => () => Some("Hello, " + who);
+        private static Try<Option<string>> NoWorky(string who) => () => Some(failwith<string>("fail!"));
     }
 }
