@@ -266,21 +266,6 @@ namespace LanguageExt.Trans
         return String.Format("{0}<{1}{2}>", outerType.Name, TypeArgsGen(innerType,genericArg), additionalGenericArg);
     }
 
-    public string BindTypeGen(TypeDesc outerType, TypeDesc innerType, string genericArg)
-    {
-        var inner = TypeGen(innerType,genericArg);
-        var outer = TypeGen(outerType,genericArg);
-
-        if( inner == outer )
-        {
-            return inner;
-        }
-        else
-        {
-            return TypeGen(outerType,inner);
-        }
-    }
-
     public string TypeGenOne(TypeDesc type, string oneArg)
     {
         if( type.DelType >= 0 )
@@ -358,10 +343,17 @@ namespace LanguageExt.Trans
         var returnTypeInt  = TypeGen(type,"int");
         var returnTypeBool = TypeGen(type,"bool");
 
+        var returnTypeEnumerableT    = TypeGen(type,"IEnumerable<T>");
+        var returnTypeEnumerableU    = TypeGen(type,"IEnumerable<U>");
+        var returnTypeEnumerableV    = TypeGen(type,"IEnumerable<V>");
+
         return func.Replace("TYPE_INT",inttype)
                    .Replace("TYPE_BOOL",booltype)
                    .Replace("TYPE",fqtype)
                    .Replace("CLASS", type.Name)
+                   .Replace("RETURN_ENUMERABLE_T", returnTypeEnumerableT)
+                   .Replace("RETURN_ENUMERABLE_U", returnTypeEnumerableU)
+                   .Replace("RETURN_ENUMERABLE_V", returnTypeEnumerableV)
                    .Replace("RETURN_ONE_UNIT", returnSingleUnit)
                    .Replace("RETURN_ONE_T", returnSingleT)
                    .Replace("RETURN_ONE_U", returnSingleU)
@@ -433,6 +425,10 @@ namespace LanguageExt.Trans
         var outerTypeInt   = TypeGen(outerType,innerType,"int");
         var outerTypeBool  = TypeGen(outerType,innerType,"bool");
 
+        var returnTypeEnumerableT    = TypeGen(outerType,"IEnumerable<T>");
+        var returnTypeEnumerableU    = TypeGen(outerType,"IEnumerable<U>");
+        var returnTypeEnumerableV    = TypeGen(outerType,"IEnumerable<V>");
+
         var outerT     = TypeGen(outerType,"T");
         var outerU     = TypeGen(outerType,"U");
         var outerV     = TypeGen(outerType,"V");
@@ -458,9 +454,6 @@ namespace LanguageExt.Trans
         var returnTypeInt  = TypeGen(outerType,innerTypeInt);
         var returnTypeBool = TypeGen(outerType,innerTypeBool);
 
-        var bindReturnTypeU = BindTypeGen(outerType,innerType,"U");
-        var bindReturnTypeV = BindTypeGen(outerType,innerType,"V");
-
         return func.Replace("TYPE_INT",inttype)
                    .Replace("TYPE_BOOL",booltype)
                    .Replace("TYPE",fqtype)
@@ -471,6 +464,9 @@ namespace LanguageExt.Trans
                    .Replace("RETURN_ONE_V", returnSingleV)
                    .Replace("RETURN_ONE_INT", returnSingleInt)
                    .Replace("RETURN_ONE_BOOL", returnSingleBool)
+                   .Replace("RETURN_ENUMERABLE_T", returnTypeEnumerableT)
+                   .Replace("RETURN_ENUMERABLE_U", returnTypeEnumerableU)
+                   .Replace("RETURN_ENUMERABLE_V", returnTypeEnumerableV)
                    .Replace("RETURN_T", returnTypeT)
                    .Replace("RETURN_U", returnTypeU)
                    .Replace("RETURN_V", returnTypeV)
