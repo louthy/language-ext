@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Prelude_Curry.cs" />
     <Compile Include="EitherUnsafe.cs" />
     <Compile Include="ExceptionMatch.cs" />
     <Compile Include="Exceptions.cs" />
@@ -56,6 +57,7 @@
     <Compile Include="Lst.cs" />
     <Compile Include="MapKV.cs" />
     <Compile Include="Prelude_Monad.cs" />
+    <Compile Include="Prelude_PartialApplication.cs" />
     <Compile Include="Query.cs" />
     <Compile Include="Prelude_Try.cs" />
     <Compile Include="Map.cs" />
