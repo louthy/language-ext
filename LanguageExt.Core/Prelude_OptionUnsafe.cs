@@ -126,6 +126,6 @@ namespace LanguageExt
             option.ToArray();
 
         public static IQueryable<T> toQuery<T>(OptionUnsafe<T> option) =>
-            option.AsQueryable();
+            option.AsEnumerable().AsQueryable();
     }
 }

@@ -26,6 +26,7 @@
         //
         Tuple.Create(
             "internal static RETURN_ONE_T InnerValue<ARGS_T>(this TYPE self) => VALUE;",
+            "",
             "internal static RETURN_ONE_T ValueT<ARGS_T>(this TYPE self) => self.MapT(x=> x.InnerValue()).InnerValue();",
             ""),
         //
@@ -33,6 +34,7 @@
         //
         Tuple.Create(
             "internal static RETURN_ONE_INT SumT<ARGS_INT>(this TYPE_INT self) => self.Sum();",
+            "",
             "public static RETURN_ONE_INT SumT<ARGS_INT>(this TYPE_INT self) => self.MapT(x => x.SumT()).SumT();",
             "public static RETURN_ONE_INT sumT<ARGS_INT>(TYPE_INT self) => self.MapT(x => x.SumT()).SumT();"),
         //
@@ -40,6 +42,7 @@
         //
         Tuple.Create(
             "internal static RETURN_ONE_INT CountT<ARGS_T>(this TYPE self) => self.Count();",
+            "",
             "public static RETURN_ONE_INT CountT<ARGS_T>(this TYPE self) => self.MapT(x => x.CountT()).SumT();",
             "public static RETURN_ONE_INT countT<ARGS_T>(TYPE self) => self.MapT(x => x.CountT()).SumT();"),
         //
@@ -47,6 +50,7 @@
         //
         Tuple.Create(
             "internal static RETURN_U BindT<ARGS_TU>(this TYPE self, Func<T, RETURN_U> binder) => self.Bind(binder);",
+            "",
             "public static RETURN_U BindT<ARGS_TU>(this TYPE self, Func<T, INNER_U> binder) => self.MapT(x => x.BindT(binder));",
             "public static RETURN_U bindT<ARGS_TU>(TYPE self, Func<T, INNER_U> binder) => self.MapT(x => x.BindT(binder));"),
         //
@@ -54,6 +58,7 @@
         //
         Tuple.Create(
             "internal static RETURN_ONE_BOOL ExistsT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.Exists(pred);",
+            "",
             "public static RETURN_ONE_BOOL ExistsT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);",
             "public static RETURN_ONE_BOOL existsT<ARGS_T>(TYPE self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);"),
         //
@@ -61,6 +66,7 @@
         //
         Tuple.Create(
             "internal static RETURN_T FilterT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.Filter(pred);",
+            "",
             "public static RETURN_T FilterT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));",
             "public static RETURN_T filterT<ARGS_T>(TYPE self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));"),
         //
@@ -68,6 +74,7 @@
         //
         Tuple.Create(
             "internal static RETURN_ONE_V FoldT<ARGS_T, V>(this TYPE self, V state, Func<V, T, V> fold) => self.Fold(state,fold);",
+            "",
             "public static RETURN_ONE_V FoldT<ARGS_T, V>(this TYPE self, V state, Func<V, T, V> fold) =>DEL_ARGS self.FoldT(state,(s,x) => x.FoldT(s, fold)DEL_INVOKE_ONE);",
             "public static RETURN_ONE_V foldT<ARGS_T, V>(TYPE self, V state, Func<V, T, V> fold) =>DEL_ARGS self.FoldT(state,(s,x) => x.FoldT(s, fold)DEL_INVOKE_ONE);"),
         //
@@ -75,6 +82,7 @@
         //
         Tuple.Create(
             "internal static RETURN_ONE_BOOL ForAllT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.ForAll(pred);",
+            "",
             "public static RETURN_ONE_BOOL ForAllT<ARGS_T>(this TYPE self, Func<T, bool> pred) =>DEL_ARGS self.MapT(x => x.ForAllT(pred)DEL_INVOKE).ForAll(x=>x);",
             "public static RETURN_ONE_BOOL forAllT<ARGS_T>(TYPE self, Func<T, bool> pred) =>DEL_ARGS self.MapT(x => x.ForAllT(pred)DEL_INVOKE).ForAll(x=>x);"),
         //
@@ -82,6 +90,7 @@
         //
         Tuple.Create(
             "internal static RETURN_ONE_UNIT IterT<ARGS_T>(this TYPE self, Action<T> action) => self.Iter(action);",
+            "",
             "public static RETURN_ONE_UNIT IterT<ARGS_T>(this TYPE self, Action<T> action) =>DEL_ARGS self.IterT(x => x.IterT(action)DEL_INVOKE);",
             "public static RETURN_ONE_UNIT iterT<ARGS_T>(TYPE self, Action<T> action) =>DEL_ARGS self.IterT(x => x.IterT(action)DEL_INVOKE);"),
         //
@@ -89,6 +98,7 @@
         //
         Tuple.Create(
             "internal static RETURN_U MapT<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.Map(mapper);",
+            "",
             "public static RETURN_U MapT<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));",
             "public static RETURN_U mapT<ARGS_TU>(TYPE self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));"),
         //
@@ -96,8 +106,18 @@
         //
         Tuple.Create(
             "public static T Lift<ARGS_T>(this TYPE self LIFT_ARGS) => self.InnerValue()LIFT_INVOKE_ONE;",
+            "",
             "public static LIFT_RETURN_T LiftT<ARGS_T>(this TYPE self LIFT_ARGS) => self.ValueT()LIFT_INVOKE_ONE;",
             "public static LIFT_RETURN_T liftT<ARGS_T>(TYPE self LIFT_ARGS) => self.ValueT()LIFT_INVOKE_ONE;"),
+        //
+        // SelectMany
+        //
+        Tuple.Create(
+            "",
+            "public static RETURN_V SelectMany<ARGS_TUV>(this OUTER_T self, Func<T, INNER_U> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));",
+            "",
+            "public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, INNER_U> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));"
+            ),
    };
 
    var linqFuncs = new [] {
@@ -117,14 +137,9 @@
         // SelectMany
         //
         Tuple.Create(
-            "",
-            "public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, INNER_U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));"),
-        //
-        // SelectMany
-        //
-        Tuple.Create(
-            "internal static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, U> bind, Func<T,U,V> project) => self.Select(x => project(x, bind(x)));",
-            "public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));"),
+            "internal static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));",
+            "public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));"
+            ),
    };
 #>
 using System; 
@@ -144,18 +159,19 @@ using LanguageExt.Trans.Linq;
 
 namespace LanguageExt
 {
-<#= GenerateOuterFuncs("TYPE", monadFuncs.Select(f => f.Item3).Where(f => f != ""), types, 2) #>
+<#= GenerateOuterFuncs("TYPE", monadFuncs.Select(f => f.Item2).Where(f => f != ""), types, 2, true) #>
+<#= GenerateOuterFuncs("TYPE", monadFuncs.Select(f => f.Item4).Where(f => f != ""), types, 2, false) #>
 }
 
 namespace LanguageExt.Trans
 {
 <#= GenerateInnerFuncs("TYPEMonad", monadFuncs.Select( f => f.Item1).Where(f => f != ""), types, 2) #>
-<#= GenerateOuterFuncs("TYPETMonad", monadFuncs.Select(f => f.Item2).Where(f => f != ""), types, 2) #>
+<#= GenerateOuterFuncs("TYPETMonad", monadFuncs.Select(f => f.Item3).Where(f => f != ""), types, 2, false) #>
 
     namespace Linq
     {
 <#= GenerateInnerFuncs("TYPEMonad", linqFuncs.Select( f => f.Item1).Where(f => f != ""), types, 3) #>
-<#= GenerateOuterFuncs("TYPETMonad", linqFuncs.Select(f => f.Item2).Where(f => f != ""), types, 3) #>
+<#= GenerateOuterFuncs("TYPETMonad", linqFuncs.Select(f => f.Item2).Where(f => f != ""), types, 3, false) #>
     }
 }
 
@@ -202,7 +218,7 @@ namespace LanguageExt.Trans
                    );
     }
 
-    public string GenerateOuterFuncs(string ns,IEnumerable<string> funcs, IEnumerable<TypeDesc> types, int tabs)
+    public string GenerateOuterFuncs(string ns,IEnumerable<string> funcs, IEnumerable<TypeDesc> types, int tabs, bool filterSame)
     {
         Func<TypeDesc, string> pre  = type => Space("public static partial class "+ns.Replace("TYPE",type.TypeAlias) +" {" ,tabs-1);
         Func<TypeDesc, string> post = type => Space("}",tabs-1);
@@ -211,7 +227,8 @@ namespace LanguageExt.Trans
         return String.Join("\r\n",
                    from outer in types
                    from inner in types
-                   where !(outer.DelType >= 0 && inner.DelType >= 0 && outer.Args != inner.Args)
+                   where !(outer.DelType >= 0 && inner.DelType >= 0 && outer.Args != inner.Args) &&
+                         !(filterSame && outer.Name == inner.Name)
                    select 
                        all(
                            pre(outer),
@@ -247,6 +264,21 @@ namespace LanguageExt.Trans
     public string TypeGen(TypeDesc outerType, TypeDesc innerType, string genericArg, string additionalGenericArg = "")
     {
         return String.Format("{0}<{1}{2}>", outerType.Name, TypeArgsGen(innerType,genericArg), additionalGenericArg);
+    }
+
+    public string BindTypeGen(TypeDesc outerType, TypeDesc innerType, string genericArg)
+    {
+        var inner = TypeGen(innerType,genericArg);
+        var outer = TypeGen(outerType,genericArg);
+
+        if( inner == outer )
+        {
+            return inner;
+        }
+        else
+        {
+            return TypeGen(outerType,inner);
+        }
     }
 
     public string TypeGenOne(TypeDesc type, string oneArg)
@@ -401,6 +433,12 @@ namespace LanguageExt.Trans
         var outerTypeInt   = TypeGen(outerType,innerType,"int");
         var outerTypeBool  = TypeGen(outerType,innerType,"bool");
 
+        var outerT     = TypeGen(outerType,"T");
+        var outerU     = TypeGen(outerType,"U");
+        var outerV     = TypeGen(outerType,"V");
+        var outerInt   = TypeGen(outerType,"int");
+        var outerBool  = TypeGen(outerType,"bool");
+
         var fqtype   = TypeGen(outerType,innerTypeT);
         var inttype  = TypeGen(outerType,innerTypeInt);
         var booltype = TypeGen(outerType,innerTypeBool);
@@ -419,6 +457,9 @@ namespace LanguageExt.Trans
         var returnTypeV    = TypeGen(outerType,innerTypeV);
         var returnTypeInt  = TypeGen(outerType,innerTypeInt);
         var returnTypeBool = TypeGen(outerType,innerTypeBool);
+
+        var bindReturnTypeU = BindTypeGen(outerType,innerType,"U");
+        var bindReturnTypeV = BindTypeGen(outerType,innerType,"V");
 
         return func.Replace("TYPE_INT",inttype)
                    .Replace("TYPE_BOOL",booltype)
@@ -445,11 +486,11 @@ namespace LanguageExt.Trans
                    .Replace("INNER_V", innerTypeV)
                    .Replace("INNER_INT", innerTypeInt)
                    .Replace("INNER_BOOL", innerTypeBool)
-                   .Replace("OUTER_T", innerTypeT)
-                   .Replace("OUTER_U", innerTypeU)
-                   .Replace("OUTER_V", innerTypeV)
-                   .Replace("OUTER_INT", innerTypeInt)
-                   .Replace("OUTER_BOOL", innerTypeBool)
+                   .Replace("OUTER_T", outerT)
+                   .Replace("OUTER_U", outerU)
+                   .Replace("OUTER_V", outerV)
+                   .Replace("OUTER_INT", outerInt)
+                   .Replace("OUTER_BOOL", outerBool)
                    .Replace("LIFT_ARGS", LiftArgs(outerType) )
                    .Replace("LIFT_INVOKE_ONE", LiftInvokeOne(outerType))
                    .Replace("ARGS_INT", args.Replace("!T, ","").Replace(", !T","").Replace("!T",""))

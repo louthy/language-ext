@@ -18,7 +18,6 @@ namespace LanguageExt
     [TypeConverter(typeof(OptionalTypeConverter))]
     public struct Option<T> : 
         IOptional, 
-        IEnumerable<T>, 
         IComparable<Option<T>>, 
         IComparable<T>, 
         IEquatable<Option<T>>, 
@@ -217,12 +216,6 @@ namespace LanguageExt
         public Type GetUnderlyingType() =>
             typeof(T);
 
-        public IEnumerator<T> GetEnumerator() =>
-            AsEnumerable().GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() =>
-            AsEnumerable().GetEnumerator();
-
         public int CompareTo(Option<T> other) =>
             IsNone && other.IsNone
                 ? 0
@@ -368,142 +361,5 @@ public static class __OptionExt
         var resU = bind(self.Value);
         if (resU.IsNone) return None;
         return Optional(project(self.Value, resU.Value));
-    }
-
-    public static IEnumerable<V> SelectMany<T, U, V>(this Option<T> self,
-        Func<T, IEnumerable<U>> bind,
-        Func<T, U, V> project
-        )
-    {
-        if (self.IsNone) return new V[0];
-        var resU = bind(self.Value);
-        return resU.Select(x => project(self.Value, x));
-    }
-
-    public static Lst<V> SelectMany<T, U, V>(this Option<T> self,
-        Func<T, Lst<U>> bind,
-        Func<T, U, V> project
-        )
-    {
-        if (self.IsNone) return List<V>();
-        var resU = bind(self.Value);
-        return LanguageExt.List.createRange((resU.Select(x => project(self.Value, x))));
-    }
-
-    public static Option<Map<K, V>> SelectMany<K, T, U, V>(this Option<T> self,
-        Func<T, Map<K, U>> bind,
-        Func<T, U, V> project
-        )
-    {
-        if (self.IsNone) return Prelude.Map<K, V>();
-        var resU = bind(self.Value);
-        return resU.Select(x => project(self.Value, x));
-    }
-
-    public static Option<OptionUnsafe<V>> SelectMany<T, U, V>(this Option<T> self,
-        Func<T, OptionUnsafe<U>> bind,
-        Func<T, U, V> project
-        )
-    {
-        if (self.IsNone) return None;
-        var resU = bind(self.Value);
-        if (resU.IsNone || resU == null) return None;
-        return Option<OptionUnsafe<V>>.Some(project(self.Value, resU.Value));
-    }
-
-    public static Option<Either<L, V>> SelectMany<L, T, U, V>(this Option<T> self,
-        Func<T, Either<L, U>> bind,
-        Func<T, U, V> project
-        )
-    {
-        if (self.IsNone) return None;
-        var resU = bind(self.Value);
-        if (resU.IsLeft) return Either<L, V>.Left(resU.LeftValue);
-        return Optional(Either<L, V>.Right(project(self.Value, resU.RightValue)));
-    }
-
-    public static Option<EitherUnsafe<L, V>> SelectMany<L, T, U, V>(this Option<T> self,
-        Func<T, EitherUnsafe<L, U>> bind,
-        Func<T, U, V> project
-        )
-    {
-        if (self.IsNone) return None;
-        var resU = bind(self.Value);
-        if (resU.IsLeft) return EitherUnsafe<L, V>.Left(resU.LeftValue);
-        return Optional(EitherUnsafe<L, V>.Right(project(self.Value, resU.RightValue)));
-    }
-
-    public static Option<TryOption<V>> SelectMany<T, U, V>(this Option<T> self,
-        Func<T, TryOption<U>> bind,
-        Func<T, U, V> project
-        )
-    {
-        if (self.IsNone) return None;
-        return Some<TryOption<V>>(() =>
-        {
-            var resU = bind(self.Value).Try();
-            if (resU.IsFaulted) return new TryOptionResult<V>(resU.Exception);
-            if (resU.Value.IsNone) return new TryOptionResult<V>(None);
-            return new TryOptionResult<V>(project(self.Value, resU.Value.Value));
-        });
-    }
-
-    public static Option<Try<V>> SelectMany<T, U, V>(this Option<T> self,
-        Func<T, Try<U>> bind,
-        Func<T, U, V> project
-        )
-    {
-        if (self.IsNone) return None;
-        return Some<Try<V>>(() =>
-        {
-            var resU = bind(self.Value).Try();
-            if (resU.IsFaulted) return new TryResult<V>(resU.Exception);
-            return new TryResult<V>(project(self.Value, resU.Value));
-        });
-    }
-
-    public static Option<Reader<E, V>> SelectMany<E, T, U, V>(this Option<T> self,
-        Func<T, Reader<E, U>> bind,
-        Func<T, U, V> project
-        )
-    {
-        if (self.IsNone) return None;
-        return Some<Reader<E, V>>((E env) =>
-        {
-            var resU = bind(self.Value)(env);
-            if (resU.IsBottom) return new ReaderResult<V>(default(V), true); ;
-            return new ReaderResult<V>(project(self.Value, resU.Value));
-        });
-    }
-
-    public static Option<Writer<Out, V>> SelectMany<Out, T, U, V>(this Option<T> self,
-        Func<T, Writer<Out, U>> bind,
-        Func<T, U, V> project
-        )
-    {
-        if (self.IsNone) return None;
-        return Some<Writer<Out, V>>(() =>
-        {
-            var resU = bind(self.Value)();
-            if (resU.IsBottom) return new WriterResult<Out, V>(default(V), resU.Output, true);
-            return new WriterResult<Out, V>(project(self.Value, resU.Value),resU.Output);
-        });
-    }
-
-    public static Option<State<S,V>> SelectMany<S, T, U, V>(this Option<T> self,
-        Func<T, State<S, U>> bind,
-        Func<T, U, V> project
-        )
-    {
-        if (self.IsNone) return None;
-
-        return Some<State<S, V>>((S state) =>
-        {
-            var resU = bind(self.Value)(state);
-            if (resU.IsBottom)
-                return new StateResult<S, V>(state,default(V),true);
-            else
-                return new StateResult<S, V>(resU.State,project(self.Value, resU.Value));
-        });
     }
 }

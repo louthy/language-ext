@@ -9,7 +9,6 @@ namespace LanguageExt
 {
     public struct EitherUnsafe<L, R> :
         IEither,
-        IEnumerable<R>,
         IComparable<EitherUnsafe<L, R>>,
         IComparable<R>,
         IEquatable<EitherUnsafe<L, R>>,
@@ -229,12 +228,6 @@ namespace LanguageExt
             }
         }
 
-        public IEnumerator<R> GetEnumerator() =>
-            AsEnumerable().GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() =>
-            AsEnumerable().GetEnumerator();
-
         public int CompareTo(EitherUnsafe<L, R> other) =>
             IsLeft && other.IsLeft
                 ? Comparer<L>.Default.Compare(LeftValue, other.LeftValue)
@@ -324,21 +317,20 @@ public static class __EitherUnsafeExt
             Left: l => EitherUnsafe<L, UR>.Left(l)
             );
 
-    public static EitherUnsafe<L, VR> SelectMany<L, TR, UR, VR>(this EitherUnsafe<L, TR> self,
-        Func<TR, EitherUnsafe<L, UR>> bind,
-        Func<TR, UR, VR> project
-        ) =>
-        matchUnsafe(self,
-            Right: t =>
-                matchUnsafe(bind(t),
-                    Right: u => EitherUnsafe<L, VR>.Right(project(t, u)),
-                    Left: l => EitherUnsafe<L, VR>.Left(l)
-                ),
-            Left: l => EitherUnsafe<L, VR>.Left(l)
-            );
+    public static int Sum<L>(this EitherUnsafe<L, int> self) =>
+        self.IsRight ? self.RightValue : 0;
 
     public static int Count<L, R>(this EitherUnsafe<L, R> self) =>
         self.IsRight ? 1 : 0;
+
+    public static Unit Iter<L, R>(this EitherUnsafe<L, R> self, Action<R> action)
+    {
+        if (self.IsRight)
+        {
+            action(self.RightValue);
+        }
+        return unit;
+    }
 
     public static bool ForAll<L, R>(this EitherUnsafe<L, R> self, Func<R, bool> pred) =>
         self.IsRight
@@ -373,4 +365,12 @@ public static class __EitherUnsafeExt
             Right: t => pred(t) ? EitherUnsafe<L, R>.Right(t) : EitherUnsafe<L, R>.Left(default(L)),
             Left: l => EitherUnsafe<L, R>.Left(l)
             );
+
+    public static EitherUnsafe<L, V> SelectMany<L, T, U, V>(this EitherUnsafe<L, T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project)
+    {
+        if (self.IsLeft) return EitherUnsafe<L, V>.Left(self.LeftValue);
+        var u = bind(self.RightValue);
+        if (u.IsLeft) return EitherUnsafe<L, V>.Left(u.LeftValue);
+        return project(self.RightValue, u.RightValue);
+    }
 }

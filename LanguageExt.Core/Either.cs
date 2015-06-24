@@ -9,7 +9,6 @@ namespace LanguageExt
 {
     public struct Either<L, R> :
         IEither,
-        IEnumerable<R>, 
         IComparable<Either<L,R>>, 
         IComparable<R>, 
         IEquatable<Either<L, R>>, 
@@ -206,12 +205,6 @@ namespace LanguageExt
                     : None;
         }
 
-        public IEnumerator<R> GetEnumerator() =>
-            AsEnumerable().GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() =>
-            AsEnumerable().GetEnumerator();
-
         public static bool operator ==(Either<L, R> lhs, Either<L, R> rhs) =>
             lhs.Equals(rhs);
 
@@ -325,8 +318,20 @@ namespace LanguageExt
 
 public static class __EitherExt
 {
-    public static int Count<L, R>(this Either<L,R> self) =>
+    public static int Count<L, R>(this Either<L, R> self) =>
         self.IsRight ? 1 : 0;
+
+    public static int Sum<L>(this Either<L, int> self) =>
+        self.IsRight ? self.RightValue : 0;
+
+    public static Unit Iter<L, R>(this Either<L, R> self, Action<R> action)
+    {
+        if (self.IsRight)
+        {
+            action(self.RightValue);
+        }
+        return unit;
+    }
 
     public static bool ForAll<L, R>(this Either<L, R> self, Func<R, bool> pred) =>
         self.IsRight
@@ -368,16 +373,11 @@ public static class __EitherExt
             Left: l => Either<L, UR>.Left(l)
             );
 
-    public static Either<L, VR> SelectMany<L, TR, UR, VR>(this Either<L, TR> self,
-        Func<TR, Either<L, UR>> bind,
-        Func<TR, UR, VR> project
-        ) =>
-        match(self,
-            Right: t =>
-                match(bind(t),
-                    Right: u => Either<L, VR>.Right(project(t, u)),
-                    Left: l => Either<L, VR>.Left(l)
-                ),
-            Left: l => Either<L, VR>.Left(l)
-            );
+    public static Either<L, V> SelectMany<L, T, U, V>(this Either<L, T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project)
+    {
+        if (self.IsLeft) return Either<L, V>.Left(self.LeftValue);
+        var u = bind(self.RightValue);
+        if (u.IsLeft) return Either<L, V>.Left(u.LeftValue);
+        return project(self.RightValue, u.RightValue);
+    }
 }

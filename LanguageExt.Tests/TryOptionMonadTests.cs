@@ -1,12 +1,22 @@
 ﻿using NUnit.Framework;
+using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using System.Collections.Generic;
+using System;
 
 namespace LanguageExtTests
 {
     [TestFixture]
     public class TryMonadTests
     {
+        public void TryOptionListTest()
+        {
+            var x = from a in List(1,2,3)
+                    let  b = GetSomeValue(true).ToOption()
+                    select b;                       // returns a list of Option
+        }
+
         [Test]
         public void TryMatchSuccessTest1()
         {

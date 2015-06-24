@@ -14,25 +14,25 @@ namespace LanguageExtTests
         [Test]
         public void WithOptionSomeList()
         {
-            var res = (from v in GetOptionValue(true).AsEnumerable()
-                       from r in Range(1, 10)
-                       select v * r)
-                      .ToList();
+            var res = from v in GetOptionValue(true)
+                      from r in Range(1, 10)
+                      select v * r;
 
-            Assert.IsTrue(res.Count() == 10);
-            Assert.IsTrue(res[0] == 10);
-            Assert.IsTrue(res[9] == 100);
+            var res2 = res.Lift().ToList();
+
+            Assert.IsTrue(res.CountT() == 10);
+            Assert.IsTrue(res2[0] == 10);
+            Assert.IsTrue(res2[9] == 100);
         }
 
         [Test]
         public void WithOptionNoneList()
         {
-            var res = (from v in GetOptionValue(false).AsEnumerable()
-                       from r in Range(1, 10)
-                       select v * r)
-                      .ToList();
+            var res = from v in GetOptionValue(false)
+                      from r in Range(1, 10)
+                      select v * r;
 
-            Assert.IsTrue(res.Count() == 0);
+            Assert.IsTrue(res.CountT() == 0);
         }
 
         [Test]
@@ -51,104 +51,83 @@ namespace LanguageExtTests
         [Test]
         public void WithOptionUnsafeNoneList()
         {
-            var res = (from v in GetOptionUnsafeValue(false).AsEnumerable()
-                       from r in Range(1, 10)
-                       select v * r)
-                      .ToList();
+            var res = from v in GetOptionUnsafeValue(false)
+                      from r in Range(1, 10)
+                      select v * r;
 
-            Assert.IsTrue(res.Count() == 0);
+            Assert.IsTrue(res.CountT() == 0);
         }
 
         [Test]
         public void WithEitherRightList()
         {
-            var res = (from v in GetEitherValue(true)
-                       from r in Range(1, 10)
-                       select v * r)
-                      .ToList();
+            var res = from v in GetEitherValue(true)
+                      from r in Range(1, 10)
+                      select v * r;
 
-            Assert.IsTrue(res.Count() == 10);
-            Assert.IsTrue(res[0] == 10);
-            Assert.IsTrue(res[9] == 100);
+            var res2 = res.Lift().ToList();
+
+            Assert.IsTrue(res.CountT() == 10);
+            Assert.IsTrue(res2[0] == 10);
+            Assert.IsTrue(res2[9] == 100);
         }
 
         [Test]
         public void WithEitherLeftList()
         {
-            var res = (from v in GetEitherValue(false)
-                       from r in Range(1, 10)
-                       select v * r)
-                      .ToList();
+            var res = from v in GetEitherValue(false)
+                      from r in Range(1, 10)
+                      select v * r;
 
-            Assert.IsTrue(res.Count() == 0);
+            Assert.IsTrue(res.CountT() == 0);
         }
 
         [Test]
         public void WithEitherUnsafeRightList()
         {
-            var res = (from v in GetEitherUnsafeValue(true)
-                       from r in Range(1, 10)
-                       select v * r)
-                      .ToList();
+            var res = from v in GetEitherUnsafeValue(true)
+                      from r in Range(1, 10)
+                      select v * r;
 
-            Assert.IsTrue(res.Count() == 10);
-            Assert.IsTrue(res[0] == 10);
-            Assert.IsTrue(res[9] == 100);
+            var res2 = res.Lift().ToList();
+
+            Assert.IsTrue(res.CountT() == 10);
+            Assert.IsTrue(res2[0] == 10);
+            Assert.IsTrue(res2[9] == 100);
         }
 
         [Test]
         public void WithEitherUnsafeLeftList()
         {
-            var res = (from v in GetEitherUnsafeValue(false)
-                       from r in Range(1, 10)
-                       select v * r)
-                      .ToList();
+            var res = from v in GetEitherUnsafeValue(false)
+                      from r in Range(1, 10)
+                      select v * r;
 
-            Assert.IsTrue(res.Count() == 0);
+            Assert.IsTrue(res.CountT() == 0);
         }
 
         [Test]
         public void WithTryOptionSomeList()
         {
-            var res = (from v in match( 
-                                     GetTryOptionValue(true).AsEnumerable(), 
-                                     Right: r => List(r),
-                                     Left:  l => List<int>()
-                                 )
-                       from r in Range(1, 10)
-                       select v * r)
-                      .ToList();
+            var res = from v in GetTryOptionValue(true)
+                      from r in Range(1, 10)
+                      select v * r;
 
-            Assert.IsTrue(res.Count() == 10);
-            Assert.IsTrue(res[0] == 10);
-            Assert.IsTrue(res[9] == 100);
+            var res2 = res.Lift().ToList();
+
+            Assert.IsTrue(res.CountT() == 10);
+            Assert.IsTrue(res2[0] == 10);
+            Assert.IsTrue(res2[9] == 100);
         }
 
         [Test]
         public void WithTryOptionNoneList()
         {
-            var res = (from v in GetTryOptionValue(false).AsEnumerable().Failure( List<int>() )
-                       from r in Range(1, 10)
-                       select v * r)
-                      .ToList();
+            var res = from v in GetTryOptionValue(false)
+                      from r in Range(1, 10)
+                      select v * r;
 
-            Assert.IsTrue(res.Count() == 0);
-        }
-
-        [Test]
-        public void WithTryOptionErrorList()
-        {
-            match( GetTryOptionError().AsEnumerable().First(),
-                Right: r => Assert.Fail(),
-                Left:  e => Assert.IsTrue(true)
-            );
-
-            var res = (from v in GetTryOptionError().AsEnumerable().FailWithEmpty()
-                       from r in Range(1, 10)
-                       select v * r)
-                      .ToList();
-
-            Assert.IsTrue(res.Count() == 0);
+            Assert.IsTrue(res.CountT() == 0);
         }
 
         [Test]

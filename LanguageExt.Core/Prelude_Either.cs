@@ -129,7 +129,7 @@ namespace LanguageExt
             either.ToArray();
 
         public static IQueryable<R> toQuery<L, R>(Either<L, R> either) =>
-            either.AsQueryable();
+            either.AsEnumerable().AsQueryable();
 
         [Obsolete("'failure' has been deprecated.  Please use 'ifLeft' instead")]
         public static R failure<L, R>(Either<L, R> either, Func<R> None) =>

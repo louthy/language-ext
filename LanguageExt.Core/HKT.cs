@@ -16,6 +16,384 @@ using LanguageExt.Trans.Linq;
 namespace LanguageExt
 {
     public static partial class List {
+        public static IEnumerable<Option<V>> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static IEnumerable<OptionUnsafe<V>> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static IEnumerable<Lst<V>> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static IEnumerable<Map<K, V>> SelectMany<T, K, U, V>(this IEnumerable<T> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static IEnumerable<TryOption<V>> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static IEnumerable<Try<V>> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static IEnumerable<Either<L, V>> SelectMany<T, L, U, V>(this IEnumerable<T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static IEnumerable<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this IEnumerable<T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static IEnumerable<Reader<Env, V>> SelectMany<T, Env, U, V>(this IEnumerable<T> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static IEnumerable<Writer<Out, V>> SelectMany<T, Out, U, V>(this IEnumerable<T> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static IEnumerable<State<State, V>> SelectMany<T, State, U, V>(this IEnumerable<T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Option {
+        public static Option<IEnumerable<V>> SelectMany<T, U, V>(this Option<T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Option {
+        public static Option<OptionUnsafe<V>> SelectMany<T, U, V>(this Option<T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Option {
+        public static Option<Lst<V>> SelectMany<T, U, V>(this Option<T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Option {
+        public static Option<Map<K, V>> SelectMany<T, K, U, V>(this Option<T> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Option {
+        public static Option<TryOption<V>> SelectMany<T, U, V>(this Option<T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Option {
+        public static Option<Try<V>> SelectMany<T, U, V>(this Option<T> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Option {
+        public static Option<Either<L, V>> SelectMany<T, L, U, V>(this Option<T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Option {
+        public static Option<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Option<T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Option {
+        public static Option<Reader<Env, V>> SelectMany<T, Env, U, V>(this Option<T> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Option {
+        public static Option<Writer<Out, V>> SelectMany<T, Out, U, V>(this Option<T> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Option {
+        public static Option<State<State, V>> SelectMany<T, State, U, V>(this Option<T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class OptionUnsafe {
+        public static OptionUnsafe<IEnumerable<V>> SelectMany<T, U, V>(this OptionUnsafe<T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class OptionUnsafe {
+        public static OptionUnsafe<Option<V>> SelectMany<T, U, V>(this OptionUnsafe<T> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class OptionUnsafe {
+        public static OptionUnsafe<Lst<V>> SelectMany<T, U, V>(this OptionUnsafe<T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class OptionUnsafe {
+        public static OptionUnsafe<Map<K, V>> SelectMany<T, K, U, V>(this OptionUnsafe<T> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class OptionUnsafe {
+        public static OptionUnsafe<TryOption<V>> SelectMany<T, U, V>(this OptionUnsafe<T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class OptionUnsafe {
+        public static OptionUnsafe<Try<V>> SelectMany<T, U, V>(this OptionUnsafe<T> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class OptionUnsafe {
+        public static OptionUnsafe<Either<L, V>> SelectMany<T, L, U, V>(this OptionUnsafe<T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class OptionUnsafe {
+        public static OptionUnsafe<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this OptionUnsafe<T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class OptionUnsafe {
+        public static OptionUnsafe<Reader<Env, V>> SelectMany<T, Env, U, V>(this OptionUnsafe<T> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class OptionUnsafe {
+        public static OptionUnsafe<Writer<Out, V>> SelectMany<T, Out, U, V>(this OptionUnsafe<T> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class OptionUnsafe {
+        public static OptionUnsafe<State<State, V>> SelectMany<T, State, U, V>(this OptionUnsafe<T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static Lst<IEnumerable<V>> SelectMany<T, U, V>(this Lst<T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static Lst<Option<V>> SelectMany<T, U, V>(this Lst<T> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static Lst<OptionUnsafe<V>> SelectMany<T, U, V>(this Lst<T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static Lst<Map<K, V>> SelectMany<T, K, U, V>(this Lst<T> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static Lst<TryOption<V>> SelectMany<T, U, V>(this Lst<T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static Lst<Try<V>> SelectMany<T, U, V>(this Lst<T> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static Lst<Either<L, V>> SelectMany<T, L, U, V>(this Lst<T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static Lst<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Lst<T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static Lst<Reader<Env, V>> SelectMany<T, Env, U, V>(this Lst<T> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static Lst<Writer<Out, V>> SelectMany<T, Out, U, V>(this Lst<T> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static Lst<State<State, V>> SelectMany<T, State, U, V>(this Lst<T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Map {
+        public static Map<K, IEnumerable<V>> SelectMany<K, T, U, V>(this Map<K, T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Map {
+        public static Map<K, Option<V>> SelectMany<K, T, U, V>(this Map<K, T> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Map {
+        public static Map<K, OptionUnsafe<V>> SelectMany<K, T, U, V>(this Map<K, T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Map {
+        public static Map<K, Lst<V>> SelectMany<K, T, U, V>(this Map<K, T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Map {
+        public static Map<K, TryOption<V>> SelectMany<K, T, U, V>(this Map<K, T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Map {
+        public static Map<K, Try<V>> SelectMany<K, T, U, V>(this Map<K, T> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Map {
+        public static Map<K, Either<L, V>> SelectMany<K, T, L, U, V>(this Map<K, T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Map {
+        public static Map<K, EitherUnsafe<L, V>> SelectMany<K, T, L, U, V>(this Map<K, T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Map {
+        public static Map<K, Reader<Env, V>> SelectMany<K, T, Env, U, V>(this Map<K, T> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Map {
+        public static Map<K, Writer<Out, V>> SelectMany<K, T, Out, U, V>(this Map<K, T> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Map {
+        public static Map<K, State<State, V>> SelectMany<K, T, State, U, V>(this Map<K, T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class TryOption {
+        public static TryOption<IEnumerable<V>> SelectMany<T, U, V>(this TryOption<T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class TryOption {
+        public static TryOption<Option<V>> SelectMany<T, U, V>(this TryOption<T> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class TryOption {
+        public static TryOption<OptionUnsafe<V>> SelectMany<T, U, V>(this TryOption<T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class TryOption {
+        public static TryOption<Lst<V>> SelectMany<T, U, V>(this TryOption<T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class TryOption {
+        public static TryOption<Map<K, V>> SelectMany<T, K, U, V>(this TryOption<T> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class TryOption {
+        public static TryOption<Try<V>> SelectMany<T, U, V>(this TryOption<T> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class TryOption {
+        public static TryOption<Either<L, V>> SelectMany<T, L, U, V>(this TryOption<T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class TryOption {
+        public static TryOption<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this TryOption<T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class TryOption {
+        public static TryOption<Reader<Env, V>> SelectMany<T, Env, U, V>(this TryOption<T> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class TryOption {
+        public static TryOption<Writer<Out, V>> SelectMany<T, Out, U, V>(this TryOption<T> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class TryOption {
+        public static TryOption<State<State, V>> SelectMany<T, State, U, V>(this TryOption<T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Try {
+        public static Try<IEnumerable<V>> SelectMany<T, U, V>(this Try<T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Try {
+        public static Try<Option<V>> SelectMany<T, U, V>(this Try<T> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Try {
+        public static Try<OptionUnsafe<V>> SelectMany<T, U, V>(this Try<T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Try {
+        public static Try<Lst<V>> SelectMany<T, U, V>(this Try<T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Try {
+        public static Try<Map<K, V>> SelectMany<T, K, U, V>(this Try<T> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Try {
+        public static Try<TryOption<V>> SelectMany<T, U, V>(this Try<T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Try {
+        public static Try<Either<L, V>> SelectMany<T, L, U, V>(this Try<T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Try {
+        public static Try<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Try<T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Try {
+        public static Try<Reader<Env, V>> SelectMany<T, Env, U, V>(this Try<T> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Try {
+        public static Try<Writer<Out, V>> SelectMany<T, Out, U, V>(this Try<T> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Try {
+        public static Try<State<State, V>> SelectMany<T, State, U, V>(this Try<T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Either {
+        public static Either<L, IEnumerable<V>> SelectMany<L, T, U, V>(this Either<L, T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Either {
+        public static Either<L, Option<V>> SelectMany<L, T, U, V>(this Either<L, T> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Either {
+        public static Either<L, OptionUnsafe<V>> SelectMany<L, T, U, V>(this Either<L, T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Either {
+        public static Either<L, Lst<V>> SelectMany<L, T, U, V>(this Either<L, T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Either {
+        public static Either<L, Map<K, V>> SelectMany<L, T, K, U, V>(this Either<L, T> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Either {
+        public static Either<L, TryOption<V>> SelectMany<L, T, U, V>(this Either<L, T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Either {
+        public static Either<L, Try<V>> SelectMany<L, T, U, V>(this Either<L, T> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Either {
+        public static Either<L, EitherUnsafe<L, V>> SelectMany<L, T, U, V>(this Either<L, T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Either {
+        public static Either<L, Reader<Env, V>> SelectMany<L, T, Env, U, V>(this Either<L, T> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Either {
+        public static Either<L, Writer<Out, V>> SelectMany<L, T, Out, U, V>(this Either<L, T> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Either {
+        public static Either<L, State<State, V>> SelectMany<L, T, State, U, V>(this Either<L, T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class EitherUnsafe {
+        public static EitherUnsafe<L, IEnumerable<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class EitherUnsafe {
+        public static EitherUnsafe<L, Option<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, T> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class EitherUnsafe {
+        public static EitherUnsafe<L, OptionUnsafe<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class EitherUnsafe {
+        public static EitherUnsafe<L, Lst<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class EitherUnsafe {
+        public static EitherUnsafe<L, Map<K, V>> SelectMany<L, T, K, U, V>(this EitherUnsafe<L, T> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class EitherUnsafe {
+        public static EitherUnsafe<L, TryOption<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class EitherUnsafe {
+        public static EitherUnsafe<L, Try<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, T> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class EitherUnsafe {
+        public static EitherUnsafe<L, Either<L, V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class EitherUnsafe {
+        public static EitherUnsafe<L, Reader<Env, V>> SelectMany<L, T, Env, U, V>(this EitherUnsafe<L, T> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class EitherUnsafe {
+        public static EitherUnsafe<L, Writer<Out, V>> SelectMany<L, T, Out, U, V>(this EitherUnsafe<L, T> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class EitherUnsafe {
+        public static EitherUnsafe<L, State<State, V>> SelectMany<L, T, State, U, V>(this EitherUnsafe<L, T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Reader {
+        public static Reader<Env, IEnumerable<V>> SelectMany<Env, T, U, V>(this Reader<Env, T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Reader {
+        public static Reader<Env, Option<V>> SelectMany<Env, T, U, V>(this Reader<Env, T> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Reader {
+        public static Reader<Env, OptionUnsafe<V>> SelectMany<Env, T, U, V>(this Reader<Env, T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Reader {
+        public static Reader<Env, Lst<V>> SelectMany<Env, T, U, V>(this Reader<Env, T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Reader {
+        public static Reader<Env, Map<K, V>> SelectMany<Env, T, K, U, V>(this Reader<Env, T> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Reader {
+        public static Reader<Env, TryOption<V>> SelectMany<Env, T, U, V>(this Reader<Env, T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Reader {
+        public static Reader<Env, Try<V>> SelectMany<Env, T, U, V>(this Reader<Env, T> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Reader {
+        public static Reader<Env, Either<L, V>> SelectMany<Env, T, L, U, V>(this Reader<Env, T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Reader {
+        public static Reader<Env, EitherUnsafe<L, V>> SelectMany<Env, T, L, U, V>(this Reader<Env, T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Writer {
+        public static Writer<Out, IEnumerable<V>> SelectMany<Out, T, U, V>(this Writer<Out, T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Writer {
+        public static Writer<Out, Option<V>> SelectMany<Out, T, U, V>(this Writer<Out, T> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Writer {
+        public static Writer<Out, OptionUnsafe<V>> SelectMany<Out, T, U, V>(this Writer<Out, T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Writer {
+        public static Writer<Out, Lst<V>> SelectMany<Out, T, U, V>(this Writer<Out, T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Writer {
+        public static Writer<Out, Map<K, V>> SelectMany<Out, T, K, U, V>(this Writer<Out, T> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Writer {
+        public static Writer<Out, TryOption<V>> SelectMany<Out, T, U, V>(this Writer<Out, T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Writer {
+        public static Writer<Out, Try<V>> SelectMany<Out, T, U, V>(this Writer<Out, T> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Writer {
+        public static Writer<Out, Either<L, V>> SelectMany<Out, T, L, U, V>(this Writer<Out, T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Writer {
+        public static Writer<Out, EitherUnsafe<L, V>> SelectMany<Out, T, L, U, V>(this Writer<Out, T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class State {
+        public static State<State, IEnumerable<V>> SelectMany<State, T, U, V>(this State<State, T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class State {
+        public static State<State, Option<V>> SelectMany<State, T, U, V>(this State<State, T> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class State {
+        public static State<State, OptionUnsafe<V>> SelectMany<State, T, U, V>(this State<State, T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class State {
+        public static State<State, Lst<V>> SelectMany<State, T, U, V>(this State<State, T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class State {
+        public static State<State, Map<K, V>> SelectMany<State, T, K, U, V>(this State<State, T> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class State {
+        public static State<State, TryOption<V>> SelectMany<State, T, U, V>(this State<State, T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class State {
+        public static State<State, Try<V>> SelectMany<State, T, U, V>(this State<State, T> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class State {
+        public static State<State, Either<L, V>> SelectMany<State, T, L, U, V>(this State<State, T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class State {
+        public static State<State, EitherUnsafe<L, V>> SelectMany<State, T, L, U, V>(this State<State, T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
         public static int sumT(IEnumerable<IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
         public static int countT<T>(IEnumerable<IEnumerable<T>> self) => self.MapT(x => x.CountT()).SumT();
         public static IEnumerable<IEnumerable<U>> bindT<T, U>(IEnumerable<IEnumerable<T>> self, Func<T, IEnumerable<U>> binder) => self.MapT(x => x.BindT(binder));
@@ -26,6 +404,7 @@ namespace LanguageExt
         public static Unit iterT<T>(IEnumerable<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<IEnumerable<U>> mapT<T, U>(IEnumerable<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(IEnumerable<IEnumerable<T>> self ) => self.ValueT();
+        public static IEnumerable<IEnumerable<V>> SelectMany<T, U, V>(this IEnumerable<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT(IEnumerable<Option<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -38,6 +417,7 @@ namespace LanguageExt
         public static Unit iterT<T>(IEnumerable<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<Option<U>> mapT<T, U>(IEnumerable<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(IEnumerable<Option<T>> self ) => self.ValueT();
+        public static IEnumerable<Option<V>> SelectMany<T, U, V>(this IEnumerable<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT(IEnumerable<OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -50,6 +430,7 @@ namespace LanguageExt
         public static Unit iterT<T>(IEnumerable<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<OptionUnsafe<U>> mapT<T, U>(IEnumerable<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(IEnumerable<OptionUnsafe<T>> self ) => self.ValueT();
+        public static IEnumerable<OptionUnsafe<V>> SelectMany<T, U, V>(this IEnumerable<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT(IEnumerable<Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -62,6 +443,7 @@ namespace LanguageExt
         public static Unit iterT<T>(IEnumerable<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<Lst<U>> mapT<T, U>(IEnumerable<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(IEnumerable<Lst<T>> self ) => self.ValueT();
+        public static IEnumerable<Lst<V>> SelectMany<T, U, V>(this IEnumerable<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT<K>(IEnumerable<Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -74,6 +456,7 @@ namespace LanguageExt
         public static Unit iterT<T, K>(IEnumerable<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<Map<K, U>> mapT<T, K, U>(IEnumerable<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, K>(IEnumerable<Map<K, T>> self ) => self.ValueT();
+        public static IEnumerable<Map<K, V>> SelectMany<T, K, U, V>(this IEnumerable<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT(IEnumerable<TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -86,6 +469,7 @@ namespace LanguageExt
         public static Unit iterT<T>(IEnumerable<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<TryOption<U>> mapT<T, U>(IEnumerable<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(IEnumerable<TryOption<T>> self ) => self.ValueT();
+        public static IEnumerable<TryOption<V>> SelectMany<T, U, V>(this IEnumerable<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT(IEnumerable<Try<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -98,6 +482,7 @@ namespace LanguageExt
         public static Unit iterT<T>(IEnumerable<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<Try<U>> mapT<T, U>(IEnumerable<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(IEnumerable<Try<T>> self ) => self.ValueT();
+        public static IEnumerable<Try<V>> SelectMany<T, U, V>(this IEnumerable<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT<L>(IEnumerable<Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -110,6 +495,7 @@ namespace LanguageExt
         public static Unit iterT<T, L>(IEnumerable<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<Either<L, U>> mapT<T, L, U>(IEnumerable<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, L>(IEnumerable<Either<L, T>> self ) => self.ValueT();
+        public static IEnumerable<Either<L, V>> SelectMany<T, L, U, V>(this IEnumerable<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT<L>(IEnumerable<EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -122,6 +508,7 @@ namespace LanguageExt
         public static Unit iterT<T, L>(IEnumerable<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<EitherUnsafe<L, U>> mapT<T, L, U>(IEnumerable<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, L>(IEnumerable<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static IEnumerable<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this IEnumerable<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static Reader<Env, int> sumT<Env>(IEnumerable<Reader<Env, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -134,6 +521,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<T, Env>(IEnumerable<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static IEnumerable<Reader<Env, U>> mapT<T, Env, U>(IEnumerable<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Reader<Env, T> liftT<T, Env>(IEnumerable<Reader<Env, T>> self ) => self.ValueT();
+        public static IEnumerable<Reader<Env, V>> SelectMany<T, Env, U, V>(this IEnumerable<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static Writer<Out, int> sumT<Out>(IEnumerable<Writer<Out, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -146,6 +534,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<T, Out>(IEnumerable<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static IEnumerable<Writer<Out, U>> mapT<T, Out, U>(IEnumerable<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Writer<Out, T> liftT<T, Out>(IEnumerable<Writer<Out, T>> self ) => self.ValueT();
+        public static IEnumerable<Writer<Out, V>> SelectMany<T, Out, U, V>(this IEnumerable<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static State<State, int> sumT<State>(IEnumerable<State<State, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -158,6 +547,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<T, State>(IEnumerable<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static IEnumerable<State<State, U>> mapT<T, State, U>(IEnumerable<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static State<State, T> liftT<T, State>(IEnumerable<State<State, T>> self ) => self.ValueT();
+        public static IEnumerable<State<State, V>> SelectMany<T, State, U, V>(this IEnumerable<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
         public static int sumT(Option<IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -170,6 +560,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Option<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<IEnumerable<U>> mapT<T, U>(Option<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Option<IEnumerable<T>> self ) => self.ValueT();
+        public static Option<IEnumerable<V>> SelectMany<T, U, V>(this Option<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
         public static int sumT(Option<Option<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -182,6 +573,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Option<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<Option<U>> mapT<T, U>(Option<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Option<Option<T>> self ) => self.ValueT();
+        public static Option<Option<V>> SelectMany<T, U, V>(this Option<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
         public static int sumT(Option<OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -194,6 +586,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Option<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<OptionUnsafe<U>> mapT<T, U>(Option<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Option<OptionUnsafe<T>> self ) => self.ValueT();
+        public static Option<OptionUnsafe<V>> SelectMany<T, U, V>(this Option<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
         public static int sumT(Option<Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -206,6 +599,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Option<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<Lst<U>> mapT<T, U>(Option<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Option<Lst<T>> self ) => self.ValueT();
+        public static Option<Lst<V>> SelectMany<T, U, V>(this Option<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
         public static int sumT<K>(Option<Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -218,6 +612,7 @@ namespace LanguageExt
         public static Unit iterT<T, K>(Option<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<Map<K, U>> mapT<T, K, U>(Option<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, K>(Option<Map<K, T>> self ) => self.ValueT();
+        public static Option<Map<K, V>> SelectMany<T, K, U, V>(this Option<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
         public static int sumT(Option<TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -230,6 +625,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Option<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<TryOption<U>> mapT<T, U>(Option<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Option<TryOption<T>> self ) => self.ValueT();
+        public static Option<TryOption<V>> SelectMany<T, U, V>(this Option<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
         public static int sumT(Option<Try<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -242,6 +638,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Option<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<Try<U>> mapT<T, U>(Option<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Option<Try<T>> self ) => self.ValueT();
+        public static Option<Try<V>> SelectMany<T, U, V>(this Option<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
         public static int sumT<L>(Option<Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -254,6 +651,7 @@ namespace LanguageExt
         public static Unit iterT<T, L>(Option<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<Either<L, U>> mapT<T, L, U>(Option<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, L>(Option<Either<L, T>> self ) => self.ValueT();
+        public static Option<Either<L, V>> SelectMany<T, L, U, V>(this Option<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
         public static int sumT<L>(Option<EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -266,6 +664,7 @@ namespace LanguageExt
         public static Unit iterT<T, L>(Option<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<EitherUnsafe<L, U>> mapT<T, L, U>(Option<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, L>(Option<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static Option<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Option<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
         public static Reader<Env, int> sumT<Env>(Option<Reader<Env, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -278,6 +677,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<T, Env>(Option<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Option<Reader<Env, U>> mapT<T, Env, U>(Option<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Reader<Env, T> liftT<T, Env>(Option<Reader<Env, T>> self ) => self.ValueT();
+        public static Option<Reader<Env, V>> SelectMany<T, Env, U, V>(this Option<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
         public static Writer<Out, int> sumT<Out>(Option<Writer<Out, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -290,6 +690,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<T, Out>(Option<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Option<Writer<Out, U>> mapT<T, Out, U>(Option<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Writer<Out, T> liftT<T, Out>(Option<Writer<Out, T>> self ) => self.ValueT();
+        public static Option<Writer<Out, V>> SelectMany<T, Out, U, V>(this Option<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
         public static State<State, int> sumT<State>(Option<State<State, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -302,6 +703,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<T, State>(Option<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Option<State<State, U>> mapT<T, State, U>(Option<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static State<State, T> liftT<T, State>(Option<State<State, T>> self ) => self.ValueT();
+        public static Option<State<State, V>> SelectMany<T, State, U, V>(this Option<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
         public static int sumT(OptionUnsafe<IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -314,6 +716,7 @@ namespace LanguageExt
         public static Unit iterT<T>(OptionUnsafe<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<IEnumerable<U>> mapT<T, U>(OptionUnsafe<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(OptionUnsafe<IEnumerable<T>> self ) => self.ValueT();
+        public static OptionUnsafe<IEnumerable<V>> SelectMany<T, U, V>(this OptionUnsafe<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
         public static int sumT(OptionUnsafe<Option<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -326,6 +729,7 @@ namespace LanguageExt
         public static Unit iterT<T>(OptionUnsafe<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<Option<U>> mapT<T, U>(OptionUnsafe<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(OptionUnsafe<Option<T>> self ) => self.ValueT();
+        public static OptionUnsafe<Option<V>> SelectMany<T, U, V>(this OptionUnsafe<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
         public static int sumT(OptionUnsafe<OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -338,6 +742,7 @@ namespace LanguageExt
         public static Unit iterT<T>(OptionUnsafe<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<OptionUnsafe<U>> mapT<T, U>(OptionUnsafe<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(OptionUnsafe<OptionUnsafe<T>> self ) => self.ValueT();
+        public static OptionUnsafe<OptionUnsafe<V>> SelectMany<T, U, V>(this OptionUnsafe<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
         public static int sumT(OptionUnsafe<Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -350,6 +755,7 @@ namespace LanguageExt
         public static Unit iterT<T>(OptionUnsafe<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<Lst<U>> mapT<T, U>(OptionUnsafe<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(OptionUnsafe<Lst<T>> self ) => self.ValueT();
+        public static OptionUnsafe<Lst<V>> SelectMany<T, U, V>(this OptionUnsafe<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
         public static int sumT<K>(OptionUnsafe<Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -362,6 +768,7 @@ namespace LanguageExt
         public static Unit iterT<T, K>(OptionUnsafe<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<Map<K, U>> mapT<T, K, U>(OptionUnsafe<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, K>(OptionUnsafe<Map<K, T>> self ) => self.ValueT();
+        public static OptionUnsafe<Map<K, V>> SelectMany<T, K, U, V>(this OptionUnsafe<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
         public static int sumT(OptionUnsafe<TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -374,6 +781,7 @@ namespace LanguageExt
         public static Unit iterT<T>(OptionUnsafe<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<TryOption<U>> mapT<T, U>(OptionUnsafe<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(OptionUnsafe<TryOption<T>> self ) => self.ValueT();
+        public static OptionUnsafe<TryOption<V>> SelectMany<T, U, V>(this OptionUnsafe<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
         public static int sumT(OptionUnsafe<Try<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -386,6 +794,7 @@ namespace LanguageExt
         public static Unit iterT<T>(OptionUnsafe<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<Try<U>> mapT<T, U>(OptionUnsafe<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(OptionUnsafe<Try<T>> self ) => self.ValueT();
+        public static OptionUnsafe<Try<V>> SelectMany<T, U, V>(this OptionUnsafe<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
         public static int sumT<L>(OptionUnsafe<Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -398,6 +807,7 @@ namespace LanguageExt
         public static Unit iterT<T, L>(OptionUnsafe<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<Either<L, U>> mapT<T, L, U>(OptionUnsafe<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, L>(OptionUnsafe<Either<L, T>> self ) => self.ValueT();
+        public static OptionUnsafe<Either<L, V>> SelectMany<T, L, U, V>(this OptionUnsafe<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
         public static int sumT<L>(OptionUnsafe<EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -410,6 +820,7 @@ namespace LanguageExt
         public static Unit iterT<T, L>(OptionUnsafe<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<EitherUnsafe<L, U>> mapT<T, L, U>(OptionUnsafe<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, L>(OptionUnsafe<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static OptionUnsafe<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this OptionUnsafe<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
         public static Reader<Env, int> sumT<Env>(OptionUnsafe<Reader<Env, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -422,6 +833,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<T, Env>(OptionUnsafe<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static OptionUnsafe<Reader<Env, U>> mapT<T, Env, U>(OptionUnsafe<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Reader<Env, T> liftT<T, Env>(OptionUnsafe<Reader<Env, T>> self ) => self.ValueT();
+        public static OptionUnsafe<Reader<Env, V>> SelectMany<T, Env, U, V>(this OptionUnsafe<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
         public static Writer<Out, int> sumT<Out>(OptionUnsafe<Writer<Out, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -434,6 +846,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<T, Out>(OptionUnsafe<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static OptionUnsafe<Writer<Out, U>> mapT<T, Out, U>(OptionUnsafe<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Writer<Out, T> liftT<T, Out>(OptionUnsafe<Writer<Out, T>> self ) => self.ValueT();
+        public static OptionUnsafe<Writer<Out, V>> SelectMany<T, Out, U, V>(this OptionUnsafe<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
         public static State<State, int> sumT<State>(OptionUnsafe<State<State, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -446,6 +859,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<T, State>(OptionUnsafe<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static OptionUnsafe<State<State, U>> mapT<T, State, U>(OptionUnsafe<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static State<State, T> liftT<T, State>(OptionUnsafe<State<State, T>> self ) => self.ValueT();
+        public static OptionUnsafe<State<State, V>> SelectMany<T, State, U, V>(this OptionUnsafe<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT(Lst<IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -458,6 +872,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Lst<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<IEnumerable<U>> mapT<T, U>(Lst<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Lst<IEnumerable<T>> self ) => self.ValueT();
+        public static Lst<IEnumerable<V>> SelectMany<T, U, V>(this Lst<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT(Lst<Option<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -470,6 +885,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Lst<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<Option<U>> mapT<T, U>(Lst<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Lst<Option<T>> self ) => self.ValueT();
+        public static Lst<Option<V>> SelectMany<T, U, V>(this Lst<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT(Lst<OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -482,6 +898,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Lst<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<OptionUnsafe<U>> mapT<T, U>(Lst<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Lst<OptionUnsafe<T>> self ) => self.ValueT();
+        public static Lst<OptionUnsafe<V>> SelectMany<T, U, V>(this Lst<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT(Lst<Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -494,6 +911,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Lst<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<Lst<U>> mapT<T, U>(Lst<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Lst<Lst<T>> self ) => self.ValueT();
+        public static Lst<Lst<V>> SelectMany<T, U, V>(this Lst<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT<K>(Lst<Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -506,6 +924,7 @@ namespace LanguageExt
         public static Unit iterT<T, K>(Lst<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<Map<K, U>> mapT<T, K, U>(Lst<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, K>(Lst<Map<K, T>> self ) => self.ValueT();
+        public static Lst<Map<K, V>> SelectMany<T, K, U, V>(this Lst<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT(Lst<TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -518,6 +937,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Lst<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<TryOption<U>> mapT<T, U>(Lst<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Lst<TryOption<T>> self ) => self.ValueT();
+        public static Lst<TryOption<V>> SelectMany<T, U, V>(this Lst<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT(Lst<Try<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -530,6 +950,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Lst<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<Try<U>> mapT<T, U>(Lst<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Lst<Try<T>> self ) => self.ValueT();
+        public static Lst<Try<V>> SelectMany<T, U, V>(this Lst<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT<L>(Lst<Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -542,6 +963,7 @@ namespace LanguageExt
         public static Unit iterT<T, L>(Lst<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<Either<L, U>> mapT<T, L, U>(Lst<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, L>(Lst<Either<L, T>> self ) => self.ValueT();
+        public static Lst<Either<L, V>> SelectMany<T, L, U, V>(this Lst<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT<L>(Lst<EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -554,6 +976,7 @@ namespace LanguageExt
         public static Unit iterT<T, L>(Lst<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<EitherUnsafe<L, U>> mapT<T, L, U>(Lst<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, L>(Lst<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static Lst<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Lst<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static Reader<Env, int> sumT<Env>(Lst<Reader<Env, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -566,6 +989,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<T, Env>(Lst<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Lst<Reader<Env, U>> mapT<T, Env, U>(Lst<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Reader<Env, T> liftT<T, Env>(Lst<Reader<Env, T>> self ) => self.ValueT();
+        public static Lst<Reader<Env, V>> SelectMany<T, Env, U, V>(this Lst<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static Writer<Out, int> sumT<Out>(Lst<Writer<Out, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -578,6 +1002,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<T, Out>(Lst<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Lst<Writer<Out, U>> mapT<T, Out, U>(Lst<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Writer<Out, T> liftT<T, Out>(Lst<Writer<Out, T>> self ) => self.ValueT();
+        public static Lst<Writer<Out, V>> SelectMany<T, Out, U, V>(this Lst<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static State<State, int> sumT<State>(Lst<State<State, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -590,6 +1015,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<T, State>(Lst<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Lst<State<State, U>> mapT<T, State, U>(Lst<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static State<State, T> liftT<T, State>(Lst<State<State, T>> self ) => self.ValueT();
+        public static Lst<State<State, V>> SelectMany<T, State, U, V>(this Lst<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
         public static int sumT<K>(Map<K, IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -602,6 +1028,7 @@ namespace LanguageExt
         public static Unit iterT<K, T>(Map<K, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, IEnumerable<U>> mapT<K, T, U>(Map<K, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<K, T>(Map<K, IEnumerable<T>> self ) => self.ValueT();
+        public static Map<K, IEnumerable<V>> SelectMany<K, T, U, V>(this Map<K, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
         public static int sumT<K>(Map<K, Option<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -614,6 +1041,7 @@ namespace LanguageExt
         public static Unit iterT<K, T>(Map<K, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, Option<U>> mapT<K, T, U>(Map<K, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<K, T>(Map<K, Option<T>> self ) => self.ValueT();
+        public static Map<K, Option<V>> SelectMany<K, T, U, V>(this Map<K, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
         public static int sumT<K>(Map<K, OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -626,6 +1054,7 @@ namespace LanguageExt
         public static Unit iterT<K, T>(Map<K, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, OptionUnsafe<U>> mapT<K, T, U>(Map<K, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<K, T>(Map<K, OptionUnsafe<T>> self ) => self.ValueT();
+        public static Map<K, OptionUnsafe<V>> SelectMany<K, T, U, V>(this Map<K, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
         public static int sumT<K>(Map<K, Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -638,6 +1067,7 @@ namespace LanguageExt
         public static Unit iterT<K, T>(Map<K, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, Lst<U>> mapT<K, T, U>(Map<K, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<K, T>(Map<K, Lst<T>> self ) => self.ValueT();
+        public static Map<K, Lst<V>> SelectMany<K, T, U, V>(this Map<K, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
         public static int sumT<K>(Map<K, Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -650,6 +1080,7 @@ namespace LanguageExt
         public static Unit iterT<K, T>(Map<K, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, Map<K, U>> mapT<K, T, U>(Map<K, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<K, T>(Map<K, Map<K, T>> self ) => self.ValueT();
+        public static Map<K, Map<K, V>> SelectMany<K, T, U, V>(this Map<K, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
         public static int sumT<K>(Map<K, TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -662,6 +1093,7 @@ namespace LanguageExt
         public static Unit iterT<K, T>(Map<K, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, TryOption<U>> mapT<K, T, U>(Map<K, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<K, T>(Map<K, TryOption<T>> self ) => self.ValueT();
+        public static Map<K, TryOption<V>> SelectMany<K, T, U, V>(this Map<K, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
         public static int sumT<K>(Map<K, Try<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -674,6 +1106,7 @@ namespace LanguageExt
         public static Unit iterT<K, T>(Map<K, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, Try<U>> mapT<K, T, U>(Map<K, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<K, T>(Map<K, Try<T>> self ) => self.ValueT();
+        public static Map<K, Try<V>> SelectMany<K, T, U, V>(this Map<K, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
         public static int sumT<K, L>(Map<K, Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -686,6 +1119,7 @@ namespace LanguageExt
         public static Unit iterT<K, T, L>(Map<K, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, Either<L, U>> mapT<K, T, L, U>(Map<K, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<K, T, L>(Map<K, Either<L, T>> self ) => self.ValueT();
+        public static Map<K, Either<L, V>> SelectMany<K, T, L, U, V>(this Map<K, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
         public static int sumT<K, L>(Map<K, EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -698,6 +1132,7 @@ namespace LanguageExt
         public static Unit iterT<K, T, L>(Map<K, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, EitherUnsafe<L, U>> mapT<K, T, L, U>(Map<K, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<K, T, L>(Map<K, EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static Map<K, EitherUnsafe<L, V>> SelectMany<K, T, L, U, V>(this Map<K, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
         public static Reader<Env, int> sumT<K, Env>(Map<K, Reader<Env, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -710,6 +1145,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<K, T, Env>(Map<K, Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Map<K, Reader<Env, U>> mapT<K, T, Env, U>(Map<K, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Reader<Env, T> liftT<K, T, Env>(Map<K, Reader<Env, T>> self ) => self.ValueT();
+        public static Map<K, Reader<Env, V>> SelectMany<K, T, Env, U, V>(this Map<K, Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
         public static Writer<Out, int> sumT<K, Out>(Map<K, Writer<Out, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -722,6 +1158,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<K, T, Out>(Map<K, Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Map<K, Writer<Out, U>> mapT<K, T, Out, U>(Map<K, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Writer<Out, T> liftT<K, T, Out>(Map<K, Writer<Out, T>> self ) => self.ValueT();
+        public static Map<K, Writer<Out, V>> SelectMany<K, T, Out, U, V>(this Map<K, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
         public static State<State, int> sumT<K, State>(Map<K, State<State, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -734,6 +1171,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<K, T, State>(Map<K, State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Map<K, State<State, U>> mapT<K, T, State, U>(Map<K, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static State<State, T> liftT<K, T, State>(Map<K, State<State, T>> self ) => self.ValueT();
+        public static Map<K, State<State, V>> SelectMany<K, T, State, U, V>(this Map<K, State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
         public static int sumT(TryOption<IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -746,6 +1184,7 @@ namespace LanguageExt
         public static Unit iterT<T>(TryOption<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<IEnumerable<U>> mapT<T, U>(TryOption<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(TryOption<IEnumerable<T>> self ) => self.ValueT();
+        public static TryOption<IEnumerable<V>> SelectMany<T, U, V>(this TryOption<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
         public static int sumT(TryOption<Option<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -758,6 +1197,7 @@ namespace LanguageExt
         public static Unit iterT<T>(TryOption<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<Option<U>> mapT<T, U>(TryOption<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(TryOption<Option<T>> self ) => self.ValueT();
+        public static TryOption<Option<V>> SelectMany<T, U, V>(this TryOption<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
         public static int sumT(TryOption<OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -770,6 +1210,7 @@ namespace LanguageExt
         public static Unit iterT<T>(TryOption<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<OptionUnsafe<U>> mapT<T, U>(TryOption<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(TryOption<OptionUnsafe<T>> self ) => self.ValueT();
+        public static TryOption<OptionUnsafe<V>> SelectMany<T, U, V>(this TryOption<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
         public static int sumT(TryOption<Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -782,6 +1223,7 @@ namespace LanguageExt
         public static Unit iterT<T>(TryOption<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<Lst<U>> mapT<T, U>(TryOption<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(TryOption<Lst<T>> self ) => self.ValueT();
+        public static TryOption<Lst<V>> SelectMany<T, U, V>(this TryOption<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
         public static int sumT<K>(TryOption<Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -794,6 +1236,7 @@ namespace LanguageExt
         public static Unit iterT<T, K>(TryOption<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<Map<K, U>> mapT<T, K, U>(TryOption<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, K>(TryOption<Map<K, T>> self ) => self.ValueT();
+        public static TryOption<Map<K, V>> SelectMany<T, K, U, V>(this TryOption<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
         public static int sumT(TryOption<TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -806,6 +1249,7 @@ namespace LanguageExt
         public static Unit iterT<T>(TryOption<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<TryOption<U>> mapT<T, U>(TryOption<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(TryOption<TryOption<T>> self ) => self.ValueT();
+        public static TryOption<TryOption<V>> SelectMany<T, U, V>(this TryOption<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
         public static int sumT(TryOption<Try<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -818,6 +1262,7 @@ namespace LanguageExt
         public static Unit iterT<T>(TryOption<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<Try<U>> mapT<T, U>(TryOption<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(TryOption<Try<T>> self ) => self.ValueT();
+        public static TryOption<Try<V>> SelectMany<T, U, V>(this TryOption<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
         public static int sumT<L>(TryOption<Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -830,6 +1275,7 @@ namespace LanguageExt
         public static Unit iterT<T, L>(TryOption<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<Either<L, U>> mapT<T, L, U>(TryOption<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, L>(TryOption<Either<L, T>> self ) => self.ValueT();
+        public static TryOption<Either<L, V>> SelectMany<T, L, U, V>(this TryOption<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
         public static int sumT<L>(TryOption<EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -842,6 +1288,7 @@ namespace LanguageExt
         public static Unit iterT<T, L>(TryOption<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<EitherUnsafe<L, U>> mapT<T, L, U>(TryOption<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, L>(TryOption<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static TryOption<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this TryOption<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
         public static Reader<Env, int> sumT<Env>(TryOption<Reader<Env, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -854,6 +1301,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<T, Env>(TryOption<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static TryOption<Reader<Env, U>> mapT<T, Env, U>(TryOption<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Reader<Env, T> liftT<T, Env>(TryOption<Reader<Env, T>> self ) => self.ValueT();
+        public static TryOption<Reader<Env, V>> SelectMany<T, Env, U, V>(this TryOption<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
         public static Writer<Out, int> sumT<Out>(TryOption<Writer<Out, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -866,6 +1314,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<T, Out>(TryOption<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static TryOption<Writer<Out, U>> mapT<T, Out, U>(TryOption<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Writer<Out, T> liftT<T, Out>(TryOption<Writer<Out, T>> self ) => self.ValueT();
+        public static TryOption<Writer<Out, V>> SelectMany<T, Out, U, V>(this TryOption<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
         public static State<State, int> sumT<State>(TryOption<State<State, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -878,6 +1327,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<T, State>(TryOption<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static TryOption<State<State, U>> mapT<T, State, U>(TryOption<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static State<State, T> liftT<T, State>(TryOption<State<State, T>> self ) => self.ValueT();
+        public static TryOption<State<State, V>> SelectMany<T, State, U, V>(this TryOption<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
         public static int sumT(Try<IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -890,6 +1340,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Try<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<IEnumerable<U>> mapT<T, U>(Try<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Try<IEnumerable<T>> self ) => self.ValueT();
+        public static Try<IEnumerable<V>> SelectMany<T, U, V>(this Try<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
         public static int sumT(Try<Option<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -902,6 +1353,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Try<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<Option<U>> mapT<T, U>(Try<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Try<Option<T>> self ) => self.ValueT();
+        public static Try<Option<V>> SelectMany<T, U, V>(this Try<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
         public static int sumT(Try<OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -914,6 +1366,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Try<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<OptionUnsafe<U>> mapT<T, U>(Try<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Try<OptionUnsafe<T>> self ) => self.ValueT();
+        public static Try<OptionUnsafe<V>> SelectMany<T, U, V>(this Try<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
         public static int sumT(Try<Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -926,6 +1379,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Try<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<Lst<U>> mapT<T, U>(Try<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Try<Lst<T>> self ) => self.ValueT();
+        public static Try<Lst<V>> SelectMany<T, U, V>(this Try<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
         public static int sumT<K>(Try<Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -938,6 +1392,7 @@ namespace LanguageExt
         public static Unit iterT<T, K>(Try<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<Map<K, U>> mapT<T, K, U>(Try<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, K>(Try<Map<K, T>> self ) => self.ValueT();
+        public static Try<Map<K, V>> SelectMany<T, K, U, V>(this Try<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
         public static int sumT(Try<TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -950,6 +1405,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Try<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<TryOption<U>> mapT<T, U>(Try<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Try<TryOption<T>> self ) => self.ValueT();
+        public static Try<TryOption<V>> SelectMany<T, U, V>(this Try<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
         public static int sumT(Try<Try<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -962,6 +1418,7 @@ namespace LanguageExt
         public static Unit iterT<T>(Try<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<Try<U>> mapT<T, U>(Try<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T>(Try<Try<T>> self ) => self.ValueT();
+        public static Try<Try<V>> SelectMany<T, U, V>(this Try<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
         public static int sumT<L>(Try<Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -974,6 +1431,7 @@ namespace LanguageExt
         public static Unit iterT<T, L>(Try<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<Either<L, U>> mapT<T, L, U>(Try<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, L>(Try<Either<L, T>> self ) => self.ValueT();
+        public static Try<Either<L, V>> SelectMany<T, L, U, V>(this Try<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
         public static int sumT<L>(Try<EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -986,6 +1444,7 @@ namespace LanguageExt
         public static Unit iterT<T, L>(Try<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<EitherUnsafe<L, U>> mapT<T, L, U>(Try<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<T, L>(Try<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static Try<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Try<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
         public static Reader<Env, int> sumT<Env>(Try<Reader<Env, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -998,6 +1457,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<T, Env>(Try<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Try<Reader<Env, U>> mapT<T, Env, U>(Try<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Reader<Env, T> liftT<T, Env>(Try<Reader<Env, T>> self ) => self.ValueT();
+        public static Try<Reader<Env, V>> SelectMany<T, Env, U, V>(this Try<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
         public static Writer<Out, int> sumT<Out>(Try<Writer<Out, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1010,6 +1470,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<T, Out>(Try<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Try<Writer<Out, U>> mapT<T, Out, U>(Try<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Writer<Out, T> liftT<T, Out>(Try<Writer<Out, T>> self ) => self.ValueT();
+        public static Try<Writer<Out, V>> SelectMany<T, Out, U, V>(this Try<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
         public static State<State, int> sumT<State>(Try<State<State, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1022,6 +1483,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<T, State>(Try<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Try<State<State, U>> mapT<T, State, U>(Try<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static State<State, T> liftT<T, State>(Try<State<State, T>> self ) => self.ValueT();
+        public static Try<State<State, V>> SelectMany<T, State, U, V>(this Try<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
         public static int sumT<L>(Either<L, IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1034,6 +1496,7 @@ namespace LanguageExt
         public static Unit iterT<L, T>(Either<L, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, IEnumerable<U>> mapT<L, T, U>(Either<L, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T>(Either<L, IEnumerable<T>> self ) => self.ValueT();
+        public static Either<L, IEnumerable<V>> SelectMany<L, T, U, V>(this Either<L, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
         public static int sumT<L>(Either<L, Option<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1046,6 +1509,7 @@ namespace LanguageExt
         public static Unit iterT<L, T>(Either<L, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, Option<U>> mapT<L, T, U>(Either<L, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T>(Either<L, Option<T>> self ) => self.ValueT();
+        public static Either<L, Option<V>> SelectMany<L, T, U, V>(this Either<L, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
         public static int sumT<L>(Either<L, OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1058,6 +1522,7 @@ namespace LanguageExt
         public static Unit iterT<L, T>(Either<L, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, OptionUnsafe<U>> mapT<L, T, U>(Either<L, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T>(Either<L, OptionUnsafe<T>> self ) => self.ValueT();
+        public static Either<L, OptionUnsafe<V>> SelectMany<L, T, U, V>(this Either<L, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
         public static int sumT<L>(Either<L, Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1070,6 +1535,7 @@ namespace LanguageExt
         public static Unit iterT<L, T>(Either<L, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, Lst<U>> mapT<L, T, U>(Either<L, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T>(Either<L, Lst<T>> self ) => self.ValueT();
+        public static Either<L, Lst<V>> SelectMany<L, T, U, V>(this Either<L, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
         public static int sumT<L, K>(Either<L, Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1082,6 +1548,7 @@ namespace LanguageExt
         public static Unit iterT<L, T, K>(Either<L, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, Map<K, U>> mapT<L, T, K, U>(Either<L, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T, K>(Either<L, Map<K, T>> self ) => self.ValueT();
+        public static Either<L, Map<K, V>> SelectMany<L, T, K, U, V>(this Either<L, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
         public static int sumT<L>(Either<L, TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1094,6 +1561,7 @@ namespace LanguageExt
         public static Unit iterT<L, T>(Either<L, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, TryOption<U>> mapT<L, T, U>(Either<L, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T>(Either<L, TryOption<T>> self ) => self.ValueT();
+        public static Either<L, TryOption<V>> SelectMany<L, T, U, V>(this Either<L, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
         public static int sumT<L>(Either<L, Try<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1106,6 +1574,7 @@ namespace LanguageExt
         public static Unit iterT<L, T>(Either<L, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, Try<U>> mapT<L, T, U>(Either<L, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T>(Either<L, Try<T>> self ) => self.ValueT();
+        public static Either<L, Try<V>> SelectMany<L, T, U, V>(this Either<L, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
         public static int sumT<L>(Either<L, Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1118,6 +1587,7 @@ namespace LanguageExt
         public static Unit iterT<L, T>(Either<L, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, Either<L, U>> mapT<L, T, U>(Either<L, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T>(Either<L, Either<L, T>> self ) => self.ValueT();
+        public static Either<L, Either<L, V>> SelectMany<L, T, U, V>(this Either<L, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
         public static int sumT<L>(Either<L, EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1130,6 +1600,7 @@ namespace LanguageExt
         public static Unit iterT<L, T>(Either<L, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, EitherUnsafe<L, U>> mapT<L, T, U>(Either<L, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T>(Either<L, EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static Either<L, EitherUnsafe<L, V>> SelectMany<L, T, U, V>(this Either<L, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
         public static Reader<Env, int> sumT<L, Env>(Either<L, Reader<Env, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1142,6 +1613,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<L, T, Env>(Either<L, Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Either<L, Reader<Env, U>> mapT<L, T, Env, U>(Either<L, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Reader<Env, T> liftT<L, T, Env>(Either<L, Reader<Env, T>> self ) => self.ValueT();
+        public static Either<L, Reader<Env, V>> SelectMany<L, T, Env, U, V>(this Either<L, Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
         public static Writer<Out, int> sumT<L, Out>(Either<L, Writer<Out, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1154,6 +1626,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<L, T, Out>(Either<L, Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Either<L, Writer<Out, U>> mapT<L, T, Out, U>(Either<L, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Writer<Out, T> liftT<L, T, Out>(Either<L, Writer<Out, T>> self ) => self.ValueT();
+        public static Either<L, Writer<Out, V>> SelectMany<L, T, Out, U, V>(this Either<L, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
         public static State<State, int> sumT<L, State>(Either<L, State<State, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1166,6 +1639,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<L, T, State>(Either<L, State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Either<L, State<State, U>> mapT<L, T, State, U>(Either<L, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static State<State, T> liftT<L, T, State>(Either<L, State<State, T>> self ) => self.ValueT();
+        public static Either<L, State<State, V>> SelectMany<L, T, State, U, V>(this Either<L, State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
         public static int sumT<L>(EitherUnsafe<L, IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1178,6 +1652,7 @@ namespace LanguageExt
         public static Unit iterT<L, T>(EitherUnsafe<L, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, IEnumerable<U>> mapT<L, T, U>(EitherUnsafe<L, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T>(EitherUnsafe<L, IEnumerable<T>> self ) => self.ValueT();
+        public static EitherUnsafe<L, IEnumerable<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
         public static int sumT<L>(EitherUnsafe<L, Option<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1190,6 +1665,7 @@ namespace LanguageExt
         public static Unit iterT<L, T>(EitherUnsafe<L, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, Option<U>> mapT<L, T, U>(EitherUnsafe<L, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T>(EitherUnsafe<L, Option<T>> self ) => self.ValueT();
+        public static EitherUnsafe<L, Option<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
         public static int sumT<L>(EitherUnsafe<L, OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1202,6 +1678,7 @@ namespace LanguageExt
         public static Unit iterT<L, T>(EitherUnsafe<L, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, OptionUnsafe<U>> mapT<L, T, U>(EitherUnsafe<L, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T>(EitherUnsafe<L, OptionUnsafe<T>> self ) => self.ValueT();
+        public static EitherUnsafe<L, OptionUnsafe<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
         public static int sumT<L>(EitherUnsafe<L, Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1214,6 +1691,7 @@ namespace LanguageExt
         public static Unit iterT<L, T>(EitherUnsafe<L, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, Lst<U>> mapT<L, T, U>(EitherUnsafe<L, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T>(EitherUnsafe<L, Lst<T>> self ) => self.ValueT();
+        public static EitherUnsafe<L, Lst<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
         public static int sumT<L, K>(EitherUnsafe<L, Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1226,6 +1704,7 @@ namespace LanguageExt
         public static Unit iterT<L, T, K>(EitherUnsafe<L, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, Map<K, U>> mapT<L, T, K, U>(EitherUnsafe<L, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T, K>(EitherUnsafe<L, Map<K, T>> self ) => self.ValueT();
+        public static EitherUnsafe<L, Map<K, V>> SelectMany<L, T, K, U, V>(this EitherUnsafe<L, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
         public static int sumT<L>(EitherUnsafe<L, TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1238,6 +1717,7 @@ namespace LanguageExt
         public static Unit iterT<L, T>(EitherUnsafe<L, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, TryOption<U>> mapT<L, T, U>(EitherUnsafe<L, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T>(EitherUnsafe<L, TryOption<T>> self ) => self.ValueT();
+        public static EitherUnsafe<L, TryOption<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
         public static int sumT<L>(EitherUnsafe<L, Try<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1250,6 +1730,7 @@ namespace LanguageExt
         public static Unit iterT<L, T>(EitherUnsafe<L, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, Try<U>> mapT<L, T, U>(EitherUnsafe<L, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T>(EitherUnsafe<L, Try<T>> self ) => self.ValueT();
+        public static EitherUnsafe<L, Try<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
         public static int sumT<L>(EitherUnsafe<L, Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1262,6 +1743,7 @@ namespace LanguageExt
         public static Unit iterT<L, T>(EitherUnsafe<L, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, Either<L, U>> mapT<L, T, U>(EitherUnsafe<L, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T>(EitherUnsafe<L, Either<L, T>> self ) => self.ValueT();
+        public static EitherUnsafe<L, Either<L, V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
         public static int sumT<L>(EitherUnsafe<L, EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1274,6 +1756,7 @@ namespace LanguageExt
         public static Unit iterT<L, T>(EitherUnsafe<L, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, EitherUnsafe<L, U>> mapT<L, T, U>(EitherUnsafe<L, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<L, T>(EitherUnsafe<L, EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static EitherUnsafe<L, EitherUnsafe<L, V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
         public static Reader<Env, int> sumT<L, Env>(EitherUnsafe<L, Reader<Env, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1286,6 +1769,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<L, T, Env>(EitherUnsafe<L, Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static EitherUnsafe<L, Reader<Env, U>> mapT<L, T, Env, U>(EitherUnsafe<L, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Reader<Env, T> liftT<L, T, Env>(EitherUnsafe<L, Reader<Env, T>> self ) => self.ValueT();
+        public static EitherUnsafe<L, Reader<Env, V>> SelectMany<L, T, Env, U, V>(this EitherUnsafe<L, Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
         public static Writer<Out, int> sumT<L, Out>(EitherUnsafe<L, Writer<Out, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1298,6 +1782,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<L, T, Out>(EitherUnsafe<L, Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static EitherUnsafe<L, Writer<Out, U>> mapT<L, T, Out, U>(EitherUnsafe<L, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Writer<Out, T> liftT<L, T, Out>(EitherUnsafe<L, Writer<Out, T>> self ) => self.ValueT();
+        public static EitherUnsafe<L, Writer<Out, V>> SelectMany<L, T, Out, U, V>(this EitherUnsafe<L, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
         public static State<State, int> sumT<L, State>(EitherUnsafe<L, State<State, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1310,6 +1795,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<L, T, State>(EitherUnsafe<L, State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static EitherUnsafe<L, State<State, U>> mapT<L, T, State, U>(EitherUnsafe<L, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static State<State, T> liftT<L, T, State>(EitherUnsafe<L, State<State, T>> self ) => self.ValueT();
+        public static EitherUnsafe<L, State<State, V>> SelectMany<L, T, State, U, V>(this EitherUnsafe<L, State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
         public static Reader<Env, int> sumT<Env>(Reader<Env, IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1322,6 +1808,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<Env, T>(Reader<Env, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, IEnumerable<U>> mapT<Env, T, U>(Reader<Env, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Env, T>(Reader<Env, IEnumerable<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static Reader<Env, IEnumerable<V>> SelectMany<Env, T, U, V>(this Reader<Env, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
         public static Reader<Env, int> sumT<Env>(Reader<Env, Option<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1334,6 +1821,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<Env, T>(Reader<Env, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, Option<U>> mapT<Env, T, U>(Reader<Env, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Env, T>(Reader<Env, Option<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static Reader<Env, Option<V>> SelectMany<Env, T, U, V>(this Reader<Env, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
         public static Reader<Env, int> sumT<Env>(Reader<Env, OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1346,6 +1834,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<Env, T>(Reader<Env, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, OptionUnsafe<U>> mapT<Env, T, U>(Reader<Env, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Env, T>(Reader<Env, OptionUnsafe<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static Reader<Env, OptionUnsafe<V>> SelectMany<Env, T, U, V>(this Reader<Env, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
         public static Reader<Env, int> sumT<Env>(Reader<Env, Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1358,6 +1847,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<Env, T>(Reader<Env, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, Lst<U>> mapT<Env, T, U>(Reader<Env, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Env, T>(Reader<Env, Lst<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static Reader<Env, Lst<V>> SelectMany<Env, T, U, V>(this Reader<Env, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
         public static Reader<Env, int> sumT<Env, K>(Reader<Env, Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1370,6 +1860,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<Env, T, K>(Reader<Env, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, Map<K, U>> mapT<Env, T, K, U>(Reader<Env, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Env, T, K>(Reader<Env, Map<K, T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static Reader<Env, Map<K, V>> SelectMany<Env, T, K, U, V>(this Reader<Env, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
         public static Reader<Env, int> sumT<Env>(Reader<Env, TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1382,6 +1873,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<Env, T>(Reader<Env, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, TryOption<U>> mapT<Env, T, U>(Reader<Env, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Env, T>(Reader<Env, TryOption<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static Reader<Env, TryOption<V>> SelectMany<Env, T, U, V>(this Reader<Env, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
         public static Reader<Env, int> sumT<Env>(Reader<Env, Try<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1394,6 +1886,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<Env, T>(Reader<Env, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, Try<U>> mapT<Env, T, U>(Reader<Env, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Env, T>(Reader<Env, Try<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static Reader<Env, Try<V>> SelectMany<Env, T, U, V>(this Reader<Env, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
         public static Reader<Env, int> sumT<Env, L>(Reader<Env, Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1406,6 +1899,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<Env, T, L>(Reader<Env, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, Either<L, U>> mapT<Env, T, L, U>(Reader<Env, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Env, T, L>(Reader<Env, Either<L, T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static Reader<Env, Either<L, V>> SelectMany<Env, T, L, U, V>(this Reader<Env, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
         public static Reader<Env, int> sumT<Env, L>(Reader<Env, EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1418,6 +1912,7 @@ namespace LanguageExt
         public static Reader<Env, Unit> iterT<Env, T, L>(Reader<Env, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, EitherUnsafe<L, U>> mapT<Env, T, L, U>(Reader<Env, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Env, T, L>(Reader<Env, EitherUnsafe<L, T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static Reader<Env, EitherUnsafe<L, V>> SelectMany<Env, T, L, U, V>(this Reader<Env, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
         public static Reader<Env, Reader<Env, int>> sumT<Env>(Reader<Env, Reader<Env, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1430,6 +1925,7 @@ namespace LanguageExt
         public static Reader<Env, Reader<Env, Unit>> iterT<Env, T>(Reader<Env, Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Reader<Env, Reader<Env, U>> mapT<Env, T, U>(Reader<Env, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Reader<Env, T> liftT<Env, T>(Reader<Env, Reader<Env, T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static Reader<Env, Reader<Env, V>> SelectMany<Env, T, U, V>(this Reader<Env, Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
         public static Writer<Out, int> sumT<Out>(Writer<Out, IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1442,6 +1938,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<Out, T>(Writer<Out, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, IEnumerable<U>> mapT<Out, T, U>(Writer<Out, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Out, T>(Writer<Out, IEnumerable<T>> self ) => self.ValueT()().Value;
+        public static Writer<Out, IEnumerable<V>> SelectMany<Out, T, U, V>(this Writer<Out, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
         public static Writer<Out, int> sumT<Out>(Writer<Out, Option<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1454,6 +1951,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<Out, T>(Writer<Out, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, Option<U>> mapT<Out, T, U>(Writer<Out, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Out, T>(Writer<Out, Option<T>> self ) => self.ValueT()().Value;
+        public static Writer<Out, Option<V>> SelectMany<Out, T, U, V>(this Writer<Out, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
         public static Writer<Out, int> sumT<Out>(Writer<Out, OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1466,6 +1964,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<Out, T>(Writer<Out, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, OptionUnsafe<U>> mapT<Out, T, U>(Writer<Out, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Out, T>(Writer<Out, OptionUnsafe<T>> self ) => self.ValueT()().Value;
+        public static Writer<Out, OptionUnsafe<V>> SelectMany<Out, T, U, V>(this Writer<Out, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
         public static Writer<Out, int> sumT<Out>(Writer<Out, Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1478,6 +1977,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<Out, T>(Writer<Out, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, Lst<U>> mapT<Out, T, U>(Writer<Out, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Out, T>(Writer<Out, Lst<T>> self ) => self.ValueT()().Value;
+        public static Writer<Out, Lst<V>> SelectMany<Out, T, U, V>(this Writer<Out, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
         public static Writer<Out, int> sumT<Out, K>(Writer<Out, Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1490,6 +1990,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<Out, T, K>(Writer<Out, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, Map<K, U>> mapT<Out, T, K, U>(Writer<Out, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Out, T, K>(Writer<Out, Map<K, T>> self ) => self.ValueT()().Value;
+        public static Writer<Out, Map<K, V>> SelectMany<Out, T, K, U, V>(this Writer<Out, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
         public static Writer<Out, int> sumT<Out>(Writer<Out, TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1502,6 +2003,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<Out, T>(Writer<Out, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, TryOption<U>> mapT<Out, T, U>(Writer<Out, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Out, T>(Writer<Out, TryOption<T>> self ) => self.ValueT()().Value;
+        public static Writer<Out, TryOption<V>> SelectMany<Out, T, U, V>(this Writer<Out, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
         public static Writer<Out, int> sumT<Out>(Writer<Out, Try<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1514,6 +2016,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<Out, T>(Writer<Out, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, Try<U>> mapT<Out, T, U>(Writer<Out, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Out, T>(Writer<Out, Try<T>> self ) => self.ValueT()().Value;
+        public static Writer<Out, Try<V>> SelectMany<Out, T, U, V>(this Writer<Out, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
         public static Writer<Out, int> sumT<Out, L>(Writer<Out, Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1526,6 +2029,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<Out, T, L>(Writer<Out, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, Either<L, U>> mapT<Out, T, L, U>(Writer<Out, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Out, T, L>(Writer<Out, Either<L, T>> self ) => self.ValueT()().Value;
+        public static Writer<Out, Either<L, V>> SelectMany<Out, T, L, U, V>(this Writer<Out, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
         public static Writer<Out, int> sumT<Out, L>(Writer<Out, EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1538,6 +2042,7 @@ namespace LanguageExt
         public static Writer<Out, Unit> iterT<Out, T, L>(Writer<Out, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, EitherUnsafe<L, U>> mapT<Out, T, L, U>(Writer<Out, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<Out, T, L>(Writer<Out, EitherUnsafe<L, T>> self ) => self.ValueT()().Value;
+        public static Writer<Out, EitherUnsafe<L, V>> SelectMany<Out, T, L, U, V>(this Writer<Out, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
         public static Writer<Out, Writer<Out, int>> sumT<Out>(Writer<Out, Writer<Out, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1550,6 +2055,7 @@ namespace LanguageExt
         public static Writer<Out, Writer<Out, Unit>> iterT<Out, T>(Writer<Out, Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Writer<Out, Writer<Out, U>> mapT<Out, T, U>(Writer<Out, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static Writer<Out, T> liftT<Out, T>(Writer<Out, Writer<Out, T>> self ) => self.ValueT()().Value;
+        public static Writer<Out, Writer<Out, V>> SelectMany<Out, T, U, V>(this Writer<Out, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
         public static State<State, int> sumT<State>(State<State, IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1562,6 +2068,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<State, T>(State<State, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, IEnumerable<U>> mapT<State, T, U>(State<State, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<State, T>(State<State, IEnumerable<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static State<State, IEnumerable<V>> SelectMany<State, T, U, V>(this State<State, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
         public static State<State, int> sumT<State>(State<State, Option<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1574,6 +2081,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<State, T>(State<State, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, Option<U>> mapT<State, T, U>(State<State, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<State, T>(State<State, Option<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static State<State, Option<V>> SelectMany<State, T, U, V>(this State<State, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
         public static State<State, int> sumT<State>(State<State, OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1586,6 +2094,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<State, T>(State<State, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, OptionUnsafe<U>> mapT<State, T, U>(State<State, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<State, T>(State<State, OptionUnsafe<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static State<State, OptionUnsafe<V>> SelectMany<State, T, U, V>(this State<State, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
         public static State<State, int> sumT<State>(State<State, Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1598,6 +2107,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<State, T>(State<State, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, Lst<U>> mapT<State, T, U>(State<State, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<State, T>(State<State, Lst<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static State<State, Lst<V>> SelectMany<State, T, U, V>(this State<State, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
         public static State<State, int> sumT<State, K>(State<State, Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1610,6 +2120,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<State, T, K>(State<State, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, Map<K, U>> mapT<State, T, K, U>(State<State, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<State, T, K>(State<State, Map<K, T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static State<State, Map<K, V>> SelectMany<State, T, K, U, V>(this State<State, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
         public static State<State, int> sumT<State>(State<State, TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1622,6 +2133,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<State, T>(State<State, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, TryOption<U>> mapT<State, T, U>(State<State, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<State, T>(State<State, TryOption<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static State<State, TryOption<V>> SelectMany<State, T, U, V>(this State<State, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
         public static State<State, int> sumT<State>(State<State, Try<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1634,6 +2146,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<State, T>(State<State, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, Try<U>> mapT<State, T, U>(State<State, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<State, T>(State<State, Try<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static State<State, Try<V>> SelectMany<State, T, U, V>(this State<State, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
         public static State<State, int> sumT<State, L>(State<State, Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1646,6 +2159,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<State, T, L>(State<State, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, Either<L, U>> mapT<State, T, L, U>(State<State, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<State, T, L>(State<State, Either<L, T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static State<State, Either<L, V>> SelectMany<State, T, L, U, V>(this State<State, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
         public static State<State, int> sumT<State, L>(State<State, EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1658,6 +2172,7 @@ namespace LanguageExt
         public static State<State, Unit> iterT<State, T, L>(State<State, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, EitherUnsafe<L, U>> mapT<State, T, L, U>(State<State, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static T liftT<State, T, L>(State<State, EitherUnsafe<L, T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static State<State, EitherUnsafe<L, V>> SelectMany<State, T, L, U, V>(this State<State, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
         public static State<State, State<State, int>> sumT<State>(State<State, State<State, int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1670,6 +2185,7 @@ namespace LanguageExt
         public static State<State, State<State, Unit>> iterT<State, T>(State<State, State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static State<State, State<State, U>> mapT<State, T, U>(State<State, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         public static State<State, T> liftT<State, T>(State<State, State<State, T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static State<State, State<State, V>> SelectMany<State, T, U, V>(this State<State, State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
 }
 
@@ -3631,889 +4147,751 @@ namespace LanguageExt.Trans
         public static partial class ListMonad {
             internal static IEnumerable<U> Select<T, U>(this IEnumerable<T> self, Func<T, U> mapper) => self.Map(mapper);
             internal static IEnumerable<T> Where<T>(this IEnumerable<T> self, Func<T, bool> pred) => self.Filter(pred);
-            internal static IEnumerable<V> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, U> bind, Func<T,U,V> project) => self.Select(x => project(x, bind(x)));
+            internal static IEnumerable<V> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));
         }
         public static partial class OptionMonad {
             internal static Option<U> Select<T, U>(this Option<T> self, Func<T, U> mapper) => self.Map(mapper);
             internal static Option<T> Where<T>(this Option<T> self, Func<T, bool> pred) => self.Filter(pred);
-            internal static Option<V> SelectMany<T, U, V>(this Option<T> self, Func<T, U> bind, Func<T,U,V> project) => self.Select(x => project(x, bind(x)));
+            internal static Option<V> SelectMany<T, U, V>(this Option<T> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));
         }
         public static partial class OptionUnsafeMonad {
             internal static OptionUnsafe<U> Select<T, U>(this OptionUnsafe<T> self, Func<T, U> mapper) => self.Map(mapper);
             internal static OptionUnsafe<T> Where<T>(this OptionUnsafe<T> self, Func<T, bool> pred) => self.Filter(pred);
-            internal static OptionUnsafe<V> SelectMany<T, U, V>(this OptionUnsafe<T> self, Func<T, U> bind, Func<T,U,V> project) => self.Select(x => project(x, bind(x)));
+            internal static OptionUnsafe<V> SelectMany<T, U, V>(this OptionUnsafe<T> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));
         }
         public static partial class ListMonad {
             internal static Lst<U> Select<T, U>(this Lst<T> self, Func<T, U> mapper) => self.Map(mapper);
             internal static Lst<T> Where<T>(this Lst<T> self, Func<T, bool> pred) => self.Filter(pred);
-            internal static Lst<V> SelectMany<T, U, V>(this Lst<T> self, Func<T, U> bind, Func<T,U,V> project) => self.Select(x => project(x, bind(x)));
+            internal static Lst<V> SelectMany<T, U, V>(this Lst<T> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));
         }
         public static partial class MapMonad {
             internal static Map<K, U> Select<K, T, U>(this Map<K, T> self, Func<T, U> mapper) => self.Map(mapper);
             internal static Map<K, T> Where<K, T>(this Map<K, T> self, Func<T, bool> pred) => self.Filter(pred);
-            internal static Map<K, V> SelectMany<K, T, U, V>(this Map<K, T> self, Func<T, U> bind, Func<T,U,V> project) => self.Select(x => project(x, bind(x)));
+            internal static Map<K, V> SelectMany<K, T, U, V>(this Map<K, T> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));
         }
         public static partial class TryOptionMonad {
             internal static TryOption<U> Select<T, U>(this TryOption<T> self, Func<T, U> mapper) => self.Map(mapper);
             internal static TryOption<T> Where<T>(this TryOption<T> self, Func<T, bool> pred) => self.Filter(pred);
-            internal static TryOption<V> SelectMany<T, U, V>(this TryOption<T> self, Func<T, U> bind, Func<T,U,V> project) => self.Select(x => project(x, bind(x)));
+            internal static TryOption<V> SelectMany<T, U, V>(this TryOption<T> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));
         }
         public static partial class TryMonad {
             internal static Try<U> Select<T, U>(this Try<T> self, Func<T, U> mapper) => self.Map(mapper);
             internal static Try<T> Where<T>(this Try<T> self, Func<T, bool> pred) => self.Filter(pred);
-            internal static Try<V> SelectMany<T, U, V>(this Try<T> self, Func<T, U> bind, Func<T,U,V> project) => self.Select(x => project(x, bind(x)));
+            internal static Try<V> SelectMany<T, U, V>(this Try<T> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));
         }
         public static partial class EitherMonad {
             internal static Either<L, U> Select<L, T, U>(this Either<L, T> self, Func<T, U> mapper) => self.Map(mapper);
             internal static Either<L, T> Where<L, T>(this Either<L, T> self, Func<T, bool> pred) => self.Filter(pred);
-            internal static Either<L, V> SelectMany<L, T, U, V>(this Either<L, T> self, Func<T, U> bind, Func<T,U,V> project) => self.Select(x => project(x, bind(x)));
+            internal static Either<L, V> SelectMany<L, T, U, V>(this Either<L, T> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));
         }
         public static partial class EitherUnsafeMonad {
             internal static EitherUnsafe<L, U> Select<L, T, U>(this EitherUnsafe<L, T> self, Func<T, U> mapper) => self.Map(mapper);
             internal static EitherUnsafe<L, T> Where<L, T>(this EitherUnsafe<L, T> self, Func<T, bool> pred) => self.Filter(pred);
-            internal static EitherUnsafe<L, V> SelectMany<L, T, U, V>(this EitherUnsafe<L, T> self, Func<T, U> bind, Func<T,U,V> project) => self.Select(x => project(x, bind(x)));
+            internal static EitherUnsafe<L, V> SelectMany<L, T, U, V>(this EitherUnsafe<L, T> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));
         }
         public static partial class ReaderMonad {
             internal static Reader<Env, U> Select<Env, T, U>(this Reader<Env, T> self, Func<T, U> mapper) => self.Map(mapper);
             internal static Reader<Env, T> Where<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) => self.Filter(pred);
-            internal static Reader<Env, V> SelectMany<Env, T, U, V>(this Reader<Env, T> self, Func<T, U> bind, Func<T,U,V> project) => self.Select(x => project(x, bind(x)));
+            internal static Reader<Env, V> SelectMany<Env, T, U, V>(this Reader<Env, T> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));
         }
         public static partial class WriterMonad {
             internal static Writer<Out, U> Select<Out, T, U>(this Writer<Out, T> self, Func<T, U> mapper) => self.Map(mapper);
             internal static Writer<Out, T> Where<Out, T>(this Writer<Out, T> self, Func<T, bool> pred) => self.Filter(pred);
-            internal static Writer<Out, V> SelectMany<Out, T, U, V>(this Writer<Out, T> self, Func<T, U> bind, Func<T,U,V> project) => self.Select(x => project(x, bind(x)));
+            internal static Writer<Out, V> SelectMany<Out, T, U, V>(this Writer<Out, T> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));
         }
         public static partial class StateMonad {
             internal static State<State, U> Select<State, T, U>(this State<State, T> self, Func<T, U> mapper) => self.Map(mapper);
             internal static State<State, T> Where<State, T>(this State<State, T> self, Func<T, bool> pred) => self.Filter(pred);
-            internal static State<State, V> SelectMany<State, T, U, V>(this State<State, T> self, Func<T, U> bind, Func<T,U,V> project) => self.Select(x => project(x, bind(x)));
+            internal static State<State, V> SelectMany<State, T, U, V>(this State<State, T> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));
         }
         public static partial class ListTMonad {
             public static IEnumerable<IEnumerable<U>> Select<T, U>(this IEnumerable<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static IEnumerable<IEnumerable<T>> Where<T>(this IEnumerable<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static IEnumerable<IEnumerable<V>> SelectMany<T, U, V>(this IEnumerable<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static IEnumerable<IEnumerable<V>> SelectMany<T, U, V>(this IEnumerable<IEnumerable<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static IEnumerable<Option<U>> Select<T, U>(this IEnumerable<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static IEnumerable<Option<T>> Where<T>(this IEnumerable<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static IEnumerable<Option<V>> SelectMany<T, U, V>(this IEnumerable<Option<T>> self, Func<T, Option<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static IEnumerable<Option<V>> SelectMany<T, U, V>(this IEnumerable<Option<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static IEnumerable<OptionUnsafe<U>> Select<T, U>(this IEnumerable<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static IEnumerable<OptionUnsafe<T>> Where<T>(this IEnumerable<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static IEnumerable<OptionUnsafe<V>> SelectMany<T, U, V>(this IEnumerable<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static IEnumerable<OptionUnsafe<V>> SelectMany<T, U, V>(this IEnumerable<OptionUnsafe<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static IEnumerable<Lst<U>> Select<T, U>(this IEnumerable<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static IEnumerable<Lst<T>> Where<T>(this IEnumerable<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static IEnumerable<Lst<V>> SelectMany<T, U, V>(this IEnumerable<Lst<T>> self, Func<T, Lst<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static IEnumerable<Lst<V>> SelectMany<T, U, V>(this IEnumerable<Lst<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static IEnumerable<Map<K, U>> Select<T, K, U>(this IEnumerable<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static IEnumerable<Map<K, T>> Where<T, K>(this IEnumerable<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static IEnumerable<Map<K, V>> SelectMany<T, K, U, V>(this IEnumerable<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static IEnumerable<Map<K, V>> SelectMany<T, K, U, V>(this IEnumerable<Map<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static IEnumerable<TryOption<U>> Select<T, U>(this IEnumerable<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static IEnumerable<TryOption<T>> Where<T>(this IEnumerable<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static IEnumerable<TryOption<V>> SelectMany<T, U, V>(this IEnumerable<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static IEnumerable<TryOption<V>> SelectMany<T, U, V>(this IEnumerable<TryOption<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static IEnumerable<Try<U>> Select<T, U>(this IEnumerable<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static IEnumerable<Try<T>> Where<T>(this IEnumerable<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static IEnumerable<Try<V>> SelectMany<T, U, V>(this IEnumerable<Try<T>> self, Func<T, Try<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static IEnumerable<Try<V>> SelectMany<T, U, V>(this IEnumerable<Try<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static IEnumerable<Either<L, U>> Select<T, L, U>(this IEnumerable<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static IEnumerable<Either<L, T>> Where<T, L>(this IEnumerable<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static IEnumerable<Either<L, V>> SelectMany<T, L, U, V>(this IEnumerable<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static IEnumerable<Either<L, V>> SelectMany<T, L, U, V>(this IEnumerable<Either<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static IEnumerable<EitherUnsafe<L, U>> Select<T, L, U>(this IEnumerable<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static IEnumerable<EitherUnsafe<L, T>> Where<T, L>(this IEnumerable<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static IEnumerable<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this IEnumerable<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static IEnumerable<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this IEnumerable<EitherUnsafe<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static IEnumerable<Reader<Env, U>> Select<T, Env, U>(this IEnumerable<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static IEnumerable<Reader<Env, T>> Where<T, Env>(this IEnumerable<Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static IEnumerable<Reader<Env, V>> SelectMany<T, Env, U, V>(this IEnumerable<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static IEnumerable<Reader<Env, V>> SelectMany<T, Env, U, V>(this IEnumerable<Reader<Env, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static IEnumerable<Writer<Out, U>> Select<T, Out, U>(this IEnumerable<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static IEnumerable<Writer<Out, T>> Where<T, Out>(this IEnumerable<Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static IEnumerable<Writer<Out, V>> SelectMany<T, Out, U, V>(this IEnumerable<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static IEnumerable<Writer<Out, V>> SelectMany<T, Out, U, V>(this IEnumerable<Writer<Out, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static IEnumerable<State<State, U>> Select<T, State, U>(this IEnumerable<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static IEnumerable<State<State, T>> Where<T, State>(this IEnumerable<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static IEnumerable<State<State, V>> SelectMany<T, State, U, V>(this IEnumerable<State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static IEnumerable<State<State, V>> SelectMany<T, State, U, V>(this IEnumerable<State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionTMonad {
             public static Option<IEnumerable<U>> Select<T, U>(this Option<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Option<IEnumerable<T>> Where<T>(this Option<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Option<IEnumerable<V>> SelectMany<T, U, V>(this Option<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Option<IEnumerable<V>> SelectMany<T, U, V>(this Option<IEnumerable<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionTMonad {
             public static Option<Option<U>> Select<T, U>(this Option<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Option<Option<T>> Where<T>(this Option<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Option<Option<V>> SelectMany<T, U, V>(this Option<Option<T>> self, Func<T, Option<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Option<Option<V>> SelectMany<T, U, V>(this Option<Option<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionTMonad {
             public static Option<OptionUnsafe<U>> Select<T, U>(this Option<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Option<OptionUnsafe<T>> Where<T>(this Option<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Option<OptionUnsafe<V>> SelectMany<T, U, V>(this Option<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Option<OptionUnsafe<V>> SelectMany<T, U, V>(this Option<OptionUnsafe<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionTMonad {
             public static Option<Lst<U>> Select<T, U>(this Option<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Option<Lst<T>> Where<T>(this Option<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Option<Lst<V>> SelectMany<T, U, V>(this Option<Lst<T>> self, Func<T, Lst<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Option<Lst<V>> SelectMany<T, U, V>(this Option<Lst<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionTMonad {
             public static Option<Map<K, U>> Select<T, K, U>(this Option<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Option<Map<K, T>> Where<T, K>(this Option<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Option<Map<K, V>> SelectMany<T, K, U, V>(this Option<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Option<Map<K, V>> SelectMany<T, K, U, V>(this Option<Map<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionTMonad {
             public static Option<TryOption<U>> Select<T, U>(this Option<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Option<TryOption<T>> Where<T>(this Option<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Option<TryOption<V>> SelectMany<T, U, V>(this Option<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Option<TryOption<V>> SelectMany<T, U, V>(this Option<TryOption<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionTMonad {
             public static Option<Try<U>> Select<T, U>(this Option<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Option<Try<T>> Where<T>(this Option<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Option<Try<V>> SelectMany<T, U, V>(this Option<Try<T>> self, Func<T, Try<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Option<Try<V>> SelectMany<T, U, V>(this Option<Try<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionTMonad {
             public static Option<Either<L, U>> Select<T, L, U>(this Option<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Option<Either<L, T>> Where<T, L>(this Option<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Option<Either<L, V>> SelectMany<T, L, U, V>(this Option<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Option<Either<L, V>> SelectMany<T, L, U, V>(this Option<Either<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionTMonad {
             public static Option<EitherUnsafe<L, U>> Select<T, L, U>(this Option<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Option<EitherUnsafe<L, T>> Where<T, L>(this Option<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Option<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Option<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Option<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Option<EitherUnsafe<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionTMonad {
             public static Option<Reader<Env, U>> Select<T, Env, U>(this Option<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Option<Reader<Env, T>> Where<T, Env>(this Option<Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Option<Reader<Env, V>> SelectMany<T, Env, U, V>(this Option<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Option<Reader<Env, V>> SelectMany<T, Env, U, V>(this Option<Reader<Env, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionTMonad {
             public static Option<Writer<Out, U>> Select<T, Out, U>(this Option<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Option<Writer<Out, T>> Where<T, Out>(this Option<Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Option<Writer<Out, V>> SelectMany<T, Out, U, V>(this Option<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Option<Writer<Out, V>> SelectMany<T, Out, U, V>(this Option<Writer<Out, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionTMonad {
             public static Option<State<State, U>> Select<T, State, U>(this Option<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Option<State<State, T>> Where<T, State>(this Option<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Option<State<State, V>> SelectMany<T, State, U, V>(this Option<State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Option<State<State, V>> SelectMany<T, State, U, V>(this Option<State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionUnsafeTMonad {
             public static OptionUnsafe<IEnumerable<U>> Select<T, U>(this OptionUnsafe<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static OptionUnsafe<IEnumerable<T>> Where<T>(this OptionUnsafe<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static OptionUnsafe<IEnumerable<V>> SelectMany<T, U, V>(this OptionUnsafe<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static OptionUnsafe<IEnumerable<V>> SelectMany<T, U, V>(this OptionUnsafe<IEnumerable<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionUnsafeTMonad {
             public static OptionUnsafe<Option<U>> Select<T, U>(this OptionUnsafe<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static OptionUnsafe<Option<T>> Where<T>(this OptionUnsafe<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static OptionUnsafe<Option<V>> SelectMany<T, U, V>(this OptionUnsafe<Option<T>> self, Func<T, Option<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static OptionUnsafe<Option<V>> SelectMany<T, U, V>(this OptionUnsafe<Option<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionUnsafeTMonad {
             public static OptionUnsafe<OptionUnsafe<U>> Select<T, U>(this OptionUnsafe<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static OptionUnsafe<OptionUnsafe<T>> Where<T>(this OptionUnsafe<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static OptionUnsafe<OptionUnsafe<V>> SelectMany<T, U, V>(this OptionUnsafe<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static OptionUnsafe<OptionUnsafe<V>> SelectMany<T, U, V>(this OptionUnsafe<OptionUnsafe<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionUnsafeTMonad {
             public static OptionUnsafe<Lst<U>> Select<T, U>(this OptionUnsafe<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static OptionUnsafe<Lst<T>> Where<T>(this OptionUnsafe<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static OptionUnsafe<Lst<V>> SelectMany<T, U, V>(this OptionUnsafe<Lst<T>> self, Func<T, Lst<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static OptionUnsafe<Lst<V>> SelectMany<T, U, V>(this OptionUnsafe<Lst<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionUnsafeTMonad {
             public static OptionUnsafe<Map<K, U>> Select<T, K, U>(this OptionUnsafe<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static OptionUnsafe<Map<K, T>> Where<T, K>(this OptionUnsafe<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static OptionUnsafe<Map<K, V>> SelectMany<T, K, U, V>(this OptionUnsafe<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static OptionUnsafe<Map<K, V>> SelectMany<T, K, U, V>(this OptionUnsafe<Map<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionUnsafeTMonad {
             public static OptionUnsafe<TryOption<U>> Select<T, U>(this OptionUnsafe<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static OptionUnsafe<TryOption<T>> Where<T>(this OptionUnsafe<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static OptionUnsafe<TryOption<V>> SelectMany<T, U, V>(this OptionUnsafe<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static OptionUnsafe<TryOption<V>> SelectMany<T, U, V>(this OptionUnsafe<TryOption<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionUnsafeTMonad {
             public static OptionUnsafe<Try<U>> Select<T, U>(this OptionUnsafe<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static OptionUnsafe<Try<T>> Where<T>(this OptionUnsafe<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static OptionUnsafe<Try<V>> SelectMany<T, U, V>(this OptionUnsafe<Try<T>> self, Func<T, Try<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static OptionUnsafe<Try<V>> SelectMany<T, U, V>(this OptionUnsafe<Try<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionUnsafeTMonad {
             public static OptionUnsafe<Either<L, U>> Select<T, L, U>(this OptionUnsafe<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static OptionUnsafe<Either<L, T>> Where<T, L>(this OptionUnsafe<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static OptionUnsafe<Either<L, V>> SelectMany<T, L, U, V>(this OptionUnsafe<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static OptionUnsafe<Either<L, V>> SelectMany<T, L, U, V>(this OptionUnsafe<Either<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionUnsafeTMonad {
             public static OptionUnsafe<EitherUnsafe<L, U>> Select<T, L, U>(this OptionUnsafe<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static OptionUnsafe<EitherUnsafe<L, T>> Where<T, L>(this OptionUnsafe<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static OptionUnsafe<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this OptionUnsafe<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static OptionUnsafe<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this OptionUnsafe<EitherUnsafe<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionUnsafeTMonad {
             public static OptionUnsafe<Reader<Env, U>> Select<T, Env, U>(this OptionUnsafe<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static OptionUnsafe<Reader<Env, T>> Where<T, Env>(this OptionUnsafe<Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static OptionUnsafe<Reader<Env, V>> SelectMany<T, Env, U, V>(this OptionUnsafe<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static OptionUnsafe<Reader<Env, V>> SelectMany<T, Env, U, V>(this OptionUnsafe<Reader<Env, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionUnsafeTMonad {
             public static OptionUnsafe<Writer<Out, U>> Select<T, Out, U>(this OptionUnsafe<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static OptionUnsafe<Writer<Out, T>> Where<T, Out>(this OptionUnsafe<Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static OptionUnsafe<Writer<Out, V>> SelectMany<T, Out, U, V>(this OptionUnsafe<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static OptionUnsafe<Writer<Out, V>> SelectMany<T, Out, U, V>(this OptionUnsafe<Writer<Out, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionUnsafeTMonad {
             public static OptionUnsafe<State<State, U>> Select<T, State, U>(this OptionUnsafe<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static OptionUnsafe<State<State, T>> Where<T, State>(this OptionUnsafe<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static OptionUnsafe<State<State, V>> SelectMany<T, State, U, V>(this OptionUnsafe<State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static OptionUnsafe<State<State, V>> SelectMany<T, State, U, V>(this OptionUnsafe<State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static Lst<IEnumerable<U>> Select<T, U>(this Lst<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Lst<IEnumerable<T>> Where<T>(this Lst<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Lst<IEnumerable<V>> SelectMany<T, U, V>(this Lst<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Lst<IEnumerable<V>> SelectMany<T, U, V>(this Lst<IEnumerable<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static Lst<Option<U>> Select<T, U>(this Lst<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Lst<Option<T>> Where<T>(this Lst<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Lst<Option<V>> SelectMany<T, U, V>(this Lst<Option<T>> self, Func<T, Option<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Lst<Option<V>> SelectMany<T, U, V>(this Lst<Option<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static Lst<OptionUnsafe<U>> Select<T, U>(this Lst<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Lst<OptionUnsafe<T>> Where<T>(this Lst<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Lst<OptionUnsafe<V>> SelectMany<T, U, V>(this Lst<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Lst<OptionUnsafe<V>> SelectMany<T, U, V>(this Lst<OptionUnsafe<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static Lst<Lst<U>> Select<T, U>(this Lst<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Lst<Lst<T>> Where<T>(this Lst<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Lst<Lst<V>> SelectMany<T, U, V>(this Lst<Lst<T>> self, Func<T, Lst<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Lst<Lst<V>> SelectMany<T, U, V>(this Lst<Lst<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static Lst<Map<K, U>> Select<T, K, U>(this Lst<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Lst<Map<K, T>> Where<T, K>(this Lst<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Lst<Map<K, V>> SelectMany<T, K, U, V>(this Lst<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Lst<Map<K, V>> SelectMany<T, K, U, V>(this Lst<Map<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static Lst<TryOption<U>> Select<T, U>(this Lst<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Lst<TryOption<T>> Where<T>(this Lst<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Lst<TryOption<V>> SelectMany<T, U, V>(this Lst<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Lst<TryOption<V>> SelectMany<T, U, V>(this Lst<TryOption<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static Lst<Try<U>> Select<T, U>(this Lst<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Lst<Try<T>> Where<T>(this Lst<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Lst<Try<V>> SelectMany<T, U, V>(this Lst<Try<T>> self, Func<T, Try<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Lst<Try<V>> SelectMany<T, U, V>(this Lst<Try<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static Lst<Either<L, U>> Select<T, L, U>(this Lst<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Lst<Either<L, T>> Where<T, L>(this Lst<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Lst<Either<L, V>> SelectMany<T, L, U, V>(this Lst<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Lst<Either<L, V>> SelectMany<T, L, U, V>(this Lst<Either<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static Lst<EitherUnsafe<L, U>> Select<T, L, U>(this Lst<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Lst<EitherUnsafe<L, T>> Where<T, L>(this Lst<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Lst<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Lst<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Lst<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Lst<EitherUnsafe<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static Lst<Reader<Env, U>> Select<T, Env, U>(this Lst<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Lst<Reader<Env, T>> Where<T, Env>(this Lst<Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Lst<Reader<Env, V>> SelectMany<T, Env, U, V>(this Lst<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Lst<Reader<Env, V>> SelectMany<T, Env, U, V>(this Lst<Reader<Env, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static Lst<Writer<Out, U>> Select<T, Out, U>(this Lst<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Lst<Writer<Out, T>> Where<T, Out>(this Lst<Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Lst<Writer<Out, V>> SelectMany<T, Out, U, V>(this Lst<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Lst<Writer<Out, V>> SelectMany<T, Out, U, V>(this Lst<Writer<Out, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static Lst<State<State, U>> Select<T, State, U>(this Lst<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Lst<State<State, T>> Where<T, State>(this Lst<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Lst<State<State, V>> SelectMany<T, State, U, V>(this Lst<State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Lst<State<State, V>> SelectMany<T, State, U, V>(this Lst<State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class MapTMonad {
             public static Map<K, IEnumerable<U>> Select<K, T, U>(this Map<K, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Map<K, IEnumerable<T>> Where<K, T>(this Map<K, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Map<K, IEnumerable<V>> SelectMany<K, T, U, V>(this Map<K, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Map<K, IEnumerable<V>> SelectMany<K, T, U, V>(this Map<K, IEnumerable<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class MapTMonad {
             public static Map<K, Option<U>> Select<K, T, U>(this Map<K, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Map<K, Option<T>> Where<K, T>(this Map<K, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Map<K, Option<V>> SelectMany<K, T, U, V>(this Map<K, Option<T>> self, Func<T, Option<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Map<K, Option<V>> SelectMany<K, T, U, V>(this Map<K, Option<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class MapTMonad {
             public static Map<K, OptionUnsafe<U>> Select<K, T, U>(this Map<K, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Map<K, OptionUnsafe<T>> Where<K, T>(this Map<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Map<K, OptionUnsafe<V>> SelectMany<K, T, U, V>(this Map<K, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Map<K, OptionUnsafe<V>> SelectMany<K, T, U, V>(this Map<K, OptionUnsafe<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class MapTMonad {
             public static Map<K, Lst<U>> Select<K, T, U>(this Map<K, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Map<K, Lst<T>> Where<K, T>(this Map<K, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Map<K, Lst<V>> SelectMany<K, T, U, V>(this Map<K, Lst<T>> self, Func<T, Lst<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Map<K, Lst<V>> SelectMany<K, T, U, V>(this Map<K, Lst<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class MapTMonad {
             public static Map<K, Map<K, U>> Select<K, T, U>(this Map<K, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Map<K, Map<K, T>> Where<K, T>(this Map<K, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Map<K, Map<K, V>> SelectMany<K, T, U, V>(this Map<K, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Map<K, Map<K, V>> SelectMany<K, T, U, V>(this Map<K, Map<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class MapTMonad {
             public static Map<K, TryOption<U>> Select<K, T, U>(this Map<K, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Map<K, TryOption<T>> Where<K, T>(this Map<K, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Map<K, TryOption<V>> SelectMany<K, T, U, V>(this Map<K, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Map<K, TryOption<V>> SelectMany<K, T, U, V>(this Map<K, TryOption<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class MapTMonad {
             public static Map<K, Try<U>> Select<K, T, U>(this Map<K, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Map<K, Try<T>> Where<K, T>(this Map<K, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Map<K, Try<V>> SelectMany<K, T, U, V>(this Map<K, Try<T>> self, Func<T, Try<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Map<K, Try<V>> SelectMany<K, T, U, V>(this Map<K, Try<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class MapTMonad {
             public static Map<K, Either<L, U>> Select<K, T, L, U>(this Map<K, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Map<K, Either<L, T>> Where<K, T, L>(this Map<K, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Map<K, Either<L, V>> SelectMany<K, T, L, U, V>(this Map<K, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Map<K, Either<L, V>> SelectMany<K, T, L, U, V>(this Map<K, Either<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class MapTMonad {
             public static Map<K, EitherUnsafe<L, U>> Select<K, T, L, U>(this Map<K, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Map<K, EitherUnsafe<L, T>> Where<K, T, L>(this Map<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Map<K, EitherUnsafe<L, V>> SelectMany<K, T, L, U, V>(this Map<K, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Map<K, EitherUnsafe<L, V>> SelectMany<K, T, L, U, V>(this Map<K, EitherUnsafe<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class MapTMonad {
             public static Map<K, Reader<Env, U>> Select<K, T, Env, U>(this Map<K, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Map<K, Reader<Env, T>> Where<K, T, Env>(this Map<K, Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Map<K, Reader<Env, V>> SelectMany<K, T, Env, U, V>(this Map<K, Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Map<K, Reader<Env, V>> SelectMany<K, T, Env, U, V>(this Map<K, Reader<Env, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class MapTMonad {
             public static Map<K, Writer<Out, U>> Select<K, T, Out, U>(this Map<K, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Map<K, Writer<Out, T>> Where<K, T, Out>(this Map<K, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Map<K, Writer<Out, V>> SelectMany<K, T, Out, U, V>(this Map<K, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Map<K, Writer<Out, V>> SelectMany<K, T, Out, U, V>(this Map<K, Writer<Out, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class MapTMonad {
             public static Map<K, State<State, U>> Select<K, T, State, U>(this Map<K, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Map<K, State<State, T>> Where<K, T, State>(this Map<K, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Map<K, State<State, V>> SelectMany<K, T, State, U, V>(this Map<K, State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Map<K, State<State, V>> SelectMany<K, T, State, U, V>(this Map<K, State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryOptionTMonad {
             public static TryOption<IEnumerable<U>> Select<T, U>(this TryOption<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static TryOption<IEnumerable<T>> Where<T>(this TryOption<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static TryOption<IEnumerable<V>> SelectMany<T, U, V>(this TryOption<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static TryOption<IEnumerable<V>> SelectMany<T, U, V>(this TryOption<IEnumerable<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryOptionTMonad {
             public static TryOption<Option<U>> Select<T, U>(this TryOption<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static TryOption<Option<T>> Where<T>(this TryOption<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static TryOption<Option<V>> SelectMany<T, U, V>(this TryOption<Option<T>> self, Func<T, Option<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static TryOption<Option<V>> SelectMany<T, U, V>(this TryOption<Option<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryOptionTMonad {
             public static TryOption<OptionUnsafe<U>> Select<T, U>(this TryOption<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static TryOption<OptionUnsafe<T>> Where<T>(this TryOption<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static TryOption<OptionUnsafe<V>> SelectMany<T, U, V>(this TryOption<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static TryOption<OptionUnsafe<V>> SelectMany<T, U, V>(this TryOption<OptionUnsafe<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryOptionTMonad {
             public static TryOption<Lst<U>> Select<T, U>(this TryOption<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static TryOption<Lst<T>> Where<T>(this TryOption<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static TryOption<Lst<V>> SelectMany<T, U, V>(this TryOption<Lst<T>> self, Func<T, Lst<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static TryOption<Lst<V>> SelectMany<T, U, V>(this TryOption<Lst<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryOptionTMonad {
             public static TryOption<Map<K, U>> Select<T, K, U>(this TryOption<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static TryOption<Map<K, T>> Where<T, K>(this TryOption<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static TryOption<Map<K, V>> SelectMany<T, K, U, V>(this TryOption<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static TryOption<Map<K, V>> SelectMany<T, K, U, V>(this TryOption<Map<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryOptionTMonad {
             public static TryOption<TryOption<U>> Select<T, U>(this TryOption<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static TryOption<TryOption<T>> Where<T>(this TryOption<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static TryOption<TryOption<V>> SelectMany<T, U, V>(this TryOption<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static TryOption<TryOption<V>> SelectMany<T, U, V>(this TryOption<TryOption<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryOptionTMonad {
             public static TryOption<Try<U>> Select<T, U>(this TryOption<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static TryOption<Try<T>> Where<T>(this TryOption<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static TryOption<Try<V>> SelectMany<T, U, V>(this TryOption<Try<T>> self, Func<T, Try<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static TryOption<Try<V>> SelectMany<T, U, V>(this TryOption<Try<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryOptionTMonad {
             public static TryOption<Either<L, U>> Select<T, L, U>(this TryOption<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static TryOption<Either<L, T>> Where<T, L>(this TryOption<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static TryOption<Either<L, V>> SelectMany<T, L, U, V>(this TryOption<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static TryOption<Either<L, V>> SelectMany<T, L, U, V>(this TryOption<Either<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryOptionTMonad {
             public static TryOption<EitherUnsafe<L, U>> Select<T, L, U>(this TryOption<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static TryOption<EitherUnsafe<L, T>> Where<T, L>(this TryOption<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static TryOption<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this TryOption<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static TryOption<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this TryOption<EitherUnsafe<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryOptionTMonad {
             public static TryOption<Reader<Env, U>> Select<T, Env, U>(this TryOption<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static TryOption<Reader<Env, T>> Where<T, Env>(this TryOption<Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static TryOption<Reader<Env, V>> SelectMany<T, Env, U, V>(this TryOption<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static TryOption<Reader<Env, V>> SelectMany<T, Env, U, V>(this TryOption<Reader<Env, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryOptionTMonad {
             public static TryOption<Writer<Out, U>> Select<T, Out, U>(this TryOption<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static TryOption<Writer<Out, T>> Where<T, Out>(this TryOption<Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static TryOption<Writer<Out, V>> SelectMany<T, Out, U, V>(this TryOption<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static TryOption<Writer<Out, V>> SelectMany<T, Out, U, V>(this TryOption<Writer<Out, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryOptionTMonad {
             public static TryOption<State<State, U>> Select<T, State, U>(this TryOption<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static TryOption<State<State, T>> Where<T, State>(this TryOption<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static TryOption<State<State, V>> SelectMany<T, State, U, V>(this TryOption<State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static TryOption<State<State, V>> SelectMany<T, State, U, V>(this TryOption<State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryTMonad {
             public static Try<IEnumerable<U>> Select<T, U>(this Try<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Try<IEnumerable<T>> Where<T>(this Try<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Try<IEnumerable<V>> SelectMany<T, U, V>(this Try<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Try<IEnumerable<V>> SelectMany<T, U, V>(this Try<IEnumerable<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryTMonad {
             public static Try<Option<U>> Select<T, U>(this Try<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Try<Option<T>> Where<T>(this Try<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Try<Option<V>> SelectMany<T, U, V>(this Try<Option<T>> self, Func<T, Option<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Try<Option<V>> SelectMany<T, U, V>(this Try<Option<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryTMonad {
             public static Try<OptionUnsafe<U>> Select<T, U>(this Try<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Try<OptionUnsafe<T>> Where<T>(this Try<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Try<OptionUnsafe<V>> SelectMany<T, U, V>(this Try<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Try<OptionUnsafe<V>> SelectMany<T, U, V>(this Try<OptionUnsafe<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryTMonad {
             public static Try<Lst<U>> Select<T, U>(this Try<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Try<Lst<T>> Where<T>(this Try<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Try<Lst<V>> SelectMany<T, U, V>(this Try<Lst<T>> self, Func<T, Lst<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Try<Lst<V>> SelectMany<T, U, V>(this Try<Lst<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryTMonad {
             public static Try<Map<K, U>> Select<T, K, U>(this Try<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Try<Map<K, T>> Where<T, K>(this Try<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Try<Map<K, V>> SelectMany<T, K, U, V>(this Try<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Try<Map<K, V>> SelectMany<T, K, U, V>(this Try<Map<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryTMonad {
             public static Try<TryOption<U>> Select<T, U>(this Try<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Try<TryOption<T>> Where<T>(this Try<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Try<TryOption<V>> SelectMany<T, U, V>(this Try<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Try<TryOption<V>> SelectMany<T, U, V>(this Try<TryOption<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryTMonad {
             public static Try<Try<U>> Select<T, U>(this Try<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Try<Try<T>> Where<T>(this Try<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Try<Try<V>> SelectMany<T, U, V>(this Try<Try<T>> self, Func<T, Try<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Try<Try<V>> SelectMany<T, U, V>(this Try<Try<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryTMonad {
             public static Try<Either<L, U>> Select<T, L, U>(this Try<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Try<Either<L, T>> Where<T, L>(this Try<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Try<Either<L, V>> SelectMany<T, L, U, V>(this Try<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Try<Either<L, V>> SelectMany<T, L, U, V>(this Try<Either<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryTMonad {
             public static Try<EitherUnsafe<L, U>> Select<T, L, U>(this Try<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Try<EitherUnsafe<L, T>> Where<T, L>(this Try<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Try<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Try<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Try<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Try<EitherUnsafe<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryTMonad {
             public static Try<Reader<Env, U>> Select<T, Env, U>(this Try<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Try<Reader<Env, T>> Where<T, Env>(this Try<Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Try<Reader<Env, V>> SelectMany<T, Env, U, V>(this Try<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Try<Reader<Env, V>> SelectMany<T, Env, U, V>(this Try<Reader<Env, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryTMonad {
             public static Try<Writer<Out, U>> Select<T, Out, U>(this Try<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Try<Writer<Out, T>> Where<T, Out>(this Try<Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Try<Writer<Out, V>> SelectMany<T, Out, U, V>(this Try<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Try<Writer<Out, V>> SelectMany<T, Out, U, V>(this Try<Writer<Out, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryTMonad {
             public static Try<State<State, U>> Select<T, State, U>(this Try<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Try<State<State, T>> Where<T, State>(this Try<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Try<State<State, V>> SelectMany<T, State, U, V>(this Try<State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Try<State<State, V>> SelectMany<T, State, U, V>(this Try<State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherTMonad {
             public static Either<L, IEnumerable<U>> Select<L, T, U>(this Either<L, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Either<L, IEnumerable<T>> Where<L, T>(this Either<L, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Either<L, IEnumerable<V>> SelectMany<L, T, U, V>(this Either<L, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Either<L, IEnumerable<V>> SelectMany<L, T, U, V>(this Either<L, IEnumerable<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherTMonad {
             public static Either<L, Option<U>> Select<L, T, U>(this Either<L, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Either<L, Option<T>> Where<L, T>(this Either<L, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Either<L, Option<V>> SelectMany<L, T, U, V>(this Either<L, Option<T>> self, Func<T, Option<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Either<L, Option<V>> SelectMany<L, T, U, V>(this Either<L, Option<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherTMonad {
             public static Either<L, OptionUnsafe<U>> Select<L, T, U>(this Either<L, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Either<L, OptionUnsafe<T>> Where<L, T>(this Either<L, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Either<L, OptionUnsafe<V>> SelectMany<L, T, U, V>(this Either<L, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Either<L, OptionUnsafe<V>> SelectMany<L, T, U, V>(this Either<L, OptionUnsafe<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherTMonad {
             public static Either<L, Lst<U>> Select<L, T, U>(this Either<L, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Either<L, Lst<T>> Where<L, T>(this Either<L, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Either<L, Lst<V>> SelectMany<L, T, U, V>(this Either<L, Lst<T>> self, Func<T, Lst<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Either<L, Lst<V>> SelectMany<L, T, U, V>(this Either<L, Lst<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherTMonad {
             public static Either<L, Map<K, U>> Select<L, T, K, U>(this Either<L, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Either<L, Map<K, T>> Where<L, T, K>(this Either<L, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Either<L, Map<K, V>> SelectMany<L, T, K, U, V>(this Either<L, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Either<L, Map<K, V>> SelectMany<L, T, K, U, V>(this Either<L, Map<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherTMonad {
             public static Either<L, TryOption<U>> Select<L, T, U>(this Either<L, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Either<L, TryOption<T>> Where<L, T>(this Either<L, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Either<L, TryOption<V>> SelectMany<L, T, U, V>(this Either<L, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Either<L, TryOption<V>> SelectMany<L, T, U, V>(this Either<L, TryOption<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherTMonad {
             public static Either<L, Try<U>> Select<L, T, U>(this Either<L, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Either<L, Try<T>> Where<L, T>(this Either<L, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Either<L, Try<V>> SelectMany<L, T, U, V>(this Either<L, Try<T>> self, Func<T, Try<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Either<L, Try<V>> SelectMany<L, T, U, V>(this Either<L, Try<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherTMonad {
             public static Either<L, Either<L, U>> Select<L, T, U>(this Either<L, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Either<L, Either<L, T>> Where<L, T>(this Either<L, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Either<L, Either<L, V>> SelectMany<L, T, U, V>(this Either<L, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Either<L, Either<L, V>> SelectMany<L, T, U, V>(this Either<L, Either<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherTMonad {
             public static Either<L, EitherUnsafe<L, U>> Select<L, T, U>(this Either<L, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Either<L, EitherUnsafe<L, T>> Where<L, T>(this Either<L, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Either<L, EitherUnsafe<L, V>> SelectMany<L, T, U, V>(this Either<L, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Either<L, EitherUnsafe<L, V>> SelectMany<L, T, U, V>(this Either<L, EitherUnsafe<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherTMonad {
             public static Either<L, Reader<Env, U>> Select<L, T, Env, U>(this Either<L, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Either<L, Reader<Env, T>> Where<L, T, Env>(this Either<L, Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Either<L, Reader<Env, V>> SelectMany<L, T, Env, U, V>(this Either<L, Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Either<L, Reader<Env, V>> SelectMany<L, T, Env, U, V>(this Either<L, Reader<Env, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherTMonad {
             public static Either<L, Writer<Out, U>> Select<L, T, Out, U>(this Either<L, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Either<L, Writer<Out, T>> Where<L, T, Out>(this Either<L, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Either<L, Writer<Out, V>> SelectMany<L, T, Out, U, V>(this Either<L, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Either<L, Writer<Out, V>> SelectMany<L, T, Out, U, V>(this Either<L, Writer<Out, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherTMonad {
             public static Either<L, State<State, U>> Select<L, T, State, U>(this Either<L, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Either<L, State<State, T>> Where<L, T, State>(this Either<L, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Either<L, State<State, V>> SelectMany<L, T, State, U, V>(this Either<L, State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Either<L, State<State, V>> SelectMany<L, T, State, U, V>(this Either<L, State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherUnsafeTMonad {
             public static EitherUnsafe<L, IEnumerable<U>> Select<L, T, U>(this EitherUnsafe<L, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static EitherUnsafe<L, IEnumerable<T>> Where<L, T>(this EitherUnsafe<L, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static EitherUnsafe<L, IEnumerable<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static EitherUnsafe<L, IEnumerable<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, IEnumerable<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherUnsafeTMonad {
             public static EitherUnsafe<L, Option<U>> Select<L, T, U>(this EitherUnsafe<L, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static EitherUnsafe<L, Option<T>> Where<L, T>(this EitherUnsafe<L, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static EitherUnsafe<L, Option<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Option<T>> self, Func<T, Option<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static EitherUnsafe<L, Option<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Option<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherUnsafeTMonad {
             public static EitherUnsafe<L, OptionUnsafe<U>> Select<L, T, U>(this EitherUnsafe<L, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static EitherUnsafe<L, OptionUnsafe<T>> Where<L, T>(this EitherUnsafe<L, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static EitherUnsafe<L, OptionUnsafe<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static EitherUnsafe<L, OptionUnsafe<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, OptionUnsafe<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherUnsafeTMonad {
             public static EitherUnsafe<L, Lst<U>> Select<L, T, U>(this EitherUnsafe<L, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static EitherUnsafe<L, Lst<T>> Where<L, T>(this EitherUnsafe<L, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static EitherUnsafe<L, Lst<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Lst<T>> self, Func<T, Lst<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static EitherUnsafe<L, Lst<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Lst<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherUnsafeTMonad {
             public static EitherUnsafe<L, Map<K, U>> Select<L, T, K, U>(this EitherUnsafe<L, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static EitherUnsafe<L, Map<K, T>> Where<L, T, K>(this EitherUnsafe<L, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static EitherUnsafe<L, Map<K, V>> SelectMany<L, T, K, U, V>(this EitherUnsafe<L, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static EitherUnsafe<L, Map<K, V>> SelectMany<L, T, K, U, V>(this EitherUnsafe<L, Map<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherUnsafeTMonad {
             public static EitherUnsafe<L, TryOption<U>> Select<L, T, U>(this EitherUnsafe<L, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static EitherUnsafe<L, TryOption<T>> Where<L, T>(this EitherUnsafe<L, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static EitherUnsafe<L, TryOption<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static EitherUnsafe<L, TryOption<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, TryOption<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherUnsafeTMonad {
             public static EitherUnsafe<L, Try<U>> Select<L, T, U>(this EitherUnsafe<L, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static EitherUnsafe<L, Try<T>> Where<L, T>(this EitherUnsafe<L, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static EitherUnsafe<L, Try<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Try<T>> self, Func<T, Try<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static EitherUnsafe<L, Try<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Try<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherUnsafeTMonad {
             public static EitherUnsafe<L, Either<L, U>> Select<L, T, U>(this EitherUnsafe<L, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static EitherUnsafe<L, Either<L, T>> Where<L, T>(this EitherUnsafe<L, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static EitherUnsafe<L, Either<L, V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static EitherUnsafe<L, Either<L, V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Either<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherUnsafeTMonad {
             public static EitherUnsafe<L, EitherUnsafe<L, U>> Select<L, T, U>(this EitherUnsafe<L, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static EitherUnsafe<L, EitherUnsafe<L, T>> Where<L, T>(this EitherUnsafe<L, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static EitherUnsafe<L, EitherUnsafe<L, V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static EitherUnsafe<L, EitherUnsafe<L, V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, EitherUnsafe<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherUnsafeTMonad {
             public static EitherUnsafe<L, Reader<Env, U>> Select<L, T, Env, U>(this EitherUnsafe<L, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static EitherUnsafe<L, Reader<Env, T>> Where<L, T, Env>(this EitherUnsafe<L, Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static EitherUnsafe<L, Reader<Env, V>> SelectMany<L, T, Env, U, V>(this EitherUnsafe<L, Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static EitherUnsafe<L, Reader<Env, V>> SelectMany<L, T, Env, U, V>(this EitherUnsafe<L, Reader<Env, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherUnsafeTMonad {
             public static EitherUnsafe<L, Writer<Out, U>> Select<L, T, Out, U>(this EitherUnsafe<L, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static EitherUnsafe<L, Writer<Out, T>> Where<L, T, Out>(this EitherUnsafe<L, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static EitherUnsafe<L, Writer<Out, V>> SelectMany<L, T, Out, U, V>(this EitherUnsafe<L, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static EitherUnsafe<L, Writer<Out, V>> SelectMany<L, T, Out, U, V>(this EitherUnsafe<L, Writer<Out, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherUnsafeTMonad {
             public static EitherUnsafe<L, State<State, U>> Select<L, T, State, U>(this EitherUnsafe<L, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static EitherUnsafe<L, State<State, T>> Where<L, T, State>(this EitherUnsafe<L, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static EitherUnsafe<L, State<State, V>> SelectMany<L, T, State, U, V>(this EitherUnsafe<L, State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static EitherUnsafe<L, State<State, V>> SelectMany<L, T, State, U, V>(this EitherUnsafe<L, State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ReaderTMonad {
             public static Reader<Env, IEnumerable<U>> Select<Env, T, U>(this Reader<Env, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Reader<Env, IEnumerable<T>> Where<Env, T>(this Reader<Env, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Reader<Env, IEnumerable<V>> SelectMany<Env, T, U, V>(this Reader<Env, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Reader<Env, IEnumerable<V>> SelectMany<Env, T, U, V>(this Reader<Env, IEnumerable<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ReaderTMonad {
             public static Reader<Env, Option<U>> Select<Env, T, U>(this Reader<Env, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Reader<Env, Option<T>> Where<Env, T>(this Reader<Env, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Reader<Env, Option<V>> SelectMany<Env, T, U, V>(this Reader<Env, Option<T>> self, Func<T, Option<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Reader<Env, Option<V>> SelectMany<Env, T, U, V>(this Reader<Env, Option<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ReaderTMonad {
             public static Reader<Env, OptionUnsafe<U>> Select<Env, T, U>(this Reader<Env, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Reader<Env, OptionUnsafe<T>> Where<Env, T>(this Reader<Env, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Reader<Env, OptionUnsafe<V>> SelectMany<Env, T, U, V>(this Reader<Env, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Reader<Env, OptionUnsafe<V>> SelectMany<Env, T, U, V>(this Reader<Env, OptionUnsafe<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ReaderTMonad {
             public static Reader<Env, Lst<U>> Select<Env, T, U>(this Reader<Env, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Reader<Env, Lst<T>> Where<Env, T>(this Reader<Env, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Reader<Env, Lst<V>> SelectMany<Env, T, U, V>(this Reader<Env, Lst<T>> self, Func<T, Lst<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Reader<Env, Lst<V>> SelectMany<Env, T, U, V>(this Reader<Env, Lst<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ReaderTMonad {
             public static Reader<Env, Map<K, U>> Select<Env, T, K, U>(this Reader<Env, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Reader<Env, Map<K, T>> Where<Env, T, K>(this Reader<Env, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Reader<Env, Map<K, V>> SelectMany<Env, T, K, U, V>(this Reader<Env, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Reader<Env, Map<K, V>> SelectMany<Env, T, K, U, V>(this Reader<Env, Map<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ReaderTMonad {
             public static Reader<Env, TryOption<U>> Select<Env, T, U>(this Reader<Env, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Reader<Env, TryOption<T>> Where<Env, T>(this Reader<Env, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Reader<Env, TryOption<V>> SelectMany<Env, T, U, V>(this Reader<Env, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Reader<Env, TryOption<V>> SelectMany<Env, T, U, V>(this Reader<Env, TryOption<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ReaderTMonad {
             public static Reader<Env, Try<U>> Select<Env, T, U>(this Reader<Env, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Reader<Env, Try<T>> Where<Env, T>(this Reader<Env, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Reader<Env, Try<V>> SelectMany<Env, T, U, V>(this Reader<Env, Try<T>> self, Func<T, Try<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Reader<Env, Try<V>> SelectMany<Env, T, U, V>(this Reader<Env, Try<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ReaderTMonad {
             public static Reader<Env, Either<L, U>> Select<Env, T, L, U>(this Reader<Env, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Reader<Env, Either<L, T>> Where<Env, T, L>(this Reader<Env, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Reader<Env, Either<L, V>> SelectMany<Env, T, L, U, V>(this Reader<Env, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Reader<Env, Either<L, V>> SelectMany<Env, T, L, U, V>(this Reader<Env, Either<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ReaderTMonad {
             public static Reader<Env, EitherUnsafe<L, U>> Select<Env, T, L, U>(this Reader<Env, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Reader<Env, EitherUnsafe<L, T>> Where<Env, T, L>(this Reader<Env, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Reader<Env, EitherUnsafe<L, V>> SelectMany<Env, T, L, U, V>(this Reader<Env, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Reader<Env, EitherUnsafe<L, V>> SelectMany<Env, T, L, U, V>(this Reader<Env, EitherUnsafe<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ReaderTMonad {
             public static Reader<Env, Reader<Env, U>> Select<Env, T, U>(this Reader<Env, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Reader<Env, Reader<Env, T>> Where<Env, T>(this Reader<Env, Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Reader<Env, Reader<Env, V>> SelectMany<Env, T, U, V>(this Reader<Env, Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Reader<Env, Reader<Env, V>> SelectMany<Env, T, U, V>(this Reader<Env, Reader<Env, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class WriterTMonad {
             public static Writer<Out, IEnumerable<U>> Select<Out, T, U>(this Writer<Out, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Writer<Out, IEnumerable<T>> Where<Out, T>(this Writer<Out, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Writer<Out, IEnumerable<V>> SelectMany<Out, T, U, V>(this Writer<Out, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Writer<Out, IEnumerable<V>> SelectMany<Out, T, U, V>(this Writer<Out, IEnumerable<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class WriterTMonad {
             public static Writer<Out, Option<U>> Select<Out, T, U>(this Writer<Out, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Writer<Out, Option<T>> Where<Out, T>(this Writer<Out, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Writer<Out, Option<V>> SelectMany<Out, T, U, V>(this Writer<Out, Option<T>> self, Func<T, Option<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Writer<Out, Option<V>> SelectMany<Out, T, U, V>(this Writer<Out, Option<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class WriterTMonad {
             public static Writer<Out, OptionUnsafe<U>> Select<Out, T, U>(this Writer<Out, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Writer<Out, OptionUnsafe<T>> Where<Out, T>(this Writer<Out, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Writer<Out, OptionUnsafe<V>> SelectMany<Out, T, U, V>(this Writer<Out, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Writer<Out, OptionUnsafe<V>> SelectMany<Out, T, U, V>(this Writer<Out, OptionUnsafe<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class WriterTMonad {
             public static Writer<Out, Lst<U>> Select<Out, T, U>(this Writer<Out, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Writer<Out, Lst<T>> Where<Out, T>(this Writer<Out, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Writer<Out, Lst<V>> SelectMany<Out, T, U, V>(this Writer<Out, Lst<T>> self, Func<T, Lst<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Writer<Out, Lst<V>> SelectMany<Out, T, U, V>(this Writer<Out, Lst<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class WriterTMonad {
             public static Writer<Out, Map<K, U>> Select<Out, T, K, U>(this Writer<Out, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Writer<Out, Map<K, T>> Where<Out, T, K>(this Writer<Out, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Writer<Out, Map<K, V>> SelectMany<Out, T, K, U, V>(this Writer<Out, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Writer<Out, Map<K, V>> SelectMany<Out, T, K, U, V>(this Writer<Out, Map<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class WriterTMonad {
             public static Writer<Out, TryOption<U>> Select<Out, T, U>(this Writer<Out, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Writer<Out, TryOption<T>> Where<Out, T>(this Writer<Out, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Writer<Out, TryOption<V>> SelectMany<Out, T, U, V>(this Writer<Out, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Writer<Out, TryOption<V>> SelectMany<Out, T, U, V>(this Writer<Out, TryOption<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class WriterTMonad {
             public static Writer<Out, Try<U>> Select<Out, T, U>(this Writer<Out, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Writer<Out, Try<T>> Where<Out, T>(this Writer<Out, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Writer<Out, Try<V>> SelectMany<Out, T, U, V>(this Writer<Out, Try<T>> self, Func<T, Try<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Writer<Out, Try<V>> SelectMany<Out, T, U, V>(this Writer<Out, Try<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class WriterTMonad {
             public static Writer<Out, Either<L, U>> Select<Out, T, L, U>(this Writer<Out, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Writer<Out, Either<L, T>> Where<Out, T, L>(this Writer<Out, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Writer<Out, Either<L, V>> SelectMany<Out, T, L, U, V>(this Writer<Out, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Writer<Out, Either<L, V>> SelectMany<Out, T, L, U, V>(this Writer<Out, Either<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class WriterTMonad {
             public static Writer<Out, EitherUnsafe<L, U>> Select<Out, T, L, U>(this Writer<Out, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Writer<Out, EitherUnsafe<L, T>> Where<Out, T, L>(this Writer<Out, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Writer<Out, EitherUnsafe<L, V>> SelectMany<Out, T, L, U, V>(this Writer<Out, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Writer<Out, EitherUnsafe<L, V>> SelectMany<Out, T, L, U, V>(this Writer<Out, EitherUnsafe<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class WriterTMonad {
             public static Writer<Out, Writer<Out, U>> Select<Out, T, U>(this Writer<Out, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Writer<Out, Writer<Out, T>> Where<Out, T>(this Writer<Out, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static Writer<Out, Writer<Out, V>> SelectMany<Out, T, U, V>(this Writer<Out, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static Writer<Out, Writer<Out, V>> SelectMany<Out, T, U, V>(this Writer<Out, Writer<Out, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class StateTMonad {
             public static State<State, IEnumerable<U>> Select<State, T, U>(this State<State, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static State<State, IEnumerable<T>> Where<State, T>(this State<State, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static State<State, IEnumerable<V>> SelectMany<State, T, U, V>(this State<State, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static State<State, IEnumerable<V>> SelectMany<State, T, U, V>(this State<State, IEnumerable<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class StateTMonad {
             public static State<State, Option<U>> Select<State, T, U>(this State<State, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static State<State, Option<T>> Where<State, T>(this State<State, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static State<State, Option<V>> SelectMany<State, T, U, V>(this State<State, Option<T>> self, Func<T, Option<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static State<State, Option<V>> SelectMany<State, T, U, V>(this State<State, Option<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class StateTMonad {
             public static State<State, OptionUnsafe<U>> Select<State, T, U>(this State<State, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static State<State, OptionUnsafe<T>> Where<State, T>(this State<State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static State<State, OptionUnsafe<V>> SelectMany<State, T, U, V>(this State<State, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static State<State, OptionUnsafe<V>> SelectMany<State, T, U, V>(this State<State, OptionUnsafe<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class StateTMonad {
             public static State<State, Lst<U>> Select<State, T, U>(this State<State, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static State<State, Lst<T>> Where<State, T>(this State<State, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static State<State, Lst<V>> SelectMany<State, T, U, V>(this State<State, Lst<T>> self, Func<T, Lst<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static State<State, Lst<V>> SelectMany<State, T, U, V>(this State<State, Lst<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class StateTMonad {
             public static State<State, Map<K, U>> Select<State, T, K, U>(this State<State, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static State<State, Map<K, T>> Where<State, T, K>(this State<State, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static State<State, Map<K, V>> SelectMany<State, T, K, U, V>(this State<State, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static State<State, Map<K, V>> SelectMany<State, T, K, U, V>(this State<State, Map<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class StateTMonad {
             public static State<State, TryOption<U>> Select<State, T, U>(this State<State, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static State<State, TryOption<T>> Where<State, T>(this State<State, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static State<State, TryOption<V>> SelectMany<State, T, U, V>(this State<State, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static State<State, TryOption<V>> SelectMany<State, T, U, V>(this State<State, TryOption<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class StateTMonad {
             public static State<State, Try<U>> Select<State, T, U>(this State<State, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static State<State, Try<T>> Where<State, T>(this State<State, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static State<State, Try<V>> SelectMany<State, T, U, V>(this State<State, Try<T>> self, Func<T, Try<U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static State<State, Try<V>> SelectMany<State, T, U, V>(this State<State, Try<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class StateTMonad {
             public static State<State, Either<L, U>> Select<State, T, L, U>(this State<State, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static State<State, Either<L, T>> Where<State, T, L>(this State<State, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static State<State, Either<L, V>> SelectMany<State, T, L, U, V>(this State<State, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static State<State, Either<L, V>> SelectMany<State, T, L, U, V>(this State<State, Either<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class StateTMonad {
             public static State<State, EitherUnsafe<L, U>> Select<State, T, L, U>(this State<State, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static State<State, EitherUnsafe<L, T>> Where<State, T, L>(this State<State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static State<State, EitherUnsafe<L, V>> SelectMany<State, T, L, U, V>(this State<State, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static State<State, EitherUnsafe<L, V>> SelectMany<State, T, L, U, V>(this State<State, EitherUnsafe<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class StateTMonad {
             public static State<State, State<State, U>> Select<State, T, U>(this State<State, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static State<State, State<State, T>> Where<State, T>(this State<State, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
-            public static State<State, State<State, V>> SelectMany<State, T, U, V>(this State<State, State<State, T>> self, Func<T, State<State, U>> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
             public static State<State, State<State, V>> SelectMany<State, T, U, V>(this State<State, State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
     }
