@@ -73,6 +73,9 @@ namespace LanguageExt
                 return new TryResult<T>(e);
             }
         };
-            
+
+        public static Try<T> Try<T>(Func<T> tryDel) => () =>
+            tryDel();
+
     }
 }

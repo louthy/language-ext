@@ -48,6 +48,9 @@ namespace LanguageExt
     public static partial class List {
         public static IEnumerable<State<State, V>> SelectMany<T, State, U, V>(this IEnumerable<T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
+    public static partial class List {
+        public static IEnumerable<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this IEnumerable<T> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
     public static partial class Option {
         public static Option<IEnumerable<V>> SelectMany<T, U, V>(this Option<T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
@@ -80,6 +83,9 @@ namespace LanguageExt
     }
     public static partial class Option {
         public static Option<State<State, V>> SelectMany<T, State, U, V>(this Option<T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Option {
+        public static Option<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this Option<T> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     public static partial class OptionUnsafe {
         public static OptionUnsafe<IEnumerable<V>> SelectMany<T, U, V>(this OptionUnsafe<T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
@@ -114,6 +120,9 @@ namespace LanguageExt
     public static partial class OptionUnsafe {
         public static OptionUnsafe<State<State, V>> SelectMany<T, State, U, V>(this OptionUnsafe<T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
+    public static partial class OptionUnsafe {
+        public static OptionUnsafe<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this OptionUnsafe<T> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
     public static partial class List {
         public static Lst<IEnumerable<V>> SelectMany<T, U, V>(this Lst<T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
@@ -146,6 +155,9 @@ namespace LanguageExt
     }
     public static partial class List {
         public static Lst<State<State, V>> SelectMany<T, State, U, V>(this Lst<T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class List {
+        public static Lst<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this Lst<T> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     public static partial class Map {
         public static Map<K, IEnumerable<V>> SelectMany<K, T, U, V>(this Map<K, T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
@@ -180,6 +192,9 @@ namespace LanguageExt
     public static partial class Map {
         public static Map<K, State<State, V>> SelectMany<K, T, State, U, V>(this Map<K, T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
+    public static partial class Map {
+        public static Map<K, Rws<Env, Out, State, V>> SelectMany<K, T, Env, Out, State, U, V>(this Map<K, T> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
     public static partial class TryOption {
         public static TryOption<IEnumerable<V>> SelectMany<T, U, V>(this TryOption<T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
@@ -212,6 +227,9 @@ namespace LanguageExt
     }
     public static partial class TryOption {
         public static TryOption<State<State, V>> SelectMany<T, State, U, V>(this TryOption<T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class TryOption {
+        public static TryOption<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this TryOption<T> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     public static partial class Try {
         public static Try<IEnumerable<V>> SelectMany<T, U, V>(this Try<T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
@@ -246,6 +264,9 @@ namespace LanguageExt
     public static partial class Try {
         public static Try<State<State, V>> SelectMany<T, State, U, V>(this Try<T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
+    public static partial class Try {
+        public static Try<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this Try<T> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
     public static partial class Either {
         public static Either<L, IEnumerable<V>> SelectMany<L, T, U, V>(this Either<L, T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
@@ -279,6 +300,9 @@ namespace LanguageExt
     public static partial class Either {
         public static Either<L, State<State, V>> SelectMany<L, T, State, U, V>(this Either<L, T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
+    public static partial class Either {
+        public static Either<L, Rws<Env, Out, State, V>> SelectMany<L, T, Env, Out, State, U, V>(this Either<L, T> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
     public static partial class EitherUnsafe {
         public static EitherUnsafe<L, IEnumerable<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
@@ -311,6 +335,9 @@ namespace LanguageExt
     }
     public static partial class EitherUnsafe {
         public static EitherUnsafe<L, State<State, V>> SelectMany<L, T, State, U, V>(this EitherUnsafe<L, T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class EitherUnsafe {
+        public static EitherUnsafe<L, Rws<Env, Out, State, V>> SelectMany<L, T, Env, Out, State, U, V>(this EitherUnsafe<L, T> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     public static partial class Reader {
         public static Reader<Env, IEnumerable<V>> SelectMany<Env, T, U, V>(this Reader<Env, T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
@@ -393,6 +420,33 @@ namespace LanguageExt
     public static partial class State {
         public static State<State, EitherUnsafe<L, V>> SelectMany<State, T, L, U, V>(this State<State, T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, IEnumerable<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, Option<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, T> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, OptionUnsafe<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, Lst<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, Map<K, V>> SelectMany<Env, Out, State, T, K, U, V>(this Rws<Env, Out, State, T> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, TryOption<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, Try<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, T> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, Either<L, V>> SelectMany<Env, Out, State, T, L, U, V>(this Rws<Env, Out, State, T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, EitherUnsafe<L, V>> SelectMany<Env, Out, State, T, L, U, V>(this Rws<Env, Out, State, T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
     public static partial class List {
         public static int sumT(IEnumerable<IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
         public static int countT<T>(IEnumerable<IEnumerable<T>> self) => self.MapT(x => x.CountT()).SumT();
@@ -403,7 +457,8 @@ namespace LanguageExt
         public static bool forAllT<T>(IEnumerable<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(IEnumerable<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<IEnumerable<U>> mapT<T, U>(IEnumerable<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(IEnumerable<IEnumerable<T>> self ) => self.ValueT();
+        public static T liftT<T>(IEnumerable<IEnumerable<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(IEnumerable<IEnumerable<T>> self )  where T : class => self.ValueT();
         public static IEnumerable<IEnumerable<V>> SelectMany<T, U, V>(this IEnumerable<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -416,7 +471,8 @@ namespace LanguageExt
         public static bool forAllT<T>(IEnumerable<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(IEnumerable<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<Option<U>> mapT<T, U>(IEnumerable<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(IEnumerable<Option<T>> self ) => self.ValueT();
+        public static T liftT<T>(IEnumerable<Option<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(IEnumerable<Option<T>> self )  where T : class => self.ValueT();
         public static IEnumerable<Option<V>> SelectMany<T, U, V>(this IEnumerable<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -429,7 +485,8 @@ namespace LanguageExt
         public static bool forAllT<T>(IEnumerable<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(IEnumerable<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<OptionUnsafe<U>> mapT<T, U>(IEnumerable<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(IEnumerable<OptionUnsafe<T>> self ) => self.ValueT();
+        public static T liftT<T>(IEnumerable<OptionUnsafe<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(IEnumerable<OptionUnsafe<T>> self )  where T : class => self.ValueT();
         public static IEnumerable<OptionUnsafe<V>> SelectMany<T, U, V>(this IEnumerable<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -442,7 +499,8 @@ namespace LanguageExt
         public static bool forAllT<T>(IEnumerable<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(IEnumerable<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<Lst<U>> mapT<T, U>(IEnumerable<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(IEnumerable<Lst<T>> self ) => self.ValueT();
+        public static T liftT<T>(IEnumerable<Lst<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(IEnumerable<Lst<T>> self )  where T : class => self.ValueT();
         public static IEnumerable<Lst<V>> SelectMany<T, U, V>(this IEnumerable<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -455,7 +513,8 @@ namespace LanguageExt
         public static bool forAllT<T, K>(IEnumerable<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, K>(IEnumerable<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<Map<K, U>> mapT<T, K, U>(IEnumerable<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, K>(IEnumerable<Map<K, T>> self ) => self.ValueT();
+        public static T liftT<T, K>(IEnumerable<Map<K, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, K>(IEnumerable<Map<K, T>> self )  where T : class => self.ValueT();
         public static IEnumerable<Map<K, V>> SelectMany<T, K, U, V>(this IEnumerable<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -468,7 +527,8 @@ namespace LanguageExt
         public static bool forAllT<T>(IEnumerable<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(IEnumerable<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<TryOption<U>> mapT<T, U>(IEnumerable<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(IEnumerable<TryOption<T>> self ) => self.ValueT();
+        public static T liftT<T>(IEnumerable<TryOption<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(IEnumerable<TryOption<T>> self )  where T : class => self.ValueT();
         public static IEnumerable<TryOption<V>> SelectMany<T, U, V>(this IEnumerable<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -481,7 +541,8 @@ namespace LanguageExt
         public static bool forAllT<T>(IEnumerable<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(IEnumerable<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<Try<U>> mapT<T, U>(IEnumerable<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(IEnumerable<Try<T>> self ) => self.ValueT();
+        public static T liftT<T>(IEnumerable<Try<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(IEnumerable<Try<T>> self )  where T : class => self.ValueT();
         public static IEnumerable<Try<V>> SelectMany<T, U, V>(this IEnumerable<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -494,7 +555,8 @@ namespace LanguageExt
         public static bool forAllT<T, L>(IEnumerable<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, L>(IEnumerable<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<Either<L, U>> mapT<T, L, U>(IEnumerable<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, L>(IEnumerable<Either<L, T>> self ) => self.ValueT();
+        public static T liftT<T, L>(IEnumerable<Either<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(IEnumerable<Either<L, T>> self )  where T : class => self.ValueT();
         public static IEnumerable<Either<L, V>> SelectMany<T, L, U, V>(this IEnumerable<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -507,7 +569,8 @@ namespace LanguageExt
         public static bool forAllT<T, L>(IEnumerable<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, L>(IEnumerable<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<EitherUnsafe<L, U>> mapT<T, L, U>(IEnumerable<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, L>(IEnumerable<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T liftT<T, L>(IEnumerable<EitherUnsafe<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(IEnumerable<EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
         public static IEnumerable<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this IEnumerable<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -520,7 +583,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<T, Env>(IEnumerable<Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<T, Env>(IEnumerable<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static IEnumerable<Reader<Env, U>> mapT<T, Env, U>(IEnumerable<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> liftT<T, Env>(IEnumerable<Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> liftT<T, Env>(IEnumerable<Reader<Env, T>> self )  where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<T, Env>(IEnumerable<Reader<Env, T>> self )  where T : class => self.ValueT();
         public static IEnumerable<Reader<Env, V>> SelectMany<T, Env, U, V>(this IEnumerable<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -533,7 +597,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<T, Out>(IEnumerable<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<T, Out>(IEnumerable<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static IEnumerable<Writer<Out, U>> mapT<T, Out, U>(IEnumerable<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> liftT<T, Out>(IEnumerable<Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> liftT<T, Out>(IEnumerable<Writer<Out, T>> self )  where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<T, Out>(IEnumerable<Writer<Out, T>> self )  where T : class => self.ValueT();
         public static IEnumerable<Writer<Out, V>> SelectMany<T, Out, U, V>(this IEnumerable<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -546,8 +611,23 @@ namespace LanguageExt
         public static State<State, bool> forAllT<T, State>(IEnumerable<State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> iterT<T, State>(IEnumerable<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static IEnumerable<State<State, U>> mapT<T, State, U>(IEnumerable<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> liftT<T, State>(IEnumerable<State<State, T>> self ) => self.ValueT();
+        public static State<State, T> liftT<T, State>(IEnumerable<State<State, T>> self )  where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<T, State>(IEnumerable<State<State, T>> self )  where T : class => self.ValueT();
         public static IEnumerable<State<State, V>> SelectMany<T, State, U, V>(this IEnumerable<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class List {
+        public static Rws<Env, Out, State, int> sumT<Env, Out, State>(IEnumerable<Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<T, Env, Out, State>(IEnumerable<Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static IEnumerable<Rws<Env, Out, State, U>> bindT<T, Env, Out, State, U>(IEnumerable<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<T, Env, Out, State>(IEnumerable<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static IEnumerable<Rws<Env, Out, State, T>> filterT<T, Env, Out, State>(IEnumerable<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<T, Env, Out, State, V>(IEnumerable<Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> forAllT<T, Env, Out, State>(IEnumerable<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<T, Env, Out, State>(IEnumerable<Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static IEnumerable<Rws<Env, Out, State, U>> mapT<T, Env, Out, State, U>(IEnumerable<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> liftT<T, Env, Out, State>(IEnumerable<Rws<Env, Out, State, T>> self )  where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(IEnumerable<Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
+        public static IEnumerable<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this IEnumerable<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
         public static int sumT(Option<IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -559,7 +639,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Option<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Option<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<IEnumerable<U>> mapT<T, U>(Option<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Option<IEnumerable<T>> self ) => self.ValueT();
+        public static T liftT<T>(Option<IEnumerable<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Option<IEnumerable<T>> self )  where T : class => self.ValueT();
         public static Option<IEnumerable<V>> SelectMany<T, U, V>(this Option<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
@@ -572,7 +653,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Option<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Option<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<Option<U>> mapT<T, U>(Option<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Option<Option<T>> self ) => self.ValueT();
+        public static T liftT<T>(Option<Option<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Option<Option<T>> self )  where T : class => self.ValueT();
         public static Option<Option<V>> SelectMany<T, U, V>(this Option<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
@@ -585,7 +667,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Option<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Option<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<OptionUnsafe<U>> mapT<T, U>(Option<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Option<OptionUnsafe<T>> self ) => self.ValueT();
+        public static T liftT<T>(Option<OptionUnsafe<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Option<OptionUnsafe<T>> self )  where T : class => self.ValueT();
         public static Option<OptionUnsafe<V>> SelectMany<T, U, V>(this Option<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
@@ -598,7 +681,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Option<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Option<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<Lst<U>> mapT<T, U>(Option<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Option<Lst<T>> self ) => self.ValueT();
+        public static T liftT<T>(Option<Lst<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Option<Lst<T>> self )  where T : class => self.ValueT();
         public static Option<Lst<V>> SelectMany<T, U, V>(this Option<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
@@ -611,7 +695,8 @@ namespace LanguageExt
         public static bool forAllT<T, K>(Option<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, K>(Option<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<Map<K, U>> mapT<T, K, U>(Option<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, K>(Option<Map<K, T>> self ) => self.ValueT();
+        public static T liftT<T, K>(Option<Map<K, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, K>(Option<Map<K, T>> self )  where T : class => self.ValueT();
         public static Option<Map<K, V>> SelectMany<T, K, U, V>(this Option<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
@@ -624,7 +709,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Option<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Option<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<TryOption<U>> mapT<T, U>(Option<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Option<TryOption<T>> self ) => self.ValueT();
+        public static T liftT<T>(Option<TryOption<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Option<TryOption<T>> self )  where T : class => self.ValueT();
         public static Option<TryOption<V>> SelectMany<T, U, V>(this Option<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
@@ -637,7 +723,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Option<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Option<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<Try<U>> mapT<T, U>(Option<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Option<Try<T>> self ) => self.ValueT();
+        public static T liftT<T>(Option<Try<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Option<Try<T>> self )  where T : class => self.ValueT();
         public static Option<Try<V>> SelectMany<T, U, V>(this Option<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
@@ -650,7 +737,8 @@ namespace LanguageExt
         public static bool forAllT<T, L>(Option<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, L>(Option<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<Either<L, U>> mapT<T, L, U>(Option<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, L>(Option<Either<L, T>> self ) => self.ValueT();
+        public static T liftT<T, L>(Option<Either<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(Option<Either<L, T>> self )  where T : class => self.ValueT();
         public static Option<Either<L, V>> SelectMany<T, L, U, V>(this Option<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
@@ -663,7 +751,8 @@ namespace LanguageExt
         public static bool forAllT<T, L>(Option<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, L>(Option<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<EitherUnsafe<L, U>> mapT<T, L, U>(Option<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, L>(Option<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T liftT<T, L>(Option<EitherUnsafe<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(Option<EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
         public static Option<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Option<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
@@ -676,7 +765,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<T, Env>(Option<Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<T, Env>(Option<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Option<Reader<Env, U>> mapT<T, Env, U>(Option<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> liftT<T, Env>(Option<Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> liftT<T, Env>(Option<Reader<Env, T>> self )  where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<T, Env>(Option<Reader<Env, T>> self )  where T : class => self.ValueT();
         public static Option<Reader<Env, V>> SelectMany<T, Env, U, V>(this Option<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
@@ -689,7 +779,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<T, Out>(Option<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<T, Out>(Option<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Option<Writer<Out, U>> mapT<T, Out, U>(Option<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> liftT<T, Out>(Option<Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> liftT<T, Out>(Option<Writer<Out, T>> self )  where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<T, Out>(Option<Writer<Out, T>> self )  where T : class => self.ValueT();
         public static Option<Writer<Out, V>> SelectMany<T, Out, U, V>(this Option<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Option {
@@ -702,8 +793,23 @@ namespace LanguageExt
         public static State<State, bool> forAllT<T, State>(Option<State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> iterT<T, State>(Option<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Option<State<State, U>> mapT<T, State, U>(Option<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> liftT<T, State>(Option<State<State, T>> self ) => self.ValueT();
+        public static State<State, T> liftT<T, State>(Option<State<State, T>> self )  where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<T, State>(Option<State<State, T>> self )  where T : class => self.ValueT();
         public static Option<State<State, V>> SelectMany<T, State, U, V>(this Option<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class Option {
+        public static Rws<Env, Out, State, int> sumT<Env, Out, State>(Option<Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<T, Env, Out, State>(Option<Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Option<Rws<Env, Out, State, U>> bindT<T, Env, Out, State, U>(Option<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<T, Env, Out, State>(Option<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Option<Rws<Env, Out, State, T>> filterT<T, Env, Out, State>(Option<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<T, Env, Out, State, V>(Option<Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> forAllT<T, Env, Out, State>(Option<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<T, Env, Out, State>(Option<Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static Option<Rws<Env, Out, State, U>> mapT<T, Env, Out, State, U>(Option<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> liftT<T, Env, Out, State>(Option<Rws<Env, Out, State, T>> self )  where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(Option<Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
+        public static Option<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this Option<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
         public static int sumT(OptionUnsafe<IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -715,7 +821,8 @@ namespace LanguageExt
         public static bool forAllT<T>(OptionUnsafe<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(OptionUnsafe<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<IEnumerable<U>> mapT<T, U>(OptionUnsafe<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(OptionUnsafe<IEnumerable<T>> self ) => self.ValueT();
+        public static T liftT<T>(OptionUnsafe<IEnumerable<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(OptionUnsafe<IEnumerable<T>> self )  where T : class => self.ValueT();
         public static OptionUnsafe<IEnumerable<V>> SelectMany<T, U, V>(this OptionUnsafe<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
@@ -728,7 +835,8 @@ namespace LanguageExt
         public static bool forAllT<T>(OptionUnsafe<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(OptionUnsafe<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<Option<U>> mapT<T, U>(OptionUnsafe<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(OptionUnsafe<Option<T>> self ) => self.ValueT();
+        public static T liftT<T>(OptionUnsafe<Option<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(OptionUnsafe<Option<T>> self )  where T : class => self.ValueT();
         public static OptionUnsafe<Option<V>> SelectMany<T, U, V>(this OptionUnsafe<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
@@ -741,7 +849,8 @@ namespace LanguageExt
         public static bool forAllT<T>(OptionUnsafe<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(OptionUnsafe<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<OptionUnsafe<U>> mapT<T, U>(OptionUnsafe<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(OptionUnsafe<OptionUnsafe<T>> self ) => self.ValueT();
+        public static T liftT<T>(OptionUnsafe<OptionUnsafe<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(OptionUnsafe<OptionUnsafe<T>> self )  where T : class => self.ValueT();
         public static OptionUnsafe<OptionUnsafe<V>> SelectMany<T, U, V>(this OptionUnsafe<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
@@ -754,7 +863,8 @@ namespace LanguageExt
         public static bool forAllT<T>(OptionUnsafe<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(OptionUnsafe<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<Lst<U>> mapT<T, U>(OptionUnsafe<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(OptionUnsafe<Lst<T>> self ) => self.ValueT();
+        public static T liftT<T>(OptionUnsafe<Lst<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(OptionUnsafe<Lst<T>> self )  where T : class => self.ValueT();
         public static OptionUnsafe<Lst<V>> SelectMany<T, U, V>(this OptionUnsafe<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
@@ -767,7 +877,8 @@ namespace LanguageExt
         public static bool forAllT<T, K>(OptionUnsafe<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, K>(OptionUnsafe<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<Map<K, U>> mapT<T, K, U>(OptionUnsafe<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, K>(OptionUnsafe<Map<K, T>> self ) => self.ValueT();
+        public static T liftT<T, K>(OptionUnsafe<Map<K, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, K>(OptionUnsafe<Map<K, T>> self )  where T : class => self.ValueT();
         public static OptionUnsafe<Map<K, V>> SelectMany<T, K, U, V>(this OptionUnsafe<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
@@ -780,7 +891,8 @@ namespace LanguageExt
         public static bool forAllT<T>(OptionUnsafe<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(OptionUnsafe<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<TryOption<U>> mapT<T, U>(OptionUnsafe<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(OptionUnsafe<TryOption<T>> self ) => self.ValueT();
+        public static T liftT<T>(OptionUnsafe<TryOption<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(OptionUnsafe<TryOption<T>> self )  where T : class => self.ValueT();
         public static OptionUnsafe<TryOption<V>> SelectMany<T, U, V>(this OptionUnsafe<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
@@ -793,7 +905,8 @@ namespace LanguageExt
         public static bool forAllT<T>(OptionUnsafe<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(OptionUnsafe<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<Try<U>> mapT<T, U>(OptionUnsafe<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(OptionUnsafe<Try<T>> self ) => self.ValueT();
+        public static T liftT<T>(OptionUnsafe<Try<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(OptionUnsafe<Try<T>> self )  where T : class => self.ValueT();
         public static OptionUnsafe<Try<V>> SelectMany<T, U, V>(this OptionUnsafe<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
@@ -806,7 +919,8 @@ namespace LanguageExt
         public static bool forAllT<T, L>(OptionUnsafe<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, L>(OptionUnsafe<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<Either<L, U>> mapT<T, L, U>(OptionUnsafe<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, L>(OptionUnsafe<Either<L, T>> self ) => self.ValueT();
+        public static T liftT<T, L>(OptionUnsafe<Either<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(OptionUnsafe<Either<L, T>> self )  where T : class => self.ValueT();
         public static OptionUnsafe<Either<L, V>> SelectMany<T, L, U, V>(this OptionUnsafe<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
@@ -819,7 +933,8 @@ namespace LanguageExt
         public static bool forAllT<T, L>(OptionUnsafe<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, L>(OptionUnsafe<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<EitherUnsafe<L, U>> mapT<T, L, U>(OptionUnsafe<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, L>(OptionUnsafe<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T liftT<T, L>(OptionUnsafe<EitherUnsafe<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(OptionUnsafe<EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
         public static OptionUnsafe<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this OptionUnsafe<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
@@ -832,7 +947,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<T, Env>(OptionUnsafe<Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<T, Env>(OptionUnsafe<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static OptionUnsafe<Reader<Env, U>> mapT<T, Env, U>(OptionUnsafe<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> liftT<T, Env>(OptionUnsafe<Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> liftT<T, Env>(OptionUnsafe<Reader<Env, T>> self )  where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<T, Env>(OptionUnsafe<Reader<Env, T>> self )  where T : class => self.ValueT();
         public static OptionUnsafe<Reader<Env, V>> SelectMany<T, Env, U, V>(this OptionUnsafe<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
@@ -845,7 +961,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<T, Out>(OptionUnsafe<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<T, Out>(OptionUnsafe<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static OptionUnsafe<Writer<Out, U>> mapT<T, Out, U>(OptionUnsafe<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> liftT<T, Out>(OptionUnsafe<Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> liftT<T, Out>(OptionUnsafe<Writer<Out, T>> self )  where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<T, Out>(OptionUnsafe<Writer<Out, T>> self )  where T : class => self.ValueT();
         public static OptionUnsafe<Writer<Out, V>> SelectMany<T, Out, U, V>(this OptionUnsafe<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class OptionUnsafe {
@@ -858,8 +975,23 @@ namespace LanguageExt
         public static State<State, bool> forAllT<T, State>(OptionUnsafe<State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> iterT<T, State>(OptionUnsafe<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static OptionUnsafe<State<State, U>> mapT<T, State, U>(OptionUnsafe<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> liftT<T, State>(OptionUnsafe<State<State, T>> self ) => self.ValueT();
+        public static State<State, T> liftT<T, State>(OptionUnsafe<State<State, T>> self )  where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<T, State>(OptionUnsafe<State<State, T>> self )  where T : class => self.ValueT();
         public static OptionUnsafe<State<State, V>> SelectMany<T, State, U, V>(this OptionUnsafe<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class OptionUnsafe {
+        public static Rws<Env, Out, State, int> sumT<Env, Out, State>(OptionUnsafe<Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<T, Env, Out, State>(OptionUnsafe<Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static OptionUnsafe<Rws<Env, Out, State, U>> bindT<T, Env, Out, State, U>(OptionUnsafe<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<T, Env, Out, State>(OptionUnsafe<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static OptionUnsafe<Rws<Env, Out, State, T>> filterT<T, Env, Out, State>(OptionUnsafe<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<T, Env, Out, State, V>(OptionUnsafe<Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> forAllT<T, Env, Out, State>(OptionUnsafe<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<T, Env, Out, State>(OptionUnsafe<Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static OptionUnsafe<Rws<Env, Out, State, U>> mapT<T, Env, Out, State, U>(OptionUnsafe<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> liftT<T, Env, Out, State>(OptionUnsafe<Rws<Env, Out, State, T>> self )  where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(OptionUnsafe<Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
+        public static OptionUnsafe<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this OptionUnsafe<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
         public static int sumT(Lst<IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -871,7 +1003,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Lst<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Lst<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<IEnumerable<U>> mapT<T, U>(Lst<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Lst<IEnumerable<T>> self ) => self.ValueT();
+        public static T liftT<T>(Lst<IEnumerable<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Lst<IEnumerable<T>> self )  where T : class => self.ValueT();
         public static Lst<IEnumerable<V>> SelectMany<T, U, V>(this Lst<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -884,7 +1017,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Lst<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Lst<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<Option<U>> mapT<T, U>(Lst<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Lst<Option<T>> self ) => self.ValueT();
+        public static T liftT<T>(Lst<Option<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Lst<Option<T>> self )  where T : class => self.ValueT();
         public static Lst<Option<V>> SelectMany<T, U, V>(this Lst<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -897,7 +1031,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Lst<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Lst<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<OptionUnsafe<U>> mapT<T, U>(Lst<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Lst<OptionUnsafe<T>> self ) => self.ValueT();
+        public static T liftT<T>(Lst<OptionUnsafe<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Lst<OptionUnsafe<T>> self )  where T : class => self.ValueT();
         public static Lst<OptionUnsafe<V>> SelectMany<T, U, V>(this Lst<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -910,7 +1045,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Lst<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Lst<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<Lst<U>> mapT<T, U>(Lst<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Lst<Lst<T>> self ) => self.ValueT();
+        public static T liftT<T>(Lst<Lst<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Lst<Lst<T>> self )  where T : class => self.ValueT();
         public static Lst<Lst<V>> SelectMany<T, U, V>(this Lst<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -923,7 +1059,8 @@ namespace LanguageExt
         public static bool forAllT<T, K>(Lst<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, K>(Lst<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<Map<K, U>> mapT<T, K, U>(Lst<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, K>(Lst<Map<K, T>> self ) => self.ValueT();
+        public static T liftT<T, K>(Lst<Map<K, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, K>(Lst<Map<K, T>> self )  where T : class => self.ValueT();
         public static Lst<Map<K, V>> SelectMany<T, K, U, V>(this Lst<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -936,7 +1073,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Lst<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Lst<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<TryOption<U>> mapT<T, U>(Lst<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Lst<TryOption<T>> self ) => self.ValueT();
+        public static T liftT<T>(Lst<TryOption<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Lst<TryOption<T>> self )  where T : class => self.ValueT();
         public static Lst<TryOption<V>> SelectMany<T, U, V>(this Lst<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -949,7 +1087,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Lst<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Lst<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<Try<U>> mapT<T, U>(Lst<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Lst<Try<T>> self ) => self.ValueT();
+        public static T liftT<T>(Lst<Try<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Lst<Try<T>> self )  where T : class => self.ValueT();
         public static Lst<Try<V>> SelectMany<T, U, V>(this Lst<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -962,7 +1101,8 @@ namespace LanguageExt
         public static bool forAllT<T, L>(Lst<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, L>(Lst<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<Either<L, U>> mapT<T, L, U>(Lst<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, L>(Lst<Either<L, T>> self ) => self.ValueT();
+        public static T liftT<T, L>(Lst<Either<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(Lst<Either<L, T>> self )  where T : class => self.ValueT();
         public static Lst<Either<L, V>> SelectMany<T, L, U, V>(this Lst<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -975,7 +1115,8 @@ namespace LanguageExt
         public static bool forAllT<T, L>(Lst<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, L>(Lst<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<EitherUnsafe<L, U>> mapT<T, L, U>(Lst<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, L>(Lst<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T liftT<T, L>(Lst<EitherUnsafe<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(Lst<EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
         public static Lst<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Lst<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -988,7 +1129,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<T, Env>(Lst<Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<T, Env>(Lst<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Lst<Reader<Env, U>> mapT<T, Env, U>(Lst<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> liftT<T, Env>(Lst<Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> liftT<T, Env>(Lst<Reader<Env, T>> self )  where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<T, Env>(Lst<Reader<Env, T>> self )  where T : class => self.ValueT();
         public static Lst<Reader<Env, V>> SelectMany<T, Env, U, V>(this Lst<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -1001,7 +1143,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<T, Out>(Lst<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<T, Out>(Lst<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Lst<Writer<Out, U>> mapT<T, Out, U>(Lst<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> liftT<T, Out>(Lst<Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> liftT<T, Out>(Lst<Writer<Out, T>> self )  where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<T, Out>(Lst<Writer<Out, T>> self )  where T : class => self.ValueT();
         public static Lst<Writer<Out, V>> SelectMany<T, Out, U, V>(this Lst<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class List {
@@ -1014,8 +1157,23 @@ namespace LanguageExt
         public static State<State, bool> forAllT<T, State>(Lst<State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> iterT<T, State>(Lst<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Lst<State<State, U>> mapT<T, State, U>(Lst<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> liftT<T, State>(Lst<State<State, T>> self ) => self.ValueT();
+        public static State<State, T> liftT<T, State>(Lst<State<State, T>> self )  where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<T, State>(Lst<State<State, T>> self )  where T : class => self.ValueT();
         public static Lst<State<State, V>> SelectMany<T, State, U, V>(this Lst<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class List {
+        public static Rws<Env, Out, State, int> sumT<Env, Out, State>(Lst<Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<T, Env, Out, State>(Lst<Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Lst<Rws<Env, Out, State, U>> bindT<T, Env, Out, State, U>(Lst<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<T, Env, Out, State>(Lst<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Lst<Rws<Env, Out, State, T>> filterT<T, Env, Out, State>(Lst<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<T, Env, Out, State, V>(Lst<Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> forAllT<T, Env, Out, State>(Lst<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<T, Env, Out, State>(Lst<Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static Lst<Rws<Env, Out, State, U>> mapT<T, Env, Out, State, U>(Lst<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> liftT<T, Env, Out, State>(Lst<Rws<Env, Out, State, T>> self )  where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(Lst<Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
+        public static Lst<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this Lst<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
         public static int sumT<K>(Map<K, IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1027,7 +1185,8 @@ namespace LanguageExt
         public static bool forAllT<K, T>(Map<K, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<K, T>(Map<K, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, IEnumerable<U>> mapT<K, T, U>(Map<K, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<K, T>(Map<K, IEnumerable<T>> self ) => self.ValueT();
+        public static T liftT<K, T>(Map<K, IEnumerable<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T>(Map<K, IEnumerable<T>> self )  where T : class => self.ValueT();
         public static Map<K, IEnumerable<V>> SelectMany<K, T, U, V>(this Map<K, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
@@ -1040,7 +1199,8 @@ namespace LanguageExt
         public static bool forAllT<K, T>(Map<K, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<K, T>(Map<K, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, Option<U>> mapT<K, T, U>(Map<K, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<K, T>(Map<K, Option<T>> self ) => self.ValueT();
+        public static T liftT<K, T>(Map<K, Option<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T>(Map<K, Option<T>> self )  where T : class => self.ValueT();
         public static Map<K, Option<V>> SelectMany<K, T, U, V>(this Map<K, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
@@ -1053,7 +1213,8 @@ namespace LanguageExt
         public static bool forAllT<K, T>(Map<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<K, T>(Map<K, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, OptionUnsafe<U>> mapT<K, T, U>(Map<K, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<K, T>(Map<K, OptionUnsafe<T>> self ) => self.ValueT();
+        public static T liftT<K, T>(Map<K, OptionUnsafe<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T>(Map<K, OptionUnsafe<T>> self )  where T : class => self.ValueT();
         public static Map<K, OptionUnsafe<V>> SelectMany<K, T, U, V>(this Map<K, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
@@ -1066,7 +1227,8 @@ namespace LanguageExt
         public static bool forAllT<K, T>(Map<K, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<K, T>(Map<K, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, Lst<U>> mapT<K, T, U>(Map<K, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<K, T>(Map<K, Lst<T>> self ) => self.ValueT();
+        public static T liftT<K, T>(Map<K, Lst<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T>(Map<K, Lst<T>> self )  where T : class => self.ValueT();
         public static Map<K, Lst<V>> SelectMany<K, T, U, V>(this Map<K, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
@@ -1079,7 +1241,8 @@ namespace LanguageExt
         public static bool forAllT<K, T>(Map<K, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<K, T>(Map<K, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, Map<K, U>> mapT<K, T, U>(Map<K, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<K, T>(Map<K, Map<K, T>> self ) => self.ValueT();
+        public static T liftT<K, T>(Map<K, Map<K, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T>(Map<K, Map<K, T>> self )  where T : class => self.ValueT();
         public static Map<K, Map<K, V>> SelectMany<K, T, U, V>(this Map<K, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
@@ -1092,7 +1255,8 @@ namespace LanguageExt
         public static bool forAllT<K, T>(Map<K, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<K, T>(Map<K, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, TryOption<U>> mapT<K, T, U>(Map<K, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<K, T>(Map<K, TryOption<T>> self ) => self.ValueT();
+        public static T liftT<K, T>(Map<K, TryOption<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T>(Map<K, TryOption<T>> self )  where T : class => self.ValueT();
         public static Map<K, TryOption<V>> SelectMany<K, T, U, V>(this Map<K, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
@@ -1105,7 +1269,8 @@ namespace LanguageExt
         public static bool forAllT<K, T>(Map<K, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<K, T>(Map<K, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, Try<U>> mapT<K, T, U>(Map<K, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<K, T>(Map<K, Try<T>> self ) => self.ValueT();
+        public static T liftT<K, T>(Map<K, Try<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T>(Map<K, Try<T>> self )  where T : class => self.ValueT();
         public static Map<K, Try<V>> SelectMany<K, T, U, V>(this Map<K, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
@@ -1118,7 +1283,8 @@ namespace LanguageExt
         public static bool forAllT<K, T, L>(Map<K, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<K, T, L>(Map<K, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, Either<L, U>> mapT<K, T, L, U>(Map<K, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<K, T, L>(Map<K, Either<L, T>> self ) => self.ValueT();
+        public static T liftT<K, T, L>(Map<K, Either<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T, L>(Map<K, Either<L, T>> self )  where T : class => self.ValueT();
         public static Map<K, Either<L, V>> SelectMany<K, T, L, U, V>(this Map<K, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
@@ -1131,7 +1297,8 @@ namespace LanguageExt
         public static bool forAllT<K, T, L>(Map<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<K, T, L>(Map<K, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, EitherUnsafe<L, U>> mapT<K, T, L, U>(Map<K, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<K, T, L>(Map<K, EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T liftT<K, T, L>(Map<K, EitherUnsafe<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T, L>(Map<K, EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
         public static Map<K, EitherUnsafe<L, V>> SelectMany<K, T, L, U, V>(this Map<K, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
@@ -1144,7 +1311,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<K, T, Env>(Map<K, Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<K, T, Env>(Map<K, Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Map<K, Reader<Env, U>> mapT<K, T, Env, U>(Map<K, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> liftT<K, T, Env>(Map<K, Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> liftT<K, T, Env>(Map<K, Reader<Env, T>> self )  where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<K, T, Env>(Map<K, Reader<Env, T>> self )  where T : class => self.ValueT();
         public static Map<K, Reader<Env, V>> SelectMany<K, T, Env, U, V>(this Map<K, Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
@@ -1157,7 +1325,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<K, T, Out>(Map<K, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<K, T, Out>(Map<K, Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Map<K, Writer<Out, U>> mapT<K, T, Out, U>(Map<K, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> liftT<K, T, Out>(Map<K, Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> liftT<K, T, Out>(Map<K, Writer<Out, T>> self )  where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<K, T, Out>(Map<K, Writer<Out, T>> self )  where T : class => self.ValueT();
         public static Map<K, Writer<Out, V>> SelectMany<K, T, Out, U, V>(this Map<K, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Map {
@@ -1170,8 +1339,23 @@ namespace LanguageExt
         public static State<State, bool> forAllT<K, T, State>(Map<K, State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> iterT<K, T, State>(Map<K, State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Map<K, State<State, U>> mapT<K, T, State, U>(Map<K, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> liftT<K, T, State>(Map<K, State<State, T>> self ) => self.ValueT();
+        public static State<State, T> liftT<K, T, State>(Map<K, State<State, T>> self )  where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<K, T, State>(Map<K, State<State, T>> self )  where T : class => self.ValueT();
         public static Map<K, State<State, V>> SelectMany<K, T, State, U, V>(this Map<K, State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class Map {
+        public static Rws<Env, Out, State, int> sumT<K, Env, Out, State>(Map<K, Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<K, T, Env, Out, State>(Map<K, Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Map<K, Rws<Env, Out, State, U>> bindT<K, T, Env, Out, State, U>(Map<K, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<K, T, Env, Out, State>(Map<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Map<K, Rws<Env, Out, State, T>> filterT<K, T, Env, Out, State>(Map<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<K, T, Env, Out, State, V>(Map<K, Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> forAllT<K, T, Env, Out, State>(Map<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<K, T, Env, Out, State>(Map<K, Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static Map<K, Rws<Env, Out, State, U>> mapT<K, T, Env, Out, State, U>(Map<K, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> liftT<K, T, Env, Out, State>(Map<K, Rws<Env, Out, State, T>> self )  where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<K, T, Env, Out, State>(Map<K, Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
+        public static Map<K, Rws<Env, Out, State, V>> SelectMany<K, T, Env, Out, State, U, V>(this Map<K, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
         public static int sumT(TryOption<IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1183,7 +1367,8 @@ namespace LanguageExt
         public static bool forAllT<T>(TryOption<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(TryOption<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<IEnumerable<U>> mapT<T, U>(TryOption<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(TryOption<IEnumerable<T>> self ) => self.ValueT();
+        public static T liftT<T>(TryOption<IEnumerable<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(TryOption<IEnumerable<T>> self )  where T : class => self.ValueT();
         public static TryOption<IEnumerable<V>> SelectMany<T, U, V>(this TryOption<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
@@ -1196,7 +1381,8 @@ namespace LanguageExt
         public static bool forAllT<T>(TryOption<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(TryOption<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<Option<U>> mapT<T, U>(TryOption<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(TryOption<Option<T>> self ) => self.ValueT();
+        public static T liftT<T>(TryOption<Option<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(TryOption<Option<T>> self )  where T : class => self.ValueT();
         public static TryOption<Option<V>> SelectMany<T, U, V>(this TryOption<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
@@ -1209,7 +1395,8 @@ namespace LanguageExt
         public static bool forAllT<T>(TryOption<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(TryOption<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<OptionUnsafe<U>> mapT<T, U>(TryOption<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(TryOption<OptionUnsafe<T>> self ) => self.ValueT();
+        public static T liftT<T>(TryOption<OptionUnsafe<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(TryOption<OptionUnsafe<T>> self )  where T : class => self.ValueT();
         public static TryOption<OptionUnsafe<V>> SelectMany<T, U, V>(this TryOption<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
@@ -1222,7 +1409,8 @@ namespace LanguageExt
         public static bool forAllT<T>(TryOption<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(TryOption<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<Lst<U>> mapT<T, U>(TryOption<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(TryOption<Lst<T>> self ) => self.ValueT();
+        public static T liftT<T>(TryOption<Lst<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(TryOption<Lst<T>> self )  where T : class => self.ValueT();
         public static TryOption<Lst<V>> SelectMany<T, U, V>(this TryOption<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
@@ -1235,7 +1423,8 @@ namespace LanguageExt
         public static bool forAllT<T, K>(TryOption<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, K>(TryOption<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<Map<K, U>> mapT<T, K, U>(TryOption<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, K>(TryOption<Map<K, T>> self ) => self.ValueT();
+        public static T liftT<T, K>(TryOption<Map<K, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, K>(TryOption<Map<K, T>> self )  where T : class => self.ValueT();
         public static TryOption<Map<K, V>> SelectMany<T, K, U, V>(this TryOption<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
@@ -1248,7 +1437,8 @@ namespace LanguageExt
         public static bool forAllT<T>(TryOption<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(TryOption<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<TryOption<U>> mapT<T, U>(TryOption<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(TryOption<TryOption<T>> self ) => self.ValueT();
+        public static T liftT<T>(TryOption<TryOption<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(TryOption<TryOption<T>> self )  where T : class => self.ValueT();
         public static TryOption<TryOption<V>> SelectMany<T, U, V>(this TryOption<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
@@ -1261,7 +1451,8 @@ namespace LanguageExt
         public static bool forAllT<T>(TryOption<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(TryOption<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<Try<U>> mapT<T, U>(TryOption<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(TryOption<Try<T>> self ) => self.ValueT();
+        public static T liftT<T>(TryOption<Try<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(TryOption<Try<T>> self )  where T : class => self.ValueT();
         public static TryOption<Try<V>> SelectMany<T, U, V>(this TryOption<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
@@ -1274,7 +1465,8 @@ namespace LanguageExt
         public static bool forAllT<T, L>(TryOption<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, L>(TryOption<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<Either<L, U>> mapT<T, L, U>(TryOption<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, L>(TryOption<Either<L, T>> self ) => self.ValueT();
+        public static T liftT<T, L>(TryOption<Either<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(TryOption<Either<L, T>> self )  where T : class => self.ValueT();
         public static TryOption<Either<L, V>> SelectMany<T, L, U, V>(this TryOption<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
@@ -1287,7 +1479,8 @@ namespace LanguageExt
         public static bool forAllT<T, L>(TryOption<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, L>(TryOption<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<EitherUnsafe<L, U>> mapT<T, L, U>(TryOption<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, L>(TryOption<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T liftT<T, L>(TryOption<EitherUnsafe<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(TryOption<EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
         public static TryOption<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this TryOption<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
@@ -1300,7 +1493,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<T, Env>(TryOption<Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<T, Env>(TryOption<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static TryOption<Reader<Env, U>> mapT<T, Env, U>(TryOption<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> liftT<T, Env>(TryOption<Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> liftT<T, Env>(TryOption<Reader<Env, T>> self )  where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<T, Env>(TryOption<Reader<Env, T>> self )  where T : class => self.ValueT();
         public static TryOption<Reader<Env, V>> SelectMany<T, Env, U, V>(this TryOption<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
@@ -1313,7 +1507,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<T, Out>(TryOption<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<T, Out>(TryOption<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static TryOption<Writer<Out, U>> mapT<T, Out, U>(TryOption<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> liftT<T, Out>(TryOption<Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> liftT<T, Out>(TryOption<Writer<Out, T>> self )  where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<T, Out>(TryOption<Writer<Out, T>> self )  where T : class => self.ValueT();
         public static TryOption<Writer<Out, V>> SelectMany<T, Out, U, V>(this TryOption<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class TryOption {
@@ -1326,8 +1521,23 @@ namespace LanguageExt
         public static State<State, bool> forAllT<T, State>(TryOption<State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> iterT<T, State>(TryOption<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static TryOption<State<State, U>> mapT<T, State, U>(TryOption<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> liftT<T, State>(TryOption<State<State, T>> self ) => self.ValueT();
+        public static State<State, T> liftT<T, State>(TryOption<State<State, T>> self )  where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<T, State>(TryOption<State<State, T>> self )  where T : class => self.ValueT();
         public static TryOption<State<State, V>> SelectMany<T, State, U, V>(this TryOption<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class TryOption {
+        public static Rws<Env, Out, State, int> sumT<Env, Out, State>(TryOption<Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<T, Env, Out, State>(TryOption<Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static TryOption<Rws<Env, Out, State, U>> bindT<T, Env, Out, State, U>(TryOption<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<T, Env, Out, State>(TryOption<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static TryOption<Rws<Env, Out, State, T>> filterT<T, Env, Out, State>(TryOption<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<T, Env, Out, State, V>(TryOption<Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> forAllT<T, Env, Out, State>(TryOption<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<T, Env, Out, State>(TryOption<Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static TryOption<Rws<Env, Out, State, U>> mapT<T, Env, Out, State, U>(TryOption<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> liftT<T, Env, Out, State>(TryOption<Rws<Env, Out, State, T>> self )  where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(TryOption<Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
+        public static TryOption<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this TryOption<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
         public static int sumT(Try<IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1339,7 +1549,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Try<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Try<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<IEnumerable<U>> mapT<T, U>(Try<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Try<IEnumerable<T>> self ) => self.ValueT();
+        public static T liftT<T>(Try<IEnumerable<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Try<IEnumerable<T>> self )  where T : class => self.ValueT();
         public static Try<IEnumerable<V>> SelectMany<T, U, V>(this Try<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
@@ -1352,7 +1563,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Try<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Try<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<Option<U>> mapT<T, U>(Try<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Try<Option<T>> self ) => self.ValueT();
+        public static T liftT<T>(Try<Option<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Try<Option<T>> self )  where T : class => self.ValueT();
         public static Try<Option<V>> SelectMany<T, U, V>(this Try<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
@@ -1365,7 +1577,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Try<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Try<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<OptionUnsafe<U>> mapT<T, U>(Try<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Try<OptionUnsafe<T>> self ) => self.ValueT();
+        public static T liftT<T>(Try<OptionUnsafe<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Try<OptionUnsafe<T>> self )  where T : class => self.ValueT();
         public static Try<OptionUnsafe<V>> SelectMany<T, U, V>(this Try<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
@@ -1378,7 +1591,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Try<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Try<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<Lst<U>> mapT<T, U>(Try<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Try<Lst<T>> self ) => self.ValueT();
+        public static T liftT<T>(Try<Lst<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Try<Lst<T>> self )  where T : class => self.ValueT();
         public static Try<Lst<V>> SelectMany<T, U, V>(this Try<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
@@ -1391,7 +1605,8 @@ namespace LanguageExt
         public static bool forAllT<T, K>(Try<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, K>(Try<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<Map<K, U>> mapT<T, K, U>(Try<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, K>(Try<Map<K, T>> self ) => self.ValueT();
+        public static T liftT<T, K>(Try<Map<K, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, K>(Try<Map<K, T>> self )  where T : class => self.ValueT();
         public static Try<Map<K, V>> SelectMany<T, K, U, V>(this Try<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
@@ -1404,7 +1619,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Try<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Try<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<TryOption<U>> mapT<T, U>(Try<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Try<TryOption<T>> self ) => self.ValueT();
+        public static T liftT<T>(Try<TryOption<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Try<TryOption<T>> self )  where T : class => self.ValueT();
         public static Try<TryOption<V>> SelectMany<T, U, V>(this Try<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
@@ -1417,7 +1633,8 @@ namespace LanguageExt
         public static bool forAllT<T>(Try<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T>(Try<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<Try<U>> mapT<T, U>(Try<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T>(Try<Try<T>> self ) => self.ValueT();
+        public static T liftT<T>(Try<Try<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(Try<Try<T>> self )  where T : class => self.ValueT();
         public static Try<Try<V>> SelectMany<T, U, V>(this Try<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
@@ -1430,7 +1647,8 @@ namespace LanguageExt
         public static bool forAllT<T, L>(Try<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, L>(Try<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<Either<L, U>> mapT<T, L, U>(Try<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, L>(Try<Either<L, T>> self ) => self.ValueT();
+        public static T liftT<T, L>(Try<Either<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(Try<Either<L, T>> self )  where T : class => self.ValueT();
         public static Try<Either<L, V>> SelectMany<T, L, U, V>(this Try<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
@@ -1443,7 +1661,8 @@ namespace LanguageExt
         public static bool forAllT<T, L>(Try<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<T, L>(Try<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<EitherUnsafe<L, U>> mapT<T, L, U>(Try<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<T, L>(Try<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T liftT<T, L>(Try<EitherUnsafe<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(Try<EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
         public static Try<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Try<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
@@ -1456,7 +1675,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<T, Env>(Try<Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<T, Env>(Try<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Try<Reader<Env, U>> mapT<T, Env, U>(Try<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> liftT<T, Env>(Try<Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> liftT<T, Env>(Try<Reader<Env, T>> self )  where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<T, Env>(Try<Reader<Env, T>> self )  where T : class => self.ValueT();
         public static Try<Reader<Env, V>> SelectMany<T, Env, U, V>(this Try<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
@@ -1469,7 +1689,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<T, Out>(Try<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<T, Out>(Try<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Try<Writer<Out, U>> mapT<T, Out, U>(Try<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> liftT<T, Out>(Try<Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> liftT<T, Out>(Try<Writer<Out, T>> self )  where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<T, Out>(Try<Writer<Out, T>> self )  where T : class => self.ValueT();
         public static Try<Writer<Out, V>> SelectMany<T, Out, U, V>(this Try<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Try {
@@ -1482,8 +1703,23 @@ namespace LanguageExt
         public static State<State, bool> forAllT<T, State>(Try<State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> iterT<T, State>(Try<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Try<State<State, U>> mapT<T, State, U>(Try<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> liftT<T, State>(Try<State<State, T>> self ) => self.ValueT();
+        public static State<State, T> liftT<T, State>(Try<State<State, T>> self )  where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<T, State>(Try<State<State, T>> self )  where T : class => self.ValueT();
         public static Try<State<State, V>> SelectMany<T, State, U, V>(this Try<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class Try {
+        public static Rws<Env, Out, State, int> sumT<Env, Out, State>(Try<Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<T, Env, Out, State>(Try<Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Try<Rws<Env, Out, State, U>> bindT<T, Env, Out, State, U>(Try<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<T, Env, Out, State>(Try<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Try<Rws<Env, Out, State, T>> filterT<T, Env, Out, State>(Try<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<T, Env, Out, State, V>(Try<Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> forAllT<T, Env, Out, State>(Try<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<T, Env, Out, State>(Try<Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static Try<Rws<Env, Out, State, U>> mapT<T, Env, Out, State, U>(Try<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> liftT<T, Env, Out, State>(Try<Rws<Env, Out, State, T>> self )  where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(Try<Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
+        public static Try<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this Try<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
         public static int sumT<L>(Either<L, IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1495,7 +1731,8 @@ namespace LanguageExt
         public static bool forAllT<L, T>(Either<L, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T>(Either<L, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, IEnumerable<U>> mapT<L, T, U>(Either<L, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T>(Either<L, IEnumerable<T>> self ) => self.ValueT();
+        public static T liftT<L, T>(Either<L, IEnumerable<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(Either<L, IEnumerable<T>> self )  where T : class => self.ValueT();
         public static Either<L, IEnumerable<V>> SelectMany<L, T, U, V>(this Either<L, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
@@ -1508,7 +1745,8 @@ namespace LanguageExt
         public static bool forAllT<L, T>(Either<L, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T>(Either<L, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, Option<U>> mapT<L, T, U>(Either<L, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T>(Either<L, Option<T>> self ) => self.ValueT();
+        public static T liftT<L, T>(Either<L, Option<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(Either<L, Option<T>> self )  where T : class => self.ValueT();
         public static Either<L, Option<V>> SelectMany<L, T, U, V>(this Either<L, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
@@ -1521,7 +1759,8 @@ namespace LanguageExt
         public static bool forAllT<L, T>(Either<L, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T>(Either<L, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, OptionUnsafe<U>> mapT<L, T, U>(Either<L, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T>(Either<L, OptionUnsafe<T>> self ) => self.ValueT();
+        public static T liftT<L, T>(Either<L, OptionUnsafe<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(Either<L, OptionUnsafe<T>> self )  where T : class => self.ValueT();
         public static Either<L, OptionUnsafe<V>> SelectMany<L, T, U, V>(this Either<L, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
@@ -1534,7 +1773,8 @@ namespace LanguageExt
         public static bool forAllT<L, T>(Either<L, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T>(Either<L, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, Lst<U>> mapT<L, T, U>(Either<L, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T>(Either<L, Lst<T>> self ) => self.ValueT();
+        public static T liftT<L, T>(Either<L, Lst<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(Either<L, Lst<T>> self )  where T : class => self.ValueT();
         public static Either<L, Lst<V>> SelectMany<L, T, U, V>(this Either<L, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
@@ -1547,7 +1787,8 @@ namespace LanguageExt
         public static bool forAllT<L, T, K>(Either<L, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T, K>(Either<L, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, Map<K, U>> mapT<L, T, K, U>(Either<L, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T, K>(Either<L, Map<K, T>> self ) => self.ValueT();
+        public static T liftT<L, T, K>(Either<L, Map<K, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T, K>(Either<L, Map<K, T>> self )  where T : class => self.ValueT();
         public static Either<L, Map<K, V>> SelectMany<L, T, K, U, V>(this Either<L, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
@@ -1560,7 +1801,8 @@ namespace LanguageExt
         public static bool forAllT<L, T>(Either<L, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T>(Either<L, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, TryOption<U>> mapT<L, T, U>(Either<L, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T>(Either<L, TryOption<T>> self ) => self.ValueT();
+        public static T liftT<L, T>(Either<L, TryOption<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(Either<L, TryOption<T>> self )  where T : class => self.ValueT();
         public static Either<L, TryOption<V>> SelectMany<L, T, U, V>(this Either<L, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
@@ -1573,7 +1815,8 @@ namespace LanguageExt
         public static bool forAllT<L, T>(Either<L, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T>(Either<L, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, Try<U>> mapT<L, T, U>(Either<L, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T>(Either<L, Try<T>> self ) => self.ValueT();
+        public static T liftT<L, T>(Either<L, Try<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(Either<L, Try<T>> self )  where T : class => self.ValueT();
         public static Either<L, Try<V>> SelectMany<L, T, U, V>(this Either<L, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
@@ -1586,7 +1829,8 @@ namespace LanguageExt
         public static bool forAllT<L, T>(Either<L, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T>(Either<L, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, Either<L, U>> mapT<L, T, U>(Either<L, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T>(Either<L, Either<L, T>> self ) => self.ValueT();
+        public static T liftT<L, T>(Either<L, Either<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(Either<L, Either<L, T>> self )  where T : class => self.ValueT();
         public static Either<L, Either<L, V>> SelectMany<L, T, U, V>(this Either<L, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
@@ -1599,7 +1843,8 @@ namespace LanguageExt
         public static bool forAllT<L, T>(Either<L, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T>(Either<L, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, EitherUnsafe<L, U>> mapT<L, T, U>(Either<L, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T>(Either<L, EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T liftT<L, T>(Either<L, EitherUnsafe<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(Either<L, EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
         public static Either<L, EitherUnsafe<L, V>> SelectMany<L, T, U, V>(this Either<L, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
@@ -1612,7 +1857,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<L, T, Env>(Either<L, Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<L, T, Env>(Either<L, Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Either<L, Reader<Env, U>> mapT<L, T, Env, U>(Either<L, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> liftT<L, T, Env>(Either<L, Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> liftT<L, T, Env>(Either<L, Reader<Env, T>> self )  where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<L, T, Env>(Either<L, Reader<Env, T>> self )  where T : class => self.ValueT();
         public static Either<L, Reader<Env, V>> SelectMany<L, T, Env, U, V>(this Either<L, Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
@@ -1625,7 +1871,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<L, T, Out>(Either<L, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<L, T, Out>(Either<L, Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Either<L, Writer<Out, U>> mapT<L, T, Out, U>(Either<L, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> liftT<L, T, Out>(Either<L, Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> liftT<L, T, Out>(Either<L, Writer<Out, T>> self )  where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<L, T, Out>(Either<L, Writer<Out, T>> self )  where T : class => self.ValueT();
         public static Either<L, Writer<Out, V>> SelectMany<L, T, Out, U, V>(this Either<L, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Either {
@@ -1638,8 +1885,23 @@ namespace LanguageExt
         public static State<State, bool> forAllT<L, T, State>(Either<L, State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> iterT<L, T, State>(Either<L, State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Either<L, State<State, U>> mapT<L, T, State, U>(Either<L, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> liftT<L, T, State>(Either<L, State<State, T>> self ) => self.ValueT();
+        public static State<State, T> liftT<L, T, State>(Either<L, State<State, T>> self )  where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<L, T, State>(Either<L, State<State, T>> self )  where T : class => self.ValueT();
         public static Either<L, State<State, V>> SelectMany<L, T, State, U, V>(this Either<L, State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class Either {
+        public static Rws<Env, Out, State, int> sumT<L, Env, Out, State>(Either<L, Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<L, T, Env, Out, State>(Either<L, Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Either<L, Rws<Env, Out, State, U>> bindT<L, T, Env, Out, State, U>(Either<L, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<L, T, Env, Out, State>(Either<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Either<L, Rws<Env, Out, State, T>> filterT<L, T, Env, Out, State>(Either<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<L, T, Env, Out, State, V>(Either<L, Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> forAllT<L, T, Env, Out, State>(Either<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<L, T, Env, Out, State>(Either<L, Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static Either<L, Rws<Env, Out, State, U>> mapT<L, T, Env, Out, State, U>(Either<L, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> liftT<L, T, Env, Out, State>(Either<L, Rws<Env, Out, State, T>> self )  where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<L, T, Env, Out, State>(Either<L, Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
+        public static Either<L, Rws<Env, Out, State, V>> SelectMany<L, T, Env, Out, State, U, V>(this Either<L, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
         public static int sumT<L>(EitherUnsafe<L, IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1651,7 +1913,8 @@ namespace LanguageExt
         public static bool forAllT<L, T>(EitherUnsafe<L, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T>(EitherUnsafe<L, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, IEnumerable<U>> mapT<L, T, U>(EitherUnsafe<L, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T>(EitherUnsafe<L, IEnumerable<T>> self ) => self.ValueT();
+        public static T liftT<L, T>(EitherUnsafe<L, IEnumerable<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(EitherUnsafe<L, IEnumerable<T>> self )  where T : class => self.ValueT();
         public static EitherUnsafe<L, IEnumerable<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
@@ -1664,7 +1927,8 @@ namespace LanguageExt
         public static bool forAllT<L, T>(EitherUnsafe<L, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T>(EitherUnsafe<L, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, Option<U>> mapT<L, T, U>(EitherUnsafe<L, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T>(EitherUnsafe<L, Option<T>> self ) => self.ValueT();
+        public static T liftT<L, T>(EitherUnsafe<L, Option<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(EitherUnsafe<L, Option<T>> self )  where T : class => self.ValueT();
         public static EitherUnsafe<L, Option<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
@@ -1677,7 +1941,8 @@ namespace LanguageExt
         public static bool forAllT<L, T>(EitherUnsafe<L, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T>(EitherUnsafe<L, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, OptionUnsafe<U>> mapT<L, T, U>(EitherUnsafe<L, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T>(EitherUnsafe<L, OptionUnsafe<T>> self ) => self.ValueT();
+        public static T liftT<L, T>(EitherUnsafe<L, OptionUnsafe<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(EitherUnsafe<L, OptionUnsafe<T>> self )  where T : class => self.ValueT();
         public static EitherUnsafe<L, OptionUnsafe<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
@@ -1690,7 +1955,8 @@ namespace LanguageExt
         public static bool forAllT<L, T>(EitherUnsafe<L, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T>(EitherUnsafe<L, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, Lst<U>> mapT<L, T, U>(EitherUnsafe<L, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T>(EitherUnsafe<L, Lst<T>> self ) => self.ValueT();
+        public static T liftT<L, T>(EitherUnsafe<L, Lst<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(EitherUnsafe<L, Lst<T>> self )  where T : class => self.ValueT();
         public static EitherUnsafe<L, Lst<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
@@ -1703,7 +1969,8 @@ namespace LanguageExt
         public static bool forAllT<L, T, K>(EitherUnsafe<L, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T, K>(EitherUnsafe<L, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, Map<K, U>> mapT<L, T, K, U>(EitherUnsafe<L, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T, K>(EitherUnsafe<L, Map<K, T>> self ) => self.ValueT();
+        public static T liftT<L, T, K>(EitherUnsafe<L, Map<K, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T, K>(EitherUnsafe<L, Map<K, T>> self )  where T : class => self.ValueT();
         public static EitherUnsafe<L, Map<K, V>> SelectMany<L, T, K, U, V>(this EitherUnsafe<L, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
@@ -1716,7 +1983,8 @@ namespace LanguageExt
         public static bool forAllT<L, T>(EitherUnsafe<L, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T>(EitherUnsafe<L, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, TryOption<U>> mapT<L, T, U>(EitherUnsafe<L, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T>(EitherUnsafe<L, TryOption<T>> self ) => self.ValueT();
+        public static T liftT<L, T>(EitherUnsafe<L, TryOption<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(EitherUnsafe<L, TryOption<T>> self )  where T : class => self.ValueT();
         public static EitherUnsafe<L, TryOption<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
@@ -1729,7 +1997,8 @@ namespace LanguageExt
         public static bool forAllT<L, T>(EitherUnsafe<L, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T>(EitherUnsafe<L, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, Try<U>> mapT<L, T, U>(EitherUnsafe<L, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T>(EitherUnsafe<L, Try<T>> self ) => self.ValueT();
+        public static T liftT<L, T>(EitherUnsafe<L, Try<T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(EitherUnsafe<L, Try<T>> self )  where T : class => self.ValueT();
         public static EitherUnsafe<L, Try<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
@@ -1742,7 +2011,8 @@ namespace LanguageExt
         public static bool forAllT<L, T>(EitherUnsafe<L, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T>(EitherUnsafe<L, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, Either<L, U>> mapT<L, T, U>(EitherUnsafe<L, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T>(EitherUnsafe<L, Either<L, T>> self ) => self.ValueT();
+        public static T liftT<L, T>(EitherUnsafe<L, Either<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(EitherUnsafe<L, Either<L, T>> self )  where T : class => self.ValueT();
         public static EitherUnsafe<L, Either<L, V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
@@ -1755,7 +2025,8 @@ namespace LanguageExt
         public static bool forAllT<L, T>(EitherUnsafe<L, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit iterT<L, T>(EitherUnsafe<L, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, EitherUnsafe<L, U>> mapT<L, T, U>(EitherUnsafe<L, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<L, T>(EitherUnsafe<L, EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T liftT<L, T>(EitherUnsafe<L, EitherUnsafe<L, T>> self )  where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(EitherUnsafe<L, EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
         public static EitherUnsafe<L, EitherUnsafe<L, V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
@@ -1768,7 +2039,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<L, T, Env>(EitherUnsafe<L, Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<L, T, Env>(EitherUnsafe<L, Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static EitherUnsafe<L, Reader<Env, U>> mapT<L, T, Env, U>(EitherUnsafe<L, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> liftT<L, T, Env>(EitherUnsafe<L, Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> liftT<L, T, Env>(EitherUnsafe<L, Reader<Env, T>> self )  where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<L, T, Env>(EitherUnsafe<L, Reader<Env, T>> self )  where T : class => self.ValueT();
         public static EitherUnsafe<L, Reader<Env, V>> SelectMany<L, T, Env, U, V>(this EitherUnsafe<L, Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
@@ -1781,7 +2053,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<L, T, Out>(EitherUnsafe<L, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<L, T, Out>(EitherUnsafe<L, Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static EitherUnsafe<L, Writer<Out, U>> mapT<L, T, Out, U>(EitherUnsafe<L, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> liftT<L, T, Out>(EitherUnsafe<L, Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> liftT<L, T, Out>(EitherUnsafe<L, Writer<Out, T>> self )  where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<L, T, Out>(EitherUnsafe<L, Writer<Out, T>> self )  where T : class => self.ValueT();
         public static EitherUnsafe<L, Writer<Out, V>> SelectMany<L, T, Out, U, V>(this EitherUnsafe<L, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class EitherUnsafe {
@@ -1794,8 +2067,23 @@ namespace LanguageExt
         public static State<State, bool> forAllT<L, T, State>(EitherUnsafe<L, State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> iterT<L, T, State>(EitherUnsafe<L, State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static EitherUnsafe<L, State<State, U>> mapT<L, T, State, U>(EitherUnsafe<L, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> liftT<L, T, State>(EitherUnsafe<L, State<State, T>> self ) => self.ValueT();
+        public static State<State, T> liftT<L, T, State>(EitherUnsafe<L, State<State, T>> self )  where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<L, T, State>(EitherUnsafe<L, State<State, T>> self )  where T : class => self.ValueT();
         public static EitherUnsafe<L, State<State, V>> SelectMany<L, T, State, U, V>(this EitherUnsafe<L, State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class EitherUnsafe {
+        public static Rws<Env, Out, State, int> sumT<L, Env, Out, State>(EitherUnsafe<L, Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<L, T, Env, Out, State>(EitherUnsafe<L, Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static EitherUnsafe<L, Rws<Env, Out, State, U>> bindT<L, T, Env, Out, State, U>(EitherUnsafe<L, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<L, T, Env, Out, State>(EitherUnsafe<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static EitherUnsafe<L, Rws<Env, Out, State, T>> filterT<L, T, Env, Out, State>(EitherUnsafe<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<L, T, Env, Out, State, V>(EitherUnsafe<L, Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> forAllT<L, T, Env, Out, State>(EitherUnsafe<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<L, T, Env, Out, State>(EitherUnsafe<L, Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static EitherUnsafe<L, Rws<Env, Out, State, U>> mapT<L, T, Env, Out, State, U>(EitherUnsafe<L, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> liftT<L, T, Env, Out, State>(EitherUnsafe<L, Rws<Env, Out, State, T>> self )  where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<L, T, Env, Out, State>(EitherUnsafe<L, Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
+        public static EitherUnsafe<L, Rws<Env, Out, State, V>> SelectMany<L, T, Env, Out, State, U, V>(this EitherUnsafe<L, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
         public static Reader<Env, int> sumT<Env>(Reader<Env, IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
@@ -1807,7 +2095,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<Env, T>(Reader<Env, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<Env, T>(Reader<Env, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, IEnumerable<U>> mapT<Env, T, U>(Reader<Env, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Env, T>(Reader<Env, IEnumerable<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<Env, T>(Reader<Env, IEnumerable<T>> self , Env liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T>(Reader<Env, IEnumerable<T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static Reader<Env, IEnumerable<V>> SelectMany<Env, T, U, V>(this Reader<Env, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
@@ -1820,7 +2109,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<Env, T>(Reader<Env, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<Env, T>(Reader<Env, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, Option<U>> mapT<Env, T, U>(Reader<Env, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Env, T>(Reader<Env, Option<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<Env, T>(Reader<Env, Option<T>> self , Env liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T>(Reader<Env, Option<T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static Reader<Env, Option<V>> SelectMany<Env, T, U, V>(this Reader<Env, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
@@ -1833,7 +2123,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<Env, T>(Reader<Env, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<Env, T>(Reader<Env, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, OptionUnsafe<U>> mapT<Env, T, U>(Reader<Env, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Env, T>(Reader<Env, OptionUnsafe<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<Env, T>(Reader<Env, OptionUnsafe<T>> self , Env liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T>(Reader<Env, OptionUnsafe<T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static Reader<Env, OptionUnsafe<V>> SelectMany<Env, T, U, V>(this Reader<Env, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
@@ -1846,7 +2137,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<Env, T>(Reader<Env, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<Env, T>(Reader<Env, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, Lst<U>> mapT<Env, T, U>(Reader<Env, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Env, T>(Reader<Env, Lst<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<Env, T>(Reader<Env, Lst<T>> self , Env liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T>(Reader<Env, Lst<T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static Reader<Env, Lst<V>> SelectMany<Env, T, U, V>(this Reader<Env, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
@@ -1859,7 +2151,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<Env, T, K>(Reader<Env, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<Env, T, K>(Reader<Env, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, Map<K, U>> mapT<Env, T, K, U>(Reader<Env, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Env, T, K>(Reader<Env, Map<K, T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<Env, T, K>(Reader<Env, Map<K, T>> self , Env liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T, K>(Reader<Env, Map<K, T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static Reader<Env, Map<K, V>> SelectMany<Env, T, K, U, V>(this Reader<Env, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
@@ -1872,7 +2165,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<Env, T>(Reader<Env, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<Env, T>(Reader<Env, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, TryOption<U>> mapT<Env, T, U>(Reader<Env, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Env, T>(Reader<Env, TryOption<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<Env, T>(Reader<Env, TryOption<T>> self , Env liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T>(Reader<Env, TryOption<T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static Reader<Env, TryOption<V>> SelectMany<Env, T, U, V>(this Reader<Env, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
@@ -1885,7 +2179,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<Env, T>(Reader<Env, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<Env, T>(Reader<Env, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, Try<U>> mapT<Env, T, U>(Reader<Env, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Env, T>(Reader<Env, Try<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<Env, T>(Reader<Env, Try<T>> self , Env liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T>(Reader<Env, Try<T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static Reader<Env, Try<V>> SelectMany<Env, T, U, V>(this Reader<Env, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
@@ -1898,7 +2193,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<Env, T, L>(Reader<Env, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<Env, T, L>(Reader<Env, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, Either<L, U>> mapT<Env, T, L, U>(Reader<Env, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Env, T, L>(Reader<Env, Either<L, T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<Env, T, L>(Reader<Env, Either<L, T>> self , Env liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T, L>(Reader<Env, Either<L, T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static Reader<Env, Either<L, V>> SelectMany<Env, T, L, U, V>(this Reader<Env, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
@@ -1911,7 +2207,8 @@ namespace LanguageExt
         public static Reader<Env, bool> forAllT<Env, T, L>(Reader<Env, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> iterT<Env, T, L>(Reader<Env, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, EitherUnsafe<L, U>> mapT<Env, T, L, U>(Reader<Env, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Env, T, L>(Reader<Env, EitherUnsafe<L, T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<Env, T, L>(Reader<Env, EitherUnsafe<L, T>> self , Env liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T, L>(Reader<Env, EitherUnsafe<L, T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static Reader<Env, EitherUnsafe<L, V>> SelectMany<Env, T, L, U, V>(this Reader<Env, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Reader {
@@ -1924,7 +2221,8 @@ namespace LanguageExt
         public static Reader<Env, Reader<Env, bool>> forAllT<Env, T>(Reader<Env, Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Reader<Env, Unit>> iterT<Env, T>(Reader<Env, Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Reader<Env, Reader<Env, U>> mapT<Env, T, U>(Reader<Env, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> liftT<Env, T>(Reader<Env, Reader<Env, T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static Reader<Env, T> liftT<Env, T>(Reader<Env, Reader<Env, T>> self , Env liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static Reader<Env, T> LiftUnsafeT<Env, T>(Reader<Env, Reader<Env, T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static Reader<Env, Reader<Env, V>> SelectMany<Env, T, U, V>(this Reader<Env, Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
@@ -1937,7 +2235,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<Out, T>(Writer<Out, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<Out, T>(Writer<Out, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, IEnumerable<U>> mapT<Out, T, U>(Writer<Out, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Out, T>(Writer<Out, IEnumerable<T>> self ) => self.ValueT()().Value;
+        public static T liftT<Out, T>(Writer<Out, IEnumerable<T>> self )  where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T>(Writer<Out, IEnumerable<T>> self )  where T : class => self.ValueT()().Value;
         public static Writer<Out, IEnumerable<V>> SelectMany<Out, T, U, V>(this Writer<Out, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
@@ -1950,7 +2249,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<Out, T>(Writer<Out, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<Out, T>(Writer<Out, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, Option<U>> mapT<Out, T, U>(Writer<Out, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Out, T>(Writer<Out, Option<T>> self ) => self.ValueT()().Value;
+        public static T liftT<Out, T>(Writer<Out, Option<T>> self )  where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T>(Writer<Out, Option<T>> self )  where T : class => self.ValueT()().Value;
         public static Writer<Out, Option<V>> SelectMany<Out, T, U, V>(this Writer<Out, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
@@ -1963,7 +2263,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<Out, T>(Writer<Out, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<Out, T>(Writer<Out, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, OptionUnsafe<U>> mapT<Out, T, U>(Writer<Out, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Out, T>(Writer<Out, OptionUnsafe<T>> self ) => self.ValueT()().Value;
+        public static T liftT<Out, T>(Writer<Out, OptionUnsafe<T>> self )  where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T>(Writer<Out, OptionUnsafe<T>> self )  where T : class => self.ValueT()().Value;
         public static Writer<Out, OptionUnsafe<V>> SelectMany<Out, T, U, V>(this Writer<Out, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
@@ -1976,7 +2277,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<Out, T>(Writer<Out, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<Out, T>(Writer<Out, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, Lst<U>> mapT<Out, T, U>(Writer<Out, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Out, T>(Writer<Out, Lst<T>> self ) => self.ValueT()().Value;
+        public static T liftT<Out, T>(Writer<Out, Lst<T>> self )  where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T>(Writer<Out, Lst<T>> self )  where T : class => self.ValueT()().Value;
         public static Writer<Out, Lst<V>> SelectMany<Out, T, U, V>(this Writer<Out, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
@@ -1989,7 +2291,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<Out, T, K>(Writer<Out, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<Out, T, K>(Writer<Out, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, Map<K, U>> mapT<Out, T, K, U>(Writer<Out, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Out, T, K>(Writer<Out, Map<K, T>> self ) => self.ValueT()().Value;
+        public static T liftT<Out, T, K>(Writer<Out, Map<K, T>> self )  where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T, K>(Writer<Out, Map<K, T>> self )  where T : class => self.ValueT()().Value;
         public static Writer<Out, Map<K, V>> SelectMany<Out, T, K, U, V>(this Writer<Out, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
@@ -2002,7 +2305,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<Out, T>(Writer<Out, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<Out, T>(Writer<Out, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, TryOption<U>> mapT<Out, T, U>(Writer<Out, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Out, T>(Writer<Out, TryOption<T>> self ) => self.ValueT()().Value;
+        public static T liftT<Out, T>(Writer<Out, TryOption<T>> self )  where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T>(Writer<Out, TryOption<T>> self )  where T : class => self.ValueT()().Value;
         public static Writer<Out, TryOption<V>> SelectMany<Out, T, U, V>(this Writer<Out, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
@@ -2015,7 +2319,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<Out, T>(Writer<Out, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<Out, T>(Writer<Out, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, Try<U>> mapT<Out, T, U>(Writer<Out, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Out, T>(Writer<Out, Try<T>> self ) => self.ValueT()().Value;
+        public static T liftT<Out, T>(Writer<Out, Try<T>> self )  where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T>(Writer<Out, Try<T>> self )  where T : class => self.ValueT()().Value;
         public static Writer<Out, Try<V>> SelectMany<Out, T, U, V>(this Writer<Out, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
@@ -2028,7 +2333,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<Out, T, L>(Writer<Out, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<Out, T, L>(Writer<Out, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, Either<L, U>> mapT<Out, T, L, U>(Writer<Out, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Out, T, L>(Writer<Out, Either<L, T>> self ) => self.ValueT()().Value;
+        public static T liftT<Out, T, L>(Writer<Out, Either<L, T>> self )  where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T, L>(Writer<Out, Either<L, T>> self )  where T : class => self.ValueT()().Value;
         public static Writer<Out, Either<L, V>> SelectMany<Out, T, L, U, V>(this Writer<Out, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
@@ -2041,7 +2347,8 @@ namespace LanguageExt
         public static Writer<Out, bool> forAllT<Out, T, L>(Writer<Out, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> iterT<Out, T, L>(Writer<Out, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, EitherUnsafe<L, U>> mapT<Out, T, L, U>(Writer<Out, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<Out, T, L>(Writer<Out, EitherUnsafe<L, T>> self ) => self.ValueT()().Value;
+        public static T liftT<Out, T, L>(Writer<Out, EitherUnsafe<L, T>> self )  where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T, L>(Writer<Out, EitherUnsafe<L, T>> self )  where T : class => self.ValueT()().Value;
         public static Writer<Out, EitherUnsafe<L, V>> SelectMany<Out, T, L, U, V>(this Writer<Out, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class Writer {
@@ -2054,7 +2361,8 @@ namespace LanguageExt
         public static Writer<Out, Writer<Out, bool>> forAllT<Out, T>(Writer<Out, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Writer<Out, Unit>> iterT<Out, T>(Writer<Out, Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Writer<Out, Writer<Out, U>> mapT<Out, T, U>(Writer<Out, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> liftT<Out, T>(Writer<Out, Writer<Out, T>> self ) => self.ValueT()().Value;
+        public static Writer<Out, T> liftT<Out, T>(Writer<Out, Writer<Out, T>> self )  where T : struct => self.ValueT()().Value;
+        public static Writer<Out, T> LiftUnsafeT<Out, T>(Writer<Out, Writer<Out, T>> self )  where T : class => self.ValueT()().Value;
         public static Writer<Out, Writer<Out, V>> SelectMany<Out, T, U, V>(this Writer<Out, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
@@ -2067,7 +2375,8 @@ namespace LanguageExt
         public static State<State, bool> forAllT<State, T>(State<State, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> iterT<State, T>(State<State, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, IEnumerable<U>> mapT<State, T, U>(State<State, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<State, T>(State<State, IEnumerable<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<State, T>(State<State, IEnumerable<T>> self , State liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T>(State<State, IEnumerable<T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static State<State, IEnumerable<V>> SelectMany<State, T, U, V>(this State<State, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
@@ -2080,7 +2389,8 @@ namespace LanguageExt
         public static State<State, bool> forAllT<State, T>(State<State, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> iterT<State, T>(State<State, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, Option<U>> mapT<State, T, U>(State<State, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<State, T>(State<State, Option<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<State, T>(State<State, Option<T>> self , State liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T>(State<State, Option<T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static State<State, Option<V>> SelectMany<State, T, U, V>(this State<State, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
@@ -2093,7 +2403,8 @@ namespace LanguageExt
         public static State<State, bool> forAllT<State, T>(State<State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> iterT<State, T>(State<State, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, OptionUnsafe<U>> mapT<State, T, U>(State<State, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<State, T>(State<State, OptionUnsafe<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<State, T>(State<State, OptionUnsafe<T>> self , State liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T>(State<State, OptionUnsafe<T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static State<State, OptionUnsafe<V>> SelectMany<State, T, U, V>(this State<State, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
@@ -2106,7 +2417,8 @@ namespace LanguageExt
         public static State<State, bool> forAllT<State, T>(State<State, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> iterT<State, T>(State<State, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, Lst<U>> mapT<State, T, U>(State<State, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<State, T>(State<State, Lst<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<State, T>(State<State, Lst<T>> self , State liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T>(State<State, Lst<T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static State<State, Lst<V>> SelectMany<State, T, U, V>(this State<State, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
@@ -2119,7 +2431,8 @@ namespace LanguageExt
         public static State<State, bool> forAllT<State, T, K>(State<State, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> iterT<State, T, K>(State<State, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, Map<K, U>> mapT<State, T, K, U>(State<State, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<State, T, K>(State<State, Map<K, T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<State, T, K>(State<State, Map<K, T>> self , State liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T, K>(State<State, Map<K, T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static State<State, Map<K, V>> SelectMany<State, T, K, U, V>(this State<State, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
@@ -2132,7 +2445,8 @@ namespace LanguageExt
         public static State<State, bool> forAllT<State, T>(State<State, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> iterT<State, T>(State<State, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, TryOption<U>> mapT<State, T, U>(State<State, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<State, T>(State<State, TryOption<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<State, T>(State<State, TryOption<T>> self , State liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T>(State<State, TryOption<T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static State<State, TryOption<V>> SelectMany<State, T, U, V>(this State<State, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
@@ -2145,7 +2459,8 @@ namespace LanguageExt
         public static State<State, bool> forAllT<State, T>(State<State, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> iterT<State, T>(State<State, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, Try<U>> mapT<State, T, U>(State<State, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<State, T>(State<State, Try<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<State, T>(State<State, Try<T>> self , State liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T>(State<State, Try<T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static State<State, Try<V>> SelectMany<State, T, U, V>(this State<State, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
@@ -2158,7 +2473,8 @@ namespace LanguageExt
         public static State<State, bool> forAllT<State, T, L>(State<State, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> iterT<State, T, L>(State<State, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, Either<L, U>> mapT<State, T, L, U>(State<State, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<State, T, L>(State<State, Either<L, T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<State, T, L>(State<State, Either<L, T>> self , State liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T, L>(State<State, Either<L, T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static State<State, Either<L, V>> SelectMany<State, T, L, U, V>(this State<State, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
@@ -2171,7 +2487,8 @@ namespace LanguageExt
         public static State<State, bool> forAllT<State, T, L>(State<State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> iterT<State, T, L>(State<State, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, EitherUnsafe<L, U>> mapT<State, T, L, U>(State<State, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T liftT<State, T, L>(State<State, EitherUnsafe<L, T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T liftT<State, T, L>(State<State, EitherUnsafe<L, T>> self , State liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T, L>(State<State, EitherUnsafe<L, T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static State<State, EitherUnsafe<L, V>> SelectMany<State, T, L, U, V>(this State<State, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     public static partial class State {
@@ -2184,8 +2501,149 @@ namespace LanguageExt
         public static State<State, State<State, bool>> forAllT<State, T>(State<State, State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, State<State, Unit>> iterT<State, T>(State<State, State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static State<State, State<State, U>> mapT<State, T, U>(State<State, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> liftT<State, T>(State<State, State<State, T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static State<State, T> liftT<State, T>(State<State, State<State, T>> self , State liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static State<State, T> LiftUnsafeT<State, T>(State<State, State<State, T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
         public static State<State, State<State, V>> SelectMany<State, T, U, V>(this State<State, State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, int> sumT<Env, Out, State>(Rws<Env, Out, State, IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<Env, Out, State, T>(Rws<Env, Out, State, IEnumerable<T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, IEnumerable<U>> bindT<Env, Out, State, T, U>(Rws<Env, Out, State, IEnumerable<T>> self, Func<T, IEnumerable<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<Env, Out, State, T>(Rws<Env, Out, State, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, IEnumerable<T>> filterT<Env, Out, State, T>(Rws<Env, Out, State, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<Env, Out, State, T, V>(Rws<Env, Out, State, IEnumerable<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T>(Rws<Env, Out, State, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<Env, Out, State, T>(Rws<Env, Out, State, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, IEnumerable<U>> mapT<Env, Out, State, T, U>(Rws<Env, Out, State, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T liftT<Env, Out, State, T>(Rws<Env, Out, State, IEnumerable<T>> self , Tuple<Env,State> liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T>(Rws<Env, Out, State, IEnumerable<T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
+        public static Rws<Env, Out, State, IEnumerable<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, int> sumT<Env, Out, State>(Rws<Env, Out, State, Option<int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<Env, Out, State, T>(Rws<Env, Out, State, Option<T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, Option<U>> bindT<Env, Out, State, T, U>(Rws<Env, Out, State, Option<T>> self, Func<T, Option<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<Env, Out, State, T>(Rws<Env, Out, State, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, Option<T>> filterT<Env, Out, State, T>(Rws<Env, Out, State, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<Env, Out, State, T, V>(Rws<Env, Out, State, Option<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T>(Rws<Env, Out, State, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<Env, Out, State, T>(Rws<Env, Out, State, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, Option<U>> mapT<Env, Out, State, T, U>(Rws<Env, Out, State, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T liftT<Env, Out, State, T>(Rws<Env, Out, State, Option<T>> self , Tuple<Env,State> liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T>(Rws<Env, Out, State, Option<T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
+        public static Rws<Env, Out, State, Option<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, int> sumT<Env, Out, State>(Rws<Env, Out, State, OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<Env, Out, State, T>(Rws<Env, Out, State, OptionUnsafe<T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, OptionUnsafe<U>> bindT<Env, Out, State, T, U>(Rws<Env, Out, State, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<Env, Out, State, T>(Rws<Env, Out, State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, OptionUnsafe<T>> filterT<Env, Out, State, T>(Rws<Env, Out, State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<Env, Out, State, T, V>(Rws<Env, Out, State, OptionUnsafe<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T>(Rws<Env, Out, State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<Env, Out, State, T>(Rws<Env, Out, State, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, OptionUnsafe<U>> mapT<Env, Out, State, T, U>(Rws<Env, Out, State, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T liftT<Env, Out, State, T>(Rws<Env, Out, State, OptionUnsafe<T>> self , Tuple<Env,State> liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T>(Rws<Env, Out, State, OptionUnsafe<T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
+        public static Rws<Env, Out, State, OptionUnsafe<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, int> sumT<Env, Out, State>(Rws<Env, Out, State, Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<Env, Out, State, T>(Rws<Env, Out, State, Lst<T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, Lst<U>> bindT<Env, Out, State, T, U>(Rws<Env, Out, State, Lst<T>> self, Func<T, Lst<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<Env, Out, State, T>(Rws<Env, Out, State, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, Lst<T>> filterT<Env, Out, State, T>(Rws<Env, Out, State, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<Env, Out, State, T, V>(Rws<Env, Out, State, Lst<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T>(Rws<Env, Out, State, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<Env, Out, State, T>(Rws<Env, Out, State, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, Lst<U>> mapT<Env, Out, State, T, U>(Rws<Env, Out, State, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T liftT<Env, Out, State, T>(Rws<Env, Out, State, Lst<T>> self , Tuple<Env,State> liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T>(Rws<Env, Out, State, Lst<T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
+        public static Rws<Env, Out, State, Lst<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, int> sumT<Env, Out, State, K>(Rws<Env, Out, State, Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<Env, Out, State, T, K>(Rws<Env, Out, State, Map<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, Map<K, U>> bindT<Env, Out, State, T, K, U>(Rws<Env, Out, State, Map<K, T>> self, Func<T, Map<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<Env, Out, State, T, K>(Rws<Env, Out, State, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, Map<K, T>> filterT<Env, Out, State, T, K>(Rws<Env, Out, State, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<Env, Out, State, T, K, V>(Rws<Env, Out, State, Map<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T, K>(Rws<Env, Out, State, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<Env, Out, State, T, K>(Rws<Env, Out, State, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, Map<K, U>> mapT<Env, Out, State, T, K, U>(Rws<Env, Out, State, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T liftT<Env, Out, State, T, K>(Rws<Env, Out, State, Map<K, T>> self , Tuple<Env,State> liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T, K>(Rws<Env, Out, State, Map<K, T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
+        public static Rws<Env, Out, State, Map<K, V>> SelectMany<Env, Out, State, T, K, U, V>(this Rws<Env, Out, State, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, int> sumT<Env, Out, State>(Rws<Env, Out, State, TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<Env, Out, State, T>(Rws<Env, Out, State, TryOption<T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, TryOption<U>> bindT<Env, Out, State, T, U>(Rws<Env, Out, State, TryOption<T>> self, Func<T, TryOption<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<Env, Out, State, T>(Rws<Env, Out, State, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, TryOption<T>> filterT<Env, Out, State, T>(Rws<Env, Out, State, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<Env, Out, State, T, V>(Rws<Env, Out, State, TryOption<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T>(Rws<Env, Out, State, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<Env, Out, State, T>(Rws<Env, Out, State, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, TryOption<U>> mapT<Env, Out, State, T, U>(Rws<Env, Out, State, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T liftT<Env, Out, State, T>(Rws<Env, Out, State, TryOption<T>> self , Tuple<Env,State> liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T>(Rws<Env, Out, State, TryOption<T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
+        public static Rws<Env, Out, State, TryOption<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, int> sumT<Env, Out, State>(Rws<Env, Out, State, Try<int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<Env, Out, State, T>(Rws<Env, Out, State, Try<T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, Try<U>> bindT<Env, Out, State, T, U>(Rws<Env, Out, State, Try<T>> self, Func<T, Try<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<Env, Out, State, T>(Rws<Env, Out, State, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, Try<T>> filterT<Env, Out, State, T>(Rws<Env, Out, State, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<Env, Out, State, T, V>(Rws<Env, Out, State, Try<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T>(Rws<Env, Out, State, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<Env, Out, State, T>(Rws<Env, Out, State, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, Try<U>> mapT<Env, Out, State, T, U>(Rws<Env, Out, State, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T liftT<Env, Out, State, T>(Rws<Env, Out, State, Try<T>> self , Tuple<Env,State> liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T>(Rws<Env, Out, State, Try<T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
+        public static Rws<Env, Out, State, Try<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, int> sumT<Env, Out, State, L>(Rws<Env, Out, State, Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<Env, Out, State, T, L>(Rws<Env, Out, State, Either<L, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, Either<L, U>> bindT<Env, Out, State, T, L, U>(Rws<Env, Out, State, Either<L, T>> self, Func<T, Either<L, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<Env, Out, State, T, L>(Rws<Env, Out, State, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, Either<L, T>> filterT<Env, Out, State, T, L>(Rws<Env, Out, State, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<Env, Out, State, T, L, V>(Rws<Env, Out, State, Either<L, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T, L>(Rws<Env, Out, State, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<Env, Out, State, T, L>(Rws<Env, Out, State, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, Either<L, U>> mapT<Env, Out, State, T, L, U>(Rws<Env, Out, State, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T liftT<Env, Out, State, T, L>(Rws<Env, Out, State, Either<L, T>> self , Tuple<Env,State> liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T, L>(Rws<Env, Out, State, Either<L, T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
+        public static Rws<Env, Out, State, Either<L, V>> SelectMany<Env, Out, State, T, L, U, V>(this Rws<Env, Out, State, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, int> sumT<Env, Out, State, L>(Rws<Env, Out, State, EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> countT<Env, Out, State, T, L>(Rws<Env, Out, State, EitherUnsafe<L, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, EitherUnsafe<L, U>> bindT<Env, Out, State, T, L, U>(Rws<Env, Out, State, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> existsT<Env, Out, State, T, L>(Rws<Env, Out, State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, EitherUnsafe<L, T>> filterT<Env, Out, State, T, L>(Rws<Env, Out, State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> foldT<Env, Out, State, T, L, V>(Rws<Env, Out, State, EitherUnsafe<L, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T, L>(Rws<Env, Out, State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> iterT<Env, Out, State, T, L>(Rws<Env, Out, State, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, EitherUnsafe<L, U>> mapT<Env, Out, State, T, L, U>(Rws<Env, Out, State, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T liftT<Env, Out, State, T, L>(Rws<Env, Out, State, EitherUnsafe<L, T>> self , Tuple<Env,State> liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T, L>(Rws<Env, Out, State, EitherUnsafe<L, T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
+        public static Rws<Env, Out, State, EitherUnsafe<L, V>> SelectMany<Env, Out, State, T, L, U, V>(this Rws<Env, Out, State, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    public static partial class Rws {
+        public static Rws<Env, Out, State, Rws<Env, Out, State, int>> sumT<Env, Out, State>(Rws<Env, Out, State, Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, Rws<Env, Out, State, int>> countT<Env, Out, State, T>(Rws<Env, Out, State, Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, Rws<Env, Out, State, U>> bindT<Env, Out, State, T, U>(Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, Rws<Env, Out, State, bool>> existsT<Env, Out, State, T>(Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, Rws<Env, Out, State, T>> filterT<Env, Out, State, T>(Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, Rws<Env, Out, State, V>> foldT<Env, Out, State, T, V>(Rws<Env, Out, State, Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, Rws<Env, Out, State, bool>> forAllT<Env, Out, State, T>(Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Rws<Env, Out, State, Unit>> iterT<Env, Out, State, T>(Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static Rws<Env, Out, State, Rws<Env, Out, State, U>> mapT<Env, Out, State, T, U>(Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> liftT<Env, Out, State, T>(Rws<Env, Out, State, Rws<Env, Out, State, T>> self , Tuple<Env,State> liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        public static Rws<Env, Out, State, T> LiftUnsafeT<Env, Out, State, T>(Rws<Env, Out, State, Rws<Env, Out, State, T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
+        public static Rws<Env, Out, State, Rws<Env, Out, State, V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
 }
 
@@ -2202,7 +2660,8 @@ namespace LanguageExt.Trans
         internal static bool ForAllT<T>(this IEnumerable<T> self, Func<T, bool> pred) => self.ForAll(pred);
         internal static Unit IterT<T>(this IEnumerable<T> self, Action<T> action) => self.Iter(action);
         internal static IEnumerable<U> MapT<T, U>(this IEnumerable<T> self, Func<T, U> mapper) => self.Map(mapper);
-        public static T Lift<T>(this IEnumerable<T> self ) => self.InnerValue();
+        public static T Lift<T>(this IEnumerable<T> self ) where T : struct => self.InnerValue();
+        public static T LiftUnsafe<T>(this IEnumerable<T> self ) where T : class => self.InnerValue();
     }
     public static partial class OptionMonad {
         internal static T InnerValue<T>(this Option<T> self) => self.IsSome ? self.Value : default(T);
@@ -2215,7 +2674,8 @@ namespace LanguageExt.Trans
         internal static bool ForAllT<T>(this Option<T> self, Func<T, bool> pred) => self.ForAll(pred);
         internal static Unit IterT<T>(this Option<T> self, Action<T> action) => self.Iter(action);
         internal static Option<U> MapT<T, U>(this Option<T> self, Func<T, U> mapper) => self.Map(mapper);
-        public static T Lift<T>(this Option<T> self ) => self.InnerValue();
+        public static T Lift<T>(this Option<T> self ) where T : struct => self.InnerValue();
+        public static T LiftUnsafe<T>(this Option<T> self ) where T : class => self.InnerValue();
     }
     public static partial class OptionUnsafeMonad {
         internal static T InnerValue<T>(this OptionUnsafe<T> self) => self.IsSome ? self.Value : default(T);
@@ -2228,7 +2688,8 @@ namespace LanguageExt.Trans
         internal static bool ForAllT<T>(this OptionUnsafe<T> self, Func<T, bool> pred) => self.ForAll(pred);
         internal static Unit IterT<T>(this OptionUnsafe<T> self, Action<T> action) => self.Iter(action);
         internal static OptionUnsafe<U> MapT<T, U>(this OptionUnsafe<T> self, Func<T, U> mapper) => self.Map(mapper);
-        public static T Lift<T>(this OptionUnsafe<T> self ) => self.InnerValue();
+        public static T Lift<T>(this OptionUnsafe<T> self ) where T : struct => self.InnerValue();
+        public static T LiftUnsafe<T>(this OptionUnsafe<T> self ) where T : class => self.InnerValue();
     }
     public static partial class ListMonad {
         internal static T InnerValue<T>(this Lst<T> self) => self.FirstOrDefault();
@@ -2241,7 +2702,8 @@ namespace LanguageExt.Trans
         internal static bool ForAllT<T>(this Lst<T> self, Func<T, bool> pred) => self.ForAll(pred);
         internal static Unit IterT<T>(this Lst<T> self, Action<T> action) => self.Iter(action);
         internal static Lst<U> MapT<T, U>(this Lst<T> self, Func<T, U> mapper) => self.Map(mapper);
-        public static T Lift<T>(this Lst<T> self ) => self.InnerValue();
+        public static T Lift<T>(this Lst<T> self ) where T : struct => self.InnerValue();
+        public static T LiftUnsafe<T>(this Lst<T> self ) where T : class => self.InnerValue();
     }
     public static partial class MapMonad {
         internal static T InnerValue<K, T>(this Map<K, T> self) => self.Values.FirstOrDefault();
@@ -2254,7 +2716,8 @@ namespace LanguageExt.Trans
         internal static bool ForAllT<K, T>(this Map<K, T> self, Func<T, bool> pred) => self.ForAll(pred);
         internal static Unit IterT<K, T>(this Map<K, T> self, Action<T> action) => self.Iter(action);
         internal static Map<K, U> MapT<K, T, U>(this Map<K, T> self, Func<T, U> mapper) => self.Map(mapper);
-        public static T Lift<K, T>(this Map<K, T> self ) => self.InnerValue();
+        public static T Lift<K, T>(this Map<K, T> self ) where T : struct => self.InnerValue();
+        public static T LiftUnsafe<K, T>(this Map<K, T> self ) where T : class => self.InnerValue();
     }
     public static partial class TryOptionMonad {
         internal static T InnerValue<T>(this TryOption<T> self) => self.Try().Value.IfNone(default(T));
@@ -2267,7 +2730,8 @@ namespace LanguageExt.Trans
         internal static bool ForAllT<T>(this TryOption<T> self, Func<T, bool> pred) => self.ForAll(pred);
         internal static Unit IterT<T>(this TryOption<T> self, Action<T> action) => self.Iter(action);
         internal static TryOption<U> MapT<T, U>(this TryOption<T> self, Func<T, U> mapper) => self.Map(mapper);
-        public static T Lift<T>(this TryOption<T> self ) => self.InnerValue();
+        public static T Lift<T>(this TryOption<T> self ) where T : struct => self.InnerValue();
+        public static T LiftUnsafe<T>(this TryOption<T> self ) where T : class => self.InnerValue();
     }
     public static partial class TryMonad {
         internal static T InnerValue<T>(this Try<T> self) => self.Try().Value;
@@ -2280,7 +2744,8 @@ namespace LanguageExt.Trans
         internal static bool ForAllT<T>(this Try<T> self, Func<T, bool> pred) => self.ForAll(pred);
         internal static Unit IterT<T>(this Try<T> self, Action<T> action) => self.Iter(action);
         internal static Try<U> MapT<T, U>(this Try<T> self, Func<T, U> mapper) => self.Map(mapper);
-        public static T Lift<T>(this Try<T> self ) => self.InnerValue();
+        public static T Lift<T>(this Try<T> self ) where T : struct => self.InnerValue();
+        public static T LiftUnsafe<T>(this Try<T> self ) where T : class => self.InnerValue();
     }
     public static partial class EitherMonad {
         internal static T InnerValue<L, T>(this Either<L, T> self) => self.IsRight ? self.RightValue : default(T);
@@ -2293,7 +2758,8 @@ namespace LanguageExt.Trans
         internal static bool ForAllT<L, T>(this Either<L, T> self, Func<T, bool> pred) => self.ForAll(pred);
         internal static Unit IterT<L, T>(this Either<L, T> self, Action<T> action) => self.Iter(action);
         internal static Either<L, U> MapT<L, T, U>(this Either<L, T> self, Func<T, U> mapper) => self.Map(mapper);
-        public static T Lift<L, T>(this Either<L, T> self ) => self.InnerValue();
+        public static T Lift<L, T>(this Either<L, T> self ) where T : struct => self.InnerValue();
+        public static T LiftUnsafe<L, T>(this Either<L, T> self ) where T : class => self.InnerValue();
     }
     public static partial class EitherUnsafeMonad {
         internal static T InnerValue<L, T>(this EitherUnsafe<L, T> self) => self.IsRight ? self.RightValue : default(T);
@@ -2306,7 +2772,8 @@ namespace LanguageExt.Trans
         internal static bool ForAllT<L, T>(this EitherUnsafe<L, T> self, Func<T, bool> pred) => self.ForAll(pred);
         internal static Unit IterT<L, T>(this EitherUnsafe<L, T> self, Action<T> action) => self.Iter(action);
         internal static EitherUnsafe<L, U> MapT<L, T, U>(this EitherUnsafe<L, T> self, Func<T, U> mapper) => self.Map(mapper);
-        public static T Lift<L, T>(this EitherUnsafe<L, T> self ) => self.InnerValue();
+        public static T Lift<L, T>(this EitherUnsafe<L, T> self ) where T : struct => self.InnerValue();
+        public static T LiftUnsafe<L, T>(this EitherUnsafe<L, T> self ) where T : class => self.InnerValue();
     }
     public static partial class ReaderMonad {
         internal static Reader<Env, T> InnerValue<Env, T>(this Reader<Env, T> self) => self;
@@ -2319,7 +2786,8 @@ namespace LanguageExt.Trans
         internal static Reader<Env, bool> ForAllT<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) => self.ForAll(pred);
         internal static Reader<Env, Unit> IterT<Env, T>(this Reader<Env, T> self, Action<T> action) => self.Iter(action);
         internal static Reader<Env, U> MapT<Env, T, U>(this Reader<Env, T> self, Func<T, U> mapper) => self.Map(mapper);
-        public static T Lift<Env, T>(this Reader<Env, T> self , Env liftArg) => self.InnerValue()(liftArg).Value;
+        public static T Lift<Env, T>(this Reader<Env, T> self , Env liftArg) where T : struct => self.InnerValue()(liftArg).Value;
+        public static T LiftUnsafe<Env, T>(this Reader<Env, T> self , Env liftArg) where T : class => self.InnerValue()(liftArg).Value;
     }
     public static partial class WriterMonad {
         internal static Writer<Out, T> InnerValue<Out, T>(this Writer<Out, T> self) => self;
@@ -2332,7 +2800,8 @@ namespace LanguageExt.Trans
         internal static Writer<Out, bool> ForAllT<Out, T>(this Writer<Out, T> self, Func<T, bool> pred) => self.ForAll(pred);
         internal static Writer<Out, Unit> IterT<Out, T>(this Writer<Out, T> self, Action<T> action) => self.Iter(action);
         internal static Writer<Out, U> MapT<Out, T, U>(this Writer<Out, T> self, Func<T, U> mapper) => self.Map(mapper);
-        public static T Lift<Out, T>(this Writer<Out, T> self ) => self.InnerValue()().Value;
+        public static T Lift<Out, T>(this Writer<Out, T> self ) where T : struct => self.InnerValue()().Value;
+        public static T LiftUnsafe<Out, T>(this Writer<Out, T> self ) where T : class => self.InnerValue()().Value;
     }
     public static partial class StateMonad {
         internal static State<State, T> InnerValue<State, T>(this State<State, T> self) => self;
@@ -2345,7 +2814,22 @@ namespace LanguageExt.Trans
         internal static State<State, bool> ForAllT<State, T>(this State<State, T> self, Func<T, bool> pred) => self.ForAll(pred);
         internal static State<State, Unit> IterT<State, T>(this State<State, T> self, Action<T> action) => self.Iter(action);
         internal static State<State, U> MapT<State, T, U>(this State<State, T> self, Func<T, U> mapper) => self.Map(mapper);
-        public static T Lift<State, T>(this State<State, T> self , State liftArg) => self.InnerValue()(liftArg).Value;
+        public static T Lift<State, T>(this State<State, T> self , State liftArg) where T : struct => self.InnerValue()(liftArg).Value;
+        public static T LiftUnsafe<State, T>(this State<State, T> self , State liftArg) where T : class => self.InnerValue()(liftArg).Value;
+    }
+    public static partial class RwsMonad {
+        internal static Rws<Env, Out, State, T> InnerValue<Env, Out, State, T>(this Rws<Env, Out, State, T> self) => self;
+        internal static Rws<Env, Out, State, int> SumT<Env, Out, State>(this Rws<Env, Out, State, int> self) => self.Sum();
+        internal static Rws<Env, Out, State, int> CountT<Env, Out, State, T>(this Rws<Env, Out, State, T> self) => self.Count();
+        internal static Rws<Env, Out, State, U> BindT<Env, Out, State, T, U>(this Rws<Env, Out, State, T> self, Func<T, Rws<Env, Out, State, U>> binder) => self.Bind(binder);
+        internal static Rws<Env, Out, State, bool> ExistsT<Env, Out, State, T>(this Rws<Env, Out, State, T> self, Func<T, bool> pred) => self.Exists(pred);
+        internal static Rws<Env, Out, State, T> FilterT<Env, Out, State, T>(this Rws<Env, Out, State, T> self, Func<T, bool> pred) => self.Filter(pred);
+        internal static Rws<Env, Out, State, V> FoldT<Env, Out, State, T, V>(this Rws<Env, Out, State, T> self, V state, Func<V, T, V> fold) => self.Fold(state,fold);
+        internal static Rws<Env, Out, State, bool> ForAllT<Env, Out, State, T>(this Rws<Env, Out, State, T> self, Func<T, bool> pred) => self.ForAll(pred);
+        internal static Rws<Env, Out, State, Unit> IterT<Env, Out, State, T>(this Rws<Env, Out, State, T> self, Action<T> action) => self.Iter(action);
+        internal static Rws<Env, Out, State, U> MapT<Env, Out, State, T, U>(this Rws<Env, Out, State, T> self, Func<T, U> mapper) => self.Map(mapper);
+        public static T Lift<Env, Out, State, T>(this Rws<Env, Out, State, T> self , Tuple<Env,State> liftArg) where T : struct => self.InnerValue()(liftArg).Value;
+        public static T LiftUnsafe<Env, Out, State, T>(this Rws<Env, Out, State, T> self , Tuple<Env,State> liftArg) where T : class => self.InnerValue()(liftArg).Value;
     }
     public static partial class ListTMonad {
         internal static T ValueT<T>(this IEnumerable<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2358,7 +2842,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this IEnumerable<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this IEnumerable<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<IEnumerable<U>> MapT<T, U>(this IEnumerable<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this IEnumerable<IEnumerable<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this IEnumerable<IEnumerable<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this IEnumerable<IEnumerable<T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T>(this IEnumerable<Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2371,7 +2856,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this IEnumerable<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this IEnumerable<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<Option<U>> MapT<T, U>(this IEnumerable<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this IEnumerable<Option<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this IEnumerable<Option<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this IEnumerable<Option<T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T>(this IEnumerable<OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2384,7 +2870,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this IEnumerable<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this IEnumerable<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<OptionUnsafe<U>> MapT<T, U>(this IEnumerable<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this IEnumerable<OptionUnsafe<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this IEnumerable<OptionUnsafe<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this IEnumerable<OptionUnsafe<T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T>(this IEnumerable<Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2397,7 +2884,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this IEnumerable<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this IEnumerable<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<Lst<U>> MapT<T, U>(this IEnumerable<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this IEnumerable<Lst<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this IEnumerable<Lst<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this IEnumerable<Lst<T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T, K>(this IEnumerable<Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2410,7 +2898,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, K>(this IEnumerable<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, K>(this IEnumerable<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<Map<K, U>> MapT<T, K, U>(this IEnumerable<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, K>(this IEnumerable<Map<K, T>> self ) => self.ValueT();
+        public static T LiftT<T, K>(this IEnumerable<Map<K, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, K>(this IEnumerable<Map<K, T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T>(this IEnumerable<TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2423,7 +2912,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this IEnumerable<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this IEnumerable<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<TryOption<U>> MapT<T, U>(this IEnumerable<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this IEnumerable<TryOption<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this IEnumerable<TryOption<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this IEnumerable<TryOption<T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T>(this IEnumerable<Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2436,7 +2926,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this IEnumerable<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this IEnumerable<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<Try<U>> MapT<T, U>(this IEnumerable<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this IEnumerable<Try<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this IEnumerable<Try<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this IEnumerable<Try<T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T, L>(this IEnumerable<Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2449,7 +2940,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, L>(this IEnumerable<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, L>(this IEnumerable<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<Either<L, U>> MapT<T, L, U>(this IEnumerable<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, L>(this IEnumerable<Either<L, T>> self ) => self.ValueT();
+        public static T LiftT<T, L>(this IEnumerable<Either<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(this IEnumerable<Either<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T, L>(this IEnumerable<EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2462,7 +2954,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, L>(this IEnumerable<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, L>(this IEnumerable<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static IEnumerable<EitherUnsafe<L, U>> MapT<T, L, U>(this IEnumerable<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, L>(this IEnumerable<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T LiftT<T, L>(this IEnumerable<EitherUnsafe<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(this IEnumerable<EitherUnsafe<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static Reader<Env, T> ValueT<T, Env>(this IEnumerable<Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2475,7 +2968,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<T, Env>(this IEnumerable<Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<T, Env>(this IEnumerable<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static IEnumerable<Reader<Env, U>> MapT<T, Env, U>(this IEnumerable<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> LiftT<T, Env>(this IEnumerable<Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> LiftT<T, Env>(this IEnumerable<Reader<Env, T>> self ) where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<T, Env>(this IEnumerable<Reader<Env, T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static Writer<Out, T> ValueT<T, Out>(this IEnumerable<Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2488,7 +2982,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<T, Out>(this IEnumerable<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<T, Out>(this IEnumerable<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static IEnumerable<Writer<Out, U>> MapT<T, Out, U>(this IEnumerable<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> LiftT<T, Out>(this IEnumerable<Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> LiftT<T, Out>(this IEnumerable<Writer<Out, T>> self ) where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<T, Out>(this IEnumerable<Writer<Out, T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static State<State, T> ValueT<T, State>(this IEnumerable<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2501,7 +2996,22 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<T, State>(this IEnumerable<State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> IterT<T, State>(this IEnumerable<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static IEnumerable<State<State, U>> MapT<T, State, U>(this IEnumerable<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> LiftT<T, State>(this IEnumerable<State<State, T>> self ) => self.ValueT();
+        public static State<State, T> LiftT<T, State>(this IEnumerable<State<State, T>> self ) where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<T, State>(this IEnumerable<State<State, T>> self ) where T : class => self.ValueT();
+    }
+    public static partial class ListTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<T, Env, Out, State>(this IEnumerable<Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<Env, Out, State>(this IEnumerable<Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<T, Env, Out, State>(this IEnumerable<Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static IEnumerable<Rws<Env, Out, State, U>> BindT<T, Env, Out, State, U>(this IEnumerable<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<T, Env, Out, State>(this IEnumerable<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static IEnumerable<Rws<Env, Out, State, T>> FilterT<T, Env, Out, State>(this IEnumerable<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<T, Env, Out, State, V>(this IEnumerable<Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> ForAllT<T, Env, Out, State>(this IEnumerable<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<T, Env, Out, State>(this IEnumerable<Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static IEnumerable<Rws<Env, Out, State, U>> MapT<T, Env, Out, State, U>(this IEnumerable<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> LiftT<T, Env, Out, State>(this IEnumerable<Rws<Env, Out, State, T>> self ) where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(this IEnumerable<Rws<Env, Out, State, T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionTMonad {
         internal static T ValueT<T>(this Option<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2514,7 +3024,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Option<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Option<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<IEnumerable<U>> MapT<T, U>(this Option<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Option<IEnumerable<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Option<IEnumerable<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Option<IEnumerable<T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionTMonad {
         internal static T ValueT<T>(this Option<Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2527,7 +3038,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Option<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Option<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<Option<U>> MapT<T, U>(this Option<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Option<Option<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Option<Option<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Option<Option<T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionTMonad {
         internal static T ValueT<T>(this Option<OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2540,7 +3052,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Option<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Option<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<OptionUnsafe<U>> MapT<T, U>(this Option<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Option<OptionUnsafe<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Option<OptionUnsafe<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Option<OptionUnsafe<T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionTMonad {
         internal static T ValueT<T>(this Option<Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2553,7 +3066,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Option<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Option<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<Lst<U>> MapT<T, U>(this Option<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Option<Lst<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Option<Lst<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Option<Lst<T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionTMonad {
         internal static T ValueT<T, K>(this Option<Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2566,7 +3080,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, K>(this Option<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, K>(this Option<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<Map<K, U>> MapT<T, K, U>(this Option<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, K>(this Option<Map<K, T>> self ) => self.ValueT();
+        public static T LiftT<T, K>(this Option<Map<K, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, K>(this Option<Map<K, T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionTMonad {
         internal static T ValueT<T>(this Option<TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2579,7 +3094,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Option<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Option<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<TryOption<U>> MapT<T, U>(this Option<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Option<TryOption<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Option<TryOption<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Option<TryOption<T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionTMonad {
         internal static T ValueT<T>(this Option<Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2592,7 +3108,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Option<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Option<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<Try<U>> MapT<T, U>(this Option<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Option<Try<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Option<Try<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Option<Try<T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionTMonad {
         internal static T ValueT<T, L>(this Option<Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2605,7 +3122,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, L>(this Option<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, L>(this Option<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<Either<L, U>> MapT<T, L, U>(this Option<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, L>(this Option<Either<L, T>> self ) => self.ValueT();
+        public static T LiftT<T, L>(this Option<Either<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(this Option<Either<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionTMonad {
         internal static T ValueT<T, L>(this Option<EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2618,7 +3136,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, L>(this Option<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, L>(this Option<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Option<EitherUnsafe<L, U>> MapT<T, L, U>(this Option<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, L>(this Option<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T LiftT<T, L>(this Option<EitherUnsafe<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(this Option<EitherUnsafe<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionTMonad {
         internal static Reader<Env, T> ValueT<T, Env>(this Option<Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2631,7 +3150,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<T, Env>(this Option<Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<T, Env>(this Option<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Option<Reader<Env, U>> MapT<T, Env, U>(this Option<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> LiftT<T, Env>(this Option<Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> LiftT<T, Env>(this Option<Reader<Env, T>> self ) where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<T, Env>(this Option<Reader<Env, T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionTMonad {
         internal static Writer<Out, T> ValueT<T, Out>(this Option<Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2644,7 +3164,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<T, Out>(this Option<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<T, Out>(this Option<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Option<Writer<Out, U>> MapT<T, Out, U>(this Option<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> LiftT<T, Out>(this Option<Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> LiftT<T, Out>(this Option<Writer<Out, T>> self ) where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<T, Out>(this Option<Writer<Out, T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionTMonad {
         internal static State<State, T> ValueT<T, State>(this Option<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2657,7 +3178,22 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<T, State>(this Option<State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> IterT<T, State>(this Option<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Option<State<State, U>> MapT<T, State, U>(this Option<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> LiftT<T, State>(this Option<State<State, T>> self ) => self.ValueT();
+        public static State<State, T> LiftT<T, State>(this Option<State<State, T>> self ) where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<T, State>(this Option<State<State, T>> self ) where T : class => self.ValueT();
+    }
+    public static partial class OptionTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<T, Env, Out, State>(this Option<Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<Env, Out, State>(this Option<Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<T, Env, Out, State>(this Option<Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Option<Rws<Env, Out, State, U>> BindT<T, Env, Out, State, U>(this Option<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<T, Env, Out, State>(this Option<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Option<Rws<Env, Out, State, T>> FilterT<T, Env, Out, State>(this Option<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<T, Env, Out, State, V>(this Option<Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> ForAllT<T, Env, Out, State>(this Option<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<T, Env, Out, State>(this Option<Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static Option<Rws<Env, Out, State, U>> MapT<T, Env, Out, State, U>(this Option<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> LiftT<T, Env, Out, State>(this Option<Rws<Env, Out, State, T>> self ) where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(this Option<Rws<Env, Out, State, T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionUnsafeTMonad {
         internal static T ValueT<T>(this OptionUnsafe<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2670,7 +3206,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this OptionUnsafe<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this OptionUnsafe<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<IEnumerable<U>> MapT<T, U>(this OptionUnsafe<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this OptionUnsafe<IEnumerable<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this OptionUnsafe<IEnumerable<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this OptionUnsafe<IEnumerable<T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionUnsafeTMonad {
         internal static T ValueT<T>(this OptionUnsafe<Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2683,7 +3220,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this OptionUnsafe<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this OptionUnsafe<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<Option<U>> MapT<T, U>(this OptionUnsafe<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this OptionUnsafe<Option<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this OptionUnsafe<Option<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this OptionUnsafe<Option<T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionUnsafeTMonad {
         internal static T ValueT<T>(this OptionUnsafe<OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2696,7 +3234,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this OptionUnsafe<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this OptionUnsafe<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<OptionUnsafe<U>> MapT<T, U>(this OptionUnsafe<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this OptionUnsafe<OptionUnsafe<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this OptionUnsafe<OptionUnsafe<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this OptionUnsafe<OptionUnsafe<T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionUnsafeTMonad {
         internal static T ValueT<T>(this OptionUnsafe<Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2709,7 +3248,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this OptionUnsafe<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this OptionUnsafe<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<Lst<U>> MapT<T, U>(this OptionUnsafe<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this OptionUnsafe<Lst<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this OptionUnsafe<Lst<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this OptionUnsafe<Lst<T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionUnsafeTMonad {
         internal static T ValueT<T, K>(this OptionUnsafe<Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2722,7 +3262,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, K>(this OptionUnsafe<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, K>(this OptionUnsafe<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<Map<K, U>> MapT<T, K, U>(this OptionUnsafe<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, K>(this OptionUnsafe<Map<K, T>> self ) => self.ValueT();
+        public static T LiftT<T, K>(this OptionUnsafe<Map<K, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, K>(this OptionUnsafe<Map<K, T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionUnsafeTMonad {
         internal static T ValueT<T>(this OptionUnsafe<TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2735,7 +3276,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this OptionUnsafe<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this OptionUnsafe<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<TryOption<U>> MapT<T, U>(this OptionUnsafe<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this OptionUnsafe<TryOption<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this OptionUnsafe<TryOption<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this OptionUnsafe<TryOption<T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionUnsafeTMonad {
         internal static T ValueT<T>(this OptionUnsafe<Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2748,7 +3290,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this OptionUnsafe<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this OptionUnsafe<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<Try<U>> MapT<T, U>(this OptionUnsafe<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this OptionUnsafe<Try<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this OptionUnsafe<Try<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this OptionUnsafe<Try<T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionUnsafeTMonad {
         internal static T ValueT<T, L>(this OptionUnsafe<Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2761,7 +3304,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, L>(this OptionUnsafe<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, L>(this OptionUnsafe<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<Either<L, U>> MapT<T, L, U>(this OptionUnsafe<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, L>(this OptionUnsafe<Either<L, T>> self ) => self.ValueT();
+        public static T LiftT<T, L>(this OptionUnsafe<Either<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(this OptionUnsafe<Either<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionUnsafeTMonad {
         internal static T ValueT<T, L>(this OptionUnsafe<EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2774,7 +3318,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, L>(this OptionUnsafe<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, L>(this OptionUnsafe<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static OptionUnsafe<EitherUnsafe<L, U>> MapT<T, L, U>(this OptionUnsafe<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, L>(this OptionUnsafe<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T LiftT<T, L>(this OptionUnsafe<EitherUnsafe<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(this OptionUnsafe<EitherUnsafe<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionUnsafeTMonad {
         internal static Reader<Env, T> ValueT<T, Env>(this OptionUnsafe<Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2787,7 +3332,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<T, Env>(this OptionUnsafe<Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<T, Env>(this OptionUnsafe<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static OptionUnsafe<Reader<Env, U>> MapT<T, Env, U>(this OptionUnsafe<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> LiftT<T, Env>(this OptionUnsafe<Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> LiftT<T, Env>(this OptionUnsafe<Reader<Env, T>> self ) where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<T, Env>(this OptionUnsafe<Reader<Env, T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionUnsafeTMonad {
         internal static Writer<Out, T> ValueT<T, Out>(this OptionUnsafe<Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2800,7 +3346,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<T, Out>(this OptionUnsafe<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<T, Out>(this OptionUnsafe<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static OptionUnsafe<Writer<Out, U>> MapT<T, Out, U>(this OptionUnsafe<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> LiftT<T, Out>(this OptionUnsafe<Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> LiftT<T, Out>(this OptionUnsafe<Writer<Out, T>> self ) where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<T, Out>(this OptionUnsafe<Writer<Out, T>> self ) where T : class => self.ValueT();
     }
     public static partial class OptionUnsafeTMonad {
         internal static State<State, T> ValueT<T, State>(this OptionUnsafe<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2813,7 +3360,22 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<T, State>(this OptionUnsafe<State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> IterT<T, State>(this OptionUnsafe<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static OptionUnsafe<State<State, U>> MapT<T, State, U>(this OptionUnsafe<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> LiftT<T, State>(this OptionUnsafe<State<State, T>> self ) => self.ValueT();
+        public static State<State, T> LiftT<T, State>(this OptionUnsafe<State<State, T>> self ) where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<T, State>(this OptionUnsafe<State<State, T>> self ) where T : class => self.ValueT();
+    }
+    public static partial class OptionUnsafeTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<T, Env, Out, State>(this OptionUnsafe<Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<Env, Out, State>(this OptionUnsafe<Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<T, Env, Out, State>(this OptionUnsafe<Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static OptionUnsafe<Rws<Env, Out, State, U>> BindT<T, Env, Out, State, U>(this OptionUnsafe<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<T, Env, Out, State>(this OptionUnsafe<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static OptionUnsafe<Rws<Env, Out, State, T>> FilterT<T, Env, Out, State>(this OptionUnsafe<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<T, Env, Out, State, V>(this OptionUnsafe<Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> ForAllT<T, Env, Out, State>(this OptionUnsafe<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<T, Env, Out, State>(this OptionUnsafe<Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static OptionUnsafe<Rws<Env, Out, State, U>> MapT<T, Env, Out, State, U>(this OptionUnsafe<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> LiftT<T, Env, Out, State>(this OptionUnsafe<Rws<Env, Out, State, T>> self ) where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(this OptionUnsafe<Rws<Env, Out, State, T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T>(this Lst<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2826,7 +3388,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Lst<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Lst<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<IEnumerable<U>> MapT<T, U>(this Lst<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Lst<IEnumerable<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Lst<IEnumerable<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Lst<IEnumerable<T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T>(this Lst<Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2839,7 +3402,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Lst<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Lst<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<Option<U>> MapT<T, U>(this Lst<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Lst<Option<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Lst<Option<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Lst<Option<T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T>(this Lst<OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2852,7 +3416,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Lst<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Lst<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<OptionUnsafe<U>> MapT<T, U>(this Lst<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Lst<OptionUnsafe<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Lst<OptionUnsafe<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Lst<OptionUnsafe<T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T>(this Lst<Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2865,7 +3430,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Lst<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Lst<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<Lst<U>> MapT<T, U>(this Lst<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Lst<Lst<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Lst<Lst<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Lst<Lst<T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T, K>(this Lst<Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2878,7 +3444,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, K>(this Lst<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, K>(this Lst<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<Map<K, U>> MapT<T, K, U>(this Lst<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, K>(this Lst<Map<K, T>> self ) => self.ValueT();
+        public static T LiftT<T, K>(this Lst<Map<K, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, K>(this Lst<Map<K, T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T>(this Lst<TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2891,7 +3458,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Lst<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Lst<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<TryOption<U>> MapT<T, U>(this Lst<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Lst<TryOption<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Lst<TryOption<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Lst<TryOption<T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T>(this Lst<Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2904,7 +3472,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Lst<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Lst<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<Try<U>> MapT<T, U>(this Lst<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Lst<Try<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Lst<Try<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Lst<Try<T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T, L>(this Lst<Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2917,7 +3486,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, L>(this Lst<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, L>(this Lst<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<Either<L, U>> MapT<T, L, U>(this Lst<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, L>(this Lst<Either<L, T>> self ) => self.ValueT();
+        public static T LiftT<T, L>(this Lst<Either<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(this Lst<Either<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static T ValueT<T, L>(this Lst<EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2930,7 +3500,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, L>(this Lst<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, L>(this Lst<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Lst<EitherUnsafe<L, U>> MapT<T, L, U>(this Lst<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, L>(this Lst<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T LiftT<T, L>(this Lst<EitherUnsafe<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(this Lst<EitherUnsafe<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static Reader<Env, T> ValueT<T, Env>(this Lst<Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2943,7 +3514,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<T, Env>(this Lst<Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<T, Env>(this Lst<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Lst<Reader<Env, U>> MapT<T, Env, U>(this Lst<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> LiftT<T, Env>(this Lst<Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> LiftT<T, Env>(this Lst<Reader<Env, T>> self ) where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<T, Env>(this Lst<Reader<Env, T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static Writer<Out, T> ValueT<T, Out>(this Lst<Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2956,7 +3528,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<T, Out>(this Lst<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<T, Out>(this Lst<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Lst<Writer<Out, U>> MapT<T, Out, U>(this Lst<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> LiftT<T, Out>(this Lst<Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> LiftT<T, Out>(this Lst<Writer<Out, T>> self ) where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<T, Out>(this Lst<Writer<Out, T>> self ) where T : class => self.ValueT();
     }
     public static partial class ListTMonad {
         internal static State<State, T> ValueT<T, State>(this Lst<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2969,7 +3542,22 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<T, State>(this Lst<State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> IterT<T, State>(this Lst<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Lst<State<State, U>> MapT<T, State, U>(this Lst<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> LiftT<T, State>(this Lst<State<State, T>> self ) => self.ValueT();
+        public static State<State, T> LiftT<T, State>(this Lst<State<State, T>> self ) where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<T, State>(this Lst<State<State, T>> self ) where T : class => self.ValueT();
+    }
+    public static partial class ListTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<T, Env, Out, State>(this Lst<Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<Env, Out, State>(this Lst<Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<T, Env, Out, State>(this Lst<Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Lst<Rws<Env, Out, State, U>> BindT<T, Env, Out, State, U>(this Lst<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<T, Env, Out, State>(this Lst<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Lst<Rws<Env, Out, State, T>> FilterT<T, Env, Out, State>(this Lst<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<T, Env, Out, State, V>(this Lst<Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> ForAllT<T, Env, Out, State>(this Lst<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<T, Env, Out, State>(this Lst<Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static Lst<Rws<Env, Out, State, U>> MapT<T, Env, Out, State, U>(this Lst<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> LiftT<T, Env, Out, State>(this Lst<Rws<Env, Out, State, T>> self ) where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(this Lst<Rws<Env, Out, State, T>> self ) where T : class => self.ValueT();
     }
     public static partial class MapTMonad {
         internal static T ValueT<K, T>(this Map<K, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2982,7 +3570,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<K, T>(this Map<K, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<K, T>(this Map<K, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, IEnumerable<U>> MapT<K, T, U>(this Map<K, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<K, T>(this Map<K, IEnumerable<T>> self ) => self.ValueT();
+        public static T LiftT<K, T>(this Map<K, IEnumerable<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T>(this Map<K, IEnumerable<T>> self ) where T : class => self.ValueT();
     }
     public static partial class MapTMonad {
         internal static T ValueT<K, T>(this Map<K, Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -2995,7 +3584,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<K, T>(this Map<K, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<K, T>(this Map<K, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, Option<U>> MapT<K, T, U>(this Map<K, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<K, T>(this Map<K, Option<T>> self ) => self.ValueT();
+        public static T LiftT<K, T>(this Map<K, Option<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T>(this Map<K, Option<T>> self ) where T : class => self.ValueT();
     }
     public static partial class MapTMonad {
         internal static T ValueT<K, T>(this Map<K, OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3008,7 +3598,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<K, T>(this Map<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<K, T>(this Map<K, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, OptionUnsafe<U>> MapT<K, T, U>(this Map<K, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<K, T>(this Map<K, OptionUnsafe<T>> self ) => self.ValueT();
+        public static T LiftT<K, T>(this Map<K, OptionUnsafe<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T>(this Map<K, OptionUnsafe<T>> self ) where T : class => self.ValueT();
     }
     public static partial class MapTMonad {
         internal static T ValueT<K, T>(this Map<K, Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3021,7 +3612,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<K, T>(this Map<K, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<K, T>(this Map<K, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, Lst<U>> MapT<K, T, U>(this Map<K, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<K, T>(this Map<K, Lst<T>> self ) => self.ValueT();
+        public static T LiftT<K, T>(this Map<K, Lst<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T>(this Map<K, Lst<T>> self ) where T : class => self.ValueT();
     }
     public static partial class MapTMonad {
         internal static T ValueT<K, T>(this Map<K, Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3034,7 +3626,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<K, T>(this Map<K, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<K, T>(this Map<K, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, Map<K, U>> MapT<K, T, U>(this Map<K, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<K, T>(this Map<K, Map<K, T>> self ) => self.ValueT();
+        public static T LiftT<K, T>(this Map<K, Map<K, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T>(this Map<K, Map<K, T>> self ) where T : class => self.ValueT();
     }
     public static partial class MapTMonad {
         internal static T ValueT<K, T>(this Map<K, TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3047,7 +3640,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<K, T>(this Map<K, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<K, T>(this Map<K, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, TryOption<U>> MapT<K, T, U>(this Map<K, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<K, T>(this Map<K, TryOption<T>> self ) => self.ValueT();
+        public static T LiftT<K, T>(this Map<K, TryOption<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T>(this Map<K, TryOption<T>> self ) where T : class => self.ValueT();
     }
     public static partial class MapTMonad {
         internal static T ValueT<K, T>(this Map<K, Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3060,7 +3654,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<K, T>(this Map<K, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<K, T>(this Map<K, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, Try<U>> MapT<K, T, U>(this Map<K, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<K, T>(this Map<K, Try<T>> self ) => self.ValueT();
+        public static T LiftT<K, T>(this Map<K, Try<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T>(this Map<K, Try<T>> self ) where T : class => self.ValueT();
     }
     public static partial class MapTMonad {
         internal static T ValueT<K, T, L>(this Map<K, Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3073,7 +3668,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<K, T, L>(this Map<K, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<K, T, L>(this Map<K, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, Either<L, U>> MapT<K, T, L, U>(this Map<K, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<K, T, L>(this Map<K, Either<L, T>> self ) => self.ValueT();
+        public static T LiftT<K, T, L>(this Map<K, Either<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T, L>(this Map<K, Either<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class MapTMonad {
         internal static T ValueT<K, T, L>(this Map<K, EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3086,7 +3682,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<K, T, L>(this Map<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<K, T, L>(this Map<K, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Map<K, EitherUnsafe<L, U>> MapT<K, T, L, U>(this Map<K, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<K, T, L>(this Map<K, EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T LiftT<K, T, L>(this Map<K, EitherUnsafe<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<K, T, L>(this Map<K, EitherUnsafe<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class MapTMonad {
         internal static Reader<Env, T> ValueT<K, T, Env>(this Map<K, Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3099,7 +3696,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<K, T, Env>(this Map<K, Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<K, T, Env>(this Map<K, Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Map<K, Reader<Env, U>> MapT<K, T, Env, U>(this Map<K, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> LiftT<K, T, Env>(this Map<K, Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> LiftT<K, T, Env>(this Map<K, Reader<Env, T>> self ) where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<K, T, Env>(this Map<K, Reader<Env, T>> self ) where T : class => self.ValueT();
     }
     public static partial class MapTMonad {
         internal static Writer<Out, T> ValueT<K, T, Out>(this Map<K, Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3112,7 +3710,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<K, T, Out>(this Map<K, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<K, T, Out>(this Map<K, Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Map<K, Writer<Out, U>> MapT<K, T, Out, U>(this Map<K, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> LiftT<K, T, Out>(this Map<K, Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> LiftT<K, T, Out>(this Map<K, Writer<Out, T>> self ) where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<K, T, Out>(this Map<K, Writer<Out, T>> self ) where T : class => self.ValueT();
     }
     public static partial class MapTMonad {
         internal static State<State, T> ValueT<K, T, State>(this Map<K, State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3125,7 +3724,22 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<K, T, State>(this Map<K, State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> IterT<K, T, State>(this Map<K, State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Map<K, State<State, U>> MapT<K, T, State, U>(this Map<K, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> LiftT<K, T, State>(this Map<K, State<State, T>> self ) => self.ValueT();
+        public static State<State, T> LiftT<K, T, State>(this Map<K, State<State, T>> self ) where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<K, T, State>(this Map<K, State<State, T>> self ) where T : class => self.ValueT();
+    }
+    public static partial class MapTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<K, T, Env, Out, State>(this Map<K, Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<K, Env, Out, State>(this Map<K, Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<K, T, Env, Out, State>(this Map<K, Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Map<K, Rws<Env, Out, State, U>> BindT<K, T, Env, Out, State, U>(this Map<K, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<K, T, Env, Out, State>(this Map<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Map<K, Rws<Env, Out, State, T>> FilterT<K, T, Env, Out, State>(this Map<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<K, T, Env, Out, State, V>(this Map<K, Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> ForAllT<K, T, Env, Out, State>(this Map<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<K, T, Env, Out, State>(this Map<K, Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static Map<K, Rws<Env, Out, State, U>> MapT<K, T, Env, Out, State, U>(this Map<K, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> LiftT<K, T, Env, Out, State>(this Map<K, Rws<Env, Out, State, T>> self ) where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<K, T, Env, Out, State>(this Map<K, Rws<Env, Out, State, T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryOptionTMonad {
         internal static T ValueT<T>(this TryOption<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3138,7 +3752,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this TryOption<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this TryOption<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<IEnumerable<U>> MapT<T, U>(this TryOption<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this TryOption<IEnumerable<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this TryOption<IEnumerable<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this TryOption<IEnumerable<T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryOptionTMonad {
         internal static T ValueT<T>(this TryOption<Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3151,7 +3766,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this TryOption<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this TryOption<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<Option<U>> MapT<T, U>(this TryOption<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this TryOption<Option<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this TryOption<Option<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this TryOption<Option<T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryOptionTMonad {
         internal static T ValueT<T>(this TryOption<OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3164,7 +3780,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this TryOption<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this TryOption<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<OptionUnsafe<U>> MapT<T, U>(this TryOption<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this TryOption<OptionUnsafe<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this TryOption<OptionUnsafe<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this TryOption<OptionUnsafe<T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryOptionTMonad {
         internal static T ValueT<T>(this TryOption<Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3177,7 +3794,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this TryOption<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this TryOption<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<Lst<U>> MapT<T, U>(this TryOption<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this TryOption<Lst<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this TryOption<Lst<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this TryOption<Lst<T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryOptionTMonad {
         internal static T ValueT<T, K>(this TryOption<Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3190,7 +3808,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, K>(this TryOption<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, K>(this TryOption<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<Map<K, U>> MapT<T, K, U>(this TryOption<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, K>(this TryOption<Map<K, T>> self ) => self.ValueT();
+        public static T LiftT<T, K>(this TryOption<Map<K, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, K>(this TryOption<Map<K, T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryOptionTMonad {
         internal static T ValueT<T>(this TryOption<TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3203,7 +3822,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this TryOption<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this TryOption<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<TryOption<U>> MapT<T, U>(this TryOption<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this TryOption<TryOption<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this TryOption<TryOption<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this TryOption<TryOption<T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryOptionTMonad {
         internal static T ValueT<T>(this TryOption<Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3216,7 +3836,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this TryOption<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this TryOption<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<Try<U>> MapT<T, U>(this TryOption<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this TryOption<Try<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this TryOption<Try<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this TryOption<Try<T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryOptionTMonad {
         internal static T ValueT<T, L>(this TryOption<Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3229,7 +3850,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, L>(this TryOption<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, L>(this TryOption<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<Either<L, U>> MapT<T, L, U>(this TryOption<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, L>(this TryOption<Either<L, T>> self ) => self.ValueT();
+        public static T LiftT<T, L>(this TryOption<Either<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(this TryOption<Either<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryOptionTMonad {
         internal static T ValueT<T, L>(this TryOption<EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3242,7 +3864,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, L>(this TryOption<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, L>(this TryOption<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static TryOption<EitherUnsafe<L, U>> MapT<T, L, U>(this TryOption<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, L>(this TryOption<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T LiftT<T, L>(this TryOption<EitherUnsafe<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(this TryOption<EitherUnsafe<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryOptionTMonad {
         internal static Reader<Env, T> ValueT<T, Env>(this TryOption<Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3255,7 +3878,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<T, Env>(this TryOption<Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<T, Env>(this TryOption<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static TryOption<Reader<Env, U>> MapT<T, Env, U>(this TryOption<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> LiftT<T, Env>(this TryOption<Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> LiftT<T, Env>(this TryOption<Reader<Env, T>> self ) where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<T, Env>(this TryOption<Reader<Env, T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryOptionTMonad {
         internal static Writer<Out, T> ValueT<T, Out>(this TryOption<Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3268,7 +3892,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<T, Out>(this TryOption<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<T, Out>(this TryOption<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static TryOption<Writer<Out, U>> MapT<T, Out, U>(this TryOption<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> LiftT<T, Out>(this TryOption<Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> LiftT<T, Out>(this TryOption<Writer<Out, T>> self ) where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<T, Out>(this TryOption<Writer<Out, T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryOptionTMonad {
         internal static State<State, T> ValueT<T, State>(this TryOption<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3281,7 +3906,22 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<T, State>(this TryOption<State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> IterT<T, State>(this TryOption<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static TryOption<State<State, U>> MapT<T, State, U>(this TryOption<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> LiftT<T, State>(this TryOption<State<State, T>> self ) => self.ValueT();
+        public static State<State, T> LiftT<T, State>(this TryOption<State<State, T>> self ) where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<T, State>(this TryOption<State<State, T>> self ) where T : class => self.ValueT();
+    }
+    public static partial class TryOptionTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<T, Env, Out, State>(this TryOption<Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<Env, Out, State>(this TryOption<Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<T, Env, Out, State>(this TryOption<Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static TryOption<Rws<Env, Out, State, U>> BindT<T, Env, Out, State, U>(this TryOption<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<T, Env, Out, State>(this TryOption<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static TryOption<Rws<Env, Out, State, T>> FilterT<T, Env, Out, State>(this TryOption<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<T, Env, Out, State, V>(this TryOption<Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> ForAllT<T, Env, Out, State>(this TryOption<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<T, Env, Out, State>(this TryOption<Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static TryOption<Rws<Env, Out, State, U>> MapT<T, Env, Out, State, U>(this TryOption<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> LiftT<T, Env, Out, State>(this TryOption<Rws<Env, Out, State, T>> self ) where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(this TryOption<Rws<Env, Out, State, T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryTMonad {
         internal static T ValueT<T>(this Try<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3294,7 +3934,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Try<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Try<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<IEnumerable<U>> MapT<T, U>(this Try<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Try<IEnumerable<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Try<IEnumerable<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Try<IEnumerable<T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryTMonad {
         internal static T ValueT<T>(this Try<Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3307,7 +3948,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Try<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Try<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<Option<U>> MapT<T, U>(this Try<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Try<Option<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Try<Option<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Try<Option<T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryTMonad {
         internal static T ValueT<T>(this Try<OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3320,7 +3962,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Try<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Try<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<OptionUnsafe<U>> MapT<T, U>(this Try<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Try<OptionUnsafe<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Try<OptionUnsafe<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Try<OptionUnsafe<T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryTMonad {
         internal static T ValueT<T>(this Try<Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3333,7 +3976,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Try<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Try<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<Lst<U>> MapT<T, U>(this Try<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Try<Lst<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Try<Lst<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Try<Lst<T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryTMonad {
         internal static T ValueT<T, K>(this Try<Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3346,7 +3990,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, K>(this Try<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, K>(this Try<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<Map<K, U>> MapT<T, K, U>(this Try<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, K>(this Try<Map<K, T>> self ) => self.ValueT();
+        public static T LiftT<T, K>(this Try<Map<K, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, K>(this Try<Map<K, T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryTMonad {
         internal static T ValueT<T>(this Try<TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3359,7 +4004,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Try<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Try<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<TryOption<U>> MapT<T, U>(this Try<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Try<TryOption<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Try<TryOption<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Try<TryOption<T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryTMonad {
         internal static T ValueT<T>(this Try<Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3372,7 +4018,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T>(this Try<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T>(this Try<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<Try<U>> MapT<T, U>(this Try<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T>(this Try<Try<T>> self ) => self.ValueT();
+        public static T LiftT<T>(this Try<Try<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T>(this Try<Try<T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryTMonad {
         internal static T ValueT<T, L>(this Try<Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3385,7 +4032,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, L>(this Try<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, L>(this Try<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<Either<L, U>> MapT<T, L, U>(this Try<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, L>(this Try<Either<L, T>> self ) => self.ValueT();
+        public static T LiftT<T, L>(this Try<Either<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(this Try<Either<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryTMonad {
         internal static T ValueT<T, L>(this Try<EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3398,7 +4046,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<T, L>(this Try<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<T, L>(this Try<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Try<EitherUnsafe<L, U>> MapT<T, L, U>(this Try<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<T, L>(this Try<EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T LiftT<T, L>(this Try<EitherUnsafe<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<T, L>(this Try<EitherUnsafe<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryTMonad {
         internal static Reader<Env, T> ValueT<T, Env>(this Try<Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3411,7 +4060,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<T, Env>(this Try<Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<T, Env>(this Try<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Try<Reader<Env, U>> MapT<T, Env, U>(this Try<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> LiftT<T, Env>(this Try<Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> LiftT<T, Env>(this Try<Reader<Env, T>> self ) where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<T, Env>(this Try<Reader<Env, T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryTMonad {
         internal static Writer<Out, T> ValueT<T, Out>(this Try<Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3424,7 +4074,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<T, Out>(this Try<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<T, Out>(this Try<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Try<Writer<Out, U>> MapT<T, Out, U>(this Try<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> LiftT<T, Out>(this Try<Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> LiftT<T, Out>(this Try<Writer<Out, T>> self ) where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<T, Out>(this Try<Writer<Out, T>> self ) where T : class => self.ValueT();
     }
     public static partial class TryTMonad {
         internal static State<State, T> ValueT<T, State>(this Try<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3437,7 +4088,22 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<T, State>(this Try<State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> IterT<T, State>(this Try<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Try<State<State, U>> MapT<T, State, U>(this Try<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> LiftT<T, State>(this Try<State<State, T>> self ) => self.ValueT();
+        public static State<State, T> LiftT<T, State>(this Try<State<State, T>> self ) where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<T, State>(this Try<State<State, T>> self ) where T : class => self.ValueT();
+    }
+    public static partial class TryTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<T, Env, Out, State>(this Try<Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<Env, Out, State>(this Try<Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<T, Env, Out, State>(this Try<Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Try<Rws<Env, Out, State, U>> BindT<T, Env, Out, State, U>(this Try<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<T, Env, Out, State>(this Try<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Try<Rws<Env, Out, State, T>> FilterT<T, Env, Out, State>(this Try<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<T, Env, Out, State, V>(this Try<Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> ForAllT<T, Env, Out, State>(this Try<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<T, Env, Out, State>(this Try<Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static Try<Rws<Env, Out, State, U>> MapT<T, Env, Out, State, U>(this Try<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> LiftT<T, Env, Out, State>(this Try<Rws<Env, Out, State, T>> self ) where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(this Try<Rws<Env, Out, State, T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherTMonad {
         internal static T ValueT<L, T>(this Either<L, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3450,7 +4116,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T>(this Either<L, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T>(this Either<L, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, IEnumerable<U>> MapT<L, T, U>(this Either<L, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T>(this Either<L, IEnumerable<T>> self ) => self.ValueT();
+        public static T LiftT<L, T>(this Either<L, IEnumerable<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(this Either<L, IEnumerable<T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherTMonad {
         internal static T ValueT<L, T>(this Either<L, Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3463,7 +4130,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T>(this Either<L, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T>(this Either<L, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, Option<U>> MapT<L, T, U>(this Either<L, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T>(this Either<L, Option<T>> self ) => self.ValueT();
+        public static T LiftT<L, T>(this Either<L, Option<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(this Either<L, Option<T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherTMonad {
         internal static T ValueT<L, T>(this Either<L, OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3476,7 +4144,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T>(this Either<L, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T>(this Either<L, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, OptionUnsafe<U>> MapT<L, T, U>(this Either<L, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T>(this Either<L, OptionUnsafe<T>> self ) => self.ValueT();
+        public static T LiftT<L, T>(this Either<L, OptionUnsafe<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(this Either<L, OptionUnsafe<T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherTMonad {
         internal static T ValueT<L, T>(this Either<L, Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3489,7 +4158,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T>(this Either<L, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T>(this Either<L, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, Lst<U>> MapT<L, T, U>(this Either<L, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T>(this Either<L, Lst<T>> self ) => self.ValueT();
+        public static T LiftT<L, T>(this Either<L, Lst<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(this Either<L, Lst<T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherTMonad {
         internal static T ValueT<L, T, K>(this Either<L, Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3502,7 +4172,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T, K>(this Either<L, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T, K>(this Either<L, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, Map<K, U>> MapT<L, T, K, U>(this Either<L, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T, K>(this Either<L, Map<K, T>> self ) => self.ValueT();
+        public static T LiftT<L, T, K>(this Either<L, Map<K, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T, K>(this Either<L, Map<K, T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherTMonad {
         internal static T ValueT<L, T>(this Either<L, TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3515,7 +4186,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T>(this Either<L, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T>(this Either<L, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, TryOption<U>> MapT<L, T, U>(this Either<L, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T>(this Either<L, TryOption<T>> self ) => self.ValueT();
+        public static T LiftT<L, T>(this Either<L, TryOption<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(this Either<L, TryOption<T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherTMonad {
         internal static T ValueT<L, T>(this Either<L, Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3528,7 +4200,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T>(this Either<L, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T>(this Either<L, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, Try<U>> MapT<L, T, U>(this Either<L, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T>(this Either<L, Try<T>> self ) => self.ValueT();
+        public static T LiftT<L, T>(this Either<L, Try<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(this Either<L, Try<T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherTMonad {
         internal static T ValueT<L, T>(this Either<L, Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3541,7 +4214,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T>(this Either<L, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T>(this Either<L, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, Either<L, U>> MapT<L, T, U>(this Either<L, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T>(this Either<L, Either<L, T>> self ) => self.ValueT();
+        public static T LiftT<L, T>(this Either<L, Either<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(this Either<L, Either<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherTMonad {
         internal static T ValueT<L, T>(this Either<L, EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3554,7 +4228,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T>(this Either<L, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T>(this Either<L, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Either<L, EitherUnsafe<L, U>> MapT<L, T, U>(this Either<L, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T>(this Either<L, EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T LiftT<L, T>(this Either<L, EitherUnsafe<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(this Either<L, EitherUnsafe<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherTMonad {
         internal static Reader<Env, T> ValueT<L, T, Env>(this Either<L, Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3567,7 +4242,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<L, T, Env>(this Either<L, Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<L, T, Env>(this Either<L, Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Either<L, Reader<Env, U>> MapT<L, T, Env, U>(this Either<L, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> LiftT<L, T, Env>(this Either<L, Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> LiftT<L, T, Env>(this Either<L, Reader<Env, T>> self ) where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<L, T, Env>(this Either<L, Reader<Env, T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherTMonad {
         internal static Writer<Out, T> ValueT<L, T, Out>(this Either<L, Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3580,7 +4256,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<L, T, Out>(this Either<L, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<L, T, Out>(this Either<L, Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Either<L, Writer<Out, U>> MapT<L, T, Out, U>(this Either<L, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> LiftT<L, T, Out>(this Either<L, Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> LiftT<L, T, Out>(this Either<L, Writer<Out, T>> self ) where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<L, T, Out>(this Either<L, Writer<Out, T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherTMonad {
         internal static State<State, T> ValueT<L, T, State>(this Either<L, State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3593,7 +4270,22 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<L, T, State>(this Either<L, State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> IterT<L, T, State>(this Either<L, State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Either<L, State<State, U>> MapT<L, T, State, U>(this Either<L, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> LiftT<L, T, State>(this Either<L, State<State, T>> self ) => self.ValueT();
+        public static State<State, T> LiftT<L, T, State>(this Either<L, State<State, T>> self ) where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<L, T, State>(this Either<L, State<State, T>> self ) where T : class => self.ValueT();
+    }
+    public static partial class EitherTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<L, T, Env, Out, State>(this Either<L, Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<L, Env, Out, State>(this Either<L, Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<L, T, Env, Out, State>(this Either<L, Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Either<L, Rws<Env, Out, State, U>> BindT<L, T, Env, Out, State, U>(this Either<L, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<L, T, Env, Out, State>(this Either<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Either<L, Rws<Env, Out, State, T>> FilterT<L, T, Env, Out, State>(this Either<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<L, T, Env, Out, State, V>(this Either<L, Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> ForAllT<L, T, Env, Out, State>(this Either<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<L, T, Env, Out, State>(this Either<L, Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static Either<L, Rws<Env, Out, State, U>> MapT<L, T, Env, Out, State, U>(this Either<L, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> LiftT<L, T, Env, Out, State>(this Either<L, Rws<Env, Out, State, T>> self ) where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<L, T, Env, Out, State>(this Either<L, Rws<Env, Out, State, T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherUnsafeTMonad {
         internal static T ValueT<L, T>(this EitherUnsafe<L, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3606,7 +4298,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T>(this EitherUnsafe<L, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T>(this EitherUnsafe<L, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, IEnumerable<U>> MapT<L, T, U>(this EitherUnsafe<L, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T>(this EitherUnsafe<L, IEnumerable<T>> self ) => self.ValueT();
+        public static T LiftT<L, T>(this EitherUnsafe<L, IEnumerable<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(this EitherUnsafe<L, IEnumerable<T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherUnsafeTMonad {
         internal static T ValueT<L, T>(this EitherUnsafe<L, Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3619,7 +4312,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T>(this EitherUnsafe<L, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T>(this EitherUnsafe<L, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, Option<U>> MapT<L, T, U>(this EitherUnsafe<L, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T>(this EitherUnsafe<L, Option<T>> self ) => self.ValueT();
+        public static T LiftT<L, T>(this EitherUnsafe<L, Option<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(this EitherUnsafe<L, Option<T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherUnsafeTMonad {
         internal static T ValueT<L, T>(this EitherUnsafe<L, OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3632,7 +4326,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T>(this EitherUnsafe<L, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T>(this EitherUnsafe<L, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, OptionUnsafe<U>> MapT<L, T, U>(this EitherUnsafe<L, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T>(this EitherUnsafe<L, OptionUnsafe<T>> self ) => self.ValueT();
+        public static T LiftT<L, T>(this EitherUnsafe<L, OptionUnsafe<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(this EitherUnsafe<L, OptionUnsafe<T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherUnsafeTMonad {
         internal static T ValueT<L, T>(this EitherUnsafe<L, Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3645,7 +4340,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T>(this EitherUnsafe<L, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T>(this EitherUnsafe<L, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, Lst<U>> MapT<L, T, U>(this EitherUnsafe<L, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T>(this EitherUnsafe<L, Lst<T>> self ) => self.ValueT();
+        public static T LiftT<L, T>(this EitherUnsafe<L, Lst<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(this EitherUnsafe<L, Lst<T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherUnsafeTMonad {
         internal static T ValueT<L, T, K>(this EitherUnsafe<L, Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3658,7 +4354,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T, K>(this EitherUnsafe<L, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T, K>(this EitherUnsafe<L, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, Map<K, U>> MapT<L, T, K, U>(this EitherUnsafe<L, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T, K>(this EitherUnsafe<L, Map<K, T>> self ) => self.ValueT();
+        public static T LiftT<L, T, K>(this EitherUnsafe<L, Map<K, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T, K>(this EitherUnsafe<L, Map<K, T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherUnsafeTMonad {
         internal static T ValueT<L, T>(this EitherUnsafe<L, TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3671,7 +4368,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T>(this EitherUnsafe<L, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T>(this EitherUnsafe<L, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, TryOption<U>> MapT<L, T, U>(this EitherUnsafe<L, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T>(this EitherUnsafe<L, TryOption<T>> self ) => self.ValueT();
+        public static T LiftT<L, T>(this EitherUnsafe<L, TryOption<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(this EitherUnsafe<L, TryOption<T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherUnsafeTMonad {
         internal static T ValueT<L, T>(this EitherUnsafe<L, Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3684,7 +4382,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T>(this EitherUnsafe<L, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T>(this EitherUnsafe<L, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, Try<U>> MapT<L, T, U>(this EitherUnsafe<L, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T>(this EitherUnsafe<L, Try<T>> self ) => self.ValueT();
+        public static T LiftT<L, T>(this EitherUnsafe<L, Try<T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(this EitherUnsafe<L, Try<T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherUnsafeTMonad {
         internal static T ValueT<L, T>(this EitherUnsafe<L, Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3697,7 +4396,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T>(this EitherUnsafe<L, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T>(this EitherUnsafe<L, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, Either<L, U>> MapT<L, T, U>(this EitherUnsafe<L, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T>(this EitherUnsafe<L, Either<L, T>> self ) => self.ValueT();
+        public static T LiftT<L, T>(this EitherUnsafe<L, Either<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(this EitherUnsafe<L, Either<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherUnsafeTMonad {
         internal static T ValueT<L, T>(this EitherUnsafe<L, EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3710,7 +4410,8 @@ namespace LanguageExt.Trans
         public static bool ForAllT<L, T>(this EitherUnsafe<L, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Unit IterT<L, T>(this EitherUnsafe<L, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static EitherUnsafe<L, EitherUnsafe<L, U>> MapT<L, T, U>(this EitherUnsafe<L, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<L, T>(this EitherUnsafe<L, EitherUnsafe<L, T>> self ) => self.ValueT();
+        public static T LiftT<L, T>(this EitherUnsafe<L, EitherUnsafe<L, T>> self ) where T : struct => self.ValueT();
+        public static T LiftUnsafeT<L, T>(this EitherUnsafe<L, EitherUnsafe<L, T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherUnsafeTMonad {
         internal static Reader<Env, T> ValueT<L, T, Env>(this EitherUnsafe<L, Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3723,7 +4424,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<L, T, Env>(this EitherUnsafe<L, Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<L, T, Env>(this EitherUnsafe<L, Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static EitherUnsafe<L, Reader<Env, U>> MapT<L, T, Env, U>(this EitherUnsafe<L, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> LiftT<L, T, Env>(this EitherUnsafe<L, Reader<Env, T>> self ) => self.ValueT();
+        public static Reader<Env, T> LiftT<L, T, Env>(this EitherUnsafe<L, Reader<Env, T>> self ) where T : struct => self.ValueT();
+        public static Reader<Env, T> LiftUnsafeT<L, T, Env>(this EitherUnsafe<L, Reader<Env, T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherUnsafeTMonad {
         internal static Writer<Out, T> ValueT<L, T, Out>(this EitherUnsafe<L, Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3736,7 +4438,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<L, T, Out>(this EitherUnsafe<L, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<L, T, Out>(this EitherUnsafe<L, Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static EitherUnsafe<L, Writer<Out, U>> MapT<L, T, Out, U>(this EitherUnsafe<L, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> LiftT<L, T, Out>(this EitherUnsafe<L, Writer<Out, T>> self ) => self.ValueT();
+        public static Writer<Out, T> LiftT<L, T, Out>(this EitherUnsafe<L, Writer<Out, T>> self ) where T : struct => self.ValueT();
+        public static Writer<Out, T> LiftUnsafeT<L, T, Out>(this EitherUnsafe<L, Writer<Out, T>> self ) where T : class => self.ValueT();
     }
     public static partial class EitherUnsafeTMonad {
         internal static State<State, T> ValueT<L, T, State>(this EitherUnsafe<L, State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3749,7 +4452,22 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<L, T, State>(this EitherUnsafe<L, State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, Unit> IterT<L, T, State>(this EitherUnsafe<L, State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static EitherUnsafe<L, State<State, U>> MapT<L, T, State, U>(this EitherUnsafe<L, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> LiftT<L, T, State>(this EitherUnsafe<L, State<State, T>> self ) => self.ValueT();
+        public static State<State, T> LiftT<L, T, State>(this EitherUnsafe<L, State<State, T>> self ) where T : struct => self.ValueT();
+        public static State<State, T> LiftUnsafeT<L, T, State>(this EitherUnsafe<L, State<State, T>> self ) where T : class => self.ValueT();
+    }
+    public static partial class EitherUnsafeTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<L, T, Env, Out, State>(this EitherUnsafe<L, Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<L, Env, Out, State>(this EitherUnsafe<L, Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<L, T, Env, Out, State>(this EitherUnsafe<L, Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static EitherUnsafe<L, Rws<Env, Out, State, U>> BindT<L, T, Env, Out, State, U>(this EitherUnsafe<L, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<L, T, Env, Out, State>(this EitherUnsafe<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static EitherUnsafe<L, Rws<Env, Out, State, T>> FilterT<L, T, Env, Out, State>(this EitherUnsafe<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<L, T, Env, Out, State, V>(this EitherUnsafe<L, Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, bool> ForAllT<L, T, Env, Out, State>(this EitherUnsafe<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<L, T, Env, Out, State>(this EitherUnsafe<L, Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static EitherUnsafe<L, Rws<Env, Out, State, U>> MapT<L, T, Env, Out, State, U>(this EitherUnsafe<L, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> LiftT<L, T, Env, Out, State>(this EitherUnsafe<L, Rws<Env, Out, State, T>> self ) where T : struct => self.ValueT();
+        public static Rws<Env, Out, State, T> LiftUnsafeT<L, T, Env, Out, State>(this EitherUnsafe<L, Rws<Env, Out, State, T>> self ) where T : class => self.ValueT();
     }
     public static partial class ReaderTMonad {
         internal static Reader<Env, T> ValueT<Env, T>(this Reader<Env, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3762,7 +4480,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<Env, T>(this Reader<Env, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<Env, T>(this Reader<Env, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, IEnumerable<U>> MapT<Env, T, U>(this Reader<Env, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Env, T>(this Reader<Env, IEnumerable<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<Env, T>(this Reader<Env, IEnumerable<T>> self , Env liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T>(this Reader<Env, IEnumerable<T>> self , Env liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class ReaderTMonad {
         internal static Reader<Env, T> ValueT<Env, T>(this Reader<Env, Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3775,7 +4494,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<Env, T>(this Reader<Env, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<Env, T>(this Reader<Env, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, Option<U>> MapT<Env, T, U>(this Reader<Env, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Env, T>(this Reader<Env, Option<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<Env, T>(this Reader<Env, Option<T>> self , Env liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T>(this Reader<Env, Option<T>> self , Env liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class ReaderTMonad {
         internal static Reader<Env, T> ValueT<Env, T>(this Reader<Env, OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3788,7 +4508,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<Env, T>(this Reader<Env, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<Env, T>(this Reader<Env, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, OptionUnsafe<U>> MapT<Env, T, U>(this Reader<Env, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Env, T>(this Reader<Env, OptionUnsafe<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<Env, T>(this Reader<Env, OptionUnsafe<T>> self , Env liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T>(this Reader<Env, OptionUnsafe<T>> self , Env liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class ReaderTMonad {
         internal static Reader<Env, T> ValueT<Env, T>(this Reader<Env, Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3801,7 +4522,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<Env, T>(this Reader<Env, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<Env, T>(this Reader<Env, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, Lst<U>> MapT<Env, T, U>(this Reader<Env, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Env, T>(this Reader<Env, Lst<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<Env, T>(this Reader<Env, Lst<T>> self , Env liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T>(this Reader<Env, Lst<T>> self , Env liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class ReaderTMonad {
         internal static Reader<Env, T> ValueT<Env, T, K>(this Reader<Env, Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3814,7 +4536,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<Env, T, K>(this Reader<Env, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<Env, T, K>(this Reader<Env, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, Map<K, U>> MapT<Env, T, K, U>(this Reader<Env, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Env, T, K>(this Reader<Env, Map<K, T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<Env, T, K>(this Reader<Env, Map<K, T>> self , Env liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T, K>(this Reader<Env, Map<K, T>> self , Env liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class ReaderTMonad {
         internal static Reader<Env, T> ValueT<Env, T>(this Reader<Env, TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3827,7 +4550,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<Env, T>(this Reader<Env, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<Env, T>(this Reader<Env, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, TryOption<U>> MapT<Env, T, U>(this Reader<Env, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Env, T>(this Reader<Env, TryOption<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<Env, T>(this Reader<Env, TryOption<T>> self , Env liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T>(this Reader<Env, TryOption<T>> self , Env liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class ReaderTMonad {
         internal static Reader<Env, T> ValueT<Env, T>(this Reader<Env, Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3840,7 +4564,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<Env, T>(this Reader<Env, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<Env, T>(this Reader<Env, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, Try<U>> MapT<Env, T, U>(this Reader<Env, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Env, T>(this Reader<Env, Try<T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<Env, T>(this Reader<Env, Try<T>> self , Env liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T>(this Reader<Env, Try<T>> self , Env liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class ReaderTMonad {
         internal static Reader<Env, T> ValueT<Env, T, L>(this Reader<Env, Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3853,7 +4578,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<Env, T, L>(this Reader<Env, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<Env, T, L>(this Reader<Env, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, Either<L, U>> MapT<Env, T, L, U>(this Reader<Env, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Env, T, L>(this Reader<Env, Either<L, T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<Env, T, L>(this Reader<Env, Either<L, T>> self , Env liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T, L>(this Reader<Env, Either<L, T>> self , Env liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class ReaderTMonad {
         internal static Reader<Env, T> ValueT<Env, T, L>(this Reader<Env, EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3866,7 +4592,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, bool> ForAllT<Env, T, L>(this Reader<Env, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Reader<Env, Unit> IterT<Env, T, L>(this Reader<Env, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Reader<Env, EitherUnsafe<L, U>> MapT<Env, T, L, U>(this Reader<Env, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Env, T, L>(this Reader<Env, EitherUnsafe<L, T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<Env, T, L>(this Reader<Env, EitherUnsafe<L, T>> self , Env liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, T, L>(this Reader<Env, EitherUnsafe<L, T>> self , Env liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class ReaderTMonad {
         internal static Reader<Env, Reader<Env, T>> ValueT<Env, T>(this Reader<Env, Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3879,7 +4606,8 @@ namespace LanguageExt.Trans
         public static Reader<Env, Reader<Env, bool>> ForAllT<Env, T>(this Reader<Env, Reader<Env, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static Reader<Env, Reader<Env, Unit>> IterT<Env, T>(this Reader<Env, Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static Reader<Env, Reader<Env, U>> MapT<Env, T, U>(this Reader<Env, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Reader<Env, T> LiftT<Env, T>(this Reader<Env, Reader<Env, T>> self , Env liftArg) => self.ValueT()(liftArg).Value;
+        public static Reader<Env, T> LiftT<Env, T>(this Reader<Env, Reader<Env, T>> self , Env liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static Reader<Env, T> LiftUnsafeT<Env, T>(this Reader<Env, Reader<Env, T>> self , Env liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class WriterTMonad {
         internal static Writer<Out, T> ValueT<Out, T>(this Writer<Out, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3892,7 +4620,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<Out, T>(this Writer<Out, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<Out, T>(this Writer<Out, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, IEnumerable<U>> MapT<Out, T, U>(this Writer<Out, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Out, T>(this Writer<Out, IEnumerable<T>> self ) => self.ValueT()().Value;
+        public static T LiftT<Out, T>(this Writer<Out, IEnumerable<T>> self ) where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T>(this Writer<Out, IEnumerable<T>> self ) where T : class => self.ValueT()().Value;
     }
     public static partial class WriterTMonad {
         internal static Writer<Out, T> ValueT<Out, T>(this Writer<Out, Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3905,7 +4634,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<Out, T>(this Writer<Out, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<Out, T>(this Writer<Out, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, Option<U>> MapT<Out, T, U>(this Writer<Out, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Out, T>(this Writer<Out, Option<T>> self ) => self.ValueT()().Value;
+        public static T LiftT<Out, T>(this Writer<Out, Option<T>> self ) where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T>(this Writer<Out, Option<T>> self ) where T : class => self.ValueT()().Value;
     }
     public static partial class WriterTMonad {
         internal static Writer<Out, T> ValueT<Out, T>(this Writer<Out, OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3918,7 +4648,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<Out, T>(this Writer<Out, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<Out, T>(this Writer<Out, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, OptionUnsafe<U>> MapT<Out, T, U>(this Writer<Out, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Out, T>(this Writer<Out, OptionUnsafe<T>> self ) => self.ValueT()().Value;
+        public static T LiftT<Out, T>(this Writer<Out, OptionUnsafe<T>> self ) where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T>(this Writer<Out, OptionUnsafe<T>> self ) where T : class => self.ValueT()().Value;
     }
     public static partial class WriterTMonad {
         internal static Writer<Out, T> ValueT<Out, T>(this Writer<Out, Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3931,7 +4662,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<Out, T>(this Writer<Out, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<Out, T>(this Writer<Out, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, Lst<U>> MapT<Out, T, U>(this Writer<Out, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Out, T>(this Writer<Out, Lst<T>> self ) => self.ValueT()().Value;
+        public static T LiftT<Out, T>(this Writer<Out, Lst<T>> self ) where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T>(this Writer<Out, Lst<T>> self ) where T : class => self.ValueT()().Value;
     }
     public static partial class WriterTMonad {
         internal static Writer<Out, T> ValueT<Out, T, K>(this Writer<Out, Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3944,7 +4676,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<Out, T, K>(this Writer<Out, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<Out, T, K>(this Writer<Out, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, Map<K, U>> MapT<Out, T, K, U>(this Writer<Out, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Out, T, K>(this Writer<Out, Map<K, T>> self ) => self.ValueT()().Value;
+        public static T LiftT<Out, T, K>(this Writer<Out, Map<K, T>> self ) where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T, K>(this Writer<Out, Map<K, T>> self ) where T : class => self.ValueT()().Value;
     }
     public static partial class WriterTMonad {
         internal static Writer<Out, T> ValueT<Out, T>(this Writer<Out, TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3957,7 +4690,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<Out, T>(this Writer<Out, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<Out, T>(this Writer<Out, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, TryOption<U>> MapT<Out, T, U>(this Writer<Out, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Out, T>(this Writer<Out, TryOption<T>> self ) => self.ValueT()().Value;
+        public static T LiftT<Out, T>(this Writer<Out, TryOption<T>> self ) where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T>(this Writer<Out, TryOption<T>> self ) where T : class => self.ValueT()().Value;
     }
     public static partial class WriterTMonad {
         internal static Writer<Out, T> ValueT<Out, T>(this Writer<Out, Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3970,7 +4704,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<Out, T>(this Writer<Out, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<Out, T>(this Writer<Out, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, Try<U>> MapT<Out, T, U>(this Writer<Out, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Out, T>(this Writer<Out, Try<T>> self ) => self.ValueT()().Value;
+        public static T LiftT<Out, T>(this Writer<Out, Try<T>> self ) where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T>(this Writer<Out, Try<T>> self ) where T : class => self.ValueT()().Value;
     }
     public static partial class WriterTMonad {
         internal static Writer<Out, T> ValueT<Out, T, L>(this Writer<Out, Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3983,7 +4718,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<Out, T, L>(this Writer<Out, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<Out, T, L>(this Writer<Out, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, Either<L, U>> MapT<Out, T, L, U>(this Writer<Out, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Out, T, L>(this Writer<Out, Either<L, T>> self ) => self.ValueT()().Value;
+        public static T LiftT<Out, T, L>(this Writer<Out, Either<L, T>> self ) where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T, L>(this Writer<Out, Either<L, T>> self ) where T : class => self.ValueT()().Value;
     }
     public static partial class WriterTMonad {
         internal static Writer<Out, T> ValueT<Out, T, L>(this Writer<Out, EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -3996,7 +4732,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, bool> ForAllT<Out, T, L>(this Writer<Out, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static Writer<Out, Unit> IterT<Out, T, L>(this Writer<Out, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static Writer<Out, EitherUnsafe<L, U>> MapT<Out, T, L, U>(this Writer<Out, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<Out, T, L>(this Writer<Out, EitherUnsafe<L, T>> self ) => self.ValueT()().Value;
+        public static T LiftT<Out, T, L>(this Writer<Out, EitherUnsafe<L, T>> self ) where T : struct => self.ValueT()().Value;
+        public static T LiftUnsafeT<Out, T, L>(this Writer<Out, EitherUnsafe<L, T>> self ) where T : class => self.ValueT()().Value;
     }
     public static partial class WriterTMonad {
         internal static Writer<Out, Writer<Out, T>> ValueT<Out, T>(this Writer<Out, Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -4009,7 +4746,8 @@ namespace LanguageExt.Trans
         public static Writer<Out, Writer<Out, bool>> ForAllT<Out, T>(this Writer<Out, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.MapT(x => x.ForAllT(pred)()).ForAll(x=>x);
         public static Writer<Out, Writer<Out, Unit>> IterT<Out, T>(this Writer<Out, Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         public static Writer<Out, Writer<Out, U>> MapT<Out, T, U>(this Writer<Out, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static Writer<Out, T> LiftT<Out, T>(this Writer<Out, Writer<Out, T>> self ) => self.ValueT()().Value;
+        public static Writer<Out, T> LiftT<Out, T>(this Writer<Out, Writer<Out, T>> self ) where T : struct => self.ValueT()().Value;
+        public static Writer<Out, T> LiftUnsafeT<Out, T>(this Writer<Out, Writer<Out, T>> self ) where T : class => self.ValueT()().Value;
     }
     public static partial class StateTMonad {
         internal static State<State, T> ValueT<State, T>(this State<State, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -4022,7 +4760,8 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<State, T>(this State<State, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> IterT<State, T>(this State<State, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, IEnumerable<U>> MapT<State, T, U>(this State<State, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<State, T>(this State<State, IEnumerable<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<State, T>(this State<State, IEnumerable<T>> self , State liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T>(this State<State, IEnumerable<T>> self , State liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class StateTMonad {
         internal static State<State, T> ValueT<State, T>(this State<State, Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -4035,7 +4774,8 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<State, T>(this State<State, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> IterT<State, T>(this State<State, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, Option<U>> MapT<State, T, U>(this State<State, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<State, T>(this State<State, Option<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<State, T>(this State<State, Option<T>> self , State liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T>(this State<State, Option<T>> self , State liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class StateTMonad {
         internal static State<State, T> ValueT<State, T>(this State<State, OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -4048,7 +4788,8 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<State, T>(this State<State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> IterT<State, T>(this State<State, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, OptionUnsafe<U>> MapT<State, T, U>(this State<State, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<State, T>(this State<State, OptionUnsafe<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<State, T>(this State<State, OptionUnsafe<T>> self , State liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T>(this State<State, OptionUnsafe<T>> self , State liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class StateTMonad {
         internal static State<State, T> ValueT<State, T>(this State<State, Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -4061,7 +4802,8 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<State, T>(this State<State, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> IterT<State, T>(this State<State, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, Lst<U>> MapT<State, T, U>(this State<State, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<State, T>(this State<State, Lst<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<State, T>(this State<State, Lst<T>> self , State liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T>(this State<State, Lst<T>> self , State liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class StateTMonad {
         internal static State<State, T> ValueT<State, T, K>(this State<State, Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -4074,7 +4816,8 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<State, T, K>(this State<State, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> IterT<State, T, K>(this State<State, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, Map<K, U>> MapT<State, T, K, U>(this State<State, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<State, T, K>(this State<State, Map<K, T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<State, T, K>(this State<State, Map<K, T>> self , State liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T, K>(this State<State, Map<K, T>> self , State liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class StateTMonad {
         internal static State<State, T> ValueT<State, T>(this State<State, TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -4087,7 +4830,8 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<State, T>(this State<State, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> IterT<State, T>(this State<State, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, TryOption<U>> MapT<State, T, U>(this State<State, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<State, T>(this State<State, TryOption<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<State, T>(this State<State, TryOption<T>> self , State liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T>(this State<State, TryOption<T>> self , State liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class StateTMonad {
         internal static State<State, T> ValueT<State, T>(this State<State, Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -4100,7 +4844,8 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<State, T>(this State<State, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> IterT<State, T>(this State<State, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, Try<U>> MapT<State, T, U>(this State<State, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<State, T>(this State<State, Try<T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<State, T>(this State<State, Try<T>> self , State liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T>(this State<State, Try<T>> self , State liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class StateTMonad {
         internal static State<State, T> ValueT<State, T, L>(this State<State, Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -4113,7 +4858,8 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<State, T, L>(this State<State, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> IterT<State, T, L>(this State<State, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, Either<L, U>> MapT<State, T, L, U>(this State<State, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<State, T, L>(this State<State, Either<L, T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<State, T, L>(this State<State, Either<L, T>> self , State liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T, L>(this State<State, Either<L, T>> self , State liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class StateTMonad {
         internal static State<State, T> ValueT<State, T, L>(this State<State, EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -4126,7 +4872,8 @@ namespace LanguageExt.Trans
         public static State<State, bool> ForAllT<State, T, L>(this State<State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
         public static State<State, Unit> IterT<State, T, L>(this State<State, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         public static State<State, EitherUnsafe<L, U>> MapT<State, T, L, U>(this State<State, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static T LiftT<State, T, L>(this State<State, EitherUnsafe<L, T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static T LiftT<State, T, L>(this State<State, EitherUnsafe<L, T>> self , State liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<State, T, L>(this State<State, EitherUnsafe<L, T>> self , State liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     public static partial class StateTMonad {
         internal static State<State, State<State, T>> ValueT<State, T>(this State<State, State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
@@ -4139,7 +4886,148 @@ namespace LanguageExt.Trans
         public static State<State, State<State, bool>> ForAllT<State, T>(this State<State, State<State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
         public static State<State, State<State, Unit>> IterT<State, T>(this State<State, State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         public static State<State, State<State, U>> MapT<State, T, U>(this State<State, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
-        public static State<State, T> LiftT<State, T>(this State<State, State<State, T>> self , State liftArg) => self.ValueT()(liftArg).Value;
+        public static State<State, T> LiftT<State, T>(this State<State, State<State, T>> self , State liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static State<State, T> LiftUnsafeT<State, T>(this State<State, State<State, T>> self , State liftArg) where T : class => self.ValueT()(liftArg).Value;
+    }
+    public static partial class RwsTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T>(this Rws<Env, Out, State, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<Env, Out, State>(this Rws<Env, Out, State, IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<Env, Out, State, T>(this Rws<Env, Out, State, IEnumerable<T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, IEnumerable<U>> BindT<Env, Out, State, T, U>(this Rws<Env, Out, State, IEnumerable<T>> self, Func<T, IEnumerable<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<Env, Out, State, T>(this Rws<Env, Out, State, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, IEnumerable<T>> FilterT<Env, Out, State, T>(this Rws<Env, Out, State, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<Env, Out, State, T, V>(this Rws<Env, Out, State, IEnumerable<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> ForAllT<Env, Out, State, T>(this Rws<Env, Out, State, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<Env, Out, State, T>(this Rws<Env, Out, State, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, IEnumerable<U>> MapT<Env, Out, State, T, U>(this Rws<Env, Out, State, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T LiftT<Env, Out, State, T>(this Rws<Env, Out, State, IEnumerable<T>> self , Tuple<Env,State> liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T>(this Rws<Env, Out, State, IEnumerable<T>> self , Tuple<Env,State> liftArg) where T : class => self.ValueT()(liftArg).Value;
+    }
+    public static partial class RwsTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T>(this Rws<Env, Out, State, Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<Env, Out, State>(this Rws<Env, Out, State, Option<int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<Env, Out, State, T>(this Rws<Env, Out, State, Option<T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, Option<U>> BindT<Env, Out, State, T, U>(this Rws<Env, Out, State, Option<T>> self, Func<T, Option<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<Env, Out, State, T>(this Rws<Env, Out, State, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, Option<T>> FilterT<Env, Out, State, T>(this Rws<Env, Out, State, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<Env, Out, State, T, V>(this Rws<Env, Out, State, Option<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> ForAllT<Env, Out, State, T>(this Rws<Env, Out, State, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<Env, Out, State, T>(this Rws<Env, Out, State, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, Option<U>> MapT<Env, Out, State, T, U>(this Rws<Env, Out, State, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T LiftT<Env, Out, State, T>(this Rws<Env, Out, State, Option<T>> self , Tuple<Env,State> liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T>(this Rws<Env, Out, State, Option<T>> self , Tuple<Env,State> liftArg) where T : class => self.ValueT()(liftArg).Value;
+    }
+    public static partial class RwsTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T>(this Rws<Env, Out, State, OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<Env, Out, State>(this Rws<Env, Out, State, OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<Env, Out, State, T>(this Rws<Env, Out, State, OptionUnsafe<T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, OptionUnsafe<U>> BindT<Env, Out, State, T, U>(this Rws<Env, Out, State, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<Env, Out, State, T>(this Rws<Env, Out, State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, OptionUnsafe<T>> FilterT<Env, Out, State, T>(this Rws<Env, Out, State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<Env, Out, State, T, V>(this Rws<Env, Out, State, OptionUnsafe<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> ForAllT<Env, Out, State, T>(this Rws<Env, Out, State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<Env, Out, State, T>(this Rws<Env, Out, State, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, OptionUnsafe<U>> MapT<Env, Out, State, T, U>(this Rws<Env, Out, State, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T LiftT<Env, Out, State, T>(this Rws<Env, Out, State, OptionUnsafe<T>> self , Tuple<Env,State> liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T>(this Rws<Env, Out, State, OptionUnsafe<T>> self , Tuple<Env,State> liftArg) where T : class => self.ValueT()(liftArg).Value;
+    }
+    public static partial class RwsTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T>(this Rws<Env, Out, State, Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<Env, Out, State>(this Rws<Env, Out, State, Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<Env, Out, State, T>(this Rws<Env, Out, State, Lst<T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, Lst<U>> BindT<Env, Out, State, T, U>(this Rws<Env, Out, State, Lst<T>> self, Func<T, Lst<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<Env, Out, State, T>(this Rws<Env, Out, State, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, Lst<T>> FilterT<Env, Out, State, T>(this Rws<Env, Out, State, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<Env, Out, State, T, V>(this Rws<Env, Out, State, Lst<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> ForAllT<Env, Out, State, T>(this Rws<Env, Out, State, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<Env, Out, State, T>(this Rws<Env, Out, State, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, Lst<U>> MapT<Env, Out, State, T, U>(this Rws<Env, Out, State, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T LiftT<Env, Out, State, T>(this Rws<Env, Out, State, Lst<T>> self , Tuple<Env,State> liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T>(this Rws<Env, Out, State, Lst<T>> self , Tuple<Env,State> liftArg) where T : class => self.ValueT()(liftArg).Value;
+    }
+    public static partial class RwsTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T, K>(this Rws<Env, Out, State, Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<Env, Out, State, K>(this Rws<Env, Out, State, Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<Env, Out, State, T, K>(this Rws<Env, Out, State, Map<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, Map<K, U>> BindT<Env, Out, State, T, K, U>(this Rws<Env, Out, State, Map<K, T>> self, Func<T, Map<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<Env, Out, State, T, K>(this Rws<Env, Out, State, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, Map<K, T>> FilterT<Env, Out, State, T, K>(this Rws<Env, Out, State, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<Env, Out, State, T, K, V>(this Rws<Env, Out, State, Map<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> ForAllT<Env, Out, State, T, K>(this Rws<Env, Out, State, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<Env, Out, State, T, K>(this Rws<Env, Out, State, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, Map<K, U>> MapT<Env, Out, State, T, K, U>(this Rws<Env, Out, State, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T LiftT<Env, Out, State, T, K>(this Rws<Env, Out, State, Map<K, T>> self , Tuple<Env,State> liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T, K>(this Rws<Env, Out, State, Map<K, T>> self , Tuple<Env,State> liftArg) where T : class => self.ValueT()(liftArg).Value;
+    }
+    public static partial class RwsTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T>(this Rws<Env, Out, State, TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<Env, Out, State>(this Rws<Env, Out, State, TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<Env, Out, State, T>(this Rws<Env, Out, State, TryOption<T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, TryOption<U>> BindT<Env, Out, State, T, U>(this Rws<Env, Out, State, TryOption<T>> self, Func<T, TryOption<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<Env, Out, State, T>(this Rws<Env, Out, State, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, TryOption<T>> FilterT<Env, Out, State, T>(this Rws<Env, Out, State, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<Env, Out, State, T, V>(this Rws<Env, Out, State, TryOption<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> ForAllT<Env, Out, State, T>(this Rws<Env, Out, State, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<Env, Out, State, T>(this Rws<Env, Out, State, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, TryOption<U>> MapT<Env, Out, State, T, U>(this Rws<Env, Out, State, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T LiftT<Env, Out, State, T>(this Rws<Env, Out, State, TryOption<T>> self , Tuple<Env,State> liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T>(this Rws<Env, Out, State, TryOption<T>> self , Tuple<Env,State> liftArg) where T : class => self.ValueT()(liftArg).Value;
+    }
+    public static partial class RwsTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T>(this Rws<Env, Out, State, Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<Env, Out, State>(this Rws<Env, Out, State, Try<int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<Env, Out, State, T>(this Rws<Env, Out, State, Try<T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, Try<U>> BindT<Env, Out, State, T, U>(this Rws<Env, Out, State, Try<T>> self, Func<T, Try<U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<Env, Out, State, T>(this Rws<Env, Out, State, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, Try<T>> FilterT<Env, Out, State, T>(this Rws<Env, Out, State, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<Env, Out, State, T, V>(this Rws<Env, Out, State, Try<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> ForAllT<Env, Out, State, T>(this Rws<Env, Out, State, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<Env, Out, State, T>(this Rws<Env, Out, State, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, Try<U>> MapT<Env, Out, State, T, U>(this Rws<Env, Out, State, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T LiftT<Env, Out, State, T>(this Rws<Env, Out, State, Try<T>> self , Tuple<Env,State> liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T>(this Rws<Env, Out, State, Try<T>> self , Tuple<Env,State> liftArg) where T : class => self.ValueT()(liftArg).Value;
+    }
+    public static partial class RwsTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T, L>(this Rws<Env, Out, State, Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<Env, Out, State, L>(this Rws<Env, Out, State, Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<Env, Out, State, T, L>(this Rws<Env, Out, State, Either<L, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, Either<L, U>> BindT<Env, Out, State, T, L, U>(this Rws<Env, Out, State, Either<L, T>> self, Func<T, Either<L, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<Env, Out, State, T, L>(this Rws<Env, Out, State, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, Either<L, T>> FilterT<Env, Out, State, T, L>(this Rws<Env, Out, State, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<Env, Out, State, T, L, V>(this Rws<Env, Out, State, Either<L, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> ForAllT<Env, Out, State, T, L>(this Rws<Env, Out, State, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<Env, Out, State, T, L>(this Rws<Env, Out, State, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, Either<L, U>> MapT<Env, Out, State, T, L, U>(this Rws<Env, Out, State, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T LiftT<Env, Out, State, T, L>(this Rws<Env, Out, State, Either<L, T>> self , Tuple<Env,State> liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T, L>(this Rws<Env, Out, State, Either<L, T>> self , Tuple<Env,State> liftArg) where T : class => self.ValueT()(liftArg).Value;
+    }
+    public static partial class RwsTMonad {
+        internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T, L>(this Rws<Env, Out, State, EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, int> SumT<Env, Out, State, L>(this Rws<Env, Out, State, EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, int> CountT<Env, Out, State, T, L>(this Rws<Env, Out, State, EitherUnsafe<L, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, EitherUnsafe<L, U>> BindT<Env, Out, State, T, L, U>(this Rws<Env, Out, State, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, bool> ExistsT<Env, Out, State, T, L>(this Rws<Env, Out, State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, EitherUnsafe<L, T>> FilterT<Env, Out, State, T, L>(this Rws<Env, Out, State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, V> FoldT<Env, Out, State, T, L, V>(this Rws<Env, Out, State, EitherUnsafe<L, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        public static Rws<Env, Out, State, bool> ForAllT<Env, Out, State, T, L>(this Rws<Env, Out, State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ForAllT(pred)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Unit> IterT<Env, Out, State, T, L>(this Rws<Env, Out, State, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, EitherUnsafe<L, U>> MapT<Env, Out, State, T, L, U>(this Rws<Env, Out, State, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static T LiftT<Env, Out, State, T, L>(this Rws<Env, Out, State, EitherUnsafe<L, T>> self , Tuple<Env,State> liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static T LiftUnsafeT<Env, Out, State, T, L>(this Rws<Env, Out, State, EitherUnsafe<L, T>> self , Tuple<Env,State> liftArg) where T : class => self.ValueT()(liftArg).Value;
+    }
+    public static partial class RwsTMonad {
+        internal static Rws<Env, Out, State, Rws<Env, Out, State, T>> ValueT<Env, Out, State, T>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        public static Rws<Env, Out, State, Rws<Env, Out, State, int>> SumT<Env, Out, State>(this Rws<Env, Out, State, Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        public static Rws<Env, Out, State, Rws<Env, Out, State, int>> CountT<Env, Out, State, T>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        public static Rws<Env, Out, State, Rws<Env, Out, State, U>> BindT<Env, Out, State, T, U>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        public static Rws<Env, Out, State, Rws<Env, Out, State, bool>> ExistsT<Env, Out, State, T>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        public static Rws<Env, Out, State, Rws<Env, Out, State, T>> FilterT<Env, Out, State, T>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        public static Rws<Env, Out, State, Rws<Env, Out, State, V>> FoldT<Env, Out, State, T, V>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        public static Rws<Env, Out, State, Rws<Env, Out, State, bool>> ForAllT<Env, Out, State, T>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.MapT(x => x.ForAllT(pred)(args)).ForAll(x=>x);
+        public static Rws<Env, Out, State, Rws<Env, Out, State, Unit>> IterT<Env, Out, State, T>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static Rws<Env, Out, State, Rws<Env, Out, State, U>> MapT<Env, Out, State, T, U>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        public static Rws<Env, Out, State, T> LiftT<Env, Out, State, T>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self , Tuple<Env,State> liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        public static Rws<Env, Out, State, T> LiftUnsafeT<Env, Out, State, T>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self , Tuple<Env,State> liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
 
     namespace Linq
@@ -4204,6 +5092,11 @@ namespace LanguageExt.Trans
             internal static State<State, T> Where<State, T>(this State<State, T> self, Func<T, bool> pred) => self.Filter(pred);
             internal static State<State, V> SelectMany<State, T, U, V>(this State<State, T> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));
         }
+        public static partial class RwsMonad {
+            internal static Rws<Env, Out, State, U> Select<Env, Out, State, T, U>(this Rws<Env, Out, State, T> self, Func<T, U> mapper) => self.Map(mapper);
+            internal static Rws<Env, Out, State, T> Where<Env, Out, State, T>(this Rws<Env, Out, State, T> self, Func<T, bool> pred) => self.Filter(pred);
+            internal static Rws<Env, Out, State, V> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, T> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));
+        }
         public static partial class ListTMonad {
             public static IEnumerable<IEnumerable<U>> Select<T, U>(this IEnumerable<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static IEnumerable<IEnumerable<T>> Where<T>(this IEnumerable<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
@@ -4263,6 +5156,11 @@ namespace LanguageExt.Trans
             public static IEnumerable<State<State, U>> Select<T, State, U>(this IEnumerable<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static IEnumerable<State<State, T>> Where<T, State>(this IEnumerable<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static IEnumerable<State<State, V>> SelectMany<T, State, U, V>(this IEnumerable<State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class ListTMonad {
+            public static IEnumerable<Rws<Env, Out, State, U>> Select<T, Env, Out, State, U>(this IEnumerable<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static IEnumerable<Rws<Env, Out, State, T>> Where<T, Env, Out, State>(this IEnumerable<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static IEnumerable<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this IEnumerable<Rws<Env, Out, State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class OptionTMonad {
             public static Option<IEnumerable<U>> Select<T, U>(this Option<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
@@ -4324,6 +5222,11 @@ namespace LanguageExt.Trans
             public static Option<State<State, T>> Where<T, State>(this Option<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static Option<State<State, V>> SelectMany<T, State, U, V>(this Option<State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
+        public static partial class OptionTMonad {
+            public static Option<Rws<Env, Out, State, U>> Select<T, Env, Out, State, U>(this Option<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Option<Rws<Env, Out, State, T>> Where<T, Env, Out, State>(this Option<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Option<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this Option<Rws<Env, Out, State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
         public static partial class OptionUnsafeTMonad {
             public static OptionUnsafe<IEnumerable<U>> Select<T, U>(this OptionUnsafe<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static OptionUnsafe<IEnumerable<T>> Where<T>(this OptionUnsafe<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
@@ -4383,6 +5286,11 @@ namespace LanguageExt.Trans
             public static OptionUnsafe<State<State, U>> Select<T, State, U>(this OptionUnsafe<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static OptionUnsafe<State<State, T>> Where<T, State>(this OptionUnsafe<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static OptionUnsafe<State<State, V>> SelectMany<T, State, U, V>(this OptionUnsafe<State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class OptionUnsafeTMonad {
+            public static OptionUnsafe<Rws<Env, Out, State, U>> Select<T, Env, Out, State, U>(this OptionUnsafe<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static OptionUnsafe<Rws<Env, Out, State, T>> Where<T, Env, Out, State>(this OptionUnsafe<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static OptionUnsafe<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this OptionUnsafe<Rws<Env, Out, State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ListTMonad {
             public static Lst<IEnumerable<U>> Select<T, U>(this Lst<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
@@ -4444,6 +5352,11 @@ namespace LanguageExt.Trans
             public static Lst<State<State, T>> Where<T, State>(this Lst<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static Lst<State<State, V>> SelectMany<T, State, U, V>(this Lst<State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
+        public static partial class ListTMonad {
+            public static Lst<Rws<Env, Out, State, U>> Select<T, Env, Out, State, U>(this Lst<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Lst<Rws<Env, Out, State, T>> Where<T, Env, Out, State>(this Lst<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Lst<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this Lst<Rws<Env, Out, State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
         public static partial class MapTMonad {
             public static Map<K, IEnumerable<U>> Select<K, T, U>(this Map<K, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Map<K, IEnumerable<T>> Where<K, T>(this Map<K, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
@@ -4503,6 +5416,11 @@ namespace LanguageExt.Trans
             public static Map<K, State<State, U>> Select<K, T, State, U>(this Map<K, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Map<K, State<State, T>> Where<K, T, State>(this Map<K, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static Map<K, State<State, V>> SelectMany<K, T, State, U, V>(this Map<K, State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class MapTMonad {
+            public static Map<K, Rws<Env, Out, State, U>> Select<K, T, Env, Out, State, U>(this Map<K, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Map<K, Rws<Env, Out, State, T>> Where<K, T, Env, Out, State>(this Map<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Map<K, Rws<Env, Out, State, V>> SelectMany<K, T, Env, Out, State, U, V>(this Map<K, Rws<Env, Out, State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class TryOptionTMonad {
             public static TryOption<IEnumerable<U>> Select<T, U>(this TryOption<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
@@ -4564,6 +5482,11 @@ namespace LanguageExt.Trans
             public static TryOption<State<State, T>> Where<T, State>(this TryOption<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static TryOption<State<State, V>> SelectMany<T, State, U, V>(this TryOption<State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
+        public static partial class TryOptionTMonad {
+            public static TryOption<Rws<Env, Out, State, U>> Select<T, Env, Out, State, U>(this TryOption<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static TryOption<Rws<Env, Out, State, T>> Where<T, Env, Out, State>(this TryOption<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static TryOption<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this TryOption<Rws<Env, Out, State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
         public static partial class TryTMonad {
             public static Try<IEnumerable<U>> Select<T, U>(this Try<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Try<IEnumerable<T>> Where<T>(this Try<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
@@ -4623,6 +5546,11 @@ namespace LanguageExt.Trans
             public static Try<State<State, U>> Select<T, State, U>(this Try<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static Try<State<State, T>> Where<T, State>(this Try<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static Try<State<State, V>> SelectMany<T, State, U, V>(this Try<State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class TryTMonad {
+            public static Try<Rws<Env, Out, State, U>> Select<T, Env, Out, State, U>(this Try<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Try<Rws<Env, Out, State, T>> Where<T, Env, Out, State>(this Try<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Try<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this Try<Rws<Env, Out, State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class EitherTMonad {
             public static Either<L, IEnumerable<U>> Select<L, T, U>(this Either<L, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
@@ -4684,6 +5612,11 @@ namespace LanguageExt.Trans
             public static Either<L, State<State, T>> Where<L, T, State>(this Either<L, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static Either<L, State<State, V>> SelectMany<L, T, State, U, V>(this Either<L, State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
+        public static partial class EitherTMonad {
+            public static Either<L, Rws<Env, Out, State, U>> Select<L, T, Env, Out, State, U>(this Either<L, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Either<L, Rws<Env, Out, State, T>> Where<L, T, Env, Out, State>(this Either<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Either<L, Rws<Env, Out, State, V>> SelectMany<L, T, Env, Out, State, U, V>(this Either<L, Rws<Env, Out, State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
         public static partial class EitherUnsafeTMonad {
             public static EitherUnsafe<L, IEnumerable<U>> Select<L, T, U>(this EitherUnsafe<L, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static EitherUnsafe<L, IEnumerable<T>> Where<L, T>(this EitherUnsafe<L, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
@@ -4743,6 +5676,11 @@ namespace LanguageExt.Trans
             public static EitherUnsafe<L, State<State, U>> Select<L, T, State, U>(this EitherUnsafe<L, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static EitherUnsafe<L, State<State, T>> Where<L, T, State>(this EitherUnsafe<L, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static EitherUnsafe<L, State<State, V>> SelectMany<L, T, State, U, V>(this EitherUnsafe<L, State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class EitherUnsafeTMonad {
+            public static EitherUnsafe<L, Rws<Env, Out, State, U>> Select<L, T, Env, Out, State, U>(this EitherUnsafe<L, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static EitherUnsafe<L, Rws<Env, Out, State, T>> Where<L, T, Env, Out, State>(this EitherUnsafe<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static EitherUnsafe<L, Rws<Env, Out, State, V>> SelectMany<L, T, Env, Out, State, U, V>(this EitherUnsafe<L, Rws<Env, Out, State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
         public static partial class ReaderTMonad {
             public static Reader<Env, IEnumerable<U>> Select<Env, T, U>(this Reader<Env, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
@@ -4893,6 +5831,56 @@ namespace LanguageExt.Trans
             public static State<State, State<State, U>> Select<State, T, U>(this State<State, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
             public static State<State, State<State, T>> Where<State, T>(this State<State, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
             public static State<State, State<State, V>> SelectMany<State, T, U, V>(this State<State, State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class RwsTMonad {
+            public static Rws<Env, Out, State, IEnumerable<U>> Select<Env, Out, State, T, U>(this Rws<Env, Out, State, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Rws<Env, Out, State, IEnumerable<T>> Where<Env, Out, State, T>(this Rws<Env, Out, State, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Rws<Env, Out, State, IEnumerable<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, IEnumerable<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class RwsTMonad {
+            public static Rws<Env, Out, State, Option<U>> Select<Env, Out, State, T, U>(this Rws<Env, Out, State, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Rws<Env, Out, State, Option<T>> Where<Env, Out, State, T>(this Rws<Env, Out, State, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Rws<Env, Out, State, Option<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, Option<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class RwsTMonad {
+            public static Rws<Env, Out, State, OptionUnsafe<U>> Select<Env, Out, State, T, U>(this Rws<Env, Out, State, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Rws<Env, Out, State, OptionUnsafe<T>> Where<Env, Out, State, T>(this Rws<Env, Out, State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Rws<Env, Out, State, OptionUnsafe<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, OptionUnsafe<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class RwsTMonad {
+            public static Rws<Env, Out, State, Lst<U>> Select<Env, Out, State, T, U>(this Rws<Env, Out, State, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Rws<Env, Out, State, Lst<T>> Where<Env, Out, State, T>(this Rws<Env, Out, State, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Rws<Env, Out, State, Lst<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, Lst<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class RwsTMonad {
+            public static Rws<Env, Out, State, Map<K, U>> Select<Env, Out, State, T, K, U>(this Rws<Env, Out, State, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Rws<Env, Out, State, Map<K, T>> Where<Env, Out, State, T, K>(this Rws<Env, Out, State, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Rws<Env, Out, State, Map<K, V>> SelectMany<Env, Out, State, T, K, U, V>(this Rws<Env, Out, State, Map<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class RwsTMonad {
+            public static Rws<Env, Out, State, TryOption<U>> Select<Env, Out, State, T, U>(this Rws<Env, Out, State, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Rws<Env, Out, State, TryOption<T>> Where<Env, Out, State, T>(this Rws<Env, Out, State, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Rws<Env, Out, State, TryOption<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, TryOption<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class RwsTMonad {
+            public static Rws<Env, Out, State, Try<U>> Select<Env, Out, State, T, U>(this Rws<Env, Out, State, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Rws<Env, Out, State, Try<T>> Where<Env, Out, State, T>(this Rws<Env, Out, State, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Rws<Env, Out, State, Try<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, Try<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class RwsTMonad {
+            public static Rws<Env, Out, State, Either<L, U>> Select<Env, Out, State, T, L, U>(this Rws<Env, Out, State, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Rws<Env, Out, State, Either<L, T>> Where<Env, Out, State, T, L>(this Rws<Env, Out, State, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Rws<Env, Out, State, Either<L, V>> SelectMany<Env, Out, State, T, L, U, V>(this Rws<Env, Out, State, Either<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class RwsTMonad {
+            public static Rws<Env, Out, State, EitherUnsafe<L, U>> Select<Env, Out, State, T, L, U>(this Rws<Env, Out, State, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Rws<Env, Out, State, EitherUnsafe<L, T>> Where<Env, Out, State, T, L>(this Rws<Env, Out, State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Rws<Env, Out, State, EitherUnsafe<L, V>> SelectMany<Env, Out, State, T, L, U, V>(this Rws<Env, Out, State, EitherUnsafe<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        }
+        public static partial class RwsTMonad {
+            public static Rws<Env, Out, State, Rws<Env, Out, State, U>> Select<Env, Out, State, T, U>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+            public static Rws<Env, Out, State, Rws<Env, Out, State, T>> Where<Env, Out, State, T>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+            public static Rws<Env, Out, State, Rws<Env, Out, State, V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
         }
     }
 }

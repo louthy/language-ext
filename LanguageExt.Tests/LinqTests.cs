@@ -18,7 +18,7 @@ namespace LanguageExtTests
                       from r in Range(1, 10)
                       select v * r;
 
-            var res2 = res.Lift().ToList();
+            var res2 = res.LiftUnsafe().ToList();
 
             Assert.IsTrue(res.CountT() == 10);
             Assert.IsTrue(res2[0] == 10);
@@ -65,7 +65,7 @@ namespace LanguageExtTests
                       from r in Range(1, 10)
                       select v * r;
 
-            var res2 = res.Lift().ToList();
+            var res2 = res.LiftUnsafe().ToList();
 
             Assert.IsTrue(res.CountT() == 10);
             Assert.IsTrue(res2[0] == 10);
@@ -89,7 +89,7 @@ namespace LanguageExtTests
                       from r in Range(1, 10)
                       select v * r;
 
-            var res2 = res.Lift().ToList();
+            var res2 = res.LiftUnsafe().ToList();
 
             Assert.IsTrue(res.CountT() == 10);
             Assert.IsTrue(res2[0] == 10);
@@ -113,7 +113,7 @@ namespace LanguageExtTests
                       from r in Range(1, 10)
                       select v * r;
 
-            var res2 = res.Lift().ToList();
+            var res2 = res.LiftUnsafe().ToList();
 
             Assert.IsTrue(res.CountT() == 10);
             Assert.IsTrue(res2[0] == 10);

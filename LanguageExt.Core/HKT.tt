@@ -6,18 +6,19 @@
 <#@ output extension=".cs" #>
 <# 
     var types = new [] {
-        T("IEnumerable", "!T",        "self.FirstOrDefault()",                          DelType.Not, "List"),
-        T("Option",      "!T",        "self.IsSome ? self.Value : default(T)",          DelType.Not),
-        T("OptionUnsafe","!T",        "self.IsSome ? self.Value : default(T)",          DelType.Not),
-        T("Lst",         "!T",        "self.FirstOrDefault()",                          DelType.Not, "List"),
-        T("Map",         "K, !T",     "self.Values.FirstOrDefault()",                   DelType.Not),
-        T("TryOption",   "!T",        "self.Try().Value.IfNone(default(T))",            DelType.Not),
-        T("Try",         "!T",        "self.Try().Value",                               DelType.Not),
-        T("Either",      "L, !T",     "self.IsRight ? self.RightValue : default(T)",    DelType.Not),
-        T("EitherUnsafe","L, !T",     "self.IsRight ? self.RightValue : default(T)",    DelType.Not),
-        T("Reader",      "Env, !T",   "self",                                           DelType.Func1),
-        T("Writer",      "Out, !T",   "self",                                           DelType.Func0),
-        T("State",       "State, !T", "self",                                           DelType.Func1),
+        T("IEnumerable", "!T",                  "self.FirstOrDefault()",                          DelType.Not, "List"),
+        T("Option",      "!T",                  "self.IsSome ? self.Value : default(T)",          DelType.Not),
+        T("OptionUnsafe","!T",                  "self.IsSome ? self.Value : default(T)",          DelType.Not),
+        T("Lst",         "!T",                  "self.FirstOrDefault()",                          DelType.Not, "List"),
+        T("Map",         "K, !T",               "self.Values.FirstOrDefault()",                   DelType.Not),
+        T("TryOption",   "!T",                  "self.Try().Value.IfNone(default(T))",            DelType.Not),
+        T("Try",         "!T",                  "self.Try().Value",                               DelType.Not),
+        T("Either",      "L, !T",               "self.IsRight ? self.RightValue : default(T)",    DelType.Not),
+        T("EitherUnsafe","L, !T",               "self.IsRight ? self.RightValue : default(T)",    DelType.Not),
+        T("Reader",      "Env, !T",             "self",                                           DelType.Func1),
+        T("Writer",      "Out, !T",             "self",                                           DelType.Func0),
+        T("State",       "State, !T",           "self",                                           DelType.Func1),
+        T("Rws",         "Env, Out, State, !T", "self",                                           DelType.Func1),
     };
 
     var monadFuncs = new [] {
@@ -105,10 +106,18 @@
         // Lift
         //
         Tuple.Create(
-            "public static T Lift<ARGS_T>(this TYPE self LIFT_ARGS) => self.InnerValue()LIFT_INVOKE_ONE;",
+            "public static T Lift<ARGS_T>(this TYPE self LIFT_ARGS) where T : struct => self.InnerValue()LIFT_INVOKE_ONE;",
             "",
-            "public static LIFT_RETURN_T LiftT<ARGS_T>(this TYPE self LIFT_ARGS) => self.ValueT()LIFT_INVOKE_ONE;",
-            "public static LIFT_RETURN_T liftT<ARGS_T>(TYPE self LIFT_ARGS) => self.ValueT()LIFT_INVOKE_ONE;"),
+            "public static LIFT_RETURN_T LiftT<ARGS_T>(this TYPE self LIFT_ARGS) where T : struct => self.ValueT()LIFT_INVOKE_ONE;",
+            "public static LIFT_RETURN_T liftT<ARGS_T>(TYPE self LIFT_ARGS)  where T : struct => self.ValueT()LIFT_INVOKE_ONE;"),
+        //
+        // LiftUnsafe
+        //
+        Tuple.Create(
+            "public static T LiftUnsafe<ARGS_T>(this TYPE self LIFT_ARGS) where T : class => self.InnerValue()LIFT_INVOKE_ONE;",
+            "",
+            "public static LIFT_RETURN_T LiftUnsafeT<ARGS_T>(this TYPE self LIFT_ARGS) where T : class => self.ValueT()LIFT_INVOKE_ONE;",
+            "public static LIFT_RETURN_T LiftUnsafeT<ARGS_T>(TYPE self LIFT_ARGS)  where T : class => self.ValueT()LIFT_INVOKE_ONE;"),
         //
         // SelectMany
         //
@@ -309,7 +318,17 @@ namespace LanguageExt.Trans
         switch(type.DelType)
         {
             case DelType.Func0: return "";
-            case DelType.Func1: return ", "+type.Args.Split(',').First()+" liftArg";
+            case DelType.Func1: 
+                var args = type.Args.Split(',').Select(x => x.Trim()).Where(x => x != "Out").ToArray();
+                args =  args.Take(args.Count()-1).ToArray();
+                if( args.Count() == 1)
+                {
+                    return ", "+type.Args.Split(',').First()+" liftArg";
+                }
+                else
+                {
+                    return ", Tuple<"+String.Join(",",args)+"> liftArg";
+                }
             default: return "";
         }
     }

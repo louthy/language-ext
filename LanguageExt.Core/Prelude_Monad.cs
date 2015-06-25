@@ -6,6 +6,51 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
+        /// Reader Writer State monad constructor
+        /// </summary>
+        /// <returns>Rws monad</returns>
+        public static Rws<Env, Out, S, T> Rws<Env, Out, S, T>(T value) => rws =>
+              new RwsResult<Out, S, T>(new Out[0], rws.Item2, value);
+
+        /// <summary>
+        /// RWS monad 'tell'
+        /// Adds an item to the writer's output
+        /// </summary>
+        /// <returns>Rws monad</returns>
+        public static Rws<Env, Out, S, Unit> tell<Env, Out, S>(Out value) =>
+            rws => new RwsResult<Out, S, Unit>(new Out[1] { value }, rws.Item2, unit);
+
+        /// <summary>
+        /// RWS monad 'ask'
+        /// Gets the 'environment' so it can be used 
+        /// </summary>
+        /// <returns>Rws monad with the environment in as the wrapped value</returns>
+        public static Rws<Env, Out, S, Env> ask<Env, Out, S>() =>
+            rws => new RwsResult<Out, S, Env>(new Out[0], rws.Item2, rws.Item1);
+
+        /// <summary>
+        /// RWS monad 'ask'
+        /// Gets the 'environment' and maps it
+        /// </summary>
+        /// <returns>Rws monad with the mapped environment in as the wrapped value</returns>
+        public static Rws<Env, Out, S, Ret> ask<Env, Out, S, Ret>(Func<Env, Ret> map) =>
+            rws => new RwsResult<Out, S, Ret>(new Out[0], rws.Item2, map(rws.Item1));
+
+        /// <summary>
+        /// Get the state from monad into its wrapped value (RWS)
+        /// </summary>
+        /// <returns>Rws monad with state in the value</returns>
+        public static Rws<Env, Out, S, S> get<Env, Out, S>() =>
+            rws => new RwsResult<Out, S, S>(new Out[0], rws.Item2, rws.Item2);
+
+        /// <summary>
+        /// Set the state (RWS)
+        /// </summary>
+        /// <returns>Rws monad with state set and with a Unit value</returns>
+        public static Rws<Env, Out, S, Unit> put<Env,Out,S>(S state) =>
+            _ => new RwsResult<Out, S, Unit>(new Out[0], state, unit);
+
+        /// <summary>
         /// Writer monad constructor
         /// </summary>
         /// <typeparam name="Out">Writer output</typeparam>
