@@ -149,5 +149,92 @@ namespace LanguageExt
                 return new ReaderResult<V>(resV);
             };
         }
+
+        public static Reader<Env, V> foldT<Env, T, V>(Reader<Env, Reader<Env, T>> self, V state, Func<V, T, V> fold) =>
+            self.FoldT(state, fold);
+
+        public static Reader<Env, Writer<Out, V>> foldT<Env, Out, T, V>(Reader<Env, Writer<Out, T>> self, V state, Func<V, T, V> fold) =>
+            self.FoldT(state, fold);
+
+        public static Reader<Env, State<S, V>> foldT<Env, S, T, V>(Reader<Env, State<S, T>> self, V state, Func<V, T, V> fold) =>
+            self.FoldT(state, fold);
+
+        public static Reader<Env, V> FoldT<Env, T, V>(this Reader<Env, Reader<Env, T>> self, V state, Func<V, T, V> fold)
+        {
+            return (Env env) =>
+            {
+                var inner = self(env);
+                if (inner.IsBottom) return new ReaderResult<V>(default(V), true);
+                return inner.Value.Fold(state, fold)(env);
+            };
+        }
+
+        public static Reader<Env, Writer<Out, V>> FoldT<Env, Out, T, V>(this Reader<Env, Writer<Out, T>> self, V state, Func<V, T, V> fold)
+        {
+            return (Env outerArgs) =>
+            {
+                var inner = self(outerArgs);
+                if (inner.IsBottom) return new ReaderResult<Writer<Out, V>>(default(Writer<Out, V>), true);
+                return new ReaderResult<Writer<Out, V>>(inner.Value.Fold(state, fold));
+            };
+        }
+
+        public static Reader<Env, State<S, V>> FoldT<Env, S, T, V>(this Reader<Env, State<S, T>> self, V state, Func<V, T, V> fold)
+        {
+            return (Env outerArgs) =>
+            {
+                var inner = self(outerArgs);
+                if (inner.IsBottom) return new ReaderResult<State<S, V>>(default(State<S, V>), true);
+                return new ReaderResult<State<S, V>>(inner.Value.Fold(state, fold));
+            };
+        }
+
+        /// <summary>
+        /// Select Many
+        /// </summary>
+        public static Reader<E, Writer<Out, V>> SelectMany<E, Out, T, U, V>(
+            this Reader<E, T> self,
+            Func<T, Writer<Out, U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+            return (E env) =>
+            {
+                var resT = self(env);
+                if (resT.IsBottom) return new ReaderResult<Writer<Out, V>>(default(Writer<Out, V>), true);
+                return new ReaderResult<Writer<Out, V>>(() =>
+                {
+                    var resU = bind(resT.Value)();
+                    if (resU.IsBottom) return new WriterResult<Out, V>(default(V), resU.Output, true);
+                    return project(resT, resU.Value);
+                });
+            };
+        }
+
+        /// <summary>
+        /// Select Many
+        /// </summary>
+        public static Reader<E, State<S, V>> SelectMany<E, S, T, U, V>(
+            this Reader<E, T> self,
+            Func<T, State<S, U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+            return (E env) =>
+            {
+                var resT = self(env);
+                if (resT.IsBottom) return new ReaderResult<State<S, V>>(default(State<S, V>), true);
+                return new ReaderResult<State<S, V>>(state =>
+                {
+                    var resU = bind(resT.Value)(state);
+                    if (resU.IsBottom) return new StateResult<S, V>(state, default(V), true);
+                    return project(resT, resU.Value);
+                });
+            };
+        }
     }
 }

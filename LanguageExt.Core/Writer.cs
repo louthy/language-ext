@@ -156,5 +156,101 @@ namespace LanguageExt
                 return new WriterResult<W, Unit>(unit, r.Output, false);
             }
         }
+
+        public static Writer<Out, Reader<Env, V>> foldT<Out, Env, T, V>(Writer<Out, Reader<Env, T>> self, V state, Func<V, T, V> fold) =>
+            self.FoldT(state, fold);
+
+        public static Writer<Out, V> foldT<Out, T, V>(Writer<Out, Writer<Out, T>> self, V state, Func<V, T, V> fold) =>
+            self.FoldT(state, fold);
+
+        public static Writer<Out, State<S, V>> foldT<Out, S, T, V>(Writer<Out, State<S, T>> self, V state, Func<V, T, V> fold) =>
+            self.FoldT(state, fold);
+
+        public static Writer<Out, Reader<Env,V>> FoldT<Out, Env, T, V>(this Writer<Out, Reader<Env, T>> self, V state, Func<V, T, V> fold)
+        {
+            return () =>
+            {
+                var inner = self();
+                if (inner.IsBottom) return new WriterResult<Out, Reader<Env, V>>(default(Reader<Env, V>), inner.Output, true);
+
+                return new WriterResult<Out, Reader<Env, V>>(env =>
+                   inner.Value.Fold(state, fold)(env),
+                   inner.Output
+                );
+            };
+        }
+
+        public static Writer<Out, V> FoldT<Out, T, V>(this Writer<Out, Writer<Out, T>> self, V state, Func<V, T, V> fold)
+        {
+            return () =>
+            {
+                var inner = self();
+                if (inner.IsBottom) return new WriterResult<Out, V>(default(V), inner.Output, true);
+                var res = inner.Value.Fold(state, fold)();
+                return new WriterResult<Out, V>(res.Value, inner.Output.Concat(res.Output), false);
+            };
+        }
+
+        public static Writer<Out, State<S, V>> FoldT<Out, S, T, V>(this Writer<Out, State<S, T>> self, V state, Func<V, T, V> fold)
+        {
+            return () =>
+            {
+                var inner = self();
+                if (inner.IsBottom) return new WriterResult<Out, State<S, V>>(default(State<S, V>), inner.Output, true);
+
+                return new WriterResult<Out, State<S, V>>(s =>
+                   inner.Value.Fold(state, fold)(s),
+                   inner.Output
+                );
+            };
+        }
+
+        /// <summary>
+        /// Select Many
+        /// </summary>
+        public static Writer<Out, Reader<E, V>> SelectMany<Out, E, T, U, V>(
+            this Writer<Out, T> self,
+            Func<T, Reader<E, U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+            return () =>
+            {
+                var resT = self();
+                if (resT.IsBottom) return new WriterResult<Out, Reader<E, V>>(default(Reader<E, V>), resT.Output, true);
+                return new WriterResult<Out, Reader<E, V>>(env =>
+                {
+                    var resU = bind(resT.Value)(env);
+                    if (resU.IsBottom) return new ReaderResult<V>(default(V), true);
+                    return project(resT, resU.Value);
+                },resT.Output);
+            };
+        }
+
+        /// <summary>
+        /// Select Many
+        /// </summary>
+        public static Writer<Out, State<S, V>> SelectMany<Out, S, T, U, V>(
+            this Writer<Out, T> self,
+            Func<T, State<S, U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (bind == null) throw new ArgumentNullException("bind");
+            if (project == null) throw new ArgumentNullException("project");
+            return () =>
+            {
+                var resT = self();
+                if (resT.IsBottom) return new WriterResult<Out, State<S, V>>(default(State<S, V>), resT.Output, true);
+                return new WriterResult<Out, State<S, V>>(state =>
+                {
+                    var resU = bind(resT.Value)(state);
+                    if (resU.IsBottom) return new StateResult<S, V>(state, default(V), true);
+                    return project(resT, resU.Value);
+                },resT.Output);
+            };
+        }
     }
 }
