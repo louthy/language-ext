@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using static LanguageExt.Prelude;
 
@@ -89,6 +90,7 @@ namespace LanguageExt
         /// <summary>
         /// Select
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static Writer<W, U> Select<W, T, U>(this Writer<W, T> self, Func<T, U> select)
         {
             if (select == null) throw new ArgumentNullException("select");
@@ -104,6 +106,7 @@ namespace LanguageExt
         /// <summary>
         /// Select Many
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static Writer<W, V> SelectMany<W, T, U, V>(
             this Writer<W, T> self,
             Func<T, Writer<W, U>> bind,
@@ -127,6 +130,7 @@ namespace LanguageExt
         public static Writer<W, T> Filter<W, T>(this Writer<W, T> self, Func<T, bool> pred) =>
             self.Where(pred);
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static Writer<W, T> Where<W, T>(this Writer<W, T> self, Func<T, bool> pred)
         {
             return () =>
@@ -208,6 +212,7 @@ namespace LanguageExt
         /// <summary>
         /// Select Many
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static Writer<Out, Reader<E, V>> SelectMany<Out, E, T, U, V>(
             this Writer<Out, T> self,
             Func<T, Reader<E, U>> bind,
@@ -232,6 +237,7 @@ namespace LanguageExt
         /// <summary>
         /// Select Many
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static Writer<Out, State<S, V>> SelectMany<Out, S, T, U, V>(
             this Writer<Out, T> self,
             Func<T, State<S, U>> bind,

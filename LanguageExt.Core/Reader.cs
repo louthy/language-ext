@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -101,6 +102,7 @@ namespace LanguageExt
             }
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static Reader<Env, T> Where<Env, T>(this Reader<Env, T> self, Func<T, bool> pred)
         {
             return env =>
@@ -116,6 +118,7 @@ namespace LanguageExt
         /// <summary>
         /// Select
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static Reader<E, U> Select<E, T, U>(this Reader<E, T> self, Func<T, U> select)
         {
             if (select == null) throw new ArgumentNullException("select");
@@ -131,6 +134,7 @@ namespace LanguageExt
         /// <summary>
         /// Select Many
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static Reader<E, V> SelectMany<E, T, U, V>(
             this Reader<E, T> self,
             Func<T, Reader<E, U>> bind,

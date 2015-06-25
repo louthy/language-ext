@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Collections.Immutable;
+using System.ComponentModel;
 
 namespace LanguageExt
 {
@@ -206,6 +207,7 @@ public static class __TryExt
         }
     }
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Try<U> Select<T, U>(this Try<T> self, Func<T, U> select)
     {
         return new Try<U>(() =>
@@ -291,6 +293,7 @@ public static class __TryExt
                 : () => new TryResult<T>(new Exception("Filtered"));
     }
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Try<T> Where<T>(this Try<T> self, Func<T, bool> pred) =>
         self.Filter(pred);
 
@@ -339,6 +342,7 @@ public static class __TryExt
             Fail: ex => "Fail(" + ex.Message + ")"
         );
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Try<V> SelectMany<T, U, V>(
           this Try<T> self,
           Func<T, Try<U>> bind,

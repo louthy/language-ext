@@ -339,9 +339,11 @@ public static class __OptionExt
             ? binder(self.Value)
             : None;
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Option<U> Select<T, U>(this Option<T> self, Func<T, U> map) =>
         self.Map(map);
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Option<T> Where<T>(this Option<T> self, Func<T, bool> pred) =>
         self.Filter(pred)
             ? self
@@ -352,6 +354,7 @@ public static class __OptionExt
             ? self.Value
             : 0;
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Option<V> SelectMany<T, U, V>(this Option<T> self,
         Func<T, Option<U>> bind,
         Func<T, U, V> project

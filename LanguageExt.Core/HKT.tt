@@ -123,9 +123,9 @@
         //
         Tuple.Create(
             "",
-            "public static RETURN_V SelectMany<ARGS_TUV>(this OUTER_T self, Func<T, INNER_U> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));",
+            "[EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_V SelectMany<ARGS_TUV>(this OUTER_T self, Func<T, INNER_U> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));",
             "",
-            "public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, INNER_U> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));"
+            "[EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, INNER_U> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));"
             ),
    };
 
@@ -134,20 +134,20 @@
         // Select
         //
         Tuple.Create(
-            "internal static RETURN_U Select<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.Map(mapper);",
-            "public static RETURN_U Select<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));"),
+            "[EditorBrowsable(EditorBrowsableState.Never)] internal static RETURN_U Select<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.Map(mapper);",
+            "[EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_U Select<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));"),
         //
         // Where
         //
         Tuple.Create(
-            "internal static RETURN_T Where<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.Filter(pred);",
-            "public static RETURN_T Where<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));"),
+            "[EditorBrowsable(EditorBrowsableState.Never)] internal static RETURN_T Where<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.Filter(pred);",
+            "[EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_T Where<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));"),
         //
         // SelectMany
         //
         Tuple.Create(
-            "internal static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));",
-            "public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));"
+            "[EditorBrowsable(EditorBrowsableState.Never)] internal static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));",
+            "[EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));"
             ),
    };
 #>

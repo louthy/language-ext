@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -95,6 +96,7 @@ namespace LanguageExt
             };
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static State<S, U> Select<S, T, U>(this State<S, T> self, Func<T, U> map)
         {
             if (map == null) throw new ArgumentNullException("map");
@@ -107,6 +109,7 @@ namespace LanguageExt
             };
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static State<S, V> SelectMany<S, T, U, V>(
             this State<S, T> self,
             Func<T, State<S, U>> bind,
@@ -132,6 +135,7 @@ namespace LanguageExt
             where pred(x)
             select x;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static State<S, T> Where<S, T>(this State<S, T> self, Func<T, bool> pred)
         {
             return state =>
@@ -205,6 +209,7 @@ namespace LanguageExt
         /// <summary>
         /// Select Many
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static State<S, Reader<E, V>> SelectMany<S, E, T, U, V>(
             this State<S, T> self,
             Func<T, Reader<E, U>> bind,
@@ -229,6 +234,7 @@ namespace LanguageExt
         /// <summary>
         /// Select Many
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static State<S, Writer<Out, V>> SelectMany<S, Out, T, U, V>(
             this State<S, T> self,
             Func<T, Writer<Out, U>> bind,

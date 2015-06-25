@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using System.ComponentModel;
 
 namespace LanguageExt
 {
@@ -566,6 +567,7 @@ public static class __MapExt
     /// Atomically maps the map to a new map
     /// </summary>
     /// <returns>Mapped items in a new map</returns>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Map<K, U> Select<K, V, U>(this Map<K, V> self, Func<V, U> mapper) =>
         MapModule.Map(self, mapper);
 
@@ -573,8 +575,36 @@ public static class __MapExt
     /// Atomically maps the map to a new map
     /// </summary>
     /// <returns>Mapped items in a new map</returns>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Map<K, U> Select<K, V, U>(this Map<K, V> self, Func<K, V, U> mapper) =>
         MapModule.Map(self, mapper);
+
+    /// <summary>
+    /// Atomically filter out items that return false when a predicate is applied
+    /// </summary>
+    /// <param name="pred">Predicate</param>
+    /// <returns>New map with items filtered</returns>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Map<K, V> Where<K, V>(this Map<K, V> self, Func<V, bool> pred) =>
+        MapModule.Filter(self, pred);
+
+    /// <summary>
+    /// Atomically filter out items that return false when a predicate is applied
+    /// </summary>
+    /// <param name="pred">Predicate</param>
+    /// <returns>New map with items filtered</returns>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Map<K, V> Where<K, V>(this Map<K, V> self, Func<K, bool> pred) =>
+        MapModule.Filter(self, pred);
+
+    /// <summary>
+    /// Atomically filter out items that return false when a predicate is applied
+    /// </summary>
+    /// <param name="pred">Predicate</param>
+    /// <returns>New map with items filtered</returns>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Map<K, V> Where<K, V>(this Map<K, V> self, Func<K, V, bool> pred) =>
+        MapModule.Filter(self, pred);
 
     /// <summary>
     /// Atomically filter out items that return false when a predicate is applied
@@ -769,9 +799,11 @@ public static class __MapExt
     public static Map<K, U> Bind<K, T, U>(this Map<K, T> self, Func<T, Map<K, U>> binder) =>
         failwith<Map<K, U>>("Map<K,V> doesn't support Bind.");
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Map<K, U> SelectMany<K, T, U>(this Map<K, T> self, Func<T, Map<K, U>> binder) =>
         failwith<Map<K, U>>("Map<K,V> doesn't support Bind or SelectMany.");
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Map<K, V> SelectMany<K, T, U, V>(this Map<K, T> self, Func<T, Map<K, U>> binder, Func<T,U,V> project) =>
         failwith<Map<K, V>>("Map<K,V> doesn't support Bind or SelectMany.");
 

@@ -310,9 +310,11 @@ public static class __OptionUnsafeExt
     // 
     // OptionUnsafe<T> extensions 
     // 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static OptionUnsafe<U> Select<T, U>(this OptionUnsafe<T> self, Func<T, U> map) => 
         self.MapUnsafe(map);
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static OptionUnsafe<T> Where<T>(this OptionUnsafe<T> self, Func<T, bool> pred) =>
         self.FilterUnsafe(pred)
             ? self
@@ -363,6 +365,7 @@ public static class __OptionUnsafeExt
             ? self.Value
             : 0;
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static OptionUnsafe<V> SelectMany<T, U, V>(this OptionUnsafe<T> self,
         Func<T, OptionUnsafe<U>> bind,
         Func<T, U, V> project

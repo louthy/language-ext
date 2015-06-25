@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -99,6 +100,7 @@ namespace LanguageExt
             };
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static Rws<R, W, S, U> Select<R, W, S, T, U>(this Rws<R, W, S, T> self, Func<T, U> map)
         {
             if (map == null) throw new ArgumentNullException("map");
@@ -111,6 +113,7 @@ namespace LanguageExt
             };
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static Rws<R, W, S, V> SelectMany<R, W, S, T, U, V>(
             this Rws<R, W, S, T> self,
             Func<T, Rws<R, W, S, U>> bind,
@@ -136,6 +139,7 @@ namespace LanguageExt
             where pred(x)
             select x;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static Rws<R, W, S, T> Where<R, W, S, T>(this Rws<R, W, S, T> self, Func<T, bool> pred)
         {
             return state =>

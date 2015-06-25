@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Collections.Immutable;
+using System.ComponentModel;
 
 namespace LanguageExt
 {
@@ -311,6 +312,7 @@ namespace LanguageExt
 
 public static class __EitherUnsafeExt
 {
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static EitherUnsafe<L, UR> Select<L, TR, UR>(this EitherUnsafe<L, TR> self, Func<TR, UR> map) =>
         matchUnsafe(self,
             Right: t => EitherUnsafe<L, UR>.Right(map(t)),
@@ -357,6 +359,7 @@ public static class __EitherUnsafeExt
             ? binder(self.RightValue)
             : EitherUnsafe<L, Ret>.Left(self.LeftValue);
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static EitherUnsafe<L, R> Where<L, R>(this EitherUnsafe<L, R> self, Func<R, bool> pred) =>
         Filter(self, pred);
 
@@ -366,6 +369,7 @@ public static class __EitherUnsafeExt
             Left: l => EitherUnsafe<L, R>.Left(l)
             );
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static EitherUnsafe<L, V> SelectMany<L, T, U, V>(this EitherUnsafe<L, T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project)
     {
         if (self.IsLeft) return EitherUnsafe<L, V>.Left(self.LeftValue);

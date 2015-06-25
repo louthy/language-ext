@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Collections.Immutable;
+using System.ComponentModel;
 
 namespace LanguageExt
 {
@@ -358,21 +359,24 @@ public static class __EitherExt
             ? binder(self.RightValue)
             : Either<L, Ret>.Left(self.LeftValue);
 
-    public static Either<L, R> Where<L, R>(this Either<L, R> self, Func<R, bool> pred) =>
-        Filter(self, pred);
-
     public static Either<L, R> Filter<L, R>(this Either<L, R> self, Func<R, bool> pred) =>
         match(self,
             Right: t => pred(t) ? Either<L, R>.Right(t) : Either<L, R>.Left(default(L)),
             Left: l => Either<L, R>.Left(l)
             );
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Either<L, R> Where<L, R>(this Either<L, R> self, Func<R, bool> pred) =>
+        Filter(self, pred);
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Either<L, UR> Select<L, TR, UR>(this Either<L, TR> self, Func<TR, UR> map) =>
         match(self,
             Right: t => Either<L, UR>.Right(map(t)),
             Left: l => Either<L, UR>.Left(l)
             );
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Either<L, V> SelectMany<L, T, U, V>(this Either<L, T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project)
     {
         if (self.IsLeft) return Either<L, V>.Left(self.LeftValue);
