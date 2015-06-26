@@ -41,5 +41,13 @@ namespace LanguageExtTests
 
             NU.Assert.IsTrue(partial(5, 5) == 30);
         }
+
+        [NU.Test]
+        public void CurryPartialTest()
+        {
+            var partial = curry(par((int x, int y, int c, int d) => x + y + c + d, 10, 10));
+
+            NU.Assert.IsTrue(partial(5)(5) == 30);
+        }
     }
 }
