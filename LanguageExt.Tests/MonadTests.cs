@@ -5,6 +5,7 @@ using LanguageExt.Trans.Linq;
 using static LanguageExt.List;
 using static LanguageExt.Prelude;
 using System;
+using System.Linq;
 
 namespace LanguageExtTests
 {
@@ -92,8 +93,8 @@ namespace LanguageExtTests
                       where x * c > 50 && y * c > 50
                       select (x + y) * c;
 
-            Assert.IsTrue(rdr(10) == 200);
-            Assert.IsTrue(rdr(2) == 0);
+            Assert.IsTrue(rdr(10).Value == 200);
+            Assert.IsTrue(rdr(2).Value == 0);
             Assert.IsTrue(rdr(2).IsBottom);
         }
 
@@ -123,8 +124,8 @@ namespace LanguageExtTests
                       where x * c > 50 && y * c > 50
                       select (x + y) * c;
 
-            Assert.IsTrue(rdr(10) == 200);
-            Assert.IsTrue(rdr(2) == 0);
+            Assert.IsTrue(rdr(10).Value == 200);
+            Assert.IsTrue(rdr(2).Value == 0);
             Assert.IsTrue(rdr(2).IsBottom);
         }
 
@@ -203,8 +204,62 @@ namespace LanguageExtTests
                 from y in tryfun(() => Hello2(Error()))
                 select y;
 
-            res3.Lift("World").IfSome(x => failwith<Unit>("wrong"));
+            res3.LiftUnsafe("World").IfSome(x => failwith<Unit>("wrong"));
 
+        }
+
+        [Test]
+        public void ReaderWriterBindTest()
+        {
+            var x = from a in ask<string>()
+                    from b in tell("Hello " + a)
+                    select b;
+
+            Assert.IsTrue(x("everyone").Value().Output.Head() == "Hello everyone");
+        }
+
+        [Test]
+        public void TryReaderBindTest()
+        {
+            var tryadd = from a in Try(() => 123)
+                         from b in ask<int>()
+                         select a + b;
+
+            var res = tryadd.Map(r => r.Lift(123))
+                            .Lift();
+
+            Assert.IsTrue(res == 246);
+        }
+
+        [Test]
+        public void SomeLiftTest()
+        {
+            var z = Some(Some(10));
+            var r = z.LiftT();
+            Assert.IsTrue(r == 10);
+        }
+
+        [Test]
+        public void FilterTTest()
+        {
+            var o = Some(List(1, 2, 3, 4, 5));
+            var o2 = o.FilterT(n => n > 2);
+
+            Assert.IsTrue(o2.Count() == 1);
+            Assert.IsTrue(o2.CountT() == 3);
+        }
+
+
+        [Test]
+        public void ReaderListSumTest()
+        {
+            var r2 = from v in ask<int>()
+                     from l in List(1, 2, 3, 4, 5)
+                     select l * v;
+
+            var r3 = r2.SumT()(10);
+
+            Assert.IsTrue(r3 == 150);
         }
 
         private static string Error()

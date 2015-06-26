@@ -19,6 +19,9 @@ namespace ProcessSample
     {
         public static void RunTests()
         {
+            ReaderAskTest();
+            LiftTest();
+            BindingTest();
             WrappedOptionOptionLinqTest();
             WrappedListLinqTest();
             WrappedListTest();
@@ -29,6 +32,65 @@ namespace ProcessSample
             MassiveSpawnAndKillHierarchy();
             SpawnAndKillProcess();
             SpawnAndKillHierarchy();
+        }
+
+        private class Bindings
+        {
+            public readonly Map<string, int> Map;
+            public Bindings(params Tuple<string, int>[] items)
+            {
+                Map = Map(items);
+            }
+
+            public static Bindings New(params Tuple<string, int>[] items)
+            {
+                return new Bindings(items);
+            }
+        }
+        public static void ReaderAskTest()
+        {
+            var lookupVar = fun((string name, Bindings bindings) => LanguageExt.Map.find(bindings.Map, name).IfNone(0));
+
+            var calcIsCountCorrect = from count in asks((Bindings env) => lookupVar("count", env))
+                                     from bindings in ask<Bindings>()
+                                     select count == LanguageExt.Map.length(bindings.Map);
+
+            var sampleBindings = Bindings.New(
+                                    Tuple("count", 3),
+                                    Tuple("1", 1),
+                                    Tuple("b", 2)
+                                    );
+
+            bool res = calcIsCountCorrect(sampleBindings).Value;
+
+            Debug.Assert(res);
+        }
+
+        public static void LiftTest()
+        {
+            var x = List(None, Some(1), Some(2), Some(3), Some(4));
+
+            Debug.Assert(x.Lift() == None);
+            Debug.Assert(x.LiftT() == 0);
+
+            var y = List(Some(1), Some(2), Some(3), Some(4));
+
+            Debug.Assert(y.Lift() == Some(1));
+            Debug.Assert(y.LiftT() == 1);
+
+            var z = Some(Some(Some(Some(1))));
+
+            Debug.Assert(z.LiftT().Lift() == Some(1));
+            Debug.Assert(z.LiftT().LiftT() == 1);
+        }
+
+        public static void BindingTest()
+        {
+            var x = from a in ask<string>()
+                    from b in tell("Hello " + a)
+                    select b;
+
+            var res = x("everyone").Value().Output.Head();
         }
 
         public static void WrappedOptionOptionLinqTest()

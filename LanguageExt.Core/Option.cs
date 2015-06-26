@@ -219,9 +219,11 @@ namespace LanguageExt
         public int CompareTo(Option<T> other) =>
             IsNone && other.IsNone
                 ? 0
-                : IsNone
-                    ? -1
-                    : Comparer<T>.Default.Compare(Value, other.Value);
+                : IsSome && other.IsSome
+                    ? Comparer<T>.Default.Compare(Value, other.Value)
+                    : IsSome
+                        ? -1
+                        : 1;
 
         public int CompareTo(T other) =>
             IsNone

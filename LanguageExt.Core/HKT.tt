@@ -84,8 +84,8 @@
         Tuple.Create(
             "internal static RETURN_ONE_BOOL ForAllT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.ForAll(pred);",
             "",
-            "public static RETURN_ONE_BOOL ForAllT<ARGS_T>(this TYPE self, Func<T, bool> pred) =>DEL_ARGS self.MapT(x => x.ForAllT(pred)DEL_INVOKE).ForAll(x=>x);",
-            "public static RETURN_ONE_BOOL forAllT<ARGS_T>(TYPE self, Func<T, bool> pred) =>DEL_ARGS self.MapT(x => x.ForAllT(pred)DEL_INVOKE).ForAll(x=>x);"),
+            "public static RETURN_ONE_BOOL ForAllT<ARGS_T>(this TYPE self, Func<T, bool> pred) =>DEL_ARGS self.ForAllT(pred)DEL_INVOKE;",
+            "public static RETURN_ONE_BOOL forAllT<ARGS_T>(TYPE self, Func<T, bool> pred) =>DEL_ARGS self.ForAllT(pred)DEL_INVOKE;"),
         //
         // Iter
         //

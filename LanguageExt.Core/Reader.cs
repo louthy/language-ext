@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LanguageExt;
+using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -30,16 +32,22 @@ namespace LanguageExt
             IsBottom = isBottom;
         }
 
-        public T Value =>
-            IsBottom
-                ? default(T)
-                : value;
-
         public static implicit operator ReaderResult<T>(T value) =>
            new ReaderResult<T>(value);
 
         public static implicit operator T(ReaderResult<T> value) =>
            value.Value;
+
+        public T Value =>
+            IsBottom
+                ? default(T)
+                : value;
+    }
+
+    internal static class ReaderResult
+    {
+        public static ReaderResult<T> Bottom<T>() => new ReaderResult<T>(default(T), true);
+        public static ReaderResult<T> Return<T>(T value) => new ReaderResult<T>(value, false);
     }
 
     /// <summary>
@@ -79,26 +87,32 @@ namespace LanguageExt
             env => bmap(self(env), x => folder(state, x));
 
         public static Reader<Env, R> Map<Env, T, R>(this Reader<Env, T> self, Func<T, R> mapper) =>
-            env => new ReaderResult<R>(bmap(self(env), mapper));
+            env => bmap(self(env), mapper);
 
         public static Reader<Env, T> Filter<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
             self.Where(pred);
 
         private static ReaderResult<R> bmap<T, R>(ReaderResult<T> r, Func<T, R> f) =>
             r.IsBottom
-                ? new ReaderResult<R>(default(R), true)
-                : new ReaderResult<R>(f(r.Value), false);
+                ? Bottom<R>()
+                : Return(f(r.Value));
+
+        private static ReaderResult<T> Return<T>(T value) =>
+            ReaderResult.Return(value);
+
+        private static ReaderResult<T> Bottom<T>() =>
+            ReaderResult.Bottom<T>();
 
         private static ReaderResult<Unit> bmap<T>(ReaderResult<T> r, Action<T> f)
         {
             if (r.IsBottom)
             {
-                return new ReaderResult<Unit>(unit, true);
+                return Bottom<Unit>();
             }
             else
             {
                 f(r.Value);
-                return new ReaderResult<Unit>(unit, false);
+                return Return(unit);
             }
         }
 
@@ -108,12 +122,21 @@ namespace LanguageExt
             return env =>
             {
                 var val = self(env);
-                return new ReaderResult<T>(val, !pred(val));
+                return val.IsBottom
+                    ? Bottom<T>()
+                    : pred(val.Value) 
+                        ? Return(val.Value)
+                        : Bottom<T>();
             };
         }
 
         public static Reader<Env, R> Bind<Env, T, R>(this Reader<Env, T> self, Func<T, Reader<Env, R>> binder) =>
-            env => self.Select(t => binder(t)(env))(env);
+            env =>
+            {
+                var t = self(env);
+                if (t.IsBottom) return Bottom<R>();
+                return binder(t.Value)(env);
+            };
 
         /// <summary>
         /// Select
@@ -126,8 +149,8 @@ namespace LanguageExt
             {
                 var resT = self(env);
                 return resT.IsBottom
-                    ? new ReaderResult<U>(default(U), true)
-                    : new ReaderResult<U>(select(resT.Value));
+                    ? Bottom<U>()
+                    : Return<U>(select(resT.Value));
             };
         }
 
@@ -146,16 +169,12 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) return new ReaderResult<V>(default(V), true);
+                if (resT.IsBottom) return Bottom<V>();
                 var resU = bind(resT.Value)(env);
-                if (resU.IsBottom) return new ReaderResult<V>(default(V), true);
-                var resV = project(resT, resU.Value);
-                return new ReaderResult<V>(resV);
+                if (resU.IsBottom) return Bottom<V>();
+                return Return(project(resT.Value, resU.Value));
             };
         }
-
-        public static Reader<Env, V> foldT<Env, T, V>(Reader<Env, Reader<Env, T>> self, V state, Func<V, T, V> fold) =>
-            self.FoldT(state, fold);
 
         public static Reader<Env, Writer<Out, V>> foldT<Env, Out, T, V>(Reader<Env, Writer<Out, T>> self, V state, Func<V, T, V> fold) =>
             self.FoldT(state, fold);
@@ -163,33 +182,83 @@ namespace LanguageExt
         public static Reader<Env, State<S, V>> foldT<Env, S, T, V>(Reader<Env, State<S, T>> self, V state, Func<V, T, V> fold) =>
             self.FoldT(state, fold);
 
-        public static Reader<Env, V> FoldT<Env, T, V>(this Reader<Env, Reader<Env, T>> self, V state, Func<V, T, V> fold)
+        public static State<S, T> liftT<Env, S, T>(Reader<Env, State<S, T>> self, Env env) where T : struct =>
+            self.LiftT(env);
+
+        public static Writer<Out, T> liftT<Env, Out, T>(Reader<Env, Writer<Out, T>> self, Env env) where T : struct =>
+            self.LiftT(env);
+
+        public static State<S, T> liftUnsafeT<Env, S, T>(Reader<Env, State<S, T>> self, Env env) where T : class =>
+            self.LiftUnsafeT(env);
+
+        public static Writer<Out, T> liftUnsafeT<Env, Out, T>(Reader<Env, Writer<Out, T>> self, Env env) where T : class =>
+            self.LiftUnsafeT(env);
+
+        public static Reader<Env, Writer<Out, V>> FoldT<Env, Out, T, V>(this Reader<Env, Writer<Out, T>> self, V state, Func<V, T, V> fold)
         {
             return (Env env) =>
             {
                 var inner = self(env);
-                if (inner.IsBottom) return new ReaderResult<V>(default(V), true);
-                return inner.Value.Fold(state, fold)(env);
-            };
-        }
-
-        public static Reader<Env, Writer<Out, V>> FoldT<Env, Out, T, V>(this Reader<Env, Writer<Out, T>> self, V state, Func<V, T, V> fold)
-        {
-            return (Env outerArgs) =>
-            {
-                var inner = self(outerArgs);
-                if (inner.IsBottom) return new ReaderResult<Writer<Out, V>>(default(Writer<Out, V>), true);
-                return new ReaderResult<Writer<Out, V>>(inner.Value.Fold(state, fold));
+                if (inner.IsBottom) return Bottom<Writer<Out, V>>();
+                return Return(inner.Value.Fold(state, fold));
             };
         }
 
         public static Reader<Env, State<S, V>> FoldT<Env, S, T, V>(this Reader<Env, State<S, T>> self, V state, Func<V, T, V> fold)
         {
-            return (Env outerArgs) =>
+            return (Env env) =>
             {
-                var inner = self(outerArgs);
-                if (inner.IsBottom) return new ReaderResult<State<S, V>>(default(State<S, V>), true);
-                return new ReaderResult<State<S, V>>(inner.Value.Fold(state, fold));
+                var inner = self(env);
+                if (inner.IsBottom) return Bottom<State<S, V>>();
+                return Return(inner.Value.Fold(state, fold));
+            };
+        }
+
+        public static State<S, T> LiftT<Env, S, T>(this Reader<Env, State<S, T>> self, Env env) where T : struct
+        {
+            return state =>
+            {
+                var inner = self(env);
+                if (inner.IsBottom) return StateResult.Bottom<S, T>(state);
+                var res = inner.Value(state);
+                if (res.IsBottom) return StateResult.Bottom<S, T>(state);
+                return StateResult.Return(res.State, res.Value);
+            };
+        }
+
+        public static Writer<Out, T> LiftT<Env, Out, T>(this Reader<Env, Writer<Out, T>> self, Env env) where T : struct
+        {
+            return () =>
+            {
+                var inner = self(env);
+                if (inner.IsBottom) return WriterResult.Bottom<Out, T>();
+                var res = inner.Value();
+                if (res.IsBottom) return WriterResult.Bottom<Out, T>();
+                return WriterResult.Return(res.Value, res.Output);
+            };
+        }
+
+        public static State<S, T> LiftUnsafeT<Env, S, T>(this Reader<Env, State<S, T>> self, Env env) where T : class
+        {
+            return state =>
+            {
+                var inner = self(env);
+                if (inner.IsBottom) return StateResult.Bottom<S, T>(state);
+                var res = inner.Value(state);
+                if (res.IsBottom) return StateResult.Bottom<S, T>(state);
+                return StateResult.Return(res.State, res.Value);
+            };
+        }
+
+        public static Writer<Out, T> LiftUnsafeT<Env, Out, T>(this Reader<Env, Writer<Out, T>> self, Env env) where T : class
+        {
+            return () =>
+            {
+                var inner = self(env);
+                if (inner.IsBottom) return WriterResult.Bottom<Out, T>();
+                var res = inner.Value();
+                if (res.IsBottom) return WriterResult.Bottom<Out, T>();
+                return WriterResult.Return(res.Value, res.Output);
             };
         }
 
@@ -207,12 +276,12 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) return new ReaderResult<Writer<Out, V>>(default(Writer<Out, V>), true);
-                return new ReaderResult<Writer<Out, V>>(() =>
+                if (resT.IsBottom) return Bottom<Writer<Out, V>>();
+                return Return<Writer<Out, V>>(() =>
                 {
                     var resU = bind(resT.Value)();
-                    if (resU.IsBottom) return new WriterResult<Out, V>(default(V), resU.Output, true);
-                    return project(resT, resU.Value);
+                    if (resU.IsBottom) return WriterResult.Bottom<Out, V>(resU.Output);
+                    return WriterResult.Return(project(resT.Value, resU.Value), resU.Output);
                 });
             };
         }
@@ -231,12 +300,12 @@ namespace LanguageExt
             return (E env) =>
             {
                 var resT = self(env);
-                if (resT.IsBottom) return new ReaderResult<State<S, V>>(default(State<S, V>), true);
-                return new ReaderResult<State<S, V>>(state =>
+                if (resT.IsBottom) return Bottom<State<S, V>>();
+                return Return<State<S, V>>(state =>
                 {
                     var resU = bind(resT.Value)(state);
-                    if (resU.IsBottom) return new StateResult<S, V>(state, default(V), true);
-                    return project(resT, resU.Value);
+                    if (resU.IsBottom) return StateResult.Bottom<S, V>(state);
+                    return StateResult.Return(resU.State, project(resT.Value, resU.Value));
                 });
             };
         }

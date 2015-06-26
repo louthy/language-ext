@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LanguageExt;
+using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -36,11 +38,20 @@ namespace LanguageExt
                 ? default(T)
                 : value;
 
-        public static implicit operator StateResult<S,T>(T value) =>
-           new StateResult<S,T>(default(S),value);        // TODO:  Not a good idea
+        public static implicit operator StateResult<S, T>(T value) =>
+           new StateResult<S, T>(default(S), value);        // TODO:  Not a good idea
 
-        public static implicit operator T(StateResult<S,T> value) =>
+        public static implicit operator T(StateResult<S, T> value) =>
            value.Value;
+    }
+
+    internal class StateResult
+    {
+        public static StateResult<S, T> Bottom<S, T>(S state) =>
+            new StateResult<S, T>(state, default(T), true);
+
+        public static StateResult<S, T> Return<S, T>(S state, T value) =>
+            new StateResult<S, T>(state, value, false);
     }
 
     public static class StateExt
@@ -62,9 +73,13 @@ namespace LanguageExt
             s => bmap(self(s), action);
 
         public static State<S, int> Count<S, T>(this State<S, T> self) =>
-            s => self(s).IsBottom
-                ? 0
-                : 1;
+            s =>
+            {
+                var res = self(s);
+                return res.IsBottom
+                  ? StateResult.Bottom<S, int>(s)
+                  : StateResult.Return(res.State, 1);
+            };
 
         public static State<S, bool> ForAll<S, T>(this State<S, T> self, Func<T, bool> pred) =>
             from x in self
@@ -90,7 +105,7 @@ namespace LanguageExt
                 var resT = self(state);
                 if( resT.IsBottom )
                 {
-                    return new StateResult<S, R>(resT.State, default(R), true);
+                    return StateResult.Bottom<S, R>(state);
                 }
                 return binder(resT.Value)(resT.State);
             };
@@ -104,8 +119,8 @@ namespace LanguageExt
             {
                 var resT = self(state);
                 return resT.IsBottom
-                    ? new StateResult<S, U>(resT.State, default(U), true)
-                    : new StateResult<S, U>(resT.State, map(resT.Value));
+                    ? StateResult.Bottom<S, U>(state)
+                    : StateResult.Return(resT.State, map(resT.Value));
             };
         }
 
@@ -122,11 +137,11 @@ namespace LanguageExt
             return (S state) =>
             {
                 var resT = self(state);
-                if (resT.IsBottom) return new StateResult<S, V>(resT.State, default(V), true);
+                if (resT.IsBottom) StateResult.Bottom<S, V>(state);
                 var resU = bind(resT.Value)(resT.State);
-                if (resU.IsBottom) return new StateResult<S, V>(resU.State, default(V), true);
+                if (resU.IsBottom) StateResult.Bottom<S, V>(resT.State);
                 var resV = project(resT.Value, resU.Value);
-                return new StateResult<S, V>(resU.State, resV);
+                return StateResult.Return(resU.State, resV);
             };
         }
 
@@ -141,7 +156,9 @@ namespace LanguageExt
             return state =>
             {
                 var res = self(state);
-                return new StateResult<S, T>(res.State, res.Value, !pred(res.Value));
+                return pred(res.Value)
+                    ? StateResult.Return(res.State, res.Value)
+                    : StateResult.Bottom<S, T>(state);
             };
         }
 
@@ -150,19 +167,19 @@ namespace LanguageExt
 
         private static StateResult<S, R> bmap<S, T, R>(StateResult<S, T> r, Func<T, R> f) =>
             r.IsBottom
-                ? new StateResult<S, R>(r.State, default(R), true)
-                : new StateResult<S, R>(r.State, f(r.Value), false);
+                ? StateResult.Bottom<S, R>(r.State)
+                : StateResult.Return(r.State, f(r.Value));
 
         private static StateResult<S, Unit> bmap<S, T>(StateResult<S, T> r, Action<T> f)
         {
             if (r.IsBottom)
             {
-                return new StateResult<S, Unit>(r.State, unit, true);
+                return StateResult.Bottom<S, Unit>(r.State);
             }
             else
             {
                 f(r.Value);
-                return new StateResult<S, Unit>(r.State, unit, false);
+                return StateResult.Return(r.State, unit);
             }
         }
 
@@ -173,16 +190,13 @@ namespace LanguageExt
         public static State<S, Writer<Out, V>> foldT<S, Out, T, V>(State<S, Writer<Out, T>> self, V state, Func<V, T, V> fold) =>
             self.FoldT(state, fold);
 
-        public static State<S, V> foldT<S, T, V>(State<S, State<S, T>> self, V state, Func<V, T, V> fold) =>
-            self.FoldT(state, fold);
-
         public static State<S, Reader<Env, V>> FoldT<S, Env, T, V>(this State<S, Reader<Env, T>> self, V state, Func<V, T, V> fold)
         {
             return (S s) =>
             {
                 var inner = self(s);
-                if (inner.IsBottom) return new StateResult<S, Reader<Env, V>>(s, default(Reader<Env, V>), true);
-                return new StateResult<S, Reader<Env, V>>(inner.State, inner.Value.Fold(state, fold));
+                if (inner.IsBottom) return StateResult.Bottom<S, Reader<Env, V>>(s);
+                return StateResult.Return(inner.State, inner.Value.Fold(state, fold));
             };
         }
 
@@ -191,18 +205,8 @@ namespace LanguageExt
             return (S s) =>
             {
                 var inner = self(s);
-                if (inner.IsBottom) return new StateResult<S, Writer<Out, V>>(s, default(Writer<Out, V>), true);
-                return new StateResult<S, Writer<Out, V>>(inner.State, inner.Value.Fold(state, fold));
-            };
-        }
-
-        public static State<S, V> FoldT<S, T, V>(this State<S, State<S, T>> self, V state, Func<V, T, V> fold)
-        {
-            return (S s) =>
-            {
-                var inner = self(s);
-                if (inner.IsBottom) return new StateResult<S, V>(s, default(V), true);
-                return inner.Value.Fold(state, fold)(s);
+                if (inner.IsBottom) return StateResult.Bottom<S, Writer<Out, V>>(s);
+                return StateResult.Return(inner.State, inner.Value.Fold(state, fold));
             };
         }
 
@@ -221,12 +225,12 @@ namespace LanguageExt
             return (S s) =>
             {
                 var resT = self(s);
-                if (resT.IsBottom) return new StateResult<S, Reader<E, V>>(resT.State, default(Reader<E, V>), true);
-                return new StateResult<S, Reader<E, V>>(resT.State, envInner =>
+                if (resT.IsBottom) return StateResult.Bottom<S, Reader<E, V>>(s);
+                return StateResult.Return<S, Reader<E, V>>(resT.State, envInner =>
                 {
                     var resU = bind(resT.Value)(envInner);
                     if (resU.IsBottom) return new ReaderResult<V>(default(V), true);
-                    return project(resT, resU.Value);
+                    return ReaderResult.Return(project(resT.Value, resU.Value));
                 });
             };
         }
@@ -246,12 +250,12 @@ namespace LanguageExt
             return (S s) =>
             {
                 var resT = self(s);
-                if (resT.IsBottom) return new StateResult<S, Writer<Out, V>>(s, default(Writer<Out, V>), true);
-                return new StateResult<S, Writer<Out, V>>(s, () =>
+                if (resT.IsBottom) return StateResult.Bottom<S, Writer<Out, V>>(s);
+                return StateResult.Return<S, Writer<Out, V>>(resT.State, () =>
                 {
                     var resU = bind(resT.Value)();
                     if (resU.IsBottom) return new WriterResult<Out, V>(default(V), resU.Output, true);
-                    return project(resT, resU.Value);
+                    return WriterResult.Return(project(resT.Value, resU.Value),resU.Output);
                 });
             };
         }
