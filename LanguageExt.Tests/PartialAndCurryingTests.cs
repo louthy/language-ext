@@ -34,5 +34,12 @@ namespace LanguageExtTests
             NU.Assert.IsTrue(partial(5) == 15);
         }
 
+        [NU.Test]
+        public void PartialTest3()
+        {
+            var partial = par((int x, int y, int c, int d) => x + y + c + d, 10, 10);
+
+            NU.Assert.IsTrue(partial(5, 5) == 30);
+        }
     }
 }
