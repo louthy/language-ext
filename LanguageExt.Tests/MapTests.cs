@@ -1,4 +1,5 @@
 ﻿using LanguageExt;
+using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using static LanguageExt.Map;
 using NUnit.Framework;
@@ -201,6 +202,28 @@ namespace LanguageExtTests
                 max--;
                 Assert.IsTrue(m.Count == max);
             }
+        }
+
+        [Test]
+        public void MapOptionTest()
+        {
+            var m = Map<Option<int>, Map<Option<int>, string>>();
+
+            m = m.AddOrUpdate(Some(1), Some(1), "Some Some");
+            m = m.AddOrUpdate(None, Some(1), "None Some");
+            m = m.AddOrUpdate(Some(1), None, "Some None");
+            m = m.AddOrUpdate(None, None, "None None");
+
+            Assert.IsTrue(m[Some(1)][Some(1)] == "Some Some");
+            Assert.IsTrue(m[None][Some(1)] == "None Some");
+            Assert.IsTrue(m[Some(1)][None] == "Some None");
+            Assert.IsTrue(m[None][None] == "None None");
+
+            Assert.IsTrue(m.CountT() == 4);
+
+            m = m.FilterT(v => v.EndsWith("None"));
+
+            Assert.IsTrue(m.CountT() == 2);
         }
     }
 }

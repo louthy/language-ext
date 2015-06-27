@@ -378,14 +378,6 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
-        public static bool forall<K, V>(Map<K, V> map, Func<K, bool> pred) =>
-            map.ForAll(pred);
-
-        /// <summary>
-        /// Return true if all items in the map return true when the predicate is applied
-        /// </summary>
-        /// <param name="pred">Predicate</param>
-        /// <returns>True if all items in the map return true when the predicate is applied</returns>
         public static bool forall<K, V>(Map<K, V> map, Func<K, V, bool> pred) =>
             map.ForAll(pred);
 
@@ -425,14 +417,6 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         public static Map<K, V> filter<K, V>(Map<K, V> map, Func<V, bool> predicate) =>
-            map.Filter(predicate);
-
-        /// <summary>
-        /// Atomically filter out items that return false when a predicate is applied
-        /// </summary>
-        /// <param name="pred">Predicate</param>
-        /// <returns>New map with items filtered</returns>
-        public static Map<K, V> filter<K, V>(Map<K, V> map, Func<K, bool> predicate) =>
             map.Filter(predicate);
 
         /// <summary>
@@ -486,16 +470,6 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Folded state</returns>
-        public static S fold<S, K, V>(Map<K, V> map, S state, Func<S, K, S> folder) =>
-            map.Fold(state, folder);
-
-        /// <summary>
-        /// Atomically folds all items in the map (in order) using the folder function provided.
-        /// </summary>
-        /// <typeparam name="S">State type</typeparam>
-        /// <param name="state">Initial state</param>
-        /// <param name="folder">Fold function</param>
-        /// <returns>Folded state</returns>
         public static S fold<S, K, V>(Map<K, V> map, S state, Func<S, V, S> folder) =>
             map.Fold(state, folder);
 
@@ -521,14 +495,6 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         public static bool exists<K, V>(Map<K, V> map, Func<KeyValuePair<K, V>, bool> pred) =>
-            map.Exists(pred);
-
-        /// <summary>
-        /// Return true if *any* items in the map return true when the predicate is applied
-        /// </summary>
-        /// <param name="pred">Predicate</param>
-        /// <returns>True if all items in the map return true when the predicate is applied</returns>
-        public static bool exists<K, V>(Map<K, V> map, Func<K, bool> pred) =>
             map.Exists(pred);
 
         /// <summary>
@@ -594,15 +560,6 @@ public static class __MapExt
     /// <param name="pred">Predicate</param>
     /// <returns>New map with items filtered</returns>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Map<K, V> Where<K, V>(this Map<K, V> self, Func<K, bool> pred) =>
-        MapModule.Filter(self, pred);
-
-    /// <summary>
-    /// Atomically filter out items that return false when a predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>New map with items filtered</returns>
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Map<K, V> Where<K, V>(this Map<K, V> self, Func<K, V, bool> pred) =>
         MapModule.Filter(self, pred);
 
@@ -612,14 +569,6 @@ public static class __MapExt
     /// <param name="pred">Predicate</param>
     /// <returns>New map with items filtered</returns>
     public static Map<K, V> Filter<K, V>(this Map<K, V> self, Func<V, bool> pred) =>
-        MapModule.Filter(self, pred);
-
-    /// <summary>
-    /// Atomically filter out items that return false when a predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>New map with items filtered</returns>
-    public static Map<K, V> Filter<K, V>(this Map<K, V> self, Func<K, bool> pred) =>
         MapModule.Filter(self, pred);
 
     /// <summary>
@@ -659,14 +608,6 @@ public static class __MapExt
     /// </summary>
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
-    public static bool ForAll<K, V>(this Map<K, V> self, Func<K, bool> pred) =>
-        MapModule.ForAll(self, (k, v) => pred(k));
-
-    /// <summary>
-    /// Return true if all items in the map return true when the predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if all items in the map return true when the predicate is applied</returns>
     public static bool ForAll<K, V>(this Map<K, V> self, Func<V, bool> pred) =>
         MapModule.ForAll(self, (k, v) => pred(v));
 
@@ -693,14 +634,6 @@ public static class __MapExt
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     public static bool Exists<K, V>(this Map<K, V> self, Func<KeyValuePair<K, V>, bool> pred) =>
         MapModule.Exists(self, (k, v) => pred(new KeyValuePair<K, V>(k, v)));
-
-    /// <summary>
-    /// Return true if *any* items in the map return true when the predicate is applied
-    /// </summary>
-    /// <param name="pred">Predicate</param>
-    /// <returns>True if all items in the map return true when the predicate is applied</returns>
-    public static bool Exists<K, V>(this Map<K, V> self, Func<K, bool> pred) =>
-        MapModule.Exists(self, (k, _) => pred(k));
 
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied
@@ -784,16 +717,6 @@ public static class __MapExt
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
     public static S Fold<K, V, S>(this Map<K, V> self, S state, Func<S, V, S> folder) =>
-        MapModule.Fold(self, state, folder);
-
-    /// <summary>
-    /// Atomically folds all items in the map (in order) using the folder function provided.
-    /// </summary>
-    /// <typeparam name="S">State type</typeparam>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Fold function</param>
-    /// <returns>Folded state</returns>
-    public static S Fold<K, V, S>(this Map<K, V> self, S state, Func<S, K, S> folder) =>
         MapModule.Fold(self, state, folder);
 
     public static Map<K, U> Bind<K, T, U>(this Map<K, T> self, Func<T, Map<K, U>> binder) =>

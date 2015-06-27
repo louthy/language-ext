@@ -742,19 +742,6 @@ namespace LanguageExt
             return state;
         }
 
-        public static S Fold<S, K, V>(Map<K, V> node, S state, Func<S, K, S> folder)
-        {
-            if (node.Tag == MapTag.Empty)
-            {
-                return state;
-            }
-
-            state = Fold(node.Left, state, folder);
-            state = folder(state, node.Key);
-            state = Fold(node.Right, state, folder);
-            return state;
-        }
-
         public static Map<K, V> Choose<K, V>(Map<K, V> node, Func<K, V, Option<V>> selector) =>
             Map(Filter(Map(node, selector), n => n.IsSome), n => n.Value);
 
@@ -803,13 +790,6 @@ namespace LanguageExt
             node.Tag == MapTag.Empty
                 ? node
                 : pred(node.Key, node.Value)
-                    ? Balance(Make(node.Key, node.Value, Filter(node.Left, pred), Filter(node.Right, pred)))
-                    : Balance(Filter(AddTreeToRight(node.Left, node.Right), pred));
-
-        public static Map<K, V> Filter<K, V>(Map<K, V> node, Func<K, bool> pred) =>
-            node.Tag == MapTag.Empty
-                ? node
-                : pred(node.Key)
                     ? Balance(Make(node.Key, node.Value, Filter(node.Left, pred), Filter(node.Right, pred)))
                     : Balance(Filter(AddTreeToRight(node.Left, node.Right), pred));
 
