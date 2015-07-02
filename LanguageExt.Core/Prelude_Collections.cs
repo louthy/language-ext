@@ -200,26 +200,26 @@ namespace LanguageExt
         /// <summary>
         /// Create an immutable set
         /// </summary>
-        public static IImmutableSet<T> Set<T>() =>
-            ImmutableHashSet.Create<T>();
+        public static Set<T> Set<T>() =>
+            LanguageExt.Set.create<T>();
 
         /// <summary>
         /// Create an immutable set
         /// </summary>
-        public static IImmutableSet<T> Set<T>(T item) =>
-            ImmutableHashSet.Create<T>(item);
+        public static Set<T> Set<T>(T item) =>
+            LanguageExt.Set.create<T>().Add(item);
 
         /// <summary>
         /// Create an immutable set
         /// </summary>
-        public static IImmutableSet<T> Set<T>(params T[] items) =>
-            ImmutableHashSet.Create<T>(items);
+        public static Set<T> Set<T>(params T[] items) =>
+            LanguageExt.Set.createRange<T>(items);
 
         /// <summary>
         /// Create an immutable set
         /// </summary>
-        public static IImmutableSet<T> toSet<T>(IEnumerable<T> items) =>
-            ImmutableHashSet.CreateRange<T>(items);
+        public static Set<T> toSet<T>(IEnumerable<T> items) =>
+            LanguageExt.Set.createRange<T>(items);
 
         /// <summary>
         /// Create a queryable
@@ -389,22 +389,22 @@ namespace LanguageExt
         /// Create an immutable set
         /// </summary>
         [Obsolete("Use 'Set'.  All constructor functions are renamed to have their first letter as a capital.")]
-        public static IImmutableSet<T> set<T>() =>
-            ImmutableHashSet.Create<T>();
+        public static Set<T> set<T>() =>
+            new Set<T>();
 
         /// <summary>
         /// Create an immutable set
         /// </summary>
         [Obsolete("Use 'Set'.  All constructor functions are renamed to have their first letter as a capital.")]
-        public static IImmutableSet<T> set<T>(T item) =>
-            ImmutableHashSet.Create<T>(item);
+        public static Set<T> set<T>(T item) =>
+            new Set<T>().Add(item);
 
         /// <summary>
         /// Create an immutable set
         /// </summary>
         [Obsolete("Use 'Set'.  All constructor functions are renamed to have their first letter as a capital.")]
-        public static IImmutableSet<T> set<T>(params T[] items) =>
-            ImmutableHashSet.Create<T>(items);
+        public static Set<T> set<T>(params T[] items) =>
+            new Set<T>(items);
 
         /// <summary>
         /// Create an immutable stack

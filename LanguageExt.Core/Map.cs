@@ -740,8 +740,18 @@ public static class __MapExt
     public static Option<T> Find<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey) =>
         self.Find(outerKey, b => b.Find(innerKey), () => None);
 
+    public static Option<T> Find<A, B, C, T>(this Map<A, Map<B, Map<C, T>>> self, A aKey, B bKey, C cKey) =>
+        self.Find(aKey, b => b.Find(bKey, c => c.Find(cKey), () => None), () => None);
+
     public static R Find<A, B, T, R>(this Map<A, Map<B, T>> self, A outerKey, B innerKey, Func<T, R> Some, Func<R> None) =>
         self.Find(outerKey, b => b.Find(innerKey, Some, None), None);
+
+    public static Option<R> Find<A, B, C, T, R>(this Map<A, Map<B, Map<C, T>>> self, A aKey, B bKey, C cKey, Func<T, R> Some, Func<R> None) =>
+        self.Find(aKey, 
+            b => b.Find(bKey, 
+                c => c.Find(cKey, Some, None), 
+                None), 
+            None);
 
     public static Map<A, Map<B, T>> AddOrUpdate<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey, Func<T, T> Some, Func<T> None) =>
         self.AddOrUpdate(
@@ -757,6 +767,22 @@ public static class __MapExt
             () => Prelude.Map(Tuple(innerKey, value))
         );
 
+    public static Map<A, Map<B, Map<C, T>>> AddOrUpdate<A, B, C, T>(this Map<A, Map<B, Map<C, T>>> self, A aKey, B bKey, C cKey, T value) =>
+        self.AddOrUpdate(
+            aKey,
+            bKey,
+            c => c.AddOrUpdate(cKey, _ => value, value),
+            () => Prelude.Map(Tuple(cKey, value))
+        );
+
+    public static Map<A, Map<B, Map<C, T>>> AddOrUpdate<A, B, C, T>(this Map<A, Map<B, Map<C, T>>> self, A aKey, B bKey, C cKey, T value, Func<T, T> Some, Func<T> None) =>
+        self.AddOrUpdate(
+            aKey,
+            bKey,
+            c => c.AddOrUpdate(cKey, Some, None),
+            () => Prelude.Map(Tuple(cKey, None()))
+        );
+
     public static Map<A, Map<B, T>> Remove<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey)
     {
         var b = self.Find(outerKey);
@@ -770,6 +796,43 @@ public static class __MapExt
             else
             {
                 return self.SetItem(outerKey, bv);
+            }
+        }
+        else
+        {
+            return self;
+        }
+    }
+
+    public static Map<A, Map<B, Map<C, T>>> Remove<A, B, C, T>(this Map<A, Map<B, Map<C, T>>> self, A aKey, B bKey, C cKey)
+    {
+        var b = self.Find(aKey);
+        if (b.IsSome)
+        {
+            var c = b.Value.Find(bKey);
+            if (c.IsSome)
+            {
+                var cv = c.Value.Remove(cKey);
+                if (cv.Count() == 0)
+                {
+                    var bv = b.Value.Remove(bKey);
+                    if (b.Value.Count() == 0)
+                    {
+                        return self.Remove(aKey);
+                    }
+                    else
+                    {
+                        return self.SetItem(aKey, bv);
+                    }
+                }
+                else
+                {
+                    return self.SetItem(aKey, b.Value.SetItem(bKey, cv));
+                }
+            }
+            else
+            {
+                return self;
             }
         }
         else

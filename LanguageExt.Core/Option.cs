@@ -68,10 +68,20 @@ namespace LanguageExt
                 ? CheckNullReturn(Some(Value), "Some")
                 : CheckNullReturn(None(), "None");
 
+        public R MatchUnsafe<R>(Func<T, R> Some, Func<R> None) =>
+            IsSome
+                ? Some(Value)
+                : None();
+
+        /// <summary>
+        /// Untyped check
+        /// </summary>
+        /// <remarks>May also return null</remarks>
+        /// <returns>R</returns>
         public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
             IsSome
-                ? CheckNullReturn(Some(Value), "Some")
-                : CheckNullReturn(None(), "None");
+                ? Some(Value)
+                : None();
 
         public Unit Match(Action<T> Some, Action None)
         {

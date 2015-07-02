@@ -82,6 +82,9 @@ namespace LanguageExt
         public static R match<T, R>(Option<T> option, Func<T, R> Some, Func<R> None) =>
             option.Match(Some, None);
 
+        public static R matchUnsafe<T, R>(Option<T> option, Func<T, R> Some, Func<R> None) =>
+            option.MatchUnsafe(Some, None);
+
         public static Unit match<T>(Option<T> option, Action<T> Some, Action None) =>
             option.Match(Some, None);
 

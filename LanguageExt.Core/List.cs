@@ -134,6 +134,9 @@ namespace LanguageExt
         public static IEnumerable<V> zip<T, U, V>(IEnumerable<T> list, IEnumerable<U> other, Func<T, U, V> zipper) =>
             list.Zip(other, zipper);
 
+        public static IEnumerable<Tuple<T,U>> zip<T, U>(IEnumerable<T> list, IEnumerable<U> other) =>
+            list.Zip(other, (t,u) => Tuple(t,u) );
+
         public static int length<T>(IEnumerable<T> list) =>
            list.Count();
 
@@ -497,6 +500,9 @@ public static class __EnumnerableExt
 
     public static IEnumerable<S> ScanBack<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
         LanguageExt.List.scanBack(list, state, folder);
+
+    public static IEnumerable<Tuple<T, U>> Zip<T, U>(this IEnumerable<T> list, IEnumerable<U> other) =>
+        list.Zip(other, (t, u) => Tuple(t, u));
 
     public static Option<T> Find<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
         LanguageExt.List.find(list, pred);
