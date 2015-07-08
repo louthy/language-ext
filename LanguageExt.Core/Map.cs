@@ -775,7 +775,7 @@ public static class __MapExt
             () => Prelude.Map(Tuple(cKey, value))
         );
 
-    public static Map<A, Map<B, Map<C, T>>> AddOrUpdate<A, B, C, T>(this Map<A, Map<B, Map<C, T>>> self, A aKey, B bKey, C cKey, T value, Func<T, T> Some, Func<T> None) =>
+    public static Map<A, Map<B, Map<C, T>>> AddOrUpdate<A, B, C, T>(this Map<A, Map<B, Map<C, T>>> self, A aKey, B bKey, C cKey, Func<T, T> Some, Func<T> None) =>
         self.AddOrUpdate(
             aKey,
             bKey,
