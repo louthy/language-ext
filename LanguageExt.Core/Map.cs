@@ -746,7 +746,7 @@ public static class __MapExt
     public static R Find<A, B, T, R>(this Map<A, Map<B, T>> self, A outerKey, B innerKey, Func<T, R> Some, Func<R> None) =>
         self.Find(outerKey, b => b.Find(innerKey, Some, None), None);
 
-    public static Option<R> Find<A, B, C, T, R>(this Map<A, Map<B, Map<C, T>>> self, A aKey, B bKey, C cKey, Func<T, R> Some, Func<R> None) =>
+    public static R Find<A, B, C, T, R>(this Map<A, Map<B, Map<C, T>>> self, A aKey, B bKey, C cKey, Func<T, R> Some, Func<R> None) =>
         self.Find(aKey, 
             b => b.Find(bKey, 
                 c => c.Find(cKey, Some, None), 
