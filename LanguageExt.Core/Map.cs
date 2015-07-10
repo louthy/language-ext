@@ -840,4 +840,100 @@ public static class __MapExt
             return self;
         }
     }
+
+    public static Map<A, Map<B, V>> MapRemoveT<A, B, T, V>(this Map<A, Map<B, T>> self, Func<Map<B, T>, Map<B, V>> map)
+    {
+        return self.Map((ka, va) => map(va))
+                   .Filter( (ka,va) => va.Count > 0);
+    }
+
+    public static Map<A, Map<B, Map<C, V>>> MapRemoveT<A, B, C, T, V>(this Map<A, Map<B, Map<C, T>>> self, Func<Map<C, T>, Map<C, V>> map)
+    {
+        return self.Map((ka, va) => va.Map( (kb,vb) => map(vb) )
+                                      .Filter( (kb,vb) => vb.Count > 0))
+                   .Filter((ka, va) => va.Count > 0);
+    }
+
+    public static Map<A, Map<B, Map<C, Map<D, V>>>> MapRemoveT<A, B, C, D, T, V>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, Func<Map<D, T>, Map<D, V>> map)
+    {
+        return self.Map((ka, va) => va.Map((kb, vb) => vb.Map((kc,vc) => map(vc))
+                                                         .Filter((kc,vc) => vc.Count > 0))
+                                      .Filter((kb, vb) => vb.Count > 0))
+                   .Filter((ka, va) => va.Count > 0);
+    }
+
+    public static Map<A, Map<B, V>> MapT<A, B, T, V>(this Map<A, Map<B, T>> self, Func<T, V> map)
+    {
+        return self.Map((ka, va) => va.Map(map));
+    }
+
+    public static Map<A, Map<B, Map<C, V>>> MapT<A, B, C, T, V>(this Map<A, Map<B, Map<C, T>>> self, Func<T, V> map)
+    {
+        return self.Map((ka, va) => va.MapT(map));
+    }
+
+    public static Map<A, Map<B, Map<C, Map<D, V>>>> MapT<A, B, C, D, T, V>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, Func<T, V> map)
+    {
+        return self.Map((ka, va) => va.MapT(map));
+    }
+
+    public static Map<A, Map<B, T>> FilterT<A, B, T>(this Map<A, Map<B, T>> self, Func<T, bool> pred)
+    {
+        return self.Map((ka, va) => va.Filter(pred));
+    }
+
+    public static Map<A, Map<B, Map<C, T>>> FilterT<A, B, C, T>(this Map<A, Map<B, Map<C, T>>> self, Func<T, bool> pred)
+    {
+        return self.Map((ka, va) => va.FilterT(pred));
+    }
+
+    public static Map<A, Map<B, Map<C, Map<D, T>>>> FilterT<A, B, C, D, T>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, Func<T, bool> pred)
+    {
+        return self.Map((ka, va) => va.FilterT(pred));
+    }
+
+    public static Map<A, Map<B, T>> FilterRemoveT<A, B, T>(this Map<A, Map<B, T>> self, Func<T, bool> pred)
+    {
+        return self.MapRemoveT(v => v.Filter(pred));
+    }
+
+    public static Map<A, Map<B, Map<C, T>>> FilterRemoveT<A, B, C, T>(this Map<A, Map<B, Map<C, T>>> self, Func<T, bool> pred)
+    {
+        return self.MapRemoveT(v => v.Filter(pred));
+    }
+
+    public static Map<A, Map<B, Map<C, Map<D, T>>>> FilterRemoveT<A, B, C, D, T>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, Func<T, bool> pred)
+    {
+        return self.MapRemoveT(v => v.Filter(pred));
+    }
+
+    public static bool Exists<A, B, T>(this Map<A, Map<B, T>> self, Func<T, bool> pred)
+    {
+        return self.Exists((k, v) => v.Exists(pred));
+    }
+
+    public static bool Exists<A, B, C, T>(this Map<A, Map<B, Map<C, T>>> self, Func<T, bool> pred)
+    {
+        return self.Exists((k, v) => v.Exists(pred));
+    }
+
+    public static bool Exists<A, B, C, D, T>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, Func<T, bool> pred)
+    {
+        return self.Exists((k, v) => v.Exists(pred));
+    }
+
+    public static bool ForAll<A, B, T>(this Map<A, Map<B, T>> self, Func<T, bool> pred)
+    {
+        return self.ForAll((k, v) => v.ForAll(pred));
+    }
+
+    public static bool ForAll<A, B, C, T>(this Map<A, Map<B, Map<C, T>>> self, Func<T, bool> pred)
+    {
+        return self.ForAll((k, v) => v.ForAll(pred));
+    }
+
+    public static bool ForAll<A, B, C, D, T>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, Func<T, bool> pred)
+    {
+        return self.ForAll((k, v) => v.ForAll(pred));
+    }
 }

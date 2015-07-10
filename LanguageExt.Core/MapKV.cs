@@ -784,7 +784,7 @@ namespace LanguageExt
                 ? false
                 : pred(node.Key, node.Value)
                     ? true
-                    : ForAll(node.Left, pred) || ForAll(node.Right, pred);
+                    : Exists(node.Left, pred) || Exists(node.Right, pred);
 
         public static Map<K, V> Filter<K, V>(Map<K, V> node, Func<K, V, bool> pred) =>
             node.Tag == MapTag.Empty
