@@ -85,6 +85,16 @@ namespace LanguageExt
         public static IEnumerable<T> append<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) =>
             lhs.Concat(rhs);
 
+        public static IEnumerable<T> append<T>(IEnumerable<T> x, IEnumerable<IEnumerable<T>> xs) =>
+            xs.Count() == 0 ? x
+          : append(x, append(xs.First(), xs.Skip(1)));
+
+
+        public static IEnumerable<T> append<T>(params IEnumerable<T>[] lists) =>
+            lists.Length == 0 ? new T[0]
+          : lists.Length == 1 ? lists[0]
+          : append(lists[0], lists.Skip(1));
+
         public static S fold<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder)
         {
             foreach (var item in list)

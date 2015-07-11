@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
+using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
 
@@ -963,6 +964,32 @@ public static class __MapExt
         return map.SetItem(aKey, av.SetItemT(bKey, cKey, dKey, value));
     }
 
+    public static Map<A, Map<B, V>> SetItemT<A, B, V>(this Map<A, Map<B, V>> map, A aKey, B bKey, Func<V,V> Some)
+    {
+        var a = map.Find(aKey);
+        if (a.IsNone) throw new ArgumentException("Key not found in Map");
+        var av = a.Value;
+        return map.SetItem(aKey, av.SetItem(bKey, Some));
+    }
+
+    public static Map<A, Map<B, Map<C, V>>> SetItemT<A, B, C, V>(this Map<A, Map<B, Map<C, V>>> map, A aKey, B bKey, C cKey, Func<V, V> Some)
+    {
+        var a = map.Find(aKey);
+        if (a.IsNone) throw new ArgumentException("Key not found in Map");
+        var av = a.Value;
+
+        return map.SetItem(aKey, av.SetItemT(bKey, cKey, Some));
+    }
+
+    public static Map<A, Map<B, Map<C, Map<D, V>>>> SetItemT<A, B, C, D, V>(this Map<A, Map<B, Map<C, Map<D, V>>>> map, A aKey, B bKey, C cKey, D dKey, Func<V, V> Some)
+    {
+        var a = map.Find(aKey);
+        if (a.IsNone) throw new ArgumentException("Key not found in Map");
+        var av = a.Value;
+
+        return map.SetItem(aKey, av.SetItemT(bKey, cKey, dKey, Some));
+    }
+
     public static Map<A, Map<B, V>> TrySetItemT<A, B, V>(this Map<A, Map<B, V>> map, A aKey, B bKey, V value)
     {
         var a = map.Find(aKey);
@@ -987,5 +1014,46 @@ public static class __MapExt
         var av = a.Value;
 
         return map.SetItem(aKey, av.TrySetItemT(bKey, cKey, dKey, value));
+    }
+
+    public static Map<A, Map<B, V>> TrySetItemT<A, B, V>(this Map<A, Map<B, V>> map, A aKey, B bKey, Func<V, V> Some)
+    {
+        var a = map.Find(aKey);
+        if (a.IsNone) return map;
+        var av = a.Value;
+        return map.SetItem(aKey, av.TrySetItem(bKey, Some));
+    }
+
+    public static Map<A, Map<B, Map<C, V>>> TrySetItemT<A, B, C, V>(this Map<A, Map<B, Map<C, V>>> map, A aKey, B bKey, C cKey, Func<V, V> Some)
+    {
+        var a = map.Find(aKey);
+        if (a.IsNone) return map;
+        var av = a.Value;
+
+        return map.SetItem(aKey, av.TrySetItemT(bKey, cKey, Some));
+    }
+
+    public static Map<A, Map<B, Map<C, Map<D, V>>>> TrySetItemT<A, B, C, D, V>(this Map<A, Map<B, Map<C, Map<D, V>>>> map, A aKey, B bKey, C cKey, D dKey, Func<V, V> Some)
+    {
+        var a = map.Find(aKey);
+        if (a.IsNone) return map;
+        var av = a.Value;
+
+        return map.SetItem(aKey, av.TrySetItemT(bKey, cKey, dKey, Some));
+    }
+
+    public static S FoldT<A, B, S, V>(this Map<A, Map<B, V>> map, S state, Func<S,V,S> folder)
+    {
+        return map.Fold(state, (s,x) => x.Fold(s, folder));
+    }
+
+    public static S FoldT<A, B, C, S, V>(this Map<A, Map<B, Map<C, V>>> map, S state, Func<S, V, S> folder)
+    {
+        return map.Fold(state, (s, x) => x.FoldT(s, folder));
+    }
+
+    public static S FoldT<A, B, C, D, S, V>(this Map<A, Map<B, Map<C, Map<D, V>>>> map, S state, Func<S, V, S> folder)
+    {
+        return map.Fold(state, (s, x) => x.FoldT(s, folder));
     }
 }
