@@ -936,4 +936,56 @@ public static class __MapExt
     {
         return self.ForAll((k, v) => v.ForAll(pred));
     }
+
+    public static Map<A, Map<B, V>> SetItemT<A, B, V>(this Map<A, Map<B, V>> map, A aKey, B bKey, V value)
+    {
+        var a = map.Find(aKey);
+        if (a.IsNone) throw new ArgumentException("Key not found in Map");
+        var av = a.Value;
+        return map.SetItem(aKey, av.SetItem(bKey, value));
+    }
+
+    public static Map<A, Map<B, Map<C, V>>> SetItemT<A, B, C, V>(this Map<A, Map<B, Map<C, V>>> map, A aKey, B bKey, C cKey, V value)
+    {
+        var a = map.Find(aKey);
+        if (a.IsNone) throw new ArgumentException("Key not found in Map");
+        var av = a.Value;
+
+        return map.SetItem(aKey, av.SetItemT(bKey, cKey, value));
+    }
+
+    public static Map<A, Map<B, Map<C, Map<D, V>>>> SetItemT<A, B, C, D, V>(this Map<A, Map<B, Map<C, Map<D, V>>>> map, A aKey, B bKey, C cKey, D dKey, V value)
+    {
+        var a = map.Find(aKey);
+        if (a.IsNone) throw new ArgumentException("Key not found in Map");
+        var av = a.Value;
+
+        return map.SetItem(aKey, av.SetItemT(bKey, cKey, dKey, value));
+    }
+
+    public static Map<A, Map<B, V>> TrySetItemT<A, B, V>(this Map<A, Map<B, V>> map, A aKey, B bKey, V value)
+    {
+        var a = map.Find(aKey);
+        if (a.IsNone) return map;
+        var av = a.Value;
+        return map.SetItem(aKey, av.TrySetItem(bKey, value));
+    }
+
+    public static Map<A, Map<B, Map<C, V>>> TrySetItemT<A, B, C, V>(this Map<A, Map<B, Map<C, V>>> map, A aKey, B bKey, C cKey, V value)
+    {
+        var a = map.Find(aKey);
+        if (a.IsNone) return map;
+        var av = a.Value;
+
+        return map.SetItem(aKey, av.TrySetItemT(bKey, cKey, value));
+    }
+
+    public static Map<A, Map<B, Map<C, Map<D, V>>>> TrySetItemT<A, B, C, D, V>(this Map<A, Map<B, Map<C, Map<D, V>>>> map, A aKey, B bKey, C cKey, D dKey, V value)
+    {
+        var a = map.Find(aKey);
+        if (a.IsNone) return map;
+        var av = a.Value;
+
+        return map.SetItem(aKey, av.TrySetItemT(bKey, cKey, dKey, value));
+    }
 }
