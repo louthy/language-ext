@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Reactive.Subjects;
 using System.Reactive.Linq;
 
@@ -8,7 +7,7 @@ using static LanguageExt.Prelude;
 namespace LanguageExt
 {
     /// <summary>
-    /// ObservableRouter routes messages 'published' by processes using the 'publish'
+    /// ObservableRouter routes messages 'published' by processes using the 'pub'
     /// function.  The idea is that the routing never dies and can therefore survive
     /// a process restart without killing the subscribers. 
     /// </summary>
@@ -32,7 +31,13 @@ namespace LanguageExt
             set;
         }
 
-        public static Map<string, Subject<object>> AddToStore(ProcessId id)
+        public static IObservable<T> Observe<T>(ProcessId id) =>
+            EnsureInStore(id, (store, path) =>
+                from  x in store[path]
+                where x is T
+                select (T)x );
+
+        public static Map<string, Subject<object>> AddOrUpdateStore(ProcessId id)
         {
             lock (storeLock)
             {
@@ -56,6 +61,7 @@ namespace LanguageExt
                 var path = id.Value;
                 if (Store.ContainsKey(path))
                 {
+                    Store[path].OnCompleted();
                     Store[path].Dispose();
                     Store = Store.Remove(path);
                 }
@@ -70,7 +76,7 @@ namespace LanguageExt
 
             return store.ContainsKey(path)
                 ? f(store, path)
-                : f(AddToStore(id), path);
+                : f(AddOrUpdateStore(id), path);
         }
 
         public static Unit Publish(ProcessId id, object message) =>

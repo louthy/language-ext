@@ -73,7 +73,7 @@ namespace LanguageExtTests
             shutdownAll();
 
             string value = null;
-            var pid = spawn<string>("SpawnProcess", msg => value = msg );
+            var pid = spawn<string>("SpawnProcess", msg => value = msg);
 
             tell(pid, "hello, world");
 
@@ -140,7 +140,7 @@ namespace LanguageExtTests
             string value = null;
             ProcessId parentId;
 
-            var pid = spawn<Unit, string>("SpawnAndKillHierarchy.TopLevel", 
+            var pid = spawn<Unit, string>("SpawnAndKillHierarchy.TopLevel",
                 () =>
                     {
                         parentId = Parent;
@@ -220,6 +220,25 @@ namespace LanguageExtTests
             Thread.Sleep(3000);
 
             Assert.IsTrue(children(User).Count() == 0);
+        }
+
+        [Test]
+        public void ScheduledMsgTest()
+        {
+            string v = "";
+
+            var p = spawn<string>("test-sch", x => v = x);
+
+            var future = DateTime.Now.AddSeconds(3);
+
+            tell(p, "hello", future);
+
+            while (DateTime.Now < future)
+            {
+                Assert.IsTrue(v == "");
+                Thread.Sleep(10);
+            }
+            Assert.IsTrue(v == "hello");
         }
     }
 }

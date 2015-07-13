@@ -129,6 +129,7 @@ namespace LanguageExt
         {
             IProcess temp;
             children.TryRemove(child.Name.Value, out temp);
+            ObservableRouter.RemoveFromStore(child);
             return ActorContext.RemoveFromStore(child);
         }
 

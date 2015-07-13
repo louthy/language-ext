@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Threading;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -142,6 +142,40 @@ namespace LanguageExt
                             : pi.Tell(message, sender) );
 
         /// <summary>
+        /// Send a message at a specified time in the futre
+        /// </summary>
+        /// <remarks>
+        /// This will fail to be accurate across a Daylight Saving Time boundary
+        /// </remarks>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="pid">Process ID</param>
+        /// <param name="message">Message to send</param>
+        /// <param name="delayUntil">Date and time to send</param>
+        public static Unit tell<T>(ProcessId pid, T message, DateTime delayUntil, ProcessId sender = default(ProcessId)) =>
+            tell(pid, message, delayUntil - DateTime.Now, sender);
+
+        /// <summary>
+        /// Send a message at a specified time in the futre
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="pid">Process ID</param>
+        /// <param name="message">Message to send</param>
+        /// <param name="delayUntil">Date and time to send</param>
+        public static Unit tell<T>(ProcessId pid, T message, TimeSpan delayFor, ProcessId sender = default(ProcessId))
+        {
+            if (delayFor.TotalMilliseconds < 1)
+            {
+                return tell(pid, message, sender);
+            }
+            else
+            {
+                Timer t = null;
+                t = new Timer(_ => { tell(pid, message, sender); t.Dispose(); }, null, delayFor, Timeout.InfiniteTimeSpan);
+                return unit;
+            }
+        }
+
+        /// <summary>
         /// Publish a message for any listening subscribers
         /// </summary>
         /// <param name="message">Message to publish</param>
@@ -199,5 +233,14 @@ namespace LanguageExt
         /// </summary>
         public static IDisposable subs<T>(ProcessId pid, Action<T> onNext, Action onComplete) =>
             ObservableRouter.Subscribe(pid, onNext, ex => { }, onComplete);
+
+        /// <summary>
+        /// Get an IObservable for a process.  
+        /// NOTE: The process can publish any number of types, any published messages
+        ///       not of type T will be ignored.
+        /// </summary>
+        public static IObservable<T> observe<T>(ProcessId pid) =>
+            ObservableRouter.Observe<T>(pid);
+
     }
 }
