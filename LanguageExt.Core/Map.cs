@@ -784,6 +784,24 @@ public static class __MapExt
             () => Prelude.Map(Tuple(cKey, None()))
         );
 
+    public static Map<A, Map<B, Map<C, Map<D, T>>>> AddOrUpdate<A, B, C, D, T>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, A aKey, B bKey, C cKey, D dKey, T value) =>
+        self.AddOrUpdate(
+            aKey,
+            bKey,
+            cKey,
+            d => d.AddOrUpdate(dKey, _ => value, value),
+            () => Prelude.Map(Tuple(dKey, value))
+        );
+
+    public static Map<A, Map<B, Map<C, Map<D, T>>>> AddOrUpdate<A, B, C, D, T>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, A aKey, B bKey, C cKey, D dKey, Func<T, T> Some, Func<T> None) =>
+        self.AddOrUpdate(
+            aKey,
+            bKey,
+            cKey,
+            d => d.AddOrUpdate(dKey, Some, None),
+            () => Prelude.Map(Tuple(dKey, None()))
+        );
+
     public static Map<A, Map<B, T>> Remove<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey)
     {
         var b = self.Find(outerKey);

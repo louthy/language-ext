@@ -117,6 +117,14 @@ namespace LanguageExt
             return Set.Wrap(set.Add(value));
         }
 
+        public Option<T> Find(T value)
+        {
+            T ret;
+            return TryGetValue(value, out ret)
+                ? Prelude.Some(ret)
+                : Prelude.None;
+        }
+
         public Set<T> Intersect(IEnumerable<T> other) =>
             Set.Wrap(set.Intersect(other));
 
@@ -195,7 +203,6 @@ namespace LanguageExt
         public bool Overlaps(IEnumerable<T> other) =>
             set.Overlaps(other);
     }
-
 }
 
 public static class __SetExt
@@ -209,9 +216,6 @@ public static class __SetExt
     public static Set<T> Difference<T>(this IImmutableSet<T> setA, IImmutableSet<T> setB) =>
         Set.difference(setA, setB);
 
-    public static bool exists<T>(this IImmutableSet<T> set, Func<T, bool> pred) =>
-        Set.exists(set, pred);
-
     public static IEnumerable<T> Filter<T>(this IImmutableSet<T> set, Func<T, bool> pred) =>
         Set.filter(set, pred);
 
@@ -220,4 +224,11 @@ public static class __SetExt
 
     public static IEnumerable<R> Map<T, R>(this IImmutableSet<T> set, Func<T, R> mapper) =>
         Set.map(set, mapper);
+
+
+    public static Option<T> find<T>(Set<T> set, T value) =>
+        set.Find(value);
+
+    public static bool exists<T>(IImmutableSet<T> set, Func<T, bool> pred) =>
+        Set.exists(set, pred);
 }
