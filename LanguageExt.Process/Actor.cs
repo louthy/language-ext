@@ -47,7 +47,7 @@ namespace LanguageExt
         public Actor(ProcessId parent, ProcessName name, Action<T> actor)
             :
             this(parent, name, (s, t) => { actor(t); return default(S); }, () => default(S))
-        { }
+            {}
 
         /// <summary>
         /// Process path
@@ -129,7 +129,6 @@ namespace LanguageExt
         {
             IProcess temp;
             children.TryRemove(child.Name.Value, out temp);
-            ObservableRouter.RemoveFromStore(child);
             return ActorContext.RemoveFromStore(child);
         }
 
