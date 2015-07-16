@@ -21,12 +21,18 @@ namespace LanguageExt
         public static Set<T> add<T>(IImmutableSet<T> set, T value) =>
             Wrap(set.Add(value));
 
+        /// <summary>
+        /// Returns true if both sets contain the same elements
+        /// </summary>
         public static bool compare<T>(IImmutableSet<T> setA, IImmutableSet<T> setB) =>
             setA.SetEquals(setB);
 
         public static int length<T>(IImmutableSet<T> set) =>
             set.Count();
 
+        /// <summary>
+        /// Returns setA - setB.  Only the items in setA that are not in setB will be left.
+        /// </summary>
         public static Set<T> difference<T>(IImmutableSet<T> setA, IImmutableSet<T> setB) =>
             Wrap(setA.Except(setB));
 
@@ -40,12 +46,18 @@ namespace LanguageExt
             return false;
         }
 
+        /// <summary>
+        /// Create a new set that contains all elements of both sets
+        /// </summary>
         public static Set<T> union<T>(IImmutableSet<T> setA, IImmutableSet<T> setB) =>
             Wrap(setA.Union(setB));
 
         public static IEnumerable<T> filter<T>(IImmutableSet<T> set, Func<T, bool> pred) =>
             set.Where(pred);
 
+        /// <summary>
+        /// Returns the elements that are in both setA and setB
+        /// </summary>
         public static Set<T> intersect<T>(IImmutableSet<T> setA, IImmutableSet<T> setB) =>
             Wrap(setA.SymmetricExcept(setB));
 
@@ -182,6 +194,9 @@ namespace LanguageExt
         IImmutableSet<T> IImmutableSet<T>.SymmetricExcept(IEnumerable<T> other) =>
             set.SymmetricExcept(other);
 
+        /// <summary>
+        /// Create a new set that contains all elements of both sets
+        /// </summary>
         IImmutableSet<T> IImmutableSet<T>.Union(IEnumerable<T> other) =>
             set.Union(other);
 

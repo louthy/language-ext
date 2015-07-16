@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using static LanguageExt.Prelude;
@@ -72,6 +73,16 @@ namespace LanguageExt
                             Some: _ => raise<IProcess>(new NamedProcessAlreadyExistsException()),
                             None: () => self.AddChildProcess(new Actor<S, T>(ActorContext.Self.Id, name, messageHandler, setup))).Id
             );
+
+        /// <summary>
+        /// Find a registered process by name
+        /// </summary>
+        /// <param name="name">Process name</param>
+        /// <returns>ProcessId or ProcessId.None</returns>
+        public static ProcessId find(string name) =>
+            Registered.Where(p => p.Name.Value == name)
+                      .DefaultIfEmpty(ProcessId.None)
+                      .FirstOrDefault();
 
         /// <summary>
         /// Register self as a named process

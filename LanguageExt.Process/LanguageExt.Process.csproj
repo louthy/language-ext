@@ -69,7 +69,7 @@
     <Compile Include="IProcess.cs" />
     <Compile Include="IProcessInternal.cs" />
     <Compile Include="ProcessId.cs" />
-    <Compile Include="ProcessPrelude.cs" />
+    <Compile Include="Prelude.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SystemMessage.cs" />
     <Compile Include="UserControlMessage.cs" />

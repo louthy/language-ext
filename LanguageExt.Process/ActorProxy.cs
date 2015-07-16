@@ -8,7 +8,12 @@ namespace LanguageExt
     /// </summary>
     internal class ActorProxy : Actor<ActorProxyConfig, object>
     {
-        public ActorProxy(ProcessId parent, ProcessName name, Func<ActorProxyConfig, object, ActorProxyConfig> actor, Func<ActorProxyConfig> setup)
+        public ActorProxy(
+            ProcessId parent, 
+            ProcessName name, 
+            Func<ActorProxyConfig, object, ActorProxyConfig> actor, 
+            Func<ActorProxyConfig> setup
+            )
             :
             base(parent,name,actor,setup)
         {
