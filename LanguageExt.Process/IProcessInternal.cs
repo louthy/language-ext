@@ -8,12 +8,12 @@ namespace LanguageExt
 {
     internal interface IProcessInternal
     {
-        Option<IProcess> GetChildProcess(ProcessName name);
-        IProcess AddChildProcess(Some<IProcess> process);
-        Unit HandleFaultedChild(SystemChildIsFaultedMessage message);
-        Unit TellSystem(SystemMessage message);
-        Unit TellUserControl(UserControlMessage message);
-        Unit Tell(object message, ProcessId sender);
+        Unit LinkChild(ProcessId pid);
         Unit UnlinkChild(ProcessId pid);
+    }
+
+    internal interface IProcessInternal<T> : IProcessInternal
+    {
+        Unit ProcessMessage(T message);
     }
 }

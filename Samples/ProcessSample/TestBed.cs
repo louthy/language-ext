@@ -19,6 +19,16 @@ namespace ProcessSample
     {
         public static void RunTests()
         {
+            MassiveSpawnAndKillHierarchy2();
+            MassiveSpawnAndKillHierarchy();
+
+            SpawnProcess();
+            SpawnAndKillProcess();
+            SpawnAndKillHierarchy();
+            SpawnErrorSurviveProcess();
+
+            return;
+
             ReaderAskTest();
             LiftTest();
             BindingTest();
@@ -29,9 +39,27 @@ namespace ProcessSample
             ExTest4();
             MemoTest();
             UnsafeOptionTest();
-            MassiveSpawnAndKillHierarchy();
-            SpawnAndKillProcess();
-            SpawnAndKillHierarchy();
+        }
+
+        private static void SpawnProcess()
+        {
+            Console.WriteLine("*** ABOUT TO SHUTDOWN ***");
+
+            shutdownAll();
+
+            Console.WriteLine("*** SHUTDOWN COMPLETE ***");
+
+            string value = null;
+            var pid = spawn<string>("SpawnProcess", msg => value = msg);
+
+            tell(pid, "hello, world");
+
+            Thread.Sleep(200);
+            Debug.Assert(value == "hello, world");
+
+            kill(pid);
+
+            Console.WriteLine("*** END OF TEST ***");
         }
 
         private class Bindings
@@ -234,6 +262,37 @@ namespace ProcessSample
             }
         }
 
+        public static void SpawnErrorSurviveProcess()
+        {
+            shutdownAll();
+
+            int value = 0;
+            int count = 0;
+
+            var pid = spawn<string>("SpawnAnErrorProcess", _ =>
+            {
+                if (count++ == 0)
+                    throw new Exception("fail");
+                else
+                    value = count;
+            });
+
+            tell(pid, "msg");
+            tell(pid, "msg");
+            tell(pid, "msg");
+
+            Thread.Sleep(400);
+
+            while (Console.Read() != 13)
+            {
+
+            }
+
+            Debug.Assert(value == 3);
+
+            kill(pid);
+        }
+
         public static void SpawnAndKillProcess()
         {
             shutdownAll();
@@ -255,7 +314,7 @@ namespace ProcessSample
             Debug.Assert(value == "1");
 
             var kids = Children;
-            var len = length(kids);
+            var len = kids.Length;
             Debug.Assert(len == 0);
         }
 
@@ -289,13 +348,58 @@ namespace ProcessSample
             Thread.Sleep(100);
 
             Debug.Assert(value == "1");
-            Debug.Assert(length(Children) == 0);
+            Debug.Assert(Children.Length == 0);
         }
 
         public static int DepthMax(int depth) =>
             depth == 0
                 ? 1
                 : (int)Math.Pow(5, (double)depth) + DepthMax(depth - 1);
+
+        static void MassiveSpawnAndKillHierarchy2()
+        {
+            Func<Unit> setup = null;
+            int count = 0;
+            int depth = 6;
+            int nodes = 5;
+            int max = DepthMax(depth);
+
+            shutdownAll();
+
+            var actor = fun((Unit s, string msg) =>
+            {
+                Interlocked.Increment(ref count);
+                iter(Children.Values, child => tell(child, msg));
+            });
+
+            setup = fun(() =>
+            {
+                Interlocked.Increment(ref count);
+
+                int level = Int32.Parse(Self.Name.Value.Split('_').First()) + 1;
+                if (level <= depth)
+                {
+                    iter(Range(0, nodes), i => spawn(level + "_" + i, setup, actor));
+                }
+            });
+
+            var zero = spawn("0", setup, actor);
+
+            while (count < max) Thread.Sleep(50);
+            count = 0;
+
+            tell(zero, "Hello");
+
+            // crude, but whatever
+            while (count < max) Thread.Sleep(50);
+            count = 0;
+
+            shutdown(zero);
+
+            Thread.Sleep(3000);
+
+            Debug.Assert(children(User).Count() == 0);
+        }
 
         public static void MassiveSpawnAndKillHierarchy()
         {
@@ -310,12 +414,12 @@ namespace ProcessSample
 
             Func<Unit> setup = null;
 
-            var actor = fun((Action<Unit, string>)((Unit s, string msg) =>
+            var actor = fun((Unit s, string msg) =>
             {
                 Interlocked.Increment(ref count);
-                iter((IEnumerable<ProcessId>)LanguageExt.Process.Children, child => tell(child, msg));
+                iter(Children.Values, child => tell(child, msg));
                 Console.WriteLine(Self + " : " + msg);
-            }));
+            });
 
             setup = fun(() =>
             {
@@ -335,12 +439,13 @@ namespace ProcessSample
             while (count < max) Thread.Sleep(10);
             count = 0;
 
-
             tell(zero, "Hello");
 
 
             while (count < max) Thread.Sleep(10);
             count = 0;
+
+            Console.WriteLine();
 
             ShowChildren(User);
 
@@ -348,15 +453,34 @@ namespace ProcessSample
 
             Thread.Sleep(3000);
 
+            Console.WriteLine();
+
             ShowChildren(User);
 
-            Console.ReadKey();
+            //Console.ReadKey();
+        }
+
+        static void ScheduledMsgTest()
+        {
+            string v = "";
+
+            var p = spawn<string>("test-sch", x => v = x);
+
+            var future = DateTime.Now.AddSeconds(3);
+
+            tell(p, "hello", future);
+
+            while (DateTime.Now < future.AddMilliseconds(1000))
+            {
+                Thread.Sleep(10);
+            }
+            Debug.Assert(v == "hello");
         }
 
         public static void ShowChildren(ProcessId pid)
         {
             Console.WriteLine(pid);
-            iter(children(pid), ShowChildren);
+            children(pid).Iter(ShowChildren);
         }
     }
 }

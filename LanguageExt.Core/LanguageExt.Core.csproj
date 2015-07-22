@@ -60,6 +60,10 @@
     <Compile Include="MapKV.cs" />
     <Compile Include="Prelude_Monad.cs" />
     <Compile Include="Prelude_PartialApplication.cs" />
+    <Compile Include="ProcessName.cs" />
+    <Compile Include="Process\ICluster.cs" />
+    <Compile Include="Process\Factory.cs" />
+    <Compile Include="Process\ClusterConfig.cs" />
     <Compile Include="Query.cs" />
     <Compile Include="Prelude_Try.cs" />
     <Compile Include="Map.cs" />

@@ -28,7 +28,7 @@ namespace LanguageExtTests
 
             string value = null;
 
-            // Subscribe to the processes 'string' publications
+            // Subscribe to the 'string' publications
             var sub = subs(pid, (string v) => value = v);
 
             // Send string message to the process
@@ -49,8 +49,10 @@ namespace LanguageExtTests
 
             var regid = reg("woooo amazing", pid);
 
+            Thread.Sleep(100);
+
             Assert.IsTrue(Registered.Count() == 1);
-            Assert.IsTrue(Registered.First().Value == "/root/system/registered/woooo amazing");
+            Assert.IsTrue(Registered["woooo amazing"].Value == "/root/system/registered/woooo amazing");
 
             tell(regid, "hello");
 
@@ -129,7 +131,7 @@ namespace LanguageExtTests
             Thread.Sleep(200);
 
             Assert.IsTrue(value == "1");
-            Assert.IsTrue(length(Children) == 0);
+            Assert.IsTrue(Children.Length == 0);
         }
 
         [Test]
@@ -168,7 +170,7 @@ namespace LanguageExtTests
             Thread.Sleep(200);
 
             Assert.IsTrue(value == "1");
-            Assert.IsTrue(length(Children) == 0);
+            Assert.IsTrue(Children.Length == 0);
         }
 
         public static int DepthMax(int depth) =>
@@ -187,11 +189,11 @@ namespace LanguageExtTests
 
             shutdownAll();
 
-            var actor = fun((Action<Unit, string>)((Unit s, string msg) =>
+            var actor = fun((Unit s, string msg) =>
             {
                 Interlocked.Increment(ref count);
-                iter((IEnumerable<ProcessId>)Process.Children, child => tell(child, msg));
-            }));
+                iter(Children.Values, child => tell(child, msg));
+            });
 
             setup = fun(() =>
             {
@@ -225,6 +227,8 @@ namespace LanguageExtTests
         [Test]
         public void ScheduledMsgTest()
         {
+            shutdownAll();
+
             string v = "";
 
             var p = spawn<string>("test-sch", x => v = x);
@@ -236,6 +240,11 @@ namespace LanguageExtTests
             while (DateTime.Now < future)
             {
                 Assert.IsTrue(v == "");
+                Thread.Sleep(10);
+            }
+
+            while (DateTime.Now < future.AddMilliseconds(100))
+            {
                 Thread.Sleep(10);
             }
             Assert.IsTrue(v == "hello");

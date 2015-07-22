@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22310.1
+VisualStudioVersion = 14.0.22823.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Core", "LanguageExt.Core\LanguageExt.Core.csproj", "{C0FA07A0-8B83-4FA5-ACFB-14185D5C4484}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessSample", "Samples\ProcessSample\ProcessSample.csproj", "{9F322287-FF91-4DC8-9467-DF300091042B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.FSharp", "LanguageExt.FSharp\LanguageExt.FSharp.csproj", "{5D8BB155-2E39-4A63-8100-2004CBCF529E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Process.Redis", "LanguageExt.Process.Redis\LanguageExt.Process.Redis.csproj", "{DC05F334-346B-41BC-BEA5-BFBE24E52B5F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{5D8BB155-2E39-4A63-8100-2004CBCF529E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D8BB155-2E39-4A63-8100-2004CBCF529E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D8BB155-2E39-4A63-8100-2004CBCF529E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC05F334-346B-41BC-BEA5-BFBE24E52B5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC05F334-346B-41BC-BEA5-BFBE24E52B5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC05F334-346B-41BC-BEA5-BFBE24E52B5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC05F334-346B-41BC-BEA5-BFBE24E52B5F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

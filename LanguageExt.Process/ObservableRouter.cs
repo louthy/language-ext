@@ -13,16 +13,28 @@ namespace LanguageExt
     /// </summary>
     internal static class ObservableRouter
     {
-        static object storeLock = new object();
+        static object sync = new object();
 
         static ObservableRouter()
         {
             Restart();
         }
 
+        public static void Shutdown()
+        {
+            lock (sync)
+            {
+                if (Store != null)
+                {
+                    List.iter(Store.Values, item => item.OnCompleted());
+                }
+                Store = Map.create<string, Subject<object>>();
+            }
+        }
+
         public static void Restart()
         {
-            Store = Map.create<string, Subject<object>>();
+            Shutdown();
         }
 
         static Map<string, Subject<object>> Store
@@ -39,7 +51,7 @@ namespace LanguageExt
 
         public static Map<string, Subject<object>> AddOrUpdateStore(ProcessId id)
         {
-            lock (storeLock)
+            lock (sync)
             {
                 var path = id.Value;
                 if (Store.ContainsKey(path))
@@ -56,7 +68,7 @@ namespace LanguageExt
 
         public static Map<string, Subject<object>> RemoveFromStore(ProcessId id)
         {
-            lock (storeLock)
+            lock (sync)
             {
                 var path = id.Value;
                 if (Store.ContainsKey(path))

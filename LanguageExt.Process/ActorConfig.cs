@@ -14,6 +14,7 @@ namespace LanguageExt
         public ProcessName DeadLettersProcessName    => "dead-letters";
         public ProcessName NoSenderProcessName       => "no-sender";
         public ProcessName RegisteredProcessName     => "registered";
+        public ProcessName Errors                    => "errors";
 
         public static ActorConfig Default =>
             new ActorConfig();

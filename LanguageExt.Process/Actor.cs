@@ -12,42 +12,53 @@ using static LanguageExt.List;
 
 namespace LanguageExt
 {
-    internal class Actor<S, T> : IProcess, IProcessInternal
+    internal class Actor<S, T> : IProcess, IProcessInternal<T>
     {
-        FSharpMailboxProcessor<UserControlMessage> userMailbox;
-        FSharpMailboxProcessor<SystemMessage> systemMailbox;
-        Action userMailboxQuit;
-        Action systemMailboxQuit;
         Func<S, T, S> actorFn;
         Func<S> setupFn;
-        ConcurrentDictionary<string, IProcess> children = new ConcurrentDictionary<string, IProcess>();
-        object actorLock = new object();
+        S state;
+        Map<string, ProcessId> children = Map.create<string, ProcessId>();
+        Option<ICluster> cluster;
+        object sync = new object();
 
-        public Actor(ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<S> setup)
+        public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<S> setup)
         {
             if (setup == null) throw new ArgumentNullException(nameof(setup));
             if (actor == null) throw new ArgumentNullException(nameof(actor));
 
+            this.cluster = cluster;
             actorFn = actor;
             setupFn = setup;
             Parent = parent;
             Name = name;
-            Id = new ProcessId(parent.Value + ProcessId.Sep + name);
-
-            StartMailboxes();
-
-            ActorContext.AddToStore(Id, this);
+            Id = parent.MakeChildId(name);
         }
 
-        public Actor(ProcessId parent, ProcessName name, Func<T, Unit> actor)
+        public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<T, Unit> actor)
             :
-            this(parent,name,(s,t) => { actor(t); return default(S); }, () => default(S) )
+            this(cluster, parent, name,(s,t) => { actor(t); return default(S); }, () => default(S) )
             {}
 
-        public Actor(ProcessId parent, ProcessName name, Action<T> actor)
+        public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Action<T> actor)
             :
-            this(parent, name, (s, t) => { actor(t); return default(S); }, () => default(S))
+            this(cluster, parent, name, (s, t) => { actor(t); return default(S); }, () => default(S))
             {}
+
+        /// <summary>
+        /// Start up - creates the initial state
+        /// </summary>
+        /// <returns></returns>
+        public Unit Startup()
+        {
+            ActorContext.TellSystem(Parent, SystemMessage.LinkChild(Id));
+
+            ActorContext.WithContext(
+                Id,
+                ProcessId.NoSender,
+                () => state = setupFn()
+            );
+            return unit;
+        }
 
         /// <summary>
         /// Process path
@@ -67,210 +78,94 @@ namespace LanguageExt
         /// <summary>
         /// Child processes
         /// </summary>
-        public IEnumerable<ProcessId> Children =>
-            from c in children
-            select c.Value.Id;
-
-        /// <summary>
-        /// Creates a user and system mailbox
-        /// </summary>
-        private void StartMailboxes()
-        {
-            map(FSHelper.StartUserMailbox(this, Parent, actorFn, setupFn), (q, mb) =>
-            {
-                userMailboxQuit = q;
-                userMailbox = mb;
-            });
-
-            map(FSHelper.StartSystemMailbox(this, Parent), (q, mb) =>
-            {
-                systemMailboxQuit = q;
-                systemMailbox = mb;
-            });
-        }
+        public Map<string, ProcessId> Children =>
+            children;
 
         /// <summary>
         /// Send the same message to all children
         /// </summary>
-        private Unit SendMessageToChildren(object msg) =>
-            iter(children, child => Process.tell(child.Value.Id, msg));
-
-        /// <summary>
-        /// An exception has happened in a child process.
-        /// Restart it (and all its children) with fresh state unless it's a 
-        /// kill message.
-        /// 
-        /// TODO: Add extra strategy behaviours here
-        /// TODO: Need better strategy for lost messages on children, at the
-        ///       moment we just shut them down.
-        /// 
-        /// </summary>
-        /// <param name="msg"></param>
-        /// <returns></returns>
-        public Unit HandleFaultedChild(SystemChildIsFaultedMessage msg)
-        {
-            if (exceptionIs<SystemKillActorException>(msg.Exception))
-            {
-                Process.tell(msg.ChildId, SystemMessage.Shutdown);
-                PurgeChild(msg.ChildId);
-            }
-            else
-            {
-                Process.tell(msg.ChildId, SystemMessage.Restart);
-            }
-            return unit;
-        }
-
-        /// <summary>
-        /// Remove the child from our child list, and from the ActorContext.Store
-        /// </summary>
-        /// <param name="childName"></param>
-        private Unit PurgeChild(ProcessId child)
-        {
-            IProcess temp;
-            children.TryRemove(child.Name.Value, out temp);
-            return ActorContext.RemoveFromStore(child);
-        }
+        private Unit TellChildren(object msg) =>
+            iter(children.Values, child => Process.tell(child.Value, msg));
 
         /// <summary>
         /// Clears the state (keeps the mailbox items)
         /// </summary>
         public Unit Restart()
         {
-            lock(actorLock)
-            {
-                // Take a copy of the messages from the dead mailbox
-                var msgs = new Queue<UserControlMessage>(userMailbox.CurrentQueueLength);
-                while (userMailbox.CurrentQueueLength > 0)
-                {
-                    UserControlMessage userMessage = FSharpAsync.StartAsTask(
-                                                        userMailbox.Receive(FSharpOption<int>.None),
-                                                        FSharpOption<TaskCreationOptions>.None,
-                                                        FSharpOption<CancellationToken>.None
-                                                        ).Result;
-
-                    if (userMessage != null)
-                    {
-                        msgs.Enqueue(userMessage);
-                    }
-                }
-
-                // We shutdown the children, because we're about to restart which will
-                // recreate them.
-                Shutdown(false);
-
-                // Start new mailboxes
-                StartMailboxes();
-
-                // Copy the old messages 
-                while (msgs.Count > 0)
-                {
-                    userMailbox.Post(msgs.Dequeue());
-                }
-
-                return unit;
-            }
+            state = setupFn();
+            TellChildren(SystemMessage.Restart);
+            return unit;
         }
 
         /// <summary>
-        /// Disowns a child processes
+        /// Disowns a child process
         /// </summary>
-        /// <param name="pid"></param>
-        /// <returns></returns>
-        public Unit UnlinkChild(ProcessId pid) =>
-            PurgeChild(pid);
+        public Unit UnlinkChild(ProcessId pid)
+        {
+            children = children.Remove(pid.Name.Value);
+            return unit;
+        }
+
+        /// <summary>
+        /// Gains a child process
+        /// </summary>
+        public Unit LinkChild(ProcessId pid)
+        {
+            children = children.AddOrUpdate(pid.Name.Value, pid);
+            return unit;
+        }
 
         /// <summary>
         /// Shutdown everything from this node down
         /// </summary>
-        /// <param name="unlinkFromParent">Flag if we should tell the parent we're leaving</param>
-        public Unit Shutdown(bool unlinkFromParent = true)
+        public Unit Shutdown()
         {
-            lock (actorLock)
+            TellChildren(SystemMessage.Shutdown);
+
+            if (Parent.Value != "")
             {
-                foreach (var child in children)
-                {
-                    child.Value.Shutdown();
-                    PurgeChild(child.Value.Id);
-                }
-                children.Clear();
-
-                if (userMailbox != null)
-                {
-                    userMailboxQuit();
-                    userMailbox.Post(null);
-                }
-                if (systemMailbox != null)
-                {
-                    systemMailboxQuit();
-                    systemMailbox.Post(null);
-                }
-
-                if (unlinkFromParent && Parent.Value != "")
-                {
-                    Process.tell(Parent, SystemMessage.UnLinkChild(Id));
-                }
+                Process.tell(Parent, SystemMessage.UnLinkChild(Id));
             }
+            Process.tell(ActorContext.Root, RootMessage.RemoveFromStore(Id));
             return unit;
         }
 
         /// <summary>
-        /// Get a child process by name
+        /// Process an inbox message
         /// </summary>
-        public Option<IProcess> GetChildProcess(ProcessName name) =>
-            children.TryGetValue(name.Value);
-
-        /// <summary>
-        /// Add a child process
-        /// </summary>
-        public IProcess AddChildProcess(Some<IProcess> process) =>
-            children.AddOrUpdate(process.Value.Name.Value, process.Value,
-                (n,p)=>
-                {
-                    p.Shutdown();
-                    return process.Value;
-                } );
-
-        public Unit Tell(object message, ProcessId sender)
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public Unit ProcessMessage(T message)
         {
-            if (message == null) throw new ArgumentNullException(nameof(message));
-
-            if (!typeof(T).IsAssignableFrom(message.GetType()))
+            try
             {
+                state = actorFn(state, message);
+            }
+            catch (SystemKillActorException)
+            {
+                Shutdown();
+            }
+            catch (Exception e)
+            {
+                /// TODO: Add extra strategy behaviours here
+                Process.tell(ActorContext.Errors, e);
                 Process.tell(ActorContext.DeadLetters, message);
-                return unit;
+                Restart();
             }
-
-            lock (actorLock)
-            {
-                sender = sender.IsValid
-                    ? sender
-                    : ActorContext.Self == null
-                        ? ActorContext.NoSender
-                        : ActorContext.Self.Id;
-
-                userMailbox.Post(new UserMessage( message, sender, sender ));
-            }
-            return unit;
-        }
-
-        public Unit TellUserControl(UserControlMessage message)
-        {
-            if (message == null) throw new ArgumentNullException(nameof(message));
-            userMailbox.Post(message);
-            return unit;
-        }
-
-        public Unit TellSystem(SystemMessage message)
-        {
-            if (message == null) throw new ArgumentNullException(nameof(message));
-            systemMailbox.Post(message);
             return unit;
         }
 
         public void Dispose()
         {
-            Shutdown();
+            if (state is IDisposable)
+            {
+                var s = state as IDisposable;
+                if (s != null)
+                {
+                    s.Dispose();
+                    state = default(S);
+                }
+            }
         }
     }
 }

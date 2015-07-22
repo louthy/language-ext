@@ -14,27 +14,27 @@ namespace LanguageExt
         /// <summary>
         /// Registry of named processes for discovery
         /// </summary>
-        public static IEnumerable<ProcessId> Registered =>
-            ActorContext.Registered.Children;
+        public static Map<string, ProcessId> Registered =>
+            ActorContext.GetProcess(ActorContext.Registered).Children;
 
         /// <summary>
         /// Current process ID
         /// </summary>
         public static ProcessId Self =>
-            ActorContext.Self.Id;
+            ActorContext.Self;
 
         /// <summary>
         /// Parent process ID
         /// </summary>
         public static ProcessId Parent =>
-            ActorContext.Self.Parent;
+            ActorContext.GetProcess(ActorContext.Self).Parent;
 
         /// <summary>
         /// User process ID
         /// The User process is the default entry process
         /// </summary>
         public static ProcessId User =>
-            ActorContext.User.Id;
+            ActorContext.User;
 
         /// <summary>
         /// Sender process ID
@@ -47,8 +47,8 @@ namespace LanguageExt
         /// <summary>
         /// Get the child processes of the running process
         /// </summary>
-        public static IEnumerable<ProcessId> Children =>
-            children(ActorContext.Self.Id);
+        public static Map<string, ProcessId> Children =>
+            children(ActorContext.Self);
 
         /// <summary>
         /// Create a new child-process by name
@@ -68,11 +68,7 @@ namespace LanguageExt
         /// <param name="messageHandler">Function that is the process</param>
         /// <returns>A ProcessId that can be passed around</returns>
         public static ProcessId spawn<S, T>(ProcessName name, Func<S> setup, Func<S, T, S> messageHandler) =>
-            map((IProcessInternal)ActorContext.Self,
-                self => match(self.GetChildProcess(name),
-                            Some: _ => raise<IProcess>(new NamedProcessAlreadyExistsException()),
-                            None: () => self.AddChildProcess(new Actor<S, T>(ActorContext.Self.Id, name, messageHandler, setup))).Id
-            );
+            ActorContext.ActorCreate<S, T>(ActorContext.Self, name, messageHandler, setup);
 
         /// <summary>
         /// Find a registered process by name
@@ -80,9 +76,10 @@ namespace LanguageExt
         /// <param name="name">Process name</param>
         /// <returns>ProcessId or ProcessId.None</returns>
         public static ProcessId find(string name) =>
-            Registered.Where(p => p.Name.Value == name)
-                      .DefaultIfEmpty(ProcessId.None)
-                      .FirstOrDefault();
+            Registered.Find(
+                name,
+                Some: x  => x,
+                None: () => ProcessId.None);
 
         /// <summary>
         /// Register self as a named process
@@ -143,14 +140,12 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pid">Process ID</param>
         /// <param name="message">Message to send</param>
-        public static Unit tell<T>(ProcessId pid, T message, ProcessId sender = default(ProcessId) ) =>
-            map((IProcessInternal)ActorContext.GetProcess(pid),
-                pi => 
-                    message is SystemMessage
-                        ? pi.TellSystem(message as SystemMessage)
-                        : message is UserControlMessage
-                            ? pi.TellUserControl(message as UserControlMessage)
-                            : pi.Tell(message, sender) );
+        public static Unit tell<T>(ProcessId pid, T message, ProcessId sender = default(ProcessId)) =>
+            message is SystemMessage
+                ? ActorContext.TellSystem(pid, message as SystemMessage)
+                : message is UserControlMessage
+                    ? ActorContext.TellUserControl(pid, message as UserControlMessage)
+                    : ActorContext.Tell(pid, message, sender);
 
         /// <summary>
         /// Send a message at a specified time in the futre
@@ -191,19 +186,19 @@ namespace LanguageExt
         /// </summary>
         /// <param name="message">Message to publish</param>
         public static Unit pub<T>(T message) =>
-            ObservableRouter.Publish(ActorContext.Self.Id, message);
+            ObservableRouter.Publish(ActorContext.Self, message);
 
         /// <summary>
         /// Get the child processes of the process provided
         /// </summary>
-        public static IEnumerable<ProcessId> children(ProcessId pid) =>
+        public static Map<string, ProcessId> children(ProcessId pid) =>
             ActorContext.GetProcess(pid).Children;
 
         /// <summary>
         /// Shutdown all processes and restart
         /// </summary>
         public static Unit shutdownAll() =>
-            ActorContext.Restart();
+            tell(ActorContext.Root, RootMessage.ShutdownAll);
 
         /// <summary>
         /// Subscribe to the process's observable stream.
@@ -252,6 +247,5 @@ namespace LanguageExt
         /// </summary>
         public static IObservable<T> observe<T>(ProcessId pid) =>
             ObservableRouter.Observe<T>(pid);
-
     }
 }

@@ -8,11 +8,11 @@ namespace LanguageExt
 {
     public class NullProcess : IProcess
     {
-        public IEnumerable<ProcessId> Children
+        public Map<string, ProcessId> Children
         {
             get
             {
-                return new ProcessId[0];
+                return Map.empty<string,ProcessId>();
             }
         }
 
@@ -49,7 +49,12 @@ namespace LanguageExt
             return Unit.Default;
         }
 
-        public Unit Shutdown(bool unlinkFromParent = true)
+        public Unit Startup()
+        {
+            return Unit.Default;
+        }
+
+        public Unit Shutdown()
         {
             return Unit.Default;
         }
