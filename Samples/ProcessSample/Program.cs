@@ -9,8 +9,8 @@ namespace ProcessSample
     {
         static void Main(string[] args)
         {
-            TestBed.RunTests();
-            return;
+            //TestBed.RunTests();
+            //return;
 
             var ping = ProcessId.None;
             var pong = ProcessId.None;
@@ -22,14 +22,14 @@ namespace ProcessSample
             ping = spawn<string>("ping", msg =>
             {
                 tell(logger, msg);
-                tell(pong, "ping", TimeSpan.FromSeconds(1));
+                tell(pong, "ping", TimeSpan.FromMilliseconds(100));
             });
 
             // Pong process
             pong = spawn<string>("pong", msg =>
             {
                 tell(logger, msg);
-                tell(ping, "pong", TimeSpan.FromSeconds(1));
+                tell(ping, "pong", TimeSpan.FromMilliseconds(100));
             });
 
             // Trigger

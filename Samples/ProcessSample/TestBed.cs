@@ -19,16 +19,12 @@ namespace ProcessSample
     {
         public static void RunTests()
         {
-            MassiveSpawnAndKillHierarchy2();
-            MassiveSpawnAndKillHierarchy();
-
             SpawnProcess();
             SpawnAndKillProcess();
             SpawnAndKillHierarchy();
             SpawnErrorSurviveProcess();
-
-            return;
-
+            MassiveSpawnAndKillHierarchy2();
+            MassiveSpawnAndKillHierarchy();
             ReaderAskTest();
             LiftTest();
             BindingTest();
