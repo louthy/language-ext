@@ -19,6 +19,7 @@ namespace LanguageExt
     ///     process and no other.  The messages in the inbox are passed to the process
     ///     one at a time.  When the process has finished processing a message it returns
     ///     its current state.  This state is then passed back in with the next message.
+    /// 
     ///     You can think of it as a fold over a stream of messages.
     /// 
     ///     A process must finish dealing with a message before another will be given.  
@@ -26,11 +27,13 @@ namespace LanguageExt
     ///     will build up whilst they are processing.
     /// 
     ///     Because of this, processes are also in a 'supervision hierarchy'.  Essentially
-    ///     each process can spawn child-processes.  Although not currently implemented in 
-    ///     Language Ext processes (it will be soon), it is usually possible to have 
-    ///     strategies for what happens when a child dies.  Currently the process just
-    ///     restarts with its original state.  The inbox always survives a crash and the
-    ///     failed message is sent to a 'dead letters' process.  You can monitor this. 
+    ///     each process can spawn child-processes and the parent process 'owns' the child.  
+    /// 
+    ///     Although not currently implemented in Language Ext processes (it will be 
+    ///     soon), it is usually possible to have strategies for what happens when a child 
+    ///     dies.  Currently the process just restarts with its original state.  The inbox 
+    ///     always survives a crash and the failed message is sent to a 'dead letters' 
+    ///     process.  You can monitor this. 
     /// 
     ///     So post crash the process restarts and continues processing the next message.
     /// 
