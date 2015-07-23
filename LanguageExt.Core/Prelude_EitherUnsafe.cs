@@ -120,14 +120,5 @@ namespace LanguageExt
 
         public static IQueryable<R> toQuery<L, R>(EitherUnsafe<L, R> either) =>
             either.AsEnumerable().AsQueryable();
-
-        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifLeftUnsafe' instead")]
-        public static R failureUnsafe<L, R>(EitherUnsafe<L, R> either, Func<R> None) =>
-            either.FailureUnsafe(None);
-
-        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifLeftUnsafe' instead")]
-        public static R failureUnsafe<L, R>(EitherUnsafe<L, R> either, R noneValue) =>
-            either.FailureUnsafe(noneValue);
-
     }
 }

@@ -10,6 +10,8 @@ namespace LanguageExt
     public struct ProcessId
     {
         internal readonly ProcessName[] Parts;
+        public readonly string Value;
+        public readonly ProcessName Name;
 
         public ProcessId(string path)
         {
@@ -17,7 +19,7 @@ namespace LanguageExt
             {
                 throw new InvalidProcessIdException();
             }
-            if (path[0] != ProcessId.Sep)
+            if (path[0] != Sep)
             {
                 throw new InvalidProcessIdException();
             }
@@ -30,7 +32,7 @@ namespace LanguageExt
                 try
                 {
                     Parts = path.Substring(1)
-                                .Split(ProcessId.Sep)
+                                .Split(Sep)
                                 .Select(p => new ProcessName(p))
                                 .ToArray();
                 }
@@ -39,28 +41,33 @@ namespace LanguageExt
                     throw new InvalidProcessIdException();
                 }
             }
+
+            Value = Parts == null
+                ? ""
+                : Parts.Length == 0
+                    ? Sep.ToString()
+                    : Sep + String.Join(Sep.ToString(), Parts);
+
+            if (path != "/")
+            {
+                Name = Parts == null
+                    ? ""
+                    : Parts.Length == 0
+                        ? Sep.ToString()
+                        : Parts.Last();
+            }
+            else
+            {
+                Name = "$";
+            }
         }
 
         public ProcessId MakeChildId(ProcessName name) =>
             Parts == null
                 ? failwith<ProcessId>("ProcessId is None")
                 : Parts.Length == 0
-                    ? new ProcessId("" + ProcessId.Sep + name)
-                    : new ProcessId(Value + ProcessId.Sep + name);
-
-        public string Value =>
-            Parts == null
-                ? ""
-                : Parts.Length == 0
-                    ? ProcessId.Sep.ToString()
-                    : ProcessId.Sep + String.Join(ProcessId.Sep.ToString(), Parts);
-
-        public ProcessName Name =>
-            Parts == null
-                ? ""
-                : Parts.Length == 0
-                    ? ProcessId.Sep.ToString()
-                    : Parts.Last();
+                    ? new ProcessId("" + Sep + name)
+                    : new ProcessId(Value + Sep + name);
 
         public static implicit operator ProcessId(string value) =>
             new ProcessId(value);
@@ -71,14 +78,15 @@ namespace LanguageExt
         public override int GetHashCode() =>
             Value.GetHashCode();
 
-        public bool IsValid => Parts != null;
+        public bool IsValid => 
+            Parts != null;
 
-        public static ProcessId NoSender => 
-            ActorContext.NoSender;
-
-        public static ProcessId None =>
+        public readonly static ProcessId NoSender =
             new ProcessId();
 
-        public static char Sep => '/';
+        public readonly static ProcessId None =
+            new ProcessId();
+
+        public readonly static char Sep = '/';
     }
 }

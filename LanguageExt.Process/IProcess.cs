@@ -29,6 +29,11 @@ namespace LanguageExt
         Map<string, ProcessId> Children { get; }
 
         /// <summary>
+        /// Get state
+        /// </summary>
+        object GetState();
+
+        /// <summary>
         /// Clears the state (keeps the mailbox items)
         /// </summary>
         Unit Restart();
@@ -42,5 +47,37 @@ namespace LanguageExt
         /// Shutdown
         /// </summary>
         Unit Shutdown();
+
+        /// <summary>
+        /// Link child
+        /// </summary>
+        /// <param name="pid">Child to link</param>
+        Unit LinkChild(ProcessId pid);
+
+        /// <summary>
+        /// Unlink child
+        /// </summary>
+        /// <param name="pid">Child to unlink</param>
+        Unit UnlinkChild(ProcessId pid);
+
+        /// <summary>
+        /// Publish to the PublishStream
+        /// </summary>
+        Unit Publish(object message);
+
+        /// <summary>
+        /// Publish stream - for calls to Process.pub
+        /// </summary>
+        IObservable<object> PublishStream { get; }
+
+        /// <summary>
+        /// State stream - sent after each message loop
+        /// </summary>
+        IObservable<object> StateStream { get; }
+    }
+
+    internal interface IProcess<T>
+    {
+        Unit ProcessMessage(T message);
     }
 }

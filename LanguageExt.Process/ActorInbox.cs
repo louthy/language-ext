@@ -65,36 +65,52 @@ namespace LanguageExt
 
         public Unit Tell(object message, ProcessId sender )
         {
-            if (message == null) throw new ArgumentNullException(nameof(message));
-
-            if (!typeof(T).IsAssignableFrom(message.GetType()))
+            if (userInbox != null)
             {
-                Process.tell(ActorContext.DeadLetters, message);
-                return unit;
+                if (message == null) throw new ArgumentNullException(nameof(message));
+
+                sender = sender.IsValid
+                    ? sender
+                    : ActorContext.Self.IsValid
+                        ? ActorContext.Self
+                        : ProcessId.NoSender;
+
+
+                if (message is ActorRequest)
+                {
+                    var req = (ActorRequest)message;
+                    userInbox.Post(req);
+                }
+                else
+                {
+                    if (!typeof(T).IsAssignableFrom(message.GetType()))
+                    {
+                        Process.tell(ActorContext.DeadLetters, message);
+                        return unit;
+                    }
+                    userInbox.Post(new UserMessage(message, sender, sender));
+                }
             }
-
-            sender = sender.IsValid
-                ? sender
-                : ActorContext.Self.IsValid
-                    ? ActorContext.Self
-                    : ActorContext.NoSender;
-
-            userInbox.Post(new UserMessage(message, sender, sender));
-
             return unit;
         }
 
         public Unit TellUserControl(UserControlMessage message)
         {
-            if (message == null) throw new ArgumentNullException(nameof(message));
-            userInbox.Post(message);
+            if (userInbox != null)
+            {
+                if (message == null) throw new ArgumentNullException(nameof(message));
+                userInbox.Post(message);
+            }
             return unit;
         }
 
         public Unit TellSystem(SystemMessage message)
         {
-            if (message == null) throw new ArgumentNullException(nameof(message));
-            sysInbox.Post(message);
+            if (sysInbox != null)
+            {
+                if (message == null) throw new ArgumentNullException(nameof(message));
+                sysInbox.Post(message);
+            }
             return unit;
         }
 
@@ -123,15 +139,10 @@ namespace LanguageExt
 
                             if (msg != null && !cancelToken.IsCancellationRequested)
                             {
-                                ActorContext.WithContext(actor.Id, ProcessId.NoSender, () =>
+                                ActorContext.WithContext(actor.Id, actor.Parent, actor.Children, ProcessId.NoSender, () =>
                                 {
                                     switch (msg.Tag)
                                     {
-                                        case SystemMessageTag.Shutdown:
-                                            actor.Shutdown();
-                                            tokenSource?.Cancel();
-                                            break;
-
                                         case SystemMessageTag.ChildIsFaulted:
                                             // TODO: Add extra strategy behaviours here
                                             var scifm = (SystemChildIsFaultedMessage)msg;
@@ -145,11 +156,12 @@ namespace LanguageExt
 
                                         case SystemMessageTag.LinkChild:
                                             var slcm = (SystemLinkChildMessage)msg;
-                                            ((IProcessInternal)actor).LinkChild(slcm.ChildId);
+                                            actor.LinkChild(slcm.ChildId);
                                             break;
 
                                         case SystemMessageTag.UnLinkChild:
-                                            ((IProcessInternal)actor).UnlinkChild(((SystemUnLinkChildMessage)msg).ChildId);
+                                            var ulcm = (SystemUnLinkChildMessage)msg;
+                                            actor.UnlinkChild(ulcm.ChildId);
                                             break;
                                     }
                                 });
@@ -176,16 +188,25 @@ namespace LanguageExt
                             {
                                 if (msg.MessageType == Message.Type.User)
                                 {
-                                    var umsg = (UserMessage)msg;
-                                    ActorContext.WithContext(actor.Id, umsg.Sender, () => actor.ProcessMessage((T)((UserMessage)msg).Content));
-
+                                    if (msg.Tag == UserControlMessageTag.UserAsk)
+                                    {
+                                        var rmsg = (ActorRequest)msg;
+                                        ActorContext.CurrentRequestId = rmsg.RequestId;
+                                        ActorContext.ReplyToId = rmsg.ReplyTo;
+                                        ActorContext.WithContext(actor.Id, actor.Parent, actor.Children, rmsg.ReplyTo, () => actor.ProcessAsk(rmsg));
+                                    }
+                                    else
+                                    {
+                                        var umsg = (UserMessage)msg;
+                                        ActorContext.WithContext(actor.Id, actor.Parent, actor.Children, umsg.Sender, () => actor.ProcessMessage((T)umsg.Content));
+                                    }
                                 }
                                 else if (msg.MessageType == Message.Type.UserControl)
                                 {
                                     switch (msg.Tag)
                                     {
                                         case UserControlMessageTag.Shutdown:
-                                            ActorContext.WithContext(actor.Id, ProcessId.NoSender, () => actor.Shutdown() );
+                                            Process.kill(actor.Id);
                                             break;
                                     }
                                 }
@@ -196,9 +217,7 @@ namespace LanguageExt
                     })
             );
 
-            var mailbox = FSharpMailboxProcessor<UserControlMessage>.Start(body, FSharpOption<CancellationToken>.None);
-            mailbox.Error += (object sender, Exception args) => Process.tell(supervisor, SystemMessage.ChildIsFaulted(actor.Id, args));
-            return mailbox;
+            return FSharpMailboxProcessor<UserControlMessage>.Start(body, FSharpOption<CancellationToken>.None);
         }
 
         public void Dispose()

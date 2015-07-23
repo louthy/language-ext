@@ -8,20 +8,24 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using static LanguageExt.Prelude;
+using static LanguageExt.Process;
 using static LanguageExt.List;
+using System.Reactive.Subjects;
 
 namespace LanguageExt
 {
-    internal class Actor<S, T> : IProcess, IProcessInternal<T>
+    internal class Actor<S, T> : IProcess, IProcess<T>
     {
         Func<S, T, S> actorFn;
-        Func<S> setupFn;
+        Func<IProcess, S> setupFn;
         S state;
         Map<string, ProcessId> children = Map.create<string, ProcessId>();
         Option<ICluster> cluster;
         object sync = new object();
+        Subject<object> publishSubject = new Subject<object>();
+        Subject<object> stateSubject = new Subject<object>();
 
-        public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<S> setup)
+        internal Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<IProcess, S> setup)
         {
             if (setup == null) throw new ArgumentNullException(nameof(setup));
             if (actor == null) throw new ArgumentNullException(nameof(actor));
@@ -33,6 +37,11 @@ namespace LanguageExt
             Name = name;
             Id = parent.MakeChildId(name);
         }
+
+        public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<S> setup)
+            :
+            this(cluster, parent, name, actor, _ => setup())
+            {}
 
         public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<T, Unit> actor)
             :
@@ -50,14 +59,35 @@ namespace LanguageExt
         /// <returns></returns>
         public Unit Startup()
         {
-            ActorContext.TellSystem(Parent, SystemMessage.LinkChild(Id));
-
             ActorContext.WithContext(
                 Id,
+                Parent,
+                Children,
                 ProcessId.NoSender,
-                () => state = setupFn()
+                () => state = setupFn(this)
             );
+            stateSubject.OnNext(state);
             return unit;
+        }
+
+        public IObservable<object> PublishStream => publishSubject;
+        public IObservable<object> StateStream => stateSubject;
+
+        /// <summary>
+        /// Publish to the PublishStream
+        /// </summary>
+        public Unit Publish(object message)
+        {
+            publishSubject.OnNext(message);
+            return unit;
+        }
+
+        /// <summary>
+        /// Get state
+        /// </summary>
+        public object GetState()
+        {
+            return state;
         }
 
         /// <summary>
@@ -82,18 +112,12 @@ namespace LanguageExt
             children;
 
         /// <summary>
-        /// Send the same message to all children
-        /// </summary>
-        private Unit TellChildren(object msg) =>
-            iter(children.Values, child => Process.tell(child.Value, msg));
-
-        /// <summary>
         /// Clears the state (keeps the mailbox items)
         /// </summary>
         public Unit Restart()
         {
-            state = setupFn();
-            TellChildren(SystemMessage.Restart);
+            state = setupFn(this);
+            tellChildren(SystemMessage.Restart);
             return unit;
         }
 
@@ -120,13 +144,34 @@ namespace LanguageExt
         /// </summary>
         public Unit Shutdown()
         {
-            TellChildren(SystemMessage.Shutdown);
+            publishSubject.OnCompleted();
+            stateSubject.OnCompleted();
+            return unit;
+        }
 
-            if (Parent.Value != "")
+        public Unit ProcessAsk(ActorRequest request)
+        {
+            try
             {
-                Process.tell(Parent, SystemMessage.UnLinkChild(Id));
+                if (request.Message is T)
+                {
+                    ActorContext.CurrentRequestId = request.RequestId;
+                    T msg = (T)request.Message;
+                    state = actorFn(state, msg);
+                    stateSubject.OnNext(state);
+                }
             }
-            Process.tell(ActorContext.Root, RootMessage.RemoveFromStore(Id));
+            catch (SystemKillActorException)
+            {
+                kill(Id);
+            }
+            catch (Exception e)
+            {
+                /// TODO: Add extra strategy behaviours here
+                tell(ActorContext.Errors, e);
+                tell(ActorContext.DeadLetters, request.Message);
+                Restart();
+            }
             return unit;
         }
 
@@ -140,17 +185,18 @@ namespace LanguageExt
             try
             {
                 state = actorFn(state, message);
+                stateSubject.OnNext(state);
             }
             catch (SystemKillActorException)
             {
-                Shutdown();
+                kill(Id);
             }
             catch (Exception e)
             {
                 /// TODO: Add extra strategy behaviours here
-                Process.tell(ActorContext.Errors, e);
-                Process.tell(ActorContext.DeadLetters, message);
                 Restart();
+                tell(ActorContext.Errors, e);
+                tell(ActorContext.DeadLetters, message);
             }
             return unit;
         }

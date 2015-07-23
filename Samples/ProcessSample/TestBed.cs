@@ -5,6 +5,7 @@ using System.Threading;
 using LanguageExt;
 using LanguageExt.Trans;
 using LanguageExt.Trans.Linq;
+using System.Reactive.Linq;
 using static LanguageExt.List;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
@@ -19,12 +20,25 @@ namespace ProcessSample
     {
         public static void RunTests()
         {
-            SpawnProcess();
-            SpawnAndKillProcess();
-            SpawnAndKillHierarchy();
-            SpawnErrorSurviveProcess();
-            MassiveSpawnAndKillHierarchy2();
+            AskReply();
+            PubSubTest();
             MassiveSpawnAndKillHierarchy();
+
+            SpawnErrorSurviveProcess();
+            SpawnErrorSurviveProcess();
+            SpawnErrorSurviveProcess();
+            SpawnProcess();
+            SpawnProcess();
+            SpawnProcess();
+            SpawnAndKillHierarchy();
+            SpawnAndKillHierarchy();
+            SpawnAndKillHierarchy();
+            SpawnAndKillProcess();
+            SpawnAndKillProcess();
+            SpawnAndKillProcess();
+
+            MassiveSpawnAndKillHierarchy2();
+
             ReaderAskTest();
             LiftTest();
             BindingTest();
@@ -37,23 +51,67 @@ namespace ProcessSample
             UnsafeOptionTest();
         }
 
+        public static void AskReply()
+        {
+            var helloServer = spawn<string>("hello-server", msg =>
+            {
+                reply("Hello, " + msg);
+            }); 
+
+            var response = ask<string>(helloServer, "Paul").Wait();
+
+            Debug.Assert(response == "Hello, Paul");
+        }
+
+        public static void PubSubTest()
+        {
+            shutdownAll().Wait();
+
+            // Spawn a process
+            var pid = spawn<string>("pubsub", msg =>
+            {
+                // Publish anything we're sent
+                publish(msg);
+            });
+
+            string value = null;
+
+            // Subscribe to the 'string' publications
+            var sub = subscribe(pid, (string v) => value = v);
+
+            // Send string message to the process
+            tell(pid, "hello");
+
+            Thread.Sleep(500);
+
+            Debug.Assert(value == "hello");
+        }
+
         private static void SpawnProcess()
         {
+            shutdownAll().Wait();
+
             Console.WriteLine("*** ABOUT TO SHUTDOWN ***");
 
-            shutdownAll();
+            shutdownAll().Wait();
 
             Console.WriteLine("*** SHUTDOWN COMPLETE ***");
 
-            string value = null;
-            var pid = spawn<string>("SpawnProcess", msg => value = msg);
+            var pid = spawn<string, string>("SpawnProcess", () => "", (_, msg) => msg);
 
             tell(pid, "hello, world");
 
-            Thread.Sleep(200);
+            Thread.Sleep(100);
+
+            string value = state<string>(pid);
+
+            if (value != "hello, world") Console.WriteLine(" Value actually is: " + value);
+
             Debug.Assert(value == "hello, world");
 
             kill(pid);
+
+            Debug.Assert(children(User).Count == 0);
 
             Console.WriteLine("*** END OF TEST ***");
         }
@@ -260,91 +318,69 @@ namespace ProcessSample
 
         public static void SpawnErrorSurviveProcess()
         {
-            shutdownAll();
+            shutdownAll().Wait();
 
-            int value = 0;
-            int count = 0;
-
-            var pid = spawn<string>("SpawnAnErrorProcess", _ =>
+            var pid = spawn<int, string>("SpawnAnErrorProcess", () => 0, (count,_) =>
             {
-                if (count++ == 0)
-                    throw new Exception("fail");
-                else
-                    value = count;
+                count++;
+                if (count == 3) throw new Exception("fail");
+                return count;
             });
 
             tell(pid, "msg");
             tell(pid, "msg");
+
+            Thread.Sleep(20);
+
+            int value = state<int>(pid);
+
+            Debug.Assert(value == 2);
+
+            Thread.Sleep(20);
+
             tell(pid, "msg");
 
-            Thread.Sleep(400);
+            Thread.Sleep(100);
 
-            while (Console.Read() != 13)
-            {
-
-            }
-
-            Debug.Assert(value == 3);
+            value = state<int>(pid);
+            Debug.Assert(value == 0, "Expected 0, got " + value);
 
             kill(pid);
         }
 
         public static void SpawnAndKillProcess()
         {
-            shutdownAll();
+            shutdownAll().Wait();
 
-            string value = null;
-            ProcessId pid = spawn<string>("SpawnAndKillProcess", msg => value = msg);
+            ProcessId pid = spawn<string, string>("SpawnAndKillProcess", () => "", (_, msg) => msg);
             tell(pid, "1");
-
-            Thread.Sleep(100);
-
             kill(pid);
-
-            Thread.Sleep(100);
-
             tell(pid, "2");
 
-            Thread.Sleep(100);
-
-            Debug.Assert(value == "1");
-
-            var kids = Children;
+            var kids = children(User);
             var len = kids.Length;
             Debug.Assert(len == 0);
         }
 
         public static void SpawnAndKillHierarchy()
         {
-            shutdownAll();
+            shutdownAll().Wait();
 
-            string value = null;
-            ProcessId parentId;
+            int value = 0;
 
-            var pid = spawn<Unit, string>("SpawnAndKillHierarchy.TopLevel",
-                () =>
-                {
-                    parentId = Parent;
-
-                    spawn<string>("SpawnAndKillHierarchy.ChildLevel", msg => value = msg);
-                    return unit;
-                },
-                (state, msg) =>
-                {
-                    value = msg;
-                    return state;
-                }
+            var pid = spawn<int, string>("SpawnAndKillHierarchy.TopLevel",
+                () => { spawn<string>("SpawnAndKillHierarchy.ChildLevel", Console.WriteLine); return 0; },
+                (_, msg) => value = Int32.Parse(msg)
             );
 
             tell(pid, "1");
-            Thread.Sleep(100);
             kill(pid);
-            Thread.Sleep(100);
             tell(pid, "2");
-            Thread.Sleep(100);
 
-            Debug.Assert(value == "1");
-            Debug.Assert(Children.Length == 0);
+            Thread.Sleep(200);
+
+            Debug.Assert(value == 1,"Expected 1, got "+value);
+            Debug.Assert(children(User).Length == 0);
         }
 
         public static int DepthMax(int depth) =>
@@ -355,12 +391,43 @@ namespace ProcessSample
         static void MassiveSpawnAndKillHierarchy2()
         {
             Func<Unit> setup = null;
-            int count = 0;
             int depth = 6;
             int nodes = 5;
             int max = DepthMax(depth);
 
-            shutdownAll();
+            shutdownAll().Wait();
+
+            var actor = fun((Unit s, string msg) =>
+            {
+                iter(Children.Values, child => tell(child, msg));
+            });
+
+            setup = fun(() =>
+            {
+                int level = Int32.Parse(Self.Name.Value.Split('_').First()) + 1;
+                if (level <= depth)
+                {
+                    iter(Range(0, nodes), i => spawn(level + "_" + i, setup, actor));
+                }
+            });
+
+            var zero = spawn("0", setup, actor);
+
+            tell(zero, "Hello");
+            kill(zero);
+
+            Debug.Assert(children(User).Count() == 0);
+        }
+
+        public static void MassiveSpawnAndKillHierarchy()
+        {
+            shutdownAll().Wait();
+
+            Func<Unit> setup = null;
+            int count = 0;
+            int depth = 6;
+            int nodes = 5;
+            int max = DepthMax(depth);
 
             var actor = fun((Unit s, string msg) =>
             {
@@ -390,70 +457,11 @@ namespace ProcessSample
             while (count < max) Thread.Sleep(50);
             count = 0;
 
-            shutdown(zero);
+            kill(zero);
 
             Thread.Sleep(3000);
 
             Debug.Assert(children(User).Count() == 0);
-        }
-
-        public static void MassiveSpawnAndKillHierarchy()
-        {
-            shutdownAll();
-
-            int count = 0;
-            int depth = 6;
-            int nodes = 5;
-            int max = DepthMax(depth);
-
-            Console.WriteLine("Max: " + max);
-
-            Func<Unit> setup = null;
-
-            var actor = fun((Unit s, string msg) =>
-            {
-                Interlocked.Increment(ref count);
-                iter(Children.Values, child => tell(child, msg));
-                Console.WriteLine(Self + " : " + msg);
-            });
-
-            setup = fun(() =>
-            {
-                Interlocked.Increment(ref count);
-
-                Console.WriteLine("spawn: " + Self + "\t"+ count);
-
-                int level = Int32.Parse(Self.Name.Value.Split('_').First()) + 1;
-                if (level <= depth)
-                {
-                    iter(Range(0, nodes), i => spawn(level + "_" + i, setup, actor));
-                }
-            });
-
-            var zero = spawn("0", setup, actor);
-
-            while (count < max) Thread.Sleep(10);
-            count = 0;
-
-            tell(zero, "Hello");
-
-
-            while (count < max) Thread.Sleep(10);
-            count = 0;
-
-            Console.WriteLine();
-
-            ShowChildren(User);
-
-            shutdown(zero);
-
-            Thread.Sleep(3000);
-
-            Console.WriteLine();
-
-            ShowChildren(User);
-
-            //Console.ReadKey();
         }
 
         static void ScheduledMsgTest()

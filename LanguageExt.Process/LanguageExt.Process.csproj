@@ -61,17 +61,25 @@
     <Compile Include="ActorContext.cs" />
     <Compile Include="ActorInbox.cs" />
     <Compile Include="ActorProxy.cs" />
+    <Compile Include="ActorRequestResponse.cs" />
+    <Compile Include="ActorSystem.cs" />
+    <Compile Include="ActorSystemState.cs" />
+    <Compile Include="AskActor.cs" />
     <Compile Include="Cluster.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="NullInbox.cs" />
     <Compile Include="NullProcess.cs" />
-    <Compile Include="ObservableRouter.cs" />
     <Compile Include="IProcess.cs" />
     <Compile Include="IProcessInternal.cs" />
+    <Compile Include="Prelude_Ask.cs" />
+    <Compile Include="Prelude_Logging.cs" />
+    <Compile Include="Prelude_Spawn.cs" />
+    <Compile Include="Prelude_Tell.cs" />
     <Compile Include="ProcessId.cs" />
     <Compile Include="Prelude.cs" />
+    <Compile Include="ProcessLogItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RootMessage.cs" />
+    <Compile Include="ActorSystemMessage.cs" />
     <Compile Include="SystemMessage.cs" />
     <Compile Include="UserControlMessage.cs" />
   </ItemGroup>

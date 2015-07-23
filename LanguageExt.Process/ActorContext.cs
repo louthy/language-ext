@@ -4,221 +4,99 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Immutable;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using static LanguageExt.Prelude;
+using System.Threading;
+using System.Reactive.Concurrency;
 
 namespace LanguageExt
 {
     internal static class ActorContext
     {
-        static ProcessId root;
-        static ProcessId user;
-        static ProcessId system;
-        static ProcessId deadLetters;
-        static ProcessId noSender;
-        static ProcessId registered;
-        static ProcessId errors;
-        static IActorInbox rootInbox;
         static Option<ICluster> cluster;
+        static ProcessId root;
+        static IProcess rootProcess;
+        static IActorInbox rootInbox;
+        static Subject<ActorResponse> rootResponse = new Subject<ActorResponse>();
+
         [ThreadStatic] static ProcessId self;
         [ThreadStatic] static ProcessId sender;
+        [ThreadStatic] static ProcessId parent;
+        [ThreadStatic] static Map<string, ProcessId> children = Map.empty<string,ProcessId>();
+        [ThreadStatic] static long currentRequestId;
+        [ThreadStatic] static ProcessId replyToId;
 
         static object sync = new object();
 
         static ActorContext()
         {
-            Startup();
+            Startup(None);
         }
-        
-        public static Func<object, Unit> RootProcess = (msg) =>
-        {
-            try
-            {
-                if (msg is RootMessage)
-                {
-                    var rmsg = msg as RootMessage;
-                    switch (rmsg.Tag)
-                    {
-                        case RootMessageTag.AddToStore:
-                            {
-                                var addmsg = rmsg as AddToStoreMessage;
-                                var path = addmsg.Process.Id.Value;
-                                ActorStore = ActorStore.AddOrUpdate(path, addmsg.Process);
-                                ActorInboxStore = ActorInboxStore.AddOrUpdate(path, addmsg.Inbox);
-                                addmsg.Inbox.Startup(addmsg.Process, addmsg.Process.Parent);
-                                addmsg.Process.Startup();
-                                break;
-                            }
 
-                        case RootMessageTag.RemoveFromStore:
-                            {
-                                var rmvmsg = rmsg as RemoveFromStoreMessage;
-                                var path = rmvmsg.ProcessId.Value;
-                                ActorStore = ActorStore.Remove(path);
-                                ActorInboxStore = ActorInboxStore.Remove(path);
-                                break;
-                            }
-
-                        case RootMessageTag.Tell:
-                        case RootMessageTag.TellSystem:
-                        case RootMessageTag.TellUserControl:
-                            var tellmsg = rmsg as TellMessage;
-                            ActorInboxStore.Find(
-                                tellmsg.ProcessId.Value,
-                                Some: x => rmsg.Tag == RootMessageTag.TellSystem && tellmsg.Message is SystemMessage ? x.TellSystem(tellmsg.Message as SystemMessage)
-                                         : rmsg.Tag == RootMessageTag.TellUserControl && tellmsg.Message is UserControlMessage ? x.TellUserControl(tellmsg.Message as UserControlMessage)
-                                         : WithContext(tellmsg.ProcessId, tellmsg.Sender, () => x.Tell(tellmsg.Message, sender)),
-                                None: () => ActorInboxStore.Find(DeadLetters.ToString(),
-                                                Some: x => WithContext(tellmsg.ProcessId, tellmsg.Sender, () => x.Tell(tellmsg.Message, sender)),
-                                                None: () => unit));
-                            break;
-
-                        case RootMessageTag.ShutdownAll:
-                            GetProcess(User).Children.Iter(child => TellSystem(child, SystemMessage.Shutdown));
-                            break;
-
-                        case RootMessageTag.Register:
-                            var regmsg = rmsg as RegisterMessage;
-                            var process = GetProcess(regmsg.ProcessId);
-
-                            var proxy = new ActorProxy(
-                                            cluster,
-                                            Registered,
-                                            regmsg.Name,
-                                            ActorProxyTemplate.Registered,
-                                            () => new ActorProxyConfig(regmsg.ProcessId)
-                                        );
-
-                            var inbox = new ActorInbox<ActorProxyConfig, object>();
-
-                            Tell(Root, RootMessage.AddToStore(proxy, inbox), ProcessId.NoSender);
-                            TellSystem(Registered, SystemMessage.LinkChild(proxy.Id));
-                            break;
-
-                        case RootMessageTag.UnRegister:
-                            var unregmsg = rmsg as UnRegisterMessage;
-                            map(Registered.MakeChildId(unregmsg.Name).ToString(),
-                                id =>
-                                    ActorStore.ContainsKey(id)
-                                        ? Process.kill(id)
-                                        : unit);
-                            break;
-                    }
-                }
-                else if (msg is SystemMessage)
-                {
-                    rootInbox.TellSystem(msg as SystemMessage);
-                }
-                else if (msg is UserControlMessage)
-                {
-                    rootInbox.TellUserControl(msg as UserControlMessage);
-                }
-                else
-                {
-                    Process.pub(msg);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            return unit;
-        };
-
-        public static Unit Startup()
+        public static Unit Startup(Option<ICluster> cluster)
         {
             lock (sync)
             {
                 Shutdown();
 
-                ObservableRouter.Restart();
-
-                ActorConfig config = ActorConfig.Default;
-
-                ActorStore = Map(Tuple("", (IProcess)new NullProcess()));
-                ActorInboxStore = Map(Tuple("", (IActorInbox)new NullInbox()));
-
-                // Root
-                map(StartupRoot(), (pid, inbox) =>
-                {
-                    root = pid;
-                    rootInbox = inbox;
-                });
-
-                // Top tier
-                system = ActorCreate<Unit, object>(root, config.SystemProcessName, Process.pub);
-                self = user = ActorCreate<Unit, object>(root, config.UserProcessName, Process.pub);
-
-                // Second tier
-                deadLetters = ActorCreate<Unit, object>(system, config.DeadLettersProcessName, Process.pub);
-                errors = ActorCreate<Unit, Exception>(system, config.Errors, Process.pub);
-                noSender = ActorCreate<Unit, object>(system, config.NoSenderProcessName, Process.pub);
-                registered = ActorCreate<Unit, object>(system, config.RegisteredProcessName, Process.pub);
+                ActorContext.cluster = cluster;
+                var name = GetRootProcessName();
+                root = new ProcessId(ProcessId.Sep.ToString() + name);
+                rootInbox = new ActorInbox<ActorSystemState, object>();
+                rootResponse = new Subject<ActorResponse>();
+                rootProcess = new Actor<ActorSystemState, object>(
+                    cluster, 
+                    new ProcessId(ProcessId.Sep.ToString()), 
+                    name, 
+                    ActorSystem.Inbox, 
+                    rootProcess => new ActorSystemState(cluster, root, rootProcess, rootInbox, ActorConfig.Default)
+                );
+                rootInbox.Startup(rootProcess, rootProcess.Parent);
+                rootProcess.Startup();
+                rootInbox.Tell(ActorSystemMessage.Startup, ProcessId.NoSender);
             }
             return unit;
-        }
-
-        private static Tuple<ProcessId, IActorInbox> StartupRoot()
-        {
-            var name = GetRootProcessName();
-            var actor = new Actor<Unit, object>(cluster, new ProcessId("/"), name, RootProcess);
-            var inbox = new ActorInbox<Unit, object>();
-
-            ActorStore = ActorStore.Add(name.Value, actor);
-            ActorInboxStore = ActorInboxStore.Add(name.Value, inbox);
-
-            inbox.Startup(actor, actor.Parent);
-
-            return Tuple(actor.Id, inbox as IActorInbox);
         }
 
         public static Unit Shutdown()
         {
             lock (sync)
             {
-                if (ActorInboxStore != null)
+                if (rootInbox != null)
                 {
-                    ActorInboxStore.Iter(inbox => inbox.Shutdown());
-                    ActorInboxStore = ActorInboxStore.Clear();
+                    Process.shutdownAll().Wait();
                 }
-                if (ActorStore != null)
-                {
-                    ActorStore = ActorStore.Clear();
-                }
-                ObservableRouter.Shutdown();
             }
             return unit;
         }
 
         public static Unit Restart()
         {
-            Startup();
+            Startup(cluster);
             return unit;
+        }
+
+        static Dictionary<int, ProcessId> ManagedThreadActors = new Dictionary<int, ProcessId>();
+
+        public static IObservable<T> Ask<T>(ProcessId pid, object message, ProcessId sender)
+        {
+            var subject = new Subject<object>();
+            return subject.PostSubscribeAction(() => Process.tell(AskReqRes, new AskActorReq(message, subject, pid, Self)))
+                          .Timeout(ActorConfig.Default.Timeout)
+                          .Select(obj => (T)obj);
         }
 
         public static ProcessName GetRootProcessName() =>
             cluster.Map(x => x.NodeName)
                    .IfNone(ActorConfig.Default.RootProcessName);
 
-        public static Unit RegisterCluster(ICluster cluster)
-        {
-            lock (sync)
-            {
-                ActorContext.cluster = Some(cluster);
-                Restart();
-                return unit;
-            }
-        }
+        public static Unit RegisterCluster(ICluster cluster) =>
+            Startup(Some(cluster));
 
-        public static Unit UnRegisterCluster()
-        {
-            lock (sync)
-            {
-                ActorContext.cluster = None;
-                Restart();
-                return unit;
-            }
-        }
+        public static Unit DeregisterCluster() =>
+            Startup(None);
 
         public static ProcessId ActorCreate<S, T>(ProcessId parent, ProcessName name, Func<T, Unit> actorFn)
         {
@@ -236,7 +114,7 @@ namespace LanguageExt
             {
                 var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn);
                 var inbox = new ActorInbox<S, T>();
-                Tell(Root, RootMessage.AddToStore(actor, inbox), ProcessId.NoSender);
+                Tell(Root, ActorSystemMessage.AddToStore(actor, inbox), Self);
                 return actor.Id;
             }
             else
@@ -245,67 +123,88 @@ namespace LanguageExt
             }
         }
 
-        private static Map<string, IProcess> ActorStore
-        {
-            get;
-            set;
-        }
-
-        private static Map<string, IActorInbox> ActorInboxStore
-        {
-            get;
-            set;
-        }
-
         public static Unit Tell(ProcessId to, object message, ProcessId sender) =>
             to.Value == root.Value
                 ? rootInbox.Tell(message, sender)
-                : Tell(root, RootMessage.Tell(to, message, sender), sender);
+                : Tell(root, ActorSystemMessage.Tell(to, message, sender), sender);
 
         public static Unit TellUserControl(ProcessId to, UserControlMessage message) =>
             to.Value == root.Value
-                ? rootInbox.Tell(message, sender)
-                : Tell(root, RootMessage.TellUserControl(to, message, sender), sender);
+                ? rootInbox.Tell(message, Self)
+                : Tell(root, ActorSystemMessage.TellUserControl(to, message, Self), Self);
 
         public static Unit TellSystem(ProcessId to, SystemMessage message) =>
             to.Value == root.Value
-                ? rootInbox.Tell(message, sender)
-                : Tell(root, RootMessage.TellSystem(to, message, sender), sender);
-
-        public static ProcessId Self =>
-            self.IsValid
-                ? self
-                : user;
+                ? rootInbox.Tell(message, Self)
+                : Tell(root, ActorSystemMessage.TellSystem(to, message, Self), Self);
 
         public static ProcessId Root =>
             root;
 
-        public static ProcessId User =>
-            user;
-
-        public static ProcessId System =>
-            system;
+        public static ProcessId Self =>
+            self.IsValid
+                ? self
+                : User;
 
         public static ProcessId Sender =>
             sender;
 
-        public static ProcessId NoSender =>
-            noSender;
+        public static ProcessId Parent =>
+            parent;
 
-        public static ProcessId Errors =>
-            errors;
+        public static ProcessId System =>
+            Root.MakeChildId(ActorConfig.Default.SystemProcessName);
 
-        public static ProcessId DeadLetters =>
-            deadLetters;
+        public static ProcessId User =>
+            Root.MakeChildId(ActorConfig.Default.UserProcessName);
 
         public static ProcessId Registered =>
-            registered;
+            System.MakeChildId(ActorConfig.Default.RegisteredProcessName);
+
+        public static ProcessId Errors =>
+            System.MakeChildId(ActorConfig.Default.Errors);
+
+        public static ProcessId DeadLetters =>
+            System.MakeChildId(ActorConfig.Default.DeadLettersProcessName);
+
+        public static Map<string, ProcessId> Children =>
+            children;
+
+        internal static ProcessId AskReqRes =>
+            System.MakeChildId(ActorConfig.Default.AskReqRes);
+
+        public static long CurrentRequestId
+        {
+            get
+            {
+                return currentRequestId;
+            }
+            set
+            {
+                currentRequestId = value;
+            }
+        }
+
+        public static ProcessId ReplyToId
+        {
+            get
+            {
+                return replyToId;
+            }
+            set
+            {
+                replyToId = value;
+            }
+        }
+
+        public static IActorInbox RootInbox => 
+            rootInbox;
 
         public static ProcessId Register(ProcessName name, ProcessId processId)
         {
             if (processId.IsValid)
             {
-                Tell(Root, RootMessage.Register(name, processId), ActorContext.Self);
+                Tell(Root, ActorSystemMessage.Register(name, processId), ActorContext.Self);
                 return Registered.MakeChildId(name);
             }
             else
@@ -314,36 +213,46 @@ namespace LanguageExt
             }
         }
 
-        public static Unit UnRegister(ProcessName name) =>
-            Tell(Root, RootMessage.UnRegister(name), ActorContext.Self);
+        public static Unit Deregister(ProcessName name) =>
+            Tell(Root, ActorSystemMessage.Deregister(name), ActorContext.Self);
 
-        public static R WithContext<R>(ProcessId self, ProcessId sender, Func<R> f)
+        public static R WithContext<R>(ProcessId self, ProcessId parent, Map<string, ProcessId> children, ProcessId sender, Func<R> f)
         {
             var savedSelf = ActorContext.self;
             var savedSender = ActorContext.sender;
+            var savedParent = ActorContext.parent;
+            var savedChildren = ActorContext.children ?? Map.empty<string,ProcessId>();
 
             try
             {
                 ActorContext.self = self;
                 ActorContext.sender = sender;
+                ActorContext.parent = parent;
+                ActorContext.children = children;
                 return f();
             }
             finally
             {
                 ActorContext.self = savedSelf;
                 ActorContext.sender = savedSender;
+                ActorContext.parent = savedParent;
+                ActorContext.children = savedChildren;
             }
         }
 
-        public static Unit WithContext(ProcessId self, ProcessId sender, Action f)
+        public static Unit WithContext(ProcessId self, ProcessId parent, Map<string, ProcessId> children, ProcessId sender, Action f)
         {
             var savedSelf = ActorContext.self;
             var savedSender = ActorContext.sender;
+            var savedParent = ActorContext.parent;
+            var savedChildren = ActorContext.children;
 
             try
             {
                 ActorContext.self = self;
                 ActorContext.sender = sender;
+                ActorContext.parent = parent;
+                ActorContext.children = children;
                 f();
                 return unit;
             }
@@ -351,21 +260,9 @@ namespace LanguageExt
             {
                 ActorContext.self = savedSelf;
                 ActorContext.sender = savedSender;
+                ActorContext.parent = savedParent;
+                ActorContext.children = savedChildren;
             }
         }
-
-        public static IActorInbox GetInbox(ProcessId pid) =>
-            map(ActorInboxStore, store =>
-                store.ContainsKey(pid.Value)
-                    ? store[pid.Value]
-                    : store[ActorContext.DeadLetters.Value]
-                );
-
-        public static IProcess GetProcess(ProcessId pid) =>
-            map(ActorStore, store =>
-                store.ContainsKey(pid.Value)
-                    ? store[pid.Value]
-                    : store[ActorContext.DeadLetters.Value]
-                );
     }
 }

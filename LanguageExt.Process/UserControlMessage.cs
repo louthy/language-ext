@@ -9,6 +9,8 @@ namespace LanguageExt
     internal enum UserControlMessageTag
     {
         User,
+        UserAsk,
+        UserReply,
         Shutdown
     }
 

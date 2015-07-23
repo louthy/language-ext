@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Reactive.Linq;
 
 using LanguageExt;
 using static LanguageExt.List;
@@ -15,34 +16,48 @@ namespace LanguageExtTests
     public class ProcessTests
     {
         [Test]
+        public void AskReply()
+        {
+            var helloServer = spawn<string>("hello-server", msg =>
+            {
+                reply("Hello, " + msg);
+            });
+
+            var response = ask<string>(helloServer, "Paul").Wait();
+
+            Assert.IsTrue(response == "Hello, Paul");
+        }
+
+        [Test]
         public void PubSubTest()
         {
-            shutdownAll();
+            shutdownAll().Wait();
 
             // Spawn a process
             var pid = spawn<string>("pubsub", msg =>
             {
                 // Publish anything we're sent
-                pub(msg);
+                publish(msg);
             });
 
             string value = null;
 
             // Subscribe to the 'string' publications
-            var sub = subs(pid, (string v) => value = v);
+            var sub = subscribe(pid, (string v) => value = v);
 
             // Send string message to the process
             tell(pid, "hello");
 
-            Thread.Sleep(100);
+            Thread.Sleep(500);
 
             Assert.IsTrue(value == "hello");
         }
 
+        /*
         [Test]
         public void RegisterTest()
         {
-            shutdownAll();
+            shutdownAll().Wait();
 
             string value = null;
             var pid = spawn<string>("reg-proc", msg => value = msg);
@@ -62,17 +77,17 @@ namespace LanguageExtTests
 
             Thread.Sleep(100);
 
-            unreg("woooo amazing");
+            dereg("woooo amazing");
 
             Thread.Sleep(100);
 
             Assert.IsTrue(Registered.Count() == 0);
-        }
+        }*/
 
         [Test]
         public void SpawnProcess()
         {
-            shutdownAll();
+            shutdownAll().Wait();
 
             string value = null;
             var pid = spawn<string>("SpawnProcess", msg => value = msg);
@@ -88,7 +103,7 @@ namespace LanguageExtTests
         [Test]
         public void SpawnErrorSurviveProcess()
         {
-            shutdownAll();
+            shutdownAll().Wait();
 
             int value = 0;
             int count = 0;
@@ -114,7 +129,7 @@ namespace LanguageExtTests
         [Test]
         public void SpawnAndKillProcess()
         {
-            shutdownAll();
+            shutdownAll().Wait();
 
             string value = null;
             var pid = spawn<string>("SpawnAndKillProcess", msg => value = msg);
@@ -131,13 +146,13 @@ namespace LanguageExtTests
             Thread.Sleep(200);
 
             Assert.IsTrue(value == "1");
-            Assert.IsTrue(Children.Length == 0);
+            Assert.IsTrue(children(User).Length == 0);
         }
 
         [Test]
         public void SpawnAndKillHierarchy()
         {
-            shutdownAll();
+            shutdownAll().Wait();
 
             string value = null;
             ProcessId parentId;
@@ -169,8 +184,8 @@ namespace LanguageExtTests
 
             Thread.Sleep(200);
 
-            Assert.IsTrue(value == "1");
-            Assert.IsTrue(Children.Length == 0);
+            Assert.IsTrue(value == "1", "Expected 1, actually equals: "+ value);
+            Assert.IsTrue(children(User).Length == 0);
         }
 
         public static int DepthMax(int depth) =>
@@ -187,7 +202,7 @@ namespace LanguageExtTests
             int nodes = 5;
             int max = DepthMax(depth);
 
-            shutdownAll();
+            shutdownAll().Wait();
 
             var actor = fun((Unit s, string msg) =>
             {
@@ -217,7 +232,7 @@ namespace LanguageExtTests
             while (count < max) Thread.Sleep(50);
             count = 0;
 
-            shutdown(zero);
+            kill(zero);
 
             Thread.Sleep(3000);
 
@@ -227,7 +242,7 @@ namespace LanguageExtTests
         [Test]
         public void ScheduledMsgTest()
         {
-            shutdownAll();
+            shutdownAll().Wait();
 
             string v = "";
 

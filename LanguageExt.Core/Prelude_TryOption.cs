@@ -70,13 +70,5 @@ namespace LanguageExt
 
         public static TryOption<T> tryfun<T>(Func<TryOption<T>> tryDel) => () => 
             tryDel()();
-
-        [Obsolete("'failure' has been deprecated.  Please use 'ifNone|ifNoneOrFail' instead")]
-        public static T failure<T>(TryOption<T> tryDel, Func<T> Fail) =>
-            tryDel.Failure(Fail);
-
-        [Obsolete("'failure' has been deprecated.  Please use 'ifNone|ifNoneOrFail' instead")]
-        public static T failure<T>(TryOption<T> tryDel, T failValue) =>
-            tryDel.Failure(failValue);
     }
 }
