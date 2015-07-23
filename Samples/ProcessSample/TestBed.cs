@@ -20,23 +20,24 @@ namespace ProcessSample
     {
         public static void RunTests()
         {
+            ProcessLog.Subscribe(Console.WriteLine);
+
+            SpawnProcess();
+            SpawnProcess();
+            SpawnProcess();
             AskReply();
             PubSubTest();
+            SpawnErrorSurviveProcess();
+            SpawnErrorSurviveProcess();
+            SpawnErrorSurviveProcess();
+            SpawnAndKillHierarchy();
+            SpawnAndKillHierarchy();
+            SpawnAndKillHierarchy();
+            SpawnAndKillProcess();
+            SpawnAndKillProcess();
+            SpawnAndKillProcess();
+
             MassiveSpawnAndKillHierarchy();
-
-            SpawnErrorSurviveProcess();
-            SpawnErrorSurviveProcess();
-            SpawnErrorSurviveProcess();
-            SpawnProcess();
-            SpawnProcess();
-            SpawnProcess();
-            SpawnAndKillHierarchy();
-            SpawnAndKillHierarchy();
-            SpawnAndKillHierarchy();
-            SpawnAndKillProcess();
-            SpawnAndKillProcess();
-            SpawnAndKillProcess();
-
             MassiveSpawnAndKillHierarchy2();
 
             ReaderAskTest();
@@ -99,11 +100,12 @@ namespace ProcessSample
 
             var pid = spawn<string, string>("SpawnProcess", () => "", (_, msg) => msg);
 
+            string value = null;
+            observeState<string>(pid).Subscribe(x => value = x);
+
             tell(pid, "hello, world");
 
             Thread.Sleep(100);
-
-            string value = state<string>(pid);
 
             if (value != "hello, world") Console.WriteLine(" Value actually is: " + value);
 
@@ -327,12 +329,13 @@ namespace ProcessSample
                 return count;
             });
 
+            int value = 0;
+            observeState<int>(pid).Subscribe(x => value = x);
+
             tell(pid, "msg");
             tell(pid, "msg");
 
             Thread.Sleep(20);
-
-            int value = state<int>(pid);
 
             Debug.Assert(value == 2);
 
@@ -342,7 +345,6 @@ namespace ProcessSample
 
             Thread.Sleep(100);
 
-            value = state<int>(pid);
             Debug.Assert(value == 0, "Expected 0, got " + value);
 
             kill(pid);

@@ -107,7 +107,6 @@ namespace LanguageExt
             inboxShutdown.Tell(inbox, ProcessId.NoSender);
             process.Shutdown();
             store.Remove(processId.Value);
-            logInfo("ShutdownProcess: " + processId);
         }
 
         public Unit Reply(object message, long requestid, ProcessId sender) =>

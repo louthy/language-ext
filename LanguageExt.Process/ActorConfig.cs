@@ -17,7 +17,7 @@ namespace LanguageExt
         public readonly ProcessName Errors                    = "errors";
         public readonly ProcessName AskReqRes                 = "ask-req-res";
         public readonly ProcessName InboxShutdown             = "inbox-shutdown";
-        public readonly TimeSpan    Timeout                   = TimeSpan.FromSeconds(10);
+        public readonly TimeSpan    Timeout                   = TimeSpan.FromSeconds(30);
 
         public static ActorConfig Default =>
             new ActorConfig();

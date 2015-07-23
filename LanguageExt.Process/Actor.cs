@@ -117,6 +117,7 @@ namespace LanguageExt
         public Unit Restart()
         {
             state = setupFn(this);
+            stateSubject.OnNext(state);
             tellChildren(SystemMessage.Restart);
             return unit;
         }
@@ -168,9 +169,9 @@ namespace LanguageExt
             catch (Exception e)
             {
                 /// TODO: Add extra strategy behaviours here
+                Restart();
                 tell(ActorContext.Errors, e);
                 tell(ActorContext.DeadLetters, request.Message);
-                Restart();
             }
             return unit;
         }

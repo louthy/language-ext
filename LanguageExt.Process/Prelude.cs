@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using static LanguageExt.Prelude;
 
@@ -56,7 +57,8 @@ namespace LanguageExt
         /// <summary>
         /// Log of everything that's going on in the Languge Ext process system
         /// </summary>
-        public static readonly IObservable<ProcessLogItem> ProcessLog = log;
+        public static readonly IObservable<ProcessLogItem> ProcessLog = 
+            log.SubscribeOn(TaskPoolScheduler.Default);
 
         /// <summary>
         /// Current process ID
@@ -236,15 +238,6 @@ namespace LanguageExt
         /// </summary>
         public static Map<string, ProcessId> children(ProcessId pid) =>
             ask<Map<string, ProcessId>>(ActorContext.Root, ActorSystemMessage.GetChildren(pid)).Wait();
-
-        /// <summary>
-        /// Get the state of the process provided
-        /// </summary>
-        public static T state<T>(ProcessId pid)
-        {
-            var obs = ask<T>(ActorContext.Root, ActorSystemMessage.GetState(pid));
-            return obs.Timeout(ActorConfig.Default.Timeout).Wait();
-        }
 
         /// <summary>
         /// Shutdown all processes and restart
