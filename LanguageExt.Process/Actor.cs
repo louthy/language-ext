@@ -21,7 +21,6 @@ namespace LanguageExt
         S state;
         Map<string, ProcessId> children = Map.create<string, ProcessId>();
         Option<ICluster> cluster;
-        object sync = new object();
         Subject<object> publishSubject = new Subject<object>();
         Subject<object> stateSubject = new Subject<object>();
 
