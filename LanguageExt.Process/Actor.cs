@@ -184,6 +184,7 @@ namespace LanguageExt
         {
             try
             {
+                ActorContext.CurrentRequestId = -1;
                 state = actorFn(state, message);
                 stateSubject.OnNext(state);
             }

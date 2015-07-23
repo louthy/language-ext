@@ -65,7 +65,9 @@ namespace LanguageExt
         /// This should be used from within a process' message loop only
         /// </remarks>
         public static ProcessId Self =>
-            ActorContext.Self;
+            InMessageLoop
+                ? ActorContext.Self
+                : failWithMessageLoopEx<ProcessId>();
 
         /// <summary>
         /// Parent process ID
@@ -74,7 +76,9 @@ namespace LanguageExt
         /// This should be used from within a process' message loop only
         /// </remarks>
         public static ProcessId Parent =>
-            ActorContext.Parent;
+            InMessageLoop
+                ? ActorContext.Parent
+                : failWithMessageLoopEx<ProcessId>();
 
         /// <summary>
         /// User process ID
@@ -98,7 +102,9 @@ namespace LanguageExt
         /// This should be used from within a process' message loop only
         /// </remarks>
         public static Map<string, ProcessId> Children =>
-            ActorContext.Children;
+            InMessageLoop
+                ? ActorContext.Children
+                : failWithMessageLoopEx<Map<string,ProcessId>>();
 
         /// <summary>
         /// Find a registered process by name
@@ -116,7 +122,9 @@ namespace LanguageExt
         /// </remarks>
         /// <param name="name">Name to register under</param>
         public static ProcessId reg(ProcessName name) =>
-            ActorContext.Register(name, Self);
+            InMessageLoop
+                ? ActorContext.Register(name, Self)
+                : failWithMessageLoopEx<ProcessId>();
 
         /// <summary>
         /// Register the name with the process
@@ -141,7 +149,9 @@ namespace LanguageExt
         /// This should be used from within a process' message loop only
         /// </remarks>
         public static Unit kill() =>
-            raise<Unit>(new SystemKillActorException());
+            InMessageLoop
+                ? raise<Unit>(new SystemKillActorException())
+                : failWithMessageLoopEx<Unit>();
 
         /// <summary>
         /// Shutdown the currently running process.
@@ -167,7 +177,16 @@ namespace LanguageExt
         /// This should be used from within a process' message loop only
         /// </remarks>
         public static Unit reply(object message) =>
-            ActorContext.RootInbox.Tell(ActorSystemMessage.Reply(ActorContext.CurrentRequestId, message), ActorContext.Self);
+            InMessageLoop
+                ? ActorContext.CurrentRequestId == -1
+                    ? ActorContext.Sender.IsValid
+                        ? tell(ActorContext.Sender, message, ActorContext.Self)
+                        : failwith<Unit>(
+                            "You can't reply to this message.  It was sent from outside of a process and it wasn't an 'ask'.  " +
+                            "Therefore we have no return address or observable stream to send the reply to."
+                            )
+                    : ActorContext.RootInbox.Tell(ActorSystemMessage.Reply(ActorContext.CurrentRequestId, message), ActorContext.Self)
+                : failWithMessageLoopEx<Unit>();
 
         /// <summary>
         /// Publish a message for any listening subscribers
@@ -177,7 +196,9 @@ namespace LanguageExt
         /// </remarks>
         /// <param name="message">Message to publish</param>
         public static Unit publish(object message) =>
-            ActorContext.RootInbox.Tell(ActorSystemMessage.Publish(ActorContext.Self, message), ActorContext.Self);
+            InMessageLoop
+                ? ActorContext.RootInbox.Tell(ActorSystemMessage.Publish(ActorContext.Self, message), ActorContext.Self)
+                : failWithMessageLoopEx<Unit>();
 
         /// <summary>
         /// Publish a message for any listening subscribers, delayed.
@@ -190,7 +211,9 @@ namespace LanguageExt
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
         public static IDisposable publish(object message, TimeSpan delayFor) =>
-            delay(() => publish(message),delayFor).Subscribe();
+            InMessageLoop
+                ? delay(() => publish(message),delayFor).Subscribe()
+                : failWithMessageLoopEx<IDisposable>();
 
         /// <summary>
         /// Publish a message for any listening subscribers, delayed.
@@ -204,7 +227,9 @@ namespace LanguageExt
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
         public static IDisposable publish(object message, DateTime delayUntil) =>
-            delay(() => publish(message), delayUntil).Subscribe();
+            InMessageLoop
+                ? delay(() => publish(message), delayUntil).Subscribe()
+                : failWithMessageLoopEx<IDisposable>();
 
         /// <summary>
         /// Get the child processes of the process provided
@@ -299,5 +324,17 @@ namespace LanguageExt
                         .Wait()
             where x is T
             select (T)x;
+
+        /// <summary>
+        /// Not in message loop exception
+        /// </summary>
+        internal static T failWithMessageLoopEx<T>() =>
+            failwith<T>("This should be used from within a process' message loop only");
+
+        /// <summary>
+        /// Returns true if in a message loop
+        /// </summary>
+        internal static bool InMessageLoop =>
+            ActorContext.Self.IsValid && ActorContext.Self.Value != ActorContext.User.Value;
     }
 }
