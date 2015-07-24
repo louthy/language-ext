@@ -25,10 +25,9 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pid">Process to ask</param>
         /// <param name="message">Message to send</param>
-        /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         /// <returns>The response to the request</returns>
-        public static T ask<T>(ProcessId pid, object message, ProcessId sender = default(ProcessId)) =>
-            ActorContext.Ask<T>(pid, message, sender).Wait();
+        public static T ask<T>(ProcessId pid, object message) =>
+            ActorContext.Ask<T>(pid, message).Wait();
 
         /// <summary>
         /// Ask children the same message
@@ -36,7 +35,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <returns></returns>
         public static IEnumerable<T> askChildren<T>(object message, int take = Int32.MaxValue) =>
-            Observable.Merge<T>(Children.Values.Map(child => ActorContext.Ask<T>(child, message, Self)))
+            Observable.Merge<T>(Children.Values.Map(child => ActorContext.Ask<T>(child, message)))
                       .Take(Math.Max(take, Children.Count))
                       .ToEnumerable();
 
@@ -44,9 +43,8 @@ namespace LanguageExt
         /// Ask parent process for a reply
         /// </summary>
         /// <param name="message">Message to send</param>
-        /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         /// <returns>The response to the request</returns>
         public static T askParent<T>(object message) =>
-            ask<T>(Parent, message, Self);
+            ask<T>(Parent, message);
     }
 }

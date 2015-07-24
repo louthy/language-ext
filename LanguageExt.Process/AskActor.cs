@@ -6,6 +6,9 @@ using static LanguageExt.Process;
 
 namespace LanguageExt
 {
+    /// <summary>
+    /// Not currently used, but may be in future when distributed asks are done.
+    /// </summary>
     internal static class AskActor
     {
         const int responseActors = 20;

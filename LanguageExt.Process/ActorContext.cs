@@ -81,10 +81,10 @@ namespace LanguageExt
 
         static Dictionary<int, ProcessId> ManagedThreadActors = new Dictionary<int, ProcessId>();
 
-        public static IObservable<T> Ask<T>(ProcessId pid, object message, ProcessId sender)
+        public static IObservable<T> Ask<T>(ProcessId pid, object message)
         {
             var subject = new Subject<object>();
-            return subject.PostSubscribeAction(() => Process.tell(AskReqRes, new AskActorReq(message, subject, pid, Self)))
+            return subject.PostSubscribeAction(() => Process.tell(pid, new ActorRequest(message, pid, Self, subject)))
                           .Timeout(ActorConfig.Default.Timeout)
                           .Select(obj => (T)obj);
         }
