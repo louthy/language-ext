@@ -29,11 +29,6 @@ namespace LanguageExt
         Map<string, ProcessId> Children { get; }
 
         /// <summary>
-        /// Get state
-        /// </summary>
-        object GetState();
-
-        /// <summary>
         /// Clears the state (keeps the mailbox items)
         /// </summary>
         Unit Restart();

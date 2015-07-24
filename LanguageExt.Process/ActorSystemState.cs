@@ -132,8 +132,8 @@ namespace LanguageExt
 
         public Unit GetChildren(ProcessId processId)
         {
-            if (ReplyToProcessDoesNotExist(nameof(GetState))) return unit;
-            if (ProcessDoesNotExist(nameof(GetState), processId)) return unit;
+            if (ReplyToProcessDoesNotExist(nameof(GetChildren))) return unit;
+            if (ProcessDoesNotExist(nameof(GetChildren), processId)) return unit;
 
             Map<string, ProcessId> kids = store[processId.Path].Actor.Children;
 
@@ -150,20 +150,6 @@ namespace LanguageExt
             if (ProcessDoesNotExist(nameof(Publish), processId)) return unit;
 
             return store[processId.Path].Actor.Publish(message);
-        }
-
-        internal Unit GetState(ProcessId processId)
-        {
-            if (ReplyToProcessDoesNotExist(nameof(GetState))) return unit;
-            if (ProcessDoesNotExist(nameof(GetState), processId)) return unit;
-
-            object state = store[processId.Path].Actor.GetState();
-
-            ReplyInfo(nameof(GetState), processId, state);
-
-            return store[ActorContext.ReplyToId.Path].Inbox.Tell(
-                        new ActorResponse(ActorContext.CurrentRequestId, state),
-                        processId);
         }
 
         internal Unit ObservePub(ProcessId processId, Type type)

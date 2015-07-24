@@ -25,7 +25,7 @@ namespace RedisStateSample
             Cluster.connect("redis", "redis-test", "localhost", "0");
 
             // Spawn the process
-            var pid = spawn<int, int>("redis-state-sample", Setup, Inbox, ProcessFlags.PersistentState);
+            var pid = spawn<int, int>("redis-state-sample", Setup, Inbox, ProcessFlags.PersistState);
 
             // Subscribe locally to the state changes
             observeState<int>(pid).Subscribe(Console.WriteLine);

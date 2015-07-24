@@ -69,7 +69,7 @@ namespace LanguageExt
         /// <summary>
         /// Tell children the same message, delayed.
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="message">Message to send</param>
         /// <param name="delayFor">How long to delay sending for</param>
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
@@ -82,7 +82,7 @@ namespace LanguageExt
         /// <remarks>
         /// This will fail to be accurate across a Daylight Saving Time boundary
         /// </remarks>
-        /// <param name="message"></param>
+        /// <param name="message">Message to send</param>
         /// <param name="delayUntil">Date and time to send</param>
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
@@ -126,9 +126,8 @@ namespace LanguageExt
         /// Send a message to the parent process
         /// </summary>
         /// <param name="message">Message to send</param>
-        /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         public static Unit tellParent(object message) =>
-            tell(ActorContext.Parent, message);
+            tell(Parent, message);
 
         /// <summary>
         /// Send a message to the parent process at a specified time in the future
@@ -136,10 +135,9 @@ namespace LanguageExt
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
         /// <param name="message">Message to send</param>
-        /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         /// <param name="delayFor">How long to delay sending for</param>
-        public static IDisposable tellParent(object message, TimeSpan delayFor, ProcessId sender = default(ProcessId)) =>
-            tell(ActorContext.Parent, message, delayFor);
+        public static IDisposable tellParent(object message, TimeSpan delayFor) =>
+            tell(Parent, message, delayFor);
 
         /// <summary>
         /// Send a message to the parent process at a specified time in the future
@@ -150,19 +148,17 @@ namespace LanguageExt
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
         /// <param name="message">Message to send</param>
-        /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         /// <param name="delayUntil">Date and time to send</param>
-        public static IDisposable tellParent(object message, DateTime delayUntil, ProcessId sender = default(ProcessId)) =>
-            tell(ActorContext.Parent, message, delayUntil);
+        public static IDisposable tellParent(object message, DateTime delayUntil) =>
+            tell(Parent, message, delayUntil);
 
 
         /// <summary>
         /// Send a message to ourself
         /// </summary>
         /// <param name="message">Message to send</param>
-        /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         public static Unit tellSelf(object message) =>
-            tell(ActorContext.Self, message);
+            tell(Self, message);
 
         /// <summary>
         /// Send a message to ourself at a specified time in the future
@@ -170,10 +166,9 @@ namespace LanguageExt
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
         /// <param name="message">Message to send</param>
-        /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         /// <param name="delayFor">How long to delay sending for</param>
-        public static IDisposable tellSelf(object message, TimeSpan delayFor, ProcessId sender = default(ProcessId)) =>
-            tell(ActorContext.Self, message, delayFor);
+        public static IDisposable tellSelf(object message, TimeSpan delayFor) =>
+            tell(Self, message, delayFor);
 
         /// <summary>
         /// Send a message to ourself at a specified time in the future
@@ -184,9 +179,8 @@ namespace LanguageExt
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
         /// <param name="message">Message to send</param>
-        /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         /// <param name="delayUntil">Date and time to send</param>
-        public static IDisposable tellSelf(object message, DateTime delayUntil, ProcessId sender = default(ProcessId)) =>
-            tell(ActorContext.Self, message, delayUntil);
+        public static IDisposable tellSelf(object message, DateTime delayUntil) =>
+            tell(Self, message, delayUntil);
     }
 }

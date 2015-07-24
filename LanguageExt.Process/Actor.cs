@@ -82,7 +82,7 @@ namespace LanguageExt
         {
             cluster.IfSome(c =>
             {
-                if ((flags & ProcessFlags.PersistentState) == ProcessFlags.PersistentState)
+                if ((flags & ProcessFlags.PersistState) == ProcessFlags.PersistState)
                 {
                     try
                     {
@@ -98,7 +98,7 @@ namespace LanguageExt
 
         private void InitState()
         {
-            if (cluster.IsSome && ((flags & ProcessFlags.PersistentState) == ProcessFlags.PersistentState))
+            if (cluster.IsSome && ((flags & ProcessFlags.PersistState) == ProcessFlags.PersistState))
             {
                 try
                 {
@@ -130,14 +130,6 @@ namespace LanguageExt
         {
             publishSubject.OnNext(message);
             return unit;
-        }
-
-        /// <summary>
-        /// Get state
-        /// </summary>
-        public object GetState()
-        {
-            return state;
         }
 
         /// <summary>

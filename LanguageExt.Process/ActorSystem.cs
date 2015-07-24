@@ -46,10 +46,6 @@ namespace LanguageExt
                             GetChildren(state, rmsg as GetChildrenMessage);
                             break;
 
-                        case ActorSystemMessageTag.GetState:
-                            GetState(state, rmsg as GetStateMessage);
-                            break;
-
                         case ActorSystemMessageTag.Register:
                             state = Register(state, rmsg as RegisterMessage);
                             break;
@@ -97,9 +93,6 @@ namespace LanguageExt
 
         private static void Reply(ActorSystemState state, ReplyMessage msg) =>
             state.Reply(msg.Message, msg.Requestid, msg.Sender);
-
-        private static void GetState(ActorSystemState state, GetStateMessage msg) =>
-            state.GetState(msg.ProcessId);
 
         private static Unit GetChildren(ActorSystemState state, GetChildrenMessage msg) =>
             state.GetChildren(msg.ProcessId);

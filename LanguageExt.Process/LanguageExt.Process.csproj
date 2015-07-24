@@ -63,6 +63,7 @@
     <Compile Include="Actor.cs" />
     <Compile Include="ActorConfig.cs" />
     <Compile Include="ActorContext.cs" />
+    <Compile Include="Prelude_PubSub.cs" />
     <Compile Include="ProcessFlags.cs" />
     <Compile Include="ActorInbox.cs" />
     <Compile Include="ActorProxy.cs" />

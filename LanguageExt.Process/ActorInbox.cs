@@ -51,7 +51,7 @@ namespace LanguageExt
         {
             cluster.IfSome(c =>
             {
-                if ((actor.Flags & ProcessFlags.PersistentInbox) == ProcessFlags.PersistentInbox)
+                if ((actor.Flags & ProcessFlags.PersistInbox) == ProcessFlags.PersistInbox)
                 {
 
                     c.GetQueue<UserMessageDTO>(ClusterKey).Iter(msg =>
@@ -125,7 +125,7 @@ namespace LanguageExt
 
                     cluster.IfSome(c =>
                     {
-                        if ((actor.Flags & ProcessFlags.PersistentInbox) == ProcessFlags.PersistentInbox)
+                        if ((actor.Flags & ProcessFlags.PersistInbox) == ProcessFlags.PersistInbox)
                         {
                             var dto = new UserMessageDTO()
                             {
@@ -239,7 +239,7 @@ namespace LanguageExt
 
                                 cluster.IfSome(c =>
                                 {
-                                    if ((actor.Flags & ProcessFlags.PersistentInbox) == ProcessFlags.PersistentInbox)
+                                    if ((actor.Flags & ProcessFlags.PersistInbox) == ProcessFlags.PersistInbox)
                                     {
                                         c.Dequeue<UserMessageDTO>(ClusterKey);
                                     }
