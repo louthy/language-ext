@@ -14,9 +14,10 @@ namespace LanguageExt
         public readonly ProcessName DeadLettersProcessName    = "dead-letters";
         public readonly ProcessName NoSenderProcessName       = "no-sender";
         public readonly ProcessName RegisteredProcessName     = "registered";
-        public readonly ProcessName Errors                    = "errors";
-        public readonly ProcessName AskReqRes                 = "ask-req-res";
-        public readonly ProcessName InboxShutdown             = "inbox-shutdown";
+        public readonly ProcessName ErrorsProcessName         = "errors";
+        public readonly ProcessName AskProcessName            = "ask";
+        public readonly ProcessName ReplyProcessName          = "reply";
+        public readonly ProcessName InboxShutdownProcessName  = "inbox-shutdown";
         public readonly TimeSpan    Timeout                   = TimeSpan.FromSeconds(30);
 
         public static ActorConfig Default =>

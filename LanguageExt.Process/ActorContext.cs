@@ -25,8 +25,7 @@ namespace LanguageExt
         [ThreadStatic] static ProcessId sender;
         [ThreadStatic] static ProcessId parent;
         [ThreadStatic] static Map<string, ProcessId> children = Map.empty<string,ProcessId>();
-        [ThreadStatic] static long currentRequestId;
-        [ThreadStatic] static ProcessId replyToId;
+        [ThreadStatic] static ActorRequest currentRequest;
         [ThreadStatic] static ProcessFlags processFlags;
 
         static object sync = new object();
@@ -68,7 +67,7 @@ namespace LanguageExt
             {
                 if (rootInbox != null)
                 {
-                    Process.shutdownAll().Wait();
+                    Process.shutdownAll();
                 }
             }
             return unit;
@@ -164,7 +163,7 @@ namespace LanguageExt
             System.MakeChildId(ActorConfig.Default.RegisteredProcessName);
 
         public static ProcessId Errors =>
-            System.MakeChildId(ActorConfig.Default.Errors);
+            System.MakeChildId(ActorConfig.Default.ErrorsProcessName);
 
         public static ProcessId DeadLetters =>
             System.MakeChildId(ActorConfig.Default.DeadLettersProcessName);
@@ -173,29 +172,17 @@ namespace LanguageExt
             children;
 
         internal static ProcessId AskReqRes =>
-            System.MakeChildId(ActorConfig.Default.AskReqRes);
+            System.MakeChildId(ActorConfig.Default.AskProcessName);
 
-        public static long CurrentRequestId
+        public static ActorRequest CurrentRequest
         {
             get
             {
-                return currentRequestId;
+                return currentRequest;
             }
             set
             {
-                currentRequestId = value;
-            }
-        }
-
-        public static ProcessId ReplyToId
-        {
-            get
-            {
-                return replyToId;
-            }
-            set
-            {
-                replyToId = value;
+                currentRequest = value;
             }
         }
 
@@ -270,8 +257,6 @@ namespace LanguageExt
         internal static IObservable<T> Observe<T>(ProcessId pid)
         {
             return from x in Process.ask<IObservable<object>>(Root, ActorSystemMessage.ObservePub(pid, (System.Type)typeof(T)))
-                                    .Timeout(ActorConfig.Default.Timeout)
-                                    .Wait()
                    where x is T
                    select (T)x;
         }

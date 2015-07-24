@@ -112,7 +112,7 @@ namespace LanguageExt
         /// Get the child processes of the process provided
         /// </summary>
         public static Map<string, ProcessId> children(ProcessId pid) =>
-            ask<Map<string, ProcessId>>(ActorContext.Root, ActorSystemMessage.GetChildren(pid)).Wait();
+            ask<Map<string, ProcessId>>(ActorContext.Root, ActorSystemMessage.GetChildren(pid));
 
         /// <summary>
         /// Find a registered process by name
@@ -181,7 +181,7 @@ namespace LanguageExt
         /// <summary>
         /// Shutdown all processes and restart
         /// </summary>
-        public static IObservable<Unit> shutdownAll() =>
+        public static Unit shutdownAll() =>
             ask<Unit>(ActorContext.Root, ActorSystemMessage.ShutdownAll);
 
         /// <summary>
@@ -192,14 +192,14 @@ namespace LanguageExt
         /// </remarks>
         public static Unit reply(object message) =>
             InMessageLoop
-                ? ActorContext.CurrentRequestId == -1
+                ? ActorContext.CurrentRequest == null
                     ? ActorContext.Sender.IsValid
                         ? tell(ActorContext.Sender, message, ActorContext.Self)
                         : failwith<Unit>(
                             "You can't reply to this message.  It was sent from outside of a process and it wasn't an 'ask'.  " +
                             "Therefore we have no return address or observable stream to send the reply to."
                             )
-                    : ActorContext.RootInbox.Tell(ActorSystemMessage.Reply(ActorContext.CurrentRequestId, message), ActorContext.Self)
+                    : ActorContext.RootInbox.Tell(ActorSystemMessage.Reply(ActorContext.CurrentRequest.ReplyTo, message, ActorContext.CurrentRequest.Subject), ActorContext.Self)
                 : failWithMessageLoopEx<Unit>();
 
         /// <summary>

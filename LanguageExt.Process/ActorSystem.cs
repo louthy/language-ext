@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Subjects;
 using static LanguageExt.Process;
 
 namespace LanguageExt
@@ -92,7 +93,7 @@ namespace LanguageExt
         }
 
         private static void Reply(ActorSystemState state, ReplyMessage msg) =>
-            state.Reply(msg.Message, msg.Requestid, msg.Sender);
+            state.Reply(msg.ReplyTo, msg.Message, msg.Sender, msg.Subject);
 
         private static Unit GetChildren(ActorSystemState state, GetChildrenMessage msg) =>
             state.GetChildren(msg.ProcessId);

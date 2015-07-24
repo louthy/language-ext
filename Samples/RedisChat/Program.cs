@@ -12,6 +12,8 @@ namespace RedisChat
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("*** THIS EXAMPLE IS INCOMPLETE AND NOT WORKING!  ***");
+
             GetRoomName();
             GetUsername();
         }

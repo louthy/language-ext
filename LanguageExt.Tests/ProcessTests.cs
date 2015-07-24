@@ -23,7 +23,7 @@ namespace LanguageExtTests
                 reply("Hello, " + msg);
             });
 
-            var response = ask<string>(helloServer, "Paul").Wait();
+            var response = ask<string>(helloServer, "Paul");
 
             Assert.IsTrue(response == "Hello, Paul");
         }
@@ -31,7 +31,7 @@ namespace LanguageExtTests
         [Test]
         public void PubSubTest()
         {
-            shutdownAll().Wait();
+            shutdownAll();
 
             // Spawn a process
             var pid = spawn<string>("pubsub", msg =>
@@ -87,7 +87,7 @@ namespace LanguageExtTests
         [Test]
         public void SpawnProcess()
         {
-            shutdownAll().Wait();
+            shutdownAll();
 
             string value = null;
             var pid = spawn<string>("SpawnProcess", msg => value = msg);
@@ -103,7 +103,7 @@ namespace LanguageExtTests
         [Test]
         public void SpawnErrorSurviveProcess()
         {
-            shutdownAll().Wait();
+            shutdownAll();
 
             int value = 0;
             int count = 0;
@@ -129,7 +129,7 @@ namespace LanguageExtTests
         [Test]
         public void SpawnAndKillProcess()
         {
-            shutdownAll().Wait();
+            shutdownAll();
 
             string value = null;
             var pid = spawn<string>("SpawnAndKillProcess", msg => value = msg);
@@ -152,7 +152,7 @@ namespace LanguageExtTests
         [Test]
         public void SpawnAndKillHierarchy()
         {
-            shutdownAll().Wait();
+            shutdownAll();
 
             string value = null;
             ProcessId parentId;
@@ -202,7 +202,7 @@ namespace LanguageExtTests
             int nodes = 5;
             int max = DepthMax(depth);
 
-            shutdownAll().Wait();
+            shutdownAll();
 
             var actor = fun((Unit s, string msg) =>
             {
@@ -242,7 +242,7 @@ namespace LanguageExtTests
         [Test]
         public void ScheduledMsgTest()
         {
-            shutdownAll().Wait();
+            shutdownAll();
 
             string v = "";
 

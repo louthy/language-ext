@@ -22,10 +22,11 @@ namespace ProcessSample
         {
             ProcessLog.Subscribe(Console.WriteLine);
 
-            SpawnProcess();
-            SpawnProcess();
-            SpawnProcess();
             AskReply();
+
+            SpawnProcess();
+            SpawnProcess();
+            SpawnProcess();
             PubSubTest();
             SpawnErrorSurviveProcess();
             SpawnErrorSurviveProcess();
@@ -59,14 +60,14 @@ namespace ProcessSample
                 reply("Hello, " + msg);
             }); 
 
-            var response = ask<string>(helloServer, "Paul").Wait();
+            var response = ask<string>(helloServer, "Paul");
 
             Debug.Assert(response == "Hello, Paul");
         }
 
         public static void PubSubTest()
         {
-            shutdownAll().Wait();
+            shutdownAll();
 
             // Spawn a process
             var pid = spawn<string>("pubsub", msg =>
@@ -90,11 +91,11 @@ namespace ProcessSample
 
         private static void SpawnProcess()
         {
-            shutdownAll().Wait();
+            shutdownAll();
 
             Console.WriteLine("*** ABOUT TO SHUTDOWN ***");
 
-            shutdownAll().Wait();
+            shutdownAll();
 
             Console.WriteLine("*** SHUTDOWN COMPLETE ***");
 
@@ -320,7 +321,7 @@ namespace ProcessSample
 
         public static void SpawnErrorSurviveProcess()
         {
-            shutdownAll().Wait();
+            shutdownAll();
 
             var pid = spawn<int, string>("SpawnAnErrorProcess", () => 0, (count,_) =>
             {
@@ -352,7 +353,7 @@ namespace ProcessSample
 
         public static void SpawnAndKillProcess()
         {
-            shutdownAll().Wait();
+            shutdownAll();
 
             ProcessId pid = spawn<string, string>("SpawnAndKillProcess", () => "", (_, msg) => msg);
             tell(pid, "1");
@@ -366,7 +367,7 @@ namespace ProcessSample
 
         public static void SpawnAndKillHierarchy()
         {
-            shutdownAll().Wait();
+            shutdownAll();
 
             int value = 0;
 
@@ -397,7 +398,7 @@ namespace ProcessSample
             int nodes = 5;
             int max = DepthMax(depth);
 
-            shutdownAll().Wait();
+            shutdownAll();
 
             var actor = fun((Unit s, string msg) =>
             {
@@ -423,7 +424,7 @@ namespace ProcessSample
 
         public static void MassiveSpawnAndKillHierarchy()
         {
-            shutdownAll().Wait();
+            shutdownAll();
 
             Func<Unit> setup = null;
             int count = 0;

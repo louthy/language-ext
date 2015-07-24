@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Subjects;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 
@@ -24,7 +25,8 @@ namespace LanguageExt
         ProcessId registered;
         ProcessId errors;
         ProcessId inboxShutdown;
-        ProcessId askReqRes;
+        ProcessId ask;
+        ProcessId reply;
 
         // We can use a mutable and non-locking dictionary here because access to 
         // it will be via the root actor's message-loop only
@@ -64,17 +66,19 @@ namespace LanguageExt
             logInfo("Process system starting up");
 
             // Top tier
-            system          = ActorCreate<Unit, object>(root, Config.SystemProcessName, publish, ProcessFlags.Default);
-            user            = ActorCreate<Unit, object>(root, Config.UserProcessName, publish, ProcessFlags.Default);
+            system          = ActorCreate<object>(root, Config.SystemProcessName, publish, ProcessFlags.Default);
+            user            = ActorCreate<object>(root, Config.UserProcessName, publish, ProcessFlags.Default);
 
             // Second tier
-            deadLetters     = ActorCreate<Unit, object>(system, Config.DeadLettersProcessName, publish, ProcessFlags.Default);
-            errors          = ActorCreate<Unit, Exception>(system, Config.Errors, publish, ProcessFlags.Default);
-            noSender        = ActorCreate<Unit, object>(system, Config.NoSenderProcessName, publish, ProcessFlags.Default);
-            registered      = ActorCreate<Unit, object>(system, Config.RegisteredProcessName, publish, ProcessFlags.Default);
+            deadLetters     = ActorCreate<object>(system, Config.DeadLettersProcessName, publish, ProcessFlags.Default);
+            errors          = ActorCreate<Exception>(system, Config.ErrorsProcessName, publish, ProcessFlags.Default);
+            noSender        = ActorCreate<object>(system, Config.NoSenderProcessName, publish, ProcessFlags.Default);
+            registered      = ActorCreate<object>(system, Config.RegisteredProcessName, publish, ProcessFlags.Default);
 
-            inboxShutdown   = ActorCreate<Unit, IActorInbox>(system, Config.InboxShutdown, inbox => inbox.Shutdown(), ProcessFlags.Default);
-            askReqRes       = ActorCreate<Tuple<long, Dictionary<long, AskActorReq>>, object>(system, Config.AskReqRes, AskActor.Inbox, AskActor.Setup, ProcessFlags.Default);
+            inboxShutdown   = ActorCreate<IActorInbox>(system, Config.InboxShutdownProcessName, inbox => inbox.Shutdown(), ProcessFlags.Default);
+
+            ask             = ActorCreate<AskActorReq>(system, Config.AskProcessName, AskActor.Inbox, ProcessFlags.Default);
+            reply           = ActorCreate<Random,ActorResponse>(system, Config.ReplyProcessName, ReplyActor.Inbox, ReplyActor.Setup, ProcessFlags.Default);
 
             logInfo("Process system startup complete");
 
@@ -86,8 +90,8 @@ namespace LanguageExt
             logInfo("Process system shutting down");
 
             ShutdownProcess(User);
-            user = ActorCreate<Unit, object>(root, Config.UserProcessName, Process.publish, ProcessFlags.Default);
-            store[ActorContext.ReplyToId.Path].Inbox.Tell(new ActorResponse(ActorContext.CurrentRequestId, unit), ActorContext.Root);
+            user = ActorCreate<object>(root, Config.UserProcessName, publish, ProcessFlags.Default);
+            store[reply.Path].Inbox.Tell(new ActorResponse(ActorContext.CurrentRequest.ReplyTo, unit, ActorContext.CurrentRequest.Subject, Root), ActorContext.Root);
 
             logInfo("Process system shutdown complete");
 
@@ -127,8 +131,8 @@ namespace LanguageExt
             store.Remove(processId.Path);
         }
 
-        public Unit Reply(object message, long requestid, ProcessId sender) =>
-            store[askReqRes.Path].Inbox.Tell(new ActorResponse(requestid, message), sender);
+        public Unit Reply(ProcessId replyTo, object message, ProcessId sender, Subject<object> subject) =>
+            store[reply.Path].Inbox.Tell(new ActorResponse(replyTo, message, subject, sender), sender);
 
         public Unit GetChildren(ProcessId processId)
         {
@@ -139,8 +143,8 @@ namespace LanguageExt
 
             ReplyInfo(nameof(GetChildren), processId, kids.Count);
 
-            return store[ActorContext.ReplyToId.Path].Inbox.Tell(
-                        new ActorResponse(ActorContext.CurrentRequestId, kids),
+            return store[reply.Path].Inbox.Tell(
+                        new ActorResponse(ActorContext.CurrentRequest.ReplyTo, kids, ActorContext.CurrentRequest.Subject, processId),
                         processId
                     );
         }
@@ -170,10 +174,12 @@ namespace LanguageExt
             {
                 stream = item.Actor.PublishStream;
             }
-            return store[ActorContext.ReplyToId.Path].Inbox.Tell(
+            return store[reply.Path].Inbox.Tell(
                     new ActorResponse(
-                        ActorContext.CurrentRequestId,
-                        stream
+                        ActorContext.CurrentRequest.ReplyTo,
+                        stream,
+                        ActorContext.CurrentRequest.Subject,
+                        processId
                         ),
                     processId);
         }
@@ -183,12 +189,14 @@ namespace LanguageExt
             if (ReplyToProcessDoesNotExist(nameof(ObservePub))) return unit;
             if (ProcessDoesNotExist(nameof(ObservePub), processId)) return unit;
 
-            return store[ActorContext.ReplyToId.Path].Inbox.Tell(
+            return store[reply.Path].Inbox.Tell(
                 new ActorResponse(
-                    ActorContext.CurrentRequestId,
+                    ActorContext.CurrentRequest.ReplyTo,
                     store.ContainsKey(processId.Path)
                         ? store[processId.Path].Actor.StateStream
-                        : null
+                        : null,
+                    ActorContext.CurrentRequest.Subject,
+                    processId
                     ),
                 processId);
         }
@@ -210,14 +218,14 @@ namespace LanguageExt
                             : ActorContext.WithContext(processId, item.Actor.Parent, item.Actor.Children, sender, () => item.Inbox.Tell(message, sender)),
                 None: () => TellDeadLetters(processId,sender,tag,message));
 
-        public ProcessId ActorCreate<S, T>(ProcessId parent, ProcessName name, Func<T, Unit> actorFn, ProcessFlags flags)
+        public ProcessId ActorCreate<T>(ProcessId parent, ProcessName name, Func<T, Unit> actorFn, ProcessFlags flags)
         {
-            return ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), flags);
+            return ActorCreate<Unit, T>(parent, name, (s, t) => { actorFn(t); return unit; }, () => unit, flags);
         }
 
-        public ProcessId ActorCreate<S, T>(ProcessId parent, ProcessName name, Action<T> actorFn, ProcessFlags flags)
+        public ProcessId ActorCreate<T>(ProcessId parent, ProcessName name, Action<T> actorFn, ProcessFlags flags)
         {
-            return ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), flags);
+            return ActorCreate<Unit, T>(parent, name, (s, t) => { actorFn(t); return unit; }, () => unit, flags);
         }
 
         public ProcessId ActorCreate<S, T>(ProcessId parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn, ProcessFlags flags)
@@ -330,13 +338,13 @@ namespace LanguageExt
 
         private bool ReplyToProcessDoesNotExist(string func)
         {
-            if (ActorContext.ReplyToId.IsValid && store.ContainsKey(ActorContext.ReplyToId.Path))
+            if (ActorContext.CurrentRequest != null && ActorContext.CurrentRequest.ReplyTo.IsValid && store.ContainsKey(ActorContext.CurrentRequest.ReplyTo.Path))
             {
                 return false;
             }
             else
             {
-                logErr(func + ": ReplyTo process doesn't exist: " + ActorContext.ReplyToId.Path);
+                logErr(func + ": ReplyTo process doesn't exist: " + ActorContext.CurrentRequest.ReplyTo.Path);
                 return true;
             }
         }

@@ -199,7 +199,7 @@ namespace LanguageExt
                 ActorContext.ProcessFlags = flags;
                 if (request.Message is T)
                 {
-                    ActorContext.CurrentRequestId = request.RequestId;
+                    ActorContext.CurrentRequest = request;
                     T msg = (T)request.Message;
                     state = actorFn(state, msg);
                     stateSubject.OnNext(state);
@@ -228,7 +228,7 @@ namespace LanguageExt
         {
             try
             {
-                ActorContext.CurrentRequestId = -1;
+                ActorContext.CurrentRequest = null;
                 ActorContext.ProcessFlags = flags;
                 state = actorFn(state, message);
                 stateSubject.OnNext(state);

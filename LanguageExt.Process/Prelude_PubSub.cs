@@ -133,8 +133,6 @@ namespace LanguageExt
         /// </summary>
         public static IObservable<T> observeState<T>(ProcessId pid) =>
             from x in ask<IObservable<object>>(ActorContext.Root, ActorSystemMessage.ObserveState(pid))
-                        .Timeout(ActorConfig.Default.Timeout)
-                        .Wait()
             where x is T
             select (T)x;
     }

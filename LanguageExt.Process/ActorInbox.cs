@@ -110,8 +110,7 @@ namespace LanguageExt
 
                 if (message is ActorRequest)
                 {
-                    var req = (ActorRequest)message;
-                    userInbox.Post(req);
+                    userInbox.Post((UserControlMessage)message);
                 }
                 else
                 {
@@ -252,8 +251,7 @@ namespace LanguageExt
                                         if (msg.Tag == UserControlMessageTag.UserAsk)
                                         {
                                             var rmsg = (ActorRequest)msg;
-                                            ActorContext.CurrentRequestId = rmsg.RequestId;
-                                            ActorContext.ReplyToId = rmsg.ReplyTo;
+                                            ActorContext.CurrentRequest = rmsg;
                                             ActorContext.WithContext(actor.Id, actor.Parent, actor.Children, rmsg.ReplyTo, () => actor.ProcessAsk(rmsg));
                                         }
                                         else
@@ -272,6 +270,10 @@ namespace LanguageExt
                                         }
                                     }
                                 }
+                            }
+                            catch (TaskCanceledException)
+                            {
+                                // We're being shutdown, ignore.
                             }
                             catch (Exception e)
                             {
