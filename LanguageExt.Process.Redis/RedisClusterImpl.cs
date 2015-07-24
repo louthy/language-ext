@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using StackExchange.Redis;
+using Newtonsoft.Json;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 namespace LanguageExt
 {
@@ -15,7 +18,7 @@ namespace LanguageExt
 
         object sync = new object();
         int databaseNumber;
-        ConnectionMultiplexer connection;
+        ConnectionMultiplexer redis;
 
         /// <summary>
         /// Ctor
@@ -31,8 +34,8 @@ namespace LanguageExt
         /// <summary>
         /// Return true if connected to cluster
         /// </summary>
-        public bool Connected => 
-            connection != null;
+        public bool Connected =>
+            redis != null;
 
         /// <summary>
         /// Cluster configuration
@@ -51,9 +54,9 @@ namespace LanguageExt
 
             lock (sync)
             {
-                if (connection == null)
+                if (redis == null)
                 {
-                    this.connection = ConnectionMultiplexer.Connect(Config.ConnectionString);
+                    this.redis = ConnectionMultiplexer.Connect(Config.ConnectionString);
                     this.databaseNumber = (int)databaseNumber;
                 }
                 return unit;
@@ -67,14 +70,47 @@ namespace LanguageExt
         {
             lock(sync)
             {
-                if (connection != null)
+                if (redis != null)
                 {
-                    connection.Close(true);
-                    connection.Dispose();
-                    connection = null;
+                    redis.Close(true);
+                    redis.Dispose();
+                    redis = null;
                 }
                 return unit;
             }
+        }
+
+        /// <summary>
+        /// Publish data to a named channel
+        /// </summary>
+        public long PublishToChannel(string channelName, object data) =>
+            redis.GetSubscriber().Publish(
+                channelName, 
+                JsonConvert.SerializeObject(data)
+                );
+
+        /// <summary>
+        /// Subscribe to a named channel
+        /// </summary>
+        public IObservable<object> SubscribeToChannel(string channelName, Type type)
+        {
+            var subject = new Subject<object>();
+            return subject.PostSubscribeAction(() =>
+                redis.GetSubscriber().Subscribe(
+                    channelName,
+                    (channel, value) =>
+                    {
+                        if (channel == channelName && !value.IsNullOrEmpty)
+                        {
+                            try
+                            {
+                                subject.OnNext(JsonConvert.DeserializeObject(value, type));
+                            }
+                            catch
+                            {
+                            }
+                        }
+                    }));
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    public interface IProcess : IDisposable
+    internal interface IProcess : IDisposable
     {
         /// <summary>
         /// Process path

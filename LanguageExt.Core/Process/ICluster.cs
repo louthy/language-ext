@@ -35,5 +35,15 @@ namespace LanguageExt
         /// Disconnect from cluster
         /// </summary>
         Unit Disconnect();
+
+        /// <summary>
+        /// Publish data to a named channel
+        /// </summary>
+        long PublishToChannel(string channelName, object data);
+
+        /// <summary>
+        /// Subscribe to a named channel
+        /// </summary>
+        IObservable<object> SubscribeToChannel(string channelName, System.Type type);
     }
 }

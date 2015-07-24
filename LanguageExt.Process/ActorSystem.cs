@@ -108,7 +108,7 @@ namespace LanguageExt
             state = state.ShutdownProcess(msg.ProcessId);
 
         private static Unit ObservePub(ActorSystemState state, ObservePubMessage msg) =>
-            state.ObservePub(msg.ProcessId);
+            state.ObservePub(msg.ProcessId, msg.MsgType);
 
         private static Unit ObserveState(ActorSystemState state, ObserveStateMessage msg) =>
             state.ObserveState(msg.ProcessId);
@@ -117,7 +117,7 @@ namespace LanguageExt
             state.Publish(msg.ProcessId, msg.Message);
 
         private static ActorSystemState AddToStore(ActorSystemState state, AddToStoreMessage msg) =>
-            state.AddOrUpdateStoreAndStartup(msg.Process, msg.Inbox);
+            state.AddOrUpdateStoreAndStartup(msg.Process, msg.Inbox, msg.Flags);
 
         private static ActorSystemState RemoveFromStore(ActorSystemState state, RemoveFromStoreMessage msg) =>
             state.RemoveFromStore(msg.ProcessId);
@@ -133,24 +133,22 @@ namespace LanguageExt
 
         private static ActorSystemState Register(ActorSystemState state, RegisterMessage msg) =>
             state.FindInStore(msg.ProcessId,
-                Some: (process, _) =>
+                Some: actorItem =>
                 {
                     var proxy = new ActorProxy(
                                     state.Cluster,
                                     state.Registered,
                                     msg.Name,
                                     ActorProxyTemplate.Registered,
-                                    () => new ActorProxyConfig(msg.ProcessId)
+                                    () => new ActorProxyConfig(msg.ProcessId),
+                                    ProcessFlags.Default
                                 );
 
                     var inbox = new ActorInbox<ActorProxyConfig, object>();
 
                     return state.FindInStore(
                         state.Registered,
-                        Some: (reg, __) =>
-                        {
-                            return state.AddOrUpdateStoreAndStartup(proxy, inbox);
-                        },
+                        Some: _  => state.AddOrUpdateStoreAndStartup(proxy, inbox, actorItem.Flags),
                         None: () => state
                     );
                 },

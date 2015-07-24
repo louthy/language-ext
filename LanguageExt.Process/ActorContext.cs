@@ -27,6 +27,7 @@ namespace LanguageExt
         [ThreadStatic] static Map<string, ProcessId> children = Map.empty<string,ProcessId>();
         [ThreadStatic] static long currentRequestId;
         [ThreadStatic] static ProcessId replyToId;
+        [ThreadStatic] static ProcessFlags processFlags;
 
         static object sync = new object();
 
@@ -51,7 +52,8 @@ namespace LanguageExt
                     new ProcessId(ProcessId.Sep.ToString()), 
                     name, 
                     ActorSystem.Inbox, 
-                    rootProcess => new ActorSystemState(cluster, root, rootProcess, rootInbox, ActorConfig.Default)
+                    rootProcess => new ActorSystemState(cluster, root, rootProcess, rootInbox, ActorConfig.Default), 
+                    ProcessFlags.Default
                 );
                 rootInbox.Startup(rootProcess, rootProcess.Parent);
                 rootProcess.Startup();
@@ -98,23 +100,23 @@ namespace LanguageExt
         public static Unit DeregisterCluster() =>
             Startup(None);
 
-        public static ProcessId ActorCreate<S, T>(ProcessId parent, ProcessName name, Func<T, Unit> actorFn)
+        public static ProcessId ActorCreate<S, T>(ProcessId parent, ProcessName name, Func<T, Unit> actorFn, ProcessFlags flags)
         {
-            return ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S));
+            return ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), flags);
         }
 
-        public static ProcessId ActorCreate<S, T>(ProcessId parent, ProcessName name, Action<T> actorFn)
+        public static ProcessId ActorCreate<S, T>(ProcessId parent, ProcessName name, Action<T> actorFn, ProcessFlags flags)
         {
-            return ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S));
+            return ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), flags);
         }
 
-        public static ProcessId ActorCreate<S,T>(ProcessId parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn)
+        public static ProcessId ActorCreate<S,T>(ProcessId parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn, ProcessFlags flags)
         {
             if (parent.IsValid)
             {
-                var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn);
+                var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn, flags);
                 var inbox = new ActorInbox<S, T>();
-                Tell(Root, ActorSystemMessage.AddToStore(actor, inbox), Self);
+                Tell(Root, ActorSystemMessage.AddToStore(actor, inbox, flags), Self);
                 return actor.Id;
             }
             else
@@ -197,6 +199,18 @@ namespace LanguageExt
             }
         }
 
+        public static ProcessFlags ProcessFlags
+        {
+            get
+            {
+                return processFlags;
+            }
+            set
+            {
+                processFlags = value;
+            }
+        }
+
         public static IActorInbox RootInbox => 
             rootInbox;
 
@@ -238,6 +252,28 @@ namespace LanguageExt
                 ActorContext.parent = savedParent;
                 ActorContext.children = savedChildren;
             }
+        }
+
+        public static Unit Publish(object message)
+        {
+            if (cluster.IsSome && (ProcessFlags & ProcessFlags.RemotePublish) == ProcessFlags.RemotePublish)
+            {
+                cluster.IfNone(() => null).PublishToChannel(Self.Value + "-pubsub", message);
+            }
+            else
+            {
+                RootInbox.Tell(ActorSystemMessage.Publish(Self, message), Self);
+            }
+            return unit;
+        }
+
+        internal static IObservable<T> Observe<T>(ProcessId pid)
+        {
+            return from x in Process.ask<IObservable<object>>(Root, ActorSystemMessage.ObservePub(pid, (System.Type)typeof(T)))
+                                    .Timeout(ActorConfig.Default.Timeout)
+                                    .Wait()
+                   where x is T
+                   select (T)x;
         }
 
         public static Unit WithContext(ProcessId self, ProcessId parent, Map<string, ProcessId> children, ProcessId sender, Action f)

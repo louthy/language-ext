@@ -23,13 +23,15 @@ namespace LanguageExt
         Option<ICluster> cluster;
         Subject<object> publishSubject = new Subject<object>();
         Subject<object> stateSubject = new Subject<object>();
+        ProcessFlags flags;
 
-        internal Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<IProcess, S> setup)
+        internal Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<IProcess, S> setup, ProcessFlags flags)
         {
             if (setup == null) throw new ArgumentNullException(nameof(setup));
             if (actor == null) throw new ArgumentNullException(nameof(actor));
 
             this.cluster = cluster;
+            this.flags = flags;
             actorFn = actor;
             setupFn = setup;
             Parent = parent;
@@ -37,19 +39,19 @@ namespace LanguageExt
             Id = parent.MakeChildId(name);
         }
 
-        public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<S> setup)
+        public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<S> setup, ProcessFlags flags)
             :
-            this(cluster, parent, name, actor, _ => setup())
+            this(cluster, parent, name, actor, _ => setup(), flags)
             {}
 
-        public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<T, Unit> actor)
+        public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<T, Unit> actor, ProcessFlags flags)
             :
-            this(cluster, parent, name,(s,t) => { actor(t); return default(S); }, () => default(S) )
+            this(cluster, parent, name,(s,t) => { actor(t); return default(S); }, () => default(S), flags)
             {}
 
-        public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Action<T> actor)
+        public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Action<T> actor, ProcessFlags flags)
             :
-            this(cluster, parent, name, (s, t) => { actor(t); return default(S); }, () => default(S))
+            this(cluster, parent, name, (s, t) => { actor(t); return default(S); }, () => default(S), flags)
             {}
 
         /// <summary>
@@ -153,6 +155,7 @@ namespace LanguageExt
         {
             try
             {
+                ActorContext.ProcessFlags = flags;
                 if (request.Message is T)
                 {
                     ActorContext.CurrentRequestId = request.RequestId;
@@ -185,6 +188,7 @@ namespace LanguageExt
             try
             {
                 ActorContext.CurrentRequestId = -1;
+                ActorContext.ProcessFlags = flags;
                 state = actorFn(state, message);
                 stateSubject.OnNext(state);
             }

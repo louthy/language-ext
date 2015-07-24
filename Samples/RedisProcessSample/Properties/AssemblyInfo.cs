@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("LanguageExt.Process.Redis")]
-[assembly: AssemblyDescription("Language-Ext: C# Functional Language Extensions and Actor System")]
+[assembly: AssemblyTitle("RedisProcessSample")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("LanguageExt Process Redis")]
-[assembly: AssemblyCopyright("Copyright © Paul Louth 2014, 2015")]
+[assembly: AssemblyProduct("RedisProcessSample")]
+[assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("dc05f334-346b-41bc-bea5-bfbe24e52b5f")]
+[assembly: Guid("2c45a7ce-37a6-40eb-a88c-527ae8c7e6de")]
 
 // Version information for an assembly consists of the following four values:
 //

@@ -199,7 +199,7 @@ namespace LanguageExt
         /// <param name="message">Message to publish</param>
         public static Unit publish(object message) =>
             InMessageLoop
-                ? ActorContext.RootInbox.Tell(ActorSystemMessage.Publish(ActorContext.Self, message), ActorContext.Self)
+                ? ActorContext.Publish(message)
                 : failWithMessageLoopEx<Unit>();
 
         /// <summary>
@@ -297,11 +297,7 @@ namespace LanguageExt
         ///       not of type T will be ignored.
         /// </summary>
         public static IObservable<T> observe<T>(ProcessId pid) =>
-            from x in ask<IObservable<object>>(ActorContext.Root, ActorSystemMessage.ObservePub(pid))
-                        .Timeout(ActorConfig.Default.Timeout)
-                        .Wait()
-            where x is T
-            select (T)x;
+            ActorContext.Observe<T>(pid);
 
         /// <summary>
         /// Get an IObservable for a process's state stream.  When a process's state updates it

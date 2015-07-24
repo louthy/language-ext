@@ -17,13 +17,13 @@ namespace LanguageExt
             ProcessName nodeName,
             string connectionString,
             string catalogueName,
-            Map<string, string> metadata
+            Map<string, string> metadata = null
         )
         {
             NodeName = nodeName;
             ConnectionString = connectionString;
             CatalogueName = catalogueName;
-            Metadata = metadata;
+            Metadata = metadata ?? Map.empty<string,string>();
         }
     }
 }

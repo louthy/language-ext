@@ -10,13 +10,14 @@ namespace LanguageExt
     {
         public ActorProxy(
             Option<ICluster> cluster,
-            ProcessId parent, 
-            ProcessName name, 
-            Func<ActorProxyConfig, object, ActorProxyConfig> actor, 
-            Func<ActorProxyConfig> setup
+            ProcessId parent,
+            ProcessName name,
+            Func<ActorProxyConfig, object, ActorProxyConfig> actor,
+            Func<ActorProxyConfig> setup,
+            ProcessFlags flags
             )
             :
-            base(cluster, parent, name,actor,setup)
+            base(cluster, parent, name, actor, setup, flags)
         {
         }
     }

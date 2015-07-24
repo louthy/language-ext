@@ -28,7 +28,25 @@ namespace LanguageExt
 
         // We can use a mutable and non-locking dictionary here because access to 
         // it will be via the root actor's message-loop only
-        Dictionary<string, Tuple<IProcess, IActorInbox>> store = new Dictionary<string, Tuple<IProcess, IActorInbox>>();
+        Dictionary<string, ActorItem> store = new Dictionary<string, ActorItem>();
+
+        public class ActorItem
+        {
+            public readonly IProcess Actor;
+            public readonly IActorInbox Inbox;
+            public readonly ProcessFlags Flags;
+
+            public ActorItem(
+                IProcess actor,
+                IActorInbox inbox,
+                ProcessFlags flags
+                )
+            {
+                Actor = actor;
+                Inbox = inbox;
+                Flags = flags;
+            }
+        }
 
         public ActorSystemState(Option<ICluster> cluster, ProcessId rootId, IProcess rootProcess, IActorInbox rootInbox, ActorConfig config)
         {
@@ -38,7 +56,7 @@ namespace LanguageExt
             RootProcess = rootProcess;
             RootInbox = rootInbox;
 
-            store.Add(Root.Value, Tuple(RootProcess, rootInbox));
+            store.Add(Root.Value, new ActorItem(RootProcess, rootInbox, ProcessFlags.Default));
         }
 
         public ActorSystemState Startup()
@@ -46,17 +64,17 @@ namespace LanguageExt
             logInfo("Process system starting up");
 
             // Top tier
-            system = ActorCreate<Unit, object>(root, Config.SystemProcessName, Process.publish);
-            user = ActorCreate<Unit, object>(root, Config.UserProcessName, Process.publish);
+            system          = ActorCreate<Unit, object>(root, Config.SystemProcessName, publish, ProcessFlags.Default);
+            user            = ActorCreate<Unit, object>(root, Config.UserProcessName, publish, ProcessFlags.Default);
 
             // Second tier
-            deadLetters     = ActorCreate<Unit, object>(system, Config.DeadLettersProcessName, Process.publish);
-            errors          = ActorCreate<Unit, Exception>(system, Config.Errors, Process.publish);
-            noSender        = ActorCreate<Unit, object>(system, Config.NoSenderProcessName, Process.publish);
-            registered      = ActorCreate<Unit, object>(system, Config.RegisteredProcessName, Process.publish);
+            deadLetters     = ActorCreate<Unit, object>(system, Config.DeadLettersProcessName, publish, ProcessFlags.Default);
+            errors          = ActorCreate<Unit, Exception>(system, Config.Errors, publish, ProcessFlags.Default);
+            noSender        = ActorCreate<Unit, object>(system, Config.NoSenderProcessName, publish, ProcessFlags.Default);
+            registered      = ActorCreate<Unit, object>(system, Config.RegisteredProcessName, publish, ProcessFlags.Default);
 
-            inboxShutdown   = ActorCreate<Unit, IActorInbox>(system, Config.InboxShutdown, inbox => inbox.Shutdown());
-            askReqRes       = ActorCreate<Tuple<long, Dictionary<long, AskActorReq>>, object>(system, Config.AskReqRes, AskActor.Inbox, AskActor.Setup);
+            inboxShutdown   = ActorCreate<Unit, IActorInbox>(system, Config.InboxShutdown, inbox => inbox.Shutdown(), ProcessFlags.Default);
+            askReqRes       = ActorCreate<Tuple<long, Dictionary<long, AskActorReq>>, object>(system, Config.AskReqRes, AskActor.Inbox, AskActor.Setup, ProcessFlags.Default);
 
             logInfo("Process system startup complete");
 
@@ -68,8 +86,8 @@ namespace LanguageExt
             logInfo("Process system shutting down");
 
             ShutdownProcess(User);
-            user = ActorCreate<Unit, object>(root, Config.UserProcessName, Process.publish);
-            store[ActorContext.ReplyToId.Value].Item2.Tell(new ActorResponse(ActorContext.CurrentRequestId, unit), ActorContext.Root);
+            user = ActorCreate<Unit, object>(root, Config.UserProcessName, Process.publish, ProcessFlags.Default);
+            store[ActorContext.ReplyToId.Value].Inbox.Tell(new ActorResponse(ActorContext.CurrentRequestId, unit), ActorContext.Root);
 
             logInfo("Process system shutdown complete");
 
@@ -81,13 +99,13 @@ namespace LanguageExt
             if (ProcessDoesNotExist(nameof(ShutdownProcess), processId)) return this;
 
             var item = store[processId.Value];
-            var process = item.Item1;
-            var inbox = item.Item2;
+            var process = item.Actor;
+            var inbox = item.Inbox;
 
             var parent = store[process.Parent.Value];
-            parent.Item1.UnlinkChild(processId);
+            parent.Actor.UnlinkChild(processId);
 
-            ShutdownProcessRec(processId, store[inboxShutdown.Value].Item2);
+            ShutdownProcessRec(processId, store[inboxShutdown.Value].Inbox);
             process.Shutdown();
             store.Remove(processId.Value);
 
@@ -97,8 +115,8 @@ namespace LanguageExt
         private void ShutdownProcessRec(ProcessId processId, IActorInbox inboxShutdown)
         {
             var item = store[processId.Value];
-            var process = item.Item1;
-            var inbox = item.Item2;
+            var process = item.Actor;
+            var inbox = item.Inbox;
 
             foreach (var child in process.Children.Values)
             {
@@ -110,18 +128,18 @@ namespace LanguageExt
         }
 
         public Unit Reply(object message, long requestid, ProcessId sender) =>
-            store[askReqRes.Value].Item2.Tell(new ActorResponse(requestid, message), sender);
+            store[askReqRes.Value].Inbox.Tell(new ActorResponse(requestid, message), sender);
 
         public Unit GetChildren(ProcessId processId)
         {
             if (ReplyToProcessDoesNotExist(nameof(GetState))) return unit;
             if (ProcessDoesNotExist(nameof(GetState), processId)) return unit;
 
-            Map<string, ProcessId> kids = store[processId.Value].Item1.Children;
+            Map<string, ProcessId> kids = store[processId.Value].Actor.Children;
 
             ReplyInfo(nameof(GetChildren), processId, kids.Count);
 
-            return store[ActorContext.ReplyToId.Value].Item2.Tell(
+            return store[ActorContext.ReplyToId.Value].Inbox.Tell(
                         new ActorResponse(ActorContext.CurrentRequestId, kids),
                         processId
                     );
@@ -131,7 +149,7 @@ namespace LanguageExt
         {
             if (ProcessDoesNotExist(nameof(Publish), processId)) return unit;
 
-            return store[processId.Value].Item1.Publish(message);
+            return store[processId.Value].Actor.Publish(message);
         }
 
         internal Unit GetState(ProcessId processId)
@@ -139,26 +157,39 @@ namespace LanguageExt
             if (ReplyToProcessDoesNotExist(nameof(GetState))) return unit;
             if (ProcessDoesNotExist(nameof(GetState), processId)) return unit;
 
-            object state = store[processId.Value].Item1.GetState();
+            object state = store[processId.Value].Actor.GetState();
 
             ReplyInfo(nameof(GetState), processId, state);
 
-            return store[ActorContext.ReplyToId.Value].Item2.Tell(
+            return store[ActorContext.ReplyToId.Value].Inbox.Tell(
                         new ActorResponse(ActorContext.CurrentRequestId, state),
                         processId);
         }
 
-        internal Unit ObservePub(ProcessId processId)
+        internal Unit ObservePub(ProcessId processId, Type type)
         {
             if (ReplyToProcessDoesNotExist(nameof(ObservePub))) return unit;
             if (ProcessDoesNotExist(nameof(ObservePub), processId)) return unit;
 
-            return store[ActorContext.ReplyToId.Value].Item2.Tell(
-                new ActorResponse(
-                    ActorContext.CurrentRequestId,
-                    store[processId.Value].Item1.PublishStream
-                    ),
-                processId);
+            var item = store[processId.Value];
+
+            IObservable<object> stream = null;
+
+            if (Cluster.IsSome && (item.Flags & ProcessFlags.RemotePublish) == ProcessFlags.RemotePublish)
+            {
+                var cluster = Cluster.IfNone(() => null);
+                stream = cluster.SubscribeToChannel(processId.Value + "-pubsub", type);
+            }
+            else
+            {
+                stream = item.Actor.PublishStream;
+            }
+            return store[ActorContext.ReplyToId.Value].Inbox.Tell(
+                    new ActorResponse(
+                        ActorContext.CurrentRequestId,
+                        stream
+                        ),
+                    processId);
         }
 
         internal Unit ObserveState(ProcessId processId)
@@ -166,11 +197,11 @@ namespace LanguageExt
             if (ReplyToProcessDoesNotExist(nameof(ObservePub))) return unit;
             if (ProcessDoesNotExist(nameof(ObservePub), processId)) return unit;
 
-            return store[ActorContext.ReplyToId.Value].Item2.Tell(
+            return store[ActorContext.ReplyToId.Value].Inbox.Tell(
                 new ActorResponse(
                     ActorContext.CurrentRequestId,
                     store.ContainsKey(processId.Value)
-                        ? store[processId.Value].Item1.StateStream
+                        ? store[processId.Value].Actor.StateStream
                         : null
                     ),
                 processId);
@@ -181,39 +212,39 @@ namespace LanguageExt
             logWarn("Sending to DeadLetters, process (" + processId + ") doesn't exist.  Message: "+message);
 
             return FindInStore(DeadLetters,
-                        Some: (process, inbox) => ActorContext.WithContext(processId, process.Parent, process.Children, sender, () => inbox.Tell(message, sender)),
+                        Some: item => ActorContext.WithContext(processId, item.Actor.Parent, item.Actor.Children, sender, () => item.Inbox.Tell(message, sender)),
                         None: () => unit);
         }
 
         public Unit Tell(ProcessId processId, ProcessId sender, ActorSystemMessageTag tag, object message) =>
             FindInStore(
                 processId,
-                Some: (process,inbox) => tag == ActorSystemMessageTag.TellSystem && message is SystemMessage           ? inbox.TellSystem(message as SystemMessage)
-                                       : tag == ActorSystemMessageTag.TellUserControl && message is UserControlMessage ? inbox.TellUserControl(message as UserControlMessage)
-                                       : ActorContext.WithContext(processId, process.Parent, process.Children, sender, () => inbox.Tell(message, sender)),
+                Some: item => tag == ActorSystemMessageTag.TellSystem && message is SystemMessage           ? item.Inbox.TellSystem(message as SystemMessage)
+                            : tag == ActorSystemMessageTag.TellUserControl && message is UserControlMessage ? item.Inbox.TellUserControl(message as UserControlMessage)
+                            : ActorContext.WithContext(processId, item.Actor.Parent, item.Actor.Children, sender, () => item.Inbox.Tell(message, sender)),
                 None: () => TellDeadLetters(processId,sender,tag,message));
 
-        public ProcessId ActorCreate<S, T>(ProcessId parent, ProcessName name, Func<T, Unit> actorFn)
+        public ProcessId ActorCreate<S, T>(ProcessId parent, ProcessName name, Func<T, Unit> actorFn, ProcessFlags flags)
         {
-            return ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S));
+            return ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), flags);
         }
 
-        public ProcessId ActorCreate<S, T>(ProcessId parent, ProcessName name, Action<T> actorFn)
+        public ProcessId ActorCreate<S, T>(ProcessId parent, ProcessName name, Action<T> actorFn, ProcessFlags flags)
         {
-            return ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S));
+            return ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), flags);
         }
 
-        public ProcessId ActorCreate<S, T>(ProcessId parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn)
+        public ProcessId ActorCreate<S, T>(ProcessId parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn, ProcessFlags flags)
         {
             if (ProcessDoesNotExist(nameof(ActorCreate), parent)) return ProcessId.None;
 
-            var actor = new Actor<S, T>(Cluster, parent, name, actorFn, setupFn);
+            var actor = new Actor<S, T>(Cluster, parent, name, actorFn, setupFn, flags);
             var inbox = new ActorInbox<S, T>();
-            AddOrUpdateStoreAndStartup(actor, inbox);
+            AddOrUpdateStoreAndStartup(actor, inbox, flags);
             return actor.Id;
         }
 
-        public ActorSystemState AddOrUpdateStoreAndStartup(IProcess process, IActorInbox inbox)
+        public ActorSystemState AddOrUpdateStoreAndStartup(IProcess process, IActorInbox inbox, ProcessFlags flags)
         {
             if (store.ContainsKey(process.Parent.Value))
             {
@@ -227,8 +258,8 @@ namespace LanguageExt
                     {
                         store.Remove(path);
                     }
-                    store.Add(path, Tuple(process, inbox));
-                    parent.Item1.LinkChild(process.Id.Value);
+                    store.Add(path, new ActorItem(process, inbox, flags));
+                    parent.Actor.LinkChild(process.Id.Value);
 
                     inbox.Startup(process, process.Parent);
                     process.Startup();
@@ -250,7 +281,7 @@ namespace LanguageExt
             return this;
         }
 
-        public T FindInStore<T>(ProcessId pid, Func<IProcess, IActorInbox, T> Some, Func<T> None)
+        public T FindInStore<T>(ProcessId pid, Func<ActorItem, T> Some, Func<T> None)
         {
             if (pid.IsValid)
             {
@@ -258,28 +289,7 @@ namespace LanguageExt
                 if (store.ContainsKey(path))
                 {
                     var res = store[path];
-                    return Some(res.Item1, res.Item2);
-                }
-                else
-                {
-                    return None();
-                }
-            }
-            else
-            {
-                return None();
-            }
-        }
-
-        public T FindInStore<T>(ProcessId pid, Func<IActorInbox, T> Some, Func<T> None)
-        {
-            if (pid.IsValid)
-            {
-                var path = pid.Value;
-                if (store.ContainsKey(path))
-                {
-                    var res = store[path];
-                    return Some(res.Item2);
+                    return Some(res);
                 }
                 else
                 {
