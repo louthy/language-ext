@@ -1,5 +1,6 @@
 ﻿using Microsoft.FSharp.Control;
 using Microsoft.FSharp.Core;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace LanguageExt
 {
     internal interface IActorInbox : IDisposable
     {
-        Unit Startup(IProcess pid, ProcessId supervisor);
+        Unit Startup(IProcess pid, ProcessId supervisor, Option<ICluster> cluster);
         Unit Shutdown();
         Unit Tell(object message, ProcessId sender);
         Unit TellUserControl(UserControlMessage message);
@@ -21,27 +22,57 @@ namespace LanguageExt
 
     internal class ActorInbox<S,T> : IActorInbox
     {
-        ProcessId pid;
         ProcessId supervisor;
         CancellationTokenSource tokenSource;
         FSharpMailboxProcessor<UserControlMessage> userInbox;
         FSharpMailboxProcessor<SystemMessage> sysInbox;
         Actor<S, T> actor;
+        Option<ICluster> cluster;
 
-        public Unit Startup(IProcess process, ProcessId supervisor)
+        public Unit Startup(IProcess process, ProcessId supervisor, Option<ICluster> cluster)
         {
-
             if (Active)
             {
                 Shutdown();
             }
+            this.cluster = cluster;
             this.tokenSource = new CancellationTokenSource();
             this.actor = (Actor<S, T>)process;
             this.supervisor = supervisor;
             this.sysInbox = StartSystemMailbox(actor, supervisor, tokenSource.Token);
             this.userInbox = StartUserMailbox(actor, supervisor, tokenSource.Token);
 
+            RestoreInbox(cluster);
+
             return unit;
+        }
+
+        private void RestoreInbox(Option<ICluster> cluster)
+        {
+            cluster.IfSome(c =>
+            {
+                if ((actor.Flags & ProcessFlags.PersistentInbox) == ProcessFlags.PersistentInbox)
+                {
+
+                    c.GetQueue<UserMessageDTO>(ClusterKey).Iter(msg =>
+                    {
+                        object obj = null;
+                        try
+                        {
+                            obj = JsonConvert.DeserializeObject(msg.Content);
+                        }
+                        catch
+                        {
+                        }
+
+                        if (msg != null)
+                        {
+                            Process.logInfo("Restoring message for " + ClusterKey + ": " + msg.Content);
+                            userInbox.Post(new UserMessage(obj, msg.Sender, msg.ReplyTo));
+                        }
+                    });
+                }
+            });
         }
 
         public Unit Shutdown()
@@ -54,16 +85,17 @@ namespace LanguageExt
                 tokenSource = null;
                 userInbox = null;
                 sysInbox = null;
-                pid = ProcessId.None;
                 supervisor = ProcessId.None;
             }
             return unit;
         }
 
+        string ClusterKey => actor.Id.Path + "-inbox";
+
         public bool Active => 
             tokenSource != null;
 
-        public Unit Tell(object message, ProcessId sender )
+        public Unit Tell(object message, ProcessId sender)
         {
             if (userInbox != null)
             {
@@ -88,7 +120,25 @@ namespace LanguageExt
                         Process.tell(ActorContext.DeadLetters, message);
                         return unit;
                     }
-                    userInbox.Post(new UserMessage(message, sender, sender));
+
+                    var enqItem = new UserMessage(message, sender, sender);
+
+                    cluster.IfSome(c =>
+                    {
+                        if ((actor.Flags & ProcessFlags.PersistentInbox) == ProcessFlags.PersistentInbox)
+                        {
+                            var dto = new UserMessageDTO()
+                            {
+                                Sender = enqItem.Sender.ToString(),
+                                ReplyTo = enqItem.Sender.ToString(),
+                                Content = JsonConvert.SerializeObject(message, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All })
+                            };
+
+                            c.Enqueue(ClusterKey, dto);
+                        }
+                    });
+
+                    userInbox.Post(enqItem);
                 }
             }
             return unit;
@@ -183,33 +233,49 @@ namespace LanguageExt
                     {
                         while (!cancelToken.IsCancellationRequested)
                         {
-                            var msg = await FSharpAsync.StartAsTask(mbox.Receive(FSharpOption<int>.None), FSharpOption<TaskCreationOptions>.None, FSharpOption<CancellationToken>.Some(cancelToken));
-                            if (msg != null && !tokenSource.IsCancellationRequested)
+                            try
                             {
-                                if (msg.MessageType == Message.Type.User)
+                                var msg = await FSharpAsync.StartAsTask(mbox.Receive(FSharpOption<int>.None), FSharpOption<TaskCreationOptions>.None, FSharpOption<CancellationToken>.Some(cancelToken));
+
+                                cluster.IfSome(c =>
                                 {
-                                    if (msg.Tag == UserControlMessageTag.UserAsk)
+                                    if ((actor.Flags & ProcessFlags.PersistentInbox) == ProcessFlags.PersistentInbox)
                                     {
-                                        var rmsg = (ActorRequest)msg;
-                                        ActorContext.CurrentRequestId = rmsg.RequestId;
-                                        ActorContext.ReplyToId = rmsg.ReplyTo;
-                                        ActorContext.WithContext(actor.Id, actor.Parent, actor.Children, rmsg.ReplyTo, () => actor.ProcessAsk(rmsg));
+                                        c.Dequeue<UserMessageDTO>(ClusterKey);
                                     }
-                                    else
+                                });
+
+                                if (msg != null && !tokenSource.IsCancellationRequested)
+                                {
+                                    if (msg.MessageType == Message.Type.User)
                                     {
-                                        var umsg = (UserMessage)msg;
-                                        ActorContext.WithContext(actor.Id, actor.Parent, actor.Children, umsg.Sender, () => actor.ProcessMessage((T)umsg.Content));
+                                        if (msg.Tag == UserControlMessageTag.UserAsk)
+                                        {
+                                            var rmsg = (ActorRequest)msg;
+                                            ActorContext.CurrentRequestId = rmsg.RequestId;
+                                            ActorContext.ReplyToId = rmsg.ReplyTo;
+                                            ActorContext.WithContext(actor.Id, actor.Parent, actor.Children, rmsg.ReplyTo, () => actor.ProcessAsk(rmsg));
+                                        }
+                                        else
+                                        {
+                                            var umsg = (UserMessage)msg;
+                                            ActorContext.WithContext(actor.Id, actor.Parent, actor.Children, umsg.Sender, () => actor.ProcessMessage((T)umsg.Content));
+                                        }
+                                    }
+                                    else if (msg.MessageType == Message.Type.UserControl)
+                                    {
+                                        switch (msg.Tag)
+                                        {
+                                            case UserControlMessageTag.Shutdown:
+                                                Process.kill(actor.Id);
+                                                break;
+                                        }
                                     }
                                 }
-                                else if (msg.MessageType == Message.Type.UserControl)
-                                {
-                                    switch (msg.Tag)
-                                    {
-                                        case UserControlMessageTag.Shutdown:
-                                            Process.kill(actor.Id);
-                                            break;
-                                    }
-                                }
+                            }
+                            catch (Exception e)
+                            {
+                                Process.logSysErr(e);
                             }
                         }
                         actor.Dispose();

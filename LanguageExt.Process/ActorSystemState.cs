@@ -56,7 +56,7 @@ namespace LanguageExt
             RootProcess = rootProcess;
             RootInbox = rootInbox;
 
-            store.Add(Root.Value, new ActorItem(RootProcess, rootInbox, ProcessFlags.Default));
+            store.Add(Root.Path, new ActorItem(RootProcess, rootInbox, ProcessFlags.Default));
         }
 
         public ActorSystemState Startup()
@@ -87,7 +87,7 @@ namespace LanguageExt
 
             ShutdownProcess(User);
             user = ActorCreate<Unit, object>(root, Config.UserProcessName, Process.publish, ProcessFlags.Default);
-            store[ActorContext.ReplyToId.Value].Inbox.Tell(new ActorResponse(ActorContext.CurrentRequestId, unit), ActorContext.Root);
+            store[ActorContext.ReplyToId.Path].Inbox.Tell(new ActorResponse(ActorContext.CurrentRequestId, unit), ActorContext.Root);
 
             logInfo("Process system shutdown complete");
 
@@ -98,23 +98,23 @@ namespace LanguageExt
         {
             if (ProcessDoesNotExist(nameof(ShutdownProcess), processId)) return this;
 
-            var item = store[processId.Value];
+            var item = store[processId.Path];
             var process = item.Actor;
             var inbox = item.Inbox;
 
-            var parent = store[process.Parent.Value];
+            var parent = store[process.Parent.Path];
             parent.Actor.UnlinkChild(processId);
 
-            ShutdownProcessRec(processId, store[inboxShutdown.Value].Inbox);
+            ShutdownProcessRec(processId, store[inboxShutdown.Path].Inbox);
             process.Shutdown();
-            store.Remove(processId.Value);
+            store.Remove(processId.Path);
 
             return this;
         }
 
         private void ShutdownProcessRec(ProcessId processId, IActorInbox inboxShutdown)
         {
-            var item = store[processId.Value];
+            var item = store[processId.Path];
             var process = item.Actor;
             var inbox = item.Inbox;
 
@@ -124,22 +124,22 @@ namespace LanguageExt
             }
             inboxShutdown.Tell(inbox, ProcessId.NoSender);
             process.Shutdown();
-            store.Remove(processId.Value);
+            store.Remove(processId.Path);
         }
 
         public Unit Reply(object message, long requestid, ProcessId sender) =>
-            store[askReqRes.Value].Inbox.Tell(new ActorResponse(requestid, message), sender);
+            store[askReqRes.Path].Inbox.Tell(new ActorResponse(requestid, message), sender);
 
         public Unit GetChildren(ProcessId processId)
         {
             if (ReplyToProcessDoesNotExist(nameof(GetState))) return unit;
             if (ProcessDoesNotExist(nameof(GetState), processId)) return unit;
 
-            Map<string, ProcessId> kids = store[processId.Value].Actor.Children;
+            Map<string, ProcessId> kids = store[processId.Path].Actor.Children;
 
             ReplyInfo(nameof(GetChildren), processId, kids.Count);
 
-            return store[ActorContext.ReplyToId.Value].Inbox.Tell(
+            return store[ActorContext.ReplyToId.Path].Inbox.Tell(
                         new ActorResponse(ActorContext.CurrentRequestId, kids),
                         processId
                     );
@@ -149,7 +149,7 @@ namespace LanguageExt
         {
             if (ProcessDoesNotExist(nameof(Publish), processId)) return unit;
 
-            return store[processId.Value].Actor.Publish(message);
+            return store[processId.Path].Actor.Publish(message);
         }
 
         internal Unit GetState(ProcessId processId)
@@ -157,11 +157,11 @@ namespace LanguageExt
             if (ReplyToProcessDoesNotExist(nameof(GetState))) return unit;
             if (ProcessDoesNotExist(nameof(GetState), processId)) return unit;
 
-            object state = store[processId.Value].Actor.GetState();
+            object state = store[processId.Path].Actor.GetState();
 
             ReplyInfo(nameof(GetState), processId, state);
 
-            return store[ActorContext.ReplyToId.Value].Inbox.Tell(
+            return store[ActorContext.ReplyToId.Path].Inbox.Tell(
                         new ActorResponse(ActorContext.CurrentRequestId, state),
                         processId);
         }
@@ -171,20 +171,20 @@ namespace LanguageExt
             if (ReplyToProcessDoesNotExist(nameof(ObservePub))) return unit;
             if (ProcessDoesNotExist(nameof(ObservePub), processId)) return unit;
 
-            var item = store[processId.Value];
+            var item = store[processId.Path];
 
             IObservable<object> stream = null;
 
             if (Cluster.IsSome && (item.Flags & ProcessFlags.RemotePublish) == ProcessFlags.RemotePublish)
             {
                 var cluster = Cluster.IfNone(() => null);
-                stream = cluster.SubscribeToChannel(processId.Value + "-pubsub", type);
+                stream = cluster.SubscribeToChannel(processId.Path + "-pubsub", type);
             }
             else
             {
                 stream = item.Actor.PublishStream;
             }
-            return store[ActorContext.ReplyToId.Value].Inbox.Tell(
+            return store[ActorContext.ReplyToId.Path].Inbox.Tell(
                     new ActorResponse(
                         ActorContext.CurrentRequestId,
                         stream
@@ -197,11 +197,11 @@ namespace LanguageExt
             if (ReplyToProcessDoesNotExist(nameof(ObservePub))) return unit;
             if (ProcessDoesNotExist(nameof(ObservePub), processId)) return unit;
 
-            return store[ActorContext.ReplyToId.Value].Inbox.Tell(
+            return store[ActorContext.ReplyToId.Path].Inbox.Tell(
                 new ActorResponse(
                     ActorContext.CurrentRequestId,
-                    store.ContainsKey(processId.Value)
-                        ? store[processId.Value].Actor.StateStream
+                    store.ContainsKey(processId.Path)
+                        ? store[processId.Path].Actor.StateStream
                         : null
                     ),
                 processId);
@@ -246,22 +246,22 @@ namespace LanguageExt
 
         public ActorSystemState AddOrUpdateStoreAndStartup(IProcess process, IActorInbox inbox, ProcessFlags flags)
         {
-            if (store.ContainsKey(process.Parent.Value))
+            if (store.ContainsKey(process.Parent.Path))
             {
-                var parent = store[process.Parent.Value];
+                var parent = store[process.Parent.Path];
 
-                if (process.Id.Value.Length > process.Parent.Value.Length &&
-                    process.Id.Value.StartsWith(process.Parent.Value))
+                if (process.Id.Path.Length > process.Parent.Path.Length &&
+                    process.Id.Path.StartsWith(process.Parent.Path))
                 {
-                    var path = process.Id.Value;
+                    var path = process.Id.Path;
                     if (store.ContainsKey(path))
                     {
                         store.Remove(path);
                     }
                     store.Add(path, new ActorItem(process, inbox, flags));
-                    parent.Actor.LinkChild(process.Id.Value);
+                    parent.Actor.LinkChild(process.Id.Path);
 
-                    inbox.Startup(process, process.Parent);
+                    inbox.Startup(process, process.Parent, Cluster);
                     process.Startup();
                 }
             }
@@ -272,7 +272,7 @@ namespace LanguageExt
         {
             if (pid.IsValid)
             {
-                var path = pid.Value;
+                var path = pid.Path;
                 if (store.ContainsKey(path))
                 {
                     store.Remove(path);
@@ -285,7 +285,7 @@ namespace LanguageExt
         {
             if (pid.IsValid)
             {
-                var path = pid.Value;
+                var path = pid.Path;
                 if (store.ContainsKey(path))
                 {
                     var res = store[path];
@@ -331,7 +331,7 @@ namespace LanguageExt
 
         private bool ProcessDoesNotExist(string func, ProcessId pid)
         {
-            if (pid.IsValid && store.ContainsKey(pid.Value))
+            if (pid.IsValid && store.ContainsKey(pid.Path))
             {
                 return false;
             }
@@ -344,13 +344,13 @@ namespace LanguageExt
 
         private bool ReplyToProcessDoesNotExist(string func)
         {
-            if (ActorContext.ReplyToId.IsValid && store.ContainsKey(ActorContext.ReplyToId.Value))
+            if (ActorContext.ReplyToId.IsValid && store.ContainsKey(ActorContext.ReplyToId.Path))
             {
                 return false;
             }
             else
             {
-                logErr(func + ": ReplyTo process doesn't exist: " + ActorContext.ReplyToId.Value);
+                logErr(func + ": ReplyTo process doesn't exist: " + ActorContext.ReplyToId.Path);
                 return true;
             }
         }

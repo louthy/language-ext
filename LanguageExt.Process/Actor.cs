@@ -74,7 +74,9 @@ namespace LanguageExt
             return unit;
         }
 
-        private string StateKey => Id.Value + "-state";
+        public ProcessFlags Flags => flags;
+
+        private string StateKey => Id.Path + "-state";
 
         private void SetupClusterStatePersist(Option<ICluster> cluster, ProcessFlags flags)
         {
@@ -100,6 +102,8 @@ namespace LanguageExt
             {
                 try
                 {
+                    logInfo("Restoring state: " + StateKey);
+
                     state = cluster.LiftUnsafe().Exists(StateKey)
                         ? cluster.LiftUnsafe().GetValue<S>(StateKey)
                         : setupFn(this);

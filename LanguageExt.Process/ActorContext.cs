@@ -55,7 +55,7 @@ namespace LanguageExt
                     rootProcess => new ActorSystemState(cluster, root, rootProcess, rootInbox, ActorConfig.Default), 
                     ProcessFlags.Default
                 );
-                rootInbox.Startup(rootProcess, rootProcess.Parent);
+                rootInbox.Startup(rootProcess, rootProcess.Parent, cluster);
                 rootProcess.Startup();
                 rootInbox.Tell(ActorSystemMessage.Startup, ProcessId.NoSender);
             }
@@ -126,17 +126,17 @@ namespace LanguageExt
         }
 
         public static Unit Tell(ProcessId to, object message, ProcessId sender) =>
-            to.Value == root.Value
+            to.Path == root.Path
                 ? rootInbox.Tell(message, sender)
                 : Tell(root, ActorSystemMessage.Tell(to, message, sender), sender);
 
         public static Unit TellUserControl(ProcessId to, UserControlMessage message) =>
-            to.Value == root.Value
+            to.Path == root.Path
                 ? rootInbox.Tell(message, Self)
                 : Tell(root, ActorSystemMessage.TellUserControl(to, message, Self), Self);
 
         public static Unit TellSystem(ProcessId to, SystemMessage message) =>
-            to.Value == root.Value
+            to.Path == root.Path
                 ? rootInbox.Tell(message, Self)
                 : Tell(root, ActorSystemMessage.TellSystem(to, message, Self), Self);
 
@@ -258,7 +258,7 @@ namespace LanguageExt
         {
             if (cluster.IsSome && (ProcessFlags & ProcessFlags.RemotePublish) == ProcessFlags.RemotePublish)
             {
-                cluster.IfNone(() => null).PublishToChannel(Self.Value + "-pubsub", message);
+                cluster.IfNone(() => null).PublishToChannel(Self.Path + "-pubsub", message);
             }
             else
             {

@@ -26,11 +26,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Process.Redis",
 		{D1AB41C6-8B45-4E01-8400-97D2779034DF} = {D1AB41C6-8B45-4E01-8400-97D2779034DF}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisProcessSample", "Samples\RedisProcessSample\RedisProcessSample.csproj", "{2C45A7CE-37A6-40EB-A88C-527AE8C7E6DE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisPublishSample", "Samples\RedisProcessSample\RedisPublishSample.csproj", "{2C45A7CE-37A6-40EB-A88C-527AE8C7E6DE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Redis", "Redis", "{E27B6C07-3673-4346-B4CF-D0664027BFB6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisStateSample", "Samples\RedisStateSample\RedisStateSample.csproj", "{D205CD19-628D-4F60-8B63-B9AB5F0A55B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisInboxSample", "Samples\RedisInboxSample\RedisInboxSample.csproj", "{7AC24676-95EF-48B1-B90F-8A62BB371655}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -74,6 +76,10 @@ Global
 		{D205CD19-628D-4F60-8B63-B9AB5F0A55B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D205CD19-628D-4F60-8B63-B9AB5F0A55B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D205CD19-628D-4F60-8B63-B9AB5F0A55B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AC24676-95EF-48B1-B90F-8A62BB371655}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AC24676-95EF-48B1-B90F-8A62BB371655}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AC24676-95EF-48B1-B90F-8A62BB371655}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AC24676-95EF-48B1-B90F-8A62BB371655}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -86,5 +92,6 @@ Global
 		{2C45A7CE-37A6-40EB-A88C-527AE8C7E6DE} = {E27B6C07-3673-4346-B4CF-D0664027BFB6}
 		{E27B6C07-3673-4346-B4CF-D0664027BFB6} = {EA06DAAF-DF38-448C-B611-6B02B8721E32}
 		{D205CD19-628D-4F60-8B63-B9AB5F0A55B9} = {E27B6C07-3673-4346-B4CF-D0664027BFB6}
+		{7AC24676-95EF-48B1-B90F-8A62BB371655} = {E27B6C07-3673-4346-B4CF-D0664027BFB6}
 	EndGlobalSection
 EndGlobal

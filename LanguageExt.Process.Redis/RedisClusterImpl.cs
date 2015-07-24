@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using LanguageExt;
-using static LanguageExt.Prelude;
 using StackExchange.Redis;
 using Newtonsoft.Json;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+
+using LanguageExt;
+using LanguageExt.Trans;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -28,7 +30,7 @@ namespace LanguageExt
             this.config = config;
         }
 
-        public ProcessName NodeName => 
+        public ProcessName NodeName =>
             Config.NodeName;
 
         /// <summary>
@@ -40,7 +42,7 @@ namespace LanguageExt
         /// <summary>
         /// Cluster configuration
         /// </summary>
-        public ClusterConfig Config => 
+        public ClusterConfig Config =>
             config;
 
         /// <summary>
@@ -68,7 +70,7 @@ namespace LanguageExt
         /// </summary>
         public Unit Disconnect()
         {
-            lock(sync)
+            lock (sync)
             {
                 if (redis != null)
                 {
@@ -85,7 +87,7 @@ namespace LanguageExt
         /// </summary>
         public long PublishToChannel(string channelName, object data) =>
             redis.GetSubscriber().Publish(
-                channelName, 
+                channelName,
                 JsonConvert.SerializeObject(data)
                 );
 
@@ -122,6 +124,49 @@ namespace LanguageExt
         public bool Exists(string key) =>
             Db.KeyExists(key);
 
-        private IDatabase Db => redis.GetDatabase(databaseNumber);
+        public bool Delete(string key) =>
+            Db.KeyDelete(key);
+
+        public void Enqueue(string key, object value) =>
+            Db.ListRightPush(key, JsonConvert.SerializeObject(value));
+
+        public T Dequeue<T>(string key)
+        {
+            try
+            {
+                return JsonConvert.DeserializeObject<T>(Db.ListLeftPop(key));
+            }
+            catch 
+            {
+                return default(T);
+            }
+        }
+
+        /// <summary>
+        /// Get queue by key
+        /// </summary>
+        public IEnumerable<T> GetQueue<T>(string key)
+        {
+            if (Exists(key))
+            {
+                // First get the entire queue
+                return Db.ListRange(key)
+                         .Select(x =>
+                         {
+                             try { return SomeUnsafe(JsonConvert.DeserializeObject<T>(x)); }
+                             catch { return OptionUnsafe<T>.None; }
+                         })
+                         .Where( x => x.IsSome)
+                         .Select( x => x.IfNoneUnsafe(null) )
+                         .ToList();
+            }
+            else
+            {
+                return new T[0];
+            }
+        }
+
+        private IDatabase Db => 
+            redis.GetDatabase(databaseNumber);
     }
 }

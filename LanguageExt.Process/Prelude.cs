@@ -324,6 +324,6 @@ namespace LanguageExt
         /// Returns true if in a message loop
         /// </summary>
         internal static bool InMessageLoop =>
-            ActorContext.Self.IsValid && ActorContext.Self.Value != ActorContext.User.Value;
+            ActorContext.Self.IsValid && ActorContext.Self.Path != ActorContext.User.Path;
     }
 }

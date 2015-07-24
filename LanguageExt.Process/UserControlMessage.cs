@@ -44,4 +44,11 @@ namespace LanguageExt
         public override Message.Type MessageType => Message.Type.UserControl;
         public override UserControlMessageTag Tag => UserControlMessageTag.Shutdown;
     }
+
+    internal class UserMessageDTO
+    {
+        public string Sender;
+        public string ReplyTo;
+        public string Content;
+    }
 }

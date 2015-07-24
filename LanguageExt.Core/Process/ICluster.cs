@@ -46,10 +46,37 @@ namespace LanguageExt
         /// </summary>
         IObservable<object> SubscribeToChannel(string channelName, System.Type type);
 
+        /// <summary>
+        /// Set a value by key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
         void SetValue(string key, object value);
 
+        /// <summary>
+        /// Get a value by key
+        /// </summary>
         T GetValue<T>(string key);
 
+        /// <summary>
+        /// Check if a key exists
+        /// </summary>
         bool Exists(string key);
+
+        /// <summary>
+        /// Enqueue a message
+        /// </summary>
+        void Enqueue(string key, object value);
+
+        /// <summary>
+        /// Dequeue a message
+        /// </summary>
+        T Dequeue<T>(string key);
+
+        /// <summary>
+        /// Get queue by key
+        /// </summary>
+        IEnumerable<T> GetQueue<T>(string key);
+
     }
 }

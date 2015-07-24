@@ -10,7 +10,7 @@ namespace LanguageExt
     public struct ProcessId
     {
         internal readonly ProcessName[] Parts;
-        public readonly string Value;
+        public readonly string Path;
         public readonly ProcessName Name;
 
         public ProcessId(string path)
@@ -42,7 +42,7 @@ namespace LanguageExt
                 }
             }
 
-            Value = Parts == null
+            Path = Parts == null
                 ? ""
                 : Parts.Length == 0
                     ? Sep.ToString()
@@ -67,16 +67,16 @@ namespace LanguageExt
                 ? failwith<ProcessId>("ProcessId is None")
                 : Parts.Length == 0
                     ? new ProcessId("" + Sep + name)
-                    : new ProcessId(Value + Sep + name);
+                    : new ProcessId(Path + Sep + name);
 
         public static implicit operator ProcessId(string value) =>
             new ProcessId(value);
 
         public override string ToString() =>
-            Value;
+            Path;
 
         public override int GetHashCode() =>
-            Value.GetHashCode();
+            Path.GetHashCode();
 
         public bool IsValid => 
             Parts != null;
