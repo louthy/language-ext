@@ -8,8 +8,14 @@ namespace LanguageExt
         /// <summary>
         /// Log info - Internal 
         /// </summary>
-        internal static void logInfo(object message) =>
+        internal static void logInfo(object message)
+#if DEBUG
+        {
             log.OnNext(new ProcessLogItem(ProcessLogItemType.Info, (message ?? "").ToString()));
+        }
+#else
+        {}
+#endif 
 
         /// <summary>
         /// Log warning - Internal 
