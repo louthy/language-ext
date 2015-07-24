@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 using static LanguageExt.List;
@@ -37,22 +38,24 @@ namespace LanguageExt
             Parent = parent;
             Name = name;
             Id = parent.MakeChildId(name);
+
+            SetupClusterStatePersist(cluster, flags);
         }
 
         public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<S> setup, ProcessFlags flags)
             :
             this(cluster, parent, name, actor, _ => setup(), flags)
-            {}
+        { }
 
         public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<T, Unit> actor, ProcessFlags flags)
             :
-            this(cluster, parent, name,(s,t) => { actor(t); return default(S); }, () => default(S), flags)
-            {}
+            this(cluster, parent, name, (s, t) => { actor(t); return default(S); }, () => default(S), flags)
+        { }
 
         public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Action<T> actor, ProcessFlags flags)
             :
             this(cluster, parent, name, (s, t) => { actor(t); return default(S); }, () => default(S), flags)
-            {}
+        { }
 
         /// <summary>
         /// Start up - creates the initial state
@@ -65,10 +68,52 @@ namespace LanguageExt
                 Parent,
                 Children,
                 ProcessId.NoSender,
-                () => state = setupFn(this)
+                () => InitState()
             );
             stateSubject.OnNext(state);
             return unit;
+        }
+
+        private string StateKey => Id.Value + "-state";
+
+        private void SetupClusterStatePersist(Option<ICluster> cluster, ProcessFlags flags)
+        {
+            cluster.IfSome(c =>
+            {
+                if ((flags & ProcessFlags.PersistentState) == ProcessFlags.PersistentState)
+                {
+                    try
+                    {
+                        stateSubject.Subscribe(state => c.SetValue(StateKey, state));
+                    }
+                    catch (Exception e)
+                    {
+                        logSysErr(e);
+                    }
+                }
+            });
+        }
+
+        private void InitState()
+        {
+            if (cluster.IsSome && ((flags & ProcessFlags.PersistentState) == ProcessFlags.PersistentState))
+            {
+                try
+                {
+                    state = cluster.LiftUnsafe().Exists(StateKey)
+                        ? cluster.LiftUnsafe().GetValue<S>(StateKey)
+                        : setupFn(this);
+                }
+                catch (Exception e)
+                {
+                    state = setupFn(this);
+                    logSysErr(e);
+                }
+            }
+            else
+            {
+                state = setupFn(this);
+            }
         }
 
         public IObservable<object> PublishStream => publishSubject;
@@ -117,7 +162,7 @@ namespace LanguageExt
         /// </summary>
         public Unit Restart()
         {
-            state = setupFn(this);
+            InitState();
             stateSubject.OnNext(state);
             tellChildren(SystemMessage.Restart);
             return unit;

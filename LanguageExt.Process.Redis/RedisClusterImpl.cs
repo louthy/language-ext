@@ -112,5 +112,16 @@ namespace LanguageExt
                         }
                     }));
         }
+
+        public void SetValue(string key, object value) =>
+            Db.StringSet(key, JsonConvert.SerializeObject(value));
+
+        public T GetValue<T>(string key) =>
+            JsonConvert.DeserializeObject<T>(Db.StringGet(key));
+
+        public bool Exists(string key) =>
+            Db.KeyExists(key);
+
+        private IDatabase Db => redis.GetDatabase(databaseNumber);
     }
 }

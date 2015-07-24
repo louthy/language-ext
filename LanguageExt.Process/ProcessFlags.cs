@@ -33,6 +33,12 @@ namespace LanguageExt
         /// This can be subscribed to be any other process within or without
         /// the application.
         /// </summary>
-        RemotePublish = 4
+        RemotePublish = 4,
+
+        /// <summary>
+        /// Combines PersistentState | PersistentInbox | RemotePublish to persist
+        /// all data relating to the process.
+        /// </summary>
+        PersistAll = 7
     }
 }

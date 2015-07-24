@@ -45,5 +45,11 @@ namespace LanguageExt
         /// Subscribe to a named channel
         /// </summary>
         IObservable<object> SubscribeToChannel(string channelName, System.Type type);
+
+        void SetValue(string key, object value);
+
+        T GetValue<T>(string key);
+
+        bool Exists(string key);
     }
 }
