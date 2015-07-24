@@ -115,6 +115,27 @@ namespace LanguageExt
                     }));
         }
 
+        public IObservable<T> SubscribeToChannel<T>(string channelName)
+        {
+            var subject = new Subject<T>();
+            return subject.PostSubscribeAction(() =>
+                redis.GetSubscriber().Subscribe(
+                    channelName,
+                    (channel, value) =>
+                    {
+                        if (channel == channelName && !value.IsNullOrEmpty)
+                        {
+                            try
+                            {
+                                subject.OnNext(JsonConvert.DeserializeObject<T>(value));
+                            }
+                            catch
+                            {
+                            }
+                        }
+                    }));
+        }
+
         public void SetValue(string key, object value) =>
             Db.StringSet(key, JsonConvert.SerializeObject(value));
 
@@ -127,8 +148,24 @@ namespace LanguageExt
         public bool Delete(string key) =>
             Db.KeyDelete(key);
 
+        public int QueueLength(string key) =>
+            (int)Db.ListLength(key);
+
         public void Enqueue(string key, object value) =>
             Db.ListRightPush(key, JsonConvert.SerializeObject(value));
+
+        public T Peek<T>(string key)
+        {
+            try
+            {
+                var val = Db.ListGetByIndex(key, 0);
+                return JsonConvert.DeserializeObject<T>(val);
+            }
+            catch
+            {
+                return default(T);
+            }
+        }
 
         public T Dequeue<T>(string key)
         {

@@ -407,7 +407,7 @@ namespace ProcessSample
 
             setup = fun(() =>
             {
-                int level = Int32.Parse(Self.Name.Value.Split('_').First()) + 1;
+                int level = Int32.Parse(Self.GetName().Value.Split('_').First()) + 1;
                 if (level <= depth)
                 {
                     iter(Range(0, nodes), i => spawn(level + "_" + i, setup, actor));
@@ -442,7 +442,7 @@ namespace ProcessSample
             {
                 Interlocked.Increment(ref count);
 
-                int level = Int32.Parse(Self.Name.Value.Split('_').First()) + 1;
+                int level = Int32.Parse(Self.GetName().Value.Split('_').First()) + 1;
                 if (level <= depth)
                 {
                     iter(Range(0, nodes), i => spawn(level + "_" + i, setup, actor));

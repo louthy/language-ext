@@ -6,6 +6,9 @@ using static LanguageExt.Process;
 
 namespace LanguageExt
 {
+    /// <summary>
+    /// Not currently used, but may be in future when distributed asks are done.
+    /// </summary>
     internal static class ReplyActor
     {
         const int responseActors = 20;
@@ -19,8 +22,6 @@ namespace LanguageExt
 
         public static void ReplyInbox(ActorResponse res)
         {
-            res.Subject.OnNext(res.Message);
-            res.Subject.OnCompleted();
         }
 
         public static Random Setup()

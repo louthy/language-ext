@@ -45,10 +45,15 @@ namespace LanguageExt
         public override UserControlMessageTag Tag => UserControlMessageTag.Shutdown;
     }
 
-    internal class UserMessageDTO
+    internal class RemoteMessageDTO
     {
+        public int Type;
+        public int Tag;
+        public string Exception;
+        public string Child;
         public string Sender;
         public string ReplyTo;
+        public long RequestId;
         public string Content;
     }
 }

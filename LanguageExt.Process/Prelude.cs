@@ -176,7 +176,7 @@ namespace LanguageExt
         /// jumps ahead of any messages already in the process's queue.
         /// </summary>
         public static Unit kill(ProcessId pid) =>
-            ActorContext.RootInbox.Tell(ActorSystemMessage.ShutdownProcess(pid), ActorContext.Self);
+            ActorContext.LocalRoot.Tell(ActorSystemMessage.ShutdownProcess(pid), ActorContext.Self);
 
         /// <summary>
         /// Shutdown all processes and restart
@@ -199,7 +199,7 @@ namespace LanguageExt
                             "You can't reply to this message.  It was sent from outside of a process and it wasn't an 'ask'.  " +
                             "Therefore we have no return address or observable stream to send the reply to."
                             )
-                    : ActorContext.RootInbox.Tell(ActorSystemMessage.Reply(ActorContext.CurrentRequest.ReplyTo, message, ActorContext.CurrentRequest.Subject), ActorContext.Self)
+                    : ActorContext.LocalRoot.Tell(ActorSystemMessage.Reply(ActorContext.CurrentRequest.ReplyTo, message, ActorContext.CurrentRequest.RequestId), ActorContext.Self)
                 : failWithMessageLoopEx<Unit>();
 
         /// <summary>

@@ -56,10 +56,12 @@ namespace LanguageExt
                 );
                 rootInbox.Startup(rootProcess, rootProcess.Parent, cluster);
                 rootProcess.Startup();
-                rootInbox.Tell(ActorSystemMessage.Startup, ProcessId.NoSender);
+                LocalRoot.Tell(ActorSystemMessage.Startup, ProcessId.NoSender);
             }
             return unit;
         }
+
+        public static ILocalActorInbox LocalRoot => (ILocalActorInbox)rootInbox;
 
         public static Unit Shutdown()
         {
@@ -84,7 +86,7 @@ namespace LanguageExt
         public static IObservable<T> Ask<T>(ProcessId pid, object message)
         {
             var subject = new Subject<object>();
-            return subject.PostSubscribeAction(() => Process.tell(pid, new ActorRequest(message, pid, Self, subject)))
+            return subject.PostSubscribeAction(() => Process.tell(AskId, new AskActorReq(message, subject, pid, Self)))
                           .Timeout(ActorConfig.Default.Timeout)
                           .Select(obj => (T)obj);
         }
@@ -114,7 +116,17 @@ namespace LanguageExt
             if (parent.IsValid)
             {
                 var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn, flags);
-                var inbox = new ActorInbox<S, T>();
+
+                IActorInbox inbox = null;
+                if ((flags & ProcessFlags.PersistInbox) == ProcessFlags.PersistInbox)
+                {
+                    inbox = new ActorInboxRemote<S, T>();
+                }
+                else
+                {
+                    inbox = new ActorInbox<S, T>();
+                }
+
                 Tell(Root, ActorSystemMessage.AddToStore(actor, inbox, flags), Self);
                 return actor.Id;
             }
@@ -126,17 +138,17 @@ namespace LanguageExt
 
         public static Unit Tell(ProcessId to, object message, ProcessId sender) =>
             to.Path == root.Path
-                ? rootInbox.Tell(message, sender)
+                ? LocalRoot.Tell(message, sender)
                 : Tell(root, ActorSystemMessage.Tell(to, message, sender), sender);
 
         public static Unit TellUserControl(ProcessId to, UserControlMessage message) =>
             to.Path == root.Path
-                ? rootInbox.Tell(message, Self)
+                ? LocalRoot.Tell(message, Self)
                 : Tell(root, ActorSystemMessage.TellUserControl(to, message, Self), Self);
 
         public static Unit TellSystem(ProcessId to, SystemMessage message) =>
             to.Path == root.Path
-                ? rootInbox.Tell(message, Self)
+                ? LocalRoot.Tell(message, Self)
                 : Tell(root, ActorSystemMessage.TellSystem(to, message, Self), Self);
 
         public static ProcessId Root =>
@@ -171,7 +183,7 @@ namespace LanguageExt
         public static Map<string, ProcessId> Children =>
             children;
 
-        internal static ProcessId AskReqRes =>
+        internal static ProcessId AskId =>
             System.MakeChildId(ActorConfig.Default.AskProcessName);
 
         public static ActorRequest CurrentRequest
@@ -249,7 +261,7 @@ namespace LanguageExt
             }
             else
             {
-                RootInbox.Tell(ActorSystemMessage.Publish(Self, message), Self);
+                LocalRoot.Tell(ActorSystemMessage.Publish(Self, message), Self);
             }
             return unit;
         }

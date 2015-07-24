@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
@@ -68,8 +69,8 @@ namespace LanguageExt
         public static ActorSystemMessage Deregister(ProcessName name) =>
             new DeregisterMessage(name);
 
-        public static ActorSystemMessage Reply(ProcessId replyTo, object message, Subject<object> subject) =>
-            new ReplyMessage(replyTo, message, ActorContext.Self, subject);
+        public static ActorSystemMessage Reply(ProcessId replyTo, object message, long requestId) =>
+            new ReplyMessage(replyTo, message, ActorContext.Self, requestId);
 
         public static ActorSystemMessage ObservePub(ProcessId pid, System.Type type) =>
             new ObservePubMessage(pid, type);
@@ -84,9 +85,10 @@ namespace LanguageExt
 
         public readonly ProcessId ProcessId;
 
-        public GetChildrenMessage(ProcessId pid)
+        [JsonConstructor]
+        public GetChildrenMessage(ProcessId processId)
         {
-            ProcessId = pid;
+            ProcessId = processId;
         }
 
         public override string ToString() => 
@@ -107,6 +109,7 @@ namespace LanguageExt
 
         public readonly ProcessId ProcessId;
 
+        [JsonConstructor]
         public ShutdownProcessMessage(ProcessId processId)
         {
             ProcessId = processId;
@@ -123,10 +126,11 @@ namespace LanguageExt
         public readonly ProcessId ProcessId;
         public readonly System.Type MsgType;
 
-        public ObservePubMessage(ProcessId pid, System.Type type)
+        [JsonConstructor]
+        public ObservePubMessage(ProcessId pid, System.Type msgType)
         {
             ProcessId = pid;
-            MsgType = type;
+            MsgType = msgType;
         }
 
         public override string ToString() =>
@@ -139,9 +143,10 @@ namespace LanguageExt
 
         public readonly ProcessId ProcessId;
 
-        public ObserveStateMessage(ProcessId pid)
+        [JsonConstructor]
+        public ObserveStateMessage(ProcessId processId)
         {
-            ProcessId = pid;
+            ProcessId = processId;
         }
 
         public override string ToString() =>
@@ -155,14 +160,15 @@ namespace LanguageExt
         public readonly ProcessId ReplyTo;
         public readonly object Message;
         public readonly ProcessId Sender;
-        public readonly Subject<object> Subject;
+        public readonly long RequestId;
 
-        public ReplyMessage(ProcessId replyTo, object message, ProcessId sender, Subject<object> subject)
+        [JsonConstructor]
+        public ReplyMessage(ProcessId replyTo, object message, ProcessId sender, long requestId)
         {
             ReplyTo = replyTo;
             Message = message;
             Sender = sender;
-            Subject = subject;
+            RequestId = requestId;
         }
 
         public override string ToString() =>
@@ -176,9 +182,10 @@ namespace LanguageExt
         public readonly ProcessId ProcessId;
         public readonly object Message;
 
-        public PubMessage(ProcessId pid, object message)
+        [JsonConstructor]
+        public PubMessage(ProcessId processId, object message)
         {
-            ProcessId = pid;
+            ProcessId = processId;
             Message = message;
         }
 
@@ -193,11 +200,12 @@ namespace LanguageExt
         public readonly ProcessId ProcessId;
         public readonly object Message;
         public readonly ProcessId Sender;
-        public readonly ActorSystemMessageTag tag;
+        readonly ActorSystemMessageTag tag;
 
-        public TellMessage(ProcessId pid, object message, ProcessId sender, ActorSystemMessageTag tag)
+        [JsonConstructor]
+        public TellMessage(ProcessId processId, object message, ProcessId sender, ActorSystemMessageTag tag)
         {
-            ProcessId = pid;
+            ProcessId = processId;
             Message = message;
             Sender = sender;
             this.tag = tag;
@@ -232,6 +240,7 @@ namespace LanguageExt
 
         public readonly ProcessId ProcessId;
 
+        [JsonConstructor]
         public RemoveFromStoreMessage(ProcessId processId)
         {
             ProcessId = processId;
@@ -248,6 +257,7 @@ namespace LanguageExt
         public readonly ProcessName Name;
         public readonly ProcessId ProcessId;
 
+        [JsonConstructor]
         public RegisterMessage(ProcessName name, ProcessId processId)
         {
             Name = name;
@@ -264,6 +274,7 @@ namespace LanguageExt
 
         public readonly ProcessName Name;
 
+        [JsonConstructor]
         public DeregisterMessage(ProcessName name)
         {
             Name = name;
@@ -277,6 +288,7 @@ namespace LanguageExt
     {
         public override ActorSystemMessageTag Tag => ActorSystemMessageTag.ShutdownAll;
 
+        [JsonConstructor]
         public ShutdownAllMessage()
         {
         }

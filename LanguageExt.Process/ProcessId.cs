@@ -4,15 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
+using Newtonsoft.Json;
 
 namespace LanguageExt
 {
     public struct ProcessId
     {
-        internal readonly ProcessName[] Parts;
-        public readonly string Path;
-        public readonly ProcessName Name;
+        readonly ProcessName[] parts;
+        readonly ProcessName name;
 
+        public readonly string Path;
+
+        [JsonConstructor]
         public ProcessId(string path)
         {
             if (path == null || path.Length == 0)
@@ -25,13 +28,13 @@ namespace LanguageExt
             }
             if (path.Length == 1)
             {
-                Parts = new ProcessName[0];
+                parts = new ProcessName[0];
             }
             else
             {
                 try
                 {
-                    Parts = path.Substring(1)
+                    parts = path.Substring(1)
                                 .Split(Sep)
                                 .Select(p => new ProcessName(p))
                                 .ToArray();
@@ -42,30 +45,30 @@ namespace LanguageExt
                 }
             }
 
-            Path = Parts == null
+            Path = parts == null
                 ? ""
-                : Parts.Length == 0
+                : parts.Length == 0
                     ? Sep.ToString()
-                    : Sep + String.Join(Sep.ToString(), Parts);
+                    : Sep + String.Join(Sep.ToString(), parts);
 
             if (path != "/")
             {
-                Name = Parts == null
+                name = parts == null
                     ? ""
-                    : Parts.Length == 0
+                    : parts.Length == 0
                         ? Sep.ToString()
-                        : Parts.Last();
+                        : parts.Last();
             }
             else
             {
-                Name = "$";
+                name = "$";
             }
         }
 
         public ProcessId MakeChildId(ProcessName name) =>
-            Parts == null
+            parts == null
                 ? failwith<ProcessId>("ProcessId is None")
-                : Parts.Length == 0
+                : parts.Length == 0
                     ? new ProcessId("" + Sep + name)
                     : new ProcessId(Path + Sep + name);
 
@@ -79,7 +82,10 @@ namespace LanguageExt
             Path.GetHashCode();
 
         public bool IsValid => 
-            Parts != null;
+            parts != null;
+
+        public ProcessName GetName() =>
+            name;
 
         public readonly static ProcessId NoSender =
             new ProcessId();

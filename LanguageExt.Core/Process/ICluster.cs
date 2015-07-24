@@ -47,6 +47,11 @@ namespace LanguageExt
         IObservable<object> SubscribeToChannel(string channelName, System.Type type);
 
         /// <summary>
+        /// Subscribe to a named channel
+        /// </summary>
+        IObservable<T> SubscribeToChannel<T>(string channelName);
+
+        /// <summary>
         /// Set a value by key
         /// </summary>
         /// <param name="key"></param>
@@ -78,5 +83,8 @@ namespace LanguageExt
         /// </summary>
         IEnumerable<T> GetQueue<T>(string key);
 
+        T Peek<T>(string key);
+
+        int QueueLength(string key);
     }
 }

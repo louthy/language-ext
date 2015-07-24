@@ -17,7 +17,7 @@ namespace RedisStateSample
         static void Main(string[] args)
         {
             // Log what's going on
-            // ProcessLog.Subscribe(Console.WriteLine);
+            //ProcessLog.Subscribe(Console.WriteLine);
 
             // Let Language Ext know that Redis exists
             RedisCluster.register();
@@ -37,9 +37,10 @@ namespace RedisStateSample
             Console.WriteLine("Press a key");
             Console.ReadKey();
 
+            var rnd = new Random();
             for (var i = 0; i < 100; i++)
             {
-                tell(pid, "Message sent: " + DateTime.Now + " " + DateTime.Now.Ticks);
+                tell(pid, "Message sent: " + DateTime.Now + " " + DateTime.Now.Ticks + " " + rnd.Next());
             }
 
             Console.ReadKey();

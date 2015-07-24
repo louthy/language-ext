@@ -74,9 +74,11 @@ namespace LanguageExt
             return unit;
         }
 
-        public ProcessFlags Flags => flags;
+        public ProcessFlags Flags => 
+            flags;
 
-        private string StateKey => Id.Path + "-state";
+        private string StateKey => 
+            Id.Path + "-state";
 
         private void SetupClusterStatePersist(Option<ICluster> cluster, ProcessFlags flags)
         {
@@ -169,7 +171,7 @@ namespace LanguageExt
         /// </summary>
         public Unit UnlinkChild(ProcessId pid)
         {
-            children = children.Remove(pid.Name.Value);
+            children = children.Remove(pid.GetName().Value);
             return unit;
         }
 
@@ -178,7 +180,7 @@ namespace LanguageExt
         /// </summary>
         public Unit LinkChild(ProcessId pid)
         {
-            children = children.AddOrUpdate(pid.Name.Value, pid);
+            children = children.AddOrUpdate(pid.GetName().Value, pid);
             return unit;
         }
 

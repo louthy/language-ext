@@ -6,17 +6,44 @@ using static LanguageExt.Process;
 
 namespace LanguageExt
 {
-    /// <summary>
-    /// Not currently used, but may be in future when distributed asks are done.
-    /// </summary>
     internal static class AskActor
     {
         const int responseActors = 20;
 
-        public static Unit Inbox(AskActorReq req)
+        public static Tuple<long,Dictionary<long, AskActorReq>> Inbox(Tuple<long, Dictionary<long, AskActorReq>> state, object msg)
         {
-            tell(req.To, new ActorRequest(req.Message, req.To, Self, req.Subject));
-            return unit;
+            var reqId = state.Item1;
+            var dict = state.Item2;
+
+            if (msg is AskActorReq)
+            {
+                reqId++;
+
+                var req = (AskActorReq)msg;
+                tell(req.To, new ActorRequest(req.Message, req.To, Self, reqId));
+                dict.Add(reqId, req);
+            }
+            else
+            {
+                var res = (ActorResponse)msg;
+                var req = dict[res.RequestId];
+                try
+                {
+                    req.Subject.OnNext(res.Message);
+                    req.Subject.OnCompleted();
+                }
+                catch (Exception e)
+                {
+                    logSysErr(e);
+                }
+                dict.Remove(res.RequestId);
+            }
+            return new Tuple<long, Dictionary<long, AskActorReq>>(reqId, dict);
+        }
+
+        public static Tuple<long, Dictionary<long, AskActorReq>> Setup()
+        {
+            return Tuple(0L, new Dictionary<long, AskActorReq>());
         }
     }
 

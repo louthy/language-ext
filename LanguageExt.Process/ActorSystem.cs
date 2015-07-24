@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reactive.Subjects;
 using static LanguageExt.Process;
 
 namespace LanguageExt
@@ -74,17 +73,18 @@ namespace LanguageExt
                 }
                 else if (msg is SystemMessage)
                 {
-                    state.RootInbox.TellSystem(msg as SystemMessage);
+                    state.TellSystem(msg as SystemMessage, state.Root);
                 }
                 else if (msg is UserControlMessage)
                 {
-                    state.RootInbox.TellUserControl(msg as UserControlMessage);
+                    state.TellUserControl(msg as UserControlMessage, state.Root);
                 }
                 else
                 {
                     publish(msg);
                 }
             }
+
             catch (Exception e)
             {
                 logSysErr(e);
@@ -93,7 +93,7 @@ namespace LanguageExt
         }
 
         private static void Reply(ActorSystemState state, ReplyMessage msg) =>
-            state.Reply(msg.ReplyTo, msg.Message, msg.Sender, msg.Subject);
+            state.Reply(msg.ReplyTo, msg.Message, msg.Sender, msg.RequestId);
 
         private static Unit GetChildren(ActorSystemState state, GetChildrenMessage msg) =>
             state.GetChildren(msg.ProcessId);
