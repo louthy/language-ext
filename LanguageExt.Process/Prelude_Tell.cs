@@ -24,7 +24,7 @@ namespace LanguageExt
         /// <param name="pid">Process ID to send to</param>
         /// <param name="message">Message to send</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
-        public static Unit tell(ProcessId pid, object message, ProcessId sender = default(ProcessId)) =>
+        public static Unit tell<T>(ProcessId pid, T message, ProcessId sender = default(ProcessId)) =>
             message is SystemMessage
                 ? ActorContext.TellSystem(pid, message as SystemMessage)
                 : message is UserControlMessage
@@ -40,7 +40,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         /// <param name="delayFor">How long to delay sending for</param>
-        public static IDisposable tell(ProcessId pid, object message, TimeSpan delayFor, ProcessId sender = default(ProcessId)) =>
+        public static IDisposable tell<T>(ProcessId pid, T message, TimeSpan delayFor, ProcessId sender = default(ProcessId)) =>
             delay(() => tell(pid, message, sender), delayFor).Subscribe();
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         /// <param name="delayUntil">Date and time to send</param>
-        public static IDisposable tell(ProcessId pid, object message, DateTime delayUntil, ProcessId sender = default(ProcessId)) =>
+        public static IDisposable tell<T>(ProcessId pid, T message, DateTime delayUntil, ProcessId sender = default(ProcessId)) =>
             delay(() => tell(pid, message, sender), delayUntil).Subscribe();
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public static Unit tellChildren(object message) =>
+        public static Unit tellChildren<T>(T message) =>
             iter(Children, child => tell(child, message));
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace LanguageExt
         /// <param name="delayFor">How long to delay sending for</param>
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
-        public static IDisposable tellChildren(object message, TimeSpan delayFor) =>
+        public static IDisposable tellChildren<T>(T message, TimeSpan delayFor) =>
             delay(() => tellChildren(message), delayFor).Subscribe();
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace LanguageExt
         /// <param name="delayUntil">Date and time to send</param>
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
-        public static IDisposable tellChildren(object message, DateTime delayUntil) =>
+        public static IDisposable tellChildren<T>(T message, DateTime delayUntil) =>
             delay(() => tellChildren(message), delayUntil).Subscribe();
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace LanguageExt
         /// The list of children to send to are filtered by the predicate provided
         /// </summary>
         /// <param name="message">Message to send</param>
-        public static Unit tellChildren(object message, Func<ProcessId,bool> predicate) =>
+        public static Unit tellChildren<T>(T message, Func<ProcessId,bool> predicate) =>
             iter(filter(Children, predicate), child => tell(child, message));
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace LanguageExt
         /// <param name="delayFor">How long to delay sending for</param>
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
-        public static IDisposable tellChildren(object message, TimeSpan delayFor, Func<ProcessId, bool> predicate) =>
+        public static IDisposable tellChildren<T>(T message, TimeSpan delayFor, Func<ProcessId, bool> predicate) =>
             delay(() => tellChildren(message, predicate), delayFor).Subscribe();
 
         /// <summary>
@@ -119,14 +119,14 @@ namespace LanguageExt
         /// <param name="delayUntil">Date and time to send</param>
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
-        public static IDisposable tellChildren(object message, DateTime delayUntil, Func<ProcessId, bool> predicate) =>
+        public static IDisposable tellChildren<T>(T message, DateTime delayUntil, Func<ProcessId, bool> predicate) =>
             delay(() => tellChildren(message, predicate), delayUntil).Subscribe();
 
         /// <summary>
         /// Send a message to the parent process
         /// </summary>
         /// <param name="message">Message to send</param>
-        public static Unit tellParent(object message) =>
+        public static Unit tellParent<T>(T message) =>
             tell(Parent, message);
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace LanguageExt
         /// for any other reason.</returns>
         /// <param name="message">Message to send</param>
         /// <param name="delayFor">How long to delay sending for</param>
-        public static IDisposable tellParent(object message, TimeSpan delayFor) =>
+        public static IDisposable tellParent<T>(T message, TimeSpan delayFor) =>
             tell(Parent, message, delayFor);
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace LanguageExt
         /// for any other reason.</returns>
         /// <param name="message">Message to send</param>
         /// <param name="delayUntil">Date and time to send</param>
-        public static IDisposable tellParent(object message, DateTime delayUntil) =>
+        public static IDisposable tellParent<T>(T message, DateTime delayUntil) =>
             tell(Parent, message, delayUntil);
 
 
@@ -157,7 +157,7 @@ namespace LanguageExt
         /// Send a message to ourself
         /// </summary>
         /// <param name="message">Message to send</param>
-        public static Unit tellSelf(object message) =>
+        public static Unit tellSelf<T>(T message) =>
             tell(Self, message);
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace LanguageExt
         /// for any other reason.</returns>
         /// <param name="message">Message to send</param>
         /// <param name="delayFor">How long to delay sending for</param>
-        public static IDisposable tellSelf(object message, TimeSpan delayFor) =>
+        public static IDisposable tellSelf<T>(T message, TimeSpan delayFor) =>
             tell(Self, message, delayFor);
 
         /// <summary>
@@ -180,7 +180,7 @@ namespace LanguageExt
         /// for any other reason.</returns>
         /// <param name="message">Message to send</param>
         /// <param name="delayUntil">Date and time to send</param>
-        public static IDisposable tellSelf(object message, DateTime delayUntil) =>
+        public static IDisposable tellSelf<T>(T message, DateTime delayUntil) =>
             tell(Self, message, delayUntil);
     }
 }

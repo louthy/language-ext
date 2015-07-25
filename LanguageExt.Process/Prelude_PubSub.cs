@@ -22,7 +22,7 @@ namespace LanguageExt
         /// This should be used from within a process' message loop only
         /// </remarks>
         /// <param name="message">Message to publish</param>
-        public static Unit publish(object message) =>
+        public static Unit publish<T>(T message) =>
             InMessageLoop
                 ? ActorContext.Publish(message)
                 : failWithMessageLoopEx<Unit>();
@@ -37,7 +37,7 @@ namespace LanguageExt
         /// <param name="delayFor">How long to delay sending for</param>
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
-        public static IDisposable publish(object message, TimeSpan delayFor) =>
+        public static IDisposable publish<T>(T message, TimeSpan delayFor) =>
             InMessageLoop
                 ? delay(() => publish(message), delayFor).Subscribe()
                 : failWithMessageLoopEx<IDisposable>();
@@ -53,7 +53,7 @@ namespace LanguageExt
         /// <param name="delayUntil">When to send</param>
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
-        public static IDisposable publish(object message, DateTime delayUntil) =>
+        public static IDisposable publish<T>(T message, DateTime delayUntil) =>
             InMessageLoop
                 ? delay(() => publish(message), delayUntil).Subscribe()
                 : failWithMessageLoopEx<IDisposable>();

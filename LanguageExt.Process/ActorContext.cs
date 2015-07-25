@@ -19,7 +19,6 @@ namespace LanguageExt
         static ProcessId root;
         static IProcess rootProcess;
         static IActorInbox rootInbox;
-        static Subject<ActorResponse> rootResponse = new Subject<ActorResponse>();
 
         [ThreadStatic] static ProcessId self;
         [ThreadStatic] static ProcessId sender;
@@ -45,7 +44,6 @@ namespace LanguageExt
                 var name = ProcessId.Sep.ToString() + ActorConfig.Default.RootProcessName;
                 root = new ProcessId(name);
                 rootInbox = new ActorInbox<ActorSystemState, object>();
-                rootResponse = new Subject<ActorResponse>();
                 rootProcess = new Actor<ActorSystemState, object>(
                     cluster,
                     new ProcessId(ProcessId.Sep.ToString()),
@@ -60,8 +58,6 @@ namespace LanguageExt
             }
             return unit;
         }
-
-        public static ILocalActorInbox LocalRoot => (ILocalActorInbox)rootInbox;
 
         public static Unit Shutdown()
         {
@@ -149,6 +145,12 @@ namespace LanguageExt
                 ? LocalRoot.Tell(message, Self)
                 : Tell(root, ActorSystemMessage.TellSystem(to, message, Self), Self);
 
+        public static ILocalActorInbox LocalRoot => 
+            (ILocalActorInbox)rootInbox;
+
+        public static IActorInbox RootInbox =>
+            rootInbox;
+
         public static ProcessId Root =>
             root;
 
@@ -207,9 +209,6 @@ namespace LanguageExt
                 processFlags = value;
             }
         }
-
-        public static IActorInbox RootInbox => 
-            rootInbox;
 
         public static ProcessId Register<T>(ProcessName name, ProcessId processId)
         {

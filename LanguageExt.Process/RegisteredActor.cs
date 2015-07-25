@@ -18,7 +18,7 @@ namespace LanguageExt
             else
             {
                 // Ask the question of the original and send it back
-                reply(ask<T>(pid, message));
+                reply(ask<object>(pid, message));
             }
             return pid;
         }

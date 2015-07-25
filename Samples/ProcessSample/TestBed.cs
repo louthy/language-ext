@@ -22,6 +22,7 @@ namespace ProcessSample
         {
             ProcessLog.Subscribe(Console.WriteLine);
 
+            RegisteredAskReply();
             AskReply();
 
             SpawnProcess();
@@ -51,6 +52,20 @@ namespace ProcessSample
             ExTest4();
             MemoTest();
             UnsafeOptionTest();
+        }
+
+        public static void RegisteredAskReply()
+        {
+            var helloServer = spawn<string>("hello-server", msg =>
+            {
+                reply("Hello, " + msg);
+            });
+
+            var hi = register<string>("hi", helloServer);
+
+            var response = ask<string>(find("hi"), "Paul");
+
+            Debug.Assert(response == "Hello, Paul");
         }
 
         public static void AskReply()

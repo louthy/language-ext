@@ -64,7 +64,7 @@ namespace LanguageExt
         /// Current process ID
         /// </summary>
         /// <remarks>
-        /// This should be used from within a process' message loop only
+        /// This should be used from within a process message loop only
         /// </remarks>
         public static ProcessId Self =>
             InMessageLoop
@@ -75,7 +75,7 @@ namespace LanguageExt
         /// Parent process ID
         /// </summary>
         /// <remarks>
-        /// This should be used from within a process' message loop only
+        /// This should be used from within a process message loop only
         /// </remarks>
         public static ProcessId Parent =>
             InMessageLoop
@@ -84,21 +84,24 @@ namespace LanguageExt
 
         /// <summary>
         /// User process ID
-        /// The User process is the default entry process
+        /// The User process is the default entry process, your first process spawned
+        /// will be a child of this process.
         /// </summary>
         public static ProcessId User =>
             ActorContext.User;
 
         /// <summary>
         /// Dead letters process
-        /// Subscribe to it to monitor the failed messages
+        /// Subscribe to it to monitor the failed messages (<see cref="subscribe(ProcessId)"/>)
         /// </summary>
         public static ProcessId DeadLetters =>
             ActorContext.DeadLetters;
 
         /// <summary>
-        /// Registered process
-        /// It allows distributed processes to be found by name
+        /// Registered process root
+        /// It allows local and distributed processes to be found by 
+        /// name (<see cref="register{T}(ProcessName)"/>, <see cref="register{T}(ProcessName, ProcessId)"/> 
+        /// and <seealso cref="deregister(ProcessName)"/>
         /// </summary>
         public static ProcessId Registered =>
             ActorContext.Registered;
@@ -115,7 +118,7 @@ namespace LanguageExt
         /// Get the child processes of the running process
         /// </summary>
         /// <remarks>
-        /// This should be used from within a process' message loop only
+        /// This should be used from within a process message loop only
         /// </remarks>
         public static Map<string, ProcessId> Children =>
             InMessageLoop
@@ -123,7 +126,7 @@ namespace LanguageExt
                 : failWithMessageLoopEx<Map<string,ProcessId>>();
 
         /// <summary>
-        /// Get the child processes of the process provided
+        /// Get the child processes of the process ID provided
         /// </summary>
         public static Map<string, ProcessId> children(ProcessId pid) =>
             ask<Map<string, ProcessId>>(ActorContext.Root, ActorSystemMessage.GetChildren(pid));
@@ -206,7 +209,7 @@ namespace LanguageExt
         /// <remarks>
         /// This should be used from within a process' message loop only
         /// </remarks>
-        public static Unit reply(object message) =>
+        public static Unit reply<T>(T message) =>
             InMessageLoop
                 ? ActorContext.CurrentRequest == null
                     ? ActorContext.Sender.IsValid

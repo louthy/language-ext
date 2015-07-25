@@ -26,17 +26,24 @@ namespace LanguageExt
             else
             {
                 var res = (ActorResponse)msg;
-                var req = dict[res.RequestId];
-                try
+                if (dict.ContainsKey(res.RequestId))
                 {
-                    req.Subject.OnNext(res.Message);
-                    req.Subject.OnCompleted();
+                    var req = dict[res.RequestId];
+                    try
+                    {
+                        req.Subject.OnNext(res.Message);
+                        req.Subject.OnCompleted();
+                    }
+                    catch (Exception e)
+                    {
+                        logSysErr(e);
+                    }
+                    dict.Remove(res.RequestId);
                 }
-                catch (Exception e)
+                else
                 {
-                    logSysErr(e);
+                    logWarn("Request ID doesn't exist: " + res.RequestId);
                 }
-                dict.Remove(res.RequestId);
             }
             return new Tuple<long, Dictionary<long, AskActorReq>>(reqId, dict);
         }

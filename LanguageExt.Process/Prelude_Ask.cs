@@ -35,7 +35,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <returns></returns>
         public static IEnumerable<T> askChildren<T>(object message, int take = Int32.MaxValue) =>
-            Observable.Merge<T>(Children.Values.Map(child => ActorContext.Ask<T>(child, message)))
+            Observable.Merge(Children.Values.Map(child => ActorContext.Ask<T>(child, message)))
                       .Take(Math.Max(take, Children.Count))
                       .ToEnumerable();
 
