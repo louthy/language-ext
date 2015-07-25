@@ -17,6 +17,7 @@ namespace LanguageExt
         public readonly IActorInbox RootInbox;
         public readonly IProcess RootProcess;
         public readonly ActorConfig Config;
+        public readonly ProcessName UserProcessName;
 
         ProcessId root;
         ProcessId user;
@@ -51,13 +52,14 @@ namespace LanguageExt
             }
         }
 
-        public ActorSystemState(Option<ICluster> cluster, ProcessId rootId, IProcess rootProcess, IActorInbox rootInbox, ActorConfig config)
+        public ActorSystemState(Option<ICluster> cluster, ProcessId rootId, IProcess rootProcess, IActorInbox rootInbox, ProcessName userProcessName, ActorConfig config)
         {
             root = rootId;
             Config = config;
             Cluster = cluster;
             RootProcess = rootProcess;
             RootInbox = rootInbox;
+            UserProcessName = userProcessName;
 
             store.Add(Root.Path, new ActorItem(RootProcess, rootInbox, ProcessFlags.Default));
         }
@@ -68,13 +70,13 @@ namespace LanguageExt
 
             // Top tier
             system          = ActorCreate<object>(root, Config.SystemProcessName, publish, ProcessFlags.Default);
-            user            = ActorCreate<object>(root, Config.UserProcessName, publish, ProcessFlags.Default);
+            user            = ActorCreate<object>(root, UserProcessName, publish, ProcessFlags.Default);
+            registered      = ActorCreate<object>(root, Config.RegisteredProcessName, publish, ProcessFlags.Default);
 
             // Second tier
             deadLetters     = ActorCreate<object>(system, Config.DeadLettersProcessName, publish, ProcessFlags.Default);
             errors          = ActorCreate<Exception>(system, Config.ErrorsProcessName, publish, ProcessFlags.Default);
             noSender        = ActorCreate<object>(system, Config.NoSenderProcessName, publish, ProcessFlags.Default);
-            registered      = ActorCreate<object>(system, Config.RegisteredProcessName, publish, ProcessFlags.Default);
 
             inboxShutdown   = ActorCreate<IActorInbox>(system, Config.InboxShutdownProcessName, inbox => inbox.Shutdown(), ProcessFlags.Default);
 
@@ -90,7 +92,7 @@ namespace LanguageExt
             logInfo("Process system shutting down");
 
             ShutdownProcess(User);
-            user = ActorCreate<object>(root, Config.UserProcessName, publish, ProcessFlags.Default);
+            user = ActorCreate<object>(root, UserProcessName, publish, ProcessFlags.Default);
             Tell(new ActorResponse(ActorContext.CurrentRequest.ReplyTo, unit, Root, ActorContext.CurrentRequest.RequestId), reply, ActorContext.Root);
 
             logInfo("Process system shutdown complete");

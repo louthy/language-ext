@@ -184,7 +184,7 @@ namespace LanguageExt
     {
         public InvalidProcessIdException()
             :
-            base("Invalid process path")
+            base("Invalid process ID")
         {
         }
 

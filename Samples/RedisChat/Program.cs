@@ -14,14 +14,7 @@ namespace RedisChat
         {
             Console.WriteLine("*** THIS EXAMPLE IS INCOMPLETE AND NOT WORKING!  ***");
 
-            GetRoomName();
             GetUsername();
-        }
-
-        private static string GetRoomName()
-        {
-            Console.Write("Please enter the room you wish to join: ");
-            return Console.ReadLine();
         }
 
         private static string GetUsername()

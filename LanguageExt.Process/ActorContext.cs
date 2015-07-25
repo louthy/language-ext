@@ -42,16 +42,16 @@ namespace LanguageExt
                 Shutdown();
 
                 ActorContext.cluster = cluster;
-                var name = GetRootProcessName();
-                root = new ProcessId(ProcessId.Sep.ToString() + name);
+                var name = ProcessId.Sep.ToString() + ActorConfig.Default.RootProcessName;
+                root = new ProcessId(name);
                 rootInbox = new ActorInbox<ActorSystemState, object>();
                 rootResponse = new Subject<ActorResponse>();
                 rootProcess = new Actor<ActorSystemState, object>(
-                    cluster, 
-                    new ProcessId(ProcessId.Sep.ToString()), 
-                    name, 
+                    cluster,
+                    new ProcessId(ProcessId.Sep.ToString()),
+                    ActorConfig.Default.RootProcessName, 
                     ActorSystem.Inbox, 
-                    rootProcess => new ActorSystemState(cluster, root, rootProcess, rootInbox, ActorConfig.Default), 
+                    rootProcess => new ActorSystemState(cluster, root, rootProcess, rootInbox, GetUserProcessName(), ActorConfig.Default), 
                     ProcessFlags.Default
                 );
                 rootInbox.Startup(rootProcess, rootProcess.Parent, cluster);
@@ -81,8 +81,6 @@ namespace LanguageExt
             return unit;
         }
 
-        static Dictionary<int, ProcessId> ManagedThreadActors = new Dictionary<int, ProcessId>();
-
         public static IObservable<T> Ask<T>(ProcessId pid, object message)
         {
             var subject = new Subject<object>();
@@ -91,9 +89,9 @@ namespace LanguageExt
                           .Select(obj => (T)obj);
         }
 
-        public static ProcessName GetRootProcessName() =>
+        public static ProcessName GetUserProcessName() =>
             cluster.Map(x => x.NodeName)
-                   .IfNone(ActorConfig.Default.RootProcessName);
+                   .IfNone(ActorConfig.Default.UserProcessName);
 
         public static Unit RegisterCluster(ICluster cluster) =>
             Startup(Some(cluster));
@@ -169,10 +167,10 @@ namespace LanguageExt
             Root.MakeChildId(ActorConfig.Default.SystemProcessName);
 
         public static ProcessId User =>
-            Root.MakeChildId(ActorConfig.Default.UserProcessName);
+            Root.MakeChildId(GetUserProcessName());
 
         public static ProcessId Registered =>
-            System.MakeChildId(ActorConfig.Default.RegisteredProcessName);
+            Root.MakeChildId(ActorConfig.Default.RegisteredProcessName);
 
         public static ProcessId Errors =>
             System.MakeChildId(ActorConfig.Default.ErrorsProcessName);
@@ -213,12 +211,19 @@ namespace LanguageExt
         public static IActorInbox RootInbox => 
             rootInbox;
 
-        public static ProcessId Register(ProcessName name, ProcessId processId)
+        public static ProcessId Register<T>(ProcessName name, ProcessId processId)
         {
             if (processId.IsValid)
             {
-                Tell(Root, ActorSystemMessage.Register(name, processId), ActorContext.Self);
-                return Registered.MakeChildId(name);
+                return ActorCreate<ProcessId, T>(
+                    Registered, 
+                    name, 
+                    RegisteredActor<T>.Inbox,
+                    () => processId,
+                    cluster.IsSome 
+                        ? ProcessFlags.PersistInbox 
+                        : ProcessFlags.Default
+                );
             }
             else
             {
@@ -227,7 +232,7 @@ namespace LanguageExt
         }
 
         public static Unit Deregister(ProcessName name) =>
-            Tell(Root, ActorSystemMessage.Deregister(name), ActorContext.Self);
+            Process.kill(Registered.MakeChildId(name));
 
         public static R WithContext<R>(ProcessId self, ProcessId parent, Map<string, ProcessId> children, ProcessId sender, Func<R> f)
         {

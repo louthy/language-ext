@@ -53,36 +53,44 @@ namespace LanguageExtTests
             Assert.IsTrue(value == "hello");
         }
 
-        /*
         [Test]
         public void RegisterTest()
         {
-            shutdownAll().Wait();
+            shutdownAll();
+
+            // Let Language Ext know that Redis exists
+            RedisCluster.register();
+
+            // Connect to the Redis cluster
+            Cluster.connect("redis", "redis-test", "localhost", "0");
 
             string value = null;
             var pid = spawn<string>("reg-proc", msg => value = msg);
 
-            var regid = reg("woooo amazing", pid);
+            var regid = register<string>("woooo amazing", pid);
 
             Thread.Sleep(100);
 
-            Assert.IsTrue(Registered.Count() == 1);
-            Assert.IsTrue(Registered["woooo amazing"].Value == "/root/system/registered/woooo amazing");
+            var kids = children(Registered);
+
+            Assert.IsTrue(kids.Count() == 1);
+            Assert.IsTrue(kids["woooo amazing"].Path == "/root/registered/woooo amazing");
 
             tell(regid, "hello");
 
-            Thread.Sleep(100);
+            Thread.Sleep(500);
 
             Assert.IsTrue(value == "hello");
 
             Thread.Sleep(100);
 
-            dereg("woooo amazing");
+            deregister("woooo amazing");
 
             Thread.Sleep(100);
 
-            Assert.IsTrue(Registered.Count() == 0);
-        }*/
+            kids = children(Registered);
+            Assert.IsTrue(kids.Count() == 0);
+        }
 
         [Test]
         public void SpawnProcess()

@@ -46,14 +46,6 @@ namespace LanguageExt
                             GetChildren(state, rmsg as GetChildrenMessage);
                             break;
 
-                        case ActorSystemMessageTag.Register:
-                            state = Register(state, rmsg as RegisterMessage);
-                            break;
-
-                        case ActorSystemMessageTag.Deregister:
-                            Deregister(state, rmsg as DeregisterMessage);
-                            break;
-
                         case ActorSystemMessageTag.Publish:
                             Publish(state, rmsg as PubMessage);
                             break;
@@ -124,32 +116,5 @@ namespace LanguageExt
 
         private static Unit ShutdownAll(ActorSystemState state) =>
             state.Shutdown();
-
-        private static ActorSystemState Register(ActorSystemState state, RegisterMessage msg) =>
-            state.FindInStore(msg.ProcessId,
-                Some: actorItem =>
-                {
-                    var proxy = new ActorProxy(
-                                    state.Cluster,
-                                    state.Registered,
-                                    msg.Name,
-                                    ActorProxyTemplate.Registered,
-                                    () => new ActorProxyConfig(msg.ProcessId),
-                                    ProcessFlags.Default
-                                );
-
-                    var inbox = new ActorInbox<ActorProxyConfig, object>();
-
-                    return state.FindInStore(
-                        state.Registered,
-                        Some: _  => state.AddOrUpdateStoreAndStartup(proxy, inbox, actorItem.Flags),
-                        None: () => state
-                    );
-                },
-                None: () => state
-            );
-
-        private static ActorSystemState Deregister(ActorSystemState state, DeregisterMessage msg) =>
-            state.ShutdownProcess(state.Registered.MakeChildId(msg.Name));
     }
 }

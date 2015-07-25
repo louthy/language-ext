@@ -13,8 +13,6 @@ namespace LanguageExt
         Startup,
         AddToStore,
         RemoveFromStore,
-        Register,
-        Deregister,
         Ask,
         Reply,
         Tell,
@@ -62,12 +60,6 @@ namespace LanguageExt
 
         public static ActorSystemMessage GetChildren(ProcessId pid) =>
             new GetChildrenMessage(pid);
-
-        public static ActorSystemMessage Register(ProcessName name, ProcessId pid) =>
-            new RegisterMessage(name, pid);
-
-        public static ActorSystemMessage Deregister(ProcessName name) =>
-            new DeregisterMessage(name);
 
         public static ActorSystemMessage Reply(ProcessId replyTo, object message, long requestId) =>
             new ReplyMessage(replyTo, message, ActorContext.Self, requestId);
@@ -248,40 +240,6 @@ namespace LanguageExt
 
         public override string ToString() =>
             "RemoveFromStore pid: " + ProcessId;
-    }
-
-    internal class RegisterMessage : ActorSystemMessage
-    {
-        public override ActorSystemMessageTag Tag => ActorSystemMessageTag.Register;
-
-        public readonly ProcessName Name;
-        public readonly ProcessId ProcessId;
-
-        [JsonConstructor]
-        public RegisterMessage(ProcessName name, ProcessId processId)
-        {
-            Name = name;
-            ProcessId = processId;
-        }
-
-        public override string ToString() =>
-            "Register pid: " + ProcessId + " as "+Name;
-    }
-
-    internal class DeregisterMessage : ActorSystemMessage
-    {
-        public override ActorSystemMessageTag Tag => ActorSystemMessageTag.Deregister;
-
-        public readonly ProcessName Name;
-
-        [JsonConstructor]
-        public DeregisterMessage(ProcessName name)
-        {
-            Name = name;
-        }
-
-        public override string ToString() =>
-            "Deregister pid: " + Name;
     }
 
     internal class ShutdownAllMessage : ActorSystemMessage

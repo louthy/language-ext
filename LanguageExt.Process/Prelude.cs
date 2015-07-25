@@ -90,6 +90,20 @@ namespace LanguageExt
             ActorContext.User;
 
         /// <summary>
+        /// Dead letters process
+        /// Subscribe to it to monitor the failed messages
+        /// </summary>
+        public static ProcessId DeadLetters =>
+            ActorContext.DeadLetters;
+
+        /// <summary>
+        /// Registered process
+        /// It allows distributed processes to be found by name
+        /// </summary>
+        public static ProcessId Registered =>
+            ActorContext.Registered;
+
+        /// <summary>
         /// Sender process ID
         /// Always valid even if there's not a sender (the 'NoSender' process ID will
         /// be provided).
@@ -128,25 +142,27 @@ namespace LanguageExt
         /// <remarks>
         /// This should be used from within a process' message loop only
         /// </remarks>
+        /// <typeparam name="T">The message type of the actor to register</typeparam>
         /// <param name="name">Name to register under</param>
-        public static ProcessId reg(ProcessName name) =>
+        public static ProcessId register<T>(ProcessName name) =>
             InMessageLoop
-                ? ActorContext.Register(name, Self)
+                ? ActorContext.Register<T>(name, Self)
                 : failWithMessageLoopEx<ProcessId>();
 
         /// <summary>
         /// Register the name with the process
         /// </summary>
+        /// <typeparam name="T">The message type of the actor to register</typeparam>
         /// <param name="name">Name to register under</param>
         /// <param name="process">Process to be registered</param>
-        public static ProcessId reg(ProcessName name, ProcessId process) =>
-            ActorContext.Register(name, process);
+        public static ProcessId register<T>(ProcessName name, ProcessId process) =>
+            ActorContext.Register<T>(name, process);
 
         /// <summary>
         /// Deregister the process associated with the name
         /// </summary>
         /// <param name="name">Name of the process to deregister</param>
-        public static Unit dereg(ProcessName name) =>
+        public static Unit deregister(ProcessName name) =>
             ActorContext.Deregister(name);
 
         /// <summary>

@@ -65,11 +65,11 @@
     <Compile Include="ActorContext.cs" />
     <Compile Include="ActorInboxCommon.cs" />
     <Compile Include="ActorInboxRemote.cs" />
+    <Compile Include="RegisteredActor.cs" />
     <Compile Include="ReplyActor.cs" />
     <Compile Include="Prelude_PubSub.cs" />
     <Compile Include="ProcessFlags.cs" />
     <Compile Include="ActorInbox.cs" />
-    <Compile Include="ActorProxy.cs" />
     <Compile Include="ActorRequestResponse.cs" />
     <Compile Include="ActorSystem.cs" />
     <Compile Include="ActorSystemState.cs" />
