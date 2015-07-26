@@ -3,7 +3,7 @@
 C# Functional Language Extensions
 =================================
 
-Using and abusing the features of C# 6 to provide lots of helper functions and types, which, if you squint, can look like extensions to the language itself.
+Using and abusing the features of C# 6 to provide lots of functions and types, that, if you squint, can look like extensions to the language itself.  As well as an Erlang like process system (actors) that can persist to Redis.
 
 __Now on NuGet: https://www.nuget.org/packages/LanguageExt/__
 
