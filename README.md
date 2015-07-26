@@ -57,21 +57,9 @@ __Process__
 
 To use the `Process` system, include `LanguageExt.Process.dll` and add `using static LanguageExt.Process` to access the camelCase functions.  
 
-
-### Language issues
-
-What C# issues are we trying to fix?  Well, we can only paper over the cracks, but here's a summary:
-
-* Poor tuple support
-* Null reference problem
-* Lack of lambda and expression inference 
-* Void isn't a real type
-* Mutable lists and dictionaries
-* The awful 'out' parameter
-
 ### Features
 
-Rather than just focus on the negatives of C#, this library is quickly becoming a 'Base Class Library' for functional programming in C#.  The features include:
+This library is quickly becoming a 'Base Class Library' for functional programming in C#.  The features include:
 
 * Monad library - `Option<T>`, `OptionUnsafe<T>`, `Either<L,R>`, `EitherUnsafe<L,R>`, `Try<T>`, `TryOption<T>`, `Lst<T>`, `Map<K,V>`, `Reader<E,T>`, `Writer<O,T>`, `State<S,T>`, `Rws<E,O,S,T>`
 * Monad transformers and a higher kinded type (ish)
@@ -84,7 +72,14 @@ Rather than just focus on the negatives of C#, this library is quickly becoming 
 * Improved lambda type inference
 * IObservable extensions
 
-So onto the C# issues that this library started out to deal with...
+It started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me.  So what C# issues are we trying to fix?  Well, we can only paper over the cracks, but here's a summary:
+
+* Poor tuple support
+* Null reference problem
+* Lack of lambda and expression inference 
+* Void isn't a real type
+* Mutable lists and dictionaries
+* The awful 'out' parameter
 
 ## Poor tuple support
 I've been crying out for proper tuple support for ages.  It looks like we're no closer with C# 6.  The standard way of creating them is ugly `Tuple.Create(foo,bar)` compared to functional languages where the syntax is often `(foo,bar)` and to consume them you must work with the standard properties of `Item1`...`ItemN`.  No more...
