@@ -39,13 +39,26 @@ Or the fluent PascalCase way:
 ```
 Even if you don't agree with this non-idiomatic approach, all of the camelCase static functions have fluent variants, so actually you never have to see the 'non-standard' stuff. 
 
-To use this library, simply include LanguageExt.Core.dll in your project.  And then stick this at the top of each cs file that needs it:
+### Getting started
+
+__Core__
+
+To use this library, simply include `LanguageExt.Core.dll` in your project.  And then stick this at the top of each cs file that needs it:
 ```C#
 using LanguageExt;
 using static LanguageExt.Prelude;
 ```
 
-`LanguageExt` contains the types, and `LanguageExt.Prelude` contains the helper functions.  There is also `LanguageExt.List`, `LanguageExt.Map`, `LanguageExt.Queue`, `LanguageExt.Set`, `LanguageExt.Stack`, and `LanguageExt.Process` (more on those later).
+`LanguageExt` contains the types, and `LanguageExt.Prelude` contains the helper functions.  There is also `LanguageExt.List`, `LanguageExt.Map`, `LanguageExt.Queue`, `LanguageExt.Set` and `LanguageExt.Stack` (more on those later).
+
+_If you're not using C# 6 yet, then you can still use this library.  Anywhere in the docs below where you see a camelCase function it can be accessed by prefixing with `Prelude.`_
+
+__Process__
+
+To use the `Process` system, include `LanguageExt.Process.dll` and add `using static LanguageExt.Process` to access the camelCase functions.  
+
+
+### Language issues
 
 What C# issues are we trying to fix?  Well, we can only paper over the cracks, but here's a summary:
 
@@ -55,6 +68,8 @@ What C# issues are we trying to fix?  Well, we can only paper over the cracks, b
 * Void isn't a real type
 * Mutable lists and dictionaries
 * The awful 'out' parameter
+
+### Features
 
 Rather than just focus on the negatives of C#, this library is quickly becoming a 'Base Class Library' for functional programming in C#.  The features include:
 
