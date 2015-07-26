@@ -277,7 +277,7 @@ This makes them into what would be known in Haskell as a Type Class (although mo
 
 There's a kind of cheat way to do it in C# through extension methods.  It still doesn't get you a single type called `Monad<T>`, so it has limitations in terms of passing it around.  However it makes some of the problems of dealing with 'wrapped types' easier.
 
-For example, below is `Lst<T>` (see lists later) of `Option<int>`.  We want to double all of the `Some` values, leave the `None` alone and keep everything in the list:
+For example, below is a list of optional integers: `Lst<Option<int>>` (see lists later).  We want to double all of the `Some` values, leave the `None` alone and keep everything in the list:
 
 ```C#
     var listOfOptions = List(Some(1), None, Some(2), None, Some(3));
