@@ -128,6 +128,12 @@ namespace LanguageExt
         public T IfNone(T noneValue) =>
             Match(identity, () => noneValue);
 
+        public T IfNoneUnsafe(Func<T> None) =>
+            MatchUnsafe(identity, None);
+
+        public T IfNoneUnsafe(T noneValue) =>
+            MatchUnsafe(identity, () => noneValue);
+
         [Obsolete("'Failure' has been deprecated.  Please use 'IfNone' instead")]
         public T Failure(Func<T> None) => 
             Match(identity, None);

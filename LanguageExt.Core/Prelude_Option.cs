@@ -71,6 +71,12 @@ namespace LanguageExt
         public static T ifNone<T>(Option<T> option, T noneValue) =>
             option.IfNone(noneValue);
 
+        public static T ifNoneUnsafe<T>(Option<T> option, Func<T> None) =>
+            option.IfNoneUnsafe(None);
+
+        public static T ifNoneUnsafe<T>(Option<T> option, T noneValue) =>
+            option.IfNoneUnsafe(noneValue);
+
         public static R match<T, R>(Option<T> option, Func<T, R> Some, Func<R> None) =>
             option.Match(Some, None);
 

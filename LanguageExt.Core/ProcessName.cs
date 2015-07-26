@@ -11,19 +11,24 @@ namespace LanguageExt
     {
         public readonly string Value;
 
-        public ProcessName(Some<string> name)
+        public ProcessName(string name)
         {
-            if (name.Value.Length == 0)
+            if (name == null || name.Length == 0)
+            {
+                throw new InvalidProcessNameException();
+            }
+
+            if (name.Length == 0)
             {
                 throw new InvalidProcessNameException();
             }
 
             var invalid = System.IO.Path.GetInvalidFileNameChars();
-            if ((from c in name.Value where invalid.Contains(c) select c).Count() > 0)
+            if ((from c in name where invalid.Contains(c) select c).Count() > 0)
             {
                 throw new InvalidProcessNameException();
             }
-            Value = name.Value.ToLower();
+            Value = name.ToLower();
         }
 
         public override string ToString() =>
