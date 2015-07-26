@@ -61,7 +61,18 @@ To use the `Process` system, include `LanguageExt.Process.dll` and add `using st
 
 This library is quickly becoming a 'Base Class Library' for functional programming in C#.  The features include:
 
-* Monad library - `Option<T>`, `OptionUnsafe<T>`, `Either<L,R>`, `EitherUnsafe<L,R>`, `Try<T>`, `TryOption<T>`, `Lst<T>`, `Map<K,V>`, `Reader<E,T>`, `Writer<O,T>`, `State<S,T>`, `Rws<E,O,S,T>`
+* `Option<T>`
+* `OptionUnsafe<T>`
+* `Either<L,R>`
+* `EitherUnsafe<L,R>`
+* `Try<T>`
+* `TryOption<T>`
+* `Lst<T>`
+* `Map<K,V>`
+* `Reader<E,T>`
+* `Writer<O,T>`
+* `State<S,T>`
+* `Rws<E,O,S,T>` - Reader/Writer/State
 * Monad transformers and a higher kinded type (ish)
 * Process library - Uses 'actors' in the same way as Erlang processes for massive concurrency with state management.
 * Redis persistence for Process message queues, state, and pub/sub
@@ -323,7 +334,11 @@ To take this much further, all of the monads in this library implement a standar
     SeletMany
     Where
 ```
-This makes them into what would be known in Haskell as a Type Class (although more of a catch-all type-class than a set of well-defined type-classes).  Now the problem with C# is it can't do higher order polymorphism  (imagine saying `Monad<Option<T>>` instead of `Option<T>`, `Either<L,R>`, `Try<T>`, `IEnumerable<T>`.  And then the resulting type having all the features of the `Option` as well as the standard interface to `Monad`).
+This makes them into what would be known in Haskell as a Type Class (although more of a catch-all type-class than a set of well-defined type-classes).  
+
+__Monad transformers__
+
+Now the problem with C# is it can't do higher order polymorphism  (imagine saying `Monad<Option<T>>` instead of `Option<T>`, `Either<L,R>`, `Try<T>`, `IEnumerable<T>`.  And then the resulting type having all the features of the `Option` as well as the standard interface to `Monad`).
 
 There's a kind of cheat way to do it in C# through extension methods.  It still doesn't get you a single type called `Monad<T>`, so it has limitations in terms of passing it around.  However it makes some of the problems of dealing with 'wrapped types' easier.
 
