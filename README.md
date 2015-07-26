@@ -345,17 +345,23 @@ There's a kind of cheat way to do it in C# through extension methods.  It still 
 For example, below is a list of optional integers: `Lst<Option<int>>` (see lists later).  We want to double all of the `Some` values, leave the `None` alone and keep everything in the list:
 
 ```C#
-    var listOfOptions = List(Some(1), None, Some(2), None, Some(3));
-    var presum = listOfOptions.SumT();                                // 6
-    listOfOptions = listOfOptions.MapT( x => x * 2 );
-    var postsum = listOfOptions.SumT();                               // 12
+    var list = List(Some(1), None, Some(2), None, Some(3));
+    
+    var presum = list.SumT();                                // 6
+    
+    list  = list.MapT( x => x * 2 );
+    
+    var postsum = list.SumT();                               // 12
 ```
 Notice the use of `MapT` instead of `Map` (and `SumT` instead of `Sum`).  If we used `Map` (equivalent to `Select` in `LINQ`), it would look like this:
 ```C#
-    var listOfOptions = List(Some(1), None, Some(2), None, Some(3));
-    var presum = listOfOptions.Map(x => x.Sum()).Sum();
-    listOfOptions = listOfOptions.Map( x => x.Map( v => v * 2 ) );
-    var postsum = listOfOptions.Map(x => x.Sum()).Sum();
+    var list  = List(Some(1), None, Some(2), None, Some(3));
+    
+    var presum = list.Map(x => x.Sum()).Sum();
+    
+    list = list.Map( x => x.Map( v => v * 2 ) );
+    
+    var postsum = list.Map(x => x.Sum()).Sum();
 ```
 As you can see the intension if much clearer in the first example.  And that's the point with functional programming most of the time.  It's about declaring intent rather than the mechanics of delivery.
 
