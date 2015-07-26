@@ -13,6 +13,7 @@ One of the great new features of C# 6 is that it allows us to treat static class
 I can understand that much of this library is non-idiomatic; But when you think of the journey C# has been on, is idiomatic necessarily right?  A lot of C#'s idioms are inherited from Java and C# 1.0.  Since then we've had generics, closures, Func, LINQ, async...  C# as a language is becoming more and more like a  functional language on every release.  In fact the bulk of the new features are either inspired by or directly taken from features in functional languages.  So perhaps it's time to move the C# idioms closer to the functional world's idioms?
 
 __A note about naming__
+
 One of the areas that's likely to get seasoned C# heads worked up is my choice of naming style.  The intent is to try and make something that 'feels' like F# rather than follow the 'rule book' on naming conventions, mostly set out by the BCL.  
 
 There is however a naming guide that will stand you in good stead whilst reading through this documentation:
