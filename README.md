@@ -35,21 +35,21 @@ What C# issues are we trying to fix?  Well, we can only paper over the cracks, b
 I've been crying out for proper tuple support for ages.  It looks like we're no closer with C# 6.  The standard way of creating them is ugly `Tuple.Create(foo,bar)` compared to functional languages where the syntax is often `(foo,bar)` and to consume them you must work with the standard properties of `Item1`...`ItemN`.  No more...
 
 ```C#
-    var ab = tuple("a","b");
+    var ab = Tuple("a","b");
 ```
 
-Now isn't that nice?  I chose the lower-case `tuple` to avoid conflicts between other types and existing code.  I think also tuples should be considered fundamental like `int`, and therefore deserves a lower-case name.  
+Now isn't that nice?  
 
 Consuming the tuple is now handled using `Map`, which projects the `Item1`...`ItemN` onto a lambda function (or action):
 
 ```C#
-    var name = tuple("Paul","Louth");
+    var name = Tuple("Paul","Louth");
     var res = name.Map( (first,last) => "Hello \{first} \{last}" );
 ```
 Or, you can use a more functional approach:
 ```C#
-    var name = tuple("Paul","Louth");
-    var res = map( name, (first,last) => "Hello \{first} \{last}" );
+    var name = Tuple("Paul","Louth");
+    var res = Map( name, (first,last) => String.Format("{0} {1}", first, last) );
 ```
 This allows the tuple properties to have names, and it also allows for fluent handling of functions that return tuples.
 
@@ -95,14 +95,40 @@ Yet another alternative (fluent) matching method is this:
 ```
 So choose your preferred method and stick with it.  It's probably best not to mix styles.
 
+There are also some helper functions to work with default `None` values,  You won't see a `.Value` or a `GetValueOrDefault()` anywhere in this library.  It is because `.Value` puts us right back to where we started, you may as well not use `Option<T>` in that case.  `GetValueOrDefault()` is as bad, because it can return `null` for reference types, and depending on how well defined the `struct` type is you're working with: a poorly defined value type.
+
+However, clearly there will be times when you don't need to do anything with the `Some` case, because, well that's what you asked for.  Also, sometimes you just want some code to execute in the `Some` case and not the `None` case...
+
+```C#
+    // Returns the Some case 'as is' and 10 in the None case
+    int x = optional.IfNone(10);        
+
+    // As above, but invokes a Func<T> to return a valid value for x
+    int x = optional.IfNone(GetAlternative);        
+    
+    // Invokes an Action<T> if in the Some state.
+    optional.IfSome(Console.WriteLine);
+```
+Of course there are functional versions of the fluent version above:
+```C#
+    int x = ifNone(optional, 10);
+    int x = iNone(optional, GetAlternative);
+    ifSome(optional, Console.WriteLine);
+```
 To smooth out the process of returning `Option<T>` types from methods there are some implicit conversion operators and constructors:
 
 ```C#
     // Implicitly converts the integer to a Some of int
-    Option<int> GetValue() => 1000;
+    Option<int> GetValue()
+    {
+        return 1000;
+    }
 
     // Implicitly converts to a None of int
-    Option<int> GetValue() => None;
+    Option<int> GetValue() => 
+    {
+        return None;
+    }
     
     // Will handle either a None or a Some returned
     Option<int> GetValue(bool select) =>
@@ -134,9 +160,7 @@ It's actually nearly impossible to get a `null` out of a function, even if the `
         return Some(nullStr);
     }
 ```
-
 That will compile, but at runtime will throw a `ValueIsNullException`.  If you do either of these (below) you'll get a `None`.  
-
 ```C#
     private Option<string> GetStringNone()
     {
@@ -151,7 +175,6 @@ That will compile, but at runtime will throw a `ValueIsNullException`.  If you d
     }
 
 ```
-
 These are the coercion rules:
 
 Converts from |  Converts to
@@ -170,7 +193,6 @@ Converts from |  Converts to
 `Optional(Nullable null)` | `None`
 `Optional(Nullable x)` | `Some(x)`
 
-
 As well as the protection of the internal value of `Option<T>`, there's protection for the return value of the `Some` and `None` handler functions.  You can't return `null` from those either, an exception will be thrown.
 
 ```C#
@@ -182,39 +204,31 @@ As well as the protection of the internal value of `Option<T>`, there's protecti
 
 So `null` goes away if you use `Option<T>`.
 
-Sometimes you just want to execute some specific behaviour when `None` is returned so that you can provide a decent default value, or raise an exception.  That is what the `IfNone` method is for:
+However, there are times when you want your `Some` and `None` handlers to return `null`.  This is mostly when you need to use something in the BCL or from a third-party library, so momentarily you need to step out of your warm and cosy protected optional bubble, but you've got an `Option<T>` that will throw an exception if you try.  
+So you can use `matchUnsafe` and `ifNoneUnsafe`:
 
 ```C#
-    Option<int> optional = None;
-        
-    // Defaults to 999 if optional is None
-    int value = optional.IfNone(999);
+    string x = matchUnsafe( optional,
+                            Some: v => v,
+                            None: () => null );
+
+    string x = ifNoneUnsafe( optional, null );
+    string x = ifNoneUnsafe( optional, GetNull );
 ```
-
-You can also use a function to handle `None`:
-
+And fluent versions:
 ```C#
-    Option<int> optional = None;
-        
-    var backup = fun( () => 999 );
-        
-    int value = optional.IfNone(backup);
+    string x = optional.MatchUnsafe(
+                   Some: v => v,
+                   None: () => null 
+                   );
+    string x = optional.IfNoneUnsafe(null);
+    string x = optional.IfNoneUnsafe(GetNull);
 ```
+That is consistent throughout the library.  Anything that could return `null` has the `Unsafe` suffix.  That means that in those unavoidable circumstances where you need a `null`, it gives you and any other programmers working with your code the clearest possible sign that they should treat the result with care.
 
-There are also functional variants of `IfNone`:
+### Option monad - gasp!  Not the M word!
 
-```C#
-    Option<int> optional = None;
-        
-    var backup  = fun( () => 999 );
-        
-    int value1 = ifNone(optional, 999);
-    int value2 = ifNone(optional, backup);
-```
-
-Essentially you can think of `IfNone` as `Match` where the `Some` branch always returns the wrapped value 'as is'.  Therefore there's no need for a `Some` function handler.
-
-The `Option<T>` type also implements `Select` and `SelectMany` and is therefore monadic.  That means it can be use in LINQ expressions.  
+I know, it's that damn monad word again.  They're actually not scary at all, and damn useful.  But if you couldn't care (or _could_ care less, for my American friends) less, it won't stop you taking advantage of the `Option<T>` type.  However, `Option<T>` type also implements `Select` and `SelectMany` and is therefore monadic.  That means it can be use in LINQ expressions.  
 
 ```C#
     Option<int> two = Some(2);
@@ -241,6 +255,44 @@ The `Option<T>` type also implements `Select` and `SelectMany` and is therefore 
                    Some: v => v * 2,
                    None: () => 0 );     // r == 0
 ```
+This can be great for avoiding the use of `if then else`, because the compuation continues as long as the result is `Some` and bails otherwise.  It is also great for building blocks of computation that you can compose and reuse.  Yes, actually compose and reuse, not like OO where the promise of composability and modularity are essentially lies.  
+
+To take this much further, all of the monads in this library implement a standard 'functional set' of functions:
+```C#
+    Sum
+    Count
+    Bind
+    Exists
+    Filter
+    Fold
+    ForAll
+    Iter
+    Map
+    Lift / LiftUnsafe
+    Select
+    SeletMany
+    Where
+```
+This makes them into what would be known in Haskell as a Type Class.  Now the problem with C# is it can't do higher order polymorphism  (imagine saying `Monad<Option<T>>` instead of `Option<T>`, `Either<L,R>`, `Try<T>`, `IEnumerable<T>`.  And then the resulting type having all the features of the `Option` as well as the standar 'interface' to `Monad`).
+
+There's a kind of cheat way to do it in C# through extension methods.  It still doesn't get you a single type called `Monad<T>`, so it has limitations in terms of passing it around.  However it makes some of the problems of dealing with 'wrapped types' easier.
+
+For example, here's a list of `Option<int>`.  We want to double all the `Some` values, leave the `None` alone and keep everything in the list:
+
+```C#
+    var listOfOptions = List(Some(1), None, Some(2), None, Some(3));
+    listOfOptions = listOfOptions.MapT( x => x * 2 );
+```
+Notice the use of `MapT` instead of `Map`.  If we used `Map` (equivalent to `Select` in `LINQ`), it would look like this:
+```C#
+    var listOfOptions = List(Some(1), None, Some(2), None, Some(3));
+    listOfOptions = listOfOptions.MapT( x => x.Map( v => v * 2 ) );
+```
+To make this work we need an extension method that takes a `List<Option<T>>` as `this` that defines `MapT` to be the example above.  And we need one for every pair of monads in this library, and for every function from the 'standard functional set' listed above.  So that's 13 monads * 13 monads * 14 functions.  That's a lot of extension methods.  So there's T4 template that generates 'monad transformers' that allows for nested monads (2 levels).
+
+This is super powerful, and means that most of the time you can leave your `Option<T>` or any of the monads in this library wrapped.  You rarely need to extract the value.  Mostly you only need to extract the value to pass to the BCL or Third-party libraries.  Even then you could keep them wrapped and use `Iter` or in the case of `IfSome`.  Both invoke `Action` delegates that take the value(s) in the monad.
+
+
 ## if( arg == null ) throw new ArgumentNullException("arg")
 Another horrible side-effect of `null` is having to bullet-proof every function that take reference arguments.  This is truly tedious.  Instead use this:
 ```C#
