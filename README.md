@@ -228,7 +228,7 @@ That is consistent throughout the library.  Anything that could return `null` ha
 
 ### Option monad - gasp!  Not the M word!
 
-I know, it's that damn monad word again.  They're actually not scary at all, and damn useful.  But if you couldn't care (or _could_ care less, for my American friends) less, it won't stop you taking advantage of the `Option<T>` type.  However, `Option<T>` type also implements `Select` and `SelectMany` and is therefore monadic.  That means it can be use in LINQ expressions.  
+I know, it's that damn monad word again.  They're actually not scary at all, and damn useful.  But if you couldn't care less (or _could_ care less, for my American friends), it won't stop you taking advantage of the `Option<T>` type.  However, `Option<T>` type also implements `Select` and `SelectMany` and is therefore monadic.  That means it can be use in LINQ expressions, but it means mich more also.  
 
 ```C#
     Option<int> two = Some(2);
@@ -259,38 +259,44 @@ This can be great for avoiding the use of `if then else`, because the compuation
 
 To take this much further, all of the monads in this library implement a standard 'functional set' of functions:
 ```C#
-    Sum
-    Count
-    Bind
-    Exists
-    Filter
-    Fold
-    ForAll
-    Iter
-    Map
-    Lift / LiftUnsafe
+    Sum                 // For Option<int> it's the wrapped value.
+    Count               // For Option<T> is always 1 for Some and 0 for None.  
+    Bind                // Part of the definition of anything monadic - SelectMany in LINQ
+    Exists              // Any in LINQ - true if any element fits a predicate
+    Filter              // Where in LINQ
+    Fold                // Aggregate in LINQ
+    ForAll              // All in LINQ - true if all element(s) fits a predicate
+    Iter                // Passes the wrapped value(s) to an Action delegate
+    Map                 // Part of the definition of any 'functor'.  Select in LINQ
+    Lift / LiftUnsafe   // Different meaning to Haskell, this returns the wrapped value.  Dangerous, should be used sparingly.
     Select
     SeletMany
     Where
 ```
-This makes them into what would be known in Haskell as a Type Class.  Now the problem with C# is it can't do higher order polymorphism  (imagine saying `Monad<Option<T>>` instead of `Option<T>`, `Either<L,R>`, `Try<T>`, `IEnumerable<T>`.  And then the resulting type having all the features of the `Option` as well as the standar 'interface' to `Monad`).
+This makes them into what would be known in Haskell as a Type Class (although more of a catch-all type-class than a set of well-defined type-classes).  Now the problem with C# is it can't do higher order polymorphism  (imagine saying `Monad<Option<T>>` instead of `Option<T>`, `Either<L,R>`, `Try<T>`, `IEnumerable<T>`.  And then the resulting type having all the features of the `Option` as well as the standard interface to `Monad`).
 
 There's a kind of cheat way to do it in C# through extension methods.  It still doesn't get you a single type called `Monad<T>`, so it has limitations in terms of passing it around.  However it makes some of the problems of dealing with 'wrapped types' easier.
 
-For example, here's a list of `Option<int>`.  We want to double all the `Some` values, leave the `None` alone and keep everything in the list:
+For example, below is list of `Option<int>`.  We want to double all of the `Some` values, leave the `None` alone and keep everything in the list:
 
 ```C#
     var listOfOptions = List(Some(1), None, Some(2), None, Some(3));
+    var presum = listOfOptions.SumT();                                // 6
     listOfOptions = listOfOptions.MapT( x => x * 2 );
+    var postsum = listOfOptions.SumT();                               // 12
 ```
-Notice the use of `MapT` instead of `Map`.  If we used `Map` (equivalent to `Select` in `LINQ`), it would look like this:
+Notice the use of `MapT` instead of `Map` (and `SumT` instead of `Sum`).  If we used `Map` (equivalent to `Select` in `LINQ`), it would look like this:
 ```C#
     var listOfOptions = List(Some(1), None, Some(2), None, Some(3));
+    var presum = listOfOptions.Fold(0, (s,x) => s + x.IfNone(0));
     listOfOptions = listOfOptions.MapT( x => x.Map( v => v * 2 ) );
+    var postsum = listOfOptions.Fold(0, (s,x) => s + x.IfNone(0));
 ```
-To make this work we need an extension method that takes a `List<Option<T>>` as `this` that defines `MapT` to be the example above.  And we need one for every pair of monads in this library, and for every function from the 'standard functional set' listed above.  So that's 13 monads * 13 monads * 14 functions.  That's a lot of extension methods.  So there's T4 template that generates 'monad transformers' that allows for nested monads (2 levels).
+As you can see the intension if much clearer in the first example.  And that's the point with functional programming most of the time.  It's about declaring intent rather than the mechanics of delivery.
 
-This is super powerful, and means that most of the time you can leave your `Option<T>` or any of the monads in this library wrapped.  You rarely need to extract the value.  Mostly you only need to extract the value to pass to the BCL or Third-party libraries.  Even then you could keep them wrapped and use `Iter` or in the case of `IfSome`.  Both invoke `Action` delegates that take the value(s) in the monad.
+To make this work we need extension methods for `List<Option<T>>` that define `MapT` and `SumT` [for the one  example above].  And we need one for every pair of monads in this library (for one level of wrapping `A<B<T>>`), and for every function from the 'standard functional set' listed above.  So that's 13 monads * 13 monads * 14 functions.  That's a lot of extension methods.  So there's T4 template that generates 'monad transformers' that allows for nested monads.
+
+This is super powerful, and means that most of the time you can leave your `Option<T>` or any of the monads in this library wrapped.  You rarely need to extract the value.  Mostly you only need to extract the value to pass to the BCL or Third-party libraries.  Even then you could keep them wrapped and use `Iter` or in the case of `Option<T>`: `IfSome`.  Both invoke `Action` delegates that take the value(s) in the monad.
 
 
 ## if( arg == null ) throw new ArgumentNullException("arg")
