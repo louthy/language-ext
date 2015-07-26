@@ -289,7 +289,7 @@ Notice the use of `MapT` instead of `Map` (and `SumT` instead of `Sum`).  If we 
 ```C#
     var listOfOptions = List(Some(1), None, Some(2), None, Some(3));
     var presum = listOfOptions.Map(x => x.Sum()).Sum();
-    listOfOptions = listOfOptions.MapT( x => x.Map( v => v * 2 ) );
+    listOfOptions = listOfOptions.Map( x => x.Map( v => v * 2 ) );
     var postsum = listOfOptions.Map(x => x.Sum()).Sum();
 ```
 As you can see the intension if much clearer in the first example.  And that's the point with functional programming most of the time.  It's about declaring intent rather than the mechanics of delivery.
