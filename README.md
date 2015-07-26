@@ -14,11 +14,11 @@ I can understand that much of this library is non-idiomatic; But when you think 
 
 __A note about naming__
 
-One of the areas that's likely to get seasoned C# heads worked up is my choice of naming style.  The intent is to try and make something that 'feels' like F# rather than follow the 'rule book' on naming conventions, mostly set out by the BCL.  
+One of the areas that's likely to get seasoned C# heads worked up is my choice of naming style.  The intent is to try and make something that 'feels' like F# rather than follow the 'rule book' on naming conventions (mostly set out by the BCL).  
 
 There is however a naming guide that will stand you in good stead whilst reading through this documentation:
 
-* A lot of the built in types are have instantiation functions rather than public constructors.  They always start with a capital letter.
+* A lot of the types  have instantiation functions rather than public constructors.  They always start with a capital letter.
 * Any static functions that can be used on their own by `using static LanguageExt.___` are camelCase.
 * Any extension methods, or anything 'fluent' are PascalCase in the normal way
 * Type names are also PascalCase in the normal way
