@@ -228,7 +228,7 @@ That is consistent throughout the library.  Anything that could return `null` ha
 
 ### Option monad - gasp!  Not the M word!
 
-I know, it's that damn monad word again.  They're actually not scary at all, and damn useful.  But if you couldn't care less (or _could_ care less, for my American friends), it won't stop you taking advantage of the `Option<T>` type.  However, `Option<T>` type also implements `Select` and `SelectMany` and is therefore monadic.  That means it can be use in LINQ expressions, but it means mich more also.  
+I know, it's that damn monad word again.  They're actually not scary at all, and damn useful.  But if you couldn't care less (or _could_ care less, for my American friends), it won't stop you taking advantage of the `Option<T>` type.  However, `Option<T>` type also implements `Select` and `SelectMany` and is therefore monadic.  That means it can be use in LINQ expressions, but it means much more also.  
 
 ```C#
     Option<int> two = Some(2);
@@ -255,7 +255,7 @@ I know, it's that damn monad word again.  They're actually not scary at all, and
                    Some: v => v * 2,
                    None: () => 0 );     // r == 0
 ```
-This can be great for avoiding the use of `if then else`, because the compuation continues as long as the result is `Some` and bails otherwise.  It is also great for building blocks of computation that you can compose and reuse.  Yes, actually compose and reuse, not like OO where the promise of composability and modularity are essentially lies.  
+This can be great for avoiding the use of `if then else`, because the computation continues as long as the result is `Some` and bails otherwise.  It is also great for building blocks of computation that you can compose and reuse.  Yes, actually compose and reuse, not like OO where the promise of composability and modularity are essentially lies.  
 
 To take this much further, all of the monads in this library implement a standard 'functional set' of functions:
 ```C#
