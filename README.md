@@ -665,9 +665,9 @@ So only store immutable items in a `Map`, or leave them alone if they're mutable
 * `tryAddRange`
 * `trySetItem`
 
-_Wrapped Maps_
+### Map transformers
 
-There are additional transformer functions for dealing with wrapped maps.  I have found these to be super useful.  We only cover a limited set of the full set of `Map` functions at the moment.  You can wrap `Map` up to 4 levels deep and still call things like `Fold` and `Filter`.  There's an interested variant of `Filter` called `FilterRemoveT`, where if a filter leaves any keys and any level with an empty `Map` then it will auto-remove them.  
+There are additional transformer functions for dealing with 'wrapped' maps (i.e. `Map<int, Map<int, string>>`).  I have found these to be super useful.  We only cover a limited set of the full set of `Map` functions at the moment.  You can wrap `Map` up to 4 levels deep and still call things like `Fold` and `Filter`.  There's an interested variant of `Filter` called `FilterRemoveT`, where if a filter leaves any keys and any level with an empty `Map` then it will auto-remove them.  
 
 ```C#
     Map<int,Map<int,Map<int, Map<int, string>>>> wrapped = Map.create<int,Map<int,Map<int,Map<int,string>>();
