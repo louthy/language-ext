@@ -52,11 +52,11 @@ using static LanguageExt.Prelude;
 `LanguageExt` contains the types, and `LanguageExt.Prelude` contains the functions.  
 
 There is also:
-*`LanguageExt.List`
-*`LanguageExt.Map`
-*`LanguageExt.Queue`
-*`LanguageExt.Set`
-*`LanguageExt.Stack` 
+* `LanguageExt.List`
+* `LanguageExt.Map`
+* `LanguageExt.Queue`
+* `LanguageExt.Set`
+* `LanguageExt.Stack` 
 
 _(more on those later)_
 
