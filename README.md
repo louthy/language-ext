@@ -288,9 +288,9 @@ For example, below is a list of optional integers: `Lst<Option<int>>` (see lists
 Notice the use of `MapT` instead of `Map` (and `SumT` instead of `Sum`).  If we used `Map` (equivalent to `Select` in `LINQ`), it would look like this:
 ```C#
     var listOfOptions = List(Some(1), None, Some(2), None, Some(3));
-    var presum = listOfOptions.Fold(0, (s,x) => s + x.IfNone(0));
+    var presum = listOfOptions.Map(x => x.Sum()).Sum();
     listOfOptions = listOfOptions.MapT( x => x.Map( v => v * 2 ) );
-    var postsum = listOfOptions.Fold(0, (s,x) => s + x.IfNone(0));
+    var postsum = listOfOptions.Map(x => x.Sum()).Sum();
 ```
 As you can see the intension if much clearer in the first example.  And that's the point with functional programming most of the time.  It's about declaring intent rather than the mechanics of delivery.
 
