@@ -45,8 +45,6 @@ _If you're not using C# 6 yet, then you can still use this library.  Anywhere in
 
 ### Getting started
 
-__Core__
-
 To use this library, simply include `LanguageExt.Core.dll` in your project or grab it from NuGet.  And then stick this at the top of each cs file that needs it:
 ```C#
 using LanguageExt;
