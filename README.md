@@ -358,6 +358,8 @@ So what's the best plan of attack to mitigate this?
 
 There's no silver bullet here unfortunately.
 
+_NOTE: Since writing this library I have come to the opinion that `Some<T>` isn't that useful.  It's much better to protect 'everything else' using `Option<T>` and immutable data structures.  It doesn't fix the argument null checks unfortunately.  But perhaps using a contracts library would be better._
+
 ## Lack of lambda and expression inference 
 
 One really annoying thing about the `var` type inference in C# is that it can't handle inline lambdas.  For example this won't compile, even though it's obvious it's a `Func<int,int,int>`.
@@ -431,7 +433,7 @@ There's support for `cons`, which is the functional way of constructing lists:
     Assert.IsTrue(array[4] == 5);
 ```
 
-Note, this isn't the strict definition of `cons`, but it's a pragmatic implementation that returns an `IEnumerable<T>`, is lazy, and behaves the same.
+_Note, this isn't the strict definition of `cons`, but it's a pragmatic implementation that returns an `IEnumerable<T>`, is lazy, and behaves the same.  Functional purists, please don't get too worked up!  I am yet to think of a way of implemeting a proper type-safe `cons` (that can also represent trees, etc.) in C#._
 
 Functional languages usually have additional list constructor syntax which makes the `cons` approach easier.  It usually looks something like this:
 
@@ -454,33 +456,33 @@ Or worse:
     list.Add(4);
     list.Add(5);
 ```
-So we provide `list(...)` function which takes any number of parameters and turns them into a list:
+So we provide the `List(...)` function that takes any number of parameters and turns them into a list:
 
 ```C#
     // Creates a list of five items
-     var test = list(1, 2, 3, 4, 5);
+     var test = List(1, 2, 3, 4, 5);
 ```
 
-This is much closer to the 'functional way'.  It also returns `IImmutableList<T>`.  So it's now easier to use immutable-lists than the mutable ones.  
+This is much closer to the 'functional way'.  It also returns a `Lst<T>` that is a wrapper for `IImmutableList<T>`.  So it's now easier to use immutable-lists than the mutable ones.  And significantly less typing.
 
-Also `range`:
+Also `Range`:
 
 ```C#
     // Creates a sequence of 1000 integers lazily (starting at 500).
-    var list = range(500,1000);
+    var list = Range(500,1000);
     
     // Produces: [0, 10, 20, 30, 40]
-    var list = range(0,50,10);
+    var list = Range(0,50,10);
     
     // Produces: ['a,'b','c','d','e']
-    var chars = range('a','e');
+    var chars = Range('a','e');
 ```
 
 Some of the standard list functions are available.  These are obviously duplicates of what's in LINQ, therefore they've been put into their own `using static LanguageExt.List` namespace:
 
 ```C#
     // Generates 10,20,30,40,50
-    var input = list(1, 2, 3, 4, 5);
+    var input = List(1, 2, 3, 4, 5);
     var output1 = map(input, x => x * 10);
 
     // Generates 30,40,50
@@ -495,7 +497,7 @@ Some of the standard list functions are available.  These are obviously duplicat
 The above can be written in a fluent style also:
 
 ```C#
-    var res = list(1, 2, 3, 4, 5)
+    var res = List(1, 2, 3, 4, 5)
                 .Map(x => x * 10)
                 .Filter(x => x > 20)
                 .Fold(0, (x, s) => s + x);
@@ -526,9 +528,9 @@ However, you can provide up to seven handlers, one for an empty list and six for
 
     public void RecursiveMatchSumTest()
     {
-        var list0 = list<int>();
-        var list1 = list(10);
-        var list5 = list(10,20,30,40,50);
+        var list0 = List<int>();
+        var list1 = List(10);
+        var list5 = List(10,20,30,40,50);
         
         Assert.IsTrue(Sum(list0) == 0);
         Assert.IsTrue(Sum(list1) == 10);
@@ -537,9 +539,9 @@ However, you can provide up to seven handlers, one for an empty list and six for
 
     public void RecursiveMatchProductTest()
     {
-        var list0 = list<int>();
-        var list1 = list(10);
-        var list5 = list(10, 20, 30, 40, 50);
+        var list0 = List<int>();
+        var list1 = List(10);
+        var list5 = List(10, 20, 30, 40, 50);
 
         Assert.IsTrue(Product(list0) == 0);
         Assert.IsTrue(Product(list1) == 10);
@@ -586,14 +588,16 @@ To create an immutable map, you no longer have to type:
 ```
 Instead you can use:
 ```C#
-    var dict = map<string,int>();
+    var dict = Map<string,int>();
 ```
+_Unlike `Lst<T>` that just wraps `ImmutableList<T>`, `Map<K,V>` is a home-grown implementation of an AVL Tree (self balancing binary tree).  This allows us to extend the standard `IDictionary` set of functions to include things like `findRange`.  Note: It's slightly slower than the `ImmutableDictionary` type, so if absolute speed is a goal then be aware of that.  There are further optimisations to come, so I hope this disclaimer will be moot soon._
+
 Also you can pass in a list of tuples or key-value pairs:
 
 ```C#
-    var people = map( tuple(1, "Rod"),
-                      tuple(2, "Jane"),
-                      tuple(3, "Freddy") );
+    var people = Map( Tuple(1, "Rod"),
+                      Tuple(2, "Jane"),
+                      Tuple(3, "Freddy") );
 ```
 To read an item call:
 ```C#
@@ -626,21 +630,68 @@ To set an item call:
     var newThings = setItem(people, 1, "Zippy");
 ```
 
+Obviously because it's an immutable structure, calling `add`, `tryAdd`, `addOrUpdate`, `addRange`, `tryAddRange`, `addOrUpdateRange`, `remove`, `setItem`, `trySetItem`, `setItems` or `trySetItems`... will generate a new `Map<K,V>`.  It's quite cunning though, and it only replaces the items that need to be replaced and returns a new map with the new items and shared old items.  This massively reduces the memory allocation burden
+
+By holding onto a reference to the `Map` before and after calling `add` you essentially have a perfect timeline history of the changes.  But be wary that if what you're holding in the `Map` is *mutable* and you change your mutable items, then the old `Map` and the new `Map` will change.
+
+So only store immutable items in a `Map`, or leave them alone if they're mutable.
+
 `map` functions (`using static LanguageExt.Map`):
 * `add`
+* `addOrUpdate`
+* `addOrUpdateRange`
 * `addRange`
 * `choose`
+* `clear`
 * `contains`
 * `containsKey`
+* `create`
+* `createRange`
+* `empty`
 * `exists`
 * `filter`
 * `find`
+* `findRange`
+* `fold`
 * `forall`
 * `iter`
 * `length`
 * `map`
 * `remove`
 * `setItem`
+* `setItems`
+* `skip`
+* `tryAdd`
+* `tryAddRange`
+* `trySetItem`
+
+_Wrapped Maps_
+
+There are additional transformer functions for dealing with wrapped maps.  I have found these to be super useful.  We only cover a limited set of the full set of `Map` functions at the moment.  You can wrap `Map` up to 4 levels deep and still call things like `Fold` and `Filter`.  There's an interested variant of `Filter` called `FilterRemoveT`, where if a filter leaves any keys and any level with an empty `Map` then it will auto-remove them.  
+
+```C#
+    Map<int,Map<int,Map<int, Map<int, string>>>> wrapped = Map.create<int,Map<int,Map<int,Map<int,string>>();
+    
+    wrapped = wrapped.AddOrUpdate(1,2,3,4,"Paul");
+    wrapped = wrapped.SetItemT(1,2,3,4,"Louth");
+    var name = wrapped.Find(1,2,3,4);               // "Louth"
+```
+The `Map` transformer funcions:
+
+_Note, there are only fluent versions of the transformer functions._
+
+* `Find`
+* `AddOrUpdate`
+* `Remove`
+* `MapRemoveT` - maps each level,  checks if the map is empty, in which case it removes it
+* `MapT`
+* `FilterT`
+* `FilterRemoveT`` - filters each level, checks if the map is empty, in which case it removes it
+* `Exists`
+* `ForAll`
+* `SetItemT`
+* `TrySetItemT`
+* `FoldT`
 * more coming...
 
 ## The awful `out` parameter
