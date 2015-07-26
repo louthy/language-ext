@@ -749,6 +749,28 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
                      None: () => 0 );
 ```
 
+`out` method variants
+* `IDictionary<K, V>.TryGetValue`
+* `IReadOnlyDictionary<K, V>.TryGetValue`
+* `IImmutableDictionary<K, V>.TryGetValue`
+* `IImmutableSet<K, V>.TryGetValue`
+* `Int32.TryParse` becomes `parseInt`
+* `Int64.TryParse` becomes `parseLong`
+* `Int16.TryParse` becomes `parseShort`
+* `Char.TryParse` becomes `parseChar`
+* `Byte.TryParse` becomes `parseByte`
+* `UInt64.TryParse` becomes `parseULong`
+* `UInt32.TryParse` becomes `parseUInt`
+* `UInt16.TryParse` becomes `parseUShort`
+* `float.TryParse` becomes `parseFloat`
+* `double.TryParse` becomes `parseDouble`
+* `decimal.TryParse` becomes `parseDecimal`
+* `bool.TryParse` becomes `parseBool`
+* `Guid.TryParse` becomes `parseGuid`
+* `DateTime.TryParse` becomes `parseDateTime`
+
+_any others you think should be included, please get in touch_
+
 ### The rest
 I haven't had time to document everything, so here's a quick list of what was missed:
 
