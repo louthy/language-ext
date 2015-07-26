@@ -94,7 +94,7 @@ This library is quickly becoming a 'Base Class Library' for functional programmi
 * Improved lambda type inference
 * IObservable extensions
 
-It started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me.  So what C# issues are we trying to fix?  Well, we can only paper over the cracks, but here's a summary:
+It started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me.  What C# issues are we trying to fix?  Well, we can only paper over the cracks, but here's a summary:
 
 * Poor tuple support
 * Null reference problem
