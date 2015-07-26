@@ -3,6 +3,8 @@
 C# Functional Language Extensions
 =================================
 
+[![Join the chat at https://gitter.im/louthy/language-ext](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/louthy/language-ext?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Using and abusing the features of C# 6 to provide lots of functions and types, that, if you squint, can look like extensions to the language itself.  And an 'Erlang like' concurrency system (actors) that can persist messages and state to Redis.
 
 __Now on NuGet: https://www.nuget.org/packages/LanguageExt/__
