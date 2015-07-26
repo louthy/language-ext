@@ -374,7 +374,7 @@ Notice the use of `MapT` instead of `Map` (and `SumT` instead of `Sum`).  If we 
     
     var postsum = list.Map(x => x.Sum()).Sum();
 ```
-As you can see the intension if much clearer in the first example.  And that's the point with functional programming most of the time.  It's about declaring intent rather than the mechanics of delivery.
+As you can see the intention is much clearer in the first example.  And that's the point with functional programming most of the time.  It's about declaring intent rather than the mechanics of delivery.
 
 To make this work we need extension methods for `List<Option<T>>` that define `MapT` and `SumT` [for the one  example above].  And we need one for every pair of monads in this library (for one level of wrapping `A<B<T>>`), and for every function from the 'standard functional set' listed above.  So that's 13 monads * 13 monads * 14 functions.  That's a lot of extension methods.  So there's T4 template that generates 'monad transformers' that allows for nested monads.
 
