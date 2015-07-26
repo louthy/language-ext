@@ -39,6 +39,8 @@ Or the fluent PascalCase way:
 ```
 Even if you don't agree with this non-idiomatic approach, all of the camelCase static functions have fluent variants, so actually you never have to see the 'non-standard' stuff. 
 
+_If you're not using C# 6 yet, then you can still use this library.  Anywhere in the docs below where you see a camelCase function it can be accessed by prefixing with `Prelude.`_
+
 ### Getting started
 
 __Core__
@@ -60,13 +62,11 @@ There is also:
 
 _(more on those later)_
 
-_If you're not using C# 6 yet, then you can still use this library.  Anywhere in the docs below where you see a camelCase function it can be accessed by prefixing with `Prelude.`_
-
-__Process__
+### Process
 
 To use the `Process` system, include `LanguageExt.Process.dll` and add `using static LanguageExt.Process` to access the camelCase functions.  
 
-_NOTE: The Process system is at alpha stage right now.  The rest of the library is well used and tested._
+_NOTE: The Process system is at alpha stage right now.  The rest of the library is well used and tested.  The entire API can be found in LanguageExt.Process (in Prelude.cs).  There are also a few samples._
 
 ### Features
 
