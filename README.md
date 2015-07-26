@@ -12,7 +12,31 @@ One of the great new features of C# 6 is that it allows us to treat static class
 
 I can understand that much of this library is non-idiomatic; But when you think of the journey C# has been on, is idiomatic necessarily right?  A lot of C#'s idioms are inherited from Java and C# 1.0.  Since then we've had generics, closures, Func, LINQ, async...  C# as a language is becoming more and more like a  functional language on every release.  In fact the bulk of the new features are either inspired by or directly taken from features in functional languages.  So perhaps it's time to move the C# idioms closer to the functional world's idioms?
 
-Even if you don't agree, I guess you can pick 'n' choose what to work with.  There's still plenty here that will help day-to-day.
+__A note about naming__
+One of the areas that's likely to get seasoned C# heads worked up is my choice of naming style.  The intent is to try and make something that 'feels' like F# rather than follow the 'rule book' on naming conventions, mostly set out by the BCL.  
+
+There is however a naming guide that will stand you in good stead whilst reading through this documentation:
+
+* A lot of the built in types are have instantiation functions rather than public constructors.  They always start with a capital letter.
+* Any static functions that can be used on their own by `using static LanguageExt.___` are camelCase.
+* Any extension methods, or anything 'fluent' are PascalCase in the normal way
+* Type names are also PascalCase in the normal way
+
+So to create an `Option<T>` you can use the upper case named constructors:
+
+```C#
+    Option<T> x = Some(123);
+    Option<T> y = None;
+```
+Mapping the `Option<T>` can be done the functional camelCase way:
+```C#
+    var x = map(opt, v => v * 2);
+```
+Or the fluent PascalCase way:
+```C#
+    var x = opt.Map(v => v * 2);
+```
+Even if you don't agree with this non-idiomatic approach, all of the camelCase static functions have fluent variants, so actually you never have to see the 'non-standard' stuff. 
 
 To use this library, simply include LanguageExt.Core.dll in your project.  And then stick this at the top of each cs file that needs it:
 ```C#
@@ -30,6 +54,21 @@ What C# issues are we trying to fix?  Well, we can only paper over the cracks, b
 * Void isn't a real type
 * Mutable lists and dictionaries
 * The awful 'out' parameter
+
+Rather than just focus on the negatives of C#, this library is quickly becoming a 'Base Class Library' for functional programming in C#.  The features include:
+
+* Monad library - `Option<T>`, `OptionUnsafe<T>`, `Either<L,R>`, `EitherUnsafe<L,R>`, `Try<T>`, `TryOption<T>`, `Lst<T>`, `Map<K,V>`, `Reader<E,T>`, `Writer<O,T>`, `State<S,T>`, `Rws<E,O,S,T>`
+* Monad transformers and a higher kinded type (ish)
+* Process library - Uses 'actors' in the same way as Erlang processes for massive concurrency with state management.
+* Redis persistence for Process message queues, state, and pub/sub
+* Immutable collections - `Lst<T>`, `Map<K,V>`, `Set<T>`
+* Currying
+* Partial application
+* Memoization
+* Improved lambda type inference
+* IObservable extensions
+
+So onto the C# issues that this library started out to deal with...
 
 ## Poor tuple support
 I've been crying out for proper tuple support for ages.  It looks like we're no closer with C# 6.  The standard way of creating them is ugly `Tuple.Create(foo,bar)` compared to functional languages where the syntax is often `(foo,bar)` and to consume them you must work with the standard properties of `Item1`...`ItemN`.  No more...
@@ -779,19 +818,18 @@ Type or function | Description
 `TryOption<T>` | The same as `Option<T>` except it also handles exceptions.  It has a third state called `Fail`.
 `Either<Left,Right>` | Like `Option<T>`, however the `None` in `Option<T>` is called `Left` in `Either`, and `Some` is called `Right`.  Just remember: `Right` is right, `Left` is wrong.  Both `Right` and `Left` can hold values.  And they can be different types.  See the OptionEitherConfigSample for a demo.  Supports all the same functionality as `Option<T>`.
 `SomeUnsafe()`, `RightUnsafe()`, `LeftUnsafe()` | These methods accept that sometimes `null` is a valid result, but you still want an option of saying `None`.  They allow `null` to propagate through, and it removes the `null` checks from the return value of `match`
-`set<T>()` | ImmutableHashSet.Create<T>()
-`stack<T>()` | ImmutableStack.Create<T>()
-`array<T>()` | ImmutableArray.Create<T>()
-`queue<T>()` | ImmutableQueue.Create<T>()
-`freeze<T>(list)` | Converts an IEnumerable<T> to an IImmutableList<T>
+`set<T>()` | Creates a `Set<T>` which is a wrapper for `ImmutableHashSet.Create<T>()`
+`stack<T>()` | `ImmutableStack.Create<T>()`
+`array<T>()` | `ImmutableArray.Create<T>()`
+`queue<T>()` | `ImmutableQueue.Create<T>()`
+`freeze<T>(list)` | Converts an `IEnumerable<T>` to an Lst<T>
 `memo<T>(fn)` | Caches a function's result the first time it's called
 `memo<T,R>(fn)` | Caches a result of a function once for each unique parameter passed to it
 `ignore` | Takes one argument which it ignores and returns `unit` instead.
 `Nullable<T>.ToOption()` | Converts a `Nullable<T>` to an `Option<T>`
 `raise(exception)` | Throws the exception passed as an argument.  Useful in lambda's where a return value is needed.
-`failwith(message)` | Throws an Exception with the message provided.  Useful in lambda's where a return value is needed.
+`failwith(message)` | Throws an `Exception` with the message provided.  Useful in lambda's where a return value is needed.
 `identity<T>()` | Identity function.  Returns the same value it was passed.
-`IDictionary.TryGetValue()` and `IReadOnlyDictionary.TryGetValue()` | Variants that return `Option<T>`.
 
 ### Future
 There's more to come with this library.  Feel free to get in touch with any suggestions.
