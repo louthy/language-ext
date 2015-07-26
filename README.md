@@ -8,7 +8,7 @@ Using and abusing the features of C# 6 to provide lots of functions and types, t
 __Now on NuGet: https://www.nuget.org/packages/LanguageExt/__
 
 ## Introduction
-One of the great new features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static methods without qualifying them first.  This instantly gives us access to single term method names which look exactly like functions in functional languages.  This library brings some of the functional world into C#.  It won't always sit well with the seasoned C# OO-only programmer, especially the choice of lowercase names for a lot of functions and the seeming 'globalness' of a lot of the library.  
+One of the great new features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static methods without qualifying them first.  This instantly gives us access to single term method names which look exactly like functions in functional languages.  This library brings some of the functional world into C#.  It won't always sit well with the seasoned C# OO programmer, especially the choice of camelCase names for a lot of functions and the seeming 'globalness' of a lot of the library.  
 
 I can understand that much of this library is non-idiomatic; But when you think of the journey C# has been on, is idiomatic necessarily right?  A lot of C#'s idioms are inherited from Java and C# 1.0.  Since then we've had generics, closures, Func, LINQ, async...  C# as a language is becoming more and more like a  functional language on every release.  In fact the bulk of the new features are either inspired by or directly taken from features in functional languages.  So perhaps it's time to move the C# idioms closer to the functional world's idioms?
 
@@ -18,7 +18,7 @@ One of the areas that's likely to get seasoned C# heads worked up is my choice o
 
 There is however a naming guide that will stand you in good stead whilst reading through this documentation:
 
-* A lot of the types  have instantiation functions rather than public constructors.  They always start with a capital letter.
+* The types all have instantiation functions rather than public constructors.  They will always be PascalCase.
 * Any static functions that can be used on their own by `using static LanguageExt.___` are camelCase.
 * Any extension methods, or anything 'fluent' are PascalCase in the normal way
 * Type names are also PascalCase in the normal way
@@ -43,19 +43,30 @@ Even if you don't agree with this non-idiomatic approach, all of the camelCase s
 
 __Core__
 
-To use this library, simply include `LanguageExt.Core.dll` in your project.  And then stick this at the top of each cs file that needs it:
+To use this library, simply include `LanguageExt.Core.dll` in your project or grab it from NuGet.  And then stick this at the top of each cs file that needs it:
 ```C#
 using LanguageExt;
 using static LanguageExt.Prelude;
 ```
 
-`LanguageExt` contains the types, and `LanguageExt.Prelude` contains the helper functions.  There is also `LanguageExt.List`, `LanguageExt.Map`, `LanguageExt.Queue`, `LanguageExt.Set` and `LanguageExt.Stack` (more on those later).
+`LanguageExt` contains the types, and `LanguageExt.Prelude` contains the functions.  
+
+There is also:
+*`LanguageExt.List`
+*`LanguageExt.Map`
+*`LanguageExt.Queue`
+*`LanguageExt.Set`
+*`LanguageExt.Stack` 
+
+_(more on those later)_
 
 _If you're not using C# 6 yet, then you can still use this library.  Anywhere in the docs below where you see a camelCase function it can be accessed by prefixing with `Prelude.`_
 
 __Process__
 
 To use the `Process` system, include `LanguageExt.Process.dll` and add `using static LanguageExt.Process` to access the camelCase functions.  
+
+_NOTE: The Process system is at alpha stage right now.  The rest of the library is well used and tested._
 
 ### Features
 
