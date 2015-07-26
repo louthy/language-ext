@@ -121,7 +121,7 @@ Consuming the tuple is now handled using `Map`, which projects the `Item1`...`It
 Or, you can use a more functional approach:
 ```C#
     var name = Tuple("Paul","Louth");
-    var res = Map( name, (first,last) => String.Format("{0} {1}", first, last) );
+    var res = map( name, (first,last) => String.Format("{0} {1}", first, last) );
 ```
 This allows the tuple properties to have names, and it also allows for fluent handling of functions that return tuples.
 
