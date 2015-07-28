@@ -15,6 +15,11 @@ using System.Reactive.Subjects;
 
 namespace LanguageExt
 {
+    /// <summary>
+    /// Internal class that represents the state of a single process.
+    /// </summary>
+    /// <typeparam name="S">State</typeparam>
+    /// <typeparam name="T">Message type</typeparam>
     internal class Actor<S, T> : IProcess, IProcess<T>
     {
         Func<S, T, S> actorFn;

@@ -68,7 +68,7 @@ namespace LanguageExt
         /// Convert a LanguageExt Map (Map K V) into an F# Map
         /// </summary>
         public static FSharpMap<K, V> fs<K, V>(Map<K, V> map) =>
-            MapModule.OfSeq(map.AsEnumerable());
+            MapModule.OfSeq(map.AsEnumerable().Map(item => Tuple(item.Key,item.Value)));
 
         /// <summary>
         /// Convert LanguageExt Unit to F# unit

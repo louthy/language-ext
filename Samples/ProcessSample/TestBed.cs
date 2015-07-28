@@ -20,6 +20,10 @@ namespace ProcessSample
     {
         public static void RunTests()
         {
+            MapOptionTest();
+            MassAddRemoveTest();
+
+
             ProcessLog.Subscribe(Console.WriteLine);
 
             RegisteredAskReply();
@@ -52,6 +56,47 @@ namespace ProcessSample
             ExTest4();
             MemoTest();
             UnsafeOptionTest();
+        }
+
+        public static void MapOptionTest()
+        {
+            var m = Map<Option<int>, Map<Option<int>, string>>();
+
+            m = m.AddOrUpdate(Some(1), Some(1), "Some Some");
+            m = m.AddOrUpdate(None, Some(1), "None Some");
+            m = m.AddOrUpdate(Some(1), None, "Some None");
+            m = m.AddOrUpdate(None, None, "None None");
+
+            Debug.Assert(m[Some(1)][Some(1)] == "Some Some");
+            Debug.Assert(m[None][Some(1)] == "None Some");
+            Debug.Assert(m[Some(1)][None] == "Some None");
+            Debug.Assert(m[None][None] == "None None");
+
+            Debug.Assert(m.CountT() == 4);
+
+            m = m.FilterT(v => v.EndsWith("None"));
+
+            Debug.Assert(m.CountT() == 2);
+        }
+
+        public static void MassAddRemoveTest()
+        {
+            int max = 1000000;
+
+            var items = LanguageExt.List.map(Range(1, max), _ => Tuple(Guid.NewGuid(), Guid.NewGuid()))
+                                        .ToDictionary(kv => kv.Item1, kv => kv.Item2);
+
+            var m = Map<Guid, Guid>().AddRange(items);
+            Debug.Assert(m.Count == max);
+
+            foreach (var item in items)
+            {
+                Debug.Assert(m.ContainsKey(item.Key));
+                m = m.Remove(item.Key);
+                Debug.Assert(!m.ContainsKey(item.Key));
+                max--;
+                Debug.Assert(m.Count == max);
+            }
         }
 
         public static void RegisteredAskReply()

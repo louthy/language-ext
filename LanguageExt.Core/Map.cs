@@ -24,7 +24,7 @@ namespace LanguageExt
         /// Creates a new empty Map
         /// </summary>
         public static Map<K, V> empty<K, V>() =>
-            new Empty<K, V>();
+            Map<K, V>.Empty;
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided
@@ -198,7 +198,7 @@ namespace LanguageExt
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
         public static bool contains<K, V>(Map<K, V> map, KeyValuePair<K, V> kv) =>
-            map.Contains(Tuple(kv.Key,kv.Value));
+            map.Contains(kv.Key,kv.Value);
 
         /// <summary>
         /// Checks for existence of a key in the map
@@ -206,7 +206,7 @@ namespace LanguageExt
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
         public static bool contains<K, V>(Map<K, V> map, Tuple<K, V> kv) =>
-            map.Contains(kv);
+            map.Contains(kv.Item1, kv.Item2);
 
         /// <summary>
         /// Atomically updates an existing item
@@ -344,8 +344,8 @@ namespace LanguageExt
         /// skipped values.
         /// </summary>
         /// <param name="amount">Amount to skip</param>
-        /// <returns>New tree</returns>
-        public static Map<K, V> skip<K, V>(Map<K, V> map, int amount) =>
+        /// <returns>Enumerable of map items</returns>
+        public static IEnumerable<IMapItem<K, V>> skip<K, V>(Map<K, V> map, int amount) =>
             map.Skip(amount);
 
         /// <summary>
@@ -515,14 +515,14 @@ public static class __MapExt
     /// </summary>
     /// <returns>Mapped items in a new map</returns>
     public static Map<K, U> Map<K, V, U>(this Map<K, V> self, Func<V, U> mapper) =>
-        MapModule.Map(self, mapper);
+        new Map<K, U>(MapModule.Map(self.Root, mapper), self.Rev);
 
     /// <summary>
     /// Atomically maps the map to a new map
     /// </summary>
     /// <returns>Mapped items in a new map</returns>
     public static Map<K, U> Map<K, V, U>(this Map<K, V> self, Func<K, V, U> mapper) =>
-        MapModule.Map(self, mapper);
+        new Map<K, U>(MapModule.Map(self.Root, mapper), self.Rev);
 
     /// <summary>
     /// Number of items in the map
@@ -536,7 +536,7 @@ public static class __MapExt
     /// <returns>Mapped items in a new map</returns>
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Map<K, U> Select<K, V, U>(this Map<K, V> self, Func<V, U> mapper) =>
-        MapModule.Map(self, mapper);
+        new Map<K, U>(MapModule.Map(self.Root, mapper),self.Rev);
 
     /// <summary>
     /// Atomically maps the map to a new map
@@ -544,7 +544,7 @@ public static class __MapExt
     /// <returns>Mapped items in a new map</returns>
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Map<K, U> Select<K, V, U>(this Map<K, V> self, Func<K, V, U> mapper) =>
-        MapModule.Map(self, mapper);
+        new Map<K, U>(MapModule.Map(self.Root, mapper), self.Rev);
 
     /// <summary>
     /// Atomically filter out items that return false when a predicate is applied
@@ -553,7 +553,7 @@ public static class __MapExt
     /// <returns>New map with items filtered</returns>
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Map<K, V> Where<K, V>(this Map<K, V> self, Func<V, bool> pred) =>
-        MapModule.Filter(self, pred);
+        new Map<K, V>(MapModule.Filter(self.Root, pred),self.Rev);
 
     /// <summary>
     /// Atomically filter out items that return false when a predicate is applied
@@ -562,7 +562,7 @@ public static class __MapExt
     /// <returns>New map with items filtered</returns>
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Map<K, V> Where<K, V>(this Map<K, V> self, Func<K, V, bool> pred) =>
-        MapModule.Filter(self, pred);
+        self.SetRoot(MapModule.Filter(self.Root, pred));
 
     /// <summary>
     /// Atomically filter out items that return false when a predicate is applied
@@ -570,7 +570,7 @@ public static class __MapExt
     /// <param name="pred">Predicate</param>
     /// <returns>New map with items filtered</returns>
     public static Map<K, V> Filter<K, V>(this Map<K, V> self, Func<V, bool> pred) =>
-        MapModule.Filter(self, pred);
+        self.SetRoot(MapModule.Filter(self.Root, pred));
 
     /// <summary>
     /// Atomically filter out items that return false when a predicate is applied
@@ -578,7 +578,7 @@ public static class __MapExt
     /// <param name="pred">Predicate</param>
     /// <returns>New map with items filtered</returns>
     public static Map<K, V> Filter<K, V>(this Map<K, V> self, Func<K, V, bool> pred) =>
-        MapModule.Filter(self, pred);
+        self.SetRoot(MapModule.Filter(self.Root, pred));
 
     /// <summary>
     /// Return true if all items in the map return true when the predicate is applied
@@ -586,7 +586,7 @@ public static class __MapExt
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     public static bool ForAll<K, V>(this Map<K, V> self, Func<K, V, bool> pred) =>
-        MapModule.ForAll(self, pred);
+        MapModule.ForAll(self.Root, pred);
 
     /// <summary>
     /// Return true if all items in the map return true when the predicate is applied
@@ -594,7 +594,7 @@ public static class __MapExt
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     public static bool ForAll<K, V>(this Map<K, V> self, Func<Tuple<K, V>, bool> pred) =>
-        MapModule.ForAll(self, (k, v) => pred(new Tuple<K, V>(k, v)));
+        MapModule.ForAll(self.Root, (k, v) => pred(new Tuple<K, V>(k, v)));
 
     /// <summary>
     /// Return true if *all* items in the map return true when the predicate is applied
@@ -602,7 +602,7 @@ public static class __MapExt
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     public static bool ForAll<K, V>(this Map<K, V> self, Func<KeyValuePair<K, V>, bool> pred) =>
-        MapModule.ForAll(self, (k, v) => pred(new KeyValuePair<K, V>(k, v)));
+        MapModule.ForAll(self.Root, (k, v) => pred(new KeyValuePair<K, V>(k, v)));
 
     /// <summary>
     /// Return true if all items in the map return true when the predicate is applied
@@ -610,7 +610,7 @@ public static class __MapExt
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     public static bool ForAll<K, V>(this Map<K, V> self, Func<V, bool> pred) =>
-        MapModule.ForAll(self, (k, v) => pred(v));
+        MapModule.ForAll(self.Root, (k, v) => pred(v));
 
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied
@@ -618,7 +618,7 @@ public static class __MapExt
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     public static bool Exists<K, V>(this Map<K, V> self, Func<K, V, bool> pred) =>
-        MapModule.Exists(self, pred);
+        MapModule.Exists(self.Root, pred);
 
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied
@@ -626,7 +626,7 @@ public static class __MapExt
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     public static bool Exists<K, V>(this Map<K, V> self, Func<Tuple<K, V>, bool> pred) =>
-        MapModule.Exists(self, (k, v) => pred(new Tuple<K, V>(k, v)));
+        MapModule.Exists(self.Root, (k, v) => pred(new Tuple<K, V>(k, v)));
 
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied
@@ -634,7 +634,7 @@ public static class __MapExt
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     public static bool Exists<K, V>(this Map<K, V> self, Func<KeyValuePair<K, V>, bool> pred) =>
-        MapModule.Exists(self, (k, v) => pred(new KeyValuePair<K, V>(k, v)));
+        MapModule.Exists(self.Root, (k, v) => pred(new KeyValuePair<K, V>(k, v)));
 
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied
@@ -642,7 +642,7 @@ public static class __MapExt
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the map return true when the predicate is applied</returns>
     public static bool Exists<K, V>(this Map<K, V> self, Func<V, bool> pred) =>
-        MapModule.Exists(self, (_, v) => pred(v));
+        MapModule.Exists(self.Root, (_, v) => pred(v));
 
     /// <summary>
     /// Atomically iterate through all key/value pairs in the map (in order) and execute an
@@ -650,8 +650,14 @@ public static class __MapExt
     /// </summary>
     /// <param name="action">Action to execute</param>
     /// <returns>Unit</returns>
-    public static Unit Iter<K, V>(this Map<K, V> self, Action<K, V> action) =>
-        MapModule.Iter(self, action);
+    public static Unit Iter<K, V>(this Map<K, V> self, Action<K, V> action)
+    {
+        foreach (var item in self)
+        {
+            action(item.Key, item.Value);
+        }
+        return unit;
+    }
 
     /// <summary>
     /// Atomically iterate through all values in the map (in order) and execute an
@@ -659,8 +665,14 @@ public static class __MapExt
     /// </summary>
     /// <param name="action">Action to execute</param>
     /// <returns>Unit</returns>
-    public static Unit Iter<K, V>(this Map<K, V> self, Action<V> action) =>
-        MapModule.Iter(self, action);
+    public static Unit Iter<K, V>(this Map<K, V> self, Action<V> action)
+    {
+        foreach (var item in self)
+        {
+            action(item.Value);
+        }
+        return unit;
+    }
 
     /// <summary>
     /// Atomically iterate through all key/value pairs (as tuples) in the map (in order) 
@@ -668,8 +680,14 @@ public static class __MapExt
     /// </summary>
     /// <param name="action">Action to execute</param>
     /// <returns>Unit</returns>
-    public static Unit Iter<K, V>(this Map<K, V> self, Action<Tuple<K, V>> action) =>
-        MapModule.Iter(self, (k, v) => action(new Tuple<K, V>(k, v)));
+    public static Unit Iter<K, V>(this Map<K, V> self, Action<Tuple<K, V>> action)
+    {
+        foreach (var item in self)
+        {
+            action(new Tuple<K, V>(item.Key, item.Value));
+        }
+        return unit;
+    }
 
     /// <summary>
     /// Atomically iterate through all key/value pairs in the map (in order) and execute an
@@ -677,8 +695,14 @@ public static class __MapExt
     /// </summary>
     /// <param name="action">Action to execute</param>
     /// <returns>Unit</returns>
-    public static Unit Iter<K, V>(this Map<K, V> self, Action<KeyValuePair<K, V>> action) =>
-        MapModule.Iter(self, (k, v) => action(new KeyValuePair<K, V>(k, v)));
+    public static Unit Iter<K, V>(this Map<K, V> self, Action<KeyValuePair<K, V>> action)
+    {
+        foreach (var item in self)
+        {
+            action(new KeyValuePair<K, V>(item.Key, item.Value));
+        }
+        return unit;
+    }
 
     /// <summary>
     /// Equivalent to map and filter but the filtering is done based on whether the returned
@@ -688,7 +712,7 @@ public static class __MapExt
     /// <param name="selector">Predicate</param>
     /// <returns>Filtered map</returns>
     public static Map<K, V> Choose<K, V>(this Map<K, V> self, Func<K, V, Option<V>> selector) =>
-        MapModule.Choose(self, selector);
+        self.SetRoot(MapModule.Choose(self.Root, selector));
 
     /// <summary>
     /// Equivalent to map and filter but the filtering is done based on whether the returned
@@ -698,7 +722,7 @@ public static class __MapExt
     /// <param name="selector">Predicate</param>
     /// <returns>Filtered map</returns>
     public static Map<K, V> Choose<K, V>(this Map<K, V> self, Func<V, Option<V>> selector) =>
-        MapModule.Choose(self, selector);
+        self.SetRoot(MapModule.Choose(self.Root, selector));
 
     /// <summary>
     /// Atomically folds all items in the map (in order) using the folder function provided.
@@ -708,7 +732,7 @@ public static class __MapExt
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
     public static S Fold<K, V, S>(this Map<K, V> self, S state, Func<S, K, V, S> folder) =>
-        MapModule.Fold(self, state, folder);
+        MapModule.Fold(self.Root, state, folder);
 
     /// <summary>
     /// Atomically folds all items in the map (in order) using the folder function provided.
@@ -718,7 +742,7 @@ public static class __MapExt
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
     public static S Fold<K, V, S>(this Map<K, V> self, S state, Func<S, V, S> folder) =>
-        MapModule.Fold(self, state, folder);
+        MapModule.Fold(self.Root, state, folder);
 
     public static Map<K, U> Bind<K, T, U>(this Map<K, T> self, Func<T, Map<K, U>> binder) =>
         failwith<Map<K, U>>("Map<K,V> doesn't support Bind.");

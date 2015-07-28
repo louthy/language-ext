@@ -151,7 +151,7 @@ namespace LanguageExt
                 ? ActorContext.SelfProcess
                               .Children
                               .Skip(index % ActorContext.SelfProcess.Children.Count)
-                              .Values
+                              .Map( kv => kv.Value )
                               .Head()
                 : failWithMessageLoopEx<ProcessId>();
 
@@ -163,7 +163,7 @@ namespace LanguageExt
                 ? ActorContext.SelfProcess
                               .Children
                               .Skip(random(ActorContext.SelfProcess.Children.Count))
-                              .Values
+                              .Map(kv => kv.Value)
                               .Head()
                 : failWithMessageLoopEx<ProcessId>();
 
@@ -175,7 +175,7 @@ namespace LanguageExt
                 ? ActorContext.SelfProcess
                               .Children
                               .Skip(ActorContext.SelfProcess.GetNextRoundRobinIndex())
-                              .Values
+                              .Map(kv => kv.Value)
                               .Head()
                 : failWithMessageLoopEx<ProcessId>();
 
