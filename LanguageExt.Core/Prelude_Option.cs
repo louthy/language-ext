@@ -5,9 +5,6 @@ using System.Linq;
 
 namespace LanguageExt
 {
-    /// <summary>
-    /// Usage:  Add 'using LanguageExt.Prelude' to your code.
-    /// </summary>
     public static partial class Prelude
     {
         public static bool isSome<T>(Option<T> value) =>

@@ -46,5 +46,41 @@ namespace LanguageExt
         /// <returns>The response to the request</returns>
         public static T askParent<T>(object message) =>
             ask<T>(Parent, message);
+
+        /// <summary>
+        /// Ask a named child process for a reply
+        /// </summary>
+        /// <param name="message">Message to send</param>
+        /// <param name="name">Name of the child process</param>
+        public static T askChild<T>(ProcessName name, object message) =>
+            ask<T>(Self.MakeChildId(name), message);
+
+        /// <summary>
+        /// Ask a child process (found by index) for a reply
+        /// </summary>
+        /// <remarks>
+        /// Because of the potential changeable nature of child nodes, this will
+        /// take the index and mod it by the number of children.  We expect this 
+        /// call will mostly be used for load balancing, and round-robin type 
+        /// behaviour, so feel that's acceptable.  
+        /// </remarks>
+        /// <param name="message">Message to send</param>
+        /// <param name="index">Index of the child process (see remarks)</param>
+        public static T askChild<T>(int index, object message) =>
+            ask<T>(child(index), message);
+
+        /// <summary>
+        /// Ask the next child for a reply (round-robin)
+        /// </summary>
+        /// <param name="message">Message to send</param>
+        public static T askNextChild<T>(object message) =>
+            ask<T>(NextChild, message);
+
+        /// <summary>
+        /// Ask a random child for a reply
+        /// </summary>
+        /// <param name="message">Message to send</param>
+        public static T askRandomChild<T>(object message) =>
+            ask<T>(RandomChild, message);
     }
 }

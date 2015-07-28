@@ -4,19 +4,44 @@ using System.Collections.Generic;
 namespace LanguageExt
 {
     /// <summary>
-    /// Usage:  Add 'using LanguageExt.Prelude' to your code.
+    /// Common functions that acts like a functional language's 'prelude'; that is usually
+    /// a standard set of functions for dealing with built-in types.  In our case we have a
+    /// set of core types:
+    /// 
+    ///     Lst T
+    ///     Map T
+    ///     Option T
+    ///     OptionUnsafe T
+    ///     Either L R
+    ///     EitherUnsafe L R
+    ///     TryOption T
+    ///     Try T
+    ///     Reader E T
+    ///     Writer W T
+    ///     State S cT
+    ///     Rws E W S T
+    ///     Unit
+    /// 
     /// </summary>
     public static partial class Prelude
     {
         /// <summary>
-        /// 'No value' state of Option<T>.  
+        /// 'No value' state of Option T.
         /// </summary>
         public static OptionNone None => 
             OptionNone.Default;
 
+        /// <summary>
+        /// Unit constructor
+        /// </summary>
         public static Unit unit =>
             Unit.Default;
 
+        /// <summary>
+        /// Takes any value, ignores it, returns a unit
+        /// </summary>
+        /// <param name="anything">Value to ignore</param>
+        /// <returns>Unit</returns>
         public static Unit ignore<T>(T anything) =>
             unit;
 
@@ -110,6 +135,23 @@ namespace LanguageExt
             if (e is E) return true;
             if (e.InnerException == null) return false;
             return exceptionIs<E>(e.InnerException);
+        }
+
+        readonly static Random rnd = new Random();
+
+        /// <summary>
+        /// Thread safe random number generator
+        /// </summary>
+        /// <param name="max">Maximum value to return + 1</param>
+        /// <returns>A non-negative random number, less than the value specified.</returns>
+        public static int random(int max)
+        {
+            int v = 0;
+            lock (rnd)
+            {
+                v = rnd.Next(max);
+            }
+            return v;
         }
    }
 }

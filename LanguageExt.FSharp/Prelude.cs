@@ -36,38 +36,47 @@ namespace LanguageExt
                 None: () => FSharpOption<T>.None);
 
         /// <summary>
-        /// Convert an F# List into an IEnumerable<T>
+        /// Convert an F# List into an IEnumerable T
         /// </summary>
         public static IEnumerable<T> fs<T>(FSharpList<T> fsList) =>
             ListModule.ToSeq(fsList);
 
         /// <summary>
-        /// Convert an LanguageExt List (IImmutableList<T>) into an F# List
+        /// Convert an LanguageExt List (IImmutableList T) into an F# List
         /// </summary>
         public static FSharpList<T> fs<T>(IImmutableList<T> list) =>
             ListModule.OfSeq(list);
 
         /// <summary>
-        /// Convert an LanguageExt List (Lst<T>) into an F# List
+        /// Convert an LanguageExt List (Lst T) into an F# List
         /// </summary>
         public static FSharpList<T> fs<T>(Lst<T> list) =>
             ListModule.OfSeq(list);
 
         /// <summary>
-        /// Convert an F# Map into a LanguageExt Map (Map<K, V>)
+        /// Convert an F# Map into a LanguageExt Map (Map K V)
         /// </summary>
         public static Map<K, V> fs<K, V>(FSharpMap<K, V> fsMap) =>
             Map.addRange( Map<K, V>(), List.map(fsMap, identity) );
 
         /// <summary>
-        /// Convert a LanguageExt Map (IImmutableDictionary<K, V>) into an F# Map
+        /// Convert a LanguageExt Map (IImmutableDictionary K V) into an F# Map
         /// </summary>
         public static FSharpMap<K, V> fs<K, V>(IImmutableDictionary<K, V> map) =>
             MapModule.OfSeq(List.map(map, kv => System.Tuple.Create(kv.Key, kv.Value)));
         /// <summary>
-        /// Convert a LanguageExt Map (Map<K, V>) into an F# Map
+        /// Convert a LanguageExt Map (Map K V) into an F# Map
         /// </summary>
         public static FSharpMap<K, V> fs<K, V>(Map<K, V> map) =>
             MapModule.OfSeq(map.AsEnumerable());
+
+        /// <summary>
+        /// Convert LanguageExt Unit to F# unit
+        /// </summary>
+        /// <param name="unit">()</param>
+        public static void fs(Unit unit)
+        {
+        }
+
     }
 }

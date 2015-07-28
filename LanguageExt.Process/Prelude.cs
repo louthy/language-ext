@@ -99,9 +99,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Registered process root
-        /// It allows local and distributed processes to be found by 
-        /// name (<see cref="register{T}(ProcessName)"/>, <see cref="register{T}(ProcessName, ProcessId)"/> 
-        /// and <seealso cref="deregister(ProcessName)"/>
+        /// It allows local and distributed processes to be found by name 
         /// </summary>
         public static ProcessId Registered =>
             ActorContext.Registered;
@@ -130,6 +128,56 @@ namespace LanguageExt
         /// </summary>
         public static Map<string, ProcessId> children(ProcessId pid) =>
             ask<Map<string, ProcessId>>(ActorContext.Root, ActorSystemMessage.GetChildren(pid));
+
+        /// <summary>
+        /// Get the child processes by name
+        /// </summary>
+        public static ProcessId child(ProcessName name) =>
+            InMessageLoop
+                ? Self.MakeChildId(name)
+                : failWithMessageLoopEx<ProcessId>();
+
+        /// <summary>
+        /// Get the child processes by index.
+        /// </summary>
+        /// <remarks>
+        /// Because of the potential changeable nature of child nodes, this will
+        /// take the index and mod it by the number of children.  We expect this 
+        /// call will mostly be used for load balancing, and round-robin type 
+        /// behaviour, so feel that's acceptable.  
+        /// </remarks>
+        public static ProcessId child(int index) =>
+            InMessageLoop
+                ? ActorContext.SelfProcess
+                              .Children
+                              .Skip(index % ActorContext.SelfProcess.Children.Count)
+                              .Values
+                              .Head()
+                : failWithMessageLoopEx<ProcessId>();
+
+        /// <summary>
+        /// Gets a random child process
+        /// </summary>
+        public static ProcessId RandomChild =>
+            InMessageLoop
+                ? ActorContext.SelfProcess
+                              .Children
+                              .Skip(random(ActorContext.SelfProcess.Children.Count))
+                              .Values
+                              .Head()
+                : failWithMessageLoopEx<ProcessId>();
+
+        /// <summary>
+        /// Gets the next child process (round robin)
+        /// </summary>
+        public static ProcessId NextChild =>
+            InMessageLoop
+                ? ActorContext.SelfProcess
+                              .Children
+                              .Skip(ActorContext.SelfProcess.GetNextRoundRobinIndex())
+                              .Values
+                              .Head()
+                : failWithMessageLoopEx<ProcessId>();
 
         /// <summary>
         /// Find a registered process by name
@@ -220,6 +268,26 @@ namespace LanguageExt
                             )
                     : ActorContext.LocalRoot.Tell(ActorSystemMessage.Reply(ActorContext.CurrentRequest.ReplyTo, message, ActorContext.CurrentRequest.RequestId), ActorContext.Self)
                 : failWithMessageLoopEx<Unit>();
+
+        /// <summary>
+        /// Return True if the message sent is a Tell and not an Ask
+        /// </summary>
+        /// <remarks>
+        /// This should be used from within a process' message loop only
+        /// </remarks>
+        public static bool isTell =>
+            InMessageLoop
+                ? ActorContext.CurrentRequest == null
+                : failWithMessageLoopEx<bool>();
+
+        /// <summary>
+        /// Return True if the message sent is an Ask and not a Tell
+        /// </summary>
+        /// <remarks>
+        /// This should be used from within a process' message loop only
+        /// </remarks>
+        public static bool isAsk => !isTell;
+            
 
         /// <summary>
         /// Not in message loop exception

@@ -5,9 +5,6 @@ using System.Collections.Immutable;
 
 namespace LanguageExt
 {
-    /// <summary>
-    /// Usage:  Add 'using LanguageExt.Prelude' to your code.
-    /// </summary>
     public static partial class Prelude
     {
         public static bool isRight<L, R>(EitherUnsafe<L, R> value) =>

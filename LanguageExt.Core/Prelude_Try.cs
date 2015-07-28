@@ -6,9 +6,6 @@ using System.Linq;
 
 namespace LanguageExt
 {
-    /// <summary>
-    /// Usage:  Add 'using LanguageExt.Prelude' to your code.
-    /// </summary>
     public static partial class Prelude
     {
         public static bool isSucc<T>(Try<T> value) =>

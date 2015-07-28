@@ -11,10 +11,6 @@ using System.ComponentModel;
 
 namespace LanguageExt
 {
-    /// <summary>
-    /// DEPRECATED
-    /// These items are still in the prelude but are now obsolete
-    /// </summary>
     public static partial class Prelude
     {
         [Obsolete("'with' has been renamed to 'map', please use that instead")]

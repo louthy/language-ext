@@ -3,9 +3,6 @@ using System.Collections.Concurrent;
 
 namespace LanguageExt
 {
-    /// <summary>
-    /// Usage:  Add 'using LanguageExt.Prelude' to your code.
-    /// </summary>
     public static partial class Prelude
     {
         /// <summary>

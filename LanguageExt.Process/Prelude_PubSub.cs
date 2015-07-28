@@ -59,81 +59,159 @@ namespace LanguageExt
                 : failWithMessageLoopEx<IDisposable>();
 
         /// <summary>
-        /// Subscribes our inbox to another process's publications
+        /// Subscribes our inbox to another process publish stream.  When it calls 'publish' it will
+        /// arrive in our inbox.
         /// </summary>
         /// <param name="pid">Process to subscribe to</param>
         /// <remarks>
+        /// The process can publish any number of types, any published messages not of type T will be ignored.
+        /// 
         /// This should be used from within a process' message loop only
         /// </remarks>
         /// <returns>IDisposable, call IDispose to end the subscription</returns>
-        public static IDisposable subscribe(ProcessId pid) =>
-            observe<object>(pid).Subscribe(x => tell(Self, x, pid));
+        public static Unit subscribe(ProcessId pid) =>
+            InMessageLoop
+                ? ActorContext.SelfProcess.AddSubscription(pid, observe<object>(pid).Subscribe(x => tell(Self, x, pid)))
+                : failWithMessageLoopEx<Unit>();
+
+        public static Unit unsubscribe(ProcessId pid) =>
+            InMessageLoop
+                ? ActorContext.SelfProcess.RemoveSubscription(pid)
+                : failWithMessageLoopEx<Unit>();
 
         /// <summary>
-        /// Subscribe to the process's publish stream.  When a process calls 'pub' it emits
+        /// Subscribe to the process publish stream.  When a process calls 'publish' it emits
         /// messages that can be consumed using this method.
-        /// NOTE: The process can publish any number of types, any published messages
-        ///       not of type T will be ignored.
         /// </summary>
+        /// <remarks>
+        /// The process can publish any number of types, any published messages not of type T will be ignored.
+        /// 
+        /// Because this call is asychronous it could allow access to the message loop, therefore
+        /// you can't call it from within a process message loop.
+        /// </remarks>
+        /// <returns>IDisposable, call IDispose to end the subscription</returns>
         public static IDisposable subscribe<T>(ProcessId pid, IObserver<T> observer) =>
-            observe<T>(pid).Subscribe(observer);
+            InMessageLoop
+                ? failWithMessageLoopEx<IDisposable>()
+                : observe<T>(pid).Subscribe(observer);
 
         /// <summary>
-        /// Subscribe to the process's publish stream.  When a process calls 'pub' it emits
+        /// Subscribe to the process publish stream.  When a process calls 'publish' it emits
         /// messages that can be consumed using this method.
-        /// NOTE: The process can publish any number of types, any published messages
-        ///       not of type T will be ignored.
         /// </summary>
+        /// <remarks>
+        /// The process can publish any number of types, any published messages not of type T will be ignored.
+        /// 
+        /// Because this call is asychronous it could allow access to the message loop, therefore
+        /// you can't call it from within a process message loop.
+        /// </remarks>
+        /// <returns>IDisposable, call IDispose to end the subscription</returns>
         public static IDisposable subscribe<T>(ProcessId pid, Action<T> onNext, Action<Exception> onError, Action onComplete) =>
-            observe<T>(pid).Subscribe(onNext, onError, onComplete);
+            InMessageLoop
+                ? failWithMessageLoopEx<IDisposable>()
+                : observe<T>(pid).Subscribe(onNext, onError, onComplete);
 
         /// <summary>
-        /// Subscribe to the process's publish stream.  When a process calls 'pub' it emits
+        /// Subscribe to the process publish stream.  When a process calls 'publish' it emits
         /// messages that can be consumed using this method.
-        /// NOTE: The process can publish any number of types, any published messages
-        ///       not of type T will be ignored.
         /// </summary>
+        /// <remarks>
+        /// The process can publish any number of types, any published messages not of type T will be ignored.
+        /// 
+        /// Because this call is asychronous it could allow access to the message loop, therefore
+        /// you can't call it from within a process message loop.
+        /// </remarks>
         public static IDisposable subscribe<T>(ProcessId pid, Action<T> onNext, Action<Exception> onError) =>
-            observe<T>(pid).Subscribe(onNext, onError, () => { });
+            InMessageLoop
+                ? failWithMessageLoopEx<IDisposable>()
+                : observe<T>(pid).Subscribe(onNext, onError, () => { });
 
         /// <summary>
-        /// Subscribe to the process's publish stream.  When a process calls 'pub' it emits
+        /// Subscribe to the process publish stream.  When a process calls 'publish' it emits
         /// messages that can be consumed using this method.
-        /// NOTE: The process can publish any number of types, any published messages
-        ///       not of type T will be ignored.
         /// </summary>
+        /// <remarks>
+        /// The process can publish any number of types, any published messages not of type T will be ignored.
+        /// 
+        /// Because this call is asychronous it could allow access to the message loop, therefore
+        /// you can't call it from within a process message loop.
+        /// </remarks>
         public static IDisposable subscribe<T>(ProcessId pid, Action<T> onNext) =>
-            observe<T>(pid).Subscribe(onNext, ex => { }, () => { });
+            InMessageLoop
+                ? failWithMessageLoopEx<IDisposable>()
+                : observe<T>(pid).Subscribe(onNext, ex => { }, () => { });
 
         /// <summary>
-        /// Subscribe to the process's publish stream.  When a process calls 'pub' it emits
+        /// Subscribe to the process publish stream.  When a process calls 'publish' it emits
         /// messages that can be consumed using this method.
-        /// NOTE: The process can publish any number of types, any published messages
-        ///       not of type T will be ignored.
         /// </summary>
+        /// <remarks>
+        /// The process can publish any number of types, any published messages not of type T will be ignored.
+        /// 
+        /// Because this call is asychronous it could allow access to the message loop, therefore
+        /// you can't call it from within a process message loop.
+        /// </remarks>
+        /// <returns>IDisposable, call IDispose to end the subscription</returns>
         public static IDisposable subscribe<T>(ProcessId pid, Action<T> onNext, Action onComplete) =>
-            observe<T>(pid).Subscribe(onNext, ex => { }, onComplete);
+            InMessageLoop
+                ? failWithMessageLoopEx<IDisposable>()
+                : observe<T>(pid).Subscribe(onNext, ex => { }, onComplete);
 
         /// <summary>
-        /// Get an IObservable for a process's publish stream.  When a process calls 'pub' it emits
+        /// Get an IObservable for a process publish stream.  When a process calls 'publish' it emits
         /// messages on the observable returned by this method.
-        /// NOTE: The process can publish any number of types, any published messages
-        ///       not of type T will be ignored.
         /// </summary>
+        /// <remarks>
+        /// The process can publish any number of types, any published messages not of type T will be ignored.
+        /// 
+        /// Because this call is asychronous it could allow access to the message loop, therefore
+        /// you can't call it from within a process message loop.
+        /// </remarks>
+        /// <returns>IObservable T</returns>
         public static IObservable<T> observe<T>(ProcessId pid) =>
-            ActorContext.Observe<T>(pid);
+            InMessageLoop
+                ? failWithMessageLoopEx<IObservable<T>>()
+                : ActorContext.Observe<T>(pid);
 
         /// <summary>
-        /// Get an IObservable for a process's state stream.  When a process's state updates it
-        /// announces it on the stream returned from this method.  You should use this for notification
-        /// only.  Never modify the state object belonging to a process.  Best practice is to make
+        /// Get an IObservable for a process's state stream.  When a process state updates at the end of its
+        /// message loop it announces it on the stream returned from this method.  You should use this for 
+        /// notification only.  Never modify the state object belonging to a process.  Best practice is to make
         /// the state type immutable.
-        /// NOTE: The process can publish any number of types, any published messages
-        ///       not of type T will be ignored.
         /// </summary>
+        /// <remarks>
+        /// The process can publish any number of types, any published messages not of type T will be ignored.
+        /// 
+        /// Because this call is asychronous it could allow access to the message loop, therefore
+        /// you can't call it from within a process message loop.
+        /// </remarks>
+        /// <returns>IObservable T</returns>
         public static IObservable<T> observeState<T>(ProcessId pid) =>
-            from x in ask<IObservable<object>>(ActorContext.Root, ActorSystemMessage.ObserveState(pid))
-            where x is T
-            select (T)x;
+            InMessageLoop
+                ? failWithMessageLoopEx<IObservable<T>>()
+                : from x in ask<IObservable<object>>(ActorContext.Root, ActorSystemMessage.ObserveState(pid))
+                  where x is T
+                  select (T)x;
+
+
+        /// <summary>
+        /// Subscribes our inbox to another process state publish stream.  
+        /// When a process state updates at the end of its message loop it announces it arrives in our inbox.
+        /// You should use this for notification only.  Never modify the state object belonging to a process.  
+        /// Best practice is to make the state type immutable.
+        /// </summary>
+        /// <remarks>
+        /// The process can publish any number of types, any published messages not of type T will be ignored.
+        /// This should be used from within a process' message loop only
+        /// </remarks>
+        /// <returns>IObservable T</returns>
+        public static Unit subscribeState<T>(ProcessId pid) =>
+            InMessageLoop
+                ? ActorContext.SelfProcess.AddSubscription(
+                      pid,
+                     (from x in ask<IObservable<object>>(ActorContext.Root, ActorSystemMessage.ObserveState(pid))
+                      where x is T
+                      select (T)x).Subscribe(x => tell(Self, x, pid)))
+                : failWithMessageLoopEx<Unit>();
     }
 }

@@ -20,10 +20,8 @@ namespace LanguageExt
         static IProcess rootProcess;
         static IActorInbox rootInbox;
 
-        [ThreadStatic] static ProcessId self;
+        [ThreadStatic] static IProcess self;
         [ThreadStatic] static ProcessId sender;
-        [ThreadStatic] static ProcessId parent;
-        [ThreadStatic] static Map<string, ProcessId> children = Map.empty<string,ProcessId>();
         [ThreadStatic] static ActorRequest currentRequest;
         [ThreadStatic] static ProcessFlags processFlags;
 
@@ -155,15 +153,19 @@ namespace LanguageExt
             root;
 
         public static ProcessId Self =>
-            self.IsValid
-                ? self
+            self != null
+                ? self.Id
                 : User;
+
+        // Try to avoid using this where possible and use Self
+        public static IProcess SelfProcess =>
+            self;
 
         public static ProcessId Sender =>
             sender;
 
         public static ProcessId Parent =>
-            parent;
+            self.Parent;
 
         public static ProcessId System =>
             Root.MakeChildId(ActorConfig.Default.SystemProcessName);
@@ -181,7 +183,7 @@ namespace LanguageExt
             System.MakeChildId(ActorConfig.Default.DeadLettersProcessName);
 
         public static Map<string, ProcessId> Children =>
-            children;
+            self.Children;
 
         internal static ProcessId AskId =>
             System.MakeChildId(ActorConfig.Default.AskProcessName);
@@ -233,27 +235,40 @@ namespace LanguageExt
         public static Unit Deregister(ProcessName name) =>
             Process.kill(Registered.MakeChildId(name));
 
-        public static R WithContext<R>(ProcessId self, ProcessId parent, Map<string, ProcessId> children, ProcessId sender, Func<R> f)
+        public static R WithContext<R>(IProcess self, ProcessId sender, Func<R> f)
         {
             var savedSelf = ActorContext.self;
             var savedSender = ActorContext.sender;
-            var savedParent = ActorContext.parent;
-            var savedChildren = ActorContext.children ?? Map.empty<string,ProcessId>();
 
             try
             {
                 ActorContext.self = self;
                 ActorContext.sender = sender;
-                ActorContext.parent = parent;
-                ActorContext.children = children;
                 return f();
             }
             finally
             {
                 ActorContext.self = savedSelf;
                 ActorContext.sender = savedSender;
-                ActorContext.parent = savedParent;
-                ActorContext.children = savedChildren;
+            }
+        }
+
+        public static Unit WithContext(IProcess self, ProcessId sender, Action f)
+        {
+            var savedSelf = ActorContext.self;
+            var savedSender = ActorContext.sender;
+
+            try
+            {
+                ActorContext.self = self;
+                ActorContext.sender = sender;
+                f();
+                return unit;
+            }
+            finally
+            {
+                ActorContext.self = savedSelf;
+                ActorContext.sender = savedSender;
             }
         }
 
@@ -272,34 +287,10 @@ namespace LanguageExt
 
         internal static IObservable<T> Observe<T>(ProcessId pid)
         {
-            return from x in Process.ask<IObservable<object>>(Root, ActorSystemMessage.ObservePub(pid, (System.Type)typeof(T)))
+            return from x in Process.ask<IObservable<object>>(Root, ActorSystemMessage.ObservePub(pid, typeof(T)))
                    where x is T
                    select (T)x;
         }
 
-        public static Unit WithContext(ProcessId self, ProcessId parent, Map<string, ProcessId> children, ProcessId sender, Action f)
-        {
-            var savedSelf = ActorContext.self;
-            var savedSender = ActorContext.sender;
-            var savedParent = ActorContext.parent;
-            var savedChildren = ActorContext.children;
-
-            try
-            {
-                ActorContext.self = self;
-                ActorContext.sender = sender;
-                ActorContext.parent = parent;
-                ActorContext.children = children;
-                f();
-                return unit;
-            }
-            finally
-            {
-                ActorContext.self = savedSelf;
-                ActorContext.sender = savedSender;
-                ActorContext.parent = savedParent;
-                ActorContext.children = savedChildren;
-            }
-        }
     }
 }

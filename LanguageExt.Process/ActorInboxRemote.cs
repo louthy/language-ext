@@ -100,60 +100,40 @@ namespace LanguageExt
             }
         }
 
+        private RemoteMessageDTO GetNextMessage(string key)
+        {
+            RemoteMessageDTO dto = null;
+
+            do
+            {
+                dto = cluster.Peek<RemoteMessageDTO>(key);
+                if (dto == null || (dto.Tag == 0 && dto.Type == 0))
+                {
+                    cluster.Dequeue<RemoteMessageDTO>(key);
+                    if (cluster.QueueLength(key) == 0) return null;
+                }
+            }
+            while (dto.Tag == 0 && dto.Type == 0);
+
+            return dto;
+        }
+
         private void CheckRemoteInbox(string key)
         {
             if (cluster.QueueLength(key) > 0)
             {
-                var dto = cluster.Peek<RemoteMessageDTO>(key);
-                var obj = JsonConvert.DeserializeObject(dto.Content);
-
-                var sender = String.IsNullOrEmpty(dto.Sender) ? ProcessId.NoSender : new ProcessId(dto.Sender);
-                var replyTo = String.IsNullOrEmpty(dto.ReplyTo) ? ProcessId.NoSender : new ProcessId(dto.ReplyTo);
-
-                switch ((Message.Type)dto.Type)
+                var dto = GetNextMessage(key);
+                if (dto != null)
                 {
-                    case Message.Type.System:
-                        switch ((SystemMessageTag)dto.Tag)
-                        {
-                            case SystemMessageTag.ChildIsFaulted:
-                                sysInbox.Post(new SystemChildIsFaultedMessage(dto.Child, new Exception(dto.Exception)));
-                                break;
+                    var msg = MessageSerialiser.DeserialiseMsg(dto, actor.Id);
 
-                            case SystemMessageTag.Restart:
-                                sysInbox.Post(new SystemRestartMessage());
-                                break;
-
-                            case SystemMessageTag.LinkChild:
-                                sysInbox.Post(new SystemLinkChildMessage(dto.Child));
-                                break;
-
-                            case SystemMessageTag.UnLinkChild:
-                                sysInbox.Post(new SystemUnLinkChildMessage(dto.Child));
-                                break;
-                        }
-                        break;
-
-                    case Message.Type.User:
-                        switch ((UserControlMessageTag)dto.Tag)
-                        {
-                            case UserControlMessageTag.UserAsk:
-                                userInbox.Post(new ActorRequest(obj, actor.Id, replyTo, dto.RequestId));
-                                break;
-
-                            case UserControlMessageTag.User:
-                                userInbox.Post(new UserMessage(obj, sender, replyTo));
-                                break;
-                        }
-                        break;
-
-                    case Message.Type.UserControl:
-                        switch ((UserControlMessageTag)dto.Tag)
-                        {
-                            case UserControlMessageTag.Shutdown:
-                                userInbox.Post(new UserControlShutdownMessage());
-                                break;
-                        }
-                        break;
+                    switch (msg.MessageType)
+                    {
+                        case Message.Type.ActorSystem: ActorContext.LocalRoot.Tell(msg, dto.Sender); break;
+                        case Message.Type.System: sysInbox.Post((SystemMessage)msg); break;
+                        case Message.Type.User: userInbox.Post((UserControlMessage)msg); break;
+                        case Message.Type.UserControl: userInbox.Post((UserControlMessage)msg); break;
+                    }
                 }
             }
         }

@@ -204,21 +204,21 @@ namespace LanguageExt
                 processId);
         }
 
-        private Unit TellDeadLetters(ProcessId processId, ProcessId sender, ActorSystemMessageTag tag, object message)
+        private Unit TellDeadLetters(ProcessId processId, ProcessId sender, Message.TagSpec tag, object message)
         {
             logWarn("Sending to DeadLetters, process (" + processId + ") doesn't exist.  Message: "+message);
 
-            return ActorContext.WithContext(processId, System, Map.empty<string,ProcessId>(), sender, () => Tell(message, DeadLetters, sender));
+            return ActorContext.WithContext(store[processId.Path].Actor, sender, () => Tell(message, DeadLetters, sender));
         }
 
-        public Unit Tell(ProcessId processId, ProcessId sender, ActorSystemMessageTag tag, object message)
+        public Unit Tell(ProcessId processId, ProcessId sender, Message.TagSpec tag, object message)
         {
             switch (tag)
             {
-                case ActorSystemMessageTag.Tell:            return Tell(message, processId, sender);
-                case ActorSystemMessageTag.TellUserControl: return TellUserControl((UserControlMessage)message, processId);
-                case ActorSystemMessageTag.TellSystem:      return TellSystem((SystemMessage)message, processId);
-                default:                                    return TellDeadLetters(processId, sender, tag, message);
+                case Message.TagSpec.Tell:            return Tell(message, processId, sender);
+                case Message.TagSpec.TellUserControl: return TellUserControl((UserControlMessage)message, processId);
+                case Message.TagSpec.TellSystem:      return TellSystem((SystemMessage)message, processId);
+                default:                              return TellDeadLetters(processId, sender, tag, message);
             }
         }
 
@@ -270,19 +270,6 @@ namespace LanguageExt
 
                     inbox.Startup(process, process.Parent, Cluster);
                     process.Startup();
-                }
-            }
-            return this;
-        }
-
-        public ActorSystemState RemoveFromStore(ProcessId pid)
-        {
-            if (pid.IsValid)
-            {
-                var path = pid.Path;
-                if (store.ContainsKey(path))
-                {
-                    store.Remove(path);
                 }
             }
             return this;
@@ -363,12 +350,12 @@ namespace LanguageExt
         }
 
         public Unit Ask(object message, ProcessId pid, ProcessId sender) =>
-            AskRemote(message, pid, sender, "user", Message.Type.User, (int)UserControlMessageTag.UserAsk);
+            AskRemote(message, pid, sender, "user", Message.Type.User, (int)Message.TagSpec.UserAsk);
 
         public Unit Tell(object message, ProcessId pid, ProcessId sender) =>
             message is ActorRequest
-                ? AskRemote( message, pid, sender, "user", Message.Type.User, (int)UserControlMessageTag.UserAsk)
-                : TellRemote( message, pid, sender, "user", Message.Type.User, (int)UserControlMessageTag.User);
+                ? AskRemote( message, pid, sender, "user", Message.Type.User, (int)Message.TagSpec.UserAsk)
+                : TellRemote( message, pid, sender, "user", Message.Type.User, (int)Message.TagSpec.User);
 
         public Unit TellUserControl(UserControlMessage message, ProcessId pid) =>
             TellRemote(
@@ -435,6 +422,9 @@ namespace LanguageExt
                 RequestId = ActorContext.CurrentRequest == null ? -1 : ActorContext.CurrentRequest.RequestId,
                 Sender = sender.ToString(),
                 ReplyTo = sender.ToString(),
+                ContentType = message == null
+                    ? null
+                    : message.GetType().AssemblyQualifiedName,
                 Content = message == null 
                     ? null 
                     : JsonConvert.SerializeObject(message, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All })

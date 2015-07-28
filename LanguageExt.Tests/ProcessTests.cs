@@ -78,7 +78,7 @@ namespace LanguageExtTests
 
             tell(regid, "hello");
 
-            Thread.Sleep(500);
+            Thread.Sleep(2000);  
 
             Assert.IsTrue(value == "hello");
 

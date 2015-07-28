@@ -17,7 +17,7 @@ namespace RedisStateSample
         static void Main(string[] args)
         {
             // Log what's going on
-            //ProcessLog.Subscribe(Console.WriteLine);
+            ProcessLog.Subscribe(Console.WriteLine);
 
             // Let Language Ext know that Redis exists
             RedisCluster.register();

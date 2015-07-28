@@ -8,46 +8,24 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    internal enum ActorSystemMessageTag
+    public abstract class ActorSystemMessage : Message
     {
-        Startup,
-        AddToStore,
-        RemoveFromStore,
-        Ask,
-        Reply,
-        Tell,
-        TellUserControl,
-        TellSystem,
-        ShutdownProcess,
-        GetChildren,
-        ObservePub,
-        ObserveState,
-        Publish,
-        ShutdownAll
-    }
+        public override Message.Type MessageType => Message.Type.ActorSystem;
 
-    internal abstract class ActorSystemMessage : Message
-    {
-        public override Message.Type MessageType => Message.Type.User;
-        public abstract ActorSystemMessageTag Tag { get; }
-
-        public readonly static ActorSystemMessage Startup = 
+        internal readonly static ActorSystemMessage Startup = 
             new StartupMessage();
 
-        public static ActorSystemMessage AddToStore(IProcess process, IActorInbox inbox, ProcessFlags flags) =>
+        internal static ActorSystemMessage AddToStore(IProcess process, IActorInbox inbox, ProcessFlags flags) =>
             new AddToStoreMessage(process, inbox, flags);
 
-        public static ActorSystemMessage RemoveFromStore(ProcessId pid) => 
-            new RemoveFromStoreMessage(pid);
-
         public static ActorSystemMessage Tell(ProcessId pid, object message, ProcessId sender) =>
-            new TellMessage(pid, message, sender, ActorSystemMessageTag.Tell);
+            new TellMessage(pid, message, sender, Message.TagSpec.Tell);
 
         public static ActorSystemMessage TellUserControl(ProcessId pid, object message, ProcessId sender) =>
-            new TellMessage(pid, message, sender, ActorSystemMessageTag.TellUserControl);
+            new TellMessage(pid, message, sender, Message.TagSpec.TellUserControl);
 
         public static ActorSystemMessage TellSystem(ProcessId pid, object message, ProcessId sender) =>
-            new TellMessage(pid, message, sender, ActorSystemMessageTag.TellSystem);
+            new TellMessage(pid, message, sender, Message.TagSpec.TellSystem);
 
         public static ActorSystemMessage Publish(ProcessId pid, object message) =>
             new PubMessage(pid, message);
@@ -71,9 +49,9 @@ namespace LanguageExt
             new ObserveStateMessage(pid);
     }
 
-    internal class GetChildrenMessage: ActorSystemMessage
+    public class GetChildrenMessage : ActorSystemMessage
     {
-        public override ActorSystemMessageTag Tag => ActorSystemMessageTag.GetChildren;
+        public override TagSpec Tag => TagSpec.GetChildren;
 
         public readonly ProcessId ProcessId;
 
@@ -87,17 +65,17 @@ namespace LanguageExt
             "GetChildren pid: " + ProcessId;
     }
 
-    internal class StartupMessage : ActorSystemMessage
+    public class StartupMessage : ActorSystemMessage
     {
-        public override ActorSystemMessageTag Tag => ActorSystemMessageTag.Startup;
+        public override TagSpec Tag => TagSpec.Startup;
 
         public override string ToString() =>
             "Startup";
     }
 
-    internal class ShutdownProcessMessage : ActorSystemMessage
+    public class ShutdownProcessMessage : ActorSystemMessage
     {
-        public override ActorSystemMessageTag Tag => ActorSystemMessageTag.ShutdownProcess;
+        public override TagSpec Tag => TagSpec.ShutdownProcess;
 
         public readonly ProcessId ProcessId;
 
@@ -111,9 +89,9 @@ namespace LanguageExt
             "ShutdownProcess pid:" + ProcessId;
     }
 
-    internal class ObservePubMessage : ActorSystemMessage
+    public class ObservePubMessage : ActorSystemMessage
     {
-        public override ActorSystemMessageTag Tag => ActorSystemMessageTag.ObservePub;
+        public override TagSpec Tag => TagSpec.ObservePub;
 
         public readonly ProcessId ProcessId;
         public readonly System.Type MsgType;
@@ -129,9 +107,9 @@ namespace LanguageExt
             "Observe pub pid: " + ProcessId;
     }
 
-    internal class ObserveStateMessage : ActorSystemMessage
+    public class ObserveStateMessage : ActorSystemMessage
     {
-        public override ActorSystemMessageTag Tag => ActorSystemMessageTag.ObserveState;
+        public override TagSpec Tag => TagSpec.ObserveState;
 
         public readonly ProcessId ProcessId;
 
@@ -145,9 +123,9 @@ namespace LanguageExt
             "Observe state pid: " + ProcessId;
     }
 
-    internal class ReplyMessage : ActorSystemMessage
+    public class ReplyMessage : ActorSystemMessage
     {
-        public override ActorSystemMessageTag Tag => ActorSystemMessageTag.Reply;
+        public override TagSpec Tag => TagSpec.Reply;
 
         public readonly ProcessId ReplyTo;
         public readonly object Message;
@@ -167,9 +145,9 @@ namespace LanguageExt
             "Reply to: " + ReplyTo + " msg: "+Message + " from: "+Sender;
     }
 
-    internal class PubMessage : ActorSystemMessage
+    public class PubMessage : ActorSystemMessage
     {
-        public override ActorSystemMessageTag Tag => ActorSystemMessageTag.Publish;
+        public override TagSpec Tag => TagSpec.Publish;
 
         public readonly ProcessId ProcessId;
         public readonly object Message;
@@ -185,17 +163,17 @@ namespace LanguageExt
             "Pub pid: " + ProcessId + " msg: " + Message;
     }
 
-    internal class TellMessage : ActorSystemMessage
+    public class TellMessage : ActorSystemMessage
     {
-        public override ActorSystemMessageTag Tag => tag;
+        public override TagSpec Tag => tag;
 
         public readonly ProcessId ProcessId;
         public readonly object Message;
         public readonly ProcessId Sender;
-        readonly ActorSystemMessageTag tag;
+        readonly Message.TagSpec tag;
 
         [JsonConstructor]
-        public TellMessage(ProcessId processId, object message, ProcessId sender, ActorSystemMessageTag tag)
+        public TellMessage(ProcessId processId, object message, ProcessId sender, TagSpec tag)
         {
             ProcessId = processId;
             Message = message;
@@ -209,7 +187,7 @@ namespace LanguageExt
 
     internal class AddToStoreMessage : ActorSystemMessage
     {
-        public override ActorSystemMessageTag Tag  => ActorSystemMessageTag.AddToStore;
+        public override TagSpec Tag  => TagSpec.AddToStore;
 
         public readonly IProcess Process;
         public readonly IActorInbox Inbox;
@@ -226,25 +204,9 @@ namespace LanguageExt
             "AddToStore pid: " + Process.Id;
     }
 
-    internal class RemoveFromStoreMessage : ActorSystemMessage
+    public class ShutdownAllMessage : ActorSystemMessage
     {
-        public override ActorSystemMessageTag Tag => ActorSystemMessageTag.RemoveFromStore;
-
-        public readonly ProcessId ProcessId;
-
-        [JsonConstructor]
-        public RemoveFromStoreMessage(ProcessId processId)
-        {
-            ProcessId = processId;
-        }
-
-        public override string ToString() =>
-            "RemoveFromStore pid: " + ProcessId;
-    }
-
-    internal class ShutdownAllMessage : ActorSystemMessage
-    {
-        public override ActorSystemMessageTag Tag => ActorSystemMessageTag.ShutdownAll;
+        public override TagSpec Tag => TagSpec.ShutdownAll;
 
         [JsonConstructor]
         public ShutdownAllMessage()

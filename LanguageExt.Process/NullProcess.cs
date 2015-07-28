@@ -86,5 +86,9 @@ namespace LanguageExt
 
         public IObservable<object> StateStream => null;
 
+        public Unit AddSubscription(ProcessId pid, IDisposable sub) => Unit.Default;
+        public Unit RemoveSubscription(ProcessId pid) => Unit.Default;
+        public int GetNextRoundRobinIndex() => 0;
+
     }
 }

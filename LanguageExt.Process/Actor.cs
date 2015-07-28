@@ -21,10 +21,12 @@ namespace LanguageExt
         Func<IProcess, S> setupFn;
         S state;
         Map<string, ProcessId> children = Map.create<string, ProcessId>();
+        Map<string, IDisposable> subs = Map.create<string, IDisposable>();
         Option<ICluster> cluster;
         Subject<object> publishSubject = new Subject<object>();
         Subject<object> stateSubject = new Subject<object>();
         ProcessFlags flags;
+        int roundRobinIndex = -1;
 
         internal Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<IProcess, S> setup, ProcessFlags flags)
         {
@@ -64,15 +66,37 @@ namespace LanguageExt
         public Unit Startup()
         {
             ActorContext.WithContext(
-                Id,
-                Parent,
-                Children,
+                this,
                 ProcessId.NoSender,
                 () => InitState()
             );
             stateSubject.OnNext(state);
             return unit;
         }
+
+        public Unit AddSubscription(ProcessId pid, IDisposable sub)
+        {
+            RemoveSubscription(pid);
+            subs = subs.Add(pid.Path, sub);
+            return unit;
+        }
+
+        public Unit RemoveSubscription(ProcessId pid)
+        {
+            subs.Find(pid.Path).IfSome(x => x.Dispose());
+            subs = subs.Remove(pid.Path);
+            return unit;
+        }
+
+        private Unit RemoveAllSubscriptions()
+        {
+            subs.Iter(x => x.Dispose());
+            subs = Map.empty<string, IDisposable>();
+            return unit;
+        }
+
+        public int GetNextRoundRobinIndex() =>
+            roundRobinIndex = (roundRobinIndex + 1) % Children.Count;
 
         public ProcessFlags Flags => 
             flags;
@@ -160,6 +184,7 @@ namespace LanguageExt
         /// </summary>
         public Unit Restart()
         {
+            RemoveAllSubscriptions();
             InitState();
             stateSubject.OnNext(state);
             tellChildren(SystemMessage.Restart);
@@ -189,6 +214,7 @@ namespace LanguageExt
         /// </summary>
         public Unit Shutdown()
         {
+            RemoveAllSubscriptions();
             publishSubject.OnCompleted();
             stateSubject.OnCompleted();
             return unit;
@@ -251,6 +277,8 @@ namespace LanguageExt
 
         public void Dispose()
         {
+            RemoveAllSubscriptions();
+
             if (state is IDisposable)
             {
                 var s = state as IDisposable;

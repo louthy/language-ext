@@ -58,27 +58,27 @@ namespace LanguageExt
 
         public static void SystemMessageInbox<S,T>(Actor<S,T> actor, SystemMessage msg)
         {
-            ActorContext.WithContext(actor.Id, actor.Parent, actor.Children, ProcessId.NoSender, () =>
+            ActorContext.WithContext(actor, ProcessId.NoSender, () =>
             {
                 switch (msg.Tag)
                 {
-                    case SystemMessageTag.ChildIsFaulted:
+                    case Message.TagSpec.ChildIsFaulted:
                         // TODO: Add extra strategy behaviours here
                         var scifm = (SystemChildIsFaultedMessage)msg;
                         Process.tell(scifm.ChildId, SystemMessage.Restart);
                         Process.tell(ActorContext.Errors, scifm.Exception);
                         break;
 
-                    case SystemMessageTag.Restart:
+                    case Message.TagSpec.Restart:
                         actor.Restart();
                         break;
 
-                    case SystemMessageTag.LinkChild:
+                    case Message.TagSpec.LinkChild:
                         var slcm = (SystemLinkChildMessage)msg;
                         actor.LinkChild(slcm.ChildId);
                         break;
 
-                    case SystemMessageTag.UnLinkChild:
+                    case Message.TagSpec.UnLinkChild:
                         var ulcm = (SystemUnLinkChildMessage)msg;
                         actor.UnlinkChild(ulcm.ChildId);
                         break;
@@ -90,23 +90,23 @@ namespace LanguageExt
         {
             if (msg.MessageType == Message.Type.User)
             {
-                if (msg.Tag == UserControlMessageTag.UserAsk)
+                if (msg.Tag == Message.TagSpec.UserAsk)
                 {
                     var rmsg = (ActorRequest)msg;
                     ActorContext.CurrentRequest = rmsg;
-                    ActorContext.WithContext(actor.Id, actor.Parent, actor.Children, rmsg.ReplyTo, () => actor.ProcessAsk(rmsg));
+                    ActorContext.WithContext(actor, rmsg.ReplyTo, () => actor.ProcessAsk(rmsg));
                 }
                 else
                 {
                     var umsg = (UserMessage)msg;
-                    ActorContext.WithContext(actor.Id, actor.Parent, actor.Children, umsg.Sender, () => actor.ProcessMessage((T)umsg.Content));
+                    ActorContext.WithContext(actor, umsg.Sender, () => actor.ProcessMessage((T)umsg.Content));
                 }
             }
             else if (msg.MessageType == Message.Type.UserControl)
             {
                 switch (msg.Tag)
                 {
-                    case UserControlMessageTag.Shutdown:
+                    case Message.TagSpec.Shutdown:
                         Process.kill(actor.Id);
                         break;
                 }

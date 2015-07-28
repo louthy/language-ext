@@ -137,7 +137,7 @@ namespace LanguageExt
         }
 
         public void SetValue(string key, object value) =>
-            Db.StringSet(key, JsonConvert.SerializeObject(value));
+            Db.StringSet(key, JsonConvert.SerializeObject(value),TimeSpan.FromDays(RedisCluster.maxDaysToPersistProcessState));
 
         public T GetValue<T>(string key) =>
             JsonConvert.DeserializeObject<T>(Db.StringGet(key));

@@ -6,26 +6,17 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    internal enum UserControlMessageTag
+    public abstract class UserControlMessage : Message
     {
-        User,
-        UserAsk,
-        UserReply,
-        Shutdown
-    }
-
-    internal abstract class UserControlMessage : Message
-    {
-        public override Message.Type MessageType => Message.Type.UserControl;
-        public abstract UserControlMessageTag Tag { get; }
+        public override Type MessageType => Type.UserControl;
 
         public static UserControlMessage Shutdown => new UserControlShutdownMessage();
     }
 
-    internal class UserMessage : UserControlMessage
+    public class UserMessage : UserControlMessage
     {
-        public override Message.Type MessageType => Message.Type.User;
-        public override UserControlMessageTag Tag => UserControlMessageTag.User;
+        public override Type MessageType => Type.User;
+        public override TagSpec Tag      => TagSpec.User;
 
         public UserMessage(object message, ProcessId sender, ProcessId replyTo)
         {
@@ -39,10 +30,10 @@ namespace LanguageExt
         public object Content { get; }
     }
 
-    internal class UserControlShutdownMessage : UserControlMessage
+    public class UserControlShutdownMessage : UserControlMessage
     {
-        public override Message.Type MessageType => Message.Type.UserControl;
-        public override UserControlMessageTag Tag => UserControlMessageTag.Shutdown;
+        public override Type MessageType => Type.UserControl;
+        public override TagSpec Tag      => TagSpec.Shutdown;
     }
 
     internal class RemoteMessageDTO
@@ -54,6 +45,7 @@ namespace LanguageExt
         public string Sender;
         public string ReplyTo;
         public long RequestId;
+        public string ContentType;
         public string Content;
     }
 }

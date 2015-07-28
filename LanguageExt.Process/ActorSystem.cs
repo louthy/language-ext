@@ -16,49 +16,45 @@ namespace LanguageExt
                     var rmsg = msg as ActorSystemMessage;
                     switch (rmsg.Tag)
                     {
-                        case ActorSystemMessageTag.Startup:
+                        case Message.TagSpec.Startup:
                             state = state.Startup();
                             break;
 
-                        case ActorSystemMessageTag.AddToStore: 
+                        case Message.TagSpec.AddToStore: 
                             state = AddToStore(state, rmsg as AddToStoreMessage);
                             break;
 
-                        case ActorSystemMessageTag.RemoveFromStore:
-                            state = RemoveFromStore(state, rmsg as RemoveFromStoreMessage);
-                            break;
-
-                        case ActorSystemMessageTag.Tell:
-                        case ActorSystemMessageTag.TellSystem:
-                        case ActorSystemMessageTag.TellUserControl:
+                        case Message.TagSpec.Tell:
+                        case Message.TagSpec.TellSystem:
+                        case Message.TagSpec.TellUserControl:
                             Tell(state, rmsg as TellMessage);
                             break;
 
-                        case ActorSystemMessageTag.ShutdownProcess:
+                        case Message.TagSpec.ShutdownProcess:
                             ShutdownProcess(state, rmsg as ShutdownProcessMessage);
                             break;
 
-                        case ActorSystemMessageTag.ShutdownAll:
+                        case Message.TagSpec.ShutdownAll:
                             ShutdownAll(state);
                             break;
 
-                        case ActorSystemMessageTag.GetChildren:
+                        case Message.TagSpec.GetChildren:
                             GetChildren(state, rmsg as GetChildrenMessage);
                             break;
 
-                        case ActorSystemMessageTag.Publish:
+                        case Message.TagSpec.Publish:
                             Publish(state, rmsg as PubMessage);
                             break;
 
-                        case ActorSystemMessageTag.Reply:
+                        case Message.TagSpec.Reply:
                             Reply(state, rmsg as ReplyMessage);
                             break;
 
-                        case ActorSystemMessageTag.ObservePub:
+                        case Message.TagSpec.ObservePub:
                             ObservePub(state, rmsg as ObservePubMessage);
                             break;
 
-                        case ActorSystemMessageTag.ObserveState:
+                        case Message.TagSpec.ObserveState:
                             ObserveState(state, rmsg as ObserveStateMessage);
                             break;
                     }
@@ -104,9 +100,6 @@ namespace LanguageExt
 
         private static ActorSystemState AddToStore(ActorSystemState state, AddToStoreMessage msg) =>
             state.AddOrUpdateStoreAndStartup(msg.Process, msg.Inbox, msg.Flags);
-
-        private static ActorSystemState RemoveFromStore(ActorSystemState state, RemoveFromStoreMessage msg) =>
-            state.RemoveFromStore(msg.ProcessId);
 
         private static ActorSystemState Tell(ActorSystemState state, TellMessage msg)
         {

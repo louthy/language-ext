@@ -3,9 +3,6 @@ using System.Linq.Expressions;
 
 namespace LanguageExt
 {
-    /// <summary>
-    /// Usage:  Add 'using LanguageExt.Prelude' to your code.
-    /// </summary>
     public static partial class Prelude
     {
         public static Func<R> fun<R>(Func<R> f) => f;

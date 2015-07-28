@@ -6,9 +6,6 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    /// <summary>
-    /// Usage:  Add 'using LanguageExt.Prelude' to your code.
-    /// </summary>
     public static partial class Prelude
     {
         /// <summary>
@@ -16,7 +13,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Function to execute</param>
         /// <param name="delayFor">Time span to delay for</param>
-        /// <returns>IObservable<T> with the result</returns>
+        /// <returns>IObservable T with the result</returns>
         public static IObservable<T> delay<T>(Func<T> f, TimeSpan delayFor) =>
             delayFor.TotalMilliseconds < 1
                 ? Observable.Return(f()).Take(1)
@@ -30,7 +27,7 @@ namespace LanguageExt
         /// </remarks>
         /// <param name="f">Function to execute</param>
         /// <param name="delayUntil">DateTime to wake up at.</param>
-        /// <returns>IObservable<T> with the result</returns>
+        /// <returns>IObservable T with the result</returns>
         public static IObservable<T> delay<T>(Func<T> f, DateTime delayUntil) =>
             delay(f, delayUntil.ToUniversalTime() - DateTime.UtcNow);
 

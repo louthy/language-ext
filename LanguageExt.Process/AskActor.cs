@@ -68,5 +68,8 @@ namespace LanguageExt
             To = to;
             ReplyTo = replyTo;
         }
+
+        public override string ToString() =>
+            "Ask request from: " + ReplyTo + " to: " + To + " msg: " + Message;
     }
 }

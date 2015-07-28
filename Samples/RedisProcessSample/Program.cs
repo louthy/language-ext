@@ -27,7 +27,7 @@ namespace RedisPublishSample
             // Connect to the Redis cluster
             Cluster.connect("redis", "redis-test", "localhost", "0");
 
-            // Launch a process that publishes a random number every 10 milliseconds
+            // Launch a process that publishes a random number as fast as possible
             var pid = spawn<Random, int>("redis-pubsub-random-test", Setup, Inbox, ProcessFlags.RemotePublish);
 
             // Listen to the published results coming back from the Redis channel

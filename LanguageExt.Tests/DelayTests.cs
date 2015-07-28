@@ -25,7 +25,7 @@ namespace LanguageExtTests
                 Thread.Sleep(1);
             }
 
-            while (DateTime.Now < till.AddMilliseconds(50))
+            while (DateTime.Now < till.AddMilliseconds(100))
             {
                 Thread.Sleep(1);
             }

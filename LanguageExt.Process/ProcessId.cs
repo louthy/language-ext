@@ -8,13 +8,22 @@ using Newtonsoft.Json;
 
 namespace LanguageExt
 {
-    public struct ProcessId
+    /// <summary>
+    /// Process identifier
+    /// Use this to 'tell' a message to a process.  It can be serialised and passed around
+    /// without concerns for internals.
+    /// </summary>
+    public struct ProcessId : IEquatable<ProcessId>, IComparable<ProcessId>, IComparable
     {
         readonly ProcessName[] parts;
         readonly ProcessName name;
 
         public readonly string Path;
 
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="path">Path of the process, in the form: /name/name/name </param>
         [JsonConstructor]
         public ProcessId(string path)
         {
@@ -65,6 +74,11 @@ namespace LanguageExt
             }
         }
 
+        /// <summary>
+        /// Generate new ProcessId that represents a child of this process ID
+        /// </summary>
+        /// <param name="name">Name of the child process</param>
+        /// <returns>Process ID</returns>
         public ProcessId MakeChildId(ProcessName name) =>
             parts == null
                 ? failwith<ProcessId>("ProcessId is None")
@@ -72,27 +86,84 @@ namespace LanguageExt
                     ? new ProcessId("" + Sep + name)
                     : new ProcessId(Path + Sep + name);
 
+        /// <summary>
+        /// Implicit conversion from a string to a ProcessId
+        /// </summary>
+        /// <param name="value">String representation of the process ID</param>
         public static implicit operator ProcessId(string value) =>
             new ProcessId(value);
 
+        /// <summary>
+        /// Convert the ProcessId to a string
+        /// </summary>
+        /// <returns>String representation of the process ID</returns>
         public override string ToString() =>
             Path;
 
+        /// <summary>
+        /// Hash code of process ID
+        /// Do not rely on this between application sessions
+        /// </summary>
+        /// <returns>Integer hash code</returns>
         public override int GetHashCode() =>
             Path.GetHashCode();
 
+        /// <summary>
+        /// Returns true if this is a valid process ID
+        /// </summary>
         public bool IsValid => 
             parts != null;
 
+        /// <summary>
+        /// Get the name of the process
+        /// </summary>
+        /// <returns></returns>
         public ProcessName GetName() =>
             name;
 
+        /// <summary>
+        /// NoSender process ID
+        /// </summary>
         public readonly static ProcessId NoSender =
             new ProcessId();
 
+        /// <summary>
+        /// None process ID
+        /// </summary>
         public readonly static ProcessId None =
             new ProcessId();
 
+        /// <summary>
+        /// Process ID name separator
+        /// </summary>
         public readonly static char Sep = '/';
+
+        /// <summary>
+        /// Equality check
+        /// </summary>
+        public bool Equals(ProcessId other) =>
+            Path.Equals(other.Path);
+
+        /// <summary>
+        /// Equality check
+        /// </summary>
+        public override bool Equals(object obj) =>
+            obj is ProcessId
+                ? Equals((ProcessId)obj)
+                : false;
+
+        /// <summary>
+        /// Compare
+        /// </summary>
+        public int CompareTo(ProcessId other) =>
+            Path.CompareTo(other.Path);
+
+        /// <summary>
+        /// Compare
+        /// </summary>
+        public int CompareTo(object obj) =>
+            obj is ProcessId
+                ? CompareTo((ProcessId)obj)
+                : -1;
     }
 }

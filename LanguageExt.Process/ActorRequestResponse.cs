@@ -15,8 +15,8 @@ namespace LanguageExt
         public readonly ProcessId ReplyTo;
         public readonly long RequestId;
 
-        public override Type MessageType          => Type.User;
-        public override UserControlMessageTag Tag => UserControlMessageTag.UserAsk;
+        public override Type MessageType => Type.User;
+        public override TagSpec Tag      => TagSpec.UserAsk;
 
         [JsonConstructor]
         public ActorRequest(object message, ProcessId to, ProcessId replyTo, long requestId)

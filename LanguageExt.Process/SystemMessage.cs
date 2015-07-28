@@ -6,18 +6,9 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    internal enum SystemMessageTag
-    {
-        Restart,
-        LinkChild,
-        UnLinkChild,
-        ChildIsFaulted
-    }
-
-    internal abstract class SystemMessage : Message
+    public abstract class SystemMessage : Message
     {
         public override Message.Type MessageType => Message.Type.System;
-        public abstract SystemMessageTag Tag { get; }
 
         public static SystemMessage Restart => new SystemRestartMessage();
         public static SystemMessage LinkChild(ProcessId pid) => new SystemLinkChildMessage(pid);
@@ -27,12 +18,12 @@ namespace LanguageExt
 
     internal class SystemRestartMessage : SystemMessage
     {
-        public override SystemMessageTag Tag => SystemMessageTag.Restart;
+        public override TagSpec Tag => TagSpec.Restart;
     }
 
     internal class SystemLinkChildMessage : SystemMessage
     {
-        public override SystemMessageTag Tag => SystemMessageTag.LinkChild;
+        public override TagSpec Tag => TagSpec.LinkChild;
 
         public SystemLinkChildMessage(ProcessId childId)
         {
@@ -43,7 +34,7 @@ namespace LanguageExt
 
     internal class SystemUnLinkChildMessage : SystemMessage
     {
-        public override SystemMessageTag Tag => SystemMessageTag.UnLinkChild;
+        public override TagSpec Tag => TagSpec.UnLinkChild;
 
         public SystemUnLinkChildMessage(ProcessId childId)
         {
@@ -54,7 +45,7 @@ namespace LanguageExt
 
     internal class SystemChildIsFaultedMessage : SystemMessage
     {
-        public override SystemMessageTag Tag => SystemMessageTag.ChildIsFaulted;
+        public override TagSpec Tag => TagSpec.ChildIsFaulted;
 
         public SystemChildIsFaultedMessage(ProcessId childId, Exception e)
         {

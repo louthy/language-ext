@@ -69,6 +69,10 @@ namespace LanguageExt
         /// State stream - sent after each message loop
         /// </summary>
         IObservable<object> StateStream { get; }
+
+        Unit AddSubscription(ProcessId pid, IDisposable sub);
+        Unit RemoveSubscription(ProcessId pid);
+        int GetNextRoundRobinIndex();
     }
 
     internal interface IProcess<T>
