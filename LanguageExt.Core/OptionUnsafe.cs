@@ -6,6 +6,8 @@ using System.Collections.Immutable;
 using System.ComponentModel;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using System.Threading.Tasks;
+using System.Reactive.Linq;
 
 namespace LanguageExt
 {
@@ -62,6 +64,59 @@ namespace LanguageExt
             None;
 
         public R MatchUnsafe<R>(Func<T, R> Some, Func<R> None) =>
+            IsSome
+                ? Some(Value)
+                : None();
+
+
+        /// <summary>
+        /// Match the two states of the Option
+        /// The Some can return a Task R and the None an R.  The result is wrapped in a Task R
+        /// </summary>
+        /// <typeparam name="R">Return type</typeparam>
+        /// <param name="Some">Some handler</param>
+        /// <param name="None">None handler</param>
+        /// <returns>A promise to return an R</returns>
+        public async Task<R> MatchAsyncUnsafe<R>(Func<T, Task<R>> Some, Func<R> None) =>
+            IsSome
+                ? await Some(Value)
+                : None();
+
+        /// <summary>
+        /// Match the two states of the Option
+        /// The Some and None can return a Task R and the None an R
+        /// </summary>
+        /// <typeparam name="R">Return type</typeparam>
+        /// <param name="Some">Some handler</param>
+        /// <param name="None">None handler</param>
+        /// <returns>A promise to return an R</returns>
+        public async Task<R> MatchAsyncUnsafe<R>(Func<T, Task<R>> Some, Func<Task<R>> None) =>
+            await (IsSome
+                ? Some(Value)
+                : None());
+
+        /// <summary>
+        /// Match the two states of the Option
+        /// The Some can return an IObservable R and the None an R.  The result is wrapped in an IObservable R
+        /// </summary>
+        /// <typeparam name="R">Return type</typeparam>
+        /// <param name="Some">Some handler</param>
+        /// <param name="None">None handler</param>
+        /// <returns>A promise to return an stream of Rs</returns>
+        public IObservable<R> MatchAsyncUnsafe<R>(Func<T, IObservable<R>> Some, Func<R> None) =>
+            IsSome
+                ? Some(Value)
+                : Observable.Return(None());
+
+        /// <summary>
+        /// Match the two states of the Option
+        /// The Some and None can return an IObservable R
+        /// </summary>
+        /// <typeparam name="R">Return type</typeparam>
+        /// <param name="Some">Some handler</param>
+        /// <param name="None">None handler</param>
+        /// <returns>A promise to return an stream of Rs</returns>
+        public IObservable<R> MatchAsyncUnsafe<R>(Func<T, IObservable<R>> Some, Func<IObservable<R>> None) =>
             IsSome
                 ? Some(Value)
                 : None();
@@ -378,4 +433,49 @@ public static class __OptionUnsafeExt
         if (resU.IsNone) return None;
         return project(self.Value, resU.Value);
     }
+
+    /// <summary>
+    /// Match the two states of the OptionUnsafe&lt;Task&lt;T&gt;&gt;
+    /// 
+    ///     If Some then the result of the Task is passed to Some and returned as a Task R.
+    ///     If None then the result of None() is returned as a Task R
+    ///     
+    /// </summary>
+    /// <typeparam name="R">Return type</typeparam>
+    /// <param name="Some">Some handler</param>
+    /// <param name="None">None handler</param>
+    /// <returns>A promise to return an R</returns>
+    public static async Task<R> MatchAsync<T, R>(this OptionUnsafe<Task<T>> self, Func<T, R> Some, Func<R> None) =>
+        self.IsSome
+            ? Some(await self.Value)
+            : None();
+
+    /// <summary>
+    /// Match the two states of the OptionUnsafe&lt;IObservable&lt;T&gt;&gt;
+    /// 
+    ///     If Some then the observable stream is mapped with Some (until the subscription ends)
+    ///     If None the a single value observable is returned with the None result in
+    /// 
+    /// </summary>
+    /// <typeparam name="R">Return type</typeparam>
+    /// <param name="Some">Some handler</param>
+    /// <param name="None">None handler</param>
+    /// <returns>A stream of Rs</returns>
+    public static IObservable<R> MatchAsync<T, R>(this OptionUnsafe<IObservable<T>> self, Func<T, R> Some, Func<R> None) =>
+        self.IsSome
+            ? self.Value.Select(Some).Select(Option<R>.CheckNullSomeReturn)
+            : Observable.Return(Option<R>.CheckNullReturn(None(), "None"));
+
+    /// <summary>
+    /// Match the two states of the IObservable&lt;OptionUnsafe&lt;T&gt;&gt;
+    /// 
+    ///     Matches a stream of options
+    /// 
+    /// </summary>
+    /// <typeparam name="R">Return type</typeparam>
+    /// <param name="Some">Some handler</param>
+    /// <param name="None">None handler</param>
+    /// <returns>A stream of Rs</returns>
+    public static IObservable<R> MatchAsync<T, R>(this IObservable<OptionUnsafe<T>> self, Func<T, R> Some, Func<R> None) =>
+        self.Select(opt => matchUnsafe(opt, Some, None));
 }

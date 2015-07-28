@@ -6,6 +6,8 @@ using System.Linq;
 using System.ComponentModel;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using System.Threading.Tasks;
+using System.Reactive.Linq;
 
 namespace LanguageExt
 {
@@ -58,10 +60,16 @@ namespace LanguageExt
         public static implicit operator Option<T>(OptionNone none) => 
             Option<T>.None;
 
-        private U CheckNullReturn<U>(U value, string location) =>
+        internal static U CheckNullReturn<U>(U value, string location) =>
             value == null
                 ? raise<U>(new ResultIsNullException("'" + location + "' result is null.  Not allowed."))
                 : value;
+
+        internal static U CheckNullNoneReturn<U>(U value) =>
+            CheckNullReturn(value, "None");
+
+        internal static U CheckNullSomeReturn<U>(U value) =>
+            CheckNullReturn(value, "Some");
 
         public R Match<R>(Func<T, R> Some, Func<R> None) =>
             IsSome
@@ -74,6 +82,58 @@ namespace LanguageExt
                 : None();
 
         /// <summary>
+        /// Match the two states of the Option
+        /// The Some can return a Task R and the None an R.  The result is wrapped in a Task R
+        /// </summary>
+        /// <typeparam name="R">Return type</typeparam>
+        /// <param name="Some">Some handler</param>
+        /// <param name="None">None handler</param>
+        /// <returns>A promise to return an R</returns>
+        public async Task<R> MatchAsync<R>(Func<T, Task<R>> Some, Func<R> None) =>
+            IsSome
+                ? CheckNullReturn(await Some(Value), "Some")
+                : CheckNullReturn(None(),"None");
+
+        /// <summary>
+        /// Match the two states of the Option
+        /// The Some and None can return a Task R and the None an R
+        /// </summary>
+        /// <typeparam name="R">Return type</typeparam>
+        /// <param name="Some">Some handler</param>
+        /// <param name="None">None handler</param>
+        /// <returns>A promise to return an R</returns>
+        public async Task<R> MatchAsync<R>(Func<T, Task<R>> Some, Func<Task<R>> None) =>
+            await (IsSome
+                ? Some(Value)
+                : None());
+
+        /// <summary>
+        /// Match the two states of the Option
+        /// The Some can return an IObservable R and the None an R.  The result is wrapped in an IObservable R
+        /// </summary>
+        /// <typeparam name="R">Return type</typeparam>
+        /// <param name="Some">Some handler</param>
+        /// <param name="None">None handler</param>
+        /// <returns>A promise to return an stream of Rs</returns>
+        public IObservable<R> MatchAsync<R>(Func<T, IObservable<R>> Some, Func<R> None) =>
+            IsSome
+                ? Some(Value).Select(CheckNullSomeReturn)
+                : Observable.Return(CheckNullReturn(None(),"None"));
+
+        /// <summary>
+        /// Match the two states of the Option
+        /// The Some and None can return an IObservable R
+        /// </summary>
+        /// <typeparam name="R">Return type</typeparam>
+        /// <param name="Some">Some handler</param>
+        /// <param name="None">None handler</param>
+        /// <returns>A promise to return an stream of Rs</returns>
+        public IObservable<R> MatchAsync<R>(Func<T, IObservable<R>> Some, Func<IObservable<R>> None) =>
+            IsSome
+                ? Some(Value).Select(CheckNullSomeReturn)
+                : None().Select(CheckNullNoneReturn);
+
+        /// <summary>
         /// Untyped check
         /// </summary>
         /// <remarks>May also return null</remarks>
@@ -83,6 +143,12 @@ namespace LanguageExt
                 ? Some(Value)
                 : None();
 
+        /// <summary>
+        /// Match the two states of the Option T
+        /// </summary>
+        /// <param name="Some">Some match</param>
+        /// <param name="None">None match</param>
+        /// <returns></returns>
         public Unit Match(Action<T> Some, Action None)
         {
             if (IsSome)
@@ -383,4 +449,49 @@ public static class __OptionExt
         if (resU.IsNone) return None;
         return Optional(project(self.Value, resU.Value));
     }
+
+    /// <summary>
+    /// Match the two states of the Option&lt;Task&lt;T&gt;&gt;
+    /// 
+    ///     If Some then the result of the Task is passed to Some and returned as a Task R.
+    ///     If None then the result of None() is returned as a Task R
+    ///     
+    /// </summary>
+    /// <typeparam name="R">Return type</typeparam>
+    /// <param name="Some">Some handler</param>
+    /// <param name="None">None handler</param>
+    /// <returns>A promise to return an R</returns>
+    public static async Task<R> MatchAsync<T, R>(this Option<Task<T>> self, Func<T, R> Some, Func<R> None) =>
+        self.IsSome
+            ? Some(await self.Value)
+            : None();
+
+    /// <summary>
+    /// Match the two states of the Option&lt;IObservable&lt;T&gt;&gt;
+    /// 
+    ///     If Some then the observable stream is mapped with Some (until the subscription ends)
+    ///     If None the a single value observable is returned with the None result in
+    /// 
+    /// </summary>
+    /// <typeparam name="R">Return type</typeparam>
+    /// <param name="Some">Some handler</param>
+    /// <param name="None">None handler</param>
+    /// <returns>A stream of Rs</returns>
+    public static IObservable<R> MatchAsync<T, R>(this Option<IObservable<T>> self, Func<T, R> Some, Func<R> None) =>
+        self.IsSome
+            ? self.Value.Select(Some).Select(Option<R>.CheckNullSomeReturn)
+            : Observable.Return(Option<R>.CheckNullReturn(None(), "None"));
+
+    /// <summary>
+    /// Match the two states of the IObservable&lt;Option&lt;T&gt;&gt;
+    /// 
+    ///     Matches a stream of options
+    /// 
+    /// </summary>
+    /// <typeparam name="R">Return type</typeparam>
+    /// <param name="Some">Some handler</param>
+    /// <param name="None">None handler</param>
+    /// <returns>A stream of Rs</returns>
+    public static IObservable<R> MatchAsync<T, R>(this IObservable<Option<T>> self, Func<T, R> Some, Func<R> None) =>
+        self.Select(opt => match(opt, Some, None));
 }

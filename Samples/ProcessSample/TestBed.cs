@@ -10,20 +10,23 @@ using static LanguageExt.List;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 using System.Diagnostics;
+using System.Threading.Tasks;
+
+/// <summary>
+/// This is just a dumping ground I use for debugging the library, you can ignore this.
+/// </summary>
+
 
 namespace ProcessSample
 {
-    /// <summary>
-    /// This is just a dumping ground I use for debugging the library, you can ignore this.
-    /// </summary>
     class TestBed
     {
         public static void RunTests()
         {
+            AsyncOption();
+
             MapOptionTest();
             MassAddRemoveTest();
-
-
             ProcessLog.Subscribe(Console.WriteLine);
 
             RegisteredAskReply();
@@ -57,6 +60,34 @@ namespace ProcessSample
             MemoTest();
             UnsafeOptionTest();
         }
+
+        private static Task<int> GetTheNumber()
+        {
+            return Task.Run(() => 123);
+        }
+
+        private static async void AsyncOption()
+        {
+            var x = Some(true);
+            Option<bool> y = None;
+
+            var res1 = await x.MatchAsync(
+                            Some: v => GetTheNumber(),
+                            None: () => 0
+                        );
+
+            Console.WriteLine(res1);
+
+            var res2 = await y.MatchAsync(
+                            Some: v => GetTheNumber(),
+                            None: () => 0
+                        );
+
+            Console.WriteLine(res2);
+
+        }
+
+
 
         public static void MapOptionTest()
         {
