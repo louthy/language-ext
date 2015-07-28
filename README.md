@@ -10,7 +10,14 @@ Using and abusing the features of C# 6 to provide lots of functions and types, t
 __Now on NuGet: https://www.nuget.org/packages/LanguageExt/__
 
 ## Introduction
-One of the great new features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static methods without qualifying them first.  This instantly gives us access to single term method names which look exactly like functions in functional languages.  This library brings some of the functional world into C#.  It won't always sit well with the seasoned C# OO programmer, especially the choice of camelCase names for a lot of functions and the seeming 'globalness' of a lot of the library.  
+One of the great new features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static methods without qualifying them first.  This instantly gives us access to single term method names which look exactly like functions in functional languages.  i.e.
+
+```C#
+    using static System.Console;
+    
+    WriteLine("Hello, World");
+```
+This library tries to bring some of the functional world into C#.  It won't always sit well with the seasoned C# OO programmer, especially the choice of camelCase names for a lot of functions and the seeming 'globalness' of a lot of the library.  
 
 I can understand that much of this library is non-idiomatic; But when you think of the journey C# has been on, is idiomatic necessarily right?  A lot of C#'s idioms are inherited from Java and C# 1.0.  Since then we've had generics, closures, Func, LINQ, async...  C# as a language is becoming more and more like a  functional language on every release.  In fact the bulk of the new features are either inspired by or directly taken from features in functional languages.  So perhaps it's time to move the C# idioms closer to the functional world's idioms?
 
@@ -28,8 +35,8 @@ There is however a naming guide that will stand you in good stead whilst reading
 So to create an `Option<T>` you can use the upper case named constructors:
 
 ```C#
-    Option<T> x = Some(123);
-    Option<T> y = None;
+    Option<int> x = Some(123);
+    Option<int> y = None;
 ```
 Mapping the `Option<T>` can be done the functional camelCase way:
 ```C#
