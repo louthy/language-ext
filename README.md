@@ -632,7 +632,18 @@ However, you can provide up to seven handlers, one for an empty list and six for
 ```
 Those patterns should be very familiar to anyone who's ventured into the functional world.  For those that haven't, the `(x,xs)` convention might seem odd.  `x` is the item at the head of the list - `list.First()` in LINQ world.  `xs`, i.e. 'many X-es' is the tail of the list - `list.Skip(1)` in LINQ.  This recursive pattern of working on the head of the list until the list runs out is pretty much how loops are done in the funcitonal world.  
 
-_Be wary of recursive processing however.  C# will happily blow up the stack after a few thousand iterations._
+Be wary of recursive processing however.  C# will happily blow up the stack after a few thousand iterations.  If you put a bit of thought into it, you'll realise this recursive processes all tends to follow a very similar pattern.  Functional programming doesn't really _do_ design patterns, but if anything is a design pattern it's the use of `fold`.  
+
+The two recurisve examples above for calculating the sum and product of a sequence of numbers can be written:
+
+```C#
+    // Sum
+    var total = fold(list, 0, (s,x) => s + x);
+    
+    // Product
+    var total = reduce(list, (s,x) => s * x);
+```
+`reduce` is `fold` but instead of providing an initial state value, it uses the first item in the sequence.  Therefore you don't get an initial multiple by zero (unless the first item is zero).  Luckily internally `fold`, `foldBack` and `reduce` use an iterative loop rather than a recursive one; so no stack blowing problems!
 
 `list` functions (`using LanguageExt.List`):
 * `add`
@@ -758,7 +769,7 @@ There are additional transformer functions for dealing with 'wrapped' maps (i.e.
     wrapped = wrapped.SetItemT(1,2,3,4,"Louth");
     var name = wrapped.Find(1,2,3,4);               // "Louth"
 ```
-The `Map` transformer funcions:
+The `Map` transformer functions:
 
 _Note, there are only fluent versions of the transformer functions._
 
