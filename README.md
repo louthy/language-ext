@@ -123,7 +123,7 @@ Consuming the tuple is now handled using `Map`, which projects the `Item1`...`It
 
 ```C#
     var name = Tuple("Paul","Louth");
-    var res = name.Map( (first,last) => "Hello \{first} \{last}" );
+    var res = name.Map( (first,last) => String.Format("{0} {1}", first, last) );
 ```
 Or, you can use a more functional approach:
 ```C#
