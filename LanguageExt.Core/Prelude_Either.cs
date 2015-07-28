@@ -236,6 +236,22 @@ namespace LanguageExt
         /// <param name="Right">Right match function</param>
         /// <param name="Left">Left match function</param>
         /// <returns>Sequence of mapped values</returns>
+        public static IEnumerable<Ret> Match<L, R, Ret>(this IEnumerable<Either<L, R>> list,
+            Func<R, Ret> Right,
+            Func<L, Ret> Left
+            ) =>
+            match(list, Right, Left);
+
+        /// <summary>
+        /// Match over a sequence of Eithers
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <typeparam name="Ret">Mapped type</typeparam>
+        /// <param name="list">Sequence to match over</param>
+        /// <param name="Right">Right match function</param>
+        /// <param name="Left">Left match function</param>
+        /// <returns>Sequence of mapped values</returns>
         public static IEnumerable<Ret> match<L, R, Ret>(IEnumerable<Either<L, R>> list,
             Func<R, Ret> Right,
             Func<L, Ret> Left

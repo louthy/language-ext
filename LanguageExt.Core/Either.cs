@@ -17,7 +17,7 @@ namespace LanguageExt
     /// 
     /// NOTE: If you use Filter or Where (or 'where' in a LINQ expression) with Either, then the Either 
     /// will be put into a 'Bottom' state if the predicate returns false.  When it's in this state it is 
-    /// neither Right or Left.  And any usage could trigger a BottomException.  So be aware of the issue
+    /// neither Right nor Left.  And any usage could trigger a BottomException.  So be aware of the issue
     /// of filtering Either.
     /// 
     /// Also note, when the Either is in a Bottom state, some operations on it will continue to give valid
@@ -33,77 +33,83 @@ namespace LanguageExt
         IEquatable<Either<L, R>>, 
         IEquatable<R>
     {
-        enum EitherState : byte
-        {
-            IsUninitialised = 0,
-            IsLeft = 1,
-            IsRight = 2,
-            IsBottom = 3
-        }
-
-        readonly EitherState state;
         readonly R right;
         readonly L left;
 
         private Either(R right)
         {
-            this.state = EitherState.IsRight;
+            this.State = EitherState.IsRight;
             this.right = right;
             this.left = default(L);
         }
 
         private Either(L left)
         {
-            this.state = EitherState.IsLeft;
+            this.State = EitherState.IsLeft;
             this.right = default(R);
             this.left = left;
         }
 
         internal Either(bool bottom)
         {
-            this.state = EitherState.IsBottom;
+            this.State = EitherState.IsBottom;
             this.right = default(R);
             this.left = default(L);
         }
 
-        internal static Either<L, R> Right(R value) =>
-            new Either<L, R>(value);
-
-        internal static Either<L, R> Left(L value) =>
-            new Either<L, R>(value);
+        /// <summary>
+        /// State of the Either
+        /// You can also use:
+        ///     IsRight
+        ///     IsLeft
+        ///     IsBottom
+        ///     IsUninitialised
+        /// </summary>
+        public readonly EitherState State;
 
         /// <summary>
-        /// Is the Either in a Right state
+        /// Is the Either in a Right state?
         /// </summary>
         public bool IsRight =>
-            CheckInitialised(state == EitherState.IsRight);
+            CheckInitialised(State == EitherState.IsRight);
 
         /// <summary>
-        /// Is the Either in a Left state
+        /// Is the Either in a Left state?
         /// </summary>
         public bool IsLeft =>
-            CheckInitialised(state == EitherState.IsLeft);
+            CheckInitialised(State == EitherState.IsLeft);
 
         /// <summary>
-        /// Is the Either in a Bottom state.  
+        /// Is the Either in a Bottom state?
         /// When the Either is filtered, both Right and Left are meaningless.
+        /// 
+        /// If you use Filter or Where (or 'where' in a LINQ expression) with Either, then the Either 
+        /// will be put into a 'Bottom' state if the predicate returns false.  When it's in this state it is 
+        /// neither Right nor Left.  And any usage could trigger a BottomException.  So be aware of the issue
+        /// of filtering Either.
+        /// 
+        /// Also note, when the Either is in a Bottom state, some operations on it will continue to give valid
+        /// results or return another Either in the Bottom state and not throw.  This is so a filtered Either 
+        /// doesn't needlessly break expressions. 
         /// </summary>
         public bool IsBottom =>
-            state == EitherState.IsBottom;
+            State == EitherState.IsBottom;
 
-        internal R RightValue =>
-            CheckInitialised(
-                IsRight
-                    ? right
-                    : raise<R>(new EitherIsNotRightException())
-            );
-
-        internal L LeftValue =>
-            CheckInitialised(
-                IsLeft
-                    ? left
-                    : raise<L>(new EitherIsNotLeftException())
-            );
+        /// <summary>
+        /// Is the Either in the uninitialised state?
+        /// 
+        /// This only occurs because EitherUnsafe is a struct, and you instantiate
+        /// using its default ctor.  This can occur if you have an uninitialised 
+        /// member variable or an uninitialised array, or just do:
+        /// 
+        ///      new Either();
+        ///      new EitherUnsafe();
+        ///
+        /// So Either will put itself into an uninitialised state, that will fail
+        /// quickly.
+        /// </summary>
+        public bool IsUninitialised =>
+            State == EitherState.IsUninitialised;
 
         /// <summary>
         /// Implicit conversion operator from R to Either R L
@@ -122,12 +128,6 @@ namespace LanguageExt
             value == null
                 ? raise<Either<L, R>>(new ValueIsNullException())
                 : Either<L, R>.Left(value);
-
-
-        private T CheckNullReturn<T>(T value, string location) =>
-            value == null
-                ? raise<T>(new ResultIsNullException("'" + location + "' result is null.  Not allowed."))
-                : value;
 
         /// <summary>
         /// Invokes the Right or Left function depending on the state of the Either
@@ -167,20 +167,6 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Deprecated
-        /// </summary>
-        [Obsolete("'Failure' has been deprecated.  Please use 'Left' instead")]
-        public R Failure(Func<R> None) =>
-            Match(identity, _ => None());
-
-        /// <summary>
-        /// Deprecated
-        /// </summary>
-        [Obsolete("'Failure' has been deprecated.  Please use 'Left' instead")]
-        public R Failure(R noneValue) =>
-            Match(identity, _ => noneValue);
-
-        /// <summary>
         /// Executes the Left function if the Either is in a Left state.
         /// Returns the Right value if the Either is in a Right state.
         /// </summary>
@@ -194,8 +180,8 @@ namespace LanguageExt
         /// Returns the Right value if the Either is in a Right state.
         /// <param name="rightValue">Value to return if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
-        public R IfLeft(R rightValue) =>
-            Match(identity, _ => rightValue);
+        public R IfLeft(R Left) =>
+            Match(identity, _ => Left);
 
         /// <summary>
         /// Invokes the Right action if the Either is in a Right state, otherwise does nothing
@@ -246,13 +232,15 @@ namespace LanguageExt
         /// </summary>
         /// <returns>Hash code</returns>
         public override int GetHashCode() =>
-            IsRight
-                ? RightValue == null
-                    ? 0
-                    : RightValue.GetHashCode()
-                : LeftValue == null
-                    ? 0
-                    : LeftValue.GetHashCode();
+            IsBottom
+                ? -1
+                : IsRight
+                    ? RightValue == null
+                        ? 0
+                        : RightValue.GetHashCode()
+                    : LeftValue == null
+                        ? 0
+                        : LeftValue.GetHashCode();
 
         /// <summary>
         /// Equality check
@@ -268,13 +256,6 @@ namespace LanguageExt
                             ? false
                             : lhs.RightValue.Equals(rhs.RightValue))
                 : false;
-
-        private U CheckInitialised<U>(U value) =>
-            state == EitherState.IsUninitialised
-                ? raise<U>(new EitherNotInitialisedException())
-                : state == EitherState.IsBottom
-                    ? raise<U>(new BottomException("Either"))
-                    : value;
 
         /// <summary>
         /// Project the Either into a Lst R
@@ -446,6 +427,53 @@ namespace LanguageExt
         /// </summary>
         public Type GetUnderlyingLeftType() =>
             typeof(L);
+
+
+        private U CheckInitialised<U>(U value) =>
+            State == EitherState.IsUninitialised
+                ? raise<U>(new EitherNotInitialisedException())
+                : State == EitherState.IsBottom
+                    ? raise<U>(new BottomException("Either"))
+                    : value;
+        internal static Either<L, R> Right(R value) =>
+            new Either<L, R>(value);
+
+        internal static Either<L, R> Left(L value) =>
+            new Either<L, R>(value);
+
+        internal R RightValue =>
+            CheckInitialised(
+                IsRight
+                    ? right
+                    : raise<R>(new EitherIsNotRightException())
+            );
+
+        internal L LeftValue =>
+            CheckInitialised(
+                IsLeft
+                    ? left
+                    : raise<L>(new EitherIsNotLeftException())
+            );
+
+        private T CheckNullReturn<T>(T value, string location) =>
+            value == null
+                ? raise<T>(new ResultIsNullException("'" + location + "' result is null.  Not allowed."))
+                : value;
+
+
+        /// <summary>
+        /// Deprecated
+        /// </summary>
+        [Obsolete("'Failure' has been deprecated.  Please use 'Left' instead")]
+        public R Failure(Func<R> None) =>
+            Match(identity, _ => None());
+
+        /// <summary>
+        /// Deprecated
+        /// </summary>
+        [Obsolete("'Failure' has been deprecated.  Please use 'Left' instead")]
+        public R Failure(R noneValue) =>
+            Match(identity, _ => noneValue);
     }
 
     /// <summary>
@@ -512,7 +540,7 @@ public static class __EitherExt
             : 1;
 
     /// <summary>
-    /// Total of the Either
+    /// Sum of the Either
     /// </summary>
     /// <typeparam name="L">Left</typeparam>
     /// <typeparam name="R">Right</typeparam>
