@@ -18,6 +18,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PingPongSample", "PingPongSample", "{32EA6A24-3B1C-4D58-9D0A-A270BDA21C72}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessSample", "Samples\ProcessSample\ProcessSample.csproj", "{9F322287-FF91-4DC8-9467-DF300091042B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DC05F334-346B-41BC-BEA5-BFBE24E52B5F} = {DC05F334-346B-41BC-BEA5-BFBE24E52B5F}
+		{5D8BB155-2E39-4A63-8100-2004CBCF529E} = {5D8BB155-2E39-4A63-8100-2004CBCF529E}
+		{D208187F-ADF0-4F22-BDAA-33AB92F0E88D} = {D208187F-ADF0-4F22-BDAA-33AB92F0E88D}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.FSharp", "LanguageExt.FSharp\LanguageExt.FSharp.csproj", "{5D8BB155-2E39-4A63-8100-2004CBCF529E}"
 EndProject
@@ -27,14 +32,32 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Process.Redis",
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisPublishSample", "Samples\RedisProcessSample\RedisPublishSample.csproj", "{2C45A7CE-37A6-40EB-A88C-527AE8C7E6DE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5D8BB155-2E39-4A63-8100-2004CBCF529E} = {5D8BB155-2E39-4A63-8100-2004CBCF529E}
+		{D208187F-ADF0-4F22-BDAA-33AB92F0E88D} = {D208187F-ADF0-4F22-BDAA-33AB92F0E88D}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Redis", "Redis", "{E27B6C07-3673-4346-B4CF-D0664027BFB6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisStateSample", "Samples\RedisStateSample\RedisStateSample.csproj", "{D205CD19-628D-4F60-8B63-B9AB5F0A55B9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5D8BB155-2E39-4A63-8100-2004CBCF529E} = {5D8BB155-2E39-4A63-8100-2004CBCF529E}
+		{D208187F-ADF0-4F22-BDAA-33AB92F0E88D} = {D208187F-ADF0-4F22-BDAA-33AB92F0E88D}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisInboxSample", "Samples\RedisInboxSample\RedisInboxSample.csproj", "{7AC24676-95EF-48B1-B90F-8A62BB371655}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5D8BB155-2E39-4A63-8100-2004CBCF529E} = {5D8BB155-2E39-4A63-8100-2004CBCF529E}
+		{D208187F-ADF0-4F22-BDAA-33AB92F0E88D} = {D208187F-ADF0-4F22-BDAA-33AB92F0E88D}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisChat", "Samples\RedisChat\RedisChat.csproj", "{61D02CFB-E2AF-4A78-917B-275146C4E43A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5D8BB155-2E39-4A63-8100-2004CBCF529E} = {5D8BB155-2E39-4A63-8100-2004CBCF529E}
+		{D208187F-ADF0-4F22-BDAA-33AB92F0E88D} = {D208187F-ADF0-4F22-BDAA-33AB92F0E88D}
+	EndProjectSection
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "LanguageExt.Process.FSharp", "LanguageExt.Process.FSharp\LanguageExt.Process.FSharp.fsproj", "{D208187F-ADF0-4F22-BDAA-33AB92F0E88D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -86,6 +109,10 @@ Global
 		{61D02CFB-E2AF-4A78-917B-275146C4E43A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{61D02CFB-E2AF-4A78-917B-275146C4E43A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{61D02CFB-E2AF-4A78-917B-275146C4E43A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D208187F-ADF0-4F22-BDAA-33AB92F0E88D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D208187F-ADF0-4F22-BDAA-33AB92F0E88D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D208187F-ADF0-4F22-BDAA-33AB92F0E88D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D208187F-ADF0-4F22-BDAA-33AB92F0E88D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
