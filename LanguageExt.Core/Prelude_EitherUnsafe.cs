@@ -120,8 +120,8 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Folded state</returns>
-        public static S foldUnsafe<S, L, R>(EitherUnsafe<L, R> either, S state, Func<S, R, S> folder) =>
-            either.FoldUnsafe(state, folder);
+        public static S fold<S, L, R>(EitherUnsafe<L, R> either, S state, Func<S, R, S> folder) =>
+            either.Fold(state, folder);
 
         /// <summary>
         /// Invokes a predicate on the value of the Either if it's in the Right state
@@ -133,8 +133,8 @@ namespace LanguageExt
         /// <returns>True if the Either is in a Left state.  
         /// True if the Either is in a Right state and the predicate returns True.  
         /// False otherwise.</returns>
-        public static bool forallUnsafe<L, R>(EitherUnsafe<L, R> either, Func<R, bool> pred) =>
-            either.ForAllUnsafe(pred);
+        public static bool forall<L, R>(EitherUnsafe<L, R> either, Func<R, bool> pred) =>
+            either.ForAll(pred);
 
         /// <summary>
         /// Counts the Either
@@ -144,7 +144,7 @@ namespace LanguageExt
         /// <param name="either">Either to count</param>
         /// <returns>1 if the Either is in a Right state, 0 otherwise.</returns>
         public static int count<L, R>(EitherUnsafe<L, R> either) =>
-            either.Count;
+            either.Count();
 
         /// <summary>
         /// Invokes a predicate on the value of the Either if it's in the Right state
@@ -154,8 +154,8 @@ namespace LanguageExt
         /// <param name="either">Either to check existence of</param>
         /// <param name="pred">Predicate</param>
         /// <returns>True if the Either is in a Right state and the predicate returns True.  False otherwise.</returns>
-        public static bool existsUnsafe<L, R>(EitherUnsafe<L, R> either, Func<R, bool> pred) =>
-            either.ExistsUnsafe(pred);
+        public static bool exists<L, R>(EitherUnsafe<L, R> either, Func<R, bool> pred) =>
+            either.Exists(pred);
 
         /// <summary>
         /// Maps the value in the Either if it's in a Right state
@@ -166,8 +166,8 @@ namespace LanguageExt
         /// <param name="either">Either to map</param>
         /// <param name="mapper">Map function</param>
         /// <returns>Mapped Either</returns>
-        public static EitherUnsafe<L, Ret> mapUnsafe<L, R, Ret>(EitherUnsafe<L, R> either, Func<R, Ret> mapper) =>
-            either.MapUnsafe(mapper);
+        public static EitherUnsafe<L, Ret> map<L, R, Ret>(EitherUnsafe<L, R> either, Func<R, Ret> mapper) =>
+            either.Map(mapper);
 
         /// <summary>
         /// Filter the Either
@@ -184,8 +184,8 @@ namespace LanguageExt
         /// If the predicate returns True the Either is returned as-is.
         /// If the predicate returns False the Either is returned in a 'Bottom' state.  IsLeft will return True, but the value 
         /// of Left = default(L)</returns>
-        public static bool filterUnsafe<L, R>(EitherUnsafe<L, R> either, Func<R, bool> pred) =>
-            either.FilterUnsafe(pred);
+        public static EitherUnsafe<L, R> filter<L, R>(EitherUnsafe<L, R> either, Func<R, bool> pred) =>
+            either.Filter(pred);
 
         /// <summary>
         /// Monadic bind function
@@ -197,8 +197,8 @@ namespace LanguageExt
         /// <param name="either"></param>
         /// <param name="binder"></param>
         /// <returns>Bound Either</returns>
-        public static EitherUnsafe<L, Ret> bindUnsafe<L, R, Ret>(EitherUnsafe<L, R> either, Func<R, EitherUnsafe<L, Ret>> binder) =>
-            either.BindUnsafe(binder);
+        public static EitherUnsafe<L, Ret> bind<L, R, Ret>(EitherUnsafe<L, R> either, Func<R, EitherUnsafe<L, Ret>> binder) =>
+            either.Bind(binder);
 
         /// <summary>
         /// Match over a sequence of Eithers

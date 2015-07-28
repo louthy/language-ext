@@ -2,6 +2,9 @@
 
 namespace LanguageExt
 {
+    /// <summary>
+    /// Observable extensions
+    /// </summary>
     public static class ObservableExt
     {
         /// <summary>

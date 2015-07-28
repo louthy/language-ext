@@ -285,7 +285,7 @@ namespace LanguageExt
             ImmutableStack.Create<T>();
 
         /// <summary>
-        /// Create an empty IEnumerable<T>
+        /// Create an empty IEnumerable T
         /// </summary>
         [Obsolete("Use List.empty")]
         [EditorBrowsable(EditorBrowsableState.Never)]
