@@ -690,7 +690,7 @@ Instead you can use:
 ```C#
     var dict = Map<string,int>();
 ```
-_Unlike `Lst<T>` that just wraps `ImmutableList<T>`, `Map<K,V>` is a home-grown implementation of an AVL Tree (self balancing binary tree).  This allows us to extend the standard `IDictionary` set of functions to include things like `findRange`.  Note: It's slightly slower than the `ImmutableDictionary` type, so if absolute speed is a goal then be aware of that.  There are further optimisations to come, so I hope this disclaimer will be moot soon._
+_Unlike `Lst<T>` that just wraps `ImmutableList<T>`, `Map<K,V>` is a home-grown implementation of an AVL Tree (self balancing binary tree).  This allows us to extend the standard `IDictionary` set of functions to include things like `findRange`._
 
 Also you can pass in a list of tuples or key-value pairs:
 
