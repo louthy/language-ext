@@ -13,11 +13,6 @@ namespace LanguageExt
     public interface IProcess<in T>
     {
         /// <summary>
-        /// Setup
-        /// </summary>
-        void OnSetup();
-
-        /// <summary>
         /// Inbox message handler
         /// </summary>
         /// <param name="msg">Message</param>

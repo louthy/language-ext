@@ -193,12 +193,11 @@ namespace LanguageExt
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="name">Name of process to spawn</param>
         /// <returns>ProcessId</returns>
-        public static ProcessId spawn<P, T>(ProcessName name)
+        public static ProcessId spawn<P,T>(ProcessName name)
             where P : IProcess<T>
         {
             return spawn<IProcess<T>, T>(name, () => {
                   var p = (IProcess<T>)Activator.CreateInstance<P>();
-                  p.OnSetup();
                   return p;
               },
               (process, msg) => {

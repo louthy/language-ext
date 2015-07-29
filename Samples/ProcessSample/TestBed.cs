@@ -23,6 +23,7 @@ namespace ProcessSample
     {
         public static void RunTests()
         {
+            ClassBasedProcess();
             AsyncOption();
 
             MapOptionTest();
@@ -59,6 +60,21 @@ namespace ProcessSample
             ExTest4();
             MemoTest();
             UnsafeOptionTest();
+        }
+
+        class Log : IProcess<string>
+        {
+            public void OnMessage(string msg)
+            {
+                Console.WriteLine(msg);
+            }
+        }
+
+        private static void ClassBasedProcess()
+        {
+            var log = spawn<Log, string>("log");
+
+            tell(log, "Hello, World");
         }
 
         private static Task<int> GetTheNumber()
