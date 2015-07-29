@@ -1029,13 +1029,35 @@ Periodically you will probably want to flush the cache contents.  Just fire up a
         tell(flush, unit); 
     }
 ```
-So as you can see that's a pretty powerful technique.  Remember the process could be running on another machine, and as long as the messages serialise you can talk to them by process ID.  
 
-What about a bit of load balancing?  This creates 100 processes, and as the messages come in to the parent `indexer` process, it automatically allocates the messages to its 100 child processes in a round-robin fashion:
+For those that actually prefer the class based approach, the you can do that also:
+
+```C#
+    class Logger : IProcess<string>
+    {
+        public void OnMessage(string message)
+        {
+            Console.WriteLine(message);
+        }
+    }
+```
+
+Create it like so:
+```C#
+    var log = spawn<Logger,string>("logger");
+
+    tell(log,"Hello, World");
+```
+
+The public constructor is the setup function, the object itself is the state, and if you derive it from `IDisposable` then it will be called when the process is shutdown or restarted.  That gives the full object lifecycle management but with processes.
+
+How about a bit of load balancing?  This creates 100 processes, and as the messages come in to the parent `indexer` process, it automatically allocates the messages to its 100 child processes in a round-robin fashion:
 
 ```C#
     var load = spawnRoundRobin<Thing>("indexer", 100, DoIndexing);
 ```
+
+So as you can see that's a pretty powerful technique.  Remember the process could be running on another machine, and as long as the messages serialise you can talk to them by process ID.  
 
 ### Publish system
 
@@ -1124,7 +1146,6 @@ Here's an example of persisting the state:
 Here's an example of persisting the both:
 
 `var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistAll);`
-
 
 ### Style
 The final thing was I wanted from the process system was just style really, I wanted something that complemented the Language-Ext style, was  'functional first' rather than as an afterthought.  It's still alpha, but it's looking pretty good (files to look at are `Prelude.cs`, `Prelude_Ask.cs`, `Prelude_Tell.cs`, `Prelude_PubSub.cs`, `Prelude_Spawn.cs`).  
