@@ -1051,13 +1051,13 @@ Create it like so:
 
 The public constructor is the setup function, the object itself is the state, and if you derive it from `IDisposable` then it will be called when the process is shutdown or restarted.  That gives the full object lifecycle management but with processes.
 
-So as you can see that's a pretty powerful technique.  Remember the process could be running on another machine, and as long as the messages serialise you can talk to them by process ID.  
-
 How about a bit of load balancing?  This creates 100 processes, and as the messages come in to the parent `indexer` process, it automatically allocates the messages to its 100 child processes in a round-robin fashion:
 
 ```C#
     var load = spawnRoundRobin<Thing>("indexer", 100, DoIndexing);
 ```
+
+So as you can see that's a pretty powerful technique.  Remember the process could be running on another machine, and as long as the messages serialise you can talk to them by process ID.  
 
 ### Publish system
 
