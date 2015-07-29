@@ -24,5 +24,20 @@ namespace LanguageExt
         public static bool operator !=(Unit lhs, Unit rhs) =>
             false;
 
+        /// <summary>
+        /// Provide an alternative value to unit
+        /// </summary>
+        /// <typeparam name="T">Alternative value type</typeparam>
+        /// <param name="anything">Alternative value</param>
+        /// <returns>Alternative value</returns>
+        public T Return<T>(T anything) => anything;
+
+        /// <summary>
+        /// Provide an alternative value to unit
+        /// </summary>
+        /// <typeparam name="T">Alternative value type</typeparam>
+        /// <param name="anything">Alternative value</param>
+        /// <returns>Alternative value</returns>
+        public T Return<T>(Func<T> anything) => anything();
     }
 }

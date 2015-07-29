@@ -190,6 +190,7 @@ namespace LanguageExt
         public Unit Restart()
         {
             RemoveAllSubscriptions();
+            DisposeState();
             InitState();
             stateSubject.OnNext(state);
             tellChildren(SystemMessage.Restart);
@@ -222,6 +223,7 @@ namespace LanguageExt
             RemoveAllSubscriptions();
             publishSubject.OnCompleted();
             stateSubject.OnCompleted();
+            DisposeState();
             return unit;
         }
 
@@ -283,7 +285,11 @@ namespace LanguageExt
         public void Dispose()
         {
             RemoveAllSubscriptions();
+            DisposeState();
+        }
 
+        private void DisposeState()
+        {
             if (state is IDisposable)
             {
                 var s = state as IDisposable;
