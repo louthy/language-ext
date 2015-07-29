@@ -189,17 +189,14 @@ namespace LanguageExt
         /// <summary>
         /// Spawn by type
         /// </summary>
-        /// <typeparam name="P">Process type</typeparam>
-        /// <typeparam name="T">Message type</typeparam>
+        /// <typeparam name="TProcess">Process type</typeparam>
+        /// <typeparam name="TMsg">Message type</typeparam>
         /// <param name="name">Name of process to spawn</param>
         /// <returns>ProcessId</returns>
-        public static ProcessId spawn<P,T>(ProcessName name)
-            where P : IProcess<T>
+        public static ProcessId spawn<TProcess,TMsg>(ProcessName name)
+            where TProcess : IProcess<TMsg>, new()
         {
-            return spawn<IProcess<T>, T>(name, () => {
-                  var p = (IProcess<T>)Activator.CreateInstance<P>();
-                  return p;
-              },
+            return spawn<IProcess<TMsg>, TMsg>(name, () => new TProcess(),
               (process, msg) => {
                   process.OnMessage(msg);
                   return process;
