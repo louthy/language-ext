@@ -15,7 +15,7 @@ namespace LanguageExt
         internal readonly static ActorSystemMessage Startup = 
             new StartupMessage();
 
-        internal static ActorSystemMessage AddToStore(IProcess process, IActorInbox inbox, ProcessFlags flags) =>
+        internal static ActorSystemMessage AddToStore(IActor process, IActorInbox inbox, ProcessFlags flags) =>
             new AddToStoreMessage(process, inbox, flags);
 
         public static ActorSystemMessage Tell(ProcessId pid, object message, ProcessId sender) =>
@@ -189,11 +189,11 @@ namespace LanguageExt
     {
         public override TagSpec Tag  => TagSpec.AddToStore;
 
-        public readonly IProcess Process;
+        public readonly IActor Process;
         public readonly IActorInbox Inbox;
         public readonly ProcessFlags Flags;
 
-        public AddToStoreMessage(IProcess process, IActorInbox inbox, ProcessFlags flags)
+        public AddToStoreMessage(IActor process, IActorInbox inbox, ProcessFlags flags)
         {
             Process = process;
             Inbox = inbox;

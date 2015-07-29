@@ -15,7 +15,7 @@ namespace LanguageExt
     {
         public readonly Option<ICluster> Cluster;
         public readonly IActorInbox RootInbox;
-        public readonly IProcess RootProcess;
+        public readonly IActor RootProcess;
         public readonly ActorConfig Config;
         public readonly ProcessName UserProcessName;
 
@@ -36,12 +36,12 @@ namespace LanguageExt
 
         public class ActorItem
         {
-            public readonly IProcess Actor;
+            public readonly IActor Actor;
             public readonly IActorInbox Inbox;
             public readonly ProcessFlags Flags;
 
             public ActorItem(
-                IProcess actor,
+                IActor actor,
                 IActorInbox inbox,
                 ProcessFlags flags
                 )
@@ -52,7 +52,7 @@ namespace LanguageExt
             }
         }
 
-        public ActorSystemState(Option<ICluster> cluster, ProcessId rootId, IProcess rootProcess, IActorInbox rootInbox, ProcessName userProcessName, ActorConfig config)
+        public ActorSystemState(Option<ICluster> cluster, ProcessId rootId, IActor rootProcess, IActorInbox rootInbox, ProcessName userProcessName, ActorConfig config)
         {
             root = rootId;
             Config = config;
@@ -251,7 +251,7 @@ namespace LanguageExt
             return actor.Id;
         }
 
-        public ActorSystemState AddOrUpdateStoreAndStartup(IProcess process, IActorInbox inbox, ProcessFlags flags)
+        public ActorSystemState AddOrUpdateStoreAndStartup(IActor process, IActorInbox inbox, ProcessFlags flags)
         {
             if (store.ContainsKey(process.Parent.Path))
             {

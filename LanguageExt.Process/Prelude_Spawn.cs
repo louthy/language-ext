@@ -186,5 +186,25 @@ namespace LanguageExt
         public static ProcessId spawnRoundRobinMapMany<T, U>(ProcessName name, int count, Func<T, IEnumerable<U>> map, Action<U> messageHandler, ProcessFlags flags = ProcessFlags.Default) =>
             spawn<Unit, T>(name, () => ignore(spawnN(count, "worker", messageHandler, flags)), (_, msg) => map(msg).Iter( m => tellNextChild(m, Sender)), flags);
 
+        /// <summary>
+        /// Spawn by type
+        /// </summary>
+        /// <typeparam name="P">Process type</typeparam>
+        /// <typeparam name="T">Message type</typeparam>
+        /// <param name="name">Name of process to spawn</param>
+        /// <returns>ProcessId</returns>
+        public static ProcessId spawn<P, T>(ProcessName name)
+            where P : IProcess<T>
+        {
+            return spawn<IProcess<T>, T>(name, () => {
+                  var p = (IProcess<T>)Activator.CreateInstance<P>();
+                  p.OnSetup();
+                  return p;
+              },
+              (process, msg) => {
+                  process.OnMessage(msg);
+                  return process;
+              });
+        }
     }
 }

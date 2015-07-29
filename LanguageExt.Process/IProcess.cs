@@ -6,77 +6,21 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    internal interface IProcess : IDisposable
+    /// <summary>
+    /// Represents a process as an object rather than a function
+    /// </summary>
+    /// <typeparam name="T">Message type</typeparam>
+    public interface IProcess<in T>
     {
         /// <summary>
-        /// Process path
+        /// Setup
         /// </summary>
-        ProcessId Id { get; }
+        void OnSetup();
 
         /// <summary>
-        /// Process name
+        /// Inbox message handler
         /// </summary>
-        ProcessName Name { get; }
-
-        /// <summary>
-        /// Parent process
-        /// </summary>
-        ProcessId Parent { get; }
-
-        /// <summary>
-        /// Child processes
-        /// </summary>
-        Map<string, ProcessId> Children { get; }
-
-        /// <summary>
-        /// Clears the state (keeps the mailbox items)
-        /// </summary>
-        Unit Restart();
-
-        /// <summary>
-        /// Startup
-        /// </summary>
-        Unit Startup();
-
-        /// <summary>
-        /// Shutdown
-        /// </summary>
-        Unit Shutdown();
-
-        /// <summary>
-        /// Link child
-        /// </summary>
-        /// <param name="pid">Child to link</param>
-        Unit LinkChild(ProcessId pid);
-
-        /// <summary>
-        /// Unlink child
-        /// </summary>
-        /// <param name="pid">Child to unlink</param>
-        Unit UnlinkChild(ProcessId pid);
-
-        /// <summary>
-        /// Publish to the PublishStream
-        /// </summary>
-        Unit Publish(object message);
-
-        /// <summary>
-        /// Publish stream - for calls to Process.pub
-        /// </summary>
-        IObservable<object> PublishStream { get; }
-
-        /// <summary>
-        /// State stream - sent after each message loop
-        /// </summary>
-        IObservable<object> StateStream { get; }
-
-        Unit AddSubscription(ProcessId pid, IDisposable sub);
-        Unit RemoveSubscription(ProcessId pid);
-        int GetNextRoundRobinIndex();
-    }
-
-    internal interface IProcess<T>
-    {
-        Unit ProcessMessage(T message);
+        /// <param name="msg">Message</param>
+        void OnMessage(T msg);
     }
 }

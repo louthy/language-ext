@@ -13,7 +13,7 @@ namespace LanguageExt
 {
     internal interface IActorInbox : IDisposable
     {
-        Unit Startup(IProcess process, ProcessId supervisor, Option<ICluster> cluster);
+        Unit Startup(IActor process, ProcessId supervisor, Option<ICluster> cluster);
         Unit Shutdown();
     }
 
@@ -34,7 +34,7 @@ namespace LanguageExt
         Actor<S, T> actor;
         Option<ICluster> cluster;
 
-        public Unit Startup(IProcess process, ProcessId supervisor, Option<ICluster> cluster)
+        public Unit Startup(IActor process, ProcessId supervisor, Option<ICluster> cluster)
         {
             if (Active)
             {

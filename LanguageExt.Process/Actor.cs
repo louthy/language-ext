@@ -20,10 +20,10 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="S">State</typeparam>
     /// <typeparam name="T">Message type</typeparam>
-    internal class Actor<S, T> : IProcess, IProcess<T>
+    internal class Actor<S, T> : IActor, IActor<T>
     {
         Func<S, T, S> actorFn;
-        Func<IProcess, S> setupFn;
+        Func<IActor, S> setupFn;
         S state;
         Map<string, ProcessId> children = Map.create<string, ProcessId>();
         Map<string, IDisposable> subs = Map.create<string, IDisposable>();
@@ -33,7 +33,7 @@ namespace LanguageExt
         ProcessFlags flags;
         int roundRobinIndex = -1;
 
-        internal Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<IProcess, S> setup, ProcessFlags flags)
+        internal Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<IActor, S> setup, ProcessFlags flags)
         {
             if (setup == null) throw new ArgumentNullException(nameof(setup));
             if (actor == null) throw new ArgumentNullException(nameof(actor));

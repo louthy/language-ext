@@ -66,6 +66,7 @@
     <Compile Include="ActorContext.cs" />
     <Compile Include="ActorInboxCommon.cs" />
     <Compile Include="ActorInboxRemote.cs" />
+    <Compile Include="IProcess.cs" />
     <Compile Include="MessageSerialiser.cs" />
     <Compile Include="RegisteredActor.cs" />
     <Compile Include="ReplyActor.cs" />
@@ -80,7 +81,7 @@
     <Compile Include="Message.cs" />
     <Compile Include="NullInbox.cs" />
     <Compile Include="NullProcess.cs" />
-    <Compile Include="IProcess.cs" />
+    <Compile Include="IActor.cs" />
     <Compile Include="Prelude_Ask.cs" />
     <Compile Include="Prelude_Logging.cs" />
     <Compile Include="Prelude_Spawn.cs" />

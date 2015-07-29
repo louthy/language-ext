@@ -17,10 +17,10 @@ namespace LanguageExt
     {
         static Option<ICluster> cluster;
         static ProcessId root;
-        static IProcess rootProcess;
+        static IActor rootProcess;
         static IActorInbox rootInbox;
 
-        [ThreadStatic] static IProcess self;
+        [ThreadStatic] static IActor self;
         [ThreadStatic] static ProcessId sender;
         [ThreadStatic] static ActorRequest currentRequest;
         [ThreadStatic] static ProcessFlags processFlags;
@@ -158,7 +158,7 @@ namespace LanguageExt
                 : User;
 
         // Try to avoid using this where possible and use Self
-        public static IProcess SelfProcess =>
+        public static IActor SelfProcess =>
             self;
 
         public static ProcessId Sender =>
@@ -235,7 +235,7 @@ namespace LanguageExt
         public static Unit Deregister(ProcessName name) =>
             Process.kill(Registered.MakeChildId(name));
 
-        public static R WithContext<R>(IProcess self, ProcessId sender, Func<R> f)
+        public static R WithContext<R>(IActor self, ProcessId sender, Func<R> f)
         {
             var savedSelf = ActorContext.self;
             var savedSender = ActorContext.sender;
@@ -253,7 +253,7 @@ namespace LanguageExt
             }
         }
 
-        public static Unit WithContext(IProcess self, ProcessId sender, Action f)
+        public static Unit WithContext(IActor self, ProcessId sender, Action f)
         {
             var savedSelf = ActorContext.self;
             var savedSender = ActorContext.sender;

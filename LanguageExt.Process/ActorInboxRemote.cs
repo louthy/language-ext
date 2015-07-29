@@ -45,7 +45,7 @@ namespace LanguageExt
         string ClusterSystemInboxNotifyKey => 
             ClusterSystemInboxKey + "-notify";
 
-        public Unit Startup(IProcess process, ProcessId supervisor, Option<ICluster> cluster)
+        public Unit Startup(IActor process, ProcessId supervisor, Option<ICluster> cluster)
         {
             if (cluster.IsNone) throw new Exception("Remote inboxes not supported when there's no cluster");
             this.tokenSource = new CancellationTokenSource();
