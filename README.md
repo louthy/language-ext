@@ -690,7 +690,7 @@ Instead you can use:
 ```C#
     var dict = Map<string,int>();
 ```
-_Unlike `Lst<T>` that just wraps `ImmutableList<T>`, `Map<K,V>` is a home-grown implementation of an AVL Tree (self balancing binary tree).  This allows us to extend the standard `IDictionary` set of functions to include things like `findRange`.  Note: It's slightly slower than the `ImmutableDictionary` type, so if absolute speed is a goal then be aware of that.  There are further optimisations to come, so I hope this disclaimer will be moot soon._
+_Unlike `Lst<T>` that just wraps `ImmutableList<T>`, `Map<K,V>` is a home-grown implementation of an AVL Tree (self balancing binary tree).  This allows us to extend the standard `IDictionary` set of functions to include things like `findRange`._
 
 Also you can pass in a list of tuples or key-value pairs:
 
@@ -870,6 +870,266 @@ So to solve it we now have methods that instead of returning `bool`, return `Opt
 * `DateTime.TryParse` becomes `parseDateTime`
 
 _any others you think should be included, please get in touch_
+
+# 'Erlang like' concurrency
+
+My personal view is that the Actor model + functional message loops is the perfect programming model.  Concurrent programming in C# isn't a huge amount of fun.  Yes the `async` command gets you lots of stuff for free, but it doesn't magically protect you from race conditions or accessing shared state.  This does.
+
+__Getting started__
+
+Make sure you have the `LanguageExt.Process` DLL included in your project.  If you're using F# then you will also need to include `LanguageExt.Process.FSharp`.
+
+In C# you should be `using static LanguageExt.Process`, if you're not using C# 6, just prefix all functions in the examples below with `Process.`
+
+In F# you should:
+```
+open LanguageExt
+open LanguageExt.ProcessFs
+```
+
+__What's the Actor model?__
+
+* An actor is a single threaded process
+* It has its own blob of state that only it can see and update
+* It has a message queue (inbox)
+* It processes the messages one at a time (single threaded remember)
+* When a message comes in, it can change its state; when the next message arrives it gets that modifiied state.
+* It has a parent Actor
+* It can `spawn` child Actors
+* It can `tell` messages to other Actors
+* It can `ask` for replies from other Actors
+* They're very lightweight, you can create 10,000s of them no problem
+
+So you have a little bundle of self contained computation, attached to a blob of private state, that can get messages telling it to do stuff with its private state.  Sounds like OO right?  Well, it is, but as Alan Kay envisioned it.  The slight difference with this is that it enforces execution order, and therefore there's no shared state access, and no race conditions (within the actor).  
+
+__Distributed__
+
+The messages being sent to actors can also travel between machines, so now we have distributed processes too.  This is how to send a message from one process to another _on the same machine_ using `LanguageExt.Process`:
+```C#
+    tell(processId, "Hello, World!");
+```
+Now this is how to send a message from one process to another _on a different machine_:
+```C#
+    tell(processId, "Hello, World!");
+```
+It's the same. Decoupled, thread-safe, without race conditions.  What's not to like?
+
+__How?__
+
+Sometimes this stuff is just easier by example, so here's a quick example, it spawns three processes, one logging process, one that sends a 'ping' message and one that sends a 'pong' message. They schedule the delivery of messages every 100 ms. The logger is simply: `Console.WriteLine`:
+
+```C#
+    // Log process
+    var logger = spawn<string>("logger", Console.WriteLine);
+
+    // Ping process
+    ping = spawn<string>("ping", msg =>
+    {
+        tell(logger, msg);
+        tell(pong, "ping", TimeSpan.FromMilliseconds(100));
+    });
+
+    // Pong process
+    pong = spawn<string>("pong", msg =>
+    {
+        tell(logger, msg);
+        tell(ping, "pong", TimeSpan.FromMilliseconds(100));
+    });
+
+    // Trigger
+    tell(pong, "start");
+```
+
+Purely functional programming without the actor model at some point needs to deal with the world, and therefore needs statefullness.  So you end up with imperative semantics in your functional expressions (unless you use Haskell).  
+
+Now you could go the Haskell route, but I think there's something quite perfect about having a bag of state that you run expressions on as messages come in.  Essentially it's a fold over a stream.
+
+There are lots of Actor systems out there, so what makes this any different?  Obviously I wanted to create some familiarity, so the differences aren't huge, but they exist.  The things that I felt I was missing from other Actor systems was that they didn't seem to acknowledge anything outside of their system.  Now I know that the Actor model is supposed to be a self contained thing, and that's where its power lies, but in the real world you often need to get information out of it and you need to interact with existing code: declaring another class to receive a message was getting a little tedious.  So what I've done is:
+
+* Remove the need to declare new classes for processes (actors)
+* Added a publish system to the processes
+* Made process discovery simple
+* Made a 'functional first' API
+
+### Remove the need to declare new classes for processes (actors)
+If your process is stateless then you just provide an `Action<TMsg>` to handle the messages, if your process is stateful then you provide a `Func<TState>` setup function, and a `Func<TState,TMsg, TState>` to handle the messages.  This makes it  easy to create new processes and reduces the cognitive overload of having loads of classes for what should be small packets of computation.
+
+You still need to create classes for messages and the like, that's unavoidable (Use F# to create a 'messages' project, it's much quicker and easier).  But also, it's desirable, because it's the messages that define the interface and the interaction, not the processing class.
+
+Creating something to log `string` messages to the console is as easy as:
+```C#
+    var log = spawn<string>("logger", Console.WriteLine);
+
+    tell(log, "Hello, World");
+```
+Or if you want a stateful, thread-safe cache:
+```C#
+    public enum CacheMsgType
+    {
+        Add,
+        Remove,
+        Get,
+        Flush
+    }
+
+    class CacheMsg
+    {
+        public CacheMsgType Type;
+        public string Key;
+        public Thing Value;
+    }
+
+    public ProcessId SpawnThingCache()
+    {
+        // Argument 1 is the name of the process
+        // Argument 2 is the setup function: returns a new empty cache (Map)
+        // Argument 3 checks the message type and upates the state except when
+        //            it's a 'Get' in which case it Finds the cache item and if
+        //            it exists, calls 'reply', and then returns the state 
+        //            untouched.
+    
+        return spawn<Map<string, Thing>, CacheMsg>(
+            "cache",
+            () => Map<string, Thing>(),
+            (state, msg) =>
+                  msg.Type == CacheMsgType.Add    ? state.AddOrUpdate(msg.Key, msg.Value)
+                : msg.Type == CacheMsgType.Remove ? state.Remove(msg.Key)
+                : msg.Type == CacheMsgType.Get    ? state.Find(msg.Key).IfSome(reply).Return(state)
+                : msg.Type == CacheMsgType.Flush  ? state.Filter(s => s.Expiry < DateTime.Now)
+                : state
+        );
+    }
+```
+The `ProcessId` is just a wrapped string path, so you can serialise it and pass it around, then anything can find and communicate with your cache:
+```C#
+    // Add a new item to the cache
+    tell(cache, new CacheMsg { Type = CacheMsgType.Add, Key = "test", Value = new Thing() });
+
+    // Get an item from the cache
+    var thing = ask<Thing>(cache, new CacheMsg { Type = CacheMsgType.Get, Key = "test" });
+
+    // Remove an item from the cache
+    tell(cache, new CacheMsg { Type = CacheMsgType.Remove, Key = "test", Value = new Thing() });
+```
+Periodically you will probably want to flush the cache contents.  Just fire up another process, they're basically free (and by using functions rather than classes, very easy to put into little worker modules):
+```C#
+    public void SpawnCacheFlush(ProcessId cache)
+    {
+        // Spawns a process that tells the cache process to flush, and then sends
+        // itself a message in 10 minutes which causes it to run again.
+        
+        var flush = spawn<Unit>(
+            "cache-flush", _ =>
+            {
+                tell(cache, new CacheMsg { Type = CacheMsgType.Flush });
+                tellSelf(unit, TimeSpan.FromMinutes(10));
+            });
+
+        // Start the process running
+        tell(flush, unit); 
+    }
+```
+So as you can see that's a pretty powerful technique.  Remember the process could be running on another machine, and as long as the messages serialise you can talk to them by process ID.  
+
+What about a bit of load balancing?  This creates 100 processes, and as the messages come in to the parent `indexer` process, it automatically allocates the messages to its 100 child processes in a round-robin fashion:
+
+```C#
+    var load = spawnRoundRobin<Thing>("indexer", 100, DoIndexing);
+```
+
+### Publish system
+
+Most other actor systems expect you to `tell` all messages directly to other actors.  If you want a pub-sub model then you're expected to create a publisher actor that can take subscription messages, that it uses to manage a registry of publishers to deliver messages to.  It's all a bit bulky and unnecessary.
+
+So with `LanguageExt.Process` each process manages its own internal subscriber list.  If a process needs to announce something it calls:
+
+```C#
+    // Publish a message for anyone listening
+    publish(msg);
+```
+Another process can subscribe to that by calling:
+```C#
+    subscribe(processId);
+```
+_(The subscriber can do this in its setup phase, and the process system will auto-unsub when the process dies, and auto-resub when it restarts)_
+
+This means the messages that are published by one process can be consumed by any number of others (via their inbox in the normal way).  I found I was jumping through hoops to do this with other actor systems.  But sometimes, as I say, you want to jump outside of that system.
+
+For example, if your code is outside of the process system, it can get an `IObservable` stream instead:
+```C#
+var sub =  observe<Thing>(processId).Subscribe( msg => ...);
+```
+A good example of this is the 'Dead Letters' process, it gets all the messages that failed for one reason or another (serialisation problems, the process doesn't exist, the process crashed, etc.).  All it does is call `publish(msg)`.  This is how it's defined:
+```C#
+    var deadLetters = spawn<object>("dead-letters",publish);
+```
+That's it!  For a key piece of infrastructure.  So it's then possible to easily listen and log issues, or hook it up to a process that persists the dead letter messages.
+
+### 'Discoverability'
+On other actor systems I was struggling to reliably get messages from one machine to another, or to know the process ID of a remote actor so I could message it.  What I want to do with this is to keep it super light, and lean.  I want to keep the setup options simple, and the 'discoverability' easy.
+
+So there's a supervision hierarchy, where you have a root process, then a child 'user' process, and then you create your processes under the user process (and in turn they create child processes).  There's also system process under root that handles stuff like dead-letters and various other housekeeping tasks.  And a 'registered' process:
+```C#
+    /root/user/...
+    /root/system/dead-letters
+    /root/registered/...
+    etc.
+```
+But when you create a Redis cluster connection the second argument is the name of the app/service/website, whatever it is that's running.  
+```C#
+    RedisCluster.register();
+    Cluster.connect("redis", "my-stuff", "localhost", "0");
+```
+Then your user hierarchy looks like this:
+```C#
+    /root/my-stuff/...
+    /root/system/dead-letters
+    /root/registered/...
+```
+So you know where things are, and what they're called, and they're easily addressable.  You can just 'tell' the address:
+```C#
+    tell("/root/my-stuff/hello", "Hello!");
+```
+Even that isn't great if you don't know what the name of the 'app' is running a process.  So processes can register by a single name, that goes into a 'shared hierarchy':
+```
+    /root/registered/...
+```
+To register:
+```C#
+    register(myProcessId, "hello-world");
+```
+This goes in:
+```
+    /root/registered/hello-world
+```
+Your process now has two addresses, the `/root/my-stuff/hello-world` address that no-one can find, and the `root/registered/hello-world` address that anyone can find using `find("hello-world")`.  This makes it very simple to bootstrap processes and send them messages:
+:
+```C#
+    tell(find("hello-world"), "Hi!");
+```
+### Persistence
+There is an `ICluster` interface that you can use the implement your own persistence layer.  But out of the box there is persistence to Redis (in `LanguageExt.Process.Redis`).  We optionally persist:
+
+* Inbox messages
+* Process state
+
+Here's an example of persisting the inbox:
+
+`var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistInbox);`
+
+Here's an example of persisting the state:
+
+`var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistState);`
+
+Here's an example of persisting the both:
+
+`var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistAll);`
+
+
+### Style
+The final thing was I wanted from the process system was just style really, I wanted something that complemented the Language-Ext style, was  'functional first' rather than as an afterthought.  It's still alpha, but it's looking pretty good (files to look at are `Prelude.cs`, `Prelude_Ask.cs`, `Prelude_Tell.cs`, `Prelude_PubSub.cs`, `Prelude_Spawn.cs`).  
+
+One wish-list item is to create an IO monad that captures all of the IO functions like `tell`, `ask`, `reply`, and `publish` as a series of continuations so that I can create a single transaction from one message loop, and use that transaction to do hyper-robust message sequencing.  Because currently delivery is asynchronous, so sometimes you're at the mercy of the thread-pool.  It would also allow for high quality unit testing of the message-loops, because you could mock the IO functions.  Hopefully I can get to that soon.
 
 ### The rest
 I haven't had time to document everything, so here's a quick list of what was missed:
