@@ -68,6 +68,7 @@
     <Compile Include="ActorInboxRemote.cs" />
     <Compile Include="IProcess.cs" />
     <Compile Include="MessageSerialiser.cs" />
+    <Compile Include="ProcessIdExt.cs" />
     <Compile Include="RegisteredActor.cs" />
     <Compile Include="ReplyActor.cs" />
     <Compile Include="Prelude_PubSub.cs" />

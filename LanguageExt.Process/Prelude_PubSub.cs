@@ -74,6 +74,10 @@ namespace LanguageExt
                 ? ActorContext.SelfProcess.AddSubscription(pid, observe<object>(pid).Subscribe(x => tell(Self, x, pid)))
                 : failWithMessageLoopEx<Unit>();
 
+        /// <summary>
+        /// Unsubscribe from a process's publications
+        /// </summary>
+        /// <param name="pid">Process to unsub from</param>
         public static Unit unsubscribe(ProcessId pid) =>
             InMessageLoop
                 ? ActorContext.SelfProcess.RemoveSubscription(pid)
