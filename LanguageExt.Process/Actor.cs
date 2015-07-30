@@ -101,7 +101,9 @@ namespace LanguageExt
         }
 
         public int GetNextRoundRobinIndex() =>
-            roundRobinIndex = (roundRobinIndex + 1) % Children.Count;
+            Children.Count == 0
+                ? 0 
+                : roundRobinIndex = (roundRobinIndex + 1) % Children.Count;
 
         public ProcessFlags Flags => 
             flags;

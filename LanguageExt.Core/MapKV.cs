@@ -1201,7 +1201,6 @@ namespace LanguageExt
         {
             Stack<MapItem<K, V>> stack;
             MapItem<K, V> map;
-            int state = -1;
             int left;
             bool rev;
             int start;
@@ -1211,7 +1210,7 @@ namespace LanguageExt
                 this.rev = rev;
                 this.start = start;
                 map = root;
-                stack = StackPool<K, V>.Next();
+                stack = new Stack<MapItem<K, V>>(32); // StackPool<K, V>.Next();
                 Reset();
             }
 

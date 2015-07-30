@@ -98,6 +98,13 @@ namespace LanguageExt
             ActorContext.DeadLetters;
 
         /// <summary>
+        /// Errors process
+        /// Subscribe to it to monitor the errors thrown 
+        /// </summary>
+        public static ProcessId Errors =>
+            ActorContext.Errors;
+
+        /// <summary>
         /// Registered process root
         /// It allows local and distributed processes to be found by name 
         /// </summary>
