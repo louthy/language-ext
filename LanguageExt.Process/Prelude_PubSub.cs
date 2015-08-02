@@ -25,7 +25,7 @@ namespace LanguageExt
         public static Unit publish<T>(T message) =>
             InMessageLoop
                 ? ActorContext.Publish(message)
-                : failWithMessageLoopEx<Unit>();
+                : raiseUseInMsgLoopOnlyException<Unit>(nameof(publish));
 
         /// <summary>
         /// Publish a message for any listening subscribers, delayed.
@@ -40,7 +40,7 @@ namespace LanguageExt
         public static IDisposable publish<T>(T message, TimeSpan delayFor) =>
             InMessageLoop
                 ? delay(() => publish(message), delayFor).Subscribe()
-                : failWithMessageLoopEx<IDisposable>();
+                : raiseUseInMsgLoopOnlyException<IDisposable>(nameof(publish));
 
         /// <summary>
         /// Publish a message for any listening subscribers, delayed.
@@ -56,7 +56,7 @@ namespace LanguageExt
         public static IDisposable publish<T>(T message, DateTime delayUntil) =>
             InMessageLoop
                 ? delay(() => publish(message), delayUntil).Subscribe()
-                : failWithMessageLoopEx<IDisposable>();
+                : raiseUseInMsgLoopOnlyException<IDisposable>(nameof(publish));
 
         /// <summary>
         /// Subscribes our inbox to another process publish stream.  When it calls 'publish' it will
@@ -72,7 +72,7 @@ namespace LanguageExt
         public static Unit subscribe(ProcessId pid) =>
             InMessageLoop
                 ? ActorContext.SelfProcess.AddSubscription(pid, observe<object>(pid).Subscribe(x => tell(Self, x, pid)))
-                : failWithMessageLoopEx<Unit>();
+                : raiseUseInMsgLoopOnlyException<Unit>(nameof(subscribe));
 
         /// <summary>
         /// Unsubscribe from a process's publications
@@ -81,7 +81,7 @@ namespace LanguageExt
         public static Unit unsubscribe(ProcessId pid) =>
             InMessageLoop
                 ? ActorContext.SelfProcess.RemoveSubscription(pid)
-                : failWithMessageLoopEx<Unit>();
+                : raiseUseInMsgLoopOnlyException<Unit>(nameof(unsubscribe));
 
         /// <summary>
         /// Subscribe to the process publish stream.  When a process calls 'publish' it emits
@@ -96,7 +96,7 @@ namespace LanguageExt
         /// <returns>IDisposable, call IDispose to end the subscription</returns>
         public static IDisposable subscribe<T>(ProcessId pid, IObserver<T> observer) =>
             InMessageLoop
-                ? failWithMessageLoopEx<IDisposable>()
+                ? raiseDontUseInMessageLoopException<IDisposable>(nameof(subscribe))
                 : observe<T>(pid).Subscribe(observer);
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace LanguageExt
         /// <returns>IDisposable, call IDispose to end the subscription</returns>
         public static IDisposable subscribe<T>(ProcessId pid, Action<T> onNext, Action<Exception> onError, Action onComplete) =>
             InMessageLoop
-                ? failWithMessageLoopEx<IDisposable>()
+                ? raiseDontUseInMessageLoopException<IDisposable>(nameof(subscribe))
                 : observe<T>(pid).Subscribe(onNext, onError, onComplete);
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace LanguageExt
         /// </remarks>
         public static IDisposable subscribe<T>(ProcessId pid, Action<T> onNext, Action<Exception> onError) =>
             InMessageLoop
-                ? failWithMessageLoopEx<IDisposable>()
+                ? raiseDontUseInMessageLoopException<IDisposable>(nameof(subscribe))
                 : observe<T>(pid).Subscribe(onNext, onError, () => { });
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace LanguageExt
         /// </remarks>
         public static IDisposable subscribe<T>(ProcessId pid, Action<T> onNext) =>
             InMessageLoop
-                ? failWithMessageLoopEx<IDisposable>()
+                ? raiseDontUseInMessageLoopException<IDisposable>(nameof(subscribe))
                 : observe<T>(pid).Subscribe(onNext, ex => { }, () => { });
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace LanguageExt
         /// <returns>IDisposable, call IDispose to end the subscription</returns>
         public static IDisposable subscribe<T>(ProcessId pid, Action<T> onNext, Action onComplete) =>
             InMessageLoop
-                ? failWithMessageLoopEx<IDisposable>()
+                ? raiseDontUseInMessageLoopException<IDisposable>(nameof(subscribe))
                 : observe<T>(pid).Subscribe(onNext, ex => { }, onComplete);
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace LanguageExt
         /// <returns>IObservable T</returns>
         public static IObservable<T> observe<T>(ProcessId pid) =>
             InMessageLoop
-                ? failWithMessageLoopEx<IObservable<T>>()
+                ? raiseDontUseInMessageLoopException<IObservable<T>>(nameof(observe))
                 : ActorContext.Observe<T>(pid);
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace LanguageExt
         /// <returns>IObservable T</returns>
         public static IObservable<T> observeState<T>(ProcessId pid) =>
             InMessageLoop
-                ? failWithMessageLoopEx<IObservable<T>>()
+                ? raiseDontUseInMessageLoopException<IObservable<T>>(nameof(observeState))
                 : from x in ask<IObservable<object>>(ActorContext.Root, ActorSystemMessage.ObserveState(pid))
                   where x is T
                   select (T)x;
@@ -216,6 +216,6 @@ namespace LanguageExt
                      (from x in ask<IObservable<object>>(ActorContext.Root, ActorSystemMessage.ObserveState(pid))
                       where x is T
                       select (T)x).Subscribe(x => tell(Self, x, pid)))
-                : failWithMessageLoopEx<Unit>();
+                : raiseUseInMsgLoopOnlyException<Unit>(nameof(subscribeState));
     }
 }

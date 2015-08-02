@@ -22,6 +22,7 @@ namespace LanguageExt
 
         [ThreadStatic] static IActor self;
         [ThreadStatic] static ProcessId sender;
+        [ThreadStatic] static object currentMsg;
         [ThreadStatic] static ActorRequest currentRequest;
         [ThreadStatic] static ProcessFlags processFlags;
 
@@ -200,6 +201,18 @@ namespace LanguageExt
             }
         }
 
+        public static object CurrentMsg
+        {
+            get
+            {
+                return currentMsg;
+            }
+            set
+            {
+                currentMsg = value;
+            }
+        }
+
         public static ProcessFlags ProcessFlags
         {
             get
@@ -235,33 +248,38 @@ namespace LanguageExt
         public static Unit Deregister(ProcessName name) =>
             Process.kill(Registered.MakeChildId(name));
 
-        public static R WithContext<R>(IActor self, ProcessId sender, Func<R> f)
+        public static R WithContext<R>(IActor self, ProcessId sender, object msg, Func<R> f)
         {
             var savedSelf = ActorContext.self;
             var savedSender = ActorContext.sender;
+            var savedMsg = ActorContext.currentMsg;
 
             try
             {
                 ActorContext.self = self;
                 ActorContext.sender = sender;
+                ActorContext.currentMsg = msg;
                 return f();
             }
             finally
             {
                 ActorContext.self = savedSelf;
                 ActorContext.sender = savedSender;
+                ActorContext.currentMsg = savedMsg;
             }
         }
 
-        public static Unit WithContext(IActor self, ProcessId sender, Action f)
+        public static Unit WithContext(IActor self, ProcessId sender, object msg, Action f)
         {
             var savedSelf = ActorContext.self;
             var savedSender = ActorContext.sender;
+            var savedMsg = ActorContext.currentMsg;
 
             try
             {
                 ActorContext.self = self;
                 ActorContext.sender = sender;
+                ActorContext.currentMsg = msg;
                 f();
                 return unit;
             }
@@ -269,6 +287,7 @@ namespace LanguageExt
             {
                 ActorContext.self = savedSelf;
                 ActorContext.sender = savedSender;
+                ActorContext.currentMsg = savedMsg;
             }
         }
 

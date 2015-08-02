@@ -69,7 +69,7 @@ namespace LanguageExt
         public static ProcessId Self =>
             InMessageLoop
                 ? ActorContext.Self
-                : failWithMessageLoopEx<ProcessId>();
+                : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(Self));
 
         /// <summary>
         /// Parent process ID
@@ -80,7 +80,7 @@ namespace LanguageExt
         public static ProcessId Parent =>
             InMessageLoop
                 ? ActorContext.Parent
-                : failWithMessageLoopEx<ProcessId>();
+                : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(Parent));
 
         /// <summary>
         /// User process ID
@@ -128,7 +128,7 @@ namespace LanguageExt
         public static Map<string, ProcessId> Children =>
             InMessageLoop
                 ? ActorContext.Children
-                : failWithMessageLoopEx<Map<string,ProcessId>>();
+                : raiseUseInMsgLoopOnlyException<Map<string,ProcessId>>(nameof(Children));
 
         /// <summary>
         /// Get the child processes of the process ID provided
@@ -142,7 +142,7 @@ namespace LanguageExt
         public static ProcessId child(ProcessName name) =>
             InMessageLoop
                 ? Self.MakeChildId(name)
-                : failWithMessageLoopEx<ProcessId>();
+                : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(child));
 
         /// <summary>
         /// Get the child processes by index.
@@ -160,7 +160,7 @@ namespace LanguageExt
                               .Skip(index % ActorContext.SelfProcess.Children.Count)
                               .Map( kv => kv.Value )
                               .Head()
-                : failWithMessageLoopEx<ProcessId>();
+                : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(child));
 
         /// <summary>
         /// Gets a random child process
@@ -172,7 +172,7 @@ namespace LanguageExt
                               .Skip(random(ActorContext.SelfProcess.Children.Count))
                               .Map(kv => kv.Value)
                               .Head()
-                : failWithMessageLoopEx<ProcessId>();
+                : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(RandomChild));
 
         /// <summary>
         /// Gets the next child process (round robin)
@@ -184,7 +184,7 @@ namespace LanguageExt
                               .Skip(ActorContext.SelfProcess.GetNextRoundRobinIndex())
                               .Map(kv => kv.Value)
                               .Head()
-                : failWithMessageLoopEx<ProcessId>();
+                : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(NextChild));
 
         /// <summary>
         /// Find a registered process by name
@@ -205,7 +205,7 @@ namespace LanguageExt
         public static ProcessId register<T>(ProcessName name) =>
             InMessageLoop
                 ? ActorContext.Register<T>(name, Self)
-                : failWithMessageLoopEx<ProcessId>();
+                : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(name));
 
         /// <summary>
         /// Register the name with the process
@@ -233,7 +233,7 @@ namespace LanguageExt
         public static Unit kill() =>
             InMessageLoop
                 ? raise<Unit>(new SystemKillActorException())
-                : failWithMessageLoopEx<Unit>();
+                : raiseUseInMsgLoopOnlyException<Unit>(nameof(kill));
 
         /// <summary>
         /// Shutdown the currently running process.
@@ -274,7 +274,7 @@ namespace LanguageExt
                             "Therefore we have no return address or observable stream to send the reply to."
                             )
                     : ActorContext.LocalRoot.Tell(ActorSystemMessage.Reply(ActorContext.CurrentRequest.ReplyTo, message, ActorContext.CurrentRequest.RequestId), ActorContext.Self)
-                : failWithMessageLoopEx<Unit>();
+                : raiseUseInMsgLoopOnlyException<Unit>(nameof(reply));
 
         /// <summary>
         /// Return True if the message sent is a Tell and not an Ask
@@ -285,7 +285,7 @@ namespace LanguageExt
         public static bool isTell =>
             InMessageLoop
                 ? ActorContext.CurrentRequest == null
-                : failWithMessageLoopEx<bool>();
+                : raiseUseInMsgLoopOnlyException<bool>(nameof(isTell));
 
         /// <summary>
         /// Return True if the message sent is an Ask and not a Tell
@@ -294,13 +294,19 @@ namespace LanguageExt
         /// This should be used from within a process' message loop only
         /// </remarks>
         public static bool isAsk => !isTell;
-            
+
+
+        /// <summary>
+        /// Use in message loop exception
+        /// </summary>
+        internal static T raiseUseInMsgLoopOnlyException<T>(string what) =>
+            failwith<T>("'" + what + "' should be used from within a process' message loop only");
 
         /// <summary>
         /// Not in message loop exception
         /// </summary>
-        internal static T failWithMessageLoopEx<T>() =>
-            failwith<T>("This should be used from within a process' message loop only");
+        internal static T raiseDontUseInMessageLoopException<T>(string what) =>
+            failwith<T>("'" + what + "' should not be be used from within a process' message loop.");
 
         /// <summary>
         /// Returns true if in a message loop

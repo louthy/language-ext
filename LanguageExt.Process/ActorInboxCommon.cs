@@ -58,7 +58,7 @@ namespace LanguageExt
 
         public static void SystemMessageInbox<S,T>(Actor<S,T> actor, SystemMessage msg)
         {
-            ActorContext.WithContext(actor, ProcessId.NoSender, () =>
+            ActorContext.WithContext(actor, ProcessId.NoSender, msg, () =>
             {
                 switch (msg.Tag)
                 {
@@ -94,12 +94,12 @@ namespace LanguageExt
                 {
                     var rmsg = (ActorRequest)msg;
                     ActorContext.CurrentRequest = rmsg;
-                    ActorContext.WithContext(actor, rmsg.ReplyTo, () => actor.ProcessAsk(rmsg));
+                    ActorContext.WithContext(actor, rmsg.ReplyTo, msg, () => actor.ProcessAsk(rmsg));
                 }
                 else
                 {
                     var umsg = (UserMessage)msg;
-                    ActorContext.WithContext(actor, umsg.Sender, () => actor.ProcessMessage((T)umsg.Content));
+                    ActorContext.WithContext(actor, umsg.Sender, msg, () => actor.ProcessMessage((T)umsg.Content));
                 }
             }
             else if (msg.MessageType == Message.Type.UserControl)

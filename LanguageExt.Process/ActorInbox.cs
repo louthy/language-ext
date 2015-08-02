@@ -82,17 +82,24 @@ namespace LanguageExt
         {
             if (userInbox != null)
             {
-                if (message == null) throw new ArgumentNullException(nameof(message));
+                if (message == null)
+                {
+                    Process.tell(ActorContext.DeadLetters,
+                                 DeadLetter.create(sender, actor.Id, "Message is null for ask (expected " + typeof(T) + ")", message));
+                    return unit;
+                }
                 if (!typeof(ActorRequest).IsAssignableFrom(message.GetType()))
                 {
-                    Process.tell(ActorContext.DeadLetters, message);
+                    Process.tell(ActorContext.DeadLetters,
+                                 DeadLetter.create(sender, actor.Id, "Invalid message type for ask (expected ActorRequest)", message));
                     return unit;
                 }
 
                 var req = (ActorRequest)message;
                 if (!typeof(T).IsAssignableFrom(req.Message.GetType()))
                 {
-                    Process.tell(ActorContext.DeadLetters, message);
+                    Process.tell(ActorContext.DeadLetters,
+                                 DeadLetter.create(sender, actor.Id, "Invalid message type for ask (expected "+typeof(T)+")", message));
                     return unit;
                 }
                 userInbox.Post((UserControlMessage)message);
@@ -109,10 +116,16 @@ namespace LanguageExt
                     return Ask(message, sender);
                 }
 
-                if (message == null) throw new ArgumentNullException(nameof(message));
+                if (message == null)
+                {
+                    Process.tell(ActorContext.DeadLetters,
+                                 DeadLetter.create(sender, actor.Id, "Message is null for tell (expected " + typeof(T) + ")", message));
+                    return unit;
+                }
                 if (!typeof(T).IsAssignableFrom(message.GetType()))
                 {
-                    Process.tell(ActorContext.DeadLetters, message);
+                    Process.tell(ActorContext.DeadLetters,
+                                 DeadLetter.create(sender, actor.Id, "Invalid message type for tell (expected " + typeof(T) + ")", message));
                     return unit;
                 }
                 var enqItem = new UserMessage(message, sender, sender);

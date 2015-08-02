@@ -147,7 +147,8 @@ namespace LanguageExt
                 }
                 catch (Exception e)
                 {
-                    tell(ActorContext.DeadLetters, msg, actor.Id);
+                    Process.tell(ActorContext.DeadLetters,
+                                    DeadLetter.create(ActorContext.Sender, actor.Id, e, "Remote message inbox.", msg));
                     logSysErr(e);
                 }
                 finally

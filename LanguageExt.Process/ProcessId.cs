@@ -153,6 +153,18 @@ namespace LanguageExt
                 : false;
 
         /// <summary>
+        /// Equality operator
+        /// </summary>
+        public static bool operator ==(ProcessId lhs, ProcessId rhs) =>
+            lhs.Equals(rhs);
+
+        /// <summary>
+        /// Non-equality operator
+        /// </summary>
+        public static bool operator !=(ProcessId lhs, ProcessId rhs) =>
+            !lhs.Equals(rhs);
+
+        /// <summary>
         /// Compare
         /// </summary>
         public int CompareTo(ProcessId other) =>

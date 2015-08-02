@@ -67,6 +67,7 @@
     <Compile Include="ActorContext.cs" />
     <Compile Include="ActorInboxCommon.cs" />
     <Compile Include="ActorInboxRemote.cs" />
+    <Compile Include="DeadLetter.cs" />
     <Compile Include="IProcess.cs" />
     <Compile Include="MessageSerialiser.cs" />
     <Compile Include="Prelude_Forward.cs" />

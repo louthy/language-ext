@@ -73,6 +73,7 @@ namespace LanguageExt
             ActorContext.WithContext(
                 this,
                 ProcessId.NoSender,
+                null,
                 () => InitState()
             );
             stateSubject.OnNext(state);
@@ -238,6 +239,7 @@ namespace LanguageExt
                 {
                     ActorContext.CurrentRequest = request;
                     T msg = (T)request.Message;
+                    ActorContext.CurrentMsg = msg;
                     state = actorFn(state, msg);
                     stateSubject.OnNext(state);
                 }
@@ -248,10 +250,11 @@ namespace LanguageExt
             }
             catch (Exception e)
             {
-                /// TODO: Add extra strategy behaviours here
+                // TODO: Add extra strategy behaviours here
                 Restart();
                 tell(ActorContext.Errors, e);
-                tell(ActorContext.DeadLetters, request.Message);
+                tell(ActorContext.DeadLetters, 
+                     DeadLetter.create(request.ReplyTo, request.To, e, "Process error (ask): ", request.Message));
             }
             return unit;
         }
@@ -267,6 +270,7 @@ namespace LanguageExt
             {
                 ActorContext.CurrentRequest = null;
                 ActorContext.ProcessFlags = flags;
+                ActorContext.CurrentMsg = message;
                 state = actorFn(state, message);
                 stateSubject.OnNext(state);
             }
@@ -276,10 +280,11 @@ namespace LanguageExt
             }
             catch (Exception e)
             {
-                /// TODO: Add extra strategy behaviours here
+                // TODO: Add extra strategy behaviours here
                 Restart();
                 tell(ActorContext.Errors, e);
-                tell(ActorContext.DeadLetters, message);
+                tell(ActorContext.DeadLetters,
+                     DeadLetter.create(Sender, Self, e, "Process error (tell): ", message));
             }
             return unit;
         }

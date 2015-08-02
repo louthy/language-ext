@@ -74,7 +74,7 @@ namespace LanguageExt
             registered      = ActorCreate<object>(root, Config.RegisteredProcessName, publish, ProcessFlags.Default);
 
             // Second tier
-            deadLetters     = ActorCreate<object>(system, Config.DeadLettersProcessName, publish, ProcessFlags.Default);
+            deadLetters     = ActorCreate<DeadLetter>(system, Config.DeadLettersProcessName, publish, ProcessFlags.Default);
             errors          = ActorCreate<Exception>(system, Config.ErrorsProcessName, publish, ProcessFlags.Default);
             noSender        = ActorCreate<object>(system, Config.NoSenderProcessName, publish, ProcessFlags.Default);
 
@@ -206,9 +206,8 @@ namespace LanguageExt
 
         private Unit TellDeadLetters(ProcessId processId, ProcessId sender, Message.TagSpec tag, object message)
         {
-            logWarn("Sending to DeadLetters, process (" + processId + ") doesn't exist.  Message: "+message);
-
-            return ActorContext.WithContext(store[processId.Path].Actor, sender, () => Tell(message, DeadLetters, sender));
+            var letter = DeadLetter.create(sender, processId, "Recipient doesn't exist", message);
+            return ActorContext.WithContext(store[processId.Path].Actor, sender, message, () => Tell(letter, DeadLetters, sender));
         }
 
         public Unit Tell(ProcessId processId, ProcessId sender, Message.TagSpec tag, object message)
@@ -389,7 +388,7 @@ namespace LanguageExt
             {
                 return Cluster.Match(
                     Some: c  => TellRemote(message, pid, sender, c, inbox, (int)type, tag),
-                    None: () => Tell(message, DeadLetters, sender)
+                    None: () => Tell(DeadLetter.create(sender,pid,"Remote tell not available.  Cluster not registered.", message), DeadLetters, sender)
                 );
             }
         }
@@ -406,7 +405,7 @@ namespace LanguageExt
             {
                 return Cluster.Match(
                     Some: c  => TellRemote(message, pid, sender, c, inbox, (int)type, tag),
-                    None: () => Tell(message, DeadLetters, sender)
+                    None: () => Tell(DeadLetter.create(sender, pid, "Remote ask not available.  Cluster not registered.", message), DeadLetters, sender)
                 );
             }
         }
