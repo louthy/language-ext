@@ -64,7 +64,6 @@ namespace LanguageExt
         ///     IsRight
         ///     IsLeft
         ///     IsBottom
-        ///     IsUninitialised
         /// </summary>
         public readonly EitherState State;
 
@@ -95,22 +94,6 @@ namespace LanguageExt
         /// </summary>
         public bool IsBottom =>
             State == EitherState.IsBottom;
-
-        /// <summary>
-        /// Is the Either in the uninitialised state?
-        /// 
-        /// This only occurs because EitherUnsafe is a struct, and you instantiate
-        /// using its default ctor.  This can occur if you have an uninitialised 
-        /// member variable or an uninitialised array, or just do:
-        /// 
-        ///      new Either();
-        ///      new EitherUnsafe();
-        ///
-        /// So Either will put itself into an uninitialised state, that will fail
-        /// quickly.
-        /// </summary>
-        public bool IsUninitialised =>
-            State == EitherState.IsUninitialised;
 
         /// <summary>
         /// Implicit conversion operator from R to Either R L
@@ -383,8 +366,8 @@ namespace LanguageExt
             typeof(L);
 
         private U CheckInitialised<U>(U value) =>
-            State == EitherState.IsUninitialised
-                ? raise<U>(new EitherNotInitialisedException())
+            State == EitherState.IsBottom
+                ? raise<U>(new BottomException("Either"))
                 : value;
 
         public EitherUnsafe<L, Ret> BindUnsafe<Ret>(Func<R, EitherUnsafe<L, Ret>> binder) =>

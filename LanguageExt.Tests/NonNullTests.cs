@@ -111,7 +111,7 @@ namespace LanguageExtTests
             );
 
             Assert.Throws(
-                typeof(EitherNotInitialisedException),
+                typeof(BottomException),
                 () => {
 
                     match(obj.EitherOtherValue,
