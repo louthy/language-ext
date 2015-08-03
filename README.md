@@ -1083,7 +1083,7 @@ var sub =  observe<Thing>(processId).Subscribe( msg => ...);
 ```
 A good example of this is the 'Dead Letters' process, it gets all the messages that failed for one reason or another (serialisation problems, the process doesn't exist, the process crashed, etc.).  All it does is call `publish(msg)`.  This is how it's defined:
 ```C#
-    var deadLetters = spawn<object>("dead-letters",publish);
+    var deadLetters = spawn<DeadLetter>("dead-letters",publish);
 ```
 That's it!  For a key piece of infrastructure.  So it's then possible to easily listen and log issues, or hook it up to a process that persists the dead letter messages.
 
