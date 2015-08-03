@@ -4,6 +4,28 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
+    namespace SomeHelp
+    {
+        /// <summary>
+        /// Extension method for Some T to help with the lack of covariance of generic
+        /// parameters in structs (and therefore Some T)
+        /// </summary>
+        public static class SomeExt
+        {
+            /// <summary>
+            /// Convert value to Some T.  Helps with the lack of covariance of generic
+            /// parameters in structs (and therefore Some T)
+            /// </summary>
+            /// <typeparam name="T">Value type</typeparam>
+            /// <param name="value">Value</param>
+            /// <returns>Value wrapped in a Some T</returns>
+            public static Some<T> ToSome<T>(this T value)
+            {
+                return new Some<T>(value);
+            }
+        }
+    }
+
     [TypeConverter(typeof(SomeTypeConverter))]
     public struct Some<T> : IOptional
     {
