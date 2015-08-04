@@ -33,14 +33,12 @@ namespace LanguageExt
             Startup(None);
         }
 
-        public static Unit Startup(Option<ICluster> cluster)
+        public static Unit Startup(Option<ICluster> cluster, int version = 0)
         {
             lock (sync)
             {
-                Shutdown();
-
                 ActorContext.cluster = cluster;
-                var name = ProcessId.Sep.ToString() + ActorConfig.Default.RootProcessName;
+                var name = ProcessId.Sep.ToString() + GetRootProcessName();
                 root = new ProcessId(name);
                 rootInbox = new ActorInboxLocal<ActorSystemState, object>();
                 rootProcess = new Actor<ActorSystemState, object>(
@@ -48,10 +46,10 @@ namespace LanguageExt
                     new ProcessId(ProcessId.Sep.ToString()),
                     ActorConfig.Default.RootProcessName, 
                     ActorSystem.Inbox, 
-                    rootProcess => new ActorSystemState(cluster, root, rootProcess, rootInbox, GetUserProcessName(), ActorConfig.Default), 
+                    rootProcess => new ActorSystemState(cluster, root, rootProcess, rootInbox, GetRootProcessName(), ActorConfig.Default), 
                     ProcessFlags.Default
                 );
-                rootInbox.Startup(rootProcess, rootProcess.Parent, cluster);
+                rootInbox.Startup(rootProcess, rootProcess.Parent, cluster, version);
                 rootProcess.Startup();
                 LocalRoot.Tell(ActorSystemMessage.Startup, ProcessId.NoSender);
             }
@@ -64,7 +62,8 @@ namespace LanguageExt
             {
                 if (rootInbox != null)
                 {
-                    Process.shutdownAll();
+                    Process.ask<Unit>(ActorContext.Root, ActorSystemMessage.ShutdownAll);
+                    Startup(None);
                 }
             }
             return unit;
@@ -72,7 +71,9 @@ namespace LanguageExt
 
         public static Unit Restart()
         {
-            Startup(cluster);
+            var saved = cluster;
+            Shutdown();
+            Startup(saved);
             return unit;
         }
 
@@ -84,9 +85,9 @@ namespace LanguageExt
                           .Select(obj => (T)obj);
         }
 
-        public static ProcessName GetUserProcessName() =>
+        public static ProcessName GetRootProcessName() =>
             cluster.Map(x => x.NodeName)
-                   .IfNone(ActorConfig.Default.UserProcessName);
+                   .IfNone(ActorConfig.Default.RootProcessName);
 
         public static Unit RegisterCluster(ICluster cluster) =>
             Startup(Some(cluster));
@@ -176,7 +177,7 @@ namespace LanguageExt
             Root.MakeChildId(ActorConfig.Default.SystemProcessName);
 
         public static ProcessId User =>
-            Root.MakeChildId(GetUserProcessName());
+            Root.MakeChildId(ActorConfig.Default.UserProcessName);
 
         public static ProcessId Registered =>
             Root.MakeChildId(ActorConfig.Default.RegisteredProcessName);
@@ -194,7 +195,7 @@ namespace LanguageExt
             cluster.Map(c => c.NodeName).IfNone("user");
 
         internal static ProcessId AskId =>
-            System.MakeChildId(ActorConfig.Default.AskProcessName + "-" + NodeName);
+            System.MakeChildId(ActorConfig.Default.AskProcessName);
 
         public static ActorRequest CurrentRequest
         {
@@ -253,17 +254,19 @@ namespace LanguageExt
         public static Unit Deregister(ProcessName name) =>
             Process.kill(Registered.MakeChildId(name));
 
-        public static R WithContext<R>(IActor self, ProcessId sender, object msg, Func<R> f)
+        public static R WithContext<R>(IActor self, ProcessId sender, ActorRequest request, object msg, Func<R> f)
         {
             var savedSelf = ActorContext.self;
             var savedSender = ActorContext.sender;
             var savedMsg = ActorContext.currentMsg;
+            var savedReq = ActorContext.currentRequest;
 
             try
             {
                 ActorContext.self = self;
                 ActorContext.sender = sender;
                 ActorContext.currentMsg = msg;
+                ActorContext.currentRequest = request;
                 return f();
             }
             finally
@@ -271,20 +274,23 @@ namespace LanguageExt
                 ActorContext.self = savedSelf;
                 ActorContext.sender = savedSender;
                 ActorContext.currentMsg = savedMsg;
+                ActorContext.currentRequest = savedReq;
             }
         }
 
-        public static Unit WithContext(IActor self, ProcessId sender, object msg, Action f)
+        public static Unit WithContext(IActor self, ProcessId sender, ActorRequest request, object msg, Action f)
         {
             var savedSelf = ActorContext.self;
             var savedSender = ActorContext.sender;
             var savedMsg = ActorContext.currentMsg;
+            var savedReq = ActorContext.currentRequest;
 
             try
             {
                 ActorContext.self = self;
                 ActorContext.sender = sender;
                 ActorContext.currentMsg = msg;
+                ActorContext.currentRequest = request;
                 f();
                 return unit;
             }
@@ -293,6 +299,7 @@ namespace LanguageExt
                 ActorContext.self = savedSelf;
                 ActorContext.sender = savedSender;
                 ActorContext.currentMsg = savedMsg;
+                ActorContext.currentRequest = savedReq;
             }
         }
 

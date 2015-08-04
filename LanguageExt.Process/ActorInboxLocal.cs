@@ -19,8 +19,9 @@ namespace LanguageExt
         FSharpMailboxProcessor<SystemMessage> sysInbox;
         Actor<S, T> actor;
         Option<ICluster> cluster;
+        int version;
 
-        public Unit Startup(IActor process, ProcessId supervisor, Option<ICluster> cluster)
+        public Unit Startup(IActor process, ProcessId supervisor, Option<ICluster> cluster, int version)
         {
             if (Active)
             {
@@ -30,6 +31,7 @@ namespace LanguageExt
             this.tokenSource = new CancellationTokenSource();
             this.actor = (Actor<S, T>)process;
             this.supervisor = supervisor;
+            this.version = version;
             userInbox = StartMailbox<UserControlMessage>(actor, tokenSource.Token, ActorInboxCommon.UserMessageInbox);
             sysInbox = StartMailbox<SystemMessage>(actor, tokenSource.Token, ActorInboxCommon.SystemMessageInbox);
 

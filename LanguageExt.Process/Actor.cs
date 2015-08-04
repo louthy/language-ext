@@ -74,6 +74,7 @@ namespace LanguageExt
                 this,
                 ProcessId.NoSender,
                 null,
+                null,
                 () => InitState()
             );
             stateSubject.OnNext(state);
@@ -232,12 +233,15 @@ namespace LanguageExt
 
         public Unit ProcessAsk(ActorRequest request)
         {
+            var savedMsg = ActorContext.CurrentMsg;
+            var savedReq = ActorContext.CurrentRequest;
+
             try
             {
+                ActorContext.CurrentRequest = request;
                 ActorContext.ProcessFlags = flags;
                 if (request.Message is T)
                 {
-                    ActorContext.CurrentRequest = request;
                     T msg = (T)request.Message;
                     ActorContext.CurrentMsg = msg;
                     state = actorFn(state, msg);
@@ -257,8 +261,13 @@ namespace LanguageExt
                 // TODO: Add extra strategy behaviours here
                 Restart();
                 tell(ActorContext.Errors, e);
-                tell(ActorContext.DeadLetters, 
+                tell(ActorContext.DeadLetters,
                      DeadLetter.create(request.ReplyTo, request.To, e, "Process error (ask): ", request.Message));
+            }
+            finally
+            {
+                ActorContext.CurrentMsg = savedMsg;
+                ActorContext.CurrentRequest = savedReq;
             }
             return unit;
         }
@@ -270,11 +279,16 @@ namespace LanguageExt
         /// <returns></returns>
         public Unit ProcessMessage(object message)
         {
+            var savedReq = ActorContext.CurrentRequest;
+            var savedFlags = ActorContext.ProcessFlags;
+            var savedMsg = ActorContext.CurrentMsg;
+
             try
             {
                 ActorContext.CurrentRequest = null;
                 ActorContext.ProcessFlags = flags;
                 ActorContext.CurrentMsg = message;
+
                 state = actorFn(state, (T)message);
                 stateSubject.OnNext(state);
             }
@@ -289,6 +303,12 @@ namespace LanguageExt
                 tell(ActorContext.Errors, e);
                 tell(ActorContext.DeadLetters,
                      DeadLetter.create(Sender, Self, e, "Process error (tell): ", message));
+            }
+            finally
+            {
+                ActorContext.CurrentRequest = savedReq;
+                ActorContext.ProcessFlags = savedFlags;
+                ActorContext.CurrentMsg = savedMsg;
             }
             return unit;
         }

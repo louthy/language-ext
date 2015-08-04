@@ -74,6 +74,10 @@
       <Project>{c0fa07a0-8b83-4fa5-acfb-14185d5c4484}</Project>
       <Name>LanguageExt.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\LanguageExt.Process.Redis\LanguageExt.Process.Redis.csproj">
+      <Project>{dc05f334-346b-41bc-bea5-bfbe24e52b5f}</Project>
+      <Name>LanguageExt.Process.Redis</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\LanguageExt.Process\LanguageExt.Process.csproj">
       <Project>{d1ab41c6-8b45-4e01-8400-97d2779034df}</Project>
       <Name>LanguageExt.Process</Name>

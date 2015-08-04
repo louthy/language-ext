@@ -8,7 +8,7 @@ namespace LanguageExt
 {
     internal interface IActorInbox : IDisposable
     {
-        Unit Startup(IActor process, ProcessId supervisor, Option<ICluster> cluster);
+        Unit Startup(IActor process, ProcessId supervisor, Option<ICluster> cluster, int version);
         Unit Shutdown();
     }
 }

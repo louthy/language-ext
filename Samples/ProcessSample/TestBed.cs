@@ -23,15 +23,17 @@ namespace ProcessSample
     {
         public static void RunTests()
         {
+            RegisteredAskReply();
+            AskReply();
+
+            RegisterTest();
+
             ClassBasedProcess();
             AsyncOption();
 
             MapOptionTest();
             MassAddRemoveTest();
             ProcessLog.Subscribe(Console.WriteLine);
-
-            RegisteredAskReply();
-            AskReply();
 
             SpawnProcess();
             SpawnProcess();
@@ -61,6 +63,51 @@ namespace ProcessSample
             MemoTest();
             UnsafeOptionTest();
         }
+
+        public static void RegisterTest()
+        {
+            shutdownAll();
+
+            // Let Language Ext know that Redis exists
+            RedisCluster.register();
+
+            // Connect to the Redis cluster
+            Cluster.connect("redis", "redis-test", "localhost", "0");
+
+            string value = null;
+            var pid = spawn<string>("reg-proc", msg => value = msg);
+
+            var regid = register<string>("woooo amazing", pid);
+
+            Thread.Sleep(100);
+
+            var kids = children(Registered);
+
+            Debug.Assert(kids.Count() == 1);
+            Debug.Assert(kids["woooo amazing"].Path == "/redis-test/registered/woooo amazing");
+
+            tell(regid, "hello");
+
+            Thread.Sleep(2000);
+
+            Debug.Assert(value == "hello");
+
+            tell(find("woooo amazing"), "world");
+
+            Thread.Sleep(2000);
+
+            Debug.Assert(value == "world");
+
+            Thread.Sleep(100);
+
+            deregister("woooo amazing");
+
+            Thread.Sleep(100);
+
+            kids = children(Registered);
+            Debug.Assert(kids.Count() == 0);
+        }
+
 
         class Log : IProcess<string>
         {
@@ -148,6 +195,8 @@ namespace ProcessSample
 
         public static void RegisteredAskReply()
         {
+            shutdownAll();
+
             var helloServer = spawn<string>("hello-server", msg =>
             {
                 reply("Hello, " + msg);
@@ -162,10 +211,19 @@ namespace ProcessSample
 
         public static void AskReply()
         {
+            shutdownAll();
+
+            // Let Language Ext know that Redis exists
+            RedisCluster.register();
+
+            // Connect to the Redis cluster
+            Cluster.connect("redis", "redis-test", "localhost", "0");
+
             var helloServer = spawn<string>("hello-server", msg =>
-            {
-                reply("Hello, " + msg);
-            }); 
+                {
+                    reply("Hello, " + msg);
+                },
+                ProcessFlags.PersistInbox); 
 
             var response = ask<string>(helloServer, "Paul");
 

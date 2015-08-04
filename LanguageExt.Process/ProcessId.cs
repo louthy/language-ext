@@ -177,5 +177,17 @@ namespace LanguageExt
             obj is ProcessId
                 ? CompareTo((ProcessId)obj)
                 : -1;
+
+        /// <summary>
+        /// Remove path elements from the start of the path
+        /// </summary>
+        public ProcessId Skip(int count) =>
+            new ProcessId(Sep.ToString() + String.Join(Sep.ToString(), parts.Skip(count)));
+
+        /// <summary>
+        /// Take N elements of the path
+        /// </summary>
+        public ProcessId Take(int count) =>
+            new ProcessId(Sep.ToString() + String.Join(Sep.ToString(), parts.Take(count)));
     }
 }

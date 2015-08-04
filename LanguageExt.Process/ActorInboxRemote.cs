@@ -17,34 +17,30 @@ namespace LanguageExt
         IDisposable userSub;
         IDisposable sysSub;
         Actor<S, T> actor;
+        int version = 0;
+        string actorPath;
 
         public Unit Shutdown()
         {
             return unit;
         }
 
-        string ClusterKey =>
-            actor.Id.Path;
-
-        string ClusterUserInboxKey =>
-            ClusterKey + "-user-inbox";
-
-        string ClusterSystemInboxKey =>
-            ClusterKey + "-system-inbox";
-
-        string ClusterUserInboxNotifyKey => 
-            ClusterUserInboxKey + "-notify";
-
-        string ClusterSystemInboxNotifyKey => 
-            ClusterSystemInboxKey + "-notify";
-
-        public Unit Startup(IActor process, ProcessId supervisor, Option<ICluster> cluster)
+        public Unit Startup(IActor process, ProcessId supervisor, Option<ICluster> cluster, int version = 0)
         {
             if (cluster.IsNone) throw new Exception("Remote inboxes not supported when there's no cluster");
             this.tokenSource = new CancellationTokenSource();
             this.actor = (Actor<S, T>)process;
             this.supervisor = supervisor;
             this.cluster = cluster.LiftUnsafe();
+            this.version = version;
+
+            // Registered process remote address hack
+            actorPath = actor.Id.Path.StartsWith(Registered.Path)
+                ? actor.Id.Skip(1).ToString()
+                : actor.Id.ToString();
+
+            // Preparing for message versioning support
+            //actorPath += "-" + version;
 
             userInbox = StartMailbox<UserControlMessage>(actor, ClusterUserInboxKey, tokenSource.Token, ActorInboxCommon.UserMessageInbox);
             sysInbox = StartMailbox<SystemMessage>(actor, ClusterSystemInboxKey, tokenSource.Token, ActorInboxCommon.SystemMessageInbox);
@@ -73,25 +69,20 @@ namespace LanguageExt
             return unit;
         }
 
-        public void Dispose()
-        {
-            var ts = tokenSource;
-            if (ts != null) ts.Dispose();
+        string ClusterKey =>
+            actorPath;
 
-            if (userSub != null)
-            {
-                var sub = userSub;
-                sub.Dispose();
-                userSub = null;
-            }
+        string ClusterUserInboxKey =>
+            ClusterKey + "-user-inbox";
 
-            if (sysSub != null)
-            {
-                var sub = sysSub;
-                sub.Dispose();
-                sysSub = null;
-            }
-        }
+        string ClusterSystemInboxKey =>
+            ClusterKey + "-system-inbox";
+
+        string ClusterUserInboxNotifyKey =>
+            ClusterUserInboxKey + "-notify";
+
+        string ClusterSystemInboxNotifyKey =>
+            ClusterSystemInboxKey + "-notify";
 
         private RemoteMessageDTO GetNextMessage(string key)
         {
@@ -150,5 +141,25 @@ namespace LanguageExt
                     CheckRemoteInbox(key);
                 }
             });
+
+        public void Dispose()
+        {
+            var ts = tokenSource;
+            if (ts != null) ts.Dispose();
+
+            if (userSub != null)
+            {
+                var sub = userSub;
+                sub.Dispose();
+                userSub = null;
+            }
+
+            if (sysSub != null)
+            {
+                var sub = sysSub;
+                sub.Dispose();
+                sysSub = null;
+            }
+        }
     }
 }

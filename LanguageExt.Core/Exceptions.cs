@@ -269,6 +269,44 @@ namespace LanguageExt
     }
 
     /// <summary>
+    /// NoChildProcessesException
+    /// </summary>
+    [Serializable]
+    public class NoChildProcessesException : Exception
+    {
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public NoChildProcessesException()
+            :
+            base("No child processes")
+        {
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public NoChildProcessesException(string message) : base(message)
+        {
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public NoChildProcessesException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        protected NoChildProcessesException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+    }
+
+
+    /// <summary>
     /// Invalid process ID
     /// </summary>
     [Serializable]

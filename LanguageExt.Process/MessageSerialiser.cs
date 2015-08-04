@@ -10,23 +10,6 @@ namespace LanguageExt
 {
     internal static class MessageSerialiser
     {
-        public static RemoteMessageDTO SerialiseMsg(Message msg, ProcessId sender)
-        {
-            return new RemoteMessageDTO()
-            {
-                Type = (int)msg.MessageType,
-                Tag = (int)msg.Tag,
-                Child = null,
-                Exception = null,
-                RequestId = ActorContext.CurrentRequest == null ? -1 : ActorContext.CurrentRequest.RequestId,
-                Sender = sender.ToString(),
-                ReplyTo = sender.ToString(),
-                Content = msg == null
-                    ? null
-                    : JsonConvert.SerializeObject(msg, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All, TypeNameAssemblyFormat = global::System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Full })
-            };
-        }
-
         public static Message DeserialiseMsg(RemoteMessageDTO msg, ProcessId actorId)
         {
             var sender = String.IsNullOrEmpty(msg.Sender) ? ProcessId.NoSender : new ProcessId(msg.Sender);

@@ -83,6 +83,13 @@ namespace LanguageExt
                 : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(Parent));
 
         /// <summary>
+        /// Root process ID
+        /// The Root process is the parent of all processes
+        /// </summary>
+        public static ProcessId Root =>
+            ActorContext.Root;
+
+        /// <summary>
         /// User process ID
         /// The User process is the default entry process, your first process spawned
         /// will be a child of this process.
@@ -157,9 +164,13 @@ namespace LanguageExt
             InMessageLoop
                 ? ActorContext.SelfProcess
                               .Children
-                              .Skip(index % ActorContext.SelfProcess.Children.Count)
-                              .Map( kv => kv.Value )
-                              .Head()
+                              .Count == 0
+                    ? raise<ProcessId>(new NoChildProcessesException())
+                    : ActorContext.SelfProcess
+                                  .Children
+                                  .Skip(index % ActorContext.SelfProcess.Children.Count)
+                                  .Map( kv => kv.Value )
+                                  .Head()
                 : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(child));
 
         /// <summary>
@@ -169,9 +180,13 @@ namespace LanguageExt
             InMessageLoop
                 ? ActorContext.SelfProcess
                               .Children
-                              .Skip(random(ActorContext.SelfProcess.Children.Count))
-                              .Map(kv => kv.Value)
-                              .Head()
+                              .Count == 0
+                    ? raise<ProcessId>(new NoChildProcessesException())
+                    : ActorContext.SelfProcess
+                                  .Children
+                                  .Skip(random(ActorContext.SelfProcess.Children.Count))
+                                  .Map(kv => kv.Value)
+                                  .Head()
                 : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(RandomChild));
 
         /// <summary>
@@ -181,9 +196,13 @@ namespace LanguageExt
             InMessageLoop
                 ? ActorContext.SelfProcess
                               .Children
-                              .Skip(ActorContext.SelfProcess.GetNextRoundRobinIndex())
-                              .Map(kv => kv.Value)
-                              .Head()
+                              .Count == 0
+                    ? raise<ProcessId>(new NoChildProcessesException())
+                    : ActorContext.SelfProcess
+                                  .Children
+                                  .Skip(ActorContext.SelfProcess.GetNextRoundRobinIndex())
+                                  .Map(kv => kv.Value)
+                                  .Head()
                 : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(NextChild));
 
         /// <summary>
@@ -256,7 +275,7 @@ namespace LanguageExt
         /// Shutdown all processes and restart
         /// </summary>
         public static Unit shutdownAll() =>
-            ask<Unit>(ActorContext.Root, ActorSystemMessage.ShutdownAll);
+            ActorContext.Shutdown();
 
         /// <summary>
         /// Reply to an ask

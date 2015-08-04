@@ -17,7 +17,7 @@ namespace LanguageExt
         public readonly IActorInbox RootInbox;
         public readonly IActor RootProcess;
         public readonly ActorConfig Config;
-        public readonly ProcessName UserProcessName;
+        public readonly ProcessName RootProcessName;
 
         ProcessId root;
         ProcessId user;
@@ -51,14 +51,16 @@ namespace LanguageExt
             }
         }
 
-        public ActorSystemState(Option<ICluster> cluster, ProcessId rootId, IActor rootProcess, IActorInbox rootInbox, ProcessName userProcessName, ActorConfig config)
+        public ActorSystemState(Option<ICluster> cluster, ProcessId rootId, IActor rootProcess, IActorInbox rootInbox, ProcessName rootProcessName, ActorConfig config)
         {
             root = rootId;
             Config = config;
             Cluster = cluster;
             RootProcess = rootProcess;
             RootInbox = rootInbox;
-            UserProcessName = userProcessName;
+            RootProcessName = rootProcessName;
+
+            RootProcess.Id.MakeChildId(Config.RegisteredProcessName);
 
             store.Add(Root.Path, new ActorItem(RootProcess, rootInbox, ProcessFlags.Default));
         }
@@ -72,7 +74,7 @@ namespace LanguageExt
 
             // Top tier
             system          = ActorCreate<object>(root, Config.SystemProcessName, publish, ProcessFlags.Default);
-            user            = ActorCreate<object>(root, UserProcessName, publish, ProcessFlags.Default);
+            user            = ActorCreate<object>(root, Config.UserProcessName, publish, ProcessFlags.Default);
             registered      = ActorCreate<object>(root, Config.RegisteredProcessName, publish, ProcessFlags.Default);
 
             // Second tier
@@ -81,7 +83,7 @@ namespace LanguageExt
 
             inboxShutdown   = ActorCreate<IActorInbox>(system, Config.InboxShutdownProcessName, inbox => inbox.Shutdown(), ProcessFlags.Default);
 
-            reply = ask     = ActorCreate<Tuple<long, Dictionary<long, AskActorReq>>, object>(system, Config.AskProcessName + "-" + NodeName, AskActor.Inbox, AskActor.Setup, ProcessFlags.ListenRemoteAndLocal);
+            reply = ask     = ActorCreate<Tuple<long, Dictionary<long, AskActorReq>>, object>(system, Config.AskProcessName, AskActor.Inbox, AskActor.Setup, ProcessFlags.ListenRemoteAndLocal);
 
             logInfo("Process system startup complete");
 
@@ -93,7 +95,7 @@ namespace LanguageExt
             logInfo("Process system shutting down");
 
             ShutdownProcess(User);
-            user = ActorCreate<object>(root, UserProcessName, publish, ProcessFlags.Default);
+            user = ActorCreate<object>(root, Config.UserProcessName, publish, ProcessFlags.Default);
             Tell(new ActorResponse(unit, ActorContext.CurrentRequest.ReplyTo, Root, ActorContext.CurrentRequest.RequestId), reply, ActorContext.Root);
 
             logInfo("Process system shutdown complete");
@@ -208,7 +210,7 @@ namespace LanguageExt
         private Unit TellDeadLetters(ProcessId processId, ProcessId sender, Message.TagSpec tag, object message)
         {
             var letter = DeadLetter.create(sender, processId, "Recipient doesn't exist", message);
-            return ActorContext.WithContext(store[processId.Path].Actor, sender, message, () => Tell(letter, DeadLetters, sender));
+            return ActorContext.WithContext(store[processId.Path].Actor, sender, null, message, () => Tell(letter, DeadLetters, sender));
         }
 
         public Unit Tell(ProcessId processId, ProcessId sender, Message.TagSpec tag, object message)
@@ -272,8 +274,8 @@ namespace LanguageExt
                     store.Add(path, new ActorItem(process, inbox, flags));
                     parent.Actor.LinkChild(process.Id.Path);
 
-                    inbox.Startup(process, process.Parent, Cluster);
                     process.Startup();
+                    inbox.Startup(process, process.Parent, Cluster, 0);
                 }
             }
             return this;
@@ -412,8 +414,15 @@ namespace LanguageExt
             }
         }
 
-        private static Unit TellRemote(object message, ProcessId pid, ProcessId sender, ICluster c, string inbox, int type, int tag)
+        private ProcessId CheckIfRegistered(ProcessId pid) =>
+            pid.Path.StartsWith(registered.Path)
+                ? pid.Skip(1)
+                : pid;
+
+        private Unit TellRemote(object message, ProcessId pid, ProcessId sender, ICluster c, string inbox, int type, int tag)
         {
+            pid = CheckIfRegistered(pid);
+
             var req = message as ActorRequest;
             var res = message as ActorResponse;
 

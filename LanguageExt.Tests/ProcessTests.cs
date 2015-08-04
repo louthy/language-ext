@@ -54,7 +54,46 @@ namespace LanguageExtTests
         }
 
         [Test]
-        public void RegisterTest()
+        public void LocalRegisterTest()
+        {
+            shutdownAll();
+
+            string value = null;
+            var pid = spawn<string>("reg-proc", msg => value = msg);
+
+            var regid = register<string>("woooo amazing", pid);
+
+            Thread.Sleep(100);
+
+            var kids = children(Registered);
+
+            Assert.IsTrue(kids.Count() == 1);
+            Assert.IsTrue(kids["woooo amazing"].Path == "/root/registered/woooo amazing");
+
+            tell(regid, "hello");
+
+            Thread.Sleep(2000);
+
+            Assert.IsTrue(value == "hello");
+
+            tell(find("woooo amazing"), "world");
+
+            Thread.Sleep(2000);
+
+            Assert.IsTrue(value == "world");
+
+            Thread.Sleep(100);
+
+            deregister("woooo amazing");
+
+            Thread.Sleep(100);
+
+            kids = children(Registered);
+            Assert.IsTrue(kids.Count() == 0);
+        }
+
+        [Test]
+        public void RedisRegisterTest()
         {
             shutdownAll();
 
@@ -74,13 +113,19 @@ namespace LanguageExtTests
             var kids = children(Registered);
 
             Assert.IsTrue(kids.Count() == 1);
-            Assert.IsTrue(kids["woooo amazing"].Path == "/root/registered/woooo amazing");
+            Assert.IsTrue(kids["woooo amazing"].Path == "/redis-test/registered/woooo amazing");
 
             tell(regid, "hello");
 
             Thread.Sleep(2000);  
 
             Assert.IsTrue(value == "hello");
+
+            tell(find("woooo amazing"), "world");
+
+            Thread.Sleep(2000);
+
+            Assert.IsTrue(value == "world");
 
             Thread.Sleep(100);
 
@@ -91,6 +136,7 @@ namespace LanguageExtTests
             kids = children(Registered);
             Assert.IsTrue(kids.Count() == 0);
         }
+
 
         [Test]
         public void SpawnProcess()
