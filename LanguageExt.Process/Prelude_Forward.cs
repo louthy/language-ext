@@ -40,5 +40,73 @@ namespace LanguageExt
             ActorContext.CurrentRequest == null
                 ? tell(pid, ActorContext.CurrentMsg, Sender)
                 : tell(pid, ActorContext.CurrentRequest, ActorContext.AskId);
+
+        /// <summary>
+        /// Forward a message to a named child process
+        /// </summary>
+        /// <param name="message">Message to send</param>
+        /// <param name="name">Name of the child process</param>
+        public static Unit fwdChild<T>(ProcessName name, T message) =>
+            fwd(Self.MakeChildId(name), message);
+
+        /// <summary>
+        /// Forward a message to a child process (found by index)
+        /// </summary>
+        /// <remarks>
+        /// Because of the potential changeable nature of child nodes, this will
+        /// take the index and mod it by the number of children.  We expect this 
+        /// call will mostly be used for load balancing, and round-robin type 
+        /// behaviour, so feel that's acceptable.  
+        /// </remarks>
+        /// <param name="message">Message to send</param>
+        /// <param name="index">Index of the child process (see remarks)</param>
+        public static Unit fwdChild<T>(int index, T message) =>
+            fwd(child(index), message);
+
+        /// <summary>
+        /// Forward a message to the next child in line (round-robin)
+        /// </summary>
+        /// <param name="message">Message to send</param>
+        public static Unit fwdNextChild<T>(T message) =>
+            fwd(NextChild, message);
+
+        /// <summary>
+        /// Forward a message the a random child
+        /// </summary>
+        /// <param name="message">Message to send</param>
+        public static Unit fwdRandomChild<T>(T message) =>
+            fwd(RandomChild, message);
+
+        /// <summary>
+        /// Forward a message to a named child process
+        /// </summary>
+        /// <param name="name">Name of the child process</param>
+        public static Unit fwdChild<T>(ProcessName name) =>
+            fwd<T>(Self.MakeChildId(name));
+
+        /// <summary>
+        /// Forward a message to a child process (found by index)
+        /// </summary>
+        /// <remarks>
+        /// Because of the potential changeable nature of child nodes, this will
+        /// take the index and mod it by the number of children.  We expect this 
+        /// call will mostly be used for load balancing, and round-robin type 
+        /// behaviour, so feel that's acceptable.  
+        /// </remarks>
+        /// <param name="index">Index of the child process (see remarks)</param>
+        public static Unit fwdChild<T>(int index) =>
+            fwd<T>(child(index));
+
+        /// <summary>
+        /// Forward a message to the next child in line (round-robin)
+        /// </summary>
+        public static Unit fwdNextChild<T>() =>
+            fwd<T>(NextChild);
+
+        /// <summary>
+        /// Forward a message the a random child
+        /// </summary>
+        public static Unit fwdRandomChild<T>() =>
+            fwd<T>(RandomChild);
     }
 }

@@ -70,13 +70,10 @@ namespace LanguageExt
         /// </summary>
         IObservable<object> StateStream { get; }
 
+        Unit ProcessMessage(object message);
+
         Unit AddSubscription(ProcessId pid, IDisposable sub);
         Unit RemoveSubscription(ProcessId pid);
         int GetNextRoundRobinIndex();
-    }
-
-    internal interface IActor<T>
-    {
-        Unit ProcessMessage(T message);
     }
 }

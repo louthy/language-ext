@@ -42,7 +42,7 @@ namespace LanguageExt
                 ActorContext.cluster = cluster;
                 var name = ProcessId.Sep.ToString() + ActorConfig.Default.RootProcessName;
                 root = new ProcessId(name);
-                rootInbox = new ActorInbox<ActorSystemState, object>();
+                rootInbox = new ActorInboxLocal<ActorSystemState, object>();
                 rootProcess = new Actor<ActorSystemState, object>(
                     cluster,
                     new ProcessId(ProcessId.Sep.ToString()),
@@ -111,13 +111,17 @@ namespace LanguageExt
                 var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn, flags);
 
                 IActorInbox inbox = null;
-                if ((flags & ProcessFlags.PersistInbox) == ProcessFlags.PersistInbox)
+                if ((flags & ProcessFlags.ListenRemoteAndLocal) == ProcessFlags.ListenRemoteAndLocal && cluster.IsSome)
+                {
+                    inbox = new ActorInboxDual<S, T>();
+                }
+                else if ((flags & ProcessFlags.PersistInbox) == ProcessFlags.PersistInbox && cluster.IsSome)
                 {
                     inbox = new ActorInboxRemote<S, T>();
                 }
                 else
                 {
-                    inbox = new ActorInbox<S, T>();
+                    inbox = new ActorInboxLocal<S, T>();
                 }
 
                 Tell(Root, ActorSystemMessage.AddToStore(actor, inbox, flags), Self);
@@ -186,8 +190,11 @@ namespace LanguageExt
         public static Map<string, ProcessId> Children =>
             self.Children;
 
+        private static ProcessName NodeName =>
+            cluster.Map(c => c.NodeName).IfNone("user");
+
         internal static ProcessId AskId =>
-            System.MakeChildId(ActorConfig.Default.AskProcessName);
+            System.MakeChildId(ActorConfig.Default.AskProcessName + "-" + NodeName);
 
         public static ActorRequest CurrentRequest
         {
@@ -225,7 +232,7 @@ namespace LanguageExt
             }
         }
 
-        public static ProcessId Register<T>(ProcessName name, ProcessId processId)
+        public static ProcessId Register<T>(ProcessName name, ProcessId processId, ProcessFlags flags)
         {
             if (processId.IsValid)
             {
@@ -234,9 +241,7 @@ namespace LanguageExt
                     name, 
                     RegisteredActor<T>.Inbox,
                     () => processId,
-                    cluster.IsSome 
-                        ? ProcessFlags.PersistInbox 
-                        : ProcessFlags.Default
+                    flags
                 );
             }
             else

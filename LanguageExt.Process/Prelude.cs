@@ -202,9 +202,9 @@ namespace LanguageExt
         /// </remarks>
         /// <typeparam name="T">The message type of the actor to register</typeparam>
         /// <param name="name">Name to register under</param>
-        public static ProcessId register<T>(ProcessName name) =>
+        public static ProcessId register<T>(ProcessName name, ProcessFlags flags = ProcessFlags.Default) =>
             InMessageLoop
-                ? ActorContext.Register<T>(name, Self)
+                ? ActorContext.Register<T>(name, Self, flags)
                 : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(name));
 
         /// <summary>
@@ -213,8 +213,8 @@ namespace LanguageExt
         /// <typeparam name="T">The message type of the actor to register</typeparam>
         /// <param name="name">Name to register under</param>
         /// <param name="process">Process to be registered</param>
-        public static ProcessId register<T>(ProcessName name, ProcessId process) =>
-            ActorContext.Register<T>(name, process);
+        public static ProcessId register<T>(ProcessName name, ProcessId process, ProcessFlags flags = ProcessFlags.Default) =>
+            ActorContext.Register<T>(name, process, flags);
 
         /// <summary>
         /// Deregister the process associated with the name
@@ -267,13 +267,8 @@ namespace LanguageExt
         public static Unit reply<T>(T message) =>
             InMessageLoop
                 ? ActorContext.CurrentRequest == null
-                    ? ActorContext.Sender.IsValid
-                        ? tell(ActorContext.Sender, message, ActorContext.Self)
-                        : failwith<Unit>(
-                            "You can't reply to this message.  It was sent from outside of a process and it wasn't an 'ask'.  " +
-                            "Therefore we have no return address or observable stream to send the reply to."
-                            )
-                    : ActorContext.LocalRoot.Tell(ActorSystemMessage.Reply(ActorContext.CurrentRequest.ReplyTo, message, ActorContext.CurrentRequest.RequestId), ActorContext.Self)
+                    ? failwith<Unit>( "You can't reply to this message.  It wasn't an 'ask'.  Use isAsk to confirm whether something is an 'ask' or a 'tell'" )
+                    : ActorContext.Tell(ActorContext.CurrentRequest.ReplyTo, new ActorResponse(message, ActorContext.CurrentRequest.ReplyTo, ActorContext.Self, ActorContext.CurrentRequest.RequestId), ActorContext.Self)
                 : raiseUseInMsgLoopOnlyException<Unit>(nameof(reply));
 
         /// <summary>

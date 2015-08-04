@@ -1,13 +1,22 @@
 ﻿using System;
-using Microsoft.FSharp.Control;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading;
+using Microsoft.FSharp.Control;
 using static LanguageExt.Process;
 using static LanguageExt.Prelude;
 using LanguageExt.Trans;
 
 namespace LanguageExt
 {
-    class ActorInboxRemote<S,T> : IActorInbox
+    /// <summary>
+    /// This is both a local and remote inbox in one. 
+    /// 
+    /// TODO: Lots of cut n paste from the Local and Remote variants, need to factor out the 
+    ///       common elements.
+    /// </summary>
+    internal class ActorInboxDual<S, T> : IActorInbox, ILocalActorInbox
     {
         ProcessId supervisor;
         ICluster cluster;
@@ -17,26 +26,6 @@ namespace LanguageExt
         IDisposable userSub;
         IDisposable sysSub;
         Actor<S, T> actor;
-
-        public Unit Shutdown()
-        {
-            return unit;
-        }
-
-        string ClusterKey =>
-            actor.Id.Path;
-
-        string ClusterUserInboxKey =>
-            ClusterKey + "-user-inbox";
-
-        string ClusterSystemInboxKey =>
-            ClusterKey + "-system-inbox";
-
-        string ClusterUserInboxNotifyKey => 
-            ClusterUserInboxKey + "-notify";
-
-        string ClusterSystemInboxNotifyKey => 
-            ClusterSystemInboxKey + "-notify";
 
         public Unit Startup(IActor process, ProcessId supervisor, Option<ICluster> cluster)
         {
@@ -53,7 +42,7 @@ namespace LanguageExt
             CheckRemoteInbox(ClusterSystemInboxKey);
 
             userSub = this.cluster.SubscribeToChannel<string>(ClusterUserInboxNotifyKey)
-                        .Subscribe( msg =>
+                        .Subscribe(msg =>
                         {
                             if (userInbox.CurrentQueueLength == 0)
                             {
@@ -70,6 +59,92 @@ namespace LanguageExt
                             }
                         });
 
+            return unit;
+        }
+
+        string ClusterKey =>
+            actor.Id.Path;
+
+        string ClusterUserInboxKey =>
+            ClusterKey + "-user-inbox";
+
+        string ClusterSystemInboxKey =>
+            ClusterKey + "-system-inbox";
+
+        string ClusterUserInboxNotifyKey =>
+            ClusterUserInboxKey + "-notify";
+
+        string ClusterSystemInboxNotifyKey =>
+            ClusterSystemInboxKey + "-notify";
+
+        public Unit Shutdown()
+        {
+            return unit;
+        }
+
+        public Unit Ask(object message, ProcessId sender)
+        {
+            if (userInbox != null)
+            {
+                if (message == null)
+                {
+                    return tell(ActorContext.DeadLetters, DeadLetter.create(sender, actor.Id, "Message is null for ask (expected " + typeof(T) + ")", message));
+                }
+                if (!typeof(ActorRequest).IsAssignableFrom(message.GetType()))
+                {
+                    return tell(ActorContext.DeadLetters, DeadLetter.create(sender, actor.Id, "Invalid message type for ask (expected ActorRequest)", message));
+                }
+
+                var req = (ActorRequest)message;
+                if (!typeof(T).IsAssignableFrom(req.Message.GetType()))
+                {
+                    return tell(ActorContext.DeadLetters, DeadLetter.create(sender, actor.Id, "Invalid message type for ask (expected " + typeof(T) + ")", message));
+                }
+                userInbox.Post((UserControlMessage)message);
+            }
+            return unit;
+        }
+
+        public Unit Tell(object message, ProcessId sender)
+        {
+            if (userInbox != null)
+            {
+                if (message is ActorRequest)
+                {
+                    return Ask(message, sender);
+                }
+
+                if (message == null)
+                {
+                    return tell(ActorContext.DeadLetters, DeadLetter.create(sender, actor.Id, "Message is null for tell (expected " + typeof(T) + ")", message));
+                }
+                if (!typeof(T).IsAssignableFrom(message.GetType()))
+                {
+                    return tell(ActorContext.DeadLetters, DeadLetter.create(sender, actor.Id, "Invalid message type for tell (expected " + typeof(T) + ")", message));
+                }
+                var enqItem = new UserMessage(message, sender, sender);
+                userInbox.Post(enqItem);
+            }
+            return unit;
+        }
+
+        public Unit TellSystem(SystemMessage message)
+        {
+            if (sysInbox != null)
+            {
+                if (message == null) throw new ArgumentNullException(nameof(message));
+                sysInbox.Post(message);
+            }
+            return unit;
+        }
+
+        public Unit TellUserControl(UserControlMessage message)
+        {
+            if (userInbox != null)
+            {
+                if (message == null) throw new ArgumentNullException(nameof(message));
+                userInbox.Post(message);
+            }
             return unit;
         }
 
@@ -140,7 +215,7 @@ namespace LanguageExt
                 }
                 catch (Exception e)
                 {
-                    Process.tell(ActorContext.DeadLetters, DeadLetter.create(ActorContext.Sender, actor.Id, e, "Remote message inbox.", msg));
+                    tell(ActorContext.DeadLetters, DeadLetter.create(ActorContext.Sender, actor.Id, e, "Remote message inbox.", msg));
                     logSysErr(e);
                 }
                 finally

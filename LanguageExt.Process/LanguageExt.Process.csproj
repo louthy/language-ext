@@ -66,8 +66,11 @@
     <Compile Include="ActorConfig.cs" />
     <Compile Include="ActorContext.cs" />
     <Compile Include="ActorInboxCommon.cs" />
+    <Compile Include="ActorInboxDual.cs" />
     <Compile Include="ActorInboxRemote.cs" />
     <Compile Include="DeadLetter.cs" />
+    <Compile Include="IActorInbox.cs" />
+    <Compile Include="ILocalActorInbox.cs" />
     <Compile Include="IProcess.cs" />
     <Compile Include="MessageSerialiser.cs" />
     <Compile Include="Prelude_Forward.cs" />
@@ -76,7 +79,7 @@
     <Compile Include="ReplyActor.cs" />
     <Compile Include="Prelude_PubSub.cs" />
     <Compile Include="ProcessFlags.cs" />
-    <Compile Include="ActorInbox.cs" />
+    <Compile Include="ActorInboxLocal.cs" />
     <Compile Include="ActorRequestResponse.cs" />
     <Compile Include="ActorSystem.cs" />
     <Compile Include="ActorSystemState.cs" />

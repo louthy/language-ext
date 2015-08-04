@@ -127,7 +127,7 @@ namespace LanguageExt
         /// <param name="flags">Process flags</param>
         /// <returns>Process ID of the delegator process</returns>
         public static ProcessId spawnRoundRobin<T>(ProcessName name, int count, Action<T> messageHandler, ProcessFlags flags = ProcessFlags.Default) =>
-            spawn<Unit, T>(name, () => ignore(spawnN(count, "worker", messageHandler, flags)), (_, msg) => tellNextChild(msg, Sender), flags);
+            spawn<Unit, T>(name, () => ignore(spawnN(count, "worker", messageHandler, flags)), (_, msg) => fwdNextChild(msg), flags);
 
         /// <summary>
         /// Spawns a new process with N worker processes, each message is sent to one worker
@@ -141,7 +141,7 @@ namespace LanguageExt
         /// <param name="flags">Process flags</param>
         /// <returns>Process ID of the delegator process</returns>
         public static ProcessId spawnRoundRobin<S, T>(ProcessName name, int count, Func<S> setup, Func<S, T, S> messageHandler, ProcessFlags flags = ProcessFlags.Default) =>
-            spawn<Unit, T>(name, () => ignore(spawnN(count, "worker", setup, messageHandler, flags)), (_, msg) => tellNextChild(msg, Sender), flags);
+            spawn<Unit, T>(name, () => ignore(spawnN(count, "worker", setup, messageHandler, flags)), (_, msg) => fwdNextChild(msg), flags);
 
         /// <summary>
         /// Spawns a new process with N worker processes, each message is sent to one worker
@@ -154,7 +154,7 @@ namespace LanguageExt
         /// <param name="flags">Process flags</param>
         /// <returns>Process ID of the delegator process</returns>
         public static ProcessId spawnRoundRobin<S, T>(ProcessName name, Map<int, Func<S>> spec, Func<S, T, S> messageHandler, ProcessFlags flags = ProcessFlags.Default) =>
-            spawn<Unit, T>(name, () => ignore(Map.map(spec, (id, state) => ActorContext.ActorCreate(ActorContext.Self, "worker-" + id, messageHandler, state, flags))), (_, msg) => tellNextChild(msg, Sender), flags);
+            spawn<Unit, T>(name, () => ignore(Map.map(spec, (id, state) => ActorContext.ActorCreate(ActorContext.Self, "worker-" + id, messageHandler, state, flags))), (_, msg) => fwdNextChild(msg), flags);
 
         /// <summary>
         /// Spawns a new process with N worker processes, each message is sent to one worker
@@ -169,7 +169,7 @@ namespace LanguageExt
         /// <param name="flags">Process flags</param>
         /// <returns>Process ID of the delegator process</returns>
         public static ProcessId spawnRoundRobinMap<T,U>(ProcessName name, int count, Func<T,U> map, Action<U> messageHandler, ProcessFlags flags = ProcessFlags.Default) =>
-            spawn<Unit, T>(name, () => ignore(spawnN(count, "worker", messageHandler, flags)), (_, msg) => tellNextChild(map(msg), Sender), flags);
+            spawn<Unit, T>(name, () => ignore(spawnN(count, "worker", messageHandler, flags)), (_, msg) => fwdNextChild(map(msg)), flags);
 
         /// <summary>
         /// Spawns a new process with N worker processes, each message is sent to one worker
@@ -184,7 +184,7 @@ namespace LanguageExt
         /// <param name="flags">Process flags</param>
         /// <returns>Process ID of the delegator process</returns>
         public static ProcessId spawnRoundRobinMapMany<T, U>(ProcessName name, int count, Func<T, IEnumerable<U>> map, Action<U> messageHandler, ProcessFlags flags = ProcessFlags.Default) =>
-            spawn<Unit, T>(name, () => ignore(spawnN(count, "worker", messageHandler, flags)), (_, msg) => map(msg).Iter( m => tellNextChild(m, Sender)), flags);
+            spawn<Unit, T>(name, () => ignore(spawnN(count, "worker", messageHandler, flags)), (_, msg) => map(msg).Iter( m => fwdNextChild(m)), flags);
 
         /// <summary>
         /// Spawn by type

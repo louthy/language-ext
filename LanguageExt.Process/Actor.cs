@@ -20,7 +20,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="S">State</typeparam>
     /// <typeparam name="T">Message type</typeparam>
-    internal class Actor<S, T> : IActor, IActor<T>
+    internal class Actor<S, T> : IActor
     {
         Func<S, T, S> actorFn;
         Func<IActor, S> setupFn;
@@ -243,6 +243,10 @@ namespace LanguageExt
                     state = actorFn(state, msg);
                     stateSubject.OnNext(state);
                 }
+                else
+                {
+                    logErr("ProcessAsk request.Message is not T " + request.Message);
+                }
             }
             catch (SystemKillActorException)
             {
@@ -264,14 +268,14 @@ namespace LanguageExt
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public Unit ProcessMessage(T message)
+        public Unit ProcessMessage(object message)
         {
             try
             {
                 ActorContext.CurrentRequest = null;
                 ActorContext.ProcessFlags = flags;
                 ActorContext.CurrentMsg = message;
-                state = actorFn(state, message);
+                state = actorFn(state, (T)message);
                 stateSubject.OnNext(state);
             }
             catch (SystemKillActorException)

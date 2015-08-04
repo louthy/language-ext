@@ -23,7 +23,6 @@ namespace LanguageExt
         ProcessId user;
         ProcessId system;
         ProcessId deadLetters;
-        ProcessId noSender;
         ProcessId registered;
         ProcessId errors;
         ProcessId inboxShutdown;
@@ -64,6 +63,9 @@ namespace LanguageExt
             store.Add(Root.Path, new ActorItem(RootProcess, rootInbox, ProcessFlags.Default));
         }
 
+        private ProcessName NodeName =>
+            Cluster.Map(c => c.NodeName).IfNone("user");
+
         public ActorSystemState Startup()
         {
             logInfo("Process system starting up");
@@ -76,11 +78,10 @@ namespace LanguageExt
             // Second tier
             deadLetters     = ActorCreate<DeadLetter>(system, Config.DeadLettersProcessName, publish, ProcessFlags.Default);
             errors          = ActorCreate<Exception>(system, Config.ErrorsProcessName, publish, ProcessFlags.Default);
-            noSender        = ActorCreate<object>(system, Config.NoSenderProcessName, publish, ProcessFlags.Default);
 
             inboxShutdown   = ActorCreate<IActorInbox>(system, Config.InboxShutdownProcessName, inbox => inbox.Shutdown(), ProcessFlags.Default);
 
-            reply = ask     = ActorCreate<Tuple<long,Dictionary<long, AskActorReq>>,object>(system, Config.AskProcessName, AskActor.Inbox, AskActor.Setup, ProcessFlags.Default);
+            reply = ask     = ActorCreate<Tuple<long, Dictionary<long, AskActorReq>>, object>(system, Config.AskProcessName + "-" + NodeName, AskActor.Inbox, AskActor.Setup, ProcessFlags.ListenRemoteAndLocal);
 
             logInfo("Process system startup complete");
 
@@ -93,7 +94,7 @@ namespace LanguageExt
 
             ShutdownProcess(User);
             user = ActorCreate<object>(root, UserProcessName, publish, ProcessFlags.Default);
-            Tell(new ActorResponse(ActorContext.CurrentRequest.ReplyTo, unit, Root, ActorContext.CurrentRequest.RequestId), reply, ActorContext.Root);
+            Tell(new ActorResponse(unit, ActorContext.CurrentRequest.ReplyTo, Root, ActorContext.CurrentRequest.RequestId), reply, ActorContext.Root);
 
             logInfo("Process system shutdown complete");
 
@@ -134,7 +135,7 @@ namespace LanguageExt
         }
 
         public Unit Reply(ProcessId replyTo, object message, ProcessId sender, long requestId) =>
-            Tell(new ActorResponse(replyTo, message, sender, requestId), reply.Path, sender);
+            Tell(new ActorResponse(message, replyTo, sender, requestId), replyTo, sender);
 
         public Unit GetChildren(ProcessId processId)
         {
@@ -145,7 +146,7 @@ namespace LanguageExt
 
             ReplyInfo(nameof(GetChildren), processId, kids.Count);
 
-            return Tell( new ActorResponse(ActorContext.CurrentRequest.ReplyTo, kids, processId, ActorContext.CurrentRequest.RequestId),
+            return Tell( new ActorResponse(kids, ActorContext.CurrentRequest.ReplyTo, processId, ActorContext.CurrentRequest.RequestId),
                          reply,
                          processId);
         }
@@ -177,8 +178,8 @@ namespace LanguageExt
             }
             return Tell(
                     new ActorResponse(
-                        ActorContext.CurrentRequest.ReplyTo,
                         stream,
+                        ActorContext.CurrentRequest.ReplyTo,
                         processId, 
                         ActorContext.CurrentRequest.RequestId
                         ),
@@ -193,10 +194,10 @@ namespace LanguageExt
 
             return Tell(
                 new ActorResponse(
-                    ActorContext.CurrentRequest.ReplyTo,
                     store.ContainsKey(processId.Path)
                         ? store[processId.Path].Actor.StateStream
                         : Cluster.MatchUnsafe( c => c.SubscribeToChannel(processId.Path + "-pubsub", typeof(object)), None: () => null),     // TODO: Specify the type
+                    ActorContext.CurrentRequest.ReplyTo,
                     processId, 
                     ActorContext.CurrentRequest.RequestId
                     ),
@@ -238,13 +239,17 @@ namespace LanguageExt
             var actor = new Actor<S, T>(Cluster, parent, name, actorFn, setupFn, flags);
 
             IActorInbox inbox = null;
-            if ((flags & ProcessFlags.PersistInbox) == ProcessFlags.PersistInbox)
+            if ((flags & ProcessFlags.ListenRemoteAndLocal) == ProcessFlags.ListenRemoteAndLocal && Cluster.IsSome)
+            {
+                inbox = new ActorInboxDual<S, T>();
+            }
+            else if ((flags & ProcessFlags.PersistInbox) == ProcessFlags.PersistInbox && Cluster.IsSome)
             {
                 inbox = new ActorInboxRemote<S, T>();
             }
             else
             {
-                inbox = new ActorInbox<S, T>();
+                inbox = new ActorInboxLocal<S, T>();
             }
             AddOrUpdateStoreAndStartup(actor, inbox, flags);
             return actor.Id;
@@ -303,9 +308,6 @@ namespace LanguageExt
 
         public ProcessId System =>
             system;
-
-        public ProcessId NoSender =>
-            noSender;
 
         public ProcessId Errors =>
             errors;
@@ -412,21 +414,47 @@ namespace LanguageExt
 
         private static Unit TellRemote(object message, ProcessId pid, ProcessId sender, ICluster c, string inbox, int type, int tag)
         {
+            var req = message as ActorRequest;
+            var res = message as ActorResponse;
+
+            // TODO: Eurggh.  Refactor.
             var dto = new RemoteMessageDTO()
             {
                 Type = type,
-                Tag = tag,
+                Tag = req == null
+                    ? res == null
+                        ? tag
+                        : (int)Message.TagSpec.UserReply
+                    : (int)Message.TagSpec.UserAsk,
                 Child = null,
                 Exception = null,
-                RequestId = ActorContext.CurrentRequest == null ? -1 : ActorContext.CurrentRequest.RequestId,
-                Sender = sender.ToString(),
-                ReplyTo = sender.ToString(),
+                RequestId = req == null
+                    ? res == null
+                        ? -1
+                        : res.RequestId
+                    : req.RequestId,
+                Sender = res == null
+                    ? sender.ToString()
+                    : res.ReplyFrom.ToString(),
+                ReplyTo = req == null
+                    ? res == null
+                        ? sender.ToString()
+                        : res.ReplyTo.ToString()
+                    : req.ReplyTo.ToString(),
                 ContentType = message == null
                     ? null
-                    : message.GetType().AssemblyQualifiedName,
+                    : req == null
+                        ? res == null
+                            ? message.GetType().AssemblyQualifiedName
+                            : res.Message.GetType().AssemblyQualifiedName
+                        : req.Message.GetType().AssemblyQualifiedName,
                 Content = message == null 
                     ? null 
-                    : JsonConvert.SerializeObject(message, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All })
+                    : JsonConvert.SerializeObject(req == null
+                                                    ? res == null
+                                                        ? message
+                                                        : res.Message
+                                                    : req.Message, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All, TypeNameAssemblyFormat = global::System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Full })
             };
 
             var userInbox = pid.Path + "-" + inbox + "-inbox";

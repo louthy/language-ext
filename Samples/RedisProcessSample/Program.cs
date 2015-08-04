@@ -25,7 +25,7 @@ namespace RedisPublishSample
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-test", "localhost", "0");
+            Cluster.connect("redis", "redis-test", "localhost:6379", "0");
 
             // Launch a process that publishes a random number as fast as possible
             var pid = spawn<Random, int>("redis-pubsub-random-test", Setup, Inbox, ProcessFlags.RemotePublish);

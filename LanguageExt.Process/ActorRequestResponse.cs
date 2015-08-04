@@ -28,15 +28,18 @@ namespace LanguageExt
         }
     }
 
-    internal class ActorResponse
+    internal class ActorResponse : UserControlMessage
     {
         public readonly ProcessId ReplyTo;
         public readonly object Message;
         public readonly ProcessId ReplyFrom;
         public readonly long RequestId;
 
+        public override Type MessageType => Type.User;
+        public override TagSpec Tag      => TagSpec.UserReply;
+
         [JsonConstructor]
-        public ActorResponse(ProcessId replyTo, object message, ProcessId replyFrom, long requestId)
+        public ActorResponse(object message, ProcessId replyTo, ProcessId replyFrom, long requestId)
         {
             Message = message;
             ReplyTo = replyTo;

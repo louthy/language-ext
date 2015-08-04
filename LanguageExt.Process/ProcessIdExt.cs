@@ -47,14 +47,14 @@ public static class __ProcessIdExt
     /// <summary>
     /// Register as a named process
     /// </summary>
-    public static ProcessId Register<T>(this ProcessId self) =>
-        ActorContext.Register<T>(self.GetName(), self);
+    public static ProcessId Register<T>(this ProcessId self, ProcessFlags flags = ProcessFlags.Default) =>
+        ActorContext.Register<T>(self.GetName(), self, flags);
 
     /// <summary>
     /// Register as a named process
     /// </summary>
-    public static ProcessId Register<T>(this ProcessId self, ProcessName name) =>
-        ActorContext.Register<T>(name, self);
+    public static ProcessId Register<T>(this ProcessId self, ProcessName name, ProcessFlags flags = ProcessFlags.Default) =>
+        ActorContext.Register<T>(name, self, flags);
 
     /// <summary>
     /// Kill the process.

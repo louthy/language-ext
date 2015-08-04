@@ -88,19 +88,21 @@ namespace LanguageExt
 
         public static void UserMessageInbox<S, T>(Actor<S, T> actor, UserControlMessage msg)
         {
-            if (msg.MessageType == Message.Type.User)
+            if (msg.Tag == Message.TagSpec.UserAsk)
             {
-                if (msg.Tag == Message.TagSpec.UserAsk)
-                {
-                    var rmsg = (ActorRequest)msg;
-                    ActorContext.CurrentRequest = rmsg;
-                    ActorContext.WithContext(actor, rmsg.ReplyTo, msg, () => actor.ProcessAsk(rmsg));
-                }
-                else
-                {
-                    var umsg = (UserMessage)msg;
-                    ActorContext.WithContext(actor, umsg.Sender, msg, () => actor.ProcessMessage((T)umsg.Content));
-                }
+                var rmsg = (ActorRequest)msg;
+                ActorContext.CurrentRequest = rmsg;
+                ActorContext.WithContext(actor, rmsg.ReplyTo, msg, () => actor.ProcessAsk(rmsg));
+            }
+            else if (msg.Tag == Message.TagSpec.UserReply)
+            {
+                var rmsg = (ActorResponse)msg;
+                ActorContext.WithContext(actor, rmsg.ReplyFrom, msg, () => actor.ProcessMessage(msg));
+            }
+            else if (msg.Tag == Message.TagSpec.User)
+            {
+                var umsg = (UserMessage)msg;
+                ActorContext.WithContext(actor, umsg.Sender, msg, () => actor.ProcessMessage(umsg.Content));
             }
             else if (msg.MessageType == Message.Type.UserControl)
             {

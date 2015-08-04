@@ -39,6 +39,16 @@ namespace LanguageExt
         /// Combines PersistentState | PersistentInbox | RemotePublish to persist
         /// all data relating to the process.
         /// </summary>
-        PersistAll = 7
+        PersistAll = 7,
+
+        /// <summary>
+        /// Allows a process to listen for messages locally and remotely.  This is mainly
+        /// for internal processes to do stuff like route replies.  But can also be used
+        /// for regular processes where you want local messages to be sent direct and not
+        /// persisted, but still make the process available to receive messages from remote
+        /// sources.
+        /// </summary>
+        ListenRemoteAndLocal = 8
+
     }
 }
