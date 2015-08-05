@@ -1097,24 +1097,24 @@ So there's a supervision hierarchy, where you have a root process, then a child 
     /root/registered/...
     etc.
 ```
-But when you create a Redis cluster connection the second argument is the name of the app/service/website, whatever it is that's running.  
+But when you create a Redis cluster connection the second argument is the name of the node in the 'cluster' (i.e. the app/service/website, whatever it is your code does).  
 ```C#
     RedisCluster.register();
     Cluster.connect("redis", "my-stuff", "localhost", "0");
 ```
 Then your user hierarchy looks like this:
 ```C#
-    /root/my-stuff/...
-    /root/system/dead-letters
-    /root/registered/...
+    /my-stuff/user/...
+    /my-stuff/system/dead-letters
+    /registered/...
 ```
 So you know where things are, and what they're called, and they're easily addressable.  You can just 'tell' the address:
 ```C#
-    tell("/root/my-stuff/hello", "Hello!");
+    tell("/my-stuff/user/hello", "Hello!");
 ```
 Even that isn't great if you don't know what the name of the 'app' is running a process.  So processes can register by a single name, that goes into a 'shared hierarchy':
 ```
-    /root/registered/...
+    /registered/...
 ```
 To register:
 ```C#
@@ -1122,9 +1122,9 @@ To register:
 ```
 This goes in:
 ```
-    /root/registered/hello-world
+    /registered/hello-world
 ```
-Your process now has two addresses, the `/root/my-stuff/hello-world` address that no-one can find, and the `root/registered/hello-world` address that anyone can find using `find("hello-world")`.  This makes it very simple to bootstrap processes and send them messages:
+Your process now has two addresses, the `/my-stuff/user/hello-world` address and the `/registered/hello-world` address that anyone can find calling `find("hello-world")`.  This makes it very simple to bootstrap processes and send them messages:
 :
 ```C#
     tell(find("hello-world"), "Hi!");
