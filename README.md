@@ -952,7 +952,7 @@ There are lots of Actor systems out there, so what makes this any different?  Ob
 * Made a 'functional first' API
 
 ### Remove the need to declare new classes for processes (actors)
-If your process is stateless then you just provide an `Action<TMsg>` to handle the messages, if your process is stateful then you provide a `Func<TState>` setup function, and a `Func<TState,TMsg, TState>` to handle the messages.  This makes it  easy to create new processes and reduces the cognitive overload of having loads of classes for what should be small packets of computation.
+If your process is stateless then you just provide an `Action<TMsg>` to handle the messages, if your process is stateful then you provide a `Func<TState>` setup function, and a `Func<TState,TMsg, TState>` to handle the messages (any seasoned functional programmer will notice that is the signature of a fold).  This makes it  easy to create new processes and reduces the cognitive overload of having loads of classes for what should be small packets of computation.
 
 You still need to create classes for messages and the like, that's unavoidable (Use F# to create a 'messages' project, it's much quicker and easier).  But also, it's desirable, because it's the messages that define the interface and the interaction, not the processing class.
 
