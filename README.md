@@ -1090,14 +1090,13 @@ That's it!  For a key piece of infrastructure.  So it's then possible to easily 
 ### 'Discoverability'
 On other actor systems I was struggling to reliably get messages from one machine to another, or to know the process ID of a remote actor so I could message it.  What I want to do with this is to keep it super light, and lean.  I want to keep the setup options simple, and the 'discoverability' easy.
 
-So there's a supervision hierarchy, where you have a root process, then a child 'user' process, and then you create your processes under the user process (and in turn they create child processes).  There's also system process under root that handles stuff like dead-letters and various other housekeeping tasks.  And a 'registered' process:
+So there's a supervision hierarchy, where you have a `root` process, then a child `user` process under which you create your processes (and in turn they create child processes).  There's also `system` process under `root` that handles stuff like dead-letters and various other housekeeping tasks.  
 ```C#
     /root/user/...
     /root/system/dead-letters
-    /root/registered/...
     etc.
 ```
-But when you create a Redis cluster connection the second argument is the name of the node in the 'cluster' (i.e. the app/service/website, whatever it is your code does).  
+When you create a Redis cluster connection the second argument is the name of the node in the 'cluster' (i.e. the name of the app/service/website, whatever it is your code does).  
 ```C#
     RedisCluster.register();
     Cluster.connect("redis", "my-stuff", "localhost", "0");
@@ -1106,7 +1105,6 @@ Then your user hierarchy looks like this:
 ```C#
     /my-stuff/user/...
     /my-stuff/system/dead-letters
-    /registered/...
 ```
 So you know where things are, and what they're called, and they're easily addressable.  You can just 'tell' the address:
 ```C#
@@ -1124,7 +1122,7 @@ This goes in:
 ```
     /registered/hello-world
 ```
-Your process now has two addresses, the `/my-stuff/user/hello-world` address and the `/registered/hello-world` address that anyone can find calling `find("hello-world")`.  This makes it very simple to bootstrap processes and send them messages:
+Your process now has two addresses, the `/my-stuff/user/hello-world` address and the `/registered/hello-world` address that anyone can find calling `find("hello-world")`.  This makes it very simple to bootstrap processes and get messages to them even if you don't know what system is actually dealing with it:
 :
 ```C#
     tell(find("hello-world"), "Hi!");
