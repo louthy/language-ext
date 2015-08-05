@@ -1128,27 +1128,34 @@ Your process now has two addresses, the `/my-stuff/user/hello-world` address and
     tell(find("hello-world"), "Hi!");
 ```
 ### Persistence
-There is an `ICluster` interface that you can use the implement your own persistence layer.  But out of the box there is persistence to Redis (in `LanguageExt.Process.Redis`).  We optionally persist:
+There is an `ICluster` interface that you can use the implement your own persistence layer.  However out of the box there is persistence to Redis (using `LanguageExt.Process.Redis`).  
+
+You can optionally persist:
 
 * Inbox messages
 * Process state
 
 Here's an example of persisting the inbox:
-
-`var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistInbox);`
-
+```C#
+    var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistInbox);
+```
 Here's an example of persisting the state:
-
-`var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistState);`
-
-Here's an example of persisting the both:
-
-`var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistAll);`
+```C#
+    var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistState);
+```
+Here's an example of persisting both:
+```C#
+    var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistAll);
+```
 
 ### Style
-The final thing was I wanted from the process system was just style really, I wanted something that complemented the Language-Ext style, was  'functional first' rather than as an afterthought.  It's still alpha, but it's looking pretty good (files to look at are `Prelude.cs`, `Prelude_Ask.cs`, `Prelude_Tell.cs`, `Prelude_PubSub.cs`, `Prelude_Spawn.cs`).  
+The final thing was I wanted from the process system was just style really, I wanted something that complemented the Language-Ext style, was 'functional first' rather than as an afterthought.  It's still alpha, but it's looking pretty good (files to look at are `Prelude.cs`, `Prelude_Ask.cs`, `Prelude_Tell.cs`, `Prelude_PubSub.cs`, `Prelude_Spawn.cs`).  
 
-One wish-list item is to create an IO monad that captures all of the IO functions like `tell`, `ask`, `reply`, and `publish` as a series of continuations so that I can create a single transaction from one message loop, and use that transaction to do hyper-robust message sequencing.  Because currently delivery is asynchronous, so sometimes you're at the mercy of the thread-pool.  It would also allow for high quality unit testing of the message-loops, because you could mock the IO functions.  Hopefully I can get to that soon.
+One wish-list item is to create an IO monad that captures all of the IO functions like `tell`, `ask`, `reply`, and `publish` as a series of continuations so that I can create a single transaction from one message loop, and use that transaction to do hyper-robust message sequencing.  Currently delivery is asynchronous, so sometimes you're at the mercy of the thread-pool.  
+
+It would also allow for high quality unit testing of the process computation, because you could mock the IO functions.  
+
+Hopefully I can get to that soon.
 
 ### The rest
 I haven't had time to document everything, so here's a quick list of what was missed:
