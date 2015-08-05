@@ -60,7 +60,7 @@ namespace LanguageExt
             RootInbox = rootInbox;
             RootProcessName = rootProcessName;
 
-            RootProcess.Id.MakeChildId(Config.RegisteredProcessName);
+            RootProcess.Id.Child(Config.RegisteredProcessName);
 
             store.Add(Root.Path, new ActorItem(RootProcess, rootInbox, ProcessFlags.Default));
         }

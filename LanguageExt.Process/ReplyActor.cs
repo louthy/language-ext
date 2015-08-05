@@ -15,7 +15,7 @@ namespace LanguageExt
 
         public static Random Inbox(Random rnd, ActorResponse reply)
         {
-            var dist = Self.MakeChildId("reply-" + rnd.Next(responseActors));
+            var dist = Self.Child("reply-" + rnd.Next(responseActors));
             tell(dist, reply);
             return rnd;
         }

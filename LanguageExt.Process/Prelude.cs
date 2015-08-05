@@ -148,7 +148,7 @@ namespace LanguageExt
         /// </summary>
         public static ProcessId child(ProcessName name) =>
             InMessageLoop
-                ? Self.MakeChildId(name)
+                ? Self.Child(name)
                 : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(child));
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace LanguageExt
         /// <param name="name">Process name</param>
         /// <returns>ProcessId or ProcessId.None</returns>
         public static ProcessId find(ProcessName name) =>
-            ActorContext.Registered.MakeChildId(name);
+            ActorContext.Registered.Child(name);
 
         /// <summary>
         /// Register self as a named process

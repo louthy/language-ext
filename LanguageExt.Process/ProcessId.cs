@@ -18,6 +18,9 @@ namespace LanguageExt
         readonly ProcessName[] parts;
         readonly ProcessName name;
 
+        /// <summary>
+        /// Absolute path of the process ID
+        /// </summary>
         public readonly string Path;
 
         /// <summary>
@@ -60,7 +63,7 @@ namespace LanguageExt
                     ? Sep.ToString()
                     : Sep + String.Join(Sep.ToString(), parts);
 
-            if (path != "/")
+            if (path != Sep.ToString())
             {
                 name = parts == null
                     ? ""
@@ -77,9 +80,16 @@ namespace LanguageExt
         /// <summary>
         /// Generate new ProcessId that represents a child of this process ID
         /// </summary>
+        /// <returns>Process ID</returns>
+        public ProcessId this[ProcessName child] => 
+            Child(child);
+
+        /// <summary>
+        /// Generate new ProcessId that represents a child of this process ID
+        /// </summary>
         /// <param name="name">Name of the child process</param>
         /// <returns>Process ID</returns>
-        public ProcessId MakeChildId(ProcessName name) =>
+        public ProcessId Child(ProcessName name) =>
             parts == null
                 ? failwith<ProcessId>("ProcessId is None")
                 : parts.Length == 0
@@ -182,12 +192,18 @@ namespace LanguageExt
         /// Remove path elements from the start of the path
         /// </summary>
         public ProcessId Skip(int count) =>
-            new ProcessId(Sep.ToString() + String.Join(Sep.ToString(), parts.Skip(count)));
+            new ProcessId(Top + String.Join(Sep.ToString(), parts.Skip(count)));
 
         /// <summary>
         /// Take N elements of the path
         /// </summary>
         public ProcessId Take(int count) =>
-            new ProcessId(Sep.ToString() + String.Join(Sep.ToString(), parts.Take(count)));
+            new ProcessId(Top + String.Join(Sep.ToString(), parts.Take(count)));
+
+        /// <summary>
+        /// Absolute root of the process system
+        /// </summary>
+        public static readonly ProcessId Top = 
+            new ProcessId(Sep.ToString());
     }
 }

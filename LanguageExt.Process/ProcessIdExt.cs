@@ -27,7 +27,7 @@ public static class __ProcessIdExt
     /// Get the child processes by name
     /// </summary>
     public static ProcessId GetChild(this ProcessId self, ProcessName name) =>
-        self.MakeChildId(name);
+        self.Child(name);
 
     /// <summary>
     /// Get the child processes by index.

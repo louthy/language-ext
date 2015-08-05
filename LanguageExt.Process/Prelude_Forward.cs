@@ -47,7 +47,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <param name="name">Name of the child process</param>
         public static Unit fwdChild<T>(ProcessName name, T message) =>
-            fwd(Self.MakeChildId(name), message);
+            fwd(Self.Child(name), message);
 
         /// <summary>
         /// Forward a message to a child process (found by index)
@@ -82,7 +82,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="name">Name of the child process</param>
         public static Unit fwdChild<T>(ProcessName name) =>
-            fwd<T>(Self.MakeChildId(name));
+            fwd<T>(Self.Child(name));
 
         /// <summary>
         /// Forward a message to a child process (found by index)

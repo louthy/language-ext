@@ -35,15 +35,18 @@ namespace LanguageExt
 
         public static Unit Startup(Option<ICluster> cluster, int version = 0)
         {
+            var name = GetRootProcessName();
+            if (name.Value == "root" && cluster.IsSome) throw new ArgumentException("Cluster node name cannot be 'root', it's reserved for local use only.");
+            if (name.Value == "registered") throw new ArgumentException("Node name cannot be 'registered', it's reserved for registered processes.");
+
             lock (sync)
             {
                 ActorContext.cluster = cluster;
-                var name = ProcessId.Sep.ToString() + GetRootProcessName();
-                root = new ProcessId(name);
+                root = ProcessId.Top.Child(name);
                 rootInbox = new ActorInboxLocal<ActorSystemState, object>();
                 rootProcess = new Actor<ActorSystemState, object>(
                     cluster,
-                    new ProcessId(ProcessId.Sep.ToString()),
+                    ProcessId.Top,
                     ActorConfig.Default.RootProcessName, 
                     ActorSystem.Inbox, 
                     rootProcess => new ActorSystemState(cluster, root, rootProcess, rootInbox, GetRootProcessName(), ActorConfig.Default), 
@@ -174,19 +177,19 @@ namespace LanguageExt
             self.Parent;
 
         public static ProcessId System =>
-            Root.MakeChildId(ActorConfig.Default.SystemProcessName);
+            Root.Child(ActorConfig.Default.SystemProcessName);
 
         public static ProcessId User =>
-            Root.MakeChildId(ActorConfig.Default.UserProcessName);
+            Root.Child(ActorConfig.Default.UserProcessName);
 
         public static ProcessId Registered =>
-            Root.MakeChildId(ActorConfig.Default.RegisteredProcessName);
+            Root.Child(ActorConfig.Default.RegisteredProcessName);
 
         public static ProcessId Errors =>
-            System.MakeChildId(ActorConfig.Default.ErrorsProcessName);
+            System.Child(ActorConfig.Default.ErrorsProcessName);
 
         public static ProcessId DeadLetters =>
-            System.MakeChildId(ActorConfig.Default.DeadLettersProcessName);
+            System.Child(ActorConfig.Default.DeadLettersProcessName);
 
         public static Map<string, ProcessId> Children =>
             self.Children;
@@ -195,7 +198,7 @@ namespace LanguageExt
             cluster.Map(c => c.NodeName).IfNone("user");
 
         internal static ProcessId AskId =>
-            System.MakeChildId(ActorConfig.Default.AskProcessName);
+            System.Child(ActorConfig.Default.AskProcessName);
 
         public static ActorRequest CurrentRequest
         {
@@ -252,7 +255,7 @@ namespace LanguageExt
         }
 
         public static Unit Deregister(ProcessName name) =>
-            Process.kill(Registered.MakeChildId(name));
+            Process.kill(Registered.Child(name));
 
         public static R WithContext<R>(IActor self, ProcessId sender, ActorRequest request, object msg, Func<R> f)
         {

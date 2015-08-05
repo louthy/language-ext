@@ -17,7 +17,7 @@ namespace LanguageExtTests
 
             Assert.IsTrue(pid.Path == "/root/user/test");
             Assert.IsTrue(pid.GetName().Value == "test");
-            Assert.IsTrue(pid.MakeChildId("ing").Path == "/root/user/test/ing");
+            Assert.IsTrue(pid.Child("ing").Path == "/root/user/test/ing");
 
             var json = JsonConvert.SerializeObject(pid);
 
@@ -25,7 +25,7 @@ namespace LanguageExtTests
 
             Assert.IsTrue(pid.Path == "/root/user/test");
             Assert.IsTrue(pid.GetName().Value == "test");
-            Assert.IsTrue(pid.MakeChildId("ing").Path == "/root/user/test/ing");
+            Assert.IsTrue(pid.Child("ing").Path == "/root/user/test/ing");
         }
 
         [Test]

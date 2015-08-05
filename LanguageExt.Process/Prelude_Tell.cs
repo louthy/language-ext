@@ -205,7 +205,7 @@ namespace LanguageExt
         /// <param name="name">Name of the child process</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         public static Unit tellChild<T>(ProcessName name, T message, ProcessId sender = new ProcessId()) =>
-            tell(Self.MakeChildId(name), message, sender);
+            tell(Self.Child(name), message, sender);
 
         /// <summary>
         /// Send a message to a child process (found by index)

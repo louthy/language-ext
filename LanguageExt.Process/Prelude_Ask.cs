@@ -53,7 +53,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <param name="name">Name of the child process</param>
         public static T askChild<T>(ProcessName name, object message) =>
-            ask<T>(Self.MakeChildId(name), message);
+            ask<T>(Self.Child(name), message);
 
         /// <summary>
         /// Ask a child process (found by index) for a reply

@@ -44,7 +44,7 @@ namespace LanguageExt
             setupFn = setup;
             Parent = parent;
             Name = name;
-            Id = parent.MakeChildId(name);
+            Id = parent.Child(name);
 
             SetupClusterStatePersist(cluster, flags);
         }
