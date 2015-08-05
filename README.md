@@ -952,7 +952,7 @@ There are lots of Actor systems out there, so what makes this any different?  Ob
 * Made a 'functional first' API
 
 ### Remove the need to declare new classes for processes (actors)
-If your process is stateless then you just provide an `Action<TMsg>` to handle the messages, if your process is stateful then you provide a `Func<TState>` setup function, and a `Func<TState,TMsg, TState>` to handle the messages.  This makes it  easy to create new processes and reduces the cognitive overload of having loads of classes for what should be small packets of computation.
+If your process is stateless then you just provide an `Action<TMsg>` to handle the messages, if your process is stateful then you provide a `Func<TState>` setup function, and a `Func<TState,TMsg, TState>` to handle the messages (any seasoned functional programmer will notice that is the signature of a fold).  This makes it  easy to create new processes and reduces the cognitive overload of having loads of classes for what should be small packets of computation.
 
 You still need to create classes for messages and the like, that's unavoidable (Use F# to create a 'messages' project, it's much quicker and easier).  But also, it's desirable, because it's the messages that define the interface and the interaction, not the processing class.
 
@@ -1090,31 +1090,29 @@ That's it!  For a key piece of infrastructure.  So it's then possible to easily 
 ### 'Discoverability'
 On other actor systems I was struggling to reliably get messages from one machine to another, or to know the process ID of a remote actor so I could message it.  What I want to do with this is to keep it super light, and lean.  I want to keep the setup options simple, and the 'discoverability' easy.
 
-So there's a supervision hierarchy, where you have a root process, then a child 'user' process, and then you create your processes under the user process (and in turn they create child processes).  There's also system process under root that handles stuff like dead-letters and various other housekeeping tasks.  And a 'registered' process:
+So there's a supervision hierarchy, where you have a `root` process, then a child `user` process under which you create your processes (and in turn they create child processes).  There's also `system` process under `root` that handles stuff like dead-letters and various other housekeeping tasks.  
 ```C#
     /root/user/...
     /root/system/dead-letters
-    /root/registered/...
     etc.
 ```
-But when you create a Redis cluster connection the second argument is the name of the app/service/website, whatever it is that's running.  
+When you create a Redis cluster connection the second argument is the name of the node in the 'cluster' (i.e. the name of the app/service/website, whatever it is your code does).  
 ```C#
     RedisCluster.register();
     Cluster.connect("redis", "my-stuff", "localhost", "0");
 ```
 Then your user hierarchy looks like this:
 ```C#
-    /root/my-stuff/...
-    /root/system/dead-letters
-    /root/registered/...
+    /my-stuff/user/...
+    /my-stuff/system/dead-letters
 ```
 So you know where things are, and what they're called, and they're easily addressable.  You can just 'tell' the address:
 ```C#
-    tell("/root/my-stuff/hello", "Hello!");
+    tell("/my-stuff/user/hello", "Hello!");
 ```
 Even that isn't great if you don't know what the name of the 'app' is running a process.  So processes can register by a single name, that goes into a 'shared hierarchy':
 ```
-    /root/registered/...
+    /registered/...
 ```
 To register:
 ```C#
@@ -1122,35 +1120,42 @@ To register:
 ```
 This goes in:
 ```
-    /root/registered/hello-world
+    /registered/hello-world
 ```
-Your process now has two addresses, the `/root/my-stuff/hello-world` address that no-one can find, and the `root/registered/hello-world` address that anyone can find using `find("hello-world")`.  This makes it very simple to bootstrap processes and send them messages:
+Your process now has two addresses, the `/my-stuff/user/hello-world` address and the `/registered/hello-world` address that anyone can find calling `find("hello-world")`.  This makes it very simple to bootstrap processes and get messages to them even if you don't know what system is actually dealing with it:
 :
 ```C#
     tell(find("hello-world"), "Hi!");
 ```
 ### Persistence
-There is an `ICluster` interface that you can use the implement your own persistence layer.  But out of the box there is persistence to Redis (in `LanguageExt.Process.Redis`).  We optionally persist:
+There is an `ICluster` interface that you can use the implement your own persistence layer.  However out of the box there is persistence to Redis (using `LanguageExt.Process.Redis`).  
+
+You can optionally persist:
 
 * Inbox messages
 * Process state
 
 Here's an example of persisting the inbox:
-
-`var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistInbox);`
-
+```C#
+    var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistInbox);
+```
 Here's an example of persisting the state:
-
-`var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistState);`
-
-Here's an example of persisting the both:
-
-`var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistAll);`
+```C#
+    var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistState);
+```
+Here's an example of persisting both:
+```C#
+    var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistAll);
+```
 
 ### Style
-The final thing was I wanted from the process system was just style really, I wanted something that complemented the Language-Ext style, was  'functional first' rather than as an afterthought.  It's still alpha, but it's looking pretty good (files to look at are `Prelude.cs`, `Prelude_Ask.cs`, `Prelude_Tell.cs`, `Prelude_PubSub.cs`, `Prelude_Spawn.cs`).  
+The final thing was I wanted from the process system was just style really, I wanted something that complemented the Language-Ext style, was 'functional first' rather than as an afterthought.  It's still alpha, but it's looking pretty good (files to look at are `Prelude.cs`, `Prelude_Ask.cs`, `Prelude_Tell.cs`, `Prelude_PubSub.cs`, `Prelude_Spawn.cs`).  
 
-One wish-list item is to create an IO monad that captures all of the IO functions like `tell`, `ask`, `reply`, and `publish` as a series of continuations so that I can create a single transaction from one message loop, and use that transaction to do hyper-robust message sequencing.  Because currently delivery is asynchronous, so sometimes you're at the mercy of the thread-pool.  It would also allow for high quality unit testing of the message-loops, because you could mock the IO functions.  Hopefully I can get to that soon.
+One wish-list item is to create an IO monad that captures all of the IO functions like `tell`, `ask`, `reply`, and `publish` as a series of continuations so that I can create a single transaction from one message loop, and use that transaction to do hyper-robust message sequencing.  Currently delivery is asynchronous, so sometimes you're at the mercy of the thread-pool.  
+
+It would also allow for high quality unit testing of the process computation, because you could mock the IO functions.  
+
+Hopefully I can get to that soon.
 
 ### The rest
 I haven't had time to document everything, so here's a quick list of what was missed:
