@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Microsoft.FSharp.Control;
+using System.Reactive.Linq;
+using System.Reactive.Concurrency;
 using static LanguageExt.Process;
 using static LanguageExt.Prelude;
 using LanguageExt.Trans;
@@ -54,6 +56,7 @@ namespace LanguageExt
             CheckRemoteInbox(ClusterSystemInboxKey);
 
             userSub = this.cluster.SubscribeToChannel<string>(ClusterUserInboxNotifyKey)
+                        .ObserveOn(TaskPoolScheduler.Default)
                         .Subscribe(msg =>
                         {
                             if (userInbox.CurrentQueueLength == 0)
@@ -63,6 +66,7 @@ namespace LanguageExt
                         });
 
             sysSub = this.cluster.SubscribeToChannel<string>(ClusterSystemInboxNotifyKey)
+                        .ObserveOn(TaskPoolScheduler.Default)
                         .Subscribe(msg =>
                         {
                             if (sysInbox.CurrentQueueLength == 0)

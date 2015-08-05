@@ -35,13 +35,13 @@ namespace LanguageExt
 
         public static Unit Startup(Option<ICluster> cluster, int version = 0)
         {
+            ActorContext.cluster = cluster;
             var name = GetRootProcessName();
             if (name.Value == "root" && cluster.IsSome) throw new ArgumentException("Cluster node name cannot be 'root', it's reserved for local use only.");
             if (name.Value == "registered") throw new ArgumentException("Node name cannot be 'registered', it's reserved for registered processes.");
 
             lock (sync)
             {
-                ActorContext.cluster = cluster;
                 root = ProcessId.Top.Child(name);
                 rootInbox = new ActorInboxLocal<ActorSystemState, object>();
                 rootProcess = new Actor<ActorSystemState, object>(
@@ -85,6 +85,7 @@ namespace LanguageExt
             var subject = new Subject<object>();
             return subject.PostSubscribeAction(() => Process.tell(AskId, new AskActorReq(message, subject, pid, Self)))
                           .Timeout(ActorConfig.Default.Timeout)
+                          .ObserveOn(TaskPoolScheduler.Default)
                           .Select(obj => (T)obj);
         }
 
@@ -138,19 +139,25 @@ namespace LanguageExt
         }
 
         public static Unit Tell(ProcessId to, object message, ProcessId sender) =>
-            to.Path == root.Path
-                ? LocalRoot.Tell(message, sender)
-                : Tell(root, ActorSystemMessage.Tell(to, message, sender), sender);
+            message == null
+                ? raise<Unit>(new ArgumentNullException(nameof(message), "Messages can't be null"))
+                : to.Path == root.Path
+                    ? LocalRoot.Tell(message, sender)
+                    : Tell(root, ActorSystemMessage.Tell(to, message, sender), sender);
 
         public static Unit TellUserControl(ProcessId to, UserControlMessage message) =>
-            to.Path == root.Path
-                ? LocalRoot.Tell(message, Self)
-                : Tell(root, ActorSystemMessage.TellUserControl(to, message, Self), Self);
+            message == null
+                ? raise<Unit>(new ArgumentNullException(nameof(message), "User control messages can't be null"))
+                : to.Path == root.Path
+                    ? LocalRoot.Tell(message, Self)
+                    : Tell(root, ActorSystemMessage.TellUserControl(to, message, Self), Self);
 
         public static Unit TellSystem(ProcessId to, SystemMessage message) =>
-            to.Path == root.Path
-                ? LocalRoot.Tell(message, Self)
-                : Tell(root, ActorSystemMessage.TellSystem(to, message, Self), Self);
+            message == null
+                ? raise<Unit>(new ArgumentNullException(nameof(message), "System messages can't be null"))
+                : to.Path == root.Path
+                    ? LocalRoot.Tell(message, Self)
+                    : Tell(root, ActorSystemMessage.TellSystem(to, message, Self), Self);
 
         public static ILocalActorInbox LocalRoot => 
             (ILocalActorInbox)rootInbox;
