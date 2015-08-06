@@ -94,46 +94,47 @@ namespace LanguageExt
         /// <summary>
         /// Subscribe to a named channel
         /// </summary>
-        public IObservable<object> SubscribeToChannel(string channelName, Type type)
+        public void SubscribeToChannel(string channelName, Type type, Action<object> handler)
         {
-            var subject = new Subject<object>();
-            return subject.PostSubscribeAction(() =>
-                redis.GetSubscriber().Subscribe(
-                    channelName,
-                    (channel, value) =>
+            redis.GetSubscriber().Subscribe(
+                channelName,
+                (channel, value) =>
+                {
+                    if (channel == channelName && !value.IsNullOrEmpty)
                     {
-                        if (channel == channelName && !value.IsNullOrEmpty)
+                        try
                         {
-                            try
-                            {
-                                subject.OnNext(JsonConvert.DeserializeObject(value, type));
-                            }
-                            catch
-                            {
-                            }
+                            handler(JsonConvert.DeserializeObject(value, type));
                         }
-                    }));
+                        catch
+                        {
+                        }
+                    }
+                });
         }
 
-        public IObservable<T> SubscribeToChannel<T>(string channelName)
+        public void SubscribeToChannel<T>(string channelName, Action<T> handler)
         {
-            var subject = new Subject<T>();
-            return subject.PostSubscribeAction(() =>
-                redis.GetSubscriber().Subscribe(
-                    channelName,
-                    (channel, value) =>
+            redis.GetSubscriber().Subscribe(
+                channelName,
+                (channel, value) =>
+                {
+                    if (channel == channelName && !value.IsNullOrEmpty)
                     {
-                        if (channel == channelName && !value.IsNullOrEmpty)
+                        try
                         {
-                            try
-                            {
-                                subject.OnNext(JsonConvert.DeserializeObject<T>(value));
-                            }
-                            catch
-                            {
-                            }
+                            handler(JsonConvert.DeserializeObject<T>(value));
                         }
-                    }));
+                        catch
+                        {
+                        }
+                    }
+                });
+        }
+
+        public void UnsubscribeChannel(string channelName)
+        {
+            redis.GetSubscriber().Unsubscribe(channelName);
         }
 
         public void SetValue(string key, object value) =>

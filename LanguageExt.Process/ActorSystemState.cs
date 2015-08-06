@@ -171,8 +171,10 @@ namespace LanguageExt
 
             if (Cluster.IsSome && (item.Flags & ProcessFlags.RemotePublish) == ProcessFlags.RemotePublish)
             {
+                var subject = new Subject<object>();
+                stream = subject;
                 var cluster = Cluster.IfNone(() => null);
-                stream = cluster.SubscribeToChannel(processId.Path + "-pubsub", type);
+                cluster.SubscribeToChannel(processId.Path + "-pubsub", type, msg => subject.OnNext(msg));
             }
             else
             {
@@ -198,7 +200,13 @@ namespace LanguageExt
                 new ActorResponse(
                     store.ContainsKey(processId.Path)
                         ? store[processId.Path].Actor.StateStream
-                        : Cluster.MatchUnsafe( c => c.SubscribeToChannel(processId.Path + "-pubsub", typeof(object)), None: () => null),     // TODO: Specify the type
+                        : Cluster.MatchUnsafe(c =>
+                            {
+                                // TODO: Specify the type
+                                var subject = new Subject<object>();
+                                c.SubscribeToChannel(processId.Path + "-pubsub", typeof(object), msg => subject.OnNext(msg));
+                                return subject;
+                            }, None: () => null),     
                     ActorContext.CurrentRequest.ReplyTo,
                     processId, 
                     ActorContext.CurrentRequest.RequestId

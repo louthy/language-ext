@@ -85,7 +85,6 @@ namespace LanguageExt
             var subject = new Subject<object>();
             return subject.PostSubscribeAction(() => Process.tell(AskId, new AskActorReq(message, subject, pid, Self)))
                           .Timeout(ActorConfig.Default.Timeout)
-                          .ObserveOn(TaskPoolScheduler.Default)
                           .Select(obj => (T)obj);
         }
 

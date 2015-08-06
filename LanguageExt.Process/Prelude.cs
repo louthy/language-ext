@@ -58,7 +58,7 @@ namespace LanguageExt
         /// Log of everything that's going on in the Languge Ext process system
         /// </summary>
         public static readonly IObservable<ProcessLogItem> ProcessLog = 
-            log.SubscribeOn(TaskPoolScheduler.Default);
+            log.ObserveOn(TaskPoolScheduler.Default);
 
         /// <summary>
         /// Current process ID

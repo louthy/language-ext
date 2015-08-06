@@ -25,8 +25,6 @@ namespace LanguageExt
         CancellationTokenSource tokenSource;
         FSharpMailboxProcessor<UserControlMessage> userInbox;
         FSharpMailboxProcessor<SystemMessage> sysInbox;
-        IDisposable userSub;
-        IDisposable sysSub;
         Actor<S, T> actor;
         int version;
 
@@ -55,25 +53,23 @@ namespace LanguageExt
             CheckRemoteInbox(ClusterUserInboxKey);
             CheckRemoteInbox(ClusterSystemInboxKey);
 
-            userSub = this.cluster.SubscribeToChannel<string>(ClusterUserInboxNotifyKey)
-                        .ObserveOn(TaskPoolScheduler.Default)
-                        .Subscribe(msg =>
-                        {
-                            if (userInbox.CurrentQueueLength == 0)
-                            {
-                                CheckRemoteInbox(ClusterUserInboxKey);
-                            }
-                        });
+            this.cluster.SubscribeToChannel<string>(ClusterUserInboxNotifyKey, 
+                msg =>
+                {
+                    if (userInbox.CurrentQueueLength == 0)
+                    {
+                        CheckRemoteInbox(ClusterUserInboxKey);
+                    }
+                });
 
-            sysSub = this.cluster.SubscribeToChannel<string>(ClusterSystemInboxNotifyKey)
-                        .ObserveOn(TaskPoolScheduler.Default)
-                        .Subscribe(msg =>
-                        {
-                            if (sysInbox.CurrentQueueLength == 0)
-                            {
-                                CheckRemoteInbox(ClusterSystemInboxKey);
-                            }
-                        });
+            this.cluster.SubscribeToChannel<string>(ClusterSystemInboxNotifyKey, 
+                msg =>
+                {
+                    if (sysInbox.CurrentQueueLength == 0)
+                    {
+                        CheckRemoteInbox(ClusterSystemInboxKey);
+                    }
+                });
 
             return unit;
         }
@@ -92,11 +88,6 @@ namespace LanguageExt
 
         string ClusterSystemInboxNotifyKey =>
             ClusterSystemInboxKey + "-notify";
-
-        public Unit Shutdown()
-        {
-            return unit;
-        }
 
         public Unit Ask(object message, ProcessId sender)
         {
@@ -164,24 +155,18 @@ namespace LanguageExt
             return unit;
         }
 
+        public Unit Shutdown()
+        {
+            Dispose();
+            return unit;
+        }
+
         public void Dispose()
         {
             var ts = tokenSource;
             if (ts != null) ts.Dispose();
-
-            if (userSub != null)
-            {
-                var sub = userSub;
-                sub.Dispose();
-                userSub = null;
-            }
-
-            if (sysSub != null)
-            {
-                var sub = sysSub;
-                sub.Dispose();
-                sysSub = null;
-            }
+            this.cluster.UnsubscribeChannel(ClusterUserInboxNotifyKey);
+            this.cluster.UnsubscribeChannel(ClusterSystemInboxNotifyKey);
         }
 
         private RemoteMessageDTO GetNextMessage(string key)
