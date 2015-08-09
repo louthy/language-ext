@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reactive.Subjects;
 
 namespace LanguageExt
@@ -11,10 +12,11 @@ namespace LanguageExt
         internal static void logInfo(object message)
 #if DEBUG
         {
-            log.OnNext(new ProcessLogItem(ProcessLogItemType.Info, (message ?? "").ToString()));
+            Debug.WriteLine(new ProcessLogItem(ProcessLogItemType.Info, (message ?? "").ToString()));
         }
 #else
-        {}
+        {
+        }
 #endif 
 
         /// <summary>

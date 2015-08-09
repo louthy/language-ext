@@ -80,12 +80,65 @@ namespace LanguageExt
             return unit;
         }
 
-        public static IObservable<T> Ask<T>(ProcessId pid, object message)
+        public static IEnumerable<T> AskMany<T>(IEnumerable<ProcessId> pids, object message, int take)
         {
-            var subject = new Subject<object>();
-            return subject.PostSubscribeAction(() => Process.tell(AskId, new AskActorReq(message, subject, pid, Self)))
-                          .Timeout(ActorConfig.Default.Timeout)
-                          .Select(obj => (T)obj);
+            take = Math.Min(take, pids.Count());
+
+            var handle = new CountdownEvent(take);
+
+            var responses = new List<AskActorRes>();
+            foreach (var pid in pids)
+            {
+                var req = new AskActorReq(
+                    message, 
+                    res =>
+                    {
+                        responses.Add(res);
+                        handle.Signal();
+
+                    }, pid, Self);
+                Process.tell(AskId, req);
+            }
+
+            handle.Wait(ActorConfig.Default.Timeout);
+
+            return responses.Where(r => !r.IsFaulted).Map(r => (T)r.Response);
+        }
+
+        public static T Ask<T>(ProcessId pid, object message)
+        {
+            AskActorRes response = null;
+            var handle = new AutoResetEvent(false);
+
+            var req = new AskActorReq(
+                message,
+                res =>
+                {
+                    response = res;
+                    handle.Set();
+                },
+                pid,
+                Self
+            );
+
+            Process.tell(AskId, req);
+            handle.WaitOne(ActorConfig.Default.Timeout);
+
+            if (response == null)
+            {
+                throw new TimeoutException("Request timed out");
+            }
+            else
+            {
+                if (response.IsFaulted)
+                {
+                    throw new Exception("Request failed.", response.Exception);
+                }
+                else
+                {
+                    return (T)response.Response;
+                }
+            }
         }
 
         public static ProcessName GetRootProcessName() =>

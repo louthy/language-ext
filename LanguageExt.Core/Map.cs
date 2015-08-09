@@ -778,6 +778,15 @@ public static class __MapExt
                 None), 
             None);
 
+    public static R Find<A, B, C, D, T, R>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, A aKey, B bKey, C cKey, D dKey, Func<T, R> Some, Func<R> None) =>
+        self.Find(aKey,
+            b => b.Find(bKey,
+                c => c.Find(cKey, 
+                    d => d.Find(dKey,Some, None),
+                    None),
+                None),
+            None);
+
     public static Map<A, Map<B, T>> AddOrUpdate<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey, Func<T, T> Some, Func<T> None) =>
         self.AddOrUpdate(
             outerKey,
@@ -881,6 +890,34 @@ public static class __MapExt
         else
         {
             return self;
+        }
+    }
+
+    public static Map<A, Map<B, Map<C, Map<D, T>>>> Remove<A, B, C, D, T>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, A aKey, B bKey, C cKey, D dKey)
+    {
+        // TODO: Ugly and inefficient
+        var res = self.Find(aKey, bKey, cKey);
+        if (res.IsSome && res.CountT() > 1)
+        {
+            return self.SetItemT(aKey, bKey, cKey, res.LiftUnsafe().Remove(dKey));
+        }
+        else
+        {
+            if (res.IsSome)
+            {
+                if (res.MapT(d => d.ContainsKey(dKey)).Lift())
+                {
+                    return Remove(self, aKey, bKey, cKey);
+                }
+                else
+                {
+                    return self;
+                }
+            }
+            else
+            {
+                return Remove(self, aKey, bKey, cKey);
+            }
         }
     }
 

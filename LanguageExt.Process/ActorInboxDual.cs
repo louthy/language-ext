@@ -189,21 +189,28 @@ namespace LanguageExt
 
         private void CheckRemoteInbox(string key)
         {
-            if (cluster.QueueLength(key) > 0)
+            try
             {
-                var dto = GetNextMessage(key);
-                if (dto != null)
+                if (cluster.QueueLength(key) > 0)
                 {
-                    var msg = MessageSerialiser.DeserialiseMsg(dto, actor.Id);
-
-                    switch (msg.MessageType)
+                    var dto = GetNextMessage(key);
+                    if (dto != null)
                     {
-                        case Message.Type.ActorSystem: ActorContext.LocalRoot.Tell(msg, dto.Sender); break;
-                        case Message.Type.System: sysInbox.Post((SystemMessage)msg); break;
-                        case Message.Type.User: userInbox.Post((UserControlMessage)msg); break;
-                        case Message.Type.UserControl: userInbox.Post((UserControlMessage)msg); break;
+                        var msg = MessageSerialiser.DeserialiseMsg(dto, actor.Id);
+
+                        switch (msg.MessageType)
+                        {
+                            case Message.Type.ActorSystem: ActorContext.LocalRoot.Tell(msg, dto.Sender); break;
+                            case Message.Type.System: sysInbox.Post((SystemMessage)msg); break;
+                            case Message.Type.User: userInbox.Post((UserControlMessage)msg); break;
+                            case Message.Type.UserControl: userInbox.Post((UserControlMessage)msg); break;
+                        }
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                logSysErr("CheckRemoteInbox failed for " + actor.Id, e);
             }
         }
 

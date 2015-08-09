@@ -96,6 +96,7 @@ namespace LanguageExt
         /// </summary>
         public void SubscribeToChannel(string channelName, Type type, Action<object> handler)
         {
+            UnsubscribeChannel(channelName);
             redis.GetSubscriber().Subscribe(
                 channelName,
                 (channel, value) =>
@@ -115,6 +116,7 @@ namespace LanguageExt
 
         public void SubscribeToChannel<T>(string channelName, Action<T> handler)
         {
+            UnsubscribeChannel(channelName);
             redis.GetSubscriber().Subscribe(
                 channelName,
                 (channel, value) =>
@@ -152,7 +154,7 @@ namespace LanguageExt
         public int QueueLength(string key) =>
             (int)Db.ListLength(key);
 
-        public void Enqueue(string key, object value) =>
+        public long Enqueue(string key, object value) =>
             Db.ListRightPush(key, JsonConvert.SerializeObject(value));
 
         public T Peek<T>(string key)

@@ -76,7 +76,7 @@ namespace LanguageExt
         /// <summary>
         /// Enqueue a message
         /// </summary>
-        void Enqueue(string key, object value);
+        long Enqueue(string key, object value);
 
         /// <summary>
         /// Dequeue a message

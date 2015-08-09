@@ -22,8 +22,8 @@ namespace LanguageExt
     /// <typeparam name="T">Message type</typeparam>
     internal class Actor<S, T> : IActor
     {
-        Func<S, T, S> actorFn;
-        Func<IActor, S> setupFn;
+        readonly Func<S, T, S> actorFn;
+        readonly Func<IActor, S> setupFn;
         S state;
         Map<string, ProcessId> children = Map.create<string, ProcessId>();
         Map<string, IDisposable> subs = Map.create<string, IDisposable>();
@@ -294,6 +294,7 @@ namespace LanguageExt
             }
             catch (SystemKillActorException)
             {
+                logInfo("Process message - system kill " + Id);
                 kill(Id);
             }
             catch (Exception e)
@@ -301,8 +302,7 @@ namespace LanguageExt
                 // TODO: Add extra strategy behaviours here
                 Restart();
                 tell(ActorContext.Errors, e);
-                tell(ActorContext.DeadLetters,
-                     DeadLetter.create(Sender, Self, e, "Process error (tell): ", message));
+                tell(ActorContext.DeadLetters, DeadLetter.create(Sender, Self, e, "Process error (tell): ", message));
             }
             finally
             {

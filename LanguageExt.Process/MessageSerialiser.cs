@@ -47,7 +47,11 @@ namespace LanguageExt
         {
             object content = null;
 
-            if (msg.Content != null)
+            if (msg.Content == null)
+            {
+                throw new Exception("Message content is null from " + msg.Sender);
+            }
+            else
             {
                 var contentType = Type.GetType(msg.ContentType);
                 if (contentType == null)

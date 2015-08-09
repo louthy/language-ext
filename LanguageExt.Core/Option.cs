@@ -380,6 +380,11 @@ namespace LanguageExt
 
 public static class __OptionExt
 {
+    public static T? ToNullable<T>(this Option<T> self) where T : struct =>
+        self.IsNone
+            ? (T?)null
+            : new Nullable<T>(self.Value);
+
     // 
     // Option<T> extensions 
     // 

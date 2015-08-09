@@ -290,6 +290,18 @@ namespace LanguageExt
                     : ActorContext.Tell(ActorContext.CurrentRequest.ReplyTo, new ActorResponse(message, ActorContext.CurrentRequest.ReplyTo, ActorContext.Self, ActorContext.CurrentRequest.RequestId), ActorContext.Self)
                 : raiseUseInMsgLoopOnlyException<Unit>(nameof(reply));
 
+
+        /// <summary>
+        /// Reply to an ask if asked
+        /// </summary>
+        /// <remarks>
+        /// This should be used from within a process' message loop only
+        /// </remarks>
+        public static Unit replyIfAsked<T>(T message) =>
+            isAsk
+                ? reply(message)
+                : unit;
+
         /// <summary>
         /// Return True if the message sent is a Tell and not an Ask
         /// </summary>

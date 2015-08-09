@@ -28,7 +28,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <returns>The response to the request</returns>
         public static T ask<T>(ProcessId pid, object message) =>
-            ActorContext.Ask<T>(pid, message).Wait();
+            ActorContext.Ask<T>(pid, message);
 
         /// <summary>
         /// Ask children the same message
@@ -36,9 +36,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <returns></returns>
         public static IEnumerable<T> askChildren<T>(object message, int take = Int32.MaxValue) =>
-            Observable.Merge(Children.Values.Map(child => ActorContext.Ask<T>(child, message)))
-                      .Take(Math.Max(take, Children.Count))
-                      .ToEnumerable();
+            ActorContext.AskMany<T>(Children.Values, message, take);
 
         /// <summary>
         /// Ask parent process for a reply
