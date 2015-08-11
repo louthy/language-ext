@@ -194,8 +194,8 @@ namespace LanguageExt
             message == null
                 ? raise<Unit>(new ArgumentNullException(nameof(message), "Messages can't be null"))
                 : to.Path == root.Path
-                    ? LocalRoot.Tell(message, sender)
-                    : Tell(root, ActorSystemMessage.Tell(to, message, sender), sender);
+                    ? LocalRoot.Tell(message, SenderOrDefault(sender))
+                    : Tell(root, ActorSystemMessage.Tell(to, message, SenderOrDefault(sender)), SenderOrDefault(sender));
 
         public static Unit TellUserControl(ProcessId to, UserControlMessage message) =>
             message == null
@@ -385,5 +385,9 @@ namespace LanguageExt
                    select (T)x;
         }
 
+        internal static ProcessId SenderOrDefault(ProcessId sender) =>
+            sender.IsValid
+                ? sender
+                : Self;
     }
 }
