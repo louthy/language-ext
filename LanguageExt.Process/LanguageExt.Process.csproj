@@ -72,6 +72,7 @@
     <Compile Include="IActorInbox.cs" />
     <Compile Include="ILocalActorInbox.cs" />
     <Compile Include="IProcess.cs" />
+    <Compile Include="RelayActor.cs" />
     <Compile Include="MessageSerialiser.cs" />
     <Compile Include="Prelude_Forward.cs" />
     <Compile Include="ProcessIdExt.cs" />

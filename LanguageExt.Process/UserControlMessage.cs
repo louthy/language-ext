@@ -36,12 +36,13 @@ namespace LanguageExt
         public override TagSpec Tag      => TagSpec.Shutdown;
     }
 
-    internal class RemoteMessageDTO
+    public class RemoteMessageDTO
     {
         public int Type;
         public int Tag;
         public string Exception;
         public string Child;
+        public string To;
         public string Sender;
         public string ReplyTo;
         public long RequestId;

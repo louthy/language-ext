@@ -201,6 +201,14 @@ namespace LanguageExt
             new ProcessId(Top + String.Join(Sep.ToString(), parts.Take(count)));
 
         /// <summary>
+        /// Append one process ID to another
+        /// </summary>
+        public ProcessId Append(ProcessId pid) =>
+            IsValid && pid.IsValid
+                ? Path + pid.Path
+                : raise<ProcessId>(new InvalidProcessIdException());
+
+        /// <summary>
         /// Absolute root of the process system
         /// </summary>
         public static readonly ProcessId Top = 

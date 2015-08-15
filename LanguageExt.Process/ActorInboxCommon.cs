@@ -1,11 +1,13 @@
 ﻿using Microsoft.FSharp.Control;
 using Microsoft.FSharp.Core;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 
 namespace LanguageExt
@@ -47,7 +49,7 @@ namespace LanguageExt
                             }
                             catch (Exception e)
                             {
-                                Process.logSysErr(e);
+                                logSysErr(e);
                             }
                         }
                         return null;
@@ -66,8 +68,8 @@ namespace LanguageExt
                     case Message.TagSpec.ChildIsFaulted:
                         // TODO: Add extra strategy behaviours here
                         var scifm = (SystemChildIsFaultedMessage)msg;
-                        Process.tell(scifm.ChildId, SystemMessage.Restart);
-                        Process.tell(ActorContext.Errors, scifm.Exception);
+                        tell(scifm.ChildId, SystemMessage.Restart);
+                        tell(ActorContext.Errors, scifm.Exception);
                         break;
 
                     case Message.TagSpec.Restart:
@@ -109,10 +111,61 @@ namespace LanguageExt
                 switch (msg.Tag)
                 {
                     case Message.TagSpec.Shutdown:
-                        Process.kill(actor.Id);
+                        kill(actor.Id);
                         break;
                 }
             }
+        }
+
+        public static Option<UserControlMessage> PreProcessMessage<T>(ProcessId sender, ProcessId self, object message)
+        {
+            if (message == null)
+            {
+                tell(ActorContext.DeadLetters, DeadLetter.create(sender, self, "Message is null for tell (expected " + typeof(T) + ")", message));
+                return None;
+            }
+
+            if (message is ActorRequest)
+            {
+                var req = (ActorRequest)message;
+                if (!typeof(T).IsAssignableFrom(req.Message.GetType()))
+                {
+                    tell(ActorContext.DeadLetters, DeadLetter.create(sender, self, "Invalid message type for ask (expected " + typeof(T) + ")", message));
+                    return None;
+                }
+                return Optional((UserControlMessage)message);
+            }
+
+            if (typeof(T) != typeof(string) && message is string)
+            {
+                try
+                {
+                    // This allows for messages to arrive from JS and be dealt with at the endpoint 
+                    // (where the type is known) rather than the gateway (where it isn't)
+                    return Optional(new UserMessage(JsonConvert.DeserializeObject<T>((string)message), sender, sender) as UserControlMessage);
+                }
+                catch
+                {
+                    try
+                    {
+                        // Final attempt
+                        return Optional(new UserMessage(JsonConvert.DeserializeObject<RemoteMessageDTO>((string)message), sender, sender) as UserControlMessage);
+                    }
+                    catch
+                    {
+                        tell(ActorContext.DeadLetters, DeadLetter.create(sender, self, "Invalid message type for tell (expected " + typeof(T) + ")", message));
+                        return None;
+                    }
+                }
+            }
+
+            if (!typeof(T).IsAssignableFrom(message.GetType()))
+            {
+                tell(ActorContext.DeadLetters, DeadLetter.create(sender, self, "Invalid message type for tell (expected " + typeof(T) + ")", message));
+                return None;
+            }
+
+            return new UserMessage(message, sender, sender);
         }
     }
 }

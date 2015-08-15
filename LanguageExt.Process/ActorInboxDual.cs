@@ -93,21 +93,7 @@ namespace LanguageExt
         {
             if (userInbox != null)
             {
-                if (message == null)
-                {
-                    return tell(ActorContext.DeadLetters, DeadLetter.create(sender, actor.Id, "Message is null for ask (expected " + typeof(T) + ")", message));
-                }
-                if (!typeof(ActorRequest).IsAssignableFrom(message.GetType()))
-                {
-                    return tell(ActorContext.DeadLetters, DeadLetter.create(sender, actor.Id, "Invalid message type for ask (expected ActorRequest)", message));
-                }
-
-                var req = (ActorRequest)message;
-                if (!typeof(T).IsAssignableFrom(req.Message.GetType()))
-                {
-                    return tell(ActorContext.DeadLetters, DeadLetter.create(sender, actor.Id, "Invalid message type for ask (expected " + typeof(T) + ")", message));
-                }
-                userInbox.Post((UserControlMessage)message);
+                ActorInboxCommon.PreProcessMessage<T>(sender, actor.Id, message).IfSome(msg => userInbox.Post(msg));
             }
             return unit;
         }
@@ -116,21 +102,7 @@ namespace LanguageExt
         {
             if (userInbox != null)
             {
-                if (message is ActorRequest)
-                {
-                    return Ask(message, sender);
-                }
-
-                if (message == null)
-                {
-                    return tell(ActorContext.DeadLetters, DeadLetter.create(sender, actor.Id, "Message is null for tell (expected " + typeof(T) + ")", message));
-                }
-                if (!typeof(T).IsAssignableFrom(message.GetType()))
-                {
-                    return tell(ActorContext.DeadLetters, DeadLetter.create(sender, actor.Id, "Invalid message type for tell (expected " + typeof(T) + ")", message));
-                }
-                var enqItem = new UserMessage(message, sender, sender);
-                userInbox.Post(enqItem);
+                ActorInboxCommon.PreProcessMessage<T>(sender, actor.Id, message).IfSome(msg => userInbox.Post(msg));
             }
             return unit;
         }

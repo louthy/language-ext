@@ -16,8 +16,6 @@ namespace LanguageExt
         CancellationTokenSource tokenSource;
         FSharpMailboxProcessor<UserControlMessage> userInbox;
         FSharpMailboxProcessor<SystemMessage> sysInbox;
-        IDisposable userSub;
-        IDisposable sysSub;
         Actor<S, T> actor;
         int version = 0;
         string actorPath;

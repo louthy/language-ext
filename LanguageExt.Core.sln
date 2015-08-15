@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Core", "LanguageExt.Core\LanguageExt.Core.csproj", "{C0FA07A0-8B83-4FA5-ACFB-14185D5C4484}"
 EndProject
@@ -53,6 +53,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisInboxSample", "Samples
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "LanguageExt.Process.FSharp", "LanguageExt.Process.FSharp\LanguageExt.Process.FSharp.fsproj", "{D208187F-ADF0-4F22-BDAA-33AB92F0E88D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.ProcessJS", "LanguageExt.ProcessJS\LanguageExt.ProcessJS.csproj", "{D663DE72-70D5-496E-BCE8-613BB0F266CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.ProcessJS.Tests", "LanguageExt.ProcessJS.Tests\LanguageExt.ProcessJS.Tests.csproj", "{37539A2D-B235-47D1-BC06-89C2E068C9F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -103,6 +107,14 @@ Global
 		{D208187F-ADF0-4F22-BDAA-33AB92F0E88D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D208187F-ADF0-4F22-BDAA-33AB92F0E88D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D208187F-ADF0-4F22-BDAA-33AB92F0E88D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D663DE72-70D5-496E-BCE8-613BB0F266CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D663DE72-70D5-496E-BCE8-613BB0F266CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D663DE72-70D5-496E-BCE8-613BB0F266CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D663DE72-70D5-496E-BCE8-613BB0F266CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37539A2D-B235-47D1-BC06-89C2E068C9F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37539A2D-B235-47D1-BC06-89C2E068C9F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37539A2D-B235-47D1-BC06-89C2E068C9F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37539A2D-B235-47D1-BC06-89C2E068C9F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

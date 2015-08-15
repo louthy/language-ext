@@ -27,6 +27,7 @@ namespace LanguageExt
         ProcessId errors;
         ProcessId inboxShutdown;
         ProcessId ask;
+        ProcessId js;
         ProcessId reply;
 
         // We can use a mutable and non-locking dictionary here because access to 
@@ -76,9 +77,10 @@ namespace LanguageExt
             system          = ActorCreate<object>(root, Config.SystemProcessName, publish, ProcessFlags.Default);
             user            = ActorCreate<object>(root, Config.UserProcessName, publish, ProcessFlags.Default);
             registered      = ActorCreate<object>(root, Config.RegisteredProcessName, publish, ProcessFlags.Default);
+            js              = ActorCreate<ProcessId, RelayMsg>(root, "js", RelayActor.Inbox, () => User["process-hub-js"], ProcessFlags.Default);
 
             // Second tier
-            deadLetters     = ActorCreate<DeadLetter>(system, Config.DeadLettersProcessName, publish, ProcessFlags.Default);
+            deadLetters = ActorCreate<DeadLetter>(system, Config.DeadLettersProcessName, publish, ProcessFlags.Default);
             errors          = ActorCreate<Exception>(system, Config.ErrorsProcessName, publish, ProcessFlags.Default);
 
             inboxShutdown   = ActorCreate<IActorInbox>(system, Config.InboxShutdownProcessName, inbox => inbox.Shutdown(), ProcessFlags.Default);
@@ -279,11 +281,17 @@ namespace LanguageExt
                     {
                         store.Remove(path);
                     }
-                    store.Add(path, new ActorItem(process, inbox, flags));
-                    parent.Actor.LinkChild(process.Id.Path);
-
-                    process.Startup();
-                    inbox.Startup(process, process.Parent, Cluster, 0);
+                    try
+                    {
+                        process.Startup();
+                        inbox.Startup(process, process.Parent, Cluster, 0);
+                        store.Add(path, new ActorItem(process, inbox, flags));
+                        parent.Actor.LinkChild(process.Id.Path);
+                    }
+                    catch (Exception e)
+                    {
+                        Tell(e, Errors, Root);
+                    }
                 }
             }
             return this;
@@ -388,6 +396,7 @@ namespace LanguageExt
                 (int)message.Tag
                 );
 
+        // TODO: TellRemote and AskRemote are basically same function
         public Unit TellRemote(object message, ProcessId pid, ProcessId sender, string inbox, Message.Type type, int tag)
         {
             var islocal = store.ContainsKey(pid.Path) && store[pid.Path].Inbox is ILocalActorInbox;
@@ -398,13 +407,21 @@ namespace LanguageExt
             }
             else
             {
-                return Cluster.Match(
-                    Some: c  => TellRemote(message, pid, sender, c, inbox, (int)type, tag),
-                    None: () => Tell(DeadLetter.create(sender,pid,"Remote tell not available.  Cluster not registered.", message), DeadLetters, sender)
-                );
+                // TODO: Hack - generalise a relay proxy system
+                if (pid.Path.StartsWith(js.Path))
+                {
+                    return TellRemoteJavascriptRelay(BuildRemoteMsg(message, pid, sender, (int)type, tag), pid, sender);
+                }
+                else
+                {
+                    return Cluster.Match(
+                        Some: c => TellRemote(message, pid, sender, c, inbox, (int)type, tag),
+                        None: () => Tell(DeadLetter.create(sender, pid, "Remote tell not available.  Cluster not registered.", message), DeadLetters, sender));
+                }
             }
         }
 
+        // TODO: TellRemote and AskRemote are basically same function
         public Unit AskRemote(object message, ProcessId pid, ProcessId sender, string inbox, Message.Type type, int tag)
         {
             var islocal = store.ContainsKey(pid.Path) && store[pid.Path].Inbox is ILocalActorInbox;
@@ -415,10 +432,17 @@ namespace LanguageExt
             }
             else
             {
-                return Cluster.Match(
-                    Some: c  => TellRemote(message, pid, sender, c, inbox, (int)type, tag),
-                    None: () => Tell(DeadLetter.create(sender, pid, "Remote ask not available.  Cluster not registered.", message), DeadLetters, sender)
-                );
+                // TODO: Hack - generalise a relay proxy system
+                if (pid.Path.StartsWith(js.Path))
+                {
+                    return TellRemoteJavascriptRelay(BuildRemoteMsg(message, pid, sender, (int)type, tag),pid,sender);
+                }
+                else
+                {
+                    return Cluster.Match(
+                        Some: c => TellRemote(message, pid, sender, c, inbox, (int)type, tag),
+                        None: () => Tell(DeadLetter.create(sender, pid, "Remote ask not available.  Cluster not registered.", message), DeadLetters, sender));
+                }
             }
         }
 
@@ -427,10 +451,20 @@ namespace LanguageExt
                 ? pid.Skip(1)
                 : pid;
 
+        // TODO: Hack - generalise a relay proxy system for both javascript via SignalR and Redis remote
         private Unit TellRemote(object message, ProcessId pid, ProcessId sender, ICluster c, string inbox, int type, int tag)
         {
             pid = CheckIfRegistered(pid);
+            var dto = BuildRemoteMsg(message, pid, sender, type, tag);
+            var userInbox = pid.Path + "-" + inbox + "-inbox";
+            var userInboxNotify = userInbox + "-notify";
+            c.Enqueue(userInbox, dto);
+            c.PublishToChannel(userInboxNotify, "New message");
+            return unit;
+        }
 
+        private static RemoteMessageDTO BuildRemoteMsg(object message, ProcessId to, ProcessId sender, int type, int tag)
+        {
             var req = message as ActorRequest;
             var res = message as ActorResponse;
 
@@ -445,6 +479,7 @@ namespace LanguageExt
                     : (int)Message.TagSpec.UserAsk,
                 Child = null,
                 Exception = null,
+                To = to.Path,
                 RequestId = req == null
                     ? res == null
                         ? -1
@@ -465,21 +500,25 @@ namespace LanguageExt
                             ? message.GetType().AssemblyQualifiedName
                             : res.Message.GetType().AssemblyQualifiedName
                         : req.Message.GetType().AssemblyQualifiedName,
-                Content = message == null 
-                    ? null 
+                Content = message == null
+                    ? null
                     : JsonConvert.SerializeObject(req == null
                                                     ? res == null
                                                         ? message
                                                         : res.Message
                                                     : req.Message, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All, TypeNameAssemblyFormat = global::System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Full })
             };
+            return dto;
+        }
 
-            var userInbox = pid.Path + "-" + inbox + "-inbox";
-            var userInboxNotify = userInbox + "-notify";
+        private Unit TellRemoteJavascriptRelay(RemoteMessageDTO message, ProcessId pid, ProcessId sender)
+        {
+            // The standard structure for remote js relay paths are  "/root/js/{connection-id}/..."
+            var connectionId = pid.Skip(2).Take(1).GetName().Value;
+            message.To = pid.Skip(3).Path;
 
-            c.Enqueue(userInbox, dto);
-            c.PublishToChannel(userInboxNotify, "New message");
-            return unit;
+            var relay = new OutboundRelayMsg(connectionId, message, message.To, sender, message.RequestId != -1);
+            return js[connectionId].Tell(relay, sender);
         }
     }
 }
