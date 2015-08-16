@@ -248,6 +248,11 @@ var Process = (function () {
             }
         }
 
+        var children = actor[pid].children;
+        for (var i = 0; i < children.length; i++) {
+            kill(children[i]);
+        }
+
         for (var x in p.subs) {
             var sub = p.subs[x];
             if (typeof sub.done === "function") {
@@ -261,6 +266,7 @@ var Process = (function () {
                 }
             }
         }
+        delete actor[actor[pid].parent].children[pid];
         delete actor[pid];
     }
 

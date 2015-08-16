@@ -63,7 +63,7 @@
                     }
                 );
 
-                var pingpong = Process.spawn("pingpong", function (msg)
+                var pingpong = Process.spawn("pingpong-client", function (msg)
                 {
                     Process.tell(log, msg + " : " + Process.ask(log,null) );
                     Process.tellDelay("/root/user/pingpong", msg, 500);
