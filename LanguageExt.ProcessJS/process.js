@@ -153,7 +153,7 @@ var Process = (function () {
                     p.state = p.inbox(msg);
                 }
                 else {
-                    p.state = p.inbox(p.state, event.data.msg);
+                    p.state = p.inbox(p.state, msg);
                 }
                 return context.reply;
             });
