@@ -346,8 +346,27 @@ var Process = (function () {
         }
     }
 
-    var processSystem = {
-        connect:        null,
+    var connect = function () {
+        var proxy = $.connection.processHub;
+        proxy.client.onMessage = function (data) {
+
+            var ctx = {
+                self: data.To,
+                sender: data.Sender,
+                replyTo: data.ReplyTo,
+                currentMsg: JSON.parse(data.Content),
+                currentReq: data.RequestId
+            };
+
+            window.postMessage(
+                { pid: data.To, msg: ctx.currentMsg, ctx: ctx, processjs: "tell" },
+                window.location.origin
+            );
+        }
+    }
+
+    return {
+        connect:        connect,
         ask:            ask,
         publish:        publish,
         reply:          reply,
@@ -368,27 +387,6 @@ var Process = (function () {
         User:           User,
         isAsk:          function () { return context ? context.isAsk : false }
     };
-
-    processSystem.connect = function () {
-        var proxy = $.connection.processHub;
-        proxy.client.onMessage = function (data) {
-
-            var ctx = {
-                self: data.To,
-                sender: data.Sender,
-                replyTo: data.ReplyTo,
-                currentMsg: JSON.parse(data.Content),
-                currentReq: data.RequestId
-            };
-
-            window.postMessage(
-                { pid: data.To, msg: ctx.currentMsg, ctx: ctx, processjs: "tell" },
-                window.location.origin
-            );
-        }
-    }
-
-    return processSystem;
 })();
 
 window.addEventListener("message", Process.receive, false);
