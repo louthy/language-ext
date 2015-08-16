@@ -28,38 +28,46 @@ var Process = (function () {
         return res;
     }
 
-    var actor      = {};
+    var actor      = { "/": { children: {} } };
     var ignore     = function () { };
     var id         = function (id) { return id };
     var publish    = null;
-    var inboxStart = function (pid, setup, inbox, stateless) {
+    var inboxStart = function (pid, parent, setup, inbox, stateless) {
 
         ctx = {
             self:       pid,
+            parent:     parent,
             sender:     NoSender,
             currentMsg: null,
             currentReq: null
         };
 
-        return withContext(ctx, function () {
+        var process = withContext(ctx, function () {
             return {
                 pid:        pid,
                 state:      setup(),
                 setup:      setup,
                 inbox:      inbox,
                 stateless:  stateless,
+                children:   {},
                 subs: {}
-            }});
+            }
+        });
+        actor[parent].children[pid] = process;
+        return process;
     }
     var Root        = "/root-js";
     var System      = "/root-js/system";
     var DeadLetters = "/root-js/system/dead-letters";
+    var Errors      = "/root-js/system/errors";
     var User        = "/root-js/user";
     var NoSender    = "/no-sender";
-    var root        = actor[Root]        = inboxStart(Root, ignore, function (msg) { publish(msg); }, true);
-    var user        = actor[User]        = inboxStart(Root, ignore, function (msg) { publish(msg); }, true);
-    var noSender    = actor[NoSender]    = inboxStart(Root, ignore, function (msg) { publish(msg); }, true);
-    var deadLetters = actor[DeadLetters] = inboxStart(Root, ignore, function (msg) { publish(msg); }, true);
+    var root        = actor[Root]        = inboxStart(Root, "/", ignore, function (msg) { publish(msg); }, true);
+    var system      = actor[System]      = inboxStart(System, Root, ignore, function (msg) { publish(msg); }, true);
+    var user        = actor[User]        = inboxStart(User, Root, ignore, function (msg) { publish(msg); }, true);
+    var noSender    = actor[NoSender]    = inboxStart(NoSender, "/", ignore, function (msg) { publish(msg); }, true);
+    var deadLetters = actor[DeadLetters] = inboxStart(DeadLetters, System, ignore, function (msg) { publish(msg); }, true);
+    var errors      = actor[Errors]      = inboxStart(Errors, System, ignore, function (msg) { publish(msg); }, true);
     var subscribeId = 1;
     var context     = null;
 
@@ -94,7 +102,7 @@ var Process = (function () {
 
         return withContext(null, function () {
             var pid = context.self + "/" + name;
-            actor[pid] = inboxStart(pid, setup, inbox, stateless);
+            actor[pid] = inboxStart(pid, context.self, setup, inbox, stateless);
             return pid;
         });
     }
@@ -247,8 +255,9 @@ var Process = (function () {
                     sub.done();
                 }
                 catch (e) {
-                    // TODO: Report error but ignore.  We just want to stop other 
+                    // Ignore.  We just want to stop other 
                     // subscribers being hurt by one bad egg.
+                    error(e, pid + "/sub/done", null, null);
                 }
             }
         }
@@ -257,6 +266,10 @@ var Process = (function () {
 
     var deadLetter = function (to, msg, sender) {
         tell(DeadLetters, { to: to, msg: msg, sender: getSender(sender) });
+    }
+
+    var error = function (e, to, msg, sender) {
+        tell(Errors, { error: e, to: to, msg: msg, sender: getSender(sender) });
     }
 
     var receiveTell = function (data) {
@@ -285,7 +298,7 @@ var Process = (function () {
             });
         }
         catch (e) {
-            // TODO: Error letter
+            error(e, data.pid, data.msg, data.sender);
             deadLetter(data.pid, data.msg, data.sender);
             p.state = p.setup();
         }
@@ -306,6 +319,7 @@ var Process = (function () {
                 catch (e) {
                     // Ignore.  We just want to stop other subscribers
                     // being hurt by one bad egg.
+                    error(e, data.pid + "/pub", data.msg, null);
                 }
             }
         }
@@ -327,21 +341,26 @@ var Process = (function () {
     }
 
     var processSystem = {
-        connect:     null,
-        ask:         ask,
-        publish:     publish,
-        reply:       reply,
-        receive:     receive,
-        kill:        kill,
-        spawn:       spawn,
-        subscribe:   subscribe,
-        tell:        tell,
-        tellDelay:   tellDelay,
-        unsubscribe: unsubscribe,
-        Root:        Root,
-        NoSender:    NoSender,
-        User:        User,
-        isAsk:       function () { return context ? context.isAsk : false }
+        connect:        null,
+        ask:            ask,
+        publish:        publish,
+        reply:          reply,
+        receive:        receive,
+        kill:           kill,
+        spawn:          spawn,
+        subscribe:      subscribe,
+        tell:           tell,
+        tellDelay:      tellDelay,
+        tellDeadLetter: deadLetter,
+        tellError:      error,
+        unsubscribe:    unsubscribe,
+        Root:           Root,
+        NoSender:       NoSender,
+        System:         System,
+        DeadLetters:    DeadLetters,
+        Errors:         Errors,
+        User:           User,
+        isAsk:          function () { return context ? context.isAsk : false }
     };
 
     processSystem.connect = function () {

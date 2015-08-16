@@ -66,7 +66,7 @@
                 var pingpong = Process.spawn("pingpong", function (msg)
                 {
                     Process.tell(log, msg + " : " + Process.ask(log,null) );
-                    Process.tellDelay("/root/user/pingpong", msg, 100);
+                    Process.tellDelay("/root/user/pingpong", msg, 500);
                 });
 
                 Process.tell(pingpong, "start");
