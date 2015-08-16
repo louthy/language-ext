@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,10 +23,12 @@ namespace LanguageExt
                         break;
 
                     case RelayMsg.MsgTag.Disconnected:
-                        kill(msg.ConnectionId);
+                        kill(Self[msg.ConnectionId]);
                         break;
 
                     case RelayMsg.MsgTag.Inbound:
+                    case RelayMsg.MsgTag.Subscribe:
+                    case RelayMsg.MsgTag.Unsubscribe:
                         fwd(SpawnConnection(msg, hub), msg);
                         break;
                 }
@@ -37,33 +40,60 @@ namespace LanguageExt
             return hub;
         }
 
-        private static ProcessId SpawnConnection(RelayMsg msg, ProcessId hub)
-        {
-            if (!Children.ContainsKey(msg.ConnectionId))
-            {
-                spawn<ProcessId, RelayMsg>(msg.ConnectionId, () => hub, ConnectionInbox);
-            }
-            return Children[msg.ConnectionId];
-        }
+        private static ProcessId SpawnConnection(RelayMsg msg, ProcessId hub) =>
+            Children.ContainsKey(msg.ConnectionId)
+                ? Self[msg.ConnectionId]
+                : spawn<ProcessId, RelayMsg>(msg.ConnectionId, () => hub, ConnectionInbox);
 
-        public static ProcessId ConnectionInbox(ProcessId hub, RelayMsg msg)
+        public static ProcessId ConnectionInbox(ProcessId hub, RelayMsg rmsg)
         {
-            switch (msg.Tag)
+            switch (rmsg.Tag)
             {
                 case RelayMsg.MsgTag.Inbound:
-                    var inmsg = msg as InboundRelayMsg;
-                    if (msg.IsAsk)
+                    var inmsg = rmsg as InboundRelayMsg;
+                    if (rmsg.IsAsk)
                     {
-                        // TODO: Ask 
+                        // Ask not supported
+                        tell(Errors, "'ask' not supported from JS to server.");
                     }
                     else
                     {
-                        tell(msg.To, inmsg.Message, Self.Append(msg.Sender));
+                        tell(rmsg.To, inmsg.Message, Self.Append(rmsg.Sender));
                     }
                     break;
 
                 case RelayMsg.MsgTag.Outbound:
-                    fwd(hub, msg);
+                    fwd(hub, rmsg);
+                    break;
+
+                case RelayMsg.MsgTag.Subscribe:
+                    var pid          = rmsg.To;
+                    var subscriber   = rmsg.Sender;
+                    var connectionId = rmsg.ConnectionId;
+
+                    ActorContext.SelfProcess.AddSubscription(
+                        rmsg.To,
+                        ActorContext.Observe<object>(pid).Subscribe(x =>
+                            tell(hub, 
+                                 new OutboundRelayMsg(
+                                     connectionId,
+                                     new RemoteMessageDTO {
+                                        Content     = JsonConvert.SerializeObject(x, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All, TypeNameAssemblyFormat = global::System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Full }),
+                                        Sender      = pid.Path,
+                                        To          = subscriber.Path,
+                                        ContentType = x.GetType().AssemblyQualifiedName,
+                                        ReplyTo     = pid.Path,
+                                        Tag         = (int)Message.TagSpec.User,
+                                        Type        = (int)Message.Type.User
+                                     },
+                                     subscriber,
+                                     pid,
+                                     false),
+                                 pid)));
+                    break;
+
+                case RelayMsg.MsgTag.Unsubscribe:
+                    ActorContext.SelfProcess.RemoveSubscription(rmsg.To);
                     break;
             }
             return hub;
@@ -77,7 +107,9 @@ namespace LanguageExt
             Inbound,
             Outbound,
             Connected,
-            Disconnected
+            Disconnected,
+            Subscribe,
+            Unsubscribe,
         }
 
         public readonly ProcessId To;

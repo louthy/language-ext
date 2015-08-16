@@ -10,92 +10,16 @@
     </head>
     <body>
 
-        <div id="log-view-count">
-        </div>
+        <h1>process.js tests</h1>
 
-        <div id="log-view">
-        </div>
+        <p>
+            <ul>
+                <li><a href="Views/pingpong-serverclient.htm">Ping-pong server client comms</a></li>
+                <li><a href="Views/pingpong-jsonly.htm">Ping-pong browser only</a></li>
+            </ul>
+        </p>
 
         <script type="text/javascript">
-
-            Process.connect();
-            $.connection.hub.start().done(function () {
-
-                var ping = null;
-                var pong = null;
-
-                // Simple logging process.  Manages a state of up to 50 log messages
-                // Also listens for 'ask' requests where it will return the current
-                // length of the log.  It also publishes every log message it receives.
-                var log = Process.spawn("log", [], function (state, msg) {
-                    if (Process.isAsk())
-                    {
-                        Process.reply(state.length);
-                    }
-                    else
-                    {
-                        Process.publish(msg);
-
-                        state.unshift(msg);
-                        $("#log-view").prepend("<div class='log-view-item'>" + msg + "</div>");
-                        if (state.length > 50)
-                        {
-                            state.pop();
-                            $('.log-view-item:last').remove();
-                        }
-                    }
-                    return state;
-                })
-
-                // A process that subscribes to the publish stream of the log process.
-                // It keeps a running total of the number of log messages that have been
-                // published.  When it gets to 200 it 'gives up' and kills itself.
-                var logcount = Process.spawn("log-count",
-                    function () {
-                        Process.subscribe(log);
-                        return 0;
-                    },
-                    function (count, msg) {
-                        count++;
-                        if (count >= 200) {
-                            $("#log-view-count").html("Lots...");
-                            Process.kill();
-                        }
-                        else {
-                            $("#log-view-count").html(count);
-                        }
-                        return count;
-                    }
-                );
-
-                // Ping-pong 'client' process.  This process sends every message it gets
-                // to the log process.  It also calls the 'pingpong' process on the server
-                // with a delay of 500 milliseconds.  The server pingpong process sends messages
-                // back to this process, therefore creating a client/server loop.
-                var pingpong = Process.spawn("pingpong-client", function (msg) {
-                    Process.tell(log, msg + " : " + Process.ask(log,null) );
-                    Process.tellDelay("/root/user/pingpong", msg, 500);
-                });
-
-                Process.tell(pingpong, "start");
-
-            });
-
-
-            /*
-            Ping/pong javascript only
-
-            ping = Process.spawn("ping", function (msg) {
-                Process.tell(log, msg);
-                Process.tellDelay(pong, "pong", 100);
-            });
-
-            pong = Process.spawn("pong", function (msg) {
-                Process.tell(log, msg);
-                Process.tellDelay(ping, "ping", 100);
-            });
-
-            Process.tell(ping, "start");*/
 
         </script>
     </body>

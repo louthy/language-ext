@@ -9,7 +9,8 @@ namespace LanguageExt
         Warning    = 2,
         UserError  = 4,
         SysError   = 8,
-        Error      = 12     
+        Error      = 12,
+        Debug      = 16
     }
 
     public class ProcessLogItem
@@ -40,27 +41,28 @@ namespace LanguageExt
         }
 
         public string TypeDisplay =>
-            Type == ProcessLogItemType.Info      ? "INFO"
-          : Type == ProcessLogItemType.Warning   ? "WARN"
-          : Type == ProcessLogItemType.SysError  ? "ERR "
-          : Type == ProcessLogItemType.UserError ? "ERR "
-          : Type == ProcessLogItemType.Error     ? "ERR "
-          : "        ";
+            Type == ProcessLogItemType.Info      ? "Info "
+          : Type == ProcessLogItemType.Warning   ? "Warn "
+          : Type == ProcessLogItemType.Debug     ? "Debug"
+          : Type == ProcessLogItemType.SysError  ? "Error"
+          : Type == ProcessLogItemType.UserError ? "Error"
+          : Type == ProcessLogItemType.Error     ? "Error"
+          : "     ";
 
-        public string DateDisply =>
+        public string DateDisplay =>
             When.Date == DateTime.UtcNow.Date
-                ? When.ToLocalTime().ToString("HH:mm.ss fff")
+                ? When.ToLocalTime().ToString("HH:mm.ss.fff")
                 : When.ToLocalTime().ToString("dd/MM/yy HH:mm.ss");
 
         public override string ToString() =>
             Message.Match(
                 Some: msg =>
                     Exception.Match(
-                        Some: ex => String.Format("{0} {1} {2}\n{3}\n\n{4}", DateDisply, TypeDisplay, msg, ex.Message, ex.StackTrace),
-                        None: () => String.Format("{0} {1} {2}", DateDisply, TypeDisplay, msg)),
+                        Some: ex => String.Format("{0} {1} {2}\n{3}\n\n{4}", DateDisplay, TypeDisplay, msg, ex.Message, ex.StackTrace),
+                        None: () => String.Format("{0} {1} {2}", DateDisplay, TypeDisplay, msg)),
                 None: () =>
                     Exception.Match(
-                        Some: ex => String.Format("{0} {1}\n{2}\n\n{3}", DateDisply, TypeDisplay, ex.Message, ex.StackTrace),
-                        None: () => String.Format("{0} {1}", DateDisply, TypeDisplay)));
+                        Some: ex => String.Format("{0} {1}\n{2}\n\n{3}", DateDisplay, TypeDisplay, ex.Message, ex.StackTrace),
+                        None: () => String.Format("{0} {1}", DateDisplay, TypeDisplay)));
     }
 }

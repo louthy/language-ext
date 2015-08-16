@@ -125,14 +125,38 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Tell method called by the javascript process system.  Do not used it directly.
+        /// Tell method called by the javascript process system.  Do not use it directly.
         /// </summary>
         public void Tell(string pid, string message, string sender)
         {
-            Bouncer(pid, () =>
+            var spid = FixRootName(pid);
+            Bouncer(spid, () =>
             {
-                var spid = FixRootName(pid);
-                tell(Root["js"], new InboundRelayMsg(Context.ConnectionId, message, spid, sender, false), FixSender(sender));
+                tell(Root["js"], new InboundRelayMsg(Context.ConnectionId, message, spid, FixSender(sender), false), FixSender(sender));
+            });
+        }
+
+        /// <summary>
+        /// Subscribe method called by the javascript process system.  Do not use it directly.
+        /// </summary>
+        public void Subscribe(string pid, string sender)
+        {
+            var spid = FixRootName(pid);
+            Bouncer(spid, () =>
+            {
+                tell(Root["js"], new RelayMsg(RelayMsg.MsgTag.Subscribe, Context.ConnectionId, spid, FixSender(sender), false), FixSender(sender));
+            });
+        }
+
+        /// <summary>
+        /// Unsubscribe method called by the javascript process system.  Do not use it directly.
+        /// </summary>
+        public void Unsubscribe(string pid, string sender)
+        {
+            var spid = FixRootName(pid);
+            Bouncer(spid, () =>
+            {
+                tell(Root["js"], new RelayMsg(RelayMsg.MsgTag.Unsubscribe, Context.ConnectionId, spid, FixSender(sender), false), FixSender(sender));
             });
         }
 
@@ -145,19 +169,19 @@ namespace LanguageExt
         }
 
         private static ProcessId FixSender(string sender) =>
-            String.IsNullOrWhiteSpace(sender) || sender == "/no-sender"
+            string.IsNullOrWhiteSpace(sender) || sender == "/no-sender"
                 ? ProcessId.NoSender
                 : sender;
 
-        private static void Bouncer(string pid, Action f)
+        private static void Bouncer(ProcessId pid, Action f)
         {
             if (processWhitelist != null)
             {
-                if (!processWhitelist.Contains(pid)) return;
+                if (!processWhitelist.Contains(pid.Path)) return;
             }
             if (processBlacklist != null)
             {
-                if (processBlacklist.Contains(pid)) return;
+                if (processBlacklist.Contains(pid.Path)) return;
             }
             f();
         }

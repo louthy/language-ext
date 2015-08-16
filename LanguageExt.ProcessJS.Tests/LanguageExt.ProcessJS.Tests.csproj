@@ -111,6 +111,9 @@
     <Content Include="Scripts\jquery.signalR-2.2.0.js" />
     <Content Include="Scripts\jquery.signalR-2.2.0.min.js" />
     <Content Include="Scripts\process.js" />
+    <Content Include="style.css" />
+    <Content Include="Views\pingpong-jsonly.htm" />
+    <Content Include="Views\pingpong-serverclient.htm" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -122,7 +125,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj">

@@ -42,18 +42,24 @@ var Process = (function () {
             currentReq: null
         };
 
-        var process = withContext(ctx, function () {
-            return {
-                pid:        pid,
-                state:      setup(),
-                setup:      setup,
-                inbox:      inbox,
-                stateless:  stateless,
-                children:   {},
-                subs: {}
-            }
-        });
+        var process = {
+            pid:        pid,
+            state:      null,
+            setup:      setup,
+            inbox:      inbox,
+            stateless:  stateless,
+            children:   {},
+            subs:       {},
+            obs:        {}
+        };
+
         actor[parent].children[pid] = process;
+        actor[pid] = process;
+
+        process.state = withContext(ctx, function () {
+            return setup();
+        });
+
         return process;
     }
     var Root        = "/root-js";
@@ -62,12 +68,12 @@ var Process = (function () {
     var Errors      = "/root-js/system/errors";
     var User        = "/root-js/user";
     var NoSender    = "/no-sender";
-    var root        = actor[Root]        = inboxStart(Root, "/", ignore, function (msg) { publish(msg); }, true);
-    var system      = actor[System]      = inboxStart(System, Root, ignore, function (msg) { publish(msg); }, true);
-    var user        = actor[User]        = inboxStart(User, Root, ignore, function (msg) { publish(msg); }, true);
-    var noSender    = actor[NoSender]    = inboxStart(NoSender, "/", ignore, function (msg) { publish(msg); }, true);
-    var deadLetters = actor[DeadLetters] = inboxStart(DeadLetters, System, ignore, function (msg) { publish(msg); }, true);
-    var errors      = actor[Errors]      = inboxStart(Errors, System, ignore, function (msg) { publish(msg); }, true);
+    var root        = inboxStart(Root, "/", ignore, function (msg) { publish(msg); }, true);
+    var system      = inboxStart(System, Root, ignore, function (msg) { publish(msg); }, true);
+    var user        = inboxStart(User, Root, ignore, function (msg) { publish(msg); }, true);
+    var noSender    = inboxStart(NoSender, "/", ignore, function (msg) { publish(msg); }, true);
+    var deadLetters = inboxStart(DeadLetters, System, ignore, function (msg) { publish(msg); }, true);
+    var errors      = inboxStart(Errors, System, ignore, function (msg) { publish(msg); }, true);
     var subscribeId = 1;
     var context     = null;
 
@@ -102,7 +108,7 @@ var Process = (function () {
 
         return withContext(null, function () {
             var pid = context.self + "/" + name;
-            actor[pid] = inboxStart(pid, context.self, setup, inbox, stateless);
+            inboxStart(pid, context.self, setup, inbox, stateless);
             return pid;
         });
     }
@@ -134,7 +140,7 @@ var Process = (function () {
         var p = actor[pid];
         if (!p || !p.inbox) {
             if (isLocal(pid)) {
-                throw "Process doesn't exist " + pid;
+                throw new "Process doesn't exist " + pid;
             }
             else {
                 throw "'ask' is only available for intra-JS process calls.";
@@ -153,7 +159,7 @@ var Process = (function () {
                     p.state = p.inbox(msg);
                 }
                 else {
-                    p.state = p.inbox(p.state, event.data.msg);
+                    p.state = p.inbox(p.state, msg);
                 }
                 return context.reply;
             });
@@ -168,9 +174,10 @@ var Process = (function () {
         var p = actor[pid];
         if (!p || !p.inbox) {
             if (isLocal(pid)) {
-                throw "Process doesn't exist " + pid;
+                throw new "Process doesn't exist " + pid;
             }
-            else {
+            else 
+            {
                 throw "'subscribe' is currently only available for intra-JS process calls.";
             }
         }
@@ -179,28 +186,45 @@ var Process = (function () {
         var onNext = function (msg) { };
         var onComplete = function () { };
 
-        var subctx = {
-            pid:    function()   { return pid; },
-            id:     function ()  { return id; },
-            forall: function (f) { onNext = f; return this; },
-            done:   function (f) { onComplete = f; return this; }
-        };
-
-        p.subs[subscribeId] = {
+        p.subs[id] = {
             next: function (msg) { onNext(msg); },
-            done: function ()    { onComplete(); },
-            ctx: subctx
+            done: function ()    { onComplete(); }
         };
 
         subscribeId++;
-        return subctx;
+
+        return {
+            unsubscribe: function () {
+                onComplete();
+                delete p.subs[id];
+            },
+            forall: function (f) { onNext = f; return this; },
+            done: function (f) { onComplete = f; return this; }
+        };
     }
 
     var subscribeSync = function (pid) {
         var self = context.self;
-        return subscribeAsync(pid).forall(function (msg) {
-            tell(self, msg, pid);
-        });
+        if (isLocal(pid)) {
+            return subscribeAsync(pid).forall(function (msg) {
+                tell(self, msg, pid);
+            });
+        }
+        else {
+            var id = subscribeId;
+            var ctx = {
+                unsubscribe: function () {
+                    $.connection.processHub.server.unsubscribe(pid, self);
+                    delete actor[self].obs[id];
+                },
+                next: function () { },
+                done: function () { }
+            }
+            actor[self].obs[id] = ctx;
+            subscribeId++;
+            $.connection.processHub.server.subscribe(pid, self);
+            return ctx;
+        }
     }
 
     var subscribe = function (pid) {
@@ -211,19 +235,8 @@ var Process = (function () {
     }
 
     var unsubscribe = function (ctx) {
-        if (!ctx || !ctx.id || !ctx.id() || !ctx.pid()) return;
-        var p = actor[ctx.pid()];
-        if (!p || !p.inbox) return;
-        var sub = p.subs[ctx.id()];
-        if (sub && sub.done && typeof sub.done === "function") {
-            try {
-                sub.done();
-            }
-            catch (e) {
-                // TODO: Report error
-            }
-        }
-        delete p.subs[ctx.id()];
+        if (!ctx || ctx.unsubscribe) return;
+        ctx.unsubscribe();
     }
 
     publish = function (msg) {
@@ -253,6 +266,11 @@ var Process = (function () {
             kill(children[i]);
         }
 
+        for (var x in p.obs) {
+            p.obs[x].unsubscribe();
+        }
+        p.obs = {};
+
         for (var x in p.subs) {
             var sub = p.subs[x];
             if (typeof sub.done === "function") {
@@ -266,6 +284,8 @@ var Process = (function () {
                 }
             }
         }
+        p.subs = {};
+
         delete actor[actor[pid].parent].children[pid];
         delete actor[pid];
     }
@@ -349,7 +369,6 @@ var Process = (function () {
     var connect = function () {
         var proxy = $.connection.processHub;
         proxy.client.onMessage = function (data) {
-
             var ctx = {
                 self: data.To,
                 sender: data.Sender,
@@ -357,21 +376,40 @@ var Process = (function () {
                 currentMsg: JSON.parse(data.Content),
                 currentReq: data.RequestId
             };
-
             window.postMessage(
                 { pid: data.To, msg: ctx.currentMsg, ctx: ctx, processjs: "tell" },
                 window.location.origin
             );
         }
+        return {
+            done: function (f) {
+                $.connection.hub.start().done(f);
+            }
+        };
+    }
+
+    var isAsk = function () {
+        return context
+            ? context.isAsk
+            : false
+    }
+
+    var isTell = function () {
+        return !isAsk
+    }
+
+    var log = {
     }
 
     return {
-        connect:        connect,
         ask:            ask,
+        connect:        connect,
+        isAsk:          isAsk,
+        isTell:         isTell,
+        kill:           kill,
         publish:        publish,
         reply:          reply,
         receive:        receive,
-        kill:           kill,
         spawn:          spawn,
         subscribe:      subscribe,
         tell:           tell,
@@ -379,13 +417,13 @@ var Process = (function () {
         tellDeadLetter: deadLetter,
         tellError:      error,
         unsubscribe:    unsubscribe,
-        Root:           Root,
-        NoSender:       NoSender,
-        System:         System,
         DeadLetters:    DeadLetters,
         Errors:         Errors,
+        NoSender:       NoSender,
+        ProcessLog:     log,
+        Root:           Root,
+        System:         System,
         User:           User,
-        isAsk:          function () { return context ? context.isAsk : false }
     };
 })();
 

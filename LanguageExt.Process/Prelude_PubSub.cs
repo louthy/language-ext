@@ -39,7 +39,7 @@ namespace LanguageExt
         /// for any other reason.</returns>
         public static IDisposable publish<T>(T message, TimeSpan delayFor) =>
             InMessageLoop
-                ? delay(() => publish(message), delayFor).Subscribe()
+                ? delay(() => ActorContext.Publish(message), delayFor).Subscribe()
                 : raiseUseInMsgLoopOnlyException<IDisposable>(nameof(publish));
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace LanguageExt
         /// for any other reason.</returns>
         public static IDisposable publish<T>(T message, DateTime delayUntil) =>
             InMessageLoop
-                ? delay(() => publish(message), delayUntil).Subscribe()
+                ? delay(() => ActorContext.Publish(message), delayUntil).Subscribe()
                 : raiseUseInMsgLoopOnlyException<IDisposable>(nameof(publish));
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace LanguageExt
         /// <returns>IDisposable, call IDispose to end the subscription</returns>
         public static Unit subscribe(ProcessId pid) =>
             InMessageLoop
-                ? ActorContext.SelfProcess.AddSubscription(pid, observe<object>(pid).Subscribe(x => tell(Self, x, pid)))
+                ? ActorContext.SelfProcess.AddSubscription(pid, ActorContext.Observe<object>(pid).Subscribe(x => tell(Self, x, pid)))
                 : raiseUseInMsgLoopOnlyException<Unit>(nameof(subscribe));
 
         /// <summary>

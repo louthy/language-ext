@@ -11,10 +11,12 @@ namespace LanguageExt.ProcessJS.Tests
         {
             if (msg == "ping")
             {
+                ProcessLog.TellInfo("pong");
                 Process.tell(Process.Sender, "pong");
             }
             else 
             {
+                ProcessLog.TellInfo("ping");
                 Process.tell(Process.Sender, "ping");
             }
         }
