@@ -134,7 +134,7 @@ var Process = (function () {
         var p = actor[pid];
         if (!p || !p.inbox) {
             if (isLocal(pid)) {
-                throw new "Process doesn't exist " + pid;
+                throw "Process doesn't exist " + pid;
             }
             else {
                 throw "'ask' is only available for intra-JS process calls.";
@@ -168,7 +168,7 @@ var Process = (function () {
         var p = actor[pid];
         if (!p || !p.inbox) {
             if (isLocal(pid)) {
-                throw new "Process doesn't exist " + pid;
+                throw "Process doesn't exist " + pid;
             }
             else {
                 throw "'subscribe' is currently only available for intra-JS process calls.";
