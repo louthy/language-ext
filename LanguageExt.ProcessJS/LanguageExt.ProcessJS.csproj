@@ -78,7 +78,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="process.js" />
+    <Content Include="process.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

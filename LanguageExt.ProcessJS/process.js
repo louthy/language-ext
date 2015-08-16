@@ -5,37 +5,13 @@
 
 var Process = (function () {
 
-    var actor = {};
-    var ignore = function () { };
-    var id = function (id) { return id };
-
-    var inboxStart = function (pid, setup, inbox, stateless) {
-        return {
-            pid: pid,
-            state: setup(),
-            setup: setup,
-            inbox: inbox,
-            stateless: stateless
-        };
-    }
-
-    var Root = "/root-js";
-    var User = "/root-js/user";
-    var NoSender = "/no-sender";
-
-    var root = actor[Root] = inboxStart(ignore, ignore);
-    var user = actor[User] = inboxStart(ignore, ignore);
-    var noSender = actor[NoSender] = inboxStart(ignore, ignore);
-
-    var context = null;
-
     var withContext = function (ctx, f) {
         var savedContext = context;
 
         if (!ctx) {
             ctx = {
-                self: User,
-                sender: NoSender,
+                self:       User,
+                sender:     NoSender,
                 currentMsg: null,
                 currentReq: null
             };
@@ -52,8 +28,54 @@ var Process = (function () {
         return res;
     }
 
-    var spawn = function (name, setup, inbox) {
+    var actor      = {};
+    var ignore     = function () { };
+    var id         = function (id) { return id };
+    var publish    = null;
+    var inboxStart = function (pid, setup, inbox, stateless) {
 
+        ctx = {
+            self:       pid,
+            sender:     NoSender,
+            currentMsg: null,
+            currentReq: null
+        };
+
+        return withContext(ctx, function () {
+            return {
+                pid:        pid,
+                state:      setup(),
+                setup:      setup,
+                inbox:      inbox,
+                stateless:  stateless,
+                subs: {}
+            }});
+    }
+    var Root        = "/root-js";
+    var System      = "/root-js/system";
+    var DeadLetters = "/root-js/system/dead-letters";
+    var User        = "/root-js/user";
+    var NoSender    = "/no-sender";
+    var root        = actor[Root]        = inboxStart(Root, ignore, function (msg) { publish(msg); }, true);
+    var user        = actor[User]        = inboxStart(Root, ignore, function (msg) { publish(msg); }, true);
+    var noSender    = actor[NoSender]    = inboxStart(Root, ignore, function (msg) { publish(msg); }, true);
+    var deadLetters = actor[DeadLetters] = inboxStart(Root, ignore, function (msg) { publish(msg); }, true);
+    var subscribeId = 1;
+    var context     = null;
+
+    var inloop = function() {
+        return context != null;
+    }
+
+    var isLocal = function (pid) {
+        return pid.indexOf(Root) == 0;
+    }
+
+    var getSender = function (sender) {
+        return sender || (inloop() ? context.self : NoSender);
+    }
+
+    var spawn = function (name, setup, inbox) {
         var stateless = false;
         if (arguments.length == 2)
         {
@@ -79,12 +101,13 @@ var Process = (function () {
 
     var tell = function (pid, msg, sender) {
         var ctx = {
+            isAsk: false,
             self: pid,
-            sender: sender || (context ? context.self : NoSender),
+            sender: getSender(sender),
             currentMsg: msg,
             currentReq: null
         };
-        window.postMessage({ pid: pid, msg: msg, ctx: ctx, isAsk: false }, window.location.origin);
+        window.postMessage({ processjs: "tell", pid: pid, msg: msg, ctx: ctx }, window.location.origin);
     }
 
     var tellDelay = function (pid, msg, delay) {
@@ -94,67 +117,231 @@ var Process = (function () {
 
     var ask = function (pid, msg) {
         var ctx = {
+            isAsk: true,
             self: pid,
-            sender: sender || (context ? context.self : NoSender),
+            sender: getSender(),
             currentMsg: msg,
             currentReq: null
         };
-        window.postMessage({ pid: pid, msg: msg, ctx: ctx, isAsk: true }, window.location.origin);
-    }
-
-    var receive = function (event) {
-        if (event.origin !== window.location.origin ||
-            !event.data ||
-            !event.data.pid ||
-            !event.data.ctx ||
-            !event.data.msg) {
-            return;
-        }
-        var p = actor[event.data.pid];
+        var p = actor[pid];
         if (!p || !p.inbox) {
-
-
-            var msg = typeof event.data.msg === "string"
-                ? event.data.msg
-                : JSON.stringify(event.data.msg);
-
-            if (event.isAsk) {
-                // TODO: Not sure how to get the reply just yet.
-                $.connection.processHub.server.ask(event.data.pid, msg, event.data.ctx.sender);
+            if (isLocal(pid)) {
+                throw new "Process doesn't exist " + pid;
             }
             else {
-                $.connection.processHub.server.tell(event.data.pid, msg, event.data.ctx.sender);
+                throw "'ask' is only available for intra-JS process calls.";
+            }
+        }
+        else {
+            // TODO: This isn't ideal, you could 'jump ahead' of the queue where an ask arrives 
+            //       before a postMessaged 'tell'.  In reality this may not be a huge issue because
+            //       posting to an actor is always supposed to be asynchronous, so you don't know 
+            //       what order a message arrives at the inbox (and therefore shouldn't rely on 
+            //       the send order).  Also, this allows for blocking 'ask', which is difficult to
+            //       achieve by other means.
+            return withContext(ctx, function () {
+                context.reply = null;
+                if (p.stateless) {
+                    p.state = p.inbox(msg);
+                }
+                else {
+                    p.state = p.inbox(p.state, event.data.msg);
+                }
+                return context.reply;
+            });
+        }
+    }
+
+    var reply = function (msg) {
+        context.reply = msg;
+    }
+
+    var subscribeAsync = function (pid) {
+        var p = actor[pid];
+        if (!p || !p.inbox) {
+            if (isLocal(pid)) {
+                throw new "Process doesn't exist " + pid;
+            }
+            else {
+                throw "'subscribe' is currently only available for intra-JS process calls.";
+            }
+        }
+
+        var id = subscribeId;
+        var onNext = function (msg) { };
+        var onComplete = function () { };
+
+        var subctx = {
+            pid:    function()   { return pid; },
+            id:     function ()  { return id; },
+            forall: function (f) { onNext = f; return this; },
+            done:   function (f) { onComplete = f; return this; }
+        };
+
+        p.subs[subscribeId] = {
+            next: function (msg) { onNext(msg); },
+            done: function ()    { onComplete(); },
+            ctx: subctx
+        };
+
+        subscribeId++;
+        return subctx;
+    }
+
+    var subscribeSync = function (pid) {
+        var self = context.self;
+        return subscribeAsync(pid).forall(function (msg) {
+            tell(self, msg, pid);
+        });
+    }
+
+    var subscribe = function (pid) {
+        if (inloop()) 
+            subscribeSync(pid)
+        else
+            subscribeAsync(pid);
+    }
+
+    var unsubscribe = function (ctx) {
+        if (!ctx || !ctx.id || !ctx.id() || !ctx.pid()) return;
+        var p = actor[ctx.pid()];
+        if (!p || !p.inbox) return;
+        var sub = p.subs[ctx.id()];
+        if (sub && sub.done && typeof sub.done === "function") {
+            try {
+                sub.done();
+            }
+            catch (e) {
+                // TODO: Report error
+            }
+        }
+        delete p.subs[ctx.id()];
+    }
+
+    publish = function (msg) {
+        if (inloop()) {
+            window.postMessage(
+                { pid: context.self, msg: msg, processjs: "pub" },
+                window.location.origin
+            );
+        }
+        else {
+            throw "'publish' can only be called from within a process";
+        }
+    }
+
+    var kill = function (pid) {
+        if (arguments.length == 0) {
+            if (inloop()) {
+                pid = context.pid;
+            }
+            else {
+                throw "'kill' can only be called without arguments from within a process";
+            }
+        }
+
+        for (var x in p.subs) {
+            var sub = p.subs[x];
+            if (typeof sub.done === "function") {
+                try {
+                    sub.done();
+                }
+                catch (e) {
+                    // TODO: Report error but ignore.  We just want to stop other 
+                    // subscribers being hurt by one bad egg.
+                }
+            }
+        }
+        delete actor[pid];
+    }
+
+    var deadLetter = function (to, msg, sender) {
+        tell(DeadLetters, { to: to, msg: msg, sender: getSender(sender) });
+    }
+
+    var receiveTell = function (data) {
+        var p = actor[data.pid];
+        if (!p || !p.inbox) {
+            if (isLocal(data.pid)) {
+                deadLetter(data.pid, data.msg, data.sender);
+            }
+            else {
+                var msg = typeof data.msg === "string"
+                    ? data.msg
+                    : JSON.stringify(data.msg);
+                $.connection.processHub.server.tell(data.pid, msg, data.ctx.sender);
             }
             return;
         }
 
         try {
-            withContext(event.data.ctx, function () {
+            withContext(data.ctx, function () {
                 if (p.stateless) {
-                    p.state = p.inbox(event.data.msg);
+                    p.state = p.inbox(data.msg);
                 }
                 else {
-                    p.state = p.inbox(p.state, event.data.msg);
+                    p.state = p.inbox(p.state, data.msg);
                 }
             });
         }
         catch (e) {
             // TODO: Error letter
-            // TODO: Dead letter
+            deadLetter(data.pid, data.msg, data.sender);
             p.state = p.setup();
         }
     }
 
+    var receivePub = function (data) {
+        var p = actor[data.pid];
+        if (!p || !p.subs) {
+            return;
+        }
+
+        for(var x in p.subs) {
+            var sub = p.subs[x];
+            if (typeof sub.next === "function") {
+                try {
+                    sub.next(data.msg);
+                }
+                catch (e) {
+                    // Ignore.  We just want to stop other subscribers
+                    // being hurt by one bad egg.
+                }
+            }
+        }
+    }
+
+    var receive = function (event) {
+        if (event.origin !== window.location.origin ||
+            !event.data ||
+            !event.data.processjs, 
+            !event.data.pid ||
+            !event.data.msg) {
+            return;
+        }
+        switch( event.data.processjs )
+        {
+            case "tell": receiveTell(event.data); break;
+            case "pub":  receivePub(event.data); break;
+        }
+    }
+
     var processSystem = {
-        connect: null,
-        spawn: spawn,
-        tell: tell,
-        tellDelay: tellDelay,
-        ask: ask,
-        receive: receive,
-        Root: Root,
-        NoSender: NoSender,
-        User: User
+        connect:     null,
+        ask:         ask,
+        publish:     publish,
+        reply:       reply,
+        receive:     receive,
+        kill:        kill,
+        spawn:       spawn,
+        subscribe:   subscribe,
+        tell:        tell,
+        tellDelay:   tellDelay,
+        unsubscribe: unsubscribe,
+        Root:        Root,
+        NoSender:    NoSender,
+        User:        User,
+        isAsk:       function () { return context ? context.isAsk : false }
     };
 
     processSystem.connect = function () {
@@ -170,7 +357,7 @@ var Process = (function () {
             };
 
             window.postMessage(
-                { pid: data.To, msg: ctx.currentMsg, ctx: ctx },
+                { pid: data.To, msg: ctx.currentMsg, ctx: ctx, processjs: "tell" },
                 window.location.origin
             );
         }

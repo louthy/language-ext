@@ -115,7 +115,7 @@ namespace LanguageExt
         /// <param name="Some">Some handler</param>
         /// <param name="None">None handler</param>
         /// <returns>A promise to return an stream of Rs</returns>
-        public IObservable<R> MatchAsync<R>(Func<T, IObservable<R>> Some, Func<R> None) =>
+        public IObservable<R> MatchObservable<R>(Func<T, IObservable<R>> Some, Func<R> None) =>
             IsSome
                 ? Some(Value).Select(CheckNullSomeReturn)
                 : Observable.Return(CheckNullReturn(None(),"None"));
@@ -128,7 +128,7 @@ namespace LanguageExt
         /// <param name="Some">Some handler</param>
         /// <param name="None">None handler</param>
         /// <returns>A promise to return an stream of Rs</returns>
-        public IObservable<R> MatchAsync<R>(Func<T, IObservable<R>> Some, Func<IObservable<R>> None) =>
+        public IObservable<R> MatchObservable<R>(Func<T, IObservable<R>> Some, Func<IObservable<R>> None) =>
             IsSome
                 ? Some(Value).Select(CheckNullSomeReturn)
                 : None().Select(CheckNullNoneReturn);
@@ -482,7 +482,7 @@ public static class __OptionExt
     /// <param name="Some">Some handler</param>
     /// <param name="None">None handler</param>
     /// <returns>A stream of Rs</returns>
-    public static IObservable<R> MatchAsync<T, R>(this Option<IObservable<T>> self, Func<T, R> Some, Func<R> None) =>
+    public static IObservable<R> MatchObservable<T, R>(this Option<IObservable<T>> self, Func<T, R> Some, Func<R> None) =>
         self.IsSome
             ? self.Value.Select(Some).Select(Option<R>.CheckNullSomeReturn)
             : Observable.Return(Option<R>.CheckNullReturn(None(), "None"));
@@ -497,6 +497,6 @@ public static class __OptionExt
     /// <param name="Some">Some handler</param>
     /// <param name="None">None handler</param>
     /// <returns>A stream of Rs</returns>
-    public static IObservable<R> MatchAsync<T, R>(this IObservable<Option<T>> self, Func<T, R> Some, Func<R> None) =>
+    public static IObservable<R> MatchObservable<T, R>(this IObservable<Option<T>> self, Func<T, R> Some, Func<R> None) =>
         self.Select(opt => match(opt, Some, None));
 }

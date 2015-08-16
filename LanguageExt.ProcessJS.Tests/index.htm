@@ -10,8 +10,10 @@
     </head>
     <body>
 
-        <div id="log-view">
+        <div id="log-view-count">
+        </div>
 
+        <div id="log-view">
         </div>
 
         <script type="text/javascript">
@@ -22,21 +24,48 @@
                 var ping = null;
                 var pong = null;
 
-                var log = Process.spawn("log", function () { return [] }, function (state, msg) {
+                var log = Process.spawn("log", [], function (state, msg) {
 
-                    state.unshift(msg);
-
-                    $("#log-view").prepend("<div class='log-view-item'>" + msg + "</div>");
-                    if (state.length > 50) {
-                        state.pop();
-                        $('.log-view-item:last').remove();
+                    if (Process.isAsk())
+                    {
+                        Process.reply(state.length);
                     }
+                    else
+                    {
+                        Process.publish(msg);
 
+                        state.unshift(msg);
+                        $("#log-view").prepend("<div class='log-view-item'>" + msg + "</div>");
+                        if (state.length > 50)
+                        {
+                            state.pop();
+                            $('.log-view-item:last').remove();
+                        }
+                    }
                     return state;
                 })
 
-                var pingpong = Process.spawn("pingpong", function (msg) {
-                    Process.tell(log, msg);
+                var logcount = Process.spawn("log-count",
+                    function () {
+                        Process.subscribe(log);
+                        return 0;
+                    },
+                    function (count, msg) {
+                        count++;
+                        if (count >= 200) {
+                            $("#log-view-count").html("Lots...");
+                            Process.kill();
+                        }
+                        else {
+                            $("#log-view-count").html(count);
+                        }
+                        return count;
+                    }
+                );
+
+                var pingpong = Process.spawn("pingpong", function (msg)
+                {
+                    Process.tell(log, msg + " : " + Process.ask(log,null) );
                     Process.tellDelay("/root/user/pingpong", msg, 100);
                 });
 
