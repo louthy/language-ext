@@ -23,8 +23,20 @@ namespace LanguageExt
         /// <summary>
         /// All messages will be persisted for the duration of their time
         /// in the inbox.  The initial state of the inbox will come from the 
-        /// persistent store if it exists.
+        /// persistent store if it exists.  
         /// </summary>
+        /// <remarks>
+        /// Messages are only dequeued from the inbox once they have been
+        /// processed.  'Processed' means either:
+        /// 
+        ///     * the user process received the message and handled it successfully
+        ///     * The user process received the message, and threw an error which
+        ///       resulted in the message being redirected to DeadLettters.
+        /// 
+        /// Note: This limited strategy for dealing with failed messages will
+        ///       be improved upon in future versions (retry mechanisms, back-of-the-
+        ///       queue pushing, etc.)
+        /// </remarks>
         PersistInbox = 2,
 
         /// <summary>
@@ -46,8 +58,16 @@ namespace LanguageExt
         /// for internal processes to do stuff like route replies.  But can also be used
         /// for regular processes where you want local messages to be sent direct and not
         /// persisted, but still make the process available to receive messages from remote
-        /// sources.
+        /// sources.  
         /// </summary>
+        /// <remarks>
+        /// Note that the guarantees are weaker than the PersistInbox option, messages
+        /// received locally are not persisted at all, and will be lost if the system dies,
+        /// and messages received remotely are dequeued immediately and stored in the local
+        /// inbox (and therefore will share the same fate if the system dies).  However
+        /// messages received remotely whilst the system is down will persist until it wakes
+        /// back up; so there's an element of safety.
+        /// </remarks>
         ListenRemoteAndLocal = 8
 
     }
