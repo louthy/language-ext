@@ -30,6 +30,25 @@ namespace LanguageExt
             this.config = config;
         }
 
+        ~RedisClusterImpl()
+        {
+            Dispose();
+        }
+
+        public void Dispose()
+        {
+            var r = redis;
+            if (r != null)
+            {
+                if (r.IsConnected)
+                {
+                    r.Close();
+                }
+                r.Dispose();
+                redis = null;
+            }
+        }
+
         public ProcessName NodeName =>
             Config.NodeName;
 

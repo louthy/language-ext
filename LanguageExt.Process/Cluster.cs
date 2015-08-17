@@ -53,10 +53,8 @@ namespace LanguageExt
         /// Disconnect from a cluster
         /// </summary>
         /// <param name="cluster">Cluster to disconnect from</param>
-        public static Unit disconnect(ICluster cluster)
-        {
-            return cluster.Disconnect();
-        }
+        public static Unit disconnect() =>
+            ActorContext.DeregisterCluster();
 
         /// <param name="nodeName">Unique name for this process.  It becomes the name of the root 
         /// node and allows other services on the cluster to discover you and communicate with you.

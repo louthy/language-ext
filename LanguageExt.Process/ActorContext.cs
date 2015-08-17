@@ -148,8 +148,15 @@ namespace LanguageExt
         public static Unit RegisterCluster(ICluster cluster) =>
             Startup(Some(cluster));
 
-        public static Unit DeregisterCluster() =>
-            Startup(None);
+        public static Unit DeregisterCluster()
+        {
+            cluster.IfSome(c =>
+            {
+                c.Disconnect();
+                c.Dispose();
+            });
+            return Startup(None);
+        }
 
         public static ProcessId ActorCreate<S, T>(ProcessId parent, ProcessName name, Func<T, Unit> actorFn, ProcessFlags flags)
         {

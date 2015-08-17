@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    public interface ICluster
+    public interface ICluster : IDisposable
     {
         /// <summary>
         /// Cluster configuration
