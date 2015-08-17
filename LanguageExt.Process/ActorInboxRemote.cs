@@ -75,32 +75,32 @@ namespace LanguageExt
             {
                 var count = cluster.QueueLength(key);
 
-                while (count > 0 && ActorInboxCommon.GetNextMessage(cluster, self, key).Match(
-                    Some: x => map(x, (dto, msg) =>
-                    {
-                        try
-                        {
-                            switch (msg.MessageType)
-                            {
-                                case Message.Type.ActorSystem:  ActorContext.LocalRoot.Tell(msg, dto.Sender); break;
-                                case Message.Type.System:       sysInbox(actor, (SystemMessage)msg); break;
-                                case Message.Type.User:         userInbox(actor, (UserControlMessage)msg); break;
-                                case Message.Type.UserControl:  userInbox(actor, (UserControlMessage)msg); break;
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            tell(ActorContext.DeadLetters, DeadLetter.create(dto.Sender, self, e, "Remote message inbox.", msg));
-                            logSysErr(e);
-                        }
-                        finally
-                        {
-                            cluster.Dequeue<RemoteMessageDTO>(key);
-                        }
-                        return true;
-                    }),
-                    None: () => false))
+                while (count > 0)
                 {
+                    ActorInboxCommon.GetNextMessage(cluster, self, key).IfSome(
+                        x => map(x, (dto, msg) =>
+                        {
+                            try
+                            {
+                                switch (msg.MessageType)
+                                {
+                                    case Message.Type.ActorSystem:  ActorContext.LocalRoot.Tell(msg, dto.Sender); break;
+                                    case Message.Type.System:       sysInbox(actor, (SystemMessage)msg); break;
+                                    case Message.Type.User:         userInbox(actor, (UserControlMessage)msg); break;
+                                    case Message.Type.UserControl:  userInbox(actor, (UserControlMessage)msg); break;
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                tell(ActorContext.DeadLetters, DeadLetter.create(dto.Sender, self, e, "Remote message inbox.", msg));
+                                logSysErr(e);
+                            }
+                            finally
+                            {
+                                cluster.Dequeue<RemoteMessageDTO>(key);
+                            }
+                        }));
+
                     count--;
                 }
             }
