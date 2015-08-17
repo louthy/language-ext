@@ -78,6 +78,7 @@ namespace LanguageExt
                                  new OutboundRelayMsg(
                                      connectionId,
                                      new RemoteMessageDTO {
+                                        MessageId   = Guid.NewGuid(),
                                         Content     = JsonConvert.SerializeObject(x, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All, TypeNameAssemblyFormat = global::System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Full }),
                                         Sender      = pid.Path,
                                         To          = subscriber.Path,

@@ -48,5 +48,6 @@ namespace LanguageExt
         public long RequestId;
         public string ContentType;
         public string Content;
+        public Guid MessageId;
     }
 }

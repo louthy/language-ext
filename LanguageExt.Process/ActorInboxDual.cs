@@ -27,6 +27,7 @@ namespace LanguageExt
         FSharpMailboxProcessor<SystemMessage> sysInbox;
         Actor<S, T> actor;
         int version;
+        object sync = new object();
 
         string actorPath;
 
@@ -50,15 +51,15 @@ namespace LanguageExt
             userInbox = StartMailbox<UserControlMessage>(actor, ClusterUserInboxKey, tokenSource.Token, ActorInboxCommon.UserMessageInbox);
             sysInbox = StartMailbox<SystemMessage>(actor, ClusterSystemInboxKey, tokenSource.Token, ActorInboxCommon.SystemMessageInbox);
 
-            CheckRemoteInbox(ClusterUserInboxKey);
-            CheckRemoteInbox(ClusterSystemInboxKey);
+            CheckRemoteInbox(ClusterUserInboxKey, this.cluster, actor.Id, sysInbox, userInbox);
+            CheckRemoteInbox(ClusterSystemInboxKey, this.cluster, actor.Id, sysInbox, userInbox);
 
             this.cluster.SubscribeToChannel<string>(ClusterUserInboxNotifyKey, 
                 msg =>
                 {
                     if (userInbox.CurrentQueueLength == 0)
                     {
-                        CheckRemoteInbox(ClusterUserInboxKey);
+                        CheckRemoteInbox(ClusterUserInboxKey, this.cluster, actor.Id, sysInbox, userInbox);
                     }
                 });
 
@@ -67,7 +68,7 @@ namespace LanguageExt
                 {
                     if (sysInbox.CurrentQueueLength == 0)
                     {
-                        CheckRemoteInbox(ClusterSystemInboxKey);
+                        CheckRemoteInbox(ClusterSystemInboxKey, this.cluster, actor.Id, sysInbox, userInbox);
                     }
                 });
 
@@ -141,30 +142,36 @@ namespace LanguageExt
             this.cluster.UnsubscribeChannel(ClusterSystemInboxNotifyKey);
         }
 
-        private void CheckRemoteInbox(string key)
+        public void CheckRemoteInbox(string key, ICluster cluster, ProcessId self, FSharpMailboxProcessor<SystemMessage> sysInbox, FSharpMailboxProcessor<UserControlMessage> userInbox)
         {
             try
             {
                 if (cluster.QueueLength(key) > 0)
                 {
-                    var pair = ActorInboxCommon.GetNextMessage(cluster, actor.Id, key);
+                    Option<Tuple<RemoteMessageDTO, Message>> pair;
 
-                    pair.IfSome(x => map(x, (dto, msg) =>
+                    lock (sync)
                     {
+                        pair = ActorInboxCommon.GetNextMessage(cluster, self, key);
+                        cluster.Dequeue<RemoteMessageDTO>(key);
+                    }
+
+                    pair.IfSome(x => map(x, (dto, msg) => {
                         switch (msg.MessageType)
                         {
-                            case Message.Type.ActorSystem: ActorContext.LocalRoot.Tell(msg, dto.Sender); break;
-                            case Message.Type.System: sysInbox.Post((SystemMessage)msg); break;
-                            case Message.Type.User: userInbox.Post((UserControlMessage)msg); break;
-                            case Message.Type.UserControl: userInbox.Post((UserControlMessage)msg); break;
+                            case Message.Type.ActorSystem:  ActorContext.LocalRoot.Tell(msg, dto.Sender); break;
+                            case Message.Type.System:       sysInbox.Post((SystemMessage)msg); break;
+                            case Message.Type.User:         userInbox.Post((UserControlMessage)msg); break;
+                            case Message.Type.UserControl:  userInbox.Post((UserControlMessage)msg); break;
                         }
                     }));
                 }
             }
             catch (Exception e)
             {
-                logSysErr("CheckRemoteInbox failed for " + actor.Id, e);
+                logSysErr("CheckRemoteInbox failed for " + self, e);
             }
+
         }
 
         private FSharpMailboxProcessor<TMsg> StartMailbox<TMsg>(Actor<S, T> actor, string key, CancellationToken cancelToken, Action<Actor<S, T>, TMsg> handler) where TMsg : Message =>
@@ -182,8 +189,7 @@ namespace LanguageExt
                 finally
                 {
                     // Remove from queue, then see if there are any more to process.
-                    cluster.Dequeue<RemoteMessageDTO>(key);
-                    CheckRemoteInbox(key);
+                    CheckRemoteInbox(key, cluster, actor.Id, sysInbox, userInbox);
                 }
             });
     }

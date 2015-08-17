@@ -485,6 +485,7 @@ namespace LanguageExt
                         ? -1
                         : res.RequestId
                     : req.RequestId,
+                MessageId = Guid.NewGuid(),
                 Sender = res == null
                     ? sender.ToString()
                     : res.ReplyFrom.ToString(),
