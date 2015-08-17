@@ -178,8 +178,14 @@ namespace LanguageExt
                 do
                 {
                     dto = cluster.Peek<RemoteMessageDTO>(key);
-                    if (dto == null || (dto.Tag == 0 && dto.Type == 0))
+                    if (dto == null)
                     {
+                        // Queue is empty
+                        return None; 
+                    }
+                    if (dto.Tag == 0 && dto.Type == 0)
+                    {
+                        // Message is bad
                         cluster.Dequeue<RemoteMessageDTO>(key);
                         if (cluster.QueueLength(key) == 0) return None;
                     }

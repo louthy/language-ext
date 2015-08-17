@@ -146,14 +146,15 @@ namespace LanguageExt
         {
             try
             {
-                if (cluster.QueueLength(key) > 0)
+                int count = cluster.QueueLength(key);
+
+                while(count > 0)
                 {
                     Option<Tuple<RemoteMessageDTO, Message>> pair;
-
                     lock (sync)
                     {
                         pair = ActorInboxCommon.GetNextMessage(cluster, self, key);
-                        cluster.Dequeue<RemoteMessageDTO>(key);
+                        pair.IfSome(x => cluster.Dequeue<RemoteMessageDTO>(key));
                     }
 
                     pair.IfSome(x => map(x, (dto, msg) => {
@@ -165,6 +166,7 @@ namespace LanguageExt
                             case Message.Type.UserControl:  userInbox.Post((UserControlMessage)msg); break;
                         }
                     }));
+                    count--;
                 }
             }
             catch (Exception e)

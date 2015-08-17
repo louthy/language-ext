@@ -73,17 +73,19 @@ namespace LanguageExt
         {
             lock(sync)
             {
-                while (ActorInboxCommon.GetNextMessage(cluster, self, key).Match(
+                var count = cluster.QueueLength(key);
+
+                while (count > 0 && ActorInboxCommon.GetNextMessage(cluster, self, key).Match(
                     Some: x => map(x, (dto, msg) =>
                     {
                         try
                         {
                             switch (msg.MessageType)
                             {
-                                case Message.Type.ActorSystem: ActorContext.LocalRoot.Tell(msg, dto.Sender); break;
-                                case Message.Type.System: sysInbox(actor, (SystemMessage)msg); break;
-                                case Message.Type.User: userInbox(actor, (UserControlMessage)msg); break;
-                                case Message.Type.UserControl: userInbox(actor, (UserControlMessage)msg); break;
+                                case Message.Type.ActorSystem:  ActorContext.LocalRoot.Tell(msg, dto.Sender); break;
+                                case Message.Type.System:       sysInbox(actor, (SystemMessage)msg); break;
+                                case Message.Type.User:         userInbox(actor, (UserControlMessage)msg); break;
+                                case Message.Type.UserControl:  userInbox(actor, (UserControlMessage)msg); break;
                             }
                         }
                         catch (Exception e)
@@ -98,7 +100,9 @@ namespace LanguageExt
                         return true;
                     }),
                     None: () => false))
-                { }
+                {
+                    count--;
+                }
             }
         }
 
