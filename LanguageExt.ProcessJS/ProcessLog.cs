@@ -43,7 +43,7 @@ namespace LanguageExt.ProcessJS
         /// </summary>
         /// <param name="processNameOverride">Override the default process name</param>
         /// <param name="logViewMax">Size of the log 'window'</param>
-        public static Unit Startup(Option<ProcessName> processNameOverride, int logViewMax = 200)
+        public static Unit startup(Option<ProcessName> processNameOverride, int logViewMax = 200)
         {
             if(processId.IsValid) return unit;
             lock(sync)
@@ -51,10 +51,10 @@ namespace LanguageExt.ProcessJS
                 if (processId.IsValid) return unit;
 
                 processName   = processNameOverride.IfNone("process-log");
-                processId     = spawn<State, ProcessLogItem>(processName, () => Setup(logViewMax), Inbox);
+                processId     = spawn<State, ProcessLogItem>(processName, () => setup(logViewMax), inbox);
 
-                deadLetterSub = subscribe<DeadLetter>(DeadLetters, msg => TellWarning(msg.ToString()));
-                errorSub      = subscribe<Exception>(Errors, e => TellError(e));
+                deadLetterSub = subscribe<DeadLetter>(DeadLetters, msg => tellWarning(msg.ToString()));
+                errorSub      = subscribe<Exception>(Errors, e => tellError(e));
             }
 
             return unit;
@@ -63,7 +63,7 @@ namespace LanguageExt.ProcessJS
         /// <summary>
         /// Shutdown the process log
         /// </summary>
-        public static Unit Shutdown()
+        public static Unit shutdown()
         {
             if( processId.IsValid )
             {
@@ -76,52 +76,52 @@ namespace LanguageExt.ProcessJS
         /// <summary>
         /// Ask.  Gets a snapshot of the log.
         /// </summary>
-        public static IEnumerable<ProcessLogItem> Ask() =>
+        public static IEnumerable<ProcessLogItem> ask() =>
             ask<IEnumerable<ProcessLogItem>>(processId, new ProcessLogItem(ProcessLogItemType.Info,"ask"));
 
         /// <summary>
         /// General log function.  Look at TellInfo, TellWarning and TellError for more specific
         /// log functions.
         /// </summary>
-        public static Unit Tell(ProcessLogItem logItem) =>
+        public static Unit tell(ProcessLogItem logItem) =>
             processId.IsValid
-                ? tell(processId, logItem)
+                ? Process.tell(processId, logItem)
                 : unit;
 
         /// <summary>
         /// Log an info message
         /// </summary>
         /// <param name="message">Message to log</param>
-        public static Unit TellInfo(string message) =>
+        public static Unit tellInfo(string message) =>
             processId.IsValid
-                ? tell(processId, new ProcessLogItem(ProcessLogItemType.Info, message, null))
+                ? Process.tell(processId, new ProcessLogItem(ProcessLogItemType.Info, message, null))
                 : unit;
 
         /// <summary>
         /// Log a warning message
         /// </summary>
         /// <param name="message">Message to log</param>
-        public static Unit TellWarning(string message) =>
+        public static Unit tellWarning(string message) =>
             processId.IsValid
-                ? tell(processId, new ProcessLogItem(ProcessLogItemType.Warning, message, null))
+                ? Process.tell(processId, new ProcessLogItem(ProcessLogItemType.Warning, message, null))
                 : unit;
 
         /// <summary>
         /// Log an error message
         /// </summary>
         /// <param name="message">Message to log</param>
-        public static Unit TellError(string message) =>
+        public static Unit tellError(string message) =>
             processId.IsValid
-                ? tell(processId, new ProcessLogItem(ProcessLogItemType.Error, message, null))
+                ? Process.tell(processId, new ProcessLogItem(ProcessLogItemType.Error, message, null))
                 : unit;
 
         /// <summary>
         /// Log an exception
         /// </summary>
         /// <param name="ex">Exception to log</param>
-        public static Unit TellError(Exception ex) =>
+        public static Unit tellError(Exception ex) =>
             processId.IsValid
-                ? tell(processId, new ProcessLogItem(ProcessLogItemType.Error, null, ex))
+                ? Process.tell(processId, new ProcessLogItem(ProcessLogItemType.Error, null, ex))
                 : unit;
 
         /// <summary>
@@ -129,15 +129,15 @@ namespace LanguageExt.ProcessJS
         /// </summary>
         /// <param name="message">Message to log</param>
         /// <param name="ex">Exception to log</param>
-        public static Unit TellError(Exception ex, string message) =>
+        public static Unit tellError(Exception ex, string message) =>
             processId.IsValid
-                ? tell(processId, new ProcessLogItem(ProcessLogItemType.Error, message, ex))
+                ? Process.tell(processId, new ProcessLogItem(ProcessLogItemType.Error, message, ex))
                 : unit;
 
         /// <summary>
         /// Setup the process.  Subscribes to errors and dead-letters
         /// </summary>
-        private static State Setup(int logViewMax) => 
+        private static State setup(int logViewMax) => 
             new State(logViewMax);
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace LanguageExt.ProcessJS
         /// <param name="state">State</param>
         /// <param name="msg">Message</param>
         /// <returns>State</returns>
-        private static State Inbox(State state, ProcessLogItem msg)
+        private static State inbox(State state, ProcessLogItem msg)
         {
             try
             {

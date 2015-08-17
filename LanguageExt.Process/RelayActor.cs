@@ -58,7 +58,7 @@ namespace LanguageExt
                     }
                     else
                     {
-                        tell(rmsg.To, inmsg.Message, Self.Append(rmsg.Sender));
+                        tell(rmsg.To, inmsg.Message, rmsg.Sender.IsValid ? Self.Append(rmsg.Sender) : ProcessId.NoSender);
                     }
                     break;
 

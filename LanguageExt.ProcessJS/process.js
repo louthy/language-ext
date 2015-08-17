@@ -3,6 +3,8 @@
 // Copyright (c) 2014-2015 Paul Louth
 // https://github.com/louthy/language-ext/blob/master/LICENSE.md
 
+var unit = "(unit)";
+
 var Process = (function () {
 
     var withContext = function (ctx, f) {
@@ -398,7 +400,49 @@ var Process = (function () {
         return !isAsk
     }
 
+    var formatItem = function (msg) {
+        return "<div class='process-log-msg-row'>" +
+                "<div class='process-log-row process-log-row" + msg.TypeDisplay + "'>" +
+                "<div class='log-time'>" + msg.DateDisplay + "</div>" +
+                "<div class='log-type'>" + msg.TypeDisplay + "</div>" +
+                (msg.Message == null
+                    ? ""
+                    : "<div class='log-msg'>" + msg.Message + "</div>") +
+                "</div>" +
+                (msg.Exception == null || msg.Exception == ""
+                    ? ""
+                    : "<div class='process-log-row testbed-log-rowError'><div id='log-ex-msg'>" + msg.Exception + "</div></div>") +
+                "</div>";
+    };
+
     var log = {
+        tell: function(type,msg) {
+            tell("/root/user/process-log", {
+                Type: type,
+                Message: msg
+            });
+        },
+        tellInfo: function (msg) { this.tell(1, msg); },
+        tellWarn: function (msg) { this.tell(2, msg); },
+        tellError: function (msg) { this.tell(12, msg); },
+        tellDebug: function (msg) { this.tell(16, msg); },
+        view: function (id, viewSize) {
+            return Process.spawn("process-log",
+                    function () {
+                        Process.subscribe("/root/user/process-log");
+                        return [];
+                    },
+                    function (state, msg) {
+                        state.unshift(msg);
+                        $("#" + id).prepend(formatItem(msg));
+                        if (state.length > (viewSize || 50)) {
+                            state.pop();
+                            $('.process-log-msg-row:last').remove();
+                        }
+                        return state;
+                    }
+                );
+        }
     }
 
     return {
@@ -420,7 +464,7 @@ var Process = (function () {
         DeadLetters:    DeadLetters,
         Errors:         Errors,
         NoSender:       NoSender,
-        ProcessLog:     log,
+        Log:            log,
         Root:           Root,
         System:         System,
         User:           User,

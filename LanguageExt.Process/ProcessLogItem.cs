@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -24,13 +25,14 @@ namespace LanguageExt
         {
             When = DateTime.UtcNow;
             Type = type;
-            Message = Optional(message);
-            Exception = Optional(exception);
+            Message = message;
+            Exception = exception;
         }
 
+        [JsonConstructor]
         public ProcessLogItem(ProcessLogItemType type, string message)
             :
-            this(type,message,null)
+            this(type, message, null)
         {
         }
 

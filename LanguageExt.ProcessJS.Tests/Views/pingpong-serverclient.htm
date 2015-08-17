@@ -11,66 +11,30 @@
     </head>
     <body>
 
-        <div id="log-view-count">
-        </div>
-
         <div id="log-view">
-        </div>
-
-        <div id="server-log-view">
         </div>
 
         <script type="text/javascript">
 
             Process.connect().done(function () {
 
-                // Simple logging process.  Manages a state of up to 50 log messages
-                // Also listens for 'ask' requests where it will return the current
-                // length of the log.  It also publishes every log message it receives.
-                var log = Process.spawn("log", 
-                    function () {
-                        Process.subscribe("/root/user/process-log");
-                        return [];
-                    },
-                    function (state, msg) {
-                        state.unshift(msg);
-                        $("#log-view").prepend(formatItem(msg));
-                        if (state.length > 50) {
-                            state.pop();
-                            $('.process-log-msg-row:last').remove();
-                        }
-                        return state;
-                    }
-                );
+                // Built in logging UI.  Makes it easy to visually diagnose what's happening
+                // with the process system.  It talks to the server ProcessLog system, and 
+                // you must have called ProcessLog.Startup() on the server for this to work.
+                Process.Log.view("log-view", 50);
 
-
-                // Ping-pong 'client' process.  This process sends every message it gets
-                // to the log process.  It also calls the 'pingpong' process on the server
+                // Ping-pong 'client' process.  Calls the 'pingpong' process on the server
                 // with a delay of N milliseconds.  The server pingpong process sends messages
-                // back to this process, therefore creating a client/server loop.
+                // back to this process, therefore creating a client/server loop.  It server
+                // 'pingpong' process also tells the ProcessLog each message it receives.
                 var pingpong = Process.spawn("pingpong-client", function (msg) {
                     Process.tellDelay("/root/user/pingpong", msg, 200);
                 });
 
                 Process.tell(pingpong, "start");
+                Process.Log.tellInfo("Hello, world");
             });
 
-
-            var formatItem = function (msg) {
-                return "<div class='process-log-msg-row'>" +
-                        "<div class='process-log-row process-log-row" + msg.TypeDisplay + "'>" +
-                        "<div class='log-time'>" + msg.DateDisplay + "</div>" +
-                        "<div class='log-type'>" + msg.TypeDisplay + "</div>" +
-                        (msg.Message == null
-                            ? ""
-                            : "<div class='log-msg'>" + msg.Message + "</div>") +
-                        "</div>" +
-                        (msg.ExMsg == null
-                            ? ""
-                            : "<div class='process-log-row testbed-log-rowError'><div id='log-ex-msg'>" + msg.ExMsg + "</div></div>" +
-                              "<div class='process-log-row testbed-log-rowError'><div id='log-ex-msg'>" + msg.ExStack + "</div></div>") +
-                        "</div>";
-            }
         </script>
     </body>
 </html>

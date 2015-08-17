@@ -15,7 +15,7 @@ namespace LanguageExt.ProcessJS.Tests
     {
         protected void Application_Start(object sender, EventArgs e)
         {
-            ProcessLog.Startup(None);
+            ProcessLog.startup(None);
             Process.spawn<string>("pingpong", PingPong.Inbox);
         }
     }
