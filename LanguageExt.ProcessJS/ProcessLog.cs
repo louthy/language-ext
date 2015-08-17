@@ -45,16 +45,16 @@ namespace LanguageExt.ProcessJS
         /// <param name="logViewMax">Size of the log 'window'</param>
         public static Unit startup(Option<ProcessName> processNameOverride, int logViewMax = 200)
         {
-            if(processId.IsValid) return unit;
-            lock(sync)
+            if (processId.IsValid) return unit;
+            lock (sync)
             {
                 if (processId.IsValid) return unit;
 
-                processName   = processNameOverride.IfNone("process-log");
-                processId     = spawn<State, ProcessLogItem>(processName, () => setup(logViewMax), inbox);
+                processName = processNameOverride.IfNone("process-log");
+                processId = spawn<State, ProcessLogItem>(processName, () => setup(logViewMax), inbox);
 
                 deadLetterSub = subscribe<DeadLetter>(DeadLetters, msg => tellWarning(msg.ToString()));
-                errorSub      = subscribe<Exception>(Errors, e => tellError(e));
+                errorSub = subscribe<Exception>(Errors, e => tellError(e));
             }
 
             return unit;
@@ -65,7 +65,7 @@ namespace LanguageExt.ProcessJS
         /// </summary>
         public static Unit shutdown()
         {
-            if( processId.IsValid )
+            if (processId.IsValid)
             {
                 kill(processId);
                 processId = ProcessId.None;
@@ -77,62 +77,68 @@ namespace LanguageExt.ProcessJS
         /// Ask.  Gets a snapshot of the log.
         /// </summary>
         public static IEnumerable<ProcessLogItem> ask() =>
-            ask<IEnumerable<ProcessLogItem>>(processId, new ProcessLogItem(ProcessLogItemType.Info,"ask"));
+            ask<IEnumerable<ProcessLogItem>>(processId, new ProcessLogItem(ProcessLogItemType.Info, "ask"));
 
         /// <summary>
         /// General log function.  Look at TellInfo, TellWarning and TellError for more specific
         /// log functions.
         /// </summary>
-        public static Unit tell(ProcessLogItem logItem) =>
-            processId.IsValid
-                ? Process.tell(processId, logItem)
-                : unit;
+        public static void tell(ProcessLogItem logItem)
+        {
+            if (processId.IsValid)
+                Process.tell(processId, logItem);
+        }
 
         /// <summary>
         /// Log an info message
         /// </summary>
         /// <param name="message">Message to log</param>
-        public static Unit tellInfo(string message) =>
-            processId.IsValid
-                ? Process.tell(processId, new ProcessLogItem(ProcessLogItemType.Info, message, null))
-                : unit;
+        public static void tellInfo(string message)
+        {
+            if (processId.IsValid)
+                Process.tell(processId, new ProcessLogItem(ProcessLogItemType.Info, message, null));
+        }
 
         /// <summary>
         /// Log a warning message
         /// </summary>
         /// <param name="message">Message to log</param>
-        public static Unit tellWarning(string message) =>
-            processId.IsValid
-                ? Process.tell(processId, new ProcessLogItem(ProcessLogItemType.Warning, message, null))
-                : unit;
+        public static void tellWarning(string message)
+        {
+            if (processId.IsValid)
+                Process.tell(processId, new ProcessLogItem(ProcessLogItemType.Warning, message, null));
+        }
 
         /// <summary>
         /// Log an error message
         /// </summary>
         /// <param name="message">Message to log</param>
-        public static Unit tellError(string message) =>
-            processId.IsValid
-                ? Process.tell(processId, new ProcessLogItem(ProcessLogItemType.Error, message, null))
-                : unit;
+        public static void tellError(string message)
+        {
+            if (processId.IsValid)
+                Process.tell(processId, new ProcessLogItem(ProcessLogItemType.Error, message, null));
+        }
 
         /// <summary>
         /// Log an exception
         /// </summary>
         /// <param name="ex">Exception to log</param>
-        public static Unit tellError(Exception ex) =>
-            processId.IsValid
-                ? Process.tell(processId, new ProcessLogItem(ProcessLogItemType.Error, null, ex))
-                : unit;
+        public static void tellError(Exception ex)
+        {
+            if (processId.IsValid)
+                Process.tell(processId, new ProcessLogItem(ProcessLogItemType.Error, null, ex));
+        }
 
         /// <summary>
         /// Log an exception and a message
         /// </summary>
         /// <param name="message">Message to log</param>
         /// <param name="ex">Exception to log</param>
-        public static Unit tellError(Exception ex, string message) =>
-            processId.IsValid
-                ? Process.tell(processId, new ProcessLogItem(ProcessLogItemType.Error, message, ex))
-                : unit;
+        public static void tellError(Exception ex, string message)
+        {
+            if (processId.IsValid)
+                Process.tell(processId, new ProcessLogItem(ProcessLogItemType.Error, message, ex));
+        }
 
         /// <summary>
         /// Setup the process.  Subscribes to errors and dead-letters
