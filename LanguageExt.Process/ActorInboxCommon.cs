@@ -167,5 +167,37 @@ namespace LanguageExt
 
             return new UserMessage(message, sender, sender);
         }
+
+        public static Option<Tuple<RemoteMessageDTO, Message>> GetNextMessage(ICluster cluster, ProcessId self, string key)
+        {
+            Message msg = null;
+            RemoteMessageDTO dto = null;
+            do
+            {
+                dto = null;
+                do
+                {
+                    dto = cluster.Peek<RemoteMessageDTO>(key);
+                    if (dto == null || (dto.Tag == 0 && dto.Type == 0))
+                    {
+                        cluster.Dequeue<RemoteMessageDTO>(key);
+                        if (cluster.QueueLength(key) == 0) return None;
+                    }
+                }
+                while (dto == null || dto.Tag == 0 || dto.Type == 0);
+
+                try
+                {
+                    msg = MessageSerialiser.DeserialiseMsg(dto, self);
+                }
+                catch (Exception e)
+                {
+                    logSysErr("Failed to deserialise message for " + self + " (dropping)", e);
+                }
+            }
+            while (msg == null);
+
+            return Some(Tuple(dto, msg));
+        }
     }
 }

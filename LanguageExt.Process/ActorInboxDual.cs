@@ -141,35 +141,16 @@ namespace LanguageExt
             this.cluster.UnsubscribeChannel(ClusterSystemInboxNotifyKey);
         }
 
-        private RemoteMessageDTO GetNextMessage(string key)
-        {
-            RemoteMessageDTO dto = null;
-
-            do
-            {
-                dto = cluster.Peek<RemoteMessageDTO>(key);
-                if (dto == null || (dto.Tag == 0 && dto.Type == 0))
-                {
-                    cluster.Dequeue<RemoteMessageDTO>(key);
-                    if (cluster.QueueLength(key) == 0) return null;
-                }
-            }
-            while (dto.Tag == 0 && dto.Type == 0);
-
-            return dto;
-        }
-
         private void CheckRemoteInbox(string key)
         {
             try
             {
                 if (cluster.QueueLength(key) > 0)
                 {
-                    var dto = GetNextMessage(key);
-                    if (dto != null)
-                    {
-                        var msg = MessageSerialiser.DeserialiseMsg(dto, actor.Id);
+                    var pair = ActorInboxCommon.GetNextMessage(cluster, actor.Id, key);
 
+                    pair.IfSome(x => map(x, (dto, msg) =>
+                    {
                         switch (msg.MessageType)
                         {
                             case Message.Type.ActorSystem: ActorContext.LocalRoot.Tell(msg, dto.Sender); break;
@@ -177,7 +158,7 @@ namespace LanguageExt
                             case Message.Type.User: userInbox.Post((UserControlMessage)msg); break;
                             case Message.Type.UserControl: userInbox.Post((UserControlMessage)msg); break;
                         }
-                    }
+                    }));
                 }
             }
             catch (Exception e)
