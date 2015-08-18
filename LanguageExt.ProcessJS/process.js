@@ -378,7 +378,7 @@ var Process = (function () {
     }
 
     var receive = function (event) {
-        if (!event.origin !== window.location.origin ||
+        if (event.origin !== window.location.origin ||
             typeof event.data !== "string" ) {
             return;
         }
