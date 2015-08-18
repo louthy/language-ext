@@ -12,6 +12,7 @@ using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 using static LanguageExt.List;
 using System.Reactive.Subjects;
+using Newtonsoft.Json;
 
 namespace LanguageExt
 {
@@ -231,6 +232,38 @@ namespace LanguageExt
             return unit;
         }
 
+        public Option<T> PreProcessMessageContent(object message)
+        {
+            if (message == null)
+            {
+                tell(ActorContext.DeadLetters, DeadLetter.create(Sender, Self, "Message is null for tell (expected " + typeof(T) + ")", message));
+                return None;
+            }
+
+            if (typeof(T) != typeof(string) && message is string)
+            {
+                try
+                {
+                    // This allows for messages to arrive from JS and be dealt with at the endpoint 
+                    // (where the type is known) rather than the gateway (where it isn't)
+                    return Some(JsonConvert.DeserializeObject<T>((string)message));
+                }
+                catch
+                {
+                    tell(ActorContext.DeadLetters, DeadLetter.create(Sender, Self, "Invalid message type for tell (expected " + typeof(T) + ")", message));
+                    return None;
+                }
+            }
+
+            if (!typeof(T).IsAssignableFrom(message.GetType()))
+            {
+                tell(ActorContext.DeadLetters, DeadLetter.create(Sender, Self, "Invalid message type for tell (expected " + typeof(T) + ")", message));
+                return None;
+            }
+
+            return Some((T)message);
+        }
+
         public Unit ProcessAsk(ActorRequest request)
         {
             var savedMsg = ActorContext.CurrentMsg;
@@ -240,10 +273,23 @@ namespace LanguageExt
             {
                 ActorContext.CurrentRequest = request;
                 ActorContext.ProcessFlags = flags;
-                if (request.Message is T)
+                ActorContext.CurrentMsg = request.Message;
+
+                if (typeof(T) != typeof(string) && request.Message is string)
+                {
+                    state = PreProcessMessageContent(request.Message).Match(
+                                Some: tmsg =>
+                                {
+                                    var s = actorFn(state, tmsg);
+                                    stateSubject.OnNext(state);
+                                    return s;
+                                },
+                                None: ()   => state
+                            );
+                }
+                else if (request.Message is T)
                 {
                     T msg = (T)request.Message;
-                    ActorContext.CurrentMsg = msg;
                     state = actorFn(state, msg);
                     stateSubject.OnNext(state);
                 }
@@ -289,8 +335,23 @@ namespace LanguageExt
                 ActorContext.ProcessFlags = flags;
                 ActorContext.CurrentMsg = message;
 
-                state = actorFn(state, (T)message);
-                stateSubject.OnNext(state);
+                if (typeof(T) != typeof(string) && message is string)
+                {
+                    state = PreProcessMessageContent(message).Match(
+                                Some: tmsg =>
+                                {
+                                    var s = actorFn(state, tmsg);
+                                    stateSubject.OnNext(state);
+                                    return s;
+                                },
+                                None: () => state
+                            );
+                }
+                else
+                {
+                    state = actorFn(state, (T)message);
+                    stateSubject.OnNext(state);
+                }
             }
             catch (SystemKillActorException)
             {

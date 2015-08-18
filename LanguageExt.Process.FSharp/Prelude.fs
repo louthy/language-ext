@@ -7,6 +7,8 @@ module ProcessFs =
 
     type ProcessId = LanguageExt.ProcessId
 
+    let Pid (pid:ProcessId) = fun () -> pid
+
     let DefaultFlags = 
         ProcessFlags.Default
 
