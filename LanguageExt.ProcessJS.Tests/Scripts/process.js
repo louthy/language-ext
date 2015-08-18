@@ -24,7 +24,7 @@ var Process = (function () {
             res = f(context);
         }
         catch (e) {
-            // TODO: Log error
+            error(e, ctx.self, ctx.currentMsg, ctx.sender);
         }
         context = savedContext;
         return res;
@@ -79,11 +79,17 @@ var Process = (function () {
     var subscribeId = 1;
     var context     = null;
 
+    var failwith = function (err) {
+        console.error(err);
+        throw err;
+    }
+
     var inloop = function() {
         return context != null;
     }
 
     var isLocal = function (pid) {
+        if (typeof pid === "undefined") failwith("isLocal: 'pid' not defined");
         return pid.indexOf(Root) == 0;
     }
 
@@ -92,6 +98,7 @@ var Process = (function () {
     }
 
     var spawn = function (name, setup, inbox) {
+        if (typeof name === "undefined") failwith("spawn: 'name' not defined");
         var stateless = false;
         if (arguments.length == 2)
         {
@@ -116,6 +123,8 @@ var Process = (function () {
     }
 
     var tell = function (pid, msg, sender) {
+        if (typeof pid === "undefined") failwith("tell: 'pid' not defined");
+        if (typeof msg === "undefined") failwith("tell: 'msg' not defined");
         var ctx = {
             isAsk: false,
             self: pid,
@@ -123,15 +132,23 @@ var Process = (function () {
             currentMsg: msg,
             currentReq: null
         };
-        window.postMessage({ processjs: "tell", pid: pid, msg: msg, ctx: ctx }, window.location.origin);
+        postMessage(
+            JSON.stringify({ processjs: "tell", pid: pid, msg: msg, ctx: ctx }),
+            window.location.origin
+        );
     }
 
     var tellDelay = function (pid, msg, delay) {
+        if (typeof pid === "undefined") failwith("tellDelay: 'pid' not defined");
+        if (typeof msg === "undefined") failwith("tellDelay: 'msg' not defined");
+        if (typeof delay === "undefined") failwith("tellDelay: 'delay' not defined");
         var self = context.self;
         return setTimeout(function () { tell(pid, msg, self); }, delay);
     }
 
     var ask = function (pid, msg) {
+        if (typeof pid === "undefined") failwith("ask: 'pid' not defined");
+        if (typeof msg === "undefined") failwith("ask: 'msg' not defined");
         var ctx = {
             isAsk: true,
             self: pid,
@@ -142,10 +159,10 @@ var Process = (function () {
         var p = actor[pid];
         if (!p || !p.inbox) {
             if (isLocal(pid)) {
-                throw new "Process doesn't exist " + pid;
+                failwith("Process doesn't exist " + pid);
             }
             else {
-                throw "'ask' is only available for intra-JS process calls.";
+                failwith("'ask' is only available for intra-JS process calls.");
             }
         }
         else {
@@ -169,18 +186,20 @@ var Process = (function () {
     }
 
     var reply = function (msg) {
+        if (typeof msg === "undefined") failwith("reply: 'msg' not defined");
         context.reply = msg;
     }
 
     var subscribeAsync = function (pid) {
+        if (typeof pid === "undefined") failwith("subscribeAsync: 'pid' not defined");
         var p = actor[pid];
         if (!p || !p.inbox) {
             if (isLocal(pid)) {
-                throw new "Process doesn't exist " + pid;
+                failwith("Process doesn't exist " + pid);
             }
             else 
             {
-                throw "'subscribe' is currently only available for intra-JS process calls.";
+                failwith("'subscribe' is currently only available for intra-JS process calls.");
             }
         }
 
@@ -206,6 +225,7 @@ var Process = (function () {
     }
 
     var subscribeSync = function (pid) {
+        if (typeof pid === "undefined") failwith("subscribeSync: 'pid' not defined");
         var self = context.self;
         if (isLocal(pid)) {
             return subscribeAsync(pid).forall(function (msg) {
@@ -230,36 +250,40 @@ var Process = (function () {
     }
 
     var subscribe = function (pid) {
-        if (inloop()) 
+        if (typeof pid === "undefined") failwith("subscribe: 'pid' not defined");
+        if (inloop())
             subscribeSync(pid)
         else
             subscribeAsync(pid);
     }
 
     var unsubscribe = function (ctx) {
+        if (typeof ctx === "undefined") failwith("unsubscribe: 'ctx' not defined");
         if (!ctx || ctx.unsubscribe) return;
         ctx.unsubscribe();
     }
 
     publish = function (msg) {
+        if (typeof msg === "undefined") failwith("publish: 'msg' not defined");
         if (inloop()) {
-            window.postMessage(
-                { pid: context.self, msg: msg, processjs: "pub" },
+            postMessage(
+                JSON.stringify({ pid: context.self, msg: msg, processjs: "pub" }),
                 window.location.origin
             );
         }
         else {
-            throw "'publish' can only be called from within a process";
+            failwith("'publish' can only be called from within a process");
         }
     }
 
     var kill = function (pid) {
+        if (typeof pid === "undefined") failwith("kill: 'pid' not defined");
         if (arguments.length == 0) {
             if (inloop()) {
                 pid = context.pid;
             }
             else {
-                throw "'kill' can only be called without arguments from within a process";
+                failwith("'kill' can only be called without arguments from within a process");
             }
         }
 
@@ -355,16 +379,20 @@ var Process = (function () {
 
     var receive = function (event) {
         if (event.origin !== window.location.origin ||
-            !event.data ||
-            !event.data.processjs, 
-            !event.data.pid ||
-            !event.data.msg) {
+            typeof event.data !== "string" ) {
             return;
         }
-        switch( event.data.processjs )
+        var data = JSON.parse(event.data);
+
+        if (!data.processjs, 
+            !data.pid ||
+            !data.msg) {
+            return;
+        }
+        switch (data.processjs)
         {
-            case "tell": receiveTell(event.data); break;
-            case "pub":  receivePub(event.data); break;
+            case "tell": receiveTell(data); break;
+            case "pub":  receivePub(data); break;
         }
     }
 
@@ -378,8 +406,8 @@ var Process = (function () {
                 currentMsg: JSON.parse(data.Content),
                 currentReq: data.RequestId
             };
-            window.postMessage(
-                { pid: data.To, msg: ctx.currentMsg, ctx: ctx, processjs: "tell" },
+            postMessage(
+                JSON.stringify({ pid: data.To, msg: ctx.currentMsg, ctx: ctx, processjs: "tell" }),
                 window.location.origin
             );
         }
@@ -416,7 +444,9 @@ var Process = (function () {
     };
 
     var log = {
-        tell: function(type,msg) {
+        tell: function (type, msg) {
+            if (typeof type === "undefined") failwith("Log.tell: 'type' not defined");
+            if (typeof msg === "undefined") failwith("Log.tell: 'msg' not defined");
             tell("/root/user/process-log", {
                 Type: type,
                 Message: msg
@@ -427,6 +457,7 @@ var Process = (function () {
         tellError: function (msg) { this.tell(12, msg); },
         tellDebug: function (msg) { this.tell(16, msg); },
         view: function (id, viewSize) {
+            if (!id) failwith("Log.view: 'id' not defined");
             return Process.spawn("process-log",
                     function () {
                         Process.subscribe("/root/user/process-log");

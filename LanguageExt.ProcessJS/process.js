@@ -24,7 +24,7 @@ var Process = (function () {
             res = f(context);
         }
         catch (e) {
-            // TODO: Log error
+            error(e, ctx.self, ctx.currentMsg, ctx.sender);
         }
         context = savedContext;
         return res;
@@ -132,7 +132,10 @@ var Process = (function () {
             currentMsg: msg,
             currentReq: null
         };
-        window.postMessage({ processjs: "tell", pid: pid, msg: msg, ctx: ctx }, window.location.origin);
+        postMessage(
+            JSON.stringify({ processjs: "tell", pid: pid, msg: msg, ctx: ctx }),
+            window.location.origin
+        );
     }
 
     var tellDelay = function (pid, msg, delay) {
@@ -263,8 +266,8 @@ var Process = (function () {
     publish = function (msg) {
         if (typeof msg === "undefined") failwith("publish: 'msg' not defined");
         if (inloop()) {
-            window.postMessage(
-                { pid: context.self, msg: msg, processjs: "pub" },
+            postMessage(
+                JSON.stringify({ pid: context.self, msg: msg, processjs: "pub" }),
                 window.location.origin
             );
         }
@@ -375,17 +378,21 @@ var Process = (function () {
     }
 
     var receive = function (event) {
-        if (event.origin !== window.location.origin ||
-            !event.data ||
-            !event.data.processjs, 
-            !event.data.pid ||
-            !event.data.msg) {
+        if (!event.origin !== window.location.origin ||
+            typeof event.data !== "string" ) {
             return;
         }
-        switch( event.data.processjs )
+        var data = JSON.parse(event.data);
+
+        if (!data.processjs, 
+            !data.pid ||
+            !data.msg) {
+            return;
+        }
+        switch (data.processjs)
         {
-            case "tell": receiveTell(event.data); break;
-            case "pub":  receivePub(event.data); break;
+            case "tell": receiveTell(data); break;
+            case "pub":  receivePub(data); break;
         }
     }
 
@@ -399,8 +406,8 @@ var Process = (function () {
                 currentMsg: JSON.parse(data.Content),
                 currentReq: data.RequestId
             };
-            window.postMessage(
-                { pid: data.To, msg: ctx.currentMsg, ctx: ctx, processjs: "tell" },
+            postMessage(
+                JSON.stringify({ pid: data.To, msg: ctx.currentMsg, ctx: ctx, processjs: "tell" }),
                 window.location.origin
             );
         }

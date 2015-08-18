@@ -190,7 +190,11 @@ module ProcessFs =
     // LanguageExt.Process.Redis and call:
     //
     //      RedisCluster.register()  
-    //      connect "redis" "unique-name-for-this-service" "localhost" "0"
+    //      clusterConnect "redis" "unique-name-for-this-service" "localhost" "0"
     //
-    let connect clusterProvider nodeName connectionString catalogueString = 
+    let clusterConnect clusterProvider nodeName connectionString catalogueString = 
+        Cluster.disconnect() |> ignore
         Cluster.connect(clusterProvider,new ProcessName(nodeName),connectionString,catalogueString) |> ignore
+
+    let clusterDisconnect () =
+        Cluster.disconnect() |> ignore        
