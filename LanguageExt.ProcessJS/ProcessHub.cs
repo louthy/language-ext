@@ -222,8 +222,7 @@ namespace LanguageExt
 
         public override Task OnReconnected()
         {
-            EnsureProcessHub();
-            tell(Root["js"], new RelayMsg(RelayMsg.MsgTag.Connected, Context.ConnectionId, ProcessId.NoSender, ProcessId.NoSender, false));
+            Connect();
             return base.OnReconnected();
         }
 
