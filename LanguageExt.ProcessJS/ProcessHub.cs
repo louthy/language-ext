@@ -173,7 +173,7 @@ namespace LanguageExt
                 ? ProcessId.NoSender
                 : sender;
 
-        private static void Bouncer(ProcessId pid, Action f) =>
+        private static void Bouncer(ProcessId pid, Action f)
         {
             if (processWhitelist != null && !processWhitelist.Contains(pid.Path)) return;
             if (processBlacklist != null && processBlacklist.Contains(pid.Path)) return;
