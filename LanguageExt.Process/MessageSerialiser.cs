@@ -17,7 +17,9 @@ namespace LanguageExt
 
             switch ((Message.TagSpec)msg.Tag)
             {
-                case Message.TagSpec.UserReply: return new ActorResponse(DeserialiseMsgContent(msg), actorId, sender, msg.RequestId);
+                case Message.TagSpec.UserReply:
+                    var content = DeserialiseMsgContent(msg);
+                    return new ActorResponse(content, content.GetType().AssemblyQualifiedName, actorId, sender, msg.RequestId, msg.Exception == "RESPERR");
                 case Message.TagSpec.UserAsk: return new ActorRequest(DeserialiseMsgContent(msg), actorId, replyTo, msg.RequestId);
                 case Message.TagSpec.User: return new UserMessage(DeserialiseMsgContent(msg), sender, replyTo);
 

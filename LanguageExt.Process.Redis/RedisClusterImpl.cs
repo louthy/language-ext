@@ -120,16 +120,19 @@ namespace LanguageExt
                 channelName,
                 (channel, value) =>
                 {
-                    if (channel == channelName && !value.IsNullOrEmpty)
+                    Task.Run(() =>
                     {
-                        try
+                        if (channel == channelName && !value.IsNullOrEmpty)
                         {
-                            handler(JsonConvert.DeserializeObject(value, type));
+                            try
+                            {
+                                handler(JsonConvert.DeserializeObject(value, type));
+                            }
+                            catch
+                            {
+                            }
                         }
-                        catch
-                        {
-                        }
-                    }
+                    });
                 });
         }
 
@@ -140,16 +143,19 @@ namespace LanguageExt
                 channelName,
                 (channel, value) =>
                 {
-                    if (channel == channelName && !value.IsNullOrEmpty)
+                    Task.Run(() =>
                     {
-                        try
+                        if (channel == channelName && !value.IsNullOrEmpty)
                         {
-                            handler(JsonConvert.DeserializeObject<T>(value));
+                            try
+                            {
+                                handler(JsonConvert.DeserializeObject<T>(value));
+                            }
+                            catch
+                            {
+                            }
                         }
-                        catch
-                        {
-                        }
-                    }
+                    });
                 });
         }
 

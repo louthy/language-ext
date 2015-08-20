@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -269,6 +270,43 @@ namespace LanguageExt
     }
 
     /// <summary>
+    /// Invalid process ID
+    /// </summary>
+    [Serializable]
+    public class InvalidProcessIdException : Exception
+    {
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public InvalidProcessIdException()
+            :
+            base("Invalid process ID")
+        {
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public InvalidProcessIdException(string message) : base(message)
+        {
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public InvalidProcessIdException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        protected InvalidProcessIdException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+    }
+
+    /// <summary>
     /// NoChildProcessesException
     /// </summary>
     [Serializable]
@@ -307,38 +345,37 @@ namespace LanguageExt
 
 
     /// <summary>
-    /// Invalid process ID
+    /// A process threw an exception in its message loop
     /// </summary>
     [Serializable]
-    public class InvalidProcessIdException : Exception
+    public class ProcessException : Exception
     {
         /// <summary>
+        /// Process that threw the exception
+        /// </summary>
+        public string Self;
+
+        /// <summary>
+        /// Process that sent the message
+        /// </summary>
+        public string Sender;
+
+        /// <summary>
         /// Ctor
         /// </summary>
-        public InvalidProcessIdException()
+        [JsonConstructor]
+        public ProcessException(string message, string self, string sender, Exception innerException)
             :
-            base("Invalid process ID")
+            base(message, innerException)
         {
+            Self = self;
+            Sender = sender;
         }
 
         /// <summary>
         /// Ctor
         /// </summary>
-        public InvalidProcessIdException(string message) : base(message)
-        {
-        }
-
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        public InvalidProcessIdException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        protected InvalidProcessIdException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected ProcessException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }

@@ -6,6 +6,7 @@ using System.Threading;
 using static LanguageExt.Process;
 using static LanguageExt.Prelude;
 using LanguageExt.Trans;
+using System.Threading.Tasks;
 
 namespace LanguageExt
 {
@@ -36,13 +37,10 @@ namespace LanguageExt
             // Preparing for message versioning support
             //actorPath += "-" + version;
 
-            CheckRemoteInbox(ClusterUserInboxKey, this.cluster, actor.Id, ActorInboxCommon.UserMessageInbox, ActorInboxCommon.SystemMessageInbox);
-            CheckRemoteInbox(ClusterSystemInboxKey, this.cluster, actor.Id, ActorInboxCommon.UserMessageInbox, ActorInboxCommon.SystemMessageInbox);
-
             this.cluster.SubscribeToChannel<string>(ClusterUserInboxNotifyKey,
                 msg =>
                 {
-                    CheckRemoteInbox(ClusterUserInboxKey,this.cluster,actor.Id, ActorInboxCommon.UserMessageInbox, ActorInboxCommon.SystemMessageInbox);
+                    CheckRemoteInbox(ClusterUserInboxKey, this.cluster, actor.Id, ActorInboxCommon.UserMessageInbox, ActorInboxCommon.SystemMessageInbox);
                 });
 
             this.cluster.SubscribeToChannel<string>(ClusterSystemInboxNotifyKey,
@@ -50,6 +48,11 @@ namespace LanguageExt
                 {
                     CheckRemoteInbox(ClusterSystemInboxKey, this.cluster, actor.Id, ActorInboxCommon.UserMessageInbox, ActorInboxCommon.SystemMessageInbox);
                 });
+
+            // We want the check done asyncronously, in case the setup function creates child processes that
+            // won't exist if we invoke directly.
+            this.cluster.PublishToChannel(ClusterUserInboxNotifyKey, "Startup");
+            this.cluster.PublishToChannel(ClusterSystemInboxNotifyKey, "Startup");
 
             return unit;
         }
@@ -92,6 +95,7 @@ namespace LanguageExt
                             }
                             catch (Exception e)
                             {
+                                ActorContext.WithContext(actor, dto.Sender, msg as ActorRequest, msg, () => replyErrorIfAsked(e));
                                 tell(ActorContext.DeadLetters, DeadLetter.create(dto.Sender, self, e, "Remote message inbox.", msg));
                                 logSysErr(e);
                             }

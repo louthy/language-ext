@@ -23,6 +23,7 @@ namespace ProcessSample
     {
         public static void RunTests()
         {
+            AskReplyError();
             RegisteredAskReply();
             AskReply();
 
@@ -66,46 +67,53 @@ namespace ProcessSample
 
         public static void RegisterTest()
         {
-            shutdownAll();
+            try
+            {
+                shutdownAll();
 
-            // Let Language Ext know that Redis exists
-            RedisCluster.register();
+                // Let Language Ext know that Redis exists
+                RedisCluster.register();
 
-            // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-test", "localhost", "0");
+                // Connect to the Redis cluster
+                Cluster.connect("redis", "redis-test", "localhost", "0");
 
-            string value = null;
-            var pid = spawn<string>("reg-proc", msg => value = msg);
+                string value = null;
+                var pid = spawn<string>("reg-proc", msg => value = msg);
 
-            var regid = register<string>("woooo amazing", pid);
+                var regid = register<string>("woooo amazing", pid);
 
-            Thread.Sleep(100);
+                Thread.Sleep(100);
 
-            var kids = children(Registered);
+                var kids = children(Registered);
 
-            Debug.Assert(kids.Count() == 1);
-            Debug.Assert(kids["woooo amazing"].Path == "/redis-test/registered/woooo amazing");
+                Debug.Assert(kids.Count() == 1);
+                Debug.Assert(kids["woooo amazing"].Path == "/redis-test/registered/woooo amazing");
 
-            tell(regid, "hello");
+                tell(regid, "hello");
 
-            Thread.Sleep(2000);
+                Thread.Sleep(2000);
 
-            Debug.Assert(value == "hello");
+                Debug.Assert(value == "hello");
 
-            tell(find("woooo amazing"), "world");
+                tell(find("woooo amazing"), "world");
 
-            Thread.Sleep(2000);
+                Thread.Sleep(2000);
 
-            Debug.Assert(value == "world");
+                Debug.Assert(value == "world");
 
-            Thread.Sleep(100);
+                Thread.Sleep(100);
 
-            deregister("woooo amazing");
+                deregister("woooo amazing");
 
-            Thread.Sleep(100);
+                Thread.Sleep(100);
 
-            kids = children(Registered);
-            Debug.Assert(kids.Count() == 0);
+                kids = children(Registered);
+                Debug.Assert(kids.Count() == 0);
+            }
+            finally
+            {
+                Cluster.disconnect();
+            }
         }
 
 
@@ -191,6 +199,38 @@ namespace ProcessSample
                 max--;
                 Debug.Assert(m.Count == max);
             }
+        }
+
+
+        public static void AskReplyError()
+        {
+            shutdownAll();
+
+            // Let Language Ext know that Redis exists
+            RedisCluster.register();
+
+            // Connect to the Redis cluster
+            Cluster.connect("redis", "redis-test", "localhost", "0");
+
+            var world = spawn<ProcessId, string>("world", 
+                () =>  spawn<string>("hello", msg => failwith<Unit>("Failed!"), ProcessFlags.PersistInbox),
+                (pid, msg) =>
+                {
+                    try
+                    {
+                        ask<string>(pid, msg);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.Assert(e.Message == "Process issue: Failed!");
+                    }
+                    return pid;
+                },
+                ProcessFlags.PersistInbox
+            );
+
+            tell(world, "error throwing test");
+            Thread.Sleep(1000);
         }
 
         public static void RegisteredAskReply()

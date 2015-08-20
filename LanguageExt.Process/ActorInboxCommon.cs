@@ -1,10 +1,6 @@
 ﻿using Microsoft.FSharp.Control;
 using Microsoft.FSharp.Core;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
@@ -121,7 +117,8 @@ namespace LanguageExt
         {
             if (message == null)
             {
-                tell(ActorContext.DeadLetters, DeadLetter.create(sender, self, "Message is null for tell (expected " + typeof(T) + ")", message));
+                var emsg = "Message is null for tell (expected " + typeof(T) + ")";
+                tell(ActorContext.DeadLetters, DeadLetter.create(sender, self, emsg, message));
                 return None;
             }
 
@@ -130,7 +127,8 @@ namespace LanguageExt
                 var req = (ActorRequest)message;
                 if (!typeof(T).IsAssignableFrom(req.Message.GetType()))
                 {
-                    tell(ActorContext.DeadLetters, DeadLetter.create(sender, self, "Invalid message type for ask (expected " + typeof(T) + ")", message));
+                    var emsg = "Invalid message type for ask (expected " + typeof(T) + ")";
+                    tell(ActorContext.DeadLetters, DeadLetter.create(sender, self, emsg, message));
                     return None;
                 }
                 return Optional((UserControlMessage)message);

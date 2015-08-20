@@ -16,8 +16,42 @@ namespace LanguageExtTests
     public class ProcessTests
     {
         [Test]
+        public static void AskReplyError()
+        {
+            shutdownAll();
+
+            // Let Language Ext know that Redis exists
+            RedisCluster.register();
+
+            // Connect to the Redis cluster
+            Cluster.connect("redis", "redis-test", "localhost", "0");
+
+            var world = spawn<ProcessId, string>("world",
+                () => spawn<string>("hello", msg => failwith<Unit>("Failed!"), ProcessFlags.PersistInbox),
+                (pid, msg) =>
+                {
+                    try
+                    {
+                        ask<string>(pid, msg);
+                    }
+                    catch (Exception e)
+                    {
+                        Assert.IsTrue(e.Message == "Process issue: Failed!");
+                    }
+                    return pid;
+                },
+                ProcessFlags.PersistInbox
+            );
+
+            tell(world, "error throwing test");
+            Thread.Sleep(1000);
+        }
+
+        [Test]
         public void AskReply()
         {
+            shutdownAll();
+
             var helloServer = spawn<string>("hello-server", msg =>
             {
                 reply("Hello, " + msg);

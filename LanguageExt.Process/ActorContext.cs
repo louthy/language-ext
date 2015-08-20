@@ -132,7 +132,7 @@ namespace LanguageExt
             {
                 if (response.IsFaulted)
                 {
-                    throw new Exception("Request failed.", response.Exception);
+                    throw response.Exception;
                 }
                 else
                 {

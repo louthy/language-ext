@@ -34,17 +34,21 @@ namespace LanguageExt
         public readonly object Message;
         public readonly ProcessId ReplyFrom;
         public readonly long RequestId;
+        public readonly bool IsFaulted;
+        public readonly string ResponseMessageType;
 
         public override Type MessageType => Type.User;
         public override TagSpec Tag      => TagSpec.UserReply;
 
         [JsonConstructor]
-        public ActorResponse(object message, ProcessId replyTo, ProcessId replyFrom, long requestId)
+        public ActorResponse(object message, string responseMessageType, ProcessId replyTo, ProcessId replyFrom, long requestId, bool isFaulted = false)
         {
             Message = message;
+            ResponseMessageType = responseMessageType;
             ReplyTo = replyTo;
             ReplyFrom = replyFrom;
             RequestId = requestId;
+            IsFaulted = isFaulted;
         }
     }
 }

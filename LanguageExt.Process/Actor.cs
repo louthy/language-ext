@@ -306,9 +306,9 @@ namespace LanguageExt
             {
                 // TODO: Add extra strategy behaviours here
                 Restart();
+                replyError(e);
                 tell(ActorContext.Errors, e);
-                tell(ActorContext.DeadLetters,
-                     DeadLetter.create(request.ReplyTo, request.To, e, "Process error (ask): ", request.Message));
+                tell(ActorContext.DeadLetters, DeadLetter.create(request.ReplyTo, request.To, e, "Process error (ask): ", request.Message));
             }
             finally
             {

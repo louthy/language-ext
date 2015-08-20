@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
 using System.Threading;
@@ -38,11 +39,47 @@ namespace LanguageExt
                     var req = dict[res.RequestId];
                     try
                     {
-                        req.Complete(new AskActorRes(res.Message));
+                        if (res.IsFaulted)
+                        {
+                            Exception ex = null;
+
+                            // Let's be reeeally safe here and do everything we can to get some valid information out of
+                            // the response to report to the process doing the 'ask'.  
+                            try
+                            {
+                                var msgtype = Type.GetType(res.ResponseMessageType);
+                                if (msgtype == res.Message.GetType() && typeof(Exception).IsAssignableFrom(msgtype))
+                                {
+                                    // Type is fine, just return it as an error
+                                    ex = (Exception)res.Message;
+                                }
+                                else
+                                {
+                                    if (res.Message is string)
+                                    {
+                                        ex = (Exception)JsonConvert.DeserializeObject(res.Message.ToString(), msgtype);
+                                    }
+                                    else
+                                    {
+                                        ex = (Exception)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(res.Message), msgtype);
+                                    }
+                                }
+                            }
+                            catch
+                            {
+                                ex = new Exception(res.Message == null ? "An unknown error was thrown by " + req.To : res.Message.ToString());
+                            }
+
+                            req.Complete(new AskActorRes(new ProcessException("Process issue: " + ex.Message, req.To.Path, req.ReplyTo.Path, ex)));
+                        }
+                        else
+                        {
+                            req.Complete(new AskActorRes(res.Message));
+                        }
                     }
                     catch (Exception e)
                     {
-                        req.Complete(new AskActorRes(e));
+                        req.Complete(new AskActorRes(new ProcessException("Process issue: " + e.Message, req.To.Path, req.ReplyTo.Path, e)));
                         logSysErr(e);
                     }
                     finally

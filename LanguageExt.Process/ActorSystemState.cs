@@ -98,7 +98,7 @@ namespace LanguageExt
 
             ShutdownProcess(User);
             user = ActorCreate<object>(root, Config.UserProcessName, publish, ProcessFlags.Default);
-            Tell(new ActorResponse(unit, ActorContext.CurrentRequest.ReplyTo, Root, ActorContext.CurrentRequest.RequestId), reply, ActorContext.Root);
+            Tell(new ActorResponse(unit, unit.GetType().AssemblyQualifiedName, ActorContext.CurrentRequest.ReplyTo, Root, ActorContext.CurrentRequest.RequestId), reply, ActorContext.Root);
 
             logInfo("Process system shutdown complete");
 
@@ -139,7 +139,7 @@ namespace LanguageExt
         }
 
         public Unit Reply(ProcessId replyTo, object message, ProcessId sender, long requestId) =>
-            Tell(new ActorResponse(message, replyTo, sender, requestId), replyTo, sender);
+            Tell(new ActorResponse(message, message.GetType().AssemblyQualifiedName, replyTo, sender, requestId), replyTo, sender);
 
         public Unit GetChildren(ProcessId processId)
         {
@@ -150,7 +150,7 @@ namespace LanguageExt
 
             ReplyInfo(nameof(GetChildren), processId, kids.Count);
 
-            return Tell( new ActorResponse(kids, ActorContext.CurrentRequest.ReplyTo, processId, ActorContext.CurrentRequest.RequestId),
+            return Tell( new ActorResponse(kids, kids.GetType().AssemblyQualifiedName, ActorContext.CurrentRequest.ReplyTo, processId, ActorContext.CurrentRequest.RequestId),
                          reply,
                          processId);
         }
@@ -185,6 +185,7 @@ namespace LanguageExt
             return Tell(
                     new ActorResponse(
                         stream,
+                        stream.GetType().AssemblyQualifiedName,
                         ActorContext.CurrentRequest.ReplyTo,
                         processId, 
                         ActorContext.CurrentRequest.RequestId
@@ -198,17 +199,20 @@ namespace LanguageExt
             if (ReplyToProcessDoesNotExist(nameof(ObservePub))) return unit;
             if (ProcessDoesNotExist(nameof(ObservePub), processId)) return unit;
 
-            return Tell(
-                new ActorResponse(
-                    store.ContainsKey(processId.Path)
+            var val = store.ContainsKey(processId.Path)
                         ? store[processId.Path].Actor.StateStream
                         : Cluster.MatchUnsafe(c =>
-                            {
-                                // TODO: Specify the type
-                                var subject = new Subject<object>();
-                                c.SubscribeToChannel(processId.Path + "-pubsub", typeof(object), msg => subject.OnNext(msg));
-                                return subject;
-                            }, None: () => null),     
+                        {
+                            // TODO: Specify the type
+                            var subject = new Subject<object>();
+                            c.SubscribeToChannel(processId.Path + "-pubsub", typeof(object), msg => subject.OnNext(msg));
+                            return subject;
+                        }, None: () => null);
+
+            return Tell(
+                new ActorResponse(
+                    val,
+                    val.GetType().AssemblyQualifiedName,
                     ActorContext.CurrentRequest.ReplyTo,
                     processId, 
                     ActorContext.CurrentRequest.RequestId
@@ -283,16 +287,22 @@ namespace LanguageExt
                     }
                     try
                     {
-                        process.Startup();
-                        inbox.Startup(process, process.Parent, Cluster, 0);
                         store.Add(path, new ActorItem(process, inbox, flags));
                         parent.Actor.LinkChild(process.Id.Path);
+                        process.Startup();
+                        inbox.Startup(process, process.Parent, Cluster, 0);
                     }
                     catch (Exception e)
                     {
+                        ShutdownProcess(path);
                         Tell(e, Errors, Root);
+                        logSysErr(e);
                     }
                 }
+            }
+            else
+            {
+                logSysErr("Failed to AddOrUpdateStoreAndStartup for "+ process.Id + " because parent process doesn't exist: "+ process.Parent.Path);
             }
             return this;
         }
@@ -459,7 +469,7 @@ namespace LanguageExt
             var userInbox = pid.Path + "-" + inbox + "-inbox";
             var userInboxNotify = userInbox + "-notify";
             c.Enqueue(userInbox, dto);
-            c.PublishToChannel(userInboxNotify, "New message");
+            long clientsReached = c.PublishToChannel(userInboxNotify, "New message");
             return unit;
         }
 
@@ -478,7 +488,11 @@ namespace LanguageExt
                         : (int)Message.TagSpec.UserReply
                     : (int)Message.TagSpec.UserAsk,
                 Child = null,
-                Exception = null,
+                Exception = res == null
+                    ? null
+                    : res.IsFaulted
+                        ? "RESPERR"
+                        : null,
                 To = to.Path,
                 RequestId = req == null
                     ? res == null

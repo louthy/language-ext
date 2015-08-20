@@ -278,31 +278,6 @@ namespace LanguageExt
             ActorContext.Shutdown();
 
         /// <summary>
-        /// Reply to an ask
-        /// </summary>
-        /// <remarks>
-        /// This should be used from within a process' message loop only
-        /// </remarks>
-        public static Unit reply<T>(T message) =>
-            InMessageLoop
-                ? ActorContext.CurrentRequest == null
-                    ? failwith<Unit>( "You can't reply to this message.  It wasn't an 'ask'.  Use isAsk to confirm whether something is an 'ask' or a 'tell'" )
-                    : ActorContext.Tell(ActorContext.CurrentRequest.ReplyTo, new ActorResponse(message, ActorContext.CurrentRequest.ReplyTo, ActorContext.Self, ActorContext.CurrentRequest.RequestId), ActorContext.Self)
-                : raiseUseInMsgLoopOnlyException<Unit>(nameof(reply));
-
-
-        /// <summary>
-        /// Reply to an ask if asked
-        /// </summary>
-        /// <remarks>
-        /// This should be used from within a process' message loop only
-        /// </remarks>
-        public static Unit replyIfAsked<T>(T message) =>
-            isAsk
-                ? reply(message)
-                : unit;
-
-        /// <summary>
         /// Return True if the message sent is a Tell and not an Ask
         /// </summary>
         /// <remarks>
