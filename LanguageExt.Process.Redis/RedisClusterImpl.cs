@@ -128,7 +128,7 @@ namespace LanguageExt
                             {
                                 handler(JsonConvert.DeserializeObject(value, type));
                             }
-                            catch
+                            catch(Exception e)
                             {
                             }
                         }
@@ -151,7 +151,7 @@ namespace LanguageExt
                             {
                                 handler(JsonConvert.DeserializeObject<T>(value));
                             }
-                            catch
+                            catch(Exception e)
                             {
                             }
                         }

@@ -141,36 +141,37 @@ namespace LanguageExt
         {
             Message msg = null;
             RemoteMessageDTO dto = null;
+
+            dto = null;
             do
             {
-                dto = null;
-                do
+                dto = cluster.Peek<RemoteMessageDTO>(key);
+                if (dto == null)
                 {
-                    dto = cluster.Peek<RemoteMessageDTO>(key);
-                    if (dto == null)
-                    {
-                        // Queue is empty
-                        return None; 
-                    }
-                    if (dto.Tag == 0 && dto.Type == 0)
-                    {
-                        // Message is bad
-                        cluster.Dequeue<RemoteMessageDTO>(key);
-                        if (cluster.QueueLength(key) == 0) return None;
-                    }
+                    // Queue is empty
+                    return None; 
                 }
-                while (dto == null || dto.Tag == 0 || dto.Type == 0);
-
-                try
+                if (dto.Tag == 0 && dto.Type == 0)
                 {
-                    msg = MessageSerialiser.DeserialiseMsg(dto, self);
-                }
-                catch (Exception e)
-                {
-                    logSysErr("Failed to deserialise message for " + self + " (dropping)", e);
+                    // Message is bad
+                    cluster.Dequeue<RemoteMessageDTO>(key);
+                    tell(ActorContext.DeadLetters, DeadLetter.create(dto.Sender, self, null, "Failed to deserialise message: ", dto));
+                    if (cluster.QueueLength(key) == 0) return None;
                 }
             }
-            while (msg == null);
+            while (dto == null || dto.Tag == 0 || dto.Type == 0);
+
+            try
+            {
+                msg = MessageSerialiser.DeserialiseMsg(dto, self);
+            }
+            catch (Exception e)
+            {
+                // Message can't be deserialised
+                cluster.Dequeue<RemoteMessageDTO>(key);
+                tell(ActorContext.DeadLetters, DeadLetter.create(dto.Sender, self, e, "Failed to deserialise message: ", msg));
+                return None;
+            }
 
             return Some(Tuple(dto, msg));
         }

@@ -469,7 +469,7 @@ namespace LanguageExt
             var userInbox = pid.Path + "-" + inbox + "-inbox";
             var userInboxNotify = userInbox + "-notify";
             c.Enqueue(userInbox, dto);
-            long clientsReached = c.PublishToChannel(userInboxNotify, "New message");
+            long clientsReached = c.PublishToChannel(userInboxNotify, dto.MessageId);
             return unit;
         }
 
