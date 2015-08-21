@@ -51,9 +51,6 @@ namespace LanguageExt
             userInbox = StartMailbox<UserControlMessage>(actor, ClusterUserInboxKey, tokenSource.Token, ActorInboxCommon.UserMessageInbox);
             sysInbox = StartMailbox<SystemMessage>(actor, ClusterSystemInboxKey, tokenSource.Token, ActorInboxCommon.SystemMessageInbox);
 
-            CheckRemoteInbox(ClusterUserInboxKey, this.cluster, actor.Id, sysInbox, userInbox);
-            CheckRemoteInbox(ClusterSystemInboxKey, this.cluster, actor.Id, sysInbox, userInbox);
-
             this.cluster.SubscribeToChannel<string>(ClusterUserInboxNotifyKey, 
                 msg =>
                 {
@@ -71,6 +68,9 @@ namespace LanguageExt
                         CheckRemoteInbox(ClusterSystemInboxKey, this.cluster, actor.Id, sysInbox, userInbox);
                     }
                 });
+
+            this.cluster.PublishToChannel(ClusterUserInboxNotifyKey, Guid.NewGuid().ToString());
+            this.cluster.PublishToChannel(ClusterSystemInboxNotifyKey, Guid.NewGuid().ToString());
 
             return unit;
         }

@@ -51,8 +51,8 @@ namespace LanguageExt
 
             // We want the check done asyncronously, in case the setup function creates child processes that
             // won't exist if we invoke directly.
-            this.cluster.PublishToChannel(ClusterUserInboxNotifyKey, "Startup");
-            this.cluster.PublishToChannel(ClusterSystemInboxNotifyKey, "Startup");
+            this.cluster.PublishToChannel(ClusterUserInboxNotifyKey, Guid.NewGuid().ToString());
+            this.cluster.PublishToChannel(ClusterSystemInboxNotifyKey, Guid.NewGuid().ToString());
 
             return unit;
         }
@@ -119,9 +119,13 @@ namespace LanguageExt
         public void Dispose()
         {
             var ts = tokenSource;
-            if (ts != null) ts.Dispose();
-            this.cluster.UnsubscribeChannel(ClusterUserInboxNotifyKey);
-            this.cluster.UnsubscribeChannel(ClusterSystemInboxNotifyKey);
+            ts?.Dispose();
+            ts = null;
+
+            var cs = cluster;
+            cs?.UnsubscribeChannel(ClusterUserInboxNotifyKey);
+            cs?.UnsubscribeChannel(ClusterSystemInboxNotifyKey);
+            cluster = null;
         }
     }
 }
