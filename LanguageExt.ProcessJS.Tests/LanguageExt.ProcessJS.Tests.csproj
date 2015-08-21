@@ -112,8 +112,10 @@
     <Content Include="Scripts\jquery.signalR-2.2.0.min.js" />
     <Content Include="Scripts\process.js" />
     <Content Include="style.css" />
+    <Content Include="Views\chat.htm" />
     <Content Include="Views\pingpong-jsonly.htm" />
     <Content Include="Views\pingpong-serverclient.htm" />
+    <Content Include="Views\chat.css" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>

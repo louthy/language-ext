@@ -20,12 +20,12 @@
 
                 // Built in logging UI.  Makes it easy to visually diagnose what's happening
                 // with the process system.  It talks to the server ProcessLog system, and 
-                // you must have called ProcessLog.Startup() on the server for this to work.
+                // you must have called ProcessLog.startup() on the server for this to work.
                 Process.Log.view("log-view", 50);
 
                 // Ping-pong 'client' process.  Calls the 'pingpong' process on the server
                 // with a delay of N milliseconds.  The server pingpong process sends messages
-                // back to this process, therefore creating a client/server loop.  It server
+                // back to this process, therefore creating a client/server loop.  The server
                 // 'pingpong' process also tells the ProcessLog each message it receives.
                 var pingpong = Process.spawn("pingpong-client", function (msg) {
                     Process.tellDelay("/root/user/pingpong", msg, 200);

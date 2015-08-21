@@ -15,7 +15,6 @@ namespace LanguageExt
         /// <param name="providerName">Provider name is a unique name for the persistence layer 
         /// type, for example: "redis"</param>
         /// <param name="config">Cluster config</param>
-        /// <returns></returns>
         public static Unit connect(
             string providerName, 
             ClusterConfig config)
@@ -35,16 +34,14 @@ namespace LanguageExt
         /// </param>
         /// <param name="connectionString">Provider defined connection string</param>
         /// <param name="catalogueName">>Provider defined catalogue name</param>
-        /// <param name="metadata">Provider speific metadata</param>
         public static Unit connect(
             string providerName,
             ProcessName nodeName,
             string connectionString,
-            string catalogueName,
-            Map<string, string> metadata = null
+            string catalogueName
         )
         {
-            var cluster = ClusterFactory.CreateCluster(providerName, config(nodeName,connectionString,catalogueName,metadata));
+            var cluster = ClusterFactory.CreateCluster(providerName, config(nodeName,connectionString,catalogueName));
             cluster.Connect();
             return ActorContext.RegisterCluster(cluster);
         }
@@ -61,18 +58,15 @@ namespace LanguageExt
         /// </param>
         /// <param name="connectionString">Provider defined connection string</param>
         /// <param name="catalogueName">>Provider defined catalogue name</param>
-        /// <param name="metadata">Provider speific metadata</param>
         public static ClusterConfig config(
             ProcessName nodeName,
             string connectionString,
-            string catalogueName,
-            Map<string, string> metadata = null
+            string catalogueName
         ) => 
             new ClusterConfig(
                 nodeName, 
                 connectionString, 
-                catalogueName, 
-                metadata
+                catalogueName
             );
 
     }

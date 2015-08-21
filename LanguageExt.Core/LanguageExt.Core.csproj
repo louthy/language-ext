@@ -31,11 +31,6 @@
     <DocumentationFile>..\lib\LanguageExt.Core.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.1.36.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Collections.Immutable.1.1.36\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
@@ -67,11 +62,11 @@
   <ItemGroup>
     <Compile Include="ActionObservable.cs" />
     <Compile Include="EitherState.cs" />
+    <Compile Include="Exceptions.cs" />
     <Compile Include="ObservableExt.cs" />
     <Compile Include="Prelude_Curry.cs" />
     <Compile Include="EitherUnsafe.cs" />
     <Compile Include="ExceptionMatch.cs" />
-    <Compile Include="Exceptions.cs" />
     <Compile Include="HKT.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -85,10 +80,6 @@
     <Compile Include="Prelude_Obsolete.cs" />
     <Compile Include="Prelude_PartialApplication.cs" />
     <Compile Include="Prelude_Timer.cs" />
-    <Compile Include="ProcessName.cs" />
-    <Compile Include="Process\ICluster.cs" />
-    <Compile Include="Process\Factory.cs" />
-    <Compile Include="Process\ClusterConfig.cs" />
     <Compile Include="Query.cs" />
     <Compile Include="Prelude_Try.cs" />
     <Compile Include="Map.cs" />
@@ -128,7 +119,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Content Include="HKT.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

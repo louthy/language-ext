@@ -23,6 +23,11 @@ namespace ProcessSample
     {
         public static void RunTests()
         {
+            ProcessLog.Subscribe(Console.WriteLine);
+
+            MassiveSpawnAndKillHierarchy();
+
+            ProcessStartupError();
             AskReplyError();
             RegisteredAskReply();
             AskReply();
@@ -201,6 +206,24 @@ namespace ProcessSample
             }
         }
 
+        public static void ProcessStartupError()
+        {
+            shutdownAll();
+
+            try
+            {
+                spawn<Unit, string>("world",
+                    ()      => failwith<Unit>("Failed!"),
+                    (_, __) => _, ProcessFlags.PersistInbox
+                    );
+
+                Console.WriteLine("Not here");
+            }
+            catch (Exception e)
+            {
+                Debug.Assert(e.Message == "Process failed starting up: Failed!");
+            }
+        }
 
         public static void AskReplyError()
         {
@@ -212,24 +235,24 @@ namespace ProcessSample
             // Connect to the Redis cluster
             Cluster.connect("redis", "redis-test", "localhost", "0");
 
-            var world = spawn<ProcessId, string>("world", 
-                () =>  spawn<string>("hello", msg => failwith<Unit>("Failed!"), ProcessFlags.PersistInbox),
-                (pid, msg) =>
-                {
-                    try
+            try
+            {
+                var world = spawn<ProcessId, string>("world",
+                    () => spawn<string>("hello", msg => failwith<Unit>("Failed!"), ProcessFlags.PersistInbox),
+                    (pid, msg) =>
                     {
                         ask<string>(pid, msg);
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.Assert(e.Message == "Process issue: Failed!");
-                    }
-                    return pid;
-                },
-                ProcessFlags.PersistInbox
-            );
+                        return pid;
+                    },
+                    ProcessFlags.PersistInbox
+                );
+                tell(world, "error throwing test");
+            }
+            catch (Exception e)
+            {
+                Debug.Assert(e.Message == "Process issue: Failed!");
+            }
 
-            tell(world, "error throwing test");
             Thread.Sleep(1000);
         }
 

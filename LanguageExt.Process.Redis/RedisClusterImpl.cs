@@ -67,7 +67,7 @@ namespace LanguageExt
         /// <summary>
         /// Connect to cluster
         /// </summary>
-        public Unit Connect()
+        public void Connect()
         {
             var databaseNumber = parseUInt(Config.CatalogueName).IfNone(() => raise<uint>(new ArgumentException("Parsing CatalogueName as a number that is 0 or greater, failed.")));
 
@@ -80,14 +80,13 @@ namespace LanguageExt
                     this.redis = ConnectionMultiplexer.Connect(Config.ConnectionString);
                     this.databaseNumber = (int)databaseNumber;
                 }
-                return unit;
             }
         }
 
         /// <summary>
         /// Disconnect from cluster
         /// </summary>
-        public Unit Disconnect()
+        public void Disconnect()
         {
             lock (sync)
             {
@@ -97,7 +96,6 @@ namespace LanguageExt
                     redis.Dispose();
                     redis = null;
                 }
-                return unit;
             }
         }
 
@@ -128,7 +126,7 @@ namespace LanguageExt
                             {
                                 handler(JsonConvert.DeserializeObject(value, type));
                             }
-                            catch(Exception e)
+                            catch
                             {
                             }
                         }
@@ -151,7 +149,7 @@ namespace LanguageExt
                             {
                                 handler(JsonConvert.DeserializeObject<T>(value));
                             }
-                            catch(Exception e)
+                            catch
                             {
                             }
                         }

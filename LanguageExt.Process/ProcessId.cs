@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static LanguageExt.Prelude;
 using Newtonsoft.Json;
 
 namespace LanguageExt
@@ -213,5 +209,15 @@ namespace LanguageExt
         /// </summary>
         public static readonly ProcessId Top = 
             new ProcessId(Sep.ToString());
+
+        private static R failwith<R>(string message)
+        {
+            throw new Exception(message);
+        }
+
+        private static R raise<R>(Exception ex)
+        {
+            throw ex;
+        }
     }
 }

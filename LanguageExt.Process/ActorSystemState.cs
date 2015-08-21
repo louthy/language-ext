@@ -80,7 +80,7 @@ namespace LanguageExt
             js              = ActorCreate<ProcessId, RelayMsg>(root, "js", RelayActor.Inbox, () => User["process-hub-js"], ProcessFlags.Default);
 
             // Second tier
-            deadLetters = ActorCreate<DeadLetter>(system, Config.DeadLettersProcessName, publish, ProcessFlags.Default);
+            deadLetters     = ActorCreate<DeadLetter>(system, Config.DeadLettersProcessName, publish, ProcessFlags.Default);
             errors          = ActorCreate<Exception>(system, Config.ErrorsProcessName, publish, ProcessFlags.Default);
 
             inboxShutdown   = ActorCreate<IActorInbox>(system, Config.InboxShutdownProcessName, inbox => inbox.Shutdown(), ProcessFlags.Default);
@@ -296,13 +296,13 @@ namespace LanguageExt
                     {
                         ShutdownProcess(path);
                         Tell(e, Errors, Root);
-                        logSysErr(e);
+                        logSysErr(new ProcessException("Process failed starting up: " + e.Message, process.Id.Path, process.Parent.Path, e));
                     }
                 }
             }
             else
             {
-                logSysErr("Failed to AddOrUpdateStoreAndStartup for "+ process.Id + " because parent process doesn't exist: "+ process.Parent.Path);
+                logSysErr(new ProcessException("Process failed starting up because parent process doesn't exist", process.Id.Path, process.Parent.Path, null));
             }
             return this;
         }

@@ -68,11 +68,17 @@
     <Compile Include="ActorInboxCommon.cs" />
     <Compile Include="ActorInboxDual.cs" />
     <Compile Include="ActorInboxRemote.cs" />
+    <Compile Include="ClusterConfig.cs" />
     <Compile Include="DeadLetter.cs" />
+    <Compile Include="Exceptions.cs" />
+    <Compile Include="Factory.cs" />
     <Compile Include="IActorInbox.cs" />
+    <Compile Include="ICluster.cs" />
     <Compile Include="ILocalActorInbox.cs" />
     <Compile Include="IProcess.cs" />
     <Compile Include="Prelude_Reply.cs" />
+    <Compile Include="ProcessId.cs" />
+    <Compile Include="ProcessName.cs" />
     <Compile Include="RelayActor.cs" />
     <Compile Include="MessageSerialiser.cs" />
     <Compile Include="Prelude_Forward.cs" />
@@ -95,7 +101,6 @@
     <Compile Include="Prelude_Logging.cs" />
     <Compile Include="Prelude_Spawn.cs" />
     <Compile Include="Prelude_Tell.cs" />
-    <Compile Include="ProcessId.cs" />
     <Compile Include="Prelude.cs" />
     <Compile Include="ProcessLogItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

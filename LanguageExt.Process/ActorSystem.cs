@@ -27,11 +27,11 @@ namespace LanguageExt
                         case Message.TagSpec.Tell:
                         case Message.TagSpec.TellSystem:
                         case Message.TagSpec.TellUserControl:
-                            Tell(state, rmsg as TellMessage);
+                            state = Tell(state, rmsg as TellMessage);
                             break;
 
                         case Message.TagSpec.ShutdownProcess:
-                            ShutdownProcess(state, rmsg as ShutdownProcessMessage);
+                            state = ShutdownProcess(state, rmsg as ShutdownProcessMessage);
                             break;
 
                         case Message.TagSpec.ShutdownAll:

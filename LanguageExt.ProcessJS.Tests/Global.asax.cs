@@ -8,6 +8,7 @@ using System.Web.Security;
 using System.Web.SessionState;
 
 using static LanguageExt.Prelude;
+using static LanguageExt.Process;
 
 namespace LanguageExt.ProcessJS.Tests
 {
@@ -16,7 +17,12 @@ namespace LanguageExt.ProcessJS.Tests
         protected void Application_Start(object sender, EventArgs e)
         {
             ProcessLog.startup(None);
-            Process.spawn<string>("pingpong", PingPong.Inbox);
+
+            // Ping-pong server process
+            spawn<string>("pingpong", PingPong.Inbox);
+
+            // Chat server process
+            spawn<string>("chat", msg => publish(msg));
         }
     }
 

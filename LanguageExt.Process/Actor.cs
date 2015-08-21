@@ -267,6 +267,7 @@ namespace LanguageExt
         public Unit ProcessAsk(ActorRequest request)
         {
             var savedMsg = ActorContext.CurrentMsg;
+            var savedFlags = ActorContext.ProcessFlags;
             var savedReq = ActorContext.CurrentRequest;
 
             try
@@ -313,6 +314,7 @@ namespace LanguageExt
             finally
             {
                 ActorContext.CurrentMsg = savedMsg;
+                ActorContext.ProcessFlags = savedFlags;
                 ActorContext.CurrentRequest = savedReq;
             }
             return unit;

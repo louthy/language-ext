@@ -30,14 +30,10 @@ namespace LanguageExtTests
                 () => spawn<string>("hello", msg => failwith<Unit>("Failed!"), ProcessFlags.PersistInbox),
                 (pid, msg) =>
                 {
-                    try
+                    Assert.Throws<ProcessException>(() =>
                     {
                         ask<string>(pid, msg);
-                    }
-                    catch (Exception e)
-                    {
-                        Assert.IsTrue(e.Message == "Process issue: Failed!");
-                    }
+                    });
                     return pid;
                 },
                 ProcessFlags.PersistInbox

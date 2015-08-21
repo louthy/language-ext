@@ -29,12 +29,12 @@ namespace LanguageExt
         /// <summary>
         /// Connect to cluster
         /// </summary>
-        Unit Connect();
+        void Connect();
 
         /// <summary>
         /// Disconnect from cluster
         /// </summary>
-        Unit Disconnect();
+        void Disconnect();
 
         /// <summary>
         /// Publish data to a named channel

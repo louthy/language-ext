@@ -19,53 +19,58 @@ namespace LanguageExt
         }
 #endif 
 
+        private static void IfNotNull<T>(T value, Action<T> action)
+        {
+            if (value != null) action(value);
+        }
+
         /// <summary>
         /// Log warning - Internal 
         /// </summary>
         internal static void logWarn(string message) =>
-            log.OnNext(new ProcessLogItem(ProcessLogItemType.Warning, (message ?? "").ToString()));
+            IfNotNull(message, _ => log.OnNext(new ProcessLogItem(ProcessLogItemType.Warning, (message ?? "").ToString())));
 
         /// <summary>
         /// Log system error - Internal 
         /// </summary>
         internal static void logSysErr(string message) =>
-            log.OnNext(new ProcessLogItem(ProcessLogItemType.SysError, (message ?? "").ToString()));
+            IfNotNull(message, _ => log.OnNext(new ProcessLogItem(ProcessLogItemType.SysError, (message ?? "").ToString())));
 
         /// <summary>
         /// Log user error - Internal 
         /// </summary>
         internal static void logSysErr(Exception ex) =>
-            log.OnNext(new ProcessLogItem(ProcessLogItemType.SysError, ex));
+            IfNotNull(ex, _ => log.OnNext(new ProcessLogItem(ProcessLogItemType.SysError, ex)));
 
         /// <summary>
         /// Log user error - Internal 
         /// </summary>
         internal static void logSysErr(string message, Exception ex) =>
-            log.OnNext(new ProcessLogItem(ProcessLogItemType.SysError, (message ?? "").ToString(), ex));
+            IfNotNull(message, _ => IfNotNull(ex, __ => log.OnNext(new ProcessLogItem(ProcessLogItemType.SysError, (message ?? "").ToString(), ex))));
 
         /// <summary>
         /// Log user error - Internal 
         /// </summary>
         internal static void logUserErr(string message) =>
-            log.OnNext(new ProcessLogItem(ProcessLogItemType.UserError, (message ?? "").ToString()));
+            IfNotNull(message, _ => log.OnNext(new ProcessLogItem(ProcessLogItemType.UserError, (message ?? "").ToString())));
 
         /// <summary>
         /// Log user or system error - Internal 
         /// </summary>
         internal static void logErr(Exception ex) =>
-            log.OnNext(new ProcessLogItem(ProcessLogItemType.Error, ex));
+            IfNotNull(ex, _ => log.OnNext(new ProcessLogItem(ProcessLogItemType.Error, ex)));
 
         /// <summary>
         /// Log user or system error - Internal 
         /// </summary>
         internal static void logErr(string message, Exception ex) =>
-            log.OnNext(new ProcessLogItem(ProcessLogItemType.Error, (message ?? "").ToString(), ex));
+            IfNotNull(message, _ => IfNotNull(ex, __ => log.OnNext(new ProcessLogItem(ProcessLogItemType.Error, (message ?? "").ToString(), ex))));
 
         /// <summary>
         /// Log user or system error - Internal 
         /// </summary>
         internal static void logErr(string message) =>
-            log.OnNext(new ProcessLogItem(ProcessLogItemType.Error, (message ?? "").ToString()));
+            IfNotNull(message, _ => log.OnNext(new ProcessLogItem(ProcessLogItemType.Error, (message ?? "").ToString())));
 
         /// <summary>
         /// Log subject - Internal

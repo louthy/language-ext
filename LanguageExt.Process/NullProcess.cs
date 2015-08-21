@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    public class NullProcess : IActor
+    internal class NullProcess : IActor
     {
         public Map<string, ProcessId> Children
         {

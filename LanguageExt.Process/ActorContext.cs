@@ -347,30 +347,8 @@ namespace LanguageExt
             }
         }
 
-        public static Unit WithContext(IActor self, ProcessId sender, ActorRequest request, object msg, Action f)
-        {
-            var savedSelf = ActorContext.self;
-            var savedSender = ActorContext.sender;
-            var savedMsg = ActorContext.currentMsg;
-            var savedReq = ActorContext.currentRequest;
-
-            try
-            {
-                ActorContext.self = self;
-                ActorContext.sender = sender;
-                ActorContext.currentMsg = msg;
-                ActorContext.currentRequest = request;
-                f();
-                return unit;
-            }
-            finally
-            {
-                ActorContext.self = savedSelf;
-                ActorContext.sender = savedSender;
-                ActorContext.currentMsg = savedMsg;
-                ActorContext.currentRequest = savedReq;
-            }
-        }
+        public static Unit WithContext(IActor self, ProcessId sender, ActorRequest request, object msg, Action f) =>
+            WithContext(self, sender, request, msg, fun(f));
 
         public static Unit Publish(object message)
         {
