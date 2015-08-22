@@ -873,7 +873,9 @@ _any others you think should be included, please get in touch_
 
 # 'Erlang like' concurrency
 
-My personal view is that the Actor model + functional message loops is the perfect programming model.  Concurrent programming in C# isn't a huge amount of fun.  Yes the `async` command gets you lots of stuff for free, but it doesn't magically protect you from race conditions or accessing shared state.  This does.
+My personal view is that the Actor model + functional message loops is the perfect programming model.  Concurrent programming in C# isn't a huge amount of fun.  Yes the `async` command gets you lots of stuff for free, but it doesn't magically protect you from race conditions or accessing shared state.  
+
+This does.
 
 __Getting started__
 
@@ -883,7 +885,6 @@ In C# you should be `using static LanguageExt.Process`, if you're not using C# 6
 
 In F# you should:
 ```
-open LanguageExt
 open LanguageExt.ProcessFs
 ```
 
