@@ -27,6 +27,7 @@ namespace LanguageExt
             LinkChild,
             UnLinkChild,
             ChildIsFaulted,
+            SystemAsk,
 
             // UserControlMessageTag
             User,
@@ -35,20 +36,8 @@ namespace LanguageExt
             Shutdown,
 
             // ActorSystemMessageTag
-            Startup,
-            AddToStore,
-            RemoveFromStore,
-            Ask,
-            Reply,
-            Tell,
-            TellUserControl,
-            TellSystem,
             ShutdownProcess,
-            GetChildren,
-            ObservePub,
-            ObserveState,
-            Publish,
-            ShutdownAll
+            GetChildren
         }
 
         public abstract Type MessageType

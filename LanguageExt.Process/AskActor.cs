@@ -26,7 +26,8 @@ namespace LanguageExt
                 var req = (AskActorReq)msg;
 
                 logInfo("About to send ask request - reqId: " + reqId);
-                tell(req.To, new ActorRequest(req.Message, req.To, Self, reqId));
+                ActorContext.Ask(req.To, new ActorRequest(req.Message, req.To, Self, reqId), Self);
+
                 logInfo("Sent ask request - reqId: " + reqId);
                 dict.Add(reqId, req);
             }
@@ -100,7 +101,7 @@ namespace LanguageExt
 
         public static Tuple<long, Dictionary<long, AskActorReq>> Setup()
         {
-            return Tuple(0L, new Dictionary<long, AskActorReq>());
+            return Tuple(1L, new Dictionary<long, AskActorReq>());
         }
     }
 

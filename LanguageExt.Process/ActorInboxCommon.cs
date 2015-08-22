@@ -55,9 +55,9 @@ namespace LanguageExt
             return FSharpMailboxProcessor<TMsg>.Start(body, FSharpOption<CancellationToken>.None);
         }
 
-        public static void SystemMessageInbox<S,T>(Actor<S,T> actor, SystemMessage msg)
+        public static void SystemMessageInbox<S,T>(Actor<S,T> actor, IActorInbox inbox, SystemMessage msg, ActorItem parent)
         {
-            ActorContext.WithContext(actor, ProcessId.NoSender, null, msg, () =>
+            ActorContext.WithContext(new ActorItem(actor,inbox,actor.Flags), parent, ProcessId.NoSender, null, msg, () =>
             {
                 switch (msg.Tag)
                 {
@@ -74,42 +74,39 @@ namespace LanguageExt
 
                     case Message.TagSpec.LinkChild:
                         var slcm = (SystemLinkChildMessage)msg;
-                        actor.LinkChild(slcm.ChildId);
+                        actor.LinkChild(slcm.Child);
                         break;
 
                     case Message.TagSpec.UnLinkChild:
                         var ulcm = (SystemUnLinkChildMessage)msg;
-                        actor.UnlinkChild(ulcm.ChildId);
+                        actor.UnlinkChild(ulcm.Child);
                         break;
                 }
             });
         }
 
-        public static void UserMessageInbox<S, T>(Actor<S, T> actor, UserControlMessage msg)
+        public static void UserMessageInbox<S, T>(Actor<S, T> actor, IActorInbox inbox, UserControlMessage msg, ActorItem parent)
         {
-            if (msg.Tag == Message.TagSpec.UserAsk)
+            switch (msg.Tag)
             {
-                var rmsg = (ActorRequest)msg;
-                ActorContext.WithContext(actor, rmsg.ReplyTo, rmsg, msg, () => actor.ProcessAsk(rmsg));
-            }
-            else if (msg.Tag == Message.TagSpec.UserReply)
-            {
-                var rmsg = (ActorResponse)msg;
-                ActorContext.WithContext(actor, rmsg.ReplyFrom, null, msg, () => actor.ProcessMessage(msg));
-            }
-            else if (msg.Tag == Message.TagSpec.User)
-            {
-                var umsg = (UserMessage)msg;
-                ActorContext.WithContext(actor, umsg.Sender, null, msg, () => actor.ProcessMessage(umsg.Content));
-            }
-            else if (msg.MessageType == Message.Type.UserControl)
-            {
-                switch (msg.Tag)
-                {
-                    case Message.TagSpec.Shutdown:
-                        kill(actor.Id);
-                        break;
-                }
+                case Message.TagSpec.UserAsk:
+                    var rmsg = (ActorRequest)msg;
+                    ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, rmsg.ReplyTo, rmsg, msg, () => actor.ProcessAsk(rmsg));
+                    break;
+
+                case Message.TagSpec.UserReply:
+                    var urmsg = (ActorResponse)msg;
+                    ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, urmsg.ReplyFrom, null, msg, () => actor.ProcessResponse(urmsg));
+                    break;
+
+                case Message.TagSpec.User:
+                    var umsg = (UserMessage)msg;
+                    ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, umsg.Sender, null, msg, () => actor.ProcessMessage(umsg.Content));
+                    break;
+
+                case Message.TagSpec.Shutdown:
+                    kill(actor.Id);
+                    break;
             }
         }
 
@@ -125,10 +122,23 @@ namespace LanguageExt
             if (message is ActorRequest)
             {
                 var req = (ActorRequest)message;
-                if (!typeof(T).IsAssignableFrom(req.Message.GetType()))
+                if (!typeof(T).IsAssignableFrom(req.Message.GetType()) && !typeof(Message).IsAssignableFrom(req.Message.GetType()))
                 {
                     var emsg = "Invalid message type for ask (expected " + typeof(T) + ")";
                     tell(ActorContext.DeadLetters, DeadLetter.create(sender, self, emsg, message));
+
+                    ActorContext.Tell(
+                        sender,
+                        new ActorResponse(new Exception("Invalid message type for ask (expected " + typeof(T) + ")"),
+                        typeof(Exception).AssemblyQualifiedName,
+                        sender,
+                        self,
+                        req.RequestId,
+                        true
+                        ), 
+                        self
+                    );
+
                     return None;
                 }
                 return Optional((UserControlMessage)message);
@@ -175,5 +185,32 @@ namespace LanguageExt
 
             return Some(Tuple(dto, msg));
         }
+
+        public static string ClusterKey(ProcessId pid) =>
+            pid.Path;
+
+        public static string ClusterInboxKey(ProcessId pid, string type) =>
+            ClusterKey(pid) + "-"+ type + "-inbox";
+
+        public static string ClusterUserInboxKey(ProcessId pid) =>
+            ClusterInboxKey(pid, "user");
+
+        public static string ClusterSystemInboxKey(ProcessId pid) =>
+            ClusterInboxKey(pid, "system");
+
+        public static string ClusterInboxNotifyKey(ProcessId pid, string type) =>
+            ClusterInboxKey(pid, type) + "-notify";
+
+        public static string ClusterUserInboxNotifyKey(ProcessId pid) =>
+            ClusterInboxNotifyKey(pid, "user");
+
+        public static string ClusterSystemInboxNotifyKey(ProcessId pid) =>
+            ClusterInboxNotifyKey(pid, "system");
+
+        public static string ClusterPubSubKey(ProcessId pid) =>
+            ClusterKey(pid) + "-pubsub";
+
+        public static string ClusterStatePubSubKey(ProcessId pid) =>
+            ClusterKey(pid) + "-state-pubsub";
     }
 }

@@ -20,23 +20,23 @@ namespace LanguageExt
     /// </summary>
     internal class ActorInboxDual<S, T> : IActorInbox, ILocalActorInbox
     {
-        ProcessId supervisor;
         ICluster cluster;
         CancellationTokenSource tokenSource;
         FSharpMailboxProcessor<UserControlMessage> userInbox;
         FSharpMailboxProcessor<SystemMessage> sysInbox;
         Actor<S, T> actor;
+        ActorItem parent;
         int version;
         object sync = new object();
 
         string actorPath;
 
-        public Unit Startup(IActor process, ProcessId supervisor, Option<ICluster> cluster, int version = 0)
+        public Unit Startup(IActor process, ActorItem parent, Option<ICluster> cluster, int version = 0)
         {
             if (cluster.IsNone) throw new Exception("Remote inboxes not supported when there's no cluster");
             this.tokenSource = new CancellationTokenSource();
             this.actor = (Actor<S, T>)process;
-            this.supervisor = supervisor;
+            this.parent = parent;
             this.cluster = cluster.LiftUnsafe();
             this.version = version;
 
@@ -76,19 +76,19 @@ namespace LanguageExt
         }
 
         string ClusterKey =>
-            actorPath;
+            ActorInboxCommon.ClusterKey(actorPath);
 
         string ClusterUserInboxKey =>
-            ClusterKey + "-user-inbox";
+            ActorInboxCommon.ClusterUserInboxKey(actorPath);
 
         string ClusterSystemInboxKey =>
-            ClusterKey + "-system-inbox";
+            ActorInboxCommon.ClusterSystemInboxKey(actorPath);
 
         string ClusterUserInboxNotifyKey =>
-            ClusterUserInboxKey + "-notify";
+            ActorInboxCommon.ClusterUserInboxNotifyKey(actorPath);
 
         string ClusterSystemInboxNotifyKey =>
-            ClusterSystemInboxKey + "-notify";
+            ActorInboxCommon.ClusterSystemInboxNotifyKey(actorPath);
 
         public Unit Ask(object message, ProcessId sender)
         {
@@ -176,12 +176,12 @@ namespace LanguageExt
 
         }
 
-        private FSharpMailboxProcessor<TMsg> StartMailbox<TMsg>(Actor<S, T> actor, string key, CancellationToken cancelToken, Action<Actor<S, T>, TMsg> handler) where TMsg : Message =>
+        private FSharpMailboxProcessor<TMsg> StartMailbox<TMsg>(Actor<S, T> actor, string key, CancellationToken cancelToken, Action<Actor<S, T>, IActorInbox, TMsg, ActorItem> handler) where TMsg : Message =>
             ActorInboxCommon.Mailbox<S, T, TMsg>(Some(cluster), actor.Flags, cancelToken, msg =>
             {
                 try
                 {
-                    handler(actor, msg);
+                    handler(actor, this, msg, parent);
                 }
                 catch (Exception e)
                 {

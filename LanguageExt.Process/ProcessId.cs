@@ -197,6 +197,27 @@ namespace LanguageExt
             new ProcessId(Top + String.Join(Sep.ToString(), parts.Take(count)));
 
         /// <summary>
+        /// Take head of path
+        /// </summary>
+        public ProcessId Head() =>
+            Take(1);
+
+        /// <summary>
+        /// Take tail of path
+        /// </summary>
+        public ProcessId Tail() =>
+            Skip(1);
+
+        /// <summary>
+        /// Number of parts to the name
+        /// </summary>
+        /// <returns></returns>
+        public int Count() => 
+            parts == null 
+                ? 0 
+                : parts.Length;
+
+        /// <summary>
         /// Append one process ID to another
         /// </summary>
         public ProcessId Append(ProcessId pid) =>

@@ -11,8 +11,8 @@ namespace LanguageExt
         public override Message.Type MessageType => Message.Type.System;
 
         public static SystemMessage Restart => new SystemRestartMessage();
-        public static SystemMessage LinkChild(ProcessId pid) => new SystemLinkChildMessage(pid);
-        public static SystemMessage UnLinkChild(ProcessId pid) => new SystemUnLinkChildMessage(pid);
+        //public static SystemMessage LinkChild(ProcessId pid) => new SystemLinkChildMessage(pid);
+        //public static SystemMessage UnLinkChild(ProcessId pid) => new SystemUnLinkChildMessage(pid);
         public static SystemMessage ChildIsFaulted(ProcessId pid,Exception e) => new SystemChildIsFaultedMessage(pid,e);
     }
 
@@ -25,22 +25,22 @@ namespace LanguageExt
     {
         public override TagSpec Tag => TagSpec.LinkChild;
 
-        public SystemLinkChildMessage(ProcessId childId)
+        public SystemLinkChildMessage(ActorItem child)
         {
-            ChildId = childId;
+            Child = child;
         }
-        public ProcessId ChildId { get; }
+        public ActorItem Child { get; }
     }
 
     internal class SystemUnLinkChildMessage : SystemMessage
     {
         public override TagSpec Tag => TagSpec.UnLinkChild;
 
-        public SystemUnLinkChildMessage(ProcessId childId)
+        public SystemUnLinkChildMessage(ActorItem child)
         {
-            ChildId = childId;
+            Child = child;
         }
-        public ProcessId ChildId { get; }
+        public ActorItem Child { get; }
     }
 
     internal class SystemChildIsFaultedMessage : SystemMessage

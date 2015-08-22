@@ -1,32 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Immutable;
-using System.Reactive;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using static LanguageExt.Prelude;
 using System.Threading;
-using System.Reactive.Concurrency;
 
 namespace LanguageExt
 {
     internal static class ActorContext
     {
-        static Option<ICluster> cluster;
-        static ProcessId root;
-        static IActor rootProcess;
-        static IActorInbox rootInbox;
-
-        [ThreadStatic] static IActor self;
-        [ThreadStatic] static ProcessId sender;
-        [ThreadStatic] static object currentMsg;
-        [ThreadStatic] static ActorRequest currentRequest;
-        [ThreadStatic] static ProcessFlags processFlags;
+        [ThreadStatic]
+        static ActorRequestContext context;
 
         static object sync = new object();
+        static volatile bool started = false;
+        static Option<ICluster> cluster;
+        static ActorItem rootItem;
+        static ActorRequestContext userContext;
 
         static ActorContext()
         {
@@ -35,26 +25,30 @@ namespace LanguageExt
 
         public static Unit Startup(Option<ICluster> cluster, int version = 0)
         {
+            if (started) return unit;
+
             ActorContext.cluster = cluster;
             var name = GetRootProcessName();
             if (name.Value == "root" && cluster.IsSome) throw new ArgumentException("Cluster node name cannot be 'root', it's reserved for local use only.");
             if (name.Value == "registered") throw new ArgumentException("Node name cannot be 'registered', it's reserved for registered processes.");
+            if (name.Value == "js") throw new ArgumentException("Node name cannot be 'js', it's reserved for ProcessJS.");
 
             lock (sync)
             {
-                root = ProcessId.Top.Child(name);
-                rootInbox = new ActorInboxLocal<ActorSystemState, object>();
-                rootProcess = new Actor<ActorSystemState, object>(
-                    cluster,
-                    ProcessId.Top,
-                    ActorConfig.Default.RootProcessName, 
-                    ActorSystem.Inbox, 
-                    rootProcess => new ActorSystemState(cluster, root, rootProcess, rootInbox, GetRootProcessName(), ActorConfig.Default), 
-                    ProcessFlags.Default
-                );
-                rootInbox.Startup(rootProcess, rootProcess.Parent, cluster, version);
+                if (started) return unit;
+                var root = ProcessId.Top.Child(name);
+                var rootInbox = new ActorInboxLocal<ActorSystemState, Unit>();
+                var parent = new ActorItem(new NullProcess(), new NullInbox(), ProcessFlags.Default);
+
+                var go = new AutoResetEvent(false);
+                var state = new ActorSystemState(cluster, root, null, rootInbox, cluster.Map(x => x.NodeName).IfNone(ActorConfig.Default.RootProcessName), ActorConfig.Default);
+                var rootProcess = state.RootProcess;
+                state.Startup();
+                userContext = new ActorRequestContext(rootProcess.Children["user"], ProcessId.NoSender, rootItem, null, null, ProcessFlags.Default);
+                rootInbox.Startup(rootProcess, parent, cluster, version);
                 rootProcess.Startup();
-                LocalRoot.Tell(ActorSystemMessage.Startup, ProcessId.NoSender);
+                rootItem = new ActorItem(rootProcess, rootInbox, ProcessFlags.Default);
+                started = true;
             }
             return unit;
         }
@@ -63,9 +57,12 @@ namespace LanguageExt
         {
             lock (sync)
             {
-                if (rootInbox != null)
+                if (rootItem != null)
                 {
-                    Process.ask<Unit>(ActorContext.Root, ActorSystemMessage.ShutdownAll);
+                    var item = rootItem;
+                    rootItem = null;
+                    item.Actor.ShutdownProcess();
+                    started = false;
                     Startup(None);
                 }
             }
@@ -107,36 +104,57 @@ namespace LanguageExt
 
         public static T Ask<T>(ProcessId pid, object message)
         {
-            AskActorRes response = null;
-            var handle = new AutoResetEvent(false);
-
-            var req = new AskActorReq(
-                message,
-                res =>
-                {
-                    response = res;
-                    handle.Set();
-                },
-                pid,
-                Self
-            );
-
-            Process.tell(AskId, req);
-            handle.WaitOne(ActorConfig.Default.Timeout);
-
-            if (response == null)
+            if (false) //Process.InMessageLoop)
             {
-                throw new TimeoutException("Request timed out");
+                //return SelfProcess.Actor.ProcessRequest<T>(pid, message);
             }
             else
             {
-                if (response.IsFaulted)
+                AskActorRes response = null;
+                var handle = new AutoResetEvent(false);
+
+                var req = new AskActorReq(
+                    message,
+                    res =>
+                    {
+                        response = res;
+                        handle.Set();
+                    },
+                    pid,
+                    Self
+                );
+
+                var askItem = GetAskItem();
+
+                askItem.IfSome(
+                    ask =>
+                    {
+                        var inbox = ask.Inbox as ILocalActorInbox;
+                        inbox.Tell(req, Self);
+                        handle.WaitOne(ActorConfig.Default.Timeout);
+                    });
+
+                if (askItem)
                 {
-                    throw response.Exception;
+                    if (response == null)
+                    {
+                        throw new TimeoutException("Request timed out");
+                    }
+                    else
+                    {
+                        if (response.IsFaulted)
+                        {
+                            throw response.Exception;
+                        }
+                        else
+                        {
+                            return (T)response.Response;
+                        }
+                    }
                 }
                 else
                 {
-                    return (T)response.Response;
+                    throw new Exception("Ask process doesn't exist");
                 }
             }
         }
@@ -145,8 +163,12 @@ namespace LanguageExt
             cluster.Map(x => x.NodeName)
                    .IfNone(ActorConfig.Default.RootProcessName);
 
-        public static Unit RegisterCluster(ICluster cluster) =>
+        public static Unit RegisterCluster(ICluster cluster)
+        {
+            started = false;
             Startup(Some(cluster));
+            return unit;
+        }
 
         public static Unit DeregisterCluster()
         {
@@ -155,126 +177,145 @@ namespace LanguageExt
                 c.Disconnect();
                 c.Dispose();
             });
+            started = false;
             return Startup(None);
         }
 
-        public static ProcessId ActorCreate<S, T>(ProcessId parent, ProcessName name, Func<T, Unit> actorFn, ProcessFlags flags)
-        {
-            return ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), flags);
-        }
+        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<T, Unit> actorFn, ProcessFlags flags) =>
+            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), flags);
 
-        public static ProcessId ActorCreate<S, T>(ProcessId parent, ProcessName name, Action<T> actorFn, ProcessFlags flags)
-        {
-            return ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), flags);
-        }
+        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Action<T> actorFn, ProcessFlags flags) =>
+            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), flags);
 
-        public static ProcessId ActorCreate<S,T>(ProcessId parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn, ProcessFlags flags)
+        public static ProcessId ActorCreate<S,T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn, ProcessFlags flags)
         {
-            if (parent.IsValid)
+            var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn, flags);
+
+            IActorInbox inbox = null;
+            if ((flags & ProcessFlags.ListenRemoteAndLocal) == ProcessFlags.ListenRemoteAndLocal && cluster.IsSome)
             {
-                var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn, flags);
-
-                IActorInbox inbox = null;
-                if ((flags & ProcessFlags.ListenRemoteAndLocal) == ProcessFlags.ListenRemoteAndLocal && cluster.IsSome)
-                {
-                    inbox = new ActorInboxDual<S, T>();
-                }
-                else if ((flags & ProcessFlags.PersistInbox) == ProcessFlags.PersistInbox && cluster.IsSome)
-                {
-                    inbox = new ActorInboxRemote<S, T>();
-                }
-                else
-                {
-                    inbox = new ActorInboxLocal<S, T>();
-                }
-
-                Tell(Root, ActorSystemMessage.AddToStore(actor, inbox, flags), Self);
-                return actor.Id;
+                inbox = new ActorInboxDual<S, T>();
+            }
+            else if ((flags & ProcessFlags.PersistInbox) == ProcessFlags.PersistInbox && cluster.IsSome)
+            {
+                inbox = new ActorInboxRemote<S, T>();
             }
             else
             {
-                return ProcessId.None;
+                inbox = new ActorInboxLocal<S, T>();
+            }
+
+            var item = new ActorItem(actor, inbox, flags);
+
+            parent.Actor.LinkChild(item);
+
+            try
+            {
+                if (!started)
+                {
+                    actor.Startup();
+                }
+                inbox.Startup(actor, parent, cluster, 0);
+            }
+            catch
+            {
+                ShutdownProcess(item);
+                throw;
+            }
+            return item.Actor.Id;
+        }
+
+        private static void ShutdownProcess(ActorItem item)
+        {
+            item.Actor.Parent.Actor.UnlinkChild(item);
+            GetInboxShutdownItem().IfSome(ibs => ShutdownProcessRec(item, ibs.Inbox));
+        }
+
+        private static void ShutdownProcessRec(ActorItem item, IActorInbox inboxShutdown)
+        {
+            var process = item.Actor;
+            var inbox = item.Inbox;
+
+            foreach (var child in process.Children.Values)
+            {
+                ShutdownProcessRec(child, inboxShutdown);
+            }
+            ((ILocalActorInbox)inboxShutdown).Tell(inbox, ProcessId.NoSender);
+            process.Shutdown();
+        }
+
+        public static ILocalActorInbox LocalRoot => 
+            (ILocalActorInbox)rootItem.Inbox;
+
+        public static IActorInbox RootInbox =>
+            rootItem.Inbox;
+
+        public static ProcessId Root =>
+            rootItem.Actor.Id;
+
+        public static ActorRequestContext Context
+        {
+            get
+            {
+                if (context == null)
+                {
+                    Startup(cluster);
+                    return userContext;
+                }
+                else
+                {
+                    return context;
+                }
             }
         }
 
-        public static Unit Tell(ProcessId to, object message, ProcessId sender) =>
-            message == null
-                ? raise<Unit>(new ArgumentNullException(nameof(message), "Messages can't be null"))
-                : to.Path == root.Path
-                    ? LocalRoot.Tell(message, SenderOrDefault(sender))
-                    : Tell(root, ActorSystemMessage.Tell(to, message, SenderOrDefault(sender)), SenderOrDefault(sender));
-
-        public static Unit TellUserControl(ProcessId to, UserControlMessage message) =>
-            message == null
-                ? raise<Unit>(new ArgumentNullException(nameof(message), "User control messages can't be null"))
-                : to.Path == root.Path
-                    ? LocalRoot.Tell(message, Self)
-                    : Tell(root, ActorSystemMessage.TellUserControl(to, message, Self), Self);
-
-        public static Unit TellSystem(ProcessId to, SystemMessage message) =>
-            message == null
-                ? raise<Unit>(new ArgumentNullException(nameof(message), "System messages can't be null"))
-                : to.Path == root.Path
-                    ? LocalRoot.Tell(message, Self)
-                    : Tell(root, ActorSystemMessage.TellSystem(to, message, Self), Self);
-
-        public static ILocalActorInbox LocalRoot => 
-            (ILocalActorInbox)rootInbox;
-
-        public static IActorInbox RootInbox =>
-            rootInbox;
-
-        public static ProcessId Root =>
-            root;
-
         public static ProcessId Self =>
-            self != null
-                ? self.Id
+            Context.Self != null
+                ? Context.Self.Actor.Id
                 : User;
 
-        // Try to avoid using this where possible and use Self
-        public static IActor SelfProcess =>
-            self;
+        public static ActorItem SelfProcess =>
+            Context.Self;
 
         public static ProcessId Sender =>
-            sender;
+            Context.Sender;
 
         public static ProcessId Parent =>
-            self.Parent;
+            Context.Self.Actor.Parent.Actor.Id;
 
         public static ProcessId System =>
-            Root.Child(ActorConfig.Default.SystemProcessName);
+            Root[ActorConfig.Default.SystemProcessName];
 
         public static ProcessId User =>
-            Root.Child(ActorConfig.Default.UserProcessName);
+            Root[ActorConfig.Default.UserProcessName];
 
         public static ProcessId Registered =>
-            Root.Child(ActorConfig.Default.RegisteredProcessName);
+            Root[ActorConfig.Default.RegisteredProcessName];
 
         public static ProcessId Errors =>
-            System.Child(ActorConfig.Default.ErrorsProcessName);
+            System[ActorConfig.Default.ErrorsProcessName];
 
         public static ProcessId DeadLetters =>
-            System.Child(ActorConfig.Default.DeadLettersProcessName);
+            System[ActorConfig.Default.DeadLettersProcessName];
 
         public static Map<string, ProcessId> Children =>
-            self.Children;
+            Context.Self.Actor.Children.Map(c => c.Actor.Id);
 
         private static ProcessName NodeName =>
             cluster.Map(c => c.NodeName).IfNone("user");
 
         internal static ProcessId AskId =>
-            System.Child(ActorConfig.Default.AskProcessName);
+            System[ActorConfig.Default.AskProcessName];
 
         public static ActorRequest CurrentRequest
         {
             get
             {
-                return currentRequest;
+                return Context.CurrentRequest;
             }
             set
             {
-                currentRequest = value;
+                context = Context.SetCurrentRequest(value);
             }
         }
 
@@ -282,11 +323,11 @@ namespace LanguageExt
         {
             get
             {
-                return currentMsg;
+                return Context.CurrentMsg;
             }
             set
             {
-                currentMsg = value;
+                context = Context.SetCurrentMessage(value);
             }
         }
 
@@ -294,85 +335,246 @@ namespace LanguageExt
         {
             get
             {
-                return processFlags;
+                return Context.ProcessFlags;
             }
             set
             {
-                processFlags = value;
+                context = Context.SetProcessFlags(value);
             }
         }
 
-        public static ProcessId Register<T>(ProcessName name, ProcessId processId, ProcessFlags flags)
+        private static Option<ActorItem> GetJsItem()
         {
-            if (processId.IsValid)
+            var children = rootItem.Actor.Children;
+            if (children.ContainsKey("js"))
             {
-                return ActorCreate<ProcessId, T>(
-                    Registered, 
-                    name, 
-                    RegisteredActor<T>.Inbox,
-                    () => processId,
-                    flags
-                );
+                return Some(children["js"]);
             }
             else
             {
-                return ProcessId.None;
+                return None;
             }
         }
+
+        private static Option<ActorItem> GetRegisteredItem()
+        {
+            var children = rootItem.Actor.Children;
+            if (children.ContainsKey(ActorConfig.Default.RegisteredProcessName.Value))
+            {
+                return Some(children[ActorConfig.Default.RegisteredProcessName.Value]);
+            }
+            else
+            {
+                return None;
+            }
+        }
+
+        private static Option<ActorItem> GetAskItem()
+        {
+            var children = rootItem.Actor.Children;
+            if (children.ContainsKey(ActorConfig.Default.SystemProcessName.Value))
+            {
+                var sys = children[ActorConfig.Default.SystemProcessName.Value];
+                children = sys.Actor.Children;
+                if (children.ContainsKey(ActorConfig.Default.AskProcessName.Value))
+                {
+                    return Some(children[ActorConfig.Default.AskProcessName.Value]);
+                }
+                else
+                {
+                    return None;
+                }
+            }
+            else
+            {
+                return None;
+            }
+        }
+
+        public static Option<ActorItem> GetInboxShutdownItem()
+        {
+            if (rootItem == null)
+            {
+                return None;
+            }
+            else
+            {
+                var children = rootItem.Actor.Children;
+                if (children.ContainsKey(ActorConfig.Default.SystemProcessName.Value))
+                {
+                    var sys = children[ActorConfig.Default.SystemProcessName.Value];
+                    children = sys.Actor.Children;
+                    if (children.ContainsKey(ActorConfig.Default.InboxShutdownProcessName.Value))
+                    {
+                        return Some(children[ActorConfig.Default.InboxShutdownProcessName.Value]);
+                    }
+                    else
+                    {
+                        return None;
+                    }
+                }
+                else
+                {
+                    return None;
+                }
+            }
+        }
+
+        public static ProcessId Register<T>(ProcessName name, ProcessId processId, ProcessFlags flags) =>
+            processId.IsValid
+                ? GetRegisteredItem().Match(
+                     Some: regd =>
+                        ActorCreate<ProcessId, T>(
+                            regd,
+                            name,
+                            RegisteredActor<T>.Inbox,
+                            () => processId,
+                            flags
+                        ),
+                     None: () => ProcessId.None)
+                : ProcessId.None;
 
         public static Unit Deregister(ProcessName name) =>
             Process.kill(Registered.Child(name));
 
-        public static R WithContext<R>(IActor self, ProcessId sender, ActorRequest request, object msg, Func<R> f)
+        public static R WithContext<R>(ActorItem self, ActorItem parent, ProcessId sender, ActorRequest request, object msg, Func<R> f)
         {
-            var savedSelf = ActorContext.self;
-            var savedSender = ActorContext.sender;
-            var savedMsg = ActorContext.currentMsg;
-            var savedReq = ActorContext.currentRequest;
+            var savedContext = context;
 
             try
             {
-                ActorContext.self = self;
-                ActorContext.sender = sender;
-                ActorContext.currentMsg = msg;
-                ActorContext.currentRequest = request;
+                context = new ActorRequestContext(
+                    self,
+                    sender,
+                    parent,
+                    msg,
+                    request,
+                    ProcessFlags.Default
+                );
+
                 return f();
             }
             finally
             {
-                ActorContext.self = savedSelf;
-                ActorContext.sender = savedSender;
-                ActorContext.currentMsg = savedMsg;
-                ActorContext.currentRequest = savedReq;
+                context = savedContext;
             }
         }
 
-        public static Unit WithContext(IActor self, ProcessId sender, ActorRequest request, object msg, Action f) =>
-            WithContext(self, sender, request, msg, fun(f));
+        public static Unit WithContext(ActorItem self, ActorItem parent, ProcessId sender, ActorRequest request, object msg, Action f) =>
+            WithContext(self, parent, sender, request, msg, fun(f));
 
         public static Unit Publish(object message)
         {
             if (cluster.IsSome && (ProcessFlags & ProcessFlags.RemotePublish) == ProcessFlags.RemotePublish)
             {
-                cluster.IfNone(() => null).PublishToChannel(Self.Path + "-pubsub", message);
+                cluster.IfSome(c => c.PublishToChannel(ActorInboxCommon.ClusterPubSubKey(Self), message));
             }
             else
             {
-                LocalRoot.Tell(ActorSystemMessage.Publish(Self, message), Self);
+                SelfProcess.Actor.Publish(message);
             }
             return unit;
         }
 
-        internal static IObservable<T> Observe<T>(ProcessId pid)
-        {
-            return from x in Process.ask<IObservable<object>>(Root, ActorSystemMessage.ObservePub(pid, typeof(T)))
-                   where x is T
-                   select (T)x;
-        }
+        internal static IObservable<T> Observe<T>(ProcessId pid) =>
+            GetDispatcher(pid).Observe<T>();
+
+        internal static IObservable<T> ObserveState<T>(ProcessId pid) =>
+            GetDispatcher(pid).ObserveState<T>();
 
         internal static ProcessId SenderOrDefault(ProcessId sender) =>
             sender.IsValid
                 ? sender
                 : Self;
+
+        internal static IActorDispatch GetRegisteredDispatcher(ProcessId pid) =>
+            GetRegisteredItem().Match(
+                Some: regd =>
+                    pid.Count() == 2
+                        ? new ActorDispatchLocal(regd)
+                        : regd.Actor.Children.ContainsKey(pid.Skip(2).GetName().Value)
+                                ? GetDispatcher(pid.Tail(), rootItem, pid)
+                                : cluster.Match<IActorDispatch>(
+                                    Some: c => new ActorDispatchRemote(pid.Skip(1), c),
+                                    None: () => new ActorDispatchNotExist(pid)),
+                None: () => new ActorDispatchNotExist(pid));
+
+        internal static IActorDispatch GetLocalDispatcher(ProcessId pid) =>
+            pid.Take(2) == Root["js"]
+                ? new ActorDispatchJS(pid, rootItem.Actor.Children["js"])
+                : GetDispatcher(pid.Tail(), rootItem, pid);
+
+        internal static IActorDispatch GetRemoteDispatcher(ProcessId pid) =>
+            cluster.Match<IActorDispatch>(
+                Some: c => new ActorDispatchRemote(pid, c),
+                None: () => new ActorDispatchNotExist(pid));
+
+        internal static bool IsRegistered(ProcessId pid) =>
+            pid.Take(2).GetName().Value == ActorConfig.Default.RegisteredProcessName.Value;
+
+        internal static bool IsLocal(ProcessId pid) =>
+            pid.Head() == Root;
+
+        internal static IActorDispatch GetDispatcher(ProcessId pid) =>
+            pid.IsValid
+                ? IsRegistered(pid)
+                    ? GetRegisteredDispatcher(pid)
+                    : IsLocal(pid)
+                        ? GetLocalDispatcher(pid)
+                        : GetRemoteDispatcher(pid)
+                : new ActorDispatchNotExist(pid);
+
+        private static IActorDispatch GetDispatcher(ProcessId pid, ActorItem current, ProcessId orig)
+        {
+            if (pid == ProcessId.Top)
+            {
+                if (current.Inbox is ILocalActorInbox)
+                {
+                    return new ActorDispatchLocal(current);
+                }
+                else
+                {
+                    return cluster.Match<IActorDispatch>(
+                            Some: c => new ActorDispatchRemote(orig, c),
+                            None: () => new ActorDispatchNotExist(orig));
+                }
+            }
+            else
+            {
+                var child = pid.Head().GetName().Value;
+                if (current.Actor.Children.ContainsKey(child))
+                {
+                    var process = current.Actor.Children[child];
+                    return GetDispatcher(pid.Tail(), process, orig);
+                }
+                else
+                {
+                    return new ActorDispatchNotExist(orig);
+                }
+            }
+        }
+
+        public static Unit Ask(ProcessId pid, object message, ProcessId sender) =>
+            GetDispatcher(pid).Ask(message, sender, "user", Message.Type.User);
+
+        public static Unit AskUserControl(ProcessId pid, object message, ProcessId sender) =>
+            GetDispatcher(pid).Ask(message, sender, "user", Message.Type.UserControl);
+
+        public static Unit AskSystem(ProcessId pid, object message, ProcessId sender) =>
+            GetDispatcher(pid).Ask(message, sender, "system", Message.Type.System);
+
+
+        public static Unit Tell(ProcessId pid, object message, ProcessId sender) =>
+            GetDispatcher(pid).Tell(message, sender, "user", Message.Type.User, message is ActorRequest ? Message.TagSpec.UserAsk : Message.TagSpec.User);
+
+        public static Unit TellUserControl(ProcessId pid, UserControlMessage message) =>
+            GetDispatcher(pid).Tell(message, Self, "user", Message.Type.UserControl, message.Tag);
+
+        public static Unit TellSystem(ProcessId pid, SystemMessage message) =>
+            GetDispatcher(pid).Tell(message, Self, "system", Message.Type.System, message.Tag);
+
+
+        public static Map<string, ProcessId> GetChildren(ProcessId pid) =>
+            GetDispatcher(pid).GetChildren();
     }
 }

@@ -25,16 +25,18 @@ namespace LanguageExt
     {
         readonly Func<S, T, S> actorFn;
         readonly Func<IActor, S> setupFn;
-        S state;
-        Map<string, ProcessId> children = Map.create<string, ProcessId>();
+        readonly ProcessFlags flags;
+        readonly Subject<object> publishSubject = new Subject<object>();
+        readonly Subject<object> stateSubject = new Subject<object>();
+        readonly Option<ICluster> cluster;
         Map<string, IDisposable> subs = Map.create<string, IDisposable>();
-        Option<ICluster> cluster;
-        Subject<object> publishSubject = new Subject<object>();
-        Subject<object> stateSubject = new Subject<object>();
-        ProcessFlags flags;
+        Map<string, ActorItem> children = Map.create<string, ActorItem>();
+        Option<S> state;
+        EventWaitHandle request;
+        volatile ActorResponse response;
         int roundRobinIndex = -1;
 
-        internal Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<IActor, S> setup, ProcessFlags flags)
+        internal Actor(Option<ICluster> cluster, ActorItem parent, ProcessName name, Func<S, T, S> actor, Func<IActor, S> setup, ProcessFlags flags)
         {
             if (setup == null) throw new ArgumentNullException(nameof(setup));
             if (actor == null) throw new ArgumentNullException(nameof(actor));
@@ -45,40 +47,31 @@ namespace LanguageExt
             setupFn = setup;
             Parent = parent;
             Name = name;
-            Id = parent.Child(name);
+            Id = parent.Actor.Id[name];
 
             SetupClusterStatePersist(cluster, flags);
         }
 
-        public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<S, T, S> actor, Func<S> setup, ProcessFlags flags)
+        public Actor(Option<ICluster> cluster, ActorItem parent, ProcessName name, Func<S, T, S> actor, Func<S> setup, ProcessFlags flags)
             :
             this(cluster, parent, name, actor, _ => setup(), flags)
         { }
 
-        public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Func<T, Unit> actor, ProcessFlags flags)
+        public Actor(Option<ICluster> cluster, ActorItem parent, ProcessName name, Func<T, Unit> actor, ProcessFlags flags)
             :
             this(cluster, parent, name, (s, t) => { actor(t); return default(S); }, () => default(S), flags)
         { }
 
-        public Actor(Option<ICluster> cluster, ProcessId parent, ProcessName name, Action<T> actor, ProcessFlags flags)
+        public Actor(Option<ICluster> cluster, ActorItem parent, ProcessName name, Action<T> actor, ProcessFlags flags)
             :
             this(cluster, parent, name, (s, t) => { actor(t); return default(S); }, () => default(S), flags)
         { }
 
         /// <summary>
-        /// Start up - creates the initial state
+        /// Start up - placeholder
         /// </summary>
-        /// <returns></returns>
         public Unit Startup()
         {
-            ActorContext.WithContext(
-                this,
-                ProcessId.NoSender,
-                null,
-                null,
-                () => InitState()
-            );
-            stateSubject.OnNext(state);
             return unit;
         }
 
@@ -129,11 +122,32 @@ namespace LanguageExt
                         logSysErr(e);
                     }
                 }
+
+                if ((flags & ProcessFlags.RemoteStatePublish) == ProcessFlags.RemoteStatePublish)
+                {
+                    try
+                    {
+                        stateSubject.Subscribe(state => c.PublishToChannel(ActorInboxCommon.ClusterPubSubKey(Id), state));
+                    }
+                    catch (Exception e)
+                    {
+                        logSysErr(e);
+                    }
+                }
             });
         }
 
-        private void InitState()
+        private S GetState()
         {
+            var res = state.IfNone(InitState);
+            state = res;
+            return res;
+        }
+
+        private S InitState()
+        {
+            S state;
+
             if (cluster.IsSome && ((flags & ProcessFlags.PersistState) == ProcessFlags.PersistState))
             {
                 try
@@ -146,14 +160,17 @@ namespace LanguageExt
                 }
                 catch (Exception e)
                 {
-                    state = setupFn(this);
                     logSysErr(e);
+                    state = setupFn(this);
                 }
             }
             else
             {
                 state = setupFn(this);
             }
+
+            stateSubject.OnNext(state);
+            return state;
         }
 
         public IObservable<object> PublishStream => publishSubject;
@@ -181,12 +198,12 @@ namespace LanguageExt
         /// <summary>
         /// Parent process
         /// </summary>
-        public ProcessId Parent { get; }
+        public ActorItem Parent { get; }
 
         /// <summary>
         /// Child processes
         /// </summary>
-        public Map<string, ProcessId> Children =>
+        public Map<string, ActorItem> Children =>
             children;
 
         /// <summary>
@@ -196,7 +213,10 @@ namespace LanguageExt
         {
             RemoveAllSubscriptions();
             DisposeState();
-            InitState();
+            //InitState();
+
+            state = None;
+
             stateSubject.OnNext(state);
             tellChildren(SystemMessage.Restart);
             return unit;
@@ -205,18 +225,18 @@ namespace LanguageExt
         /// <summary>
         /// Disowns a child process
         /// </summary>
-        public Unit UnlinkChild(ProcessId pid)
+        public Unit UnlinkChild(ActorItem item)
         {
-            children = children.Remove(pid.GetName().Value);
+            children = children.Remove(item.Actor.Id.GetName().Value);
             return unit;
         }
 
         /// <summary>
         /// Gains a child process
         /// </summary>
-        public Unit LinkChild(ProcessId pid)
+        public Unit LinkChild(ActorItem item)
         {
-            children = children.AddOrUpdate(pid.GetName().Value, pid);
+            children = children.AddOrUpdate(item.Actor.Id.GetName().Value, item);
             return unit;
         }
 
@@ -264,6 +284,61 @@ namespace LanguageExt
             return Some((T)message);
         }
 
+        public R ProcessRequest<R>(ProcessId pid, object message)
+        {
+            try
+            {
+                if (request != null)
+                {
+                    throw new Exception("async ask not allowed");
+                }
+
+                response = null;
+                request = new AutoResetEvent(false);
+                ActorContext.Ask(pid, new ActorRequest(message, pid, Self, 0), Self);
+                request.WaitOne(ActorConfig.Default.Timeout);
+
+                if (response == null)
+                {
+                    throw new TimeoutException("Request timed out");
+                }
+                else
+                {
+                    if (response.IsFaulted)
+                    {
+                        var ex = (Exception)response.Message;
+                        throw new ProcessException("Process issue: " + ex.Message, pid.Path, Self.Path, ex);
+                    }
+                    else
+                    {
+                        return (R)response.Message;
+                    }
+                }
+            }
+            finally
+            {
+                if (request != null)
+                {
+                    request.Dispose();
+                    request = null;
+                }
+            }
+        }
+
+        public Unit ProcessResponse(ActorResponse response)
+        {
+            if (request == null)
+            {
+                ProcessMessage(response);
+            }
+            else
+            {
+                this.response = response;
+                request.Set();
+            }
+            return unit;
+        }
+
         public Unit ProcessAsk(ActorRequest request)
         {
             var savedMsg = ActorContext.CurrentMsg;
@@ -281,18 +356,45 @@ namespace LanguageExt
                     state = PreProcessMessageContent(request.Message).Match(
                                 Some: tmsg =>
                                 {
-                                    var s = actorFn(state, tmsg);
-                                    stateSubject.OnNext(state);
-                                    return s;
+                                    var stateIn = GetState();
+                                    var stateOut = actorFn(stateIn, tmsg);
+                                    try
+                                    {
+                                        if (stateOut != null && !stateOut.Equals(stateIn))
+                                        {
+                                            stateSubject.OnNext(stateOut);
+                                        }
+                                    }
+                                    catch (Exception ue)
+                                    {
+                                        logErr(ue);
+                                    }
+                                    return stateOut;
                                 },
-                                None: ()   => state
+                                None: () => state
                             );
                 }
                 else if (request.Message is T)
                 {
                     T msg = (T)request.Message;
-                    state = actorFn(state, msg);
-                    stateSubject.OnNext(state);
+                    var stateIn = GetState();
+                    var stateOut = actorFn(stateIn, msg);
+                    try
+                    {
+                        if (stateOut != null && !stateOut.Equals(stateIn))
+                        {
+                            stateSubject.OnNext(stateOut);
+                        }
+                    }
+                    catch (Exception ue)
+                    {
+                        logErr(ue);
+                    }
+                    state = stateOut;
+                }
+                else if (request.Message is Message)
+                {
+                    ProcessSystemMessage((Message)request.Message);
                 }
                 else
                 {
@@ -320,6 +422,20 @@ namespace LanguageExt
             return unit;
         }
 
+        private void ProcessSystemMessage(Message message)
+        {
+            switch (message.Tag)
+            {
+                case Message.TagSpec.GetChildren:
+                    replyIfAsked(Children);
+                    break;
+                case Message.TagSpec.Shutdown:
+                case Message.TagSpec.ShutdownProcess:
+                    replyIfAsked(ShutdownProcess());
+                    break;
+            }
+        }
+
         /// <summary>
         /// Process an inbox message
         /// </summary>
@@ -342,17 +458,44 @@ namespace LanguageExt
                     state = PreProcessMessageContent(message).Match(
                                 Some: tmsg =>
                                 {
-                                    var s = actorFn(state, tmsg);
-                                    stateSubject.OnNext(state);
-                                    return s;
+                                    var stateIn = GetState();
+                                    var stateOut = actorFn(stateIn, tmsg);
+                                    try
+                                    {
+                                        if (stateOut != null && !stateOut.Equals(stateIn))
+                                        {
+                                            stateSubject.OnNext(state);
+                                        }
+                                    }
+                                    catch (Exception ue)
+                                    {
+                                        logErr(ue);
+                                    }
+                                    return stateOut;
                                 },
                                 None: () => state
                             );
                 }
+                else if (message is T)
+                {
+                    var s = actorFn(GetState(), (T)message);
+                    state = s;
+                    try
+                    {
+                        stateSubject.OnNext(state);
+                    }
+                    catch (Exception ue)
+                    {
+                        logErr(ue);
+                    }
+                }
+                else if (message is Message)
+                {
+                    ProcessSystemMessage((Message)message);
+                }
                 else
                 {
-                    state = actorFn(state, (T)message);
-                    stateSubject.OnNext(state);
+                    logErr("ProcessMessage request.Message is not T " + message);
                 }
             }
             catch (SystemKillActorException)
@@ -374,6 +517,32 @@ namespace LanguageExt
                 ActorContext.CurrentMsg = savedMsg;
             }
             return unit;
+        }
+
+        public Unit ShutdownProcess()
+        {
+            Parent.Actor.UnlinkChild(ActorContext.SelfProcess);
+            ShutdownProcessRec(ActorContext.SelfProcess, ActorContext.GetInboxShutdownItem().Map(x => (ILocalActorInbox)x.Inbox));
+            children = Map.empty<string, ActorItem>();
+            return unit;
+        }
+
+        private void ShutdownProcessRec(ActorItem item, Option<ILocalActorInbox> inboxShutdown)
+        {
+            var process = item.Actor;
+            var inbox = item.Inbox;
+
+            foreach (var child in process.Children.Values)
+            {
+                ShutdownProcessRec(child, inboxShutdown);
+            }
+
+            inboxShutdown.Match(
+                Some: ibs => ibs.Tell(inbox, ProcessId.NoSender),
+                None: ()  => inbox.Dispose()
+            );
+
+            process.Shutdown();
         }
 
         public void Dispose()

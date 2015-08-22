@@ -69,7 +69,7 @@ namespace LanguageExt
         public static ProcessId Self =>
             InMessageLoop
                 ? ActorContext.Self
-                : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(Self));
+                : ActorContext.User;
 
         /// <summary>
         /// Parent process ID
@@ -141,7 +141,7 @@ namespace LanguageExt
         /// Get the child processes of the process ID provided
         /// </summary>
         public static Map<string, ProcessId> children(ProcessId pid) =>
-            ask<Map<string, ProcessId>>(ActorContext.Root, ActorSystemMessage.GetChildren(pid));
+            ActorContext.GetChildren(pid);
 
         /// <summary>
         /// Get the child processes by name
@@ -162,14 +162,13 @@ namespace LanguageExt
         /// </remarks>
         public static ProcessId child(int index) =>
             InMessageLoop
-                ? ActorContext.SelfProcess
-                              .Children
-                              .Count == 0
+                ? ActorContext.SelfProcess.Actor.Children.Count == 0
                     ? raise<ProcessId>(new NoChildProcessesException())
                     : ActorContext.SelfProcess
+                                  .Actor
                                   .Children
-                                  .Skip(index % ActorContext.SelfProcess.Children.Count)
-                                  .Map( kv => kv.Value )
+                                  .Skip(index % ActorContext.SelfProcess.Actor.Children.Count)
+                                  .Map( kv => kv.Value.Actor.Id )
                                   .Head()
                 : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(child));
 
@@ -178,14 +177,13 @@ namespace LanguageExt
         /// </summary>
         public static ProcessId RandomChild =>
             InMessageLoop
-                ? ActorContext.SelfProcess
-                              .Children
-                              .Count == 0
+                ? ActorContext.SelfProcess.Actor.Children.Count == 0
                     ? raise<ProcessId>(new NoChildProcessesException())
                     : ActorContext.SelfProcess
+                                  .Actor
                                   .Children
-                                  .Skip(random(ActorContext.SelfProcess.Children.Count))
-                                  .Map(kv => kv.Value)
+                                  .Skip(random(ActorContext.SelfProcess.Actor.Children.Count))
+                                  .Map(kv => kv.Value.Actor.Id)
                                   .Head()
                 : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(RandomChild));
 
@@ -194,14 +192,13 @@ namespace LanguageExt
         /// </summary>
         public static ProcessId NextChild =>
             InMessageLoop
-                ? ActorContext.SelfProcess
-                              .Children
-                              .Count == 0
+                ? ActorContext.SelfProcess.Actor.Children.Count == 0
                     ? raise<ProcessId>(new NoChildProcessesException())
                     : ActorContext.SelfProcess
+                                  .Actor
                                   .Children
-                                  .Skip(ActorContext.SelfProcess.GetNextRoundRobinIndex())
-                                  .Map(kv => kv.Value)
+                                  .Skip(ActorContext.SelfProcess.Actor.GetNextRoundRobinIndex())
+                                  .Map(kv => kv.Value.Actor.Id)
                                   .Head()
                 : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(NextChild));
 
@@ -269,7 +266,7 @@ namespace LanguageExt
         /// jumps ahead of any messages already in the process's queue.
         /// </summary>
         public static Unit kill(ProcessId pid) =>
-            ActorContext.LocalRoot.Tell(ActorSystemMessage.ShutdownProcess(pid), ActorContext.Self);
+            pid.Tell(ActorSystemMessage.ShutdownProcess, ActorContext.Self);
 
         /// <summary>
         /// Shutdown all processes and restart

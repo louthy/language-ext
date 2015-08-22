@@ -7,7 +7,7 @@ namespace LanguageExt
     class NullInbox : IActorInbox
     {
         public Unit Shutdown() => unit;
-        public Unit Startup(IActor pid, ProcessId supervisor, Option<ICluster> cluster, int version) => unit;
+        public Unit Startup(IActor pid, ActorItem parent, Option<ICluster> cluster, int version) => unit;
         public Unit Tell(object message, ProcessId sender) => unit;
         public Unit TellSystem(SystemMessage message) => unit;
         public Unit TellUserControl(UserControlMessage message) => unit;

@@ -21,12 +21,17 @@ namespace LanguageExt
         /// <summary>
         /// Parent process
         /// </summary>
-        ProcessId Parent { get; }
+        ActorItem Parent { get; }
+
+        /// <summary>
+        /// Flags
+        /// </summary>
+        ProcessFlags Flags { get; }
 
         /// <summary>
         /// Child processes
         /// </summary>
-        Map<string, ProcessId> Children { get; }
+        Map<string, ActorItem> Children { get; }
 
         /// <summary>
         /// Clears the state (keeps the mailbox items)
@@ -47,13 +52,13 @@ namespace LanguageExt
         /// Link child
         /// </summary>
         /// <param name="pid">Child to link</param>
-        Unit LinkChild(ProcessId pid);
+        Unit LinkChild(ActorItem pid);
 
         /// <summary>
         /// Unlink child
         /// </summary>
         /// <param name="pid">Child to unlink</param>
-        Unit UnlinkChild(ProcessId pid);
+        Unit UnlinkChild(ActorItem pid);
 
         /// <summary>
         /// Publish to the PublishStream
@@ -71,6 +76,10 @@ namespace LanguageExt
         IObservable<object> StateStream { get; }
 
         Unit ProcessMessage(object message);
+        Unit ProcessAsk(ActorRequest request);
+        R ProcessRequest<R>(ProcessId pid, object message);
+        Unit ProcessResponse(ActorResponse response);
+        Unit ShutdownProcess();
 
         Unit AddSubscription(ProcessId pid, IDisposable sub);
         Unit RemoveSubscription(ProcessId pid);

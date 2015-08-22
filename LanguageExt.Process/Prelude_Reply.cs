@@ -48,7 +48,7 @@ namespace LanguageExt
         /// This should be used from within a process' message loop only
         /// </remarks>
         public static Unit replyIfAsked<T>(T message) =>
-            isAsk
+            InMessageLoop && isAsk
                 ? reply(message)
                 : unit;
 
@@ -91,7 +91,7 @@ namespace LanguageExt
         /// This should be used from within a process' message loop only
         /// </remarks>
         public static Unit replyErrorIfAsked(Exception exception) =>
-            isAsk
+            InMessageLoop && isAsk
                 ? replyError(exception)
                 : unit;
 
@@ -102,7 +102,7 @@ namespace LanguageExt
         /// This should be used from within a process' message loop only
         /// </remarks>
         public static Unit replyErrorIfAsked(string errorMessage) =>
-            isAsk
+            InMessageLoop && isAsk
                 ? replyError(errorMessage)
                 : unit;
     }

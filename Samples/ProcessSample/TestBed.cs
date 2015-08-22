@@ -25,14 +25,16 @@ namespace ProcessSample
         {
             ProcessLog.Subscribe(Console.WriteLine);
 
+            ProcessStartupError();
+            LocalRegisterTest();
+            AskReply();
             MassiveSpawnAndKillHierarchy();
+            AskReplyError();
+            RegisterTest();
 
             ProcessStartupError();
-            AskReplyError();
             RegisteredAskReply();
-            AskReply();
 
-            RegisterTest();
 
             ClassBasedProcess();
             AsyncOption();
@@ -70,6 +72,43 @@ namespace ProcessSample
             UnsafeOptionTest();
         }
 
+        public static void LocalRegisterTest()
+        {
+            shutdownAll();
+
+            string value = null;
+            var pid = spawn<string>("reg-proc", msg => value = msg);
+
+            var regid = register<string>("woooo amazing", pid);
+
+            //Thread.Sleep(100);
+
+            var kids = children(Registered);
+
+            Debug.Assert(kids.Count() == 1);
+            Debug.Assert(kids["woooo amazing"].Path == "/root/registered/woooo amazing");
+
+            tell(regid, "hello");
+
+            Thread.Sleep(100);
+
+            Debug.Assert(value == "hello");
+
+            tell(find("woooo amazing"), "world");
+
+            Thread.Sleep(100);
+
+            Debug.Assert(value == "world");
+
+            deregister("woooo amazing");
+
+            Thread.Sleep(10);
+
+            kids = children(Registered);
+            Debug.Assert(kids.Count() == 0);
+        }
+
+
         public static void RegisterTest()
         {
             try
@@ -87,30 +126,30 @@ namespace ProcessSample
 
                 var regid = register<string>("woooo amazing", pid);
 
-                Thread.Sleep(100);
+                Thread.Sleep(10);
 
                 var kids = children(Registered);
 
                 Debug.Assert(kids.Count() == 1);
-                Debug.Assert(kids["woooo amazing"].Path == "/redis-test/registered/woooo amazing");
+                Debug.Assert(kids["woooo amazing"].Path == "/registered/woooo amazing");
 
                 tell(regid, "hello");
 
-                Thread.Sleep(2000);
+                Thread.Sleep(10);
 
                 Debug.Assert(value == "hello");
 
                 tell(find("woooo amazing"), "world");
 
-                Thread.Sleep(2000);
+                Thread.Sleep(10);
 
                 Debug.Assert(value == "world");
 
-                Thread.Sleep(100);
+                Thread.Sleep(10);
 
                 deregister("woooo amazing");
 
-                Thread.Sleep(100);
+                Thread.Sleep(10);
 
                 kids = children(Registered);
                 Debug.Assert(kids.Count() == 0);
@@ -212,16 +251,18 @@ namespace ProcessSample
 
             try
             {
-                spawn<Unit, string>("world",
+                var pid = spawn<Unit, string>("world",
                     ()      => failwith<Unit>("Failed!"),
                     (_, __) => _, ProcessFlags.PersistInbox
                     );
 
-                Console.WriteLine("Not here");
+                ask<Unit>(pid, unit);
+
+                throw new Exception("Not here");
             }
-            catch (Exception e)
+            catch (ProcessException e)
             {
-                Debug.Assert(e.Message == "Process failed starting up: Failed!");
+                Debug.Assert(e.Message == "Process issue: Invalid message type for ask (expected System.String)");
             }
         }
 
@@ -673,15 +714,15 @@ namespace ProcessSample
                 int level = Int32.Parse(Self.GetName().Value.Split('_').First()) + 1;
                 if (level <= depth)
                 {
-                    iter(Range(0, nodes), i => spawn(level + "_" + i, setup, actor));
+                    iter(Range(0, nodes), i => {
+                        Console.WriteLine("Spawning: " + level + "_" + i);
+                        spawn(level + "_" + i, setup, actor);
+                        Console.WriteLine("Done spawning: " + level + "_" + i);
+                    });
                 }
             });
 
             var zero = spawn("0", setup, actor);
-
-            while (count < max) Thread.Sleep(50);
-            count = 0;
-
             tell(zero, "Hello");
 
             // crude, but whatever

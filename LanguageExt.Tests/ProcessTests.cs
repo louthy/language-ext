@@ -40,7 +40,6 @@ namespace LanguageExtTests
             );
 
             tell(world, "error throwing test");
-            Thread.Sleep(1000);
         }
 
         [Test]
@@ -78,7 +77,7 @@ namespace LanguageExtTests
             // Send string message to the process
             tell(pid, "hello");
 
-            Thread.Sleep(500);
+            Thread.Sleep(50);
 
             Assert.IsTrue(value == "hello");
         }
@@ -93,8 +92,6 @@ namespace LanguageExtTests
 
             var regid = register<string>("woooo amazing", pid);
 
-            Thread.Sleep(100);
-
             var kids = children(Registered);
 
             Assert.IsTrue(kids.Count() == 1);
@@ -102,21 +99,19 @@ namespace LanguageExtTests
 
             tell(regid, "hello");
 
-            Thread.Sleep(2000);
+            Thread.Sleep(10);
 
             Assert.IsTrue(value == "hello");
 
             tell(find("woooo amazing"), "world");
 
-            Thread.Sleep(2000);
+            Thread.Sleep(10);
 
             Assert.IsTrue(value == "world");
 
-            Thread.Sleep(100);
-
             deregister("woooo amazing");
 
-            Thread.Sleep(100);
+            Thread.Sleep(10);
 
             kids = children(Registered);
             Assert.IsTrue(kids.Count() == 0);
@@ -138,7 +133,7 @@ namespace LanguageExtTests
 
             var regid = register<string>("woooo amazing", pid);
 
-            Thread.Sleep(100);
+            Thread.Sleep(10);
 
             var kids = children(Registered);
 
@@ -147,21 +142,21 @@ namespace LanguageExtTests
 
             tell(regid, "hello");
 
-            Thread.Sleep(2000);  
+            Thread.Sleep(10);  
 
             Assert.IsTrue(value == "hello");
 
             tell(find("woooo amazing"), "world");
 
-            Thread.Sleep(2000);
+            Thread.Sleep(10);
 
             Assert.IsTrue(value == "world");
 
-            Thread.Sleep(100);
+            Thread.Sleep(10);
 
             deregister("woooo amazing");
 
-            Thread.Sleep(100);
+            Thread.Sleep(10);
 
             kids = children(Registered);
             Assert.IsTrue(kids.Count() == 0);
@@ -219,15 +214,18 @@ namespace LanguageExtTests
             var pid = spawn<string>("SpawnAndKillProcess", msg => value = msg);
             tell(pid, "1");
 
-            Thread.Sleep(200);
+            Thread.Sleep(10);
 
             kill(pid);
 
-            Thread.Sleep(200);
+            Thread.Sleep(10);
 
-            tell(pid, "2");
+            Assert.Throws<ProcessException>(() =>
+            {
+                tell(pid, "2");
+            });
 
-            Thread.Sleep(200);
+            Thread.Sleep(10);
 
             Assert.IsTrue(value == "1");
             Assert.IsTrue(children(User).Length == 0);
@@ -258,18 +256,65 @@ namespace LanguageExtTests
 
             tell(pid, "1");
 
-            Thread.Sleep(200);
+            Thread.Sleep(10);
 
             kill(pid);
 
-            Thread.Sleep(200);
+            Thread.Sleep(10);
 
-            tell(pid, "2");
+            Assert.Throws<ProcessException>(() =>
+            {
+                tell(pid, "2");
+            });
 
-            Thread.Sleep(200);
+            Thread.Sleep(10);
 
             Assert.IsTrue(value == "1", "Expected 1, actually equals: "+ value);
             Assert.IsTrue(children(User).Length == 0);
+        }
+
+        [Test]
+        public static void ProcessStartupInvalidTypeError()
+        {
+            shutdownAll();
+
+            try
+            {
+                var pid = spawn<Unit, string>("world",
+                    () => failwith<Unit>("Failed!"),
+                    (_, __) => _, ProcessFlags.PersistInbox
+                    );
+
+                ask<Unit>(pid, unit);
+
+                throw new Exception("Shouldn't get here");
+            }
+            catch (ProcessException e)
+            {
+                Assert.IsTrue(e.Message == "Process issue: Invalid message type for ask (expected System.String)");
+            }
+        }
+
+        [Test]
+        public static void ProcessStartupError()
+        {
+            shutdownAll();
+
+            try
+            {
+                var pid = spawn<Unit, string>("world",
+                    () => failwith<Unit>("Failed!"),
+                    (_, __) => _, ProcessFlags.PersistInbox
+                    );
+
+                ask<Unit>(pid, "test");
+
+                throw new Exception("Shouldn't get here");
+            }
+            catch (ProcessException e)
+            {
+                Assert.IsTrue(e.Message == "Process issue: Failed!");
+            }
         }
 
         public static int DepthMax(int depth) =>
@@ -306,10 +351,6 @@ namespace LanguageExtTests
             });
 
             var zero = spawn("0", setup, actor);
-
-            while (count < max) Thread.Sleep(50);
-            count = 0;
-
             tell(zero, "Hello");
 
             // crude, but whatever
@@ -318,7 +359,7 @@ namespace LanguageExtTests
 
             kill(zero);
 
-            Thread.Sleep(3000);
+            Thread.Sleep(1000);
 
             Assert.IsTrue(children(User).Count() == 0);
         }

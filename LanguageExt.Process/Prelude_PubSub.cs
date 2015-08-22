@@ -71,7 +71,7 @@ namespace LanguageExt
         /// <returns>IDisposable, call IDispose to end the subscription</returns>
         public static Unit subscribe(ProcessId pid) =>
             InMessageLoop
-                ? ActorContext.SelfProcess.AddSubscription(pid, ActorContext.Observe<object>(pid).Subscribe(x => tell(Self, x, pid)))
+                ? ActorContext.SelfProcess.Actor.AddSubscription(pid, ActorContext.Observe<object>(pid).Subscribe(x => tell(Self, x, pid)))
                 : raiseUseInMsgLoopOnlyException<Unit>(nameof(subscribe));
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace LanguageExt
         /// <param name="pid">Process to unsub from</param>
         public static Unit unsubscribe(ProcessId pid) =>
             InMessageLoop
-                ? ActorContext.SelfProcess.RemoveSubscription(pid)
+                ? ActorContext.SelfProcess.Actor.RemoveSubscription(pid)
                 : raiseUseInMsgLoopOnlyException<Unit>(nameof(unsubscribe));
 
         /// <summary>
@@ -193,9 +193,7 @@ namespace LanguageExt
         public static IObservable<T> observeState<T>(ProcessId pid) =>
             InMessageLoop
                 ? raiseDontUseInMessageLoopException<IObservable<T>>(nameof(observeState))
-                : from x in ask<IObservable<object>>(ActorContext.Root, ActorSystemMessage.ObserveState(pid))
-                  where x is T
-                  select (T)x;
+                : ActorContext.ObserveState<T>(pid);
 
 
         /// <summary>
@@ -211,11 +209,9 @@ namespace LanguageExt
         /// <returns>IObservable T</returns>
         public static Unit subscribeState<T>(ProcessId pid) =>
             InMessageLoop
-                ? ActorContext.SelfProcess.AddSubscription(
+                ? ActorContext.SelfProcess.Actor.AddSubscription(
                       pid,
-                     (from x in ask<IObservable<object>>(ActorContext.Root, ActorSystemMessage.ObserveState(pid))
-                      where x is T
-                      select (T)x).Subscribe(x => tell(Self, x, pid)))
+                      ActorContext.ObserveState<T>(pid).Subscribe(x => tell(Self, x, pid)))
                 : raiseUseInMsgLoopOnlyException<Unit>(nameof(subscribeState));
     }
 }

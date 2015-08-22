@@ -40,7 +40,7 @@ public static class __ProcessIdExt
     /// </remarks>
     public static ProcessId GetChild(this ProcessId self, int index) =>
         GetChildren(self)
-            .Skip(index % ActorContext.SelfProcess.Children.Count)
+            .Skip(index % ActorContext.SelfProcess.Actor.Children.Count)
             .Map(kv => kv.Value)
             .Head();
 
@@ -62,7 +62,7 @@ public static class __ProcessIdExt
     /// jumps ahead of any messages already in the process's queue.
     /// </summary>
     public static Unit Kill(this ProcessId self) =>
-        ActorContext.LocalRoot.Tell(ActorSystemMessage.ShutdownProcess(self), ActorContext.Self);
+        self.Tell(ActorSystemMessage.ShutdownProcess, ActorContext.Self);
 
     //
     // Ask

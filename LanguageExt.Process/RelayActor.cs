@@ -71,7 +71,7 @@ namespace LanguageExt
                     var subscriber   = rmsg.Sender;
                     var connectionId = rmsg.ConnectionId;
 
-                    ActorContext.SelfProcess.AddSubscription(
+                    ActorContext.SelfProcess.Actor.AddSubscription(
                         rmsg.To,
                         ActorContext.Observe<object>(pid).Subscribe(x =>
                             tell(hub, 
@@ -94,7 +94,7 @@ namespace LanguageExt
                     break;
 
                 case RelayMsg.MsgTag.Unsubscribe:
-                    ActorContext.SelfProcess.RemoveSubscription(rmsg.To);
+                    ActorContext.SelfProcess.Actor.RemoveSubscription(rmsg.To);
                     break;
             }
             return hub;

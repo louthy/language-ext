@@ -68,7 +68,11 @@ namespace LanguageExt
         /// messages received remotely whilst the system is down will persist until it wakes
         /// back up; so there's an element of safety.
         /// </remarks>
-        ListenRemoteAndLocal = 8
+        ListenRemoteAndLocal = 8,
 
+        /// <summary>
+        /// When the state changes, publish for remote subscribers
+        /// </summary>
+        RemoteStatePublish = 16
     }
 }

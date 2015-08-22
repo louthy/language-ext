@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
+using System;
+using System.Runtime.Serialization.Formatters;
 
 namespace LanguageExt
 {
@@ -18,6 +16,13 @@ namespace LanguageExt
         public readonly ProcessName ReplyProcessName          = "reply";
         public readonly ProcessName InboxShutdownProcessName  = "inbox-shutdown";
         public readonly TimeSpan    Timeout                   = TimeSpan.FromSeconds(30);
+
+        public readonly JsonSerializerSettings JsonSerializerSettings =
+            new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.All,
+                TypeNameAssemblyFormat = FormatterAssemblyStyle.Full
+            };
 
         public readonly static ActorConfig Default =
             new ActorConfig();

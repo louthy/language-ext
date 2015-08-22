@@ -23,23 +23,15 @@ namespace LanguageExt
                 case Message.TagSpec.UserAsk: return new ActorRequest(DeserialiseMsgContent(msg), actorId, replyTo, msg.RequestId);
                 case Message.TagSpec.User: return new UserMessage(DeserialiseMsgContent(msg), sender, replyTo);
 
-                case Message.TagSpec.AddToStore: throw new Exception("Can't deserialise AddToStore messages");
                 case Message.TagSpec.GetChildren: return JsonConvert.DeserializeObject<GetChildrenMessage>(msg.Content);
-                case Message.TagSpec.Startup: return JsonConvert.DeserializeObject<StartupMessage>(msg.Content);
                 case Message.TagSpec.ShutdownProcess: return JsonConvert.DeserializeObject<ShutdownProcessMessage>(msg.Content);
-                case Message.TagSpec.ObservePub: return JsonConvert.DeserializeObject<ObservePubMessage>(msg.Content);
-                case Message.TagSpec.ObserveState: return JsonConvert.DeserializeObject<ObserveStateMessage>(msg.Content);
-                case Message.TagSpec.Reply: return JsonConvert.DeserializeObject<ReplyMessage>(msg.Content);
-                case Message.TagSpec.Publish: return JsonConvert.DeserializeObject<PubMessage>(msg.Content);
-                case Message.TagSpec.Tell: return JsonConvert.DeserializeObject<TellMessage>(msg.Content);
 
                 case Message.TagSpec.Shutdown: return new UserControlShutdownMessage();
 
-                case Message.TagSpec.ShutdownAll: return JsonConvert.DeserializeObject<ShutdownAllMessage>(msg.Content);
                 case Message.TagSpec.ChildIsFaulted: return new SystemChildIsFaultedMessage(msg.Child, new Exception(msg.Exception));
                 case Message.TagSpec.Restart: return new SystemRestartMessage();
-                case Message.TagSpec.LinkChild: return new SystemLinkChildMessage(msg.Child);
-                case Message.TagSpec.UnLinkChild: return new SystemUnLinkChildMessage(msg.Child);
+                case Message.TagSpec.LinkChild: throw new Exception("Can't deserialise LinkChild messages"); //return new SystemLinkChildMessage(msg.Child);
+                case Message.TagSpec.UnLinkChild: throw new Exception("Can't deserialise UnLinkChild messages"); //return new SystemUnLinkChildMessage(msg.Child);
             }
 
             throw new Exception("Unknown Message Type: " + msg.Type);

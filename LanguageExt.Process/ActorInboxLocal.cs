@@ -13,24 +13,24 @@ namespace LanguageExt
 {
     internal class ActorInboxLocal<S,T> : IActorInbox, ILocalActorInbox
     {
-        ProcessId supervisor;
         CancellationTokenSource tokenSource;
         FSharpMailboxProcessor<UserControlMessage> userInbox;
         FSharpMailboxProcessor<SystemMessage> sysInbox;
         Actor<S, T> actor;
+        ActorItem parent;
         Option<ICluster> cluster;
         int version;
 
-        public Unit Startup(IActor process, ProcessId supervisor, Option<ICluster> cluster, int version)
+        public Unit Startup(IActor process, ActorItem parent, Option<ICluster> cluster, int version)
         {
             if (Active)
             {
                 Shutdown();
             }
             this.cluster = cluster;
+            this.parent = parent;
             this.tokenSource = new CancellationTokenSource();
             this.actor = (Actor<S, T>)process;
-            this.supervisor = supervisor;
             this.version = version;
             userInbox = StartMailbox<UserControlMessage>(actor, tokenSource.Token, ActorInboxCommon.UserMessageInbox);
             sysInbox = StartMailbox<SystemMessage>(actor, tokenSource.Token, ActorInboxCommon.SystemMessageInbox);
@@ -48,7 +48,6 @@ namespace LanguageExt
                 tokenSource = null;
                 userInbox = null;
                 sysInbox = null;
-                supervisor = ProcessId.None;
             }
             return unit;
         }
@@ -104,9 +103,9 @@ namespace LanguageExt
             return unit;
         }
 
-        private FSharpMailboxProcessor<TMsg> StartMailbox<TMsg>(Actor<S, T> actor, CancellationToken cancelToken, Action<Actor<S, T>, TMsg> handler) where TMsg : Message =>
+        private FSharpMailboxProcessor<TMsg> StartMailbox<TMsg>(Actor<S, T> actor, CancellationToken cancelToken, Action<Actor<S, T>, IActorInbox, TMsg, ActorItem> handler) where TMsg : Message =>
             ActorInboxCommon.Mailbox<S, T, TMsg>(cluster, actor.Flags, cancelToken, msg =>
-                  handler(actor,msg));
+                  handler(actor, this, msg, parent));
 
         public void Dispose()
         {
