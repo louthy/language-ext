@@ -104,7 +104,7 @@ namespace LanguageExt
         }
 
         private FSharpMailboxProcessor<TMsg> StartMailbox<TMsg>(Actor<S, T> actor, CancellationToken cancelToken, Action<Actor<S, T>, IActorInbox, TMsg, ActorItem> handler) where TMsg : Message =>
-            ActorInboxCommon.Mailbox<S, T, TMsg>(cluster, actor.Flags, cancelToken, msg =>
+            ActorInboxCommon.Mailbox<TMsg>(cancelToken, msg =>
                   handler(actor, this, msg, parent));
 
         public void Dispose()

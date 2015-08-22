@@ -11,8 +11,8 @@ namespace LanguageExt
     {
         ICluster cluster;
         CancellationTokenSource tokenSource;
-        FSharpMailboxProcessor<UserControlMessage> userNotify;
-        FSharpMailboxProcessor<SystemMessage> sysNotify;
+        FSharpMailboxProcessor<string> userNotify;
+        FSharpMailboxProcessor<string> sysNotify;
         Actor<S, T> actor;
         ActorItem parent;
         int version = 0;
@@ -36,17 +36,11 @@ namespace LanguageExt
             // Preparing for message versioning support
             //actorPath += "-" + version;
 
-            this.cluster.SubscribeToChannel<string>(ClusterUserInboxNotifyKey,
-                msg =>
-                {
-                    CheckRemoteInbox(ClusterUserInboxKey, this.cluster, actor.Id, ActorInboxCommon.UserMessageInbox, ActorInboxCommon.SystemMessageInbox);
-                });
+            userNotify = ActorInboxCommon.StartNotifyMailbox(tokenSource.Token, msgId => CheckRemoteInbox(ClusterUserInboxKey));
+            sysNotify = ActorInboxCommon.StartNotifyMailbox(tokenSource.Token, msgId => CheckRemoteInbox(ClusterSystemInboxKey));
 
-            this.cluster.SubscribeToChannel<string>(ClusterSystemInboxNotifyKey,
-                msg =>
-                {
-                    CheckRemoteInbox(ClusterSystemInboxKey, this.cluster, actor.Id, ActorInboxCommon.UserMessageInbox, ActorInboxCommon.SystemMessageInbox);
-                });
+            this.cluster.SubscribeToChannel<string>(ClusterUserInboxNotifyKey, msg => userNotify.Post(msg));
+            this.cluster.SubscribeToChannel<string>(ClusterSystemInboxNotifyKey, msg => sysNotify.Post(msg));
 
             // We want the check done asyncronously, in case the setup function creates child processes that
             // won't exist if we invoke directly.
@@ -71,44 +65,35 @@ namespace LanguageExt
         string ClusterSystemInboxNotifyKey =>
             ActorInboxCommon.ClusterSystemInboxNotifyKey(actorPath);
 
-        private void CheckRemoteInbox(string key, ICluster cluster, ProcessId self, Action<Actor<S, T>, IActorInbox, UserControlMessage, ActorItem> userInbox, Action<Actor<S, T>, IActorInbox, SystemMessage, ActorItem> sysInbox)
+        private void CheckRemoteInbox(string key)
         {
             var inbox = this;
+            var count = cluster.QueueLength(key);
 
-            lock (sync)
-            {
-                var count = cluster.QueueLength(key);
-
-                while (count > 0)
+            ActorInboxCommon.GetNextMessage(cluster, actor.Id, key).IfSome(
+                x => map(x, (dto, msg) =>
                 {
-                    ActorInboxCommon.GetNextMessage(cluster, self, key).IfSome(
-                        x => map(x, (dto, msg) =>
+                    try
+                    {
+                        switch (msg.MessageType)
                         {
-                            try
-                            {
-                                switch (msg.MessageType)
-                                {
-                                    case Message.Type.ActorSystem:  userInbox(actor, inbox, (UserControlMessage)msg, parent); break;
-                                    case Message.Type.System:       sysInbox(actor, inbox, (SystemMessage)msg, parent); break;
-                                    case Message.Type.User:         userInbox(actor, inbox, (UserControlMessage)msg, parent); break;
-                                    case Message.Type.UserControl:  userInbox(actor, inbox, (UserControlMessage)msg, parent); break;
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                ActorContext.WithContext(new ActorItem(actor, inbox,actor.Flags), parent, dto.Sender, msg as ActorRequest, msg, () => replyErrorIfAsked(e));
-                                tell(ActorContext.DeadLetters, DeadLetter.create(dto.Sender, self, e, "Remote message inbox.", msg));
-                                logSysErr(e);
-                            }
-                            finally
-                            {
-                                cluster.Dequeue<RemoteMessageDTO>(key);
-                            }
-                        }));
-
-                    count--;
-                }
-            }
+                            case Message.Type.ActorSystem:  ActorInboxCommon.UserMessageInbox(actor, inbox, (UserControlMessage)msg, parent); break;
+                            case Message.Type.System:       ActorInboxCommon.SystemMessageInbox(actor, inbox, (SystemMessage)msg, parent); break;
+                            case Message.Type.User:         ActorInboxCommon.UserMessageInbox(actor, inbox, (UserControlMessage)msg, parent); break;
+                            case Message.Type.UserControl:  ActorInboxCommon.UserMessageInbox(actor, inbox, (UserControlMessage)msg, parent); break;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        ActorContext.WithContext(new ActorItem(actor, inbox,actor.Flags), parent, dto.Sender, msg as ActorRequest, msg, () => replyErrorIfAsked(e));
+                        tell(ActorContext.DeadLetters, DeadLetter.create(dto.Sender, actor.Id, e, "Remote message inbox.", msg));
+                        logSysErr(e);
+                    }
+                    finally
+                    {
+                        cluster.Dequeue<RemoteMessageDTO>(key);
+                    }
+                }));
         }
 
         public Unit Shutdown()

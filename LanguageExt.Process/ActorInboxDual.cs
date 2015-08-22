@@ -178,8 +178,9 @@ namespace LanguageExt
 
         }
 
-        private FSharpMailboxProcessor<TMsg> StartMailbox<TMsg>(Actor<S, T> actor, string key, CancellationToken cancelToken, Action<Actor<S, T>, IActorInbox, TMsg, ActorItem> handler) where TMsg : Message =>
-            ActorInboxCommon.Mailbox<S, T, TMsg>(Some(cluster), actor.Flags, cancelToken, msg =>
+        private FSharpMailboxProcessor<TMsg> StartMailbox<TMsg>(Actor<S, T> actor, string key, CancellationToken cancelToken, Action<Actor<S, T>, IActorInbox, TMsg, ActorItem> handler) 
+            where TMsg : Message =>
+            ActorInboxCommon.Mailbox<TMsg>(cancelToken, msg =>
             {
                 try
                 {

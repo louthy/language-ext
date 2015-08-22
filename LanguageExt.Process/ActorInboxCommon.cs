@@ -22,8 +22,7 @@ namespace LanguageExt
                         });
                     }));
 
-        public static FSharpMailboxProcessor<TMsg> Mailbox<S,T, TMsg>(Option<ICluster> cluster, ProcessFlags flags, CancellationToken cancelToken, Action<TMsg> handler)
-            where TMsg : Message
+        public static FSharpMailboxProcessor<TMsg> Mailbox<TMsg>(CancellationToken cancelToken, Action<TMsg> handler)
         {
             var body = FuncConvert.ToFSharpFunc<FSharpMailboxProcessor<TMsg>, FSharpAsync<Microsoft.FSharp.Core.Unit>>(
                 mbox =>
@@ -54,6 +53,20 @@ namespace LanguageExt
 
             return FSharpMailboxProcessor<TMsg>.Start(body, FSharpOption<CancellationToken>.None);
         }
+
+        public static FSharpMailboxProcessor<string> StartNotifyMailbox(CancellationToken cancelToken, Action<string> handler) =>
+            Mailbox<string>(cancelToken, msg =>
+            {
+                try
+                {
+                    handler(msg);
+                }
+                catch (Exception e)
+                {
+                    logSysErr(e);
+                }
+            });
+
 
         public static void SystemMessageInbox<S,T>(Actor<S,T> actor, IActorInbox inbox, SystemMessage msg, ActorItem parent)
         {

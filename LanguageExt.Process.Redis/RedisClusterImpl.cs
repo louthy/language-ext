@@ -118,8 +118,8 @@ namespace LanguageExt
                 channelName,
                 (channel, value) =>
                 {
-                    Task.Run(() =>
-                    {
+                    //Task.Run(() =>
+                    //{
                         if (channel == channelName && !value.IsNullOrEmpty)
                         {
                             try
@@ -130,7 +130,7 @@ namespace LanguageExt
                             {
                             }
                         }
-                    });
+                    //});
                 });
         }
 
@@ -141,8 +141,8 @@ namespace LanguageExt
                 channelName,
                 (channel, value) =>
                 {
-                    Task.Run(() =>
-                    {
+                    //Task.Run(() =>
+                    //{
                         if (channel == channelName && !value.IsNullOrEmpty)
                         {
                             try
@@ -153,7 +153,7 @@ namespace LanguageExt
                             {
                             }
                         }
-                    });
+                    //});
                 });
         }
 

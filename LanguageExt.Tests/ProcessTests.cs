@@ -354,12 +354,12 @@ namespace LanguageExtTests
             tell(zero, "Hello");
 
             // crude, but whatever
-            while (count < max) Thread.Sleep(50);
+            while (count < max) Thread.Sleep(20);
             count = 0;
 
             kill(zero);
 
-            Thread.Sleep(1000);
+            Thread.Sleep(350);
 
             Assert.IsTrue(children(User).Count() == 0);
         }

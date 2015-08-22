@@ -37,7 +37,7 @@ namespace LanguageExt
             var connectionId = ProcessId.Skip(2).Take(1).GetName().Value;
             dto.To = ProcessId.Skip(3).Path;
             var relayMsg = new OutboundRelayMsg(connectionId, dto, dto.To, sender, dto.RequestId != -1);
-            return Process.tell(RelayId, relayMsg, sender); ///  ((ILocalActorInbox)Js.Actor.Children[connectionId].Inbox).Tell(relay, sender);
+            return Process.tell(RelayId, relayMsg, sender);
         }
 
         public Unit Ask(object message, ProcessId sender, string inbox, Message.Type type) =>
