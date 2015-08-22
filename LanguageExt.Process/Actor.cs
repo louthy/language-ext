@@ -213,11 +213,6 @@ namespace LanguageExt
         {
             RemoveAllSubscriptions();
             DisposeState();
-            //InitState();
-
-            state = None;
-
-            stateSubject.OnNext(state);
             tellChildren(SystemMessage.Restart);
             return unit;
         }
@@ -553,15 +548,18 @@ namespace LanguageExt
 
         private void DisposeState()
         {
-            if (state is IDisposable)
+            state.IfSome(s =>
             {
-                var s = state as IDisposable;
-                if (s != null)
-                {
-                    s.Dispose();
-                    state = default(S);
-                }
-            }
+               if (s is IDisposable)
+               {
+                   var sd = state as IDisposable;
+                   if (sd != null)
+                   {
+                       sd.Dispose();
+                   }
+               }
+            });
+            state = None;
         }
     }
 }
