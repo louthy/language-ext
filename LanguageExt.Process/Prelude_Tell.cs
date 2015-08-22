@@ -25,11 +25,18 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         public static Unit tell<T>(ProcessId pid, T message, ProcessId sender = default(ProcessId)) =>
-            message is SystemMessage
-                ? ActorContext.TellSystem(pid, message as SystemMessage)
-                : message is UserControlMessage
-                    ? ActorContext.TellUserControl(pid, message as UserControlMessage)
-                    : ActorContext.Tell(pid, message, sender);
+            message is UserControlMessage
+                ? ActorContext.TellUserControl(pid, message as UserControlMessage)
+                : ActorContext.Tell(pid, message, sender);
+
+        /// <summary>
+        /// Send a message to a process
+        /// </summary>
+        /// <param name="pid">Process ID to send to</param>
+        /// <param name="message">Message to send</param>
+        /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
+        internal static Unit tellSystem<T>(ProcessId pid, T message, ProcessId sender = default(ProcessId)) =>
+            ActorContext.TellSystem(pid, message as SystemMessage);
 
         /// <summary>
         /// Send a message at a specified time in the future
@@ -66,6 +73,15 @@ namespace LanguageExt
         /// <returns></returns>
         public static Unit tellChildren<T>(T message, ProcessId sender = new ProcessId()) =>
             iter(Children, child => tell(child, message, sender));
+
+        /// <summary>
+        /// Tell children the same message
+        /// </summary>
+        /// <param name="message">Message to send</param>
+        /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
+        /// <returns></returns>
+        internal static Unit tellSystemChildren<T>(T message, ProcessId sender = new ProcessId()) =>
+            iter(Children, child => tellSystem(child, message, sender));
 
         /// <summary>
         /// Tell children the same message, delayed.

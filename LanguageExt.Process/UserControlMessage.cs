@@ -12,8 +12,6 @@ namespace LanguageExt
     public abstract class UserControlMessage : Message
     {
         public override Type MessageType => Type.UserControl;
-
-        public static UserControlMessage Shutdown => new UserControlShutdownMessage();
     }
 
     public class UserMessage : UserControlMessage
@@ -31,12 +29,6 @@ namespace LanguageExt
         public ProcessId Sender { get; }
         public ProcessId ReplyTo { get; }
         public object Content { get; }
-    }
-
-    public class UserControlShutdownMessage : UserControlMessage
-    {
-        public override Type MessageType => Type.UserControl;
-        public override TagSpec Tag      => TagSpec.Shutdown;
     }
 
     public class RemoteMessageDTO

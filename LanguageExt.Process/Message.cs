@@ -24,16 +24,11 @@ namespace LanguageExt
 
             // SystemMessageTag
             Restart,
-            LinkChild,
-            UnLinkChild,
-            ChildIsFaulted,
-            SystemAsk,
 
             // UserControlMessageTag
             User,
             UserAsk,
             UserReply,
-            Shutdown,
 
             // ActorSystemMessageTag
             ShutdownProcess,

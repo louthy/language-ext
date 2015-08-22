@@ -118,19 +118,16 @@ namespace LanguageExt
                 channelName,
                 (channel, value) =>
                 {
-                    //Task.Run(() =>
-                    //{
-                        if (channel == channelName && !value.IsNullOrEmpty)
+                    if (channel == channelName && !value.IsNullOrEmpty)
+                    {
+                        try
                         {
-                            try
-                            {
-                                handler(JsonConvert.DeserializeObject(value, type));
-                            }
-                            catch
-                            {
-                            }
+                            handler(JsonConvert.DeserializeObject(value, type));
                         }
-                    //});
+                        catch
+                        {
+                        }
+                    }
                 });
         }
 
@@ -141,19 +138,16 @@ namespace LanguageExt
                 channelName,
                 (channel, value) =>
                 {
-                    //Task.Run(() =>
-                    //{
-                        if (channel == channelName && !value.IsNullOrEmpty)
+                    if (channel == channelName && !value.IsNullOrEmpty)
+                    {
+                        try
                         {
-                            try
-                            {
-                                handler(JsonConvert.DeserializeObject<T>(value));
-                            }
-                            catch
-                            {
-                            }
+                            handler(JsonConvert.DeserializeObject<T>(value));
                         }
-                    //});
+                        catch
+                        {
+                        }
+                    }
                 });
         }
 

@@ -213,7 +213,7 @@ namespace LanguageExt
         {
             RemoveAllSubscriptions();
             DisposeState();
-            tellChildren(SystemMessage.Restart);
+            tellSystemChildren(SystemMessage.Restart);
             return unit;
         }
 
@@ -424,7 +424,6 @@ namespace LanguageExt
                 case Message.TagSpec.GetChildren:
                     replyIfAsked(Children);
                     break;
-                case Message.TagSpec.Shutdown:
                 case Message.TagSpec.ShutdownProcess:
                     replyIfAsked(ShutdownProcess());
                     break;

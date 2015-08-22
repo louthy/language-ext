@@ -9,8 +9,8 @@ namespace ProcessSample
     {
         static void Main(string[] args)
         {
-            TestBed.RunTests();
-            return;
+            //TestBed.RunTests();
+            //return;
 
             // Remove this to get on-screen logging
             ProcessLog.Subscribe(Console.WriteLine);

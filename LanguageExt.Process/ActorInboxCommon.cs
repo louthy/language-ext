@@ -74,25 +74,8 @@ namespace LanguageExt
             {
                 switch (msg.Tag)
                 {
-                    case Message.TagSpec.ChildIsFaulted:
-                        // TODO: Add extra strategy behaviours here
-                        var scifm = (SystemChildIsFaultedMessage)msg;
-                        tell(scifm.ChildId, SystemMessage.Restart);
-                        tell(ActorContext.Errors, scifm.Exception);
-                        break;
-
                     case Message.TagSpec.Restart:
                         actor.Restart();
-                        break;
-
-                    case Message.TagSpec.LinkChild:
-                        var slcm = (SystemLinkChildMessage)msg;
-                        actor.LinkChild(slcm.Child);
-                        break;
-
-                    case Message.TagSpec.UnLinkChild:
-                        var ulcm = (SystemUnLinkChildMessage)msg;
-                        actor.UnlinkChild(ulcm.Child);
                         break;
                 }
             });
@@ -117,7 +100,7 @@ namespace LanguageExt
                     ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, umsg.Sender, null, msg, () => actor.ProcessMessage(umsg.Content));
                     break;
 
-                case Message.TagSpec.Shutdown:
+                case Message.TagSpec.ShutdownProcess:
                     kill(actor.Id);
                     break;
             }
