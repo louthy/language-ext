@@ -137,7 +137,9 @@ namespace LanguageExt
         public void Dispose()
         {
             var ts = tokenSource;
-            if (ts != null) ts.Dispose();
+            ts?.Cancel();
+            ts?.Dispose();
+            tokenSource = null;
             this.cluster.UnsubscribeChannel(ClusterUserInboxNotifyKey);
             this.cluster.UnsubscribeChannel(ClusterSystemInboxNotifyKey);
         }

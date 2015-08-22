@@ -5,11 +5,13 @@ namespace LanguageExt
     internal class ActorDispatchJS : IActorDispatch
     {
         public readonly ProcessId ProcessId;
+        public readonly ProcessId RelayId;
         public readonly ActorItem Js;
 
-        public ActorDispatchJS(ProcessId pid, ActorItem js)
+        public ActorDispatchJS(ProcessId pid, ProcessId relay, ActorItem js)
         {
             ProcessId = pid;
+            RelayId = relay;
             Js = js;
         }
 
@@ -34,8 +36,8 @@ namespace LanguageExt
             // The standard structure for remote js relay paths are  "/root/js/{connection-id}/..."
             var connectionId = ProcessId.Skip(2).Take(1).GetName().Value;
             dto.To = ProcessId.Skip(3).Path;
-            var relay = new OutboundRelayMsg(connectionId, dto, dto.To, sender, dto.RequestId != -1);
-            return Js.Actor.Id[connectionId].Tell(relay, sender);
+            var relayMsg = new OutboundRelayMsg(connectionId, dto, dto.To, sender, dto.RequestId != -1);
+            return Process.tell(RelayId, relayMsg, sender); ///  ((ILocalActorInbox)Js.Actor.Children[connectionId].Inbox).Tell(relay, sender);
         }
 
         public Unit Ask(object message, ProcessId sender, string inbox, Message.Type type) =>

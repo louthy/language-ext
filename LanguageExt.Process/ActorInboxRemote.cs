@@ -3,6 +3,7 @@ using System.Threading;
 using LanguageExt.Trans;
 using static LanguageExt.Process;
 using static LanguageExt.Prelude;
+using Microsoft.FSharp.Control;
 
 namespace LanguageExt
 {
@@ -10,6 +11,8 @@ namespace LanguageExt
     {
         ICluster cluster;
         CancellationTokenSource tokenSource;
+        FSharpMailboxProcessor<UserControlMessage> userNotify;
+        FSharpMailboxProcessor<SystemMessage> sysNotify;
         Actor<S, T> actor;
         ActorItem parent;
         int version = 0;
@@ -117,6 +120,7 @@ namespace LanguageExt
         public void Dispose()
         {
             var ts = tokenSource;
+            ts?.Cancel();
             ts?.Dispose();
             ts = null;
 

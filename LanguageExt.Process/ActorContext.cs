@@ -495,18 +495,40 @@ namespace LanguageExt
                         : regd.Actor.Children.ContainsKey(pid.Skip(2).GetName().Value)
                                 ? GetDispatcher(pid.Tail(), rootItem, pid)
                                 : cluster.Match<IActorDispatch>(
-                                    Some: c => new ActorDispatchRemote(pid.Skip(1), c),
+                                    Some: c  => new ActorDispatchRemote(pid.Skip(1), c),
                                     None: () => new ActorDispatchNotExist(pid)),
                 None: () => new ActorDispatchNotExist(pid));
 
+        internal static IActorDispatch GetJsDispatcher(ProcessId pid)
+        {
+            switch (pid.Count())
+            {
+                case 0:
+                case 1:
+                    return new ActorDispatchNotExist(pid);
+
+                //  /root/js                            <-- relay
+                case 2:
+                    return GetDispatcher(pid.Skip(1), rootItem, pid);
+
+                //  /root/js/{connection id}            <-- relay
+                case 3:
+                    return GetDispatcher(pid.Skip(1), rootItem, pid);
+
+                // /root/js/{connection id}/js-root/..  --> back to JS
+                default:
+                    return new ActorDispatchJS(pid, pid.Take(3), rootItem.Actor.Children["js"]);
+            }
+        }
+
         internal static IActorDispatch GetLocalDispatcher(ProcessId pid) =>
             pid.Take(2) == Root["js"]
-                ? new ActorDispatchJS(pid, rootItem.Actor.Children["js"])
+                ? GetJsDispatcher(pid)
                 : GetDispatcher(pid.Tail(), rootItem, pid);
 
         internal static IActorDispatch GetRemoteDispatcher(ProcessId pid) =>
             cluster.Match<IActorDispatch>(
-                Some: c => new ActorDispatchRemote(pid, c),
+                Some: c  => new ActorDispatchRemote(pid, c),
                 None: () => new ActorDispatchNotExist(pid));
 
         internal static bool IsRegistered(ProcessId pid) =>
