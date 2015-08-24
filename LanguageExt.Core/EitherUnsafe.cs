@@ -15,7 +15,8 @@ namespace LanguageExt
     /// 'Right' is, well, right.  So when the Either is in a Left state, it cancels computations like bind
     /// or map, etc.  So you can see Left as an 'early out, with a message'.  Unlike Option that has None
     /// as its alternative value (i.e. it has an 'early out, but no message').
-    /// 
+    /// </summary>
+    /// <remarks>
     /// NOTE: If you use Filter or Where (or 'where' in a LINQ expression) with Either, then the Either 
     /// will be put into a 'Bottom' state if the predicate returns false.  When it's in this state it is 
     /// neither Right nor Left.  And any usage could trigger a BottomException.  So be aware of the issue
@@ -24,7 +25,7 @@ namespace LanguageExt
     /// Also note, when the Either is in a Bottom state, some operations on it will continue to give valid
     /// results or return another Either in the Bottom state and not throw.  This is so a filtered Either 
     /// doesn't needlessly break expressions. 
-    /// </summary>
+    /// </remarks>
     /// <typeparam name="L">Left</typeparam>
     /// <typeparam name="R">Right</typeparam>
     public struct EitherUnsafe<L, R> :
@@ -152,6 +153,7 @@ namespace LanguageExt
         /// <summary>
         /// Returns the rightValue if the Either is in a Left state.
         /// Returns the Right value if the Either is in a Right state.
+        /// </summary>
         /// <param name="Left">Value to return if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         public R IfLeftUnsafe(R Left) =>
@@ -159,6 +161,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Invokes the Right action if the Either is in a Right state, otherwise does nothing
+        /// </summary>
         /// <param name="Right">Action to invoke</param>
         /// <returns>Unit</returns>
         public Unit IfRightUnsafe(Action<R> Right)
@@ -173,7 +176,7 @@ namespace LanguageExt
         /// <summary>
         /// Match Right and return a context.  You must follow this with .Left(...) to complete the match
         /// </summary>
-        /// <param name="right">Action to invoke if the Either is in a Right state</param>
+        /// <param name="rightHandler">Action to invoke if the Either is in a Right state</param>
         /// <returns>Context that must have Left() called upon it.</returns>
         public EitherUnsafeUnitContext<L, R> Right(Action<R> rightHandler) =>
             new EitherUnsafeUnitContext<L, R>(this, rightHandler);
@@ -181,7 +184,7 @@ namespace LanguageExt
         /// <summary>
         /// Match Right and return a context.  You must follow this with .Left(...) to complete the match
         /// </summary>
-        /// <param name="right">Action to invoke if the Either is in a Right state</param>
+        /// <param name="rightHandler">Action to invoke if the Either is in a Right state</param>
         /// <returns>Context that must have Left() called upon it.</returns>
         public EitherUnsafeContext<L, R, Ret> Right<Ret>(Func<R, Ret> rightHandler) =>
             new EitherUnsafeContext<L, R, Ret>(this, rightHandler);
@@ -460,12 +463,6 @@ public static class __EitherUnsafeExt
     /// <summary>
     /// Maps the value in the Either if it's in a Right state
     /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <typeparam name="Ret">Mapped Either type</typeparam>
-    /// <param name="self">Either to map</param>
-    /// <param name="mapper">Map function</param>
-    /// <returns>Mapped Either</returns>
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static EitherUnsafe<L, UR> Select<L, TR, UR>(this EitherUnsafe<L, TR> self, Func<TR, UR> map) =>
         self.Map(map);
@@ -473,10 +470,6 @@ public static class __EitherUnsafeExt
     /// <summary>
     /// Sum of the Either
     /// </summary>
-    /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
-    /// <param name="self">Either to count</param>
-    /// <returns>0 if Left, or value of Right</returns>
     public static int Sum<L>(this EitherUnsafe<L, int> self) =>
         self.IsBottom || self.IsLeft
             ? 0

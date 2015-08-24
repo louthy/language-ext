@@ -12,7 +12,7 @@ using System.Reactive.Linq;
 namespace LanguageExt
 {
     /// <summary>
-    /// Option<T> can be in two states:
+    /// Option T can be in two states:
     ///     1. Some(x) -- which means there is a value stored inside
     ///     2. None    -- which means there's no value stored inside
     /// To extract the value you must use the 'match' function.

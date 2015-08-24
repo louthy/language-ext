@@ -1,57 +1,95 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LanguageExt
 {
     /// <summary>
     /// Pattern matching for exceptions.  This is to aid expression based error handling.
     /// </summary>
+    /// <example>
+    ///     ex.Match&lt;string&gt;()
+    ///       .With&lt;SystemException&gt;(e =&gt; "It's a system exception")
+    ///       .With&lt;ArgumentNullException&gt;(e =&gt; "Arg null")
+    ///       .Otherwise("Not handled")
+    /// </example>
     public class ExceptionMatch<R>
     {
-        Exception exception;
+        readonly Exception exception;
         bool valueSet;
         R value;
 
-        public ExceptionMatch(Exception e)
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="e">Exception to match</param>
+        internal ExceptionMatch(Exception e)
         {
             exception = e;
         }
 
-        public ExceptionMatch<R> With<EXCEPTION>(Func<EXCEPTION, R> handler) where EXCEPTION : Exception
+        /// <summary>
+        /// Matches a typed exception with a mapping function
+        /// </summary>
+        /// <typeparam name="TException"></typeparam>
+        /// <param name="map">Function to map the exception to a result value</param>
+        /// <returns>Matching context - you must use 'Otherwise()' to invoke</returns>
+        public ExceptionMatch<R> With<TException>(Func<TException, R> map) where TException : Exception
         {
-            if (typeof(EXCEPTION).IsAssignableFrom(exception.GetType()))
+            if (typeof(TException).IsAssignableFrom(exception.GetType()))
             {
-                value = handler(exception as EXCEPTION);
+                value = map(exception as TException);
                 valueSet = true;
             }
             return this;
         }
 
-        public R Otherwise(R defaultValue) =>
+        /// <summary>
+        /// Invokes the match expression and provides a default value if nothing matches
+        /// </summary>
+        /// <param name="otherwiseValue">Default value</param>
+        /// <returns>Result of the expression</returns>
+        public R Otherwise(R otherwiseValue) =>
             valueSet
                 ? value
-                : defaultValue;
+                : otherwiseValue;
 
-        public R Otherwise(Func<R> defaultHandler) =>
+        /// <summary>
+        /// Invokes the match expression and provides a default function to invoke if 
+        /// nothing matches
+        /// </summary>
+        /// <param name="otherwise">Default value</param>
+        /// <returns>Result of the expression</returns>
+        public R Otherwise(Func<R> otherwise) =>
             valueSet
                 ? value
-                : defaultHandler();
+                : otherwise();
 
-        public R Otherwise(Func<Exception,R> defaultHandler) =>
+        /// <summary>
+        /// Invokes the match expression and provides a default function to invoke if 
+        /// nothing matches
+        /// </summary>
+        /// <param name="otherwiseMap">Default value</param>
+        /// <returns>Result of the expression</returns>
+        public R Otherwise(Func<Exception,R> otherwiseMap) =>
             valueSet
                 ? value
-                : defaultHandler(exception);
+                : otherwiseMap(exception);
     }
 }
 
+/// <summary>
+/// Exception extensions
+/// </summary>
 public static class ExceptionExt
 {
     /// <summary>
     /// Pattern matching for exceptions.  This is to aid expression based error handling.
     /// </summary>
+    /// <example>
+    ///     ex.Match&lt;string&gt;()
+    ///       .With&lt;SystemException&gt;(e =&gt; "It's a system exception")
+    ///       .With&lt;ArgumentNullException&gt;(e =&gt; "Arg null")
+    ///       .Otherwise("Not handled")
+    /// </example>
     public static LanguageExt.ExceptionMatch<R> Match<R>(this Exception self)
     {
         return new LanguageExt.ExceptionMatch<R>(self);

@@ -14,7 +14,8 @@ namespace LanguageExt
     /// 'Right' is, well, right.  So when the Either is in a Left state, it cancels computations like bind
     /// or map, etc.  So you can see Left as an 'early out, with a message'.  Unlike Option that has None
     /// as its alternative value (i.e. it has an 'early out, but no message').
-    /// 
+    /// </summary>
+    /// <remarks>
     /// NOTE: If you use Filter or Where (or 'where' in a LINQ expression) with Either, then the Either 
     /// will be put into a 'Bottom' state if the predicate returns false.  When it's in this state it is 
     /// neither Right nor Left.  And any usage could trigger a BottomException.  So be aware of the issue
@@ -23,7 +24,7 @@ namespace LanguageExt
     /// Also note, when the Either is in a Bottom state, some operations on it will continue to give valid
     /// results or return another Either in the Bottom state and not throw.  This is so a filtered Either 
     /// doesn't needlessly break expressions. 
-    /// </summary>
+    /// </remarks>
     /// <typeparam name="L">Left</typeparam>
     /// <typeparam name="R">Right</typeparam>
     public struct Either<L, R> :
@@ -161,13 +162,15 @@ namespace LanguageExt
         /// <summary>
         /// Returns the rightValue if the Either is in a Left state.
         /// Returns the Right value if the Either is in a Right state.
-        /// <param name="rightValue">Value to return if in the Left state</param>
+        /// </summary>
+        /// <param name="Left">Value to return if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         public R IfLeft(R Left) =>
             Match(identity, _ => Left);
 
         /// <summary>
         /// Invokes the Right action if the Either is in a Right state, otherwise does nothing
+        /// </summary>
         /// <param name="Right">Action to invoke</param>
         /// <returns>Unit</returns>
         public Unit IfRight(Action<R> Right)
@@ -525,7 +528,6 @@ public static class __EitherExt
     /// Sum of the Either
     /// </summary>
     /// <typeparam name="L">Left</typeparam>
-    /// <typeparam name="R">Right</typeparam>
     /// <param name="self">Either to count</param>
     /// <returns>0 if Left, or value of Right</returns>
     public static int Sum<L>(this Either<L, int> self) =>

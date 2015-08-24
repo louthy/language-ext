@@ -10,40 +10,93 @@ namespace LanguageExt
     public static partial class List
     {
         /// <summary>
-        /// Create an empty IEnumerable<T>
+        /// Create an empty IEnumerable T
         /// </summary>
         public static Lst<T> empty<T>() =>
             new Lst<T>();
 
+        /// <summary>
+        /// Create a new empty list
+        /// </summary>
+        /// <returns>Lst T</returns>
         public static Lst<T> create<T>() =>
             new Lst<T>();
 
+        /// <summary>
+        /// Create a list from a initial set of items
+        /// </summary>
+        /// <param name="items">Items</param>
+        /// <returns>Lst T</returns>
         public static Lst<T> create<T>(params T[] items) =>
             new Lst<T>(items);
 
+        /// <summary>
+        /// Create a list from an initial set of items
+        /// </summary>
+        /// <param name="items">Items</param>
+        /// <returns>Lst T</returns>
         public static Lst<T> createRange<T>(IEnumerable<T> items) =>
             new Lst<T>(items);
 
+        /// <summary>
+        /// Add an item to the list
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <param name="value">Item to add</param>
+        /// <returns>A new Lst T</returns>
         public static Lst<T> add<T>(Lst<T> list, T value) =>
             list.Add(value);
 
+        /// <summary>
+        /// Add a range of items to the list
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <param name="value">Items to add</param>
+        /// <returns>A new Lst T</returns>
         public static Lst<T> addRange<T>(Lst<T> list, IEnumerable<T> value) =>
             list.AddRange(value);
 
+        /// <summary>
+        /// Remove an item from the list
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <param name="value">value to remove</param>
+        /// <returns>A new Lst T</returns>
         public static Lst<T> remove<T>(Lst<T> list, T value) =>
             list.Remove(value);
 
+        /// <summary>
+        /// Remove an item at a specified index in the list
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <param name="index">Index of item to remove</param>
+        /// <returns>A new Lst T</returns>
         public static Lst<T> removeAt<T>(Lst<T> list, int index) =>
             list.RemoveAt(index);
 
+        /// <summary>
+        /// Get the item at the head (first) of the list
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Head item</returns>
         public static T head<T>(IEnumerable<T> list) => list.First();
 
+        /// <summary>
+        /// Get the item at the head (first) of the list or None if the list is empty
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Optional head item</returns>
         public static Option<T> headOrNone<T>(IEnumerable<T> list) =>
             (from x in list
              select Some(x))
             .DefaultIfEmpty(None)
             .FirstOrDefault();
 
+        /// <summary>
+        /// Get the tail of the list (skips the head item)
+        /// </summary>
+        /// <param name="list">List</param>
+        /// <returns>Enumerable of T</returns>
         public static IEnumerable<T> tail<T>(IEnumerable<T> list) =>
             list.Skip(1);
 

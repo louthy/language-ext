@@ -12,12 +12,12 @@ using System.Reactive.Linq;
 namespace LanguageExt
 {
     /// <summary>
-    /// OptionUnsafe<T> can be in two states:
+    /// OptionUnsafe T can be in two states:
     ///     1. Some(x) -- which means there is a value stored inside
     ///     2. None    -- which means there's no value stored inside
     /// To extract the value you must use the 'matchUnsafe' function.
-    /// This differs from Option<T> in that it allows Some(null) which
-    /// is expressly forbidden for Option<T>.  That is what makes this
+    /// This differs from Option T  in that it allows Some(null) which
+    /// is expressly forbidden for Option T.  That is what makes this
     /// type 'unsafe'.  
     /// </summary>
     [TypeConverter(typeof(OptionalTypeConverter))]

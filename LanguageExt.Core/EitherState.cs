@@ -7,7 +7,8 @@
     {
         /// <summary>
         /// Bottom state 
-        /// 
+        /// </summary>
+        /// <remarks>
         /// If you use Filter or Where (or 'where' in a LINQ expression) with Either, then the Either 
         /// will be put into a 'Bottom' state if the predicate returns false.  When it's in this state it is 
         /// neither Right nor Left.  And any usage could trigger a BottomException.  So be aware of the issue
@@ -16,7 +17,7 @@
         /// Also note, when the Either is in a Bottom state, some operations on it will continue to give valid
         /// results or return another Either in the Bottom state and not throw.  This is so a filtered Either 
         /// doesn't needlessly break expressions. 
-        /// </summary>
+        /// </remarks>
         IsBottom = 0,
 
         /// <summary>
