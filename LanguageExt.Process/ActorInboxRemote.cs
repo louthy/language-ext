@@ -70,29 +70,33 @@ namespace LanguageExt
             var inbox = this;
             var count = cluster.QueueLength(key);
 
-            ActorInboxCommon.GetNextMessage(cluster, actor.Id, key).IfSome(
-                x => map(x, (dto, msg) =>
-                {
-                    try
+            while (count > 0)
+            {
+                ActorInboxCommon.GetNextMessage(cluster, actor.Id, key).IfSome(
+                    x => map(x, (dto, msg) =>
                     {
-                        switch (msg.MessageType)
+                        try
                         {
-                            case Message.Type.System:       ActorInboxCommon.SystemMessageInbox(actor, inbox, (SystemMessage)msg, parent); break;
-                            case Message.Type.User:         ActorInboxCommon.UserMessageInbox(actor, inbox, (UserControlMessage)msg, parent); break;
-                            case Message.Type.UserControl:  ActorInboxCommon.UserMessageInbox(actor, inbox, (UserControlMessage)msg, parent); break;
+                            switch (msg.MessageType)
+                            {
+                                case Message.Type.System: ActorInboxCommon.SystemMessageInbox(actor, inbox, (SystemMessage)msg, parent); break;
+                                case Message.Type.User: ActorInboxCommon.UserMessageInbox(actor, inbox, (UserControlMessage)msg, parent); break;
+                                case Message.Type.UserControl: ActorInboxCommon.UserMessageInbox(actor, inbox, (UserControlMessage)msg, parent); break;
+                            }
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        ActorContext.WithContext(new ActorItem(actor, inbox,actor.Flags), parent, dto.Sender, msg as ActorRequest, msg, () => replyErrorIfAsked(e));
-                        tell(ActorContext.DeadLetters, DeadLetter.create(dto.Sender, actor.Id, e, "Remote message inbox.", msg));
-                        logSysErr(e);
-                    }
-                    finally
-                    {
-                        cluster.Dequeue<RemoteMessageDTO>(key);
-                    }
-                }));
+                        catch (Exception e)
+                        {
+                            ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, dto.Sender, msg as ActorRequest, msg, () => replyErrorIfAsked(e));
+                            tell(ActorContext.DeadLetters, DeadLetter.create(dto.Sender, actor.Id, e, "Remote message inbox.", msg));
+                            logSysErr(e);
+                        }
+                        finally
+                        {
+                            cluster.Dequeue<RemoteMessageDTO>(key);
+                        }
+                    }));
+                count--;
+            }
         }
 
         public Unit Shutdown()
