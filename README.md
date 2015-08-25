@@ -639,9 +639,9 @@ However, you can provide up to seven handlers, one for an empty list and six for
 ```
 Those patterns should be very familiar to anyone who's ventured into the functional world.  For those that haven't, the `(x,xs)` convention might seem odd.  `x` is the item at the head of the list - `list.First()` in LINQ world.  `xs`, i.e. 'many X-es' is the tail of the list - `list.Skip(1)` in LINQ.  This recursive pattern of working on the head of the list until the list runs out is pretty much how loops are done in the funcitonal world.  
 
-Be wary of recursive processing however.  C# will happily blow up the stack after a few thousand iterations.  If you put a bit of thought into it, you'll realise this recursive processes all tends to follow a very similar pattern.  Functional programming doesn't really _do_ design patterns, but if anything is a design pattern it's the use of `fold`.  
+Be wary of recursive processing however.  C# will happily blow up the stack after a few thousand iterations.  If you put a bit of thought into it, you'll realise this recursive processes all tend to follow a very similar pattern.  Functional programming doesn't really _do_ design patterns, but if anything is a design pattern it's the use of `fold`.  
 
-The two recurisve examples above for calculating the sum and product of a sequence of numbers can be written:
+The two recursive examples above for calculating the sum and product of a sequence of numbers can be written:
 
 ```C#
     // Sum
@@ -650,7 +650,7 @@ The two recurisve examples above for calculating the sum and product of a sequen
     // Product
     var total = reduce(list, (s,x) => s * x);
 ```
-`reduce` is `fold` but instead of providing an initial state value, it uses the first item in the sequence.  Therefore you don't get an initial multiple by zero (unless the first item is zero).  Luckily internally `fold`, `foldBack` and `reduce` use an iterative loop rather than a recursive one; so no stack blowing problems!
+`reduce` is `fold` but instead of providing an initial state value, it uses the first item in the sequence.  Therefore you don't get an initial multiply by zero (unless the first item is zero!).  Internally `fold`, `foldBack` and `reduce` use an iterative loop rather than a recursive one; so no stack blowing problems!
 
 `list` functions (`using LanguageExt.List`):
 * `add`
@@ -873,7 +873,7 @@ _any others you think should be included, please get in touch_
 
 # 'Erlang like' concurrency
 
-My personal view is that the Actor model + functional message loops is the perfect programming model.  Concurrent programming in C# isn't a huge amount of fun.  Yes the `async` command gets you lots of stuff for free, but it doesn't magically protect you from race conditions or accessing shared state.  
+My personal view is that the Actor model + functional message loops is the perfect programming model.  Concurrent programming in C# isn't a huge amount of fun.  Yes the TPL gets you lots of stuff for free, but it doesn't magically protect you from race conditions or accessing shared state.  
 
 This does.
 
