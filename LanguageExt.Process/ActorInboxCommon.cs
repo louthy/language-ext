@@ -77,6 +77,16 @@ namespace LanguageExt
                     case Message.TagSpec.Restart:
                         actor.Restart();
                         break;
+
+                    case Message.TagSpec.LinkChild:
+                        var lc = msg as SystemLinkChildMessage;
+                        actor.LinkChild(lc.Child);
+                        break;
+
+                    case Message.TagSpec.UnlinkChild:
+                        var ulc = msg as SystemUnLinkChildMessage;
+                        actor.UnlinkChild(ulc.Child);
+                        break;
                 }
             });
         }

@@ -58,7 +58,7 @@ namespace LanguageExt
         /// Unlink child
         /// </summary>
         /// <param name="pid">Child to unlink</param>
-        Unit UnlinkChild(ActorItem pid);
+        Unit UnlinkChild(ProcessId pid);
 
         /// <summary>
         /// Publish to the PublishStream

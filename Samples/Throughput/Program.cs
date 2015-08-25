@@ -45,52 +45,6 @@ namespace Throughput
 
             Console.WriteLine("That's " + sps + " messages per second");
 
-
-            /*
-
-            long count = 0;
-            bool running = true;
-
-            Task.Run( () =>
-            {
-                while (running) count++;
-            });
-
-            Thread.Sleep(10000);
-
-            Console.WriteLine((((decimal)count) / 10) + " per second");
-
-
-
-            long count1 = 0;
-            long count2 = 0;
-
-            var ping = ProcessId.None;
-            var pong = ProcessId.None;
-
-            // Ping process
-            ping = spawn<Unit>("ping", msg =>
-            {
-                count1++;
-                tell(pong, unit);
-            });
-
-            // Pong process
-            pong = spawn<Unit>("pong", msg =>
-            {
-                count2++;
-                tell(ping, unit);
-            });
-
-            tell(ping, unit);
-
-            Thread.Sleep(10000);
-
-            kill(ping);
-            kill(pong);
-
-            Console.WriteLine((((decimal)(count1 + count2)) / 10) + " per second");
-            */
             Console.ReadKey();
         }
 

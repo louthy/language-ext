@@ -12,67 +12,17 @@ using static LanguageExt.Process;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-/// <summary>
-/// This is just a dumping ground I use for debugging the library, you can ignore this.
-/// </summary>
+// ************************************************************************************
+// 
+//  This is just a dumping ground I use for debugging the library, you can ignore this
+// 
+// ************************************************************************************
 
-
-namespace ProcessSample
+namespace TestBed
 {
-    class TestBed
+    class Tests
     {
-        public static void RunTests()
-        {
-            ProcessLog.Subscribe(Console.WriteLine);
-
-            ProcessStartupError();
-            LocalRegisterTest();
-            AskReply();
-            MassiveSpawnAndKillHierarchy();
-            AskReplyError();
-            RegisterTest();
-
-            ProcessStartupError();
-            RegisteredAskReply();
-
-
-            ClassBasedProcess();
-            AsyncOption();
-
-            MapOptionTest();
-            MassAddRemoveTest();
-            ProcessLog.Subscribe(Console.WriteLine);
-
-            SpawnProcess();
-            SpawnProcess();
-            SpawnProcess();
-            PubSubTest();
-            SpawnErrorSurviveProcess();
-            SpawnErrorSurviveProcess();
-            SpawnErrorSurviveProcess();
-            SpawnAndKillHierarchy();
-            SpawnAndKillHierarchy();
-            SpawnAndKillHierarchy();
-            SpawnAndKillProcess();
-            SpawnAndKillProcess();
-            SpawnAndKillProcess();
-
-            MassiveSpawnAndKillHierarchy();
-            MassiveSpawnAndKillHierarchy2();
-
-            ReaderAskTest();
-            LiftTest();
-            BindingTest();
-            WrappedOptionOptionLinqTest();
-            WrappedListLinqTest();
-            WrappedListTest();
-            LinqTest();
-            ExTest4();
-            MemoTest();
-            UnsafeOptionTest();
-        }
-
-        public static void LocalRegisterTest()
+       public static void LocalRegisterTest()
         {
             shutdownAll();
 
@@ -108,6 +58,50 @@ namespace ProcessSample
             Debug.Assert(kids.Count() == 0);
         }
 
+        public static void KillChildTest()
+        {
+            var pid = spawn<ProcessId, bool>(
+                        "hello", 
+                        ()   => spawn<string>("world", msg => reply(msg) ),
+                        (cpid, flag) =>
+                        {
+                            if (flag)
+                            {
+                                kill(cpid);
+                            }
+                            else
+                            {
+                                if (Children.ContainsKey(cpid.GetName().Value))
+                                {
+                                    reply(ask<string>(cpid, "echo") == "echo");
+                                }
+                                else
+                                {
+                                    throw new Exception("Child doesn't exist");
+                                }
+                            }
+                            return cpid;
+                        });
+
+            Debug.Assert(ask<bool>(pid, false));
+
+            tell(pid, true);
+
+
+            ask<bool>(pid, false);
+
+            try
+            {
+                Debug.Assert(ask<bool>(pid, false) == false);
+            }
+            catch (Exception e)
+            {
+                Debug.Assert(e.Message.Contains("Child doesn't exist"));
+            }
+
+            Console.WriteLine("Works");
+            Console.ReadKey();
+        }
 
         public static void RegisterTest()
         {
@@ -169,19 +163,19 @@ namespace ProcessSample
             }
         }
 
-        private static void ClassBasedProcess()
+        public static void ClassBasedProcess()
         {
             var log = spawn<Log, string>("log");
 
             tell(log, "Hello, World");
         }
 
-        private static Task<int> GetTheNumber()
+        public static Task<int> GetTheNumber()
         {
             return Task.Run(() => 123);
         }
 
-        private static async void AsyncOption()
+        public static async void AsyncOption()
         {
             var x = Some(true);
             Option<bool> y = None;
@@ -358,7 +352,7 @@ namespace ProcessSample
             Debug.Assert(value == "hello");
         }
 
-        private static void SpawnProcess()
+        public static void SpawnProcess()
         {
             shutdownAll();
 
@@ -388,7 +382,7 @@ namespace ProcessSample
             Console.WriteLine("*** END OF TEST ***");
         }
 
-        private class Bindings
+        public class Bindings
         {
             public readonly Map<string, int> Map;
             public Bindings(params Tuple<string, int>[] items)
@@ -505,7 +499,7 @@ namespace ProcessSample
             );
         }
 
-        private static TryOption<int> GetTryOptionValue(bool select) => () =>
+        public static TryOption<int> GetTryOptionValue(bool select) => () =>
             select
                 ? Some(10)
                 : None;
@@ -537,7 +531,7 @@ namespace ProcessSample
             }
         }
 
-        private static Try<int> Number<T>(int x) where T : Exception, new() => () =>
+        public static Try<int> Number<T>(int x) where T : Exception, new() => () =>
             x % 2 == 0
                 ? x
                 : raise<int>(new T());
@@ -660,7 +654,7 @@ namespace ProcessSample
                 ? 1
                 : (int)Math.Pow(5, (double)depth) + DepthMax(depth - 1);
 
-        static void MassiveSpawnAndKillHierarchy2()
+        public static void MassiveSpawnAndKillHierarchy2()
         {
             Func<Unit> setup = null;
             int depth = 6;
@@ -736,7 +730,7 @@ namespace ProcessSample
             Debug.Assert(children(User).Count() == 0);
         }
 
-        static void ScheduledMsgTest()
+        public static void ScheduledMsgTest()
         {
             string v = "";
 

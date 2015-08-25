@@ -24,8 +24,8 @@ namespace LanguageExt
                 case Message.TagSpec.UserAsk:           return new ActorRequest(DeserialiseMsgContent(msg), actorId, replyTo, msg.RequestId);
                 case Message.TagSpec.User:              return new UserMessage(DeserialiseMsgContent(msg), sender, replyTo);
 
-                case Message.TagSpec.GetChildren:       return ActorSystemMessage.GetChildren;
-                case Message.TagSpec.ShutdownProcess:   return ActorSystemMessage.ShutdownProcess;
+                case Message.TagSpec.GetChildren:       return UserControlMessage.GetChildren;
+                case Message.TagSpec.ShutdownProcess:   return SystemMessage.ShutdownProcess;
 
                 case Message.TagSpec.Restart:           return SystemMessage.Restart;
             }

@@ -12,6 +12,13 @@ namespace LanguageExt
     public abstract class UserControlMessage : Message
     {
         public override Type MessageType => Type.UserControl;
+        public readonly static UserControlMessage GetChildren = new GetChildrenMessage();
+    }
+
+    internal class GetChildrenMessage : UserControlMessage
+    {
+        public override TagSpec Tag => TagSpec.GetChildren;
+        public override string ToString() => "GetChildren";
     }
 
     public class UserMessage : UserControlMessage

@@ -4,115 +4,105 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{95AFE589-C43E-46B8-998A-C4D758324FE8}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{87D29C69-9A59-4CE8-A0D9-C7CF60D414DC}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LanguageExtTests</RootNamespace>
-    <AssemblyName>LanguageExt.Tests</AssemblyName>
+    <RootNamespace>TestBed</RootNamespace>
+    <AssemblyName>TestBed</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\lib\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\lib\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <SpecificVersion>False</SpecificVersion>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.1.36.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Collections.Immutable.1.1.36\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+      <HintPath>..\..\packages\System.Collections.Immutable.1.1.36\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
+      <HintPath>..\..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Reactive.Interfaces, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Rx-Interfaces.2.2.5\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+      <HintPath>..\..\packages\Rx-Interfaces.2.2.5\lib\net45\System.Reactive.Interfaces.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Reactive.Linq, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Rx-Linq.2.2.5\lib\net45\System.Reactive.Linq.dll</HintPath>
+      <HintPath>..\..\packages\Rx-Linq.2.2.5\lib\net45\System.Reactive.Linq.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Reactive.PlatformServices, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Rx-PlatformServices.2.2.5\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
+      <HintPath>..\..\packages\Rx-PlatformServices.2.2.5\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DelayTests.cs" />
-    <Compile Include="EnumerableTTests.cs" />
-    <Compile Include="EqualityTests.cs" />
-    <Compile Include="ExceptionMatching.cs" />
-    <Compile Include="FunTests.cs" />
-    <Compile Include="LinqTests.cs" />
-    <Compile Include="ListMatchingTests.cs" />
-    <Compile Include="OptionTTests.cs" />
-    <Compile Include="PartialAndCurryingTests.cs" />
-    <Compile Include="QueryTests.cs" />
-    <Compile Include="ListTests.cs" />
-    <Compile Include="MapTests.cs" />
-    <Compile Include="MemoTests.cs" />
-    <Compile Include="EitherTests.cs" />
-    <Compile Include="NonNullTests.cs" />
-    <Compile Include="EitherCoalesceTests.cs" />
-    <Compile Include="OptionCoalesceTests.cs" />
-    <Compile Include="OptionTests.cs" />
-    <Compile Include="ProcessTests.cs" />
-    <Compile Include="SerialisationTests.cs" />
-    <Compile Include="StackTests.cs" />
-    <Compile Include="TryOptionMonadTests.cs" />
-    <Compile Include="TryMonadTests.cs" />
-    <Compile Include="TryOutTests.cs" />
-    <Compile Include="TupleTests.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnsafeTests.cs" />
-    <Compile Include="MonadTests.cs" />
+    <Compile Include="TestBed.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj">
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\LanguageExt.Core\LanguageExt.Core.csproj">
       <Project>{c0fa07a0-8b83-4fa5-acfb-14185d5c4484}</Project>
       <Name>LanguageExt.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\LanguageExt.Process.Redis\LanguageExt.Process.Redis.csproj">
+    <ProjectReference Include="..\..\LanguageExt.FSharp\LanguageExt.FSharp.csproj">
+      <Project>{5d8bb155-2e39-4a63-8100-2004cbcf529e}</Project>
+      <Name>LanguageExt.FSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\LanguageExt.IO\LanguageExt.IO.fsproj">
+      <Project>{e4f0df2d-fa42-4213-adb6-08e6fcf5b409}</Project>
+      <Name>LanguageExt.IO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\LanguageExt.Process.FSharp\LanguageExt.Process.FSharp.fsproj">
+      <Project>{d208187f-adf0-4f22-bdaa-33ab92f0e88d}</Project>
+      <Name>LanguageExt.Process.FSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\LanguageExt.Process.Redis\LanguageExt.Process.Redis.csproj">
       <Project>{dc05f334-346b-41bc-bea5-bfbe24e52b5f}</Project>
       <Name>LanguageExt.Process.Redis</Name>
     </ProjectReference>
-    <ProjectReference Include="..\LanguageExt.Process\LanguageExt.Process.csproj">
+    <ProjectReference Include="..\..\LanguageExt.ProcessJS\LanguageExt.ProcessJS.csproj">
+      <Project>{d663de72-70d5-496e-bce8-613bb0f266cc}</Project>
+      <Name>LanguageExt.ProcessJS</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\LanguageExt.Process\LanguageExt.Process.csproj">
       <Project>{d1ab41c6-8b45-4e01-8400-97d2779034df}</Project>
       <Name>LanguageExt.Process</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

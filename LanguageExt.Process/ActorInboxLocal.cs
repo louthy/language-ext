@@ -45,6 +45,7 @@ namespace LanguageExt
             {
                 ts.Cancel();
                 ts.Dispose();
+
                 tokenSource = null;
                 userInbox = null;
                 sysInbox = null;

@@ -359,7 +359,7 @@ namespace LanguageExtTests
 
             kill(zero);
 
-            Thread.Sleep(350);
+            Thread.Sleep(500);
 
             Assert.IsTrue(children(User).Count() == 0);
         }

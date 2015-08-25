@@ -266,7 +266,7 @@ namespace LanguageExt
         /// jumps ahead of any messages already in the process's queue.
         /// </summary>
         public static Unit kill(ProcessId pid) =>
-            pid.Tell(ActorSystemMessage.ShutdownProcess, ActorContext.Self);
+            ActorContext.Kill(pid);
 
         /// <summary>
         /// Shutdown all processes and restart

@@ -1,16 +1,8 @@
-﻿using Microsoft.FSharp.Control;
-using Microsoft.FSharp.Core;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
-
 using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
-using static LanguageExt.List;
 using System.Reactive.Subjects;
 using Newtonsoft.Json;
 
@@ -35,6 +27,7 @@ namespace LanguageExt
         EventWaitHandle request;
         volatile ActorResponse response;
         int roundRobinIndex = -1;
+        object sync = new object();
 
         internal Actor(Option<ICluster> cluster, ActorItem parent, ProcessName name, Func<S, T, S> actor, Func<IActor, S> setup, ProcessFlags flags)
         {
@@ -220,9 +213,12 @@ namespace LanguageExt
         /// <summary>
         /// Disowns a child process
         /// </summary>
-        public Unit UnlinkChild(ActorItem item)
+        public Unit UnlinkChild(ProcessId pid)
         {
-            children = children.Remove(item.Actor.Id.GetName().Value);
+            lock(sync)
+            {
+                children = children.Remove(pid.GetName().Value);
+            }
             return unit;
         }
 
@@ -231,7 +227,10 @@ namespace LanguageExt
         /// </summary>
         public Unit LinkChild(ActorItem item)
         {
-            children = children.AddOrUpdate(item.Actor.Id.GetName().Value, item);
+            lock (sync)
+            {
+                children = children.AddOrUpdate(item.Actor.Id.GetName().Value, item);
+            }
             return unit;
         }
 
@@ -515,8 +514,10 @@ namespace LanguageExt
 
         public Unit ShutdownProcess()
         {
-            Parent.Actor.UnlinkChild(ActorContext.SelfProcess);
+            //tellSystem(Parent.Actor.Id, SystemMessage.UnlinkChild(Id));
+            Parent.Actor.UnlinkChild(Id);
             ShutdownProcessRec(ActorContext.SelfProcess, ActorContext.GetInboxShutdownItem().Map(x => (ILocalActorInbox)x.Inbox));
+
             children = Map.empty<string, ActorItem>();
             return unit;
         }

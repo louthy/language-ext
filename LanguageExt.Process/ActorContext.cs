@@ -227,7 +227,7 @@ namespace LanguageExt
 
         private static void ShutdownProcess(ActorItem item)
         {
-            item.Actor.Parent.Actor.UnlinkChild(item);
+            item.Actor.Parent.Actor.UnlinkChild(item.Actor.Id);
             GetInboxShutdownItem().IfSome(ibs => ShutdownProcessRec(item, ibs.Inbox));
         }
 
@@ -577,26 +577,22 @@ namespace LanguageExt
         }
 
         public static Unit Ask(ProcessId pid, object message, ProcessId sender) =>
-            GetDispatcher(pid).Ask(message, sender, "user", Message.Type.User);
-
-        public static Unit AskUserControl(ProcessId pid, object message, ProcessId sender) =>
-            GetDispatcher(pid).Ask(message, sender, "user", Message.Type.UserControl);
-
-        public static Unit AskSystem(ProcessId pid, object message, ProcessId sender) =>
-            GetDispatcher(pid).Ask(message, sender, "system", Message.Type.System);
+            GetDispatcher(pid).Ask(message, sender);
 
 
         public static Unit Tell(ProcessId pid, object message, ProcessId sender) =>
-            GetDispatcher(pid).Tell(message, sender, "user", Message.Type.User, message is ActorRequest ? Message.TagSpec.UserAsk : Message.TagSpec.User);
+            GetDispatcher(pid).Tell(message, sender, message is ActorRequest ? Message.TagSpec.UserAsk : Message.TagSpec.User);
 
         public static Unit TellUserControl(ProcessId pid, UserControlMessage message) =>
-            GetDispatcher(pid).Tell(message, Self, "user", Message.Type.UserControl, message.Tag);
+            GetDispatcher(pid).TellUserControl(message, Self);
 
         public static Unit TellSystem(ProcessId pid, SystemMessage message) =>
-            GetDispatcher(pid).Tell(message, Self, "system", Message.Type.System, message.Tag);
-
+            GetDispatcher(pid).TellSystem(message, Self);
 
         public static Map<string, ProcessId> GetChildren(ProcessId pid) =>
             GetDispatcher(pid).GetChildren();
+
+        public static Unit Kill(ProcessId pid) =>
+            GetDispatcher(pid).Kill();
     }
 }

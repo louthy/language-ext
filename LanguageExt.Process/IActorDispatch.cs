@@ -6,9 +6,12 @@ namespace LanguageExt
     {
         IObservable<T> Observe<T>();
         IObservable<T> ObserveState<T>();
-        Unit Tell(object message, ProcessId sender, string inbox, Message.Type type, Message.TagSpec tag);
-        Unit Ask(object message, ProcessId sender, string inbox, Message.Type type);
+        Unit Ask(object message, ProcessId sender);
+        Unit Tell(object message, ProcessId sender, Message.TagSpec tag);
+        Unit TellSystem(SystemMessage message, ProcessId sender);
+        Unit TellUserControl(UserControlMessage message, ProcessId sender);
         Map<string, ProcessId> GetChildren();
         Unit Publish(object message);
+        Unit Kill();
     }
 }

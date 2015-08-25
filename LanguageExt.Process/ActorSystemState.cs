@@ -136,7 +136,7 @@ namespace LanguageExt
 
             GetItem(processId.Path).IfSome( item =>
             {
-                item.Actor.Parent.Actor.UnlinkChild(item);
+                item.Actor.Parent.Actor.UnlinkChild(processId);
                 ShutdownProcessRec(item, inboxShutdown.Inbox);
             });
 

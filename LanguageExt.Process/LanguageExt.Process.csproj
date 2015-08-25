@@ -111,7 +111,6 @@
     <Compile Include="Prelude.cs" />
     <Compile Include="ProcessLogItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ActorSystemMessage.cs" />
     <Compile Include="SystemMessage.cs" />
     <Compile Include="UserControlMessage.cs" />
   </ItemGroup>

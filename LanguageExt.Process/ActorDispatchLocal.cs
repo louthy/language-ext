@@ -26,11 +26,22 @@ namespace LanguageExt
             where x is T
             select (T)x;
 
-        public Unit Tell(object message, ProcessId sender, string inbox, Message.Type type, Message.TagSpec tag) =>
+        public Unit Tell(object message, ProcessId sender, Message.TagSpec tag) =>
             Inbox.Tell(message, sender);
 
-        public Unit Ask(object message, ProcessId sender, string inbox, Message.Type type) =>
+        public Unit TellSystem(SystemMessage message, ProcessId sender) =>
+            Inbox.TellSystem(message);
+
+        public Unit TellUserControl(UserControlMessage message, ProcessId sender) =>
+            Inbox.TellUserControl(message);
+
+        public Unit Ask(object message, ProcessId sender) =>
             Inbox.Ask(message, sender);
+
+        public Unit Kill() =>
+            ActorContext.WithContext(new ActorItem(Actor, (IActorInbox)Inbox, Actor.Flags), Actor.Parent, ProcessId.NoSender, null, SystemMessage.ShutdownProcess, () =>
+              Actor.ShutdownProcess()
+            );
 
         public Map<string, ProcessId> GetChildren() =>
             Actor.Children.Map(a => a.Actor.Id);

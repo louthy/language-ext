@@ -26,13 +26,22 @@ namespace LanguageExt
         public IObservable<T> ObserveState<T>() =>
             Observable.Empty<T>();
 
-        public Unit Tell(object message, ProcessId sender, string inbox, Message.Type type, Message.TagSpec tag) =>
+        public Unit Tell(object message, ProcessId sender, Message.TagSpec tag) =>
             Raise<Unit>();
 
-        public Unit Ask(object message, ProcessId sender, string inbox, Message.Type type) =>
+        public Unit TellSystem(SystemMessage message, ProcessId sender) =>
+            Raise<Unit>();
+
+        public Unit TellUserControl(UserControlMessage message, ProcessId sender) =>
+            Raise<Unit>();
+
+        public Unit Ask(object message, ProcessId sender) =>
             Raise<Unit>();
 
         public Unit Publish(object message) =>
             Raise<Unit>();
+
+        public Unit Kill() => 
+            unit;
     }
 }

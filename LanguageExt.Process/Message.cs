@@ -14,8 +14,7 @@ namespace LanguageExt
 
             User,
             System,
-            UserControl,
-            ActorSystem
+            UserControl
         }
 
         public enum TagSpec
@@ -24,6 +23,9 @@ namespace LanguageExt
 
             // SystemMessageTag
             Restart,
+            LinkChild,
+            UnlinkChild,
+            SystemAsk,
 
             // UserControlMessageTag
             User,

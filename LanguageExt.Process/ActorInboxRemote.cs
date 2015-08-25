@@ -77,7 +77,6 @@ namespace LanguageExt
                     {
                         switch (msg.MessageType)
                         {
-                            case Message.Type.ActorSystem:  ActorInboxCommon.UserMessageInbox(actor, inbox, (UserControlMessage)msg, parent); break;
                             case Message.Type.System:       ActorInboxCommon.SystemMessageInbox(actor, inbox, (SystemMessage)msg, parent); break;
                             case Message.Type.User:         ActorInboxCommon.UserMessageInbox(actor, inbox, (UserControlMessage)msg, parent); break;
                             case Message.Type.UserControl:  ActorInboxCommon.UserMessageInbox(actor, inbox, (UserControlMessage)msg, parent); break;

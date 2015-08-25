@@ -62,7 +62,7 @@ public static class __ProcessIdExt
     /// jumps ahead of any messages already in the process's queue.
     /// </summary>
     public static Unit Kill(this ProcessId self) =>
-        self.Tell(ActorSystemMessage.ShutdownProcess, ActorContext.Self);
+        self.Tell(SystemMessage.ShutdownProcess, ActorContext.Self);
 
     //
     // Ask

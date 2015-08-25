@@ -162,7 +162,6 @@ namespace LanguageExt
                     pair.IfSome(x => map(x, (dto, msg) => {
                         switch (msg.MessageType)
                         {
-                            case Message.Type.ActorSystem:  ActorContext.LocalRoot.Tell(msg, dto.Sender); break;
                             case Message.Type.System:       sysInbox.Post((SystemMessage)msg); break;
                             case Message.Type.User:         userInbox.Post((UserControlMessage)msg); break;
                             case Message.Type.UserControl:  userInbox.Post((UserControlMessage)msg); break;

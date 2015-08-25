@@ -19,7 +19,7 @@ namespace LanguageExt
         public Unit Startup() => unit;
         public Unit Shutdown() => unit;
         public Unit LinkChild(ActorItem item) => unit;
-        public Unit UnlinkChild(ActorItem item) => unit;
+        public Unit UnlinkChild(ProcessId item) => unit;
         public Unit Publish(object message) => unit;
         public IObservable<object> PublishStream => null;
         public IObservable<object> StateStream => null;
