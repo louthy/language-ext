@@ -32,10 +32,6 @@ namespace LanguageExt
         ActorItem js;
         ActorItem reply;
 
-        // We can use a mutable and non-locking dictionary here because access to 
-        // it will be via the root actor's message-loop only
-        //Dictionary<string, ActorItem> store = new Dictionary<string, ActorItem>();
-
         public ActorSystemState(Option<ICluster> cluster, ProcessId rootId, IActor rootProcess, IActorInbox rootInbox, ProcessName rootProcessName, ActorConfig config)
         {
             var parent = new ActorItem(new NullProcess(), new NullInbox(), ProcessFlags.Default);
