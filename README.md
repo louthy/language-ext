@@ -7,7 +7,10 @@ C# Functional Language Extensions
 
 Using and abusing the features of C# 6 to provide lots of functions and types, that, if you squint, can look like extensions to the language itself.  And an 'Erlang like' concurrency system (actors) that can persist messages and state to Redis.
 
-__Now on NuGet: https://www.nuget.org/packages/LanguageExt/__
+__NuGet:__
+* __https://www.nuget.org/packages/LanguageExt/__
+* __https://www.nuget.org/packages/LanguageExt.Process__
+* __https://www.nuget.org/packages/LanguageExt.Process.Redis__
 
 ## Introduction
 One of the great new features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static methods without qualifying them first.  This instantly gives us access to single term method names which look exactly like functions in functional languages.  i.e.
