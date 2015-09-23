@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace LanguageExt
 {
@@ -120,79 +119,84 @@ namespace LanguageExt
         /// </summary>
         public static Lst<T> toList<T>(IEnumerable<T> items) =>
             new Lst<T>(items);
-        
-        /// <summary>
-        /// Create an immutable queue
-        /// </summary>
-        public static ImmutableArray<T> Array<T>() =>
-            ImmutableArray.Create<T>();
 
         /// <summary>
         /// Create an immutable queue
         /// </summary>
-        public static ImmutableArray<T> Array<T>(T item) =>
-            ImmutableArray.Create<T>(item);
+        public static T[] Array<T>() =>
+            new T[0];
 
         /// <summary>
         /// Create an immutable queue
         /// </summary>
-        public static ImmutableArray<T> Array<T>(params T[] items) =>
-            ImmutableArray.Create<T>(items);
-
-        /// <summary>
-        /// Create an immutable array
-        /// </summary>
-        public static ImmutableArray<T> toArray<T>(IEnumerable<T> items) =>
-            ImmutableArray.CreateRange(items);
+        public static T[] Array<T>(T item) =>
+            new T[1] { item };
 
         /// <summary>
         /// Create an immutable queue
         /// </summary>
-        public static IImmutableQueue<T> Queue<T>() =>
-            ImmutableQueue.Create<T>();
+        public static T[] Array<T>(params T[] items)
+        {
+            var a = new T[items.Length];
+            int i = 0;
+            foreach (var item in items)
+            {
+                a[i] = item;
+                i++;
+            }
+            return a;
+        }
 
         /// <summary>
         /// Create an immutable queue
         /// </summary>
-        public static IImmutableQueue<T> Queue<T>(T item) =>
-            ImmutableQueue.Create<T>();
+        public static T[] toArray<T>(IEnumerable<T> items)
+        {
+            var a = new T[items.Count()];
+            int i = 0;
+            foreach (var item in items)
+            {
+                a[i] = item;
+                i++;
+            }
+            return a;
+        }
 
         /// <summary>
         /// Create an immutable queue
         /// </summary>
-        public static IImmutableQueue<T> Queue<T>(params T[] items) =>
-            ImmutableQueue.Create<T>(items);
-
+        public static Que<T> Queue<T>() =>
+            new Que<T>();
 
         /// <summary>
         /// Create an immutable queue
         /// </summary>
-        public static IImmutableQueue<T> toQueue<T>(IEnumerable<T> items) =>
-            ImmutableQueue.CreateRange<T>(items);
+        public static Que<T> Queue<T>(params T[] items) =>
+            new Que<T>(items);
+
+        /// <summary>
+        /// Create an immutable queue
+        /// </summary>
+        public static Que<T> toQueue<T>(IEnumerable<T> items) =>
+            new Que<T>(items);
 
         /// <summary>
         /// Create an immutable stack
         /// </summary>
-        public static IImmutableStack<T> Stack<T>() =>
-            ImmutableStack.Create<T>();
+        public static Stck<T> Stack<T>() =>
+            new Stck<T>();
 
         /// <summary>
         /// Create an immutable stack
         /// </summary>
-        public static IImmutableStack<T> Stack<T>(T item) =>
-            ImmutableStack.Create<T>();
+        public static Stck<T> Stack<T>(params T[] items) =>
+            new Stck<T>(items);
 
         /// <summary>
         /// Create an immutable stack
         /// </summary>
-        public static IImmutableStack<T> Stack<T>(params T[] items) =>
-            ImmutableStack.Create<T>(items);
-
-        /// <summary>
-        /// Create an immutable stack
-        /// </summary>
-        public static IImmutableStack<T> toStack<T>(IEnumerable<T> items) =>
-            ImmutableStack.CreateRange<T>(items);
+        public static Stck<T> toStack<T>(IEnumerable<T> items) =>
+            new Stck<T>(items.Rev());
 
         /// <summary>
         /// Create an immutable set

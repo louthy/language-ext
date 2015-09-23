@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace LanguageExt
 {
@@ -111,7 +110,7 @@ namespace LanguageExt
         public static Lst<T> toList<T>(OptionUnsafe<T> option) =>
             option.ToList();
 
-        public static ImmutableArray<T> toArray<T>(OptionUnsafe<T> option) =>
+        public static T[] toArray<T>(OptionUnsafe<T> option) =>
             option.ToArray();
 
         public static IQueryable<T> toQuery<T>(OptionUnsafe<T> option) =>

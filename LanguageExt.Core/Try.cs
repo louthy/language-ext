@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
-using System.Collections.Immutable;
 using System.ComponentModel;
 
 namespace LanguageExt
@@ -322,7 +320,7 @@ public static class __TryExt
     public static Lst<Either<Exception, T>> ToList<T>(this Try<T> self) =>
         toList(self.AsEnumerable());
 
-    public static ImmutableArray<Either<Exception, T>> ToArray<T>(this Try<T> self) =>
+    public static Either<Exception, T>[] ToArray<T>(this Try<T> self) =>
         toArray(self.AsEnumerable());
 
     public static TrySuccContext<T, R> Succ<T, R>(this Try<T> self, Func<T, R> succHandler) =>

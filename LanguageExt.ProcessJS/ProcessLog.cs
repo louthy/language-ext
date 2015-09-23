@@ -181,21 +181,21 @@ namespace LanguageExt.ProcessJS
         private class State
         {
             public readonly int LogViewMax;
-            public readonly IImmutableQueue<ProcessLogItem> Log;
+            public readonly Que<ProcessLogItem> Log;
 
             public State(int logViewMax)
             {
                 LogViewMax = logViewMax;
-                Log        = Queue<ProcessLogItem>();
+                Log = Queue<ProcessLogItem>();
             }
 
             private State(
                 int logViewMax,
-                IImmutableQueue<ProcessLogItem> log
+                Que<ProcessLogItem> log
             )
             {
                 LogViewMax = logViewMax;
-                Log        = log;
+                Log = log;
             }
 
             public State EnqeueLogItem(ProcessLogItem logItem)

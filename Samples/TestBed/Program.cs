@@ -24,6 +24,12 @@ namespace TestBed
     {
         static void Main(string[] args)
         {
+            Tests.StackCollectionFunctions();
+            Tests.WrappedListOfOptionsTest1();
+            Tests.WrappedListOfOptionsTest2();
+            Tests.Lists();
+            return;
+
             ProcessLog.Subscribe(Console.WriteLine);
 
             Tests.KillChildTest();

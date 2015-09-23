@@ -6,7 +6,6 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
-using System.Collections.Immutable;
 using System.ComponentModel;
 
 namespace LanguageExt
@@ -225,24 +224,33 @@ namespace LanguageExt
         /// </summary>
         [Obsolete("Use 'Array'.  All constructor functions are renamed to have their first letter as a capital.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static ImmutableArray<T> array<T>() =>
-            ImmutableArray.Create<T>();
+        public static T[] array<T>() =>
+            new T[0];
 
         /// <summary>
         /// Create an immutable queue
         /// </summary>
         [Obsolete("Use 'Array'.  All constructor functions are renamed to have their first letter as a capital.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static ImmutableArray<T> array<T>(T item) =>
-            ImmutableArray.Create<T>(item);
+        public static T[] array<T>(T item) =>
+            new T[1] {item};
 
         /// <summary>
         /// Create an immutable queue
         /// </summary>
         [Obsolete("Use 'Array'.  All constructor functions are renamed to have their first letter as a capital.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static ImmutableArray<T> array<T>(params T[] items) =>
-            ImmutableArray.Create<T>(items);
+        public static T[] array<T>(params T[] items)
+        {
+            var a = new T[items.Length];
+            int i = 0;
+            foreach (var item in items)
+            {
+                a[i] = item;
+                i++;
+            }
+            return a;
+        }
 
         /// <summary>
         /// Create an immutable set
@@ -273,16 +281,8 @@ namespace LanguageExt
         /// </summary>
         [Obsolete("Use 'Stack'.  All constructor functions are renamed to have their first letter as a capital.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IImmutableStack<T> stack<T>() =>
-            ImmutableStack.Create<T>();
-
-        /// <summary>
-        /// Create an immutable stack
-        /// </summary>
-        [Obsolete("Use 'Stack'.  All constructor functions are renamed to have their first letter as a capital.")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IImmutableStack<T> stack<T>(T item) =>
-            ImmutableStack.Create<T>();
+        public static Stck<T> stack<T>() =>
+            new Stck<T>();
 
         /// <summary>
         /// Create an empty IEnumerable T

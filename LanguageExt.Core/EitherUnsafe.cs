@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
-using System.Collections.Immutable;
 using System.ComponentModel;
 
 namespace LanguageExt
@@ -250,8 +248,8 @@ namespace LanguageExt
         /// Project the Either into an ImmutableArray R
         /// </summary>
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
-        public ImmutableArray<R> ToArray() =>
-            toArray(AsEnumerable());
+        public R[] ToArray() =>
+            toArray<R>(AsEnumerable());
 
         /// <summary>
         /// Equality operator override

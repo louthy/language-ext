@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace LanguageExt
 {
@@ -282,7 +281,7 @@ namespace LanguageExt
         /// <typeparam name="R">Right</typeparam>
         /// <param name="either">Either to project</param>
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
-        public static ImmutableArray<R> toArray<L, R>(Either<L, R> either) =>
+        public static R[] toArray<L, R>(Either<L, R> either) =>
             either.ToArray();
 
         /// <summary>

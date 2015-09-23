@@ -1,4 +1,8 @@
-﻿using System;
+﻿/*
+
+    Deprecated: See Lst2.cs
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -263,3 +267,4 @@ namespace LanguageExt
             new Lst<T>(this.Where(pred));
     }
 }
+*/

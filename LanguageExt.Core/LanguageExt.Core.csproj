@@ -32,10 +32,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Collections.Immutable, Version=1.1.36.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Collections.Immutable.1.1.36\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
@@ -63,6 +59,7 @@
     <Compile Include="ActionObservable.cs" />
     <Compile Include="EitherState.cs" />
     <Compile Include="Exceptions.cs" />
+    <Compile Include="Lst2.cs" />
     <Compile Include="ObservableExt.cs" />
     <Compile Include="Prelude_Curry.cs" />
     <Compile Include="EitherUnsafe.cs" />
@@ -80,6 +77,7 @@
     <Compile Include="Prelude_Obsolete.cs" />
     <Compile Include="Prelude_PartialApplication.cs" />
     <Compile Include="Prelude_Timer.cs" />
+    <Compile Include="Que.cs" />
     <Compile Include="Query.cs" />
     <Compile Include="Prelude_Try.cs" />
     <Compile Include="Map.cs" />
@@ -96,6 +94,7 @@
     <Compile Include="Queue.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="Reader.cs" />
+    <Compile Include="SetT.cs" />
     <Compile Include="Set.cs" />
     <Compile Include="Some.cs" />
     <Compile Include="Prelude.cs" />
@@ -108,6 +107,7 @@
     <Compile Include="Stack.cs" />
     <Compile Include="RWS.cs" />
     <Compile Include="State.cs" />
+    <Compile Include="Stck.cs" />
     <Compile Include="Try.cs" />
     <Compile Include="TryOption.cs" />
     <Compile Include="TryOutExt.cs" />

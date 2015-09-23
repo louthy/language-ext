@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
@@ -420,7 +418,7 @@ public static class __TryOptionExt
     public static Lst<Either<Exception, T>> ToList<T>(this TryOption<T> self) =>
         toList(self.AsEnumerable());
 
-    public static ImmutableArray<Either<Exception, T>> ToArray<T>(this TryOption<T> self) =>
+    public static Either<Exception, T>[] ToArray<T>(this TryOption<T> self) =>
         toArray(self.AsEnumerable());
 
     public static TryOptionSomeContext<T, R> Some<T, R>(this TryOption<T> self, Func<T, R> someHandler) =>

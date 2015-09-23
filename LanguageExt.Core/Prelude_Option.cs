@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 
 namespace LanguageExt
@@ -155,7 +154,7 @@ namespace LanguageExt
         public static Lst<T> toList<T>(Option<T> option) =>
             option.ToList();
 
-        public static ImmutableArray<T> toArray<T>(Option<T> option) =>
+        public static T[] toArray<T>(Option<T> option) =>
             option.ToArray();
 
         public static IQueryable<T> toQuery<T>(Option<T> option) =>

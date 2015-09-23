@@ -3,6 +3,7 @@ using static LanguageExt.List;
 using static LanguageExt.Stack;
 using NUnit.Framework;
 using System.Collections.Immutable;
+using LanguageExt;
 
 namespace LanguageExtTests
 {
@@ -48,7 +49,7 @@ namespace LanguageExtTests
             Popping5(test);
         }
 
-        public void Popping5(IImmutableStack<int> test)
+        public void Popping5(Stck<int> test)
         {
             test = map(pop(test), (stack, value) => { Assert.IsTrue(value.IsSome); return stack; });
             test = map(pop(test), (stack, value) => { Assert.IsTrue(value.IsSome); return stack; });
@@ -82,7 +83,7 @@ namespace LanguageExtTests
             Assert.IsTrue(res == sum(values));
         }
 
-        public int Sum(IImmutableStack<int> stack) =>
+        public int Sum(Stck<int> stack) =>
             map( pop(stack), (newstack, option) =>
                 match(option,
                     Some: value => value + Sum(newstack),

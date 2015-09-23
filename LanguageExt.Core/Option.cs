@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections;
-using System.Collections.Immutable;
 using System.Linq;
 using System.ComponentModel;
 using LanguageExt;
@@ -241,7 +240,7 @@ namespace LanguageExt
         public Lst<T> ToList() =>
             toList(AsEnumerable());
 
-        public ImmutableArray<T> ToArray() =>
+        public T[] ToArray() =>
             toArray(AsEnumerable());
 
         public IEnumerable<T> AsEnumerable()

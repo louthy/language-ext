@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Collections;
-using System.Collections.Immutable;
 using System.ComponentModel;
 using LanguageExt;
 using static LanguageExt.Prelude;
@@ -264,7 +262,7 @@ namespace LanguageExt
         public Lst<T> ToList() =>
             Prelude.toList(AsEnumerable());
 
-        public ImmutableArray<T> ToArray() =>
+        public T[] ToArray() =>
             Prelude.toArray(AsEnumerable());
 
         public static bool operator ==(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
