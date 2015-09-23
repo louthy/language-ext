@@ -2,7 +2,6 @@
 using static LanguageExt.List;
 using static LanguageExt.Stack;
 using NUnit.Framework;
-using System.Collections.Immutable;
 using LanguageExt;
 
 namespace LanguageExtTests

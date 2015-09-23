@@ -5,8 +5,6 @@ using static LanguageExt.Map;
 using NUnit.Framework;
 using System;
 using System.Linq;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace LanguageExtTests
 {

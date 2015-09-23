@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.FSharp.Core;
 using Microsoft.FSharp.Collections;
 using static LanguageExt.Prelude;
-using System.Collections.Immutable;
+//using System.Collections.Immutable;
 
 namespace LanguageExt
 {
@@ -42,12 +42,6 @@ namespace LanguageExt
             ListModule.ToSeq(fsList);
 
         /// <summary>
-        /// Convert an LanguageExt List (IImmutableList T) into an F# List
-        /// </summary>
-        public static FSharpList<T> fs<T>(IImmutableList<T> list) =>
-            ListModule.OfSeq(list);
-
-        /// <summary>
         /// Convert an LanguageExt List (Lst T) into an F# List
         /// </summary>
         public static FSharpList<T> fs<T>(Lst<T> list) =>
@@ -59,11 +53,6 @@ namespace LanguageExt
         public static Map<K, V> fs<K, V>(FSharpMap<K, V> fsMap) =>
             Map.addRange( Map<K, V>(), List.map(fsMap, identity) );
 
-        /// <summary>
-        /// Convert a LanguageExt Map (IImmutableDictionary K V) into an F# Map
-        /// </summary>
-        public static FSharpMap<K, V> fs<K, V>(IImmutableDictionary<K, V> map) =>
-            MapModule.OfSeq(List.map(map, kv => System.Tuple.Create(kv.Key, kv.Value)));
         /// <summary>
         /// Convert a LanguageExt Map (Map K V) into an F# Map
         /// </summary>
