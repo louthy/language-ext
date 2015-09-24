@@ -59,7 +59,7 @@
     <Compile Include="ActionObservable.cs" />
     <Compile Include="EitherState.cs" />
     <Compile Include="Exceptions.cs" />
-    <Compile Include="Lst2.cs" />
+    <Compile Include="Lst.cs" />
     <Compile Include="ObservableExt.cs" />
     <Compile Include="Prelude_Curry.cs" />
     <Compile Include="EitherUnsafe.cs" />
@@ -71,7 +71,6 @@
     </Compile>
     <Compile Include="IEither.cs" />
     <Compile Include="IOptional.cs" />
-    <Compile Include="Lst.cs" />
     <Compile Include="MapKV.cs" />
     <Compile Include="Prelude_Monad.cs" />
     <Compile Include="Prelude_Obsolete.cs" />
