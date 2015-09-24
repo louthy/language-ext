@@ -82,27 +82,31 @@ _NOTE: The Process system is at alpha stage right now.  The rest of the library 
 
 This library is quickly becoming a 'Base Class Library' for functional programming in C#.  The features include:
 
-* `Option<T>`
-* `OptionUnsafe<T>`
-* `Either<L,R>`
-* `EitherUnsafe<L,R>`
-* `Try<T>`
-* `TryOption<T>`
-* `Lst<T>`
-* `Map<K,V>`
-* `Reader<E,T>`
-* `Writer<O,T>`
-* `State<S,T>`
-* `Rws<E,O,S,T>` - Reader/Writer/State
-* Monad transformers and a higher kinded type (ish)
-* Process library - Uses 'actors' in the same way as Erlang processes for massive concurrency with state management.
-* Redis persistence for Process message queues, state, and pub/sub
-* Immutable collections - `Lst<T>`, `Map<K,V>`, `Set<T>`
-* Currying
-* Partial application
-* Memoization
-* Improved lambda type inference
-* IObservable extensions
+Feature | Description
+--------|------------
+`Lst<T>` | Immutable list
+`Map<K,V>` | Immutable map
+`Set<T>` | Immutable set
+`Que<T>` | Immutable queue
+`Stck<T>` | Immutable stack
+`Option<T>` | Option monad that can't be used with `null` values
+`OptionUnsafe<T>` | Option monad that can be used with `null` values
+`Either<L,R>` | Right/Left choice monad that won't accept `null` values
+`EitherUnsafe<L,R>` | Right/Left choice monad that can be used with `null` values
+`Try<T>` | Exception catching monad
+`TryOption<T>` | Option monad with third state 'Fail' that catches exceptions
+`Reader<E,T>` | Reader monad
+`Writer<O,T>` | Writer monad
+`State<S,T>` | State monad
+`Rws<E,O,S,T>` | Reader/Writer/State monad
+Monad transformers | A higher kinded type (ish)
+Process library | Uses 'actors' in the same way as Erlang processes for massive concurrency with state management.
+Redis persistence | for Process message queues, state, and pub/sub
+Currying |
+Partial application |
+Memoization |
+Improved lambda type inference |
+IObservable extensions  |
 
 It started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me.  What C# issues are we trying to fix?  Well, we can only paper over the cracks, but here's a summary:
 
