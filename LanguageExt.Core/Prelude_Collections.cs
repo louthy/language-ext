@@ -196,7 +196,7 @@ namespace LanguageExt
         /// Create an immutable stack
         /// </summary>
         public static Stck<T> toStack<T>(IEnumerable<T> items) =>
-            new Stck<T>(items.Rev());
+            new Stck<T>(items);
 
         /// <summary>
         /// Create an immutable set

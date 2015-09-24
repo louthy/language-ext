@@ -6,37 +6,74 @@ namespace LanguageExt
 {
     public class Stck<T> : IEnumerable<T>, IEnumerable
     {
-        Lst<T> stack;
+        readonly T value;
+        readonly Stck<T> tail;
 
         internal Stck()
         {
-            stack = Lst<T>.Empty;
+        }
+
+        internal Stck(T value, Stck<T> tail)
+        {
+            Count = tail.Count + 1;
+            this.tail = tail;
+            this.value = value;
         }
 
         internal Stck(IEnumerable<T> initial)
         {
-            stack = new Lst<T>(initial);
+            tail = new Stck<T>();
+            foreach (var item in initial)
+            {
+                value = item;
+                tail = tail.Push(item);
+                Count++;
+            }
+            tail = tail.Pop();
         }
 
         internal Stck(Lst<T> initial)
         {
-            stack = initial;
+            tail = new Stck<T>();
+            foreach (var item in initial)
+            {
+                value = item;
+                tail = tail.Push(item);
+                Count++;
+            }
+            tail = tail.Pop();
+        }
+
+        public int Count
+        {
+            get;
+            private set;
         }
 
         public bool IsEmpty => 
-            stack.Count == 0;
+            Count == 0;
 
         public Stck<T> Clear() =>
             new Stck<T>();
 
         public IEnumerator<T> GetEnumerator() =>
-            stack.GetEnumerator();
+            AsEnumerable().GetEnumerator();
+
+        public IEnumerable<T> AsEnumerable()
+        {
+            var self = this;
+            while (self.Count != 0)
+            {
+                yield return self.value;
+                self = self.tail;
+            }
+        }
 
         public T Peek()
         {
-            if (stack.Count > 0)
+            if (Count > 0)
             {
-                return stack[stack.Count - 1];
+                return value;
             }
             else
             {
@@ -46,9 +83,9 @@ namespace LanguageExt
 
         public Stck<T> Pop()
         {
-            if (stack.Count > 0)
+            if (Count > 0)
             {
-                return new Stck<T>(stack.RemoveAt(stack.Count - 1));
+                return tail;
             }
             else
             {
@@ -58,10 +95,10 @@ namespace LanguageExt
 
         public Stck<T> Pop(out T outValue)
         {
-            if (stack.Count > 0)
+            if (Count > 0)
             {
-                outValue = stack[stack.Count - 1];
-                return new Stck<T>(stack.RemoveAt(stack.Count - 1));
+                outValue = value;
+                return tail;
             }
             else
             {
@@ -69,36 +106,20 @@ namespace LanguageExt
             }
         }
 
-        public Tuple<Stck<T>, Option<T>> TryPop()
-        {
-            if (stack.Count > 0)
-            {
-                var value = stack[stack.Count - 1];
-                return Tuple.Create(new Stck<T>(stack.RemoveAt(stack.Count - 1)), Prelude.Some(value));
-            }
-            else
-            {
-                return Tuple.Create<Stck<T>, Option<T>>(this, Prelude.None);
-            }
-        }
+        public Tuple<Stck<T>, Option<T>> TryPop() =>
+            Count > 0
+                ? Tuple.Create(tail, Prelude.Some(value))
+                : Tuple.Create<Stck<T>, Option<T>>(this, Prelude.None);
 
-        public Option<T> TryPeek()
-        {
-            if (stack.Count > 0)
-            {
-                var value = stack[stack.Count - 1];
-                return Prelude.Some(value);
-            }
-            else
-            {
-                return Prelude.None;
-            }
-        }
+        public Option<T> TryPeek() =>
+            Count > 0
+                ? Prelude.Some(value)
+                : Prelude.None;
 
         public Stck<T> Push(T value) =>
-            new Stck<T>(stack.Add(value));
+            new Stck<T>(value, this);
 
         IEnumerator IEnumerable.GetEnumerator() =>
-            stack.GetEnumerator();
+            AsEnumerable().GetEnumerator();
     }
 }

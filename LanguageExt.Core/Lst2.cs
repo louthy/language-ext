@@ -84,17 +84,16 @@ namespace LanguageExt
         {
             get
             {
-                return this[index];
+                if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
+                return ListModule.GetItem(Root, index);
             }
         }
 
         /// <summary>
         /// Add an item to the end of the list
         /// </summary>
-        public Lst<T> Add(T value)
-        {
-            return new Lst<T>(ListModule.Insert(Root, value, Rev ? 0 : Root.Count), Rev);
-        }
+        public Lst<T> Add(T value) =>
+            new Lst<T>(ListModule.Insert(Root, value, Rev ? 0 : Root.Count), Rev);
 
         /// <summary>
         /// Add a range of items to the end of the list
@@ -197,22 +196,30 @@ namespace LanguageExt
         public Lst<T> Remove(T value, IComparer<T> equalityComparer)
         {
             var index = ListModule.Find(Root, value, 0, Count, equalityComparer);
-            if (index >= 0 && index < Count)
-            {
-                return new Lst<T>(ListModule.Remove(Root, index), Rev);
-            }
-            else
-            {
-                return this;
-            }
+            return index >= 0 && index < Count
+                ? new Lst<T>(ListModule.Remove(Root, index), Rev)
+                : this;
         }
 
         /// <summary>
         /// Remove all items that match a predicate
         /// </summary>
-        public Lst<T> RemoveAll(Predicate<T> match)
+        public Lst<T> RemoveAll(Predicate<T> pred)
         {
-            throw new NotImplementedException();
+            var self = this;
+            int index = 0;
+            foreach (var item in this)
+            {
+                if (pred(item))
+                {
+                    self = self.RemoveAt(index);
+                }
+                else
+                {
+                    index++;
+                }
+            }
+            return self;
         }
 
         /// <summary>
@@ -253,15 +260,11 @@ namespace LanguageExt
             return new Lst<T>(ListModule.SetItem(Root,value,index),Rev);
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return new ListModule.ListEnumerator<T>(Root, Rev, 0);
-        }
+        IEnumerator IEnumerable.GetEnumerator() =>
+            new ListModule.ListEnumerator<T>(Root, Rev, 0);
 
-        IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        {
-            return new ListModule.ListEnumerator<T>(Root, Rev, 0);
-        }
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() =>
+            new ListModule.ListEnumerator<T>(Root, Rev, 0);
 
         /// <summary>
         /// Reverse the order of the items in the list

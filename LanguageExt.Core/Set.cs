@@ -7,15 +7,38 @@ namespace LanguageExt
 {
     public static partial class Set
     {
+        /// <summary>
+        /// Create a new empty set
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <returns>Empty set</returns>
         public static Set<T> create<T>() =>
             Set<T>.Empty;
 
+        /// <summary>
+        /// Create a new set pre-populated with the items in range
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="range">Range of items</param>
+        /// <returns>Set</returns>
         public static Set<T> createRange<T>(IEnumerable<T> range) =>
             new Set<T>(range);
 
+        /// <summary>
+        /// Create a new empty set
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <returns>Empty set</returns>
         public static Set<T> empty<T>() =>
             Set<T>.Empty;
 
+        /// <summary>
+        /// Add an item to the set
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="set">Set to add item to</param>
+        /// <param name="value">Value to add to the set</param>
+        /// <returns>New set with the item added</returns>
         public static Set<T> add<T>(Set<T> set, T value) =>
             set.Add(value);
 
@@ -25,6 +48,12 @@ namespace LanguageExt
         public static bool compare<T>(Set<T> setA, Set<T> setB) =>
             setA.SetEquals(setB);
 
+        /// <summary>
+        /// Get the number of elements in the set
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="set">Set</param>
+        /// <returns>Number of elements</returns>
         public static int length<T>(Set<T> set) =>
             set.Count();
 

@@ -15,8 +15,7 @@ namespace LanguageExt
     public class Set<T> : IEnumerable<T>, IEnumerable, IReadOnlyCollection<T>, ICollection<T>, ISet<T>, ICollection
     {
         public static readonly Set<T> Empty = new Set<T>();
-
-        SetItem<T> set;
+        readonly SetItem<T> set;
 
         internal Set()
         {
@@ -294,44 +293,58 @@ namespace LanguageExt
             throw new NotSupportedException();
         }
 
-        public void CopyTo(T[] array, int arrayIndex)
+        public void CopyTo(T[] array, int index)
         {
-            throw new NotSupportedException();
+            if (array == null) throw new ArgumentNullException(nameof(array));
+            if (index < 0 || index > array.Length) throw new IndexOutOfRangeException();
+            if (index + Count > array.Length) throw new IndexOutOfRangeException();
+
+            foreach (var element in this)
+            {
+                array[index++] = element;
+            }
         }
 
         bool ICollection<T>.Remove(T item)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         bool ISet<T>.Add(T item)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public void UnionWith(IEnumerable<T> other)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public void IntersectWith(IEnumerable<T> other)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public void ExceptWith(IEnumerable<T> other)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public void SymmetricExceptWith(IEnumerable<T> other)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public void CopyTo(Array array, int index)
         {
-            throw new NotImplementedException();
+            if (array == null) throw new ArgumentNullException(nameof(array));
+            if (index < 0 || index > array.Length) throw new IndexOutOfRangeException();
+            if (index + Count > array.Length) throw new IndexOutOfRangeException();
+
+            foreach (var element in this)
+            {
+                array.SetValue(element, index++);
+            }
         }
     }
 
@@ -516,7 +529,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// TODO: I suspect this is suboptimal, it would be better with a customer Enumerator 
+        /// TODO: I suspect this is suboptimal, it would be better with a custom Enumerator 
         /// that maintains a stack of nodes to retrace.
         /// </summary>
         public static IEnumerable<K> FindRange<K>(SetItem<K> node, K a, K b, Comparer<K> comparer)
@@ -580,7 +593,7 @@ namespace LanguageExt
             {
                 return node;
             }
-            if (amount > node.Count)
+            if (amount >= node.Count)
             {
                 return SetItem<K>.Empty;
             }
