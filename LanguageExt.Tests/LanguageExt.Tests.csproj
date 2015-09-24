@@ -84,6 +84,7 @@
     <Compile Include="OptionTests.cs" />
     <Compile Include="ProcessTests.cs" />
     <Compile Include="SerialisationTests.cs" />
+    <Compile Include="QueueTests.cs" />
     <Compile Include="StackTests.cs" />
     <Compile Include="TryOptionMonadTests.cs" />
     <Compile Include="TryMonadTests.cs" />

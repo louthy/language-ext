@@ -61,7 +61,7 @@ namespace LanguageExt
         /// Generates a sequence of T using the provided delegate to initialise
         /// each item.
         /// </summary>
-        public static IEnumerable<T> init<T>(int count,Func<int,T> generator) =>
+        public static IEnumerable<T> init<T>(int count, Func<int, T> generator) =>
             from i in Range(0, count)
             select generator(i);
 
@@ -100,7 +100,7 @@ namespace LanguageExt
         /// </summary>
         public static Map<K, V> Map<K, V>(params KeyValuePair<K, V>[] items) =>
             LanguageExt.Map.createRange(from x in items
-                            select Tuple(x.Key,x.Value));
+                                        select Tuple(x.Key, x.Value));
 
         /// <summary>
         /// Create an immutable list
@@ -171,14 +171,28 @@ namespace LanguageExt
         /// <summary>
         /// Create an immutable queue
         /// </summary>
-        public static Que<T> Queue<T>(params T[] items) =>
-            new Que<T>(items);
+        public static Que<T> Queue<T>(params T[] items)
+        {
+            var q = new Que<T>();
+            foreach (var item in items)
+            {
+                q = q.Enqueue(item);
+            }
+            return q;
+        }
 
         /// <summary>
         /// Create an immutable queue
         /// </summary>
-        public static Que<T> toQueue<T>(IEnumerable<T> items) =>
-            new Que<T>(items);
+        public static Que<T> toQueue<T>(IEnumerable<T> items)
+        {
+            var q = new Que<T>();
+            foreach (var item in items)
+            {
+                q = q.Enqueue(item);
+            }
+            return q;
+        }
 
         /// <summary>
         /// Create an immutable stack

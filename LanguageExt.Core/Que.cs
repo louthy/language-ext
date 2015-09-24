@@ -1,103 +1,99 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
     public class Que<T> : IEnumerable<T>, IEnumerable
     {
-        Lst<T> queue;
+        public readonly static Que<T> Empty = new Que<T>();
+
+        readonly Stck<T> forward;
+        readonly Stck<T> backward;
+        Stck<T> backwardRev;
 
         internal Que()
         {
-            queue = Lst<T>.Empty;
+            forward = Stck<T>.Empty;
+            backward = Stck<T>.Empty;
         }
 
-        internal Que(IEnumerable<T> initial)
+        private Que(Stck<T> f, Stck<T> b)
         {
-            queue = new Lst<T>(initial);
+            forward = f;
+            backward = b;
         }
 
-        internal Que(Lst<T> initial)
+        private Stck<T> BackwardRev
         {
-            queue = initial;
+            get
+            {
+                if (backwardRev == null)
+                {
+                    backwardRev = backward.Reverse();
+                }
+                return backwardRev;
+            }
         }
+
+        public int Count =>
+            forward.Count + backward.Count;
 
         public bool IsEmpty =>
-            queue.Count == 0;
+            forward.IsEmpty && backward.IsEmpty;
 
         public Que<T> Clear() =>
-            new Que<T>();
+            Empty;
 
-        public IEnumerator<T> GetEnumerator() =>
-            queue.GetEnumerator();
-
-        public T Peek()
-        {
-            if (queue.Count > 0)
-            {
-                return queue[queue.Count - 1];
-            }
-            else
-            {
-                throw new InvalidOperationException("Stack is empty");
-            }
-        }
+        public T Peek() =>
+            forward.Peek();
 
         public Que<T> Dequeue()
         {
-            if (queue.Count > 0)
+            var f = forward.Pop();
+            if (!f.IsEmpty)
             {
-                return new Que<T>(queue.RemoveAt(0));
+                return new Que<T>(f, backward);
+            }
+            else if (backward.IsEmpty)
+            {
+                return Empty;
             }
             else
             {
-                throw new InvalidOperationException("Queue is empty");
+                return new Que<T>(BackwardRev, Stck<T>.Empty);
             }
         }
 
         public Que<T> Dequeue(out T outValue)
         {
-            if (queue.Count > 0)
-            {
-                outValue = queue[0];
-                return new Que<T>(queue.RemoveAt(0));
-            }
-            else
-            {
-                throw new InvalidOperationException("Queue is empty");
-            }
+            outValue = Peek();
+            return Dequeue();
         }
 
-        public Tuple<Que<T>, Option<T>> TryDequeue()
-        {
-            if (queue.Count > 0)
-            {
-                var value = queue[queue.Count - 1];
-                return Tuple.Create(Dequeue(), Prelude.Some(value));
-            }
-            else
-            {
-                return Tuple.Create<Que<T>, Option<T>>(this, Prelude.None);
-            }
-        }
+        public Tuple<Que<T>, Option<T>> TryDequeue() =>
+            forward.TryPeek().Match(
+                Some: x => Tuple(Dequeue(), Some(x)),
+                None: () => Tuple(this, Option<T>.None)
+            );
 
-        public Option<T> TryPeek()
-        {
-            if (queue.Count > 0)
-            {
-                return Peek();
-            }
-            else
-            {
-                return Prelude.None;
-            }
-        }
+        public Option<T> TryPeek() =>
+            forward.TryPeek();
 
         public Que<T> Enqueue(T value) =>
-            new Que<T>(queue.Add(value));
+            IsEmpty
+                ? new Que<T>(Stck<T>.Empty.Push(value), Stck<T>.Empty)
+                : new Que<T>(forward, backward.Push(value));
+
+        public IEnumerable<T> AsEnumerable() =>
+            forward.AsEnumerable().Concat(BackwardRev);
+
+        public IEnumerator<T> GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() =>
-            queue.GetEnumerator();
+            AsEnumerable().GetEnumerator();
     }
 }

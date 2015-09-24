@@ -6,6 +6,8 @@ namespace LanguageExt
 {
     public class Stck<T> : IEnumerable<T>, IEnumerable
     {
+        public readonly static Stck<T> Empty = new Stck<T>();
+
         readonly T value;
         readonly Stck<T> tail;
 
@@ -50,11 +52,21 @@ namespace LanguageExt
             private set;
         }
 
+        public Stck<T> Reverse()
+        {
+            var s = new Stck<T>();
+            foreach (var item in this)
+            {
+                s = s.Push(item);
+            }
+            return s;
+        }
+
         public bool IsEmpty => 
             Count == 0;
 
         public Stck<T> Clear() =>
-            new Stck<T>();
+            Empty;
 
         public IEnumerator<T> GetEnumerator() =>
             AsEnumerable().GetEnumerator();

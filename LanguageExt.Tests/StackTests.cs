@@ -30,7 +30,7 @@ namespace LanguageExtTests
         [Test]
         public void Popping1()
         {
-            var test = Stack<int>(1, 2, 3, 4, 5);
+            var test = Stack(1, 2, 3, 4, 5);
             Popping5(test);
         }
 
