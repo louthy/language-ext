@@ -100,13 +100,13 @@ Feature | Description
 `State<S,T>` | State monad
 `Rws<E,O,S,T>` | Reader/Writer/State monad
 Monad transformers | A higher kinded type (ish)
-Process library | Uses 'actors' in the same way as Erlang processes for massive concurrency with state management.
-Redis persistence | for Process message queues, state, and pub/sub
+`Process` library | Actor system.  The same as Erlang processes for massive concurrency with state management.
+Redis persistence | Persistence of the `Process` system message-queues and state, for robustness and inter-app communication.
 Currying |
 Partial application |
 Memoization |
 Improved lambda type inference |
-IObservable extensions  |
+`IObservable<T>` extensions  |
 
 It started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me.  What C# issues are we trying to fix?  Well, we can only paper over the cracks, but here's a summary:
 
