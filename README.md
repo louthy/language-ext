@@ -516,9 +516,9 @@ Is annoying.  There's clearly going to be a bias toward the shorter, easier to t
 
 ### Lists
 
-There's support for `cons`, which is the functional way of constructing lists:
+There's support for `Cons`, which is the functional way of constructing lists:
 ```C#
-    var test = cons(1, cons(2, cons(3, cons(4, cons(5, empty<int>())))));
+    var test = Cons(1, Cons(2, Cons(3, Cons(4, Cons(5, empty<int>())))));
 
     var array = test.ToArray();
 
@@ -529,9 +529,9 @@ There's support for `cons`, which is the functional way of constructing lists:
     Assert.IsTrue(array[4] == 5);
 ```
 
-_Note, this isn't the strict definition of `cons`, but it's a pragmatic implementation that returns an `IEnumerable<T>`, is lazy, and behaves the same.  Functional purists, please don't get too worked up!  I am yet to think of a way of implemeting a proper type-safe `cons` (that can also represent trees, etc.) in C#._
+_Note, this isn't the strict definition of `Cons`, but it's a pragmatic implementation that returns an `IEnumerable<T>`, is lazy, and behaves the same.  Functional purists, please don't get too worked up!  I am yet to think of a way of implemeting a proper type-safe `cons` (that can also represent trees, etc.) in C#._
 
-Functional languages usually have additional list constructor syntax which makes the `cons` approach easier.  It usually looks something like this:
+Functional languages usually have a shortcut list constructor syntax that makes the `Cons` approach easier.  It usually looks something like this:
 
 ```F#
     let list = [1;2;3;4;5]
@@ -552,14 +552,14 @@ Or worse:
     list.Add(4);
     list.Add(5);
 ```
-So we provide the `List(...)` function that takes any number of parameters and turns them into a list:
+So we provide the `List` function that takes any number of parameters and turns them into a list:
 
 ```C#
     // Creates a list of five items
      var test = List(1, 2, 3, 4, 5);
 ```
 
-This is much closer to the 'functional way'.  It also returns a `Lst<T>` that is a wrapper for `IImmutableList<T>`.  So it's now easier to use immutable-lists than the mutable ones.  And significantly less typing.
+This is much closer to the 'functional way'.  It also returns a `Lst<T>` which is an immutable list implementation.  So it's now easier to use immutable-lists than the mutable ones.  And significantly less typing.
 
 Also `Range`:
 
@@ -574,9 +574,12 @@ Also `Range`:
     var chars = Range('a','e');
 ```
 
-Some of the standard list functions are available.  These are obviously duplicates of what's in LINQ, therefore they've been put into their own `using static LanguageExt.List` namespace:
+Some of the standard set of list functions are available (in `LanguageExt.List`):
 
 ```C#
+    using static LanguageExt.List;
+    ...
+
     // Generates 10,20,30,40,50
     var input = List(1, 2, 3, 4, 5);
     var output1 = map(input, x => x * 10);
@@ -644,9 +647,11 @@ However, you can provide up to seven handlers, one for an empty list and six for
         Assert.IsTrue(Product(list5) == 12000000);
     }
 ```
-Those patterns should be very familiar to anyone who's ventured into the functional world.  For those that haven't, the `(x,xs)` convention might seem odd.  `x` is the item at the head of the list - `list.First()` in LINQ world.  `xs`, i.e. 'many X-es' is the tail of the list - `list.Skip(1)` in LINQ.  This recursive pattern of working on the head of the list until the list runs out is pretty much how loops are done in the funcitonal world.  
+Those patterns should be very familiar to anyone who's ventured into the functional world.  For those that haven't, the `(x,xs)` convention might seem odd.  `x` is the item at the head of the list - `list.First()` in LINQ world.  `xs` (many X-es) is the tail of the list - `list.Skip(1)` in LINQ.  This recursive pattern of working on the head of the list until the list runs out is pretty much how loops are done in the funcitonal world.  
 
-Be wary of recursive processing however.  C# will happily blow up the stack after a few thousand iterations.  If you put a bit of thought into it, you'll realise this recursive processes all tend to follow a very similar pattern.  Functional programming doesn't really _do_ design patterns, but if anything is a design pattern it's the use of `fold`.  
+Be wary of recursive processing however.  C# will happily blow up the stack after a few thousand iterations.  
+
+Functional programming doesn't really _do_ design patterns, but if anything is a design pattern it's the use of `fold`.  If you put a bit of thought into it, you will realise that recursive processes all tend to follow a very similar pattern.  
 
 The two recursive examples above for calculating the sum and product of a sequence of numbers can be written:
 
@@ -686,7 +691,7 @@ The two recursive examples above for calculating the sum and product of a sequen
 
 ### Maps
 
-We also support dictionaries.  Again the word Dictionary is such a pain to type, especially when they have a perfectly valid alternative name in the functional world: `map`.
+We also support dictionaries.  Again the word `Dictionary` is such a pain to type, especially when there's a perfectly valid alternative used in the functional world: `map`.
 
 To create an immutable map, you no longer have to type:
 
@@ -697,7 +702,7 @@ Instead you can use:
 ```C#
     var dict = Map<string,int>();
 ```
-_Unlike `Lst<T>` that just wraps `ImmutableList<T>`, `Map<K,V>` is a home-grown implementation of an AVL Tree (self balancing binary tree).  This allows us to extend the standard `IDictionary` set of functions to include things like `findRange`._
+_`Map<K,V>` is an implementation of an AVL Tree (self balancing binary tree).  This allows us to extend the standard `IDictionary` set of functions to include things like `findRange`._
 
 Also you can pass in a list of tuples or key-value pairs:
 
@@ -774,7 +779,7 @@ So only store immutable items in a `Map`, or leave them alone if they're mutable
 
 ### Map transformers
 
-There are additional transformer functions for dealing with 'wrapped' maps (i.e. `Map<int, Map<int, string>>`).  I have found these to be super useful.  We only cover a limited set of the full set of `Map` functions at the moment.  You can wrap `Map` up to 4 levels deep and still call things like `Fold` and `Filter`.  There's  interesting variants of `Filter` and `Map` called `FilterRemoveT` and `MapRemoveT`, where if a filter or map operation leaves any keys at any level with an empty `Map` then it will auto-remove them.  
+There are additional transformer functions for dealing with 'wrapped' maps (i.e. `Map<int, Map<int, string>>`).  We only cover a limited set of the full set of `Map` functions at the moment.  You can wrap `Map` up to 4 levels deep and still call things like `Fold` and `Filter`.  There's  interesting variants of `Filter` and `Map` called `FilterRemoveT` and `MapRemoveT`, where if a filter or map operation leaves any keys at any level with an empty `Map` then it will auto-remove them.  
 
 ```C#
     Map<int,Map<int,Map<int, Map<int, string>>>> wrapped = Map.create<int,Map<int,Map<int,Map<int,string>>();
@@ -1173,10 +1178,9 @@ Type or function | Description
 `TryOption<T>` | The same as `Option<T>` except it also handles exceptions.  It has a third state called `Fail`.
 `Either<Left,Right>` | Like `Option<T>`, however the `None` in `Option<T>` is called `Left` in `Either`, and `Some` is called `Right`.  Just remember: `Right` is right, `Left` is wrong.  Both `Right` and `Left` can hold values.  And they can be different types.  See the OptionEitherConfigSample for a demo.  Supports all the same functionality as `Option<T>`.
 `SomeUnsafe()`, `RightUnsafe()`, `LeftUnsafe()` | These methods accept that sometimes `null` is a valid result, but you still want an option of saying `None`.  They allow `null` to propagate through, and it removes the `null` checks from the return value of `match`
-`set<T>()` | Creates a `Set<T>` which is a wrapper for `ImmutableHashSet.Create<T>()`
-`stack<T>()` | `ImmutableStack.Create<T>()`
-`array<T>()` | `ImmutableArray.Create<T>()`
-`queue<T>()` | `ImmutableQueue.Create<T>()`
+`Set<T>()` | Creates a `Set<T>`, an immutable set (AVL tree).
+`Stack<T>()` | Creates a `Stck<T>`, an immutable stack
+`Queue<T>()` | Creates a `Que<T>`, an immutable queue
 `freeze<T>(list)` | Converts an `IEnumerable<T>` to an Lst<T>
 `memo<T>(fn)` | Caches a function's result the first time it's called
 `memo<T,R>(fn)` | Caches a result of a function once for each unique parameter passed to it
