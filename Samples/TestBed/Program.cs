@@ -24,12 +24,15 @@ namespace TestBed
     {
         static void Main(string[] args)
         {
-            Tests.QueueCollectionFunctions();
-            Tests.StackCollectionFunctions();
-            Tests.WrappedListOfOptionsTest1();
-            Tests.WrappedListOfOptionsTest2();
-            Tests.Lists();
+            Tests.MassiveSpawnAndKillHierarchy();
+            Console.ReadKey();
             return;
+
+            //Tests.QueueCollectionFunctions();
+            //Tests.StackCollectionFunctions();
+            //Tests.WrappedListOfOptionsTest1();
+            //Tests.WrappedListOfOptionsTest2();
+            //Tests.Lists();
 
             ProcessLog.Subscribe(Console.WriteLine);
 

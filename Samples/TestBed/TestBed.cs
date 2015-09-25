@@ -697,6 +697,7 @@ namespace TestBed
 
             var actor = fun((Unit s, string msg) =>
             {
+                Console.WriteLine(msg);
                 Interlocked.Increment(ref count);
                 iter(Children.Values, child => tell(child, msg));
             });
