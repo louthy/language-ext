@@ -71,9 +71,16 @@ _(more on those later)_
 
 ### Process
 
-To use the `Process` system, include `LanguageExt.Process.dll` and add `using static LanguageExt.Process` to access the camelCase functions.  
+To use the `Process` system, include `LanguageExt.Process.dll` and add `using static LanguageExt.Process` to access the static camelCase functions.  If you want to use it with Redis, include `LanguageExt.Process.Redis.dll`.  To connect to Redis use:
 
-_NOTE: The Process system is at alpha stage right now.  The rest of the library is well used and tested.  The entire API can be found in LanguageExt.Process (in Prelude.cs).  There are also a few samples._
+```
+    RedisCluster.register();
+    Cluster.connect("redis", "redis-test", "localhost", "0");
+```
+* Argument 1 is fixed for Redis
+* Argument 2 is your app's name to make it uniquely addressable in the cluster
+* Argument 3 is a comma separated list of Redis nodes to connect to
+* Argument 4 is the Redis database number to connect to
 
 ### Features
 
