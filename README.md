@@ -30,7 +30,7 @@ One of the areas that's likely to get seasoned C# heads worked up is my choice o
 
 There is however a naming guide that will stand you in good stead whilst reading through this documentation:
 
-* Type names are also PascalCase in the normal way
+* Type names are PascalCase in the normal way
 * The types all have instantiation functions rather than public constructors.  They will always be PascalCase:
 ```C#
     Option<int> x = Some(123);
