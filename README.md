@@ -71,9 +71,11 @@ _(more on those later)_
 
 ### Process
 
-To use the `Process` system, include `LanguageExt.Process.dll` and add `using static LanguageExt.Process` to access the static camelCase functions.  If you want to use it with Redis, include `LanguageExt.Process.Redis.dll`.  To connect to Redis use:
+To use the `Process` system, include `LanguageExt.Process.dll` and add `using static LanguageExt.Process` to access the static camelCase functions.  
 
-```
+If you want to use it with Redis, include `LanguageExt.Process.Redis.dll`.  To connect to Redis use:
+
+```C#
     RedisCluster.register();
     Cluster.connect("redis", "redis-test", "localhost", "0");
 ```
@@ -81,6 +83,8 @@ To use the `Process` system, include `LanguageExt.Process.dll` and add `using st
 * Argument 2 is your app's name to make it uniquely addressable in the cluster
 * Argument 3 is a comma separated list of Redis nodes to connect to
 * Argument 4 is the Redis database number to connect to
+
+Note, neither of those lines are needed if you're doing in-app messaging only.
 
 ### Features
 
