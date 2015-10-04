@@ -207,7 +207,7 @@ Of course there are functional versions of the fluent version above:
 ```C#
     int x = ifNone(optional, 10);
     int x = iNone(optional, GetAlternative);
-    ifSome(optional, Console.WriteLine);
+    ifSome(optional, x => Console.WriteLine(x));
 ```
 To smooth out the process of returning `Option<T>` types from methods there are some implicit conversion operators and constructors:
 
