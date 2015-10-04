@@ -10,7 +10,6 @@ namespace LanguageExtTests
     [NU.TestFixture]
     public class ListTests
     {
-
         [NU.Test]
         public void ConsTest1()
         {
@@ -24,8 +23,6 @@ namespace LanguageExtTests
             NU.Assert.IsTrue(array[3] == 4);
             NU.Assert.IsTrue(array[4] == 5);
         }
-
-
         
         [NU.Test]
         public void ListConstruct()
@@ -207,6 +204,36 @@ namespace LanguageExtTests
             var res = list.ToList();
 
             NU.Assert.IsTrue(res[0].Message == "Outer" && res[1].Message == "Inner");
+        }
+
+        [NU.Test]
+        public void ReverseListTest1()
+        {
+            var list = List(1, 2, 3, 4, 5);
+            var rev = list.Rev();
+
+            NU.Assert.IsTrue(rev[0] == 5);
+            NU.Assert.IsTrue(rev[4] == 1);
+        }
+
+        [NU.Test]
+        public void ReverseListTest2()
+        {
+            var list = List(1, 2, 3, 4, 5);
+            var rev = list.Rev();
+
+            NU.Assert.IsTrue(rev.IndexOf(1) == 4, "Should have been 4, actually is: "+ rev.IndexOf(1));
+            NU.Assert.IsTrue(rev.IndexOf(5) == 0, "Should have been 0, actually is: " + rev.IndexOf(5));
+        }
+
+        [NU.Test]
+        public void ReverseListTest3()
+        {
+            var list = List(1, 1, 2, 2, 2);
+            var rev = list.Rev();
+
+            NU.Assert.IsTrue(rev.LastIndexOf(1) == 4, "Should have been 4, actually is: " + rev.LastIndexOf(1));
+            NU.Assert.IsTrue(rev.LastIndexOf(2) == 2, "Should have been 2, actually is: " + rev.LastIndexOf(5));
         }
     }
 }

@@ -24,7 +24,8 @@ namespace TestBed
     {
         static void Main(string[] args)
         {
-            Tests.MassiveSpawnAndKillHierarchy();
+            Tests.MemoTest3();
+            Tests.LstRevLastIndexTest();
             Console.ReadKey();
             return;
 

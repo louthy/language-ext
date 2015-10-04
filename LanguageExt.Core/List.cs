@@ -134,6 +134,9 @@ namespace LanguageExt
         public static IEnumerable<T> rev<T>(IEnumerable<T> list) =>
             list.Reverse();
 
+        public static Lst<T> rev<T>(Lst<T> list) =>
+            list.Reverse();
+
         public static IEnumerable<T> append<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) =>
             lhs.Concat(rhs);
 
@@ -540,6 +543,9 @@ public static class __EnumnerableExt
         LanguageExt.List.collect(list, map);
 
     public static IEnumerable<T> Rev<T>(this IEnumerable<T> list) =>
+        LanguageExt.List.rev(list);
+
+    public static Lst<T> Rev<T>(this Lst<T> list) =>
         LanguageExt.List.rev(list);
 
     public static IEnumerable<T> Append<T>(this IEnumerable<T> lhs, IEnumerable<T> rhs) =>

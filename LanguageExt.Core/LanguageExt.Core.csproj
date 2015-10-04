@@ -60,6 +60,7 @@
     <Compile Include="EitherState.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Lst.cs" />
+    <Compile Include="ObjectPool.cs" />
     <Compile Include="ObservableExt.cs" />
     <Compile Include="Prelude_Curry.cs" />
     <Compile Include="EitherUnsafe.cs" />

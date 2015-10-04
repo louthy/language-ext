@@ -1121,35 +1121,10 @@ namespace LanguageExt
                 ? node
                 : RotLeft(Make(node.Key, node.Value, node.Left, RotRight(node.Right)));
 
-
-        // TODO: Make the StackPool more robust rather than just a circular
-        //       buffer hoping that no-one overlaps.
-        public static class StackPool<K, V>
-        {
-            const int stackPoolSize = 1024;
-            const int stackDepth = 32;
-            static Stack<MapItem<K, V>>[] stackPool;
-            static int poolIndex = -1;
-
-            static StackPool()
-            {
-                stackPool = new Stack<MapItem<K, V>>[stackPoolSize];
-
-                for (var i = 0; i < stackPoolSize; i++)
-                {
-                    stackPool[i] = new Stack<MapItem<K, V>>(stackDepth);
-                }
-            }
-
-            public static Stack<MapItem<K, V>> Next()
-            {
-                Interlocked.CompareExchange(ref poolIndex, -1, stackPoolSize);
-                return stackPool[Interlocked.Increment(ref poolIndex)];
-            }
-        }
-
         public class MapEnumerator<K, V> : IEnumerator<IMapItem<K, V>>
         {
+            static ObjectPool<Stack<MapItem<K, V>>> pool = new ObjectPool<Stack<MapItem<K, V>>>(32, () => new Stack<MapItem<K, V>>(32));
+
             Stack<MapItem<K, V>> stack;
             MapItem<K, V> map;
             int left;
@@ -1161,7 +1136,7 @@ namespace LanguageExt
                 this.rev = rev;
                 this.start = start;
                 map = root;
-                stack = new Stack<MapItem<K, V>>(32); // StackPool<K, V>.Next();
+                stack = pool.GetItem();
                 Reset();
             }
 
@@ -1176,6 +1151,8 @@ namespace LanguageExt
 
             public void Dispose()
             {
+                pool.Release(stack);
+                stack = null;
             }
 
             private MapItem<K, V> Next(MapItem<K, V> node) =>

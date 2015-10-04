@@ -34,7 +34,7 @@ namespace LanguageExt
         /// </summary>
         internal Lst(IEnumerable<T> initial)
         {
-            var lst = new List<T>(initial); // TODO: Perf
+            var lst = new List<T>(initial);
             Root = ListModule.FromList(lst, 0, lst.Count());
             Rev = false;
         }
@@ -56,7 +56,7 @@ namespace LanguageExt
             get
             {
                 if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
-                return ListModule.GetItem(Root, index);
+                return ListModule.GetItem(Root, Rev ? Count - index - 1 : index);
             }
         }
 
@@ -85,7 +85,7 @@ namespace LanguageExt
             get
             {
                 if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
-                return ListModule.GetItem(Root, index);
+                return ListModule.GetItem(Root, Rev ? Count - index - 1 : index);
             }
         }
 
@@ -101,7 +101,7 @@ namespace LanguageExt
         public Lst<T> AddRange(IEnumerable<T> items)
         {
             if (items == null) return this;
-            var lst = new List<T>(Rev ? items.Reverse() : items); // Perf: not ideal
+            var lst = new List<T>(Rev ? items.Reverse() : items);
             var tree = ListModule.FromList(lst, 0, lst.Count);
             return new Lst<T>(ListModule.Insert(Root, tree, Rev ? 0 : Root.Count), Rev);
         }
@@ -121,12 +121,18 @@ namespace LanguageExt
         /// <summary>
         /// Find the index of an item
         /// </summary>
-        public int IndexOf(T item, int index, int count, IEqualityComparer<T> equalityComparer)
+        public int IndexOf(T item, int index = 0, int count = -1, IEqualityComparer<T> equalityComparer = null)
         {
+            count = count == -1
+                ? Count
+                : count;
+
+            equalityComparer = equalityComparer ?? EqualityComparer<T>.Default;
+
             if (count == 0) return -1;
             if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
 
-            foreach (var x in this.Skip(index))
+            foreach (var x in Skip(index))
             {
                 if (equalityComparer.Equals(x, item))
                 {
@@ -145,7 +151,7 @@ namespace LanguageExt
         public Lst<T> Insert(int index, T value)
         {
             if (index < 0 || index > Root.Count) throw new IndexOutOfRangeException();
-            return new Lst<T>(ListModule.Insert(Root, value, Rev ? Root.Count - index: index), Rev);
+            return new Lst<T>(ListModule.Insert(Root, value, Rev ? Count - index - 1 : index), Rev);
         }
 
         /// <summary>
@@ -156,33 +162,16 @@ namespace LanguageExt
             if (items == null) return this;
             if (index < 0 || index > Root.Count) throw new IndexOutOfRangeException();
 
-            var lst = new List<T>(Rev ? items.Reverse() : items); // Perf: not ideal
+            var lst = new List<T>(Rev ? items.Reverse() : items);
             var tree = ListModule.FromList(lst, 0, lst.Count);
-            return new Lst<T>(ListModule.Insert(Root, tree, Rev ? Root.Count - index : index), Rev);
+            return new Lst<T>(ListModule.Insert(Root, tree, Rev ? Count - index - 1 : index), Rev);
         }
 
         /// <summary>
         /// Find the last index of an item in the list
         /// </summary>
-        public int LastIndexOf(T item, int index, int count, IEqualityComparer<T> equalityComparer)
-        {
-            if (count == 0) return -1;
-            if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
-
-            var rev = new Lst<T>(Root, true);
-
-            foreach (var x in rev.Skip(index))
-            {
-                if (equalityComparer.Equals(x, item))
-                {
-                    return index;
-                }
-                index++;
-                count--;
-                if (count == 0) return -1;
-            }
-            return -1;
-        }
+        public int LastIndexOf(T item, int index = 0, int count = -1, IEqualityComparer<T> equalityComparer = null) =>
+            Count - Reverse().IndexOf(item, index, count, equalityComparer) - 1;
 
         /// <summary>
         /// Remove an item from the list
@@ -230,7 +219,7 @@ namespace LanguageExt
         public Lst<T> RemoveAt(int index)
         {
             if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
-            return new Lst<T>(ListModule.Remove(Root, Rev ? Count - index : index), Rev);
+            return new Lst<T>(ListModule.Remove(Root, Rev ? Count - index - 1 : index), Rev);
         }
 
         /// <summary>
@@ -241,7 +230,6 @@ namespace LanguageExt
             if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
             if (index + count >= Root.Count) throw new IndexOutOfRangeException();
 
-            // TODO: Perf
             var self = this;
             for (; count > 0; count--)
             {
@@ -266,17 +254,36 @@ namespace LanguageExt
         IEnumerator<T> IEnumerable<T>.GetEnumerator() =>
             new ListModule.ListEnumerator<T>(Root, Rev, 0);
 
+        public IEnumerable<T> Skip(int amount)
+        {
+            var iter = new ListModule.ListEnumerator<T>(Root, Rev, amount);
+            while (iter.MoveNext())
+            {
+                yield return iter.Current;
+            }
+        }
+
         /// <summary>
         /// Reverse the order of the items in the list
         /// </summary>
-        public Lst<T> Reverse() =>
-            new Lst<T>(Root, !Rev);
+        public Lst<T> Reverse()
+        {
+            // This is currenty buggy, so going the safe (and less efficient) route for now
+            // return new Lst<T>(Root, !Rev);
+            return new Lst<T>(this.AsEnumerable().Reverse());
+        }
 
         /// <summary>
         /// Fold
         /// </summary>
-        public S Fold<S>(S state, Func<S, T, S> folder) =>
-            ListModule.Fold(Root, state, folder);
+        public S Fold<S>(S state, Func<S, T, S> folder)
+        {
+            foreach (var item in this)
+            {
+                state = folder(state, item);
+            }
+            return state;
+        }
 
         /// <summary>
         /// Map
@@ -613,36 +620,11 @@ namespace LanguageExt
                 ? node
                 : RotLeft(Make(node.Key, node.Left, RotRight(node.Right)));
 
-
-        // TODO: Make the StackPool more robust rather than just a circular
-        //       buffer hoping that no-one overlaps.
-        public static class StackPool<T>
-        {
-            const int stackPoolSize = 1024;
-            const int stackDepth = 32;
-            static Stack<ListItem<T>>[] stackPool;
-            static int poolIndex = -1;
-
-            static StackPool()
-            {
-                stackPool = new Stack<ListItem<T>>[stackPoolSize];
-
-                for (var i = 0; i < stackPoolSize; i++)
-                {
-                    stackPool[i] = new Stack<ListItem<T>>(stackDepth);
-                }
-            }
-
-            public static Stack<ListItem<T>> Next()
-            {
-                Interlocked.CompareExchange(ref poolIndex, -1, stackPoolSize);
-                return stackPool[Interlocked.Increment(ref poolIndex)];
-            }
-        }
-
         public class ListEnumerator<T> : IEnumerator<T>
         {
-            Stack<ListItem<T>> stack;
+            static ObjectPool<Stack<ListItem<T>>> pool = new ObjectPool<Stack<ListItem<T>>>(32, () => new Stack<ListItem<T>>(32));
+
+            Stack<ListItem<T>> stack = null;
             ListItem<T> map;
             int left;
             bool rev;
@@ -653,7 +635,7 @@ namespace LanguageExt
                 this.rev = rev;
                 this.start = start;
                 map = root;
-                stack = new Stack<ListItem<T>>(32); // StackPool<T>.Next();
+                stack = pool.GetItem();
                 Reset();
             }
 
@@ -668,6 +650,8 @@ namespace LanguageExt
 
             public void Dispose()
             {
+                pool.Release(stack);
+                stack = null;
             }
 
             private ListItem<T> Next(ListItem<T> node) =>

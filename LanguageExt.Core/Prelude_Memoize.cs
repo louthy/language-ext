@@ -51,7 +51,7 @@ namespace LanguageExt
         /// Subsequent calls use the memoized value.  
         /// 
         /// Remarks: 
-        ///     No mechanism for freeing cached values and can therefore causes a
+        ///     No mechanism for freeing cached values and therefore can cause a
         ///     memory leak when holding onto the Func<T,R> reference.
         ///     Uses a ConcurrentDictionary for the cache and is thread-safe
         /// </summary>

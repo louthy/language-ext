@@ -159,13 +159,36 @@ namespace LanguageExt
             Match(identity, _ => Left());
 
         /// <summary>
+        /// Executes the leftMap function if the Either is in a Left state.
+        /// Returns the Right value if the Either is in a Right state.
+        /// </summary>
+        /// <param name="leftMap">Function to generate a Right value if in the Left state</param>
+        /// <returns>Returns an unwrapped Right value</returns>
+        public R IfLeft(Func<L, R> leftMap) =>
+            Match(identity, leftMap);
+
+        /// <summary>
         /// Returns the rightValue if the Either is in a Left state.
         /// Returns the Right value if the Either is in a Right state.
         /// </summary>
-        /// <param name="Left">Value to return if in the Left state</param>
+        /// <param name="rightValue">Value to return if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
-        public R IfLeft(R Left) =>
-            Match(identity, _ => Left);
+        public R IfLeft(R rightValue) =>
+            Match(identity, _ => rightValue);
+
+        /// <summary>
+        /// Executes the Left action if the Either is in a Left state.
+        /// </summary>
+        /// <param name="Left">Function to generate a Right value if in the Left state</param>
+        /// <returns>Returns an unwrapped Right value</returns>
+        public Unit IfLeft(Action<L> Left)
+        {
+            if (IsLeft)
+            {
+                Left(LeftValue);
+            }
+            return unit;
+        }
 
         /// <summary>
         /// Invokes the Right action if the Either is in a Right state, otherwise does nothing
@@ -180,6 +203,33 @@ namespace LanguageExt
             }
             return unit;
         }
+
+        /// <summary>
+        /// Returns the leftValue if the Either is in a Right state.
+        /// Returns the Left value if the Either is in a Left state.
+        /// </summary>
+        /// <param name="leftValue">Value to return if in the Left state</param>
+        /// <returns>Returns an unwrapped Left value</returns>
+        public L IfRight(L leftValue) =>
+            Match(_ => leftValue, identity);
+
+        /// <summary>
+        /// Returns the result of Left() if the Either is in a Right state.
+        /// Returns the Left value if the Either is in a Left state.
+        /// </summary>
+        /// <param name="Left">Function to generate a Left value if in the Right state</param>
+        /// <returns>Returns an unwrapped Left value</returns>
+        public L IfRight(Func<L> Left) =>
+            Match(_ => Left(), identity);
+
+        /// <summary>
+        /// Returns the result of leftMap if the Either is in a Right state.
+        /// Returns the Left value if the Either is in a Left state.
+        /// </summary>
+        /// <param name="leftMap">Function to generate a Left value if in the Right state</param>
+        /// <returns>Returns an unwrapped Left value</returns>
+        public L IfRight(Func<R, L> leftMap) =>
+            Match(leftMap, identity);
 
         /// <summary>
         /// Match Right and return a context.  You must follow this with .Left(...) to complete the match
@@ -246,6 +296,7 @@ namespace LanguageExt
         /// Project the Either into a Lst R
         /// </summary>
         /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
+        [Obsolete("ToList has been deprecated.  Please use RightToList.")]
         public Lst<R> ToList() =>
             toList(AsEnumerable());
 
@@ -253,14 +304,43 @@ namespace LanguageExt
         /// Project the Either into an ImmutableArray R
         /// </summary>
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
+        [Obsolete("ToArray has been deprecated.  Please use RightToArray.")]
         public R[] ToArray() =>
-            toArray(AsEnumerable());
+            toArray<R>(AsEnumerable());
+
+        /// <summary>
+        /// Project the Either into a Lst R
+        /// </summary>
+        /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
+        public Lst<R> RightToList() =>
+            toList(RightAsEnumerable());
+
+        /// <summary>
+        /// Project the Either into an ImmutableArray R
+        /// </summary>
+        /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
+        public R[] RightToArray() =>
+            toArray(RightAsEnumerable());
+
+        /// <summary>
+        /// Project the Either into a Lst R
+        /// </summary>
+        /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
+        public Lst<L> LeftToList() =>
+            toList(LeftAsEnumerable());
+
+        /// <summary>
+        /// Project the Either into an ImmutableArray R
+        /// </summary>
+        /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
+        public L[] LeftToArray() =>
+            toArray(LeftAsEnumerable());
 
         /// <summary>
         /// Project the Either into a IEnumerable R
         /// </summary>
         /// <returns>If the Either is in a Right state, a IEnumerable of R with one item.  A zero length IEnumerable R otherwise</returns>
-        public IEnumerable<R> AsEnumerable()
+        public IEnumerable<R> RightAsEnumerable()
         {
             if (IsRight)
             {
@@ -268,6 +348,26 @@ namespace LanguageExt
             }
         }
 
+        public IEnumerable<L> LeftAsEnumerable()
+        {
+            if (IsLeft)
+            {
+                yield return LeftValue;
+            }
+        }
+
+        /// <summary>
+        /// Project the Either into a IEnumerable R
+        /// </summary>
+        /// <returns>If the Either is in a Right state, a IEnumerable of R with one item.  A zero length IEnumerable R otherwise</returns>
+        [Obsolete("AsEnumerable has been deprecated.  Please use RightAsEnumerable.")]
+        public IEnumerable<R> AsEnumerable()
+        {
+            if (IsRight)
+            {
+                yield return RightValue;
+            }
+        }
         /// <summary>
         /// Convert the Either to an Option
         /// </summary>
@@ -512,6 +612,57 @@ namespace LanguageExt
 public static class __EitherExt
 {
     /// <summary>
+    /// Extracts from a list of 'Either' all the 'Left' elements.
+    /// All the 'Left' elements are extracted in order.
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <param name="self">Either list</param>
+    /// <returns>An enumerable of L</returns>
+    public static IEnumerable<L> Lefts<L, R>(this IEnumerable<Either<L, R>> self)
+    {
+        foreach (var item in self)
+        {
+            if (item.IsLeft)
+            {
+                yield return item.LeftValue;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Extracts from a list of 'Either' all the 'Right' elements.
+    /// All the 'Right' elements are extracted in order.
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <param name="self">Either list</param>
+    /// <returns>An enumerable of L</returns>
+    public static IEnumerable<R> Rights<L, R>(this IEnumerable<Either<L, R>> self)
+    {
+        foreach (var item in self)
+        {
+            if (item.IsRight)
+            {
+                yield return item.RightValue;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Partitions a list of 'Either' into two lists.
+    /// All the 'Left' elements are extracted, in order, to the first
+    /// component of the output.  Similarly the 'Right' elements are extracted
+    /// to the second component of the output.
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <param name="self">Either list</param>
+    /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
+    public static Tuple<IEnumerable<L>, IEnumerable<R>> Partition<L, R>(this IEnumerable<Either<L, R>> self) =>
+        Tuple(lefts(self), rights(self));
+
+    /// <summary>
     /// Counts the Either
     /// </summary>
     /// <typeparam name="L">Left</typeparam>
@@ -552,6 +703,23 @@ public static class __EitherExt
     }
 
     /// <summary>
+    /// Iterate the Either
+    /// action is invoked if in the Left state
+    /// </summary>
+    public static Unit Iter<L, R>(this Either<L, R> self, Action<L> action)
+    {
+        if (self.IsBottom)
+        {
+            return unit;
+        }
+        if (self.IsLeft)
+        {
+            action(self.LeftValue);
+        }
+        return unit;
+    }
+
+    /// <summary>
     /// Invokes a predicate on the value of the Either if it's in the Right state
     /// </summary>
     /// <typeparam name="L">Left</typeparam>
@@ -566,6 +734,23 @@ public static class __EitherExt
             ? true
             : self.IsRight
                 ? pred(self.RightValue)
+                : true;
+
+    /// <summary>
+    /// Invokes a predicate on the value of the Either if it's in the Left state
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <param name="self">Either to forall</param>
+    /// <param name="pred">Predicate</param>
+    /// <returns>True if the Either is in a Right state.  
+    /// True if the Either is in a Left state and the predicate returns True.  
+    /// False otherwise.</returns>
+    public static bool ForAll<L, R>(this Either<L, R> self, Func<L, bool> pred) =>
+        self.IsBottom
+            ? true
+            : self.IsLeft
+                ? pred(self.LeftValue)
                 : true;
 
     /// <summary>
@@ -587,6 +772,24 @@ public static class __EitherExt
                 : state;
 
     /// <summary>
+    /// Folds the either into an S
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <typeparam name="S">State</typeparam>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <param name="self">Either to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="folder">Fold function</param>
+    /// <returns>Folded state</returns>
+    public static S Fold<L, R, S>(this Either<L, R> self, S state, Func<S, L, S> folder) =>
+        self.IsBottom
+            ? state
+            : self.IsLeft
+                ? folder(state, self.LeftValue)
+                : state;
+
+    /// <summary>
     /// Invokes a predicate on the value of the Either if it's in the Right state
     /// </summary>
     /// <typeparam name="L">Left</typeparam>
@@ -599,6 +802,21 @@ public static class __EitherExt
             ? false
             : self.IsRight
                 ? pred(self.RightValue)
+                : false;
+
+    /// <summary>
+    /// Invokes a predicate on the value of the Either if it's in the Left state
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <param name="self">Either to check existence of</param>
+    /// <param name="pred">Predicate</param>
+    /// <returns>True if the Either is in a Left state and the predicate returns True.  False otherwise.</returns>
+    public static bool Exists<L, R>(this Either<L, R> self, Func<L, bool> pred) =>
+        self.IsBottom
+            ? false
+            : self.IsLeft
+                ? pred(self.LeftValue)
                 : false;
 
     /// <summary>
@@ -618,6 +836,22 @@ public static class __EitherExt
                 : Left<L, Ret>(self.LeftValue);
 
     /// <summary>
+    /// Maps the value in the Either if it's in a Left state
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <typeparam name="Ret">Mapped Either type</typeparam>
+    /// <param name="self">Either to map</param>
+    /// <param name="mapper">Map function</param>
+    /// <returns>Mapped Either</returns>
+    public static Either<Ret, R> Map<L, R, Ret>(this Either<L, R> self, Func<L, Ret> mapper) =>
+        self.IsBottom
+            ? new Either<Ret, R>(true)
+            : self.IsLeft
+                ? Left<Ret, R>(mapper(self.LeftValue))
+                : Right<Ret, R>(self.RightValue);
+
+    /// <summary>
     /// Monadic bind function
     /// https://en.wikipedia.org/wiki/Monad_(functional_programming)
     /// </summary>
@@ -635,10 +869,27 @@ public static class __EitherExt
                 : Either<L, Ret>.Left(self.LeftValue);
 
     /// <summary>
+    /// Monadic bind function
+    /// https://en.wikipedia.org/wiki/Monad_(functional_programming)
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <typeparam name="Ret"></typeparam>
+    /// <param name="self"></param>
+    /// <param name="binder"></param>
+    /// <returns>Bound Either</returns>
+    public static Either<Ret, R> Bind<L, R, Ret>(this Either<L, R> self, Func<L, Either<Ret, R>> binder) =>
+        self.IsBottom
+            ? new Either<Ret, R>(true)
+            : self.IsLeft
+                ? binder(self.LeftValue)
+                : Either<Ret, R>.Right(self.RightValue);
+
+    /// <summary>
     /// Filter the Either
     /// This may give unpredictable results for a filtered value.  The Either won't
-    /// return true for IsLeft or IsRight.  IsBottom is True if the value is filterd and that
-    /// should be checked.
+    /// return true for IsLeft or IsRight.  IsBottom is True if the value is filtered and that
+    /// should be checked for.
     /// </summary>
     /// <typeparam name="L">Left</typeparam>
     /// <typeparam name="R">Right</typeparam>
@@ -655,6 +906,28 @@ public static class __EitherExt
             : match(self,
                 Right: t => pred(t) ? Either<L, R>.Right(t) : new Either<L, R>(true),
                 Left: l => Either<L, R>.Left(l));
+
+    /// <summary>
+    /// Filter the Either
+    /// This may give unpredictable results for a filtered value.  The Either won't
+    /// return true for IsLeft or IsRight.  IsBottom is True if the value is filtered and that
+    /// should be checked for.
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <param name="self">Either to filter</param>
+    /// <param name="pred">Predicate function</param>
+    /// <returns>If the Either is in the Left state it is returned as-is.  
+    /// If in the Right state the predicate is applied to the Right value.
+    /// If the predicate returns True the Either is returned as-is.
+    /// If the predicate returns False the Either is returned in a 'Bottom' state.  IsLeft will return True, but the value 
+    /// of Left = default(L)</returns>
+    public static Either<L, R> Filter<L, R>(this Either<L, R> self, Func<L, bool> pred) =>
+        self.IsBottom
+            ? self
+            : match(self,
+                Right: r => Either<L, R>.Right(r),
+                Left:  t => pred(t) ? Either<L, R>.Left(t) : new Either<L, R>(true) );
 
     /// <summary>
     /// Filter the Either
