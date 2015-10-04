@@ -114,11 +114,11 @@ Feature | Description
 Monad transformers | A higher kinded type (ish)
 `Process` library | Actor system.  The same as Erlang processes for massive concurrency with state management.
 Redis persistence | Persistence of the `Process` system message-queues and state, for robustness and inter-app communication.
-Currying |
-Partial application |
-Memoization |
-Improved lambda type inference |
-`IObservable<T>` extensions  |
+Currying | https://en.wikipedia.org/wiki/Currying
+Partial application | https://en.wikipedia.org/wiki/Partial_application
+Memoization | https://en.wikipedia.org/wiki/Memoization
+Improved lambda type inference | `var add = fun( (int x, int y) => x + y)`
+`IObservable<T>` extensions  | 
 
 It started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me:
 
