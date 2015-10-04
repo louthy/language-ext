@@ -11,6 +11,10 @@ __NuGet:__
 * __https://www.nuget.org/packages/LanguageExt/__
 * __https://www.nuget.org/packages/LanguageExt.Process__
 * __https://www.nuget.org/packages/LanguageExt.Process.Redis__
+ 
+__Twitter:__ 
+https://twitter.com/paullouth
+
 
 ## Introduction
 One of the great new features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static methods without qualifying them first.  This instantly gives us access to single term method names that look exactly like functions in functional languages.  i.e.
