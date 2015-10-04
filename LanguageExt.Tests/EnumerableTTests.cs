@@ -90,7 +90,7 @@ namespace LanguageExtTests
                     NU.Assert.IsTrue(c[5] == "e");
                     return unit;
                 },
-                (x,xs) => failwith<Unit>("more!")
+                (a,b,c,xs) => failwith<Unit>("more!")
             );
         }
     }

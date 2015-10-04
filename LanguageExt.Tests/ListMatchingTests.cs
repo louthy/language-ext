@@ -102,7 +102,7 @@ namespace LanguageExtTests
                    (a, b, c, d) => 4,
                    (a, b, c, d, e) => 5,
                    (a, b, c, d, e, f) => 6,
-                   (x, xs) => xs.Count() + 1
+                   (a, b, c, d, e, f, xs) => xs.Count() + 6
                ) );
 
             Assert.IsTrue(matcher(listN) == 0);
@@ -139,7 +139,7 @@ namespace LanguageExtTests
                   (a, b, c, d) => 4,
                   (a, b, c, d, e) => 5,
                   (a, b, c, d, e, f) => 6,
-                  (x, xs) => xs.Count() + 1
+                  (a, b, c, d, e, f, xs) => xs.Count() + 6
               ));
 
             Assert.IsTrue(matcher(listN) == 0);

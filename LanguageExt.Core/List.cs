@@ -385,10 +385,10 @@ public static class __EnumnerableExt
         }
         else
         {
-            var head = list.Take(1).ToList();
+            var head = list.Take(1).ToArray();
             var tail = list.Skip(1);
 
-            return head.Count == 0
+            return head.Length == 0
                 ? Empty()
                 : More(head.First(), tail);
         }
@@ -410,10 +410,9 @@ public static class __EnumnerableExt
         }
         else
         {
-            var head = list.Take(1).ToList();
+            var head = list.Take(1).ToArray();
             var tail = list.Skip(1);
-
-            return head.Count == 0
+            return head.Length == 0
                 ? Empty()
                 : tail.Take(1).Count() == 0
                     ? One(head.First())
@@ -423,40 +422,50 @@ public static class __EnumnerableExt
 
     /// <summary>
     /// List matching
-    /// TODO: Optimise these, too many repeated pulls from the IEnumerable
     /// </summary>
     public static R Match<T, R>(this IEnumerable<T> list,
         Func<R> Empty,
         Func<T, R> One,
         Func<T, T, R> Two,
-        Func<T, IEnumerable<T>, R> More
-        ) =>
-        Match(list, Empty, One, (x, xs) =>
-            xs.Take(2).Count() == 1
-                ? Two(x, xs.First())
-                : More(x, xs)
-        );
+        Func<T, T, IEnumerable<T>, R> More
+        )
+    {
+        if (list == null) return Empty();
+        var items = list.Take(3).ToList();
+        switch (items.Count)
+        {
+            case 0: return Empty();
+            case 1: return One(items[0]);
+            case 2: return Two(items[0], items[1]);
+            default: return More(items[0], items[1], list.Skip(2));
+        }
+    }
 
     /// <summary>
     /// List matching
-    /// TODO: Optimise these, too many repeated pulls from the IEnumerable
     /// </summary>
     public static R Match<T, R>(this IEnumerable<T> list,
         Func<R> Empty,
         Func<T, R> One,
         Func<T, T, R> Two,
         Func<T, T, T, R> Three,
-        Func<T, IEnumerable<T>, R> More
-        ) =>
-        Match(list, Empty, One, Two, (x, xs) =>
-            xs.Take(3).Count() < 3
-                ? Three(x, xs.First(), xs.Skip(1).First())
-                : More(x, xs)
-        );
+        Func<T, T, T, IEnumerable<T>, R> More
+        )
+    {
+        if (list == null) return Empty();
+        var items = list.Take(4).ToList();
+        switch (items.Count)
+        {
+            case 0: return Empty();
+            case 1: return One(items[0]);
+            case 2: return Two(items[0], items[1]);
+            case 3: return Three(items[0], items[1], items[2]);
+            default: return More(items[0], items[1], items[2], list.Skip(3));
+        }
+    }
 
     /// <summary>
     /// List matching
-    /// TODO: Optimise these, too many repeated pulls from the IEnumerable
     /// </summary>
     public static R Match<T, R>(this IEnumerable<T> list,
         Func<R> Empty,
@@ -464,17 +473,24 @@ public static class __EnumnerableExt
         Func<T, T, R> Two,
         Func<T, T, T, R> Three,
         Func<T, T, T, T, R> Four,
-        Func<T, IEnumerable<T>, R> More
-        ) =>
-        Match(list, Empty, One, Two, Three, (x, xs) =>
-            xs.Take(4).Count() < 4
-                ? Four(x, xs.First(), xs.Skip(1).First(), xs.Skip(2).First())
-                : More(x, xs)
-        );
+        Func<T, T, T, T, IEnumerable<T>, R> More
+        )
+    {
+        if (list == null) return Empty();
+        var items = list.Take(5).ToList();
+        switch (items.Count)
+        {
+            case 0: return Empty();
+            case 1: return One(items[0]);
+            case 2: return Two(items[0], items[1]);
+            case 3: return Three(items[0], items[1], items[2]);
+            case 4: return Four(items[0], items[1], items[2], items[3]);
+            default: return More(items[0], items[1], items[2], items[3], list.Skip(4));
+        }
+    }
 
     /// <summary>
     /// List matching
-    /// TODO: Optimise these, too many repeated pulls from the IEnumerable
     /// </summary>
     public static R Match<T, R>(this IEnumerable<T> list,
         Func<R> Empty,
@@ -483,17 +499,25 @@ public static class __EnumnerableExt
         Func<T, T, T, R> Three,
         Func<T, T, T, T, R> Four,
         Func<T, T, T, T, T, R> Five,
-        Func<T, IEnumerable<T>, R> More
-        ) =>
-        Match(list, Empty, One, Two, Three, Four, (x, xs) =>
-            xs.Take(5).Count() < 5
-                ? Five(x, xs.First(), xs.Skip(1).First(), xs.Skip(2).First(), xs.Skip(3).First())
-                : More(x, xs)
-        );
+        Func<T, T, T, T, T, IEnumerable<T>, R> More
+        )
+    {
+        if (list == null) return Empty();
+        var items = list.Take(6).ToList();
+        switch (items.Count)
+        {
+            case 0: return Empty();
+            case 1: return One(items[0]);
+            case 2: return Two(items[0], items[1]);
+            case 3: return Three(items[0], items[1], items[2]);
+            case 4: return Four(items[0], items[1], items[2], items[3]);
+            case 5: return Five(items[0], items[1], items[2], items[3], items[4]);
+            default: return More(items[0], items[1], items[2], items[3], items[4], list.Skip(5));
+        }
+    }
 
     /// <summary>
     /// List matching
-    /// TODO: Optimise these, too many repeated pulls from the IEnumerable
     /// </summary>
     public static R Match<T, R>(this IEnumerable<T> list,
         Func<R> Empty,
@@ -503,13 +527,24 @@ public static class __EnumnerableExt
         Func<T, T, T, T, R> Four,
         Func<T, T, T, T, T, R> Five,
         Func<T, T, T, T, T, T, R> Six,
-        Func<T, IEnumerable<T>, R> More
-        ) =>
-        Match(list, Empty, One, Two, Three, Four, Five, (x, xs) =>
-            xs.Take(6).Count() < 6
-                ? Six(x, xs.First(), xs.Skip(1).First(), xs.Skip(2).First(), xs.Skip(3).First(), xs.Skip(4).First())
-                : More(x, xs)
-        );
+        Func<T, T, T, T, T, T, IEnumerable<T>, R> More
+        )
+    {
+        if (list == null) return Empty();
+        var items = list.Take(7).ToList();
+        switch (items.Count)
+        {
+            case 0: return Empty();
+            case 1: return One(items[0]);
+            case 2: return Two(items[0], items[1]);
+            case 3: return Three(items[0], items[1], items[2]);
+            case 4: return Four(items[0], items[1], items[2], items[3]);
+            case 5: return Five(items[0], items[1], items[2], items[3], items[4]);
+            case 6: return Six(items[0], items[1], items[2], items[3], items[4], items[5]);
+            default: return More(items[0], items[1], items[2], items[3], items[4], items[5], list.Skip(6));
+        }
+    }
+
 
     public static T Head<T>(this IEnumerable<T> list) =>
         LanguageExt.List.head(list);

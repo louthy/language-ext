@@ -423,7 +423,6 @@ namespace LanguageExt
         /// <returns>New tree</returns>
         public IEnumerable<IMapItem<K, V>> Skip(int amount)
         {
-            var map = Map.empty<K, V>();
             var enumer = new MapModule.MapEnumerator<K, V>(Root, Rev, amount);
             while (enumer.MoveNext())
             {

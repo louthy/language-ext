@@ -272,7 +272,7 @@ namespace LanguageExt
             Func<R> Empty,
             Func<T, R> One,
             Func<T, T, R> Two,
-            Func<T, IEnumerable<T>, R> More) =>
+            Func<T, T, IEnumerable<T>, R> More) =>
             list.Match(Empty, One, Two, More);
 
         /// <summary>
@@ -283,7 +283,7 @@ namespace LanguageExt
             Func<T, R> One,
             Func<T, T, R> Two,
             Func<T, T, T, R> Three,
-            Func<T, IEnumerable<T>, R> More) =>
+            Func<T, T, T, IEnumerable<T>, R> More) =>
             list.Match(Empty, One, Two, Three, More);
 
         /// <summary>
@@ -295,7 +295,7 @@ namespace LanguageExt
             Func<T, T, R> Two,
             Func<T, T, T, R> Three,
             Func<T, T, T, T, R> Four,
-            Func<T, IEnumerable<T>, R> More) =>
+            Func<T, T, T, T, IEnumerable<T>, R> More) =>
             list.Match(Empty, One, Two, Three, Four, More);
 
         /// <summary>
@@ -308,7 +308,7 @@ namespace LanguageExt
             Func<T, T, T, R> Three,
             Func<T, T, T, T, R> Four,
             Func<T, T, T, T, T, R> Five,
-            Func<T, IEnumerable<T>, R> More) =>
+            Func<T, T, T, T, T, IEnumerable<T>, R> More) =>
             list.Match(Empty, One, Two, Three, Four, Five, More);
 
         /// <summary>
@@ -322,7 +322,7 @@ namespace LanguageExt
             Func<T, T, T, T, R> Four,
             Func<T, T, T, T, T, R> Five,
             Func<T, T, T, T, T, T, R> Six,
-            Func<T, IEnumerable<T>, R> More) =>
+            Func<T, T, T, T, T, T, IEnumerable<T>, R> More) =>
             list.Match(Empty, One, Two, Three, Four, Five, Six, More);
 
         public static R match<K, V, R>(Map<K, V> map, K key, Func<V, R> Some, Func<R> None) =>
