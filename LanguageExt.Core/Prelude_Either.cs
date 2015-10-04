@@ -198,6 +198,21 @@ namespace LanguageExt
             either.Fold(state, folder);
 
         /// <summary>
+        /// Folds the either into an S
+        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// </summary>
+        /// <typeparam name="S">State</typeparam>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="self">Either to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="Right">Right fold function</param>
+        /// <param name="Left">Left fold function</param>
+        /// <returns>Folded state</returns>
+        public static S fold<L, R, S>(Either<L, R> either, S state, Func<S, R, S> Right, Func<S, L, S> Left) =>
+            either.Fold(state, Right, Left);
+
+        /// <summary>
         /// Invokes a predicate on the value of the Either if it's in the Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
@@ -222,6 +237,18 @@ namespace LanguageExt
         /// False otherwise.</returns>
         public static bool forall<L, R>(Either<L, R> either, Func<L, bool> pred) =>
             either.ForAll(pred);
+
+        /// <summary>
+        /// Invokes a predicate on the value of the Either if it's in the Right state
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="self">Either to forall</param>
+        /// <param name="Right">Right predicate</param>
+        /// <param name="Left">Left predicate</param>
+        /// <returns>True if the predicate returns True.  True if the Either is in a bottom state.</returns>
+        public static bool forall<L, R>(Either<L, R> either, Func<R, bool> Right, Func<L, bool> Left) =>
+            either.ForAll(Right, Left);
 
         /// <summary>
         /// Counts the Either
@@ -256,6 +283,18 @@ namespace LanguageExt
             either.Exists(pred);
 
         /// <summary>
+        /// Invokes a predicate on the value of the Either
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="self">Either to check existence of</param>
+        /// <param name="Right">Right predicate</param>
+        /// <param name="Left">Left predicate</param>
+        /// <returns>True if the predicate returns True.  False otherwise or if the Either is in a bottom state.</returns>
+        public static bool exists<L, R>(Either<L, R> either, Func<R, bool> Right, Func<L, bool> Left) =>
+            either.Exists(Right,Left);
+
+        /// <summary>
         /// Maps the value in the Either if it's in a Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
@@ -280,40 +319,75 @@ namespace LanguageExt
             either.Map(mapper);
 
         /// <summary>
-        /// Filter the Either
-        /// This may give unpredictable results for a filtered value.  The Either won't
-        /// return true for IsLeft or IsRight.  IsBottom is True if the value is filterd and that
-        /// should be checked.
+        /// Bi-maps the value in the Either if it's in a Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
-        /// <param name="either">Either to filter</param>
+        /// <typeparam name="LRet">Left return</typeparam>
+        /// <typeparam name="RRet">Right return</typeparam>
+        /// <param name="self">Either to map</param>
+        /// <param name="Right">Right map function</param>
+        /// <param name="Left">Left map function</param>
+        /// <returns>Mapped Either</returns>
+        public static Either<LRet, RRet> map<L, R, LRet, RRet>(Either<L, R> either, Func<R, RRet> Right, Func<L, LRet> Left) =>
+            either.Map(Right, Left);
+
+        /// <summary>
+        /// Filter the Either
+        /// </summary>
+        /// <remarks>
+        /// This may give unpredictable results for a filtered value.  The Either won't
+        /// return true for IsLeft or IsRight.  IsBottom is True if the value is filtered and that
+        /// should be checked for.
+        /// </remarks>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="self">Either to filter</param>
         /// <param name="pred">Predicate function</param>
         /// <returns>If the Either is in the Left state it is returned as-is.  
         /// If in the Right state the predicate is applied to the Right value.
         /// If the predicate returns True the Either is returned as-is.
-        /// If the predicate returns False the Either is returned in a 'Bottom' state.  IsLeft will return True, but the value 
-        /// of Left = default(L)</returns>
-        public static Either<L, R> filter<L, R>(Either<L, R> either, Func<R, bool> pred) =>
+        /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
+        public static Either<L, R> Filter<L, R>(Either<L, R> either, Func<R, bool> pred) =>
             either.Filter(pred);
 
         /// <summary>
         /// Filter the Either
-        /// This may give unpredictable results for a filtered value.  The Either won't
-        /// return true for IsLeft or IsRight.  IsBottom is True if the value is filterd and that
-        /// should be checked.
         /// </summary>
+        /// <remarks>
+        /// This may give unpredictable results for a filtered value.  The Either won't
+        /// return true for IsLeft or IsRight.  IsBottom is True if the value is filtered and that
+        /// should be checked for.
+        /// </remarks>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
-        /// <param name="either">Either to filter</param>
+        /// <param name="self">Either to filter</param>
         /// <param name="pred">Predicate function</param>
-        /// <returns>If the Either is in the Left state it is returned as-is.  
-        /// If in the Right state the predicate is applied to the Right value.
+        /// <returns>If the Either is in the Right state it is returned as-is.  
+        /// If in the Left state the predicate is applied to the Left value.
         /// If the predicate returns True the Either is returned as-is.
-        /// If the predicate returns False the Either is returned in a 'Bottom' state.  IsLeft will return True, but the value 
-        /// of Left = default(L)</returns>
+        /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
         public static Either<L, R> filter<L, R>(Either<L, R> either, Func<L, bool> pred) =>
             either.Filter(pred);
+
+        /// <summary>
+        /// Bi-filter the Either
+        /// </summary>
+        /// <remarks>
+        /// This may give unpredictable results for a filtered value.  The Either won't
+        /// return true for IsLeft or IsRight.  IsBottom is True if the value is filtered and that
+        /// should be checked for.
+        /// </remarks>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="self">Either to filter</param>
+        /// <param name="pred">Predicate function</param>
+        /// <returns>
+        /// If the Either is in the Left state then the Left predicate is run against it.
+        /// If the Either is in the Right state then the Right predicate is run against it.
+        /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
+        public static Either<L, R> filter<L, R>(Either<L, R> either, Func<R, bool> Right, Func<L, bool> Left) =>
+            either.Filter(Right, Left);
 
         /// <summary>
         /// Monadic bind function
@@ -340,6 +414,20 @@ namespace LanguageExt
         /// <returns>Bound Either</returns>
         public static Either<Ret, R> bind<L, R, Ret>(Either<L, R> either, Func<L, Either<Ret, R>> binder) =>
             either.Bind(binder);
+
+        /// <summary>
+        /// Monadic bind function
+        /// https://en.wikipedia.org/wiki/Monad_(functional_programming)
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <typeparam name="Ret"></typeparam>
+        /// <param name="self">this</param>
+        /// <param name="Right">Right bind function</param>
+        /// <param name="Left">Left bind function</param>
+        /// <returns>Bound Either</returns>
+        public static Either<LRet, RRet> bind<L, R, LRet, RRet>(Either<L, R> either, Func<R, Either<LRet, RRet>> Right, Func<L, Either<LRet, RRet>> Left) =>
+            either.Bind(Right, Left);
 
         /// <summary>
         /// Match over a sequence of Eithers

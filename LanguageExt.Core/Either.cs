@@ -720,6 +720,17 @@ public static class __EitherExt
     }
 
     /// <summary>
+    /// Iterate the Either
+    /// Appropriate action is invoked depending on the state of the Either
+    /// </summary>
+    public static Unit Iter<L, R>(this Either<L, R> self, Action<R> Right, Action<L> Left)
+    {
+        self.Iter(Right);
+        self.Iter(Left);
+        return unit;
+    }
+
+    /// <summary>
     /// Invokes a predicate on the value of the Either if it's in the Right state
     /// </summary>
     /// <typeparam name="L">Left</typeparam>
@@ -754,6 +765,18 @@ public static class __EitherExt
                 : true;
 
     /// <summary>
+    /// Invokes a predicate on the value of the Either if it's in the Right state
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <param name="self">Either to forall</param>
+    /// <param name="Right">Right predicate</param>
+    /// <param name="Left">Left predicate</param>
+    /// <returns>True if the predicate returns True.  True if the Either is in a bottom state.</returns>
+    public static bool ForAll<L, R>(this Either<L, R> self, Func<R, bool> Right, Func<L, bool> Left) =>
+        self.ForAll(Right) && self.ForAll(Left);
+
+    /// <summary>
     /// Folds the either into an S
     /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
     /// </summary>
@@ -764,7 +787,7 @@ public static class __EitherExt
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
-    public static S Fold<L,R,S>(this Either<L, R> self, S state, Func<S, R, S> folder) =>
+    public static S Fold<L, R, S>(this Either<L, R> self, S state, Func<S, R, S> folder) =>
         self.IsBottom
             ? state
             : self.IsRight
@@ -788,6 +811,25 @@ public static class __EitherExt
             : self.IsLeft
                 ? folder(state, self.LeftValue)
                 : state;
+
+    /// <summary>
+    /// Folds the either into an S
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <typeparam name="S">State</typeparam>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <param name="self">Either to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="Right">Right fold function</param>
+    /// <param name="Left">Left fold function</param>
+    /// <returns>Folded state</returns>
+    public static S Fold<L, R, S>(this Either<L, R> self, S state, Func<S, R, S> Right, Func<S, L, S> Left) =>
+        self.IsBottom
+            ? state
+            : self.IsRight
+                ? self.Fold(state, Right)
+                : self.Fold(state, Left);
 
     /// <summary>
     /// Invokes a predicate on the value of the Either if it's in the Right state
@@ -820,6 +862,22 @@ public static class __EitherExt
                 : false;
 
     /// <summary>
+    /// Invokes a predicate on the value of the Either
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <param name="self">Either to check existence of</param>
+    /// <param name="Right">Right predicate</param>
+    /// <param name="Left">Left predicate</param>
+    /// <returns>True if the predicate returns True.  False otherwise or if the Either is in a bottom state.</returns>
+    public static bool Exists<L, R>(this Either<L, R> self, Func<R, bool> Right, Func<L, bool> Left) =>
+        self.IsBottom
+            ? false
+            : self.IsLeft
+                ? Left(self.LeftValue)
+                : Right(self.RightValue);
+
+    /// <summary>
     /// Maps the value in the Either if it's in a Right state
     /// </summary>
     /// <typeparam name="L">Left</typeparam>
@@ -850,6 +908,24 @@ public static class __EitherExt
             : self.IsLeft
                 ? Left<Ret, R>(mapper(self.LeftValue))
                 : Right<Ret, R>(self.RightValue);
+
+    /// <summary>
+    /// Bi-maps the value in the Either if it's in a Right state
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <typeparam name="LRet">Left return</typeparam>
+    /// <typeparam name="RRet">Right return</typeparam>
+    /// <param name="self">Either to map</param>
+    /// <param name="Right">Right map function</param>
+    /// <param name="Left">Left map function</param>
+    /// <returns>Mapped Either</returns>
+    public static Either<LRet, RRet> Map<L, R, LRet, RRet>(this Either<L, R> self, Func<R, RRet> Right, Func<L, LRet> Left) =>
+        self.IsBottom
+            ? new Either<LRet, RRet>(true)
+            : self.IsRight
+                ? Right<LRet, RRet>(Right(self.RightValue))
+                : Left<LRet, RRet>(Left(self.LeftValue));
 
     /// <summary>
     /// Monadic bind function
@@ -886,11 +962,31 @@ public static class __EitherExt
                 : Either<Ret, R>.Right(self.RightValue);
 
     /// <summary>
+    /// Monadic bind function
+    /// https://en.wikipedia.org/wiki/Monad_(functional_programming)
+    /// </summary>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <typeparam name="Ret"></typeparam>
+    /// <param name="self">this</param>
+    /// <param name="Right">Right bind function</param>
+    /// <param name="Left">Left bind function</param>
+    /// <returns>Bound Either</returns>
+    public static Either<LRet, RRet> Bind<L, R, LRet, RRet>(this Either<L, R> self, Func<R, Either<LRet, RRet>> Right, Func<L, Either<LRet, RRet>> Left) =>
+        self.IsBottom
+            ? new Either<LRet, RRet>(true)
+            : self.IsLeft
+                ? Left(self.LeftValue)
+                : Right(self.RightValue);
+
+    /// <summary>
     /// Filter the Either
+    /// </summary>
+    /// <remarks>
     /// This may give unpredictable results for a filtered value.  The Either won't
     /// return true for IsLeft or IsRight.  IsBottom is True if the value is filtered and that
     /// should be checked for.
-    /// </summary>
+    /// </remarks>
     /// <typeparam name="L">Left</typeparam>
     /// <typeparam name="R">Right</typeparam>
     /// <param name="self">Either to filter</param>
@@ -898,8 +994,7 @@ public static class __EitherExt
     /// <returns>If the Either is in the Left state it is returned as-is.  
     /// If in the Right state the predicate is applied to the Right value.
     /// If the predicate returns True the Either is returned as-is.
-    /// If the predicate returns False the Either is returned in a 'Bottom' state.  IsLeft will return True, but the value 
-    /// of Left = default(L)</returns>
+    /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
     public static Either<L, R> Filter<L, R>(this Either<L, R> self, Func<R, bool> pred) =>
         self.IsBottom
             ? self
@@ -909,19 +1004,20 @@ public static class __EitherExt
 
     /// <summary>
     /// Filter the Either
+    /// </summary>
+    /// <remarks>
     /// This may give unpredictable results for a filtered value.  The Either won't
     /// return true for IsLeft or IsRight.  IsBottom is True if the value is filtered and that
     /// should be checked for.
-    /// </summary>
+    /// </remarks>
     /// <typeparam name="L">Left</typeparam>
     /// <typeparam name="R">Right</typeparam>
     /// <param name="self">Either to filter</param>
     /// <param name="pred">Predicate function</param>
-    /// <returns>If the Either is in the Left state it is returned as-is.  
-    /// If in the Right state the predicate is applied to the Right value.
+    /// <returns>If the Either is in the Right state it is returned as-is.  
+    /// If in the Left state the predicate is applied to the Left value.
     /// If the predicate returns True the Either is returned as-is.
-    /// If the predicate returns False the Either is returned in a 'Bottom' state.  IsLeft will return True, but the value 
-    /// of Left = default(L)</returns>
+    /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
     public static Either<L, R> Filter<L, R>(this Either<L, R> self, Func<L, bool> pred) =>
         self.IsBottom
             ? self
@@ -930,11 +1026,36 @@ public static class __EitherExt
                 Left:  t => pred(t) ? Either<L, R>.Left(t) : new Either<L, R>(true) );
 
     /// <summary>
-    /// Filter the Either
-    /// This may give unpredictable results for a filtered value.  The Either won't
-    /// return true for IsLeft or IsRight.  IsBottom is True if the value is filterd and that
-    /// should be checked.
+    /// Bi-filter the Either
     /// </summary>
+    /// <remarks>
+    /// This may give unpredictable results for a filtered value.  The Either won't
+    /// return true for IsLeft or IsRight.  IsBottom is True if the value is filtered and that
+    /// should be checked for.
+    /// </remarks>
+    /// <typeparam name="L">Left</typeparam>
+    /// <typeparam name="R">Right</typeparam>
+    /// <param name="self">Either to filter</param>
+    /// <param name="pred">Predicate function</param>
+    /// <returns>
+    /// If the Either is in the Left state then the Left predicate is run against it.
+    /// If the Either is in the Right state then the Right predicate is run against it.
+    /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
+    public static Either<L, R> Filter<L, R>(this Either<L, R> self, Func<R, bool> Right, Func<L, bool> Left) =>
+        self.IsBottom
+            ? self
+            : match(self,
+                Right: r => Right(r) ? Either<L, R>.Right(r) : new Either<L, R>(true),
+                Left:  l => Left(l)  ? Either<L, R>.Left(l)  : new Either<L, R>(true));
+
+    /// <summary>
+    /// Filter the Either
+    /// </summary>
+    /// <remarks>
+    /// This may give unpredictable results for a filtered value.  The Either won't
+    /// return true for IsLeft or IsRight.  IsBottom is True if the value is filtered and that
+    /// should be checked for.
+    /// </remarks>
     /// <typeparam name="L">Left</typeparam>
     /// <typeparam name="R">Right</typeparam>
     /// <param name="self">Either to filter</param>
