@@ -198,10 +198,10 @@ However, clearly there will be times when you don't need to do anything with the
     int x = optional.IfNone(10);        
 
     // As above, but invokes a Func<T> to return a valid value for x
-    int x = optional.IfNone(GetAlternative);        
+    int x = optional.IfNone(() => GetAlternative());        
     
     // Invokes an Action<T> if in the Some state.
-    optional.IfSome(Console.WriteLine);
+    optional.IfSome(x => Console.WriteLine(x));
 ```
 Of course there are functional versions of the fluent version above:
 ```C#
