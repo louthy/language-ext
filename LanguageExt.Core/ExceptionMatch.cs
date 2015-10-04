@@ -45,6 +45,15 @@ namespace LanguageExt
         /// <summary>
         /// Invokes the match expression and provides a default value if nothing matches
         /// </summary>
+        /// <returns>Result of the expression</returns>
+        public R OtherwiseReThrow()
+        {
+            throw exception;
+        }
+
+        /// <summary>
+        /// Invokes the match expression and provides a default value if nothing matches
+        /// </summary>
         /// <param name="otherwiseValue">Default value</param>
         /// <returns>Result of the expression</returns>
         public R Otherwise(R otherwiseValue) =>
