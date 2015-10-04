@@ -11,6 +11,10 @@ __NuGet:__
 * __https://www.nuget.org/packages/LanguageExt/__
 * __https://www.nuget.org/packages/LanguageExt.Process__
 * __https://www.nuget.org/packages/LanguageExt.Process.Redis__
+ 
+__Twitter:__ 
+https://twitter.com/paullouth
+
 
 ## Introduction
 One of the great new features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static methods without qualifying them first.  This instantly gives us access to single term method names that look exactly like functions in functional languages.  i.e.
@@ -66,6 +70,9 @@ There is also:
 * `LanguageExt.Queue`
 * `LanguageExt.Set`
 * `LanguageExt.Stack` 
+* `LanguageExt.Process` 
+* `LanguageExt.Trans` 
+* `LanguageExt.Trans.Linq` 
 
 _(more on those later)_
 
@@ -110,11 +117,11 @@ Feature | Description
 Monad transformers | A higher kinded type (ish)
 `Process` library | Actor system.  The same as Erlang processes for massive concurrency with state management.
 Redis persistence | Persistence of the `Process` system message-queues and state, for robustness and inter-app communication.
-Currying |
-Partial application |
-Memoization |
-Improved lambda type inference |
-`IObservable<T>` extensions  |
+Currying | https://en.wikipedia.org/wiki/Currying
+Partial application | https://en.wikipedia.org/wiki/Partial_application
+Memoization | https://en.wikipedia.org/wiki/Memoization
+Improved lambda type inference | `var add = fun( (int x, int y) => x + y)`
+`IObservable<T>` extensions  | 
 
 It started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me:
 
