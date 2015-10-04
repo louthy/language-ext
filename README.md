@@ -5,7 +5,7 @@ C# Functional Language Extensions
 
 [![Join the chat at https://gitter.im/louthy/language-ext](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/louthy/language-ext?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Using and abusing the features of C# 6 to provide lots of functions and types, that, if you squint, can look like extensions to the language itself.  And an 'Erlang like' concurrency system (actors) that can persist messages and state to Redis.
+This library uses and abuses the features of C# 6 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself.  It also includes an 'Erlang like' process system (actors) that can optionally persist messages and state to Redis (note you can use it without Redis for in-app messaging).  The process system additionally supports Rx streams of messages and state allowing for a fully complete system of reactive events and message dispatch.
 
 __NuGet:__
 * __https://www.nuget.org/packages/LanguageExt/__
@@ -13,7 +13,7 @@ __NuGet:__
 * __https://www.nuget.org/packages/LanguageExt.Process.Redis__
 
 ## Introduction
-One of the great new features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static methods without qualifying them first.  This instantly gives us access to single term method names which look exactly like functions in functional languages.  i.e.
+One of the great new features of C# 6 is that it allows us to treat static classes like namespaces.  This means that we can use static methods without qualifying them first.  This instantly gives us access to single term method names that look exactly like functions in functional languages.  i.e.
 
 ```C#
     using static System.Console;
@@ -26,26 +26,23 @@ I can understand that much of this library is non-idiomatic; But when you think 
 
 __A note about naming__
 
-One of the areas that's likely to get seasoned C# heads worked up is my choice of naming style.  The intent is to try and make something that 'feels' like F# rather than follow the 'rule book' on naming conventions (mostly set out by the BCL).  
+One of the areas that's likely to get seasoned C# heads worked up is my choice of naming style.  The intent is to try and make something that 'feels' like a functional language rather than follow the 'rule book' on naming conventions (mostly set out by the BCL).  
 
 There is however a naming guide that will stand you in good stead whilst reading through this documentation:
 
-* The types all have instantiation functions rather than public constructors.  They will always be PascalCase.
-* Any static functions that can be used on their own by `using static LanguageExt.___` are camelCase.
-* Any extension methods, or anything 'fluent' are PascalCase in the normal way
-* Type names are also PascalCase in the normal way
-
-So to create an `Option<T>` you can use the upper case named constructors:
-
+* Type names are PascalCase in the normal way
+* The types all have constructor functions rather than public constructors that you `new`.  They will always be PascalCase:
 ```C#
     Option<int> x = Some(123);
     Option<int> y = None;
+    Lst<int> items = List(1,2,3,4,5);
+    Map<int,string> dict = Map(Tuple(1, "Hello"), Tuple(2, "World"));
 ```
-Mapping the `Option<T>` can be done the functional camelCase way:
+* Any (non-type constructor) static functions that can be used on their own by `using static LanguageExt.___` are camelCase.
 ```C#
     var x = map(opt, v => v * 2);
 ```
-Or the fluent PascalCase way:
+* Any extension methods, or anything 'fluent' are PascalCase in the normal way
 ```C#
     var x = opt.Map(v => v * 2);
 ```
@@ -61,7 +58,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 ```
 
-`LanguageExt` contains the types, and `LanguageExt.Prelude` contains the functions.  
+The namespace `LanguageExt` contains the types, and `LanguageExt.Prelude` contains the functions.  
 
 There is also:
 * `LanguageExt.List`
@@ -74,9 +71,20 @@ _(more on those later)_
 
 ### Process
 
-To use the `Process` system, include `LanguageExt.Process.dll` and add `using static LanguageExt.Process` to access the camelCase functions.  
+To use the `Process` system, include `LanguageExt.Process.dll` and add `using static LanguageExt.Process` to access the static camelCase functions.  
 
-_NOTE: The Process system is at alpha stage right now.  The rest of the library is well used and tested.  The entire API can be found in LanguageExt.Process (in Prelude.cs).  There are also a few samples._
+If you want to use it with Redis, include `LanguageExt.Process.Redis.dll`.  To connect to Redis use:
+
+```C#
+    RedisCluster.register();
+    Cluster.connect("redis", "redis-test", "localhost", "0");
+```
+* Argument 1 is fixed for Redis
+* Argument 2 is your app's name to make it uniquely addressable in the cluster
+* Argument 3 is a comma separated list of Redis nodes to connect to
+* Argument 4 is the Redis database number to connect to
+
+Note, neither of those lines are needed if you're doing in-app messaging only.
 
 ### Features
 
@@ -108,7 +116,7 @@ Memoization |
 Improved lambda type inference |
 `IObservable<T>` extensions  |
 
-It started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me.  What C# issues are we trying to fix?  Well, we can only paper over the cracks, but here's a summary:
+It started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me:
 
 * Poor tuple support
 * Null reference problem
