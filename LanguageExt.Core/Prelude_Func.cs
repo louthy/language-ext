@@ -630,5 +630,12 @@ namespace LanguageExt
         /// </summary>
         /// <returns>Same expression passed in, just gives the type system a chance to infer</returns>
         public static Expression<Action<T1, T2, T3, T4, T5, T6, T7>> expr<T1, T2, T3, T4, T5, T6, T7>(Expression<Action<T1, T2, T3, T4, T5, T6, T7>> f) => f;
+
+        /// <summary>
+        /// Function composition
+        /// </summary>
+        /// <returns>b(a(v))</returns>
+        public static Func<T1, T3> compose<T1, T2, T3>(Func<T1, T2> a, Func<T2, T3> b) =>
+            v => b(a(v));
     }
 }
