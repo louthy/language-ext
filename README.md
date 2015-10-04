@@ -70,6 +70,9 @@ There is also:
 * `LanguageExt.Queue`
 * `LanguageExt.Set`
 * `LanguageExt.Stack` 
+* `LanguageExt.Process` 
+* `LanguageExt.Trans` 
+* `LanguageExt.Trans.Linq` 
 
 _(more on those later)_
 
