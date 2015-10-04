@@ -322,7 +322,7 @@ namespace LanguageExt
         /// If in the Right state the predicate is applied to the Right value.
         /// If the predicate returns True the Either is returned as-is.
         /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
-        public static EitherUnsafe<L, R> Filter<L, R>(EitherUnsafe<L, R> either, Func<R, bool> pred) =>
+        public static EitherUnsafe<L, R> filter<L, R>(EitherUnsafe<L, R> either, Func<R, bool> pred) =>
             either.Filter(pred);
 
         /// <summary>
