@@ -58,6 +58,8 @@
   <ItemGroup>
     <Compile Include="ActionObservable.cs" />
     <Compile Include="EitherState.cs" />
+    <Compile Include="EitherUnsafeTrans.cs" />
+    <Compile Include="EitherTrans.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Lst.cs" />
     <Compile Include="ObjectPool.cs" />
