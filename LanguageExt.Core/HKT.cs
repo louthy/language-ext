@@ -1341,7 +1341,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(IEnumerable<IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(IEnumerable<IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -1394,7 +1394,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(IEnumerable<Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(IEnumerable<Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -1447,7 +1447,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(IEnumerable<OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(IEnumerable<OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -1500,7 +1500,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(IEnumerable<Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(IEnumerable<Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -1553,7 +1553,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, K>(IEnumerable<Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, K>(IEnumerable<Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -1606,7 +1606,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(IEnumerable<TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(IEnumerable<TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -1659,7 +1659,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(IEnumerable<Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(IEnumerable<Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -1712,7 +1712,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, L>(IEnumerable<Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, L>(IEnumerable<Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -1765,7 +1765,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, L>(IEnumerable<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, L>(IEnumerable<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -1818,7 +1818,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<T, Env>(IEnumerable<Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Reader<Env, bool> forallT<T, Env>(IEnumerable<Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -1871,7 +1871,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<T, Out>(IEnumerable<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
+        public static Writer<Out, bool> forallT<T, Out>(IEnumerable<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
         /// <summary>
         /// Iter
         /// </summary>
@@ -1924,7 +1924,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<T, State>(IEnumerable<State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static State<State, bool> forallT<T, State>(IEnumerable<State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -1977,7 +1977,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<T, Env, Out, State>(IEnumerable<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Rws<Env, Out, State, bool> forallT<T, Env, Out, State>(IEnumerable<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2030,7 +2030,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Option<IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Option<IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2083,7 +2083,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Option<Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Option<Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2136,7 +2136,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Option<OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Option<OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2189,7 +2189,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Option<Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Option<Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2242,7 +2242,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, K>(Option<Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, K>(Option<Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2295,7 +2295,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Option<TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Option<TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2348,7 +2348,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Option<Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Option<Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2401,7 +2401,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, L>(Option<Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, L>(Option<Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2454,7 +2454,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, L>(Option<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, L>(Option<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2507,7 +2507,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<T, Env>(Option<Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Reader<Env, bool> forallT<T, Env>(Option<Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2560,7 +2560,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<T, Out>(Option<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
+        public static Writer<Out, bool> forallT<T, Out>(Option<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
         /// <summary>
         /// Iter
         /// </summary>
@@ -2613,7 +2613,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<T, State>(Option<State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static State<State, bool> forallT<T, State>(Option<State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2666,7 +2666,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<T, Env, Out, State>(Option<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Rws<Env, Out, State, bool> forallT<T, Env, Out, State>(Option<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2719,7 +2719,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(OptionUnsafe<IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(OptionUnsafe<IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2772,7 +2772,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(OptionUnsafe<Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(OptionUnsafe<Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2825,7 +2825,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(OptionUnsafe<OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(OptionUnsafe<OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2878,7 +2878,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(OptionUnsafe<Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(OptionUnsafe<Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2931,7 +2931,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, K>(OptionUnsafe<Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, K>(OptionUnsafe<Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -2984,7 +2984,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(OptionUnsafe<TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(OptionUnsafe<TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -3037,7 +3037,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(OptionUnsafe<Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(OptionUnsafe<Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -3090,7 +3090,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, L>(OptionUnsafe<Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, L>(OptionUnsafe<Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -3143,7 +3143,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, L>(OptionUnsafe<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, L>(OptionUnsafe<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -3196,7 +3196,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<T, Env>(OptionUnsafe<Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Reader<Env, bool> forallT<T, Env>(OptionUnsafe<Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -3249,7 +3249,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<T, Out>(OptionUnsafe<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
+        public static Writer<Out, bool> forallT<T, Out>(OptionUnsafe<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
         /// <summary>
         /// Iter
         /// </summary>
@@ -3302,7 +3302,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<T, State>(OptionUnsafe<State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static State<State, bool> forallT<T, State>(OptionUnsafe<State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -3355,7 +3355,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<T, Env, Out, State>(OptionUnsafe<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Rws<Env, Out, State, bool> forallT<T, Env, Out, State>(OptionUnsafe<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -3408,7 +3408,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Lst<IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Lst<IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -3461,7 +3461,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Lst<Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Lst<Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -3514,7 +3514,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Lst<OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Lst<OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -3567,7 +3567,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Lst<Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Lst<Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -3620,7 +3620,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, K>(Lst<Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, K>(Lst<Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -3673,7 +3673,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Lst<TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Lst<TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -3726,7 +3726,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Lst<Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Lst<Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -3779,7 +3779,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, L>(Lst<Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, L>(Lst<Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -3832,7 +3832,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, L>(Lst<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, L>(Lst<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -3885,7 +3885,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<T, Env>(Lst<Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Reader<Env, bool> forallT<T, Env>(Lst<Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -3938,7 +3938,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<T, Out>(Lst<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
+        public static Writer<Out, bool> forallT<T, Out>(Lst<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
         /// <summary>
         /// Iter
         /// </summary>
@@ -3991,7 +3991,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<T, State>(Lst<State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static State<State, bool> forallT<T, State>(Lst<State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4044,7 +4044,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<T, Env, Out, State>(Lst<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Rws<Env, Out, State, bool> forallT<T, Env, Out, State>(Lst<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4097,7 +4097,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<K, T>(Map<K, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<K, T>(Map<K, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4150,7 +4150,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<K, T>(Map<K, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<K, T>(Map<K, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4203,7 +4203,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<K, T>(Map<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<K, T>(Map<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4256,7 +4256,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<K, T>(Map<K, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<K, T>(Map<K, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4309,7 +4309,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<K, T>(Map<K, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<K, T>(Map<K, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4362,7 +4362,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<K, T>(Map<K, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<K, T>(Map<K, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4415,7 +4415,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<K, T>(Map<K, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<K, T>(Map<K, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4468,7 +4468,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<K, T, L>(Map<K, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<K, T, L>(Map<K, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4521,7 +4521,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<K, T, L>(Map<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<K, T, L>(Map<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4574,7 +4574,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<K, T, Env>(Map<K, Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Reader<Env, bool> forallT<K, T, Env>(Map<K, Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4627,7 +4627,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<K, T, Out>(Map<K, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
+        public static Writer<Out, bool> forallT<K, T, Out>(Map<K, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
         /// <summary>
         /// Iter
         /// </summary>
@@ -4680,7 +4680,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<K, T, State>(Map<K, State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static State<State, bool> forallT<K, T, State>(Map<K, State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4733,7 +4733,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<K, T, Env, Out, State>(Map<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Rws<Env, Out, State, bool> forallT<K, T, Env, Out, State>(Map<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4786,7 +4786,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(TryOption<IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(TryOption<IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4839,7 +4839,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(TryOption<Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(TryOption<Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4892,7 +4892,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(TryOption<OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(TryOption<OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4945,7 +4945,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(TryOption<Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(TryOption<Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -4998,7 +4998,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, K>(TryOption<Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, K>(TryOption<Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -5051,7 +5051,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(TryOption<TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(TryOption<TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -5104,7 +5104,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(TryOption<Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(TryOption<Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -5157,7 +5157,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, L>(TryOption<Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, L>(TryOption<Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -5210,7 +5210,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, L>(TryOption<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, L>(TryOption<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -5263,7 +5263,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<T, Env>(TryOption<Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Reader<Env, bool> forallT<T, Env>(TryOption<Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -5316,7 +5316,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<T, Out>(TryOption<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
+        public static Writer<Out, bool> forallT<T, Out>(TryOption<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
         /// <summary>
         /// Iter
         /// </summary>
@@ -5369,7 +5369,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<T, State>(TryOption<State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static State<State, bool> forallT<T, State>(TryOption<State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -5422,7 +5422,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<T, Env, Out, State>(TryOption<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Rws<Env, Out, State, bool> forallT<T, Env, Out, State>(TryOption<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -5475,7 +5475,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Try<IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Try<IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -5528,7 +5528,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Try<Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Try<Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -5581,7 +5581,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Try<OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Try<OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -5634,7 +5634,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Try<Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Try<Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -5687,7 +5687,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, K>(Try<Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, K>(Try<Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -5740,7 +5740,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Try<TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Try<TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -5793,7 +5793,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T>(Try<Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T>(Try<Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -5846,7 +5846,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, L>(Try<Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, L>(Try<Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -5899,7 +5899,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<T, L>(Try<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<T, L>(Try<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -5952,7 +5952,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<T, Env>(Try<Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Reader<Env, bool> forallT<T, Env>(Try<Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -6005,7 +6005,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<T, Out>(Try<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
+        public static Writer<Out, bool> forallT<T, Out>(Try<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
         /// <summary>
         /// Iter
         /// </summary>
@@ -6058,7 +6058,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<T, State>(Try<State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static State<State, bool> forallT<T, State>(Try<State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -6111,7 +6111,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<T, Env, Out, State>(Try<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Rws<Env, Out, State, bool> forallT<T, Env, Out, State>(Try<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -6164,7 +6164,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T>(Either<L, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T>(Either<L, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -6217,7 +6217,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T>(Either<L, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T>(Either<L, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -6270,7 +6270,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T>(Either<L, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T>(Either<L, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -6323,7 +6323,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T>(Either<L, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T>(Either<L, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -6376,7 +6376,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T, K>(Either<L, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T, K>(Either<L, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -6429,7 +6429,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T>(Either<L, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T>(Either<L, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -6482,7 +6482,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T>(Either<L, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T>(Either<L, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -6535,7 +6535,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T>(Either<L, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T>(Either<L, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -6588,7 +6588,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T>(Either<L, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T>(Either<L, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -6641,7 +6641,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<L, T, Env>(Either<L, Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Reader<Env, bool> forallT<L, T, Env>(Either<L, Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -6694,7 +6694,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<L, T, Out>(Either<L, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
+        public static Writer<Out, bool> forallT<L, T, Out>(Either<L, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
         /// <summary>
         /// Iter
         /// </summary>
@@ -6747,7 +6747,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<L, T, State>(Either<L, State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static State<State, bool> forallT<L, T, State>(Either<L, State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -6800,7 +6800,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<L, T, Env, Out, State>(Either<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Rws<Env, Out, State, bool> forallT<L, T, Env, Out, State>(Either<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -6853,7 +6853,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T>(EitherUnsafe<L, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T>(EitherUnsafe<L, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -6906,7 +6906,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T>(EitherUnsafe<L, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T>(EitherUnsafe<L, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -6959,7 +6959,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T>(EitherUnsafe<L, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T>(EitherUnsafe<L, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7012,7 +7012,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T>(EitherUnsafe<L, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T>(EitherUnsafe<L, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7065,7 +7065,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T, K>(EitherUnsafe<L, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T, K>(EitherUnsafe<L, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7118,7 +7118,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T>(EitherUnsafe<L, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T>(EitherUnsafe<L, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7171,7 +7171,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T>(EitherUnsafe<L, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T>(EitherUnsafe<L, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7224,7 +7224,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T>(EitherUnsafe<L, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T>(EitherUnsafe<L, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7277,7 +7277,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static bool forAllT<L, T>(EitherUnsafe<L, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static bool forallT<L, T>(EitherUnsafe<L, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7330,7 +7330,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<L, T, Env>(EitherUnsafe<L, Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Reader<Env, bool> forallT<L, T, Env>(EitherUnsafe<L, Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7383,7 +7383,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<L, T, Out>(EitherUnsafe<L, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
+        public static Writer<Out, bool> forallT<L, T, Out>(EitherUnsafe<L, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
         /// <summary>
         /// Iter
         /// </summary>
@@ -7436,7 +7436,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<L, T, State>(EitherUnsafe<L, State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static State<State, bool> forallT<L, T, State>(EitherUnsafe<L, State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7489,7 +7489,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<L, T, Env, Out, State>(EitherUnsafe<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Rws<Env, Out, State, bool> forallT<L, T, Env, Out, State>(EitherUnsafe<L, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7542,7 +7542,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<Env, T>(Reader<Env, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Reader<Env, bool> forallT<Env, T>(Reader<Env, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7595,7 +7595,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<Env, T>(Reader<Env, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Reader<Env, bool> forallT<Env, T>(Reader<Env, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7648,7 +7648,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<Env, T>(Reader<Env, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Reader<Env, bool> forallT<Env, T>(Reader<Env, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7701,7 +7701,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<Env, T>(Reader<Env, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Reader<Env, bool> forallT<Env, T>(Reader<Env, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7754,7 +7754,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<Env, T, K>(Reader<Env, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Reader<Env, bool> forallT<Env, T, K>(Reader<Env, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7807,7 +7807,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<Env, T>(Reader<Env, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Reader<Env, bool> forallT<Env, T>(Reader<Env, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7860,7 +7860,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<Env, T>(Reader<Env, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Reader<Env, bool> forallT<Env, T>(Reader<Env, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7913,7 +7913,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<Env, T, L>(Reader<Env, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Reader<Env, bool> forallT<Env, T, L>(Reader<Env, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -7966,7 +7966,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, bool> forAllT<Env, T, L>(Reader<Env, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Reader<Env, bool> forallT<Env, T, L>(Reader<Env, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8019,7 +8019,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Reader<Env, Reader<Env, bool>> forAllT<Env, T>(Reader<Env, Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Reader<Env, Reader<Env, bool>> forallT<Env, T>(Reader<Env, Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8072,7 +8072,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<Out, T>(Writer<Out, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Writer<Out, bool> forallT<Out, T>(Writer<Out, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8125,7 +8125,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<Out, T>(Writer<Out, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Writer<Out, bool> forallT<Out, T>(Writer<Out, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8178,7 +8178,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<Out, T>(Writer<Out, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Writer<Out, bool> forallT<Out, T>(Writer<Out, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8231,7 +8231,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<Out, T>(Writer<Out, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Writer<Out, bool> forallT<Out, T>(Writer<Out, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8284,7 +8284,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<Out, T, K>(Writer<Out, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Writer<Out, bool> forallT<Out, T, K>(Writer<Out, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8337,7 +8337,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<Out, T>(Writer<Out, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Writer<Out, bool> forallT<Out, T>(Writer<Out, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8390,7 +8390,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<Out, T>(Writer<Out, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Writer<Out, bool> forallT<Out, T>(Writer<Out, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8443,7 +8443,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<Out, T, L>(Writer<Out, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Writer<Out, bool> forallT<Out, T, L>(Writer<Out, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8496,7 +8496,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, bool> forAllT<Out, T, L>(Writer<Out, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Writer<Out, bool> forallT<Out, T, L>(Writer<Out, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8549,7 +8549,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Writer<Out, Writer<Out, bool>> forAllT<Out, T>(Writer<Out, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
+        public static Writer<Out, Writer<Out, bool>> forallT<Out, T>(Writer<Out, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
         /// <summary>
         /// Iter
         /// </summary>
@@ -8602,7 +8602,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<State, T>(State<State, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static State<State, bool> forallT<State, T>(State<State, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8655,7 +8655,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<State, T>(State<State, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static State<State, bool> forallT<State, T>(State<State, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8708,7 +8708,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<State, T>(State<State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static State<State, bool> forallT<State, T>(State<State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8761,7 +8761,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<State, T>(State<State, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static State<State, bool> forallT<State, T>(State<State, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8814,7 +8814,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<State, T, K>(State<State, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static State<State, bool> forallT<State, T, K>(State<State, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8867,7 +8867,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<State, T>(State<State, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static State<State, bool> forallT<State, T>(State<State, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8920,7 +8920,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<State, T>(State<State, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static State<State, bool> forallT<State, T>(State<State, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -8973,7 +8973,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<State, T, L>(State<State, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static State<State, bool> forallT<State, T, L>(State<State, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -9026,7 +9026,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, bool> forAllT<State, T, L>(State<State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static State<State, bool> forallT<State, T, L>(State<State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -9079,7 +9079,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static State<State, State<State, bool>> forAllT<State, T>(State<State, State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static State<State, State<State, bool>> forallT<State, T>(State<State, State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
@@ -9132,7 +9132,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T>(Rws<Env, Out, State, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Rws<Env, Out, State, bool> forallT<Env, Out, State, T>(Rws<Env, Out, State, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -9185,7 +9185,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T>(Rws<Env, Out, State, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Rws<Env, Out, State, bool> forallT<Env, Out, State, T>(Rws<Env, Out, State, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -9238,7 +9238,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T>(Rws<Env, Out, State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Rws<Env, Out, State, bool> forallT<Env, Out, State, T>(Rws<Env, Out, State, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -9291,7 +9291,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T>(Rws<Env, Out, State, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Rws<Env, Out, State, bool> forallT<Env, Out, State, T>(Rws<Env, Out, State, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -9344,7 +9344,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T, K>(Rws<Env, Out, State, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Rws<Env, Out, State, bool> forallT<Env, Out, State, T, K>(Rws<Env, Out, State, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -9397,7 +9397,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T>(Rws<Env, Out, State, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Rws<Env, Out, State, bool> forallT<Env, Out, State, T>(Rws<Env, Out, State, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -9450,7 +9450,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T>(Rws<Env, Out, State, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Rws<Env, Out, State, bool> forallT<Env, Out, State, T>(Rws<Env, Out, State, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -9503,7 +9503,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T, L>(Rws<Env, Out, State, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Rws<Env, Out, State, bool> forallT<Env, Out, State, T, L>(Rws<Env, Out, State, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -9556,7 +9556,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, bool> forAllT<Env, Out, State, T, L>(Rws<Env, Out, State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        public static Rws<Env, Out, State, bool> forallT<Env, Out, State, T, L>(Rws<Env, Out, State, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
@@ -9609,7 +9609,7 @@ namespace LanguageExt
         /// <summary>
         /// ForAll
         /// </summary>
-        public static Rws<Env, Out, State, Rws<Env, Out, State, bool>> forAllT<Env, Out, State, T>(Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        public static Rws<Env, Out, State, Rws<Env, Out, State, bool>> forallT<Env, Out, State, T>(Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>

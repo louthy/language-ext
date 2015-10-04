@@ -101,7 +101,7 @@
             forallComments+"TABS2 internal static RETURN_ONE_BOOL ForAllT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.ForAll(pred);",
             "",
             forallComments+"TABS2 public static RETURN_ONE_BOOL ForAllT<ARGS_T>(this TYPE self, Func<T, bool> pred) =>DEL_ARGS self.ForAllT(pred)DEL_INVOKE;",
-            forallComments+"TABS2 public static RETURN_ONE_BOOL forAllT<ARGS_T>(TYPE self, Func<T, bool> pred) =>DEL_ARGS self.ForAllT(pred)DEL_INVOKE;"),
+            forallComments+"TABS2 public static RETURN_ONE_BOOL forallT<ARGS_T>(TYPE self, Func<T, bool> pred) =>DEL_ARGS self.ForAllT(pred)DEL_INVOKE;"),
         //
         // Iter
         //
@@ -170,7 +170,6 @@
 using System; 
 using System.Collections.Generic;
 using System.Collections;
-using System.Collections.Immutable;
 using System.Linq;
 using System.ComponentModel;
 using LanguageExt;
