@@ -73,7 +73,7 @@ namespace LanguageExt
             while (count > 0)
             {
                 ActorInboxCommon.GetNextMessage(cluster, actor.Id, key).IfSome(
-                    x => map(x, (dto, msg) =>
+                    x => iter(x, (dto, msg) =>
                     {
                         try
                         {

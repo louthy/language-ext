@@ -159,7 +159,7 @@ namespace LanguageExt
                         pair.IfSome(x => cluster.Dequeue<RemoteMessageDTO>(key));
                     }
 
-                    pair.IfSome(x => map(x, (dto, msg) => {
+                    pair.IfSome(x => iter(x, (dto, msg) => {
                         switch (msg.MessageType)
                         {
                             case Message.Type.System:       sysInbox.Post((SystemMessage)msg); break;

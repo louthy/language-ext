@@ -117,6 +117,7 @@
     <Compile Include="Try.cs" />
     <Compile Include="TryOption.cs" />
     <Compile Include="TryOutExt.cs" />
+    <Compile Include="Tuple2.cs" />
     <Compile Include="TupleExt.cs" />
     <Compile Include="TypeConverters.cs" />
     <Compile Include="Unit.cs" />

@@ -26,22 +26,22 @@ namespace LanguageExtTests
 
         [Test] public void WithApplicationTests1()
         {
-            Tuple("a", "b").Map((a, b) => Assert.IsTrue(a == "a" && b == "b"));
-            Tuple("a", "b", "c").Map((a, b, c) => Assert.IsTrue(a == "a" && b == "b" && c == "c"));
-            Tuple("a", "b", "c", "d").Map((a, b, c, d) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d"));
-            Tuple("a", "b", "c", "d", "e").Map((a, b, c, d, e) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d" && e == "e"));
-            Tuple("a", "b", "c", "d", "e", "f").Map((a, b, c, d, e, f) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d" && e == "e" && f == "f"));
-            Tuple("a", "b", "c", "d", "e", "f", "g").Map((a, b, c, d, e, f, g) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d" && e == "e" && f == "f" && g == "g"));
+            Tuple("a", "b").Iter((a, b) => Assert.IsTrue(a == "a" && b == "b"));
+            Tuple("a", "b", "c").Iter((a, b, c) => Assert.IsTrue(a == "a" && b == "b" && c == "c"));
+            Tuple("a", "b", "c", "d").Iter((a, b, c, d) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d"));
+            Tuple("a", "b", "c", "d", "e").Iter((a, b, c, d, e) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d" && e == "e"));
+            Tuple("a", "b", "c", "d", "e", "f").Iter((a, b, c, d, e, f) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d" && e == "e" && f == "f"));
+            Tuple("a", "b", "c", "d", "e", "f", "g").Iter((a, b, c, d, e, f, g) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d" && e == "e" && f == "f" && g == "g"));
         }
 
         [Test] public void WithApplicationTests2()
         {
-            map( Tuple("a", "b"), (a, b) => Assert.IsTrue(a == "a" && b == "b"));
-            map( Tuple("a", "b", "c"), (a, b, c) => Assert.IsTrue(a == "a" && b == "b" && c == "c"));
-            map( Tuple("a", "b", "c", "d"), (a, b, c, d) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d"));
-            map( Tuple("a", "b", "c", "d", "e"), (a, b, c, d, e) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d" && e == "e"));
-            map( Tuple("a", "b", "c", "d", "e", "f"), (a, b, c, d, e, f) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d" && e == "e" && f == "f"));
-            map( Tuple("a", "b", "c", "d", "e", "f", "g"), (a, b, c, d, e, f, g) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d" && e == "e" && f == "f" && g == "g"));
+            iter( Tuple("a", "b"), (a, b) => Assert.IsTrue(a == "a" && b == "b"));
+            iter( Tuple("a", "b", "c"), (a, b, c) => Assert.IsTrue(a == "a" && b == "b" && c == "c"));
+            iter( Tuple("a", "b", "c", "d"), (a, b, c, d) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d"));
+            iter( Tuple("a", "b", "c", "d", "e"), (a, b, c, d, e) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d" && e == "e"));
+            iter( Tuple("a", "b", "c", "d", "e", "f"), (a, b, c, d, e, f) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d" && e == "e" && f == "f"));
+            iter( Tuple("a", "b", "c", "d", "e", "f", "g"), (a, b, c, d, e, f, g) => Assert.IsTrue(a == "a" && b == "b" && c == "c" && d == "d" && e == "e" && f == "f" && g == "g"));
         }
 
     }
