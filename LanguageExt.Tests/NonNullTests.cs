@@ -1,14 +1,14 @@
 ﻿using System;
 using LanguageExt;
 using static LanguageExt.Prelude;
-using NUnit.Framework;
+using Xunit;
 
 namespace LanguageExtTests
 {
-    [TestFixture]
+    
     public class NonNullTests
     {
-        [Test]
+        [Fact]
         public void ValueCastTest1()
         {
             Assert.Throws(
@@ -29,7 +29,7 @@ namespace LanguageExtTests
             );
         }
 
-        [Test]
+        [Fact]
         public void ValueCastTest2()
         {
             // These should pass
@@ -38,7 +38,7 @@ namespace LanguageExtTests
             Foo(world);
         }
 
-        [Test]
+        [Fact]
         public void NotNullReferenceTypeTest()
         {
             Assert.Throws(
@@ -49,13 +49,13 @@ namespace LanguageExtTests
                 });
         }
 
-        [Test]
+        [Fact]
         public void SomeCastsToOptionTest()
         {
             Some<string> some = "Hello";
             Option<string> opt = some;
 
-            Assert.IsTrue(opt.IsSome && opt.IfNone("") == "Hello");
+            Assert.True(opt.IsSome && opt.IfNone("") == "Hello");
         }
 
 
@@ -79,28 +79,28 @@ namespace LanguageExtTests
             Console.WriteLine(arg);
         }
 
-        [Test]
+        [Fact]
         public void AssignToSomeAfterDeclaration()
         {
             Some<string> val;
             val = "Hello";
-            Assert.IsTrue(val.Value != null);
+            Assert.True(val.Value != null);
             Greet(val);
         }
 
-        [Test]
+        [Fact]
         public void AssignToSomeMemberAfterDeclaration()
         {
             var obj = new SomeClass();
 
             obj.SomeOtherValue = "123";
             Console.WriteLine(obj.SomeOtherValue);
-            Assert.IsTrue(obj.SomeValue == "Hello");
-            Assert.IsTrue(obj.SomeOtherValue != null);
+            Assert.True(obj.SomeValue == "Hello");
+            Assert.True(obj.SomeOtherValue != null);
             Greet(obj.SomeOtherValue);
         }
 
-        [Test]
+        [Fact]
         public void AccessUninitialisedEitherMember()
         {
             var obj = new EitherClass();
@@ -123,7 +123,7 @@ namespace LanguageExtTests
         }
 
 
-        [Test]
+        [Fact]
         public void AccessUninitialisedSomeMember()
         {
             var obj = new SomeClass();

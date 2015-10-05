@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +12,10 @@ using static LanguageExt.Process;
 
 namespace LanguageExtTests
 {
-    [TestFixture]
+    
     public class ProcessTests
     {
-        [Test]
+        [Fact]
         public static void AskReplyError()
         {
             shutdownAll();
@@ -42,7 +42,7 @@ namespace LanguageExtTests
             tell(world, "error throwing test");
         }
 
-        [Test]
+        [Fact]
         public void AskReply()
         {
             shutdownAll();
@@ -54,10 +54,10 @@ namespace LanguageExtTests
 
             var response = ask<string>(helloServer, "Paul");
 
-            Assert.IsTrue(response == "Hello, Paul");
+            Assert.True(response == "Hello, Paul");
         }
 
-        [Test]
+        [Fact]
         public void PubSubTest()
         {
             shutdownAll();
@@ -79,10 +79,10 @@ namespace LanguageExtTests
 
             Thread.Sleep(50);
 
-            Assert.IsTrue(value == "hello");
+            Assert.True(value == "hello");
         }
 
-        [Test]
+        [Fact]
         public void LocalRegisterTest()
         {
             shutdownAll();
@@ -94,30 +94,30 @@ namespace LanguageExtTests
 
             var kids = children(Registered);
 
-            Assert.IsTrue(kids.Count() == 1);
-            Assert.IsTrue(kids["woooo amazing"].Path == "/root/registered/woooo amazing");
+            Assert.True(kids.Count() == 1);
+            Assert.True(kids["woooo amazing"].Path == "/root/registered/woooo amazing");
 
             tell(regid, "hello");
 
             Thread.Sleep(10);
 
-            Assert.IsTrue(value == "hello");
+            Assert.True(value == "hello");
 
             tell(find("woooo amazing"), "world");
 
             Thread.Sleep(10);
 
-            Assert.IsTrue(value == "world");
+            Assert.True(value == "world");
 
             deregister("woooo amazing");
 
             Thread.Sleep(10);
 
             kids = children(Registered);
-            Assert.IsTrue(kids.Count() == 0);
+            Assert.True(kids.Count() == 0);
         }
 
-        [Test]
+        [Fact]
         public void RedisRegisterTest()
         {
             shutdownAll();
@@ -137,20 +137,20 @@ namespace LanguageExtTests
 
             var kids = children(Registered);
 
-            Assert.IsTrue(kids.Count() == 1);
-            Assert.IsTrue(kids["woooo amazing"].Path == "/redis-test/registered/woooo amazing");
+            Assert.True(kids.Count() == 1);
+            Assert.True(kids["woooo amazing"].Path == "/redis-test/registered/woooo amazing");
 
             tell(regid, "hello");
 
             Thread.Sleep(10);  
 
-            Assert.IsTrue(value == "hello");
+            Assert.True(value == "hello");
 
             tell(find("woooo amazing"), "world");
 
             Thread.Sleep(10);
 
-            Assert.IsTrue(value == "world");
+            Assert.True(value == "world");
 
             Thread.Sleep(10);
 
@@ -159,11 +159,11 @@ namespace LanguageExtTests
             Thread.Sleep(10);
 
             kids = children(Registered);
-            Assert.IsTrue(kids.Count() == 0);
+            Assert.True(kids.Count() == 0);
         }
 
 
-        [Test]
+        [Fact]
         public void SpawnProcess()
         {
             shutdownAll();
@@ -174,12 +174,12 @@ namespace LanguageExtTests
             tell(pid, "hello, world");
 
             Thread.Sleep(200);
-            Assert.IsTrue(value == "hello, world");
+            Assert.True(value == "hello, world");
 
             kill(pid);
         }
 
-        [Test]
+        [Fact]
         public void SpawnErrorSurviveProcess()
         {
             shutdownAll();
@@ -200,12 +200,12 @@ namespace LanguageExtTests
             tell(pid, "msg");
 
             Thread.Sleep(400);
-            Assert.IsTrue(value == 3);
+            Assert.True(value == 3);
 
             kill(pid);
         }
 
-        [Test]
+        [Fact]
         public void SpawnAndKillProcess()
         {
             shutdownAll();
@@ -227,11 +227,11 @@ namespace LanguageExtTests
 
             Thread.Sleep(10);
 
-            Assert.IsTrue(value == "1");
-            Assert.IsTrue(children(User).Length == 0);
+            Assert.True(value == "1");
+            Assert.True(children(User).Length == 0);
         }
 
-        [Test]
+        [Fact]
         public void SpawnAndKillHierarchy()
         {
             shutdownAll();
@@ -269,11 +269,11 @@ namespace LanguageExtTests
 
             Thread.Sleep(10);
 
-            Assert.IsTrue(value == "1", "Expected 1, actually equals: "+ value);
-            Assert.IsTrue(children(User).Length == 0);
+            Assert.True(value == "1", "Expected 1, actually equals: "+ value);
+            Assert.True(children(User).Length == 0);
         }
 
-        [Test]
+        [Fact]
         public static void ProcessStartupInvalidTypeError()
         {
             shutdownAll();
@@ -291,11 +291,11 @@ namespace LanguageExtTests
             }
             catch (ProcessException e)
             {
-                Assert.IsTrue(e.Message == "Process issue: Invalid message type for ask (expected System.String)");
+                Assert.True(e.Message == "Process issue: Invalid message type for ask (expected System.String)");
             }
         }
 
-        [Test]
+        [Fact]
         public static void ProcessStartupError()
         {
             shutdownAll();
@@ -313,7 +313,7 @@ namespace LanguageExtTests
             }
             catch (ProcessException e)
             {
-                Assert.IsTrue(e.Message == "Process issue: Failed!");
+                Assert.True(e.Message == "Process issue: Failed!");
             }
         }
 
@@ -322,7 +322,7 @@ namespace LanguageExtTests
                 ? 1
                 : (int)Math.Pow(5, (double)depth) + DepthMax(depth - 1);
 
-        [Test]
+        [Fact]
         public void MassiveSpawnAndKillHierarchy()
         {
             Func<Unit> setup = null;
@@ -361,10 +361,10 @@ namespace LanguageExtTests
 
             Thread.Sleep(500);
 
-            Assert.IsTrue(children(User).Count() == 0);
+            Assert.True(children(User).Count() == 0);
         }
 
-        [Test]
+        [Fact]
         public void ScheduledMsgTest()
         {
             shutdownAll();
@@ -379,7 +379,7 @@ namespace LanguageExtTests
 
             while (DateTime.Now < future)
             {
-                Assert.IsTrue(v == "");
+                Assert.True(v == "");
                 Thread.Sleep(10);
             }
 
@@ -387,7 +387,7 @@ namespace LanguageExtTests
             {
                 Thread.Sleep(10);
             }
-            Assert.IsTrue(v == "hello");
+            Assert.True(v == "hello");
         }
     }
 }

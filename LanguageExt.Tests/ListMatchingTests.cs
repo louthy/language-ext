@@ -1,25 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
+using Xunit;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
 {
-    [TestFixture]
+    
     public class ListMatchingTests
     {
-        [Test]
+        [Fact]
         public void RecursiveMatchSumTest()
         {
             var list0 = List<int>();
             var list1 = List(10);
             var list5 = List(10,20,30,40,50);
 
-            Assert.IsTrue(Sum(list0) == 0);
-            Assert.IsTrue(Sum(list1) == 10);
-            Assert.IsTrue(Sum(list5) == 150);
+            Assert.True(Sum(list0) == 0);
+            Assert.True(Sum(list1) == 10);
+            Assert.True(Sum(list5) == 150);
         }
 
         public int Sum(IEnumerable<int> list) =>
@@ -28,16 +28,16 @@ namespace LanguageExtTests
                    x       => x,
                    (x, xs) => x + Sum(xs));
 
-        [Test]
+        [Fact]
         public void RecursiveMatchProductTest()
         {
             var list0 = List<int>();
             var list1 = List(10);
             var list5 = List(10, 20, 30, 40, 50);
 
-            Assert.IsTrue(Product(list0) == 0);
-            Assert.IsTrue(Product(list1) == 10);
-            Assert.IsTrue(Product(list5) == 12000000);
+            Assert.True(Product(list0) == 0);
+            Assert.True(Product(list1) == 10);
+            Assert.True(Product(list5) == 12000000);
         }
 
         public int Product(IEnumerable<int> list) =>
@@ -46,16 +46,16 @@ namespace LanguageExtTests
                 x       => x,
                 (x, xs) => x * Product(xs));
 
-        [Test]
+        [Fact]
         public void AnotherRecursiveMatchSumTest()
         {
             var list0 = List<int>();
             var list1 = List(10);
             var list5 = List(10, 20, 30, 40, 50);
 
-            Assert.IsTrue(AnotherSum(list0) == 0);
-            Assert.IsTrue(AnotherSum(list1) == 10);
-            Assert.IsTrue(AnotherSum(list5) == 150);
+            Assert.True(AnotherSum(list0) == 0);
+            Assert.True(AnotherSum(list1) == 10);
+            Assert.True(AnotherSum(list5) == 150);
         }
 
         public int AnotherSum(IEnumerable<int> list) =>
@@ -63,16 +63,16 @@ namespace LanguageExtTests
                 ()      => 0,
                 (x, xs) => x + AnotherSum(xs));
 
-        [Test]
+        [Fact]
         public void AnotherRecursiveMatchProductTest()
         {
             var list0 = List<int>();
             var list1 = List(10);
             var list5 = List(10, 20, 30, 40, 50);
 
-            Assert.IsTrue(AnotherProduct(list0) == 1);
-            Assert.IsTrue(AnotherProduct(list1) == 10);
-            Assert.IsTrue(AnotherProduct(list5) == 12000000);
+            Assert.True(AnotherProduct(list0) == 1);
+            Assert.True(AnotherProduct(list1) == 10);
+            Assert.True(AnotherProduct(list5) == 12000000);
         }
 
         public int AnotherProduct(IEnumerable<int> list) =>
@@ -80,7 +80,7 @@ namespace LanguageExtTests
                 ()      => 1,
                 (x, xs) => x * AnotherProduct(xs));
 
-        [Test]
+        [Fact]
         public void Match6Fluent()
         {
             IEnumerable<int> listN = null;
@@ -105,18 +105,18 @@ namespace LanguageExtTests
                    (a, b, c, d, e, f, xs) => xs.Count() + 6
                ) );
 
-            Assert.IsTrue(matcher(listN) == 0);
-            Assert.IsTrue(matcher(list0) == 0);
-            Assert.IsTrue(matcher(list1) == 1);
-            Assert.IsTrue(matcher(list2) == 2);
-            Assert.IsTrue(matcher(list3) == 3);
-            Assert.IsTrue(matcher(list4) == 4);
-            Assert.IsTrue(matcher(list5) == 5);
-            Assert.IsTrue(matcher(list6) == 6);
-            Assert.IsTrue(matcher(list100) == 100);
+            Assert.True(matcher(listN) == 0);
+            Assert.True(matcher(list0) == 0);
+            Assert.True(matcher(list1) == 1);
+            Assert.True(matcher(list2) == 2);
+            Assert.True(matcher(list3) == 3);
+            Assert.True(matcher(list4) == 4);
+            Assert.True(matcher(list5) == 5);
+            Assert.True(matcher(list6) == 6);
+            Assert.True(matcher(list100) == 100);
         }
 
-        [Test]
+        [Fact]
         public void Match6Func()
         {
             IEnumerable<int> listN = null;
@@ -142,15 +142,15 @@ namespace LanguageExtTests
                   (a, b, c, d, e, f, xs) => xs.Count() + 6
               ));
 
-            Assert.IsTrue(matcher(listN) == 0);
-            Assert.IsTrue(matcher(list0) == 0);
-            Assert.IsTrue(matcher(list1) == 1);
-            Assert.IsTrue(matcher(list2) == 2);
-            Assert.IsTrue(matcher(list3) == 3);
-            Assert.IsTrue(matcher(list4) == 4);
-            Assert.IsTrue(matcher(list5) == 5);
-            Assert.IsTrue(matcher(list6) == 6);
-            Assert.IsTrue(matcher(list100) == 100);
+            Assert.True(matcher(listN) == 0);
+            Assert.True(matcher(list0) == 0);
+            Assert.True(matcher(list1) == 1);
+            Assert.True(matcher(list2) == 2);
+            Assert.True(matcher(list3) == 3);
+            Assert.True(matcher(list4) == 4);
+            Assert.True(matcher(list5) == 5);
+            Assert.True(matcher(list6) == 6);
+            Assert.True(matcher(list100) == 100);
         }
     }
 }

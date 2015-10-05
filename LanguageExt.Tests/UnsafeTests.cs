@@ -1,13 +1,13 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
 {
-    [TestFixture]
+    
     public class UnsafeTests
     {
-        [Test]
+        [Fact]
         public void AssignmentTests()
         {
             OptionUnsafe<string> str = SomeUnsafe((string)null);

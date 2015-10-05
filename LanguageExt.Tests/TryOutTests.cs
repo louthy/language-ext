@@ -1,12 +1,12 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
 {
-    [TestFixture]
+    
     public class TryOutTests
     {
-        [Test] public void OutTest()
+        [Fact] public void OutTest()
         {
             int value1 = parseInt("123").IfNone(() => 0);
 
@@ -16,10 +16,10 @@ namespace LanguageExtTests
 
             int value4 = ifNone(parseInt("123"), 0);
 
-            Assert.IsTrue(value1 == 123);
-            Assert.IsTrue(value2 == 123);
-            Assert.IsTrue(value3 == 123);
-            Assert.IsTrue(value4 == 123);
+            Assert.True(value1 == 123);
+            Assert.True(value2 == 123);
+            Assert.True(value3 == 123);
+            Assert.True(value4 == 123);
 
             parseInt("123").Match(
                 Some: UseTheInteger,
@@ -32,7 +32,7 @@ namespace LanguageExtTests
                 );
 
             int value5 = ifNone(parseInt("XXX"), 0);
-            Assert.IsTrue(value5 == 0);
+            Assert.True(value5 == 0);
         }
 
         private int UseTheInteger(int v)

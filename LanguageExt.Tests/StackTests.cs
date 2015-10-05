@@ -1,40 +1,40 @@
 ﻿using static LanguageExt.Prelude;
 using static LanguageExt.List;
 using static LanguageExt.Stack;
-using NUnit.Framework;
+using Xunit;
 using LanguageExt;
 
 namespace LanguageExtTests
 {
-    [TestFixture]
+    
     public class StackTests
     {
-        [Test]
+        [Fact]
         public void EmptyStackPeek()
         {
             var test = Stack<int>();
             var res = peek(test);
 
-            Assert.IsTrue(res.IsNone);
+            Assert.True(res.IsNone);
         }
 
-        [Test]
+        [Fact]
         public void EmptyStackPop()
         {
             var test = Stack<int>();
             var res = map(pop(test), (stack, value) => value);
 
-            Assert.IsTrue(res.IsNone);
+            Assert.True(res.IsNone);
         }
 
-        [Test]
+        [Fact]
         public void Popping1()
         {
             var test = Stack(1, 2, 3, 4, 5);
             Popping5(test);
         }
 
-        [Test]
+        [Fact]
         public void Popping2()
         {
             var test = Stack<int>();
@@ -50,36 +50,36 @@ namespace LanguageExtTests
 
         public void Popping5(Stck<int> test)
         {
-            test = map(pop(test), (stack, value) => { Assert.IsTrue(value.IsSome); return stack; });
-            test = map(pop(test), (stack, value) => { Assert.IsTrue(value.IsSome); return stack; });
-            test = map(pop(test), (stack, value) => { Assert.IsTrue(value.IsSome); return stack; });
-            test = map(pop(test), (stack, value) => { Assert.IsTrue(value.IsSome); return stack; });
+            test = map(pop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });
+            test = map(pop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });
+            test = map(pop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });
+            test = map(pop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });
             match(peek(test),
-                Some: v => Assert.IsTrue(v == 1),
-                None: () => Assert.Fail()
+                Some: v => Assert.True(v == 1),
+                None: () => Assert.False(true)
             );
         }
 
-        [Test]
+        [Fact]
         public void CollectionFunctions()
         {
             var stack = toStack(Range(1,100));
 
-            Assert.IsTrue(exists(stack, v => v == 50));
-            Assert.IsTrue(length(stack) == 100);
-            Assert.IsTrue(length(takeWhile(stack, v => v != 10)) == 90);
-            Assert.IsTrue(length(take(stack, 10)) == 10);
-            Assert.IsTrue(head(take(stack, 1)) == 100);
+            Assert.True(exists(stack, v => v == 50));
+            Assert.True(length(stack) == 100);
+            Assert.True(length(takeWhile(stack, v => v != 10)) == 90);
+            Assert.True(length(take(stack, 10)) == 10);
+            Assert.True(head(take(stack, 1)) == 100);
         }
 
-        [Test]
+        [Fact]
         public void RecursiveSumTest()
         {
             var values = toStack(Range(1, 10));
 
             var res = Sum(values);
 
-            Assert.IsTrue(res == sum(values));
+            Assert.True(res == sum(values));
         }
 
         public int Sum(Stck<int> stack) =>

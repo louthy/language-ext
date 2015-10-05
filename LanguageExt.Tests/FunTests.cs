@@ -1,13 +1,13 @@
 ﻿using System;
-using NUnit.Framework;
+using Xunit;
 using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
 {
-    [TestFixture]
+    
     public class FunTests
     {
-        [Test] public void LambdaInferTests()
+        [Fact] public void LambdaInferTests()
         {
             var fn1 = fun( () => 123 );
             var fn2 = fun( (int a) => 123 + a );

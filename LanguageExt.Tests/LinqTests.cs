@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using NUnit.Framework;
+using Xunit;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
@@ -8,10 +8,10 @@ using LanguageExt.Trans;
 
 namespace LanguageExtTests
 {
-    [TestFixture]
+    
     public class LinqTests
     {
-        [Test]
+        [Fact]
         public void WithOptionSomeList()
         {
             var res = from v in GetOptionValue(true)
@@ -20,22 +20,22 @@ namespace LanguageExtTests
 
             var res2 = res.LiftUnsafe().ToList();
 
-            Assert.IsTrue(res.CountT() == 10);
-            Assert.IsTrue(res2[0] == 10);
-            Assert.IsTrue(res2[9] == 100);
+            Assert.True(res.CountT() == 10);
+            Assert.True(res2[0] == 10);
+            Assert.True(res2[9] == 100);
         }
 
-        [Test]
+        [Fact]
         public void WithOptionNoneList()
         {
             var res = from v in GetOptionValue(false)
                       from r in Range(1, 10)
                       select v * r;
 
-            Assert.IsTrue(res.CountT() == 0);
+            Assert.True(res.CountT() == 0);
         }
 
-        [Test]
+        [Fact]
         public void WithOptionUnsafeSomeList()
         {
             var res = (from v in GetOptionUnsafeValue(true).AsEnumerable()
@@ -43,22 +43,22 @@ namespace LanguageExtTests
                        select v * r)
                       .ToList();
 
-            Assert.IsTrue(res.Count() == 10);
-            Assert.IsTrue(res[0] == 10);
-            Assert.IsTrue(res[9] == 100);
+            Assert.True(res.Count() == 10);
+            Assert.True(res[0] == 10);
+            Assert.True(res[9] == 100);
         }
 
-        [Test]
+        [Fact]
         public void WithOptionUnsafeNoneList()
         {
             var res = from v in GetOptionUnsafeValue(false)
                       from r in Range(1, 10)
                       select v * r;
 
-            Assert.IsTrue(res.CountT() == 0);
+            Assert.True(res.CountT() == 0);
         }
 
-        [Test]
+        [Fact]
         public void WithEitherRightList()
         {
             var res = from v in GetEitherValue(true)
@@ -67,22 +67,22 @@ namespace LanguageExtTests
 
             var res2 = res.LiftUnsafe().ToList();
 
-            Assert.IsTrue(res.CountT() == 10);
-            Assert.IsTrue(res2[0] == 10);
-            Assert.IsTrue(res2[9] == 100);
+            Assert.True(res.CountT() == 10);
+            Assert.True(res2[0] == 10);
+            Assert.True(res2[9] == 100);
         }
 
-        [Test]
+        [Fact]
         public void WithEitherLeftList()
         {
             var res = from v in GetEitherValue(false)
                       from r in Range(1, 10)
                       select v * r;
 
-            Assert.IsTrue(res.CountT() == 0);
+            Assert.True(res.CountT() == 0);
         }
 
-        [Test]
+        [Fact]
         public void WithEitherUnsafeRightList()
         {
             var res = from v in GetEitherUnsafeValue(true)
@@ -91,22 +91,22 @@ namespace LanguageExtTests
 
             var res2 = res.LiftUnsafe().ToList();
 
-            Assert.IsTrue(res.CountT() == 10);
-            Assert.IsTrue(res2[0] == 10);
-            Assert.IsTrue(res2[9] == 100);
+            Assert.True(res.CountT() == 10);
+            Assert.True(res2[0] == 10);
+            Assert.True(res2[9] == 100);
         }
 
-        [Test]
+        [Fact]
         public void WithEitherUnsafeLeftList()
         {
             var res = from v in GetEitherUnsafeValue(false)
                       from r in Range(1, 10)
                       select v * r;
 
-            Assert.IsTrue(res.CountT() == 0);
+            Assert.True(res.CountT() == 0);
         }
 
-        [Test]
+        [Fact]
         public void WithTryOptionSomeList()
         {
             var res = from v in GetTryOptionValue(true)
@@ -115,68 +115,68 @@ namespace LanguageExtTests
 
             var res2 = res.LiftUnsafe().ToList();
 
-            Assert.IsTrue(res.CountT() == 10);
-            Assert.IsTrue(res2[0] == 10);
-            Assert.IsTrue(res2[9] == 100);
+            Assert.True(res.CountT() == 10);
+            Assert.True(res2[0] == 10);
+            Assert.True(res2[9] == 100);
         }
 
-        [Test]
+        [Fact]
         public void WithTryOptionNoneList()
         {
             var res = from v in GetTryOptionValue(false)
                       from r in Range(1, 10)
                       select v * r;
 
-            Assert.IsTrue(res.CountT() == 0);
+            Assert.True(res.CountT() == 0);
         }
 
-        [Test]
+        [Fact]
         public void WhereOptionTest()
         {
             var res1 = from v in GetOptionValue(true)
                        where v == 10
                        select v;
 
-            Assert.IsTrue(res1.IfNone(0) == 10);
+            Assert.True(res1.IfNone(0) == 10);
 
             var res2 = from v in GetOptionValue(false)
                        where v == 10
                        select v;
 
-            Assert.IsTrue(res2.IfNone(0) == 0);
+            Assert.True(res2.IfNone(0) == 0);
         }
 
-        [Test]
+        [Fact]
         public void WhereOptionUnsafeTest()
         {
             var res1 = from v in GetOptionUnsafeValue(true)
                        where v == 10
                        select v;
 
-            Assert.IsTrue(res1.IfNoneUnsafe(0) == 10);
+            Assert.True(res1.IfNoneUnsafe(0) == 10);
 
             var res2 = from v in GetOptionUnsafeValue(false)
                        where v == 10
                        select v;
 
-            Assert.IsTrue(res2.IfNoneUnsafe(0) == 0);
+            Assert.True(res2.IfNoneUnsafe(0) == 0);
         }
 
 
-        [Test]
+        [Fact]
         public void WhereTryOptionTest()
         {
             var res1 = from v in GetTryOptionValue(0)
                        where v == 10
                        select v;
 
-            Assert.IsTrue(res1.IfNone(0) == 10);
+            Assert.True(res1.IfNone(0) == 10);
 
             var res2 = from v in GetTryOptionValue(1)
                        where v == 10
                        select v;
 
-            Assert.IsTrue(res2.IfNone(0) == 0);
+            Assert.True(res2.IfNone(0) == 0);
 
             var res3 = match(from v in GetTryOptionValue(2)
                              where v == 10
@@ -185,10 +185,10 @@ namespace LanguageExtTests
                              None: () => 2,
                              Fail: ex => 3);
 
-            Assert.IsTrue(res3 == 3);
+            Assert.True(res3 == 3);
         }
 
-        [Test]
+        [Fact]
         public void OptionAndOrTest()
         {
             Option<int> optional1 = None;
@@ -199,7 +199,7 @@ namespace LanguageExtTests
                       from y in optional3
                       select x + y;
 
-            Assert.IsTrue(res == Some(30));
+            Assert.True(res == Some(30));
         }
 
         private TryOption<int> GetTryOptionValue(int state) => () =>

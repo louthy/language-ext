@@ -1,13 +1,13 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
 {
-    [TestFixture]
+    
     public class TryOptionMonadTests
     {
-        [Test]
+        [Fact]
         public void TryOddNumber1()
         {
             var res = match( from x in OddNumberCrash(10)
@@ -17,10 +17,10 @@ namespace LanguageExtTests
                              Succ: v => v,
                              Fail: 0 );
 
-            Assert.IsTrue(res == 1000);
+            Assert.True(res == 1000);
         }
 
-        [Test]
+        [Fact]
         public void TryOddNumber2()
         {
             var res = match( from x in OddNumberCrash(10)
@@ -30,10 +30,10 @@ namespace LanguageExtTests
                              Succ: v => v,
                              Fail: 0 );
 
-            Assert.IsTrue(res == 0);
+            Assert.True(res == 0);
         }
 
-        [Test]
+        [Fact]
         public void TryLinq1()
         {
             var res = match( from x in Num(10)
@@ -43,10 +43,10 @@ namespace LanguageExtTests
                              Succ: v => v,
                              Fail: 0 );
 
-            Assert.IsTrue(res == 1000);
+            Assert.True(res == 1000);
         }
 
-        [Test]
+        [Fact]
         public void TryLinq2()
         {
             var res = match( from x in Num(10)
@@ -56,10 +56,10 @@ namespace LanguageExtTests
                              Succ: v => v,
                              Fail: 0 );
 
-            Assert.IsTrue(res == 0);
+            Assert.True(res == 0);
         }
 
-        [Test]
+        [Fact]
         public void TryLinq3()
         {
             var res = match(from x in Num(10, false)
@@ -69,59 +69,59 @@ namespace LanguageExtTests
                              Succ: v => v,
                              Fail: 0);
 
-            Assert.IsTrue(res == 0);
+            Assert.True(res == 0);
         }
 
-        [Test]
+        [Fact]
         public void TryMatchSuccessTest1()
         {
             GetValue(true).Match(
-                Succ: v  => Assert.IsTrue(v == "Hello, World"),
-                Fail: e  => Assert.Fail()
+                Succ: v  => Assert.True(v == "Hello, World"),
+                Fail: e  => Assert.False(true)
             );
         }
 
-        [Test]
+        [Fact]
         public void TryMatchFailTest1()
         {
             GetValue(false).Match(
-                Succ: v  => Assert.Fail(),
-                Fail: e  => Assert.IsTrue(e.Message == "Failed!")
+                Succ: v  => Assert.False(true),
+                Fail: e  => Assert.True(e.Message == "Failed!")
             );
         }
 
-        [Test]
+        [Fact]
         public void FuncTryMatchSuccessTest1()
         {
             match( 
                 GetValue(true),
-                Succ: v  => Assert.IsTrue(v == "Hello, World"),
-                Fail: e  => Assert.Fail()
+                Succ: v  => Assert.True(v == "Hello, World"),
+                Fail: e  => Assert.False(true)
             );
         }
 
-        [Test]
+        [Fact]
         public void FuncTryMatchNoneTest1()
         {
             match(
                 GetValue(false),
-                Succ: v  => Assert.Fail(),
-                Fail: e => Assert.IsTrue(e.Message == "Failed!")
+                Succ: v  => Assert.False(true),
+                Fail: e => Assert.True(e.Message == "Failed!")
             );
         }
 
-        [Test]
+        [Fact]
         public void FuncFailureTryMatchSuccessTest1()
         {
-            Assert.IsTrue(
+            Assert.True(
                 ifFail(GetValue(true), "failed") == "Hello, World"
                 );
         }
 
-        [Test]
+        [Fact]
         public void FuncFailureTryMatchFailTest1()
         {
-            Assert.IsTrue(
+            Assert.True(
                 ifFail(GetValue(false), "failed") == "failed"
                 );
         }

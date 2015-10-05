@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System;
@@ -6,96 +6,96 @@ using System;
 
 namespace LanguageExtTests
 {
-    [TestFixture]
+    
     public class EqualityTests
     {
-        [Test]
+        [Fact]
         public void EqualityTest1()
         {
             var optional = Some(123);
 
             if (optional == 123)
             {
-                Assert.IsTrue(true);
+                Assert.True(true);
             }
             else
             {
-                Assert.Fail();
+                Assert.False(true);
             }
         }
 
-        [Test]
+        [Fact]
         public void EqualityTest2()
         {
             Option<int> optional = None;
 
             if (optional == None)
             {
-                Assert.IsTrue(true);
+                Assert.True(true);
             }
             else
             {
-                Assert.Fail();
+                Assert.False(true);
             }
         }
 
-        [Test]
+        [Fact]
         public void EqualityTest3()
         {
             var optional = Some(123);
 
             if (optional == None)
             {
-                Assert.Fail();
+                Assert.False(true);
             }
             else
             {
-                Assert.IsTrue(true);
+                Assert.True(true);
             }
         }
 
-        [Test]
+        [Fact]
         public void EqualityTest4()
         {
             Option<int> optional = None;
 
             if (optional == Some(123))
             {
-                Assert.Fail();
+                Assert.False(true);
             }
             else
             {
-                Assert.IsTrue(true);
+                Assert.True(true);
             }
         }
 
-        [Test]
+        [Fact]
         public void NonEqualityTest1()
         {
             var optional = Some(123);
 
             if (optional != 123)
             {
-                Assert.Fail();
+                Assert.False(true);
             }
             else
             {
-                Assert.IsTrue(true);
+                Assert.True(true);
             }
         }
 
-        [Test]
+        [Fact]
         public void NonEqualityTest2()
         {
             Option<int> optional = None;
 
             if (optional != None)
             {
-                Assert.Fail();
+                Assert.False(true);
             }
             else
             {
-                Assert.IsTrue(true);
+                Assert.True(true);
             }
         }
     }

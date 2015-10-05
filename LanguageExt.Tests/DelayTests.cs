@@ -1,16 +1,16 @@
-﻿using NUnit.Framework;
-using LanguageExt;
+﻿using LanguageExt;
 using static LanguageExt.Prelude;
 using System;
 using System.Reactive.Linq;
 using System.Threading;
 
+using Xunit;
+
 namespace LanguageExtTests
 {
-    [TestFixture]
     public class DelayTests
     {
-        [Test]
+        [Fact]
         public void DelayTest1()
         {
             var span = TimeSpan.FromMilliseconds(500);
@@ -21,7 +21,7 @@ namespace LanguageExtTests
 
             while( DateTime.Now < till )
             {
-                Assert.IsTrue(v == 0);
+                Assert.True(v == 0);
                 Thread.Sleep(1);
             }
 
@@ -30,7 +30,7 @@ namespace LanguageExtTests
                 Thread.Sleep(1);
             }
 
-            Assert.IsTrue(v == 1);
+            Assert.True(v == 1);
         }
     }
 }

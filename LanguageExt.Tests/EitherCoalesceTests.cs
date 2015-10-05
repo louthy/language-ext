@@ -1,68 +1,67 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using LanguageExt;
 
 namespace LanguageExtTests
 {
-    [TestFixture]
     class EitherCoalesceTests
     {
-        [Test]
+        [Fact]
         public void EitherCoalesceTest1()
         {
             Either<string, int> either = 123;
 
             var value = either || 456;
-            Assert.IsTrue(value == 123);
+            Assert.True(value == 123);
         }
 
-        [Test]
+        [Fact]
         public void EitherCoalesceTest2()
         {
             Either<string, int> either = "Hello";
 
             var value = either || 456;
-            Assert.IsTrue(value == 456);
+            Assert.True(value == 456);
         }
 
-        [Test]
+        [Fact]
         public void EitherCoalesceTest3()
         {
             Either<string, int> either1 = "Hello";
             Either<string, int> either2 = "World";
 
             var value = either1 || either2 || 456;
-            Assert.IsTrue(value == 456);
+            Assert.True(value == 456);
         }
 
-        [Test]
+        [Fact]
         public void EitherUnsafeCoalesceTest1()
         {
             EitherUnsafe<string, int> either = 123;
 
             var value = either || 456;
-            Assert.IsTrue(value == 123);
+            Assert.True(value == 123);
         }
 
-        [Test]
+        [Fact]
         public void EitherUnsafeCoalesceTest2()
         {
             EitherUnsafe<string, int> either = "Hello";
 
             var value = either || 456;
-            Assert.IsTrue(value == 456);
+            Assert.True(value == 456);
         }
 
-        [Test]
+        [Fact]
         public void EitherUnsafeCoalesceTest3()
         {
             EitherUnsafe<string, int> either1 = "Hello";
             EitherUnsafe<string, int> either2 = "World";
 
             var value = either1 || either2 || 456;
-            Assert.IsTrue(value == 456);
+            Assert.True(value == 456);
         }
 
-        [Test]
+        [Fact]
         public void EitherUnsafeCoalesceTest4()
         {
             EitherUnsafe<string, int> either1 = "Hello";
@@ -70,10 +69,10 @@ namespace LanguageExtTests
             EitherUnsafe<string, int> either3 = (string)null;
 
             var value = either1 || either2 || either3;
-            Assert.IsTrue(value == null);
+            Assert.True(value == null);
         }
 
-        [Test]
+        [Fact]
         public void EitherUnsafeCoalesceTest5()
         {
             EitherUnsafe<int, string> either1 = 1;
@@ -81,10 +80,10 @@ namespace LanguageExtTests
             EitherUnsafe<int, string> either3 = 3;
 
             var value = either1 || either2 || either3 || (string)null;
-            Assert.IsTrue(value == null);
+            Assert.True(value == null);
         }
 
-        [Test]
+        [Fact]
         public void TryFun()
         {
             TryOption<int> x = () => 100;

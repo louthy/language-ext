@@ -1,77 +1,77 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
 {
-    [TestFixture]
+    
     public class EitherTests
     {
-        [Test] public void RightGeneratorTestsObject()
+        [Fact] public void RightGeneratorTestsObject()
         {
             var either = Right<string, int>(123);
 
-            either.Match( Right: i => Assert.IsTrue(i == 123),
-                          Left:  _ => Assert.Fail("Shouldn't get here") );
+            either.Match( Right: i => Assert.True(i == 123),
+                          Left:  _ => Assert.False(true,"Shouldn't get here") );
 
             int c = either.Match( Right: i  => i + 1, 
                                   Left: _ => 0 );
 
-            Assert.IsTrue(c == 124);
+            Assert.True(c == 124);
         }
 
-        [Test] public void SomeGeneratorTestsFunction()
+        [Fact] public void SomeGeneratorTestsFunction()
         {
             var either = Right<string, int>(123);
 
-            match(either, Right: i => Assert.IsTrue(i == 123),
-                          Left:  _ => Assert.Fail("Shouldn't get here") );
+            match(either, Right: i => Assert.True(i == 123),
+                          Left:  _ => Assert.False(true,"Shouldn't get here") );
 
             int c = match(either, Right: i => i + 1,
                                   Left:  _ => 0 );
 
-            Assert.IsTrue(c == 124);
+            Assert.True(c == 124);
         }
 
-        [Test] public void LeftGeneratorTestsObject()
+        [Fact] public void LeftGeneratorTestsObject()
         {
             var either = ItsLeft;
 
-            either.Match( Right: r => Assert.Fail("Shouldn't get here"),
-                          Left:  l => Assert.IsTrue(l == "Left") );
+            either.Match( Right: r => Assert.False(true,"Shouldn't get here"),
+                          Left:  l => Assert.True(l == "Left") );
 
             int c = either.Match( Right: r => r + 1, 
                                   Left:  l => 0 );
 
-            Assert.IsTrue(c == 0);
+            Assert.True(c == 0);
         }
 
-        [Test] public void LeftGeneratorTestsFunction()
+        [Fact] public void LeftGeneratorTestsFunction()
         {
             var either = ItsLeft;
 
-            match(either, Right: r => Assert.Fail("Shouldn't get here"),
-                          Left:  l => Assert.IsTrue(l == "Left") );
+            match(either, Right: r => Assert.False(true,"Shouldn't get here"),
+                          Left:  l => Assert.True(l == "Left") );
 
             int c = match(either, Right: r => r + 1,
                                   Left:  l => 0 );
 
-            Assert.IsTrue(c == 0);
+            Assert.True(c == 0);
         }
 
-        [Test] public void SomeLinqTest()
+        [Fact] public void SomeLinqTest()
         {
            (from x in Two
             from y in Four
             from z in Six
             select x + y + z)
            .Match(
-             Right: r => Assert.IsTrue(r == 12),
-             Left:  l => Assert.Fail("Shouldn't get here")
+             Right: r => Assert.True(r == 12),
+             Left:  l => Assert.False(true,"Shouldn't get here")
            );
         }
 
-        [Test] public void LeftLinqTest()
+        [Fact] public void LeftLinqTest()
         {
             (from x in Two
              from y in Four
@@ -79,12 +79,12 @@ namespace LanguageExtTests
              from z in Six
              select x + y + z)
             .Match(
-              r => Assert.Fail("Shouldn't get here"),
-              l => Assert.IsTrue(l == "Left")
+              r => Assert.False(true,"Shouldn't get here"),
+              l => Assert.True(l == "Left")
             );
         }
 
-        [Test] public void EitherFluentSomeNoneTest()
+        [Fact] public void EitherFluentSomeNoneTest()
         {
             int res1 = GetValue(true)
                         .Right(r => r + 10)
@@ -94,12 +94,12 @@ namespace LanguageExtTests
                         .Right(r => r + 10)
                         .Left (l => l.Length);
 
-            Assert.IsTrue(res1 == 1010);
-            Assert.IsTrue(res2 == 4);
+            Assert.True(res1 == 1010);
+            Assert.True(res2 == 4);
         }
 
 
-        [Test]
+        [Fact]
         public void NullInRightOrLeftTest()
         {
             Assert.Throws(

@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
@@ -7,7 +7,7 @@ using System;
 
 namespace LanguageExtTests
 {
-    [TestFixture]
+    
     public class TryMonadTests
     {
         public void TryOptionListTest()
@@ -17,60 +17,60 @@ namespace LanguageExtTests
                     select b;                       // returns a list of Option
         }
 
-        [Test]
+        [Fact]
         public void TryMatchSuccessTest1()
         {
             GetSomeValue(true).Match(
-                Some: v  => Assert.IsTrue(v == "Hello, World"),
-                None: () => Assert.Fail(),
-                Fail: e  => Assert.Fail()
+                Some: v  => Assert.True(v == "Hello, World"),
+                None: () => Assert.False(true),
+                Fail: e  => Assert.False(true)
             );
         }
 
-        [Test]
+        [Fact]
         public void TryMatchFailTest1()
         {
             GetFailValue().Match(
-                Some: v  => Assert.Fail(),
-                None: () => Assert.Fail(),
-                Fail: e  => Assert.IsTrue(e.Message == "Whoops")
+                Some: v  => Assert.False(true),
+                None: () => Assert.False(true),
+                Fail: e  => Assert.True(e.Message == "Whoops")
             );
         }
 
-        [Test]
+        [Fact]
         public void FuncTryMatchSuccessTest1()
         {
             match( 
                 GetValue(true),
-                Some: v  => Assert.IsTrue(v == "Hello, World"),
-                None: () => Assert.Fail(),
-                Fail: e  => Assert.Fail()
+                Some: v  => Assert.True(v == "Hello, World"),
+                None: () => Assert.False(true),
+                Fail: e  => Assert.False(true)
             );
         }
 
-        [Test]
+        [Fact]
         public void FuncTryMatchNoneTest1()
         {
             match(
                 GetValue(false),
-                Some: v  => Assert.Fail(),
-                None: () => Assert.IsTrue(true),
-                Fail: e  => Assert.Fail()
+                Some: v  => Assert.False(true),
+                None: () => Assert.True(true),
+                Fail: e  => Assert.False(true)
             );
         }
 
-        [Test]
+        [Fact]
         public void FuncFailureTryMatchSuccessTest1()
         {
-            Assert.IsTrue(
+            Assert.True(
                 ifNone(GetValue(true), "failed") == "Hello, World"
                 );
         }
 
-        [Test]
+        [Fact]
         public void FuncFailureTryMatchFailTest1()
         {
-            Assert.IsTrue(
+            Assert.True(
                 ifNone(GetValue(false), "failed") == "failed"
                 );
         }

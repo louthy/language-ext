@@ -2,24 +2,24 @@
 using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using static LanguageExt.Map;
-using NUnit.Framework;
+using Xunit;
 using System;
 using System.Linq;
 
 namespace LanguageExtTests
 {
-    [TestFixture]
+    
     public class MapTests
     {
-        [Test]
+        [Fact]
         public void MapGeneratorTest()
         {
             var m1 = Map<int, string>();
             m1 = add(m1, 100, "hello");
-            Assert.IsTrue(m1.Count == 1 && containsKey(m1,100));
+            Assert.True(m1.Count == 1 && containsKey(m1,100));
         }
 
-        [Test]
+        [Fact]
         public void MapGeneratorAndMatchTest()
         {
             var m2 = Map( Tuple(1, "a"),
@@ -34,10 +34,10 @@ namespace LanguageExtTests
                 () => "failed"
             );
 
-            Assert.IsTrue(res == "world");
+            Assert.True(res == "world");
         }
 
-        [Test]
+        [Fact]
         public void MapSetTest()
         {
             var m1 = Map( Tuple(1, "a"),
@@ -48,18 +48,18 @@ namespace LanguageExtTests
 
             match( 
                 m1, 1, 
-                Some: v => Assert.IsTrue(v == "a"), 
-                None: () => Assert.Fail() 
+                Some: v => Assert.True(v == "a"), 
+                None: () => Assert.False(true) 
                 );
 
             match(
                 find(m2, 1),
-                Some: v => Assert.IsTrue(v == "x"),
-                None: () => Assert.Fail()
+                Some: v => Assert.True(v == "x"),
+                None: () => Assert.False(true)
                 );
         }
 
-        [Test]
+        [Fact]
         public void MapAddInOrderTest()
         {
             var m = Map(Tuple(1, 1));
@@ -88,7 +88,7 @@ namespace LanguageExtTests
             m.Find(5).IfNone(() => failwith<int>("Broken"));
         }
 
-        [Test]
+        [Fact]
         public void MapAddInReverseOrderTest()
         {
             var m = Map(Tuple(2, 2), Tuple(1, 1));
@@ -114,7 +114,7 @@ namespace LanguageExtTests
             m.Find(5).IfNone(() => failwith<int>("Broken"));
         }
 
-        [Test]
+        [Fact]
         public void MapAddInMixedOrderTest()
         {
             var m = Map(Tuple(5, 5), Tuple(1, 1), Tuple(3, 3), Tuple(2, 2), Tuple(4, 4));
@@ -133,7 +133,7 @@ namespace LanguageExtTests
         }
 
 
-        [Test]
+        [Fact]
         public void MapRemoveTest()
         {
             var m = Map(Tuple(1, "a"),
@@ -148,40 +148,40 @@ namespace LanguageExtTests
             m.Find(4).IfNone(() => failwith<string>("Broken 4"));
             m.Find(5).IfNone(() => failwith<string>("Broken 5"));
 
-            Assert.IsTrue(m.Count == 5);
+            Assert.True(m.Count == 5);
 
             m = remove(m,4);
-            Assert.IsTrue(m.Count == 4);
-            Assert.IsTrue(m.Find(4).IsNone);
+            Assert.True(m.Count == 4);
+            Assert.True(m.Find(4).IsNone);
             m.Find(1).IfNone(() => failwith<string>("Broken 1"));
             m.Find(2).IfNone(() => failwith<string>("Broken 2"));
             m.Find(3).IfNone(() => failwith<string>("Broken 3"));
             m.Find(5).IfNone(() => failwith<string>("Broken 5"));
 
             m = remove(m, 1);
-            Assert.IsTrue(m.Count == 3);
-            Assert.IsTrue(m.Find(1).IsNone);
+            Assert.True(m.Count == 3);
+            Assert.True(m.Find(1).IsNone);
             m.Find(2).IfNone(() => failwith<string>("Broken 2"));
             m.Find(3).IfNone(() => failwith<string>("Broken 3"));
             m.Find(5).IfNone(() => failwith<string>("Broken 5"));
 
             m = remove(m, 2);
-            Assert.IsTrue(m.Count == 2);
-            Assert.IsTrue(m.Find(2).IsNone);
+            Assert.True(m.Count == 2);
+            Assert.True(m.Find(2).IsNone);
             m.Find(3).IfNone(() => failwith<string>("Broken 3"));
             m.Find(5).IfNone(() => failwith<string>("Broken 5"));
 
             m = remove(m, 3);
-            Assert.IsTrue(m.Count == 1);
-            Assert.IsTrue(m.Find(3).IsNone);
+            Assert.True(m.Count == 1);
+            Assert.True(m.Find(3).IsNone);
             m.Find(5).IfNone(() => failwith<string>("Broken 5"));
 
             m = remove(m, 5);
-            Assert.IsTrue(m.Count == 0);
-            Assert.IsTrue(m.Find(5).IsNone);
+            Assert.True(m.Count == 0);
+            Assert.True(m.Find(5).IsNone);
         }
 
-        [Test]
+        [Fact]
         public void MassAddRemoveTest()
         {
             int max = 100000;
@@ -190,19 +190,19 @@ namespace LanguageExtTests
                                         .ToDictionary(kv => kv.Item1, kv => kv.Item2);
 
             var m = Map<Guid, Guid>().AddRange(items);
-            Assert.IsTrue(m.Count == max);
+            Assert.True(m.Count == max);
 
             foreach (var item in items)
             {
-                Assert.IsTrue(m.ContainsKey(item.Key));
+                Assert.True(m.ContainsKey(item.Key));
                 m = m.Remove(item.Key);
-                Assert.IsFalse(m.ContainsKey(item.Key));
+                Assert.False(m.ContainsKey(item.Key));
                 max--;
-                Assert.IsTrue(m.Count == max);
+                Assert.True(m.Count == max);
             }
         }
 
-        [Test]
+        [Fact]
         public void MapOptionTest()
         {
             var m = Map<Option<int>, Map<Option<int>, string>>();
@@ -212,16 +212,16 @@ namespace LanguageExtTests
             m = m.AddOrUpdate(Some(1), None, "Some None");
             m = m.AddOrUpdate(None, None, "None None");
 
-            Assert.IsTrue(m[Some(1)][Some(1)] == "Some Some");
-            Assert.IsTrue(m[None][Some(1)] == "None Some");
-            Assert.IsTrue(m[Some(1)][None] == "Some None");
-            Assert.IsTrue(m[None][None] == "None None");
+            Assert.True(m[Some(1)][Some(1)] == "Some Some");
+            Assert.True(m[None][Some(1)] == "None Some");
+            Assert.True(m[Some(1)][None] == "Some None");
+            Assert.True(m[None][None] == "None None");
 
-            Assert.IsTrue(m.CountT() == 4);
+            Assert.True(m.CountT() == 4);
 
             m = m.FilterT(v => v.EndsWith("None"));
 
-            Assert.IsTrue(m.CountT() == 2);
+            Assert.True(m.CountT() == 2);
         }
     }
 }

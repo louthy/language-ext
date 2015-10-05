@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using System;
 using LanguageExt;
 using static LanguageExt.List;
@@ -6,10 +6,10 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
 {
-    [TestFixture]
+    
     public class MemoTests
     {
-        [Test]
+        [Fact]
         public void MemoTest1()
         {
             var saved = DateTime.Now;
@@ -23,10 +23,10 @@ namespace LanguageExtTests
 
             var res2 = f();
 
-            Assert.IsTrue(res1 == res2);
+            Assert.True(res1 == res2);
         }
 
-        [Test]
+        [Fact]
         public void MemoTest2()
         {
             var fix = 0;
@@ -42,12 +42,12 @@ namespace LanguageExtTests
 
             var nums2 = map(Range(0, count), i => m(i));
 
-            Assert.IsTrue(
+            Assert.True(
                 length(filter(zip(nums1, nums2, (a, b) => a == b), v => v)) == count
                 );
         }
 
-        [Test]
+        [Fact]
         public void MemoTest3()
         {
             GC.Collect();
@@ -67,13 +67,13 @@ namespace LanguageExtTests
 
             var matches = length(filter(zip(nums1, nums2, (a, b) => a == b), v => v));
 
-            Assert.IsTrue(matches == count, "Numbers don't match (" + matches + " total matches, should be " + count + ")");
+            Assert.True(matches == count, "Numbers don't match (" + matches + " total matches, should be " + count + ")");
         }
 
         /*      
             Uncomment this if you have time on your hands
 
-        [Test]
+        [Fact]
         public void MemoMemoryTest()
         {
             var mbStart = GC.GetTotalMemory(false) / 1048576L;
@@ -85,7 +85,7 @@ namespace LanguageExtTests
 
             var mbFinish = GC.GetTotalMemory(false) / 1048576L;
 
-            Assert.IsTrue(mbFinish - mbStart < 30);
+            Assert.True(mbFinish - mbStart < 30);
         }
             */
     }
