@@ -83,9 +83,16 @@ To use the `Process` system, include `LanguageExt.Process.dll` and add `using st
 If you want to use it with Redis, include `LanguageExt.Process.Redis.dll`.  To connect to Redis use:
 
 ```C#
+    // C#
     RedisCluster.register();
     Cluster.connect("redis", "redis-test", "localhost", "0");
 ```
+```F#
+    // F#
+    RedisCluster.register()
+    connect "redis" "redis-test" "localhost" "0"
+```
+
 * Argument 1 is fixed for Redis
 * Argument 2 is your app's name to make it uniquely addressable in the cluster
 * Argument 3 is a comma separated list of Redis nodes to connect to
