@@ -8,4 +8,4 @@ $content = $content -replace '\$version\$',$versionStr
 
 $content | Out-File .\nuget\LanguageExt.compiled.nuspec
 
-& $root\NuGet\NuGet.exe pack .\nuget\LanguageExt.compiled.nuspec
+& nuget pack .\nuget\LanguageExt.compiled.nuspec
