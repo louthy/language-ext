@@ -7,3 +7,6 @@ before_build:
 
 build:
   verbosity: minimal
+
+before_test:
+- cmd: xunit.console.clr4 **\*.LanguageExt.Tests.dll /appveyor
