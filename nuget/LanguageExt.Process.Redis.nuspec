@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>LanguageExt</id>
+        <version>$version$</version>
+        <title>C# functional language extensions and actor system with Redis persistence</title>
+        <authors>Paul Louth</authors>
+        <licenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/louthy/language-ext</projectUrl>
+        <iconUrl>http://www.4four.org/images/lang-ext-logo.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>
+            This library uses and abuses the features of C# 6 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself. It also includes an 'Erlang like' process system (actors) that can optionally persist messages and state to Redis (note you can use it without Redis for in-app messaging). The process system additionally supports Rx streams of messages and state allowing for a complete system of reactive events and message dispatch.
+
+Lst&lt;T&gt; - Immutable list
+Map&lt;K,V&gt; - Immutable map
+Set&lt;T&gt; - Immutable set
+Que&lt;T&gt; - Immutable queue
+Stck&lt;T&gt; - Immutable stack
+Option&lt;T&gt; - Option monad that can't be used with null values
+OptionUnsafe&lt;T&gt; - Option monad that can be used with null values
+Either&lt;L,R&gt; - Right/Left choice monad that won't accept null values
+EitherUnsafe&lt;L,R&gt; - Right/Left choice monad that can be used with null values
+Try&lt;T&gt; - Exception catching monad
+TryOption&lt;T&gt; - Option monad with third state 'Fail' that catches exceptions
+Reader&lt;E,T&gt; - Reader monad
+Writer&lt;O,T&gt; - Writer monad
+State&lt;S,T&gt; - State monad
+Rws&lt;E,O,S,T&gt; - Reader/Writer/State monad
+Monad transformers - A higher kinded type (ish)
+Process library - Actor system. The same as Erlang processes for massive concurrency with state management.
+Redis persistence - Persistence of the Process system message-queues and state, for robustness and inter-app communication.
+Currying - https://en.wikipedia.org/wiki/Currying
+Partial application - https://en.wikipedia.org/wiki/Partial_application
+Memoization - https://en.wikipedia.org/wiki/Memoization
+Improved lambda type inference -  var add = fun( (int x, int y) =&gt; x + y)
+IObservable&lt;T&gt; extensions
+Bifunctors
+Bitraversables
+Bifoldables
+        </description>
+        <summary />
+        <releaseNotes></releaseNotes>
+        <copyright>Copyright Paul Louth 2014, 2015</copyright>
+        <tags>C# Functional Language Extension Monad Option Either Reader Writer State List Set Map Queue Memo Memoization Immutable Lambda Pattern Matching Tuple Actor Process Akka Redis</tags>
+        <dependencies>
+            <group targetFramework=".NETFramework4.5">
+                <dependency id="Rx-Main" version="2.2.5" />
+                <dependency id="Newtonsoft.Json" version="7.0.1" />
+                <dependency id="LanguageExt" version="$version$" />
+                <dependency id="LanguageExt.Process" version="$version$" />
+            </group>
+        </dependencies>
+        <frameworkAssemblies>
+            <frameworkAssembly assemblyName="System" targetFramework="" />
+        </frameworkAssemblies>
+    </metadata>
+    <files>
+        <file src="content\Scripts\process.js" target="content\Scripts\process.js" />
+        <file src="..\lib\LanguageExt.Process.dll" target="lib\LanguageExt.Process.dll" />
+    </files>
+</package>
