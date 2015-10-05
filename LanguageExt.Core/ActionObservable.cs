@@ -9,7 +9,7 @@ namespace LanguageExt
     /// <summary>
     /// Executes an action post-subscription.  This is useful when the action is 
     /// going to publish to the observable.  A kind of request/response.
-    /// Use the IObservable extension method: PostSubscribeAction
+    /// Use the IObservable extension method: PostSubscribe(() => ...)
     /// </summary>
     public class ActionObservable<T> : IObservable<T>
     {

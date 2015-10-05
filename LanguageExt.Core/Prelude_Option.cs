@@ -6,9 +6,21 @@ namespace LanguageExt
 {
     public static partial class Prelude
     {
+        /// <summary>
+        /// Check if Option is in a Some state
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="value">Option</param>
+        /// <returns>True if value is in a Some state</returns>
         public static bool isSome<T>(Option<T> value) =>
             value.IsSome;
 
+        /// <summary>
+        /// Check if Option is in a None state
+        /// </summary>
+        /// <typeparam name="T">T</typeparam>
+        /// <param name="value">Option</param>
+        /// <returns>True if value is in a None state</returns>
         public static bool isNone<T>(Option<T> value) =>
             value.IsNone;
 
