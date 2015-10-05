@@ -42,7 +42,6 @@ namespace LanguageExtTests
 
             tell(world, "error throwing test");
         }
-#endif
 
         [Fact]
         public void AskReply()
@@ -118,7 +117,7 @@ namespace LanguageExtTests
             kids = children(Registered);
             Assert.True(kids.Count() == 0);
         }
-#if !CI
+
         [Fact]
         public void RedisRegisterTest()
         {
@@ -163,7 +162,6 @@ namespace LanguageExtTests
             kids = children(Registered);
             Assert.True(kids.Count() == 0);
         }
-#endif
 
         [Fact]
         public void SpawnProcess()
@@ -391,5 +389,6 @@ namespace LanguageExtTests
             }
             Assert.True(v == "hello");
         }
+#endif
     }
 }
