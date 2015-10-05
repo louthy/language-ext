@@ -22,7 +22,40 @@ namespace TestBed
 {
     class Tests
     {
-       public static void LocalRegisterTest()
+        public static void MemoTest3()
+        {
+            GC.Collect();
+
+            var fix = 0;
+            var count = 1000;
+
+            Func<int, int> fn = x => x + fix;
+
+            var m = fn.memo();
+
+            var nums1 = freeze(map(Range(0, count), i => m(i)));
+
+            fix = 1000;
+
+            var nums2 = freeze(map(Range(0, count), i => m(i)));
+
+            var zipped = zip(nums1, nums2, (a, b) => a == b);
+
+            var filtered = filter(zipped, v => v);
+
+            var matches = length(filtered);
+        }
+
+        public static void LstRevLastIndexTest()
+        {
+            var list = List(1, 1, 2, 2, 2);
+            var rev = list.Rev();
+
+            Debug.Assert(rev.LastIndexOf(1) == 4, "Should have been 4, actually is: " + rev.LastIndexOf(1));
+            Debug.Assert(rev.LastIndexOf(2) == 2, "Should have been 2, actually is: " + rev.LastIndexOf(2));
+        }
+
+        public static void LocalRegisterTest()
         {
             shutdownAll();
 
