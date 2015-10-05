@@ -34,7 +34,7 @@
     </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AppVeyorBuild|AnyCPU'">
-    <OutputPath>bin\AppVeyorBuild\</OutputPath>
+    <OutputPath>..\lib\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
