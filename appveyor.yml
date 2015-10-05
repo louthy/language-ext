@@ -14,3 +14,8 @@ before_build:
 
 build:
   verbosity: minimal
+
+after_test:
+ - ps: .\nuget\pack-language-ext.ps1
+ - ps: .\nuget\pack-language-ext-process.ps1
+ - ps: .\nuget\pack-language-ext-process-redis.ps1
