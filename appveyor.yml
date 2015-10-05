@@ -19,3 +19,10 @@ after_test:
  - ps: .\nuget\pack-language-ext.ps1
  - ps: .\nuget\pack-language-ext-process.ps1
  - ps: .\nuget\pack-language-ext-process-redis.ps1
+
+deploy:
+  provider: NuGet
+  api_key:
+    secure: PmMMAd8abwpwcaFTVXd5l8GSz/x8beDrCC3ndZeBHnQFzHRW7eJK+OgDP9CInUts
+  artifact: /.*\.nupkg/
+
