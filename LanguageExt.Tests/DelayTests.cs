@@ -19,7 +19,7 @@ namespace LanguageExtTests
 
             delay(() => 1, span).Subscribe(x => v = x);
 
-            while( DateTime.Now < till )
+            while( DateTime.Now < till.AddMilliseconds(20) )
             {
                 Assert.True(v == 0);
                 Thread.Sleep(1);

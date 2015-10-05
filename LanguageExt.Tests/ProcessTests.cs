@@ -15,6 +15,7 @@ namespace LanguageExtTests
     
     public class ProcessTests
     {
+#if !CI
         [Fact]
         public static void AskReplyError()
         {
@@ -41,6 +42,7 @@ namespace LanguageExtTests
 
             tell(world, "error throwing test");
         }
+#endif
 
         [Fact]
         public void AskReply()
@@ -99,24 +101,24 @@ namespace LanguageExtTests
 
             tell(regid, "hello");
 
-            Thread.Sleep(10);
+            Thread.Sleep(100);
 
             Assert.True(value == "hello");
 
             tell(find("woooo amazing"), "world");
 
-            Thread.Sleep(10);
+            Thread.Sleep(100);
 
             Assert.True(value == "world");
 
             deregister("woooo amazing");
 
-            Thread.Sleep(10);
+            Thread.Sleep(100);
 
             kids = children(Registered);
             Assert.True(kids.Count() == 0);
         }
-
+#if !CI
         [Fact]
         public void RedisRegisterTest()
         {
@@ -161,7 +163,7 @@ namespace LanguageExtTests
             kids = children(Registered);
             Assert.True(kids.Count() == 0);
         }
-
+#endif
 
         [Fact]
         public void SpawnProcess()
