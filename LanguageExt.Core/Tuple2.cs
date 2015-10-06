@@ -137,4 +137,9 @@ public static class __Tuple2
     public static S Fold<T1, T2, S>(this Tuple<T1, T2> self, S state, Func<S,T1,S> firstFold, Func<S,T2,S> secondFold) =>
         secondFold(firstFold(state,self.Item1),self.Item2);
 
+    /// <summary>
+    /// Bi-fold
+    /// </summary>
+    public static S FoldBack<T1, T2, S>(this Tuple<T1, T2> self, S state, Func<S, T2, S> firstFold, Func<S, T1, S> secondFold) =>
+        secondFold(firstFold(state, self.Item2), self.Item1);
 }

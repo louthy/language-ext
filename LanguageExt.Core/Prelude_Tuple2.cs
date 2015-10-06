@@ -129,5 +129,11 @@ namespace LanguageExt
         public static S fold<T1, T2, S>(Tuple<T1, T2> self, S state, Func<S, T1, S> firstFold, Func<S, T2, S> secondFold) =>
             self.Fold(state, firstFold, secondFold);
 
+        /// <summary>
+        /// Bi-fold back
+        /// </summary>
+        public static S foldBack<T1, T2, S>(Tuple<T1, T2> self, S state, Func<S, T2, S> firstFold, Func<S, T1, S> secondFold) =>
+            self.FoldBack(state, firstFold, secondFold);
+
     }
 }
