@@ -80,7 +80,7 @@ public static partial class Prelude
     /// Sum
     /// </summary>
     public static decimal sum<T1, T2>(Tuple<decimal, decimal> self) =>
-        self.ISum();
+        self.Sum();
 
     /// <summary>
     /// Map to R
