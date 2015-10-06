@@ -175,10 +175,12 @@ var Process = (function () {
             return withContext(ctx, function () {
                 context.reply = null;
                 if (p.stateless) {
-                    p.state = p.inbox(msg);
+                    var state = p.inbox(msg);
+                    if (typeof state !== "undefined") p.state = state;
                 }
                 else {
-                    p.state = p.inbox(p.state, msg);
+                    var state = p.inbox(p.state, msg);
+                    if (typeof state !== "undefined") p.state = state;
                 }
                 return context.reply;
             });
@@ -342,10 +344,12 @@ var Process = (function () {
         try {
             withContext(data.ctx, function () {
                 if (p.stateless) {
-                    p.state = p.inbox(data.msg);
+                    var state = p.inbox(data.msg);
+                    if (typeof state !== "undefined") p.state = state;
                 }
                 else {
-                    p.state = p.inbox(p.state, data.msg);
+                    var state = p.inbox(p.state, data.msg);
+                    if (typeof state !== "undefined") p.state = state;
                 }
             });
         }
