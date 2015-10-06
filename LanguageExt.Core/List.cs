@@ -38,6 +38,32 @@ namespace LanguageExt
             new Lst<T>(items);
 
         /// <summary>
+        /// Generates a sequence of T using the provided delegate to initialise
+        /// each item.
+        /// </summary>
+        public static IEnumerable<T> init<T>(int count, Func<int, T> generator) =>
+            from i in Range(0, count)
+            select generator(i);
+
+        /// <summary>
+        /// Generates an infinite sequence of T using the provided delegate to initialise
+        /// each item.
+        /// 
+        ///   Remarks: Not truly infinite, will end at Int32.MaxValue
+        /// 
+        /// </summary>
+        public static IEnumerable<T> initInfinite<T>(Func<int, T> generator) =>
+            from i in Range(0, Int32.MaxValue)
+            select generator(i);
+
+        /// <summary>
+        /// Generates a sequence that contains one repeated value.
+        /// </summary>
+        public static IEnumerable<T> repeat<T>(T item, int count) =>
+            from _ in Range(0, count)
+            select item;
+
+        /// <summary>
         /// Add an item to the list
         /// </summary>
         /// <param name="list">List</param>

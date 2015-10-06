@@ -23,12 +23,12 @@ namespace LanguageExtTests
             while( DateTime.Now < till )
             {
                 Assert.True(v == 0);
-                Thread.Sleep(1);
+                Thread.Sleep(10);
             }
 
             while (DateTime.Now < till.AddMilliseconds(100))
             {
-                Thread.Sleep(1);
+                Thread.Sleep(10);
             }
 
             Assert.True(v == 1);
