@@ -88,6 +88,7 @@
     <Compile Include="Prelude_Obsolete.cs" />
     <Compile Include="Prelude_PartialApplication.cs" />
     <Compile Include="Prelude_Timer.cs" />
+    <Compile Include="Prelude_Tuple2.cs" />
     <Compile Include="Que.cs" />
     <Compile Include="Query.cs" />
     <Compile Include="Prelude_Try.cs" />
@@ -102,7 +103,6 @@
     <Compile Include="Prelude_OptionUnsafe.cs" />
     <Compile Include="Prelude_TryOption.cs" />
     <Compile Include="Prelude_Tuple.cs" />
-    <Compile Include="Prelude_Tuple2.cs" />
     <Compile Include="Queue.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="Reader.cs" />
