@@ -106,7 +106,7 @@ This library is quickly becoming a 'Base Class Library' for functional programmi
 
 Feature | Description
 --------|------------
-`Lst<T>` | Immutable list
+`Lst<T>` | [Immutable list](https://github.com/louthy/language-ext/wiki/List-reference)
 `Map<K,V>` | Immutable map
 `Set<T>` | Immutable set
 `Que<T>` | Immutable queue
@@ -686,30 +686,7 @@ The two recursive examples above for calculating the sum and product of a sequen
 ```
 `reduce` is `fold` but instead of providing an initial state value, it uses the first item in the sequence.  Therefore you don't get an initial multiply by zero (unless the first item is zero!).  Internally `fold`, `foldBack` and `reduce` use an iterative loop rather than a recursive one; so no stack blowing problems!
 
-`list` functions (`using LanguageExt.List`):
-* `add`
-* `addRange`
-* `append`
-* `collect`
-* `choose`
-* `head`
-* `headSafe` - returns `Option<T>`
-* `forall`
-* `filter`
-* `fold`
-* `foldBack`
-* `iter`
-* `map`
-* `reduce`
-* `remove`
-* `removeAt`
-* `rev`
-* `scan`
-* `scanBack`
-* `sum`
-* `tail`
-* `zip`
-* more coming...
+[View list reference](https://github.com/louthy/language-ext/wiki/List-reference)
 
 ### Maps
 
