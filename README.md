@@ -686,39 +686,7 @@ The two recursive examples above for calculating the sum and product of a sequen
 ```
 `reduce` is `fold` but instead of providing an initial state value, it uses the first item in the sequence.  Therefore you don't get an initial multiply by zero (unless the first item is zero!).  Internally `fold`, `foldBack` and `reduce` use an iterative loop rather than a recursive one; so no stack blowing problems!
 
-### List reference
-
-Function | Behaviour
----------|----------
-`add` | Add an item to the list
-`addRange` | Add a range of items to the list
-`append` | Concatenate two lists  (`Concat` in LINQ)
-`collect` | For each element of the list, applies the given function. Concatenates all the results and returns the combined list.
-`choose` | Applies the given function f to each element x of the list. Returns the list comprised of the results for each element where the function returns Some(f(x)).
-`exists` | Returns `true` if any item in the list matches the predicate provided
-`forall` | Returns `true` if all items in the list match a predicate (`Any` in LINQ)
-`filter` | Removes items from the list that do not match the given predicate (`Where` in LINQ)
-`find` | Returns `Some(x)` for the first item in the list that matches the predicate provided, `None` otherwise.
-`fold` | Applies a function `f` to each element of the collection, threading an accumulator argument through the computation. The `fold` function takes the `state` argument, and applies the function `f` to it and the first element of the list. Then, it feeds this result into the function `f` along with the second element, and so on. It returns the final result.  (`Aggregate` in LINQ)
-`foldBack` | `fold(s, reverse(list), f)` - Does a fold from the other end of the list.
-`freeze` | Turns an `IEnumerable<T>` into an immutable list `Lst<T>`
-`head` | Returns the first item in the list, if one exists, throws otherwise  (`First` in LINQ)
-`headSafe` - returns `Option<T>` | Returns the `Some(x)` first item in the list, if one exists, `None` otherwise  (`FirstOrDefault` in LINQ except instead of returning `null` it returns `None`)
-`iter` | Invokes an action for each item in the list
-`length` | Returns the number of items in the list
-`map` | Projects the values in the list using a map function into a new list (`Select` in LINQ).
-`reduce` | Applies a function to each element of the collection, threading an accumulator argument through the computation. This function first applies the function to the first two elements of the list. Then, it passes this result into the function along with the third element and so on. Finally, it returns the final result. 
-`reduceBack` | `reduce(reverse(list),f)`
-`remove` | Removes from the list the first item that matches the predicate provided
-`removeAt` | Removes an item from the list at a specified offset
-`rev` | Reverses the list (`Reverse` in LINQ)
-`scan` | Applies a function to each element of the collection, threading an accumulator argument through the computation. This function takes the `state` argument, and applies the function to it and the first element of the list. Then, it passes this result into the function along with the second element, and so on. Finally, it returns the list of intermediate results and the final result.
-`scanBack` | `scan(reverse(list))`
-`sum` | Returns the sum of all the items in the list (`Sum` in LINQ)
-`tail` | Returns the list but drops the first element (`Skip(1)` in LINQ)
-`takeWhile` | Iterate the list, yielding items if they match the predicate provided, and stopping as soon as one doesn't
-`unfold` | Generate a new list from an intial `state` value and an 'unfolding' function.
-`zip` | Joins two lists together either into a list of tuples or by using the join function provided
+[View list reference](https://github.com/louthy/language-ext/wiki/List-reference)
 
 ### Maps
 
