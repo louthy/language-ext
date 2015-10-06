@@ -686,6 +686,8 @@ The two recursive examples above for calculating the sum and product of a sequen
 ```
 `reduce` is `fold` but instead of providing an initial state value, it uses the first item in the sequence.  Therefore you don't get an initial multiply by zero (unless the first item is zero!).  Internally `fold`, `foldBack` and `reduce` use an iterative loop rather than a recursive one; so no stack blowing problems!
 
+__Reference__
+
 [View list reference](https://github.com/louthy/language-ext/wiki/List-reference)
 
 ### Maps
