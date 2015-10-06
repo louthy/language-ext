@@ -106,7 +106,7 @@ This library is quickly becoming a 'Base Class Library' for functional programmi
 
 Feature | Description
 --------|------------
-`Lst<T>` | Immutable list
+`Lst<T>` | [Immutable list](https://github.com/louthy/language-ext/wiki/List-reference)
 `Map<K,V>` | Immutable map
 `Set<T>` | Immutable set
 `Que<T>` | Immutable queue
