@@ -188,6 +188,38 @@ namespace LanguageExt
         public static S foldBack<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder) =>
             fold(rev(list), state, folder);
 
+        public static S foldWhile<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred)
+        {
+            foreach (var item in list)
+            {
+                if (pred(item))
+                {
+                    return state;
+                }
+                state = folder(state, item);
+            }
+            return state;
+        }
+
+        public static S foldWhile<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred)
+        {
+            foreach (var item in list)
+            {
+                if (pred(state))
+                {
+                    return state;
+                }
+                state = folder(state, item);
+            }
+            return state;
+        }
+
+        public static S foldBackWhile<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
+            foldWhile(rev(list), state, folder, pred);
+
+        public static S foldBackWhile<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
+            foldWhile(rev(list), state, folder, pred);
+
         public static T reduce<T>(IEnumerable<T> list, Func<T, T, T> reducer) =>
             match(headOrNone(list),
                 Some: x => fold(tail(list), x, reducer),
@@ -617,6 +649,18 @@ public static class __EnumnerableExt
 
     public static S FoldBack<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
         LanguageExt.List.foldBack(list, state, folder);
+
+    public static S FoldWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
+        LanguageExt.List.foldWhile(list, state, folder, pred);
+
+    public static S FoldWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
+        LanguageExt.List.foldWhile(list, state, folder, pred);
+
+    public static S FoldBackWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
+        LanguageExt.List.foldBackWhile(list, state, folder, pred);
+
+    public static S FoldBackWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
+        LanguageExt.List.foldBackWhile(list, state, folder, pred);
 
     public static T Reduce<T>(this IEnumerable<T> list, Func<T, T, T> reducer) =>
         LanguageExt.List.reduce(list, reducer);
