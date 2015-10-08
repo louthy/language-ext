@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="ActionObservable.cs" />
     <Compile Include="Compose.cs" />
+    <Compile Include="Disposable.cs" />
     <Compile Include="EitherState.cs" />
     <Compile Include="EitherUnsafeTrans.cs" />
     <Compile Include="EitherTrans.cs" />

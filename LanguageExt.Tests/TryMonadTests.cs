@@ -182,13 +182,13 @@ namespace LanguageExtTests
         Try<IEnumerable<string>> getLines(Stream stream) => () =>
             TryResult.Cast(readAllLines(stream));
 
-        public Try<IEnumerable<string>> Test(string url) =>
-            from u in parseUri(url)
-            from conn in openConnection(u)
-            from lines in getInputStream(conn).Use(
-                stream => getSource(stream).Use(
-                    source => getLines(source)))
-            from line in lines
+        public Try<IEnumerable<string>> getURLContent(string url) =>
+            from u      in parseUri(url)
+            from conn   in openConnection(u)
+            from stream in use(getInputStream(conn))
+            from source in use(getSource(stream.Value))
+            from lines  in getLines(source.Value)
+            from line   in lines
             select line;
     }
 }

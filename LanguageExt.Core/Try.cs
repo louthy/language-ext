@@ -257,9 +257,11 @@ public static class __TryExt
             try
             {
                 resU = select(resT.Value);
+                if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
             }
             catch (Exception e)
             {
+                if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                 TryConfig.ErrorLogger(e);
                 return new TryResult<U>(e);
             }
@@ -422,16 +424,26 @@ public static class __TryExt
         return new Try<V>(
             () =>
             {
+                var resT = self.Try();
+                if (resT.IsFaulted) return new TryResult<V>(resT.Exception);
+
+                var resU = bind(resT.Value).Try();
+                if (resU.IsFaulted)
+                {
+                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
+                    return new TryResult<V>(resT.Exception);
+                }
                 try
                 {
-                    var resT = self.Try();
-                    if (resT.IsFaulted) return new TryResult<V>(resT.Exception);
-                    var resU = bind(resT.Value).Try();
-                    if (resU.IsFaulted) return new TryResult<V>(resT.Exception);
-                    return new TryResult<V>(project(resT.Value, resU.Value));
+                    var res = new TryResult<V>(project(resT.Value, resU.Value));
+                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
+                    if (resU.Value is ILinqDisposable) (resU.Value as ILinqDisposable).Dispose();
+                    return res;
                 }
                 catch (Exception e)
                 {
+                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
+                    if (resU.Value is ILinqDisposable) (resU.Value as ILinqDisposable).Dispose();
                     TryConfig.ErrorLogger(e);
                     return new TryResult<V>(e);
                 }
