@@ -28,7 +28,7 @@ namespace LanguageExt
         /// <summary>
         /// 'No value' state of Option T.
         /// </summary>
-        public static OptionNone None => 
+        public static OptionNone None =>
             OptionNone.Default;
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace LanguageExt
         /// expression.  This allows you to keep the expression going.
         /// </summary>
         public static R map<T1, T2, R>(T1 value1, T2 value2, Func<T1, T2, R> project) =>
-            project(value1,value2);
+            project(value1, value2);
 
         /// <summary>
         /// Projects values into a lambda
@@ -153,5 +153,5 @@ namespace LanguageExt
             }
             return v;
         }
-   }
+    }
 }

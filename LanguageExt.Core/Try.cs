@@ -43,6 +43,11 @@ namespace LanguageExt
                 : Value.ToString();
     }
 
+    public static class TryResult
+    {
+        public static TryResult<T> Cast<T>(T value) =>
+            new TryResult<T>(value);
+    }
 
     public struct TrySuccContext<T, R>
     {
@@ -261,6 +266,48 @@ public static class __TryExt
 
             return new TryResult<U>(resU);
         });
+    }
+
+    public static Try<U> Use<T,U>(this Try<T> self, Func<T, U> select)
+        where T : IDisposable
+    {
+        return () =>
+        {
+            var t = self.Try();
+            if (t.IsFaulted)
+            {
+                return new TryResult<U>(t.Exception);
+            }
+            try
+            {
+                return select(t.Value);
+            }
+            finally
+            {
+                t.Value.Dispose();
+            }
+        };
+    }
+
+    public static Try<U> Use<T, U>(this Try<T> self, Func<T, Try<U>> select)
+        where T : IDisposable
+    {
+        return () =>
+        {
+            var t = self.Try();
+            if (t.IsFaulted)
+            {
+                return new TryResult<U>(t.Exception);
+            }
+            try
+            {
+                return select(t.Value).Try();
+            }
+            finally
+            {
+                t.Value.Dispose();
+            }
+        };
     }
 
     public static Unit Iter<T>(this Try<T> self, Action<T> action) =>

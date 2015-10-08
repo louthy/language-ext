@@ -89,6 +89,7 @@
     <Compile Include="Prelude_PartialApplication.cs" />
     <Compile Include="Prelude_Timer.cs" />
     <Compile Include="Prelude_Tuple2.cs" />
+    <Compile Include="Prelude_Use.cs" />
     <Compile Include="Que.cs" />
     <Compile Include="Query.cs" />
     <Compile Include="Prelude_Try.cs" />
