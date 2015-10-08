@@ -313,7 +313,7 @@ public static class __TryExt
             ? () => res
             : pred(res.Value)
                 ? self
-                : () => new TryResult<T>(new Exception("Filtered"));
+                : () => new TryResult<T>(new BottomException());
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
