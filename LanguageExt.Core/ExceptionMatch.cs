@@ -21,6 +21,16 @@ namespace LanguageExt
         /// Ctor
         /// </summary>
         /// <param name="e">Exception to match</param>
+        internal ExceptionMatch(R value)
+        {
+            this.value = value;
+            valueSet = true;
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="e">Exception to match</param>
         internal ExceptionMatch(Exception e)
         {
             exception = e;
@@ -48,7 +58,13 @@ namespace LanguageExt
         /// <returns>Result of the expression</returns>
         public R OtherwiseReThrow()
         {
-            throw exception;
+            if (valueSet)
+            {
+                return value;
+            }
+            {
+                throw exception;
+            }
         }
 
         /// <summary>

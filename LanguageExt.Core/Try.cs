@@ -140,6 +140,19 @@ public static class __TryExt
             return res.Value;
     }
 
+    /// <summary>
+    /// Returns an exception matching context.  Call a chain of With<ExceptionType>() to handle specific
+    /// exceptions, followed by Otherwise or OtherwiseThrow()
+    /// </summary>
+    public static ExceptionMatch<T> IfFail<T>(this Try<T> self)
+    {
+        var res = self.Try();
+        if (res.IsFaulted)
+            return res.Exception.Match<T>();
+        else
+            return new ExceptionMatch<T>(res.Value);
+    }
+
     public static R Match<T, R>(this Try<T> self, Func<T, R> Succ, Func<Exception, R> Fail)
     {
         var res = self.Try();
