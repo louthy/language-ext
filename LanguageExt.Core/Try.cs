@@ -128,6 +128,18 @@ public static class __TryExt
             return res.Value;
     }
 
+    /// <summary>
+    /// Returns the Succ(value) of the Try or a default if it's Fail
+    /// </summary>
+    public static T IfFail<T>(this Try<T> self, Func<Exception, T> defaultAction)
+    {
+        var res = self.Try();
+        if (res.IsFaulted)
+            return defaultAction(res.Exception);
+        else
+            return res.Value;
+    }
+
     public static R Match<T, R>(this Try<T> self, Func<T, R> Succ, Func<Exception, R> Fail)
     {
         var res = self.Try();
