@@ -1,4 +1,5 @@
 ﻿using Xunit;
+using System;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
@@ -208,5 +209,13 @@ namespace LanguageExtTests
         private Option<int> ImplicitConversion() => 1000;
 
         private Option<int> ImplicitNoneConversion() => None;
+
+        private void InferenceTest1()
+        {
+            Action<int> actionint = v => v = v * 2;
+            Option<int> optional1 = Some(123);
+            optional1.Some(actionint) //Compiler tries to call:  public static Option<T> Some(T value)
+                     .None(() => { });
+        }
     }
 }

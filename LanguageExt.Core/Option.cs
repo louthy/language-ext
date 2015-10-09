@@ -207,7 +207,7 @@ namespace LanguageExt
         public T Failure(T noneValue) => 
             Match(identity, () => noneValue);
 
-        public SomeUnitContext<T> Some<R>(Action<T> someHandler) =>
+        public SomeUnitContext<T> Some(Action<T> someHandler) =>
             new SomeUnitContext<T>(this, someHandler);
 
         public SomeContext<T, R> Some<R>(Func<T, R> someHandler) =>
@@ -451,7 +451,11 @@ public static class __OptionExt
         if (self.IsNone) return None;
         var resU = bind(self.Value);
         if (resU.IsNone) return None;
-        return Optional(project(self.Value, resU.Value));
+
+        var res = Optional(project(self.Value, resU.Value));
+        if (resU.Value is ILinqDisposable) (resU.Value as ILinqDisposable).Dispose();
+        if (self.Value is ILinqDisposable) (self.Value as ILinqDisposable).Dispose();
+        return res;
     }
 
     /// <summary>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using LanguageExt;
+using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
 
@@ -291,6 +292,54 @@ public static class __TryExt
         };
     }
 
+
+    public static Try<T> Flatten<T>(this Try<Try<T>> self) => () =>
+    {
+        var res1 = self.Try();
+        if (res1.IsFaulted)
+        {
+            return new TryResult<T>(res1.Exception);
+        }
+        else
+        {
+            var res2 = res1.Value.Try();
+            if (res2.IsFaulted)
+            {
+                return new TryResult<T>(res2.Exception);
+            }
+            else
+            {
+                return new TryResult<T>(res2.Value);
+            }
+        }
+    };
+
+    public static Try<T> Flatten<T>(this Try<Try<Try<T>>> self)
+    {
+        var res = self.Try();
+        if (res.IsFaulted)
+        {
+            return () => new TryResult<T>(res.Exception);
+        }
+        else
+        {
+            return res.Value.Flatten();
+        }
+    }
+
+    public static Try<T> Flatten<T>(this Try<Try<Try<Try<T>>>> self)
+    {
+        var res = self.Try();
+        if (res.IsFaulted)
+        {
+            return () => new TryResult<T>(res.Exception);
+        }
+        else
+        {
+            return res.Value.Flatten();
+        }
+    }
+
     public static Try<U> Use<T, U>(this Try<T> self, Func<T, Try<U>> select)
         where T : IDisposable
     {
@@ -353,6 +402,14 @@ public static class __TryExt
         return res.IsFaulted
             ? new TryResult<R>(res.Exception)
             : mapper(res.Value);
+    };
+
+    public static Try<R> Map<T, R>(this Try<T> self, Func<T, R> Succ, Func<Exception, R> Fail) => () =>
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Fail(res.Exception)
+            : Succ(res.Value);
     };
 
     public static Try<T> Filter<T>(this Try<T> self, Func<T, bool> pred)
@@ -436,14 +493,14 @@ public static class __TryExt
                 try
                 {
                     var res = new TryResult<V>(project(resT.Value, resU.Value));
-                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                     if (resU.Value is ILinqDisposable) (resU.Value as ILinqDisposable).Dispose();
+                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                     return res;
                 }
                 catch (Exception e)
                 {
-                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                     if (resU.Value is ILinqDisposable) (resU.Value as ILinqDisposable).Dispose();
+                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                     TryConfig.ErrorLogger(e);
                     return new TryResult<V>(e);
                 }

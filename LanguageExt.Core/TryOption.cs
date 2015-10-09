@@ -474,14 +474,14 @@ public static class __TryOptionExt
                 try
                 {
                     var res = new TryOptionResult<V>(project(resT.Value.Value, resU.Value.Value));
-                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                     if (resU.Value is ILinqDisposable) (resU.Value as ILinqDisposable).Dispose();
+                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                     return res;
                 }
                 catch (Exception e)
                 {
-                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                     if (resU.Value is ILinqDisposable) (resU.Value as ILinqDisposable).Dispose();
+                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                     TryConfig.ErrorLogger(e);
                     return new TryOptionResult<V>(e);
                 }

@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using System.Collections.Concurrent;
 using System.Linq;
+using LanguageExt.Trans;
 
 namespace LanguageExt
 {
@@ -21,6 +22,24 @@ namespace LanguageExt
 
         public static T ifFail<T>(Try<T> tryDel, T failValue) =>
             tryDel.IfFail(failValue);
+
+        public static ExceptionMatch<T> ifFail<T>(Try<T> tryDel) =>
+            tryDel.IfFail();
+
+        public static Try<Exception> failed<T>(Try<T> tryDel) =>
+            map(tryDel, 
+                Succ: _  => new NotSupportedException(),
+                Fail: ex => ex
+                );
+
+        public static Try<T> flatten<T>(Try<Try<T>> tryDel) =>
+            tryDel.Flatten();
+
+        public static Try<T> flatten<T>(Try<Try<Try<T>>> tryDel) =>
+            tryDel.Flatten();
+
+        public static Try<T> flatten<T>(Try<Try<Try<Try<T>>>> tryDel) =>
+            tryDel.Flatten();
 
         public static R match<T, R>(Try<T> tryDel, Func<T, R> Succ, Func<Exception, R> Fail) =>
             tryDel.Match(Succ, Fail);
@@ -45,6 +64,9 @@ namespace LanguageExt
 
         public static Try<R> map<T, R>(Try<T> tryDel, Func<T, R> mapper) =>
             tryDel.Map(mapper);
+
+        public static Try<R> map<T, R>(Try<T> tryDel, Func<T, R> Succ, Func<Exception, R> Fail) =>
+            tryDel.Map(Succ, Fail);
 
         public static Try<R> bind<T, R>(Try<T> tryDel, Func<T, Try<R>> binder) =>
             tryDel.Bind(binder);
