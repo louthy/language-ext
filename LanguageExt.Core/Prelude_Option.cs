@@ -94,6 +94,12 @@ namespace LanguageExt
         public static Unit match<T>(Option<T> option, Action<T> Some, Action None) =>
             option.Match(Some, None);
 
+        public static Option<R> apply<T, R>(Option<Func<T, R>> option, Option<T> arg) =>
+            option.Apply(arg);
+
+        public static Option<Func<T2, R>> apply<T1, T2, R>(Option<Func<T1, T2, R>> option, Option<T1> arg) =>
+            option.Apply(arg);
+
         public static S fold<S, T>(Option<T> option, S state, Func<S, T, S> folder) =>
             option.Fold(state, folder);
 
@@ -107,6 +113,12 @@ namespace LanguageExt
             option.Exists(pred);
 
         public static Option<R> map<T, R>(Option<T> option, Func<T, R> mapper) =>
+            option.Map(mapper);
+
+        public static Option<Func<T2, R>> map<T1, T2, R>(Option<T1> option, Func<T1, T2, R> mapper) =>
+            option.Map(mapper);
+
+        public static Option<Func<T2, Func<T3, R>>> map<T1, T2, T3, R>(Option<T1> option, Func<T1, T2, T3, R> mapper) =>
             option.Map(mapper);
 
         public static Option<T> filter<T>(Option<T> option, Func<T, bool> pred) =>
