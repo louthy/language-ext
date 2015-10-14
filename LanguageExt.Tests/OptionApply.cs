@@ -2,7 +2,7 @@
 using Xunit;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt.Applicative.Tests
+namespace LanguageExtTests
 {
     public class OptionApply
     {
