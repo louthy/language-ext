@@ -164,7 +164,7 @@ namespace LanguageExtTests
                   select x;
 
             Assert.True(opt.Count() == 5, "Count should be 5, is: " + opt.Count());
-            Assert.True(opt[0] == None, "opt[1] != None. Is: "+opt[0]);
+            Assert.True(opt[0] == None, "opt[1] != None. Is: " + opt[0]);
             Assert.True(opt[1] == None, "opt[2] != None. Is : " + opt[1]);
             Assert.True(opt[2] == Some(3), "opt[3] != Some(3)");
             Assert.True(opt[3] == Some(4), "opt[4] != Some(4)");
@@ -189,7 +189,7 @@ namespace LanguageExtTests
             Assert.True(opt.Count() == 5, "Count should be 5, is: " + opt.Count());
             Assert.True(opt[0] == None, "opt[1] != None. Is: " + opt[0]);
             Assert.True(opt[1] == None, "opt[2] != None. Is: " + opt[1]);
-            Assert.True(opt[2] == Some(3), "opt[3] != Some(3), Is: "+ opt[2]);
+            Assert.True(opt[2] == Some(3), "opt[3] != Some(3), Is: " + opt[2]);
             Assert.True(opt[3] == Some(4), "opt[4] != Some(4), Is: " + opt[3]);
             Assert.True(opt[4] == Some(5), "opt[5] != Some(5), Is: " + opt[4]);
 
