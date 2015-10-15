@@ -447,20 +447,40 @@ public static class __OptionExt
             ? pred(self.Value)
             : true;
 
+    public static bool ForAll<T>(this Option<T> self, Func<T, bool> Some, Func<bool> None) =>
+        self.IsSome
+            ? Some(self.Value)
+            : None();
+
     public static bool Exists<T>(this Option<T> self, Func<T, bool> pred) =>
         self.IsSome
             ? pred(self.Value)
             : false;
+
+    public static bool Exists<T>(this Option<T> self, Func<T, bool> Some, Func<bool> None) =>
+        self.IsSome
+            ? Some(self.Value)
+            : None();
 
     public static S Fold<S, T>(this Option<T> self, S state, Func<S, T, S> folder) =>
         self.IsSome
             ? folder(state, self.Value)
             : state;
 
+    public static S Fold<S, T>(this Option<T> self, S state, Func<S, T, S> Some, Func<S, S> None) =>
+        self.IsSome
+            ? Some(state, self.Value)
+            : None(state);
+
     public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> mapper) =>
         self.IsSome
             ? OptionCast.Cast(mapper(self.Value))
             : None;
+
+    public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> Some, Func<R> None) =>
+        self.IsSome
+            ? OptionCast.Cast(Some(self.Value))
+            : None();
 
     /// <summary>
     /// Partial application map
@@ -483,10 +503,24 @@ public static class __OptionExt
                 : None
             : self;
 
+    public static Option<T> Filter<T>(this Option<T> self, Func<T, bool> Some, Func<bool> None) =>
+        self.IsSome
+            ? Some(self.Value)
+                ? self
+                : Option<T>.None
+            : None()
+                ? self
+                : Option<T>.None;
+
     public static Option<R> Bind<T, R>(this Option<T> self, Func<T, Option<R>> binder) =>
         self.IsSome
             ? binder(self.Value)
             : None;
+
+    public static Option<R> Bind<T, R>(this Option<T> self, Func<T, Option<R>> Some, Func<Option<R>> None) =>
+        self.IsSome
+            ? Some(self.Value)
+            : None();
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Option<U> Select<T, U>(this Option<T> self, Func<T, U> map) =>

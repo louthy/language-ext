@@ -127,32 +127,60 @@ namespace LanguageExt
 public static class __TryOptionExt
 {
     /// <summary>
-    /// Returns the Some(value) of the TryOption or a default if it's None or Fail
+    /// Apply a TryOption value to a TryOption function
     /// </summary>
-    [Obsolete("'Failure' has been deprecated.  Please use 'IfNone|IfNoneOrFail' instead")]
-    public static T Failure<T>(this TryOption<T> self, T defaultValue)
+    /// <param name="self">TryOption function</param>
+    /// <param name="arg">TryOption argument</param>
+    /// <returns>Returns the result of applying the TryOption argument to the TryOption function</returns>
+    public static TryOption<R> Apply<T, R>(this TryOption<Func<T, R>> self, TryOption<T> arg) => () =>
     {
-        if (defaultValue == null) throw new ArgumentNullException("defaultValue");
-
         var res = self.Try();
-        if (res.IsFaulted || res.Value.IsNone)
-            return defaultValue;
-        else
-            return res.Value.Value;
-    }
+        if (res.IsFaulted) return new TryOptionResult<R>(res.Exception);
+        if (res.Value.IsNone) return new TryOptionResult<R>(None);
+        var val = arg.Try();
+        if (val.IsFaulted) return new TryOptionResult<R>(val.Exception);
+        if (val.Value.IsNone) return new TryOptionResult<R>(None);
+        return new TryOptionResult<R>(res.Value.Value(val.Value.Value));
+    };
 
     /// <summary>
-    /// Returns the Some(value) of the TryOption or a default if it's None or Fail
+    /// Apply a TryOption value to a TryOption function of arity 2
     /// </summary>
-    [Obsolete("'Failure' has been deprecated.  Please use 'IfNone|IfNoneOrFail' instead")]
-    public static T Failure<T>(this TryOption<T> self, Func<T> defaultAction)
+    /// <param name="self">TryOption function</param>
+    /// <param name="arg">TryOption argument</param>
+    /// <returns>Returns the result of applying the TryOption argument to the TryOption function:
+    /// a TryOption function of arity 1</returns>
+    public static TryOption<Func<T2, R>> Apply<T1, T2, R>(this TryOption<Func<T1, T2, R>> self, TryOption<T1> arg) => () =>
     {
         var res = self.Try();
-        if (res.IsFaulted || res.Value.IsNone)
-            return defaultAction();
-        else
-            return res.Value.Value;
-    }
+        if (res.IsFaulted) return new TryOptionResult<Func<T2, R>>(res.Exception);
+        if (res.Value.IsNone) return new TryOptionResult<Func<T2, R>>(None);
+        var val = arg.Try();
+        if (val.IsFaulted) return new TryOptionResult<Func<T2, R>>(val.Exception);
+        if (val.Value.IsNone) return new TryOptionResult<Func<T2, R>>(None);
+        return new TryOptionResult<Func<T2, R>>(par(res.Value.Value, val.Value.Value));
+    };
+
+    /// <summary>
+    /// Apply TryOption values to a TryOption function of arity 2
+    /// </summary>
+    /// <param name="self">TryOption function</param>
+    /// <param name="arg1">TryOption argument</param>
+    /// <param name="arg2">TryOption argument</param>
+    /// <returns>Returns the result of applying the TryOption arguments to TryOption Try function</returns>
+    public static TryOption<R> Apply<T1, T2, R>(this TryOption<Func<T1, T2, R>> self, TryOption<T1> arg1, TryOption<T2> arg2) => () =>
+    {
+        var res = self.Try();
+        if (res.IsFaulted) return new TryOptionResult<R>(res.Exception);
+        if (res.Value.IsNone) return new TryOptionResult<R>(None);
+        var val1 = arg1.Try();
+        if (val1.IsFaulted) return new TryOptionResult<R>(val1.Exception);
+        if (val1.Value.IsNone) return new TryOptionResult<R>(None);
+        var val2 = arg2.Try();
+        if (val2.IsFaulted) return new TryOptionResult<R>(val2.Exception);
+        if (val2.Value.IsNone) return new TryOptionResult<R>(None);
+        return new TryOptionResult<R>(res.Value.Value(val1.Value.Value, val2.Value.Value));
+    };
 
     /// <summary>
     /// Invokes the someHandler if TryOption is in the Some state, otherwise nothing
@@ -341,8 +369,18 @@ public static class __TryOptionExt
             return new TryOptionResult<U>(resU);
         });
     }
+
     public static Unit Iter<T>(this TryOption<T> self, Action<T> action) =>
         self.IfSome(action);
+
+    public static Unit Iter<T>(this TryOption<T> self, Action<T> Some, Action None, Action<Exception> Fail)
+    {
+        var res = self.Try();
+        if (res.IsFaulted) Fail(res.Exception);
+        else if (res.Value.IsNone) None();
+        else if (res.Value.IsNone) Some(res.Value.Value);
+        return unit;
+    }
 
     public static int Count<T>(this TryOption<T> self)
     {
@@ -360,6 +398,14 @@ public static class __TryOptionExt
             : res.Value.ForAll(pred);
     }
 
+    public static bool ForAll<T>(this TryOption<T> self, Func<T, bool> Some, Func<bool> None, Func<Exception,bool> Fail)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.ForAll(Some, None);
+    }
+
     public static S Fold<S, T>(this TryOption<T> self, S state, Func<S, T, S> folder)
     {
         var res = self.Try();
@@ -368,12 +414,28 @@ public static class __TryOptionExt
             : res.Value.Fold(state, folder);
     }
 
+    public static S Fold<S, T>(this TryOption<T> self, S state, Func<S, T, S> Some, Func<S, S> None, Func<S, Exception, S> Fail)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Fail(state, res.Exception)
+            : res.Value.Fold(state, Some, None);
+    }
+
     public static bool Exists<T>(this TryOption<T> self, Func<T, bool> pred)
     {
         var res = self.Try();
         return res.IsFaulted
             ? false
             : res.Value.Exists(pred);
+    }
+
+    public static bool Exists<T>(this TryOption<T> self, Func<T, bool> Some, Func<bool> None, Func<Exception, bool> Fail)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.Exists(Some, None);
     }
 
     public static TryOption<T> Filter<T>(this TryOption<T> self, Func<T, bool> pred)
@@ -389,6 +451,28 @@ public static class __TryOptionExt
     public static TryOption<R> Map<T, R>(this TryOption<T> self, Func<T, R> mapper) =>
         self.Select(mapper);
 
+    public static TryOption<R> Map<T, R>(this TryOption<T> self, Func<T, R> Some, Func<R> None, Func<Exception, R> Fail) => () =>
+    {
+        var res = self.Try();
+        if (res.IsFaulted) return Fail(res.Exception);
+        if (res.Value.IsNone) return None();
+        return Some(res.Value.Value);
+    };
+
+    /// <summary>
+    /// Partial application map
+    /// </summary>
+    /// <remarks>TODO: Better documentation of this function</remarks>
+    public static TryOption<Func<T2, R>> Map<T1, T2, R>(this TryOption<T1> self, Func<T1, T2, R> func) =>
+        self.Map(curry(func));
+
+    /// <summary>
+    /// Partial application map
+    /// </summary>
+    /// <remarks>TODO: Better documentation of this function</remarks>
+    public static TryOption<Func<T2, Func<T3, R>>> Map<T1, T2, T3, R>(this TryOption<T1> self, Func<T1, T2, T3, R> func) =>
+        self.Map(curry(func));
+
     public static TryOption<R> Bind<T, R>(this TryOption<T> self, Func<T, TryOption<R>> binder) => () =>
     {
         var res = self.Try();
@@ -397,6 +481,16 @@ public static class __TryOptionExt
             : res.Value.IsNone
                 ? new TryOptionResult<R>(None)
                 : binder(res.Value.Value).Try();
+    };
+
+    public static TryOption<R> Bind<T, R>(this TryOption<T> self, Func<T, TryOption<R>> Some, Func<TryOption<R>> None, Func<Exception, TryOption<R>> Fail) => () =>
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Fail(res.Exception).Try()
+            : res.Value.IsNone
+                ? None().Try()
+                : Some(res.Value.Value).Try();
     };
 
     [EditorBrowsable(EditorBrowsableState.Never)]

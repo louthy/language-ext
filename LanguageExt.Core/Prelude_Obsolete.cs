@@ -438,5 +438,33 @@ namespace LanguageExt
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static R[] toArray<L, R>(Either<L, R> either) =>
             either.ToArray();
+
+        /// <summary>
+        /// Returns the Some(value) of the TryOption or a default if it's None or Fail
+        /// </summary>
+        [Obsolete("'Failure' has been deprecated.  Please use 'IfNone|IfNoneOrFail' instead")]
+        public static T Failure<T>(this TryOption<T> self, T defaultValue)
+        {
+            if (defaultValue == null) throw new ArgumentNullException("defaultValue");
+
+            var res = self.Try();
+            if (res.IsFaulted || res.Value.IsNone)
+                return defaultValue;
+            else
+                return res.Value.Value;
+        }
+
+        /// <summary>
+        /// Returns the Some(value) of the TryOption or a default if it's None or Fail
+        /// </summary>
+        [Obsolete("'Failure' has been deprecated.  Please use 'IfNone|IfNoneOrFail' instead")]
+        public static T Failure<T>(this TryOption<T> self, Func<T> defaultAction)
+        {
+            var res = self.Try();
+            if (res.IsFaulted || res.Value.IsNone)
+                return defaultAction();
+            else
+                return res.Value.Value;
+        }
     }
 }
