@@ -36,13 +36,28 @@ namespace LanguageExt
             : this (value,value != null)
             {}
 
+        /// <summary>
+        /// Option Some(x) constructor
+        /// </summary>
+        /// <param name="value">Value</param>
+        /// <returns>Some(value) as Option T</returns>
         public static Option<T> Some(T value) => 
             new Option<T>(value);
 
-        public static readonly Option<T> None = new Option<T>();
+        /// <summary>
+        /// Option None of T
+        /// </summary>
+        public static readonly Option<T> None = 
+            new Option<T>();
 
+        /// <summary>
+        /// true if the Option is in a Some(x) state
+        /// </summary>
         public bool IsSome { get; }
 
+        /// <summary>
+        /// true if the Option is in a None state
+        /// </summary>
         public bool IsNone => 
             !IsSome;
 
@@ -53,11 +68,11 @@ namespace LanguageExt
 
         public static implicit operator Option<T>(T value) =>
             value == null
-                ? Option<T>.None
-                : Option<T>.Some(value);
+                ? None
+                : Some(value);
 
         public static implicit operator Option<T>(OptionNone none) => 
-            Option<T>.None;
+            None;
 
         internal static U CheckNullReturn<U>(U value, string location) =>
             value == null

@@ -10,7 +10,7 @@ namespace LanguageExt
     {
     }
 
-    public class LinqDisposable<T> 
+    public class LinqDisposable<T> : ILinqDisposable
         where T : IDisposable
     {
         public readonly T Value;
@@ -22,6 +22,11 @@ namespace LanguageExt
 
         public void Dispose()
         {
+            var value = Value;
+            if (value != null)
+            {
+                value.Dispose();
+            }
         }
     }
 }
