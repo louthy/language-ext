@@ -417,9 +417,9 @@ public static class __OptionExt
     /// <param name="arg">Optional argument</param>
     /// <returns>Returns the result of applying the optional argument to the optional function:
     /// an optonal function of arity 1</returns>
-    public static Option<Func<T2, R>> Apply<T1, T2, R>(this Option<Func<T1, T2, R>> opt, Option<T1> arg) => 
-        opt.IsSome 
-            ? Some(curry(opt.Value)).Apply(arg)
+    public static Option<Func<T2, R>> Apply<T1, T2, R>(this Option<Func<T1, T2, R>> opt, Option<T1> arg) =>
+        opt.IsSome && arg.IsSome
+            ? Optional(par(opt.Value, arg.Value))
             : None;
 
     /// <summary>

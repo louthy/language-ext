@@ -350,8 +350,8 @@ public static class __OptionUnsafeExt
     /// <returns>Returns the result of applying the optional argument to the optional function:
     /// an optonal function of arity 1</returns>
     public static OptionUnsafe<Func<T2, R>> Apply<T1, T2, R>(this OptionUnsafe<Func<T1, T2, R>> opt, OptionUnsafe<T1> arg) =>
-        opt.IsSome
-            ? SomeUnsafe(curry(opt.Value)).Apply(arg)
+        opt.IsSome && arg.IsSome
+            ? SomeUnsafe(par(opt.Value,arg.Value))
             : None;
 
     /// <summary>

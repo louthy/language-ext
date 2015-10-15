@@ -95,6 +95,55 @@ namespace LanguageExt
 public static class __TryExt
 {
     /// <summary>
+    /// Apply a Try value to a Try function
+    /// </summary>
+    /// <param name="self">Try function</param>
+    /// <param name="arg">Try argument</param>
+    /// <returns>Returns the result of applying the Try argument to the Try function</returns>
+    public static Try<R> Apply<T, R>(this Try<Func<T, R>> self, Try<T> arg) => () =>
+    {
+        var res = self.Try();
+        if (res.IsFaulted) return new TryResult<R>(res.Exception);
+        var val = arg.Try();
+        if (val.IsFaulted) return new TryResult<R>(val.Exception);
+        return new TryResult<R>(res.Value(val.Value));
+    };
+
+    /// <summary>
+    /// Apply a Try value to a Try function of arity 2
+    /// </summary>
+    /// <param name="self">Try function</param>
+    /// <param name="arg">Try argument</param>
+    /// <returns>Returns the result of applying the Try argument to the Try function:
+    /// a Try function of arity 1</returns>
+    public static Try<Func<T2, R>> Apply<T1, T2, R>(this Try<Func<T1, T2, R>> self, Try<T1> arg) => () =>
+    {
+        var res = self.Try();
+        if (res.IsFaulted) return new TryResult<Func<T2, R>>(res.Exception);
+        var val = arg.Try();
+        if (val.IsFaulted) return new TryResult<Func<T2, R>>(val.Exception);
+        return new TryResult<Func<T2, R>>(par(res.Value,val.Value));
+    };
+
+    /// <summary>
+    /// Apply Try values to a Try function of arity 2
+    /// </summary>
+    /// <param name="self">Try function</param>
+    /// <param name="arg1">Try argument</param>
+    /// <param name="arg2">Try argument</param>
+    /// <returns>Returns the result of applying the Try arguments to the Try function</returns>
+    public static Try<R> Apply<T1, T2, R>(this Try<Func<T1, T2, R>> self, Try<T1> arg1, Try<T2> arg2) => () =>
+    {
+        var res = self.Try();
+        if (res.IsFaulted) return new TryResult<R>(res.Exception);
+        var val1 = arg1.Try();
+        if (val1.IsFaulted) return new TryResult<R>(val1.Exception);
+        var val2 = arg2.Try();
+        if (val2.IsFaulted) return new TryResult<R>(val2.Exception);
+        return new TryResult<R>(res.Value(val1.Value, val2.Value));
+    };
+
+    /// <summary>
     /// Invokes the succHandler if Try is in the Success state, otherwise nothing
     /// happens.
     /// </summary>
@@ -364,6 +413,20 @@ public static class __TryExt
     public static Unit Iter<T>(this Try<T> self, Action<T> action) =>
         self.IfSucc(action);
 
+    public static Unit Iter<T>(this Try<T> self, Action<T> Succ, Action<Exception> Fail)
+    {
+        var res = self.Try();
+        if (res.IsFaulted)
+        {
+            Fail(res.Exception);
+        }
+        else
+        {
+            Succ(res.Value);
+        }
+        return unit;
+    }
+
     public static int Count<T>(this Try<T> self)
     {
         var res = self.Try();
@@ -380,6 +443,14 @@ public static class __TryExt
             : pred(res.Value);
     }
 
+    public static bool ForAll<T>(this Try<T> self, Func<T, bool> Succ, Func<Exception, bool> Fail)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Fail(res.Exception)
+            : Succ(res.Value);
+    }
+
     public static S Fold<S, T>(this Try<T> self, S state, Func<S, T, S> folder)
     {
         var res = self.Try();
@@ -388,12 +459,28 @@ public static class __TryExt
             : folder(state, res.Value);
     }
 
+    public static S Fold<S, T>(this Try<T> self, S state, Func<S, T, S> Succ, Func<S, Exception, S> Fail)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Fail(state, res.Exception)
+            : Succ(state, res.Value);
+    }
+
     public static bool Exists<T>(this Try<T> self, Func<T, bool> pred)
     {
         var res = self.Try();
         return res.IsFaulted
             ? false
             : pred(res.Value);
+    }
+
+    public static bool Exists<T>(this Try<T> self, Func<T, bool> Succ, Func<Exception, bool> Fail)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Fail(res.Exception)
+            : Succ(res.Value);
     }
 
     public static Try<R> Map<T, R>(this Try<T> self, Func<T, R> mapper) => () =>
@@ -412,12 +499,38 @@ public static class __TryExt
             : Succ(res.Value);
     };
 
+    /// <summary>
+    /// Partial application map
+    /// </summary>
+    /// <remarks>TODO: Better documentation of this function</remarks>
+    public static Try<Func<T2, R>> Map<T1, T2, R>(this Try<T1> self, Func<T1, T2, R> func) =>
+        self.Map(curry(func));
+
+    /// <summary>
+    /// Partial application map
+    /// </summary>
+    /// <remarks>TODO: Better documentation of this function</remarks>
+    public static Try<Func<T2, Func<T3, R>>> Map<T1, T2, T3, R>(this Try<T1> self, Func<T1, T2, T3, R> func) =>
+        self.Map(curry(func));
+
     public static Try<T> Filter<T>(this Try<T> self, Func<T, bool> pred)
     {
         var res = self.Try();
         return res.IsFaulted
             ? () => res
             : pred(res.Value)
+                ? self
+                : () => new TryResult<T>(new BottomException());
+    }
+
+    public static Try<T> Filter<T>(this Try<T> self, Func<T, bool> Succ, Func<Exception, bool> Fail)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Fail(res.Exception)
+                ? self
+                : () => new TryResult<T>(new BottomException())
+            : Succ(res.Value)
                 ? self
                 : () => new TryResult<T>(new BottomException());
     }
@@ -432,6 +545,14 @@ public static class __TryExt
         return res.IsFaulted
             ? new TryResult<R>(res.Exception)
             : binder(res.Value).Try();
+    };
+
+    public static Try<R> Bind<T, R>(this Try<T> self, Func<T, Try<R>> Succ, Func<Exception, Try<R>> Fail) => () =>
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Fail(res.Exception).Try()
+            : Succ(res.Value).Try();
     };
 
     public static IEnumerable<Either<Exception, T>> AsEnumerable<T>(this Try<T> self)
