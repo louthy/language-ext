@@ -137,6 +137,20 @@ namespace LanguageExt
             list.Select(map);
 
         /// <summary>
+        /// Partial application map
+        /// </summary>
+        /// <remarks>TODO: Better documentation of this function</remarks>
+        public static IEnumerable<Func<T2, R>> map<T1, T2, R>(IEnumerable<T1> list, Func<T1, T2, R> func) =>
+            list.Map(curry(func));
+
+        /// <summary>
+        /// Partial application map
+        /// </summary>
+        /// <remarks>TODO: Better documentation of this function</remarks>
+        public static IEnumerable<Func<T2, Func<T3, R>>> map<T1, T2, T3, R>(IEnumerable<T1> list, Func<T1, T2, T3, R> func) =>
+            list.Map(curry(func));
+
+        /// <summary>
         /// Projects the values in the enumerable using a map function into a new enumerable (Select in LINQ).
         /// An index value is passed through to the map function also.
         /// </summary>
@@ -1104,6 +1118,20 @@ public static class __EnumnerableExt
     /// <returns>Mapped enumerable</returns>
     public static IEnumerable<R> Map<T, R>(this IEnumerable<T> list, Func<int, T, R> map) =>
         LanguageExt.List.map(list, map);
+
+    /// <summary>
+    /// Partial application map
+    /// </summary>
+    /// <remarks>TODO: Better documentation of this function</remarks>
+    public static IEnumerable<Func<T2, R>> Map<T1, T2, R>(this IEnumerable<T1> list, Func<T1, T2, R> func) =>
+        list.Map(curry(func));
+
+    /// <summary>
+    /// Partial application map
+    /// </summary>
+    /// <remarks>TODO: Better documentation of this function</remarks>
+    public static IEnumerable<Func<T2, Func<T3, R>>> Map<T1, T2, T3, R>(this IEnumerable<T1> list, Func<T1, T2, T3, R> func) =>
+        list.Map(curry(func));
 
     /// <summary>
     /// Removes items from the list that do not match the given predicate (Where in LINQ)
