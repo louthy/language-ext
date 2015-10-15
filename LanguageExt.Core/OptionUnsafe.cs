@@ -210,37 +210,6 @@ namespace LanguageExt
                     ? Value.Equals(obj)
                     : false;
 
-        public int Count =>
-            IsSome ? 1 : 0;
-
-        public bool ForAllUnsafe(Func<T,bool> pred) =>
-            IsSome
-                ? pred(Value)
-                : true;
-
-        public S FoldUnsafe<S>(S state, Func<S, T, S> folder) =>
-            IsSome
-                ? folder(state, Value)
-                : state;
-
-        public bool ExistsUnsafe(Func<T,bool> pred) =>
-            IsSome
-                ? pred(Value)
-                : false;
-
-        public OptionUnsafe<R> MapUnsafe<R>(Func<T,R> mapper) =>
-            IsSome
-                ? OptionUnsafe<R>.Some(mapper(Value))
-                : OptionUnsafe<R>.None;
-
-        public bool FilterUnsafe(Func<T, bool> pred) =>
-            ExistsUnsafe(pred);
-
-        public OptionUnsafe<R> BindUnsafe<R>(Func<T, OptionUnsafe<R>> binder) =>
-            IsSome
-                ? binder(Value)
-                : OptionUnsafe<R>.None;
-
         public IEnumerable<T> AsEnumerable()
         {
             if (IsSome)
@@ -362,16 +331,48 @@ namespace LanguageExt
 
 public static class __OptionUnsafeExt
 {
-    // 
-    // OptionUnsafe<T> extensions 
-    // 
+    /// <summary>
+    /// Apply an Optional value to an Optional function
+    /// </summary>
+    /// <param name="opt">Optional function</param>
+    /// <param name="arg">Optional argument</param>
+    /// <returns>Returns the result of applying the optional argument to the optional function</returns>
+    public static OptionUnsafe<R> Apply<T, R>(this OptionUnsafe<Func<T, R>> opt, OptionUnsafe<T> arg) =>
+        opt.IsSome && arg.IsSome
+            ? SomeUnsafe(opt.Value(arg.Value))
+            : None;
+
+    /// <summary>
+    /// Apply an Optional value to an Optional function of arity 2
+    /// </summary>
+    /// <param name="opt">Optional function</param>
+    /// <param name="arg">Optional argument</param>
+    /// <returns>Returns the result of applying the optional argument to the optional function:
+    /// an optonal function of arity 1</returns>
+    public static OptionUnsafe<Func<T2, R>> Apply<T1, T2, R>(this OptionUnsafe<Func<T1, T2, R>> opt, OptionUnsafe<T1> arg) =>
+        opt.IsSome
+            ? SomeUnsafe(curry(opt.Value)).Apply(arg)
+            : None;
+
+    /// <summary>
+    /// Apply Optional values to an Optional function of arity 2
+    /// </summary>
+    /// <param name="opt">Optional function</param>
+    /// <param name="arg1">Optional argument</param>
+    /// <param name="arg2">Optional argument</param>
+    /// <returns>Returns the result of applying the optional arguments to the optional function</returns>
+    public static OptionUnsafe<R> Apply<T1, T2, R>(this OptionUnsafe<Func<T1, T2, R>> opt, OptionUnsafe<T1> arg1, OptionUnsafe<T2> arg2) =>
+        opt.IsSome && arg1.IsSome && arg2.IsSome
+            ? SomeUnsafe(opt.Value(arg1.Value, arg2.Value))
+            : None;
+
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static OptionUnsafe<U> Select<T, U>(this OptionUnsafe<T> self, Func<T, U> map) => 
-        self.MapUnsafe(map);
+        self.Map(map);
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static OptionUnsafe<T> Where<T>(this OptionUnsafe<T> self, Func<T, bool> pred) =>
-        self.FilterUnsafe(pred)
+        self.Filter(pred)
             ? self
             : None;
 
@@ -402,6 +403,12 @@ public static class __OptionUnsafeExt
         self.IsSome
             ? OptionUnsafeCast.Cast(mapper(self.Value))
             : None;
+
+    public static OptionUnsafe<Func<T2, R>> Map<T1, T2, R>(this OptionUnsafe<T1> opt, Func<T1, T2, R> func) =>
+        opt.Map(curry(func));
+
+    public static OptionUnsafe<Func<T2, Func<T3, R>>> Map<T1, T2, T3, R>(this OptionUnsafe<T1> opt, Func<T1, T2, T3, R> func) =>
+        opt.Map(curry(func));
 
     public static OptionUnsafe<T> Filter<T>(this OptionUnsafe<T> self, Func<T, bool> pred) =>
         self.IsSome

@@ -120,6 +120,20 @@ namespace LanguageExt
         public static Tuple<T1, T2, T3, T4, T5, T6, T7> tuple<T1, T2, T3, T4, T5, T6, T7>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6, T7 item7) =>
             System.Tuple.Create(item1, item2, item3, item4, item5, item6, item7);
 
+        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifNoneUnsafe' instead")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static IEnumerable<T> failureUnsafe<T>(IEnumerable<OptionUnsafe<T>> list,
+            Func<IEnumerable<T>> None
+            ) =>
+            matchUnsafe(list, v => new T[1] { v }, None);
+
+        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifNoneUnsafe' instead")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static IEnumerable<T> failureUnsafe<T>(IEnumerable<OptionUnsafe<T>> list,
+            IEnumerable<T> None
+            ) =>
+            matchUnsafe(list, v => new T[1] { v }, () => None);
+
         [Obsolete("'failure' has been deprecated.  Please use 'ifNone|ifNoneOrFail' instead")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static T failure<T>(TryOption<T> tryDel, Func<T> Fail) =>

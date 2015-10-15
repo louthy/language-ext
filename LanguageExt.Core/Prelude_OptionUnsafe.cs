@@ -37,26 +37,32 @@ namespace LanguageExt
         public static Unit matchUnsafe<T>(OptionUnsafe<T> option, Action<T> Some, Action None) =>
             option.MatchUnsafe(Some, None);
 
-        public static S foldUnsafe<S, T>(OptionUnsafe<T> option, S state, Func<S, T, S> folder) =>
-            option.FoldUnsafe(state, folder);
+        public static S fold<S, T>(OptionUnsafe<T> option, S state, Func<S, T, S> folder) =>
+            option.Fold(state, folder);
 
-        public static bool forallUnsafe<T>(OptionUnsafe<T> option, Func<T, bool> pred) =>
-            option.ForAllUnsafe(pred);
+        public static bool forall<T>(OptionUnsafe<T> option, Func<T, bool> pred) =>
+            option.ForAll(pred);
 
         public static int count<T>(OptionUnsafe<T> option) =>
-            option.Count;
+            option.Count();
 
-        public static bool existsUnsafe<T>(OptionUnsafe<T> option, Func<T, bool> pred) =>
-            option.ExistsUnsafe(pred);
+        public static bool exists<T>(OptionUnsafe<T> option, Func<T, bool> pred) =>
+            option.Exists(pred);
 
-        public static OptionUnsafe<R> mapUnsafe<T, R>(OptionUnsafe<T> option, Func<T, R> mapper) =>
-            option.MapUnsafe(mapper);
+        public static OptionUnsafe<R> map<T, R>(OptionUnsafe<T> option, Func<T, R> mapper) =>
+            option.Map(mapper);
 
-        public static bool filterUnsafe<T>(OptionUnsafe<T> option, Func<T, bool> pred) =>
-            option.FilterUnsafe(pred);
+        public static OptionUnsafe<Func<T2, R>> map<T1, T2, R>(OptionUnsafe<T1> option, Func<T1, T2, R> mapper) =>
+            option.Map(mapper);
 
-        public static OptionUnsafe<R> bindUnsafe<T, R>(OptionUnsafe<T> option, Func<T, OptionUnsafe<R>> binder) =>
-            option.BindUnsafe(binder);
+        public static OptionUnsafe<Func<T2, Func<T3, R>>> map<T1, T2, T3, R>(OptionUnsafe<T1> option, Func<T1, T2, T3, R> mapper) =>
+            option.Map(mapper);
+
+        public static OptionUnsafe<T> filter<T>(OptionUnsafe<T> option, Func<T, bool> pred) =>
+            option.Filter(pred);
+
+        public static OptionUnsafe<R> bind<T, R>(OptionUnsafe<T> option, Func<T, OptionUnsafe<R>> binder) =>
+            option.Bind(binder);
 
         public static IEnumerable<R> matchUnsafe<T, R>(IEnumerable<OptionUnsafe<T>> list,
             Func<T, IEnumerable<R>> Some,
@@ -74,15 +80,34 @@ namespace LanguageExt
             ) =>
             matchUnsafe(list, Some, () => None);
 
-        public static IEnumerable<T> failureUnsafe<T>(IEnumerable<OptionUnsafe<T>> list,
-            Func<IEnumerable<T>> None
-            ) =>
-            matchUnsafe(list, v => new T[1] { v }, None);
+        /// <summary>
+        /// Apply an Optional value to an Optional function
+        /// </summary>
+        /// <param name="option">Optional function</param>
+        /// <param name="arg">Optional argument</param>
+        /// <returns>Returns the result of applying the optional argument to the optional function</returns>
+        public static OptionUnsafe<R> apply<T, R>(OptionUnsafe<Func<T, R>> option, OptionUnsafe<T> arg) =>
+            option.Apply(arg);
 
-        public static IEnumerable<T> failureUnsafe<T>(IEnumerable<OptionUnsafe<T>> list,
-            IEnumerable<T> None
-            ) =>
-            matchUnsafe(list, v => new T[1] { v }, () => None);
+        /// <summary>
+        /// Apply an Optional value to an Optional function of arity 2
+        /// </summary>
+        /// <param name="option">Optional function</param>
+        /// <param name="arg">Optional argument</param>
+        /// <returns>Returns the result of applying the optional argument to the optional function:
+        /// an optonal function of arity 1</returns>
+        public static OptionUnsafe<Func<T2, R>> apply<T1, T2, R>(OptionUnsafe<Func<T1, T2, R>> option, OptionUnsafe<T1> arg) =>
+            option.Apply(arg);
+
+        /// <summary>
+        /// Apply Optional values to an Optional function of arity 2
+        /// </summary>
+        /// <param name="option">Optional function</param>
+        /// <param name="arg1">Optional argument</param>
+        /// <param name="arg2">Optional argument</param>
+        /// <returns>Returns the result of applying the optional arguments to the optional function</returns>
+        public static OptionUnsafe<R> apply<T1, T2, R>(OptionUnsafe<Func<T1, T2, R>> option, OptionUnsafe<T1> arg1, OptionUnsafe<T2> arg2) =>
+            option.Apply(arg1, arg2);
 
         public static IEnumerable<R> MatchUnsafe<T, R>(this IEnumerable<OptionUnsafe<T>> list,
             Func<T, IEnumerable<R>> Some,

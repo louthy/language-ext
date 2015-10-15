@@ -94,11 +94,34 @@ namespace LanguageExt
         public static Unit match<T>(Option<T> option, Action<T> Some, Action None) =>
             option.Match(Some, None);
 
+        /// <summary>
+        /// Apply an Optional value to an Optional function
+        /// </summary>
+        /// <param name="option">Optional function</param>
+        /// <param name="arg">Optional argument</param>
+        /// <returns>Returns the result of applying the optional argument to the optional function</returns>
         public static Option<R> apply<T, R>(Option<Func<T, R>> option, Option<T> arg) =>
             option.Apply(arg);
 
+        /// <summary>
+        /// Apply an Optional value to an Optional function of arity 2
+        /// </summary>
+        /// <param name="option">Optional function</param>
+        /// <param name="arg">Optional argument</param>
+        /// <returns>Returns the result of applying the optional argument to the optional function:
+        /// an optonal function of arity 1</returns>
         public static Option<Func<T2, R>> apply<T1, T2, R>(Option<Func<T1, T2, R>> option, Option<T1> arg) =>
             option.Apply(arg);
+
+        /// <summary>
+        /// Apply Optional values to an Optional function of arity 2
+        /// </summary>
+        /// <param name="option">Optional function</param>
+        /// <param name="arg1">Optional argument</param>
+        /// <param name="arg2">Optional argument</param>
+        /// <returns>Returns the result of applying the optional arguments to the optional function</returns>
+        public static Option<R> apply<T1, T2, R>(Option<Func<T1, T2, R>> option, Option<T1> arg1, Option<T2> arg2) =>
+            option.Apply(arg1, arg2);
 
         public static S fold<S, T>(Option<T> option, S state, Func<S, T, S> folder) =>
             option.Fold(state, folder);
