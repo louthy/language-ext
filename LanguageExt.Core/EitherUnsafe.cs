@@ -569,6 +569,56 @@ namespace LanguageExt
 public static class __EitherUnsafeExt
 {
     /// <summary>
+    /// Apply an Either value to an Either function
+    /// </summary>
+    /// <param name="self">Either function</param>
+    /// <param name="arg">Either argument</param>
+    /// <returns>Returns the result of applying the Either argument to the Either function</returns>
+    public static EitherUnsafe<L, Res> Apply<L, R, Res>(this EitherUnsafe<L, Func<R, Res>> self, EitherUnsafe<L, R> arg) =>
+        arg.IsBottom || self.IsBottom
+            ? new EitherUnsafe<L, Res>(true)
+            : self.IsLeft
+                ? EitherUnsafe<L, Res>.Left(self.LeftValue)
+                : arg.IsLeft
+                    ? EitherUnsafe<L, Res>.Left(arg.LeftValue)
+                    : self.Select(f => f(arg.RightValue));
+
+    /// <summary>
+    /// Apply an Either value to an Either function of arity 2
+    /// </summary>
+    /// <param name="self">Either function</param>
+    /// <param name="arg">Either argument</param>
+    /// <returns>Returns the result of applying the Either argument to the Either function:
+    /// an Either function of arity 1</returns>
+    public static EitherUnsafe<L, Func<T2, R>> Apply<L, T1, T2, R>(this EitherUnsafe<L, Func<T1, T2, R>> self, EitherUnsafe<L, T1> arg) =>
+        arg.IsBottom || self.IsBottom
+            ? new EitherUnsafe<L, Func<T2, R>>(true)
+            : self.IsLeft
+                ? EitherUnsafe<L, Func<T2, R>>.Left(self.LeftValue)
+                : arg.IsLeft
+                    ? EitherUnsafe<L, Func<T2, R>>.Left(arg.LeftValue)
+                    : self.Select(f => par(f, arg.RightValue));
+
+    /// <summary>
+    /// Apply Either values to an Either function of arity 2
+    /// </summary>
+    /// <param name="self">Either function</param>
+    /// <param name="arg1">Either argument</param>
+    /// <param name="arg2">Either argument</param>
+    /// <returns>Returns the result of applying the optional arguments to the optional function</returns>
+    public static EitherUnsafe<L, R> Apply<L, T1, T2, R>(this EitherUnsafe<L, Func<T1, T2, R>> self, EitherUnsafe<L, T1> arg1, EitherUnsafe<L, T2> arg2) =>
+        arg1.IsBottom || arg2.IsBottom || self.IsBottom
+            ? new EitherUnsafe<L, R>(true)
+            : self.IsLeft
+                ? EitherUnsafe<L, R>.Left(self.LeftValue)
+                : arg1.IsLeft
+                    ? EitherUnsafe<L, R>.Left(arg1.LeftValue)
+                    : arg2.IsLeft
+                        ? EitherUnsafe<L, R>.Left(arg2.LeftValue)
+                        : self.Select(f => f(arg1.RightValue, arg2.RightValue));
+
+
+    /// <summary>
     /// Extracts from a list of 'Either' all the 'Left' elements.
     /// All the 'Left' elements are extracted in order.
     /// </summary>
@@ -887,6 +937,20 @@ public static class __EitherUnsafeExt
             : self.IsRight
                 ? RightUnsafe<LRet, RRet>(Right(self.RightValue))
                 : LeftUnsafe<LRet, RRet>(Left(self.LeftValue));
+
+    /// <summary>
+    /// Partial application map
+    /// </summary>
+    /// <remarks>TODO: Better documentation of this function</remarks>
+    public static EitherUnsafe<L, Func<T2, R>> Map<L, T1, T2, R>(this EitherUnsafe<L, T1> self, Func<T1, T2, R> func) =>
+        self.Map(curry(func));
+
+    /// <summary>
+    /// Partial application map
+    /// </summary>
+    /// <remarks>TODO: Better documentation of this function</remarks>
+    public static EitherUnsafe<L, Func<T2, Func<T3, R>>> Map<L, T1, T2, T3, R>(this EitherUnsafe<L, T1> self, Func<T1, T2, T3, R> func) =>
+        self.Map(curry(func));
 
     /// <summary>
     /// Monadic bind function

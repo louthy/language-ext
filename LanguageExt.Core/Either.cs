@@ -612,6 +612,55 @@ namespace LanguageExt
 public static class __EitherExt
 {
     /// <summary>
+    /// Apply an Either value to an Either function
+    /// </summary>
+    /// <param name="self">Either function</param>
+    /// <param name="arg">Either argument</param>
+    /// <returns>Returns the result of applying the Either argument to the Either function</returns>
+    public static Either<L, Res> Apply<L, R, Res>(this Either<L, Func<R, Res>> self, Either<L, R> arg) =>
+        arg.IsBottom || self.IsBottom
+            ? new Either<L, Res>(true)
+            : self.IsLeft
+                ? Either<L, Res>.Left(self.LeftValue)
+                : arg.IsLeft
+                    ? Either<L, Res>.Left(arg.LeftValue)
+                    : self.Select(f => f(arg.RightValue));
+
+    /// <summary>
+    /// Apply an Either value to an Either function of arity 2
+    /// </summary>
+    /// <param name="self">Either function</param>
+    /// <param name="arg">Either argument</param>
+    /// <returns>Returns the result of applying the Either argument to the Either function:
+    /// an Either function of arity 1</returns>
+    public static Either<L, Func<T2, R>> Apply<L, T1, T2, R>(this Either<L, Func<T1, T2, R>> self, Either<L, T1> arg) =>
+        arg.IsBottom || self.IsBottom
+            ? new Either<L, Func<T2, R>>(true)
+            : self.IsLeft
+                ? Either<L, Func<T2, R>>.Left(self.LeftValue)
+                : arg.IsLeft
+                    ? Either<L, Func<T2, R>>.Left(arg.LeftValue)
+                    : self.Select(f => par(f, arg.RightValue));
+
+    /// <summary>
+    /// Apply Either values to an Either function of arity 2
+    /// </summary>
+    /// <param name="self">Either function</param>
+    /// <param name="arg1">Either argument</param>
+    /// <param name="arg2">Either argument</param>
+    /// <returns>Returns the result of applying the optional arguments to the optional function</returns>
+    public static Either<L, R> Apply<L, T1, T2, R>(this Either<L, Func<T1, T2, R>> self, Either<L, T1> arg1, Either<L, T2> arg2) =>
+        arg1.IsBottom || arg2.IsBottom || self.IsBottom
+            ? new Either<L, R>(true)
+            : self.IsLeft
+                ? Either<L, R>.Left(self.LeftValue)
+                : arg1.IsLeft
+                    ? Either<L, R>.Left(arg1.LeftValue)
+                    : arg2.IsLeft
+                        ? Either<L, R>.Left(arg2.LeftValue)
+                        : self.Select(f => f(arg1.RightValue, arg2.RightValue));
+
+    /// <summary>
     /// Extracts from a list of 'Either' all the 'Left' elements.
     /// All the 'Left' elements are extracted in order.
     /// </summary>
@@ -926,6 +975,20 @@ public static class __EitherExt
             : self.IsRight
                 ? Right<LRet, RRet>(Right(self.RightValue))
                 : Left<LRet, RRet>(Left(self.LeftValue));
+
+    /// <summary>
+    /// Partial application map
+    /// </summary>
+    /// <remarks>TODO: Better documentation of this function</remarks>
+    public static Either<L, Func<T2, R>> Map<L, T1, T2, R>(this Either<L, T1> self, Func<T1, T2, R> func) =>
+        self.Map(curry(func));
+
+    /// <summary>
+    /// Partial application map
+    /// </summary>
+    /// <remarks>TODO: Better documentation of this function</remarks>
+    public static Either<L, Func<T2, Func<T3, R>>> Map<L, T1, T2, T3, R>(this Either<L, T1> self, Func<T1, T2, T3, R> func) =>
+        self.Map(curry(func));
 
     /// <summary>
     /// Monadic bind function

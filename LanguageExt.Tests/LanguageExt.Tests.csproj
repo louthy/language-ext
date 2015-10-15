@@ -91,12 +91,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DelayTests.cs" />
+    <Compile Include="EitherUnsafeApply.cs" />
     <Compile Include="EnumerableTTests.cs" />
     <Compile Include="EqualityTests.cs" />
     <Compile Include="ExceptionMatching.cs" />
     <Compile Include="FunTests.cs" />
     <Compile Include="LinqTests.cs" />
     <Compile Include="ListMatchingTests.cs" />
+    <Compile Include="EitherApply.cs" />
+    <Compile Include="TryOptionApply.cs" />
+    <Compile Include="TryApply.cs" />
+    <Compile Include="OptionUnsafeApply.cs" />
+    <Compile Include="OptionApply.cs" />
     <Compile Include="OptionTTests.cs" />
     <Compile Include="PartialAndCurryingTests.cs" />
     <Compile Include="QueryTests.cs" />

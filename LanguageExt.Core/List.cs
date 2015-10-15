@@ -780,6 +780,40 @@ namespace LanguageExt
              select Some(x))
             .DefaultIfEmpty(None)
             .FirstOrDefault();
+
+        /// <summary>
+        /// Apply an IEnumerable of values to an IEnumerable of functions
+        /// </summary>
+        /// <param name="opt">IEnumerable of functions</param>
+        /// <param name="arg">IEnumerable of argument values</param>
+        /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
+        public static IEnumerable<R> apply<T, R>(IEnumerable<Func<T, R>> self, IEnumerable<T> arg) =>
+            from f in self
+            from x in arg
+            select f(x);
+
+        /// <summary>
+        /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
+        /// </summary>
+        /// <param name="opt">IEnumerable of functions</param>
+        /// <param name="arg">IEnumerable argument values</param>
+        /// <returns>Returns the result of applying the IEnumerable of argument values to the 
+        /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
+        public static IEnumerable<Func<T2, R>> apply<T1, T2, R>(IEnumerable<Func<T1, T2, R>> self, IEnumerable<T1> arg) =>
+            from f in self
+            let c = curry(f)
+            from x in arg
+            select c(x);
+
+        /// <summary>
+        /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
+        /// </summary>
+        /// <param name="opt">IEnumerable of functions</param>
+        /// <param name="arg1">IEnumerable of arguments</param>
+        /// <param name="arg2">IEnumerable of arguments</param>
+        /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
+        public static IEnumerable<R> apply<T1, T2, R>(IEnumerable<Func<T1, T2, R>> self, IEnumerable<T1> arg1, IEnumerable<T2> arg2) =>
+            self.Apply(arg1).Apply(arg2);
     }
 
     class EqCompare<T> : IEqualityComparer<T>
@@ -1014,6 +1048,40 @@ public static class __EnumnerableExt
     /// <returns>Enumerable of T</returns>
     public static IEnumerable<T> Tail<T>(this IEnumerable<T> list) =>
         LanguageExt.List.tail(list);
+
+    /// <summary>
+    /// Apply an IEnumerable of values to an IEnumerable of functions
+    /// </summary>
+    /// <param name="opt">IEnumerable of functions</param>
+    /// <param name="arg">IEnumerable of argument values</param>
+    /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
+    public static IEnumerable<R> Apply<T, R>(this IEnumerable<Func<T, R>> self, IEnumerable<T> arg) =>
+        from f in self
+        from x in arg
+        select f(x);
+
+    /// <summary>
+    /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
+    /// </summary>
+    /// <param name="opt">IEnumerable of functions</param>
+    /// <param name="arg">IEnumerable argument values</param>
+    /// <returns>Returns the result of applying the IEnumerable of argument values to the 
+    /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
+    public static IEnumerable<Func<T2, R>> Apply<T1, T2, R>(this IEnumerable<Func<T1, T2, R>> self, IEnumerable<T1> arg) =>
+        from f in self
+        let c = curry(f)
+        from x in arg
+        select c(x);
+
+    /// <summary>
+    /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
+    /// </summary>
+    /// <param name="opt">IEnumerable of functions</param>
+    /// <param name="arg1">IEnumerable of arguments</param>
+    /// <param name="arg2">IEnumerable of arguments</param>
+    /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
+    public static IEnumerable<R> Apply<T1, T2, R>(this IEnumerable<Func<T1, T2, R>> self, IEnumerable<T1> arg1, IEnumerable<T2> arg2) =>
+        self.Apply(arg1).Apply(arg2);
 
     /// <summary>
     /// Projects the values in the enumerable using a map function into a new enumerable (Select in LINQ).

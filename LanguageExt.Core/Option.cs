@@ -399,9 +399,41 @@ public static class __OptionExt
             ? (T?)null
             : new Nullable<T>(self.Value);
 
-    // 
-    // Option<T> extensions 
-    // 
+    /// <summary>
+    /// Apply an Optional value to an Optional function
+    /// </summary>
+    /// <param name="opt">Optional function</param>
+    /// <param name="arg">Optional argument</param>
+    /// <returns>Returns the result of applying the optional argument to the optional function</returns>
+    public static Option<R> Apply<T, R>(this Option<Func<T, R>> opt, Option<T> arg) => 
+        opt.IsSome && arg.IsSome
+            ? Optional(opt.Value(arg.Value))
+            : None;
+
+    /// <summary>
+    /// Apply an Optional value to an Optional function of arity 2
+    /// </summary>
+    /// <param name="opt">Optional function</param>
+    /// <param name="arg">Optional argument</param>
+    /// <returns>Returns the result of applying the optional argument to the optional function:
+    /// an optonal function of arity 1</returns>
+    public static Option<Func<T2, R>> Apply<T1, T2, R>(this Option<Func<T1, T2, R>> opt, Option<T1> arg) =>
+        opt.IsSome && arg.IsSome
+            ? Optional(par(opt.Value, arg.Value))
+            : None;
+
+    /// <summary>
+    /// Apply Optional values to an Optional function of arity 2
+    /// </summary>
+    /// <param name="opt">Optional function</param>
+    /// <param name="arg1">Optional argument</param>
+    /// <param name="arg2">Optional argument</param>
+    /// <returns>Returns the result of applying the optional arguments to the optional function</returns>
+    public static Option<R> Apply<T1, T2, R>(this Option<Func<T1, T2, R>> opt, Option<T1> arg1, Option<T2> arg2) =>
+        opt.IsSome && arg1.IsSome && arg2.IsSome
+            ? Optional(opt.Value(arg1.Value, arg2.Value))
+            : None;
+
     public static Unit Iter<T>(this Option<T> self, Action<T> action) =>
         self.IfSome(action);
 
@@ -415,20 +447,54 @@ public static class __OptionExt
             ? pred(self.Value)
             : true;
 
+    public static bool ForAll<T>(this Option<T> self, Func<T, bool> Some, Func<bool> None) =>
+        self.IsSome
+            ? Some(self.Value)
+            : None();
+
     public static bool Exists<T>(this Option<T> self, Func<T, bool> pred) =>
         self.IsSome
             ? pred(self.Value)
             : false;
+
+    public static bool Exists<T>(this Option<T> self, Func<T, bool> Some, Func<bool> None) =>
+        self.IsSome
+            ? Some(self.Value)
+            : None();
 
     public static S Fold<S, T>(this Option<T> self, S state, Func<S, T, S> folder) =>
         self.IsSome
             ? folder(state, self.Value)
             : state;
 
+    public static S Fold<S, T>(this Option<T> self, S state, Func<S, T, S> Some, Func<S, S> None) =>
+        self.IsSome
+            ? Some(state, self.Value)
+            : None(state);
+
     public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> mapper) =>
         self.IsSome
             ? OptionCast.Cast(mapper(self.Value))
             : None;
+
+    public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> Some, Func<R> None) =>
+        self.IsSome
+            ? OptionCast.Cast(Some(self.Value))
+            : None();
+
+    /// <summary>
+    /// Partial application map
+    /// </summary>
+    /// <remarks>TODO: Better documentation of this function</remarks>
+    public static Option<Func<T2, R>> Map<T1, T2, R>(this Option<T1> opt, Func<T1, T2, R> func) =>
+        opt.Map(curry(func));
+
+    /// <summary>
+    /// Partial application map
+    /// </summary>
+    /// <remarks>TODO: Better documentation of this function</remarks>
+    public static Option<Func<T2, Func<T3, R>>> Map<T1, T2, T3, R>(this Option<T1> opt, Func<T1, T2, T3, R> func) =>
+        opt.Map(curry(func));
 
     public static Option<T> Filter<T>(this Option<T> self, Func<T, bool> pred) =>
         self.IsSome
@@ -437,10 +503,24 @@ public static class __OptionExt
                 : None
             : self;
 
+    public static Option<T> Filter<T>(this Option<T> self, Func<T, bool> Some, Func<bool> None) =>
+        self.IsSome
+            ? Some(self.Value)
+                ? self
+                : Option<T>.None
+            : None()
+                ? self
+                : Option<T>.None;
+
     public static Option<R> Bind<T, R>(this Option<T> self, Func<T, Option<R>> binder) =>
         self.IsSome
             ? binder(self.Value)
             : None;
+
+    public static Option<R> Bind<T, R>(this Option<T> self, Func<T, Option<R>> Some, Func<Option<R>> None) =>
+        self.IsSome
+            ? Some(self.Value)
+            : None();
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Option<U> Select<T, U>(this Option<T> self, Func<T, U> map) =>

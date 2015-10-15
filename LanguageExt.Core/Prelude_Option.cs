@@ -94,11 +94,46 @@ namespace LanguageExt
         public static Unit match<T>(Option<T> option, Action<T> Some, Action None) =>
             option.Match(Some, None);
 
+        /// <summary>
+        /// Apply an Optional value to an Optional function
+        /// </summary>
+        /// <param name="option">Optional function</param>
+        /// <param name="arg">Optional argument</param>
+        /// <returns>Returns the result of applying the optional argument to the optional function</returns>
+        public static Option<R> apply<T, R>(Option<Func<T, R>> option, Option<T> arg) =>
+            option.Apply(arg);
+
+        /// <summary>
+        /// Apply an Optional value to an Optional function of arity 2
+        /// </summary>
+        /// <param name="option">Optional function</param>
+        /// <param name="arg">Optional argument</param>
+        /// <returns>Returns the result of applying the optional argument to the optional function:
+        /// an optonal function of arity 1</returns>
+        public static Option<Func<T2, R>> apply<T1, T2, R>(Option<Func<T1, T2, R>> option, Option<T1> arg) =>
+            option.Apply(arg);
+
+        /// <summary>
+        /// Apply Optional values to an Optional function of arity 2
+        /// </summary>
+        /// <param name="option">Optional function</param>
+        /// <param name="arg1">Optional argument</param>
+        /// <param name="arg2">Optional argument</param>
+        /// <returns>Returns the result of applying the optional arguments to the optional function</returns>
+        public static Option<R> apply<T1, T2, R>(Option<Func<T1, T2, R>> option, Option<T1> arg1, Option<T2> arg2) =>
+            option.Apply(arg1, arg2);
+
         public static S fold<S, T>(Option<T> option, S state, Func<S, T, S> folder) =>
             option.Fold(state, folder);
 
+        public static S fold<S, T>(Option<T> option, S state, Func<S, T, S> Some, Func<S, S> None) =>
+            option.Fold(state, Some, None);
+
         public static bool forall<T>(Option<T> option, Func<T, bool> pred) =>
             option.ForAll(pred);
+
+        public static bool forall<T>(Option<T> option, Func<T, bool> Some, Func<bool> None) =>
+            option.ForAll(Some, None);
 
         public static int count<T>(Option<T> option) =>
             option.Count();
@@ -106,14 +141,40 @@ namespace LanguageExt
         public static bool exists<T>(Option<T> option, Func<T, bool> pred) =>
             option.Exists(pred);
 
+        public static bool exists<T>(Option<T> option, Func<T, bool> Some, Func<bool> None) =>
+            option.Exists(Some, None);
+
         public static Option<R> map<T, R>(Option<T> option, Func<T, R> mapper) =>
+            option.Map(mapper);
+
+        public static Option<R> map<T, R>(Option<T> option, Func<T, R> Some, Func<R> None) =>
+            option.Map(Some, None);
+
+        /// <summary>
+        /// Partial application map
+        /// </summary>
+        /// <remarks>TODO: Better documentation of this function</remarks>
+        public static Option<Func<T2, R>> map<T1, T2, R>(Option<T1> option, Func<T1, T2, R> mapper) =>
+            option.Map(mapper);
+
+        /// <summary>
+        /// Partial application map
+        /// </summary>
+        /// <remarks>TODO: Better documentation of this function</remarks>
+        public static Option<Func<T2, Func<T3, R>>> map<T1, T2, T3, R>(Option<T1> option, Func<T1, T2, T3, R> mapper) =>
             option.Map(mapper);
 
         public static Option<T> filter<T>(Option<T> option, Func<T, bool> pred) =>
             option.Filter(pred);
 
+        public static Option<T> filter<T>(Option<T> option, Func<T, bool> Some, Func<bool> None) =>
+            option.Filter(Some, None);
+
         public static Option<R> bind<T, R>(Option<T> option, Func<T, Option<R>> binder) =>
             option.Bind(binder);
+
+        public static Option<R> bind<T, R>(Option<T> option, Func<T, Option<R>> Some, Func<Option<R>> None) =>
+            option.Bind(Some, None);
 
         public static IEnumerable<R> match<T, R>(IEnumerable<Option<T>> list,
             Func<T, IEnumerable<R>> Some,
