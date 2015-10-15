@@ -144,6 +144,35 @@ namespace LanguageExt
             either.MatchUnsafe(Right, Left);
 
         /// <summary>
+        /// Apply an Either value to an Either function
+        /// </summary>
+        /// <param name="either">Either function</param>
+        /// <param name="arg">Either argument</param>
+        /// <returns>Returns the result of applying the Either argument to the Either function</returns>
+        public static EitherUnsafe<L, Res> apply<L, R, Res>(EitherUnsafe<L, Func<R, Res>> either, EitherUnsafe<L, R> arg) =>
+            either.Apply(arg);
+
+        /// <summary>
+        /// Apply an Either value to an Either function of arity 2
+        /// </summary>
+        /// <param name="self">Either function</param>
+        /// <param name="arg">Either argument</param>
+        /// <returns>Returns the result of applying the Either argument to the Either function:
+        /// an Either function of arity 1</returns>
+        public static EitherUnsafe<L, Func<T2, R>> apply<L, T1, T2, R>(EitherUnsafe<L, Func<T1, T2, R>> either, EitherUnsafe<L, T1> arg) =>
+            either.Apply(arg);
+
+        /// <summary>
+        /// Apply Either values to an Either function of arity 2
+        /// </summary>
+        /// <param name="self">Either function</param>
+        /// <param name="arg1">Either argument</param>
+        /// <param name="arg2">Either argument</param>
+        /// <returns>Returns the result of applying the optional arguments to the optional function</returns>
+        public static EitherUnsafe<L, R> apply<L, T1, T2, R>(EitherUnsafe<L, Func<T1, T2, R>> either, EitherUnsafe<L, T1> arg1, EitherUnsafe<L, T2> arg2) =>
+            either.Apply(arg1, arg2);
+
+        /// <summary>
         /// Folds the either into an S
         /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
         /// </summary>
@@ -305,6 +334,20 @@ namespace LanguageExt
         /// <returns>Mapped Either</returns>
         public static EitherUnsafe<LRet, RRet> map<L, R, LRet, RRet>(EitherUnsafe<L, R> either, Func<R, RRet> Right, Func<L, LRet> Left) =>
             either.Map(Right, Left);
+
+        /// <summary>
+        /// Partial application map
+        /// </summary>
+        /// <remarks>TODO: Better documentation of this function</remarks>
+        public static EitherUnsafe<L, Func<T2, R>> map<L, T1, T2, R>(EitherUnsafe<L, T1> either, Func<T1, T2, R> func) =>
+            either.Map(func);
+
+        /// <summary>
+        /// Partial application map
+        /// </summary>
+        /// <remarks>TODO: Better documentation of this function</remarks>
+        public static EitherUnsafe<L, Func<T2, Func<T3, R>>> map<L, T1, T2, T3, R>(EitherUnsafe<L, T1> either, Func<T1, T2, T3, R> func) =>
+            either.Map(func);
 
         /// <summary>
         /// Filter the Either

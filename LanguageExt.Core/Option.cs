@@ -462,9 +462,17 @@ public static class __OptionExt
             ? OptionCast.Cast(mapper(self.Value))
             : None;
 
+    /// <summary>
+    /// Partial application map
+    /// </summary>
+    /// <remarks>TODO: Better documentation of this function</remarks>
     public static Option<Func<T2, R>> Map<T1, T2, R>(this Option<T1> opt, Func<T1, T2, R> func) =>
         opt.Map(curry(func));
 
+    /// <summary>
+    /// Partial application map
+    /// </summary>
+    /// <remarks>TODO: Better documentation of this function</remarks>
     public static Option<Func<T2, Func<T3, R>>> Map<T1, T2, T3, R>(this Option<T1> opt, Func<T1, T2, T3, R> func) =>
         opt.Map(curry(func));
 

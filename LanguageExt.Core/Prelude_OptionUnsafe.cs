@@ -52,9 +52,17 @@ namespace LanguageExt
         public static OptionUnsafe<R> map<T, R>(OptionUnsafe<T> option, Func<T, R> mapper) =>
             option.Map(mapper);
 
+        /// <summary>
+        /// Partial application map
+        /// </summary>
+        /// <remarks>TODO: Better documentation of this function</remarks>
         public static OptionUnsafe<Func<T2, R>> map<T1, T2, R>(OptionUnsafe<T1> option, Func<T1, T2, R> mapper) =>
             option.Map(mapper);
 
+        /// <summary>
+        /// Partial application map
+        /// </summary>
+        /// <remarks>TODO: Better documentation of this function</remarks>
         public static OptionUnsafe<Func<T2, Func<T3, R>>> map<T1, T2, T3, R>(OptionUnsafe<T1> option, Func<T1, T2, T3, R> mapper) =>
             option.Map(mapper);
 

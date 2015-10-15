@@ -26,6 +26,13 @@ namespace LanguageExtTests
         }
 
         [Fact]
+        public void ApplySomeArgsF2()
+        {
+            var opt = apply(Some(add), Some(3), Some(4));
+            Assert.Equal(Some(7), opt);
+        }
+
+        [Fact]
         public void ApplyNoneArgs()
         {
             var opt = Some(add)
@@ -39,6 +46,13 @@ namespace LanguageExtTests
         public void ApplyNoneArgsF()
         {
             var opt = apply(apply(Some(add), None), Some(4));
+            Assert.Equal(None, opt);
+        }
+
+        [Fact]
+        public void ApplyNoneArgsF2()
+        {
+            var opt = apply(Some(add), None, Some(4));
             Assert.Equal(None, opt);
         }
 
@@ -60,6 +74,15 @@ namespace LanguageExtTests
         public void ApplicativeLawHoldsF()
         {
             var first = apply(apply(Some(add), Some(3)), Some(4));
+            var second = apply(map(Some(3), add), Some(4));
+
+            Assert.Equal(first, second);
+        }
+
+        [Fact]
+        public void ApplicativeLawHoldsF2()
+        {
+            var first = apply(Some(add), Some(3), Some(4));
             var second = apply(map(Some(3), add), Some(4));
 
             Assert.Equal(first, second);
