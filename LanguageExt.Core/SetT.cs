@@ -20,7 +20,9 @@ namespace LanguageExt
         ISet<T>, 
         ICollection, 
         IAppendable<Set<T>>,
-        ISubtractable<Set<T>>
+        ISubtractable<Set<T>>,
+        IProductable<Set<T>>,
+        IEquatable<Set<T>>
     {
         public static readonly Set<T> Empty = new Set<T>();
         readonly SetItem<T> set;
@@ -383,6 +385,17 @@ namespace LanguageExt
             }
             return self;
         }
+
+        public static Set<T> operator *(Set<T> lhs, Set<T> rhs) =>
+            lhs.Product(rhs);
+
+        public Set<T> Product(Set<T> rhs) =>
+            new Set<T>((from x in this.AsEnumerable()
+                        from y in rhs.AsEnumerable()
+                        select TypeDesc.Product(x, y, TypeDesc<T>.Default)).Distinct());
+
+        public bool Equals(Set<T> other) =>
+            SetEquals(other);
     }
 
     internal class SetItem<K>

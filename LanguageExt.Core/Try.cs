@@ -112,6 +112,24 @@ public static class __TryExt
         return TypeDesc.Subtract(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
     };
 
+    public static Try<T> Product<T>(this Try<T> lhs, Try<T> rhs) => () =>
+    {
+        var lhsRes = lhs.Try();
+        if (lhsRes.IsFaulted) return lhsRes;
+        var rhsRes = rhs.Try();
+        if (rhsRes.IsFaulted) return lhsRes;
+        return TypeDesc.Product(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
+    };
+
+    public static Try<T> Divide<T>(this Try<T> lhs, Try<T> rhs) => () =>
+    {
+        var lhsRes = lhs.Try();
+        if (lhsRes.IsFaulted) return lhsRes;
+        var rhsRes = rhs.Try();
+        if (rhsRes.IsFaulted) return lhsRes;
+        return TypeDesc.Divide(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
+    };
+
     /// <summary>
     /// Apply a Try value to a Try function
     /// </summary>

@@ -25,7 +25,9 @@ namespace LanguageExt
         IEquatable<Option<T>>, 
         IEquatable<T>,
         IAppendable<Option<T>>,
-        ISubtractable<Option<T>>
+        ISubtractable<Option<T>>,
+        IProductable<Option<T>>,
+        IDivisible<Option<T>>
     {
         readonly T value;
 
@@ -360,6 +362,27 @@ namespace LanguageExt
             if (rhs.IsNone) return this;
             return Optional(TypeDesc.Subtract(Value, rhs.Value, TypeDesc<T>.Default));
         }
+
+        public static Option<T> operator *(Option<T> lhs, Option<T> rhs) =>
+            lhs.Product(rhs);
+
+        public Option<T> Product(Option<T> rhs)
+        {
+            if (IsNone) return this;
+            if (rhs.IsNone) return this;
+            return Optional(TypeDesc.Product(Value, rhs.Value, TypeDesc<T>.Default));
+        }
+
+        public static Option<T> operator /(Option<T> lhs, Option<T> rhs) =>
+            lhs.Divide(rhs);
+
+        public Option<T> Divide(Option<T> rhs)
+        {
+            if (IsNone) return this;
+            if (rhs.IsNone) return this;
+            return TypeDesc.Divide(Value, rhs.Value, TypeDesc<T>.Default);
+        }
+
     }
 
     public struct SomeContext<T, R>

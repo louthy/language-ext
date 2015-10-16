@@ -34,7 +34,9 @@ namespace LanguageExt
         IEquatable<EitherUnsafe<L, R>>,
         IEquatable<R>,
         IAppendable<EitherUnsafe<L, R>>,
-        ISubtractable<EitherUnsafe<L, R>>
+        ISubtractable<EitherUnsafe<L, R>>,
+        IProductable<EitherUnsafe<L, R>>,
+        IDivisible<EitherUnsafe<L, R>>
     {
         readonly R right;
         readonly L left;
@@ -526,6 +528,26 @@ namespace LanguageExt
             if (IsLeft) return this;
             if (rhs.IsLeft) return this;
             return TypeDesc.Subtract<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
+        }
+
+        public static EitherUnsafe<L, R> operator *(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
+            lhs.Product(rhs);
+
+        public EitherUnsafe<L, R> Product(EitherUnsafe<L, R> rhs)
+        {
+            if (IsLeft) return this;
+            if (rhs.IsLeft) return this;
+            return TypeDesc.Product<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
+        }
+
+        public static EitherUnsafe<L, R> operator /(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
+            lhs.Divide(rhs);
+
+        public EitherUnsafe<L, R> Divide(EitherUnsafe<L, R> rhs)
+        {
+            if (IsLeft) return this;
+            if (rhs.IsLeft) return this;
+            return TypeDesc.Divide<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
         }
 
         /// <summary>

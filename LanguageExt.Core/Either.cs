@@ -34,7 +34,9 @@ namespace LanguageExt
         IEquatable<Either<L, R>>, 
         IEquatable<R>,
         IAppendable<Either<L, R>>,
-        ISubtractable<Either<L, R>>
+        ISubtractable<Either<L, R>>,
+        IProductable<Either<L, R>>,
+        IDivisible<Either<L, R>>
     {
         readonly R right;
         readonly L left;
@@ -565,6 +567,26 @@ namespace LanguageExt
             if (IsLeft) return this;
             if (rhs.IsLeft) return this;
             return TypeDesc.Subtract<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
+        }
+
+        public static Either<L, R> operator *(Either<L, R> lhs, Either<L, R> rhs) =>
+            lhs.Product(rhs);
+
+        public Either<L, R> Product(Either<L, R> rhs)
+        {
+            if (IsLeft) return this;
+            if (rhs.IsLeft) return this;
+            return TypeDesc.Product<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
+        }
+
+        public static Either<L, R> operator /(Either<L, R> lhs, Either<L, R> rhs) =>
+            lhs.Divide(rhs);
+
+        public Either<L, R> Divide(Either<L, R> rhs)
+        {
+            if (IsLeft) return this;
+            if (rhs.IsLeft) return this;
+            return TypeDesc.Divide<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
         }
 
         /// <summary>

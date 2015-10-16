@@ -18,7 +18,8 @@ namespace LanguageExt
         IReadOnlyList<T>, 
         IReadOnlyCollection<T>, 
         IAppendable<Lst<T>>, 
-        ISubtractable<Lst<T>>
+        ISubtractable<Lst<T>>,
+        IProductable<Lst<T>>
     {
         /// <summary>
         /// Empty list
@@ -333,6 +334,14 @@ namespace LanguageExt
             }
             return self;
         }
+
+        public static Lst<T> operator *(Lst<T> lhs, Lst<T> rhs) =>
+            lhs.Product(rhs);
+
+        public Lst<T> Product(Lst<T> rhs) =>
+            (from x in this.AsEnumerable()
+             from y in rhs.AsEnumerable()
+             select TypeDesc.Product(x, y, TypeDesc<T>.Default)).Freeze();
     }
 
     [Serializable]

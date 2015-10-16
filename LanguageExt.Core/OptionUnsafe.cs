@@ -27,7 +27,9 @@ namespace LanguageExt
         IEquatable<OptionUnsafe<T>>, 
         IEquatable<T>,
         IAppendable<OptionUnsafe<T>>,
-        ISubtractable<OptionUnsafe<T>>
+        ISubtractable<OptionUnsafe<T>>,
+        IProductable<OptionUnsafe<T>>,
+        IDivisible<OptionUnsafe<T>>
     {
         readonly T value;
 
@@ -301,6 +303,26 @@ namespace LanguageExt
             if (IsNone) return this;
             if (rhs.IsNone) return this;
             return TypeDesc.Subtract(Value, rhs.Value, TypeDesc<T>.Default);
+        }
+
+        public static OptionUnsafe<T> operator *(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
+            lhs.Product(rhs);
+
+        public OptionUnsafe<T> Product(OptionUnsafe<T> rhs)
+        {
+            if (IsNone) return this;
+            if (rhs.IsNone) return this;
+            return TypeDesc.Product(Value, rhs.Value, TypeDesc<T>.Default);
+        }
+
+        public static OptionUnsafe<T> operator /(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
+            lhs.Divide(rhs);
+
+        public OptionUnsafe<T> Divide(OptionUnsafe<T> rhs)
+        {
+            if (IsNone) return this;
+            if (rhs.IsNone) return this;
+            return TypeDesc.Divide(Value, rhs.Value, TypeDesc<T>.Default);
         }
     }
 
