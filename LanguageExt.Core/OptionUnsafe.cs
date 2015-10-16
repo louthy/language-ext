@@ -18,6 +18,7 @@ namespace LanguageExt
     /// is expressly forbidden for Option T.  That is what makes this
     /// type 'unsafe'.  
     /// </summary>
+    [Serializable]
     [TypeConverter(typeof(OptionalTypeConverter))]
     public struct OptionUnsafe<T> : 
         IOptional, 

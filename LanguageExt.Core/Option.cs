@@ -16,6 +16,7 @@ namespace LanguageExt
     ///     2. None    -- which means there's no value stored inside
     /// To extract the value you must use the 'match' function.
     /// </summary>
+    [Serializable]
     [TypeConverter(typeof(OptionalTypeConverter))]
     public struct Option<T> : 
         IOptional, 

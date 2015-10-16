@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace LanguageExt
 {
+    [Serializable]
     public class Stck<T> : IEnumerable<T>, IEnumerable
     {
         public readonly static Stck<T> Empty = new Stck<T>();

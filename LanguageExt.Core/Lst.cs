@@ -11,6 +11,7 @@ namespace LanguageExt
     /// Immutable list
     /// </summary>
     /// <typeparam name="T">Value type</typeparam>
+    [Serializable]
     public class Lst<T> : IEnumerable<T>, IEnumerable, IReadOnlyList<T>, IReadOnlyCollection<T>
     {
         /// <summary>
@@ -309,6 +310,7 @@ namespace LanguageExt
         }
     }
 
+    [Serializable]
     internal class ListItem<T>
     {
         public static readonly ListItem<T> Empty = new ListItem<T>(0, 0, default(T), null, null);

@@ -26,6 +26,7 @@ namespace LanguageExt
     /// </remarks>
     /// <typeparam name="L">Left</typeparam>
     /// <typeparam name="R">Right</typeparam>
+    [Serializable]
     public struct Either<L, R> :
         IEither,
         IComparable<Either<L,R>>, 

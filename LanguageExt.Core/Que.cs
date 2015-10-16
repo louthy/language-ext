@@ -6,6 +6,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
+    [Serializable]
     public class Que<T> : IEnumerable<T>, IEnumerable
     {
         public readonly static Que<T> Empty = new Que<T>();
