@@ -19,7 +19,8 @@ namespace LanguageExt
         IReadOnlyCollection<T>, 
         IAppendable<Lst<T>>, 
         ISubtractable<Lst<T>>,
-        IProductable<Lst<T>>
+        IProductable<Lst<T>>,
+        IDivisible<Lst<T>>
     {
         /// <summary>
         /// Empty list
@@ -342,6 +343,14 @@ namespace LanguageExt
             (from x in this.AsEnumerable()
              from y in rhs.AsEnumerable()
              select TypeDesc.Product(x, y, TypeDesc<T>.Default)).Freeze();
+
+        public static Lst<T> operator /(Lst<T> lhs, Lst<T> rhs) =>
+            lhs.Divide(rhs);
+
+        public Lst<T> Divide(Lst<T> rhs) =>
+            (from y in rhs.AsEnumerable()
+             from x in this.AsEnumerable()
+             select TypeDesc.Divide(x, y, TypeDesc<T>.Default)).Freeze();
     }
 
     [Serializable]

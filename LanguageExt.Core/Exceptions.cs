@@ -221,4 +221,36 @@ namespace LanguageExt
         {
         }
     }
+
+    public class NotAppendableException : Exception
+    {
+        public NotAppendableException(Type t)
+            :base ("Type '"+t.Name+"' not appendable: It's neither a CLR numeric-type, a string nor dervied from IAppendable")
+        {
+        }
+    }
+
+    public class NotSubtractableException : Exception
+    {
+        public NotSubtractableException(Type t)
+            : base("Type '" + t.Name + "' not subtractable: It's neither a CLR numeric-type, nor dervied from ISubtractable")
+        {
+        }
+    }
+
+    public class NotProductableException : Exception
+    {
+        public NotProductableException(Type t)
+            : base("Type '" + t.Name + "' not productable: It's neither a CLR numeric-type, nor dervied from IProductable")
+        {
+        }
+    }
+
+    public class NotDivisibleException : Exception
+    {
+        public NotDivisibleException(Type t)
+            : base("Type '" + t.Name + "' not divisible: It's neither a CLR numeric-type, nor dervied from IDivisible")
+        {
+        }
+    }
 }

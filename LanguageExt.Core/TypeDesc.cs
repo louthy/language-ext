@@ -98,7 +98,7 @@ namespace LanguageExt
             {
                 return (lhs as IAppendable<T>).Append(rhs);
             }
-            return lhs;
+            throw new NotAppendableException(typeof(T));
         }
 
         public static T Subtract<T>(T lhs, T rhs, TypeDesc desc)
@@ -111,7 +111,7 @@ namespace LanguageExt
             {
                 return (lhs as ISubtractable<T>).Subtract(rhs);
             }
-            return lhs;
+            throw new NotSubtractableException(typeof(T));
         }
 
         public static T Product<T>(T lhs, T rhs, TypeDesc desc)
@@ -124,7 +124,7 @@ namespace LanguageExt
             {
                 return (lhs as IProductable<T>).Product(rhs);
             }
-            return lhs;
+            throw new NotProductableException(typeof(T));
         }
 
         public static T Divide<T>(T lhs, T rhs, TypeDesc desc)
@@ -137,7 +137,7 @@ namespace LanguageExt
             {
                 return (lhs as IDivisible<T>).Divide(rhs);
             }
-            return lhs;
+            throw new NotDivisibleException(typeof(T));
         }
 
         private static object AppendNumeric(object lhs, object rhs, TypeDesc desc)
