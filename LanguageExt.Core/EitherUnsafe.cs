@@ -506,6 +506,26 @@ namespace LanguageExt
                     : raise<L>(new EitherIsNotLeftException())
             );
 
+        public static EitherUnsafe<L, R> operator +(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
+            lhs.Append(rhs);
+
+        public EitherUnsafe<L, R> Append(EitherUnsafe<L, R> rhs)
+        {
+            if (IsLeft) return this;
+            if (rhs.IsLeft) return this;
+            return TypeDesc.Append<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
+        }
+
+        public static EitherUnsafe<L, R> operator -(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
+            lhs.Subtract(rhs);
+
+        public EitherUnsafe<L, R> Subtract(EitherUnsafe<L, R> rhs)
+        {
+            if (IsLeft) return this;
+            if (rhs.IsLeft) return this;
+            return TypeDesc.Subtract<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
+        }
+
         /// <summary>
         /// Deprecated
         /// </summary>

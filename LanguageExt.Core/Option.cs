@@ -338,6 +338,26 @@ namespace LanguageExt
                 : IsSome && other.IsSome
                     ? EqualityComparer<T>.Default.Equals(Value, other.Value)
                     : false;
+
+        public static Option<T> operator + (Option<T> lhs, Option<T> rhs) =>
+            lhs.Append(rhs);
+
+        public Option<T> Append(Option<T> rhs)
+        {
+            if (IsNone) return this;
+            if (rhs.IsNone) return this;
+            return Optional(TypeDesc.Append(Value, rhs.Value, TypeDesc<T>.Default));
+        }
+
+        public static Option<T> operator -(Option<T> lhs, Option<T> rhs) =>
+            lhs.Subtract(rhs);
+
+        public Option<T> Subtract(Option<T> rhs)
+        {
+            if (IsNone) return this;
+            if (rhs.IsNone) return this;
+            return Optional(TypeDesc.Subtract(Value, rhs.Value, TypeDesc<T>.Default));
+        }
     }
 
     public struct SomeContext<T, R>

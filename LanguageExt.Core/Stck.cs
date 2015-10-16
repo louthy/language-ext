@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace LanguageExt
 {
     [Serializable]
-    public class Stck<T> : IEnumerable<T>, IEnumerable
+    public class Stck<T> : IEnumerable<T>, IEnumerable, IAppendable<Stck<T>>
     {
         public readonly static Stck<T> Empty = new Stck<T>();
 
@@ -134,5 +134,18 @@ namespace LanguageExt
 
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
+
+        public static Stck<T> operator +(Stck<T> lhs, Stck<T> rhs) =>
+            lhs.Append(rhs);
+
+        public Stck<T> Append(Stck<T> rhs)
+        {
+            var self = this;
+            foreach (var item in rhs)
+            {
+                self = self.Push(item);
+            }
+            return self;
+        }
     }
 }

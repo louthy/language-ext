@@ -94,6 +94,24 @@ namespace LanguageExt
 /// </summary>
 public static class __TryExt
 {
+    public static Try<T> Append<T>(this Try<T> lhs, Try<T> rhs) => () =>
+    {
+        var lhsRes = lhs.Try();
+        if (lhsRes.IsFaulted) return lhsRes;
+        var rhsRes = rhs.Try();
+        if (rhsRes.IsFaulted) return lhsRes;
+        return TypeDesc.Append(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
+    };
+
+    public static Try<T> Subtract<T>(this Try<T> lhs, Try<T> rhs) => () =>
+    {
+        var lhsRes = lhs.Try();
+        if (lhsRes.IsFaulted) return lhsRes;
+        var rhsRes = rhs.Try();
+        if (rhsRes.IsFaulted) return lhsRes;
+        return TypeDesc.Subtract(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
+    };
+
     /// <summary>
     /// Apply a Try value to a Try function
     /// </summary>
