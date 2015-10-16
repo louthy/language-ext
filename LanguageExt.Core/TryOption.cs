@@ -144,6 +144,24 @@ public static class __TryOptionExt
         return TypeDesc.Subtract(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
     };
 
+    public static TryOption<T> Product<T>(this TryOption<T> lhs, TryOption<T> rhs) => () =>
+    {
+        var lhsRes = lhs.Try();
+        if (lhsRes.IsFaulted || lhsRes.Value.IsNone) return lhsRes;
+        var rhsRes = rhs.Try();
+        if (rhsRes.IsFaulted || rhsRes.Value.IsNone) return lhsRes;
+        return TypeDesc.Product(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
+    };
+
+    public static TryOption<T> Divide<T>(this TryOption<T> lhs, TryOption<T> rhs) => () =>
+    {
+        var lhsRes = lhs.Try();
+        if (lhsRes.IsFaulted || lhsRes.Value.IsNone) return lhsRes;
+        var rhsRes = rhs.Try();
+        if (rhsRes.IsFaulted || rhsRes.Value.IsNone) return lhsRes;
+        return TypeDesc.Divide(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
+    };
+
     /// <summary>
     /// Apply a TryOption value to a TryOption function
     /// </summary>

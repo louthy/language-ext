@@ -42,11 +42,15 @@ namespace LanguageExt
         public readonly Option<ValueTypeDesc> ValueType;
         public readonly bool IsAppendable;
         public readonly bool IsSubtractable;
+        public readonly bool IsProductable;
+        public readonly bool IsDivisible;
 
         public TypeDesc(Type type)
         {
             IsAppendable = typeof(IAppendable).IsAssignableFrom(type);
             IsSubtractable = typeof(ISubtractable).IsAssignableFrom(type);
+            IsProductable = typeof(IProductable).IsAssignableFrom(type);
+            IsDivisible = typeof(IDivisible).IsAssignableFrom(type);
             IsString = type == typeof(string);
 
             if (type.IsValueType)
@@ -110,6 +114,32 @@ namespace LanguageExt
             return lhs;
         }
 
+        public static T Product<T>(T lhs, T rhs, TypeDesc desc)
+        {
+            if (desc.IsNumeric)
+            {
+                return (T)ProductNumeric(lhs, rhs, desc);
+            }
+            else if (desc.IsProductable)
+            {
+                return (lhs as IProductable<T>).Product(rhs);
+            }
+            return lhs;
+        }
+
+        public static T Divide<T>(T lhs, T rhs, TypeDesc desc)
+        {
+            if (desc.IsNumeric)
+            {
+                return (T)DivideNumeric(lhs, rhs, desc);
+            }
+            else if (desc.IsDivisible)
+            {
+                return (lhs as IDivisible<T>).Divide(rhs);
+            }
+            return lhs;
+        }
+
         private static object AppendNumeric(object lhs, object rhs, TypeDesc desc)
         {
             return match(desc.ValueType,
@@ -162,9 +192,58 @@ namespace LanguageExt
             );
         }
 
-        public static object AppendString(object lhs, object rhs)
+        private static object ProductNumeric(object lhs, object rhs, TypeDesc desc)
         {
-            return (string)lhs + (string)rhs;
+            return match(desc.ValueType,
+                Some: vt =>
+                {
+                    switch (vt)
+                    {
+                        case ValueTypeDesc.Int: return (int)lhs * (int)rhs;
+                        case ValueTypeDesc.Long: return (long)lhs * (long)rhs;
+                        case ValueTypeDesc.Short: return (short)lhs * (short)rhs;
+                        case ValueTypeDesc.SByte: return (sbyte)lhs * (sbyte)rhs;
+                        case ValueTypeDesc.Char: return (char)lhs * (char)rhs;
+                        case ValueTypeDesc.UInt: return (uint)lhs * (uint)rhs;
+                        case ValueTypeDesc.ULong: return (ulong)lhs * (ulong)rhs;
+                        case ValueTypeDesc.UShort: return (ushort)lhs * (ushort)rhs;
+                        case ValueTypeDesc.Byte: return (byte)lhs * (byte)rhs;
+                        case ValueTypeDesc.Float: return (float)lhs * (float)rhs;
+                        case ValueTypeDesc.Double: return (double)lhs * (double)rhs;
+                        case ValueTypeDesc.Decimal: return (decimal)lhs * (decimal)rhs;
+                        default: return lhs;
+                    }
+                },
+                None: () => lhs
+            );
         }
+
+        private static object DivideNumeric(object lhs, object rhs, TypeDesc desc)
+        {
+            return match(desc.ValueType,
+                Some: vt =>
+                {
+                    switch (vt)
+                    {
+                        case ValueTypeDesc.Int: return (int)lhs / (int)rhs;
+                        case ValueTypeDesc.Long: return (long)lhs / (long)rhs;
+                        case ValueTypeDesc.Short: return (short)lhs / (short)rhs;
+                        case ValueTypeDesc.SByte: return (sbyte)lhs / (sbyte)rhs;
+                        case ValueTypeDesc.Char: return (char)lhs / (char)rhs;
+                        case ValueTypeDesc.UInt: return (uint)lhs / (uint)rhs;
+                        case ValueTypeDesc.ULong: return (ulong)lhs / (ulong)rhs;
+                        case ValueTypeDesc.UShort: return (ushort)lhs / (ushort)rhs;
+                        case ValueTypeDesc.Byte: return (byte)lhs / (byte)rhs;
+                        case ValueTypeDesc.Float: return (float)lhs / (float)rhs;
+                        case ValueTypeDesc.Double: return (double)lhs / (double)rhs;
+                        case ValueTypeDesc.Decimal: return (decimal)lhs / (decimal)rhs;
+                        default: return lhs;
+                    }
+                },
+                None: () => lhs
+            );
+        }
+        public static object AppendString(object lhs, object rhs) =>
+            (string)lhs + (string)rhs;
     }
 }
