@@ -12,7 +12,15 @@ namespace LanguageExt
     /// Immutable set
     /// </summary>
     /// <typeparam name="T">List item type</typeparam>
-    public class Set<T> : IEnumerable<T>, IEnumerable, IReadOnlyCollection<T>, ICollection<T>, ISet<T>, ICollection
+    public class Set<T> : 
+        IEnumerable<T>, 
+        IEnumerable, 
+        IReadOnlyCollection<T>, 
+        ICollection<T>, 
+        ISet<T>, 
+        ICollection, 
+        IAppendable<Set<T>>,
+        ISubtractable<Set<T>>
     {
         public static readonly Set<T> Empty = new Set<T>();
         readonly SetItem<T> set;
@@ -345,6 +353,35 @@ namespace LanguageExt
             {
                 array.SetValue(element, index++);
             }
+        }
+
+        public static Set<T> operator +(Set<T> lhs, Set<T> rhs) =>
+            lhs.Append(rhs);
+
+        public Set<T> Append(Set<T> rhs)
+        {
+            var self = this;
+            foreach (var item in rhs)
+            {
+                if (!self.Contains(item))
+                {
+                    self = self.Add(item);
+                }
+            }
+            return self;
+        }
+
+        public static Set<T> operator -(Set<T> lhs, Set<T> rhs) =>
+            lhs.Subtract(rhs);
+
+        public Set<T> Subtract(Set<T> rhs)
+        {
+            var self = this;
+            foreach (var item in rhs)
+            {
+                self = self.Remove(item);
+            }
+            return self;
         }
     }
 

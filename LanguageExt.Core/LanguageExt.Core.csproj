@@ -71,6 +71,8 @@
     <Compile Include="EitherUnsafeTrans.cs" />
     <Compile Include="EitherTrans.cs" />
     <Compile Include="Exceptions.cs" />
+    <Compile Include="ISubtractable.cs" />
+    <Compile Include="IAppendable.cs" />
     <Compile Include="Lst.cs" />
     <Compile Include="ObjectPool.cs" />
     <Compile Include="ObservableExt.cs" />
@@ -128,6 +130,7 @@
     <Compile Include="Tuple2.cs" />
     <Compile Include="TupleExt.cs" />
     <Compile Include="TypeConverters.cs" />
+    <Compile Include="TypeDesc.cs" />
     <Compile Include="Unit.cs" />
     <Compile Include="Writer.cs" />
   </ItemGroup>

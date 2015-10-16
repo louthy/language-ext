@@ -7,7 +7,7 @@ using static LanguageExt.Prelude;
 namespace LanguageExt
 {
     [Serializable]
-    public class Que<T> : IEnumerable<T>, IEnumerable
+    public class Que<T> : IEnumerable<T>, IEnumerable, IAppendable<Que<T>>
     {
         public readonly static Que<T> Empty = new Que<T>();
 
@@ -96,5 +96,18 @@ namespace LanguageExt
 
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
+
+        public static Que<T> operator +(Que<T> lhs, Que<T> rhs) =>
+            lhs.Append(rhs);
+
+        public Que<T> Append(Que<T> rhs)
+        {
+            var self = this;
+            foreach (var item in rhs)
+            {
+                self = self.Enqueue(item);
+            }
+            return self;
+        }
     }
 }

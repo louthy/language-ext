@@ -12,7 +12,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="T">Value type</typeparam>
     [Serializable]
-    public class Lst<T> : IEnumerable<T>, IEnumerable, IReadOnlyList<T>, IReadOnlyCollection<T>
+    public class Lst<T> : IEnumerable<T>, IEnumerable, IReadOnlyList<T>, IReadOnlyCollection<T>, IAppendable<Lst<T>>, ISubtractable<Lst<T>>
     {
         /// <summary>
         /// Empty list
@@ -307,6 +307,25 @@ namespace LanguageExt
             }
             var root = ListModule.FromList(filtered, 0, filtered.Count);
             return new Lst<T>(root, Rev);
+        }
+
+        public static Lst<T> operator +(Lst<T> lhs, Lst<T> rhs) =>
+            lhs.Append(rhs);
+
+        public Lst<T> Append(Lst<T> rhs) =>
+            AddRange(rhs);
+
+        public static Lst<T> operator -(Lst<T> lhs, Lst<T> rhs) =>
+            lhs.Subtract(rhs);
+
+        public Lst<T> Subtract(Lst<T> rhs)
+        {
+            var self = this;
+            foreach (var item in rhs)
+            {
+                self = self.Remove(item);
+            }
+            return self;
         }
     }
 

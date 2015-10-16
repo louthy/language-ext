@@ -545,6 +545,25 @@ namespace LanguageExt
                 ? raise<T>(new ResultIsNullException("'" + location + "' result is null.  Not allowed."))
                 : value;
 
+        public static Either<L,R> operator +(Either<L, R> lhs, Either<L, R> rhs) =>
+            lhs.Append(rhs);
+
+        public Either<L, R> Append(Either<L, R> rhs)
+        {
+            if (IsLeft) return this;
+            if (rhs.IsLeft) return this;
+            return TypeDesc.Append<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
+        }
+
+        public static Either<L, R> operator -(Either<L, R> lhs, Either<L, R> rhs) =>
+            lhs.Subtract(rhs);
+
+        public Either<L, R> Subtract(Either<L, R> rhs)
+        {
+            if (IsLeft) return this;
+            if (rhs.IsLeft) return this;
+            return TypeDesc.Subtract<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
+        }
 
         /// <summary>
         /// Deprecated

@@ -280,6 +280,26 @@ namespace LanguageExt
                 : IsSome && other.IsSome
                     ? EqualityComparer<T>.Default.Equals(Value, other.Value)
                     : false;
+
+        public static OptionUnsafe<T> operator +(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
+            lhs.Append(rhs);
+
+        public OptionUnsafe<T> Append(OptionUnsafe<T> rhs)
+        {
+            if (IsNone) return this;
+            if (rhs.IsNone) return this;
+            return TypeDesc.Append(Value, rhs.Value, TypeDesc<T>.Default);
+        }
+
+        public static OptionUnsafe<T> operator -(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
+            lhs.Subtract(rhs);
+
+        public OptionUnsafe<T> Subtract(OptionUnsafe<T> rhs)
+        {
+            if (IsNone) return this;
+            if (rhs.IsNone) return this;
+            return TypeDesc.Subtract(Value, rhs.Value, TypeDesc<T>.Default);
+        }
     }
 
     public struct SomeUnsafeContext<T, R>

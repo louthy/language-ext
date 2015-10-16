@@ -17,7 +17,7 @@ namespace LanguageExt
     /// <typeparam name="K">Key type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
     [Serializable]
-    public class Map<K, V> : IEnumerable<IMapItem<K, V>>, IReadOnlyDictionary<K,V>
+    public class Map<K, V> : IEnumerable<IMapItem<K, V>>, IReadOnlyDictionary<K,V>, IAppendable<Map<K, V>>, ISubtractable<Map<K, V>>
     {
         public static readonly Map<K, V> Empty = new Map<K, V>();
 
@@ -668,6 +668,35 @@ namespace LanguageExt
         {
             // TODO: Not sure of the behaviour here
             throw new NotImplementedException();
+        }
+
+        public static Map<K,V> operator +(Map<K, V> lhs, Map<K, V> rhs) =>
+            lhs.Append(rhs);
+
+        public Map<K, V> Append(Map<K, V> rhs)
+        {
+            var self = this;
+            foreach (var item in rhs)
+            {
+                if (!self.ContainsKey(item.Key))
+                {
+                    self = self.Add(item.Key, item.Value);
+                }
+            }
+            return self;
+        }
+
+        public static Map<K, V> operator -(Map<K, V> lhs, Map<K, V> rhs) =>
+            lhs.Subtract(rhs);
+
+        public Map<K, V> Subtract(Map<K, V> rhs)
+        {
+            var self = this;
+            foreach (var item in rhs)
+            {
+                self = self.Remove(item.Key);
+            }
+            return self;
         }
 
         #region Internal
