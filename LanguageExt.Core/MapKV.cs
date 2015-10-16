@@ -17,7 +17,11 @@ namespace LanguageExt
     /// <typeparam name="K">Key type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
     [Serializable]
-    public class Map<K, V> : IEnumerable<IMapItem<K, V>>, IReadOnlyDictionary<K,V>, IAppendable<Map<K, V>>, ISubtractable<Map<K, V>>
+    public class Map<K, V> : 
+        IEnumerable<IMapItem<K, V>>, 
+        IReadOnlyDictionary<K,V>, 
+        IAppendable<Map<K, V>>, 
+        ISubtractable<Map<K, V>>
     {
         public static readonly Map<K, V> Empty = new Map<K, V>();
 

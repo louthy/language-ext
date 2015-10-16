@@ -25,7 +25,9 @@ namespace LanguageExt
         IComparable<OptionUnsafe<T>>, 
         IComparable<T>, 
         IEquatable<OptionUnsafe<T>>, 
-        IEquatable<T>
+        IEquatable<T>,
+        IAppendable<OptionUnsafe<T>>,
+        ISubtractable<OptionUnsafe<T>>
     {
         readonly T value;
 

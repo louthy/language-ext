@@ -12,7 +12,13 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="T">Value type</typeparam>
     [Serializable]
-    public class Lst<T> : IEnumerable<T>, IEnumerable, IReadOnlyList<T>, IReadOnlyCollection<T>, IAppendable<Lst<T>>, ISubtractable<Lst<T>>
+    public class Lst<T> : 
+        IEnumerable<T>, 
+        IEnumerable, 
+        IReadOnlyList<T>, 
+        IReadOnlyCollection<T>, 
+        IAppendable<Lst<T>>, 
+        ISubtractable<Lst<T>>
     {
         /// <summary>
         /// Empty list
