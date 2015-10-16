@@ -22,6 +22,7 @@ namespace LanguageExt
         IAppendable<Set<T>>,
         ISubtractable<Set<T>>,
         IProductable<Set<T>>,
+        IDivisible<Set<T>>,
         IEquatable<Set<T>>
     {
         public static readonly Set<T> Empty = new Set<T>();
@@ -396,6 +397,14 @@ namespace LanguageExt
 
         public bool Equals(Set<T> other) =>
             SetEquals(other);
+
+        public static Set<T> operator /(Set<T> lhs, Set<T> rhs) =>
+            lhs.Divide(rhs);
+
+        public Set<T> Divide(Set<T> rhs) =>
+            new Set<T>((from y in rhs.AsEnumerable()
+                        from x in this.AsEnumerable()
+                        select TypeDesc.Divide(x, y, TypeDesc<T>.Default)).Distinct());
     }
 
     internal class SetItem<K>
