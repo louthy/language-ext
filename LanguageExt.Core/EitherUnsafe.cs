@@ -32,7 +32,9 @@ namespace LanguageExt
         IComparable<EitherUnsafe<L, R>>,
         IComparable<R>,
         IEquatable<EitherUnsafe<L, R>>,
-        IEquatable<R>
+        IEquatable<R>,
+        IAppendable<EitherUnsafe<L, R>>,
+        ISubtractable<EitherUnsafe<L, R>>
     {
         readonly R right;
         readonly L left;
