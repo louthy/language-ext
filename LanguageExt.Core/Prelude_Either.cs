@@ -7,6 +7,71 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
+        /// Append the Right of one either to the Right of another
+        /// For numeric values the behaviour is to sum the Rights (lhs + rhs)
+        /// For string values the behaviour is to concatenate the strings
+        /// For Lst/Stck/Que values the behaviour is to concatenate the lists
+        /// For Map or Set values the behaviour is to merge the sets
+        /// Otherwise if the R type derives from IAppendable then the behaviour
+        /// is to call lhs.Append(rhs);
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs + rhs</returns>
+        public static Either<L, R> append<L, R>(Either<L, R> lhs, Either<L, R> rhs) =>
+            lhs.Append(rhs);
+
+        /// <summary>
+        /// Subtract the Right of one either from the Right of another
+        /// For numeric values the behaviour is to find the difference between the Rights (lhs - rhs)
+        /// For Lst values the behaviour is to remove items in the rhs from the lhs
+        /// For Map or Set values the behaviour is to remove items in the rhs from the lhs
+        /// Otherwise if the R type derives from ISubtractable then the behaviour
+        /// is to call lhs.Subtract(rhs);
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs - rhs</returns>
+        public static Either<L, R> subtract<L, R>(Either<L, R> lhs, Either<L, R> rhs) =>
+            lhs.Subtract(rhs);
+
+        /// <summary>
+        /// Find the product of the Rights 
+        /// For numeric values the behaviour is to multiply the Rights (lhs * rhs)
+        /// For Lst values the behaviour is to multiply all combinations of values in both lists 
+        /// to produce a new list
+        /// Otherwise if the R type derives from IProductable then the behaviour
+        /// is to call lhs.Product(rhs);
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs * rhs</returns>
+        public static Either<L, R> product<L, R>(Either<L, R> lhs, Either<L, R> rhs) =>
+            lhs.Product(rhs);
+
+        /// <summary>
+        /// Divide the Rights 
+        /// For numeric values the behaviour is to divide the Rights (lhs / rhs)
+        /// For Lst values the behaviour is to divide all combinations of values in both lists 
+        /// to produce a new list
+        /// Otherwise if the R type derives from IDivisible then the behaviour
+        /// is to call lhs.Divide(rhs);
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs / rhs</returns>
+        public static Either<L, R> divide<L, R>(Either<L, R> lhs, Either<L, R> rhs) =>
+            lhs.Divide(rhs);
+
+        /// <summary>
         /// Returns the state of the Either provided
         /// </summary>
         /// <typeparam name="L">Left</typeparam>

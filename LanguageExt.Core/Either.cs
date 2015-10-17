@@ -549,43 +549,149 @@ namespace LanguageExt
                 ? raise<T>(new ResultIsNullException("'" + location + "' result is null.  Not allowed."))
                 : value;
 
+        /// <summary>
+        /// Append the Right of one either to the Right of another
+        /// For numeric values the behaviour is to sum the Rights (lhs + rhs)
+        /// For string values the behaviour is to concatenate the strings
+        /// For Lst/Stck/Que values the behaviour is to concatenate the lists
+        /// For Map or Set values the behaviour is to merge the sets
+        /// Otherwise if the R type derives from IAppendable then the behaviour
+        /// is to call lhs.Append(rhs);
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs + rhs</returns>
         public static Either<L,R> operator +(Either<L, R> lhs, Either<L, R> rhs) =>
             lhs.Append(rhs);
 
+        /// <summary>
+        /// Append the Right of one either to the Right of another
+        /// For numeric values the behaviour is to sum the Rights (lhs + rhs)
+        /// For string values the behaviour is to concatenate the strings
+        /// For Lst/Stck/Que values the behaviour is to concatenate the lists
+        /// For Map or Set values the behaviour is to merge the sets
+        /// Otherwise if the R type derives from IAppendable then the behaviour
+        /// is to call lhs.Append(rhs);
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs + rhs</returns>
         public Either<L, R> Append(Either<L, R> rhs)
         {
-            if (IsLeft) return this;
-            if (rhs.IsLeft) return this;
+            if (IsLeft) return this;    // The rules here are different to Option because
+            if (rhs.IsLeft) return rhs; // dropping the 'Left' value would also lose information
             return TypeDesc.Append<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
         }
 
+        /// <summary>
+        /// Subtract the Right of one either from the Right of another
+        /// For numeric values the behaviour is to find the difference between the Rights (lhs - rhs)
+        /// For Lst values the behaviour is to remove items in the rhs from the lhs
+        /// For Map or Set values the behaviour is to remove items in the rhs from the lhs
+        /// Otherwise if the R type derives from ISubtractable then the behaviour
+        /// is to call lhs.Subtract(rhs);
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs - rhs</returns>
         public static Either<L, R> operator -(Either<L, R> lhs, Either<L, R> rhs) =>
             lhs.Subtract(rhs);
 
+        /// <summary>
+        /// Subtract the Right of one either from the Right of another
+        /// For numeric values the behaviour is to find the difference between the Rights (lhs - rhs)
+        /// For Lst values the behaviour is to remove items in the rhs from the lhs
+        /// For Map or Set values the behaviour is to remove items in the rhs from the lhs
+        /// Otherwise if the R type derives from ISubtractable then the behaviour
+        /// is to call lhs.Subtract(rhs);
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs - rhs</returns>
         public Either<L, R> Subtract(Either<L, R> rhs)
         {
-            if (IsLeft) return this;
-            if (rhs.IsLeft) return this;
+            if (IsLeft) return this;    // The rules here are different to Option because
+            if (rhs.IsLeft) return rhs; // dropping the 'Left' value would also lose information
             return TypeDesc.Subtract<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
         }
 
+        /// <summary>
+        /// Find the product of the Rights 
+        /// For numeric values the behaviour is to multiply the Rights (lhs * rhs)
+        /// For Lst values the behaviour is to multiply all combinations of values in both lists 
+        /// to produce a new list
+        /// Otherwise if the R type derives from IProductable then the behaviour
+        /// is to call lhs.Product(rhs);
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs * rhs</returns>
         public static Either<L, R> operator *(Either<L, R> lhs, Either<L, R> rhs) =>
             lhs.Product(rhs);
 
+        /// <summary>
+        /// Find the product of the Rights 
+        /// For numeric values the behaviour is to multiply the Rights (lhs * rhs)
+        /// For Lst values the behaviour is to multiply all combinations of values in both lists 
+        /// to produce a new list
+        /// Otherwise if the R type derives from IProductable then the behaviour
+        /// is to call lhs.Product(rhs);
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs * rhs</returns>
         public Either<L, R> Product(Either<L, R> rhs)
         {
-            if (IsLeft) return this;
-            if (rhs.IsLeft) return this;
+            if (IsLeft) return this;    // The rules here are different to Option because
+            if (rhs.IsLeft) return rhs; // dropping the 'Left' value would also lose information
             return TypeDesc.Product<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
         }
 
+        /// <summary>
+        /// Divide the Rights 
+        /// For numeric values the behaviour is to divide the Rights (lhs / rhs)
+        /// For Lst values the behaviour is to divide all combinations of values in both lists 
+        /// to produce a new list
+        /// Otherwise if the R type derives from IDivisible then the behaviour
+        /// is to call lhs.Divide(rhs);
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs / rhs</returns>
         public static Either<L, R> operator /(Either<L, R> lhs, Either<L, R> rhs) =>
             lhs.Divide(rhs);
 
+        /// <summary>
+        /// Divide the Rights 
+        /// For numeric values the behaviour is to divide the Rights (lhs / rhs)
+        /// For Lst values the behaviour is to divide all combinations of values in both lists 
+        /// to produce a new list
+        /// Otherwise if the R type derives from IDivisible then the behaviour
+        /// is to call lhs.Divide(rhs);
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs / rhs</returns>
         public Either<L, R> Divide(Either<L, R> rhs)
         {
-            if (IsLeft) return this;
-            if (rhs.IsLeft) return this;
+            if (IsLeft) return this;    // The rules here are different to Option because
+            if (rhs.IsLeft) return rhs; // dropping the 'Left' value would also lose information
             return TypeDesc.Divide<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
         }
 

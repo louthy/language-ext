@@ -5,6 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using LanguageExt;
+using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -44,6 +46,7 @@ namespace LanguageExt
         public readonly bool IsSubtractable;
         public readonly bool IsProductable;
         public readonly bool IsDivisible;
+        public readonly bool HasZero;
 
         public TypeDesc(Type type)
         {
@@ -82,6 +85,14 @@ namespace LanguageExt
                     ValueType = valueType;
                 }
             }
+            HasZero = IsNumeric || IsString;
+        }
+
+        public T Zero<T>()
+        {
+            if (IsNumeric) return default(T);
+            if (IsString) return (T)((object)"");
+            throw new Exception("Zero not supported for " + typeof(T).Name);
         }
 
         public static T Append<T>(T lhs, T rhs, TypeDesc desc)
@@ -142,106 +153,86 @@ namespace LanguageExt
 
         private static object AppendNumeric(object lhs, object rhs, TypeDesc desc)
         {
-            return match(desc.ValueType,
-                Some: vt =>
-                {
-                    switch (vt)
-                    {
-                        case ValueTypeDesc.Int: return (int)lhs + (int)rhs;
-                        case ValueTypeDesc.Long: return (long)lhs + (long)rhs;
-                        case ValueTypeDesc.Short: return (short)lhs + (short)rhs;
-                        case ValueTypeDesc.SByte: return (sbyte)lhs + (sbyte)rhs;
-                        case ValueTypeDesc.Char: return (char)lhs + (char)rhs;
-                        case ValueTypeDesc.UInt: return (uint)lhs + (uint)rhs;
-                        case ValueTypeDesc.ULong: return (ulong)lhs + (ulong)rhs;
-                        case ValueTypeDesc.UShort: return (ushort)lhs + (ushort)rhs;
-                        case ValueTypeDesc.Byte: return (byte)lhs + (byte)rhs;
-                        case ValueTypeDesc.Float: return (float)lhs + (float)rhs;
-                        case ValueTypeDesc.Double: return (double)lhs + (double)rhs;
-                        case ValueTypeDesc.Decimal: return (decimal)lhs + (decimal)rhs;
-                        default: throw new NotAppendableException(lhs.GetType());
-                    }
-                },
-                None: () => lhs
-            );
+            var vt = desc.ValueType.Lift();
+            switch (vt)
+            {
+                case ValueTypeDesc.Int: return (int)lhs + (int)rhs;
+                case ValueTypeDesc.Long: return (long)lhs + (long)rhs;
+                case ValueTypeDesc.Short: return (short)lhs + (short)rhs;
+                case ValueTypeDesc.SByte: return (sbyte)lhs + (sbyte)rhs;
+                case ValueTypeDesc.Char: return (char)lhs + (char)rhs;
+                case ValueTypeDesc.UInt: return (uint)lhs + (uint)rhs;
+                case ValueTypeDesc.ULong: return (ulong)lhs + (ulong)rhs;
+                case ValueTypeDesc.UShort: return (ushort)lhs + (ushort)rhs;
+                case ValueTypeDesc.Byte: return (byte)lhs + (byte)rhs;
+                case ValueTypeDesc.Float: return (float)lhs + (float)rhs;
+                case ValueTypeDesc.Double: return (double)lhs + (double)rhs;
+                case ValueTypeDesc.Decimal: return (decimal)lhs + (decimal)rhs;
+                default: throw new NotAppendableException(lhs.GetType());
+            }
         }
 
         private static object SubtractNumeric(object lhs, object rhs, TypeDesc desc)
         {
-            return match(desc.ValueType,
-                Some: vt =>
-                {
-                    switch (vt)
-                    {
-                        case ValueTypeDesc.Int: return (int)lhs - (int)rhs;
-                        case ValueTypeDesc.Long: return (long)lhs - (long)rhs;
-                        case ValueTypeDesc.Short: return (short)lhs - (short)rhs;
-                        case ValueTypeDesc.SByte: return (sbyte)lhs - (sbyte)rhs;
-                        case ValueTypeDesc.Char: return (char)lhs - (char)rhs;
-                        case ValueTypeDesc.UInt: return (uint)lhs - (uint)rhs;
-                        case ValueTypeDesc.ULong: return (ulong)lhs - (ulong)rhs;
-                        case ValueTypeDesc.UShort: return (ushort)lhs - (ushort)rhs;
-                        case ValueTypeDesc.Byte: return (byte)lhs - (byte)rhs;
-                        case ValueTypeDesc.Float: return (float)lhs - (float)rhs;
-                        case ValueTypeDesc.Double: return (double)lhs - (double)rhs;
-                        case ValueTypeDesc.Decimal: return (decimal)lhs - (decimal)rhs;
-                        default: throw new NotSubtractableException(lhs.GetType());
-                    }
-                },
-                None: () => lhs
-            );
+            var vt = desc.ValueType.Lift();
+            switch (vt)
+            {
+                case ValueTypeDesc.Int: return (int)lhs - (int)rhs;
+                case ValueTypeDesc.Long: return (long)lhs - (long)rhs;
+                case ValueTypeDesc.Short: return (short)lhs - (short)rhs;
+                case ValueTypeDesc.SByte: return (sbyte)lhs - (sbyte)rhs;
+                case ValueTypeDesc.Char: return (char)lhs - (char)rhs;
+                case ValueTypeDesc.UInt: return (uint)lhs - (uint)rhs;
+                case ValueTypeDesc.ULong: return (ulong)lhs - (ulong)rhs;
+                case ValueTypeDesc.UShort: return (ushort)lhs - (ushort)rhs;
+                case ValueTypeDesc.Byte: return (byte)lhs - (byte)rhs;
+                case ValueTypeDesc.Float: return (float)lhs - (float)rhs;
+                case ValueTypeDesc.Double: return (double)lhs - (double)rhs;
+                case ValueTypeDesc.Decimal: return (decimal)lhs - (decimal)rhs;
+                default: throw new NotSubtractableException(lhs.GetType());
+            }
         }
 
         private static object ProductNumeric(object lhs, object rhs, TypeDesc desc)
         {
-            return match(desc.ValueType,
-                Some: vt =>
-                {
-                    switch (vt)
-                    {
-                        case ValueTypeDesc.Int: return (int)lhs * (int)rhs;
-                        case ValueTypeDesc.Long: return (long)lhs * (long)rhs;
-                        case ValueTypeDesc.Short: return (short)lhs * (short)rhs;
-                        case ValueTypeDesc.SByte: return (sbyte)lhs * (sbyte)rhs;
-                        case ValueTypeDesc.Char: return (char)lhs * (char)rhs;
-                        case ValueTypeDesc.UInt: return (uint)lhs * (uint)rhs;
-                        case ValueTypeDesc.ULong: return (ulong)lhs * (ulong)rhs;
-                        case ValueTypeDesc.UShort: return (ushort)lhs * (ushort)rhs;
-                        case ValueTypeDesc.Byte: return (byte)lhs * (byte)rhs;
-                        case ValueTypeDesc.Float: return (float)lhs * (float)rhs;
-                        case ValueTypeDesc.Double: return (double)lhs * (double)rhs;
-                        case ValueTypeDesc.Decimal: return (decimal)lhs * (decimal)rhs;
-                        default: throw new NotProductableException(lhs.GetType());
-                    }
-                },
-                None: () => lhs
-            );
+            var vt = desc.ValueType.Lift();
+            switch (vt)
+            {
+                case ValueTypeDesc.Int: return (int)lhs * (int)rhs;
+                case ValueTypeDesc.Long: return (long)lhs * (long)rhs;
+                case ValueTypeDesc.Short: return (short)lhs * (short)rhs;
+                case ValueTypeDesc.SByte: return (sbyte)lhs * (sbyte)rhs;
+                case ValueTypeDesc.Char: return (char)lhs * (char)rhs;
+                case ValueTypeDesc.UInt: return (uint)lhs * (uint)rhs;
+                case ValueTypeDesc.ULong: return (ulong)lhs * (ulong)rhs;
+                case ValueTypeDesc.UShort: return (ushort)lhs * (ushort)rhs;
+                case ValueTypeDesc.Byte: return (byte)lhs * (byte)rhs;
+                case ValueTypeDesc.Float: return (float)lhs * (float)rhs;
+                case ValueTypeDesc.Double: return (double)lhs * (double)rhs;
+                case ValueTypeDesc.Decimal: return (decimal)lhs * (decimal)rhs;
+                default: throw new NotProductableException(lhs.GetType());
+            }
         }
 
         private static object DivideNumeric(object lhs, object rhs, TypeDesc desc)
         {
-            return match(desc.ValueType,
-                Some: vt =>
-                {
-                    switch (vt)
-                    {
-                        case ValueTypeDesc.Int: return (int)lhs / (int)rhs;
-                        case ValueTypeDesc.Long: return (long)lhs / (long)rhs;
-                        case ValueTypeDesc.Short: return (short)lhs / (short)rhs;
-                        case ValueTypeDesc.SByte: return (sbyte)lhs / (sbyte)rhs;
-                        case ValueTypeDesc.Char: return (char)lhs / (char)rhs;
-                        case ValueTypeDesc.UInt: return (uint)lhs / (uint)rhs;
-                        case ValueTypeDesc.ULong: return (ulong)lhs / (ulong)rhs;
-                        case ValueTypeDesc.UShort: return (ushort)lhs / (ushort)rhs;
-                        case ValueTypeDesc.Byte: return (byte)lhs / (byte)rhs;
-                        case ValueTypeDesc.Float: return (float)lhs / (float)rhs;
-                        case ValueTypeDesc.Double: return (double)lhs / (double)rhs;
-                        case ValueTypeDesc.Decimal: return (decimal)lhs / (decimal)rhs;
-                        default: throw new NotDivisibleException(lhs.GetType());
-                    }
-                },
-                None: () => lhs
-            );
+            var vt = desc.ValueType.Lift();
+            switch (vt)
+            {
+                case ValueTypeDesc.Int: return (int)lhs / (int)rhs;
+                case ValueTypeDesc.Long: return (long)lhs / (long)rhs;
+                case ValueTypeDesc.Short: return (short)lhs / (short)rhs;
+                case ValueTypeDesc.SByte: return (sbyte)lhs / (sbyte)rhs;
+                case ValueTypeDesc.Char: return (char)lhs / (char)rhs;
+                case ValueTypeDesc.UInt: return (uint)lhs / (uint)rhs;
+                case ValueTypeDesc.ULong: return (ulong)lhs / (ulong)rhs;
+                case ValueTypeDesc.UShort: return (ushort)lhs / (ushort)rhs;
+                case ValueTypeDesc.Byte: return (byte)lhs / (byte)rhs;
+                case ValueTypeDesc.Float: return (float)lhs / (float)rhs;
+                case ValueTypeDesc.Double: return (double)lhs / (double)rhs;
+                case ValueTypeDesc.Decimal: return (decimal)lhs / (decimal)rhs;
+                default: throw new NotDivisibleException(lhs.GetType());
+            }
         }
         public static object AppendString(object lhs, object rhs) =>
             (string)lhs + (string)rhs;

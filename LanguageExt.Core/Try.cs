@@ -94,6 +94,18 @@ namespace LanguageExt
 /// </summary>
 public static class __TryExt
 {
+    /// <summary>
+    /// Append the Try(x) to Try(y).  If either of the Trys throw then the result is Fail
+    /// For numeric values the behaviour is to sum the Trys (lhs + rhs)
+    /// For string values the behaviour is to concatenate the strings
+    /// For Lst/Stck/Que values the behaviour is to concatenate the lists
+    /// For Map or Set values the behaviour is to merge the sets
+    /// Otherwise if the R type derives from IAppendable then the behaviour
+    /// is to call lhs.Append(rhs);
+    /// </summary>
+    /// <param name="lhs">Left-hand side of the operation</param>
+    /// <param name="rhs">Right-hand side of the operation</param>
+    /// <returns>lhs + rhs</returns>
     public static Try<T> Append<T>(this Try<T> lhs, Try<T> rhs) => () =>
     {
         var lhsRes = lhs.Try();
@@ -103,6 +115,17 @@ public static class __TryExt
         return TypeDesc.Append(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
     };
 
+    /// <summary>
+    /// Subtract the Try(x) from Try(y).  If either of the Trys throw then the result is Fail
+    /// For numeric values the behaviour is to find the difference between the Trys (lhs - rhs)
+    /// For Lst values the behaviour is to remove items in the rhs from the lhs
+    /// For Map or Set values the behaviour is to remove items in the rhs from the lhs
+    /// Otherwise if the R type derives from ISubtractable then the behaviour
+    /// is to call lhs.Subtract(rhs);
+    /// </summary>
+    /// <param name="lhs">Left-hand side of the operation</param>
+    /// <param name="rhs">Right-hand side of the operation</param>
+    /// <returns>lhs - rhs</returns>
     public static Try<T> Subtract<T>(this Try<T> lhs, Try<T> rhs) => () =>
     {
         var lhsRes = lhs.Try();
@@ -112,6 +135,17 @@ public static class __TryExt
         return TypeDesc.Subtract(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
     };
 
+    /// <summary>
+    /// Find the product of Try(x) and Try(y).  If either of the Trys throw then the result is Fail
+    /// For numeric values the behaviour is to multiply the Trys (lhs * rhs)
+    /// For Lst values the behaviour is to multiply all combinations of values in both lists 
+    /// to produce a new list
+    /// Otherwise if the R type derives from IProductable then the behaviour
+    /// is to call lhs.Product(rhs);
+    /// </summary>
+    /// <param name="lhs">Left-hand side of the operation</param>
+    /// <param name="rhs">Right-hand side of the operation</param>
+    /// <returns>lhs * rhs</returns>
     public static Try<T> Product<T>(this Try<T> lhs, Try<T> rhs) => () =>
     {
         var lhsRes = lhs.Try();
@@ -121,6 +155,17 @@ public static class __TryExt
         return TypeDesc.Product(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
     };
 
+    /// <summary>
+    /// Divide Try(x) by Try(y).  If either of the Trys throw then the result is Fail
+    /// For numeric values the behaviour is to divide the Trys (lhs / rhs)
+    /// For Lst values the behaviour is to divide all combinations of values in both lists 
+    /// to produce a new list
+    /// Otherwise if the R type derives from IDivisible then the behaviour
+    /// is to call lhs.Divide(rhs);
+    /// </summary>
+    /// <param name="lhs">Left-hand side of the operation</param>
+    /// <param name="rhs">Right-hand side of the operation</param>
+    /// <returns>lhs / rhs</returns>
     public static Try<T> Divide<T>(this Try<T> lhs, Try<T> rhs) => () =>
     {
         var lhsRes = lhs.Try();

@@ -343,46 +343,170 @@ namespace LanguageExt
                     ? EqualityComparer<T>.Default.Equals(Value, other.Value)
                     : false;
 
+        /// <summary>
+        /// Append the Some(x) of one option to the Some(y) of another.  If either of the
+        /// options are None then the result is None
+        /// For numeric values the behaviour is to sum the Somes (lhs + rhs)
+        /// For string values the behaviour is to concatenate the strings
+        /// For Lst/Stck/Que values the behaviour is to concatenate the lists
+        /// For Map or Set values the behaviour is to merge the sets
+        /// Otherwise if the R type derives from IAppendable then the behaviour
+        /// is to call lhs.Append(rhs);
+        /// </summary>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs + rhs</returns>
         public static Option<T> operator + (Option<T> lhs, Option<T> rhs) =>
             lhs.Append(rhs);
 
+        /// <summary>
+        /// Append the Some(x) of one option to the Some(y) of another.  If either of the
+        /// options are None then the result is None
+        /// For numeric values the behaviour is to sum the Somes (lhs + rhs)
+        /// For string values the behaviour is to concatenate the strings
+        /// For Lst/Stck/Que values the behaviour is to concatenate the lists
+        /// For Map or Set values the behaviour is to merge the sets
+        /// Otherwise if the R type derives from IAppendable then the behaviour
+        /// is to call lhs.Append(rhs);
+        /// </summary>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs + rhs</returns>
         public Option<T> Append(Option<T> rhs)
         {
-            if (IsNone) return this;
-            if (rhs.IsNone) return this;
+            if (IsNone && rhs.IsNone) return this;  // None  + None  = None
+            if (rhs.IsNone) return this;            // Value + None  = Value
+            if (this.IsNone) return rhs;            // None  + Value = Value
             return Optional(TypeDesc.Append(Value, rhs.Value, TypeDesc<T>.Default));
         }
 
+        /// <summary>
+        /// Subtract the Some(x) of one option from the Some(y) of another.  If either of the
+        /// options are None then the result is None
+        /// For numeric values the behaviour is to find the difference between the Somes (lhs - rhs)
+        /// For Lst values the behaviour is to remove items in the rhs from the lhs
+        /// For Map or Set values the behaviour is to remove items in the rhs from the lhs
+        /// Otherwise if the R type derives from ISubtractable then the behaviour
+        /// is to call lhs.Subtract(rhs);
+        /// </summary>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs - rhs</returns>
         public static Option<T> operator -(Option<T> lhs, Option<T> rhs) =>
             lhs.Subtract(rhs);
 
+        /// <summary>
+        /// Subtract the Some(x) of one option from the Some(y) of another.  If either of the
+        /// options are None then the result is None
+        /// For numeric values the behaviour is to find the difference between the Somes (lhs - rhs)
+        /// For Lst values the behaviour is to remove items in the rhs from the lhs
+        /// For Map or Set values the behaviour is to remove items in the rhs from the lhs
+        /// Otherwise if the R type derives from ISubtractable then the behaviour
+        /// is to call lhs.Subtract(rhs);
+        /// </summary>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs - rhs</returns>
         public Option<T> Subtract(Option<T> rhs)
         {
-            if (IsNone) return this;
-            if (rhs.IsNone) return this;
-            return Optional(TypeDesc.Subtract(Value, rhs.Value, TypeDesc<T>.Default));
+            var self = IsNone
+                ? TypeDesc<T>.Default.HasZero
+                    ? Some(TypeDesc<T>.Default.Zero<T>())
+                    : this
+                : this;
+            rhs = IsNone
+                ? TypeDesc<T>.Default.HasZero
+                    ? Some(TypeDesc<T>.Default.Zero<T>())
+                    : rhs
+                : rhs;
+            if (self.IsNone) return this;  // zero - rhs = undefined (when HasZero == false)
+            if (rhs.IsNone) return this;   // lhs + zero = lhs
+            return Optional(TypeDesc.Subtract(self.Value, rhs.Value, TypeDesc<T>.Default));
         }
 
+        /// <summary>
+        /// Find the product of the Somes.  If either of the options are None then the result is None
+        /// For numeric values the behaviour is to multiply the Somes (lhs * rhs)
+        /// For Lst values the behaviour is to multiply all combinations of values in both lists 
+        /// to produce a new list
+        /// Otherwise if the R type derives from IProductable then the behaviour
+        /// is to call lhs.Product(rhs);
+        /// </summary>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs * rhs</returns>
         public static Option<T> operator *(Option<T> lhs, Option<T> rhs) =>
             lhs.Product(rhs);
 
+        /// <summary>
+        /// Find the product of the Somes.  If either of the options are None then the result is None
+        /// For numeric values the behaviour is to multiply the Somes (lhs * rhs)
+        /// For Lst values the behaviour is to multiply all combinations of values in both lists 
+        /// to produce a new list
+        /// Otherwise if the R type derives from IProductable then the behaviour
+        /// is to call lhs.Product(rhs);
+        /// </summary>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs * rhs</returns>
         public Option<T> Product(Option<T> rhs)
         {
-            if (IsNone) return this;
-            if (rhs.IsNone) return this;
-            return Optional(TypeDesc.Product(Value, rhs.Value, TypeDesc<T>.Default));
+            var self = IsNone
+                ? TypeDesc<T>.Default.HasZero
+                    ? Some(TypeDesc<T>.Default.Zero<T>())
+                    : this
+                : this;
+            rhs = IsNone
+                ? TypeDesc<T>.Default.HasZero
+                    ? Some(TypeDesc<T>.Default.Zero<T>())
+                    : rhs
+                : rhs;
+            if (self.IsNone) return this; // zero * rhs = zero
+            if (rhs.IsNone) return rhs;   // lhs * zero = zero
+            return Optional(TypeDesc.Product(self.Value, rhs.Value, TypeDesc<T>.Default));
         }
 
+        /// <summary>
+        /// Divide the Somes.  If either of the options are None then the result is None
+        /// For numeric values the behaviour is to divide the Somes (lhs / rhs)
+        /// For Lst values the behaviour is to divide all combinations of values in both lists 
+        /// to produce a new list
+        /// Otherwise if the R type derives from IDivisible then the behaviour
+        /// is to call lhs.Divide(rhs);
+        /// </summary>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs / rhs</returns>
         public static Option<T> operator /(Option<T> lhs, Option<T> rhs) =>
             lhs.Divide(rhs);
 
+        /// <summary>
+        /// Divide the Somes.  If either of the options are None then the result is None
+        /// For numeric values the behaviour is to divide the Somes (lhs / rhs)
+        /// For Lst values the behaviour is to divide all combinations of values in both lists 
+        /// to produce a new list
+        /// Otherwise if the R type derives from IDivisible then the behaviour
+        /// is to call lhs.Divide(rhs);
+        /// </summary>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs / rhs</returns>
         public Option<T> Divide(Option<T> rhs)
         {
-            if (IsNone) return this;
-            if (rhs.IsNone) return this;
-            return TypeDesc.Divide(Value, rhs.Value, TypeDesc<T>.Default);
+            var self = IsNone
+                ? TypeDesc<T>.Default.HasZero
+                    ? Some(TypeDesc<T>.Default.Zero<T>())
+                    : this
+                : this;
+            rhs = IsNone
+                ? TypeDesc<T>.Default.HasZero
+                    ? Some(TypeDesc<T>.Default.Zero<T>())
+                    : rhs
+                : rhs;
+            if (self.IsNone) return this; // zero / rhs  = zero
+            if (rhs.IsNone) return rhs;   // lhs  / zero = undefined: zero
+            return TypeDesc.Divide(self.Value, rhs.Value, TypeDesc<T>.Default);
         }
-
     }
 
     public struct SomeContext<T, R>

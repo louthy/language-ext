@@ -7,6 +7,71 @@ namespace LanguageExt
 {
     public static partial class Prelude
     {
+        /// <summary>
+        /// Append the TryOption(x) to TryOption(y).
+        /// If either of the TryOptions throw then the result is Fail
+        /// If either of the TryOptions return None then the result is None
+        /// For numeric values the behaviour is to sum the TryOptions (lhs + rhs)
+        /// For string values the behaviour is to concatenate the strings
+        /// For Lst/Stck/Que values the behaviour is to concatenate the lists
+        /// For Map or Set values the behaviour is to merge the sets
+        /// Otherwise if the R type derives from IAppendable then the behaviour
+        /// is to call lhs.Append(rhs);
+        /// </summary>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs + rhs</returns>
+        public static TryOption<T> append<T>(TryOption<T> lhs, TryOption<T> rhs) =>
+            lhs.Append(rhs);
+
+        /// <summary>
+        /// Subtract the TryOption(x) from TryOption(y).
+        /// If either of the TryOptions throw then the result is Fail
+        /// If either of the TryOptions return None then the result is None
+        /// For numeric values the behaviour is to find the difference between the TryOptions (lhs - rhs)
+        /// For Lst values the behaviour is to remove items in the rhs from the lhs
+        /// For Map or Set values the behaviour is to remove items in the rhs from the lhs
+        /// Otherwise if the R type derives from ISubtractable then the behaviour
+        /// is to call lhs.Subtract(rhs);
+        /// </summary>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs - rhs</returns>
+        public static TryOption<T> subtract<T>(TryOption<T> lhs, TryOption<T> rhs) =>
+            lhs.Subtract(rhs);
+
+        /// <summary>
+        /// Find the product of TryOption(x) and TryOption(y).
+        /// If either of the TryOptions throw then the result is Fail
+        /// If either of the TryOptions return None then the result is None
+        /// For numeric values the behaviour is to multiply the TryOptions (lhs * rhs)
+        /// For Lst values the behaviour is to multiply all combinations of values in both lists 
+        /// to produce a new list
+        /// Otherwise if the R type derives from IProductable then the behaviour
+        /// is to call lhs.Product(rhs);
+        /// </summary>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs * rhs</returns>
+        public static TryOption<T> product<T>(TryOption<T> lhs, TryOption<T> rhs) =>
+            lhs.Product(rhs);
+
+        /// <summary>
+        /// Divide TryOption(x) by TryOption(y).  
+        /// If either of the TryOptions throw then the result is Fail
+        /// If either of the TryOptions return None then the result is None
+        /// For numeric values the behaviour is to divide the TryOptions (lhs / rhs)
+        /// For Lst values the behaviour is to divide all combinations of values in both lists 
+        /// to produce a new list
+        /// Otherwise if the R type derives from IDivisible then the behaviour
+        /// is to call lhs.Divide(rhs);
+        /// </summary>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs / rhs</returns>
+        public static TryOption<T> divide<T>(TryOption<T> lhs, TryOption<T> rhs) =>
+            lhs.Divide(rhs);
+
         public static bool isSome<T>(TryOption<T> value) =>
             value.Try().Value.IsSome;
 
