@@ -159,7 +159,7 @@ namespace LanguageExt
                         case ValueTypeDesc.Float: return (float)lhs + (float)rhs;
                         case ValueTypeDesc.Double: return (double)lhs + (double)rhs;
                         case ValueTypeDesc.Decimal: return (decimal)lhs + (decimal)rhs;
-                        default: return lhs;
+                        default: throw new NotAppendableException(lhs.GetType());
                     }
                 },
                 None: () => lhs
@@ -185,7 +185,7 @@ namespace LanguageExt
                         case ValueTypeDesc.Float: return (float)lhs - (float)rhs;
                         case ValueTypeDesc.Double: return (double)lhs - (double)rhs;
                         case ValueTypeDesc.Decimal: return (decimal)lhs - (decimal)rhs;
-                        default: return lhs;
+                        default: throw new NotSubtractableException(lhs.GetType());
                     }
                 },
                 None: () => lhs
@@ -211,7 +211,7 @@ namespace LanguageExt
                         case ValueTypeDesc.Float: return (float)lhs * (float)rhs;
                         case ValueTypeDesc.Double: return (double)lhs * (double)rhs;
                         case ValueTypeDesc.Decimal: return (decimal)lhs * (decimal)rhs;
-                        default: return lhs;
+                        default: throw new NotProductableException(lhs.GetType());
                     }
                 },
                 None: () => lhs
@@ -237,7 +237,7 @@ namespace LanguageExt
                         case ValueTypeDesc.Float: return (float)lhs / (float)rhs;
                         case ValueTypeDesc.Double: return (double)lhs / (double)rhs;
                         case ValueTypeDesc.Decimal: return (decimal)lhs / (decimal)rhs;
-                        default: return lhs;
+                        default: throw new NotDivisibleException(lhs.GetType());
                     }
                 },
                 None: () => lhs
