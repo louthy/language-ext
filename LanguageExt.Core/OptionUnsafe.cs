@@ -352,11 +352,6 @@ namespace LanguageExt
                     ? Some(TypeDesc<T>.Default.Zero<T>())
                     : this
                 : this;
-            rhs = IsNone
-                ? TypeDesc<T>.Default.HasZero
-                    ? Some(TypeDesc<T>.Default.Zero<T>())
-                    : rhs
-                : rhs;
             if (self.IsNone) return this;  // zero - rhs = undefined (when HasZero == false)
             if (rhs.IsNone) return this;   // lhs + zero = lhs
             return TypeDesc.Subtract(self.Value, rhs.Value, TypeDesc<T>.Default);
@@ -389,19 +384,9 @@ namespace LanguageExt
         /// <returns>lhs * rhs</returns>
         public OptionUnsafe<T> Product(OptionUnsafe<T> rhs)
         {
-            var self = IsNone
-                ? TypeDesc<T>.Default.HasZero
-                    ? Some(TypeDesc<T>.Default.Zero<T>())
-                    : this
-                : this;
-            rhs = IsNone
-                ? TypeDesc<T>.Default.HasZero
-                    ? Some(TypeDesc<T>.Default.Zero<T>())
-                    : rhs
-                : rhs;
-            if (self.IsNone) return this; // zero * rhs = zero
+            if (IsNone) return this;      // zero * rhs = zero
             if (rhs.IsNone) return rhs;   // lhs * zero = zero
-            return TypeDesc.Product(self.Value, rhs.Value, TypeDesc<T>.Default);
+            return TypeDesc.Product(Value, rhs.Value, TypeDesc<T>.Default);
         }
 
         /// <summary>
@@ -431,19 +416,9 @@ namespace LanguageExt
         /// <returns>lhs / rhs</returns>
         public OptionUnsafe<T> Divide(OptionUnsafe<T> rhs)
         {
-            var self = IsNone
-                ? TypeDesc<T>.Default.HasZero
-                    ? Some(TypeDesc<T>.Default.Zero<T>())
-                    : this
-                : this;
-            rhs = IsNone
-                ? TypeDesc<T>.Default.HasZero
-                    ? Some(TypeDesc<T>.Default.Zero<T>())
-                    : rhs
-                : rhs;
-            if (self.IsNone) return this; // zero / rhs  = zero
+            if (IsNone) return this;      // zero / rhs  = zero
             if (rhs.IsNone) return rhs;   // lhs  / zero = undefined: zero
-            return TypeDesc.Divide(self.Value, rhs.Value, TypeDesc<T>.Default);
+            return TypeDesc.Divide(Value, rhs.Value, TypeDesc<T>.Default);
         }
     }
 
