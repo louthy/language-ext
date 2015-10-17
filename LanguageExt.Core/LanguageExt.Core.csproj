@@ -71,7 +71,7 @@
     <Compile Include="EitherUnsafeTrans.cs" />
     <Compile Include="EitherTrans.cs" />
     <Compile Include="Exceptions.cs" />
-    <Compile Include="IDivisable.cs" />
+    <Compile Include="IDivisible.cs" />
     <Compile Include="INumeric.cs" />
     <Compile Include="IProductable.cs" />
     <Compile Include="ISubtractable.cs" />

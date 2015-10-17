@@ -99,7 +99,7 @@ public static class __TryExt
         var lhsRes = lhs.Try();
         if (lhsRes.IsFaulted) return lhsRes;
         var rhsRes = rhs.Try();
-        if (rhsRes.IsFaulted) return lhsRes;
+        if (rhsRes.IsFaulted) return rhsRes;
         return TypeDesc.Append(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
     };
 
@@ -108,7 +108,7 @@ public static class __TryExt
         var lhsRes = lhs.Try();
         if (lhsRes.IsFaulted) return lhsRes;
         var rhsRes = rhs.Try();
-        if (rhsRes.IsFaulted) return lhsRes;
+        if (rhsRes.IsFaulted) return rhsRes;
         return TypeDesc.Subtract(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
     };
 
@@ -117,7 +117,7 @@ public static class __TryExt
         var lhsRes = lhs.Try();
         if (lhsRes.IsFaulted) return lhsRes;
         var rhsRes = rhs.Try();
-        if (rhsRes.IsFaulted) return lhsRes;
+        if (rhsRes.IsFaulted) return rhsRes;
         return TypeDesc.Product(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
     };
 
@@ -126,7 +126,7 @@ public static class __TryExt
         var lhsRes = lhs.Try();
         if (lhsRes.IsFaulted) return lhsRes;
         var rhsRes = rhs.Try();
-        if (rhsRes.IsFaulted) return lhsRes;
+        if (rhsRes.IsFaulted) return rhsRes;
         return TypeDesc.Divide(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
     };
 
