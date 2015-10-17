@@ -344,8 +344,7 @@ namespace LanguageExt
                     : false;
 
         /// <summary>
-        /// Append the Some(x) of one option to the Some(y) of another.  If either of the
-        /// options are None then the result is None
+        /// Append the Some(x) of one option to the Some(y) of another.
         /// For numeric values the behaviour is to sum the Somes (lhs + rhs)
         /// For string values the behaviour is to concatenate the strings
         /// For Lst/Stck/Que values the behaviour is to concatenate the lists
@@ -360,8 +359,7 @@ namespace LanguageExt
             lhs.Append(rhs);
 
         /// <summary>
-        /// Append the Some(x) of one option to the Some(y) of another.  If either of the
-        /// options are None then the result is None
+        /// Append the Some(x) of one option to the Some(y) of another.
         /// For numeric values the behaviour is to sum the Somes (lhs + rhs)
         /// For string values the behaviour is to concatenate the strings
         /// For Lst/Stck/Que values the behaviour is to concatenate the lists
@@ -396,8 +394,7 @@ namespace LanguageExt
             lhs.Subtract(rhs);
 
         /// <summary>
-        /// Subtract the Some(x) of one option from the Some(y) of another.  If either of the
-        /// options are None then the result is None
+        /// Subtract the Some(x) of one option from the Some(y) of another.
         /// For numeric values the behaviour is to find the difference between the Somes (lhs - rhs)
         /// For Lst values the behaviour is to remove items in the rhs from the lhs
         /// For Map or Set values the behaviour is to remove items in the rhs from the lhs
@@ -425,7 +422,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Find the product of the Somes.  If either of the options are None then the result is None
+        /// Find the product of the Somes.
         /// For numeric values the behaviour is to multiply the Somes (lhs * rhs)
         /// For Lst values the behaviour is to multiply all combinations of values in both lists 
         /// to produce a new list
@@ -439,7 +436,7 @@ namespace LanguageExt
             lhs.Product(rhs);
 
         /// <summary>
-        /// Find the product of the Somes.  If either of the options are None then the result is None
+        /// Find the product of the Somes.
         /// For numeric values the behaviour is to multiply the Somes (lhs * rhs)
         /// For Lst values the behaviour is to multiply all combinations of values in both lists 
         /// to produce a new list
@@ -467,7 +464,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Divide the Somes.  If either of the options are None then the result is None
+        /// Divide the Somes.
         /// For numeric values the behaviour is to divide the Somes (lhs / rhs)
         /// For Lst values the behaviour is to divide all combinations of values in both lists 
         /// to produce a new list
@@ -481,7 +478,7 @@ namespace LanguageExt
             lhs.Divide(rhs);
 
         /// <summary>
-        /// Divide the Somes.  If either of the options are None then the result is None
+        /// Divide the Somes.
         /// For numeric values the behaviour is to divide the Somes (lhs / rhs)
         /// For Lst values the behaviour is to divide all combinations of values in both lists 
         /// to produce a new list
