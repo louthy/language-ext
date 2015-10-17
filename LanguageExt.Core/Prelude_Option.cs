@@ -251,16 +251,6 @@ namespace LanguageExt
             ) =>
             match(list, Some, () => None);
 
-        public static IEnumerable<T> failure<T>(IEnumerable<Option<T>> list,
-            Func<IEnumerable<T>> None
-            ) =>
-            match(list, v => new T[1] { v }, None);
-
-        public static IEnumerable<T> failure<T>(IEnumerable<Option<T>> list,
-            IEnumerable<T> None
-            ) =>
-            match(list, v => new T[1] { v }, () => None);
-
         public static IEnumerable<R> Match<T, R>(this IEnumerable<Option<T>> list,
             Func<T, IEnumerable<R>> Some,
             Func<IEnumerable<R>> None
@@ -272,16 +262,6 @@ namespace LanguageExt
             IEnumerable<R> None
             ) =>
             match(list, Some, () => None);
-
-        public static IEnumerable<T> Failure<T>(this IEnumerable<Option<T>> list,
-            Func<IEnumerable<T>> None
-            ) =>
-            match(list, v => new T[1] { v }, None);
-
-        public static IEnumerable<T> Failure<T>(this IEnumerable<Option<T>> list,
-            IEnumerable<T> None
-            ) =>
-            match(list, v => new T[1] { v }, () => None);
 
         public static Lst<T> toList<T>(Option<T> option) =>
             option.ToList();

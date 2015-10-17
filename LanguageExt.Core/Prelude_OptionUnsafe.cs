@@ -188,17 +188,6 @@ namespace LanguageExt
             ) =>
             matchUnsafe(list, Some, () => None);
 
-        public static IEnumerable<T> FailureUnsafe<T>(this IEnumerable<OptionUnsafe<T>> list,
-            Func<IEnumerable<T>> None
-            ) =>
-            matchUnsafe(list, v => new T[1] { v }, None);
-
-        public static IEnumerable<T> FailureUnsafe<T>(this IEnumerable<OptionUnsafe<T>> list,
-            IEnumerable<T> None
-            ) =>
-            matchUnsafe(list, v => new T[1] { v }, () => None);
-
-
         public static Lst<T> toList<T>(OptionUnsafe<T> option) =>
             option.ToList();
 
