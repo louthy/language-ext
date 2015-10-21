@@ -13,7 +13,7 @@ namespace LanguageExtTests
         public void EmptyStackPeek()
         {
             var test = Stack<int>();
-            var res = peek(test);
+            var res = trypeek(test);
 
             Assert.True(res.IsNone);
         }
@@ -22,7 +22,7 @@ namespace LanguageExtTests
         public void EmptyStackPop()
         {
             var test = Stack<int>();
-            var res = map(pop(test), (stack, value) => value);
+            var res = map(trypop(test), (stack, value) => value);
 
             Assert.True(res.IsNone);
         }
@@ -50,11 +50,11 @@ namespace LanguageExtTests
 
         public void Popping5(Stck<int> test)
         {
-            test = map(pop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });
-            test = map(pop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });
-            test = map(pop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });
-            test = map(pop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });
-            match(peek(test),
+            test = map(trypop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });
+            test = map(trypop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });
+            test = map(trypop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });
+            test = map(trypop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });
+            peek(test,
                 Some: v => Assert.True(v == 1),
                 None: () => Assert.False(true)
             );
@@ -83,11 +83,9 @@ namespace LanguageExtTests
         }
 
         public int Sum(Stck<int> stack) =>
-            map( pop(stack), (newstack, option) =>
-                match(option,
-                    Some: value => value + Sum(newstack),
-                    None: ()    => 0
-                )
-            );
+            pop(stack, 
+                Some: (newstack, value) => value + Sum(newstack),
+                None: ()                => 0
+                );
     }
 }
