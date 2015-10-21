@@ -828,6 +828,55 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
         public static IEnumerable<R> apply<T1, T2, R>(IEnumerable<Func<T1, T2, R>> self, IEnumerable<T1> arg1, IEnumerable<T2> arg2) =>
             self.Apply(arg1).Apply(arg2);
+
+        /// <summary>
+        /// The tails function returns all final segments of the argument, longest first. For example,
+        ///  i.e. tails(['a','b','c']) == [['a','b','c'], ['b','c'], ['c'],[]]
+        /// </summary>
+        /// <typeparam name="T">List item type</typeparam>
+        /// <param name="self">List</param>
+        /// <returns>Enumerable of Enumerables of T</returns>
+        public static IEnumerable<IEnumerable<T>> tails<T>(IEnumerable<T> self)
+        {
+            List<T> lst = new List<T>(self);
+            for (var skip = 0; skip < lst.Count; skip++)
+            {
+                yield return lst.Skip(skip);
+            }
+            yield return new T[0];
+        }
+
+        /// <summary>
+        /// Span, applied to a predicate 'pred' and a list, returns a tuple where first element is 
+        /// longest prefix (possibly empty) of elements that satisfy 'pred' and second element is the 
+        /// remainder of the list:
+        /// </summary>
+        /// <example>
+        /// List.span(List(1,2,3,4,1,2,3,4), x => x &gt; 3) == Tuple(List(1,2,3),List(4,1,2,3,4))
+        /// </example>
+        /// <example>
+        /// List.span(List(1,2,3), x => x &lt; 9) == Tuple(List(),List(1,2,3))
+        /// </example>
+        /// <example>
+        /// List.span(List(1,2,3), x => x &gt; 9) == Tuple(List(1,2,3),List())
+        /// </example>
+        /// <typeparam name="T">List element type</typeparam>
+        /// <param name="self">List</param>
+        /// <param name="pred">Predicate</param>
+        /// <returns>Split list</returns>
+        public static Tuple<IEnumerable<T>, IEnumerable<T>> span<T>(IEnumerable<T> self, Func<T, bool> pred)
+        {
+            int index = 0;
+            foreach (var item in self)
+            {
+                if (!pred(item))
+                {
+                    break;
+                }
+                index++;
+            }
+            return Tuple(self.Take(index), self.Skip(index));
+        }
     }
 
     class EqCompare<T> : IEqualityComparer<T>
@@ -1453,6 +1502,37 @@ public static class __EnumnerableExt
     /// <returns>True if any item in the enumerable matches the predicate provided</returns>
     public static bool Exists<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
         LanguageExt.List.exists(list, pred);
+
+    /// <summary>
+    /// The tails function returns all final segments of the argument, longest first. For example,
+    ///  i.e. tails(['a','b','c']) == [['a','b','c'], ['b','c'], ['c'],[]]
+    /// </summary>
+    /// <typeparam name="T">List item type</typeparam>
+    /// <param name="self">List</param>
+    /// <returns>Enumerable of Enumerables of T</returns>
+    public static IEnumerable<IEnumerable<T>> Tails<T>(this IEnumerable<T> self) =>
+        LanguageExt.List.tails(self);
+
+    /// <summary>
+    /// Span, applied to a predicate 'pred' and a list, returns a tuple where first element is 
+    /// longest prefix (possibly empty) of elements that satisfy 'pred' and second element is the 
+    /// remainder of the list:
+    /// </summary>
+    /// <example>
+    /// List(1,2,3,4,1,2,3,4).Span(x => x &gt; 3) == Tuple(List(1,2,3),List(4,1,2,3,4))
+    /// </example>
+    /// <example>
+    /// List(1,2,3).Span(x => x &lt; 9) == Tuple(List(),List(1,2,3))
+    /// </example>
+    /// <example>
+    /// List(1,2,3).span(, x => x &gt; 9) == Tuple(List(1,2,3),List())
+    /// </example>
+    /// <typeparam name="T">List element type</typeparam>
+    /// <param name="self">List</param>
+    /// <param name="pred">Predicate</param>
+    /// <returns>Split list</returns>
+    public static Tuple<IEnumerable<T>, IEnumerable<T>> Span<T>(this IEnumerable<T> self, Func<T, bool> pred) =>
+        LanguageExt.List.span(self, pred);
 
     /// <summary>
     /// Monadic bind function for IEnumerable
