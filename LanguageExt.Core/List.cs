@@ -852,13 +852,13 @@ namespace LanguageExt
         /// remainder of the list:
         /// </summary>
         /// <example>
-        /// List.span(List(1,2,3,4,1,2,3,4), x => x &gt; 3) == Tuple(List(1,2,3),List(4,1,2,3,4))
+        /// List.span(List(1,2,3,4,1,2,3,4), x => x &lt; 3) == Tuple(List(1,2),List(3,4,1,2,3,4))
         /// </example>
         /// <example>
-        /// List.span(List(1,2,3), x => x &lt; 9) == Tuple(List(),List(1,2,3))
+        /// List.span(List(1,2,3), x => x &lt; 9) == Tuple(List(1,2,3),List())
         /// </example>
         /// <example>
-        /// List.span(List(1,2,3), x => x &gt; 9) == Tuple(List(1,2,3),List())
+        /// List.span(List(1,2,3), x => x &lt; 0) == Tuple(List(),List(1,2,3))
         /// </example>
         /// <typeparam name="T">List element type</typeparam>
         /// <param name="self">List</param>
@@ -1519,13 +1519,13 @@ public static class __EnumnerableExt
     /// remainder of the list:
     /// </summary>
     /// <example>
-    /// List(1,2,3,4,1,2,3,4).Span(x => x &gt; 3) == Tuple(List(1,2,3),List(4,1,2,3,4))
+    /// List.span(List(1,2,3,4,1,2,3,4), x => x &lt; 3) == Tuple(List(1,2),List(3,4,1,2,3,4))
     /// </example>
     /// <example>
-    /// List(1,2,3).Span(x => x &lt; 9) == Tuple(List(),List(1,2,3))
+    /// List.span(List(1,2,3), x => x &lt; 9) == Tuple(List(1,2,3),List())
     /// </example>
     /// <example>
-    /// List(1,2,3).span(, x => x &gt; 9) == Tuple(List(1,2,3),List())
+    /// List.span(List(1,2,3), x => x &lt; 0) == Tuple(List(),List(1,2,3))
     /// </example>
     /// <typeparam name="T">List element type</typeparam>
     /// <param name="self">List</param>
