@@ -550,14 +550,11 @@ namespace LanguageExt
         {
             state.IfSome(s =>
             {
-               if (s is IDisposable)
-               {
-                   var sd = state as IDisposable;
-                   if (sd != null)
-                   {
-                       sd.Dispose();
-                   }
-               }
+                var sd = s as IDisposable;
+                if (sd != null)
+                {
+                    sd.Dispose();
+                }
             });
             state = None;
         }
