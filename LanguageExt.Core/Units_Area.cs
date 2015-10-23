@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 namespace LanguageExt
 {
     /// <summary>
-    /// Numeric length value
+    /// Numeric area value
     /// Handles unit conversions automatically
-    /// Internally all lengths are stored as metres
-    /// All standard arithmetic operators work on the Length
-    /// type.  So keep all Lengths wrapped until you need the
+    /// Internally all areas are stored as metres^2
+    /// All standard arithmetic operators work on the Area
+    /// type.  So keep all Areas wrapped until you need the
     /// value, then extract using various unit-of-measure
-    /// accessors (Metres, Centimetres, etc.) or divide by 1.Metre()
+    /// accessors (SqMetres, SqCentimetres, etc.) or divide by 1.SqMetre()
     /// </summary>
     [Serializable]
     public struct Area :
