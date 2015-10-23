@@ -11,7 +11,7 @@ namespace LanguageExt
     }
 
     public class LinqDisposable<T> : ILinqDisposable
-        where T : IDisposable
+        where T : class, IDisposable
     {
         public readonly T Value;
 
