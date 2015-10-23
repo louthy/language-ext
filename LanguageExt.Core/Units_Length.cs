@@ -13,7 +13,7 @@ namespace LanguageExt
     /// All standard arithmetic operators work on the Length
     /// type.  So keep all Lengths wrapped until you need the
     /// value, then extract using various unit-of-measure
-    /// accessors (Metres, Centimetres, etc.)
+    /// accessors (Metres, Centimetres, etc.) or divide by 1.Metre()
     /// </summary>
     [Serializable]
     public struct Length :
@@ -30,7 +30,7 @@ namespace LanguageExt
         }
 
         public override string ToString() =>
-            Value + " metres";
+            Value + "m";
 
         public bool Equals(Length other) =>
             Value.Equals(other.Value);
@@ -63,20 +63,23 @@ namespace LanguageExt
         public Length Divide(double rhs) =>
             new Length(Value / rhs);
 
+        public static Area operator *(Length lhs, Length rhs) =>
+            new Area(lhs.Value * rhs.Value);
+
         public static Length operator *(Length lhs, double rhs) =>
             lhs.Product(rhs);
 
         public static Length operator *(double lhs, Length rhs) =>
             rhs.Product(lhs);
 
-        public static Length operator /(Length lhs, double rhs) =>
-            lhs.Divide(rhs);
-
         public static Length operator +(Length lhs, Length rhs) =>
             lhs.Append(rhs);
 
         public static Length operator -(Length lhs, Length rhs) =>
             lhs.Subtract(rhs);
+
+        public static Length operator /(Length lhs, double rhs) =>
+            lhs.Divide(rhs);
 
         public static double operator /(Length lhs, Length rhs) =>
             lhs.Value / rhs.Value;

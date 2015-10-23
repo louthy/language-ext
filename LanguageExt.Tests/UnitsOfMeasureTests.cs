@@ -59,6 +59,20 @@ namespace LanguageExtTests
         }
 
         [Fact]
+        public void OperatorTests()
+        {
+            Length km = 1.Kilometres();     // Length = 1000 metres
+
+            double val = km / 1.Metres();   // Divide by 1 metre to get a dimensionless value
+
+            Assert.True(val == 1000.0);
+
+            val = km / 1000.Metres();
+
+            Assert.True(val == 1.0);
+        }
+
+        [Fact]
         public void LengthCompareTest2()
         {
             Assert.True(100.Millimetres() < 2.Metres());
