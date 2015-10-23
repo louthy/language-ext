@@ -59,6 +59,18 @@ namespace LanguageExt
         public Length Subtract(Length rhs) =>
             new Length(Value - rhs.Value);
 
+        public Length Product(double rhs) =>
+            new Length(Value * rhs);
+
+        public Length Divide(double rhs) =>
+            new Length(Value / rhs);
+
+        public static Length operator *(Length lhs, double rhs) =>
+            lhs.Product(rhs);
+
+        public static Length operator /(Length lhs, double rhs) =>
+            lhs.Divide(rhs);
+
         public static Length operator +(Length lhs, Length rhs) =>
             lhs.Append(rhs);
 
