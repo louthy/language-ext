@@ -30,6 +30,11 @@ namespace LanguageExt
             this.config = config;
         }
 
+        ~RedisClusterImpl()
+        {
+            Dispose();
+        }
+
         public void Dispose()
         {
             var r = redis;

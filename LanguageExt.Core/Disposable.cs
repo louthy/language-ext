@@ -22,11 +22,8 @@ namespace LanguageExt
 
         public void Dispose()
         {
-            if (Value != null)
-            {
-                Value.Dispose();
-                Value = null;
-            }
+            Value?.Dispose();
+            Value = null;
         }
     }
 }
