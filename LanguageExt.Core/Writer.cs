@@ -21,7 +21,7 @@ namespace LanguageExt
 
         internal WriterResult(T value, IEnumerable<Out> output, bool isBottom = false)
         {
-            if (output == null) throw new ArgumentNullException("output");
+            if (output == null) throw new ArgumentNullException(nameof(output));
             Value = value;
             Output = output;
             IsBottom = isBottom;
@@ -115,7 +115,7 @@ namespace LanguageExt
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static Writer<W, U> Select<W, T, U>(this Writer<W, T> self, Func<T, U> select)
         {
-            if (select == null) throw new ArgumentNullException("select");
+            if (select == null) throw new ArgumentNullException(nameof(select));
             return () =>
             {
                 var resT = self();
@@ -135,8 +135,8 @@ namespace LanguageExt
             Func<T, U, V> project
         )
         {
-            if (bind == null) throw new ArgumentNullException("bind");
-            if (project == null) throw new ArgumentNullException("project");
+            if (bind == null) throw new ArgumentNullException(nameof(bind));
+            if (project == null) throw new ArgumentNullException(nameof(project));
 
             return () =>
             {
@@ -243,8 +243,8 @@ namespace LanguageExt
             Func<T, U, V> project
             )
         {
-            if (bind == null) throw new ArgumentNullException("bind");
-            if (project == null) throw new ArgumentNullException("project");
+            if (bind == null) throw new ArgumentNullException(nameof(bind));
+            if (project == null) throw new ArgumentNullException(nameof(project));
             return () =>
             {
                 var resT = self();
@@ -268,8 +268,8 @@ namespace LanguageExt
             Func<T, U, V> project
             )
         {
-            if (bind == null) throw new ArgumentNullException("bind");
-            if (project == null) throw new ArgumentNullException("project");
+            if (bind == null) throw new ArgumentNullException(nameof(bind));
+            if (project == null) throw new ArgumentNullException(nameof(project));
             return () =>
             {
                 var resT = self();

@@ -103,7 +103,7 @@ namespace LanguageExt
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static Rws<R, W, S, U> Select<R, W, S, T, U>(this Rws<R, W, S, T> self, Func<T, U> map)
         {
-            if (map == null) throw new ArgumentNullException("map");
+            if (map == null) throw new ArgumentNullException(nameof(map));
             return state =>
             {
                 var resT = self(state);
@@ -120,8 +120,8 @@ namespace LanguageExt
             Func<T, U, V> project
             )
         {
-            if (bind == null) throw new ArgumentNullException("bind");
-            if (project == null) throw new ArgumentNullException("project");
+            if (bind == null) throw new ArgumentNullException(nameof(bind));
+            if (project == null) throw new ArgumentNullException(nameof(project));
 
             return state =>
             {

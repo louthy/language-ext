@@ -14,14 +14,14 @@ namespace LanguageExt
         /// Use with Try monad in LINQ expressions to auto-clean up disposable items
         /// </summary>
         public static Try<LinqDisposable<T>> use<T>(Try<T> computation)
-            where T : IDisposable =>
+            where T : class, IDisposable =>
             computation.Map(x => new LinqDisposable<T>(x));
 
         /// <summary>
         /// Use with Try monad in LINQ expressions to auto-clean up disposable items
         /// </summary>
         public static LinqDisposable<T> use<T>(T disposable)
-            where T : IDisposable
+            where T : class, IDisposable
         {
             return new LinqDisposable<T>(disposable);
         }
@@ -30,7 +30,7 @@ namespace LanguageExt
         /// Use with Try monad in LINQ expressions to auto-clean up disposable items
         /// </summary>
         public static LinqDisposable<T> use<T>(Func<T> generator)
-            where T : IDisposable
+            where T : class, IDisposable
         {
             return new LinqDisposable<T>(generator());
         }
@@ -42,7 +42,7 @@ namespace LanguageExt
         /// <param name="f">Inner map function that uses the disposable value</param>
         /// <returns>Result of f(disposable)</returns>
         public static R use<T, R>(Func<T> generator, Func<T, R> f)
-            where T : IDisposable
+            where T : class, IDisposable
         {
             var value = generator();
             try

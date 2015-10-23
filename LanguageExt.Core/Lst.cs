@@ -252,7 +252,7 @@ namespace LanguageExt
         /// </summary>
         public Lst<T> SetItem(int index, T value)
         {
-            if (value == null) throw new ArgumentNullException("'value' cannot be null.");
+            if (value == null) throw new ArgumentNullException(nameof(value));
             if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
             return new Lst<T>(ListModule.SetItem(Root,value,index),Rev);
         }
@@ -695,8 +695,11 @@ namespace LanguageExt
 
             public void Dispose()
             {
-                pool.Release(stack);
-                stack = null;
+                if (stack != null)
+                {
+                    pool.Release(stack);
+                    stack = null;
+                }
             }
 
             private ListItem<T> Next(ListItem<T> node) =>

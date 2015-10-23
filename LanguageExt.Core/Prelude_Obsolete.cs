@@ -445,7 +445,7 @@ namespace LanguageExt
         [Obsolete("'Failure' has been deprecated.  Please use 'IfNone|IfNoneOrFail' instead")]
         public static T Failure<T>(this TryOption<T> self, T defaultValue)
         {
-            if (defaultValue == null) throw new ArgumentNullException("defaultValue");
+            if (defaultValue == null) throw new ArgumentNullException(nameof(defaultValue));
 
             var res = self.Try();
             if (res.IsFaulted || res.Value.IsNone)

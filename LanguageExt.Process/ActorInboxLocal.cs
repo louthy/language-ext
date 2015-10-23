@@ -110,8 +110,9 @@ namespace LanguageExt
 
         public void Dispose()
         {
-            var ts = tokenSource;
-            if (ts != null) ts.Dispose();
+            tokenSource?.Cancel();
+            tokenSource?.Dispose();
+            tokenSource = null;
         }
     }
 }

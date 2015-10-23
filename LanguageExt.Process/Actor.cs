@@ -370,7 +370,7 @@ namespace LanguageExt
                 }
                 else if (request.Message is T)
                 {
-                    T msg = (T)request.Message;
+                    var msg = (T)request.Message;
                     var stateIn = GetState();
                     var stateOut = actorFn(stateIn, msg);
                     try
@@ -550,16 +550,9 @@ namespace LanguageExt
         {
             state.IfSome(s =>
             {
-               if (s is IDisposable)
-               {
-                   var sd = state as IDisposable;
-                   if (sd != null)
-                   {
-                       sd.Dispose();
-                   }
-               }
+                (s as IDisposable)?.Dispose();
+                state = None;
             });
-            state = None;
         }
     }
 }

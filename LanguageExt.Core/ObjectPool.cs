@@ -11,7 +11,7 @@ namespace LanguageExt
         readonly int initialSize;
         readonly object sync = new object();
         readonly Func<T> instantiator;
-        Stack<T> pool;
+        readonly Stack<T> pool;
 
         public ObjectPool(int initialSize, Func<T> instantiator)
         {

@@ -20,6 +20,7 @@ namespace LanguageExt
 #endif 
 
         private static void IfNotNull<T>(T value, Action<T> action)
+            where T : class
         {
             if (value != null) action(value);
         }

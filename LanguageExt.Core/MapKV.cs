@@ -395,7 +395,7 @@ namespace LanguageExt
         /// <returns>New map with the mapped value</returns>
         public Map<K, V> AddOrUpdate(K key, Func<V, V> Some, V None)
         {
-            if (None == null) throw new ArgumentNullException("None");
+            if (None == null) throw new ArgumentNullException(nameof(None));
 
             return key == null
                 ? this
@@ -1185,8 +1185,11 @@ namespace LanguageExt
 
             public void Dispose()
             {
-                pool.Release(stack);
-                stack = null;
+                if (stack != null)
+                {
+                    pool.Release(stack);
+                    stack = null;
+                }
             }
 
             private MapItem<K, V> Next(MapItem<K, V> node) =>

@@ -304,7 +304,7 @@ public static class __TryOptionExt
     /// </summary>
     public static T IfNone<T>(this TryOption<T> self, T defaultValue)
     {
-        if (defaultValue == null) throw new ArgumentNullException("defaultValue");
+        if (defaultValue == null) throw new ArgumentNullException(nameof(defaultValue));
 
         var res = self.Try();
         if (res.IsFaulted || res.Value.IsNone)
@@ -357,7 +357,7 @@ public static class __TryOptionExt
 
     public static R Match<T, R>(this TryOption<T> self, Func<T, R> Some, Func<R> None, R Fail)
     {
-        if (Fail == null) throw new ArgumentNullException("Fail");
+        if (Fail == null) throw new ArgumentNullException(nameof(Fail));
 
         var res = self.Try();
         return res.IsFaulted
@@ -367,7 +367,7 @@ public static class __TryOptionExt
 
     public static R Match<T, R>(this TryOption<T> self, Func<T, R> Some, R None, R Fail)
     {
-        if (Fail == null) throw new ArgumentNullException("Fail");
+        if (Fail == null) throw new ArgumentNullException(nameof(Fail));
 
         var res = self.Try();
         return res.IsFaulted

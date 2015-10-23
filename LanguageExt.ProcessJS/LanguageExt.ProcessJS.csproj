@@ -94,7 +94,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(SolutionDir)\LanguageExt.ProcessJS\process.js $(SolutionDir)\LanguageExt.ProcessJS.Tests\scripts\process.js</PostBuildEvent>
+    <PostBuildEvent>copy "$(SolutionDir)\LanguageExt.ProcessJS\process.js" "$(SolutionDir)\LanguageExt.ProcessJS.Tests\scripts\process.js"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

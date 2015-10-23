@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
+    [Flags]
     public enum ProcessFlags
     {
         /// <summary>

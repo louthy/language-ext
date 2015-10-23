@@ -11,9 +11,9 @@ namespace LanguageExt
     }
 
     public class LinqDisposable<T> : ILinqDisposable
-        where T : IDisposable
+        where T : class, IDisposable
     {
-        public readonly T Value;
+        public T Value { get; private set; }
 
         internal LinqDisposable(T value)
         {
@@ -22,11 +22,8 @@ namespace LanguageExt
 
         public void Dispose()
         {
-            var value = Value;
-            if (value != null)
-            {
-                value.Dispose();
-            }
+            Value?.Dispose();
+            Value = null;
         }
     }
 }
