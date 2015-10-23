@@ -220,7 +220,7 @@ However, clearly there will be times when you don't need to do anything with the
 Of course there are functional versions of the fluent version above:
 ```C#
     int x = ifNone(optional, 10);
-    int x = iNone(optional, () => GetAlternative());
+    int x = ifNone(optional, () => GetAlternative());
     ifSome(optional, x => Console.WriteLine(x));
 ```
 To smooth out the process of returning `Option<T>` types from methods there are some implicit conversion operators and constructors:

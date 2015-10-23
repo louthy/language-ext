@@ -135,6 +135,9 @@
     <Compile Include="TypeConverters.cs" />
     <Compile Include="TypeDesc.cs" />
     <Compile Include="Unit.cs" />
+    <Compile Include="Units_Area.cs" />
+    <Compile Include="Units_Length.cs" />
+    <Compile Include="Units_Time.cs" />
     <Compile Include="Writer.cs" />
   </ItemGroup>
   <ItemGroup>
