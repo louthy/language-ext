@@ -1185,8 +1185,11 @@ namespace LanguageExt
 
             public void Dispose()
             {
-                pool.Release(stack);
-                stack = null;
+                if (stack != null)
+                {
+                    pool.Release(stack);
+                    stack = null;
+                }
             }
 
             private MapItem<K, V> Next(MapItem<K, V> node) =>

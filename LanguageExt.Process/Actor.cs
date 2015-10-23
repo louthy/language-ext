@@ -28,6 +28,7 @@ namespace LanguageExt
         volatile ActorResponse response;
         int roundRobinIndex = -1;
         object sync = new object();
+        bool isDisposed;
 
         internal Actor(Option<ICluster> cluster, ActorItem parent, ProcessName name, Func<S, T, S> actor, Func<IActor, S> setup, ProcessFlags flags)
         {
@@ -542,21 +543,21 @@ namespace LanguageExt
 
         public void Dispose()
         {
-            RemoveAllSubscriptions();
-            DisposeState();
+            if (!isDisposed)
+            {
+                RemoveAllSubscriptions();
+                DisposeState();
+                isDisposed = true;
+            }
         }
 
         private void DisposeState()
         {
             state.IfSome(s =>
             {
-                var sd = s as IDisposable;
-                if (sd != null)
-                {
-                    sd.Dispose();
-                }
+                (s as IDisposable)?.Dispose();
+                state = None;
             });
-            state = None;
         }
     }
 }

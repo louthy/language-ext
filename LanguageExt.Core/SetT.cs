@@ -720,10 +720,10 @@ namespace LanguageExt
             static ObjectPool<Stack<SetItem<K>>> pool = new ObjectPool<Stack<SetItem<K>>>(32, () => new Stack<SetItem<K>>(32));
 
             Stack<SetItem<K>> stack;
-            SetItem<K> map;
+            readonly SetItem<K> map;
             int left;
-            bool rev;
-            int start;
+            readonly bool rev;
+            readonly int start;
 
             public SetEnumerator(SetItem<K> root, bool rev, int start)
             {
@@ -745,8 +745,11 @@ namespace LanguageExt
 
             public void Dispose()
             {
-                pool.Release(stack);
-                stack = null;
+                if (stack != null)
+                {
+                    pool.Release(stack);
+                    stack = null;
+                }
             }
 
             private SetItem<K> Next(SetItem<K> node) =>

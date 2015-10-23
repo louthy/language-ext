@@ -136,12 +136,19 @@ namespace LanguageExt
 
         public void Dispose()
         {
-            var ts = tokenSource;
-            ts?.Cancel();
-            ts?.Dispose();
-            tokenSource = null;
-            this.cluster.UnsubscribeChannel(ClusterUserInboxNotifyKey);
-            this.cluster.UnsubscribeChannel(ClusterSystemInboxNotifyKey);
+            if (tokenSource != null)
+            {
+                tokenSource.Cancel();
+                tokenSource.Dispose();
+                tokenSource = null;
+            }
+
+            if (cluster != null)
+            {
+                cluster.UnsubscribeChannel(ClusterUserInboxNotifyKey);
+                cluster.UnsubscribeChannel(ClusterSystemInboxNotifyKey);
+                cluster = null;
+            }
         }
 
         public void CheckRemoteInbox(string key, ICluster cluster, ProcessId self, FSharpMailboxProcessor<SystemMessage> sysInbox, FSharpMailboxProcessor<UserControlMessage> userInbox)

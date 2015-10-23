@@ -695,8 +695,11 @@ namespace LanguageExt
 
             public void Dispose()
             {
-                pool.Release(stack);
-                stack = null;
+                if (stack != null)
+                {
+                    pool.Release(stack);
+                    stack = null;
+                }
             }
 
             private ListItem<T> Next(ListItem<T> node) =>

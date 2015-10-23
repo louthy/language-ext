@@ -107,15 +107,19 @@ namespace LanguageExt
 
         public void Dispose()
         {
-            var ts = tokenSource;
-            ts?.Cancel();
-            ts?.Dispose();
-            ts = null;
+            if (tokenSource != null)
+            {
+                tokenSource.Cancel();
+                tokenSource.Dispose();
+                tokenSource = null;
+            }
 
-            var cs = cluster;
-            cs?.UnsubscribeChannel(ClusterUserInboxNotifyKey);
-            cs?.UnsubscribeChannel(ClusterSystemInboxNotifyKey);
-            cluster = null;
+            if (cluster != null)
+            {
+                cluster.UnsubscribeChannel(ClusterUserInboxNotifyKey);
+                cluster.UnsubscribeChannel(ClusterSystemInboxNotifyKey);
+                cluster = null;
+            }
         }
     }
 }
