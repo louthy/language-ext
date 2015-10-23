@@ -395,7 +395,7 @@ namespace LanguageExt
         /// <returns>New map with the mapped value</returns>
         public Map<K, V> AddOrUpdate(K key, Func<V, V> Some, V None)
         {
-            if (None == null) throw new ArgumentNullException("None");
+            if (None == null) throw new ArgumentNullException(nameof(None));
 
             return key == null
                 ? this
