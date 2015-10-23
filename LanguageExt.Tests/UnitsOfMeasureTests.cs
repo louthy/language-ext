@@ -147,11 +147,23 @@ namespace LanguageExtTests
 
             Length l   = v * 2*sec;
 
-            Assert.True(l == 200*m);
-
             double r   = l / (1*m);
 
+            Assert.True(l == 200 * m);
             Assert.True(r == 200.0);
+        }
+
+        [Fact]
+        public void SpeedTest2()
+        {
+            Velocity v = 100*mph;
+
+            Time t     = 50*miles / v;
+
+            Length l   = v * (4*hours);
+
+            Assert.True(t == 30*mins);
+            Assert.True(l == 400*miles);
         }
     }
 }

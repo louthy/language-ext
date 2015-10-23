@@ -30,7 +30,7 @@ namespace LanguageExt
         }
 
         public override string ToString() =>
-            Value + "m^2";
+            Value + " m²";
 
         public bool Equals(Area other) =>
             Value.Equals(other.Value);

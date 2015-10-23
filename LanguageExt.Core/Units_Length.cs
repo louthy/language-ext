@@ -30,7 +30,7 @@ namespace LanguageExt
         }
 
         public override string ToString() =>
-            Value + "m";
+            Value + " m";
 
         public bool Equals(Length other) =>
             Value.Equals(other.Value);
@@ -83,6 +83,9 @@ namespace LanguageExt
 
         public static double operator /(Length lhs, Length rhs) =>
             lhs.Value / rhs.Value;
+
+        public static Time operator /(Length lhs, Velocity rhs) =>
+            new Time(lhs.Metres / rhs.MetresPerSecond);
 
         public static Velocity operator /(Length lhs, Time rhs) =>
             new Velocity(lhs.Value / rhs.Seconds);

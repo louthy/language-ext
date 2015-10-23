@@ -26,7 +26,7 @@ namespace LanguageExt
         }
 
         public override string ToString() =>
-            Value + "s";
+            Value + " s";
 
         public bool Equals(Time other) =>
             Value.Equals(other.Value);
