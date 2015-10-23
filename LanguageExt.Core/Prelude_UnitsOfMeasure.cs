@@ -249,7 +249,7 @@ namespace LanguageExt
         /// Second
         /// </summary>
         /// <example>
-        ///     TimeSpan x = 7*s;
+        ///     Time x = 7*s;
         /// </example>
         public static readonly Time s = 1.Seconds();
 
@@ -257,7 +257,7 @@ namespace LanguageExt
         /// Second
         /// </summary>
         /// <example>
-        ///     TimeSpan x = 7*sec;
+        ///     Time x = 7*sec;
         /// </example>
         public static readonly Time sec = 1.Seconds();
 
@@ -265,7 +265,7 @@ namespace LanguageExt
         /// Second
         /// </summary>
         /// <example>
-        ///     TimeSpan x = 7*sec;
+        ///     Time x = 7*sec;
         /// </example>
         public static readonly Time second = 1.Seconds();
 
@@ -273,7 +273,7 @@ namespace LanguageExt
         /// Second
         /// </summary>
         /// <example>
-        ///     TimeSpan x = 7*sec;
+        ///     Time x = 7*sec;
         /// </example>
         public static readonly Time seconds = 1.Seconds();
 
@@ -281,7 +281,7 @@ namespace LanguageExt
         /// Minute
         /// </summary>
         /// <example>
-        ///     TimeSpan x = 7*mins;
+        ///     Time x = 7*mins;
         /// </example>
         public static readonly Time min = 1.Minutes();
 
@@ -289,7 +289,7 @@ namespace LanguageExt
         /// Minute
         /// </summary>
         /// <example>
-        ///     TimeSpan x = 7*mins;
+        ///     Time x = 7*mins;
         /// </example>
         public static readonly Time mins = 1.Minutes();
 
@@ -297,7 +297,7 @@ namespace LanguageExt
         /// Minute
         /// </summary>
         /// <example>
-        ///     TimeSpan x = 7*mins;
+        ///     Time x = 7*mins;
         /// </example>
         public static readonly Time minute = 1.Minutes();
 
@@ -305,7 +305,7 @@ namespace LanguageExt
         /// Minute
         /// </summary>
         /// <example>
-        ///     TimeSpan x = 7*mins;
+        ///     Time x = 7*mins;
         /// </example>
         public static readonly Time minutes = 1.Minutes();
 
@@ -313,7 +313,7 @@ namespace LanguageExt
         /// Hour
         /// </summary>
         /// <example>
-        ///     TimeSpan x = 7*hr;
+        ///     Time x = 7*hr;
         /// </example>
         public static readonly Time hr = 1.Hours();
 
@@ -321,7 +321,7 @@ namespace LanguageExt
         /// Hour
         /// </summary>
         /// <example>
-        ///     TimeSpan x = 7*hr;
+        ///     Time x = 7*hr;
         /// </example>
         public static readonly Time hrs = 1.Hours();
 
@@ -329,7 +329,7 @@ namespace LanguageExt
         /// Hour
         /// </summary>
         /// <example>
-        ///     TimeSpan x = 7*hr;
+        ///     Time x = 7*hr;
         /// </example>
         public static readonly Time hour = 1.Hours();
 
@@ -337,7 +337,7 @@ namespace LanguageExt
         /// Hour
         /// </summary>
         /// <example>
-        ///     TimeSpan x = 7*hr;
+        ///     Time x = 7*hr;
         /// </example>
         public static readonly Time hours = 1.Hours();
 
@@ -345,7 +345,7 @@ namespace LanguageExt
         /// Day
         /// </summary>
         /// <example>
-        ///     TimeSpan x = 7*day;
+        ///     Time x = 7*day;
         /// </example>
         public static readonly Time day = 1.Days();
 
@@ -353,7 +353,7 @@ namespace LanguageExt
         /// Day
         /// </summary>
         /// <example>
-        ///     TimeSpan x = 7*day;
+        ///     Time x = 7*day;
         /// </example>
         public static readonly Time days = 1.Days();
 
@@ -361,7 +361,7 @@ namespace LanguageExt
         /// Millisecond
         /// </summary>
         /// <example>
-        ///     TimeSpan x = 7*ms;
+        ///     Time x = 7*ms;
         /// </example>
         public static readonly Time ms = 1.Milliseconds();
 
@@ -369,7 +369,7 @@ namespace LanguageExt
         /// Millisecond
         /// </summary>
         /// <example>
-        ///     TimeSpan x = 7*ms;
+        ///     Time x = 7*ms;
         /// </example>
         public static readonly Time millisecond = 1.Milliseconds();
 
@@ -377,8 +377,18 @@ namespace LanguageExt
         /// Millisecond
         /// </summary>
         /// <example>
-        ///     TimeSpan x = 7*ms;
+        ///     Time x = 7*ms;
         /// </example>
         public static readonly Time milliseconds = 1.Milliseconds();
+
+        /// <summary>
+        /// Miles per hour
+        /// </summary>
+        public static readonly Velocity mph = miles/hour;
+
+        /// <summary>
+        /// Kilometres per hour
+        /// </summary>
+        public static readonly Velocity kph = km/hour;
     }
 }

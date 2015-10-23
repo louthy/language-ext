@@ -121,7 +121,7 @@ namespace LanguageExtTests
         public void LengthArithmetic2()
         {
             Length length = 1*cm + 10*mm;
-            Assert.True(length == 2 * cm);
+            Assert.True(length == 2*cm);
         }
 
         [Fact]
@@ -135,7 +135,7 @@ namespace LanguageExtTests
         public void AreaTest1()
         {
             var a = 1000*cm * 8*m;
-            var b = 80 * m2;
+            var b = 80*m2;
 
             Assert.True(a == b);
         }
@@ -146,6 +146,8 @@ namespace LanguageExtTests
             Velocity v = 100*m/s;
 
             Length l   = v * 2*sec;
+
+            Assert.True(l == 200*m);
 
             double r   = l / (1*m);
 
