@@ -16,7 +16,11 @@ namespace LanguageExt
     /// accessors (Metres, Centimetres, etc.)
     /// </summary>
     [Serializable]
-    public struct Length : INumeric<Length>
+    public struct Length :
+        IAppendable<Length>,
+        ISubtractable<Length>,
+        IComparable<Length>,
+        IEquatable<Length>
     {
         readonly double Value;
 
@@ -50,12 +54,6 @@ namespace LanguageExt
         public Length Append(Length rhs) =>
             new Length(Value + rhs.Value);
 
-        public Length Divide(Length rhs) =>
-            new Length(Value / rhs.Value);
-
-        public Length Product(Length rhs) =>
-            new Length(Value * rhs.Value);
-
         public Length Subtract(Length rhs) =>
             new Length(Value - rhs.Value);
 
@@ -80,11 +78,8 @@ namespace LanguageExt
         public static Length operator -(Length lhs, Length rhs) =>
             lhs.Subtract(rhs);
 
-        public static Length operator *(Length lhs, Length rhs) =>
-            lhs.Product(rhs);
-
-        public static Length operator /(Length lhs, Length rhs) =>
-            lhs.Divide(rhs);
+        public static double operator /(Length lhs, Length rhs) =>
+            lhs.Value / rhs.Value;
 
         public static bool operator ==(Length lhs, Length rhs) =>
             lhs.Equals(rhs);
