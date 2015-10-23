@@ -838,7 +838,7 @@ namespace LanguageExt
         /// <returns>Enumerable of Enumerables of T</returns>
         public static IEnumerable<IEnumerable<T>> tails<T>(IEnumerable<T> self)
         {
-            List<T> lst = new List<T>(self);
+            var lst = new List<T>(self);
             for (var skip = 0; skip < lst.Count; skip++)
             {
                 yield return lst.Skip(skip);

@@ -370,7 +370,7 @@ namespace LanguageExt
                 }
                 else if (request.Message is T)
                 {
-                    T msg = (T)request.Message;
+                    var msg = (T)request.Message;
                     var stateIn = GetState();
                     var stateOut = actorFn(stateIn, msg);
                     try
