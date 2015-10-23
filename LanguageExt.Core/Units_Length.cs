@@ -84,6 +84,9 @@ namespace LanguageExt
         public static double operator /(Length lhs, Length rhs) =>
             lhs.Value / rhs.Value;
 
+        public static Velocity operator /(Length lhs, Time rhs) =>
+            new Velocity(lhs.Value / rhs.Seconds);
+
         public static bool operator ==(Length lhs, Length rhs) =>
             lhs.Equals(rhs);
 
@@ -124,9 +127,6 @@ namespace LanguageExt
         public double Yards       => Value * 1.0936132983333333333333333333333;
         public double Feet        => Value * 3.280839895;
         public double Inches      => Value * 39.37007874;
-        public double Terametres  => Value / 1000000000000.0;
-        public double Gigametres  => Value / 1000000000.0;
-        public double Megametres  => Value / 1000000.0;
         public double Kilometres  => Value / 1000.0;
         public double Hectometres => Value / 100.0;
         public double Decametres  => Value / 10.0;
@@ -135,7 +135,6 @@ namespace LanguageExt
         public double Millimetres => Value * 1000.0;
         public double Micrometres => Value * 1000000.0;
         public double Nanometres  => Value * 1000000000.0;
-        public double Picometres  => Value * 1000000000000.0;
     }
 
     namespace UnitsOfMeasure
@@ -177,33 +176,6 @@ namespace LanguageExt
 
             public static Length Inches(this double self) =>
                 new Length(0.0254000000001016000000004064 * self);
-
-            public static Length Terametres(this int self) =>
-                new Length(1000000000000.0 * self);
-
-            public static Length Terametres(this float self) =>
-                new Length(1000000000000.0 * self);
-
-            public static Length Terametres(this double self) =>
-                new Length(1000000000000.0 * self);
-
-            public static Length Gigametres(this int self) =>
-                new Length(1000000000.0 * self);
-
-            public static Length Gigametres(this float self) =>
-                new Length(1000000000.0 * self);
-
-            public static Length Gigametres(this double self) =>
-                new Length(1000000000.0 * self);
-
-            public static Length Megametres(this int self) =>
-                new Length(1000000.0 * self);
-
-            public static Length Megametres(this float self) =>
-                new Length(1000000.0 * self);
-
-            public static Length Megametres(this double self) =>
-                new Length(1000000.0 * self);
 
             public static Length Kilometres(this int self) =>
                 new Length(1000.0 * self);
@@ -258,15 +230,6 @@ namespace LanguageExt
 
             public static Length Nanometres(this double self) =>
                 new Length(self / 1000000000.0);
-
-            public static Length Picometres(this int self) =>
-                new Length(self / 1000000000000.0);
-
-            public static Length Picometres(this float self) =>
-                new Length(self / 1000000000000.0);
-
-            public static Length Picometres(this double self) =>
-                new Length(self / 1000000000000.0);
         }
     }
 }

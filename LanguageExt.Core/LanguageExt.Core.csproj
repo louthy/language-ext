@@ -95,6 +95,7 @@
     <Compile Include="Prelude_PartialApplication.cs" />
     <Compile Include="Prelude_Timer.cs" />
     <Compile Include="Prelude_Tuple2.cs" />
+    <Compile Include="Prelude_UnitsOfMeasure.cs" />
     <Compile Include="Prelude_Use.cs" />
     <Compile Include="Que.cs" />
     <Compile Include="Query.cs" />
@@ -135,6 +136,7 @@
     <Compile Include="TypeConverters.cs" />
     <Compile Include="TypeDesc.cs" />
     <Compile Include="Unit.cs" />
+    <Compile Include="Units_Velocity.cs" />
     <Compile Include="Units_Area.cs" />
     <Compile Include="Units_Length.cs" />
     <Compile Include="Units_Time.cs" />

@@ -7,11 +7,43 @@ using Xunit;
 
 using LanguageExt;
 using LanguageExt.UnitsOfMeasure;
+using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
 {
     public class UnitsOfMeasureTests
     {
+        [Fact]
+        public void PreludeLengthEqualityTest()
+        {
+            Assert.True(100*cm == 1*m);
+            Assert.True(1*km == 1000*m);
+        }
+
+        [Fact]
+        public void PreludeLengthEqualityTest3()
+        {
+            Assert.True(1*yard == 3*feet);
+        }
+
+        [Fact]
+        public void PreludeLengthEqualityTest4()
+        {
+            Assert.True(12*inches == 1*feet);
+        }
+
+        [Fact]
+        public void PreludeLengthCompareTest1()
+        {
+            Assert.True(1*mile > 1*km);
+        }
+
+        [Fact]
+        public void PreludeLengthScalarTest2()
+        {
+            Assert.True(1*km / 500 == 2*metres);
+        }
+
         [Fact]
         public void LengthEqualityTest()
         {
@@ -61,13 +93,13 @@ namespace LanguageExtTests
         [Fact]
         public void OperatorTests()
         {
-            Length km = 1.Kilometres();     // Length = 1000 metres
+            Length len = 1*km;
 
-            double val = km / 1.Metres();   // Divide by 1 metre to get a dimensionless value
+            double val = len / (1*m);   // Divide by 1 metre to get a dimensionless value
 
             Assert.True(val == 1000.0);
 
-            val = km / 1000.Metres();
+            val = len / (1000*m);
 
             Assert.True(val == 1.0);
         }
@@ -75,28 +107,49 @@ namespace LanguageExtTests
         [Fact]
         public void LengthCompareTest2()
         {
-            Assert.True(100.Millimetres() < 2.Metres());
+            Assert.True(100*mm < 2*m);
         }
 
         [Fact]
         public void LengthArithmetic1()
         {
-            Length length = 1000.Millimetres() + 1.Metres();
-            Assert.True(length == 2.Metres());
+            Length length = 1000*mm + 1*m;
+            Assert.True(length == 2*m);
         }
 
         [Fact]
         public void LengthArithmetic2()
         {
-            Length length = 1.Centimetres() + 10.Millimetres();
-            Assert.True(length == 2.Centimetres());
+            Length length = 1*cm + 10*mm;
+            Assert.True(length == 2 * cm);
         }
 
         [Fact]
         public void TimeEqualityTest()
         {
-            Assert.True(60.Seconds() == 1.Minutes());
-            Assert.True(60.Minutes() == 1.Hours());
+            Assert.True(60*sec == 1*min);
+            Assert.True(60*mins == 1*hr);
+        }
+
+        [Fact]
+        public void AreaTest1()
+        {
+            var a = 1000*cm * 8*m;
+            var b = 80 * m2;
+
+            Assert.True(a == b);
+        }
+
+        [Fact]
+        public void SpeedTest1()
+        {
+            Velocity v = 100*m/s;
+
+            Length l   = v * 2*sec;
+
+            double r   = l / (1*m);
+
+            Assert.True(r == 200.0);
         }
     }
 }
