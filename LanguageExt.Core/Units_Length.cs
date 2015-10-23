@@ -68,6 +68,9 @@ namespace LanguageExt
         public static Length operator *(Length lhs, double rhs) =>
             lhs.Product(rhs);
 
+        public static Length operator *(double lhs, Length rhs) =>
+            rhs.Product(lhs);
+
         public static Length operator /(Length lhs, double rhs) =>
             lhs.Divide(rhs);
 
