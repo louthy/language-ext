@@ -41,6 +41,18 @@ namespace LanguageExtTests
         }
 
         [Fact]
+        public void LengthCompareTest1()
+        {
+            Assert.True(1.Miles() > 1.Kilometres());
+        }
+
+        [Fact]
+        public void LengthCompareTest2()
+        {
+            Assert.True(100.Millimetres() < 2.Metres());
+        }
+
+        [Fact]
         public void LengthArithmetic1()
         {
             Length length = 1000.Millimetres() + 1.Metres();
