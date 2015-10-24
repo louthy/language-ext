@@ -6,10 +6,6 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    public interface ILinqDisposable : IDisposable
-    {
-    }
-
     public class LinqDisposable<T> : ILinqDisposable
         where T : class, IDisposable
     {
