@@ -8,7 +8,7 @@ using static LanguageExt.Process;
 
 namespace LanguageExt
 {
-    internal class ActorInboxCommon
+    internal static class ActorInboxCommon
     {
         public static FSharpAsync<A> CreateAsync<A>(Func<Task<A>> f) =>
             FSharpAsync.FromContinuations<A>(

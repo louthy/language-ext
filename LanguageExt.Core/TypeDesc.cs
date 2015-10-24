@@ -31,7 +31,7 @@ namespace LanguageExt
         DateTime
     }
 
-    internal class TypeDesc<T>
+    internal static class TypeDesc<T>
     {
         public readonly static TypeDesc Default = 
             new TypeDesc(typeof(T));
