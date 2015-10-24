@@ -59,7 +59,7 @@ namespace LanguageExt
             pid.IsValid
                 ? pid.Head() == RootProcess.Id
                     ? GetItem(pid.Tail(), root)
-                    : GetItem(pid.Tail(), root)
+                    : failwith<Option<ActorItem>>("Can't get non-local items from within ActorSystemState")
                 : None;
 
         private Option<ActorItem> GetItem(ProcessId pid, ActorItem current)
@@ -207,19 +207,6 @@ namespace LanguageExt
             else
             {
                 logErr(func + ": process doesn't exist: " + pid);
-                return true;
-            }
-        }
-          
-        private bool ReplyToProcessDoesNotExist(string func)
-        {
-            if (ActorContext.CurrentRequest != null && ActorContext.CurrentRequest.ReplyTo.IsValid && GetItem(ActorContext.CurrentRequest.ReplyTo).IsSome)
-            {
-                return false;
-            }
-            else
-            {
-                logErr(func + ": ReplyTo process doesn't exist: " + ActorContext.CurrentRequest.ReplyTo.Path);
                 return true;
             }
         }
