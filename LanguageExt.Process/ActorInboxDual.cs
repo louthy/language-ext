@@ -173,7 +173,7 @@ namespace LanguageExt
             }
             catch (Exception e)
             {
-                logSysErr("CheckRemoteInbox failed for " + self, e);
+                logSysErr($"CheckRemoteInbox failed for {self}", e);
             }
 
         }

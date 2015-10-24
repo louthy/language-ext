@@ -81,7 +81,7 @@ namespace LanguageExt
 
         internal static U CheckNullReturn<U>(U value, string location) =>
             value == null
-                ? raise<U>(new ResultIsNullException("'" + location + "' result is null.  Not allowed."))
+                ? raise<U>(new ResultIsNullException($"'{location}' result is null.  Not allowed."))
                 : value;
 
         internal static U CheckNullNoneReturn<U>(U value) =>
@@ -237,7 +237,7 @@ namespace LanguageExt
             IsSome
                 ? Value == null 
                     ? "Some(null)"
-                    :  String.Format("Some({0})",Value)
+                    : $"Some({Value})"
                 : "None";
 
         public override int GetHashCode() =>

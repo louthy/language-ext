@@ -92,7 +92,7 @@ namespace LanguageExt
         {
             if (IsNumeric) return default(T);
             if (IsString) return (T)((object)"");
-            throw new Exception("Zero not supported for " + typeof(T).Name);
+            throw new Exception($"Zero not supported for {typeof(T).Name}");
         }
 
         public static T Append<T>(T lhs, T rhs, TypeDesc desc)

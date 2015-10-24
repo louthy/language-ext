@@ -60,11 +60,11 @@ namespace LanguageExt
             Message.Match(
                 Some: msg =>
                     Exception.Match(
-                        Some: ex => String.Format("{0} {1} {2}\n{3}\n\n{4}", DateDisplay, TypeDisplay, msg, ex.Message, ex.StackTrace),
-                        None: () => String.Format("{0} {1} {2}", DateDisplay, TypeDisplay, msg)),
+                        Some: ex => $"{DateDisplay} {TypeDisplay} {msg}\n{ex.Message}\n\n{ex.StackTrace}",
+                        None: () => $"{DateDisplay} {TypeDisplay} {msg}"),
                 None: () =>
                     Exception.Match(
-                        Some: ex => String.Format("{0} {1}\n{2}\n\n{3}", DateDisplay, TypeDisplay, ex.Message, ex.StackTrace),
-                        None: () => String.Format("{0} {1}", DateDisplay, TypeDisplay)));
+                        Some: ex => $"{DateDisplay} {TypeDisplay}\n{ex.Message}\n\n{ex.StackTrace}",
+                        None: () => $"{DateDisplay} {TypeDisplay}"));
     }
 }

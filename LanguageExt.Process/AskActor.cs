@@ -25,10 +25,10 @@ namespace LanguageExt
 
                 var req = (AskActorReq)msg;
 
-                logInfo("About to send ask request - reqId: " + reqId);
+                logInfo($"About to send ask request - reqId: {reqId}");
                 ActorContext.Ask(req.To, new ActorRequest(req.Message, req.To, Self, reqId), Self);
 
-                logInfo("Sent ask request - reqId: " + reqId);
+                logInfo($"Sent ask request - reqId: {reqId}");
                 dict.Add(reqId, req);
             }
             else
@@ -36,7 +36,7 @@ namespace LanguageExt
                 var res = (ActorResponse)msg;
                 if (dict.ContainsKey(res.RequestId))
                 {
-                    logInfo("Ask response has returned - reqId: " + reqId);
+                    logInfo($"Ask response has returned - reqId: {reqId}");
                     var req = dict[res.RequestId];
                     try
                     {
@@ -68,10 +68,10 @@ namespace LanguageExt
                             }
                             catch
                             {
-                                ex = new Exception(res.Message == null ? "An unknown error was thrown by " + req.To : res.Message.ToString());
+                                ex = new Exception(res.Message == null ? $"An unknown error was thrown by {req.To}" : res.Message.ToString());
                             }
 
-                            req.Complete(new AskActorRes(new ProcessException("Process issue: " + ex.Message, req.To.Path, req.ReplyTo.Path, ex)));
+                            req.Complete(new AskActorRes(new ProcessException($"Process issue: {ex.Message}", req.To.Path, req.ReplyTo.Path, ex)));
                         }
                         else
                         {
@@ -80,7 +80,7 @@ namespace LanguageExt
                     }
                     catch (Exception e)
                     {
-                        req.Complete(new AskActorRes(new ProcessException("Process issue: " + e.Message, req.To.Path, req.ReplyTo.Path, e)));
+                        req.Complete(new AskActorRes(new ProcessException($"Process issue: {e.Message}", req.To.Path, req.ReplyTo.Path, e)));
                         logSysErr(e);
                     }
                     finally
@@ -90,7 +90,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    logWarn("Request ID doesn't exist: " + res.RequestId);
+                    logWarn($"Request ID doesn't exist: {res.RequestId}");
                 }
             }
 
@@ -121,7 +121,7 @@ namespace LanguageExt
         }
 
         public override string ToString() =>
-            "Ask request from: " + ReplyTo + " to: " + To + " msg: " + Message;
+            $"Ask request from: {ReplyTo} to: {To} msg: {Message}";
     }
 
     internal class AskActorRes

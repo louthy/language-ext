@@ -262,10 +262,10 @@ namespace LanguageExt
                 : IsRight
                     ? RightValue == null
                         ? "Right(null)"
-                        : String.Format("Right({0})", RightValue)
+                        : $"Right({RightValue})"
                     : LeftValue == null
                         ? "Left(null)"
-                        : String.Format("Left({0})", LeftValue);
+                        : $"Left({LeftValue})";
 
         /// <summary>
         /// Returns a hash code of the wrapped value of the Either
@@ -546,7 +546,7 @@ namespace LanguageExt
 
         private T CheckNullReturn<T>(T value, string location) =>
             value == null
-                ? raise<T>(new ResultIsNullException("'" + location + "' result is null.  Not allowed."))
+                ? raise<T>(new ResultIsNullException($"'{location}' result is null.  Not allowed."))
                 : value;
 
         /// <summary>

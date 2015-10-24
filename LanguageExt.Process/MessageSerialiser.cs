@@ -30,7 +30,7 @@ namespace LanguageExt
                 case Message.TagSpec.Restart:           return SystemMessage.Restart;
             }
 
-            throw new Exception("Unknown Message Type: " + msg.Type);
+            throw new Exception($"Unknown Message Type: {msg.Type}");
         }
 
         private static object DeserialiseMsgContent(RemoteMessageDTO msg)
@@ -39,14 +39,14 @@ namespace LanguageExt
 
             if (msg.Content == null)
             {
-                throw new Exception("Message content is null from " + msg.Sender);
+                throw new Exception($"Message content is null from {msg.Sender}");
             }
             else
             {
                 var contentType = Type.GetType(msg.ContentType);
                 if (contentType == null)
                 {
-                    throw new Exception("Can't resolve type: " + msg.ContentType);
+                    throw new Exception($"Can't resolve type: {msg.ContentType}");
                 }
 
                 content = JsonConvert.DeserializeObject(msg.Content, contentType);

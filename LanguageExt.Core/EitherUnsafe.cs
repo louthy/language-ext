@@ -252,10 +252,10 @@ namespace LanguageExt
                 : IsRight
                     ? RightValue == null
                         ? "Right(null)"
-                        : String.Format("Right({0})", RightValue)
+                        : $"Right({RightValue})"
                     : LeftValue == null
                         ? "Left(null)"
-                        : String.Format("Left({0})", LeftValue);
+                        : $"Left({LeftValue})";
 
         /// <summary>
         /// Returns a hash code of the wrapped value of the Either

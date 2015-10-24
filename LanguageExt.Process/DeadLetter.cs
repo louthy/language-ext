@@ -100,13 +100,13 @@ namespace LanguageExt
             Exception.Match(
                 Some: ex =>
                     Reason.Match(
-                        Some: reason => String.Format("Dead letter from: {0} to: {1}, failed because: {2} {3}. Type: {4} Content: {5}", ProcessFmt(Sender), Recipient, reason, ex.Message, ContentTypeDisplay, ContentDisplay),
-                        None: ()     => String.Format("Dead letter from: {0} to: {1}, failed because: {2}. Type: {3} Content: {4}", ProcessFmt(Sender), Recipient, ex.Message, ContentTypeDisplay, ContentDisplay)
+                        Some: reason => $"Dead letter from: {ProcessFmt(Sender)} to: {Recipient}, failed because: {reason} {ex.Message}. Type: {ContentTypeDisplay} Content: {ContentDisplay}",
+                        None: ()     => $"Dead letter from: {ProcessFmt(Sender)} to: {Recipient}, failed because: {ex.Message}. Type: {ContentTypeDisplay} Content: {ContentDisplay}"
                     ),
                 None: () =>
                     Reason.Match(
-                        Some: reason => String.Format("Dead letter from: {0} to: {1}, failed because: {2}.  Type: {3} Content: {4}", ProcessFmt(Sender), Recipient, reason, ContentTypeDisplay, ContentDisplay),
-                        None: ()     => String.Format("Dead letter from: {0} to: {1}.  Type: {2} Content: {3}", ProcessFmt(Sender), Recipient, ContentTypeDisplay, ContentDisplay)
+                        Some: reason => $"Dead letter from: {ProcessFmt(Sender)} to: {Recipient}, failed because: {reason}.  Type: {ContentTypeDisplay} Content: {ContentDisplay}",
+                        None: ()     => $"Dead letter from: {ProcessFmt(Sender)} to: {Recipient}.  Type: {ContentTypeDisplay} Content: {ContentDisplay}"
                     ));
     }
 }

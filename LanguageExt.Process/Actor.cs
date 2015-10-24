@@ -145,7 +145,7 @@ namespace LanguageExt
             {
                 try
                 {
-                    logInfo("Restoring state: " + StateKey);
+                    logInfo($"Restoring state: {StateKey}");
 
                     state = cluster.LiftUnsafe().Exists(StateKey)
                         ? cluster.LiftUnsafe().GetValue<S>(StateKey)
@@ -250,7 +250,7 @@ namespace LanguageExt
         {
             if (message == null)
             {
-                tell(ActorContext.DeadLetters, DeadLetter.create(Sender, Self, "Message is null for tell (expected " + typeof(T) + ")", message));
+                tell(ActorContext.DeadLetters, DeadLetter.create(Sender, Self, $"Message is null for tell (expected {typeof(T)})", message));
                 return None;
             }
 
@@ -264,14 +264,14 @@ namespace LanguageExt
                 }
                 catch
                 {
-                    tell(ActorContext.DeadLetters, DeadLetter.create(Sender, Self, "Invalid message type for tell (expected " + typeof(T) + ")", message));
+                    tell(ActorContext.DeadLetters, DeadLetter.create(Sender, Self, $"Invalid message type for tell (expected {typeof(T)})", message));
                     return None;
                 }
             }
 
             if (!typeof(T).IsAssignableFrom(message.GetType()))
             {
-                tell(ActorContext.DeadLetters, DeadLetter.create(Sender, Self, "Invalid message type for tell (expected " + typeof(T) + ")", message));
+                tell(ActorContext.DeadLetters, DeadLetter.create(Sender, Self, $"Invalid message type for tell (expected {typeof(T)})", message));
                 return None;
             }
 
@@ -301,7 +301,7 @@ namespace LanguageExt
                     if (response.IsFaulted)
                     {
                         var ex = (Exception)response.Message;
-                        throw new ProcessException("Process issue: " + ex.Message, pid.Path, Self.Path, ex);
+                        throw new ProcessException($"Process issue: {ex.Message}", pid.Path, Self.Path, ex);
                     }
                     else
                     {
@@ -392,7 +392,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    logErr("ProcessAsk request.Message is not T " + request.Message);
+                    logErr($"ProcessAsk request.Message is not T {request.Message}");
                 }
             }
             catch (SystemKillActorException)
@@ -488,12 +488,12 @@ namespace LanguageExt
                 }
                 else
                 {
-                    logErr("ProcessMessage request.Message is not T " + message);
+                    logErr($"ProcessMessage request.Message is not T {message}");
                 }
             }
             catch (SystemKillActorException)
             {
-                logInfo("Process message - system kill " + Id);
+                logInfo($"Process message - system kill {Id}");
                 kill(Id);
             }
             catch (Exception e)

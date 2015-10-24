@@ -192,7 +192,7 @@ namespace LanguageExt
             catch (Exception e)
             {
                 ShutdownProcess(item.Actor.Id);
-                logSysErr(new ProcessException("Process failed starting up: " + e.Message, actor.Id.Path, actor.Parent.Actor.Id.Path, e));
+                logSysErr(new ProcessException($"Process failed starting up: {e.Message}", actor.Id.Path, actor.Parent.Actor.Id.Path, e));
             }
 
             return item;
@@ -206,7 +206,7 @@ namespace LanguageExt
             }
             else
             {
-                logErr(func + ": process doesn't exist: " + pid);
+                logErr($"{func}: process doesn't exist: {pid}");
                 return true;
             }
         }
@@ -219,7 +219,7 @@ namespace LanguageExt
             }
             else
             {
-                logErr(func + ": ReplyTo process doesn't exist: " + ActorContext.CurrentRequest.ReplyTo.Path);
+                logErr($"{func}: ReplyTo process doesn't exist: {ActorContext.CurrentRequest.ReplyTo.Path}");
                 return true;
             }
         }
