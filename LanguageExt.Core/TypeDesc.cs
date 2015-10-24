@@ -31,7 +31,7 @@ namespace LanguageExt
         DateTime
     }
 
-    internal class TypeDesc<T>
+    internal static class TypeDesc<T>
     {
         public readonly static TypeDesc Default = 
             new TypeDesc(typeof(T));
@@ -92,7 +92,7 @@ namespace LanguageExt
         {
             if (IsNumeric) return default(T);
             if (IsString) return (T)((object)"");
-            throw new Exception("Zero not supported for " + typeof(T).Name);
+            throw new Exception($"Zero not supported for {typeof(T).Name}");
         }
 
         public static T Append<T>(T lhs, T rhs, TypeDesc desc)

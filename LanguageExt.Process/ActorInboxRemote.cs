@@ -29,7 +29,7 @@ namespace LanguageExt
             this.parent = parent;
 
             // Registered process remote address hack
-            actorPath = actor.Id.Path.StartsWith(Registered.Path)
+            actorPath = actor.Id.Path.StartsWith(Registered.Path, StringComparison.Ordinal)
                 ? actor.Id.Skip(1).ToString()
                 : actor.Id.ToString();
 

@@ -15,7 +15,7 @@ namespace LanguageExt
         }
 
         private T Raise<T>() =>
-            raise<T>(new ProcessException("Doesn't exist (" + ProcessId + ")", Self.Path, Sender.Path, null));
+            raise<T>(new ProcessException($"Doesn't exist ({ProcessId})", Self.Path, Sender.Path, null));
 
         public Map<string, ProcessId> GetChildren() =>
             Map.empty<string, ProcessId>();

@@ -45,7 +45,7 @@ namespace LanguageExt
            value.Value;
     }
 
-    internal class StateResult
+    internal static class StateResult
     {
         public static StateResult<S, T> Bottom<S, T>(S state) =>
             new StateResult<S, T>(state, default(T), true);

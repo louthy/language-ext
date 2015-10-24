@@ -8,7 +8,7 @@ using static LanguageExt.Process;
 
 namespace LanguageExt
 {
-    internal class ActorInboxCommon
+    internal static class ActorInboxCommon
     {
         public static FSharpAsync<A> CreateAsync<A>(Func<Task<A>> f) =>
             FSharpAsync.FromContinuations<A>(
@@ -120,7 +120,7 @@ namespace LanguageExt
         {
             if (message == null)
             {
-                var emsg = "Message is null for tell (expected " + typeof(T) + ")";
+                var emsg = $"Message is null for tell (expected {typeof(T)})";
                 tell(ActorContext.DeadLetters, DeadLetter.create(sender, self, emsg, message));
                 return None;
             }
@@ -130,12 +130,12 @@ namespace LanguageExt
                 var req = (ActorRequest)message;
                 if (!typeof(T).IsAssignableFrom(req.Message.GetType()) && !typeof(Message).IsAssignableFrom(req.Message.GetType()))
                 {
-                    var emsg = "Invalid message type for ask (expected " + typeof(T) + ")";
+                    var emsg = $"Invalid message type for ask (expected {typeof(T)})";
                     tell(ActorContext.DeadLetters, DeadLetter.create(sender, self, emsg, message));
 
                     ActorContext.Tell(
                         sender,
-                        new ActorResponse(new Exception("Invalid message type for ask (expected " + typeof(T) + ")"),
+                        new ActorResponse(new Exception($"Invalid message type for ask (expected {typeof(T)})"),
                         typeof(Exception).AssemblyQualifiedName,
                         sender,
                         self,

@@ -669,8 +669,8 @@ public static class __TryExt
         match(self,
             Succ: v => v == null
                       ? "Succ(null)"
-                      : String.Format("Succ({0})", v),
-            Fail: ex => "Fail(" + ex.Message + ")"
+                      : $"Succ({v})",
+            Fail: ex => $"Fail({ex.Message})"
         );
 
     [EditorBrowsable(EditorBrowsableState.Never)]

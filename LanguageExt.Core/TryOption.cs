@@ -623,9 +623,9 @@ public static class __TryOptionExt
         match(self,
             Some: v => v == null
                         ? "Some(null)"
-                        : String.Format("Some({0})", v),
+                        : $"Some({v})",
             None: () => "None",
-            Fail: ex => "Fail(" + ex.Message + ")"
+            Fail: ex => $"Fail({ex.Message})"
         );
 
 

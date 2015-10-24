@@ -44,7 +44,7 @@ namespace LanguageExt
             }
             else
             {
-                throw new ArgumentException("'" + providerName + "' isn't a registered provider",nameof(providerName));
+                throw new ArgumentException($"'{providerName}' isn't a registered provider",nameof(providerName));
             }
         }
     }

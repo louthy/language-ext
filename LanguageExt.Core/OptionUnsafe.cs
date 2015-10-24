@@ -193,7 +193,7 @@ namespace LanguageExt
             IsSome
                 ? Value == null
                     ? "Some(null)"
-                    : String.Format("Some({0})", Value)
+                    : $"Some({Value})"
                 : "None";
 
         public override int GetHashCode() =>

@@ -12,8 +12,8 @@ namespace LanguageExt
         /// Ctor
         /// </summary>
         public SomeNotInitialisedException(Type type)
-            : 
-            base("Unitialised Some<"+type.Name+">.")
+            :
+            base($"Unitialised Some<{type.Name}>.")
         {
         }
     }
@@ -201,7 +201,7 @@ namespace LanguageExt
         /// </summary>
         public BottomException(string type = "Value")
             :
-            base(type + " is in a bottom state and therefore not valid.  This can happen when the value was filterd and the predicate " +
+            base($"{type} is in a bottom state and therefore not valid.  This can happen when the value was filterd and the predicate " +
                  "returned false and there was no valid state the value could be in.  If you are going to use the type in a filter " +
                  "you should check if the IsBottom flag is set before use.  This can also happen if the struct wasn't initialised properly and then used.")
         {
@@ -225,7 +225,7 @@ namespace LanguageExt
     public class NotAppendableException : Exception
     {
         public NotAppendableException(Type t)
-            :base ("Type '"+t.Name+"' not appendable: It's neither a CLR numeric-type, a string nor dervied from IAppendable")
+            : base($"Type '{t.Name}' not appendable: It's neither a CLR numeric-type, a string nor dervied from IAppendable")
         {
         }
     }
@@ -233,7 +233,7 @@ namespace LanguageExt
     public class NotSubtractableException : Exception
     {
         public NotSubtractableException(Type t)
-            : base("Type '" + t.Name + "' not subtractable: It's neither a CLR numeric-type, nor dervied from ISubtractable")
+            : base($"Type '{t.Name}' not subtractable: It's neither a CLR numeric-type, nor dervied from ISubtractable")
         {
         }
     }
@@ -241,7 +241,7 @@ namespace LanguageExt
     public class NotProductableException : Exception
     {
         public NotProductableException(Type t)
-            : base("Type '" + t.Name + "' not productable: It's neither a CLR numeric-type, nor dervied from IProductable")
+            : base($"Type '{t.Name}' not productable: It's neither a CLR numeric-type, nor dervied from IProductable")
         {
         }
     }
@@ -249,7 +249,7 @@ namespace LanguageExt
     public class NotDivisibleException : Exception
     {
         public NotDivisibleException(Type t)
-            : base("Type '" + t.Name + "' not divisible: It's neither a CLR numeric-type, nor dervied from IDivisible")
+            : base($"Type '{t.Name}' not divisible: It's neither a CLR numeric-type, nor dervied from IDivisible")
         {
         }
     }

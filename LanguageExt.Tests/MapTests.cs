@@ -219,7 +219,7 @@ namespace LanguageExtTests
 
             Assert.True(m.CountT() == 4);
 
-            m = m.FilterT(v => v.EndsWith("None"));
+            m = m.FilterT(v => v.EndsWith("None", StringComparison.Ordinal));
 
             Assert.True(m.CountT() == 2);
         }

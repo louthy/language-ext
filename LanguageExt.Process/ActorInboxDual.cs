@@ -41,7 +41,7 @@ namespace LanguageExt
             this.version = version;
 
             // Registered process remote address hack
-            actorPath = actor.Id.Path.StartsWith(Registered.Path)
+            actorPath = actor.Id.Path.StartsWith(Registered.Path, StringComparison.Ordinal)
                 ? actor.Id.Skip(1).ToString()
                 : actor.Id.ToString();
 
@@ -173,7 +173,7 @@ namespace LanguageExt
             }
             catch (Exception e)
             {
-                logSysErr("CheckRemoteInbox failed for " + self, e);
+                logSysErr($"CheckRemoteInbox failed for {self}", e);
             }
 
         }
