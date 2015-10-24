@@ -71,8 +71,14 @@ namespace LanguageExt
         public static Time operator +(Time lhs, Time rhs) =>
             lhs.Append(rhs);
 
+        public static DateTime operator +(DateTime lhs, Time rhs) =>
+            lhs.AddSeconds(rhs.Seconds);
+
         public static Time operator -(Time lhs, Time rhs) =>
             lhs.Subtract(rhs);
+
+        public static DateTime operator -(DateTime lhs, Time rhs) =>
+            lhs.AddSeconds(-rhs.Seconds);
 
         public static double operator /(Time lhs, Time rhs) =>
             lhs.Value / rhs.Value;
