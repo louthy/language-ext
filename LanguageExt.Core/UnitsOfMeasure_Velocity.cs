@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -75,6 +72,14 @@ namespace LanguageExt
         public static Length operator *(Time lhs, Velocity rhs) =>
             new Length(lhs.Seconds * rhs.Value);
 
+        public static VelocitySq operator *(Velocity lhs, Velocity rhs) =>
+            new VelocitySq(lhs.Value * rhs.Value);
+
+        public static VelocitySq operator^(Velocity lhs, int power) =>
+            power == 2
+                ? new VelocitySq(lhs.Value * lhs.Value)
+                : raise<VelocitySq>(new NotSupportedException("Velocity can only be raised to the power of 2"));
+
         public static Velocity operator +(Velocity lhs, Velocity rhs) =>
             lhs.Append(rhs);
 
@@ -86,6 +91,12 @@ namespace LanguageExt
 
         public static double operator /(Velocity lhs, Velocity rhs) =>
             lhs.Value / rhs.Value;
+
+        public static Accel operator /(Velocity lhs, Time rhs) =>
+            new Accel(lhs.Value / rhs.Seconds);
+
+        public static Time operator /(Velocity lhs, Accel rhs) =>
+            new Time(lhs.Value / rhs.MetresPerSecond2);
 
         public static bool operator ==(Velocity lhs, Velocity rhs) =>
             lhs.Equals(rhs);
@@ -105,14 +116,8 @@ namespace LanguageExt
         public static bool operator <=(Velocity lhs, Velocity rhs) =>
             lhs.Value <= rhs.Value;
 
-        public Velocity Pow(double power) =>
-            new Velocity(Math.Pow(Value,power));
-
         public Velocity Round() =>
             new Velocity(Math.Round(Value));
-
-        public Velocity Sqrt() =>
-            new Velocity(Math.Sqrt(Value));
 
         public Velocity Abs() =>
             new Velocity(Math.Abs(Value));

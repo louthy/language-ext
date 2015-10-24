@@ -165,5 +165,18 @@ namespace LanguageExtTests
             Assert.True(t == 30*mins);
             Assert.True(l == 400*miles);
         }
+
+        [Fact]
+        public void AccelTest1()
+        {
+            Accel g = 9.8*m/s/s;
+            Accel g2 = 9.8*ms2;
+
+            Velocity vel = g * 5*sec;
+            Length len   = vel * 5*sec;
+
+            Assert.True(vel.MetresPerSecond == 49.0);
+            Assert.True(len.Metres == 245.0);
+        }
     }
 }

@@ -1,0 +1,12 @@
+﻿<Window x:Class="UnitsOfMeasureSample.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UnitsOfMeasureSample"
+        mc:Ignorable="d"
+        Title="Units of measure sample" Height="350" Width="525" MouseLeftButtonUp="ResetScene">
+    <Canvas Name="box" Margin="0,0,0,0" MouseLeftButtonUp="ResetScene">
+        <Ellipse Name="circle" Canvas.Left="10" Canvas.Top="10" Width="20" Height="20" Stroke="Black" StrokeThickness="1" Fill="Red"/>
+    </Canvas>
+</Window>
