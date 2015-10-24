@@ -485,5 +485,10 @@ namespace LanguageExt
         /// Kilometres per hour
         /// </summary>
         public static readonly Velocity kph = km/hour;
+
+        /// <summary>
+        /// Metres per-second squared
+        /// </summary>
+        public static readonly Accel ms2 = m/s/s;
     }
 }

@@ -84,6 +84,9 @@ namespace LanguageExt
         public static double operator /(Length lhs, Length rhs) =>
             lhs.Value / rhs.Value;
 
+        public static Accel operator /(Length lhs, TimeSq rhs) =>
+            new Accel(lhs.Value / rhs.Seconds2);
+
         public static Time operator /(Length lhs, Velocity rhs) =>
             new Time(lhs.Metres / rhs.MetresPerSecond);
 

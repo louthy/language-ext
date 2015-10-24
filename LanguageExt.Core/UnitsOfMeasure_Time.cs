@@ -1,4 +1,5 @@
 ﻿using System;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -64,6 +65,14 @@ namespace LanguageExt
 
         public static Time operator *(double lhs, Time rhs) =>
             rhs.Product(lhs);
+
+        public static TimeSq operator *(Time lhs, Time rhs) =>
+            new TimeSq(lhs.Value * rhs.Value);
+
+        public static TimeSq operator ^(Time lhs, int power) =>
+            power == 2
+                ? new TimeSq(lhs.Value * lhs.Value)
+                : raise<TimeSq>(new NotSupportedException("Time can only be raised to the power of 2"));
 
         public static Time operator /(Time lhs, double rhs) =>
             lhs.Divide(rhs);

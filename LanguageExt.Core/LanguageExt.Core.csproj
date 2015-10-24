@@ -136,6 +136,9 @@
     <Compile Include="TypeConverters.cs" />
     <Compile Include="TypeDesc.cs" />
     <Compile Include="Unit.cs" />
+    <Compile Include="UnitsOfMeasure_Accel.cs" />
+    <Compile Include="UnitsOfMeasure_TimeSq.cs" />
+    <Compile Include="UnitsOfMeasure_VelocitySq.cs" />
     <Compile Include="UnitsOfMeasure_Velocity.cs" />
     <Compile Include="UnitsOfMeasure_Area.cs" />
     <Compile Include="UnitsOfMeasure_Length.cs" />
