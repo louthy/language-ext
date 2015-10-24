@@ -6,7 +6,5 @@
         xmlns:local="clr-namespace:UnitsOfMeasureSample"
         mc:Ignorable="d"
         Title="Units of measure sample" Height="350" Width="525" MouseLeftButtonUp="ResetScene">
-    <Canvas Name="box" Margin="0,0,0,0" MouseLeftButtonUp="ResetScene">
-        <Ellipse Name="circle" Canvas.Left="10" Canvas.Top="10" Width="20" Height="20" Stroke="Black" StrokeThickness="1" Fill="Red"/>
-    </Canvas>
+    <Canvas Name="box" Margin="0,0,0,0" MouseLeftButtonUp="ResetScene"/>
 </Window>

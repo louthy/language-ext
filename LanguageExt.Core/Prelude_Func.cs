@@ -637,5 +637,33 @@ namespace LanguageExt
         /// <returns>b(a(v))</returns>
         public static Func<T1, T3> compose<T1, T2, T3>(Func<T1, T2> a, Func<T2, T3> b) =>
             v => b(a(v));
+
+        /// <summary>
+        /// Function composition
+        /// </summary>
+        /// <returns>c(b(a(v)))</returns>
+        public static Func<T1, T4> compose<T1, T2, T3, T4>(Func<T1, T2> a, Func<T2, T3> b, Func<T3, T4> c) =>
+            v => c(b(a(v)));
+
+        /// <summary>
+        /// Function composition
+        /// </summary>
+        /// <returns>c(b(a(v)))</returns>
+        public static Func<T1, T5> compose<T1, T2, T3, T4, T5>(Func<T1, T2> a, Func<T2, T3> b, Func<T3, T4> c, Func<T4, T5> d) =>
+            v => d(c(b(a(v))));
+
+        /// <summary>
+        /// Function composition
+        /// </summary>
+        /// <returns>c(b(a(v)))</returns>
+        public static Func<T1, T6> compose<T1, T2, T3, T4, T5, T6>(Func<T1, T2> a, Func<T2, T3> b, Func<T3, T4> c, Func<T4, T5> d, Func<T5, T6> e) =>
+            v => e(d(c(b(a(v)))));
+
+        /// <summary>
+        /// Function composition
+        /// </summary>
+        /// <returns>c(b(a(v)))</returns>
+        public static Func<T1, T7> compose<T1, T2, T3, T4, T5, T6, T7>(Func<T1, T2> a, Func<T2, T3> b, Func<T3, T4> c, Func<T4, T5> d, Func<T5, T6> e, Func<T6, T7> f) =>
+            v => f(e(d(c(b(a(v))))));
     }
 }

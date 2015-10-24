@@ -17,6 +17,9 @@ using System.Windows.Threading;
 
 using LanguageExt;
 using static LanguageExt.Prelude;
+using static LanguageExt.Process;
+using System.Reactive.Linq;
+using System.Reactive.Concurrency;
 
 namespace UnitsOfMeasureSample
 {
@@ -25,99 +28,85 @@ namespace UnitsOfMeasureSample
     /// </summary>
     public partial class MainWindow : Window
     {
-        DispatcherTimer dispatcherTimer = new DispatcherTimer();
-
-        double x = 10;
-        double y = 300;
-        double ballSize = 20.0;
-        double surfaceImpulse = 0.6;
-
-        DateTime lastTime = DateTime.Now;
-        Velocity velX     = -70*m/s;
-        Velocity velY     = 0*m/s;
-        Accel g           = -9.8*m/s/s;
-        Accel wind        = 0.1*m/s/s;
+        ProcessId update;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            dispatcherTimer.Tick += UpdateScene;
-            dispatcherTimer.Interval = TimeSpan.FromSeconds(1.0 / 60.0);
-            dispatcherTimer.Start();
+            SpawnUpdate();
+            SpawnBall();
+        }
+
+        /// <summary>
+        /// Spawn a ball process and observe its state
+        /// </summary>
+        private void SpawnBall()
+        {
+            var element = CreateBallUI();
+
+            // Setup function that creates a random initial state for the
+            // ball and passes on the bounds of the window
+            Func<BallState> setup = () =>
+                BallState.CreateRandom()
+                         .With(
+                            BoxWidth: box.ActualWidth,
+                            BoxHeight: box.ActualHeight
+                         );
+
+            // Spawn the ball process
+            var pid = spawn<BallState, DateTime>("ball-"+DateTime.Now.Ticks, setup, BallProcess.Inbox);
+
+            // Subscribe to the state changes of the ball so we can update the view
+            observeState<BallState>(pid)
+                .ObserveOn(DispatcherScheduler.Current)
+                .Subscribe(state =>
+                {
+                    element.Visibility = Visibility.Visible;
+                    Canvas.SetLeft(element, state.X);
+                    Canvas.SetTop(element, box.ActualHeight - state.Y);
+                });
+
+            // Subscribe the ball process to the update process's state
+            observeState<DateTime>(update).Subscribe(time => tell(pid, time));
+        }
+
+        private Ellipse CreateBallUI()
+        {
+            var element = new Ellipse();
+            Canvas.SetTop(element, 0);
+            Canvas.SetLeft(element, 0);
+            element.Width = 20;
+            element.Height = 20;
+            element.StrokeThickness = 1;
+            element.Stroke = Brushes.Black;
+            element.Fill = Brushes.Red;
+            element.Visibility = Visibility.Hidden;
+
+            box.Children.Add(element);
+            return element;
+        }
+
+        /// <summary>
+        /// Spawn an update process that sends a time message to the ball
+        /// process every 60th of a second
+        /// </summary>
+        private void SpawnUpdate()
+        {
+            update = spawn<DateTime, DateTime>("update", 
+                () => DateTime.Now, 
+                (state,time) => {
+                    tellSelf(DateTime.Now, 1 * second / 60);
+                    return time;
+                });
+
+            // Go!
+            tell(update, DateTime.Now);
         }
 
         private void ResetScene(object sender, MouseButtonEventArgs e)
         {
-            x = random(300);
-            y = random(300);
-            velX = random(70)*m/s;
-            velY = random(70)*m/s;
+            SpawnBall();
         }
-
-        private void UpdateScene(object sender, EventArgs e)
-        {
-            var now = DateTime.Now;
-
-            // Delta time
-            Time dt = now - lastTime;
-            lastTime = now;
-
-            // Velocity = Velocity + Accel * Time
-            velY = velY + g * dt;
-            velX = velX + wind * NegativeScalar(velX * s/m) * dt;
-
-            // Turn the velocities into deltas
-            var dy = velY * s/m;
-            var dx = velX * s/m;
-
-            // Move
-            y += dy;
-            x += dx;
-
-            // Bounce off the walls
-            CollisionDetection();
-
-            Canvas.SetLeft(circle, x);
-            Canvas.SetTop(circle, box.ActualHeight - y);
-        }
-
-        private void CollisionDetection()
-        {
-            // Ground collision
-            if (y < ballSize)
-            {
-                y = ballSize;
-                velY = velY * -surfaceImpulse;
-                velX = velX * surfaceImpulse;
-            }
-
-            // Ceiling collision
-            if (y > box.ActualHeight)
-            {
-                y = box.ActualHeight;
-                velY = velY * -surfaceImpulse;
-                velX = velX * surfaceImpulse;
-            }
-
-            // Left wall collision
-            if (x < 0)
-            {
-                x = 0;
-                velX = velX * -surfaceImpulse;
-            }
-
-            // Right wall collision
-            if (x > (box.ActualWidth - ballSize))
-            {
-                x = box.ActualWidth - ballSize;
-                velX = velX * -surfaceImpulse;
-            }
-        }
-
-        private static double NegativeScalar(double x) =>
-            x < 0.0
-                ? 1.0
-                : -1.0;
     }
 }

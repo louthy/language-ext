@@ -457,7 +457,7 @@ namespace LanguageExt
                                     {
                                         if (stateOut != null && !stateOut.Equals(stateIn))
                                         {
-                                            stateSubject.OnNext(state);
+                                            stateSubject.OnNext(stateOut);
                                         }
                                     }
                                     catch (Exception ue)
@@ -471,11 +471,15 @@ namespace LanguageExt
                 }
                 else if (message is T)
                 {
-                    var s = actorFn(GetState(), (T)message);
-                    state = s;
+                    var stateIn = GetState();
+                    var stateOut = actorFn(GetState(), (T)message);
+                    state = stateOut;
                     try
                     {
-                        stateSubject.OnNext(state);
+                        if (stateOut != null && !stateOut.Equals(stateIn))
+                        {
+                            stateSubject.OnNext(stateOut);
+                        }
                     }
                     catch (Exception ue)
                     {
