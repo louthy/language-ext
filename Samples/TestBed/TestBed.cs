@@ -247,7 +247,7 @@ namespace TestBed
 
             Debug.Assert(m.CountT() == 4);
 
-            m = m.FilterT(v => v.EndsWith("None"));
+            m = m.FilterT(v => v.EndsWith("None", StringComparison.Ordinal));
 
             Debug.Assert(m.CountT() == 2);
         }

@@ -174,7 +174,7 @@ namespace LanguageExt
         /// Compare
         /// </summary>
         public int CompareTo(ProcessId other) =>
-            Path.CompareTo(other.Path);
+            string.Compare(Path, other.Path, StringComparison.Ordinal);
 
         /// <summary>
         /// Compare
