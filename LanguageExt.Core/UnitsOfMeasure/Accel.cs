@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace LanguageExt
+namespace LanguageExt.UnitsOfMeasure
 {
     /// <summary>
     /// Numeric acceleration value
@@ -138,18 +134,15 @@ namespace LanguageExt
         public double MetresPerSecond2 => Value;
     }
 
-    namespace UnitsOfMeasure
+    public static class __UnitsAccelExt
     {
-        public static class __UnitsAccelExt
-        {
-            public static Accel MetresPerSecond2(this int self) =>
-                new Accel(self);
+        public static Accel MetresPerSecond2(this int self) =>
+            new Accel(self);
 
-            public static Accel MetresPerSecond2(this float self) =>
-                new Accel(self);
+        public static Accel MetresPerSecond2(this float self) =>
+            new Accel(self);
 
-            public static Accel MetresPerSecond2(this double self) =>
-                new Accel(self);
-        }
+        public static Accel MetresPerSecond2(this double self) =>
+            new Accel(self);
     }
 }

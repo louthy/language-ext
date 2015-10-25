@@ -476,7 +476,7 @@ namespace LanguageExt
                     state = stateOut;
                     try
                     {
-                        if (stateOut != null && !stateOut.Equals(stateIn))
+                        if (stateOut != null && !state.Equals(stateIn))
                         {
                             stateSubject.OnNext(stateOut);
                         }

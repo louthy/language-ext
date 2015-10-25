@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace LanguageExt
+namespace LanguageExt.UnitsOfMeasure
 {
     /// <summary>
     /// Numeric area value
@@ -126,45 +122,42 @@ namespace LanguageExt
         public double SqMillimetres => Value * 1000000.0;
     }
 
-    namespace UnitsOfMeasure
+    public static class __UnitsAreaExt
     {
-        public static class __UnitsAreaExt
-        {
-            public static Area SqKilometres(this int self) =>
-                new Area(self / 0.000001);
+        public static Area SqKilometres(this int self) =>
+            new Area(self / 0.000001);
 
-            public static Area SqKilometres(this float self) =>
-                new Area(self / 0.000001);
+        public static Area SqKilometres(this float self) =>
+            new Area(self / 0.000001);
 
-            public static Area SqKilometres(this double self) =>
-                new Area(self / 0.000001);
+        public static Area SqKilometres(this double self) =>
+            new Area(self / 0.000001);
 
-            public static Area SqMetres(this int self) =>
-                new Area(self);
+        public static Area SqMetres(this int self) =>
+            new Area(self);
 
-            public static Area SqMetres(this float self) =>
-                new Area(self);
+        public static Area SqMetres(this float self) =>
+            new Area(self);
 
-            public static Area SqMetres(this double self) =>
-                new Area(self);
+        public static Area SqMetres(this double self) =>
+            new Area(self);
 
-            public static Area SqCentimetres(this int self) =>
-                new Area(self / 10000.0);
+        public static Area SqCentimetres(this int self) =>
+            new Area(self / 10000.0);
 
-            public static Area SqCentimetres(this float self) =>
-                new Area(self / 10000.0);
+        public static Area SqCentimetres(this float self) =>
+            new Area(self / 10000.0);
 
-            public static Area SqCentimetres(this double self) =>
-                new Area(self / 10000.0);
+        public static Area SqCentimetres(this double self) =>
+            new Area(self / 10000.0);
 
-            public static Area SqMillimetres(this int self) =>
-                new Area(self / 1000000.0);
+        public static Area SqMillimetres(this int self) =>
+            new Area(self / 1000000.0);
 
-            public static Area SqMillimetres(this float self) =>
-                new Area(self / 1000000.0);
+        public static Area SqMillimetres(this float self) =>
+            new Area(self / 1000000.0);
 
-            public static Area SqMillimetres(this double self) =>
-                new Area(self / 1000000.0);
-        }
+        public static Area SqMillimetres(this double self) =>
+            new Area(self / 1000000.0);
     }
 }

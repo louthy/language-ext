@@ -1,7 +1,7 @@
 ﻿using System;
 using static LanguageExt.Prelude;
 
-namespace LanguageExt
+namespace LanguageExt.UnitsOfMeasure
 {
     /// <summary>
     /// Numeric time-span value
@@ -144,54 +144,51 @@ namespace LanguageExt
         public double Days          => Value / 86400.0;
     }
 
-    namespace UnitsOfMeasure
+    public static class __UnitsTimeExt
     {
-        public static class __UnitsTimeExt
-        {
-            public static Time Milliseconds(this int self) =>
-                new Time(self / 1000.0);
+        public static Time Milliseconds(this int self) =>
+            new Time(self / 1000.0);
 
-            public static Time Milliseconds(this float self) =>
-                new Time(self / 1000.0);
+        public static Time Milliseconds(this float self) =>
+            new Time(self / 1000.0);
 
-            public static Time Milliseconds(this double self) =>
-                new Time(self / 1000.0);
+        public static Time Milliseconds(this double self) =>
+            new Time(self / 1000.0);
 
-            public static Time Seconds(this int self) =>
-                new Time(self);
+        public static Time Seconds(this int self) =>
+            new Time(self);
 
-            public static Time Seconds(this float self) =>
-                new Time(self);
+        public static Time Seconds(this float self) =>
+            new Time(self);
 
-            public static Time Seconds(this double self) =>
-                new Time(self);
+        public static Time Seconds(this double self) =>
+            new Time(self);
 
-            public static Time Minutes(this int self) =>
-                new Time(self * 60.0);
+        public static Time Minutes(this int self) =>
+            new Time(self * 60.0);
 
-            public static Time Minutes(this float self) =>
-                new Time(self * 60.0);
+        public static Time Minutes(this float self) =>
+            new Time(self * 60.0);
 
-            public static Time Minutes(this double self) =>
-                new Time(self * 60.0);
+        public static Time Minutes(this double self) =>
+            new Time(self * 60.0);
 
-            public static Time Hours(this int self) =>
-                new Time(self * 3600.0);
+        public static Time Hours(this int self) =>
+            new Time(self * 3600.0);
 
-            public static Time Hours(this float self) =>
-                new Time(self * 3600.0);
+        public static Time Hours(this float self) =>
+            new Time(self * 3600.0);
 
-            public static Time Hours(this double self) =>
-                new Time(self * 3600.0);
+        public static Time Hours(this double self) =>
+            new Time(self * 3600.0);
 
-            public static Time Days(this int self) =>
-                new Time(self * 86400.0);
+        public static Time Days(this int self) =>
+            new Time(self * 86400.0);
 
-            public static Time Days(this float self) =>
-                new Time(self * 86400.0);
+        public static Time Days(this float self) =>
+            new Time(self * 86400.0);
 
-            public static Time Days(this double self) =>
-                new Time(self * 86400.0);
-        }
+        public static Time Days(this double self) =>
+            new Time(self * 86400.0);
     }
 }

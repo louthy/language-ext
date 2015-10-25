@@ -29,19 +29,30 @@ namespace UnitsOfMeasureSample
     public partial class MainWindow : Window
     {
         ProcessId update;
+        ProcessId resolver;
+        int processes = 0;
+        const int max = 20;
 
         public MainWindow()
         {
             InitializeComponent();
-
             SpawnUpdate();
-            SpawnBall();
+            SpawnResolver();
+        }
+
+        void SpawnResolver()
+        {
+            resolver = spawn<Map<ProcessId, BallState>, Tuple<ProcessId, BallState>>(
+                "resolver",
+                () => Map<ProcessId, BallState>(),
+                Resolver.Inbox
+            );
         }
 
         /// <summary>
         /// Spawn a ball process and observe its state
         /// </summary>
-        private void SpawnBall()
+        void SpawnBall(int id)
         {
             var element = CreateBallUI();
 
@@ -55,7 +66,11 @@ namespace UnitsOfMeasureSample
                          );
 
             // Spawn the ball process
-            var pid = spawn<BallState, DateTime>("ball-"+DateTime.Now.Ticks, setup, BallProcess.Inbox);
+            kill(User["ball-" + id]);
+            var pid = spawn<BallState, BallMsg>("ball-" + id, setup, BallProcess.Inbox);
+
+            // Subscribe the ball process to the update process's state
+            var sub = observeState<DateTime>(update).Subscribe(par(TimeMsg.Tell, pid));
 
             // Subscribe to the state changes of the ball so we can update the view
             observeState<BallState>(pid)
@@ -65,13 +80,19 @@ namespace UnitsOfMeasureSample
                     element.Visibility = Visibility.Visible;
                     Canvas.SetLeft(element, state.X);
                     Canvas.SetTop(element, box.ActualHeight - state.Y);
-                });
+                },
+                () =>
+                {
+                    box.Children.Remove(element);
+                    sub.Dispose();
+                }
+            );
 
-            // Subscribe the ball process to the update process's state
-            observeState<DateTime>(update).Subscribe(time => tell(pid, time));
+            // The resolver subscribes to the state changes of the ball
+            observeState<BallState>(pid).Subscribe(state => tell(resolver, Tuple(pid, state)));
         }
 
-        private Ellipse CreateBallUI()
+        Ellipse CreateBallUI()
         {
             var element = new Ellipse();
             Canvas.SetTop(element, 0);
@@ -89,9 +110,9 @@ namespace UnitsOfMeasureSample
 
         /// <summary>
         /// Spawn an update process that sends a time message to the ball
-        /// process every 60th of a second
+        /// process (via state subscription) every 60th of a second
         /// </summary>
-        private void SpawnUpdate()
+        void SpawnUpdate()
         {
             update = spawn<DateTime, DateTime>("update", 
                 () => DateTime.Now, 
@@ -104,9 +125,10 @@ namespace UnitsOfMeasureSample
             tell(update, DateTime.Now);
         }
 
-        private void ResetScene(object sender, MouseButtonEventArgs e)
+        void ResetScene(object sender, MouseButtonEventArgs e)
         {
-            SpawnBall();
+            processes = (processes + 1) % max;
+            SpawnBall(processes);
         }
     }
 }

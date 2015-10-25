@@ -86,6 +86,39 @@ namespace LanguageExt
             project(value1, value2, value3, value4, value5);
 
         /// <summary>
+        /// Use with the 'match' function to match values and map a result
+        /// </summary>
+        public static Func<T, Option<R>> with<T, R>(T value, Func<T, R> map) =>
+            (T input) =>
+                EqualityComparer<T>.Default.Equals(input, value)
+                    ? Some(map(input))
+                    : None;
+
+        /// <summary>
+        /// Use with the 'match' function to catch a non-matched value and map a result
+        /// </summary>
+        public static Func<T, Option<R>> otherwise<T, R>(Func<T, R> map) =>
+            (T input) => Some(map(input));
+
+        /// <summary>
+        /// Pattern matching for values
+        /// </summary>
+        /// <typeparam name="T">Value type to match</typeparam>
+        /// <typeparam name="R">Result of expression</typeparam>
+        /// <param name="value">Value to match</param>
+        /// <param name="clauses">Clauses to test</param>
+        /// <returns>Result</returns>
+        public static R match<T, R>(T value, params Func<T, Option<R>>[] clauses)
+        {
+            foreach (var clause in clauses)
+            {
+                var res = clause(value);
+                if (res.IsSome) return res.IfNone(default(R));
+            }
+            throw new Exception("Match not exhaustive");
+        }
+
+        /// <summary>
         /// Identity function
         /// </summary>
         public static T identity<T>(T x) => x;

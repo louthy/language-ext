@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LanguageExt
+namespace LanguageExt.UnitsOfMeasure
 {
     /// <summary>
     /// Numeric time-span squared value

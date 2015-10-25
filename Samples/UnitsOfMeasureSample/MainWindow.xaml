@@ -5,6 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UnitsOfMeasureSample"
         mc:Ignorable="d"
-        Title="Units of measure sample" Height="350" Width="525" MouseLeftButtonUp="ResetScene">
-    <Canvas Name="box" Margin="0,0,0,0" MouseLeftButtonUp="ResetScene"/>
+        Title="Units of measure sample" Height="450" Width="625" MouseLeftButtonUp="ResetScene">
+    <Canvas Name="box" Margin="0,0,0,0" MouseLeftButtonUp="ResetScene">
+        <Label x:Name="counter" Content="Click anywhere to launch." Canvas.Left="16" Canvas.Top="10" FontSize="14"/>
+    </Canvas>
 </Window>
