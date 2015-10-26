@@ -26,11 +26,6 @@ namespace LanguageExt
         }
     }
 
-    /// <summary>
-    /// Holds a value that is guaranteed not to be null.
-    /// Use MatchUntyped or Value to access the value.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
     [TypeConverter(typeof(SomeTypeConverter))]
     public struct Some<T> : IOptional
     {
@@ -65,33 +60,27 @@ namespace LanguageExt
             value.Value;
 
         public override string ToString() =>
-            initialised
-                ? value.ToString()
-                : "(uninitialised)";        // ToString is not allowed to throw exceptions
+            Value.ToString();
 
         public override int GetHashCode() =>
-            initialised
-                ? value.GetHashCode()
-                : 0;                        // GetHashCode is not allowed to throw exceptions
+            Value.GetHashCode();
 
         public override bool Equals(object obj) =>
-            initialised
-                ? value.Equals(obj)
-                : false;                    // Equals is not allowed to throw exceptions
+            Value.Equals(obj);
 
         public bool IsSome =>
-            CheckInitialised(true);
+            initialised;
 
         public bool IsNone =>
-            CheckInitialised(false);
+            !initialised;
 
         public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
             IsSome
                 ? Some(value)
-                : raise<R>(new InvalidOperationException("should never be None"));
+                : None();
 
         public Type GetUnderlyingType() =>
-            CheckInitialised(typeof(T));
+            typeof(T);
     }
 
     public static class Some
