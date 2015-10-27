@@ -8,6 +8,12 @@ using System.ComponentModel;
 
 namespace LanguageExt
 {
+    /// <summary>
+    /// Immutable map module
+    /// AVL tree implementation
+    /// AVL tree is a self-balancing binary search tree. 
+    /// http://en.wikipedia.org/wiki/AVL_tree
+    /// </summary>
     public static partial class Map
     {
         /// <summary>
