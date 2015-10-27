@@ -110,9 +110,7 @@ namespace LanguageExt
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item maybe added</returns>
         public Set<T> AddOrUpdate(T value) =>
-            Contains(value)
-                ? Remove(value).Add(value)
-                : Add(value);
+            new Set<T>(SetModule.AddOrUpdate(set, value, Comparer<T>.Default));
 
         /// <summary>
         /// Returns true if both sets contain the same elements
@@ -799,6 +797,27 @@ namespace LanguageExt
             else
             {
                 return node;
+            }
+        }
+
+        public static SetItem<K> AddOrUpdate<K>(SetItem<K> node, K key, Comparer<K> comparer)
+        {
+            if (node.IsEmpty)
+            {
+                return new SetItem<K>(1, 1, key, SetItem<K>.Empty, SetItem<K>.Empty);
+            }
+            var cmp = comparer.Compare(key, node.Key);
+            if (cmp < 0)
+            {
+                return Balance(Make(node.Key, TryAdd(node.Left, key, comparer), node.Right));
+            }
+            else if (cmp > 0)
+            {
+                return Balance(Make(node.Key, node.Left, TryAdd(node.Right, key, comparer)));
+            }
+            else
+            {
+                return new SetItem<K>(node.Height, node.Count, key, node.Left, node.Right);
             }
         }
 
