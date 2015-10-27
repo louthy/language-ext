@@ -61,7 +61,7 @@ namespace LanguageExt
             new Set<T>(SetModule.Add(set,value,Comparer<T>.Default));
 
         public Option<T> Find(T value) =>
-            SetModule.Find(set, value, Comparer<T>.Default);
+            SetModule.TryFind(set, value, Comparer<T>.Default);
 
         public Set<T> Intersect(IEnumerable<T> other)
         {

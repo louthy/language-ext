@@ -46,7 +46,7 @@ namespace LanguageExt
         /// <summary>
         /// Shutdown
         /// </summary>
-        Unit Shutdown();
+        Unit Shutdown(bool maintainState);
 
         /// <summary>
         /// Link child
@@ -79,7 +79,7 @@ namespace LanguageExt
         Unit ProcessAsk(ActorRequest request);
         R ProcessRequest<R>(ProcessId pid, object message);
         Unit ProcessResponse(ActorResponse response);
-        Unit ShutdownProcess();
+        Unit ShutdownProcess(bool maintainState);
 
         Unit AddSubscription(ProcessId pid, IDisposable sub);
         Unit RemoveSubscription(ProcessId pid);

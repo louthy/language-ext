@@ -17,7 +17,7 @@ namespace LanguageExt
         public ActorItem Parent => new ActorItem(new NullProcess(), new NullInbox(), ProcessFlags.Default);
         public Unit Restart() => unit;
         public Unit Startup() => unit;
-        public Unit Shutdown() => unit;
+        public Unit Shutdown(bool maintainState) => unit;
         public Unit LinkChild(ActorItem item) => unit;
         public Unit UnlinkChild(ProcessId item) => unit;
         public Unit Publish(object message) => unit;
@@ -30,7 +30,7 @@ namespace LanguageExt
         public int GetNextRoundRobinIndex() => 0;
         public R ProcessRequest<R>(ProcessId pid, object message) => default(R);
         public Unit ProcessResponse(ActorResponse response) => unit;
-        public Unit ShutdownProcess() => unit;
+        public Unit ShutdownProcess(bool maintainState) => unit;
 
         public void Dispose()
         {

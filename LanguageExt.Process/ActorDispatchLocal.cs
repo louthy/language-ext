@@ -40,7 +40,7 @@ namespace LanguageExt
 
         public Unit Kill() =>
             ActorContext.WithContext(new ActorItem(Actor, (IActorInbox)Inbox, Actor.Flags), Actor.Parent, ProcessId.NoSender, null, SystemMessage.ShutdownProcess, () =>
-              Actor.ShutdownProcess()
+              Actor.ShutdownProcess(false)
             );
 
         public Map<string, ProcessId> GetChildren() =>

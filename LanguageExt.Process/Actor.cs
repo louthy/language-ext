@@ -237,8 +237,20 @@ namespace LanguageExt
         /// <summary>
         /// Shutdown everything from this node down
         /// </summary>
-        public Unit Shutdown()
+        public Unit Shutdown(bool maintainState)
         {
+            if (maintainState == false)
+            {
+                cluster.IfSome(c =>
+                {
+                    c.Delete(StateKey);
+                    c.Delete(ActorInboxCommon.ClusterUserInboxKey(Id));
+                    c.Delete(ActorInboxCommon.ClusterSystemInboxKey(Id));
+                    c.Delete(ActorInboxCommon.ClusterPubSubKey(Id));
+                    c.Delete(ActorInboxCommon.ClusterStatePubSubKey(Id));
+                });
+            }
+
             RemoveAllSubscriptions();
             publishSubject.OnCompleted();
             stateSubject.OnCompleted();
@@ -424,7 +436,7 @@ namespace LanguageExt
                     replyIfAsked(Children);
                     break;
                 case Message.TagSpec.ShutdownProcess:
-                    replyIfAsked(ShutdownProcess());
+                    replyIfAsked(ShutdownProcess(false));
                     break;
             }
         }
@@ -516,24 +528,24 @@ namespace LanguageExt
             return unit;
         }
 
-        public Unit ShutdownProcess()
+        public Unit ShutdownProcess(bool maintainState)
         {
             //tellSystem(Parent.Actor.Id, SystemMessage.UnlinkChild(Id));
             Parent.Actor.UnlinkChild(Id);
-            ShutdownProcessRec(ActorContext.SelfProcess, ActorContext.GetInboxShutdownItem().Map(x => (ILocalActorInbox)x.Inbox));
+            ShutdownProcessRec(ActorContext.SelfProcess, ActorContext.GetInboxShutdownItem().Map(x => (ILocalActorInbox)x.Inbox), maintainState);
 
             children = Map.empty<string, ActorItem>();
             return unit;
         }
 
-        private void ShutdownProcessRec(ActorItem item, Option<ILocalActorInbox> inboxShutdown)
+        private void ShutdownProcessRec(ActorItem item, Option<ILocalActorInbox> inboxShutdown, bool maintainState)
         {
             var process = item.Actor;
             var inbox = item.Inbox;
 
             foreach (var child in process.Children.Values)
             {
-                ShutdownProcessRec(child, inboxShutdown);
+                ShutdownProcessRec(child, inboxShutdown, maintainState);
             }
 
             inboxShutdown.Match(
@@ -541,7 +553,7 @@ namespace LanguageExt
                 None: ()  => inbox.Dispose()
             );
 
-            process.Shutdown();
+            process.Shutdown(maintainState);
         }
 
         public void Dispose()
