@@ -1,6 +1,7 @@
 ﻿using System;
 
 using LanguageExt;
+using LanguageExt.UnitsOfMeasure;
 using static LanguageExt.Prelude;
 
 namespace UnitsOfMeasureSample
@@ -83,8 +84,8 @@ namespace UnitsOfMeasureSample
 
         public static BallState CreateRandom() =>
             Create().With(
-                X:    random(300),
-                Y:    random(300),
+                X:    random(50) + 150,
+                Y:    random(50) + 150,
                 VelX: random(100)*m/s,
                 VelY: random(30)*m/s
             );

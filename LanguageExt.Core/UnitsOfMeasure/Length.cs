@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace LanguageExt
+namespace LanguageExt.UnitsOfMeasure
 {
     /// <summary>
     /// Numeric length value
@@ -143,99 +139,96 @@ namespace LanguageExt
         public double Nanometres  => Value * 1000000000.0;
     }
 
-    namespace UnitsOfMeasure
+    public static class __UnitsLengthExt
     {
-        public static class __UnitsLengthExt
-        {
-            public static Length Miles(this int self) =>
-                new Length(1609.344000006437376000025749504 * self);
+        public static Length Miles(this int self) =>
+            new Length(1609.344000006437376000025749504 * self);
 
-            public static Length Miles(this float self) =>
-                new Length(1609.344000006437376000025749504 * self);
+        public static Length Miles(this float self) =>
+            new Length(1609.344000006437376000025749504 * self);
 
-            public static Length Miles(this double self) =>
-                new Length(1609.344000006437376000025749504 * self);
+        public static Length Miles(this double self) =>
+            new Length(1609.344000006437376000025749504 * self);
 
-            public static Length Yards(this int self) =>
-                new Length(0.9144000000036576000000146304 * self);
+        public static Length Yards(this int self) =>
+            new Length(0.9144000000036576000000146304 * self);
 
-            public static Length Yards(this float self) =>
-                new Length(0.9144000000036576000000146304 * self);
+        public static Length Yards(this float self) =>
+            new Length(0.9144000000036576000000146304 * self);
 
-            public static Length Yards(this double self) =>
-                new Length(0.9144000000036576000000146304 * self);
+        public static Length Yards(this double self) =>
+            new Length(0.9144000000036576000000146304 * self);
 
-            public static Length Feet(this int self) =>
-                new Length(0.3048000000012192000000048768 * self);
+        public static Length Feet(this int self) =>
+            new Length(0.3048000000012192000000048768 * self);
 
-            public static Length Feet(this float self) =>
-                new Length(0.3048000000012192000000048768 * self);
+        public static Length Feet(this float self) =>
+            new Length(0.3048000000012192000000048768 * self);
 
-            public static Length Feet(this double self) =>
-                new Length(0.3048000000012192000000048768 * self);
+        public static Length Feet(this double self) =>
+            new Length(0.3048000000012192000000048768 * self);
 
-            public static Length Inches(this int self) =>
-                new Length(0.0254000000001016000000004064 * self);
+        public static Length Inches(this int self) =>
+            new Length(0.0254000000001016000000004064 * self);
 
-            public static Length Inches(this float self) =>
-                new Length(0.0254000000001016000000004064 * self);
+        public static Length Inches(this float self) =>
+            new Length(0.0254000000001016000000004064 * self);
 
-            public static Length Inches(this double self) =>
-                new Length(0.0254000000001016000000004064 * self);
+        public static Length Inches(this double self) =>
+            new Length(0.0254000000001016000000004064 * self);
 
-            public static Length Kilometres(this int self) =>
-                new Length(1000.0 * self);
+        public static Length Kilometres(this int self) =>
+            new Length(1000.0 * self);
 
-            public static Length Kilometres(this float self) =>
-                new Length(1000.0 * self);
+        public static Length Kilometres(this float self) =>
+            new Length(1000.0 * self);
 
-            public static Length Kilometres(this double self) =>
-                new Length(1000.0 * self);
+        public static Length Kilometres(this double self) =>
+            new Length(1000.0 * self);
 
-            public static Length Metres(this int self) =>
-                new Length(self);
+        public static Length Metres(this int self) =>
+            new Length(self);
 
-            public static Length Metres(this float self) =>
-                new Length(self);
+        public static Length Metres(this float self) =>
+            new Length(self);
 
-            public static Length Metres(this double self) =>
-                new Length(self);
+        public static Length Metres(this double self) =>
+            new Length(self);
 
-            public static Length Centimetres(this int self) =>
-                new Length(self / 100.0);
+        public static Length Centimetres(this int self) =>
+            new Length(self / 100.0);
 
-            public static Length Centimetres(this float self) =>
-                new Length(self / 100.0);
+        public static Length Centimetres(this float self) =>
+            new Length(self / 100.0);
 
-            public static Length Centimetres(this double self) =>
-                new Length(self / 100.0);
+        public static Length Centimetres(this double self) =>
+            new Length(self / 100.0);
 
-            public static Length Millimetres(this int self) =>
-                new Length(self / 1000.0);
+        public static Length Millimetres(this int self) =>
+            new Length(self / 1000.0);
 
-            public static Length Millimetres(this float self) =>
-                new Length(self / 1000.0);
+        public static Length Millimetres(this float self) =>
+            new Length(self / 1000.0);
 
-            public static Length Millimetres(this double self) =>
-                new Length(self / 1000.0);
+        public static Length Millimetres(this double self) =>
+            new Length(self / 1000.0);
 
-            public static Length Micrometres(this int self) =>
-                new Length(self / 1000000.0);
+        public static Length Micrometres(this int self) =>
+            new Length(self / 1000000.0);
 
-            public static Length Micrometres(this float self) =>
-                new Length(self / 1000000.0);
+        public static Length Micrometres(this float self) =>
+            new Length(self / 1000000.0);
 
-            public static Length Micrometres(this double self) =>
-                new Length(self / 1000000.0);
+        public static Length Micrometres(this double self) =>
+            new Length(self / 1000000.0);
 
-            public static Length Nanometres(this int self) =>
-                new Length(self / 1000000000.0);
+        public static Length Nanometres(this int self) =>
+            new Length(self / 1000000000.0);
 
-            public static Length Nanometres(this float self) =>
-                new Length(self / 1000000000.0);
+        public static Length Nanometres(this float self) =>
+            new Length(self / 1000000000.0);
 
-            public static Length Nanometres(this double self) =>
-                new Length(self / 1000000000.0);
-        }
+        public static Length Nanometres(this double self) =>
+            new Length(self / 1000000000.0);
     }
 }

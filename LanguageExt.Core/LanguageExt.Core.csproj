@@ -137,13 +137,13 @@
     <Compile Include="TypeConverters.cs" />
     <Compile Include="TypeDesc.cs" />
     <Compile Include="Unit.cs" />
-    <Compile Include="UnitsOfMeasure_Accel.cs" />
-    <Compile Include="UnitsOfMeasure_TimeSq.cs" />
-    <Compile Include="UnitsOfMeasure_VelocitySq.cs" />
-    <Compile Include="UnitsOfMeasure_Velocity.cs" />
-    <Compile Include="UnitsOfMeasure_Area.cs" />
-    <Compile Include="UnitsOfMeasure_Length.cs" />
-    <Compile Include="UnitsOfMeasure_Time.cs" />
+    <Compile Include="UnitsOfMeasure\Accel.cs" />
+    <Compile Include="UnitsOfMeasure\TimeSq.cs" />
+    <Compile Include="UnitsOfMeasure\VelocitySq.cs" />
+    <Compile Include="UnitsOfMeasure\Velocity.cs" />
+    <Compile Include="UnitsOfMeasure\Area.cs" />
+    <Compile Include="UnitsOfMeasure\Length.cs" />
+    <Compile Include="UnitsOfMeasure\Time.cs" />
     <Compile Include="Writer.cs" />
   </ItemGroup>
   <ItemGroup>
