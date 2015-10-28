@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 namespace LanguageExt
 {
     /// <summary>
+    /// Immutable map
     /// AVL tree implementation
     /// AVL tree is a self-balancing binary search tree. 
     /// http://en.wikipedia.org/wiki/AVL_tree

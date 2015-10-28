@@ -5,8 +5,22 @@ using LanguageExt;
 
 namespace LanguageExt
 {
+    /// <summary>
+    /// Immutable set module
+    /// AVL tree implementation
+    /// AVL tree is a self-balancing binary search tree. 
+    /// http://en.wikipedia.org/wiki/AVL_tree
+    /// </summary>
     public static partial class Set
     {
+        /// <summary>
+        /// True if the set has no elements
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <returns>True if the set has no elements</returns>
+        public static bool isEmpty<T>(Set<T> set) =>
+            set.IsEmpty;
+
         /// <summary>
         /// Create a new empty set
         /// </summary>
@@ -43,9 +57,53 @@ namespace LanguageExt
             set.Add(value);
 
         /// <summary>
+        /// Attempt to add an item to the set.  If an item already
+        /// exists then return the Set as-is.
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="set">Set to add item to</param>
+        /// <param name="value">Value to add to the set</param>
+        /// <returns>New set with the item maybe added</returns>
+        public static Set<T> tryAdd<T>(Set<T> set, T value) =>
+            set.TryAdd(value);
+
+        /// <summary>
+        /// Add an item to the set.  If an item already
+        /// exists then replace it.
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="set">Set to add item to</param>
+        /// <param name="value">Value to add to the set</param>
+        /// <returns>New set with the item maybe added</returns>
+        public static Set<T> addOrUpdate<T>(Set<T> set, T value) =>
+            set.AddOrUpdate(value);
+
+        /// <summary>
+        /// Attempts to find an item in the set.  
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="set">Set</param>
+        /// <param name="value">Value to find</param>
+        /// <returns>Some(T) if found, None otherwise</returns>
+        public static Option<T> find<T>(Set<T> set, T value) =>
+            set.Find(value);
+
+        /// <summary>
+        /// Check the existence of an item in the set using a 
+        /// predicate.
+        /// </summary>
+        /// <remarks>Note this scans the entire set.</remarks>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="set">Set</param>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if predicate returns true for any item</returns>
+        public static bool exists<T>(Set<T> set, Func<T, bool> pred) =>
+            set.Exists(pred);
+
+        /// <summary>
         /// Returns true if both sets contain the same elements
         /// </summary>
-        public static bool compare<T>(Set<T> setA, Set<T> setB) =>
+        public static bool equals<T>(Set<T> setA, Set<T> setB) =>
             setA.SetEquals(setB);
 
         /// <summary>
@@ -58,77 +116,166 @@ namespace LanguageExt
             set.Count();
 
         /// <summary>
-        /// Returns setA - setB.  Only the items in setA that are not in setB will be left.
+        /// Returns setA - setB.  Only the items in setA that are not in 
+        /// setB will be returned.
         /// </summary>
         public static Set<T> difference<T>(Set<T> setA, Set<T> setB) =>
             setA.Except(setB);
 
-        public static bool exists<T>(Set<T> set, Func<T, bool> pred)
-        {
-            foreach (var item in set)
-            {
-                if (pred(item))
-                    return true;
-            }
-            return false;
-        }
-
         /// <summary>
-        /// Create a new set that contains all elements of both sets
+        /// Finds the union of two sets and produces a new set with 
+        /// the results
         /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="setA">Set A</param>
+        /// <param name="setB">Set A</param>
+        /// <returns>A set which contains all items from both sets</returns>
         public static Set<T> union<T>(Set<T> setA, Set<T> setB) =>
             setA.Union(setB);
 
-        public static IEnumerable<T> filter<T>(Set<T> set, Func<T, bool> pred) =>
-            set.Where(pred);
+        /// <summary>
+        /// Filters items from the set using the predicate.  If the predicate
+        /// returns True for any item then it remains in the set, otherwise
+        /// it's dropped.
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="set">Set</param>
+        /// <param name="pred">Predicate</param>
+        /// <returns>Filtered enumerable</returns>
+        public static Set<T> filter<T>(Set<T> set, Func<T, bool> pred) =>
+            set.Filter(pred);
+
+        /// <summary>
+        /// Applies a function 'folder' to each element of the collection, threading an accumulator 
+        /// argument through the computation. The fold function takes the state argument, and 
+        /// applies the function 'folder' to it and the first element of the set. Then, it feeds this 
+        /// result into the function 'folder' along with the second element, and so on. It returns the 
+        /// final result. (Aggregate in LINQ)
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="T">Set element type</typeparam>
+        /// <param name="set">Set to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Aggregate value</returns>
+        public static S fold<T, S>(Set<T> set, S state, Func<S, T, S> folder) =>
+            set.Fold(state, folder);
+
+        /// <summary>
+        /// Applies a function 'folder' to each element of the collection (from last element to first), 
+        /// threading an aggregate state through the computation. The fold function takes the state 
+        /// argument, and applies the function 'folder' to it and the first element of the set. Then, 
+        /// it feeds this result into the function 'folder' along with the second element, and so on. It 
+        /// returns the final result.
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="T">Set element type</typeparam>
+        /// <param name="set">Set to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Aggregate value</returns>
+        public static S foldBack<T, S>(Set<T> set, S state, Func<S, T, S> folder) =>
+            set.FoldBack(state, folder);
 
         /// <summary>
         /// Returns the elements that are in both setA and setB
         /// </summary>
-        public static Set<T> intersect<T>(Set<T> setA, Set<T> setB) =>
-            setA.SymmetricExcept(setB);
+        public static Set<T> intersect<T>(Set<T> setA, IEnumerable<T> setB) =>
+            setA.Intersect(setB);
 
-        public static IEnumerable<R> map<T, R>(Set<T> set, Func<T, R> mapper) =>
-            set.Select(mapper);
+        /// <summary>
+        /// Returns the elements that are in both setA and setB
+        /// </summary>
+        public static Set<T> except<T>(Set<T> setA, IEnumerable<T> setB) =>
+            setA.Except(setB);
 
+        /// <summary>
+        /// Only items that are in one set or the other will be returned.
+        /// If an item is in both, it is dropped.
+        /// </summary>
+        public static Set<T> symmetricExcept<T>(Set<T> setA, IEnumerable<T> setB) =>
+            setA.Except(setB);
+
+        /// <summary>
+        /// Maps the values of this set into a new set of values using the
+        /// mapper function to tranform the source values.
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="R">Mapped element type</typeparam>
+        /// <param name="set">Set</param>
+        /// <param name="mapper">Mapping function</param>
+        /// <returns>Mapped enumerable</returns>
+        public static Set<R> map<T, R>(Set<T> set, Func<T, R> mapper) =>
+            set.Map(mapper);
+
+        /// <summary>
+        /// Returns True if the value is in the set
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="set">Set</param>
+        /// <param name="value">Value to check</param>
+        /// <returns>True if the item 'value' is in the Set 'set'</returns>
         public static bool contains<T>(Set<T> set, T value) =>
             set.Contains(value);
 
+        /// <summary>
+        /// Removes an item from the set (if it exists)
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="set">Set</param>
+        /// <param name="value">Value to check</param>
+        /// <returns>New set with item removed</returns>
         public static Set<T> remove<T>(Set<T> set, T value) =>
             set.Remove(value);
 
-        public static bool isSubset<T>(Set<T> setA, Set<T> setB) =>
+        /// <summary>
+        /// Returns True if setB is a subset of setA
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="setA">Set A</param>
+        /// <param name="setB">Set B</param>
+        /// <returns>True is setB is a subset of setA</returns>
+        public static bool isSubset<T>(Set<T> setA, IEnumerable<T> setB) =>
             setA.IsSubsetOf(setB);
 
-        public static bool isProperSubset<T>(Set<T> setA, Set<T> setB) =>
+        /// <summary>
+        /// Returns True if setB is a superset of setA
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="setA">Set A</param>
+        /// <param name="setB">Set B</param>
+        /// <returns>True is setB is a superset of setA</returns>
+        public static bool isSuperset<T>(Set<T> setA, IEnumerable<T> setB) =>
+            setA.IsSupersetOf(setB);
+
+        /// <summary>
+        /// Returns True if setB is a proper subset of setA
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="setA">Set A</param>
+        /// <param name="setB">Set B</param>
+        /// <returns>True is setB is a proper subset of setA</returns>
+        public static bool isProperSubset<T>(Set<T> setA, IEnumerable<T> setB) =>
             setA.IsProperSubsetOf(setB);
+
+        /// <summary>
+        /// Returns True if setB is a proper superset of setA
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="setA">Set A</param>
+        /// <param name="setB">Set B</param>
+        /// <returns>True is setB is a proper subset of setA</returns>
+        public static bool isProperSuperset<T>(Set<T> setA, IEnumerable<T> setB) =>
+            setA.IsProperSupersetOf(setB);
+
+        /// <summary>
+        /// Returns True if setA overlaps setB
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="setA">Set A</param>
+        /// <param name="setB">Set B</param>
+        /// <returns>True if setA overlaps setB</returns>
+        public static bool overlaps<T>(Set<T> setA, IEnumerable<T> setB) =>
+            setA.Overlaps(setB);
     }
-}
-
-
-public static class __SetExt
-{
-    public static bool Compare<T>(this Set<T> setA, Set<T> setB) =>
-        LanguageExt.Set.compare(setA, setB);
-
-    public static int Length<T>(this Set<T> set) =>
-        LanguageExt.Set.length(set);
-
-    public static Set<T> Difference<T>(this Set<T> setA, Set<T> setB) =>
-        LanguageExt.Set.difference(setA, setB);
-
-    public static IEnumerable<T> Filter<T>(this Set<T> set, Func<T, bool> pred) =>
-        LanguageExt.Set.filter(set, pred);
-
-    public static Set<T> Intersect<T>(this Set<T> setA, Set<T> setB) =>
-        LanguageExt.Set.intersect(setA, setB);
-
-    public static IEnumerable<R> Map<T, R>(this Set<T> set, Func<T, R> mapper) =>
-        LanguageExt.Set.map(set, mapper);
-
-    public static Option<T> find<T>(Set<T> set, T value) =>
-        set.Find(value);
-
-    public static bool exists<T>(Set<T> set, Func<T, bool> pred) =>
-        LanguageExt.Set.exists(set, pred);
 }

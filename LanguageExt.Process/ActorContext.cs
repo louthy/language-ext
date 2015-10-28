@@ -61,7 +61,7 @@ namespace LanguageExt
                 {
                     var item = rootItem;
                     rootItem = null;
-                    item.Actor.ShutdownProcess();
+                    item.Actor.ShutdownProcess(true);
                     started = false;
                     Startup(None);
                 }
@@ -219,29 +219,10 @@ namespace LanguageExt
             }
             catch
             {
-                ShutdownProcess(item);
+                item?.Actor?.ShutdownProcess(false);
                 throw;
             }
             return item.Actor.Id;
-        }
-
-        private static void ShutdownProcess(ActorItem item)
-        {
-            item.Actor.Parent.Actor.UnlinkChild(item.Actor.Id);
-            GetInboxShutdownItem().IfSome(ibs => ShutdownProcessRec(item, ibs.Inbox));
-        }
-
-        private static void ShutdownProcessRec(ActorItem item, IActorInbox inboxShutdown)
-        {
-            var process = item.Actor;
-            var inbox = item.Inbox;
-
-            foreach (var child in process.Children.Values)
-            {
-                ShutdownProcessRec(child, inboxShutdown);
-            }
-            ((ILocalActorInbox)inboxShutdown).Tell(inbox, ProcessId.NoSender);
-            process.Shutdown();
         }
 
         public static ILocalActorInbox LocalRoot => 

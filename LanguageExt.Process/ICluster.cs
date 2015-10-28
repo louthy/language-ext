@@ -88,8 +88,21 @@ namespace LanguageExt
         /// </summary>
         IEnumerable<T> GetQueue<T>(string key);
 
+        /// <summary>
+        /// Remove a key
+        /// </summary>
+        /// <param name="key">Key</param>
+        bool Delete(string key);
+
+        /// <summary>
+        /// Look at the item at the head of the queue
+        /// </summary>
         T Peek<T>(string key);
 
+        /// <summary>
+        /// Find the queue length
+        /// </summary>
+        /// <param name="key">Key</param>
         int QueueLength(string key);
     }
 }

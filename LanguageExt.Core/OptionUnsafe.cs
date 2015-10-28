@@ -617,8 +617,8 @@ public static class __OptionUnsafeExt
     /// <returns>A stream of Rs</returns>
     public static IObservable<R> MatchObservable<T, R>(this OptionUnsafe<IObservable<T>> self, Func<T, R> Some, Func<R> None) =>
         self.IsSome
-            ? self.Value.Select(Some).Select(Option<R>.CheckNullSomeReturn)
-            : Observable.Return(Option<R>.CheckNullReturn(None(), "None"));
+            ? self.Value.Select(Some)
+            : Observable.Return(None());
 
     /// <summary>
     /// Match the two states of the IObservable&lt;OptionUnsafe&lt;T&gt;&gt;

@@ -5,11 +5,15 @@ using System.Collections;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Threading;
+using System.ComponentModel;
 
 namespace LanguageExt
 {
     /// <summary>
     /// Immutable set
+    /// AVL tree implementation
+    /// AVL tree is a self-balancing binary search tree. 
+    /// http://en.wikipedia.org/wiki/AVL_tree
     /// </summary>
     /// <typeparam name="T">List item type</typeparam>
     public class Set<T> : 
@@ -28,27 +32,50 @@ namespace LanguageExt
         public static readonly Set<T> Empty = new Set<T>();
         readonly SetItem<T> set;
 
+        /// <summary>
+        /// Default ctor
+        /// </summary>
         internal Set()
         {
             set = SetItem<T>.Empty;
         }
 
+        /// <summary>
+        /// Ctor that takes a root element
+        /// </summary>
+        /// <param name="root"></param>
         internal Set(SetItem<T> root)
         {
             set = root;
         }
 
-        internal Set(IEnumerable<T> items)
+        /// <summary>
+        /// Ctor that takes an initial (distinct) set of items
+        /// </summary>
+        /// <param name="items"></param>
+        internal Set(IEnumerable<T> items, bool checkUniqueness = false)
         {
             set = SetItem<T>.Empty;
 
-            // TODO: Perf
-            foreach (var item in items)
+            if (checkUniqueness)
             {
-                set = SetModule.Add(set, item, Comparer<T>.Default);
+                foreach (var item in items)
+                {
+                    set = SetModule.TryAdd(set, item, Comparer<T>.Default);
+                }
+            }
+            else
+            {
+                foreach (var item in items)
+                {
+                    set = SetModule.Add(set, item, Comparer<T>.Default);
+                }
             }
         }
 
+        /// <summary>
+        /// Number of items in the set
+        /// </summary>
         public int Count
         {
             get
@@ -57,15 +84,67 @@ namespace LanguageExt
             }
         }
 
+        /// <summary>
+        /// Add an item to the set
+        /// </summary>
+        /// <param name="value">Value to add to the set</param>
+        /// <returns>New set with the item added</returns>
         public Set<T> Add(T value) =>
             new Set<T>(SetModule.Add(set,value,Comparer<T>.Default));
 
-        public Option<T> Find(T value) =>
-            SetModule.Find(set, value, Comparer<T>.Default);
+        /// <summary>
+        /// Attempt to add an item to the set.  If an item already
+        /// exists then return the Set as-is.
+        /// </summary>
+        /// <param name="value">Value to add to the set</param>
+        /// <returns>New set with the item maybe added</returns>
+        public Set<T> TryAdd(T value) =>
+            Contains(value)
+                ? this
+                : Add(value);
 
+        /// <summary>
+        /// Add an item to the set.  If an item already
+        /// exists then replace it.
+        /// </summary>
+        /// <param name="value">Value to add to the set</param>
+        /// <returns>New set with the item maybe added</returns>
+        public Set<T> AddOrUpdate(T value) =>
+            new Set<T>(SetModule.AddOrUpdate(set, value, Comparer<T>.Default));
+
+        /// <summary>
+        /// Returns true if both sets contain the same elements
+        /// </summary>
+        public bool Compare(Set<T> setB) =>
+            SetEquals(setB);
+
+        /// <summary>
+        /// Get the number of elements in the set
+        /// </summary>
+        /// <returns>Number of elements</returns>
+        public int Length() =>
+            Count;
+
+        /// <summary>
+        /// Returns this - setB.  Only the items in this that are not in 
+        /// setB will be returned.
+        /// </summary>
+        public Set<T> Difference(Set<T> setB) =>
+            Except(setB);
+
+        /// <summary>
+        /// Attempts to find an item in the set.  
+        /// </summary>
+        /// <param name="value">Value to find</param>
+        /// <returns>Some(T) if found, None otherwise</returns>
+        public Option<T> Find(T value) =>
+            SetModule.TryFind(set, value, Comparer<T>.Default);
+
+        /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
         public Set<T> Intersect(IEnumerable<T> other)
         {
-            // TODO: Perf
             var res = new List<T>();
             foreach (var item in other)
             {
@@ -74,9 +153,12 @@ namespace LanguageExt
             return new Set<T>(res);
         }
 
+        /// <summary>
+        /// Returns this - other.  Only the items in this that are not in 
+        /// other will be returned.
+        /// </summary>
         public Set<T> Except(IEnumerable<T> other)
         {
-            // TODO: Perf
             var self = this;
             foreach (var item in other)
             {
@@ -88,9 +170,12 @@ namespace LanguageExt
             return self;
         }
 
+        /// <summary>
+        /// Only items that are in one set or the other will be returned.
+        /// If an item is in both, it is dropped.
+        /// </summary>
         public Set<T> SymmetricExcept(IEnumerable<T> other)
         {
-            // TODO: Perf
             var rhs = new Set<T>(other);
             var res = new List<T>();
 
@@ -113,48 +198,125 @@ namespace LanguageExt
             return new Set<T>(res);
         }
 
+        /// <summary>
+        /// Finds the union of two sets and produces a new set with 
+        /// the results
+        /// </summary>
+        /// <param name="other">Other set to union with</param>
+        /// <returns>A set which contains all items from both sets</returns>
         public Set<T> Union(IEnumerable<T> other)
         {
             // TODO: Perf
             var self = this;
             foreach (var item in other)
             {
-                if (!self.Contains(item))
-                {
-                    self = self.Add(item);
-                }
+                self = self.TryAdd(item);
             }
             return self;
         }
 
+        /// <summary>
+        /// Clears the set
+        /// </summary>
+        /// <returns>An empty set</returns>
         public Set<T> Clear() =>
             new Set<T>();
 
+        /// <summary>
+        /// Get enumerator
+        /// </summary>
+        /// <returns>IEnumerator T</returns>
         public IEnumerator<T> GetEnumerator() =>
             new SetModule.SetEnumerator<T>(set,false,0);
 
-        public Set<T> Remove(T value) =>
-            new Set<T>(SetModule.Remove(set, value, Comparer<T>.Default));
-
+        /// <summary>
+        /// Get enumerator
+        /// </summary>
+        /// <returns>IEnumerator</returns>
         IEnumerator IEnumerable.GetEnumerator() =>
             new SetModule.SetEnumerator<T>(set, false, 0);
 
+        /// <summary>
+        /// Removes an item from the set (if it exists)
+        /// </summary>
+        /// <param name="value">Value to check</param>
+        /// <returns>New set with item removed</returns>
+        public Set<T> Remove(T value) =>
+            new Set<T>(SetModule.Remove(set, value, Comparer<T>.Default));
+
+        /// <summary>
+        /// Applies a function 'folder' to each element of the collection, threading an accumulator 
+        /// argument through the computation. The fold function takes the state argument, and 
+        /// applies the function 'folder' to it and the first element of the set. Then, it feeds this 
+        /// result into the function 'folder' along with the second element, and so on. It returns the 
+        /// final result. (Aggregate in LINQ)
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Aggregate value</returns>
         public S Fold<S>(S state, Func<S, T, S> folder) =>
             SetModule.Fold(set,state,folder);
 
-        public Set<U> Map<U>(Func<T, U> map) =>
-            new Set<U>(this.AsEnumerable().Select(map).Distinct());
+        /// <summary>
+        /// Applies a function 'folder' to each element of the collection (from last element to first), 
+        /// threading an aggregate state through the computation. The fold function takes the state 
+        /// argument, and applies the function 'folder' to it and the first element of the set. Then, 
+        /// it feeds this result into the function 'folder' along with the second element, and so on. It 
+        /// returns the final result.
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Aggregate value</returns>
+        public S FoldBack<S>(S state, Func<S, T, S> folder) =>
+            SetModule.FoldBack(set, state, folder);
 
+        /// <summary>
+        /// Maps the values of this set into a new set of values using the
+        /// mapper function to tranform the source values.
+        /// </summary>
+        /// <typeparam name="R">Mapped element type</typeparam>
+        /// <param name="mapper">Mapping function</param>
+        /// <returns>Mapped Set</returns>
+        public Set<U> Map<U>(Func<T, U> map) =>
+            new Set<U>(this.AsEnumerable().Select(map), true);
+
+        /// <summary>
+        /// Filters items from the set using the predicate.  If the predicate
+        /// returns True for any item then it remains in the set, otherwise
+        /// it's dropped.
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>Filtered enumerable</returns>
         public Set<T> Filter(Func<T, bool> pred) =>
             new Set<T>(SetModule.Filter(set, pred));
 
+        /// <summary>
+        /// Check the existence of an item in the set using a 
+        /// predicate.
+        /// </summary>
+        /// <remarks>Note this scans the entire set.</remarks>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if predicate returns true for any item</returns>
+        public bool Exists(Func<T, bool> pred) =>
+            SetModule.Exists(set, pred);
+
+        /// <summary>
+        /// Returns True if the value is in the set
+        /// </summary>
+        /// <param name="value">Value to check</param>
+        /// <returns>True if the item 'value' is in the Set 'set'</returns>
         public bool Contains(T value) =>
             SetModule.Contains(set, value, Comparer<T>.Default);
 
+        /// <summary>
+        /// Returns true if both sets contain the same elements
+        /// </summary>
+        /// <param name="other">Other distinct set to compare</param>
+        /// <returns>True if the sets are equal</returns>
         public bool SetEquals(IEnumerable<T> other)
         {
-            // TODO: Perf
-
             var rhs = new Set<T>(other);
             if (rhs.Count() != Count) return false;
             foreach (var item in rhs)
@@ -164,33 +326,49 @@ namespace LanguageExt
             return true;
         }
 
+        /// <summary>
+        /// True if the set has no elements
+        /// </summary>
         public bool IsEmpty => 
             Count == 0;
 
+        /// <summary>
+        /// IsReadOnly - Always true
+        /// </summary>
         public bool IsReadOnly
         {
             get
             {
-                throw new NotImplementedException();
+                return true;
             }
         }
 
+        /// <summary>
+        /// Syncronisation root
+        /// </summary>
         public object SyncRoot
         {
             get
             {
-                throw new NotImplementedException();
+                return set;
             }
         }
 
+        /// <summary>
+        /// IsSynchronized - Always true
+        /// </summary>
         public bool IsSynchronized
         {
             get
             {
-                throw new NotImplementedException();
+                return true;
             }
         }
 
+        /// <summary>
+        /// Returns True if 'other' is a proper subset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a proper subset of this set</returns>
         public bool IsProperSubsetOf(IEnumerable<T> other)
         {
             if (IsEmpty)
@@ -226,6 +404,10 @@ namespace LanguageExt
             return false;
         }
 
+        /// <summary>
+        /// Returns True if 'other' is a proper superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a proper superset of this set</returns>
         public bool IsProperSupersetOf(IEnumerable<T> other)
         {
             if (IsEmpty)
@@ -246,6 +428,10 @@ namespace LanguageExt
             return Count > matchCount;
         }
 
+        /// <summary>
+        /// Returns True if 'other' is a superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a superset of this set</returns>
         public bool IsSubsetOf(IEnumerable<T> other)
         {
             if (IsEmpty)
@@ -265,6 +451,10 @@ namespace LanguageExt
             return matches == Count;
         }
 
+        /// <summary>
+        /// Returns True if 'other' is a superset of this set
+        /// </summary>
+        /// <returns>True if 'other' is a superset of this set</returns>
         public bool IsSupersetOf(IEnumerable<T> other)
         {
             foreach (T item in other)
@@ -277,6 +467,13 @@ namespace LanguageExt
             return true;
         }
 
+        /// <summary>
+        /// Returns True if other overlaps this set
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="setA">Set A</param>
+        /// <param name="setB">Set B</param>
+        /// <returns>True if other overlaps this set</returns>
         public bool Overlaps(IEnumerable<T> other)
         {
             if (IsEmpty)
@@ -294,16 +491,11 @@ namespace LanguageExt
             return false;
         }
 
-        void ICollection<T>.Add(T item)
-        {
-            throw new NotSupportedException();
-        }
-
-        void ICollection<T>.Clear()
-        {
-            throw new NotSupportedException();
-        }
-
+        /// <summary>
+        /// Copy the items from the set into the specified array
+        /// </summary>
+        /// <param name="array">Array to copy to</param>
+        /// <param name="index">Index into the array to start</param>
         public void CopyTo(T[] array, int index)
         {
             if (array == null) throw new ArgumentNullException(nameof(array));
@@ -316,36 +508,11 @@ namespace LanguageExt
             }
         }
 
-        bool ICollection<T>.Remove(T item)
-        {
-            throw new NotSupportedException();
-        }
-
-        bool ISet<T>.Add(T item)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void UnionWith(IEnumerable<T> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void IntersectWith(IEnumerable<T> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void ExceptWith(IEnumerable<T> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void SymmetricExceptWith(IEnumerable<T> other)
-        {
-            throw new NotSupportedException();
-        }
-
+        /// <summary>
+        /// Copy the items from the set into the specified array
+        /// </summary>
+        /// <param name="array">Array to copy to</param>
+        /// <param name="index">Index into the array to start</param>
         public void CopyTo(Array array, int index)
         {
             if (array == null) throw new ArgumentNullException(nameof(array));
@@ -358,25 +525,37 @@ namespace LanguageExt
             }
         }
 
+        /// <summary>
+        /// Add operator - performs a union of the two sets
+        /// </summary>
+        /// <param name="lhs">Left hand side set</param>
+        /// <param name="rhs">Right hand side set</param>
+        /// <returns>Unioned set</returns>
         public static Set<T> operator +(Set<T> lhs, Set<T> rhs) =>
             lhs.Append(rhs);
 
-        public Set<T> Append(Set<T> rhs)
-        {
-            var self = this;
-            foreach (var item in rhs)
-            {
-                if (!self.Contains(item))
-                {
-                    self = self.Add(item);
-                }
-            }
-            return self;
-        }
+        /// <summary>
+        /// Add operator - performs a union of the two sets
+        /// </summary>
+        /// <param name="rhs">Right hand side set</param>
+        /// <returns>Unioned set</returns>
+        public Set<T> Append(Set<T> rhs) =>
+            Union(rhs);
 
+        /// <summary>
+        /// Subtract operator - performs a difference of the two sets
+        /// </summary>
+        /// <param name="lhs">Left hand side set</param>
+        /// <param name="rhs">Right hand side set</param>
+        /// <returns>Differenced set</returns>
         public static Set<T> operator -(Set<T> lhs, Set<T> rhs) =>
             lhs.Subtract(rhs);
 
+        /// <summary>
+        /// Subtract operator - performs a difference of the two sets
+        /// </summary>
+        /// <param name="rhs">Right hand side set</param>
+        /// <returns>Differenced set</returns>
         public Set<T> Subtract(Set<T> rhs)
         {
             var self = this;
@@ -387,24 +566,115 @@ namespace LanguageExt
             return self;
         }
 
+        /// <summary>
+        /// Product operator - runs through every combination of
+        /// items in the two sets and performs a product operation on
+        /// them; and then puts the result in a new distinct set.
+        /// </summary>
+        /// <param name="lhs">Left hand side set</param>
+        /// <param name="rhs">Right hand side set</param>
+        /// <returns>Product of the two sets</returns>
         public static Set<T> operator *(Set<T> lhs, Set<T> rhs) =>
             lhs.Product(rhs);
 
+        /// <summary>
+        /// Product operator - runs through every combination of
+        /// items in the two sets and performs a product operation on
+        /// them; and then puts the result in a new distinct set.
+        /// </summary>
+        /// <param name="rhs">Right hand side set</param>
+        /// <returns>Product of the two sets</returns>
         public Set<T> Product(Set<T> rhs) =>
             new Set<T>((from x in this.AsEnumerable()
                         from y in rhs.AsEnumerable()
-                        select TypeDesc.Product(x, y, TypeDesc<T>.Default)).Distinct());
+                        select TypeDesc.Product(x, y, TypeDesc<T>.Default)), true);
 
-        public bool Equals(Set<T> other) =>
-            SetEquals(other);
-
+        /// <summary>
+        /// Divide operator - runs through every combination of
+        /// items in the two sets and performs a divide operation on
+        /// them; and then puts the result in a new distinct set.
+        /// </summary>
+        /// <param name="lhs">Left hand side set</param>
+        /// <param name="rhs">Right hand side set</param>
+        /// <returns>Result of the division of the two sets</returns>
         public static Set<T> operator /(Set<T> lhs, Set<T> rhs) =>
             lhs.Divide(rhs);
 
+        /// <summary>
+        /// Divide operator - runs through every combination of
+        /// items in the two sets and performs a divide operation on
+        /// them; and then puts the result in a new distinct set.
+        /// </summary>
+        /// <param name="rhs">Right hand side set</param>
+        /// <returns>Result of the division of the two sets</returns>
         public Set<T> Divide(Set<T> rhs) =>
             new Set<T>((from y in rhs.AsEnumerable()
                         from x in this.AsEnumerable()
-                        select TypeDesc.Divide(x, y, TypeDesc<T>.Default)).Distinct());
+                        select TypeDesc.Divide(x, y, TypeDesc<T>.Default)), true);
+
+        /// <summary>
+        /// Equality test
+        /// </summary>
+        /// <param name="other">Other set to test</param>
+        /// <returns>True if sets are equal</returns>
+        public bool Equals(Set<T> other) =>
+            SetEquals(other);
+
+        [Obsolete("Remove can't be implemented because this type is immutable")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        bool ICollection<T>.Remove(T item)
+        {
+            throw new NotSupportedException();
+        }
+
+        [Obsolete("Add can't be implemented because this type is immutable")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        bool ISet<T>.Add(T item)
+        {
+            throw new NotSupportedException();
+        }
+
+        [Obsolete("UnionWith can't be implemented because this type is immutable")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void UnionWith(IEnumerable<T> other)
+        {
+            throw new NotSupportedException();
+        }
+
+        [Obsolete("IntersectWith can't be implemented because this type is immutable")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void IntersectWith(IEnumerable<T> other)
+        {
+            throw new NotSupportedException();
+        }
+
+        [Obsolete("ExceptWith can't be implemented because this type is immutable")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void ExceptWith(IEnumerable<T> other)
+        {
+            throw new NotSupportedException();
+        }
+
+        [Obsolete("SymmetricExceptWith can't be implemented because this type is immutable")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void SymmetricExceptWith(IEnumerable<T> other)
+        {
+            throw new NotSupportedException();
+        }
+
+        [Obsolete("ICollection<T>.Add can't be implemented because this type is immutable")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        void ICollection<T>.Add(T item)
+        {
+            throw new NotSupportedException();
+        }
+
+        [Obsolete("ICollection<T>.Clear can't be implemented because this type is immutable")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        void ICollection<T>.Clear()
+        {
+            throw new NotSupportedException();
+        }
     }
 
     internal class SetItem<K>
@@ -449,10 +719,21 @@ namespace LanguageExt
             {
                 return state;
             }
-
             state = Fold(node.Left, state, folder);
             state = folder(state, node.Key);
             state = Fold(node.Right, state, folder);
+            return state;
+        }
+
+        public static S FoldBack<S, K>(SetItem<K> node, S state, Func<S, K, S> folder)
+        {
+            if (node.IsEmpty)
+            {
+                return state;
+            }
+            state = FoldBack(node.Right, state, folder);
+            state = folder(state, node.Key);
+            state = FoldBack(node.Left, state, folder);
             return state;
         }
 
@@ -516,6 +797,27 @@ namespace LanguageExt
             else
             {
                 return node;
+            }
+        }
+
+        public static SetItem<K> AddOrUpdate<K>(SetItem<K> node, K key, Comparer<K> comparer)
+        {
+            if (node.IsEmpty)
+            {
+                return new SetItem<K>(1, 1, key, SetItem<K>.Empty, SetItem<K>.Empty);
+            }
+            var cmp = comparer.Compare(key, node.Key);
+            if (cmp < 0)
+            {
+                return Balance(Make(node.Key, TryAdd(node.Left, key, comparer), node.Right));
+            }
+            else if (cmp > 0)
+            {
+                return Balance(Make(node.Key, node.Left, TryAdd(node.Right, key, comparer)));
+            }
+            else
+            {
+                return new SetItem<K>(node.Height, node.Count, key, node.Left, node.Right);
             }
         }
 

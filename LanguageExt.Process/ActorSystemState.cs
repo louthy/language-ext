@@ -113,7 +113,7 @@ namespace LanguageExt
         {
             logInfo("Process system shutting down");
 
-            ShutdownProcess(User);
+            user?.Actor?.ShutdownProcess(true);
             user = ActorCreate<object>(root, Config.UserProcessName, publish, ProcessFlags.Default);
 
             if (ActorContext.CurrentRequest != null && ActorContext.CurrentRequest.RequestId != -1)
@@ -124,32 +124,6 @@ namespace LanguageExt
             logInfo("Process system shutdown complete");
 
             return unit;
-        }
-
-        public ActorSystemState ShutdownProcess(ProcessId processId)
-        {
-            if (ProcessDoesNotExist(nameof(ShutdownProcess), processId)) return this;
-
-            GetItem(processId.Path).IfSome( item =>
-            {
-                item.Actor.Parent.Actor.UnlinkChild(processId);
-                ShutdownProcessRec(item, inboxShutdown.Inbox);
-            });
-
-            return this;
-        }
-
-        private void ShutdownProcessRec(ActorItem item, IActorInbox inboxShutdown)
-        {
-            var process = item.Actor;
-            var inbox = item.Inbox;
-
-            foreach (var child in process.Children.Values)
-            {
-                ShutdownProcessRec(child, inboxShutdown);
-            }
-            ((ILocalActorInbox)inboxShutdown).Tell(inbox, ProcessId.NoSender);
-            process.Shutdown();
         }
 
         public ActorItem ActorCreate<T>(ActorItem parent, ProcessName name, Func<T, Unit> actorFn, ProcessFlags flags)
@@ -191,7 +165,7 @@ namespace LanguageExt
             }
             catch (Exception e)
             {
-                ShutdownProcess(item.Actor.Id);
+                item.Actor.ShutdownProcess(false);
                 logSysErr(new ProcessException($"Process failed starting up: {e.Message}", actor.Id.Path, actor.Parent.Actor.Id.Path, e));
             }
 
