@@ -28,6 +28,7 @@ namespace LanguageExt
         volatile ActorResponse response;
         int roundRobinIndex = -1;
         object sync = new object();
+        bool remoteSubsAcquired;
 
         internal Actor(Option<ICluster> cluster, ActorItem parent, ProcessName name, Func<S, T, S> actor, Func<IActor, S> setup, ProcessFlags flags)
         {
@@ -41,6 +42,7 @@ namespace LanguageExt
             Parent = parent;
             Name = name;
             Id = parent.Actor.Id[name];
+            SetupRemoteSubscriptions(cluster, flags);
         }
 
         public Actor(Option<ICluster> cluster, ActorItem parent, ProcessName name, Func<S, T, S> actor, Func<S> setup, ProcessFlags flags)
@@ -100,6 +102,8 @@ namespace LanguageExt
 
         private void SetupRemoteSubscriptions(Option<ICluster> cluster, ProcessFlags flags)
         {
+            if (remoteSubsAcquired) return;
+
             cluster.IfSome(c =>
             {
                 // Watches for local state-changes and persists them
@@ -141,6 +145,8 @@ namespace LanguageExt
                     }
                 }
             });
+
+            remoteSubsAcquired = true;
         }
 
         private S GetState()
@@ -276,6 +282,7 @@ namespace LanguageExt
             RemoveAllSubscriptions();
             publishSubject.OnCompleted();
             stateSubject.OnCompleted();
+            remoteSubsAcquired = false;
             DisposeState();
             return unit;
         }
