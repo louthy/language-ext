@@ -575,7 +575,7 @@ namespace LanguageExt
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Product of the two sets</returns>
         public static Set<T> operator *(Set<T> lhs, Set<T> rhs) =>
-            lhs.Product(rhs);
+            lhs.Multiply(rhs);
 
         /// <summary>
         /// Product operator - runs through every combination of
@@ -584,7 +584,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Product of the two sets</returns>
-        public Set<T> Product(Set<T> rhs) =>
+        public Set<T> Multiply(Set<T> rhs) =>
             new Set<T>((from x in this.AsEnumerable()
                         from y in rhs.AsEnumerable()
                         select TypeDesc.Product(x, y, TypeDesc<T>.Default)), true);

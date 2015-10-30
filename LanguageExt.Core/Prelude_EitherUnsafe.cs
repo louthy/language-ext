@@ -53,7 +53,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
         public static EitherUnsafe<L, R> product<L, R>(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
-            lhs.Product(rhs);
+            lhs.Multiply(rhs);
 
         /// <summary>
         /// Divide the Rights 

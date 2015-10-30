@@ -598,7 +598,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
         public static EitherUnsafe<L, R> operator *(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
-            lhs.Product(rhs);
+            lhs.Multiply(rhs);
 
         /// <summary>
         /// Find the product of the Rights 
@@ -613,7 +613,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
-        public EitherUnsafe<L, R> Product(EitherUnsafe<L, R> rhs)
+        public EitherUnsafe<L, R> Multiply(EitherUnsafe<L, R> rhs)
         {
             if (IsLeft) return this;
             if (rhs.IsLeft) return rhs;

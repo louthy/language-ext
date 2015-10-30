@@ -133,7 +133,7 @@ namespace LanguageExt
             }
             else if (desc.IsProductable)
             {
-                return (lhs as IProductable<T>).Product(rhs);
+                return (lhs as IProductable<T>).Multiply(rhs);
             }
             throw new NotProductableException(typeof(T));
         }

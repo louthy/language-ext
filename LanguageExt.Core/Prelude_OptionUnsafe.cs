@@ -49,7 +49,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
         public static OptionUnsafe<T> product<T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
-            lhs.Product(rhs);
+            lhs.Multiply(rhs);
 
         /// <summary>
         /// Divide the Somes.  If either of the options are None then the result is None

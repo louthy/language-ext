@@ -53,7 +53,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
         public static Either<L, R> product<L, R>(Either<L, R> lhs, Either<L, R> rhs) =>
-            lhs.Product(rhs);
+            lhs.Multiply(rhs);
 
         /// <summary>
         /// Divide the Rights 

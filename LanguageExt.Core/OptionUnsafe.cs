@@ -369,7 +369,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
         public static OptionUnsafe<T> operator *(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
-            lhs.Product(rhs);
+            lhs.Multiply(rhs);
 
         /// <summary>
         /// Find the product of the Somes.
@@ -382,7 +382,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
-        public OptionUnsafe<T> Product(OptionUnsafe<T> rhs)
+        public OptionUnsafe<T> Multiply(OptionUnsafe<T> rhs)
         {
             if (IsNone) return this;      // zero * rhs = zero
             if (rhs.IsNone) return rhs;   // lhs * zero = zero
