@@ -91,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Divisible.cs" />
+    <Compile Include="ProcessStrategyTests.cs" />
     <Compile Include="Productable.cs" />
     <Compile Include="Subtractable.cs" />
     <Compile Include="Appendable.cs" />

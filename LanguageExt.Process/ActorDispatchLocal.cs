@@ -48,5 +48,8 @@ namespace LanguageExt
 
         public Unit Publish(object message) =>
             Actor.Publish(message);
+
+        public int GetInboxCount() =>
+            Inbox.Count;
     }
 }

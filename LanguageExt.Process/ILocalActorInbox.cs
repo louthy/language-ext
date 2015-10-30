@@ -8,5 +8,6 @@ namespace LanguageExt
         Unit Tell(object message, ProcessId sender);
         Unit TellUserControl(UserControlMessage message);
         Unit TellSystem(SystemMessage message);
+        int Count { get; }
     }
 }

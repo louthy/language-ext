@@ -91,8 +91,14 @@
     <Compile Include="ILocalActorInbox.cs" />
     <Compile Include="IProcess.cs" />
     <Compile Include="Prelude_Reply.cs" />
+    <Compile Include="Prelude_Strategies.cs" />
     <Compile Include="ProcessId.cs" />
     <Compile Include="ProcessName.cs" />
+    <Compile Include="Strategy\XForOneStrategy.cs" />
+    <Compile Include="Strategy\Directive.cs" />
+    <Compile Include="Strategy\AllForOneStrategy.cs" />
+    <Compile Include="Strategy\OneForOneStrategy.cs" />
+    <Compile Include="Strategy\ProcessStrategy.cs" />
     <Compile Include="RelayActor.cs" />
     <Compile Include="MessageSerialiser.cs" />
     <Compile Include="Prelude_Forward.cs" />

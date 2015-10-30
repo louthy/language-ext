@@ -34,7 +34,10 @@ namespace LanguageExt
 
             // ActorSystemMessageTag
             ShutdownProcess,
-            GetChildren
+            GetChildren,
+
+            // SystemMessageTag
+            ChildFaulted
         }
 
         public abstract Type MessageType

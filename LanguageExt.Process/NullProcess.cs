@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LanguageExt.UnitsOfMeasure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +16,8 @@ namespace LanguageExt
         public ProcessFlags Flags => ProcessFlags.Default;
         public ProcessName Name => "$";
         public ActorItem Parent => new ActorItem(new NullProcess(), new NullInbox(), ProcessFlags.Default);
-        public Unit Restart() => unit;
+        public ProcessStrategy Strategy => ProcessStrategy.Default;
+        public Unit Restart(Time when) => unit;
         public Unit Startup() => unit;
         public Unit Shutdown(bool maintainState) => unit;
         public Unit LinkChild(ActorItem item) => unit;
