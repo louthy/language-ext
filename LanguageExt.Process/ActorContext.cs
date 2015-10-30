@@ -450,10 +450,7 @@ namespace LanguageExt
             {
                 cluster.IfSome(c => c.PublishToChannel(ActorInboxCommon.ClusterPubSubKey(Self), message));
             }
-            else
-            {
-                SelfProcess.Actor.Publish(message);
-            }
+            SelfProcess.Actor.Publish(message);
             return unit;
         }
 
