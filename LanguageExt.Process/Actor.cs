@@ -41,8 +41,6 @@ namespace LanguageExt
             Parent = parent;
             Name = name;
             Id = parent.Actor.Id[name];
-
-            SetupClusterStatePersist(cluster, flags);
         }
 
         public Actor(Option<ICluster> cluster, ActorItem parent, ProcessName name, Func<S, T, S> actor, Func<S> setup, ProcessFlags flags)
@@ -100,10 +98,11 @@ namespace LanguageExt
         private string StateKey => 
             Id.Path + "-state";
 
-        private void SetupClusterStatePersist(Option<ICluster> cluster, ProcessFlags flags)
+        private void SetupRemoteSubscriptions(Option<ICluster> cluster, ProcessFlags flags)
         {
             cluster.IfSome(c =>
             {
+                // Watches for local state-changes and persists them
                 if ((flags & ProcessFlags.PersistState) == ProcessFlags.PersistState)
                 {
                     try
@@ -116,11 +115,25 @@ namespace LanguageExt
                     }
                 }
 
+                // Watches for local state-changes and publishes them remotely
                 if ((flags & ProcessFlags.RemoteStatePublish) == ProcessFlags.RemoteStatePublish)
                 {
                     try
                     {
-                        stateSubject.Subscribe(state => c.PublishToChannel(ActorInboxCommon.ClusterPubSubKey(Id), state));
+                        stateSubject.Subscribe(state => c.PublishToChannel(ActorInboxCommon.ClusterStatePubSubKey(Id), state));
+                    }
+                    catch (Exception e)
+                    {
+                        logSysErr(e);
+                    }
+                }
+
+                // Watches for publish events and remotely publishes them
+                if ((flags & ProcessFlags.RemotePublish) == ProcessFlags.RemotePublish)
+                {
+                    try
+                    {
+                        publishSubject.Subscribe(msg => c.PublishToChannel(ActorInboxCommon.ClusterPubSubKey(Id), msg));
                     }
                     catch (Exception e)
                     {
@@ -140,6 +153,8 @@ namespace LanguageExt
         private S InitState()
         {
             S state;
+
+            SetupRemoteSubscriptions(cluster, flags);
 
             if (cluster.IsSome && ((flags & ProcessFlags.PersistState) == ProcessFlags.PersistState))
             {
@@ -166,8 +181,15 @@ namespace LanguageExt
             return state;
         }
 
+        /// <summary>
+        /// Publish observable stream
+        /// </summary>
         public IObservable<object> PublishStream => publishSubject;
-        public IObservable<object> StateStream => stateSubject;
+
+        /// <summary>
+        /// State observable stream
+        /// </summary>
+        public IObservable<object> StateStream   => stateSubject;
 
         /// <summary>
         /// Publish to the PublishStream
@@ -564,11 +586,8 @@ namespace LanguageExt
 
         private void DisposeState()
         {
-            state.IfSome(s =>
-            {
-                (s as IDisposable)?.Dispose();
-                state = None;
-            });
+            state.IfSome(s => (s as IDisposable)?.Dispose());
+            state = None;
         }
     }
 }
