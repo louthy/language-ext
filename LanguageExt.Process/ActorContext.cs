@@ -444,15 +444,8 @@ namespace LanguageExt
         public static Unit WithContext(ActorItem self, ActorItem parent, ProcessId sender, ActorRequest request, object msg, Action f) =>
             WithContext(self, parent, sender, request, msg, fun(f));
 
-        public static Unit Publish(object message)
-        {
-            if (cluster.IsSome && (ProcessFlags & ProcessFlags.RemotePublish) == ProcessFlags.RemotePublish)
-            {
-                cluster.IfSome(c => c.PublishToChannel(ActorInboxCommon.ClusterPubSubKey(Self), message));
-            }
+        public static Unit Publish(object message) =>
             SelfProcess.Actor.Publish(message);
-            return unit;
-        }
 
         internal static IObservable<T> Observe<T>(ProcessId pid) =>
             GetDispatcher(pid).Observe<T>();

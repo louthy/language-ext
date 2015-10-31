@@ -646,7 +646,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
         public static Either<L, R> operator *(Either<L, R> lhs, Either<L, R> rhs) =>
-            lhs.Product(rhs);
+            lhs.Multiply(rhs);
 
         /// <summary>
         /// Find the product of the Rights 
@@ -661,7 +661,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
-        public Either<L, R> Product(Either<L, R> rhs)
+        public Either<L, R> Multiply(Either<L, R> rhs)
         {
             if (IsLeft) return this;    // The rules here are different to Option because
             if (rhs.IsLeft) return rhs; // dropping the 'Left' value would also lose information

@@ -11,7 +11,7 @@ namespace LanguageExt
     }
 
     /// <summary>
-    /// Provides the Product method
+    /// Provides the Multiply method
     /// </summary>
     /// <typeparam name="T">T</typeparam>
     public interface IProductable<T> : IProductable
@@ -21,6 +21,6 @@ namespace LanguageExt
         /// </summary>
         /// <param name="rhs">Right hand side of the product</param>
         /// <returns>this * rhs</returns>
-        T Product(T rhs);
+        T Multiply(T rhs);
     }
 }
