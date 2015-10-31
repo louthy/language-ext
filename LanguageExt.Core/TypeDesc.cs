@@ -44,7 +44,7 @@ namespace LanguageExt
         public readonly Option<ValueTypeDesc> ValueType;
         public readonly bool IsAppendable;
         public readonly bool IsSubtractable;
-        public readonly bool IsProductable;
+        public readonly bool IsMultiplicable;
         public readonly bool IsDivisible;
         public readonly bool HasZero;
 
@@ -52,7 +52,7 @@ namespace LanguageExt
         {
             IsAppendable = typeof(IAppendable).IsAssignableFrom(type);
             IsSubtractable = typeof(ISubtractable).IsAssignableFrom(type);
-            IsProductable = typeof(IProductable).IsAssignableFrom(type);
+            IsMultiplicable = typeof(IMultiplicable).IsAssignableFrom(type);
             IsDivisible = typeof(IDivisible).IsAssignableFrom(type);
             IsString = type == typeof(string);
 
@@ -125,17 +125,17 @@ namespace LanguageExt
             throw new NotSubtractableException(typeof(T));
         }
 
-        public static T Product<T>(T lhs, T rhs, TypeDesc desc)
+        public static T Multiply<T>(T lhs, T rhs, TypeDesc desc)
         {
             if (desc.IsNumeric)
             {
-                return (T)ProductNumeric(lhs, rhs, desc);
+                return (T)MultiplyNumeric(lhs, rhs, desc);
             }
-            else if (desc.IsProductable)
+            else if (desc.IsMultiplicable)
             {
-                return (lhs as IProductable<T>).Multiply(rhs);
+                return (lhs as IMultiplicable<T>).Multiply(rhs);
             }
-            throw new NotProductableException(typeof(T));
+            throw new NotMultiplicableException(typeof(T));
         }
 
         public static T Divide<T>(T lhs, T rhs, TypeDesc desc)
@@ -193,7 +193,7 @@ namespace LanguageExt
             }
         }
 
-        private static object ProductNumeric(object lhs, object rhs, TypeDesc desc)
+        private static object MultiplyNumeric(object lhs, object rhs, TypeDesc desc)
         {
             var vt = desc.ValueType.Lift();
             switch (vt)
@@ -210,7 +210,7 @@ namespace LanguageExt
                 case ValueTypeDesc.Float: return (float)lhs * (float)rhs;
                 case ValueTypeDesc.Double: return (double)lhs * (double)rhs;
                 case ValueTypeDesc.Decimal: return (decimal)lhs * (decimal)rhs;
-                default: throw new NotProductableException(lhs.GetType());
+                default: throw new NotMultiplicableException(lhs.GetType());
             }
         }
 

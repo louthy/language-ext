@@ -28,7 +28,7 @@ namespace LanguageExt
         IEquatable<T>,
         IAppendable<OptionUnsafe<T>>,
         ISubtractable<OptionUnsafe<T>>,
-        IProductable<OptionUnsafe<T>>,
+        IMultiplicable<OptionUnsafe<T>>,
         IDivisible<OptionUnsafe<T>>
     {
         readonly T value;
@@ -362,8 +362,8 @@ namespace LanguageExt
         /// For numeric values the behaviour is to multiply the Somes (lhs * rhs)
         /// For Lst values the behaviour is to multiply all combinations of values in both lists 
         /// to produce a new list
-        /// Otherwise if the T type derives from IProductable then the behaviour
-        /// is to call lhs.Product(rhs);
+        /// Otherwise if the T type derives from IMultiplicable then the behaviour
+        /// is to call lhs.Multiply(rhs);
         /// </summary>
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
@@ -376,8 +376,8 @@ namespace LanguageExt
         /// For numeric values the behaviour is to multiply the Somes (lhs * rhs)
         /// For Lst values the behaviour is to multiply all combinations of values in both lists 
         /// to produce a new list
-        /// Otherwise if the T type derives from IProductable then the behaviour
-        /// is to call lhs.Product(rhs);
+        /// Otherwise if the T type derives from IMultiplicable then the behaviour
+        /// is to call lhs.Multiply(rhs);
         /// </summary>
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
@@ -386,7 +386,7 @@ namespace LanguageExt
         {
             if (IsNone) return this;      // zero * rhs = zero
             if (rhs.IsNone) return rhs;   // lhs * zero = zero
-            return TypeDesc.Product(Value, rhs.Value, TypeDesc<T>.Default);
+            return TypeDesc.Multiply(Value, rhs.Value, TypeDesc<T>.Default);
         }
 
         /// <summary>

@@ -42,13 +42,13 @@ namespace LanguageExt
         /// For numeric values the behaviour is to multiply the Somes (lhs * rhs)
         /// For Lst values the behaviour is to multiply all combinations of values in both lists 
         /// to produce a new list
-        /// Otherwise if the R type derives from IProductable then the behaviour
-        /// is to call lhs.Product(rhs);
+        /// Otherwise if the R type derives from IMultiplicable then the behaviour
+        /// is to call lhs.Multiply(rhs);
         /// </summary>
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
-        public static OptionUnsafe<T> product<T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
+        public static OptionUnsafe<T> multiply<T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
             lhs.Multiply(rhs);
 
         /// <summary>

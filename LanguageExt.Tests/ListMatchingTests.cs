@@ -29,22 +29,22 @@ namespace LanguageExtTests
                    (x, xs) => x + Sum(xs));
 
         [Fact]
-        public void RecursiveMatchProductTest()
+        public void RecursiveMatchMultiplyTest()
         {
             var list0 = List<int>();
             var list1 = List(10);
             var list5 = List(10, 20, 30, 40, 50);
 
-            Assert.True(Product(list0) == 0);
-            Assert.True(Product(list1) == 10);
-            Assert.True(Product(list5) == 12000000);
+            Assert.True(Multiply(list0) == 0);
+            Assert.True(Multiply(list1) == 10);
+            Assert.True(Multiply(list5) == 12000000);
         }
 
-        public int Product(IEnumerable<int> list) =>
+        public int Multiply(IEnumerable<int> list) =>
             list.Match(
                 ()      => 0,
                 x       => x,
-                (x, xs) => x * Product(xs));
+                (x, xs) => x * Multiply(xs));
 
         [Fact]
         public void AnotherRecursiveMatchSumTest()
@@ -64,21 +64,21 @@ namespace LanguageExtTests
                 (x, xs) => x + AnotherSum(xs));
 
         [Fact]
-        public void AnotherRecursiveMatchProductTest()
+        public void AnotherRecursiveMatchMultiplyTest()
         {
             var list0 = List<int>();
             var list1 = List(10);
             var list5 = List(10, 20, 30, 40, 50);
 
-            Assert.True(AnotherProduct(list0) == 1);
-            Assert.True(AnotherProduct(list1) == 10);
-            Assert.True(AnotherProduct(list5) == 12000000);
+            Assert.True(AnotherMultiply(list0) == 1);
+            Assert.True(AnotherMultiply(list1) == 10);
+            Assert.True(AnotherMultiply(list5) == 12000000);
         }
 
-        public int AnotherProduct(IEnumerable<int> list) =>
+        public int AnotherMultiply(IEnumerable<int> list) =>
             list.Match(
                 ()      => 1,
-                (x, xs) => x * AnotherProduct(xs));
+                (x, xs) => x * AnotherMultiply(xs));
 
         [Fact]
         public void Match6Fluent()

@@ -74,7 +74,7 @@
     <Compile Include="Exceptions.cs" />
     <Compile Include="IDivisible.cs" />
     <Compile Include="INumeric.cs" />
-    <Compile Include="IProductable.cs" />
+    <Compile Include="IMultiplicable.cs" />
     <Compile Include="ISubtractable.cs" />
     <Compile Include="IAppendable.cs" />
     <Compile Include="Lst.cs" />

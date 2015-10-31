@@ -35,7 +35,7 @@ namespace LanguageExt
         IEquatable<R>,
         IAppendable<Either<L, R>>,
         ISubtractable<Either<L, R>>,
-        IProductable<Either<L, R>>,
+        IMultiplicable<Either<L, R>>,
         IDivisible<Either<L, R>>
     {
         public readonly static Either<L, R> Bottom = new Either<L, R>();
@@ -637,8 +637,8 @@ namespace LanguageExt
         /// For numeric values the behaviour is to multiply the Rights (lhs * rhs)
         /// For Lst values the behaviour is to multiply all combinations of values in both lists 
         /// to produce a new list
-        /// Otherwise if the R type derives from IProductable then the behaviour
-        /// is to call lhs.Product(rhs);
+        /// Otherwise if the R type derives from IMultiplicable then the behaviour
+        /// is to call lhs.Multiply(rhs);
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
@@ -653,8 +653,8 @@ namespace LanguageExt
         /// For numeric values the behaviour is to multiply the Rights (lhs * rhs)
         /// For Lst values the behaviour is to multiply all combinations of values in both lists 
         /// to produce a new list
-        /// Otherwise if the R type derives from IProductable then the behaviour
-        /// is to call lhs.Product(rhs);
+        /// Otherwise if the R type derives from IMultiplicable then the behaviour
+        /// is to call lhs.Multiply(rhs);
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
@@ -665,7 +665,7 @@ namespace LanguageExt
         {
             if (IsLeft) return this;    // The rules here are different to Option because
             if (rhs.IsLeft) return rhs; // dropping the 'Left' value would also lose information
-            return TypeDesc.Product<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
+            return TypeDesc.Multiply<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
         }
 
         /// <summary>

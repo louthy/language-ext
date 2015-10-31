@@ -48,17 +48,17 @@ namespace LanguageExt.UnitsOfMeasure
         public VelocitySq Subtract(VelocitySq rhs) =>
             new VelocitySq(Value - rhs.Value);
 
-        public VelocitySq Product(double rhs) =>
+        public VelocitySq Multiply(double rhs) =>
             new VelocitySq(Value * rhs);
 
         public VelocitySq Divide(double rhs) =>
             new VelocitySq(Value / rhs);
 
         public static VelocitySq operator *(VelocitySq lhs, double rhs) =>
-            lhs.Product(rhs);
+            lhs.Multiply(rhs);
 
         public static VelocitySq operator *(double lhs, VelocitySq rhs) =>
-            rhs.Product(lhs);
+            rhs.Multiply(lhs);
 
         public static VelocitySq operator +(VelocitySq lhs, VelocitySq rhs) =>
             lhs.Append(rhs);

@@ -25,7 +25,7 @@ namespace LanguageExt
         ICollection, 
         IAppendable<Set<T>>,
         ISubtractable<Set<T>>,
-        IProductable<Set<T>>,
+        IMultiplicable<Set<T>>,
         IDivisible<Set<T>>,
         IEquatable<Set<T>>
     {
@@ -567,8 +567,8 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Product operator - runs through every combination of
-        /// items in the two sets and performs a product operation on
+        /// Multiply operator - runs through every combination of
+        /// items in the two sets and performs a multiply operation on
         /// them; and then puts the result in a new distinct set.
         /// </summary>
         /// <param name="lhs">Left hand side set</param>
@@ -578,8 +578,8 @@ namespace LanguageExt
             lhs.Multiply(rhs);
 
         /// <summary>
-        /// Product operator - runs through every combination of
-        /// items in the two sets and performs a product operation on
+        /// Multiply operator - runs through every combination of
+        /// items in the two sets and performs a multiply operation on
         /// them; and then puts the result in a new distinct set.
         /// </summary>
         /// <param name="rhs">Right hand side set</param>
@@ -587,7 +587,7 @@ namespace LanguageExt
         public Set<T> Multiply(Set<T> rhs) =>
             new Set<T>((from x in this.AsEnumerable()
                         from y in rhs.AsEnumerable()
-                        select TypeDesc.Product(x, y, TypeDesc<T>.Default)), true);
+                        select TypeDesc.Multiply(x, y, TypeDesc<T>.Default)), true);
 
         /// <summary>
         /// Divide operator - runs through every combination of

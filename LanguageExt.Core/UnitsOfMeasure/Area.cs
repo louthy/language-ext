@@ -53,17 +53,17 @@ namespace LanguageExt.UnitsOfMeasure
         public Area Subtract(Area rhs) =>
             new Area(Value - rhs.Value);
 
-        public Area Product(double rhs) =>
+        public Area Multiply(double rhs) =>
             new Area(Value * rhs);
 
         public Area Divide(double rhs) =>
             new Area(Value / rhs);
 
         public static Area operator *(Area lhs, double rhs) =>
-            lhs.Product(rhs);
+            lhs.Multiply(rhs);
 
         public static Area operator *(double lhs, Area rhs) =>
-            rhs.Product(lhs);
+            rhs.Multiply(lhs);
 
         public static Area operator /(Area lhs, double rhs) =>
             lhs.Divide(rhs);

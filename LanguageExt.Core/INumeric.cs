@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace LanguageExt
 {
     interface INumeric<T> :
-        IProductable<T>,
+        IMultiplicable<T>,
         IDivisible<T>,
         IAppendable<T>,
         ISubtractable<T>,

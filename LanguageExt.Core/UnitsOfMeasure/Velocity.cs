@@ -54,17 +54,17 @@ namespace LanguageExt.UnitsOfMeasure
         public Velocity Subtract(Velocity rhs) =>
             new Velocity(Value - rhs.Value);
 
-        public Velocity Product(double rhs) =>
+        public Velocity Multiply(double rhs) =>
             new Velocity(Value * rhs);
 
         public Velocity Divide(double rhs) =>
             new Velocity(Value / rhs);
 
         public static Velocity operator *(Velocity lhs, double rhs) =>
-            lhs.Product(rhs);
+            lhs.Multiply(rhs);
 
         public static Velocity operator *(double lhs, Velocity rhs) =>
-            rhs.Product(lhs);
+            rhs.Multiply(lhs);
 
         public static Length operator *(Velocity lhs, Time rhs) =>
             new Length(lhs.Value * rhs.Seconds);
