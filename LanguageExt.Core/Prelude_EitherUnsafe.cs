@@ -44,15 +44,15 @@ namespace LanguageExt
         /// For numeric values the behaviour is to multiply the Rights (lhs * rhs)
         /// For Lst values the behaviour is to multiply all combinations of values in both lists 
         /// to produce a new list
-        /// Otherwise if the R type derives from IProductable then the behaviour
-        /// is to call lhs.Product(rhs);
+        /// Otherwise if the R type derives from IMultiplicable then the behaviour
+        /// is to call lhs.Multiply(rhs);
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
-        public static EitherUnsafe<L, R> product<L, R>(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
+        public static EitherUnsafe<L, R> multiply<L, R>(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
             lhs.Multiply(rhs);
 
         /// <summary>

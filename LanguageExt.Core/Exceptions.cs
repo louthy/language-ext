@@ -238,10 +238,10 @@ namespace LanguageExt
         }
     }
 
-    public class NotProductableException : Exception
+    public class NotMultiplicableException : Exception
     {
-        public NotProductableException(Type t)
-            : base($"Type '{t.Name}' not productable: It's neither a CLR numeric-type, nor dervied from IProductable")
+        public NotMultiplicableException(Type t)
+            : base($"Type '{t.Name}' not multiplicable: It's neither a CLR numeric-type, nor dervied from IMultiplicable")
         {
         }
     }
