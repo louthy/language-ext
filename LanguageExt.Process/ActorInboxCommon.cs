@@ -75,7 +75,8 @@ namespace LanguageExt
                 switch (msg.Tag)
                 {
                     case Message.TagSpec.Restart:
-                        actor.Restart(0*s);
+                        var rm = msg as SystemRestartMessage;
+                        actor.Restart(rm.When);
                         break;
 
                     case Message.TagSpec.LinkChild:
@@ -90,9 +91,12 @@ namespace LanguageExt
 
                     case Message.TagSpec.ChildFaulted:
                         var cf = msg as SystemChildFaultedMessage;
-                        actor.RunStrategy(cf.Exception, actor.Strategy);
+                        actor.ChildFaulted(cf.Exception, cf.Child);
                         break;
 
+                    case Message.TagSpec.ShutdownProcess:
+                        kill(actor.Id);
+                        break;
                 }
             });
         }

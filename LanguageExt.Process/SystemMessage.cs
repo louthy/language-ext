@@ -14,12 +14,18 @@ namespace LanguageExt
         public static SystemMessage UnlinkChild(ProcessId pid) => new SystemUnLinkChildMessage(pid);
         public static SystemMessage ChildFaulted(ProcessId pid, Exception ex) => new SystemChildFaultedMessage(pid, ex);
         public static SystemMessage ShutdownProcess = new ShutdownProcessMessage();
-        public static SystemMessage Restart => new SystemRestartMessage();
+        public static SystemMessage Restart(Time when) => new SystemRestartMessage(when);
     }
 
     internal class SystemRestartMessage : SystemMessage
     {
         public override TagSpec Tag => TagSpec.Restart;
+
+        public SystemRestartMessage(Time when)
+        {
+            When = when;
+        }
+        public Time When { get; }
     }
 
     internal class SystemLinkChildMessage : SystemMessage

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using LanguageExt.UnitsOfMeasure;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace LanguageExt
                 case Message.TagSpec.GetChildren:       return UserControlMessage.GetChildren;
                 case Message.TagSpec.ShutdownProcess:   return SystemMessage.ShutdownProcess;
 
-                case Message.TagSpec.Restart:           return SystemMessage.Restart;
+                case Message.TagSpec.Restart:           return SystemMessage.Restart(default(Time)); // TODO: Deserialise the 'When'
             }
 
             throw new Exception($"Unknown Message Type: {msg.Type}");

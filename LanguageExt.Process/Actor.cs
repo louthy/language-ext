@@ -230,7 +230,10 @@ namespace LanguageExt
 
             if( when == 0*sec )
             {
-                tellSystemChildren(SystemMessage.Restart);
+                foreach (var child in Children)
+                {
+                    kill(child.Value.Actor.Id);
+                }
             }
             else
             {
@@ -445,7 +448,7 @@ namespace LanguageExt
             }
             catch (Exception e)
             {
-                RunStrategy(e, Parent.Actor.Strategy);
+                RunStrategy(e, Parent.Actor.Strategy, Id);
                 replyError(e);
                 tell(ActorContext.Errors, e);
                 tell(ActorContext.DeadLetters, DeadLetter.create(request.ReplyTo, request.To, e, "Process error (ask): ", request.Message));
@@ -545,7 +548,7 @@ namespace LanguageExt
             }
             catch (Exception e)
             {
-                RunStrategy(e, Parent.Actor.Strategy);
+                RunStrategy(e, Parent.Actor.Strategy, Id);
 
                 tell(ActorContext.Errors, e);
                 tell(ActorContext.DeadLetters, DeadLetter.create(Sender, Self, e, "Process error (tell): ", message));
@@ -559,21 +562,36 @@ namespace LanguageExt
             return unit;
         }
 
-        public void RunStrategy(Exception e, ProcessStrategy strategy)
+        public Unit RunStrategy(Exception e, ProcessStrategy strategy, ProcessId pid)
         {
-            var directive = strategy.HandleFailure(e);
+            var directive = strategy.HandleFailure(e, pid);
 
-            if (strategy.HandledByParent)
+            if (strategy.ApplyToAllChildrenOfSupervisor)
             {
-                ActorContext.GetDispatcher(Parent.Actor.Parent.Actor.Id)
-                            .TellSystem(SystemMessage.ChildFaulted(Id, e), Self);
+                // This applies the directive to all of the children of the parent of this actor
+                // if the 'ApplyToChildrenOfParent' flag is set.  It is essentially AllForOne
+                foreach (var child in Parent.Actor.Children.Values.Filter(x => x.Actor.Id != Id))
+                {
+                    switch (directive.Type)
+                    {
+                        case DirectiveType.Escalate:
+                        case DirectiveType.Resume:
+                            // Do nothing
+                            break;
+                        case DirectiveType.Restart:
+                            restart(child.Actor.Id, (directive as Restart).When);
+                            break;
+                        case DirectiveType.Stop:
+                            kill(child.Actor.Id);
+                            break;
+                    }
+                }
             }
 
             switch (directive.Type)
             {
                 case DirectiveType.Escalate:
-                    ActorContext.GetDispatcher(Parent.Actor.Parent.Actor.Id)
-                                .TellSystem(SystemMessage.ChildFaulted(Parent.Actor.Id, e), Self);
+                    tellSystem(Parent.Actor.Id, SystemMessage.ChildFaulted(pid, e), Self);
                     break;
                 case DirectiveType.Resume:
                     // Do nothing
@@ -585,6 +603,7 @@ namespace LanguageExt
                     ShutdownProcess(false);
                     break;
             }
+            return unit;
         }
 
         public Unit ShutdownProcess(bool maintainState)
@@ -627,9 +646,9 @@ namespace LanguageExt
             state = None;
         }
 
-        public void ChildFaulted(Exception ex)
+        public void ChildFaulted(Exception ex, ProcessId pid)
         {
-
+            RunStrategy(ex, Parent.Actor.Strategy, pid);
         }
     }
 }
