@@ -17,16 +17,28 @@ namespace LanguageExtTests
         public void OneForOneTest()
         {
             var pid = spawn<Unit>("test", _ => { }, ProcessFlags.Default, oneForOneStrategy);
+
+            // TODO: Test!
         }
 
         [Fact]
         public void AllForOneTest()
         {
             var pid = spawn<Unit>("test", _ => { }, ProcessFlags.Default, allForOneStrategy);
+
+            // TODO: Test!
+        }
+
+        [Fact]
+        public void OneForOneAlwaysTest()
+        {
+            var pid = spawn<Unit>("test", _ => { }, ProcessFlags.Default, OneForOne().Always(Directive.Resume));
+
+            // TODO: Test!
         }
 
         ProcessStrategy oneForOneStrategy =
-            AllForOne(MaxRetries: 5, Duration: 10 * s)
+            OneForOne(MaxRetries: 5, Duration: 10 * s)
                 .Match(
                     exception<NotSupportedException>(Directive.Stop),
                     exception<NullReferenceException>(Directive.Stop),

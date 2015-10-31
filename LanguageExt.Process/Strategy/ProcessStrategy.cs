@@ -86,6 +86,23 @@ namespace LanguageExt
             }
         }
 
+        /// <summary>
+        /// Always perform the specified directive when a Process fails
+        /// </summary>
+        /// <param name="directive">Directive</param>
+        /// <returns>Process strategy</returns>
+        public ProcessStrategy Always(Directive directive)
+        {
+            directives = directives.Push(_ => directive);
+            return Strategy;
+        }
+
+        /// <summary>
+        /// Provide a set of exception matching behaviours that return a Directive if the
+        /// exception type matches
+        /// </summary>
+        /// <param name="directives">Directives</param>
+        /// <returns>Process strategy</returns>
         public ProcessStrategy Match(params Func<Exception, Option<Directive>>[] directives)
         {
             foreach (var dir in directives.Rev())
