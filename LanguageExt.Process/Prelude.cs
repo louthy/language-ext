@@ -249,7 +249,7 @@ namespace LanguageExt
         /// </remarks>
         public static Unit kill() =>
             InMessageLoop
-                ? raise<Unit>(new SystemKillActorException())
+                ? raise<Unit>(new ProcessKillException())
                 : raiseUseInMsgLoopOnlyException<Unit>(nameof(kill));
 
         /// <summary>

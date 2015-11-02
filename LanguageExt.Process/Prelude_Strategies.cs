@@ -11,58 +11,25 @@ namespace LanguageExt
     public partial class Process
     {
         /// <summary>
-        /// One for one
+        /// One for one - generates a process failure strategy that only affects the process that
+        /// has failed.
         /// </summary>
-        /// <param name="MaxRetries"></param>
-        /// <param name="Duration"></param>
+        /// <param name="MaxRetries">Maximum number of retries in the period Duration before the 
+        /// Process is stopped.  -1 means there is no maximum</param>
+        /// <param name="Duration">The Duration that affects the MaxRetries parameter</param>
         /// <returns>ProcessStrategyPipeline - call With to provide exception handlers</returns>
         public static ProcessStrategyPipeline OneForOne(int MaxRetries = -1, Time Duration = default(Time)) =>
             ProcessStrategy.OneForOne(MaxRetries, Duration);
 
         /// <summary>
-        /// All for one
+        /// One for one - generates a process failure strategy that affects all processes that are
+        /// a child of the supervisor of the failed process (including the failed process itself).
         /// </summary>
-        /// <param name="MaxRetries"></param>
-        /// <param name="Duration"></param>
+        /// <param name="MaxRetries">Maximum number of retries in the period Duration before the 
+        /// Process is stopped.  -1 means there is no maximum</param>
+        /// <param name="Duration">The Duration that affects the MaxRetries parameter</param>
         /// <returns>ProcessStrategyPipeline - call With to provide exception handlers</returns>
         public static ProcessStrategyPipeline AllForOne(int MaxRetries = -1, Time Duration = default(Time)) =>
             ProcessStrategy.AllForOne(MaxRetries, Duration);
-
-        /// <summary>
-        /// Use with the declarative strategy functions to match to an exception and provide a 
-        /// directive mapping
-        /// </summary>
-        public static Func<Exception, Option<Directive>> exception<T>(Func<T, Directive> map)
-            where T : Exception =>
-            input =>
-                input.GetType() == typeof(T)
-                    ? Some(map((T)input))
-                    : None;
-
-        /// <summary>
-        /// Use with the declarative strategy functions to match to an exception and provide a 
-        /// directive
-        /// </summary>
-        public static Func<Exception, Option<Directive>> exception<T>(Directive directive)
-            where T : Exception =>
-            exception<T>(_ => directive);
-
-        /// <summary>
-        /// Use with the declarative strategy functions to provide a default value
-        /// </summary>
-        public static Func<Exception, Option<Directive>> otherwise(Func<Exception, Directive> directive) => ex =>
-            Some(directive(ex));
-
-        /// <summary>
-        /// Use with the declarative strategy functions to provide a default value
-        /// </summary>
-        public static Func<Exception, Option<Directive>> otherwise(Func<Directive> directive) => _ =>
-            Some(directive());
-
-        /// <summary>
-        /// Use with the declarative strategy functions to provide a default value
-        /// </summary>
-        public static Func<Exception, Option<Directive>> otherwise<T>(Directive directive) => _ =>
-            Some(directive);
     }
 }

@@ -152,27 +152,34 @@ namespace LanguageExt
         {
             S state;
 
-            SetupRemoteSubscriptions(cluster, flags);
-
-            if (cluster.IsSome && ((flags & ProcessFlags.PersistState) == ProcessFlags.PersistState))
+            try
             {
-                try
-                {
-                    logInfo($"Restoring state: {StateKey}");
+                SetupRemoteSubscriptions(cluster, flags);
 
-                    state = cluster.LiftUnsafe().Exists(StateKey)
-                        ? cluster.LiftUnsafe().GetValue<S>(StateKey)
-                        : setupFn(this);
-                }
-                catch (Exception e)
+                if (cluster.IsSome && ((flags & ProcessFlags.PersistState) == ProcessFlags.PersistState))
                 {
-                    logSysErr(e);
+                    try
+                    {
+                        logInfo($"Restoring state: {StateKey}");
+
+                        state = cluster.LiftUnsafe().Exists(StateKey)
+                            ? cluster.LiftUnsafe().GetValue<S>(StateKey)
+                            : setupFn(this);
+                    }
+                    catch (Exception e)
+                    {
+                        logSysErr(e);
+                        state = setupFn(this);
+                    }
+                }
+                else
+                {
                     state = setupFn(this);
                 }
             }
-            else
+            catch (Exception e)
             {
-                state = setupFn(this);
+                throw new ProcessSetupException(Id.Path, e);
             }
 
             stateSubject.OnNext(state);
@@ -442,10 +449,10 @@ namespace LanguageExt
                     logErr($"ProcessAsk request.Message is not T {request.Message}");
                 }
             }
-            catch (SystemKillActorException)
-            {
-                kill(Id);
-            }
+            //catch (ProcessKillException)  -- now handled by strategies
+            //{
+            //    kill(Id);
+            //}
             catch (Exception e)
             {
                 RunStrategy(e, Parent.Actor.Strategy, Id);
@@ -541,11 +548,10 @@ namespace LanguageExt
                     logErr($"ProcessMessage request.Message is not T {message}");
                 }
             }
-            catch (SystemKillActorException)
-            {
-                logInfo($"Process message - system kill {Id}");
-                kill(Id);
-            }
+            //catch (ProcessKillException)  -- now handled by strategies
+            //{
+            //    kill(Id);
+            //}
             catch (Exception e)
             {
                 RunStrategy(e, Parent.Actor.Strategy, Id);

@@ -16,41 +16,55 @@ namespace LanguageExtTests
         [Fact]
         public void OneForOneTest()
         {
-            var pid = spawn<Unit>("test", _ => { }, ProcessFlags.Default, oneForOneStrategy);
+            Assert.True(oneForOneStrategy.HandleFailure(new NotSupportedException(), Process.Root) == Directive.Escalate);
+            Assert.True(oneForOneStrategy.HandleFailure(new NullReferenceException(), Process.Root) == Directive.Restart(10*s));
+            Assert.True(oneForOneStrategy.HandleFailure(new ApplicationException(), Process.Root) == Directive.RestartNow);
+            Assert.True(oneForOneStrategy.HandleFailure(new ProcessKillException(), Process.Root) == Directive.Stop);
+            Assert.True(oneForOneStrategy.HandleFailure(new ProcessSetupException(null,null), Process.Root) == Directive.Stop);
 
-            // TODO: Test!
+            // This should return Directive.Stop because there are 5 failures within 10 seconds
+            // after this is asserted true the failure count will be reduced to 0
+            Assert.True(oneForOneStrategy.HandleFailure(new Exception(), Process.Root) == Directive.Stop);
+            Assert.True(oneForOneStrategy.HandleFailure(new Exception(), Process.Root) == Directive.Resume);
         }
 
         [Fact]
         public void AllForOneTest()
         {
-            var pid = spawn<Unit>("test", _ => { }, ProcessFlags.Default, allForOneStrategy);
+            Assert.True(allForOneStrategy.HandleFailure(new NotSupportedException(), Process.Root) == Directive.Escalate);
+            Assert.True(allForOneStrategy.HandleFailure(new NullReferenceException(), Process.Root) == Directive.Restart(10*s));
+            Assert.True(allForOneStrategy.HandleFailure(new ApplicationException(), Process.Root) == Directive.RestartNow);
+            Assert.True(allForOneStrategy.HandleFailure(new ProcessKillException(), Process.Root) == Directive.Stop);
+            Assert.True(allForOneStrategy.HandleFailure(new ProcessSetupException(null, null), Process.Root) == Directive.Stop);
 
-            // TODO: Test!
+            // This should return Directive.Stop because there are 5 failures within 10 seconds
+            // after this is asserted true the failure count will be reduced to 0
+            Assert.True(allForOneStrategy.HandleFailure(new Exception(), Process.Root) == Directive.Stop);
+            Assert.True(allForOneStrategy.HandleFailure(new Exception(), Process.Root) == Directive.Resume);
         }
 
         [Fact]
         public void OneForOneAlwaysTest()
         {
-            var pid = spawn<Unit>("test", _ => { }, ProcessFlags.Default, OneForOne().Always(Directive.Resume));
+            var always = OneForOne().Always(Directive.Resume);
 
-            // TODO: Test!
+            Assert.True(always.HandleFailure(new ProcessKillException(), Process.Root) == Directive.Stop);
+            Assert.True(always.HandleFailure(new ProcessSetupException(null, null), Process.Root) == Directive.Stop);
+            Assert.True(always.HandleFailure(new Exception(), Process.Root) == Directive.Resume);
         }
 
         ProcessStrategy oneForOneStrategy =
-            OneForOne(MaxRetries: 5, Duration: 10 * s)
-                .Match(
-                    exception<NotSupportedException>(Directive.Stop),
-                    exception<NullReferenceException>(Directive.Stop),
-                    exception<ApplicationException>(Directive.RestartNow),
-                    otherwise(_ => Directive.Resume));
+            OneForOne(MaxRetries: 5, Duration: 10 * s).Match()
+                .With<NotSupportedException>(Directive.Escalate)
+                .With<NullReferenceException>(Directive.Restart(10*s))
+                .With<ApplicationException>(Directive.RestartNow)
+                .Otherwise(Directive.Resume);
 
         ProcessStrategy allForOneStrategy = 
-            AllForOne(MaxRetries: 5, Duration: 10 * s)
-                .Match(
-                    exception<NotSupportedException>(Directive.Stop),
-                    exception<NullReferenceException>(Directive.Stop),
-                    exception<ApplicationException>(Directive.RestartNow),
-                    otherwise(_ => Directive.Resume));
+            AllForOne(MaxRetries: 5, Duration: 10 * s).Match()
+                .With<NotSupportedException>(Directive.Escalate)
+                .With<NullReferenceException>(Directive.Restart(10*s))
+                .With<ApplicationException>(Directive.RestartNow)
+                .Otherwise(Directive.Resume);
     }
 }

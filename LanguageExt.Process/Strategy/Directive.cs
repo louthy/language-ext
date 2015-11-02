@@ -17,11 +17,11 @@ namespace LanguageExt
         Escalate
     }
 
-    public abstract class Directive
+    public abstract class Directive : IEquatable<Directive>
     {
         public readonly DirectiveType Type;
 
-        public Directive(DirectiveType type)
+        protected Directive(DirectiveType type)
         {
             Type = type;
         }
@@ -40,9 +40,26 @@ namespace LanguageExt
 
         public static readonly Directive Escalate =
             new Escalate();
+
+        public virtual bool Equals(Directive other) =>
+            Type == other.Type;
+
+        public override bool Equals(object obj) =>
+            obj is Directive
+                ? Equals((Directive)obj)
+                : false;
+
+        public override int GetHashCode() =>
+            Type.GetHashCode();
+
+        public static bool operator ==(Directive lhs, Directive rhs) =>
+            lhs.Equals(rhs);
+
+        public static bool operator !=(Directive lhs, Directive rhs) =>
+            !(lhs == rhs);
     }
 
-    internal class Resume : Directive
+    class Resume : Directive
     {
         public Resume()
             :
@@ -51,7 +68,7 @@ namespace LanguageExt
         }
     }
 
-    internal class Stop : Directive
+    class Stop : Directive
     {
         public Stop()
             :
@@ -60,7 +77,7 @@ namespace LanguageExt
         }
     }
 
-    internal class Restart : Directive
+    class Restart : Directive
     {
         public readonly Time When;
 
@@ -70,9 +87,15 @@ namespace LanguageExt
         {
             When = when;
         }
+
+        public override bool Equals(Directive other) =>
+            other.Type == DirectiveType.Restart && When == ((Restart)other).When;
+
+        public override int GetHashCode() =>
+            base.GetHashCode() ^ When.GetHashCode();
     }
 
-    internal class Escalate : Directive
+    class Escalate : Directive
     {
         public Escalate()
             :

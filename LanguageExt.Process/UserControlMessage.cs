@@ -62,7 +62,7 @@ namespace LanguageExt
                     : CreateRequest(req, to, sender));
 
         internal static RemoteMessageDTO CreateMessage(object message, ProcessId to, ProcessId sender, Message.Type type, Message.TagSpec tag) =>
-            new RemoteMessageDTO()
+            new RemoteMessageDTO
             {
                 Type        = (int)type,
                 Tag         = (int)tag,
@@ -80,7 +80,7 @@ namespace LanguageExt
             };
 
         internal static RemoteMessageDTO CreateRequest(ActorRequest req, ProcessId to, ProcessId sender) =>
-            new RemoteMessageDTO()
+            new RemoteMessageDTO
             {
                 Type        = (int)Message.Type.User,
                 Tag         = (int)Message.TagSpec.UserAsk,
@@ -96,7 +96,7 @@ namespace LanguageExt
             };
 
         internal static RemoteMessageDTO CreateResponse(ActorResponse res, ProcessId to, ProcessId sender) =>
-            new RemoteMessageDTO()
+            new RemoteMessageDTO
             {
                 Type        = (int)Message.Type.User,
                 Tag         = (int)Message.TagSpec.UserReply,

@@ -18,7 +18,7 @@ namespace LanguageExt
         public int Failures;
         public DateTime LastFailure;
 
-        public XForOneStrategy(int maxRetries, Time duration)
+        protected XForOneStrategy(int maxRetries, Time duration)
         {
             MaxRetries = maxRetries;
             Duration = duration;

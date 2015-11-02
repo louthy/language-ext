@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using static LanguageExt.Prelude;
-using static LanguageExt.Process;
 using LanguageExt.UnitsOfMeasure;
 
 namespace LanguageExt
@@ -20,7 +15,7 @@ namespace LanguageExt
         /// <summary>
         /// Default ctor
         /// </summary>
-        public ProcessStrategy()
+        protected ProcessStrategy()
         {
             Pipeline = new ProcessStrategyPipeline(this);
         }
@@ -47,13 +42,14 @@ namespace LanguageExt
         /// Restarts the process immediately
         /// </summary>
         public static ProcessStrategy Default =>
-            new OneForOneStrategy(-1, 0*seconds).Pipeline.Match(otherwise(_ => Directive.RestartNow));
+            OneForOne().Always(Directive.RestartNow);
 
         /// <summary>
         /// One for one
         /// </summary>
-        /// <param name="MaxRetries"></param>
-        /// <param name="Duration"></param>
+        /// <param name="MaxRetries">Maximum number of retries in the period Duration before the 
+        /// Process is stopped.  -1 means there is no maximum</param>
+        /// <param name="Duration">The Duration that affects the MaxRetries parameter</param>
         /// <returns>ProcessStrategyPipeline - call With to provide exception handlers</returns>
         public static ProcessStrategyPipeline OneForOne(int MaxRetries = -1, Time Duration = default(Time)) =>
             new OneForOneStrategy(MaxRetries, Duration).Pipeline;
@@ -61,8 +57,9 @@ namespace LanguageExt
         /// <summary>
         /// All for one
         /// </summary>
-        /// <param name="MaxRetries"></param>
-        /// <param name="Duration"></param>
+        /// <param name="MaxRetries">Maximum number of retries in the period Duration before the 
+        /// Process is stopped.  -1 means there is no maximum</param>
+        /// <param name="Duration">The Duration that affects the MaxRetries parameter</param>
         /// <returns>ProcessStrategyPipeline - call With to provide exception handlers</returns>
         public static ProcessStrategyPipeline AllForOne(int MaxRetries = -1, Time Duration = default(Time)) =>
             new AllForOneStrategy(MaxRetries, Duration).Pipeline;
@@ -70,12 +67,13 @@ namespace LanguageExt
 
     public class ProcessStrategyPipeline
     {
-        public readonly ProcessStrategy Strategy;
-        Stck<Func<Exception, Option<Directive>>> directives;
+        readonly ProcessStrategy strategy;
+        Lst<Func<Exception, Option<Directive>>> directives;
 
         internal ProcessStrategyPipeline(ProcessStrategy strategy)
         {
-            directives = Stck<Func<Exception, Option<Directive>>>.Empty.Push(ex => Some(Directive.Stop));
+            this.strategy = strategy;
+            directives = List.empty<Func<Exception, Option<Directive>>>();
         }
 
         public IEnumerable<Func<Exception, Option<Directive>>> Directives
@@ -86,30 +84,98 @@ namespace LanguageExt
             }
         }
 
+        internal void SetDirectives(Lst<Func<Exception, Option<Directive>>> directives)
+        {
+            this.directives = directives;
+        }
+
         /// <summary>
         /// Always perform the specified directive when a Process fails
         /// </summary>
         /// <param name="directive">Directive</param>
         /// <returns>Process strategy</returns>
-        public ProcessStrategy Always(Directive directive)
-        {
-            directives = directives.Push(_ => directive);
-            return Strategy;
-        }
+        public ProcessStrategy Always(Directive directive) => 
+            Match().Otherwise(directive);
 
         /// <summary>
         /// Provide a set of exception matching behaviours that return a Directive if the
-        /// exception type matches
+        /// exception type matches.  Use the With function to match against an exception of a 
+        /// specific type and finish with Otherwise to get the PipelineStrategy object that
+        /// can be assigned to an actor.
         /// </summary>
-        /// <param name="directives">Directives</param>
-        /// <returns>Process strategy</returns>
-        public ProcessStrategy Match(params Func<Exception, Option<Directive>>[] directives)
+        public ProcessStrategyPipelineCtx Match() =>
+            new ProcessStrategyPipelineCtx(strategy, this);
+    }
+
+    public class ProcessStrategyPipelineCtx
+    {
+        readonly ProcessStrategy strategy;
+        readonly ProcessStrategyPipeline pipeline;
+        readonly List<Func<Exception, Option<Directive>>> directives;
+
+        internal ProcessStrategyPipelineCtx(ProcessStrategy strategy, ProcessStrategyPipeline pipeline)
         {
-            foreach (var dir in directives.Rev())
-            {
-                this.directives = this.directives.Push(dir);
-            }
-            return Strategy;
+            this.strategy = strategy;
+            this.pipeline = pipeline;
+            this.directives = new List<Func<Exception, Option<Directive>>>();
         }
+
+        /// <summary>
+        /// Provides a mapping from TException to a Directive.  This mapping is
+        /// invoked when a Process fails to get instruction to the supervisor
+        /// of what to do to handle the failure.
+        /// </summary>
+        /// <typeparam name="TException">Exception to catch and map</typeparam>
+        /// <param name="map">Mapping function</param>
+        /// <returns>Type that allows for fluent construction of Exception->Directive matches.  Complete
+        /// the match sequence and get a ProcessStrategy by calling Otherwise</returns>
+        public ProcessStrategyPipelineCtx With<TException>(Func<TException, Directive> map) where TException : Exception
+        {
+            Func<Exception, Option<Directive>> func = input =>
+                typeof(TException).IsAssignableFrom(input.GetType())
+                    ? Some(map((TException)input))
+                    : None;
+            directives.Add(func);
+            return this;
+        }
+
+        /// <summary>
+        /// Provides a mapping from TException to a Directive.  This mapping is
+        /// invoked when a Process fails to get instruction to the supervisor
+        /// of what to do to handle the failure.
+        /// </summary>
+        /// <typeparam name="TException">Exception to catch and map</typeparam>
+        /// <param name="directive">Directive to return when an exception of type TException is thrown by a Process</param>
+        /// <returns>Type that allows for fluent construction of Exception->Directive matches.  Complete
+        /// the match sequence and get a ProcessStrategy by calling Otherwise</returns>
+        public ProcessStrategyPipelineCtx With<TException>(Directive directive) where TException : Exception =>
+            With<TException>(_ => directive);
+
+        /// <summary>
+        /// Catch-all for any unmatched exceptions thrown by a Process
+        /// </summary>
+        /// <param name="map">Mapping function from Exception to a Directive</param>
+        /// <returns>A ProcessStrategy that can be applied to a Process</returns>
+        public ProcessStrategy Otherwise(Func<Exception, Directive> map)
+        {
+            // These defaults will be at the end of the match list
+            // which allows users to override the beheviour (even if it's not
+            // entirely wise to do so).
+            With<ProcessKillException>(Directive.Stop);
+            With<ProcessSetupException>(Directive.Stop);
+
+            Func<Exception, Option<Directive>> func = input => Some(map(input));
+            directives.Add(func);
+            pipeline.SetDirectives(List.createRange(directives));
+            return strategy;
+        }
+
+        /// <summary>
+        /// Catch-all for any unmatched exceptions thrown by a Process
+        /// </summary>
+        /// <param name="directive">A directive to always apply when no others match</param>
+        /// <returns>A ProcessStrategy that can be applied to a Process</returns>
+        public ProcessStrategy Otherwise(Directive directive) =>
+            Otherwise(_ => directive);
     }
 }
