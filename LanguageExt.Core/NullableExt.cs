@@ -5,12 +5,12 @@ using static LanguageExt.Prelude;
 
 public static class __NullableExt
 {
-    public static Option<T> ToOption<T>(this Nullable<T> self) where T : struct =>
+    public static Option<T> ToOption<T>(this T? self) where T : struct =>
         self.HasValue
             ? Some(self.Value)
             : None;
 
-    public static IEnumerable<T> AsEnumerable<T>(this Nullable<T> self) where T : struct
+    public static IEnumerable<T> AsEnumerable<T>(this T? self) where T : struct
     {
         if (self.HasValue)
         {

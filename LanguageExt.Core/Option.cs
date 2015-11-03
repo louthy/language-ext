@@ -537,7 +537,7 @@ namespace LanguageExt
                 : Option<T>.Some(value);
 
 
-        public static Option<T> Cast<T>(Nullable<T> value) where T : struct =>
+        public static Option<T> Cast<T>(T? value) where T : struct =>
             value == null
                 ? Option<T>.None
                 : Option<T>.Some(value.Value);
@@ -549,7 +549,7 @@ public static class __OptionExt
     public static T? ToNullable<T>(this Option<T> self) where T : struct =>
         self.IsNone
             ? (T?)null
-            : new Nullable<T>(self.Value);
+            : new T?(self.Value);
 
     /// <summary>
     /// Apply an Optional value to an Optional function

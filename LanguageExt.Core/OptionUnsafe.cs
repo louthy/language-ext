@@ -463,7 +463,7 @@ namespace LanguageExt
                 : OptionUnsafe<T>.Some(value);
 
 
-        public static OptionUnsafe<T> Cast<T>(Nullable<T> value) where T : struct =>
+        public static OptionUnsafe<T> Cast<T>(T? value) where T : struct =>
             value == null
                 ? OptionUnsafe<T>.None
                 : OptionUnsafe<T>.Some(value.Value);
