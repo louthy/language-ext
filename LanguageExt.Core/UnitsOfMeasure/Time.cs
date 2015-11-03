@@ -54,17 +54,17 @@ namespace LanguageExt.UnitsOfMeasure
         public Time Subtract(Time rhs) =>
             new Time(Value - rhs.Value);
 
-        public Time Product(double rhs) =>
+        public Time Multiply(double rhs) =>
             new Time(Value * rhs);
 
         public Time Divide(double rhs) =>
             new Time(Value / rhs);
 
         public static Time operator *(Time lhs, double rhs) =>
-            lhs.Product(rhs);
+            lhs.Multiply(rhs);
 
         public static Time operator *(double lhs, Time rhs) =>
-            rhs.Product(lhs);
+            rhs.Multiply(lhs);
 
         public static TimeSq operator *(Time lhs, Time rhs) =>
             new TimeSq(lhs.Value * rhs.Value);

@@ -53,17 +53,17 @@ namespace LanguageExt.UnitsOfMeasure
         public Accel Subtract(Accel rhs) =>
             new Accel(Value - rhs.Value);
 
-        public Accel Product(double rhs) =>
+        public Accel Multiply(double rhs) =>
             new Accel(Value * rhs);
 
         public Accel Divide(double rhs) =>
             new Accel(Value / rhs);
 
         public static Accel operator *(Accel lhs, double rhs) =>
-            lhs.Product(rhs);
+            lhs.Multiply(rhs);
 
         public static Accel operator *(double lhs, Accel rhs) =>
-            rhs.Product(lhs);
+            rhs.Multiply(lhs);
 
         public static Velocity operator *(Accel lhs, Time rhs) =>
             new Velocity(lhs.Value * rhs.Seconds);

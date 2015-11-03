@@ -178,19 +178,19 @@ public static class __TryOptionExt
     /// For numeric values the behaviour is to multiply the TryOptions (lhs * rhs)
     /// For Lst values the behaviour is to multiply all combinations of values in both lists 
     /// to produce a new list
-    /// Otherwise if the R type derives from IProductable then the behaviour
-    /// is to call lhs.Product(rhs);
+    /// Otherwise if the R type derives from IMultiplicable then the behaviour
+    /// is to call lhs.Multiply(rhs);
     /// </summary>
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs * rhs</returns>
-    public static TryOption<T> Product<T>(this TryOption<T> lhs, TryOption<T> rhs) => () =>
+    public static TryOption<T> Multiply<T>(this TryOption<T> lhs, TryOption<T> rhs) => () =>
     {
         var lhsRes = lhs.Try();
         if (lhsRes.IsFaulted || lhsRes.Value.IsNone) return lhsRes;
         var rhsRes = rhs.Try();
         if (rhsRes.IsFaulted || rhsRes.Value.IsNone) return rhsRes;
-        return TypeDesc.Product(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
+        return TypeDesc.Multiply(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
     };
 
     /// <summary>
