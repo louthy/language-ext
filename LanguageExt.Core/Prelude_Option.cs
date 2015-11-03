@@ -111,7 +111,7 @@ namespace LanguageExt
         /// Create an Option
         /// </summary>
         /// <typeparam name="T">T</typeparam>
-        /// <param name="value">Non-null value to be made optional</param>
+        /// <param name="value">Value to be made optional, or null</param>
         /// <returns>If the value is null it will be None else Some(value)</returns>
         public static Option<T> Optional<T>(T value) =>
             value == null
@@ -122,7 +122,7 @@ namespace LanguageExt
         /// Create an Option
         /// </summary>
         /// <typeparam name="T">T</typeparam>
-        /// <param name="value">Non-null value to be made optional</param>
+        /// <param name="value">Value to be made optional, or null</param>
         /// <returns>If the value is null it will be None else Some(value)</returns>
         public static Option<T> Optional<T>(T? value) where T : struct =>
             value.HasValue

@@ -528,20 +528,6 @@ namespace LanguageExt
     {
         public static OptionNone Default = new OptionNone();
     }
-
-    internal static class OptionCast
-    {
-        public static Option<T> Cast<T>(T value) =>
-            value == null
-                ? Option<T>.None
-                : Option<T>.Some(value);
-
-
-        public static Option<T> Cast<T>(T? value) where T : struct =>
-            value == null
-                ? Option<T>.None
-                : Option<T>.Some(value.Value);
-    }
 }
 
 public static class __OptionExt
@@ -626,12 +612,12 @@ public static class __OptionExt
 
     public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> mapper) =>
         self.IsSome
-            ? OptionCast.Cast(mapper(self.Value))
+            ? Optional(mapper(self.Value))
             : None;
 
     public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> Some, Func<R> None) =>
         self.IsSome
-            ? OptionCast.Cast(Some(self.Value))
+            ? Optional(Some(self.Value))
             : None();
 
     /// <summary>

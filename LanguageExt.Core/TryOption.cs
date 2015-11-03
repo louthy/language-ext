@@ -36,7 +36,7 @@ namespace LanguageExt
             new TryOptionResult<T>(value);
 
         public static implicit operator TryOptionResult<T>(T value) =>
-            new TryOptionResult<T>(OptionCast.Cast(value));
+            new TryOptionResult<T>(Optional(value));
 
         public static implicit operator TryOptionResult<T>(OptionNone value) =>
             new TryOptionResult<T>(Option<T>.None);
