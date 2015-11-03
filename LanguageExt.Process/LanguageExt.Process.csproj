@@ -94,7 +94,11 @@
     <Compile Include="Prelude_Strategies.cs" />
     <Compile Include="ProcessId.cs" />
     <Compile Include="ProcessName.cs" />
-    <Compile Include="Strategy\XForOneStrategy.cs" />
+    <Compile Include="Strategy\IProcessStrategy.cs" />
+    <Compile Include="Strategy\IProcessStrategyState.cs" />
+    <Compile Include="Strategy\ProcessStrategyPipeline.cs" />
+    <Compile Include="Strategy\ProcessStrategyPipelineCtx.cs" />
+    <Compile Include="Strategy\FailuresWithinDurationStrategy.cs" />
     <Compile Include="Strategy\Directive.cs" />
     <Compile Include="Strategy\AllForOneStrategy.cs" />
     <Compile Include="Strategy\OneForOneStrategy.cs" />
@@ -124,6 +128,7 @@
     <Compile Include="Prelude.cs" />
     <Compile Include="ProcessLogItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Strategy\FailuresWithinDurationState.cs" />
     <Compile Include="SystemMessage.cs" />
     <Compile Include="UserControlMessage.cs" />
   </ItemGroup>

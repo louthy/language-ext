@@ -32,7 +32,7 @@ namespace LanguageExt
         /// <summary>
         /// Failure strategy
         /// </summary>
-        ProcessStrategy Strategy { get; }
+        IProcessStrategy Strategy { get; }
 
         /// <summary>
         /// Child processes

@@ -32,7 +32,7 @@ namespace LanguageExt
         /// <param name="flags">Process flags</param>
         /// <param name="strategy">Failure supervision strategy</param>
         /// <returns>A ProcessId that identifies the child</returns>
-        public static ProcessId spawn<T>(ProcessName name, Action<T> messageHandler, ProcessFlags flags = ProcessFlags.Default, ProcessStrategy strategy = null) =>
+        public static ProcessId spawn<T>(ProcessName name, Action<T> messageHandler, ProcessFlags flags = ProcessFlags.Default, IProcessStrategy strategy = null) =>
             spawn<Unit, T>(name, () => unit, (state, msg) => { messageHandler(msg); return state; }, flags, strategy);
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace LanguageExt
         /// <param name="flags">Process flags</param>
         /// <param name="strategy">Failure supervision strategy</param>
         /// <returns>A ProcessId that identifies the child</returns>
-        public static ProcessId spawnU<T>(ProcessName name, Func<T,Unit> messageHandler, ProcessFlags flags = ProcessFlags.Default, ProcessStrategy strategy = null) =>
+        public static ProcessId spawnU<T>(ProcessName name, Func<T,Unit> messageHandler, ProcessFlags flags = ProcessFlags.Default, IProcessStrategy strategy = null) =>
             spawn<Unit, T>(name, () => unit, (state, msg) => { messageHandler(msg); return state; }, flags, strategy);
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace LanguageExt
         /// <param name="flags">Process flags</param>
         /// <param name="strategy">Failure supervision strategy</param>
         /// <returns>A ProcessId that identifies the child</returns>
-        public static ProcessId spawn<S, T>(ProcessName name, Func<S> setup, Func<S, T, S> messageHandler, ProcessFlags flags = ProcessFlags.Default, ProcessStrategy strategy = null) =>
+        public static ProcessId spawn<S, T>(ProcessName name, Func<S> setup, Func<S, T, S> messageHandler, ProcessFlags flags = ProcessFlags.Default, IProcessStrategy strategy = null) =>
             ActorContext.ActorCreate(ActorContext.SelfProcess, name, messageHandler, setup, strategy, flags);
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace LanguageExt
         /// <param name="flags">Process flags</param>
         /// <param name="strategy">Failure supervision strategy</param>
         /// <returns>ProcessId IEnumerable</returns>
-        public static IEnumerable<ProcessId> spawnN<T>(int count, ProcessName name, Action<T> messageHandler, ProcessFlags flags = ProcessFlags.Default, ProcessStrategy strategy = null) =>
+        public static IEnumerable<ProcessId> spawnN<T>(int count, ProcessName name, Action<T> messageHandler, ProcessFlags flags = ProcessFlags.Default, IProcessStrategy strategy = null) =>
             List.map(Range(0, count), n => spawn($"{name}-{n}", messageHandler, flags, strategy)).ToList();
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace LanguageExt
         /// <param name="flags">Process flags</param>
         /// <param name="strategy">Failure supervision strategy</param>
         /// <returns>ProcessId IEnumerable</returns>
-        public static IEnumerable<ProcessId> spawnN<S, T>(int count, ProcessName name, Func<S> setup, Func<S, T, S> messageHandler, ProcessFlags flags = ProcessFlags.Default, ProcessStrategy strategy = null) =>
+        public static IEnumerable<ProcessId> spawnN<S, T>(int count, ProcessName name, Func<S> setup, Func<S, T, S> messageHandler, ProcessFlags flags = ProcessFlags.Default, IProcessStrategy strategy = null) =>
             List.map(Range(0, count), n => ActorContext.ActorCreate(ActorContext.SelfProcess, $"{name}-{n}", messageHandler, setup, strategy, flags)).ToList();
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace LanguageExt
         /// <param name="flags">Process flags</param>
         /// <param name="strategy">Failure supervision strategy</param>
         /// <returns>ProcessId IEnumerable</returns>
-        public static IEnumerable<ProcessId> spawnN<S, T>(ProcessName name, Map<int, Func<S>> spec, Func<S, T, S> messageHandler, ProcessFlags flags = ProcessFlags.Default, ProcessStrategy strategy = null) =>
+        public static IEnumerable<ProcessId> spawnN<S, T>(ProcessName name, Map<int, Func<S>> spec, Func<S, T, S> messageHandler, ProcessFlags flags = ProcessFlags.Default, IProcessStrategy strategy = null) =>
             Map.map(spec, (id,state) => ActorContext.ActorCreate(ActorContext.SelfProcess, $"{name}-{id}", messageHandler, state, strategy, flags)).Values.ToList();
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace LanguageExt
         /// <param name="flags">Process flags</param>
         /// <param name="strategy">Failure supervision strategy</param>
         /// <returns>Process ID of the delegator process</returns>
-        public static ProcessId spawnRoundRobin<T>(ProcessName name, int count, Action<T> messageHandler, ProcessFlags flags = ProcessFlags.Default, ProcessStrategy strategy = null) =>
+        public static ProcessId spawnRoundRobin<T>(ProcessName name, int count, Action<T> messageHandler, ProcessFlags flags = ProcessFlags.Default, IProcessStrategy strategy = null) =>
             spawn<Unit, T>(name, () => ignore(spawnN(count, "worker", messageHandler, flags)), (_, msg) => HandleNoChild(() => fwdNextChild(msg)), flags, strategy);
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace LanguageExt
         /// <param name="flags">Process flags</param>
         /// <param name="strategy">Failure supervision strategy</param>
         /// <returns>Process ID of the delegator process</returns>
-        public static ProcessId spawnRoundRobin<S, T>(ProcessName name, int count, Func<S> setup, Func<S, T, S> messageHandler, ProcessFlags flags = ProcessFlags.Default, ProcessStrategy strategy = null) =>
+        public static ProcessId spawnRoundRobin<S, T>(ProcessName name, int count, Func<S> setup, Func<S, T, S> messageHandler, ProcessFlags flags = ProcessFlags.Default, IProcessStrategy strategy = null) =>
             spawn<Unit, T>(name, () => ignore(spawnN(count, "worker", setup, messageHandler, flags)), (_, msg) => HandleNoChild(() => fwdNextChild(msg)), flags, strategy);
 
         /// <summary>
@@ -162,8 +162,8 @@ namespace LanguageExt
         /// <param name="flags">Process flags</param>
         /// <param name="strategy">Failure supervision strategy</param>
         /// <returns>Process ID of the delegator process</returns>
-        public static ProcessId spawnRoundRobin<S, T>(ProcessName name, Map<int, Func<S>> spec, Func<S, T, S> messageHandler, ProcessFlags flags = ProcessFlags.Default, ProcessStrategy strategy = null) =>
-            spawn<Unit, T>(name, () => ignore(Map.map(spec, (id, state) => ActorContext.ActorCreate(ActorContext.SelfProcess, $"worker-{id}", messageHandler, state, ProcessStrategy.Default, flags))), (_, msg) => HandleNoChild(() => fwdNextChild(msg)), flags, strategy);
+        public static ProcessId spawnRoundRobin<S, T>(ProcessName name, Map<int, Func<S>> spec, Func<S, T, S> messageHandler, ProcessFlags flags = ProcessFlags.Default, IProcessStrategy strategy = null) =>
+            spawn<Unit, T>(name, () => ignore(Map.map(spec, (id, state) => ActorContext.ActorCreate(ActorContext.SelfProcess, $"worker-{id}", messageHandler, state, DefaultStrategy, flags))), (_, msg) => HandleNoChild(() => fwdNextChild(msg)), flags, strategy);
 
         /// <summary>
         /// Spawns a new process with N worker processes, each message is sent to one worker
@@ -178,7 +178,7 @@ namespace LanguageExt
         /// <param name="flags">Process flags</param>
         /// <param name="strategy">Failure supervision strategy</param>
         /// <returns>Process ID of the delegator process</returns>
-        public static ProcessId spawnRoundRobinMap<T,U>(ProcessName name, int count, Func<T,U> map, Action<U> messageHandler, ProcessFlags flags = ProcessFlags.Default, ProcessStrategy strategy = null) =>
+        public static ProcessId spawnRoundRobinMap<T,U>(ProcessName name, int count, Func<T,U> map, Action<U> messageHandler, ProcessFlags flags = ProcessFlags.Default, IProcessStrategy strategy = null) =>
             spawn<Unit, T>(name, () => ignore(spawnN(count, "worker", messageHandler, flags)), (_, msg) => HandleNoChild(() => fwdNextChild(map(msg))), flags, strategy);
 
         /// <summary>
@@ -194,7 +194,7 @@ namespace LanguageExt
         /// <param name="flags">Process flags</param>
         /// <param name="strategy">Failure supervision strategy</param>
         /// <returns>Process ID of the delegator process</returns>
-        public static ProcessId spawnRoundRobinMapMany<T, U>(ProcessName name, int count, Func<T, IEnumerable<U>> map, Action<U> messageHandler, ProcessFlags flags = ProcessFlags.Default, ProcessStrategy strategy = null) =>
+        public static ProcessId spawnRoundRobinMapMany<T, U>(ProcessName name, int count, Func<T, IEnumerable<U>> map, Action<U> messageHandler, ProcessFlags flags = ProcessFlags.Default, IProcessStrategy strategy = null) =>
             spawn<Unit, T>(name, () => ignore(spawnN(count, "worker", messageHandler, flags)), (_, msg) => map(msg).Iter( m => HandleNoChild(() => fwdNextChild(m))), flags, strategy);
 
         /// <summary>
@@ -206,7 +206,7 @@ namespace LanguageExt
         /// <param name="flags">Process flags</param>
         /// <param name="strategy">Failure supervision strategy</param>
         /// <returns>ProcessId</returns>
-        public static ProcessId spawn<TProcess,TMsg>(ProcessName name, ProcessFlags flags = ProcessFlags.Default, ProcessStrategy strategy = null)
+        public static ProcessId spawn<TProcess,TMsg>(ProcessName name, ProcessFlags flags = ProcessFlags.Default, IProcessStrategy strategy = null)
             where TProcess : IProcess<TMsg>, new()
         {
             return spawn<IProcess<TMsg>, TMsg>(name, () => new TProcess(),

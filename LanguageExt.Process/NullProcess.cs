@@ -16,7 +16,7 @@ namespace LanguageExt
         public ProcessFlags Flags => ProcessFlags.Default;
         public ProcessName Name => "$";
         public ActorItem Parent => new ActorItem(new NullProcess(), new NullInbox(), ProcessFlags.Default);
-        public ProcessStrategy Strategy => ProcessStrategy.Default;
+        public IProcessStrategy Strategy => Process.DefaultStrategy;
         public Unit Restart(Time when) => unit;
         public Unit Startup() => unit;
         public Unit Shutdown(bool maintainState) => unit;

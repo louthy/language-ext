@@ -63,7 +63,7 @@ namespace LanguageExt
                     rootItem = null;
                     item.Actor.ShutdownProcess(true);
                     started = false;
-                    DeregisterCluster();
+                    Startup(None);
                 }
             }
             return unit;
@@ -181,16 +181,16 @@ namespace LanguageExt
             return Startup(None);
         }
 
-        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<T, Unit> actorFn, ProcessStrategy strategy, ProcessFlags flags) =>
+        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<T, Unit> actorFn, IProcessStrategy strategy, ProcessFlags flags) =>
             ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), strategy, flags);
 
-        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Action<T> actorFn, ProcessStrategy strategy, ProcessFlags flags) =>
+        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Action<T> actorFn, IProcessStrategy strategy, ProcessFlags flags) =>
             ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), strategy, flags);
 
-        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn, ProcessStrategy strategy, ProcessFlags flags) =>
+        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn, IProcessStrategy strategy, ProcessFlags flags) =>
             ActorCreate<S, T>(parent, name, actorFn, _ => setupFn(), strategy, flags);
 
-        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<IActor, S> setupFn, ProcessStrategy strategy, ProcessFlags flags)
+        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<IActor, S> setupFn, IProcessStrategy strategy, ProcessFlags flags)
         {
             var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn, strategy, flags);
 
@@ -413,7 +413,7 @@ namespace LanguageExt
                             name,
                             RegisteredActor<T>.Inbox,
                             () => processId,
-                            ProcessStrategy.Default,
+                            Process.DefaultStrategy,
                             flags
                         ),
                      None: () => ProcessId.None)
