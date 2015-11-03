@@ -25,7 +25,7 @@ namespace LanguageExt
         Map<string, IDisposable> subs = Map.create<string, IDisposable>();
         Map<string, ActorItem> children = Map.create<string, ActorItem>();
         Option<S> state;
-        Option<IProcessStrategyState> strategyState;
+        Option<object> strategyState;
         EventWaitHandle request;
         volatile ActorResponse response;
         int roundRobinIndex = -1;

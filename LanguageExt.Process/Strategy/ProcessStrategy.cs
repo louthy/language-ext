@@ -27,7 +27,7 @@ namespace LanguageExt
         /// <param name="state">Failed process strategy state</param>
         /// <param name="ex">Exception</param>
         /// <returns>Directive to invoke to handle the failure and the possibly modified state</returns>
-        public abstract Tuple<IProcessStrategyState, Directive> HandleFailure(ProcessId pid, IProcessStrategyState state, Exception ex);
+        public abstract Tuple<object, Directive> HandleFailure(ProcessId pid, object state, Exception ex);
 
         /// <summary>
         /// Generate a new state object that will be used by the strategy
@@ -36,7 +36,7 @@ namespace LanguageExt
         /// <param name="pid">ID of the Process that the state will be keeping 
         /// track of</param>
         /// <returns>IProcessStrategyState</returns>
-        public abstract IProcessStrategyState NewState(ProcessId pid);
+        public abstract object NewState(ProcessId pid);
 
         /// <summary>
         /// Returns the processes that are to be affected by the failure of

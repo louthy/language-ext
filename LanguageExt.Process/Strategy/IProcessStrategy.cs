@@ -15,14 +15,14 @@ namespace LanguageExt
         /// <param name="state">Failed process strategy state</param>
         /// <param name="ex">Exception</param>
         /// <returns>Directive to invoke to handle the failure and the possibly modified state</returns>
-        Tuple<IProcessStrategyState, Directive> HandleFailure(ProcessId pid, IProcessStrategyState state, Exception ex);
+        Tuple<object, Directive> HandleFailure(ProcessId pid, object state, Exception ex);
 
         /// <summary>
         /// Generate a new strategy state-object for a Process
         /// </summary>
         /// <param name="pid">Process ID</param>
         /// <returns>IProcessStrategyState</returns>
-        IProcessStrategyState NewState(ProcessId pid);
+        object NewState(ProcessId pid);
 
         /// <summary>
         /// Returns the processes that are to be affected by the failure of

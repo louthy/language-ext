@@ -95,7 +95,6 @@
     <Compile Include="ProcessId.cs" />
     <Compile Include="ProcessName.cs" />
     <Compile Include="Strategy\IProcessStrategy.cs" />
-    <Compile Include="Strategy\IProcessStrategyState.cs" />
     <Compile Include="Strategy\ProcessStrategyPipeline.cs" />
     <Compile Include="Strategy\ProcessStrategyPipelineCtx.cs" />
     <Compile Include="Strategy\FailuresWithinDurationStrategy.cs" />

@@ -4,7 +4,7 @@ using LanguageExt.UnitsOfMeasure;
 
 namespace LanguageExt
 {
-    public class FailuresWithinDurationState : IProcessStrategyState
+    public class FailuresWithinDurationState
     {
         public readonly int Failures;
         public readonly DateTime LastFailure;
@@ -18,13 +18,16 @@ namespace LanguageExt
             LastFailure = lastFailure;
         }
 
-        public FailuresWithinDurationState FailedAgain() =>
+        FailuresWithinDurationState FailedOnce() =>
+            new FailuresWithinDurationState(1, DateTime.Now);
+
+        FailuresWithinDurationState FailedAgain() =>
             new FailuresWithinDurationState(Failures + 1, DateTime.Now);
 
         public FailuresWithinDurationState CheckExpired(Time duration) =>
             (DateTime.Now - LastFailure).TotalSeconds * seconds > duration
-                ? new FailuresWithinDurationState(1, DateTime.Now)
-                : new FailuresWithinDurationState(Failures + 1, DateTime.Now);
+                ? FailedOnce()
+                : FailedAgain();
 
         public Tuple<FailuresWithinDurationState, Option<Directive>> CheckRetriesNotExceded(int maxRetries) =>
             maxRetries > -1 && Failures > maxRetries

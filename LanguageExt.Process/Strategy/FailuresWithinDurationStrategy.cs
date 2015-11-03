@@ -23,7 +23,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pid">Process ID</param>
         /// <returns>IProcessStrategyState</returns>
-        public override IProcessStrategyState NewState(ProcessId pid) =>
+        public override object NewState(ProcessId pid) =>
             FailuresWithinDurationState.Empty;
 
         /// <summary>
@@ -34,9 +34,9 @@ namespace LanguageExt
         /// <param name="state">Failed process strategy state</param>
         /// <param name="ex">Exception</param>
         /// <returns>Directive to invoke to handle the failure and the possibly modified state</returns>
-        public override Tuple<IProcessStrategyState, Directive> HandleFailure(ProcessId pid, IProcessStrategyState state, Exception ex) =>
+        public override Tuple<object, Directive> HandleFailure(ProcessId pid, object state, Exception ex) =>
             map(HandleFailure(pid, state as FailuresWithinDurationState, ex),(s,d) => 
-                Tuple(s as IProcessStrategyState, d));
+                Tuple(s as object, d));
 
         /// <summary>
         /// Handler function for a Process thrown exception

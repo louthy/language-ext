@@ -105,6 +105,20 @@ namespace LanguageExtTests
             state = res.Item1;
         }
 
+        public void SpawnTest()
+        {
+            var pid = spawn<string>(
+                "super", 
+                m => publish(m), 
+                strategy: oneForOneStrategy
+            );
+        }
+
+        IProcessStrategy itsBadStrategy =
+            Process.OneForOne(MaxRetries: 5, Duration: 10 * seconds)
+                   .Always(Directive.RestartNow);
+
+
         IProcessStrategy oneForOneStrategy =
             OneForOne(MaxRetries: 5, Duration: 10 * s).Match()
                 .With<NotSupportedException>(Directive.Escalate)
