@@ -47,17 +47,17 @@ namespace LanguageExt.UnitsOfMeasure
         public TimeSq Subtract(TimeSq rhs) =>
             new TimeSq(Value - rhs.Value);
 
-        public TimeSq Product(double rhs) =>
+        public TimeSq Multiply(double rhs) =>
             new TimeSq(Value * rhs);
 
         public TimeSq Divide(double rhs) =>
             new TimeSq(Value / rhs);
 
         public static TimeSq operator *(TimeSq lhs, double rhs) =>
-            lhs.Product(rhs);
+            lhs.Multiply(rhs);
 
         public static TimeSq operator *(double lhs, TimeSq rhs) =>
-            rhs.Product(lhs);
+            rhs.Multiply(lhs);
 
         public static TimeSq operator /(TimeSq lhs, double rhs) =>
             lhs.Divide(rhs);

@@ -9,10 +9,10 @@ using LanguageExt;
 
 namespace LanguageExtTests
 {
-    public class Productable
+    public class Multiplicable
     {
         [Fact]
-        public void OptionalNumericProduct()
+        public void OptionalNumericMultiply()
         {
             var x = Some(10);
             var y = Some(20);
@@ -22,7 +22,7 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void OptionalListProduct()
+        public void OptionalListMultiply()
         {
             var x = Some(List(2, 4));
             var y = Some(List(1, 2, 3));
@@ -44,7 +44,7 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void OptionalSetProduct()
+        public void OptionalSetMultiply()
         {
             var x = Some(Set(2, 4));
             var y = Some(Set(1, 2, 3));

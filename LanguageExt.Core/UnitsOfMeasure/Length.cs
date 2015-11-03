@@ -53,7 +53,7 @@ namespace LanguageExt.UnitsOfMeasure
         public Length Subtract(Length rhs) =>
             new Length(Value - rhs.Value);
 
-        public Length Product(double rhs) =>
+        public Length Multiply(double rhs) =>
             new Length(Value * rhs);
 
         public Length Divide(double rhs) =>
@@ -63,10 +63,10 @@ namespace LanguageExt.UnitsOfMeasure
             new Area(lhs.Value * rhs.Value);
 
         public static Length operator *(Length lhs, double rhs) =>
-            lhs.Product(rhs);
+            lhs.Multiply(rhs);
 
         public static Length operator *(double lhs, Length rhs) =>
-            rhs.Product(lhs);
+            rhs.Multiply(lhs);
 
         public static Length operator +(Length lhs, Length rhs) =>
             lhs.Append(rhs);

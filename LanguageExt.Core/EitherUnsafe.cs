@@ -35,7 +35,7 @@ namespace LanguageExt
         IEquatable<R>,
         IAppendable<EitherUnsafe<L, R>>,
         ISubtractable<EitherUnsafe<L, R>>,
-        IProductable<EitherUnsafe<L, R>>,
+        IMultiplicable<EitherUnsafe<L, R>>,
         IDivisible<EitherUnsafe<L, R>>
     {
         readonly R right;
@@ -589,8 +589,8 @@ namespace LanguageExt
         /// For numeric values the behaviour is to multiply the Rights (lhs * rhs)
         /// For Lst values the behaviour is to multiply all combinations of values in both lists 
         /// to produce a new list
-        /// Otherwise if the R type derives from IProductable then the behaviour
-        /// is to call lhs.Product(rhs);
+        /// Otherwise if the R type derives from IMultiplicable then the behaviour
+        /// is to call lhs.Multiply(rhs);
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
@@ -605,8 +605,8 @@ namespace LanguageExt
         /// For numeric values the behaviour is to multiply the Rights (lhs * rhs)
         /// For Lst values the behaviour is to multiply all combinations of values in both lists 
         /// to produce a new list
-        /// Otherwise if the R type derives from IProductable then the behaviour
-        /// is to call lhs.Product(rhs);
+        /// Otherwise if the R type derives from IMultiplicable then the behaviour
+        /// is to call lhs.Multiply(rhs);
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
@@ -617,7 +617,7 @@ namespace LanguageExt
         {
             if (IsLeft) return this;
             if (rhs.IsLeft) return rhs;
-            return TypeDesc.Product<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
+            return TypeDesc.Multiply<R>(RightValue, rhs.RightValue, TypeDesc<R>.Default);
         }
 
         /// <summary>
