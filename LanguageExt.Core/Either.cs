@@ -105,7 +105,7 @@ namespace LanguageExt
         /// <summary>
         /// Implicit conversion operator from R to Either R L
         /// </summary>
-        /// <param name="value">Value, must be null.</param>
+        /// <param name="value">Value, must not be null.</param>
         /// <exception cref="ValueIsNullException">Value is null</exception>
         public static implicit operator Either<L, R>(R value) =>
             value == null
@@ -115,7 +115,7 @@ namespace LanguageExt
         /// <summary>
         /// Implicit conversion operator from L to Either R L
         /// </summary>
-        /// <param name="value">Value, must be null.</param>
+        /// <param name="value">Value, must not be null.</param>
         /// <exception cref="ValueIsNullException">Value is null</exception>
         public static implicit operator Either<L, R>(L value) =>
             value == null
@@ -131,9 +131,9 @@ namespace LanguageExt
         /// <returns>The return value of the invoked function</returns>
         public Ret Match<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
             IsRight
-                ? CheckNullReturn(Right(RightValue), "Right")
+                ? CheckNullReturn(Right(RightValue), nameof(Right))
                 : IsLeft
-                    ? CheckNullReturn(Left(LeftValue), "Left")
+                    ? CheckNullReturn(Left(LeftValue), nameof(Left))
                     : raise<Ret>(new BottomException("Either"));
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace LanguageExt
         /// <param name="Left">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         public R IfLeft(Func<R> Left) =>
-            Match(identity, _ => CheckNullReturn(Left(), "Left"));
+            Match(identity, _ => CheckNullReturn(Left(), nameof(Left)));
 
         /// <summary>
         /// Executes the leftMap function if the Either is in a Left state.
@@ -175,7 +175,7 @@ namespace LanguageExt
         /// <param name="leftMap">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         public R IfLeft(Func<L, R> leftMap) =>
-            Match(identity, l => CheckNullReturn(leftMap(l), "leftMap"));
+            Match(identity, l => CheckNullReturn(leftMap(l), nameof(leftMap)));
 
         /// <summary>
         /// Returns the rightValue if the Either is in a Left state.
@@ -230,7 +230,7 @@ namespace LanguageExt
         /// <param name="Right">Function to generate a Left value if in the Right state</param>
         /// <returns>Returns an unwrapped Left value</returns>
         public L IfRight(Func<L> Right) =>
-            Match(_ => CheckNullReturn(Right(), "Right"), identity);
+            Match(_ => CheckNullReturn(Right(), nameof(Right)), identity);
 
         /// <summary>
         /// Returns the result of rightMap if the Either is in a Right state.
@@ -239,7 +239,7 @@ namespace LanguageExt
         /// <param name="rightMap">Function to generate a Left value if in the Right state</param>
         /// <returns>Returns an unwrapped Left value</returns>
         public L IfRight(Func<R, L> rightMap) =>
-            Match(r => CheckNullReturn(rightMap(r), "rightMap"), identity);
+            Match(r => CheckNullReturn(rightMap(r), nameof(rightMap)), identity);
 
         /// <summary>
         /// Match Right and return a context.  You must follow this with .Left(...) to complete the match
