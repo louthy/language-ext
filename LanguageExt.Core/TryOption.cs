@@ -18,7 +18,7 @@ namespace LanguageExt
     public struct TryOptionResult<T>
     {
         internal readonly Option<T> Value;
-        internal Exception Exception;
+        internal readonly Exception Exception;
 
         public TryOptionResult(Option<T> value)
         {
