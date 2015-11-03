@@ -36,9 +36,4 @@ namespace LanguageExt
         /// <returns>Enumerable of processes to apply the directive to upon failure</returns>
         IEnumerable<ProcessId> Affects(ProcessId supervisor, ProcessId failedProcess, IEnumerable<ProcessId> supervisorChildren);
     }
-
-    public interface IProcessStrategy<TState> : IProcessStrategy
-        where TState : IProcessStrategyState
-    {
-    }
 }
