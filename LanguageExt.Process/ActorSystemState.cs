@@ -41,7 +41,8 @@ namespace LanguageExt
                 parent,
                 rootProcessName,
                 ActorSystem.Inbox,
-                () => this,
+                _ => this,
+                Process.DefaultStrategy,
                 ProcessFlags.Default
             );
 
@@ -140,7 +141,7 @@ namespace LanguageExt
         {
             if (ProcessDoesNotExist(nameof(ActorCreate), parent.Actor.Id)) return null;
 
-            var actor = new Actor<S, T>(Cluster, parent, name, actorFn, setupFn, flags);
+            var actor = new Actor<S, T>(Cluster, parent, name, actorFn, _ => setupFn(), Process.DefaultStrategy, flags);
 
             IActorInbox inbox = null;
             if ((flags & ProcessFlags.ListenRemoteAndLocal) == ProcessFlags.ListenRemoteAndLocal && Cluster.IsSome)

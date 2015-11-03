@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LanguageExt.UnitsOfMeasure;
+using System;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -248,7 +249,7 @@ namespace LanguageExt
         /// </remarks>
         public static Unit kill() =>
             InMessageLoop
-                ? raise<Unit>(new SystemKillActorException())
+                ? raise<Unit>(new ProcessKillException())
                 : raiseUseInMsgLoopOnlyException<Unit>(nameof(kill));
 
         /// <summary>
@@ -273,6 +274,12 @@ namespace LanguageExt
         /// </summary>
         public static Unit shutdownAll() =>
             ActorContext.Shutdown();
+
+        /// <summary>
+        /// Forces a running process to restart
+        /// </summary>
+        public static Unit restart(ProcessId pid, Time when = default(Time)) =>
+            ActorContext.TellSystem(pid, SystemMessage.Restart(when));
 
         /// <summary>
         /// Return True if the message sent is a Tell and not an Ask

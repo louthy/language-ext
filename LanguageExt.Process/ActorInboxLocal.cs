@@ -114,5 +114,11 @@ namespace LanguageExt
             tokenSource?.Dispose();
             tokenSource = null;
         }
+
+        /// <summary>
+        /// Number of unprocessed items
+        /// </summary>
+        public int Count => 
+            userInbox.CurrentQueueLength;
     }
 }

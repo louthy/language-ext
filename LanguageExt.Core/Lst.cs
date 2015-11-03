@@ -317,6 +317,12 @@ namespace LanguageExt
             return new Lst<T>(root, Rev);
         }
 
+        public static Lst<T> operator +(Lst<T> lhs, T rhs) =>
+            lhs.Add(rhs);
+
+        public static Lst<T> operator +(T rhs, Lst<T> lhs) =>
+            rhs.Cons(lhs);
+
         public static Lst<T> operator +(Lst<T> lhs, Lst<T> rhs) =>
             lhs.Append(rhs);
 

@@ -101,6 +101,18 @@ public static class __Tuple2
         Tuple(firstMap(self.Item1),secondMap(self.Item2));
 
     /// <summary>
+    /// First item-map to tuple
+    /// </summary>
+    public static Tuple<R1, T2> MapFirst<T1, T2, R1>(this Tuple<T1, T2> self, Func<T1, R1> firstMap) =>
+        Tuple(firstMap(self.Item1), self.Item2);
+
+    /// <summary>
+    /// Second item-map to tuple
+    /// </summary>
+    public static Tuple<T1, R2> MapSecond<T1, T2, R2>(this Tuple<T1, T2> self, Func<T2, R2> secondMap) =>
+        Tuple(self.Item1, secondMap(self.Item2));
+
+    /// <summary>
     /// Map to tuple
     /// </summary>
     public static Tuple<R1, R2> Select<T1, T2, R1, R2>(this Tuple<T1, T2> self, Func<Tuple<T1, T2>, Tuple<R1, R2>> map) =>

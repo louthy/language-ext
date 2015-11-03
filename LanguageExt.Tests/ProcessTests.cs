@@ -313,7 +313,7 @@ namespace LanguageExtTests
             }
             catch (ProcessException e)
             {
-                Assert.True(e.Message == "Process issue: Failed!");
+                Assert.True(e.Message == "Process issue: Process failed to start: /root/user/world");
             }
         }
 

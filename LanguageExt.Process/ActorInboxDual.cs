@@ -198,5 +198,11 @@ namespace LanguageExt
                     CheckRemoteInbox(key, cluster, actor.Id, sysInbox, userInbox);
                 }
             });
+
+        /// <summary>
+        /// Number of unprocessed items
+        /// </summary>
+        public int Count =>
+            userInbox.CurrentQueueLength;
     }
 }

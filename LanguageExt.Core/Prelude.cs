@@ -95,6 +95,16 @@ namespace LanguageExt
                     : None;
 
         /// <summary>
+        /// Use with the 'match' function to match values and map a result
+        /// </summary>
+        public static Func<T, Option<R>> with<T, R>(Func<T, R> map)
+            where T : Exception =>
+            (T input) =>
+                input.GetType() == typeof(T)
+                    ? Some(map(input))
+                    : None;
+
+        /// <summary>
         /// Use with the 'match' function to catch a non-matched value and map a result
         /// </summary>
         public static Func<T, Option<R>> otherwise<T, R>(Func<T, R> map) =>
