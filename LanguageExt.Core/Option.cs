@@ -31,15 +31,14 @@ namespace LanguageExt
     {
         readonly T value;
 
-        private Option(T value, bool isSome)
-        {
-            this.IsSome = isSome;
-            this.value = value;
-        }
-
         private Option(T value)
-            : this (value,value != null)
-        {}
+        {
+            if (value == null)
+                throw new ValueIsNullException();
+
+            this.value = value;
+            this.IsSome = true;
+        }
 
         /// <summary>
         /// Option Some(x) constructor
