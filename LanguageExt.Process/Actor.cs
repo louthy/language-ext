@@ -3,6 +3,7 @@ using System.Threading;
 using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
+using LanguageExt.UnitsOfMeasure;
 using System.Reactive.Subjects;
 using Newtonsoft.Json;
 
@@ -24,13 +25,14 @@ namespace LanguageExt
         Map<string, IDisposable> subs = Map.create<string, IDisposable>();
         Map<string, ActorItem> children = Map.create<string, ActorItem>();
         Option<S> state;
+        Option<IProcessStrategyState> strategyState;
         EventWaitHandle request;
         volatile ActorResponse response;
         int roundRobinIndex = -1;
         object sync = new object();
         bool remoteSubsAcquired;
 
-        internal Actor(Option<ICluster> cluster, ActorItem parent, ProcessName name, Func<S, T, S> actor, Func<IActor, S> setup, ProcessFlags flags)
+        internal Actor(Option<ICluster> cluster, ActorItem parent, ProcessName name, Func<S, T, S> actor, Func<IActor, S> setup, IProcessStrategy strategy, ProcessFlags flags)
         {
             if (setup == null) throw new ArgumentNullException(nameof(setup));
             if (actor == null) throw new ArgumentNullException(nameof(actor));
@@ -41,24 +43,10 @@ namespace LanguageExt
             setupFn = setup;
             Parent = parent;
             Name = name;
+            Strategy = strategy ?? Process.DefaultStrategy;
             Id = parent.Actor.Id[name];
             SetupRemoteSubscriptions(cluster, flags);
         }
-
-        public Actor(Option<ICluster> cluster, ActorItem parent, ProcessName name, Func<S, T, S> actor, Func<S> setup, ProcessFlags flags)
-            :
-            this(cluster, parent, name, actor, _ => setup(), flags)
-        { }
-
-        public Actor(Option<ICluster> cluster, ActorItem parent, ProcessName name, Func<T, Unit> actor, ProcessFlags flags)
-            :
-            this(cluster, parent, name, (s, t) => { actor(t); return default(S); }, () => default(S), flags)
-        { }
-
-        public Actor(Option<ICluster> cluster, ActorItem parent, ProcessName name, Action<T> actor, ProcessFlags flags)
-            :
-            this(cluster, parent, name, (s, t) => { actor(t); return default(S); }, () => default(S), flags)
-        { }
 
         /// <summary>
         /// Start up - placeholder
@@ -67,6 +55,11 @@ namespace LanguageExt
         {
             return unit;
         }
+
+        /// <summary>
+        /// Failure strategy
+        /// </summary>
+        public IProcessStrategy Strategy { get; }
 
         public Unit AddSubscription(ProcessId pid, IDisposable sub)
         {
@@ -82,7 +75,7 @@ namespace LanguageExt
             return unit;
         }
 
-        private Unit RemoveAllSubscriptions()
+        Unit RemoveAllSubscriptions()
         {
             subs.Iter(x => x.Dispose());
             subs = Map.empty<string, IDisposable>();
@@ -97,10 +90,10 @@ namespace LanguageExt
         public ProcessFlags Flags => 
             flags;
 
-        private string StateKey => 
+        string StateKey => 
             Id.Path + "-state";
 
-        private void SetupRemoteSubscriptions(Option<ICluster> cluster, ProcessFlags flags)
+        void SetupRemoteSubscriptions(Option<ICluster> cluster, ProcessFlags flags)
         {
             if (remoteSubsAcquired) return;
 
@@ -149,38 +142,45 @@ namespace LanguageExt
             remoteSubsAcquired = true;
         }
 
-        private S GetState()
+        S GetState()
         {
             var res = state.IfNone(InitState);
             state = res;
             return res;
         }
 
-        private S InitState()
+        S InitState()
         {
             S state;
 
-            SetupRemoteSubscriptions(cluster, flags);
-
-            if (cluster.IsSome && ((flags & ProcessFlags.PersistState) == ProcessFlags.PersistState))
+            try
             {
-                try
-                {
-                    logInfo($"Restoring state: {StateKey}");
+                SetupRemoteSubscriptions(cluster, flags);
 
-                    state = cluster.LiftUnsafe().Exists(StateKey)
-                        ? cluster.LiftUnsafe().GetValue<S>(StateKey)
-                        : setupFn(this);
-                }
-                catch (Exception e)
+                if (cluster.IsSome && ((flags & ProcessFlags.PersistState) == ProcessFlags.PersistState))
                 {
-                    logSysErr(e);
+                    try
+                    {
+                        logInfo($"Restoring state: {StateKey}");
+
+                        state = cluster.LiftUnsafe().Exists(StateKey)
+                            ? cluster.LiftUnsafe().GetValue<S>(StateKey)
+                            : setupFn(this);
+                    }
+                    catch (Exception e)
+                    {
+                        logSysErr(e);
+                        state = setupFn(this);
+                    }
+                }
+                else
+                {
                     state = setupFn(this);
                 }
             }
-            else
+            catch (Exception e)
             {
-                state = setupFn(this);
+                throw new ProcessSetupException(Id.Path, e);
             }
 
             stateSubject.OnNext(state);
@@ -229,12 +229,26 @@ namespace LanguageExt
 
         /// <summary>
         /// Clears the state (keeps the mailbox items)
+        /// TODO: 'when' is currently ignored
         /// </summary>
-        public Unit Restart()
+        public Unit Restart(Time when)
         {
             RemoveAllSubscriptions();
             DisposeState();
-            tellSystemChildren(SystemMessage.Restart);
+
+            if( when == 0*sec )
+            {
+                foreach (var child in Children)
+                {
+                    kill(child.Value.Actor.Id);
+                }
+            }
+            else
+            {
+                ShutdownProcess(false);
+                delay(() => ActorContext.ActorCreate(Parent, Name, actorFn, setupFn, Strategy, Flags), when);
+            }
+
             return unit;
         }
 
@@ -274,8 +288,6 @@ namespace LanguageExt
                     c.Delete(StateKey);
                     c.Delete(ActorInboxCommon.ClusterUserInboxKey(Id));
                     c.Delete(ActorInboxCommon.ClusterSystemInboxKey(Id));
-                    c.Delete(ActorInboxCommon.ClusterPubSubKey(Id));
-                    c.Delete(ActorInboxCommon.ClusterStatePubSubKey(Id));
                 });
             }
 
@@ -283,6 +295,7 @@ namespace LanguageExt
             publishSubject.OnCompleted();
             stateSubject.OnCompleted();
             remoteSubsAcquired = false;
+            strategyState = None;
             DisposeState();
             return unit;
         }
@@ -436,14 +449,9 @@ namespace LanguageExt
                     logErr($"ProcessAsk request.Message is not T {request.Message}");
                 }
             }
-            catch (SystemKillActorException)
-            {
-                kill(Id);
-            }
             catch (Exception e)
             {
-                // TODO: Add extra strategy behaviours here
-                Restart();
+                RunStrategy(e, Parent.Actor.Strategy, Id);
                 replyError(e);
                 tell(ActorContext.Errors, e);
                 tell(ActorContext.DeadLetters, DeadLetter.create(request.ReplyTo, request.To, e, "Process error (ask): ", request.Message));
@@ -457,7 +465,7 @@ namespace LanguageExt
             return unit;
         }
 
-        private void ProcessSystemMessage(Message message)
+        void ProcessSystemMessage(Message message)
         {
             switch (message.Tag)
             {
@@ -536,15 +544,14 @@ namespace LanguageExt
                     logErr($"ProcessMessage request.Message is not T {message}");
                 }
             }
-            catch (SystemKillActorException)
-            {
-                logInfo($"Process message - system kill {Id}");
-                kill(Id);
-            }
+            //catch (ProcessKillException)  -- now handled by strategies
+            //{
+            //    kill(Id);
+            //}
             catch (Exception e)
             {
-                // TODO: Add extra strategy behaviours here
-                Restart();
+                RunStrategy(e, Parent.Actor.Strategy, Id);
+
                 tell(ActorContext.Errors, e);
                 tell(ActorContext.DeadLetters, DeadLetter.create(Sender, Self, e, "Process error (tell): ", message));
             }
@@ -556,6 +563,51 @@ namespace LanguageExt
             }
             return unit;
         }
+
+        public Unit RunStrategy(Exception e, IProcessStrategy strategy, ProcessId pid) =>
+            map(strategy.HandleFailure(pid, strategyState.IfNoneUnsafe(() => strategy.NewState(Id)), e),
+                (state, directive) => {
+                    strategyState = Some(state);
+
+                    // Find out the processes that this strategy affects and apply
+                    foreach (var cpid in strategy.Affects(
+                        Parent.Actor.Id, 
+                        pid, 
+                        Parent.Actor.Children.Keys.Map(n => new ProcessId(n))).Filter(x => x != Id)
+                        )
+                    {
+                        switch (directive.Type)
+                        {
+                            case DirectiveType.Escalate:
+                            case DirectiveType.Resume:
+                                // Do nothing
+                                break;
+                            case DirectiveType.Restart:
+                                restart(cpid, (directive as Restart).When);
+                                break;
+                            case DirectiveType.Stop:
+                                kill(cpid);
+                                break;
+                        }
+                    }
+
+                    switch (directive.Type)
+                    {
+                        case DirectiveType.Escalate:
+                            tellSystem(Parent.Actor.Id, SystemMessage.ChildFaulted(pid, e), Self);
+                            break;
+                        case DirectiveType.Resume:
+                            // Do nothing
+                            break;
+                        case DirectiveType.Restart:
+                            Restart((directive as Restart).When);
+                            break;
+                        case DirectiveType.Stop:
+                            ShutdownProcess(false);
+                            break;
+                    }
+                    return unit;
+                });
 
         public Unit ShutdownProcess(bool maintainState)
         {
@@ -595,6 +647,11 @@ namespace LanguageExt
         {
             state.IfSome(s => (s as IDisposable)?.Dispose());
             state = None;
+        }
+
+        public void ChildFaulted(Exception ex, ProcessId pid)
+        {
+            RunStrategy(ex, Parent.Actor.Strategy, pid);
         }
     }
 }

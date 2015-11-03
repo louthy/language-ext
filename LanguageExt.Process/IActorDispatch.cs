@@ -13,5 +13,6 @@ namespace LanguageExt
         Map<string, ProcessId> GetChildren();
         Unit Publish(object message);
         Unit Kill();
+        int GetInboxCount();
     }
 }

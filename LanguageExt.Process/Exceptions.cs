@@ -156,7 +156,6 @@ namespace LanguageExt
         }
     }
 
-
     /// <summary>
     /// A process threw an exception in its message loop
     /// </summary>
@@ -194,15 +193,45 @@ namespace LanguageExt
     }
 
     /// <summary>
+    /// A process threw an exception in its setup function
+    /// </summary>
+    [Serializable]
+    public class ProcessSetupException : Exception
+    {
+        /// <summary>
+        /// Process that threw the exception
+        /// </summary>
+        public string Self;
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        [JsonConstructor]
+        public ProcessSetupException(string self, Exception innerException)
+            :
+            base("Process failed to start: "+self, innerException)
+        {
+            Self = self;
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        protected ProcessSetupException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+    }
+
+    /// <summary>
     /// Kill process
     /// </summary>
     [Serializable]
-    public class SystemKillActorException : Exception
+    public class ProcessKillException : Exception
     {
         /// <summary>
         /// Ctor
         /// </summary>
-        public SystemKillActorException()
+        public ProcessKillException()
             :
             base("SYS:Poison pill")
         {
@@ -211,21 +240,21 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
-        public SystemKillActorException(string message) : base(message)
+        public ProcessKillException(string message) : base(message)
         {
         }
 
         /// <summary>
         /// Ctor
         /// </summary>
-        public SystemKillActorException(string message, Exception innerException) : base(message, innerException)
+        public ProcessKillException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
         /// <summary>
         /// Ctor
         /// </summary>
-        protected SystemKillActorException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected ProcessKillException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }

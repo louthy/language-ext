@@ -61,5 +61,8 @@ namespace LanguageExt
 
         public Unit Kill() =>
             ProcessId.Tell(SystemMessage.ShutdownProcess, ActorContext.Self);
+
+        public int GetInboxCount() =>
+            Cluster.QueueLength(ActorInboxCommon.ClusterUserInboxKey(ProcessId));
     }
 }

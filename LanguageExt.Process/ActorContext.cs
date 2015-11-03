@@ -181,15 +181,18 @@ namespace LanguageExt
             return Startup(None);
         }
 
-        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<T, Unit> actorFn, ProcessFlags flags) =>
-            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), flags);
+        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<T, Unit> actorFn, IProcessStrategy strategy, ProcessFlags flags) =>
+            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), strategy, flags);
 
-        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Action<T> actorFn, ProcessFlags flags) =>
-            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), flags);
+        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Action<T> actorFn, IProcessStrategy strategy, ProcessFlags flags) =>
+            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), strategy, flags);
 
-        public static ProcessId ActorCreate<S,T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn, ProcessFlags flags)
+        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn, IProcessStrategy strategy, ProcessFlags flags) =>
+            ActorCreate<S, T>(parent, name, actorFn, _ => setupFn(), strategy, flags);
+
+        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<IActor, S> setupFn, IProcessStrategy strategy, ProcessFlags flags)
         {
-            var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn, flags);
+            var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn, strategy, flags);
 
             IActorInbox inbox = null;
             if ((flags & ProcessFlags.ListenRemoteAndLocal) == ProcessFlags.ListenRemoteAndLocal && cluster.IsSome)
@@ -410,6 +413,7 @@ namespace LanguageExt
                             name,
                             RegisteredActor<T>.Inbox,
                             () => processId,
+                            Process.DefaultStrategy,
                             flags
                         ),
                      None: () => ProcessId.None)
@@ -549,7 +553,6 @@ namespace LanguageExt
 
         public static Unit Ask(ProcessId pid, object message, ProcessId sender) =>
             GetDispatcher(pid).Ask(message, sender);
-
 
         public static Unit Tell(ProcessId pid, object message, ProcessId sender) =>
             GetDispatcher(pid).Tell(message, sender, message is ActorRequest ? Message.TagSpec.UserAsk : Message.TagSpec.User);

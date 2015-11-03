@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LanguageExt.UnitsOfMeasure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,6 +30,11 @@ namespace LanguageExt
         ProcessFlags Flags { get; }
 
         /// <summary>
+        /// Failure strategy
+        /// </summary>
+        IProcessStrategy Strategy { get; }
+
+        /// <summary>
         /// Child processes
         /// </summary>
         Map<string, ActorItem> Children { get; }
@@ -36,7 +42,7 @@ namespace LanguageExt
         /// <summary>
         /// Clears the state (keeps the mailbox items)
         /// </summary>
-        Unit Restart();
+        Unit Restart(Time when);
 
         /// <summary>
         /// Startup

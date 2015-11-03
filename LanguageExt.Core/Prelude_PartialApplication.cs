@@ -5,6 +5,12 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
+        /// Left partially apply 
+        /// </summary>
+        public static Func<T1, R> lpar<T1, T2, R>(Func<T1, T2, R> func, T2 b) =>
+            (T1 a) => func(a, b);
+
+        /// <summary>
         /// Partially apply 
         /// </summary>
         public static Func<T2, R> par<T1, T2, R>(Func<T1, T2, R> func, T1 a) =>

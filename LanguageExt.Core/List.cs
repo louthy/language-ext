@@ -334,7 +334,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Applies a function 'folder' to each element of the collection whilst the predicate function 
-        /// returns true for the item being processed, threading an aggregate state through the 
+        /// returns True for the item being processed, threading an aggregate state through the 
         /// computation. The fold function takes the state argument, and applies the function 'folder' 
         /// to it and the first element of the list. Then, it feeds this result into the function 'folder' 
         /// along with the second element, and so on. It returns the final result.
@@ -350,7 +350,7 @@ namespace LanguageExt
         {
             foreach (var item in list)
             {
-                if (pred(item))
+                if (!pred(item))
                 {
                     return state;
                 }
@@ -361,7 +361,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Applies a function 'folder' to each element of the collection, threading an accumulator 
-        /// argument through the computation (and whilst the predicate function returns true when passed 
+        /// argument through the computation (and whilst the predicate function returns True when passed 
         /// the aggregate state). The fold function takes the state argument, and applies the function 
         /// 'folder' to it and the first element of the list. Then, it feeds this result into the 
         /// function 'folder' along with the second element, and so on. It returns the final result. 
@@ -377,7 +377,7 @@ namespace LanguageExt
         {
             foreach (var item in list)
             {
-                if (pred(state))
+                if (!pred(state))
                 {
                     return state;
                 }
@@ -388,7 +388,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Applies a function 'folder' to each element of the collection (from last element to first)
-        /// whilst the predicate function returns true for the item being processed, threading an 
+        /// whilst the predicate function returns True for the item being processed, threading an 
         /// aggregate state through the computation. The fold function takes the state argument, and 
         /// applies the function 'folder' to it and the first element of the list. Then, it feeds this 
         /// result into the function 'folder' along with the second element, and so on. It returns the 
@@ -407,7 +407,7 @@ namespace LanguageExt
         /// <summary>
         /// Applies a function 'folder' to each element of the collection (from last element to first), 
         /// threading an accumulator argument through the computation (and whilst the predicate function 
-        /// returns true when passed the aggregate state). The fold function takes the state argument, 
+        /// returns True when passed the aggregate state). The fold function takes the state argument, 
         /// and applies the function 'folder' to it and the first element of the list. Then, it feeds 
         /// this result into the function 'folder' along with the second element, and so on. It returns 
         /// the final result.
@@ -420,6 +420,96 @@ namespace LanguageExt
         /// <param name="pred">Predicate function</param>
         /// <returns>Aggregate value</returns>
         public static S foldBackWhile<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
+            foldWhile(rev(list), state, folder, pred);
+
+        /// <summary>
+        /// Applies a function 'folder' to each element of the collection whilst the predicate function 
+        /// returns False for the item being processed, threading an aggregate state through the 
+        /// computation. The fold function takes the state argument, and applies the function 'folder' 
+        /// to it and the first element of the list. Then, it feeds this result into the function 'folder' 
+        /// along with the second element, and so on. It returns the final result.
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="T">Enumerable item type</typeparam>
+        /// <param name="list">Enumerable to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <param name="pred">Predicate function</param>
+        /// <returns>Aggregate value</returns>
+        public static S foldUntil<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred)
+        {
+            foreach (var item in list)
+            {
+                if (pred(item))
+                {
+                    return state;
+                }
+                state = folder(state, item);
+            }
+            return state;
+        }
+
+        /// <summary>
+        /// Applies a function 'folder' to each element of the collection, threading an accumulator 
+        /// argument through the computation (and whilst the predicate function returns False when passed 
+        /// the aggregate state). The fold function takes the state argument, and applies the function 
+        /// 'folder' to it and the first element of the list. Then, it feeds this result into the 
+        /// function 'folder' along with the second element, and so on. It returns the final result. 
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="T">Enumerable item type</typeparam>
+        /// <param name="list">Enumerable to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <param name="pred">Predicate function</param>
+        /// <returns>Aggregate value</returns>
+        public static S foldUntil<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred)
+        {
+            foreach (var item in list)
+            {
+                if (pred(state))
+                {
+                    return state;
+                }
+                state = folder(state, item);
+            }
+            return state;
+        }
+
+        /// <summary>
+        /// Applies a function 'folder' to each element of the collection (from last element to first)
+        /// whilst the predicate function returns False for the item being processed, threading an 
+        /// aggregate state through the computation. The fold function takes the state argument, and 
+        /// applies the function 'folder' to it and the first element of the list. Then, it feeds this 
+        /// result into the function 'folder' along with the second element, and so on. It returns the 
+        /// final result.
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="T">Enumerable item type</typeparam>
+        /// <param name="list">Enumerable to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <param name="pred">Predicate function</param>
+        /// <returns>Aggregate value</returns>
+        public static S foldBackUntil<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
+            foldWhile(rev(list), state, folder, pred);
+
+        /// <summary>
+        /// Applies a function 'folder' to each element of the collection (from last element to first), 
+        /// threading an accumulator argument through the computation (and whilst the predicate function 
+        /// returns False when passed the aggregate state). The fold function takes the state argument, 
+        /// and applies the function 'folder' to it and the first element of the list. Then, it feeds 
+        /// this result into the function 'folder' along with the second element, and so on. It returns 
+        /// the final result.
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="T">Enumerable item type</typeparam>
+        /// <param name="list">Enumerable to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <param name="pred">Predicate function</param>
+        /// <returns>Aggregate value</returns>
+        public static S foldBackUntil<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
             foldWhile(rev(list), state, folder, pred);
 
         /// <summary>
@@ -1288,7 +1378,7 @@ public static class __EnumnerableExt
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection whilst the predicate function 
-    /// returns true for the item being processed, threading an aggregate state through the 
+    /// returns True for the item being processed, threading an aggregate state through the 
     /// computation. The fold function takes the state argument, and applies the function 'folder' 
     /// to it and the first element of the list. Then, it feeds this result into the function 'folder' 
     /// along with the second element, and so on. It returns the final result.
@@ -1305,7 +1395,7 @@ public static class __EnumnerableExt
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection, threading an accumulator 
-    /// argument through the computation (and whilst the predicate function returns true when passed 
+    /// argument through the computation (and whilst the predicate function returns True when passed 
     /// the aggregate state). The fold function takes the state argument, and applies the function 
     /// 'folder' to it and the first element of the list. Then, it feeds this result into the 
     /// function 'folder' along with the second element, and so on. It returns the final result. 
@@ -1322,7 +1412,7 @@ public static class __EnumnerableExt
 
     /// <summary>
     /// Applies a function 'folder' to each element of the collection (from last element to first)
-    /// whilst the predicate function returns true for the item being processed, threading an 
+    /// whilst the predicate function returns True for the item being processed, threading an 
     /// aggregate state through the computation. The fold function takes the state argument, and 
     /// applies the function 'folder' to it and the first element of the list. Then, it feeds this 
     /// result into the function 'folder' along with the second element, and so on. It returns the 
@@ -1341,7 +1431,7 @@ public static class __EnumnerableExt
     /// <summary>
     /// Applies a function 'folder' to each element of the collection (from last element to first), 
     /// threading an accumulator argument through the computation (and whilst the predicate function 
-    /// returns true when passed the aggregate state). The fold function takes the state argument, 
+    /// returns True when passed the aggregate state). The fold function takes the state argument, 
     /// and applies the function 'folder' to it and the first element of the list. Then, it feeds 
     /// this result into the function 'folder' along with the second element, and so on. It returns 
     /// the final result.
@@ -1355,6 +1445,76 @@ public static class __EnumnerableExt
     /// <returns>Aggregate value</returns>
     public static S FoldBackWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
         LanguageExt.List.foldBackWhile(list, state, folder, pred);
+
+    /// <summary>
+    /// Applies a function 'folder' to each element of the collection whilst the predicate function 
+    /// returns False for the item being processed, threading an aggregate state through the 
+    /// computation. The fold function takes the state argument, and applies the function 'folder' 
+    /// to it and the first element of the list. Then, it feeds this result into the function 'folder' 
+    /// along with the second element, and so on. It returns the final result.
+    /// </summary>
+    /// <typeparam name="S">State type</typeparam>
+    /// <typeparam name="T">Enumerable item type</typeparam>
+    /// <param name="list">Enumerable to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="folder">Fold function</param>
+    /// <param name="pred">Predicate function</param>
+    /// <returns>Aggregate value</returns>
+    public static S FoldUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
+        LanguageExt.List.foldUntil<S, T>(list, state, folder, pred);
+
+    /// <summary>
+    /// Applies a function 'folder' to each element of the collection, threading an accumulator 
+    /// argument through the computation (and whilst the predicate function returns False when passed 
+    /// the aggregate state). The fold function takes the state argument, and applies the function 
+    /// 'folder' to it and the first element of the list. Then, it feeds this result into the 
+    /// function 'folder' along with the second element, and so on. It returns the final result. 
+    /// </summary>
+    /// <typeparam name="S">State type</typeparam>
+    /// <typeparam name="T">Enumerable item type</typeparam>
+    /// <param name="list">Enumerable to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="folder">Fold function</param>
+    /// <param name="pred">Predicate function</param>
+    /// <returns>Aggregate value</returns>
+    public static S FoldUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
+        LanguageExt.List.foldUntil(list, state, folder, pred);
+
+    /// <summary>
+    /// Applies a function 'folder' to each element of the collection (from last element to first)
+    /// whilst the predicate function returns False for the item being processed, threading an 
+    /// aggregate state through the computation. The fold function takes the state argument, and 
+    /// applies the function 'folder' to it and the first element of the list. Then, it feeds this 
+    /// result into the function 'folder' along with the second element, and so on. It returns the 
+    /// final result.
+    /// </summary>
+    /// <typeparam name="S">State type</typeparam>
+    /// <typeparam name="T">Enumerable item type</typeparam>
+    /// <param name="list">Enumerable to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="folder">Fold function</param>
+    /// <param name="pred">Predicate function</param>
+    /// <returns>Aggregate value</returns>
+    public static S FoldBackUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
+        LanguageExt.List.foldBackUntil(list, state, folder, pred);
+
+    /// <summary>
+    /// Applies a function 'folder' to each element of the collection (from last element to first), 
+    /// threading an accumulator argument through the computation (and whilst the predicate function 
+    /// returns False when passed the aggregate state). The fold function takes the state argument, 
+    /// and applies the function 'folder' to it and the first element of the list. Then, it feeds 
+    /// this result into the function 'folder' along with the second element, and so on. It returns 
+    /// the final result.
+    /// </summary>
+    /// <typeparam name="S">State type</typeparam>
+    /// <typeparam name="T">Enumerable item type</typeparam>
+    /// <param name="list">Enumerable to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="folder">Fold function</param>
+    /// <param name="pred">Predicate function</param>
+    /// <returns>Aggregate value</returns>
+    public static S FoldBackUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
+        LanguageExt.List.foldBackUntil(list, state, folder, pred);
 
     /// <summary>
     /// Applies a function to each element of the collection (from last element to first), threading 

@@ -43,5 +43,8 @@ namespace LanguageExt
 
         public Unit Kill() => 
             unit;
+
+        public int GetInboxCount() =>
+            0;
     }
 }
