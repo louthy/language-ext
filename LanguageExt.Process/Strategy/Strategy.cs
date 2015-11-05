@@ -7,6 +7,16 @@ namespace LanguageExt
 {
     public static class Strategy
     {
+        public static State<StrategyContext, Unit> Compose(params State<StrategyContext, Unit>[] stages) =>
+            state =>
+            {
+                foreach (var stage in stages)
+                {
+                    state = stage(state).State;
+                }
+                return StateResult.Return(state, unit);
+            };
+
         /// <summary>
         /// One-for-one strategy
         /// This strategy affects only the process that failed
@@ -14,21 +24,15 @@ namespace LanguageExt
         /// <param name="stages">Set of computations to compose that results in a behaviour 
         /// for the strategy</param>
         /// <returns>Strategy computation as a State monad</returns>
-        public static State<StrategyContext, Unit> OneForOne(params State<StrategyContext, Unit>[] stages)
-        {
-            var strategy = from state in get<StrategyContext>()
-                           from s1 in put(state.With(Affects: new ProcessId[1] { state.Self }))
-                           from s2 in IncFailureCount
-                           select s2;
-
-            foreach (var stage in stages)
+        public static State<StrategyContext, Unit> OneForOne(params State<StrategyContext, Unit>[] stages) =>
+            state =>
             {
-                strategy = from x in strategy
-                           from y in stage
-                           select y;
-            }
-            return strategy;
-        }
+                state = state.With(
+                    Affects: new ProcessId[1] { state.Self },
+                    Global: state.Global.With(Failures: state.Global.Failures + 1)
+                );
+                return Compose(stages)(state);
+            };
 
         /// <summary>
         /// All-for-one strategy
@@ -37,21 +41,15 @@ namespace LanguageExt
         /// <param name="stages">Set of computations to compose that results in a behaviour 
         /// for the strategy</param>
         /// <returns>Strategy computation as a State monad</returns>
-        public static State<StrategyContext, Unit> AllForOne(params State<StrategyContext, Unit>[] stages)
-        {
-            var strategy = from state in get<StrategyContext>()
-                           from s1 in put(state.With(Affects: state.Siblings))
-                           from s2 in IncFailureCount
-                           select s2;
-
-            foreach (var stage in stages)
+        public static State<StrategyContext, Unit> AllForOne(params State<StrategyContext, Unit>[] stages) =>
+            state =>
             {
-                strategy = from x in strategy
-                           from y in stage
-                           select y;
-            }
-            return strategy;
-        }
+                state = state.With(
+                    Affects: state.Siblings,
+                    Global: state.Global.With(Failures: state.Global.Failures + 1)
+                );
+                return Compose(stages)(state);
+            };
 
         /// <summary>
         /// Get the context state State monad

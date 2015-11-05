@@ -444,9 +444,10 @@ namespace LanguageExt
             }
             catch (Exception e)
             {
+                var directive = RunStrategy(Id, Sender, e, request, Parent.Actor.Strategy);
                 replyError(e);
                 tell(ActorContext.Errors, e);
-                return RunStrategy(Id, Sender, e, request, Parent.Actor.Strategy);
+                return directive;
             }
             finally
             {
@@ -538,8 +539,9 @@ namespace LanguageExt
             }
             catch (Exception e)
             {
+                var directive = RunStrategy(Id, Sender, e, message, Parent.Actor.Strategy);
                 tell(ActorContext.Errors, e);
-                return RunStrategy(Id, Sender, e, message, Parent.Actor.Strategy);
+                return directive;
             }
             finally
             {

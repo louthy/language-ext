@@ -129,6 +129,24 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Pattern matching for values
+        /// </summary>
+        /// <typeparam name="T">Value type to match</typeparam>
+        /// <typeparam name="R">Result of expression</typeparam>
+        /// <param name="value">Value to match</param>
+        /// <param name="clauses">Clauses to test</param>
+        /// <returns>Result</returns>
+        public static Func<T, R> function<T, R>(params Func<T, Option<R>>[] clauses) => (T value) =>
+         {
+             foreach (var clause in clauses)
+             {
+                 var res = clause(value);
+                 if (res.IsSome) return res.IfNone(default(R));
+             }
+             throw new Exception("Match not exhaustive");
+         };
+
+        /// <summary>
         /// Identity function
         /// </summary>
         public static T identity<T>(T x) => x;
