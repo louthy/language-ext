@@ -636,10 +636,6 @@ namespace LanguageExt
                 case MessageDirectiveType.StayInQueue:
                     return InboxDirective.PushToFrontOfQueue;
 
-                case MessageDirectiveType.ForwardToNextSibling:
-
-                    return InboxDirective.Default;
-
                 default:
                     tell(ActorContext.DeadLetters, DeadLetter.create(sender, pid, e, "Process error: ", message));
                     return InboxDirective.Default;

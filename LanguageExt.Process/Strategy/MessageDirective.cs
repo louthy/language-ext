@@ -112,13 +112,4 @@ namespace LanguageExt
         {
         }
     }
-
-    class ForwardToNextSibling : MessageDirective
-    {
-        public ForwardToNextSibling()
-            :
-            base(MessageDirectiveType.ForwardToNextSibling)
-        {
-        }
-    }
 }
