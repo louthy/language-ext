@@ -401,7 +401,7 @@ namespace LanguageExt
                                     var stateOut = actorFn(stateIn, tmsg);
                                     try
                                     {
-                                        if (stateOut != null && !stateOut.Equals(stateIn))
+                                        if (notnull(stateOut) && !stateOut.Equals(stateIn))
                                         {
                                             stateSubject.OnNext(stateOut);
                                         }
@@ -422,7 +422,7 @@ namespace LanguageExt
                     var stateOut = actorFn(stateIn, msg);
                     try
                     {
-                        if (stateOut != null && !stateOut.Equals(stateIn))
+                        if (notnull(stateOut) && !stateOut.Equals(stateIn))
                         {
                             stateSubject.OnNext(stateOut);
                         }
@@ -497,7 +497,7 @@ namespace LanguageExt
                                     var stateOut = actorFn(stateIn, tmsg);
                                     try
                                     {
-                                        if (stateOut != null && !stateOut.Equals(stateIn))
+                                        if (notnull(stateOut) && !stateOut.Equals(stateIn))
                                         {
                                             stateSubject.OnNext(stateOut);
                                         }
@@ -518,7 +518,7 @@ namespace LanguageExt
                     state = stateOut;
                     try
                     {
-                        if (stateOut != null && !state.Equals(stateIn))
+                        if (notnull(stateOut) && !state.Equals(stateIn))
                         {
                             stateSubject.OnNext(stateOut);
                         }

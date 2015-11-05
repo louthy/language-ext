@@ -214,5 +214,11 @@ namespace LanguageExt
             }
             return v;
         }
+
+        public static bool isnull<T>(T value) =>
+            Object.ReferenceEquals(value, null);
+
+        public static bool notnull<T>(T value) =>
+            !Object.ReferenceEquals(value, null);
     }
 }

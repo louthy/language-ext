@@ -33,7 +33,7 @@ namespace LanguageExt
                             try
                             {
                                 var msg = await FSharpAsync.StartAsTask(mbox.Receive(FSharpOption<int>.None), FSharpOption<TaskCreationOptions>.None, FSharpOption<CancellationToken>.Some(cancelToken));
-                                if (msg != null && !cancelToken.IsCancellationRequested)
+                                if (notnull(msg) && !cancelToken.IsCancellationRequested)
                                 {
                                     handler(msg);
                                 }
