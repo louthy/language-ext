@@ -297,7 +297,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pid">Process to un-pause</param>
         public static Unit unpause(ProcessId pid) =>
-            ActorContext.TellSystem(pid, SystemMessage.Pause);
+            ActorContext.TellSystem(pid, SystemMessage.Unpause);
 
         /// <summary>
         /// Return True if the message sent is a Tell and not an Ask
