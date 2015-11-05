@@ -94,8 +94,7 @@ namespace LanguageExt
 
                     case Message.TagSpec.ChildFaulted:
                         var cf = msg as SystemChildFaultedMessage;
-                        actor.ChildFaulted(cf.Child, cf.Sender, cf.Exception, cf.Message);
-                        break;
+                        return actor.ChildFaulted(cf.Child, cf.Sender, cf.Exception, cf.Message);
 
                     case Message.TagSpec.ShutdownProcess:
                         kill(actor.Id);

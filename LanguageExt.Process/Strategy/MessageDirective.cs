@@ -14,7 +14,7 @@ namespace LanguageExt
         ForwardToDeadLetters,
         ForwardToSelf,
         ForwardToParent,
-        Retry
+        StayInQueue
     }
 
     /// <summary>
@@ -36,28 +36,28 @@ namespace LanguageExt
         /// This is the default behaviour
         /// </summary>
         public static MessageDirective ForwardToDeadLetters =>
-            new SendToDeadLetters();
+            new ForwardToDeadLetters();
 
         /// <summary>
         /// Forward the failed message back to the Process that failed.
         /// It will join the back of the queue.
         /// </summary>
         public static MessageDirective ForwardToSelf =>
-            new SendToSelf();
+            new ForwardToSelf();
 
         /// <summary>
         /// Forward the failed message to the supervisor (the parent) of the
         /// Process that failed.  It will join the back of the queue.
         /// </summary>
         public static readonly MessageDirective ForwardToParent = 
-            new SendToParent();
+            new ForwardToParent();
 
         /// <summary>
         /// Forward the failed message back to the Process that failed.
         /// It will join the back of the queue.
         /// </summary>
         public static MessageDirective StayInQueue =>
-            new RetryMessage();
+            new StayInQueue();
 
         public virtual bool Equals(MessageDirective other) =>
             Type == other.Type;
@@ -77,38 +77,47 @@ namespace LanguageExt
             !(lhs == rhs);
     }
 
-    class SendToDeadLetters : MessageDirective
+    class ForwardToDeadLetters : MessageDirective
     {
-        public SendToDeadLetters()
+        public ForwardToDeadLetters()
             :
             base(MessageDirectiveType.ForwardToDeadLetters)
         {
         }
     }
 
-    class SendToSelf : MessageDirective
+    class ForwardToSelf : MessageDirective
     {
-        public SendToSelf()
+        public ForwardToSelf()
             :
             base(MessageDirectiveType.ForwardToSelf)
         {
         }
     }
 
-    class SendToParent : MessageDirective
+    class ForwardToParent : MessageDirective
     {
-        public SendToParent()
+        public ForwardToParent()
             :
             base(MessageDirectiveType.ForwardToParent)
         {
         }
     }
 
-    class RetryMessage : MessageDirective
+    class StayInQueue : MessageDirective
     {
-        public RetryMessage()
+        public StayInQueue()
             :
-            base(MessageDirectiveType.Retry)
+            base(MessageDirectiveType.StayInQueue)
+        {
+        }
+    }
+
+    class ForwardToNextSibling : MessageDirective
+    {
+        public ForwardToNextSibling()
+            :
+            base(MessageDirectiveType.ForwardToNextSibling)
         {
         }
     }

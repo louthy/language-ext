@@ -444,7 +444,16 @@ namespace LanguageExt
             }
             catch (Exception e)
             {
-                var directive = RunStrategy(Id, Sender, e, request, Parent.Actor.Strategy);
+                var directive = RunStrategy(
+                    Id,
+                    Parent.Actor.Id,
+                    Sender,
+                    Parent.Actor.Children.Keys.Map(n => new ProcessId(n)).Filter(x => x != Id),
+                    e,
+                    request,
+                    Parent.Actor.Strategy
+                );
+
                 replyError(e);
                 tell(ActorContext.Errors, e);
                 return directive;
@@ -539,7 +548,15 @@ namespace LanguageExt
             }
             catch (Exception e)
             {
-                var directive = RunStrategy(Id, Sender, e, message, Parent.Actor.Strategy);
+                var directive = RunStrategy(
+                    Id,
+                    Parent.Actor.Id,
+                    Sender,
+                    Parent.Actor.Children.Keys.Map(n => new ProcessId(n)).Filter(x => x != Id),
+                    e, 
+                    message, 
+                    Parent.Actor.Strategy
+                );
                 tell(ActorContext.Errors, e);
                 return directive;
             }
@@ -554,7 +571,9 @@ namespace LanguageExt
 
         public InboxDirective RunStrategy(
             ProcessId pid,
+            ProcessId parent,
             ProcessId sender,
+            IEnumerable<ProcessId> siblings,
             Exception ex, 
             object message,
             State<StrategyContext, Unit> strategy
@@ -563,9 +582,9 @@ namespace LanguageExt
             // Build a strategy specifically for this event
             var failureStrategy = strategy.Failure(
                     pid,
+                    parent,
                     sender,
-                    Parent.Actor.Id,
-                    Parent.Actor.Children.Keys.Map(n => new ProcessId(n)).Filter(x => x != Id),
+                    siblings,
                     ex,
                     message
                 );
@@ -609,11 +628,18 @@ namespace LanguageExt
                 case MessageDirectiveType.ForwardToParent:
                     tell(pid.Parent(), message, sender);
                     return InboxDirective.Default;
+
                 case MessageDirectiveType.ForwardToSelf:
                     tell(pid, message, sender);
                     return InboxDirective.Default;
-                case MessageDirectiveType.Retry:
+
+                case MessageDirectiveType.StayInQueue:
                     return InboxDirective.PushToFrontOfQueue;
+
+                case MessageDirectiveType.ForwardToNextSibling:
+
+                    return InboxDirective.Default;
+
                 default:
                     tell(ActorContext.DeadLetters, DeadLetter.create(sender, pid, e, "Process error: ", message));
                     return InboxDirective.Default;
@@ -706,9 +732,17 @@ namespace LanguageExt
             state = None;
         }
 
-        public void ChildFaulted(ProcessId pid, ProcessId sender, Exception ex, object message)
+        public InboxDirective ChildFaulted(ProcessId pid, ProcessId sender, Exception ex, object message)
         {
-            RunStrategy(pid, sender, ex, message, Parent.Actor.Strategy);
+            return RunStrategy(
+                pid,
+                Parent.Actor.Id,
+                sender,
+                Parent.Actor.Children.Keys.Map(n => new ProcessId(n)).Filter(x => x != pid),
+                ex,
+                message,
+                Parent.Actor.Strategy
+            );
         }
     }
 }
