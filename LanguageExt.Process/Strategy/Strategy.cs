@@ -7,6 +7,9 @@ namespace LanguageExt
 {
     public static class Strategy
     {
+        /// <summary>
+        /// Compose a sequence of state computations
+        /// </summary>
         public static State<StrategyContext, Unit> Compose(params State<StrategyContext, Unit>[] stages) =>
             state =>
             {
@@ -27,10 +30,7 @@ namespace LanguageExt
         public static State<StrategyContext, Unit> OneForOne(params State<StrategyContext, Unit>[] stages) =>
             state =>
             {
-                state = state.With(
-                    Affects: new ProcessId[1] { state.Self },
-                    Global: state.Global.With(Failures: state.Global.Failures + 1)
-                );
+                state = state.With(Affects: new ProcessId[1] { state.Self });
                 return Compose(stages)(state);
             };
 
@@ -44,10 +44,7 @@ namespace LanguageExt
         public static State<StrategyContext, Unit> AllForOne(params State<StrategyContext, Unit>[] stages) =>
             state =>
             {
-                state = state.With(
-                    Affects: state.Siblings,
-                    Global: state.Global.With(Failures: state.Global.Failures + 1)
-                );
+                state = state.With(Affects: state.Siblings);
                 return Compose(stages)(state);
             };
 
@@ -159,8 +156,7 @@ namespace LanguageExt
                         : failures >= Count 
                             ? SetDirective(Directive.Stop)
                             : Identity
-            from z in SetLastFailure(now)
-            select z;
+            select y;
 
         /// <summary>
         /// Applies a strategy that causes the Process to 'back off'.  That is it will
@@ -189,10 +185,10 @@ namespace LanguageExt
             MapGlobal(g => g.With(Failures: g.Failures + 1));
 
         /// <summary>
-        /// Reset the failure count state to zero and set LastFailure to UtcNow
+        /// Reset the failure count state to zero and set LastFailure to max-value
         /// </summary>
         public static readonly State<StrategyContext, Unit> ResetFailureCount =
-            MapGlobal(g => g.With(Failures: 0, LastFailure: DateTime.UtcNow));
+            MapGlobal(g => g.With(Failures: 0, LastFailure: DateTime.MaxValue));
 
         /// <summary>
         /// Set the failure count to 1 and set LastFailure to UtcNow

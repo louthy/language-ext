@@ -33,8 +33,10 @@ namespace LanguageExt
         {
             return stateInst =>
             {
+                var now = DateTime.UtcNow;
+
                 var state = strategy(StrategyContext.Empty.With(
-                    Global: stateInst,
+                    Global: stateInst.With(Failures: stateInst.Failures + 1),
                     FailedProcess: pid,
                     ParentProcess: parent,
                     Sender: sender,
@@ -49,7 +51,7 @@ namespace LanguageExt
                     state.Pause
                 );
 
-                return StateResult.Return(state.Global, decision);
+                return StateResult.Return(state.Global.With(LastFailure: now), decision);
             };
         }
     }
