@@ -156,6 +156,34 @@ namespace LanguageExt
         public static State<S, Unit> put<S>(S state) =>
             _ => new StateResult<S, Unit>(state, unit);
 
+        /// <summary>
+        /// Modify the state in a State computation, leave the value alone
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="T">Wrapped value type</typeparam>
+        /// <returns>State monad with state set and with a Unit value</returns>
+        public static State<S, T> modify<S, T>(State<S, T> self, Func<S, S> f) =>
+            self.Modify(f);
+
+        /// <summary>
+        /// Chooses the first monad result that has a Some(x) for the value
+        /// </summary>
+        public static State<S, Option<T>> choose<S, T>(params State<S, Option<T>>[] monads)
+        {
+            return state =>
+            {
+                foreach (var monad in monads)
+                {
+                    var res = monad(state);
+                    if (!res.IsBottom && res.Value.IsSome)
+                    {
+                        return res;
+                    }
+                }
+                return StateResult.Return<S, Option<T>>(state, None);
+            };
+        }
+
         public static Reader<Env, T> tryread<Env, T>(Func<Reader<Env, T>> tryDel) => env =>
         {
             try

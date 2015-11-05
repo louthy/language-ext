@@ -61,8 +61,8 @@ module ProcessFs =
         let pid = Process.register(new ProcessName(name))
         fun () -> pid
 
-    let register name processId = 
-        let pid = Process.register(new ProcessName(name),processId())
+    let register name processId flags = 
+        let pid = Process.register(new ProcessName(name),processId(),flags,LanguageExt.ProcessSetting.DefaultMailboxSize)
         fun () -> pid
 
     let deregister name = 

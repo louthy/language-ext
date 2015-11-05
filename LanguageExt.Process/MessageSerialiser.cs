@@ -28,7 +28,7 @@ namespace LanguageExt
                 case Message.TagSpec.GetChildren:       return UserControlMessage.GetChildren;
                 case Message.TagSpec.ShutdownProcess:   return SystemMessage.ShutdownProcess;
 
-                case Message.TagSpec.Restart:           return SystemMessage.Restart(default(Time)); // TODO: Deserialise the 'When'
+                case Message.TagSpec.Restart:           return SystemMessage.Restart;
             }
 
             throw new Exception($"Unknown Message Type: {msg.Type}");

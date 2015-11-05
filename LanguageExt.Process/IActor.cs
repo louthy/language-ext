@@ -32,7 +32,7 @@ namespace LanguageExt
         /// <summary>
         /// Failure strategy
         /// </summary>
-        IProcessStrategy Strategy { get; }
+        State<StrategyContext, Unit> Strategy { get; }
 
         /// <summary>
         /// Child processes
@@ -42,7 +42,7 @@ namespace LanguageExt
         /// <summary>
         /// Clears the state (keeps the mailbox items)
         /// </summary>
-        Unit Restart(Time when);
+        Unit Restart();
 
         /// <summary>
         /// Startup
@@ -81,8 +81,8 @@ namespace LanguageExt
         /// </summary>
         IObservable<object> StateStream { get; }
 
-        Unit ProcessMessage(object message);
-        Unit ProcessAsk(ActorRequest request);
+        InboxDirective ProcessMessage(object message);
+        InboxDirective ProcessAsk(ActorRequest request);
         R ProcessRequest<R>(ProcessId pid, object message);
         Unit ProcessResponse(ActorResponse response);
         Unit ShutdownProcess(bool maintainState);

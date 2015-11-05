@@ -101,7 +101,7 @@ namespace LanguageExt
             deadLetters     = ActorCreate<DeadLetter>(system, Config.DeadLettersProcessName, publish, ProcessFlags.Default);
             errors          = ActorCreate<Exception>(system, Config.ErrorsProcessName, publish, ProcessFlags.Default);
 
-            inboxShutdown   = ActorCreate<IActorInbox>(system, Config.InboxShutdownProcessName, inbox => inbox.Shutdown(), ProcessFlags.Default);
+            inboxShutdown   = ActorCreate<IActorInbox>(system, Config.InboxShutdownProcessName, inbox => inbox.Shutdown(), ProcessFlags.Default, 100000);
 
             reply = ask     = ActorCreate<Tuple<long, Dictionary<long, AskActorReq>>, object>(system, Config.AskProcessName, AskActor.Inbox, AskActor.Setup, ProcessFlags.ListenRemoteAndLocal);
 
@@ -127,17 +127,17 @@ namespace LanguageExt
             return unit;
         }
 
-        public ActorItem ActorCreate<T>(ActorItem parent, ProcessName name, Func<T, Unit> actorFn, ProcessFlags flags)
+        public ActorItem ActorCreate<T>(ActorItem parent, ProcessName name, Func<T, Unit> actorFn, ProcessFlags flags, int maxMailboxSize = -1)
         {
-            return ActorCreate<Unit, T>(parent, name, (s, t) => { actorFn(t); return unit; }, () => unit, flags);
+            return ActorCreate<Unit, T>(parent, name, (s, t) => { actorFn(t); return unit; }, () => unit, flags, maxMailboxSize);
         }
 
-        public ActorItem ActorCreate<T>(ActorItem parent, ProcessName name, Action<T> actorFn, ProcessFlags flags)
+        public ActorItem ActorCreate<T>(ActorItem parent, ProcessName name, Action<T> actorFn, ProcessFlags flags, int maxMailboxSize = -1)
         {
-            return ActorCreate<Unit, T>(parent, name, (s, t) => { actorFn(t); return unit; }, () => unit, flags);
+            return ActorCreate<Unit, T>(parent, name, (s, t) => { actorFn(t); return unit; }, () => unit, flags, maxMailboxSize);
         }
 
-        public ActorItem ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn, ProcessFlags flags)
+        public ActorItem ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn, ProcessFlags flags, int maxMailboxSize = -1)
         {
             if (ProcessDoesNotExist(nameof(ActorCreate), parent.Actor.Id)) return null;
 
@@ -162,7 +162,7 @@ namespace LanguageExt
             {
                 parent.Actor.LinkChild(item);
                 actor.Startup();
-                inbox.Startup(actor, actor.Parent, Cluster, 0);
+                inbox.Startup(actor, actor.Parent, Cluster, maxMailboxSize == -1 ? ProcessSetting.DefaultMailboxSize : maxMailboxSize);
             }
             catch (Exception e)
             {
