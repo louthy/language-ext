@@ -606,10 +606,10 @@ namespace LanguageExt
             var directive = decision.MessageDirective;
             switch (directive.Type)
             {
-                case MessageDirectiveType.SendToParent:
+                case MessageDirectiveType.ForwardToParent:
                     tell(pid.Parent(), message, sender);
                     return InboxDirective.Default;
-                case MessageDirectiveType.SendToSelf:
+                case MessageDirectiveType.ForwardToSelf:
                     tell(pid, message, sender);
                     return InboxDirective.Default;
                 case MessageDirectiveType.Retry:

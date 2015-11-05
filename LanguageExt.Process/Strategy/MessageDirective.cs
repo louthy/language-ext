@@ -11,9 +11,9 @@ namespace LanguageExt
 {
     public enum MessageDirectiveType
     {
-        SendToDeadLetters,
-        SendToSelf,
-        SendToParent,
+        ForwardToDeadLetters,
+        ForwardToSelf,
+        ForwardToParent,
         Retry
     }
 
@@ -81,7 +81,7 @@ namespace LanguageExt
     {
         public SendToDeadLetters()
             :
-            base(MessageDirectiveType.SendToDeadLetters)
+            base(MessageDirectiveType.ForwardToDeadLetters)
         {
         }
     }
@@ -90,7 +90,7 @@ namespace LanguageExt
     {
         public SendToSelf()
             :
-            base(MessageDirectiveType.SendToSelf)
+            base(MessageDirectiveType.ForwardToSelf)
         {
         }
     }
@@ -99,7 +99,7 @@ namespace LanguageExt
     {
         public SendToParent()
             :
-            base(MessageDirectiveType.SendToParent)
+            base(MessageDirectiveType.ForwardToParent)
         {
         }
     }
