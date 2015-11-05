@@ -6,6 +6,7 @@ using static LanguageExt.Process;
 using LanguageExt.UnitsOfMeasure;
 using System.Reactive.Subjects;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace LanguageExt
 {
@@ -14,7 +15,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="S">State</typeparam>
     /// <typeparam name="T">Message type</typeparam>
-    internal class Actor<S, T> : IActor
+    class Actor<S, T> : IActor
     {
         readonly Func<S, T, S> actorFn;
         readonly Func<IActor, S> setupFn;
@@ -25,14 +26,14 @@ namespace LanguageExt
         Map<string, IDisposable> subs = Map.create<string, IDisposable>();
         Map<string, ActorItem> children = Map.create<string, ActorItem>();
         Option<S> state;
-        Option<object> strategyState;
+        StrategyState strategyState = StrategyState.Empty;
         EventWaitHandle request;
         volatile ActorResponse response;
         int roundRobinIndex = -1;
         object sync = new object();
         bool remoteSubsAcquired;
 
-        internal Actor(Option<ICluster> cluster, ActorItem parent, ProcessName name, Func<S, T, S> actor, Func<IActor, S> setup, IProcessStrategy strategy, ProcessFlags flags)
+        internal Actor(Option<ICluster> cluster, ActorItem parent, ProcessName name, Func<S, T, S> actor, Func<IActor, S> setup, State<StrategyContext, Unit> strategy, ProcessFlags flags)
         {
             if (setup == null) throw new ArgumentNullException(nameof(setup));
             if (actor == null) throw new ArgumentNullException(nameof(actor));
@@ -59,7 +60,7 @@ namespace LanguageExt
         /// <summary>
         /// Failure strategy
         /// </summary>
-        public IProcessStrategy Strategy { get; }
+        public State<StrategyContext, Unit> Strategy { get; }
 
         public Unit AddSubscription(ProcessId pid, IDisposable sub)
         {
@@ -229,26 +230,18 @@ namespace LanguageExt
 
         /// <summary>
         /// Clears the state (keeps the mailbox items)
-        /// TODO: 'when' is currently ignored
         /// </summary>
-        public Unit Restart(Time when)
+        public Unit Restart()
         {
-            RemoveAllSubscriptions();
-            DisposeState();
-
-            if( when == 0*sec )
+            lock (sync)
             {
-                foreach (var child in Children)
+                RemoveAllSubscriptions();
+                DisposeState();
+                foreach (var kid in Children)
                 {
-                    kill(child.Value.Actor.Id);
+                    kill(kid.Value.Actor.Id);
                 }
             }
-            else
-            {
-                ShutdownProcess(false);
-                delay(() => ActorContext.ActorCreate(Parent, Name, actorFn, setupFn, Strategy, Flags), when);
-            }
-
             return unit;
         }
 
@@ -295,7 +288,7 @@ namespace LanguageExt
             publishSubject.OnCompleted();
             stateSubject.OnCompleted();
             remoteSubsAcquired = false;
-            strategyState = None;
+            strategyState = StrategyState.Empty;
             DisposeState();
             return unit;
         }
@@ -387,7 +380,7 @@ namespace LanguageExt
             return unit;
         }
 
-        public Unit ProcessAsk(ActorRequest request)
+        public InboxDirective ProcessAsk(ActorRequest request)
         {
             var savedMsg = ActorContext.CurrentMsg;
             var savedFlags = ActorContext.ProcessFlags;
@@ -451,10 +444,9 @@ namespace LanguageExt
             }
             catch (Exception e)
             {
-                RunStrategy(e, Parent.Actor.Strategy, Id);
                 replyError(e);
                 tell(ActorContext.Errors, e);
-                tell(ActorContext.DeadLetters, DeadLetter.create(request.ReplyTo, request.To, e, "Process error (ask): ", request.Message));
+                return RunStrategy(Id, Sender, e, request, Parent.Actor.Strategy);
             }
             finally
             {
@@ -462,7 +454,7 @@ namespace LanguageExt
                 ActorContext.ProcessFlags = savedFlags;
                 ActorContext.CurrentRequest = savedReq;
             }
-            return unit;
+            return InboxDirective.Default;
         }
 
         void ProcessSystemMessage(Message message)
@@ -483,7 +475,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public Unit ProcessMessage(object message)
+        public InboxDirective ProcessMessage(object message)
         {
             var savedReq = ActorContext.CurrentRequest;
             var savedFlags = ActorContext.ProcessFlags;
@@ -544,16 +536,10 @@ namespace LanguageExt
                     logErr($"ProcessMessage request.Message is not T {message}");
                 }
             }
-            //catch (ProcessKillException)  -- now handled by strategies
-            //{
-            //    kill(Id);
-            //}
             catch (Exception e)
             {
-                RunStrategy(e, Parent.Actor.Strategy, Id);
-
                 tell(ActorContext.Errors, e);
-                tell(ActorContext.DeadLetters, DeadLetter.create(Sender, Self, e, "Process error (tell): ", message));
+                return RunStrategy(Id, Sender, e, message, Parent.Actor.Strategy);
             }
             finally
             {
@@ -561,57 +547,126 @@ namespace LanguageExt
                 ActorContext.ProcessFlags = savedFlags;
                 ActorContext.CurrentMsg = savedMsg;
             }
-            return unit;
+            return InboxDirective.Default;
         }
 
-        public Unit RunStrategy(Exception e, IProcessStrategy strategy, ProcessId pid) =>
-            map(strategy.HandleFailure(pid, strategyState.IfNoneUnsafe(() => strategy.NewState(Id)), e),
-                (state, directive) => {
-                    strategyState = Some(state);
+        public InboxDirective RunStrategy(
+            ProcessId pid,
+            ProcessId sender,
+            Exception ex, 
+            object message,
+            State<StrategyContext, Unit> strategy
+            )
+        {
+            // Build a strategy specifically for this event
+            var failureStrategy = strategy.Failure(
+                    pid,
+                    sender,
+                    Parent.Actor.Id,
+                    Parent.Actor.Children.Keys.Map(n => new ProcessId(n)).Filter(x => x != Id),
+                    ex,
+                    message
+                );
 
-                    // Find out the processes that this strategy affects and apply
-                    foreach (var cpid in strategy.Affects(
-                        Parent.Actor.Id, 
-                        pid, 
-                        Parent.Actor.Children.Keys.Map(n => new ProcessId(n))).Filter(x => x != Id)
-                        )
-                    {
-                        switch (directive.Type)
-                        {
-                            case DirectiveType.Escalate:
-                            case DirectiveType.Resume:
-                                // Do nothing
-                                break;
-                            case DirectiveType.Restart:
-                                restart(cpid, (directive as Restart).When);
-                                break;
-                            case DirectiveType.Stop:
-                                kill(cpid);
-                                break;
-                        }
-                    }
+            // Invoke the strategy with the running state
+            var result = failureStrategy(strategyState);
+            var decision = result.Value;
 
-                    switch (directive.Type)
-                    {
-                        case DirectiveType.Escalate:
-                            tellSystem(Parent.Actor.Id, SystemMessage.ChildFaulted(pid, e), Self);
-                            break;
-                        case DirectiveType.Resume:
-                            // Do nothing
-                            break;
-                        case DirectiveType.Restart:
-                            Restart((directive as Restart).When);
-                            break;
-                        case DirectiveType.Stop:
-                            ShutdownProcess(false);
-                            break;
-                    }
-                    return unit;
-                });
+            // Save the strategy state back to the actor
+            strategyState = result.State;
+
+            if (decision.ProcessDirective.Type != DirectiveType.Stop && decision.Pause > 0*seconds)
+            {
+                decision.Affects.Iter(p => pause(p));
+                delay(
+                    () => RunProcessDirective(pid, sender, ex, message, decision), 
+                    decision.Pause
+                );
+            }
+            else
+            {
+                // Run the instruction for the Process (stop/restart/etc.)
+                RunProcessDirective(pid, sender, ex, message, decision);
+            }
+
+            // Run the instruction for the message (dead-letters/send-to-self/...)
+            return RunMessageDirective(pid, sender, decision, ex, message);
+        }
+
+        InboxDirective RunMessageDirective(
+            ProcessId pid,
+            ProcessId sender,
+            StrategyDecision decision, 
+            Exception e, 
+            object message
+            )
+        {
+            var directive = decision.MessageDirective;
+            switch (directive.Type)
+            {
+                case MessageDirectiveType.SendToParent:
+                    tell(pid.Parent(), message, sender);
+                    return InboxDirective.Default;
+                case MessageDirectiveType.SendToSelf:
+                    tell(pid, message, sender);
+                    return InboxDirective.Default;
+                case MessageDirectiveType.Retry:
+                    return InboxDirective.PushToFrontOfQueue;
+                default:
+                    tell(ActorContext.DeadLetters, DeadLetter.create(sender, pid, e, "Process error: ", message));
+                    return InboxDirective.Default;
+            }
+        }
+
+        void RunProcessDirective(
+            ProcessId pid, 
+            ProcessId sender, 
+            Exception e, 
+            object message, 
+            StrategyDecision decision
+            )
+        {
+            var directive = decision.ProcessDirective;
+
+            // Find out the processes that this strategy affects and apply
+            foreach (var cpid in decision.Affects.Filter(x => x != pid))
+            {
+                switch (directive.Type)
+                {
+                    case DirectiveType.Escalate:
+                    case DirectiveType.Resume:
+                        unpause(cpid);
+                        break;
+                    case DirectiveType.Restart:
+                        restart(cpid);
+                        break;
+                    case DirectiveType.Stop:
+                        kill(cpid);
+                        break;
+                }
+            }
+
+            unpause(pid);
+
+            switch (directive.Type)
+            {
+                case DirectiveType.Escalate:
+                    tellSystem(Parent.Actor.Id, SystemMessage.ChildFaulted(pid, sender, e, message), Self);
+                    break;
+                case DirectiveType.Resume:
+                    // Do nothing
+                    break;
+                case DirectiveType.Restart:
+                    Restart();
+                    break;
+                case DirectiveType.Stop:
+                    ShutdownProcess(false);
+                    break;
+            }
+        }
 
         public Unit ShutdownProcess(bool maintainState)
         {
-            //tellSystem(Parent.Actor.Id, SystemMessage.UnlinkChild(Id));
             Parent.Actor.UnlinkChild(Id);
             ShutdownProcessRec(ActorContext.SelfProcess, ActorContext.GetInboxShutdownItem().Map(x => (ILocalActorInbox)x.Inbox), maintainState);
 
@@ -619,7 +674,7 @@ namespace LanguageExt
             return unit;
         }
 
-        private void ShutdownProcessRec(ActorItem item, Option<ILocalActorInbox> inboxShutdown, bool maintainState)
+        void ShutdownProcessRec(ActorItem item, Option<ILocalActorInbox> inboxShutdown, bool maintainState)
         {
             var process = item.Actor;
             var inbox = item.Inbox;
@@ -643,15 +698,15 @@ namespace LanguageExt
             DisposeState();
         }
 
-        private void DisposeState()
+        void DisposeState()
         {
             state.IfSome(s => (s as IDisposable)?.Dispose());
             state = None;
         }
 
-        public void ChildFaulted(Exception ex, ProcessId pid)
+        public void ChildFaulted(ProcessId pid, ProcessId sender, Exception ex, object message)
         {
-            RunStrategy(ex, Parent.Actor.Strategy, pid);
+            RunStrategy(pid, sender, ex, message, Parent.Actor.Strategy);
         }
     }
 }

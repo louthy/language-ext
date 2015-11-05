@@ -26,11 +26,8 @@ namespace LanguageExt
             Type = type;
         }
 
-        public static Directive RestartNow =>
-            new Restart(0*seconds);
-
-        public static Directive Restart(Time when) =>
-            new Restart(when);
+        public static Directive Restart =>
+            new Restart();
 
         public static readonly Directive Resume = 
             new Resume();
@@ -59,7 +56,7 @@ namespace LanguageExt
             !(lhs == rhs);
     }
 
-    class Resume : Directive
+    public class Resume : Directive
     {
         public Resume()
             :
@@ -68,7 +65,7 @@ namespace LanguageExt
         }
     }
 
-    class Stop : Directive
+    public class Stop : Directive
     {
         public Stop()
             :
@@ -77,25 +74,16 @@ namespace LanguageExt
         }
     }
 
-    class Restart : Directive
+    public class Restart : Directive
     {
-        public readonly Time When;
-
-        public Restart(Time when)
+        public Restart()
             :
             base(DirectiveType.Restart)
         {
-            When = when;
         }
-
-        public override bool Equals(Directive other) =>
-            other.Type == DirectiveType.Restart && When == ((Restart)other).When;
-
-        public override int GetHashCode() =>
-            base.GetHashCode() ^ When.GetHashCode();
     }
 
-    class Escalate : Directive
+    public class Escalate : Directive
     {
         public Escalate()
             :

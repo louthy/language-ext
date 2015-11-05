@@ -8,129 +8,99 @@ using Xunit;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
+using static LanguageExt.Strategy;
 
 namespace LanguageExtTests
 {
     public class ProcessStrategyTests
     {
-        [Fact]
-        public void OneForOneTest()
-        {
-            var state = oneForOneStrategy.NewState(ProcessId.NoSender);
+        State<StrategyContext, Unit> retriesAndBackOff =
+            OneForOne(
+                Retries(Count: 5, Duration: 30*seconds),
+                Backoff(Min: 2*seconds, Max: 1*hour, Step: 5*seconds),
+                Match(
+                    With<NotImplementedException>(Directive.Stop),
+                    With<ArgumentNullException>(Directive.Escalate),
+                    Otherwise(Directive.Restart)),
+                Redirect(
+                    When<Restart>(MessageDirective.ForwardToParent),
+                    When<Escalate>(MessageDirective.ForwardToSelf),
+                    Otherwise(MessageDirective.ForwardToDeadLetters)));
 
-            var res = oneForOneStrategy.HandleFailure(ProcessId.NoSender, state, new NotSupportedException());
-            Assert.True(res.Item2 == Directive.Escalate);
-            state = res.Item1;
+        State<StrategyContext, Unit> backOff =
+            AllForOne(
+                Backoff(Min: 1*seconds, Max: 10*seconds, Step: 5*seconds),
+                Always(Directive.Restart),
+                Redirect(
+                    When<Restart>(MessageDirective.ForwardToParent),
+                    Otherwise(MessageDirective.ForwardToDeadLetters)));
 
-            res = oneForOneStrategy.HandleFailure(ProcessId.NoSender, state, new NullReferenceException());
-            Assert.True(res.Item2 == Directive.Restart(10*s));
-            state = res.Item1;
-
-            res = oneForOneStrategy.HandleFailure(ProcessId.NoSender, state, new ApplicationException());
-            Assert.True(res.Item2 == Directive.RestartNow);
-            state = res.Item1;
-
-            res = oneForOneStrategy.HandleFailure(ProcessId.NoSender, state, new ProcessKillException());
-            Assert.True(res.Item2 == Directive.Stop);
-            state = res.Item1;
-
-            res = oneForOneStrategy.HandleFailure(ProcessId.NoSender, state, new ProcessSetupException(null, null));
-            Assert.True(res.Item2 == Directive.Stop);
-            state = res.Item1;
-
-            // This should return Directive.Stop because there are 5 failures within 10 seconds
-            // after this is asserted true the failure count will be reduced to 0
-            res = oneForOneStrategy.HandleFailure(ProcessId.NoSender, state, new Exception());
-            Assert.True(res.Item2 == Directive.Stop);
-            state = res.Item1;
-
-            res = oneForOneStrategy.HandleFailure(ProcessId.NoSender, state, new Exception());
-            Assert.True(res.Item2 == Directive.Resume);
-            state = res.Item1;
-        }
 
         [Fact]
-        public void AllForOneTest()
+        public void TooManyRetriesInSpecifiedDurationTest()
         {
-            var state = allForOneStrategy.NewState(ProcessId.NoSender);
+            // This exception causes a Stop (from its Match -> With), that means that even
+            // though there's a retries counter, it will be reset, because the Process will
+            // be no more if the decision is enacted.
+            var res = retriesAndBackOff.Failure(ProcessId.None, ProcessId.None, ProcessId.None, null, new NotImplementedException(), null)(StrategyState.Empty);
+            Assert.True(res.Value.ProcessDirective == Directive.Stop);
+            Assert.True(res.Value.MessageDirective == MessageDirective.ForwardToDeadLetters);
+            Assert.True(res.Value.Pause == 0*seconds);
 
-            var res = allForOneStrategy.HandleFailure(ProcessId.NoSender, state, new NotSupportedException());
-            Assert.True(res.Item2 == Directive.Escalate);
-            state = res.Item1;
+            res = retriesAndBackOff.Failure(ProcessId.None, ProcessId.None, ProcessId.None, null, new ArgumentNullException(), null)(res.State);
+            Assert.True(res.Value.ProcessDirective == Directive.Escalate);
+            Assert.True(res.Value.MessageDirective == MessageDirective.ForwardToSelf);
+            Assert.True(res.Value.Pause == 2*seconds);
 
-            res = allForOneStrategy.HandleFailure(ProcessId.NoSender, state, new NullReferenceException());
-            Assert.True(res.Item2 == Directive.Restart(10 * s));
-            state = res.Item1;
+            res = retriesAndBackOff.Failure(ProcessId.None, ProcessId.None, ProcessId.None, null, new NotSupportedException(), null)(res.State);
+            Assert.True(res.Value.ProcessDirective == Directive.Restart);
+            Assert.True(res.Value.MessageDirective == MessageDirective.ForwardToParent);
+            Assert.True(res.Value.Pause == 7*seconds);
 
-            res = allForOneStrategy.HandleFailure(ProcessId.NoSender, state, new ApplicationException());
-            Assert.True(res.Item2 == Directive.RestartNow);
-            state = res.Item1;
+            res = retriesAndBackOff.Failure(ProcessId.None, ProcessId.None, ProcessId.None, null, new NotSupportedException(), null)(res.State);
+            Assert.True(res.Value.ProcessDirective == Directive.Restart);
+            Assert.True(res.Value.MessageDirective == MessageDirective.ForwardToParent);
+            Assert.True(res.Value.Pause == 12*seconds);
 
-            res = allForOneStrategy.HandleFailure(ProcessId.NoSender, state, new ProcessKillException());
-            Assert.True(res.Item2 == Directive.Stop);
-            state = res.Item1;
+            res = retriesAndBackOff.Failure(ProcessId.None, ProcessId.None, ProcessId.None, null, new NotSupportedException(), null)(res.State);
+            Assert.True(res.Value.ProcessDirective == Directive.Restart);
+            Assert.True(res.Value.MessageDirective == MessageDirective.ForwardToParent);
+            Assert.True(res.Value.Pause == 17*seconds);
 
-            res = allForOneStrategy.HandleFailure(ProcessId.NoSender, state, new ProcessSetupException(null, null));
-            Assert.True(res.Item2 == Directive.Stop);
-            state = res.Item1;
+            // This is the 5th event in a row, that causes the the decision to be 'Stop' and 
+            // resets all 'retry counters' and 'last failure' date-times.
+            res = retriesAndBackOff.Failure(ProcessId.None, ProcessId.None, ProcessId.None, null, new NotSupportedException(), null)(res.State);
+            Assert.True(res.Value.ProcessDirective == Directive.Stop);
+            Assert.True(res.Value.MessageDirective == MessageDirective.ForwardToDeadLetters);
+            Assert.True(res.Value.Pause == 0*seconds);
 
-            // This should return Directive.Stop because there are 5 failures within 10 seconds
-            // after this is asserted true the failure count will be reduced to 0
-            res = allForOneStrategy.HandleFailure(ProcessId.NoSender, state, new Exception());
-            Assert.True(res.Item2 == Directive.Stop);
-            state = res.Item1;
-
-            res = allForOneStrategy.HandleFailure(ProcessId.NoSender, state, new Exception());
-            Assert.True(res.Item2 == Directive.Resume);
-            state = res.Item1;
-
+            res = retriesAndBackOff.Failure(ProcessId.None, ProcessId.None, ProcessId.None, null, new NotSupportedException(), null)(res.State);
+            Assert.True(res.Value.ProcessDirective == Directive.Restart);
+            Assert.True(res.Value.MessageDirective == MessageDirective.ForwardToParent);
+            Assert.True(res.Value.Pause == 2 * seconds);
         }
 
         [Fact]
-        public void OneForOneAlwaysTest()
+        public void BackOffGrowsTooLargeTest()
         {
-            var always = OneForOne().Always(Directive.Resume);
-            var state = always.NewState(ProcessId.NoSender);
+            var res = backOff.Failure(ProcessId.None, ProcessId.None, ProcessId.None, null, new ArgumentNullException(), null)(StrategyState.Empty);
+            Assert.True(res.Value.ProcessDirective == Directive.Restart);
+            Assert.True(res.Value.MessageDirective == MessageDirective.ForwardToParent);
+            Assert.True(res.Value.Pause == 1 * seconds);
 
-            var res = always.HandleFailure(ProcessId.NoSender, state, new ProcessKillException());
-            Assert.True(res.Item2 == Directive.Stop);
-            state = res.Item1;
+            res = backOff.Failure(ProcessId.None, ProcessId.None, ProcessId.None, null, new ArgumentNullException(), null)(res.State);
+            Assert.True(res.Value.ProcessDirective == Directive.Restart);
+            Assert.True(res.Value.MessageDirective == MessageDirective.ForwardToParent);
+            Assert.True(res.Value.Pause == 6 * seconds);
 
-            res = always.HandleFailure(ProcessId.NoSender, state, new ProcessSetupException(null, null));
-            Assert.True(res.Item2 == Directive.Stop);
-            state = res.Item1;
+            // This is the event where the backoff-max boundary is hit; that forces the
+            // decision to be 'Stop' and resets all pauses.
+            res = backOff.Failure(ProcessId.None, ProcessId.None, ProcessId.None, null, new ArgumentNullException(), null)(res.State);
+            Assert.True(res.Value.ProcessDirective == Directive.Stop);
+            Assert.True(res.Value.MessageDirective == MessageDirective.ForwardToDeadLetters);
+            Assert.True(res.Value.Pause == 0 * seconds);
 
-            res = always.HandleFailure(ProcessId.NoSender, state, new Exception());
-            Assert.True(res.Item2 == Directive.Resume);
-            state = res.Item1;
         }
 
-        public void SpawnTest()
-        {
-            var pid = spawn<string>(
-                "super", 
-                m => publish(m), 
-                strategy: oneForOneStrategy
-            );
-        }
-
-        IProcessStrategy itsBadStrategy =
-            Process.OneForOne(MaxRetries: 5, Duration: 10 * seconds)
-                   .Always(Directive.RestartNow);
-
-
-        IProcessStrategy oneForOneStrategy =
-            OneForOne(MaxRetries: 5, Duration: 10 * s).Match()
-                .With<NotSupportedException>(Directive.Escalate)
-                .With<NullReferenceException>(Directive.Restart(10*s))
-                .With<ApplicationException>(Directive.RestartNow)
-                .Otherwise(Directive.Resume);
-
-        IProcessStrategy allForOneStrategy = 
-            AllForOne(MaxRetries: 5, Duration: 10 * s).Match()
-                .With<NotSupportedException>(Directive.Escalate)
-                .With<NullReferenceException>(Directive.Restart(10*s))
-                .With<ApplicationException>(Directive.RestartNow)
-                .Otherwise(Directive.Resume);
     }
 }

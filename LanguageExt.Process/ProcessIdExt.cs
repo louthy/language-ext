@@ -47,14 +47,14 @@ public static class __ProcessIdExt
     /// <summary>
     /// Register as a named process
     /// </summary>
-    public static ProcessId Register<T>(this ProcessId self, ProcessFlags flags = ProcessFlags.Default) =>
-        ActorContext.Register<T>(self.GetName(), self, flags);
+    public static ProcessId Register<T>(this ProcessId self, ProcessFlags flags = ProcessFlags.Default, int maxMailboxSize = ProcessSetting.DefaultMailboxSize) =>
+        ActorContext.Register<T>(self.GetName(), self, flags, ProcessSetting.DefaultMailboxSize);
 
     /// <summary>
     /// Register as a named process
     /// </summary>
-    public static ProcessId Register<T>(this ProcessId self, ProcessName name, ProcessFlags flags = ProcessFlags.Default) =>
-        ActorContext.Register<T>(name, self, flags);
+    public static ProcessId Register<T>(this ProcessId self, ProcessName name, ProcessFlags flags = ProcessFlags.Default, int maxMailboxSize = ProcessSetting.DefaultMailboxSize) =>
+        ActorContext.Register<T>(name, self, flags, maxMailboxSize);
 
     /// <summary>
     /// Kill the process.

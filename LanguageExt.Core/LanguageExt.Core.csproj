@@ -95,6 +95,7 @@
     <Compile Include="Prelude_Obsolete.cs" />
     <Compile Include="Prelude_PartialApplication.cs" />
     <Compile Include="Prelude_Timer.cs" />
+    <Compile Include="Prelude_Tuple3.cs" />
     <Compile Include="Prelude_Tuple2.cs" />
     <Compile Include="Prelude_UnitsOfMeasure.cs" />
     <Compile Include="Prelude_Use.cs" />
@@ -132,6 +133,7 @@
     <Compile Include="Try.cs" />
     <Compile Include="TryOption.cs" />
     <Compile Include="TryOutExt.cs" />
+    <Compile Include="Tuple3.cs" />
     <Compile Include="Tuple2.cs" />
     <Compile Include="TupleExt.cs" />
     <Compile Include="TypeConverters.cs" />

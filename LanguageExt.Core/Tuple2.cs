@@ -5,81 +5,33 @@ using static LanguageExt.Prelude;
 public static class __Tuple2
 {
     /// <summary>
-    /// Sum
+    /// Append an extra item to the tuple
     /// </summary>
-    public static int Sum<T1, T2>(this Tuple<T1, T2> self) =>
-        0;
+    public static Tuple<T1,T2,T3> Append<T1, T2, T3>(this Tuple<T1, T2> self, T3 third) =>
+        Tuple(self.Item1,self.Item2, third);
 
     /// <summary>
     /// Sum
     /// </summary>
-    public static int Sum<T1, T2>(this Tuple<int, T2> self) =>
-        self.Item1;
-
-    /// <summary>
-    /// Sum
-    /// </summary>
-    public static int Sum<T1, T2>(this Tuple<T1, int> self) =>
-        self.Item2;
-
-    /// <summary>
-    /// Sum
-    /// </summary>
-    public static int Sum<T1, T2>(this Tuple<int, int> self) =>
+    public static int Sum(this Tuple<int, int> self) =>
         self.Item1 + self.Item2;
 
     /// <summary>
     /// Sum
     /// </summary>
-    public static double Sum<T1, T2>(this Tuple<double, T2> self) =>
-        self.Item1;
-
-    /// <summary>
-    /// Sum
-    /// </summary>
-    public static double Sum<T1, T2>(this Tuple<T1, double> self) =>
-        self.Item2;
-
-    /// <summary>
-    /// Sum
-    /// </summary>
-    public static double Sum<T1, T2>(this Tuple<double, double> self) =>
+    public static double Sum(this Tuple<double, double> self) =>
         self.Item1 + self.Item2;
 
     /// <summary>
     /// Sum
     /// </summary>
-    public static float Sum<T1, T2>(this Tuple<float, T2> self) =>
-        self.Item1;
-
-    /// <summary>
-    /// Sum
-    /// </summary>
-    public static float Sum<T1, T2>(this Tuple<T1, float> self) =>
-        self.Item2;
-
-    /// <summary>
-    /// Sum
-    /// </summary>
-    public static float Sum<T1, T2>(this Tuple<float, float> self) =>
+    public static float Sum(this Tuple<float, float> self) =>
         self.Item1 + self.Item2;
 
     /// <summary>
     /// Sum
     /// </summary>
-    public static decimal Sum<T1, T2>(this Tuple<decimal, T2> self) =>
-        self.Item1;
-
-    /// <summary>
-    /// Sum
-    /// </summary>
-    public static decimal Sum<T1, T2>(this Tuple<T1, decimal> self) =>
-        self.Item2;
-
-    /// <summary>
-    /// Sum
-    /// </summary>
-    public static decimal Sum<T1, T2>(this Tuple<decimal, decimal> self) =>
+    public static decimal Sum(this Tuple<decimal, decimal> self) =>
         self.Item1 + self.Item2;
 
     /// <summary>

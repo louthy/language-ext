@@ -258,4 +258,27 @@ namespace LanguageExt
         {
         }
     }
+
+    /// <summary>
+    /// Process inbox is full
+    /// </summary>
+    [Serializable]
+    public class ProcessInboxFullException : Exception
+    {
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public ProcessInboxFullException(ProcessId pid, int maximumSize, string type)
+            :
+            base("Process (" + pid + ") "+ type + " inbox is full (Maximum items: " + maximumSize + ")")
+        {
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        protected ProcessInboxFullException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+    }
 }

@@ -23,7 +23,7 @@ namespace LanguageExt
             Startup(None);
         }
 
-        public static Unit Startup(Option<ICluster> cluster, int version = 0)
+        public static Unit Startup(Option<ICluster> cluster)
         {
             if (started) return unit;
 
@@ -45,7 +45,7 @@ namespace LanguageExt
                 var rootProcess = state.RootProcess;
                 state.Startup();
                 userContext = new ActorRequestContext(rootProcess.Children["user"], ProcessId.NoSender, rootItem, null, null, ProcessFlags.Default);
-                rootInbox.Startup(rootProcess, parent, cluster, version);
+                rootInbox.Startup(rootProcess, parent, cluster, ProcessSetting.DefaultMailboxSize);
                 rootProcess.Startup();
                 rootItem = new ActorItem(rootProcess, rootInbox, ProcessFlags.Default);
                 started = true;
@@ -181,16 +181,16 @@ namespace LanguageExt
             return Startup(None);
         }
 
-        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<T, Unit> actorFn, IProcessStrategy strategy, ProcessFlags flags) =>
-            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), strategy, flags);
+        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<T, Unit> actorFn, State<StrategyContext, Unit> strategy, ProcessFlags flags, int maxMailboxSize) =>
+            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), strategy, flags, maxMailboxSize);
 
-        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Action<T> actorFn, IProcessStrategy strategy, ProcessFlags flags) =>
-            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), strategy, flags);
+        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Action<T> actorFn, State<StrategyContext, Unit> strategy, ProcessFlags flags, int maxMailboxSize) =>
+            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), strategy, flags, maxMailboxSize);
 
-        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn, IProcessStrategy strategy, ProcessFlags flags) =>
-            ActorCreate<S, T>(parent, name, actorFn, _ => setupFn(), strategy, flags);
+        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn, State<StrategyContext, Unit> strategy, ProcessFlags flags, int maxMailboxSize) =>
+            ActorCreate<S, T>(parent, name, actorFn, _ => setupFn(), strategy, flags, maxMailboxSize);
 
-        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<IActor, S> setupFn, IProcessStrategy strategy, ProcessFlags flags)
+        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<IActor, S> setupFn, State<StrategyContext, Unit> strategy, ProcessFlags flags, int maxMailboxSize)
         {
             var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn, strategy, flags);
 
@@ -218,7 +218,7 @@ namespace LanguageExt
                 {
                     actor.Startup();
                 }
-                inbox.Startup(actor, parent, cluster, 0);
+                inbox.Startup(actor, parent, cluster, maxMailboxSize);
             }
             catch
             {
@@ -404,7 +404,7 @@ namespace LanguageExt
             }
         }
 
-        public static ProcessId Register<T>(ProcessName name, ProcessId processId, ProcessFlags flags) =>
+        public static ProcessId Register<T>(ProcessName name, ProcessId processId, ProcessFlags flags, int maxMailboxSize) =>
             processId.IsValid
                 ? GetRegisteredItem().Match(
                      Some: regd =>
@@ -414,7 +414,8 @@ namespace LanguageExt
                             RegisteredActor<T>.Inbox,
                             () => processId,
                             Process.DefaultStrategy,
-                            flags
+                            flags,
+                            maxMailboxSize
                         ),
                      None: () => ProcessId.None)
                 : ProcessId.None;
@@ -521,7 +522,7 @@ namespace LanguageExt
                         : GetRemoteDispatcher(pid)
                 : new ActorDispatchNotExist(pid);
 
-        private static IActorDispatch GetDispatcher(ProcessId pid, ActorItem current, ProcessId orig)
+        static IActorDispatch GetDispatcher(ProcessId pid, ActorItem current, ProcessId orig)
         {
             if (pid == ProcessId.Top)
             {

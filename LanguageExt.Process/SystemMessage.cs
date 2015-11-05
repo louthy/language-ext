@@ -12,23 +12,35 @@ namespace LanguageExt
         public override Message.Type MessageType => Message.Type.System;
         public static SystemMessage LinkChild(ActorItem item) => new SystemLinkChildMessage(item);
         public static SystemMessage UnlinkChild(ProcessId pid) => new SystemUnLinkChildMessage(pid);
-        public static SystemMessage ChildFaulted(ProcessId pid, Exception ex) => new SystemChildFaultedMessage(pid, ex);
+        public static SystemMessage ChildFaulted(ProcessId pid, ProcessId sender, Exception ex, object msg) => new SystemChildFaultedMessage(pid, sender, ex, msg);
         public static SystemMessage ShutdownProcess = new ShutdownProcessMessage();
-        public static SystemMessage Restart(Time when) => new SystemRestartMessage(when);
+        public static SystemMessage Restart => new SystemRestartMessage();
+        public static readonly SystemMessage Null = new SystemNullMessage();
+        public static readonly SystemMessage Pause = new SystemPauseMessage();
+        public static readonly SystemMessage Unpause = new SystemUnpauseMessage();
     }
 
-    internal class SystemRestartMessage : SystemMessage
+    class SystemPauseMessage : SystemMessage
+    {
+        public override TagSpec Tag => TagSpec.Pause;
+    }
+
+    class SystemUnpauseMessage : SystemMessage
+    {
+        public override TagSpec Tag => TagSpec.Unpause;
+    }
+
+    class SystemNullMessage : SystemMessage
+    {
+        public override TagSpec Tag => TagSpec.Null;
+    }
+
+    class SystemRestartMessage : SystemMessage
     {
         public override TagSpec Tag => TagSpec.Restart;
-
-        public SystemRestartMessage(Time when)
-        {
-            When = when;
-        }
-        public Time When { get; }
     }
 
-    internal class SystemLinkChildMessage : SystemMessage
+    class SystemLinkChildMessage : SystemMessage
     {
         public override TagSpec Tag => TagSpec.LinkChild;
 
@@ -39,7 +51,7 @@ namespace LanguageExt
         public ActorItem Child { get; }
     }
 
-    internal class SystemUnLinkChildMessage : SystemMessage
+    class SystemUnLinkChildMessage : SystemMessage
     {
         public override TagSpec Tag => TagSpec.UnlinkChild;
 
@@ -50,20 +62,24 @@ namespace LanguageExt
         public ProcessId Child { get; }
     }
 
-    internal class SystemChildFaultedMessage : SystemMessage
+    class SystemChildFaultedMessage : SystemMessage
     {
         public override TagSpec Tag => TagSpec.ChildFaulted;
 
-        public SystemChildFaultedMessage(ProcessId child, Exception exception)
+        public SystemChildFaultedMessage(ProcessId child, ProcessId sender, Exception exception, object message)
         {
             Child = child;
+            Sender = sender;
             Exception = exception;
+            Message = message;
         }
         public ProcessId Child { get; }
+        public ProcessId Sender { get; }
         public Exception Exception { get; }
+        public object Message { get; }
     }
 
-    internal class ShutdownProcessMessage : SystemMessage
+    class ShutdownProcessMessage : SystemMessage
     {
         public override TagSpec Tag => TagSpec.ShutdownProcess;
 
