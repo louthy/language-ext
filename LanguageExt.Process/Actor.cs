@@ -392,6 +392,8 @@ namespace LanguageExt
                 ActorContext.ProcessFlags = flags;
                 ActorContext.CurrentMsg = request.Message;
 
+                //ActorContext.AssertSession();
+
                 if (typeof(T) != typeof(string) && request.Message is string)
                 {
                     state = PreProcessMessageContent(request.Message).Match(
@@ -496,6 +498,8 @@ namespace LanguageExt
                 ActorContext.CurrentRequest = null;
                 ActorContext.ProcessFlags = flags;
                 ActorContext.CurrentMsg = message;
+
+                //ActorContext.AssertSession();
 
                 if (typeof(T) != typeof(string) && message is string)
                 {

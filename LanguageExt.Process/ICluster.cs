@@ -39,7 +39,7 @@ namespace LanguageExt
         /// <summary>
         /// Publish data to a named channel
         /// </summary>
-        long PublishToChannel(string channelName, object data);
+        int PublishToChannel(string channelName, object data);
 
         /// <summary>
         /// Subscribe to a named channel
@@ -76,7 +76,7 @@ namespace LanguageExt
         /// <summary>
         /// Enqueue a message
         /// </summary>
-        long Enqueue(string key, object value);
+        int Enqueue(string key, object value);
 
         /// <summary>
         /// Dequeue a message
@@ -104,5 +104,17 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key</param>
         int QueueLength(string key);
+
+        bool HashFieldExists(string key, string field);
+        void HashFieldAddOrUpdate(string key, string field, string value);
+        void HashFieldAddOrUpdate<T>(string key, string field, T value);
+        void HashFieldAddOrUpdate(string key, Map<string, string> fields);
+        void HashFieldAddOrUpdate<T>(string key, Map<string, T> fields);
+        bool DeleteHashField(string key, string field);
+        int DeleteHashFields(string key, IEnumerable<string> fields);
+        Map<string, T> GetHashFields<T>(string key);
+        Option<T> GetHashField<T>(string key, string field);
+        Map<string, T> GetHashFields<T>(string key, IEnumerable<string> fields);
+
     }
 }

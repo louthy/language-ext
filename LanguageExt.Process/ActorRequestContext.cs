@@ -14,6 +14,7 @@ namespace LanguageExt
         public readonly object CurrentMsg;
         public readonly ActorRequest CurrentRequest;
         public readonly ProcessFlags ProcessFlags;
+        public readonly Option<string> SessionId;
 
         public ActorRequestContext(
             ActorItem self,
@@ -21,7 +22,8 @@ namespace LanguageExt
             ActorItem parent,
             object currentMsg,
             ActorRequest currentRequest,
-            ProcessFlags processFlags
+            ProcessFlags processFlags,
+            Option<string> sessionId
             )
         {
             Self = self;
@@ -30,42 +32,51 @@ namespace LanguageExt
             CurrentMsg = currentMsg;
             CurrentRequest = currentRequest;
             ProcessFlags = processFlags;
+            SessionId = sessionId;
         }
 
-        public ActorRequestContext SetProcessFlags(ProcessFlags flags)
-        {
-            return new ActorRequestContext(
+        public ActorRequestContext SetProcessFlags(ProcessFlags flags) =>
+            new ActorRequestContext(
                 Self,
                 Sender,
                 Parent,
                 CurrentMsg,
                 CurrentRequest,
-                flags
+                flags,
+                SessionId
             );
-        }
 
-        public ActorRequestContext SetCurrentRequest(ActorRequest currentRequest)
-        {
-            return new ActorRequestContext(
+        public ActorRequestContext SetCurrentRequest(ActorRequest currentRequest) =>
+            new ActorRequestContext(
                 Self,
                 Sender,
                 Parent,
                 CurrentMsg,
                 currentRequest,
-                ProcessFlags
+                ProcessFlags, 
+                SessionId
             );
-        }
 
-        public ActorRequestContext SetCurrentMessage(object currentMsg)
-        {
-            return new ActorRequestContext(
+        public ActorRequestContext SetCurrentMessage(object currentMsg) =>
+            new ActorRequestContext(
                 Self,
                 Sender,
                 Parent,
                 currentMsg,
                 CurrentRequest,
-                ProcessFlags
+                ProcessFlags,
+                SessionId
             );
-        }
+
+        public ActorRequestContext SetSessionId(Option<string> sessionId) =>
+            new ActorRequestContext(
+                Self,
+                Sender,
+                Parent,
+                CurrentMsg,
+                CurrentRequest,
+                ProcessFlags,
+                sessionId
+            );
     }
 }

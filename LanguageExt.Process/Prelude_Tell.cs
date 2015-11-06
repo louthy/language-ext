@@ -47,8 +47,15 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <param name="delayFor">How long to delay sending for</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
-        public static IDisposable tell<T>(ProcessId pid, T message, TimeSpan delayFor, ProcessId sender = default(ProcessId)) =>
-            delay(() => tell(pid, message, sender), delayFor).Subscribe();
+        public static IDisposable tell<T>(ProcessId pid, T message, TimeSpan delayFor, ProcessId sender = default(ProcessId))
+        {
+            var sid = ActorContext.SessionId;
+            return delay(() =>
+            {
+                ActorContext.SessionId = sid;
+                return tell(pid, message, sender);
+            }, delayFor).Subscribe();
+        }
 
         /// <summary>
         /// Send a message at a specified time in the future
@@ -62,8 +69,15 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <param name="delayUntil">Date and time to send</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
-        public static IDisposable tell<T>(ProcessId pid, T message, DateTime delayUntil, ProcessId sender = default(ProcessId)) =>
-            delay(() => tell(pid, message, sender), delayUntil).Subscribe();
+        public static IDisposable tell<T>(ProcessId pid, T message, DateTime delayUntil, ProcessId sender = default(ProcessId))
+        {
+            var sid = ActorContext.SessionId;
+            return delay(() =>
+            {
+                ActorContext.SessionId = sid;
+                return tell(pid, message, sender);
+            }, delayUntil).Subscribe();
+        }
 
         /// <summary>
         /// Tell children the same message
@@ -91,8 +105,15 @@ namespace LanguageExt
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
-        public static IDisposable tellChildren<T>(T message, TimeSpan delayFor, ProcessId sender = new ProcessId()) =>
-            delay(() => tellChildren(message, sender), delayFor).Subscribe();
+        public static IDisposable tellChildren<T>(T message, TimeSpan delayFor, ProcessId sender = new ProcessId())
+        {
+            var sid = ActorContext.SessionId;
+            return delay(() =>
+            {
+                ActorContext.SessionId = sid;
+                return tellChildren(message, sender);
+            }, delayFor).Subscribe();
+        }
 
         /// <summary>
         /// Tell children the same message, delayed.
@@ -105,8 +126,15 @@ namespace LanguageExt
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
-        public static IDisposable tellChildren<T>(T message, DateTime delayUntil, ProcessId sender = new ProcessId()) =>
-            delay(() => tellChildren(message, sender), delayUntil).Subscribe();
+        public static IDisposable tellChildren<T>(T message, DateTime delayUntil, ProcessId sender = new ProcessId())
+        {
+            var sid = ActorContext.SessionId;
+            return delay(() =>
+            {
+                ActorContext.SessionId = sid;
+                return tellChildren(message, sender);
+            }, delayUntil).Subscribe();
+        }
 
         /// <summary>
         /// Tell children the same message
@@ -115,7 +143,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <param name="predicate">The list of children to send to are filtered by the predicate provided</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
-        public static Unit tellChildren<T>(T message, Func<ProcessId,bool> predicate, ProcessId sender = new ProcessId()) =>
+        public static Unit tellChildren<T>(T message, Func<ProcessId, bool> predicate, ProcessId sender = new ProcessId()) =>
             iter(filter(Children, predicate), child => tell(child, message, sender));
 
         /// <summary>
@@ -128,8 +156,15 @@ namespace LanguageExt
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
-        public static IDisposable tellChildren<T>(T message, TimeSpan delayFor, Func<ProcessId, bool> predicate, ProcessId sender = new ProcessId()) =>
-            delay(() => tellChildren(message, predicate, sender), delayFor).Subscribe();
+        public static IDisposable tellChildren<T>(T message, TimeSpan delayFor, Func<ProcessId, bool> predicate, ProcessId sender = new ProcessId())
+        {
+            var sid = ActorContext.SessionId;
+            return delay(() =>
+            {
+                ActorContext.SessionId = sid;
+                return tellChildren(message, predicate, sender);
+            }, delayFor).Subscribe();
+        }
 
         /// <summary>
         /// Tell children the same message, delayed.
@@ -144,8 +179,15 @@ namespace LanguageExt
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
-        public static IDisposable tellChildren<T>(T message, DateTime delayUntil, Func<ProcessId, bool> predicate, ProcessId sender = new ProcessId()) =>
-            delay(() => tellChildren(message, predicate, sender), delayUntil).Subscribe();
+        public static IDisposable tellChildren<T>(T message, DateTime delayUntil, Func<ProcessId, bool> predicate, ProcessId sender = new ProcessId())
+        {
+            var sid = ActorContext.SessionId;
+            return delay(() =>
+            {
+                ActorContext.SessionId = sid;
+                return tellChildren(message, predicate, sender);
+            }, delayUntil).Subscribe();
+        }
 
         /// <summary>
         /// Send a message to the parent process

@@ -70,7 +70,7 @@ namespace LanguageExt
 
         public static InboxDirective SystemMessageInbox<S,T>(Actor<S,T> actor, IActorInbox inbox, SystemMessage msg, ActorItem parent)
         {
-            return ActorContext.WithContext(new ActorItem(actor,inbox,actor.Flags), parent, ProcessId.NoSender, null, msg, () =>
+            return ActorContext.WithContext(new ActorItem(actor,inbox,actor.Flags), parent, ProcessId.NoSender, null, msg, msg.SessionId, () =>
             {
                 switch (msg.Tag)
                 {
@@ -118,16 +118,16 @@ namespace LanguageExt
             {
                 case Message.TagSpec.UserAsk:
                     var rmsg = (ActorRequest)msg;
-                    return ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, rmsg.ReplyTo, rmsg, msg, () => actor.ProcessAsk(rmsg));
+                    return ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, rmsg.ReplyTo, rmsg, msg, msg.SessionId, () => actor.ProcessAsk(rmsg));
 
                 case Message.TagSpec.UserReply:
                     var urmsg = (ActorResponse)msg;
-                    ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, urmsg.ReplyFrom, null, msg, () => actor.ProcessResponse(urmsg));
+                    ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, urmsg.ReplyFrom, null, msg, msg.SessionId, () => actor.ProcessResponse(urmsg));
                     break;
 
                 case Message.TagSpec.User:
                     var umsg = (UserMessage)msg;
-                    return ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, umsg.Sender, null, msg, () => actor.ProcessMessage(umsg.Content));
+                    return ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, umsg.Sender, null, msg, msg.SessionId, () => actor.ProcessMessage(umsg.Content));
 
                 case Message.TagSpec.ShutdownProcess:
                     kill(actor.Id);

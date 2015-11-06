@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Reactive.Linq;
 
+using static LanguageExt.Prelude;
+
 namespace LanguageExt
 {
     internal class ActorDispatchLocal : IActorDispatch
@@ -39,8 +41,18 @@ namespace LanguageExt
             Inbox.Ask(message, sender);
 
         public Unit Kill() =>
-            ActorContext.WithContext(new ActorItem(Actor, (IActorInbox)Inbox, Actor.Flags), Actor.Parent, ProcessId.NoSender, null, SystemMessage.ShutdownProcess, () =>
-              Actor.ShutdownProcess(false)
+            ActorContext.WithContext(
+                new ActorItem(
+                    Actor, 
+                    (IActorInbox)Inbox, 
+                    Actor.Flags
+                    ), 
+                Actor.Parent, 
+                ProcessId.NoSender, 
+                null, 
+                SystemMessage.ShutdownProcess, 
+                None, 
+                () => Actor.ShutdownProcess(false)
             );
 
         public Map<string, ProcessId> GetChildren() =>

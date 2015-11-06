@@ -15,6 +15,7 @@ namespace LanguageExt
         public readonly ProcessName AskProcessName            = "ask";
         public readonly ProcessName ReplyProcessName          = "reply";
         public readonly ProcessName InboxShutdownProcessName  = "inbox-shutdown";
+        public readonly ProcessName Sessions                  = "sessions";
         public readonly TimeSpan    Timeout                   = TimeSpan.FromSeconds(30);
         public readonly int         MaxMailboxSize            = 10000;
 
