@@ -11,14 +11,7 @@ namespace LanguageExt
         /// Compose a sequence of state computations
         /// </summary>
         public static State<StrategyContext, Unit> Compose(params State<StrategyContext, Unit>[] stages) =>
-            state =>
-            {
-                foreach (var stage in stages)
-                {
-                    state = stage(state).State;
-                }
-                return StateResult.Return(state, unit);
-            };
+            state => StateResult.Return(stages.Fold(state, (s, c) => c(s).State), unit);
 
         /// <summary>
         /// One-for-one strategy
@@ -28,11 +21,7 @@ namespace LanguageExt
         /// for the strategy</param>
         /// <returns>Strategy computation as a State monad</returns>
         public static State<StrategyContext, Unit> OneForOne(params State<StrategyContext, Unit>[] stages) =>
-            state =>
-            {
-                state = state.With(Affects: new ProcessId[1] { state.Self });
-                return Compose(stages)(state);
-            };
+            state => Compose(stages)(state.With(Affects: new ProcessId[1] { state.Self }));
 
         /// <summary>
         /// All-for-one strategy
@@ -42,11 +31,7 @@ namespace LanguageExt
         /// for the strategy</param>
         /// <returns>Strategy computation as a State monad</returns>
         public static State<StrategyContext, Unit> AllForOne(params State<StrategyContext, Unit>[] stages) =>
-            state =>
-            {
-                state = state.With(Affects: state.Siblings);
-                return Compose(stages)(state);
-            };
+            state => Compose(stages)(state.With(Affects: state.Siblings));
 
         /// <summary>
         /// Get the context state State monad

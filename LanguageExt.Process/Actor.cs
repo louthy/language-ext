@@ -633,6 +633,10 @@ namespace LanguageExt
                     tell(pid, message, sender);
                     return InboxDirective.Default;
 
+                case MessageDirectiveType.ForwardToProcess:
+                    tell((directive as ForwardToProcess).ProcessId, message, sender);
+                    return InboxDirective.Default;
+
                 case MessageDirectiveType.StayInQueue:
                     return InboxDirective.PushToFrontOfQueue;
 

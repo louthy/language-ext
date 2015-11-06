@@ -14,6 +14,7 @@ namespace LanguageExt
         ForwardToDeadLetters,
         ForwardToSelf,
         ForwardToParent,
+        ForwardToProcess,
         StayInQueue
     }
 
@@ -51,6 +52,13 @@ namespace LanguageExt
         /// </summary>
         public static readonly MessageDirective ForwardToParent = 
             new ForwardToParent();
+
+        /// <summary>
+        /// Forward the failed message to the Process specified.
+        /// It will join the back of the queue.
+        /// </summary>
+        public static MessageDirective ForwardTo(ProcessId pid) =>
+            new ForwardToProcess(pid);
 
         /// <summary>
         /// Forward the failed message back to the Process that failed.
@@ -101,6 +109,18 @@ namespace LanguageExt
             :
             base(MessageDirectiveType.ForwardToParent)
         {
+        }
+    }
+
+    class ForwardToProcess : MessageDirective
+    {
+        public readonly ProcessId ProcessId;
+
+        public ForwardToProcess(ProcessId pid)
+            :
+            base(MessageDirectiveType.ForwardToProcess)
+        {
+            ProcessId = pid;
         }
     }
 
