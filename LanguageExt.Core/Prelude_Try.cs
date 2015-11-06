@@ -142,9 +142,26 @@ namespace LanguageExt
         public static Unit iter<T>(Try<T> self, Action<T> Succ, Action<Exception> Fail) =>
             self.Iter(Succ, Fail);
 
+        /// <summary>
+        /// Folds the result of Try into an S, if Try succeeds.
+        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// </summary>
+        /// <param name="tryDel">Try to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Folded state</returns>
         public static S fold<S, T>(Try<T> tryDel, S state, Func<S, T, S> folder) =>
             tryDel.Fold(state, folder);
 
+        /// <summary>
+        /// Folds the result of Try into an S.
+        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// </summary>
+        /// <param name="tryDel">Try to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="Succ">Fold function when Try succeeds</param>
+        /// <param name="Fail">Fold function when Try fails</param>
+        /// <returns>Folded state</returns>
         public static S fold<S, T>(Try<T> self, S state, Func<S, T, S> Succ, Func<S, Exception, S> Fail) =>
             self.Fold(state, Succ, Fail);
 

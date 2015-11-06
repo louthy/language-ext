@@ -96,6 +96,14 @@ namespace LanguageExt
         public static Unit matchUnsafe<T>(OptionUnsafe<T> option, Action<T> Some, Action None) =>
             option.MatchUnsafe(Some, None);
 
+        /// <summary>
+        /// Folds the option into an S, if Some.
+        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// </summary>
+        /// <param name="option">Option to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Folded state</returns>
         public static S fold<S, T>(OptionUnsafe<T> option, S state, Func<S, T, S> folder) =>
             option.Fold(state, folder);
 

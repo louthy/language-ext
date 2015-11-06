@@ -532,6 +532,14 @@ public static class __TryExt
             : Succ(res.Value);
     }
 
+    /// <summary>
+    /// Folds Try result into an S, if successful.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="self">Try to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="folder">Fold function</param>
+    /// <returns>Folded state</returns>
     public static S Fold<S, T>(this Try<T> self, S state, Func<S, T, S> folder)
     {
         var res = self.Try();
@@ -540,6 +548,15 @@ public static class __TryExt
             : folder(state, res.Value);
     }
 
+    /// <summary>
+    /// Folds Try result into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="self">Try to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="Succ">Fold function for Success</param>
+    /// <param name="Fail">Fold function for Failure</param>
+    /// <returns>Folded state</returns>
     public static S Fold<S, T>(this Try<T> self, S state, Func<S, T, S> Succ, Func<S, Exception, S> Fail)
     {
         var res = self.Try();

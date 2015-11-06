@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
@@ -487,7 +488,7 @@ public static class __TryOptionExt
             : res.Value.ForAll(pred);
     }
 
-    public static bool ForAll<T>(this TryOption<T> self, Func<T, bool> Some, Func<bool> None, Func<Exception,bool> Fail)
+    public static bool ForAll<T>(this TryOption<T> self, Func<T, bool> Some, Func<bool> None, Func<Exception, bool> Fail)
     {
         var res = self.Try();
         return res.IsFaulted
@@ -495,6 +496,14 @@ public static class __TryOptionExt
             : res.Value.ForAll(Some, None);
     }
 
+    /// <summary>
+    /// Folds TryOption result into an S, if successful and Some.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="self">Try to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="folder">Fold function</param>
+    /// <returns>Folded state</returns>
     public static S Fold<S, T>(this TryOption<T> self, S state, Func<S, T, S> folder)
     {
         var res = self.Try();
@@ -503,6 +512,16 @@ public static class __TryOptionExt
             : res.Value.Fold(state, folder);
     }
 
+    /// <summary>
+    /// Folds TryOption result into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="self">Try to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="Some">Fold function for Some</param>
+    /// <param name="None">Fold function for None</param>
+    /// <param name="Fail">Fold function for Failure</param>
+    /// <returns>Folded state</returns>
     public static S Fold<S, T>(this TryOption<T> self, S state, Func<S, T, S> Some, Func<S, S> None, Func<S, Exception, S> Fail)
     {
         var res = self.Try();

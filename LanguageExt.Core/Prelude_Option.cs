@@ -182,9 +182,26 @@ namespace LanguageExt
         public static Option<R> apply<T1, T2, R>(Option<Func<T1, T2, R>> option, Option<T1> arg1, Option<T2> arg2) =>
             option.Apply(arg1, arg2);
 
+        /// <summary>
+        /// Folds the option into an S, if Some.
+        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// </summary>
+        /// <param name="option">Option to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Folded state</returns>
         public static S fold<S, T>(Option<T> option, S state, Func<S, T, S> folder) =>
             option.Fold(state, folder);
 
+        /// <summary>
+        /// Folds the option into an S
+        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// </summary>
+        /// <param name="option">Option to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="Some">Fold function for Some</param>
+        /// <param name="None">Fold function for None</param>
+        /// <returns>Folded state</returns>
         public static S fold<S, T>(Option<T> option, S state, Func<S, T, S> Some, Func<S, S> None) =>
             option.Fold(state, Some, None);
 

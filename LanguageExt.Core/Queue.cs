@@ -70,9 +70,25 @@ namespace LanguageExt
         public static IEnumerable<T> append<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) =>
             List.append(lhs, rhs);
 
+        /// <summary>
+        /// Folds each value of the QueT into an S.
+        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// </summary>
+        /// <param name="queue">Queue to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Folded state</returns>
         public static S fold<S, T>(Que<T> queue, S state, Func<S, T, S> folder) =>
             List.fold(queue, state, folder);
 
+        /// <summary>
+        /// Folds each value of the QueT into an S, but in reverse order.
+        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// </summary>
+        /// <param name="queue">Queue to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Folded state</returns>
         public static S foldBack<S, T>(Que<T> queue, S state, Func<S, T, S> folder) =>
             List.foldBack(queue, state, folder);
 
