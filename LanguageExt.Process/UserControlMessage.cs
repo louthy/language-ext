@@ -13,9 +13,15 @@ namespace LanguageExt
     {
         public override Type MessageType => Type.UserControl;
         public readonly static UserControlMessage GetChildren = new GetChildrenMessage();
+        public readonly static UserControlMessage Null = new UserControlNullMessage();
     }
 
-    internal class GetChildrenMessage : UserControlMessage
+    class UserControlNullMessage : UserControlMessage
+    {
+        public override TagSpec Tag => TagSpec.Null;
+    }
+
+    class GetChildrenMessage : UserControlMessage
     {
         public override TagSpec Tag => TagSpec.GetChildren;
         public override string ToString() => "GetChildren";

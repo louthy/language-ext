@@ -4,7 +4,7 @@ using System.Runtime.Serialization.Formatters;
 
 namespace LanguageExt
 {
-    internal class ActorConfig
+    class ActorConfig
     {
         public readonly ProcessName RootProcessName           = "root";
         public readonly ProcessName SystemProcessName         = "system";
@@ -16,6 +16,7 @@ namespace LanguageExt
         public readonly ProcessName ReplyProcessName          = "reply";
         public readonly ProcessName InboxShutdownProcessName  = "inbox-shutdown";
         public readonly TimeSpan    Timeout                   = TimeSpan.FromSeconds(30);
+        public readonly int         MaxMailboxSize            = 10000;
 
         public readonly JsonSerializerSettings JsonSerializerSettings =
             new JsonSerializerSettings
@@ -26,5 +27,17 @@ namespace LanguageExt
 
         public readonly static ActorConfig Default =
             new ActorConfig();
+    }
+
+    public class ProcessSetting
+    {
+        public const int DefaultMailboxSize = -1;
+        public const int UnlimitedMaibox    = int.MaxValue;
+
+
+        public static readonly State<Exception, Option<Directive>>[] StandardDirectives = {
+            Strategy.With<ProcessKillException>(Directive.Stop),
+            Strategy.With<ProcessSetupException>(Directive.Stop)
+        };
     }
 }

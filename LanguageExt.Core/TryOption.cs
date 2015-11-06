@@ -144,10 +144,10 @@ public static class __TryOptionExt
     public static TryOption<T> Append<T>(this TryOption<T> lhs, TryOption<T> rhs) => () =>
     {
         var lhsRes = lhs.Try();
-        if (lhsRes.IsFaulted || lhsRes.Value.IsNone) return lhsRes;
+        if (lhsRes.IsFaulted) return lhsRes;
         var rhsRes = rhs.Try();
-        if (rhsRes.IsFaulted || rhsRes.Value.IsNone) return rhsRes;
-        return TypeDesc.Append(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
+        if (rhsRes.IsFaulted) return rhsRes;
+        return lhsRes.Value.Append(rhsRes.Value);
     };
 
     /// <summary>
@@ -166,10 +166,10 @@ public static class __TryOptionExt
     public static TryOption<T> Subtract<T>(this TryOption<T> lhs, TryOption<T> rhs) => () =>
     {
         var lhsRes = lhs.Try();
-        if (lhsRes.IsFaulted || lhsRes.Value.IsNone) return lhsRes;
+        if (lhsRes.IsFaulted) return lhsRes;
         var rhsRes = rhs.Try();
-        if (rhsRes.IsFaulted || rhsRes.Value.IsNone) return rhsRes;
-        return TypeDesc.Subtract(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
+        if (rhsRes.IsFaulted) return rhsRes;
+        return lhsRes.Value.Subtract(rhsRes.Value);
     };
 
     /// <summary>
@@ -188,10 +188,10 @@ public static class __TryOptionExt
     public static TryOption<T> Multiply<T>(this TryOption<T> lhs, TryOption<T> rhs) => () =>
     {
         var lhsRes = lhs.Try();
-        if (lhsRes.IsFaulted || lhsRes.Value.IsNone) return lhsRes;
+        if (lhsRes.IsFaulted) return lhsRes;
         var rhsRes = rhs.Try();
-        if (rhsRes.IsFaulted || rhsRes.Value.IsNone) return rhsRes;
-        return TypeDesc.Multiply(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
+        if (rhsRes.IsFaulted) return rhsRes;
+        return lhsRes.Value.Multiply(rhsRes.Value);
     };
 
     /// <summary>
@@ -210,10 +210,10 @@ public static class __TryOptionExt
     public static TryOption<T> Divide<T>(this TryOption<T> lhs, TryOption<T> rhs) => () =>
     {
         var lhsRes = lhs.Try();
-        if (lhsRes.IsFaulted || lhsRes.Value.IsNone) return lhsRes;
+        if (lhsRes.IsFaulted) return lhsRes;
         var rhsRes = rhs.Try();
-        if (rhsRes.IsFaulted || rhsRes.Value.IsNone) return rhsRes;
-        return TypeDesc.Divide(lhsRes.Value, rhsRes.Value, TypeDesc<T>.Default);
+        if (rhsRes.IsFaulted) return rhsRes;
+        return lhsRes.Value.Divide(rhsRes.Value);
     };
 
     /// <summary>

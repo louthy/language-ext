@@ -15,17 +15,19 @@ namespace LanguageExt
         FSharpMailboxProcessor<string> sysNotify;
         Actor<S, T> actor;
         ActorItem parent;
-        int version = 0;
+        int maxMailboxSize;
         string actorPath;
         object sync = new object();
 
-        public Unit Startup(IActor process, ActorItem parent, Option<ICluster> cluster, int version = 0)
+        public Unit Startup(IActor process, ActorItem parent, Option<ICluster> cluster, int maxMailboxSize)
         {
             if (cluster.IsNone) throw new Exception("Remote inboxes not supported when there's no cluster");
             this.tokenSource = new CancellationTokenSource();
             this.actor = (Actor<S, T>)process;
             this.cluster = cluster.LiftUnsafe();
-            this.version = version;
+            this.maxMailboxSize = maxMailboxSize < 0
+                ? ActorConfig.Default.MaxMailboxSize
+                : maxMailboxSize;
             this.parent = parent;
 
             // Registered process remote address hack
@@ -33,19 +35,11 @@ namespace LanguageExt
                 ? actor.Id.Skip(1).ToString()
                 : actor.Id.ToString();
 
-            // Preparing for message versioning support
-            //actorPath += "-" + version;
+            userNotify = ActorInboxCommon.StartNotifyMailbox(tokenSource.Token, msgId => CheckRemoteInbox(ClusterUserInboxKey, true));
+            sysNotify = ActorInboxCommon.StartNotifyMailbox(tokenSource.Token, msgId => CheckRemoteInbox(ClusterSystemInboxKey, false));
 
-            userNotify = ActorInboxCommon.StartNotifyMailbox(tokenSource.Token, msgId => CheckRemoteInbox(ClusterUserInboxKey));
-            sysNotify = ActorInboxCommon.StartNotifyMailbox(tokenSource.Token, msgId => CheckRemoteInbox(ClusterSystemInboxKey));
-
-            this.cluster.SubscribeToChannel<string>(ClusterUserInboxNotifyKey, msg => userNotify.Post(msg));
-            this.cluster.SubscribeToChannel<string>(ClusterSystemInboxNotifyKey, msg => sysNotify.Post(msg));
-
-            // We want the check done asyncronously, in case the setup function creates child processes that
-            // won't exist if we invoke directly.
-            this.cluster.PublishToChannel(ClusterUserInboxNotifyKey, Guid.NewGuid().ToString());
-            this.cluster.PublishToChannel(ClusterSystemInboxNotifyKey, Guid.NewGuid().ToString());
+            SubscribeToSysInboxChannel();
+            SubscribeToUserInboxChannel();
 
             return unit;
         }
@@ -65,13 +59,63 @@ namespace LanguageExt
         string ClusterSystemInboxNotifyKey =>
             ActorInboxCommon.ClusterSystemInboxNotifyKey(actorPath);
 
-        private void CheckRemoteInbox(string key)
+        void SubscribeToSysInboxChannel()
+        {
+            cluster.SubscribeToChannel<string>(ClusterSystemInboxNotifyKey, msg => sysNotify.Post(msg));
+            // We want the check done asyncronously, in case the setup function creates child processes that
+            // won't exist if we invoke directly.
+            cluster.PublishToChannel(ClusterSystemInboxNotifyKey, Guid.NewGuid().ToString());
+        }
+
+        void SubscribeToUserInboxChannel()
+        {
+            cluster.SubscribeToChannel<string>(ClusterUserInboxNotifyKey, msg => userNotify.Post(msg));
+            // We want the check done asyncronously, in case the setup function creates child processes that
+            // won't exist if we invoke directly.
+            cluster.PublishToChannel(ClusterUserInboxNotifyKey, Guid.NewGuid().ToString());
+        }
+
+        public bool IsPaused
+        {
+            get;
+            private set;
+        }
+
+        public Unit Pause()
+        {
+            lock (sync)
+            {
+                if (!IsPaused)
+                {
+                    IsPaused = true;
+                    cluster.UnsubscribeChannel(ClusterUserInboxNotifyKey);
+                }
+            }
+            return unit;
+        }
+
+        public Unit Unpause()
+        {
+            lock (sync)
+            {
+                if (IsPaused)
+                {
+                    IsPaused = false;
+                    SubscribeToUserInboxChannel();
+                }
+            }
+            return unit;
+        }
+
+        void CheckRemoteInbox(string key, bool pausable)
         {
             var inbox = this;
             var count = cluster.QueueLength(key);
 
-            while (count > 0)
+            while (count > 0 && (!pausable || !IsPaused))
             {
+                var directive = InboxDirective.Default;
+
                 ActorInboxCommon.GetNextMessage(cluster, actor.Id, key).IfSome(
                     x => iter(x, (dto, msg) =>
                     {
@@ -79,9 +123,9 @@ namespace LanguageExt
                         {
                             switch (msg.MessageType)
                             {
-                                case Message.Type.System: ActorInboxCommon.SystemMessageInbox(actor, inbox, (SystemMessage)msg, parent); break;
-                                case Message.Type.User: ActorInboxCommon.UserMessageInbox(actor, inbox, (UserControlMessage)msg, parent); break;
-                                case Message.Type.UserControl: ActorInboxCommon.UserMessageInbox(actor, inbox, (UserControlMessage)msg, parent); break;
+                                case Message.Type.System:      directive = ActorInboxCommon.SystemMessageInbox(actor, inbox, (SystemMessage)msg, parent); break;
+                                case Message.Type.User:        directive = ActorInboxCommon.UserMessageInbox(actor, inbox, (UserControlMessage)msg, parent); break;
+                                case Message.Type.UserControl: directive = ActorInboxCommon.UserMessageInbox(actor, inbox, (UserControlMessage)msg, parent); break;
                             }
                         }
                         catch (Exception e)
@@ -92,10 +136,17 @@ namespace LanguageExt
                         }
                         finally
                         {
-                            cluster.Dequeue<RemoteMessageDTO>(key);
+                            if (directive == InboxDirective.Default)
+                            {
+                                cluster.Dequeue<RemoteMessageDTO>(key);
+                            }
                         }
                     }));
-                count--;
+
+                if (directive == InboxDirective.Default)
+                {
+                    count--;
+                }
             }
         }
 

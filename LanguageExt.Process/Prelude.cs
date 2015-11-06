@@ -219,9 +219,9 @@ namespace LanguageExt
         /// </remarks>
         /// <typeparam name="T">The message type of the actor to register</typeparam>
         /// <param name="name">Name to register under</param>
-        public static ProcessId register<T>(ProcessName name, ProcessFlags flags = ProcessFlags.Default) =>
+        public static ProcessId register<T>(ProcessName name, ProcessFlags flags = ProcessFlags.Default, int maxMailboxSize = ProcessSetting.DefaultMailboxSize) =>
             InMessageLoop
-                ? ActorContext.Register<T>(name, Self, flags)
+                ? ActorContext.Register<T>(name, Self, flags, maxMailboxSize)
                 : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(name));
 
         /// <summary>
@@ -230,8 +230,8 @@ namespace LanguageExt
         /// <typeparam name="T">The message type of the actor to register</typeparam>
         /// <param name="name">Name to register under</param>
         /// <param name="process">Process to be registered</param>
-        public static ProcessId register<T>(ProcessName name, ProcessId process, ProcessFlags flags = ProcessFlags.Default) =>
-            ActorContext.Register<T>(name, process, flags);
+        public static ProcessId register<T>(ProcessName name, ProcessId process, ProcessFlags flags = ProcessFlags.Default, int maxMailboxSize = ProcessSetting.DefaultMailboxSize) =>
+            ActorContext.Register<T>(name, process, flags, maxMailboxSize);
 
         /// <summary>
         /// Deregister the process associated with the name
@@ -276,10 +276,28 @@ namespace LanguageExt
             ActorContext.Shutdown();
 
         /// <summary>
-        /// Forces a running process to restart
+        /// Forces a running process to restart.  This will reset its state and drop
+        /// any subscribers, or any of its subscriptions.
         /// </summary>
-        public static Unit restart(ProcessId pid, Time when = default(Time)) =>
-            ActorContext.TellSystem(pid, SystemMessage.Restart(when));
+        public static Unit restart(ProcessId pid) =>
+            ActorContext.TellSystem(pid, SystemMessage.Restart);
+
+        /// <summary>
+        /// Pauses a running process.  Messages will still be accepted into the Process'
+        /// inbox (unless the inbox is full); but they won't be processes until the
+        /// Process is unpaused: <see cref="unpause(ProcessId)"/>
+        /// </summary>
+        /// <param name="pid">Process to pause</param>
+        public static Unit pause(ProcessId pid) =>
+            ActorContext.TellSystem(pid, SystemMessage.Pause);
+
+        /// <summary>
+        /// Un-pauses a paused process.  Messages that have built-up in the inbox whilst
+        /// the Process was paused will be Processed immediately.
+        /// </summary>
+        /// <param name="pid">Process to un-pause</param>
+        public static Unit unpause(ProcessId pid) =>
+            ActorContext.TellSystem(pid, SystemMessage.Unpause);
 
         /// <summary>
         /// Return True if the message sent is a Tell and not an Ask

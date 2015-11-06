@@ -93,6 +93,17 @@ namespace LanguageExt
                     : new ProcessId(Path + Sep + name);
 
         /// <summary>
+        /// Get the parent ProcessId
+        /// </summary>
+        /// <returns>Parent process ID</returns>
+        public ProcessId Parent() =>
+            parts == null
+                ? failwith<ProcessId>("ProcessId is None")
+                : parts.Length == 0
+                    ? failwith<ProcessId>("ProcessId doesn't have a parent")
+                    : Take(parts.Length - 1);
+
+        /// <summary>
         /// Implicit conversion from a string to a ProcessId
         /// </summary>
         /// <param name="value">String representation of the process ID</param>

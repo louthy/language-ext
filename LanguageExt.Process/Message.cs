@@ -12,9 +12,9 @@ namespace LanguageExt
         {
             Undefined,  // To catch unitialised data
 
-            User,
-            System,
-            UserControl
+            User                        = 1,
+            System                      = 2,
+            UserControl                 = 3
         }
 
         public enum TagSpec
@@ -22,22 +22,23 @@ namespace LanguageExt
             Undefined,  // To catch unitialised data
 
             // SystemMessageTag
-            Restart,
-            LinkChild,
-            UnlinkChild,
-            SystemAsk,
+            Restart                     = 1,
+            LinkChild                   = 2,
+            UnlinkChild                 = 3,
+            SystemAsk                   = 4,
+            ChildFaulted                = 10,
+            Pause                       = 11,
+            Unpause                     = 12,
 
             // UserControlMessageTag
-            User,
-            UserAsk,
-            UserReply,
+            User                        = 5,
+            UserAsk                     = 6,
+            UserReply                   = 7,
+            Null                        = 13, ///< Does nothing but wake up an inbox
 
             // ActorSystemMessageTag
-            ShutdownProcess,
-            GetChildren,
-
-            // SystemMessageTag
-            ChildFaulted
+            ShutdownProcess             = 8,
+            GetChildren                 = 9,
         }
 
         public abstract Type MessageType

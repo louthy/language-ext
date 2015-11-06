@@ -1,45 +1,19 @@
 using System;
-using LanguageExt;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
     public static partial class Prelude
     {
         /// <summary>
-        /// Sum
+        /// Append an extra item to the tuple
         /// </summary>
-        public static int sum<T1, T2>(Tuple<T1, T2> self) =>
-            self.Sum();
-
-        /// <summary>
-        /// Sum
-        /// </summary>
-        public static int sum<T1, T2>(Tuple<int, T2> self) =>
-            self.Sum();
-
-        /// <summary>
-        /// Sum
-        /// </summary>
-        public static int sum<T1, T2>(Tuple<T1, int> self) =>
-            self.Sum();
+        public static Tuple<T1, T2, T3> append<T1, T2, T3>(Tuple<T1, T2> self, T3 third) =>
+            self.Append(third);
 
         /// <summary>
         /// Sum
         /// </summary>
         public static int sum<T1, T2>(Tuple<int, int> self) =>
-            self.Sum();
-
-        /// <summary>
-        /// Sum
-        /// </summary>
-        public static double sum<T1, T2>(Tuple<double, T2> self) =>
-            self.Sum();
-
-        /// <summary>
-        /// Sum
-        /// </summary>
-        public static double sum<T1, T2>(Tuple<T1, double> self) =>
             self.Sum();
 
         /// <summary>
@@ -51,31 +25,7 @@ namespace LanguageExt
         /// <summary>
         /// Sum
         /// </summary>
-        public static float sum<T1, T2>(Tuple<float, T2> self) =>
-            self.Sum();
-
-        /// <summary>
-        /// Sum
-        /// </summary>
-        public static float sum<T1, T2>(Tuple<T1, float> self) =>
-            self.Sum();
-
-        /// <summary>
-        /// Sum
-        /// </summary>
         public static float sum<T1, T2>(Tuple<float, float> self) =>
-            self.Sum();
-
-        /// <summary>
-        /// Sum
-        /// </summary>
-        public static decimal sum<T1, T2>(Tuple<decimal, T2> self) =>
-            self.Sum();
-
-        /// <summary>
-        /// Sum
-        /// </summary>
-        public static decimal sum<T1, T2>(Tuple<T1, decimal> self) =>
             self.Sum();
 
         /// <summary>
@@ -134,6 +84,5 @@ namespace LanguageExt
         /// </summary>
         public static S foldBack<T1, T2, S>(Tuple<T1, T2> self, S state, Func<S, T2, S> firstFold, Func<S, T1, S> secondFold) =>
             self.FoldBack(state, firstFold, secondFold);
-
     }
 }

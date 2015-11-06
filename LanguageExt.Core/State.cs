@@ -45,7 +45,7 @@ namespace LanguageExt
            value.Value;
     }
 
-    internal static class StateResult
+    public static class StateResult
     {
         public static StateResult<S, T> Bottom<S, T>(S state) =>
             new StateResult<S, T>(state, default(T), true);
@@ -97,6 +97,18 @@ namespace LanguageExt
 
         public static State<S, R> Map<S, T, R>(this State<S, T> self, Func<T, R> mapper) =>
             self.Select(mapper);
+
+        public static State<S, T> Modify<S, T>(this State<S, T> self, Func<S, S> f)
+        {
+            if (f == null) throw new ArgumentNullException(nameof(map));
+            return (S state) =>
+            {
+                var resT = self(state);
+                return resT.IsBottom
+                    ? StateResult.Bottom<S, T>(state)
+                    : StateResult.Return(f(resT.State), resT.Value);
+            };
+        }
 
         public static State<S, R> Bind<S, T, R>(this State<S, T> self, Func<T, State<S, R>> binder)
         {
@@ -165,12 +177,12 @@ namespace LanguageExt
         public static State<S, int> Sum<S>(this State<S, int> self) =>
             state => bmap(self(state), x => x);
 
-        private static StateResult<S, R> bmap<S, T, R>(StateResult<S, T> r, Func<T, R> f) =>
+        static StateResult<S, R> bmap<S, T, R>(StateResult<S, T> r, Func<T, R> f) =>
             r.IsBottom
                 ? StateResult.Bottom<S, R>(r.State)
                 : StateResult.Return(r.State, f(r.Value));
 
-        private static StateResult<S, Unit> bmap<S, T>(StateResult<S, T> r, Action<T> f)
+        static StateResult<S, Unit> bmap<S, T>(StateResult<S, T> r, Action<T> f)
         {
             if (r.IsBottom)
             {

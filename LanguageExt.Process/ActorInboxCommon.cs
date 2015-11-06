@@ -8,7 +8,7 @@ using static LanguageExt.Process;
 
 namespace LanguageExt
 {
-    internal static class ActorInboxCommon
+    static class ActorInboxCommon
     {
         public static FSharpAsync<A> CreateAsync<A>(Func<Task<A>> f) =>
             FSharpAsync.FromContinuations<A>(
@@ -33,7 +33,7 @@ namespace LanguageExt
                             try
                             {
                                 var msg = await FSharpAsync.StartAsTask(mbox.Receive(FSharpOption<int>.None), FSharpOption<TaskCreationOptions>.None, FSharpOption<CancellationToken>.Some(cancelToken));
-                                if (msg != null && !cancelToken.IsCancellationRequested)
+                                if (notnull(msg) && !cancelToken.IsCancellationRequested)
                                 {
                                     handler(msg);
                                 }
@@ -68,15 +68,18 @@ namespace LanguageExt
             });
 
 
-        public static void SystemMessageInbox<S,T>(Actor<S,T> actor, IActorInbox inbox, SystemMessage msg, ActorItem parent)
+        public static InboxDirective SystemMessageInbox<S,T>(Actor<S,T> actor, IActorInbox inbox, SystemMessage msg, ActorItem parent)
         {
-            ActorContext.WithContext(new ActorItem(actor,inbox,actor.Flags), parent, ProcessId.NoSender, null, msg, () =>
+            return ActorContext.WithContext(new ActorItem(actor,inbox,actor.Flags), parent, ProcessId.NoSender, null, msg, () =>
             {
                 switch (msg.Tag)
                 {
                     case Message.TagSpec.Restart:
-                        var rm = msg as SystemRestartMessage;
-                        actor.Restart(rm.When);
+                        if (inbox.IsPaused)
+                        {
+                            inbox.Unpause();
+                        }
+                        actor.Restart();
                         break;
 
                     case Message.TagSpec.LinkChild:
@@ -91,24 +94,31 @@ namespace LanguageExt
 
                     case Message.TagSpec.ChildFaulted:
                         var cf = msg as SystemChildFaultedMessage;
-                        actor.ChildFaulted(cf.Exception, cf.Child);
-                        break;
+                        return actor.ChildFaulted(cf.Child, cf.Sender, cf.Exception, cf.Message);
 
                     case Message.TagSpec.ShutdownProcess:
                         kill(actor.Id);
                         break;
+
+                    case Message.TagSpec.Unpause:
+                        inbox.Unpause();
+                        break;
+
+                    case Message.TagSpec.Pause:
+                        inbox.Pause();
+                        break;
                 }
+                return InboxDirective.Default;
             });
         }
 
-        public static void UserMessageInbox<S, T>(Actor<S, T> actor, IActorInbox inbox, UserControlMessage msg, ActorItem parent)
+        public static InboxDirective UserMessageInbox<S, T>(Actor<S, T> actor, IActorInbox inbox, UserControlMessage msg, ActorItem parent)
         {
             switch (msg.Tag)
             {
                 case Message.TagSpec.UserAsk:
                     var rmsg = (ActorRequest)msg;
-                    ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, rmsg.ReplyTo, rmsg, msg, () => actor.ProcessAsk(rmsg));
-                    break;
+                    return ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, rmsg.ReplyTo, rmsg, msg, () => actor.ProcessAsk(rmsg));
 
                 case Message.TagSpec.UserReply:
                     var urmsg = (ActorResponse)msg;
@@ -117,13 +127,13 @@ namespace LanguageExt
 
                 case Message.TagSpec.User:
                     var umsg = (UserMessage)msg;
-                    ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, umsg.Sender, null, msg, () => actor.ProcessMessage(umsg.Content));
-                    break;
+                    return ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, umsg.Sender, null, msg, () => actor.ProcessMessage(umsg.Content));
 
                 case Message.TagSpec.ShutdownProcess:
                     kill(actor.Id);
                     break;
             }
+            return InboxDirective.Default;
         }
 
         public static Option<UserControlMessage> PreProcessMessage<T>(ProcessId sender, ProcessId self, object message)
