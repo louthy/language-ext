@@ -188,7 +188,7 @@ namespace LanguageExt
                 case MsgTag.CheckExpired:
                     logWarn("Checking for expired sessions");
                     state = CheckExpired(state);
-                    tellSelf(new Msg(MsgTag.CheckExpired, null), 10*seconds);
+                    tellSelf(new Msg(MsgTag.CheckExpired, null), ProcessSetting.SessionTimeoutCheckFrequency);
                     return state;
 
                 case MsgTag.SetSessionMetadata:

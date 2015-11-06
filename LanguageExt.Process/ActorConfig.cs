@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using LanguageExt.UnitsOfMeasure;
+using Newtonsoft.Json;
 using System;
 using System.Runtime.Serialization.Formatters;
 
@@ -34,7 +35,7 @@ namespace LanguageExt
     {
         public const int DefaultMailboxSize = -1;
         public const int UnlimitedMaibox    = int.MaxValue;
-
+        public static Time SessionTimeoutCheckFrequency = 60.Seconds();
 
         public static readonly State<Exception, Option<Directive>>[] StandardDirectives = {
             Strategy.With<ProcessKillException>(Directive.Stop),
