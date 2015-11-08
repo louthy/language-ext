@@ -250,10 +250,10 @@ namespace LanguageExt
             IsBottom
                 ? "Bottom"
                 : IsRight
-                    ? RightValue == null
+                    ? isnull(RightValue)
                         ? "Right(null)"
                         : $"Right({RightValue})"
-                    : LeftValue == null
+                    : isnull(LeftValue)
                         ? "Left(null)"
                         : $"Left({LeftValue})";
 
@@ -265,10 +265,10 @@ namespace LanguageExt
             IsBottom
                 ? -1
                 : IsRight
-                    ? RightValue == null
+                    ? isnull(RightValue)
                         ? 0
                         : RightValue.GetHashCode()
-                    : LeftValue == null
+                    : isnull(LeftValue)
                         ? 0
                         : LeftValue.GetHashCode();
 
@@ -282,13 +282,13 @@ namespace LanguageExt
             obj is EitherUnsafe<L, R>
                 ? map(this, (EitherUnsafe<L, R>)obj, (lhs, rhs) =>
                       lhs.IsLeft && rhs.IsLeft
-                          ? lhs.LeftValue == null 
-                                ? rhs.LeftValue == null
+                          ? isnull(lhs.LeftValue) 
+                                ? isnull(rhs.LeftValue)
                                 : lhs.LeftValue.Equals(rhs.LeftValue)
                           : lhs.IsLeft || rhs.IsLeft
                               ? false
-                              : lhs.RightValue == null
-                                    ? rhs.RightValue == null
+                              : isnull(lhs.RightValue)
+                                    ? isnull(rhs.RightValue)
                                     : lhs.RightValue.Equals(rhs.RightValue))
                 : false;
 

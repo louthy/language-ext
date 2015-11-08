@@ -122,7 +122,7 @@ namespace LanguageExt
         /// <param name="value">Right value</param>
         /// <returns>A new Either instance</returns>
         public static Either<L, R> Right<L, R>(R? value) where R : struct =>
-            value == null
+            isnull(value)
                 ? raise<Either<L, R>>(new ValueIsNullException())
                 : Either<L, R>.Right(value.Value);
 
@@ -135,7 +135,7 @@ namespace LanguageExt
         /// <param name="value">Left value</param>
         /// <returns>A new Either instance</returns>
         public static Either<L, R> Left<L, R>(L? value) where L : struct =>
-            value == null
+            isnull(value)
                 ? raise<Either<L, R>>(new ValueIsNullException())
                 : Either<L, R>.Left(value.Value);
 

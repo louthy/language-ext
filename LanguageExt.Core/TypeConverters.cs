@@ -107,11 +107,11 @@ namespace LanguageExt
 
         public bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType, CanConvertDel baseCanConvertFrom) =>
             sourceType == simpleType ? true
-          : simpleTypeConverter == null ? baseCanConvertFrom(context, sourceType)
+          : isnull(simpleTypeConverter) ? baseCanConvertFrom(context, sourceType)
           : simpleTypeConverter.CanConvertFrom(context, sourceType);
 
         public object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value, ConvertFromDel baseConvertFrom) =>
-            value == null ? None
+            isnull(value) ? None
           : value.GetType() == simpleType ? methods(simpleType)?.Invoke(null, new[] { value })
           : IfEmptyStringIsNone(value) ? None
           : SimpleConvertFrom(context, culture, value, baseConvertFrom);
@@ -122,7 +122,7 @@ namespace LanguageExt
           : SimpleCanConvertTo(context, destinationType, baseCanConvertTo);
 
         public object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType, ConvertToDel baseConvertTo) =>
-            value == null
+            isnull(value)
                 ? ConvertToValueNull(context, culture, destinationType, baseConvertTo)
                 : MatchConvertTo(context, culture, value, destinationType, baseConvertTo);
 
@@ -137,7 +137,7 @@ namespace LanguageExt
             emptyStringIsNone && value is string && String.IsNullOrEmpty(value as string);
 
         private object SimpleConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value, ConvertFromDel baseConvertFrom) =>
-            simpleTypeConverter == null     
+            isnull(simpleTypeConverter)     
                 ? baseConvertFrom(context, culture, value)
                 : methods(simpleType)?.Invoke( 
                     null, 
@@ -145,7 +145,7 @@ namespace LanguageExt
                     );            
 
         private bool SimpleCanConvertTo(ITypeDescriptorContext context, Type destinationType, CanConvertDel baseCanConvertTo) =>
-            simpleTypeConverter == null
+            isnull(simpleTypeConverter)
                 ? baseCanConvertTo(context,destinationType)
                 : simpleTypeConverter.CanConvertTo(context, destinationType);
 
@@ -155,14 +155,14 @@ namespace LanguageExt
                 : baseConvertTo(context, culture, null, destinationType);
 
         private object SimpleConvertTo(object x, ITypeDescriptorContext context, CultureInfo culture, Type destinationType, ConvertToDel baseConvertTo) =>
-            simpleTypeConverter == null
+            isnull(simpleTypeConverter)
                 ? baseConvertTo(context, culture, x, destinationType)
                 : simpleTypeConverter.ConvertTo(context, culture, x, destinationType);
 
         private object IsSomeConvertTo(object x, ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType, ConvertToDel baseConvertTo) =>
             destinationType == simpleType                   ? x
           : destinationType == typeof(InstanceDescriptor)   ? NewInstanceDesc(value)
-          : x == null                                       ? ConvertToValueNull(context, culture, destinationType, baseConvertTo)
+          : isnull(x)                                       ? ConvertToValueNull(context, culture, destinationType, baseConvertTo)
           : SimpleConvertTo(x,context,culture,destinationType,baseConvertTo);
 
         private object MatchConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType, ConvertToDel baseConvertTo) =>

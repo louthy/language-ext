@@ -33,7 +33,7 @@ namespace LanguageExt
 
         private Option(T value)
         {
-            if (value == null)
+            if (isnull(value))
                 throw new ValueIsNullException();
 
             this.value = value;
@@ -71,7 +71,7 @@ namespace LanguageExt
                 : raise<T>(new OptionIsNoneException());
 
         public static implicit operator Option<T>(T value) =>
-            value == null
+            isnull(value)
                 ? None
                 : Some(value);
 
@@ -79,7 +79,7 @@ namespace LanguageExt
             None;
 
         internal static U CheckNullReturn<U>(U value, string location) =>
-            value == null
+            isnull(value)
                 ? raise<U>(new ResultIsNullException($"'{location}' result is null.  Not allowed."))
                 : value;
 
@@ -245,13 +245,13 @@ namespace LanguageExt
 
         public override string ToString() =>
             IsSome
-                ? Value == null
+                ? isnull(Value)
                     ? "Some(null)"
                     : $"Some({Value})"
                 : "None";
 
         public override int GetHashCode() =>
-            IsSome && Value != null
+            IsSome && notnull(Value)
                 ? Value.GetHashCode()
                 : 0;
 

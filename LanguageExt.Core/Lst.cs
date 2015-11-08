@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
+using static LanguageExt.Prelude;
 using System.Threading;
 
 namespace LanguageExt
@@ -109,7 +110,7 @@ namespace LanguageExt
         /// </summary>
         public Lst<T> AddRange(IEnumerable<T> items)
         {
-            if (items == null) return this;
+            if (isnull(items)) return this;
             var lst = new List<T>(Rev ? items.Reverse() : items);
             var tree = ListModule.FromList(lst, 0, lst.Count);
             return new Lst<T>(ListModule.Insert(Root, tree, Rev ? 0 : Root.Count), Rev);
@@ -168,7 +169,7 @@ namespace LanguageExt
         /// </summary>
         public Lst<T> InsertRange(int index, IEnumerable<T> items)
         {
-            if (items == null) return this;
+            if (isnull(items)) return this;
             if (index < 0 || index > Root.Count) throw new IndexOutOfRangeException();
 
             var lst = new List<T>(Rev ? items.Reverse() : items);
@@ -252,7 +253,7 @@ namespace LanguageExt
         /// </summary>
         public Lst<T> SetItem(int index, T value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (isnull(value)) throw new ArgumentNullException(nameof(value));
             if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
             return new Lst<T>(ListModule.SetItem(Root,value,index),Rev);
         }

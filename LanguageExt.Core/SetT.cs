@@ -498,7 +498,7 @@ namespace LanguageExt
         /// <param name="index">Index into the array to start</param>
         public void CopyTo(T[] array, int index)
         {
-            if (array == null) throw new ArgumentNullException(nameof(array));
+            if (isnull(array)) throw new ArgumentNullException(nameof(array));
             if (index < 0 || index > array.Length) throw new IndexOutOfRangeException();
             if (index + Count > array.Length) throw new IndexOutOfRangeException();
 
@@ -515,7 +515,7 @@ namespace LanguageExt
         /// <param name="index">Index into the array to start</param>
         public void CopyTo(Array array, int index)
         {
-            if (array == null) throw new ArgumentNullException(nameof(array));
+            if (isnull(array)) throw new ArgumentNullException(nameof(array));
             if (index < 0 || index > array.Length) throw new IndexOutOfRangeException();
             if (index + Count > array.Length) throw new IndexOutOfRangeException();
 

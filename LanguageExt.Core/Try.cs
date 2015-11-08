@@ -243,7 +243,7 @@ public static class __TryExt
     /// </summary>
     public static T IfFail<T>(this Try<T> self, T defaultValue)
     {
-        if (defaultValue == null) throw new ArgumentNullException(nameof(defaultValue));
+        if (isnull(defaultValue)) throw new ArgumentNullException(nameof(defaultValue));
 
         var res = self.Try();
         if (res.IsFaulted)
@@ -299,7 +299,7 @@ public static class __TryExt
 
     public static R Match<T, R>(this Try<T> self, Func<T, R> Succ, R Fail)
     {
-        if (Fail == null) throw new ArgumentNullException(nameof(Fail));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
 
         var res = self.Try();
         return res.IsFaulted
@@ -684,7 +684,7 @@ public static class __TryExt
 
     public static string AsString<T>(this Try<T> self) =>
         match(self,
-            Succ: v => v == null
+            Succ: v => isnull(v)
                       ? "Succ(null)"
                       : $"Succ({v})",
             Fail: ex => $"Fail({ex.Message})"

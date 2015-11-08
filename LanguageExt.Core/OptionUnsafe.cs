@@ -191,13 +191,13 @@ namespace LanguageExt
 
         public override string ToString() =>
             IsSome
-                ? Value == null
+                ? isnull(Value)
                     ? "Some(null)"
                     : $"Some({Value})"
                 : "None";
 
         public override int GetHashCode() =>
-            IsSome && Value != null
+            IsSome && notnull(Value)
                 ? Value.GetHashCode()
                 : 0;
 
@@ -208,8 +208,8 @@ namespace LanguageExt
                         ? true
                         : lhs.IsNone || rhs.IsNone
                             ? false
-                            : lhs.Value == null
-                                ? rhs.Value == null
+                            : isnull(lhs.Value)
+                                ? isnull(rhs.Value)
                                 : lhs.Value.Equals(rhs.Value))
                 : IsSome
                     ? Value.Equals(obj)
@@ -458,13 +458,13 @@ namespace LanguageExt
     internal static class OptionUnsafeCast
     {
         public static OptionUnsafe<T> Cast<T>(T value) =>
-            value == null
+            isnull(value)
                 ? OptionUnsafe<T>.None
                 : OptionUnsafe<T>.Some(value);
 
 
         public static OptionUnsafe<T> Cast<T>(T? value) where T : struct =>
-            value == null
+            isnull(value)
                 ? OptionUnsafe<T>.None
                 : OptionUnsafe<T>.Some(value.Value);
     }

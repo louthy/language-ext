@@ -6,7 +6,7 @@ namespace LanguageExt
     {
         public static Option<T> convert<T>(string text)
         {
-            if (text == null)
+            if (isnull(text))
             {
                 return None;
             }

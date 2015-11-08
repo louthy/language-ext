@@ -1,4 +1,5 @@
 ﻿using System;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.UnitsOfMeasure
 {
@@ -29,7 +30,7 @@ namespace LanguageExt.UnitsOfMeasure
             Math.Abs(other.Value - Value) < epsilon;
 
         public override bool Equals(object obj) =>
-            obj == null
+            isnull(obj)
                 ? false
                 : obj is Length
                     ? Equals((Length)obj)
