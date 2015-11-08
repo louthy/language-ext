@@ -503,9 +503,13 @@ namespace LanguageExt
         /// Equality override
         /// </summary>
         public bool Equals(Either<L, R> other) =>
-            IsRight
-                ? other.Equals(RightValue)
-                : other.Equals(LeftValue);
+            IsBottom && other.IsBottom
+                ? true
+                : IsBottom || other.IsBottom
+                    ? false
+                    : IsRight
+                        ? other.Equals(RightValue)
+                        : other.Equals(LeftValue);
 
         /// <summary>
         /// Match the Right and Left values but as objects.  This can be useful to avoid reflection.
