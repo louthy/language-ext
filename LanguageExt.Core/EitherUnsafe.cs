@@ -440,7 +440,9 @@ namespace LanguageExt
         /// CompareTo override
         /// </summary>
         public bool Equals(R other) =>
-            IsRight
+            IsBottom
+            ? false
+            : IsRight
                 ? EqualityComparer<R>.Default.Equals(RightValue, other)
                 : false;
 
@@ -448,17 +450,23 @@ namespace LanguageExt
         /// Equality override
         /// </summary>
         public bool Equals(L other) =>
-            IsLeft
-                ? EqualityComparer<L>.Default.Equals(LeftValue, other)
-                : false;
+            IsBottom
+                ? false
+                : IsLeft
+                    ? EqualityComparer<L>.Default.Equals(LeftValue, other)
+                    : false;
 
         /// <summary>
         /// Equality override
         /// </summary>
         public bool Equals(EitherUnsafe<L, R> other) =>
-            IsRight
-                ? other.Equals(RightValue)
-                : other.Equals(LeftValue);
+            IsBottom && other.IsBottom
+                ? true
+                : IsBottom || other.IsBottom
+                    ? false
+                    : IsRight
+                        ? other.Equals(RightValue)
+                        : other.Equals(LeftValue);
 
         /// <summary>
         /// Match the Right and Left values but as objects.  This can be useful to avoid reflection.
