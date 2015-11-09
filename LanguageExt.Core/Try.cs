@@ -533,7 +533,7 @@ public static class __TryExt
     }
 
     /// <summary>
-    /// Folds Try result into an S, if successful.
+    /// Folds Try value into an S.
     /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
     /// </summary>
     /// <param name="self">Try to fold</param>
@@ -549,7 +549,7 @@ public static class __TryExt
     }
 
     /// <summary>
-    /// Folds Try result into an S.
+    /// Folds Try value into an S.
     /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
     /// </summary>
     /// <param name="self">Try to fold</param>

@@ -138,7 +138,7 @@ namespace LanguageExt
             self.Iter(Some, None, Fail);
 
         /// <summary>
-        /// Folds the result of TryOption into an S, if try succeeds and returns Some.
+        /// Folds the value of TryOption into an S.
         /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
         /// </summary>
         /// <param name="tryDel">Try to fold</param>

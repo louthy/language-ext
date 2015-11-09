@@ -601,7 +601,7 @@ public static class __OptionExt
             : None();
 
     /// <summary>
-    /// Folds Option into an S, if Some.
+    /// Folds Option into an S.
     /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
     /// </summary>
     /// <param name="tryDel">Try to fold</param>

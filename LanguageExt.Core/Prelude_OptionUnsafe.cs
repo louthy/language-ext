@@ -97,7 +97,7 @@ namespace LanguageExt
             option.MatchUnsafe(Some, None);
 
         /// <summary>
-        /// Folds the option into an S, if Some.
+        /// Folds the option into an S.
         /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
         /// </summary>
         /// <param name="option">Option to fold</param>
