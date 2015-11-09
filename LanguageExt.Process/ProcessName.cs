@@ -15,7 +15,7 @@ namespace LanguageExt
     /// It enforces the rules for process names.  Process have the same rules
     /// as file-names Wn windows.  
     /// </remarks>
-    public struct ProcessName
+    public struct ProcessName : IEquatable<ProcessName>, IComparable<ProcessName>, IComparable
     {
         public readonly string Value;
 
@@ -52,5 +52,18 @@ namespace LanguageExt
 
         public static implicit operator ProcessName(string value) =>
             new ProcessName(value);
+
+        public bool Equals(ProcessName other) =>
+            Value.Equals(other.Value);
+
+        public int CompareTo(ProcessName other) =>
+            String.Compare(Value, other.Value, StringComparison.Ordinal);
+
+        public int CompareTo(object obj) =>
+            obj == null
+                ? -1
+                : obj is ProcessName
+                    ? CompareTo((ProcessName)obj)
+                    : -1;
     }
 }

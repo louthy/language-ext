@@ -14,7 +14,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    internal class RedisClusterImpl : ICluster
+    class RedisClusterImpl : ICluster
     {
         readonly ClusterConfig config;
 
@@ -102,8 +102,8 @@ namespace LanguageExt
         /// <summary>
         /// Publish data to a named channel
         /// </summary>
-        public long PublishToChannel(string channelName, object data) =>
-            redis.GetSubscriber().Publish(
+        public int PublishToChannel(string channelName, object data) =>
+            (int)redis.GetSubscriber().Publish(
                 channelName,
                 JsonConvert.SerializeObject(data)
                 );
@@ -171,8 +171,8 @@ namespace LanguageExt
         public int QueueLength(string key) =>
             (int)Db.ListLength(key);
 
-        public long Enqueue(string key, object value) =>
-            Db.ListRightPush(key, JsonConvert.SerializeObject(value));
+        public int Enqueue(string key, object value) =>
+            (int)Db.ListRightPush(key, JsonConvert.SerializeObject(value));
 
         public T Peek<T>(string key)
         {
@@ -222,6 +222,45 @@ namespace LanguageExt
                 return new T[0];
             }
         }
+
+        public bool HashFieldExists(string key, string field) =>
+            Db.HashExists(key, field);
+
+        public void HashFieldAddOrUpdate<T>(string key, string field, T value) =>
+            Db.HashSet(key, field, JsonConvert.SerializeObject(value));
+
+        public void HashFieldAddOrUpdate<T>(string key, Map<string, T> fields) =>
+            Db.HashSet(
+                key, 
+                fields.Map((k, v) => new HashEntry(k, JsonConvert.SerializeObject(v))).Values.ToArray()
+                );
+
+        public bool DeleteHashField(string key, string field) =>
+            Db.HashDelete(key, field);
+
+        public int DeleteHashFields(string key, IEnumerable<string> fields) =>
+            (int)Db.HashDelete(key, fields.Map(x => (RedisValue)x).ToArray());
+
+        public Map<string, T> GetHashFields<T>(string key) =>
+            Db.HashGetAll(key)
+              .Fold(
+                Map.empty<string, T>(), 
+                (m, e) => m.Add(e.Name, JsonConvert.DeserializeObject<T>(e.Value)));
+
+        public Option<T> GetHashField<T>(string key, string field)
+        {
+            var res = Db.HashGet(key, field);
+            if (res.IsNullOrEmpty) return None;
+            return JsonConvert.DeserializeObject<T>(res);
+        }
+
+        public Map<string, T> GetHashFields<T>(string key, IEnumerable<string> fields) =>
+            Db.HashGet(key, fields.Map(x => (RedisValue)x).ToArray())
+              .Zip(fields)
+              .Filter(x => !x.Item1.IsNullOrEmpty)
+              .Fold(
+                  Map.empty<string, T>(),
+                  (m, e) => m.Add(e.Item2, JsonConvert.DeserializeObject<T>(e.Item1)));
 
         private IDatabase Db => 
             redis.GetDatabase(databaseNumber);

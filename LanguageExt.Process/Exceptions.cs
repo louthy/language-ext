@@ -281,4 +281,28 @@ namespace LanguageExt
         {
         }
     }
+
+    /// <summary>
+    /// Session expired
+    /// </summary>
+    [Serializable]
+    public class ProcessSessionExpired : Exception
+    {
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public ProcessSessionExpired()
+            :
+            base("Session expired")
+        {
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        protected ProcessSessionExpired(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+    }
+    
 }

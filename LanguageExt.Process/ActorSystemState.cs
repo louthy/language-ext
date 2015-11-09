@@ -22,6 +22,7 @@ namespace LanguageExt
         public readonly ProcessName RootProcessName;
 
         ActorItem root;
+        ActorItem sessions;
         ActorItem user;
         ActorItem system;
         ActorItem deadLetters;
@@ -98,6 +99,15 @@ namespace LanguageExt
             js              = ActorCreate<ProcessId, RelayMsg>(root, "js", RelayActor.Inbox, () => User["process-hub-js"], ProcessFlags.Default);
 
             // Second tier
+            sessions        = ActorCreate<SessionManagerProcess.State, SessionManagerProcess.Msg>(
+                                system, 
+                                ActorConfig.Default.Sessions,
+                                SessionManagerProcess.Inbox,
+                                SessionManagerProcess.Setup,
+                                ProcessFlags.Default,
+                                100000
+                                );
+
             deadLetters     = ActorCreate<DeadLetter>(system, Config.DeadLettersProcessName, publish, ProcessFlags.Default);
             errors          = ActorCreate<Exception>(system, Config.ErrorsProcessName, publish, ProcessFlags.Default);
 
