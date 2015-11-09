@@ -644,6 +644,13 @@ namespace LanguageExt
         public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<IMapItem<K, V>, KR> keySelector, Func<IMapItem<K, V>, VR> valueSelector) =>
             AsEnumerable().ToDictionary(x => keySelector(x), x => valueSelector(x));
 
+        /// <summary>
+        /// Enumerable of in-order tuples that make up the map
+        /// </summary>
+        /// <returns>Tuples</returns>
+        public IEnumerable<Tuple<K, V>> Tuples =>
+            AsEnumerable().Map(kv => Tuple(kv.Key, kv.Value));
+
         #region IEnumerable interface
         /// <summary>
         /// GetEnumerator - IEnumerable interface

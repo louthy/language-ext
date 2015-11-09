@@ -70,7 +70,15 @@ namespace LanguageExt
             SessionManager.SetSessionData(sid, data);
 
         /// <summary>
-        /// Set the meta-data to store with the session, this is typically
+        /// Clear the meta-data stored with the session
+        /// </summary>
+        /// <param name="sid">Session ID</param>
+        /// <param name="data">Data to store</param>
+        public static void sessionClearData(string sid, object data) =>
+            SessionManager.ClearSessionData(sid);
+
+        /// <summary>
+        /// Get the meta-data stored with the session, this is typically
         /// user credentials when they've logged in.  But can be anything.
         /// </summary>
         /// <param name="sid">Session ID</param>

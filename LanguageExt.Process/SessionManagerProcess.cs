@@ -28,6 +28,9 @@ namespace LanguageExt
 
         public static Unit SetSessionData(string sessionId, object sessionData) =>
             tell(pid, new SessionManagerProcess.SetSessionMetadataMsg(sessionId, sessionData));
+
+        public static Unit ClearSessionData(string sessionId) =>
+            tell(pid, new SessionManagerProcess.Msg(SessionManagerProcess.MsgTag.ClearSessionMetadata, sessionId));
     }
 
     class SessionManagerProcess
@@ -38,7 +41,8 @@ namespace LanguageExt
             StartSession,
             StopSession,
             CheckExpired,
-            SetSessionMetadata
+            SetSessionMetadata,
+            ClearSessionMetadata
         }
 
         public class Msg
@@ -131,6 +135,9 @@ namespace LanguageExt
             public State SetMetadatum(string sid, object metadatum) =>
                 SetMetadata(Metadata.AddOrUpdate(sid, metadatum));
 
+            public State ClearSessionMetadatum(string sid) =>
+                new State(Sessions, Metadata.Remove(sid));
+
             public State ClearSession(string sid) =>
                 new State(Sessions.Remove(sid), Metadata.Remove(sid));
 
@@ -153,7 +160,8 @@ namespace LanguageExt
                 );
         }
 
-        const string SessionsKey = "ProcessSessions";
+        const string SessionsKey = "sys-sessions";
+        const string SessionsNotify = "sys-sessions-notify";
 
         public static State Setup() =>
             ActorContext.Cluster.Map(
@@ -161,9 +169,7 @@ namespace LanguageExt
                 {
                     try
                     {
-                        var state = CheckExpired(State.Empty.SetSessions(c.GetHashFields<Session>(SessionsKey)));
-                        state.Sessions.Iter(s => logWarn("Reloading session: " + s.Id));
-                        return state;
+                        return CheckExpired(State.Empty.SetSessions(c.GetHashFields<Session>(SessionsKey)));
                     }
                     catch
                     {
@@ -186,24 +192,25 @@ namespace LanguageExt
                     return TouchSession(state, msg.SessionId);
 
                 case MsgTag.CheckExpired:
-                    logWarn("Checking for expired sessions");
                     state = CheckExpired(state);
                     tellSelf(new Msg(MsgTag.CheckExpired, null), ProcessSetting.SessionTimeoutCheckFrequency);
                     return state;
 
                 case MsgTag.SetSessionMetadata:
-                    logWarn("Session data set: " + msg.SessionId);
                     return SetSessionMetadata(state, msg as SetSessionMetadataMsg);
+
+                case MsgTag.ClearSessionMetadata:
+                    return ClearSessionMetadata(state, msg);
 
                 default:
                     return state;
             }
         }
 
-        private static string GetMetaKey(string sid) =>
+        static string GetMetaKey(string sid) =>
             "SessionMeta_" + sid;
 
-        private static State SetSessionMetadata(State state, SetSessionMetadataMsg msg) =>
+        static State SetSessionMetadata(State state, SetSessionMetadataMsg msg) =>
             GetSession(state.Sessions, msg.SessionId).Match(
                 Some: s =>
                 {
@@ -219,6 +226,16 @@ namespace LanguageExt
                             msg.Data), msg.SessionId);
                 },
                 None: () => state
+            );
+
+        static State ClearSessionMetadata(State state, Msg msg) =>
+            GetSession(state.Sessions, msg.SessionId).Match(
+                Some: s =>
+                {
+                    ActorContext.Cluster.IfSome(c => c.Delete(GetMetaKey(msg.SessionId)));
+                    return TouchSession(state.ClearSessionMetadatum(msg.SessionId), msg.SessionId);
+                },
+                None: () => TouchSession(state.ClearSessionMetadatum(msg.SessionId), msg.SessionId)
             );
 
         public static Option<T> GetSessionMetadata<T>(State state, string sessionId) =>
@@ -239,17 +256,17 @@ namespace LanguageExt
         /// </summary>
         /// <param name="state">Sessions</param>
         /// <returns>Updated sessions</returns>
-        private static State CheckExpired(State state) =>
+        static State CheckExpired(State state) =>
             state.Sessions
-                .Filter(s => GetSession(state.Sessions, s.Id).IsNone)
-                .Fold(state, (s, x) => StopSession(s, x.Id));
+                 .Filter(s => GetSession(state.Sessions, s.Id).IsNone)
+                 .Fold(state, (s, x) => StopSession(s, x.Id));
 
         /// <summary>
         /// If the session is valid (not expired) then return Some(session) else None
         /// </summary>
         /// <param name="session">Session</param>
         /// <returns>Optional session</returns>
-        private static Option<Session> SomeIfValid(Session session) =>
+        static Option<Session> SomeIfValid(Session session) =>
             (((DateTime.UtcNow - session.LastAccess).TotalSeconds > session.TimeoutSeconds))
                 ? None
                 : Some(session);
@@ -259,7 +276,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="sessionId">Session ID to load</param>
         /// <returns>Optional session</returns>
-        private static Option<Session> GetClusterSession(string sessionId) =>
+        static Option<Session> GetClusterSession(string sessionId) =>
             ActorContext.Cluster.Match(
                 Some: cluster => cluster.GetHashField<Session>(SessionsKey, sessionId)
                                         .Match( Some: SomeIfValid,
@@ -288,10 +305,8 @@ namespace LanguageExt
         /// <param name="state">Sessions</param>
         /// <param name="sessionId">Session to update</param>
         /// <returns>New state</returns>
-        private static State TouchSession(State state, string sessionId)
+        static State TouchSession(State state, string sessionId)
         {
-            logWarn("Session touched: " + sessionId);
-
             return state.MapSessions(
                 sessions =>
                     GetSession(sessions, sessionId).Match(
@@ -315,10 +330,8 @@ namespace LanguageExt
         /// <param name="sessionId">Id of session to start</param>
         /// <param name="timeoutSeconds">Expiry</param>
         /// <returns>Updated sessions state</returns>
-        private static State StartSession(State state, string sessionId, int timeoutSeconds)
+        static State StartSession(State state, string sessionId, int timeoutSeconds)
         {
-            logWarn("Session started: " + sessionId);
-            
             return GetSession(state.Sessions, sessionId).Match(
                 Some: session => TouchSession(state, sessionId),
                 None: () =>
@@ -335,10 +348,8 @@ namespace LanguageExt
         /// <param name="state">Sessions</param>
         /// <param name="sessionId">Session to stop</param>
         /// <returns>Update sessions state</returns>
-        private static State StopSession(State state, string sessionId)
+        static State StopSession(State state, string sessionId)
         {
-            logWarn("Session stopping: " + sessionId);
-
             GetSession(state.Sessions, sessionId).IfSome(
                 session =>
                 {

@@ -382,10 +382,10 @@ namespace LanguageExt
             }
         }
 
-        private static Option<ActorItem> GetJsItem()
+        static Option<ActorItem> GetJsItem()
         {
-            var children = rootItem.Actor.Children;
-            if (children.ContainsKey("js"))
+            var children = rootItem?.Actor?.Children;
+            if (notnull(children) && children.ContainsKey("js"))
             {
                 return Some(children["js"]);
             }
@@ -395,10 +395,10 @@ namespace LanguageExt
             }
         }
 
-        private static Option<ActorItem> GetRegisteredItem()
+        static Option<ActorItem> GetRegisteredItem()
         {
-            var children = rootItem.Actor.Children;
-            if (children.ContainsKey(ActorConfig.Default.RegisteredProcessName.Value))
+            var children = rootItem?.Actor?.Children;
+            if (notnull(children) && children.ContainsKey(ActorConfig.Default.RegisteredProcessName.Value))
             {
                 return Some(children[ActorConfig.Default.RegisteredProcessName.Value]);
             }
@@ -408,10 +408,10 @@ namespace LanguageExt
             }
         }
 
-        private static Option<ActorItem> GetAskItem()
+        static Option<ActorItem> GetAskItem()
         {
-            var children = rootItem.Actor.Children;
-            if (children.ContainsKey(ActorConfig.Default.SystemProcessName.Value))
+            var children = rootItem?.Actor?.Children;
+            if (notnull(children) && children.ContainsKey(ActorConfig.Default.SystemProcessName.Value))
             {
                 var sys = children[ActorConfig.Default.SystemProcessName.Value];
                 children = sys.Actor.Children;
@@ -432,30 +432,23 @@ namespace LanguageExt
 
         public static Option<ActorItem> GetInboxShutdownItem()
         {
-            if (rootItem == null)
+            var children = rootItem?.Actor?.Children;
+            if (notnull(children) && children.ContainsKey(ActorConfig.Default.SystemProcessName.Value))
             {
-                return None;
-            }
-            else
-            {
-                var children = rootItem.Actor.Children;
-                if (children.ContainsKey(ActorConfig.Default.SystemProcessName.Value))
+                var sys = children[ActorConfig.Default.SystemProcessName.Value];
+                children = sys.Actor.Children;
+                if (children.ContainsKey(ActorConfig.Default.InboxShutdownProcessName.Value))
                 {
-                    var sys = children[ActorConfig.Default.SystemProcessName.Value];
-                    children = sys.Actor.Children;
-                    if (children.ContainsKey(ActorConfig.Default.InboxShutdownProcessName.Value))
-                    {
-                        return Some(children[ActorConfig.Default.InboxShutdownProcessName.Value]);
-                    }
-                    else
-                    {
-                        return None;
-                    }
+                    return Some(children[ActorConfig.Default.InboxShutdownProcessName.Value]);
                 }
                 else
                 {
                     return None;
                 }
+            }
+            else
+            {
+                return None;
             }
         }
 
