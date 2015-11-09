@@ -1002,7 +1002,7 @@ public static class __EnumnerableExt
         Func<T, IEnumerable<T>, R> More
         )
     {
-        if (isnull(list))
+        if (list == null)
         {
             return Empty();
         }
@@ -1027,7 +1027,7 @@ public static class __EnumnerableExt
         Func<T, IEnumerable<T>, R> More
         )
     {
-        if (isnull(list))
+        if (list == null)
         {
             return Empty();
         }
@@ -1059,7 +1059,7 @@ public static class __EnumnerableExt
         Func<T, T, IEnumerable<T>, R> More
         )
     {
-        if (isnull(list)) return Empty();
+        if (list == null) return Empty();
         var items = new Lst<T>(list.Take(3)); 
         switch (items.Count)
         {
@@ -1081,7 +1081,7 @@ public static class __EnumnerableExt
         Func<T, T, T, IEnumerable<T>, R> More
         )
     {
-        if (isnull(list)) return Empty();
+        if (list == null) return Empty();
         var items = new Lst<T>(list.Take(4));
         switch (items.Count)
         {
@@ -1105,7 +1105,7 @@ public static class __EnumnerableExt
         Func<T, T, T, T, IEnumerable<T>, R> More
         )
     {
-        if (isnull(list)) return Empty();
+        if (list == null) return Empty();
         var items = new Lst<T>(list.Take(5));
         switch (items.Count)
         {
@@ -1131,7 +1131,7 @@ public static class __EnumnerableExt
         Func<T, T, T, T, T, IEnumerable<T>, R> More
         )
     {
-        if (isnull(list)) return Empty();
+        if (list == null) return Empty();
         var items = new Lst<T>(list.Take(6));
         switch (items.Count)
         {
@@ -1159,7 +1159,7 @@ public static class __EnumnerableExt
         Func<T, T, T, T, T, T, IEnumerable<T>, R> More
         )
     {
-        if (isnull(list)) return Empty();
+        if (list == null) return Empty();
         var items = new Lst<T>(list.Take(7));
         switch (items.Count)
         {

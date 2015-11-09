@@ -100,7 +100,7 @@ namespace LanguageExt
 
         public static State<S, T> Modify<S, T>(this State<S, T> self, Func<S, S> f)
         {
-            if (isnull(f)) throw new ArgumentNullException(nameof(map));
+            if (f == null) throw new ArgumentNullException(nameof(map));
             return (S state) =>
             {
                 var resT = self(state);
@@ -126,7 +126,7 @@ namespace LanguageExt
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static State<S, U> Select<S, T, U>(this State<S, T> self, Func<T, U> map)
         {
-            if (isnull(map)) throw new ArgumentNullException(nameof(map));
+            if (map == null) throw new ArgumentNullException(nameof(map));
             return (S state) =>
             {
                 var resT = self(state);
@@ -143,8 +143,8 @@ namespace LanguageExt
             Func<T, U, V> project
             )
         {
-            if (isnull(bind)) throw new ArgumentNullException(nameof(bind));
-            if (isnull(project)) throw new ArgumentNullException(nameof(project));
+            if (bind == null) throw new ArgumentNullException(nameof(bind));
+            if (project == null) throw new ArgumentNullException(nameof(project));
 
             return (S state) =>
             {
@@ -232,8 +232,8 @@ namespace LanguageExt
             Func<T, U, V> project
             )
         {
-            if (isnull(bind)) throw new ArgumentNullException(nameof(bind));
-            if (isnull(project)) throw new ArgumentNullException(nameof(project));
+            if (bind == null) throw new ArgumentNullException(nameof(bind));
+            if (project == null) throw new ArgumentNullException(nameof(project));
             return (S s) =>
             {
                 var resT = self(s);
@@ -257,8 +257,8 @@ namespace LanguageExt
             Func<T, U, V> project
             )
         {
-            if (isnull(bind)) throw new ArgumentNullException(nameof(bind));
-            if (isnull(project)) throw new ArgumentNullException(nameof(project));
+            if (bind == null) throw new ArgumentNullException(nameof(bind));
+            if (project == null) throw new ArgumentNullException(nameof(project));
             return (S s) =>
             {
                 var resT = self(s);

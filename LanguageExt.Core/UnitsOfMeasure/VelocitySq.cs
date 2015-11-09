@@ -31,7 +31,7 @@ namespace LanguageExt.UnitsOfMeasure
             Math.Abs(other.Value - Value) < epsilon;
 
         public override bool Equals(object obj) =>
-            isnull(obj)
+            obj == null
                 ? false
                 : obj is Length
                     ? Equals((Length)obj)

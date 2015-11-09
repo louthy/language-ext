@@ -947,7 +947,7 @@ public static class __EitherUnsafeExt
         self.ForAll(Right) && self.ForAll(Left);
 
     /// <summary>
-    /// Folds the either into an S, if Right
+    /// Folds the either into an S
     /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
     /// </summary>
     /// <typeparam name="S">State</typeparam>
@@ -965,7 +965,7 @@ public static class __EitherUnsafeExt
                 : state;
 
     /// <summary>
-    /// Folds the either into an S, if Left
+    /// Folds the either into an S
     /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
     /// </summary>
     /// <typeparam name="S">State</typeparam>

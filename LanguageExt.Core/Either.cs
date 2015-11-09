@@ -45,7 +45,7 @@ namespace LanguageExt
 
         private Either(R right)
         {
-            if(isnull(right))
+            if (isnull(right))
                 throw new ValueIsNullException();
 
             this.State = EitherState.IsRight;

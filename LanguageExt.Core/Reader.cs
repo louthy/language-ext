@@ -144,7 +144,7 @@ namespace LanguageExt
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static Reader<E, U> Select<E, T, U>(this Reader<E, T> self, Func<T, U> select)
         {
-            if (isnull(select)) throw new ArgumentNullException(nameof(select));
+            if (select == null) throw new ArgumentNullException(nameof(select));
             return (E env) =>
             {
                 var resT = self(env);
@@ -164,8 +164,8 @@ namespace LanguageExt
             Func<T, U, V> project
             )
         {
-            if (isnull(bind)) throw new ArgumentNullException(nameof(bind));
-            if (isnull(project)) throw new ArgumentNullException(nameof(project));
+            if (bind == null) throw new ArgumentNullException(nameof(bind));
+            if (project == null) throw new ArgumentNullException(nameof(project));
             return (E env) =>
             {
                 var resT = self(env);
@@ -271,8 +271,8 @@ namespace LanguageExt
             Func<T, U, V> project
             )
         {
-            if (isnull(bind)) throw new ArgumentNullException(nameof(bind));
-            if (isnull(project)) throw new ArgumentNullException(nameof(project));
+            if (bind == null) throw new ArgumentNullException(nameof(bind));
+            if (project == null) throw new ArgumentNullException(nameof(project));
             return (E env) =>
             {
                 var resT = self(env);
@@ -295,8 +295,8 @@ namespace LanguageExt
             Func<T, U, V> project
             )
         {
-            if (isnull(bind)) throw new ArgumentNullException(nameof(bind));
-            if (isnull(project)) throw new ArgumentNullException(nameof(project));
+            if (bind == null) throw new ArgumentNullException(nameof(bind));
+            if (project == null) throw new ArgumentNullException(nameof(project));
             return (E env) =>
             {
                 var resT = self(env);

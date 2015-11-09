@@ -110,7 +110,7 @@ namespace LanguageExt
         /// </summary>
         public Lst<T> AddRange(IEnumerable<T> items)
         {
-            if (isnull(items)) return this;
+            if (items == null) return this;
             var lst = new List<T>(Rev ? items.Reverse() : items);
             var tree = ListModule.FromList(lst, 0, lst.Count);
             return new Lst<T>(ListModule.Insert(Root, tree, Rev ? 0 : Root.Count), Rev);
@@ -169,7 +169,7 @@ namespace LanguageExt
         /// </summary>
         public Lst<T> InsertRange(int index, IEnumerable<T> items)
         {
-            if (isnull(items)) return this;
+            if (items == null) return this;
             if (index < 0 || index > Root.Count) throw new IndexOutOfRangeException();
 
             var lst = new List<T>(Rev ? items.Reverse() : items);

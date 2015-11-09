@@ -136,7 +136,7 @@ namespace LanguageExt
         /// <returns>New Map with the items added</returns>
         public Map<K, V> AddRange(IEnumerable<Tuple<K, V>> range)
         {
-            if (isnull(range))
+            if (range == null)
             {
                 return this;
             }
@@ -159,7 +159,7 @@ namespace LanguageExt
         /// <returns>New Map with the items added</returns>
         public Map<K, V> TryAddRange(IEnumerable<Tuple<K, V>> range)
         {
-            if (isnull(range))
+            if (range == null)
             {
                 return this;
             }
@@ -183,7 +183,7 @@ namespace LanguageExt
         /// <returns>New Map with the items added</returns>
         public Map<K, V> TryAddRange(IEnumerable<KeyValuePair<K, V>> range)
         {
-            if (isnull(range))
+            if (range == null)
             {
                 return this;
             }
@@ -207,7 +207,7 @@ namespace LanguageExt
         /// <returns>New Map with the items added</returns>
         public Map<K, V> AddOrUpdateRange(IEnumerable<Tuple<K, V>> range)
         {
-            if (isnull(range))
+            if (range == null)
             {
                 return this;
             }
@@ -231,7 +231,7 @@ namespace LanguageExt
         /// <returns>New Map with the items added</returns>
         public Map<K, V> AddOrUpdateRange(IEnumerable<KeyValuePair<K, V>> range)
         {
-            if (isnull(range))
+            if (range == null)
             {
                 return this;
             }
@@ -485,7 +485,7 @@ namespace LanguageExt
         /// <returns>New map with the items set</returns>
         public Map<K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items)
         {
-            if (isnull(items)) return this;
+            if (items == null) return this;
             var self = Root;
             foreach (var item in items)
             {
@@ -503,7 +503,7 @@ namespace LanguageExt
         /// <returns>New map with the items set</returns>
         public Map<K, V> SetItems(IEnumerable<Tuple<K, V>> items)
         {
-            if (isnull(items)) return this;
+            if (items == null) return this;
             var self = Root;
             foreach (var item in items)
             {

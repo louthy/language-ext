@@ -194,7 +194,7 @@ namespace LanguageExt
         public static bool exceptionIs<E>(Exception e)
         {
             if (e is E) return true;
-            if (isnull(e.InnerException)) return false;
+            if (e.InnerException == null) return false;
             return exceptionIs<E>(e.InnerException);
         }
 

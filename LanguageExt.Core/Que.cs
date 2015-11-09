@@ -31,7 +31,7 @@ namespace LanguageExt
         {
             get
             {
-                if (isnull(backwardRev))
+                if (backwardRev == null)
                 {
                     backwardRev = backward.Reverse();
                 }
