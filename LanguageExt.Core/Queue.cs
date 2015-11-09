@@ -5,7 +5,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static partial class Queue
+    public static class Queue
     {
         public static Que<T> enq<T>(Que<T> queue, T value) =>
             queue.Enqueue(value);

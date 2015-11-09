@@ -8,7 +8,7 @@ namespace LanguageExt
     /// <summary>
     /// Functional module for working with the Stck T type
     /// </summary>
-    public static partial class Stack
+    public static class Stack
     {
         /// <summary>
         /// Reverses the order of the items in the stack
