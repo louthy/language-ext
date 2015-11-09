@@ -73,8 +73,7 @@ namespace LanguageExt
         /// Clear the meta-data stored with the session
         /// </summary>
         /// <param name="sid">Session ID</param>
-        /// <param name="data">Data to store</param>
-        public static void sessionClearData(string sid, object data) =>
+        public static void sessionClearData(string sid) =>
             SessionManager.ClearSessionData(sid);
 
         /// <summary>
@@ -82,7 +81,6 @@ namespace LanguageExt
         /// user credentials when they've logged in.  But can be anything.
         /// </summary>
         /// <param name="sid">Session ID</param>
-        /// <param name="data">Data to store</param>
         public static Option<T> sessionGetData<T>(string sid) =>
             ActorContext.GetSessionData<T>(sid);
 
