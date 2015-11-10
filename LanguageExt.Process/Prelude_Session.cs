@@ -84,7 +84,37 @@ namespace LanguageExt
         public static Option<T> sessionGetData<T>(string sid) =>
             ActorContext.GetSessionData<T>(sid);
 
+        /// <summary>
+        /// Returns True if there is an active session
+        /// </summary>
+        /// <returns></returns>
         public static bool hasSession() =>
             ActorContext.SessionId.IsSome;
+
+        /// <summary>
+        /// Acquires a session for the duration of invocation of the 
+        /// provided function
+        /// </summary>
+        /// <param name="sid">Session ID</param>
+        /// <param name="f">Function to invoke</param>
+        /// <returns>Result of the function</returns>
+        public static R withSession<R>(string sid, Func<R> f) =>
+            ActorContext.WithContext<R>(
+                ActorContext.SelfProcess,
+                ActorContext.SelfProcess.Actor.Parent,
+                Process.Sender, 
+                ActorContext.CurrentRequest, 
+                ActorContext.CurrentMsg, 
+                Some(sid), 
+                f);
+
+        /// <summary>
+        /// Acquires a session for the duration of invocation of the 
+        /// provided action
+        /// </summary>
+        /// <param name="sid">Session ID</param>
+        /// <param name="f">Action to invoke</param>
+        public static Unit withSession(string sid, Action f) =>
+            withSession(sid, fun(f));
     }
 }
