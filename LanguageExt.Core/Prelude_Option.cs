@@ -89,9 +89,9 @@ namespace LanguageExt
         /// <typeparam name="T">T</typeparam>
         /// <param name="value">Non-null value to be made optional</param>
         /// <returns>Option<T> in a Some state or throws ValueIsNullException
-        /// if value == null.</returns>
+        /// if isnull(value).</returns>
         public static Option<T> Some<T>(T value) =>
-            value == null
+            isnull(value)
                 ? raise<Option<T>>(new ValueIsNullException())
                 : Option<T>.Some(value);
 
@@ -101,7 +101,7 @@ namespace LanguageExt
         /// <typeparam name="T">T</typeparam>
         /// <param name="value">Non-null value to be made optional</param>
         /// <returns>Option<T> in a Some state or throws ValueIsNullException
-        /// if value == null</returns>
+        /// if isnull(value)</returns>
         public static Option<T> Some<T>(T? value) where T : struct =>
             value.HasValue
                 ? Option<T>.Some(value.Value)
@@ -114,7 +114,7 @@ namespace LanguageExt
         /// <param name="value">Value to be made optional, or null</param>
         /// <returns>If the value is null it will be None else Some(value)</returns>
         public static Option<T> Optional<T>(T value) =>
-            value == null
+            isnull(value)
                 ? Option<T>.None
                 : Option<T>.Some(value);
 
@@ -182,9 +182,26 @@ namespace LanguageExt
         public static Option<R> apply<T1, T2, R>(Option<Func<T1, T2, R>> option, Option<T1> arg1, Option<T2> arg2) =>
             option.Apply(arg1, arg2);
 
+        /// <summary>
+        /// Folds the option into an S.
+        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// </summary>
+        /// <param name="option">Option to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Folded state</returns>
         public static S fold<S, T>(Option<T> option, S state, Func<S, T, S> folder) =>
             option.Fold(state, folder);
 
+        /// <summary>
+        /// Folds the option into an S
+        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// </summary>
+        /// <param name="option">Option to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="Some">Fold function for Some</param>
+        /// <param name="None">Fold function for None</param>
+        /// <returns>Folded state</returns>
         public static S fold<S, T>(Option<T> option, S state, Func<S, T, S> Some, Func<S, S> None) =>
             option.Fold(state, Some, None);
 

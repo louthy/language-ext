@@ -45,7 +45,7 @@ namespace LanguageExt
 
         private Either(R right)
         {
-            if(right == null)
+            if (isnull(right))
                 throw new ValueIsNullException();
 
             this.State = EitherState.IsRight;
@@ -55,7 +55,7 @@ namespace LanguageExt
 
         private Either(L left)
         {
-            if (left == null)
+            if (isnull(left))
                 throw new ValueIsNullException();
 
             this.State = EitherState.IsLeft;
@@ -108,7 +108,7 @@ namespace LanguageExt
         /// <param name="value">Value, must not be null.</param>
         /// <exception cref="ValueIsNullException">Value is null</exception>
         public static implicit operator Either<L, R>(R value) =>
-            value == null
+            isnull(value)
                 ? raise<Either<L, R>>(new ValueIsNullException())
                 : Either<L, R>.Right(value);
 
@@ -118,7 +118,7 @@ namespace LanguageExt
         /// <param name="value">Value, must not be null.</param>
         /// <exception cref="ValueIsNullException">Value is null</exception>
         public static implicit operator Either<L, R>(L value) =>
-            value == null
+            isnull(value)
                 ? raise<Either<L, R>>(new ValueIsNullException())
                 : Either<L, R>.Left(value);
 
@@ -265,10 +265,10 @@ namespace LanguageExt
             IsBottom
                 ? "Bottom"
                 : IsRight
-                    ? RightValue == null
+                    ? isnull(RightValue)
                         ? "Right(null)"
                         : $"Right({RightValue})"
-                    : LeftValue == null
+                    : isnull(LeftValue)
                         ? "Left(null)"
                         : $"Left({LeftValue})";
 
@@ -280,10 +280,10 @@ namespace LanguageExt
             IsBottom
                 ? -1
                 : IsRight
-                    ? RightValue == null
+                    ? isnull(RightValue)
                         ? 0
                         : RightValue.GetHashCode()
-                    : LeftValue == null
+                    : isnull(LeftValue)
                         ? 0
                         : LeftValue.GetHashCode();
 
@@ -558,7 +558,7 @@ namespace LanguageExt
             );
 
         private static T CheckNullReturn<T>(T value, string location) =>
-            value == null
+            isnull(value)
                 ? raise<T>(new ResultIsNullException($"'{location}' result is null.  Not allowed."))
                 : value;
 

@@ -7,7 +7,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static partial class Query
+    public static class Query
     {
         public static T head<T>(IQueryable<T> list) => list.First();
 
