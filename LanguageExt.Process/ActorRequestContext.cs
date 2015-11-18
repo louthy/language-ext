@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    internal class ActorRequestContext
+    class ActorRequestContext
     {
         public readonly ActorItem Self;
         public readonly ProcessId Sender;
@@ -14,7 +14,6 @@ namespace LanguageExt
         public readonly object CurrentMsg;
         public readonly ActorRequest CurrentRequest;
         public readonly ProcessFlags ProcessFlags;
-        public readonly Option<string> SessionId;
 
         public ActorRequestContext(
             ActorItem self,
@@ -22,8 +21,7 @@ namespace LanguageExt
             ActorItem parent,
             object currentMsg,
             ActorRequest currentRequest,
-            ProcessFlags processFlags,
-            Option<string> sessionId
+            ProcessFlags processFlags
             )
         {
             Self = self;
@@ -32,7 +30,6 @@ namespace LanguageExt
             CurrentMsg = currentMsg;
             CurrentRequest = currentRequest;
             ProcessFlags = processFlags;
-            SessionId = sessionId;
         }
 
         public ActorRequestContext SetProcessFlags(ProcessFlags flags) =>
@@ -42,8 +39,7 @@ namespace LanguageExt
                 Parent,
                 CurrentMsg,
                 CurrentRequest,
-                flags,
-                SessionId
+                flags
             );
 
         public ActorRequestContext SetCurrentRequest(ActorRequest currentRequest) =>
@@ -53,8 +49,7 @@ namespace LanguageExt
                 Parent,
                 CurrentMsg,
                 currentRequest,
-                ProcessFlags, 
-                SessionId
+                ProcessFlags
             );
 
         public ActorRequestContext SetCurrentMessage(object currentMsg) =>
@@ -64,19 +59,7 @@ namespace LanguageExt
                 Parent,
                 currentMsg,
                 CurrentRequest,
-                ProcessFlags,
-                SessionId
-            );
-
-        public ActorRequestContext SetSessionId(Option<string> sessionId) =>
-            new ActorRequestContext(
-                Self,
-                Sender,
-                Parent,
-                CurrentMsg,
-                CurrentRequest,
-                ProcessFlags,
-                sessionId
+                ProcessFlags
             );
     }
 }

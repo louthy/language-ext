@@ -198,23 +198,6 @@ namespace LanguageExt
             return exceptionIs<E>(e.InnerException);
         }
 
-        readonly static Random rnd = new Random();
-
-        /// <summary>
-        /// Thread safe random number generator
-        /// </summary>
-        /// <param name="max">Maximum value to return + 1</param>
-        /// <returns>A non-negative random number, less than the value specified.</returns>
-        public static int random(int max)
-        {
-            int v = 0;
-            lock (rnd)
-            {
-                v = rnd.Next(max);
-            }
-            return v;
-        }
-
         public static bool isnull<T>(T value) =>
             Object.ReferenceEquals(value, null);
 

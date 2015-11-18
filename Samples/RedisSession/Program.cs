@@ -53,7 +53,6 @@ namespace RedisSession
             // Trigger
             tell(pong, "start");
 
-
             Console.ReadKey();
         }
     }
