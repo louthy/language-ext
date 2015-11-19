@@ -154,6 +154,9 @@ module ProcessFs =
         let pids = Process.spawnMany(count, new ProcessName(name), new Func<'state>(setup), new Func<'state, 'msg, 'state>(messageHandler), flags)
         pids |> Seq.map(fun pid -> fun () -> pid )
 
+//    let internal roundRobinInbox map (s:unit) msg = 
+//        tellNextChild (map msg) Sender
+//
 //    let internal roundRobinSetup count flags inbox = 
 //        spawnMany count "worker" flags NoSetup (fun (_:unit) msg -> inbox msg) |> ignore
 //

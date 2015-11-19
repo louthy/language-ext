@@ -12,8 +12,8 @@ namespace LanguageExt
     public static partial class Router
     {
         /// <summary>
-        /// Spawns a new process with Count worker processes, each message is sent to one worker
-        /// process in a round robin fashion.
+        /// Spawns a new process with Count worker processes, each message is sent to 
+        /// all worker processes
         /// </summary>
         /// <typeparam name="S">State type</typeparam>
         /// <typeparam name="T">Message type</typeparam>
@@ -23,7 +23,7 @@ namespace LanguageExt
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
         /// <returns>Process ID of the delegator process</returns>
-        public static ProcessId roundRobin<S, T>(
+        public static ProcessId broadcast<S, T>(
             ProcessName Name,
             int Count,
             Func<S> Setup,
@@ -38,27 +38,14 @@ namespace LanguageExt
             if (Setup == null) throw new ArgumentNullException(nameof(Setup));
             if (Count < 1) throw new ArgumentException($"{nameof(Count)} should be greater than 0");
 
-            return spawn<int, T>(
+            return spawn<Unit, T>(
                 Name,
                 () =>
                 {
                     spawnMany(Count, WorkerName, Setup, Inbox, Flags);
-                    return 0;
+                    return unit;
                 },
-                (index, msg) =>
-                {
-                    index = index % Children.Count;
-                    var child = Children.Skip(index).Take(1).ToArray();
-                    if (child.Length == 0)
-                    {
-                        dead("There are no children to route the message to");
-                    }
-                    else
-                    {
-                        fwd(child[0].Value);
-                    }
-                    return index + 1;
-                },
+                (_, msg) => Children.Iter(pid => fwd(pid)),
                 Flags, 
                 Strategy, 
                 MaxMailboxSize
@@ -72,12 +59,10 @@ namespace LanguageExt
         /// <typeparam name="S">State type</typeparam>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="Name">Delegator process name</param>
-        /// <param name="Count">Number of worker processes</param>
-        /// <param name="Inbox">Worker message handler</param>
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
         /// <returns>Process ID of the delegator process</returns>
-        public static ProcessId roundRobin<T>(
+        public static ProcessId broadcast<T>(
             ProcessName Name,
             IEnumerable<ProcessId> Workers,
             ProcessFlags Flags = ProcessFlags.Default,
@@ -87,15 +72,9 @@ namespace LanguageExt
             if (Workers == null) throw new ArgumentNullException(nameof(Workers));
             var workers = Workers.ToArray();
             if (workers.Length < 1) throw new ArgumentException($"{nameof(Workers)} should have a length of at least 1");
-            return spawn<int, T>(
+            return spawn<T>(
                 Name,
-                () => 0,
-                (index, msg) =>
-                {
-                    index = index % workers.Length;
-                    fwd(workers[index]);
-                    return index + 1;
-                },
+                msg => workers.Iter(pid => fwd(pid)),
                 Flags,
                 DefaultStrategy,
                 MaxMailboxSize
@@ -103,18 +82,19 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Spawns a new process with Count worker processes, each message is mapped
-        /// and sent to one worker process in a round robin fashion.
+        /// Spawns a new process with Count worker processes, each message is sent to 
+        /// all worker processes
         /// </summary>
         /// <typeparam name="S">State type</typeparam>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="Name">Delegator process name</param>
+        /// <param name="Map">Message mapping function</param>
         /// <param name="Count">Number of worker processes</param>
         /// <param name="Inbox">Worker message handler</param>
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
         /// <returns>Process ID of the delegator process</returns>
-        public static ProcessId roundRobinMap<S, T, U>(
+        public static ProcessId broadcastMap<S, T, U>(
             ProcessName Name,
             int Count,
             Func<S> Setup,
@@ -130,27 +110,17 @@ namespace LanguageExt
             if (Setup == null) throw new ArgumentNullException(nameof(Setup));
             if (Count < 1) throw new ArgumentException($"{nameof(Count)} should be greater than 0");
 
-            return spawn<int, T>(
+            return spawn<Unit, T>(
                 Name,
                 () =>
                 {
                     spawnMany(Count, WorkerName, Setup, Inbox, Flags);
-                    return 0;
+                    return unit;
                 },
-                (index, msg) =>
+                (_, msg) =>
                 {
                     var umsg = Map(msg);
-                    index = index % Children.Count;
-                    var child = Children.Skip(index).Take(1).ToArray();
-                    if (child.Length == 0)
-                    {
-                        dead("There are no children to route the message to");
-                    }
-                    else
-                    {
-                        fwd(child[0].Value, umsg);
-                    }
-                    return index + 1;
+                    return Children.Iter(pid => fwd(pid,umsg));
                 },
                 Flags,
                 Strategy,
@@ -159,21 +129,21 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Spawns a new process with that routes each message is mapped and 
-        /// sent to the Workers in a round robin fashion.
+        /// Spawns a new process with that routes each message to all workers
+        /// Each message is mapped before being broadcast.
         /// </summary>
         /// <typeparam name="S">State type</typeparam>
         /// <typeparam name="T">Message type</typeparam>
+        /// <typeparam name="U">Mapped message type</typeparam>
         /// <param name="Name">Delegator process name</param>
-        /// <param name="Count">Number of worker processes</param>
-        /// <param name="Inbox">Worker message handler</param>
+        /// <param name="Map">Message mapping function</param>
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
         /// <returns>Process ID of the delegator process</returns>
-        public static ProcessId roundRobinMap<T, U>(
+        public static ProcessId broadcastMap<T, U>(
             ProcessName Name,
             IEnumerable<ProcessId> Workers,
-            Func<T, U> Map,
+            Func<T,U> Map,
             ProcessFlags Flags = ProcessFlags.Default,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize
             )
@@ -181,15 +151,12 @@ namespace LanguageExt
             if (Workers == null) throw new ArgumentNullException(nameof(Workers));
             var workers = Workers.ToArray();
             if (workers.Length < 1) throw new ArgumentException($"{nameof(Workers)} should have a length of at least 1");
-            return spawn<int, T>(
+            return spawn<T>(
                 Name,
-                () => 0,
-                (index, msg) =>
+                msg =>
                 {
                     var umsg = Map(msg);
-                    index = index % workers.Length;
-                    fwd(workers[index],umsg);
-                    return index + 1;
+                    workers.Iter(pid => fwd(pid, umsg));
                 },
                 Flags,
                 DefaultStrategy,
@@ -199,8 +166,8 @@ namespace LanguageExt
 
         /// <summary>
         /// Spawns a new process with N worker processes, each message is mapped 
-        /// from T to IEnumerable U before each resulting U is passed to the worker
-        /// processes in a round robin fashion.
+        /// from T to IEnumerable U before each resulting Us are passed all of the 
+        /// worker processes.
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <typeparam name="U">Mapped message type</typeparam>
@@ -211,7 +178,7 @@ namespace LanguageExt
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
         /// <returns>Process ID of the delegator process</returns>
-        public static ProcessId roundRobinMapMany<S, T, U>(
+        public static ProcessId broadcastMapMany<S, T, U>(
             ProcessName Name,
             int Count,
             Func<S> Setup,
@@ -227,41 +194,17 @@ namespace LanguageExt
             if (WorkerName == null) throw new ArgumentNullException(nameof(WorkerName));
             if (Count < 1) throw new ArgumentException($"{nameof(Count)} should be greater than 0");
 
-            return spawn<int, T>(
+            return spawn<Unit, T>(
                 Name,
                 () =>
                 {
                     spawnMany(Count, WorkerName, Setup, Inbox, Flags);
-                    return 0;
+                    return unit;
                 },
-                (index, msg) =>
+                (_, msg) =>
                 {
-                    var us = MapMany(msg);
-
-                    index = index % Children.Count;
-                    var kids = Children.Skip(index);
-
-                    foreach (var u in us)
-                    {
-                        index = index % Children.Count;
-                        var child = kids.Take(1).ToArray();
-                        if (child.Length == 0)
-                        {
-                            kids = Children;
-                            child = kids.Take(1).ToArray();
-                            if (child.Length == 0)
-                            {
-                                dead("There are no children to route the message to");
-                                return index;
-                            }
-                        }
-
-                        fwd(child[0].Value, u);
-                        kids = kids.Skip(1);
-
-                        index++;
-                    }
-                    return index;
+                    MapMany(msg).Iter(umsg => Children.Iter(pid => fwd(pid, umsg)));
+                    return unit;
                 },
                 Flags,
                 Strategy,
@@ -269,11 +212,10 @@ namespace LanguageExt
             );
         }
 
-
         /// <summary>
         /// Spawns a new process with N worker processes, each message is mapped 
-        /// from T to IEnumerable U before each resulting U is passed to the worker
-        /// processes in a round robin fashion.
+        /// from T to IEnumerable U before each resulting Us are passed all of the 
+        /// worker processes.
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <typeparam name="U">Mapped message type</typeparam>
@@ -284,7 +226,7 @@ namespace LanguageExt
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
         /// <returns>Process ID of the delegator process</returns>
-        public static ProcessId roundRobinMapMany<T, U>(
+        public static ProcessId broadcastMapMany<T, U>(
             ProcessName Name,
             IEnumerable<ProcessId> Workers,
             Func<T, IEnumerable<U>> MapMany,
@@ -296,22 +238,9 @@ namespace LanguageExt
             var workers = Workers.ToArray();
             if (workers.Length < 1) throw new ArgumentException($"{nameof(Workers)} should have a length of at least 1");
 
-            return spawn<int, T>(
+            return spawn<T>(
                 Name,
-                () => 0,
-                (index, msg) =>
-                {
-                    var us = MapMany(msg);
-
-                    foreach (var u in us)
-                    {
-                        index = index % workers.Length;
-                        var worker = workers[index];
-                        fwd(worker, u);
-                        index++;
-                    }
-                    return index;
-                },
+                msg => MapMany(msg).Iter(umsg => workers.Iter(pid => fwd(pid, umsg))),
                 Flags,
                 DefaultStrategy,
                 MaxMailboxSize
@@ -330,7 +259,7 @@ namespace LanguageExt
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
         /// <returns>Process ID of the delegator process</returns>
-        public static ProcessId roundRobin<T>(
+        public static ProcessId broadcast<T>(
             ProcessName Name,
             int Count,
             Action<T> Inbox,
@@ -339,7 +268,7 @@ namespace LanguageExt
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize,
             string WorkerName = "worker"
             ) =>
-            roundRobin<Unit, T>(Name, Count, () => unit, (_, msg) => { Inbox(msg); return unit; }, Flags, Strategy, MaxMailboxSize, WorkerName);
+            broadcast<Unit, T>(Name, Count, () => unit, (_, msg) => { Inbox(msg); return unit; }, Flags, Strategy, MaxMailboxSize, WorkerName);
 
         /// <summary>
         /// Spawns a new process with Count worker processes, each message is mapped
@@ -353,7 +282,7 @@ namespace LanguageExt
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
         /// <returns>Process ID of the delegator process</returns>
-        public static ProcessId roundRobinMap<T, U>(
+        public static ProcessId broadcastMap<T, U>(
             ProcessName Name,
             int Count,
             Action<U> Inbox,
@@ -363,7 +292,7 @@ namespace LanguageExt
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize,
             string WorkerName = "worker"
             ) =>
-            roundRobinMap(Name, Count, () => unit, (_, umsg) => { Inbox(umsg); return unit; }, Map, Flags, Strategy, MaxMailboxSize, WorkerName);
+            broadcastMap(Name, Count, () => unit, (_, umsg) => { Inbox(umsg); return unit; }, Map, Flags, Strategy, MaxMailboxSize, WorkerName);
 
         /// <summary>
         /// Spawns a new process with N worker processes, each message is mapped 
@@ -379,7 +308,7 @@ namespace LanguageExt
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
         /// <returns>Process ID of the delegator process</returns>
-        public static ProcessId roundRobinMapMany<T, U>(
+        public static ProcessId broadcastMapMany<T, U>(
             ProcessName Name,
             int Count,
             Action<U> Inbox,
@@ -389,7 +318,6 @@ namespace LanguageExt
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize,
             string WorkerName = "worker"
             ) =>
-            roundRobinMapMany(Name, Count, () => unit, (_, umsg) => { Inbox(umsg); return unit; }, MapMany, Flags, Strategy, MaxMailboxSize, WorkerName);
-
+            broadcastMapMany(Name, Count, () => unit, (_, umsg) => { Inbox(umsg); return unit; }, MapMany, Flags, Strategy, MaxMailboxSize, WorkerName);
     }
 }
