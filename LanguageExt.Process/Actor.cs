@@ -290,6 +290,7 @@ namespace LanguageExt
                     kill(kid.Value.Actor.Id);
                 }
             }
+            tellSystem(Id, SystemMessage.StartupProcess);
             return unit;
         }
 
