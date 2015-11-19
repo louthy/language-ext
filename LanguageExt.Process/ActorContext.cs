@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace LanguageExt
 {
-    internal static class ActorContext
+    static class ActorContext
     {
         [ThreadStatic]
         static ActorRequestContext context;
@@ -17,7 +17,6 @@ namespace LanguageExt
         static Option<ICluster> cluster;
         static ActorItem rootItem;
         static ActorRequestContext userContext;
-        static SessionManagerProcess.State sessions = SessionManagerProcess.State.Empty;
 
         static ActorContext()
         {
@@ -45,11 +44,12 @@ namespace LanguageExt
                 var state = new ActorSystemState(cluster, root, null, rootInbox, cluster.Map(x => x.NodeName).IfNone(ActorConfig.Default.RootProcessName), ActorConfig.Default);
                 var rootProcess = state.RootProcess;
                 state.Startup();
-                userContext = new ActorRequestContext(rootProcess.Children["user"], ProcessId.NoSender, rootItem, null, null, ProcessFlags.Default, null);
+                userContext = new ActorRequestContext(rootProcess.Children["user"], ProcessId.NoSender, rootItem, null, null, ProcessFlags.Default);
                 rootInbox.Startup(rootProcess, parent, cluster, ProcessSetting.DefaultMailboxSize);
                 rootItem = new ActorItem(rootProcess, rootInbox, ProcessFlags.Default);
                 started = true;
-                InitialiseSessionsWatcher();
+
+                SessionManager.Init(cluster);
             }
             return unit;
         }
@@ -69,44 +69,6 @@ namespace LanguageExt
             }
             return unit;
         }
-
-        private static void SessionsUpdated(SessionManagerProcess.State sessions)
-        {
-            ActorContext.sessions = sessions;
-            SessionId.IfSome(sid => SessionId = sessions.Sessions.Find(sid).Map(s => s.Id));
-        }
-
-        private static void InitialiseSessionsWatcher()
-        {
-            var pid = Root[ActorConfig.Default.SystemProcessName][ActorConfig.Default.Sessions];
-
-            // Observe the updates to the session state
-            Process.observeState<SessionManagerProcess.State>(pid)
-                   .Subscribe(SessionsUpdated);
-
-            SessionManager.CheckExpired();
-        }
-
-        /// <summary>
-        /// Asserts that the current session ID is valid
-        /// Checks the cached state first.  If the session has expired locally it 
-        /// then checks to see if it's been updated remotely.  Otherwise it throws.
-        /// </summary>
-        /// <returns></returns>
-        public static Unit AssertSession() =>
-            Context.SessionId.IfSome(sid =>
-                SessionManagerProcess.GetSession(sessions.Sessions, sid).IfNone(() =>
-                {
-                    SessionManager.Stop(sid); // Make sure it's gone
-                    SessionId = None;
-                    throw new ProcessSessionExpired();
-                }));
-
-        /// <summary>
-        /// Get session meta data
-        /// </summary>
-        public static Option<T> GetSessionData<T>(string sid) =>
-            SessionManagerProcess.GetSessionMetadata<T>(sessions, sid);
 
         public static Unit Restart()
         {
@@ -402,22 +364,10 @@ namespace LanguageExt
             }
         }
 
-        public static Option<string> SessionId
+        static Option<ActorItem> GetJsItem()
         {
-            get
-            {
-                return Context.SessionId;
-            }
-            set
-            {
-                context = Context.SetSessionId(value);
-            }
-        }
-
-        private static Option<ActorItem> GetJsItem()
-        {
-            var children = rootItem.Actor.Children;
-            if (children.ContainsKey("js"))
+            var children = rootItem?.Actor?.Children;
+            if (notnull(children) && children.ContainsKey("js"))
             {
                 return Some(children["js"]);
             }
@@ -427,10 +377,10 @@ namespace LanguageExt
             }
         }
 
-        private static Option<ActorItem> GetRegisteredItem()
+        static Option<ActorItem> GetRegisteredItem()
         {
-            var children = rootItem.Actor.Children;
-            if (children.ContainsKey(ActorConfig.Default.RegisteredProcessName.Value))
+            var children = rootItem?.Actor?.Children;
+            if (notnull(children) && children.ContainsKey(ActorConfig.Default.RegisteredProcessName.Value))
             {
                 return Some(children[ActorConfig.Default.RegisteredProcessName.Value]);
             }
@@ -440,10 +390,10 @@ namespace LanguageExt
             }
         }
 
-        private static Option<ActorItem> GetAskItem()
+        static Option<ActorItem> GetAskItem()
         {
-            var children = rootItem.Actor.Children;
-            if (children.ContainsKey(ActorConfig.Default.SystemProcessName.Value))
+            var children = rootItem?.Actor?.Children;
+            if (notnull(children) && children.ContainsKey(ActorConfig.Default.SystemProcessName.Value))
             {
                 var sys = children[ActorConfig.Default.SystemProcessName.Value];
                 children = sys.Actor.Children;
@@ -464,30 +414,23 @@ namespace LanguageExt
 
         public static Option<ActorItem> GetInboxShutdownItem()
         {
-            if (rootItem == null)
+            var children = rootItem?.Actor?.Children;
+            if (notnull(children) && children.ContainsKey(ActorConfig.Default.SystemProcessName.Value))
             {
-                return None;
-            }
-            else
-            {
-                var children = rootItem.Actor.Children;
-                if (children.ContainsKey(ActorConfig.Default.SystemProcessName.Value))
+                var sys = children[ActorConfig.Default.SystemProcessName.Value];
+                children = sys.Actor.Children;
+                if (children.ContainsKey(ActorConfig.Default.InboxShutdownProcessName.Value))
                 {
-                    var sys = children[ActorConfig.Default.SystemProcessName.Value];
-                    children = sys.Actor.Children;
-                    if (children.ContainsKey(ActorConfig.Default.InboxShutdownProcessName.Value))
-                    {
-                        return Some(children[ActorConfig.Default.InboxShutdownProcessName.Value]);
-                    }
-                    else
-                    {
-                        return None;
-                    }
+                    return Some(children[ActorConfig.Default.InboxShutdownProcessName.Value]);
                 }
                 else
                 {
                     return None;
                 }
+            }
+            else
+            {
+                return None;
             }
         }
 
@@ -514,23 +457,24 @@ namespace LanguageExt
         public static R WithContext<R>(ActorItem self, ActorItem parent, ProcessId sender, ActorRequest request, object msg, Option<string> sessionId, Func<R> f)
         {
             var savedContext = context;
+            var savedSession = SessionManager.SessionId;
 
             try
             {
+                SessionManager.SessionId = sessionId;
                 context = new ActorRequestContext(
                     self,
                     sender,
                     parent,
                     msg,
                     request,
-                    ProcessFlags.Default,
-                    sessionId
+                    ProcessFlags.Default
                 );
-
                 return f();
             }
             finally
             {
+                SessionManager.SessionId = savedSession;
                 context = savedContext;
             }
         }

@@ -33,7 +33,7 @@ namespace LanguageExt
 
         private Option(T value)
         {
-            if (value == null)
+            if (isnull(value))
                 throw new ValueIsNullException();
 
             this.value = value;
@@ -71,7 +71,7 @@ namespace LanguageExt
                 : raise<T>(new OptionIsNoneException());
 
         public static implicit operator Option<T>(T value) =>
-            value == null
+            isnull(value)
                 ? None
                 : Some(value);
 
@@ -79,7 +79,7 @@ namespace LanguageExt
             None;
 
         internal static U CheckNullReturn<U>(U value, string location) =>
-            value == null
+            isnull(value)
                 ? raise<U>(new ResultIsNullException($"'{location}' result is null.  Not allowed."))
                 : value;
 
@@ -245,13 +245,13 @@ namespace LanguageExt
 
         public override string ToString() =>
             IsSome
-                ? Value == null
+                ? isnull(Value)
                     ? "Some(null)"
                     : $"Some({Value})"
                 : "None";
 
         public override int GetHashCode() =>
-            IsSome && Value != null
+            IsSome && notnull(Value)
                 ? Value.GetHashCode()
                 : 0;
 
@@ -600,11 +600,28 @@ public static class __OptionExt
             ? Some(self.Value)
             : None();
 
+    /// <summary>
+    /// Folds Option into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="tryDel">Try to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="folder">Fold function</param>
+    /// <returns>Folded state</returns>
     public static S Fold<S, T>(this Option<T> self, S state, Func<S, T, S> folder) =>
         self.IsSome
             ? folder(state, self.Value)
             : state;
 
+    /// <summary>
+    /// Folds Option into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="tryDel">Try to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="Some">Fold function for Some</param>
+    /// <param name="None">Fold function for None</param>
+    /// <returns>Folded state</returns>
     public static S Fold<S, T>(this Option<T> self, S state, Func<S, T, S> Some, Func<S, S> None) =>
         self.IsSome
             ? Some(state, self.Value)

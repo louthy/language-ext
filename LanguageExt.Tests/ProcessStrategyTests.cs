@@ -38,6 +38,8 @@ namespace LanguageExtTests
         [Fact]
         public void RealTest()
         {
+            shutdownAll();
+
             var strategy = OneForOne(
                 Retries(5, 1 * hour),
                 Always(Directive.Restart)

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    internal class ActorRequest : UserControlMessage
+    class ActorRequest : UserControlMessage
     {
         public readonly object Message;
         public readonly ProcessId To;

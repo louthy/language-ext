@@ -14,7 +14,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    internal class RedisClusterImpl : ICluster
+    class RedisClusterImpl : ICluster
     {
         readonly ClusterConfig config;
 
@@ -226,14 +226,8 @@ namespace LanguageExt
         public bool HashFieldExists(string key, string field) =>
             Db.HashExists(key, field);
 
-        public void HashFieldAddOrUpdate(string key, string field, string value) =>
-            Db.HashSet(key, field, value);
-
         public void HashFieldAddOrUpdate<T>(string key, string field, T value) =>
             Db.HashSet(key, field, JsonConvert.SerializeObject(value));
-
-        public void HashFieldAddOrUpdate(string key, Map<string, string> fields) =>
-            Db.HashSet(key, fields.Map((k, v) => new HashEntry(k, v)).Values.ToArray());
 
         public void HashFieldAddOrUpdate<T>(string key, Map<string, T> fields) =>
             Db.HashSet(

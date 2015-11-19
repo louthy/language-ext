@@ -106,9 +106,7 @@ namespace LanguageExt
         int QueueLength(string key);
 
         bool HashFieldExists(string key, string field);
-        void HashFieldAddOrUpdate(string key, string field, string value);
         void HashFieldAddOrUpdate<T>(string key, string field, T value);
-        void HashFieldAddOrUpdate(string key, Map<string, string> fields);
         void HashFieldAddOrUpdate<T>(string key, Map<string, T> fields);
         bool DeleteHashField(string key, string field);
         int DeleteHashFields(string key, IEnumerable<string> fields);

@@ -34,7 +34,7 @@ namespace LanguageExt
 
         public Some(T value)
         {
-            if (value == null)
+            if (isnull(value))
             {
                 throw new ValueIsNullException("Value is null when expecting Some(x)");
             }

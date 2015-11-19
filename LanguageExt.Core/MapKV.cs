@@ -88,8 +88,8 @@ namespace LanguageExt
         /// <returns>New Map with the item added</returns>
         public Map<K, V> Add(K key, V value)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (isnull(key)) throw new ArgumentNullException(nameof(key));
+            if (isnull(value)) throw new ArgumentNullException(nameof(value));
             return SetRoot(MapModule.Add(Root, key, value, Comparer<K>.Default));
         }
 
@@ -104,7 +104,7 @@ namespace LanguageExt
         /// <returns>New Map with the item added</returns>
         public Map<K, V> TryAdd(K key, V value)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (isnull(key)) throw new ArgumentNullException(nameof(key));
             return SetRoot(MapModule.TryAdd(Root, key, value, Comparer<K>.Default));
         }
 
@@ -122,7 +122,7 @@ namespace LanguageExt
         /// <returns>New Map with the item added</returns>
         public Map<K, V> TryAdd(K key, V value, Func<Map<K, V>, V, Map<K, V>> Fail)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (isnull(key)) throw new ArgumentNullException(nameof(key));
             return Find(key, v => Fail(this, v), () => Add(key, value));
         }
 
@@ -143,7 +143,7 @@ namespace LanguageExt
             var self = Root;
             foreach (var item in range)
             {
-                if (item.Item1 == null) throw new ArgumentNullException(nameof(item.Item1));
+                if (isnull(item.Item1)) throw new ArgumentNullException(nameof(item.Item1));
                 self = MapModule.Add(self, item.Item1, item.Item2, Comparer<K>.Default);
             }
             return SetRoot(self);
@@ -167,7 +167,7 @@ namespace LanguageExt
             var self = Root;
             foreach (var item in range)
             {
-                if (item.Item1 == null) throw new ArgumentNullException(nameof(item.Item1));
+                if (isnull(item.Item1)) throw new ArgumentNullException(nameof(item.Item1));
                 self = MapModule.TryAdd(self, item.Item1, item.Item2, Comparer<K>.Default);
             }
             return SetRoot(self);
@@ -191,7 +191,7 @@ namespace LanguageExt
             var self = Root;
             foreach (var item in range)
             {
-                if (item.Key == null) throw new ArgumentNullException(nameof(item.Key));
+                if (isnull(item.Key)) throw new ArgumentNullException(nameof(item.Key));
                 self = MapModule.TryAdd(self, item.Key, item.Value, Comparer<K>.Default);
             }
             return SetRoot(self);
@@ -215,7 +215,7 @@ namespace LanguageExt
             var self = Root;
             foreach (var item in range)
             {
-                if (item.Item1 == null) throw new ArgumentNullException(nameof(item.Item1));
+                if (isnull(item.Item1)) throw new ArgumentNullException(nameof(item.Item1));
                 self = MapModule.AddOrUpdate(self, item.Item1, item.Item2, Comparer<K>.Default);
             }
             return SetRoot(self);
@@ -239,7 +239,7 @@ namespace LanguageExt
             var self = Root;
             foreach (var item in range)
             {
-                if (item.Key == null) throw new ArgumentNullException(nameof(item.Key));
+                if (isnull(item.Key)) throw new ArgumentNullException(nameof(item.Key));
                 self = MapModule.AddOrUpdate(self, item.Key, item.Value, Comparer<K>.Default);
             }
             return SetRoot(self);
@@ -252,7 +252,7 @@ namespace LanguageExt
         /// <param name="key">Key</param>
         /// <returns>New map with the item removed</returns>
         public Map<K, V> Remove(K key) =>
-            key == null
+            isnull(key)
                 ? this
                 : SetRoot(MapModule.Remove(Root, key, Comparer<K>.Default));
 
@@ -262,7 +262,7 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
         public Option<V> Find(K key) =>
-            key == null
+            isnull(key)
                 ? None
                 : MapModule.TryFind(Root, key, Comparer<K>.Default);
 
@@ -273,7 +273,7 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
         public R Find<R>(K key, Func<V, R> Some, Func<R> None) =>
-            key == null
+            isnull(key)
                 ? None()
                 : match(MapModule.TryFind(Root, key, Comparer<K>.Default), Some, None);
 
@@ -287,7 +287,7 @@ namespace LanguageExt
         /// <returns>New Map with the item added</returns>
         public Map<K, V> SetItem(K key, V value)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (isnull(key)) throw new ArgumentNullException(nameof(key));
             return SetRoot(MapModule.SetItem(Root, key, value, Comparer<K>.Default));
         }
 
@@ -300,7 +300,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
         public Map<K, V> SetItem(K key, Func<V, V> Some) =>
-            key == null
+            isnull(key)
                 ? this
                 : match(MapModule.TryFind(Root, key, Comparer<K>.Default),
                         Some: x => SetItem(key, Some(x)),
@@ -317,7 +317,7 @@ namespace LanguageExt
         /// <returns>New Map with the item added</returns>
         public Map<K, V> TrySetItem(K key, V value)
         {
-            if (key == null) return this;
+            if (isnull(key)) return this;
             return SetRoot(MapModule.TrySetItem(Root, key, value, Comparer<K>.Default));
         }
 
@@ -331,7 +331,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New map with the item set</returns>
         public Map<K, V> TrySetItem(K key, Func<V, V> Some) =>
-            key == null
+            isnull(key)
                 ? this
                 : match(MapModule.TryFind(Root, key, Comparer<K>.Default),
                         Some: x => SetItem(key, Some(x)),
@@ -349,7 +349,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if None returns null</exception>
         /// <returns>New map with the item set</returns>
         public Map<K, V> TrySetItem(K key, Func<V, V> Some, Func<Map<K, V>, Map<K, V>> None) =>
-            key == null
+            isnull(key)
                 ? this
                 : match(MapModule.TryFind(Root, key, Comparer<K>.Default),
                         Some: x => SetItem(key, Some(x)),
@@ -366,7 +366,7 @@ namespace LanguageExt
         /// <returns>New Map with the item added</returns>
         public Map<K, V> AddOrUpdate(K key, V value)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
+            if (isnull(key)) throw new ArgumentNullException(nameof(key));
             return SetRoot(MapModule.AddOrUpdate(Root, key, value, Comparer<K>.Default));
         }
 
@@ -380,7 +380,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
         public Map<K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None) =>
-            key == null
+            isnull(key)
                 ? this
                 : match(MapModule.TryFind(Root, key, Comparer<K>.Default),
                         Some: x  => SetItem(key, Some(x)),
@@ -396,9 +396,9 @@ namespace LanguageExt
         /// <returns>New map with the mapped value</returns>
         public Map<K, V> AddOrUpdate(K key, Func<V, V> Some, V None)
         {
-            if (None == null) throw new ArgumentNullException(nameof(None));
+            if (isnull(None)) throw new ArgumentNullException(nameof(None));
 
-            return key == null
+            return isnull(key)
                 ? this
                 : match(MapModule.TryFind(Root, key, Comparer<K>.Default),
                         Some: x => SetItem(key, Some(x)),
@@ -414,8 +414,8 @@ namespace LanguageExt
         /// <returns>Range of values</returns>
         public IEnumerable<V> FindRange(K keyFrom, K keyTo)
         {
-            if (keyFrom == null) throw new ArgumentNullException(nameof(keyFrom));
-            if (keyTo == null) throw new ArgumentNullException(nameof(keyTo));
+            if (isnull(keyFrom)) throw new ArgumentNullException(nameof(keyFrom));
+            if (isnull(keyTo)) throw new ArgumentNullException(nameof(keyTo));
             return Comparer<K>.Default.Compare(keyFrom, keyTo) > 0
                 ? MapModule.FindRange(Root, keyTo, keyFrom, Comparer<K>.Default)
                 : MapModule.FindRange(Root, keyFrom, keyTo, Comparer<K>.Default);
@@ -442,7 +442,7 @@ namespace LanguageExt
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
         public bool ContainsKey(K key) =>
-            key == null
+            isnull(key)
                 ? false
                 : Find(key)
                     ? true
@@ -489,7 +489,7 @@ namespace LanguageExt
             var self = Root;
             foreach (var item in items)
             {
-                if (item.Key == null) continue;
+                if (isnull(item.Key)) continue;
                 self = MapModule.SetItem(self, item.Key, item.Value, Comparer<K>.Default);
             }
             return SetRoot(self);
@@ -507,7 +507,7 @@ namespace LanguageExt
             var self = Root;
             foreach (var item in items)
             {
-                if (item.Item1 == null) continue;
+                if (isnull(item.Item1)) continue;
                 self = MapModule.SetItem(self, item.Item1, item.Item2, Comparer<K>.Default);
             }
             return SetRoot(self);
@@ -524,7 +524,7 @@ namespace LanguageExt
             var self = Root;
             foreach (var item in items)
             {
-                if (item.Key == null) continue;
+                if (isnull(item.Key)) continue;
                 self = MapModule.TrySetItem(self, item.Key, item.Value, Comparer<K>.Default);
             }
             return SetRoot(self);
@@ -541,7 +541,7 @@ namespace LanguageExt
             var self = Root;
             foreach (var item in items)
             {
-                if (item.Item1 == null) continue;
+                if (isnull(item.Item1)) continue;
                 self = MapModule.TrySetItem(self, item.Item1, item.Item2, Comparer<K>.Default);
             }
             return SetRoot(self);
@@ -560,7 +560,7 @@ namespace LanguageExt
             var self = this;
             foreach (var key in keys)
             {
-                if (key == null) continue;
+                if (isnull(key)) continue;
                 self = TrySetItem(key, Some);
             }
             return self;
@@ -643,6 +643,13 @@ namespace LanguageExt
         /// </summary>
         public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<IMapItem<K, V>, KR> keySelector, Func<IMapItem<K, V>, VR> valueSelector) =>
             AsEnumerable().ToDictionary(x => keySelector(x), x => valueSelector(x));
+
+        /// <summary>
+        /// Enumerable of in-order tuples that make up the map
+        /// </summary>
+        /// <returns>Tuples</returns>
+        public IEnumerable<Tuple<K, V>> Tuples =>
+            AsEnumerable().Map(kv => Tuple(kv.Key, kv.Value));
 
         #region IEnumerable interface
         /// <summary>

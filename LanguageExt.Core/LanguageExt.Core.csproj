@@ -80,6 +80,7 @@
     <Compile Include="Lst.cs" />
     <Compile Include="ObjectPool.cs" />
     <Compile Include="ObservableExt.cs" />
+    <Compile Include="Prelude_Random.cs" />
     <Compile Include="Prelude_Curry.cs" />
     <Compile Include="EitherUnsafe.cs" />
     <Compile Include="ExceptionMatch.cs" />

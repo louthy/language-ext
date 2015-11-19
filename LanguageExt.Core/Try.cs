@@ -243,7 +243,7 @@ public static class __TryExt
     /// </summary>
     public static T IfFail<T>(this Try<T> self, T defaultValue)
     {
-        if (defaultValue == null) throw new ArgumentNullException(nameof(defaultValue));
+        if (isnull(defaultValue)) throw new ArgumentNullException(nameof(defaultValue));
 
         var res = self.Try();
         if (res.IsFaulted)
@@ -299,7 +299,7 @@ public static class __TryExt
 
     public static R Match<T, R>(this Try<T> self, Func<T, R> Succ, R Fail)
     {
-        if (Fail == null) throw new ArgumentNullException(nameof(Fail));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
 
         var res = self.Try();
         return res.IsFaulted
@@ -532,6 +532,14 @@ public static class __TryExt
             : Succ(res.Value);
     }
 
+    /// <summary>
+    /// Folds Try value into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="self">Try to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="folder">Fold function</param>
+    /// <returns>Folded state</returns>
     public static S Fold<S, T>(this Try<T> self, S state, Func<S, T, S> folder)
     {
         var res = self.Try();
@@ -540,6 +548,15 @@ public static class __TryExt
             : folder(state, res.Value);
     }
 
+    /// <summary>
+    /// Folds Try value into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="self">Try to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="Succ">Fold function for Success</param>
+    /// <param name="Fail">Fold function for Failure</param>
+    /// <returns>Folded state</returns>
     public static S Fold<S, T>(this Try<T> self, S state, Func<S, T, S> Succ, Func<S, Exception, S> Fail)
     {
         var res = self.Try();
@@ -667,7 +684,7 @@ public static class __TryExt
 
     public static string AsString<T>(this Try<T> self) =>
         match(self,
-            Succ: v => v == null
+            Succ: v => isnull(v)
                       ? "Succ(null)"
                       : $"Succ({v})",
             Fail: ex => $"Fail({ex.Message})"
