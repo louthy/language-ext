@@ -47,7 +47,6 @@ namespace LanguageExt
                 state.Startup();
                 userContext = new ActorRequestContext(rootProcess.Children["user"], ProcessId.NoSender, rootItem, null, null, ProcessFlags.Default, null);
                 rootInbox.Startup(rootProcess, parent, cluster, ProcessSetting.DefaultMailboxSize);
-                rootProcess.Startup();
                 rootItem = new ActorItem(rootProcess, rootInbox, ProcessFlags.Default);
                 started = true;
                 InitialiseSessionsWatcher();
@@ -257,11 +256,8 @@ namespace LanguageExt
 
             try
             {
-                if (!started)
-                {
-                    actor.Startup();
-                }
                 inbox.Startup(actor, parent, cluster, maxMailboxSize);
+                TellSystem(actor.Id, SystemMessage.StartupProcess);
             }
             catch
             {

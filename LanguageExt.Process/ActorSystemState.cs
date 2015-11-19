@@ -171,7 +171,6 @@ namespace LanguageExt
             try
             {
                 parent.Actor.LinkChild(item);
-                actor.Startup();
                 inbox.Startup(actor, actor.Parent, Cluster, maxMailboxSize == -1 ? ProcessSetting.DefaultMailboxSize : maxMailboxSize);
             }
             catch (Exception e)

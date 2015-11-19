@@ -37,8 +37,9 @@ namespace LanguageExt
             Null                        = 13, ///< Does nothing but wake up an inbox
 
             // ActorSystemMessageTag
+            StartupProcess              = 14,
             ShutdownProcess             = 8,
-            GetChildren                 = 9,
+            GetChildren                 = 9
         }
 
         public abstract Type MessageType

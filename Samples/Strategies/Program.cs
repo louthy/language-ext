@@ -16,34 +16,39 @@ namespace Strategies
     {
         static void Main(string[] args)
         {
-            Test1();
+            try
+            {
+                Test1();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
 
         static void Test1()
         {
             Func<ProcessId> setup = () =>
-                spawn<string>(
-                    "test1",
-                    msg =>
+                spawn<Unit, string>(
+                    Name:  "test1",
+                    Setup: () => tellSelf("test 1"),
+                    Inbox: (_, msg) =>
                     {
                         Console.WriteLine(msg);
                         failwith<Unit>("fail");
+                        return unit;
                     });
 
             var supervisor = spawn<ProcessId, Unit>(
-                "test1-supervisor",
-                setup,
-                (pid, _)  => {
-                    tell(pid, "test1");
-                    return pid;
-                },
+                Name:     "test1-supervisor",
+                Setup:    setup,
+                Inbox:    (pid, _) => pid,
                 Strategy: OneForOne(
-                    Retries(5),
-                    Always(Directive.Restart),
-                    Redirect(
-                        When<Restart>(MessageDirective.ForwardToSelf))));
-
-            tell(supervisor, unit);
+                              Retries(5),
+                                  Always(Directive.Restart),
+                                  Redirect(
+                                  When<Restart>(MessageDirective.ForwardToSelf)))
+                );
 
             Console.WriteLine("Test 1: Press enter when messages stop");
             Console.ReadKey();

@@ -13,11 +13,16 @@ namespace LanguageExt
         public static SystemMessage LinkChild(ActorItem item) => new SystemLinkChildMessage(item);
         public static SystemMessage UnlinkChild(ProcessId pid) => new SystemUnLinkChildMessage(pid);
         public static SystemMessage ChildFaulted(ProcessId pid, ProcessId sender, Exception ex, object msg) => new SystemChildFaultedMessage(pid, sender, ex, msg);
-        public static SystemMessage ShutdownProcess = new ShutdownProcessMessage();
+        public static SystemMessage ShutdownProcess => new ShutdownProcessMessage();
+        public static SystemMessage StartupProcess => new StartupProcessMessage();
         public static SystemMessage Restart => new SystemRestartMessage();
-        public static readonly SystemMessage Null = new SystemNullMessage();
-        public static readonly SystemMessage Pause = new SystemPauseMessage();
-        public static readonly SystemMessage Unpause = new SystemUnpauseMessage();
+        public static SystemMessage Pause => new SystemPauseMessage();
+        public static SystemMessage Unpause => new SystemUnpauseMessage();
+    }
+
+    class StartupProcessMessage : SystemMessage
+    {
+        public override TagSpec Tag => TagSpec.StartupProcess;
     }
 
     class SystemPauseMessage : SystemMessage
