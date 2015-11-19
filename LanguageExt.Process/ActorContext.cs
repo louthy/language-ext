@@ -46,7 +46,6 @@ namespace LanguageExt
                 state.Startup();
                 userContext = new ActorRequestContext(rootProcess.Children["user"], ProcessId.NoSender, rootItem, null, null, ProcessFlags.Default);
                 rootInbox.Startup(rootProcess, parent, cluster, ProcessSetting.DefaultMailboxSize);
-                rootProcess.Startup();
                 rootItem = new ActorItem(rootProcess, rootInbox, ProcessFlags.Default);
                 started = true;
 
@@ -186,16 +185,49 @@ namespace LanguageExt
             return Startup(None);
         }
 
-        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<T, Unit> actorFn, State<StrategyContext, Unit> strategy, ProcessFlags flags, int maxMailboxSize) =>
-            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), strategy, flags, maxMailboxSize);
+        public static ProcessId ActorCreate<S, T>(
+            ActorItem parent, 
+            ProcessName name, 
+            Func<T, Unit> actorFn, 
+            State<StrategyContext, Unit> strategy, 
+            ProcessFlags flags, 
+            int maxMailboxSize, 
+            bool lazy
+            ) =>
+            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), strategy, flags, maxMailboxSize, lazy);
 
-        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Action<T> actorFn, State<StrategyContext, Unit> strategy, ProcessFlags flags, int maxMailboxSize) =>
-            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), strategy, flags, maxMailboxSize);
+        public static ProcessId ActorCreate<S, T>(
+            ActorItem parent, 
+            ProcessName name, 
+            Action<T> actorFn, 
+            State<StrategyContext, Unit> strategy, 
+            ProcessFlags flags, 
+            int maxMailboxSize, 
+            bool lazy
+            ) =>
+            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), strategy, flags, maxMailboxSize, lazy);
 
-        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn, State<StrategyContext, Unit> strategy, ProcessFlags flags, int maxMailboxSize) =>
-            ActorCreate<S, T>(parent, name, actorFn, _ => setupFn(), strategy, flags, maxMailboxSize);
+        public static ProcessId ActorCreate<S, T>(
+            ActorItem parent, 
+            ProcessName name, 
+            Func<S, T, S> actorFn, 
+            Func<S> setupFn, 
+            State<StrategyContext, Unit> strategy, 
+            ProcessFlags flags, 
+            int maxMailboxSize, 
+            bool lazy
+            ) =>
+            ActorCreate<S, T>(parent, name, actorFn, _ => setupFn(), strategy, flags, maxMailboxSize, lazy);
 
-        public static ProcessId ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<IActor, S> setupFn, State<StrategyContext, Unit> strategy, ProcessFlags flags, int maxMailboxSize)
+        public static ProcessId ActorCreate<S, T>(
+            ActorItem parent, 
+            ProcessName name, 
+            Func<S, T, S> actorFn, 
+            Func<IActor, S> setupFn, 
+            State<StrategyContext, Unit> strategy, 
+            ProcessFlags flags, 
+            int maxMailboxSize, 
+            bool lazy)
         {
             var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn, strategy, flags);
 
@@ -219,11 +251,11 @@ namespace LanguageExt
 
             try
             {
-                if (!started)
-                {
-                    actor.Startup();
-                }
                 inbox.Startup(actor, parent, cluster, maxMailboxSize);
+                if (!lazy)
+                {
+                    TellSystem(actor.Id, SystemMessage.StartupProcess);
+                }
             }
             catch
             {
@@ -413,7 +445,8 @@ namespace LanguageExt
                             () => processId,
                             Process.DefaultStrategy,
                             flags,
-                            maxMailboxSize
+                            maxMailboxSize,
+                            true
                         ),
                      None: () => ProcessId.None)
                 : ProcessId.None;

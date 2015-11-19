@@ -67,19 +67,5 @@ namespace LanguageExt
         /// <param name="index">Index of the child process (see remarks)</param>
         public static T askChild<T>(int index, object message) =>
             ask<T>(child(index), message);
-
-        /// <summary>
-        /// Ask the next child for a reply (round-robin)
-        /// </summary>
-        /// <param name="message">Message to send</param>
-        public static T askNextChild<T>(object message) =>
-            ask<T>(NextChild, message);
-
-        /// <summary>
-        /// Ask a random child for a reply
-        /// </summary>
-        /// <param name="message">Message to send</param>
-        public static T askRandomChild<T>(object message) =>
-            ask<T>(RandomChild, message);
     }
 }

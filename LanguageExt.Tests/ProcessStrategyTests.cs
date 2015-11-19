@@ -48,7 +48,7 @@ namespace LanguageExtTests
             // Spawn a parent with a strategy for its children
             var pid = spawn<ProcessId, int>(
                     "hello", 
-                    () => spawnU(
+                    () => spawnUnit(
                         "world",
                         function(
                             with(0, _ => reply(0)),

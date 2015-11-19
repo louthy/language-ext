@@ -104,12 +104,6 @@ module ProcessFs =
     let askChildByIndex (index:int) message = 
         Process.askChild(index, message)
 
-    let askNextChild message = 
-        Process.askNextChild message
-
-    let askRandomChild message = 
-        Process.askRandomChild message
-
     let tell pid message sender = 
         Process.tell(pid(),message,sender()) |> ignore
 
@@ -127,12 +121,6 @@ module ProcessFs =
 
     let tellChildByIndex (index:int) message sender = 
         Process.tellChild(index, message, sender()) |> ignore
-
-    let tellNextChild message sender = 
-        Process.tellNextChild(message,sender()) |> ignore
-    
-    let tellRandomChild message sender = 
-        Process.tellRandomChild(message,sender()) |> ignore
 
     let tellParent message sender = 
         Process.tellParent (message, sender()) |> ignore
@@ -162,30 +150,24 @@ module ProcessFs =
         let pid = Process.spawn(new ProcessName(name), new Func<'state>(setup), new Func<'state, 'msg, 'state>(messageHandler), flags)
         fun () -> pid
 
-    let spawnN count name flags setup messageHandler = 
-        let pids = Process.spawnN(count, new ProcessName(name), new Func<'state>(setup), new Func<'state, 'msg, 'state>(messageHandler), flags)
+    let spawnMany count name flags setup messageHandler = 
+        let pids = Process.spawnMany(count, new ProcessName(name), new Func<'state>(setup), new Func<'state, 'msg, 'state>(messageHandler), flags)
         pids |> Seq.map(fun pid -> fun () -> pid )
 
-    let internal roundRobinInbox map (s:unit) msg = 
-        tellNextChild (map msg) Sender
-
-    let internal roundRobinInboxMany manyMap map (s:unit) msg = 
-        manyMap msg |> Seq.iter (fun imsg -> tellNextChild (map imsg) Sender)
-
-    let internal roundRobinSetup count flags inbox = 
-        spawnN count "worker" flags NoSetup (fun (_:unit) msg -> inbox msg) |> ignore
-
-    let spawnRoundRobin name count flags inbox =
-        spawn name flags (fun () -> roundRobinSetup count flags inbox) (roundRobinInbox id)
-
-    let spawnRoundRobinMap name map count flags inbox =
-        spawn name flags (fun () -> roundRobinSetup count flags inbox) (roundRobinInbox map)
-
-    let spawnRoundRobinMany name manyMap count flags inbox =
-        spawn name flags (fun () -> roundRobinSetup count flags inbox) (roundRobinInboxMany manyMap id)
-
-    let spawnRoundRobinManyMap name manyMap map count flags inbox =
-        spawn name flags (fun () -> roundRobinSetup count flags inbox) (roundRobinInboxMany manyMap map)
+//    let internal roundRobinSetup count flags inbox = 
+//        spawnMany count "worker" flags NoSetup (fun (_:unit) msg -> inbox msg) |> ignore
+//
+//    let spawnRoundRobin name count flags inbox =
+//        spawn name flags (fun () -> roundRobinSetup count flags inbox) (roundRobinInbox id)
+//
+//    let spawnRoundRobinMap name map count flags inbox =
+//        spawn name flags (fun () -> roundRobinSetup count flags inbox) (roundRobinInbox map)
+//
+//    let spawnRoundRobinMany name manyMap count flags inbox =
+//        spawn name flags (fun () -> roundRobinSetup count flags inbox) (roundRobinInboxMany manyMap id)
+//
+//    let spawnRoundRobinManyMap name manyMap map count flags inbox =
+//        spawn name flags (fun () -> roundRobinSetup count flags inbox) (roundRobinInboxMany manyMap map)
 
     //
     // Connects to a cluster.  At the moment we only support Redis, so open

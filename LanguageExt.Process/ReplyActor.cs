@@ -26,7 +26,7 @@ namespace LanguageExt
 
         public static Random Setup()
         {
-            spawnN<ActorResponse>(responseActors, "reply", ReplyInbox);
+            spawnMany<ActorResponse>(responseActors, "reply", ReplyInbox);
             return new Random();
         }
     }

@@ -96,6 +96,10 @@ namespace LanguageExt
                         var cf = msg as SystemChildFaultedMessage;
                         return actor.ChildFaulted(cf.Child, cf.Sender, cf.Exception, cf.Message);
 
+                    case Message.TagSpec.StartupProcess:
+                        actor.Startup();
+                        break;
+
                     case Message.TagSpec.ShutdownProcess:
                         kill(actor.Id);
                         break;

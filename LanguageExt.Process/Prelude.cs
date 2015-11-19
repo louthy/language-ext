@@ -174,36 +174,6 @@ namespace LanguageExt
                 : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(child));
 
         /// <summary>
-        /// Gets a random child process
-        /// </summary>
-        public static ProcessId RandomChild =>
-            InMessageLoop
-                ? ActorContext.SelfProcess.Actor.Children.Count == 0
-                    ? raise<ProcessId>(new NoChildProcessesException())
-                    : ActorContext.SelfProcess
-                                  .Actor
-                                  .Children
-                                  .Skip(random(ActorContext.SelfProcess.Actor.Children.Count))
-                                  .Map(kv => kv.Value.Actor.Id)
-                                  .Head()
-                : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(RandomChild));
-
-        /// <summary>
-        /// Gets the next child process (round robin)
-        /// </summary>
-        public static ProcessId NextChild =>
-            InMessageLoop
-                ? ActorContext.SelfProcess.Actor.Children.Count == 0
-                    ? raise<ProcessId>(new NoChildProcessesException())
-                    : ActorContext.SelfProcess
-                                  .Actor
-                                  .Children
-                                  .Skip(ActorContext.SelfProcess.Actor.GetNextRoundRobinIndex())
-                                  .Map(kv => kv.Value.Actor.Id)
-                                  .Head()
-                : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(NextChild));
-
-        /// <summary>
         /// Find a registered process by name
         /// </summary>
         /// <param name="name">Process name</param>

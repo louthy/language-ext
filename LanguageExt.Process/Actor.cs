@@ -29,7 +29,6 @@ namespace LanguageExt
         StrategyState strategyState = StrategyState.Empty;
         EventWaitHandle request;
         volatile ActorResponse response;
-        int roundRobinIndex = -1;
         object sync = new object();
         bool remoteSubsAcquired;
 
@@ -54,7 +53,55 @@ namespace LanguageExt
         /// </summary>
         public Unit Startup()
         {
-            return unit;
+            lock(sync)
+            {
+                if (state.IsSome) return unit;
+
+                var savedReq = ActorContext.CurrentRequest;
+                var savedFlags = ActorContext.ProcessFlags;
+                var savedMsg = ActorContext.CurrentMsg;
+
+                try
+                {
+                    ActorContext.CurrentRequest = null;
+                    ActorContext.ProcessFlags = flags;
+                    ActorContext.CurrentMsg = null;
+
+                    var stateValue = GetState();
+                    try
+                    {
+                        if (notnull(stateValue))
+                        {
+                            stateSubject.OnNext(stateValue);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        logErr(e);
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    var directive = RunStrategy(
+                        Id,
+                        Parent.Actor.Id,
+                        Sender,
+                        Parent.Actor.Children.Keys.Map(n => new ProcessId(n)).Filter(x => x != Id),
+                        e,
+                        null,
+                        Parent.Actor.Strategy
+                    );
+                    tell(ActorContext.Errors, e);
+                }
+                finally
+                {
+                    ActorContext.CurrentRequest = savedReq;
+                    ActorContext.ProcessFlags = savedFlags;
+                    ActorContext.CurrentMsg = savedMsg;
+                }
+                return unit;
+            }
         }
 
         /// <summary>
@@ -82,11 +129,6 @@ namespace LanguageExt
             subs = Map.empty<string, IDisposable>();
             return unit;
         }
-
-        public int GetNextRoundRobinIndex() =>
-            Children.Count == 0
-                ? 0 
-                : roundRobinIndex = (roundRobinIndex + 1) % Children.Count;
 
         public ProcessFlags Flags => 
             flags;
@@ -242,6 +284,7 @@ namespace LanguageExt
                     kill(kid.Value.Actor.Id);
                 }
             }
+            tellSystem(Id, SystemMessage.StartupProcess);
             return unit;
         }
 
@@ -274,23 +317,26 @@ namespace LanguageExt
         /// </summary>
         public Unit Shutdown(bool maintainState)
         {
-            if (maintainState == false)
+            lock(sync)
             {
-                cluster.IfSome(c =>
+                if (maintainState == false)
                 {
-                    c.Delete(StateKey);
-                    c.Delete(ActorInboxCommon.ClusterUserInboxKey(Id));
-                    c.Delete(ActorInboxCommon.ClusterSystemInboxKey(Id));
-                });
-            }
+                    cluster.IfSome(c =>
+                    {
+                        c.Delete(StateKey);
+                        c.Delete(ActorInboxCommon.ClusterUserInboxKey(Id));
+                        c.Delete(ActorInboxCommon.ClusterSystemInboxKey(Id));
+                    });
+                }
 
-            RemoveAllSubscriptions();
-            publishSubject.OnCompleted();
-            stateSubject.OnCompleted();
-            remoteSubsAcquired = false;
-            strategyState = StrategyState.Empty;
-            DisposeState();
-            return unit;
+                RemoveAllSubscriptions();
+                publishSubject.OnCompleted();
+                stateSubject.OnCompleted();
+                remoteSubsAcquired = false;
+                strategyState = StrategyState.Empty;
+                DisposeState();
+                return unit;
+            }
         }
 
         public Option<T> PreProcessMessageContent(object message)
@@ -382,91 +428,100 @@ namespace LanguageExt
 
         public InboxDirective ProcessAsk(ActorRequest request)
         {
-            var savedMsg = ActorContext.CurrentMsg;
-            var savedFlags = ActorContext.ProcessFlags;
-            var savedReq = ActorContext.CurrentRequest;
-
-            try
+            lock(sync)
             {
-                ActorContext.CurrentRequest = request;
-                ActorContext.ProcessFlags = flags;
-                ActorContext.CurrentMsg = request.Message;
+                var savedMsg = ActorContext.CurrentMsg;
+                var savedFlags = ActorContext.ProcessFlags;
+                var savedReq = ActorContext.CurrentRequest;
 
-                //ActorContext.AssertSession();
-
-                if (typeof(T) != typeof(string) && request.Message is string)
+                try
                 {
-                    state = PreProcessMessageContent(request.Message).Match(
-                                Some: tmsg =>
-                                {
-                                    var stateIn = GetState();
-                                    var stateOut = actorFn(stateIn, tmsg);
-                                    try
+                    ActorContext.CurrentRequest = request;
+                    ActorContext.ProcessFlags = flags;
+                    ActorContext.CurrentMsg = request.Message;
+
+                    //ActorContext.AssertSession();
+
+                    if (typeof(T) != typeof(string) && request.Message is string)
+                    {
+                        state = PreProcessMessageContent(request.Message).Match(
+                                    Some: tmsg =>
                                     {
-                                        if (notnull(stateOut) && !stateOut.Equals(stateIn))
+                                        var stateIn = GetState();
+                                        var stateOut = actorFn(stateIn, tmsg);
+                                        try
                                         {
-                                            stateSubject.OnNext(stateOut);
+                                            if (notnull(stateOut) && !stateOut.Equals(stateIn))
+                                            {
+                                                stateSubject.OnNext(stateOut);
+                                            }
                                         }
-                                    }
-                                    catch (Exception ue)
-                                    {
-                                        logErr(ue);
-                                    }
-                                    return stateOut;
-                                },
-                                None: () => state
-                            );
-                }
-                else if (request.Message is T)
-                {
-                    var msg = (T)request.Message;
-                    var stateIn = GetState();
-                    var stateOut = actorFn(stateIn, msg);
-                    try
+                                        catch (Exception ue)
+                                        {
+                                            logErr(ue);
+                                        }
+                                        return stateOut;
+                                    },
+                                    None: () => state
+                                );
+                    }
+                    else if (request.Message is T)
                     {
-                        if (notnull(stateOut) && !stateOut.Equals(stateIn))
+                        var msg = (T)request.Message;
+                        var stateIn = GetState();
+                        var stateOut = actorFn(stateIn, msg);
+                        try
                         {
-                            stateSubject.OnNext(stateOut);
+                            if (notnull(stateOut) && !stateOut.Equals(stateIn))
+                            {
+                                stateSubject.OnNext(stateOut);
+                            }
                         }
+                        catch (Exception ue)
+                        {
+                            logErr(ue);
+                        }
+                        state = stateOut;
                     }
-                    catch (Exception ue)
+                    else if (request.Message is Message)
                     {
-                        logErr(ue);
+                        ProcessSystemMessage((Message)request.Message);
                     }
-                    state = stateOut;
-                }
-                else if (request.Message is Message)
-                {
-                    ProcessSystemMessage((Message)request.Message);
-                }
-                else
-                {
-                    logErr($"ProcessAsk request.Message is not T {request.Message}");
-                }
-            }
-            catch (Exception e)
-            {
-                var directive = RunStrategy(
-                    Id,
-                    Parent.Actor.Id,
-                    Sender,
-                    Parent.Actor.Children.Keys.Map(n => new ProcessId(n)).Filter(x => x != Id),
-                    e,
-                    request,
-                    Parent.Actor.Strategy
-                );
+                    else
+                    {
+                        logErr($"ProcessAsk request.Message is not T {request.Message}");
+                    }
 
-                replyError(e);
-                tell(ActorContext.Errors, e);
-                return directive;
+                    strategyState = strategyState.With(
+                        Failures: 0,
+                        LastFailure: DateTime.MaxValue,
+                        BackoffAmount: 0 * seconds
+                        );
+                }
+                catch (Exception e)
+                {
+                    var directive = RunStrategy(
+                        Id,
+                        Parent.Actor.Id,
+                        Sender,
+                        Parent.Actor.Children.Keys.Map(n => new ProcessId(n)).Filter(x => x != Id),
+                        e,
+                        request,
+                        Parent.Actor.Strategy
+                    );
+
+                    replyError(e);
+                    tell(ActorContext.Errors, e);
+                    return directive;
+                }
+                finally
+                {
+                    ActorContext.CurrentMsg = savedMsg;
+                    ActorContext.ProcessFlags = savedFlags;
+                    ActorContext.CurrentRequest = savedReq;
+                }
+                return InboxDirective.Default;
             }
-            finally
-            {
-                ActorContext.CurrentMsg = savedMsg;
-                ActorContext.ProcessFlags = savedFlags;
-                ActorContext.CurrentRequest = savedReq;
-            }
-            return InboxDirective.Default;
         }
 
         void ProcessSystemMessage(Message message)
@@ -489,88 +544,97 @@ namespace LanguageExt
         /// <returns></returns>
         public InboxDirective ProcessMessage(object message)
         {
-            var savedReq = ActorContext.CurrentRequest;
-            var savedFlags = ActorContext.ProcessFlags;
-            var savedMsg = ActorContext.CurrentMsg;
-
-            try
+            lock(sync)
             {
-                ActorContext.CurrentRequest = null;
-                ActorContext.ProcessFlags = flags;
-                ActorContext.CurrentMsg = message;
+                var savedReq = ActorContext.CurrentRequest;
+                var savedFlags = ActorContext.ProcessFlags;
+                var savedMsg = ActorContext.CurrentMsg;
 
-                //ActorContext.AssertSession();
+                try
+                {
+                    ActorContext.CurrentRequest = null;
+                    ActorContext.ProcessFlags = flags;
+                    ActorContext.CurrentMsg = message;
 
-                if (typeof(T) != typeof(string) && message is string)
-                {
-                    state = PreProcessMessageContent(message).Match(
-                                Some: tmsg =>
-                                {
-                                    var stateIn = GetState();
-                                    var stateOut = actorFn(stateIn, tmsg);
-                                    try
-                                    {
-                                        if (notnull(stateOut) && !stateOut.Equals(stateIn))
-                                        {
-                                            stateSubject.OnNext(stateOut);
-                                        }
-                                    }
-                                    catch (Exception ue)
-                                    {
-                                        logErr(ue);
-                                    }
-                                    return stateOut;
-                                },
-                                None: () => state
-                            );
-                }
-                else if (message is T)
-                {
-                    var stateIn = GetState();
-                    var stateOut = actorFn(GetState(), (T)message);
-                    state = stateOut;
-                    try
+                    //ActorContext.AssertSession();
+
+                    if (typeof(T) != typeof(string) && message is string)
                     {
-                        if (notnull(stateOut) && !state.Equals(stateIn))
+                        state = PreProcessMessageContent(message).Match(
+                                    Some: tmsg =>
+                                    {
+                                        var stateIn = GetState();
+                                        var stateOut = actorFn(stateIn, tmsg);
+                                        try
+                                        {
+                                            if (notnull(stateOut) && !stateOut.Equals(stateIn))
+                                            {
+                                                stateSubject.OnNext(stateOut);
+                                            }
+                                        }
+                                        catch (Exception ue)
+                                        {
+                                            logErr(ue);
+                                        }
+                                        return stateOut;
+                                    },
+                                    None: () => state
+                                );
+                    }
+                    else if (message is T)
+                    {
+                        var stateIn = GetState();
+                        var stateOut = actorFn(GetState(), (T)message);
+                        state = stateOut;
+                        try
                         {
-                            stateSubject.OnNext(stateOut);
+                            if (notnull(stateOut) && !state.Equals(stateIn))
+                            {
+                                stateSubject.OnNext(stateOut);
+                            }
+                        }
+                        catch (Exception ue)
+                        {
+                            logErr(ue);
                         }
                     }
-                    catch (Exception ue)
+                    else if (message is Message)
                     {
-                        logErr(ue);
+                        ProcessSystemMessage((Message)message);
                     }
+                    else
+                    {
+                        logErr($"ProcessMessage request.Message is not T {message}");
+                    }
+
+                    strategyState = strategyState.With(
+                        Failures: 0,
+                        LastFailure: DateTime.MaxValue,
+                        BackoffAmount: 0*seconds
+                        );
                 }
-                else if (message is Message)
+                catch (Exception e)
                 {
-                    ProcessSystemMessage((Message)message);
+                    var directive = RunStrategy(
+                        Id,
+                        Parent.Actor.Id,
+                        Sender,
+                        Parent.Actor.Children.Keys.Map(n => new ProcessId(n)).Filter(x => x != Id),
+                        e,
+                        message,
+                        Parent.Actor.Strategy
+                    );
+                    tell(ActorContext.Errors, e);
+                    return directive;
                 }
-                else
+                finally
                 {
-                    logErr($"ProcessMessage request.Message is not T {message}");
+                    ActorContext.CurrentRequest = savedReq;
+                    ActorContext.ProcessFlags = savedFlags;
+                    ActorContext.CurrentMsg = savedMsg;
                 }
+                return InboxDirective.Default;
             }
-            catch (Exception e)
-            {
-                var directive = RunStrategy(
-                    Id,
-                    Parent.Actor.Id,
-                    Sender,
-                    Parent.Actor.Children.Keys.Map(n => new ProcessId(n)).Filter(x => x != Id),
-                    e, 
-                    message, 
-                    Parent.Actor.Strategy
-                );
-                tell(ActorContext.Errors, e);
-                return directive;
-            }
-            finally
-            {
-                ActorContext.CurrentRequest = savedReq;
-                ActorContext.ProcessFlags = savedFlags;
-                ActorContext.CurrentMsg = savedMsg;
-            }
-            return InboxDirective.Default;
         }
 
         public InboxDirective RunStrategy(
