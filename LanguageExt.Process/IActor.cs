@@ -89,6 +89,5 @@ namespace LanguageExt
 
         Unit AddSubscription(ProcessId pid, IDisposable sub);
         Unit RemoveSubscription(ProcessId pid);
-        int GetNextRoundRobinIndex();
     }
 }

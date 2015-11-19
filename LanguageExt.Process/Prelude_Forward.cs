@@ -36,7 +36,7 @@ namespace LanguageExt
         /// Forward a message
         /// </summary>
         /// <param name="pid">Process ID to send to</param>
-        public static Unit fwd<T>(ProcessId pid) =>
+        public static Unit fwd(ProcessId pid) =>
             ActorContext.CurrentRequest == null
                 ? tell(pid, ActorContext.CurrentMsg, Sender)
                 : tell(pid, ActorContext.CurrentRequest, ActorContext.AskId);
@@ -64,25 +64,11 @@ namespace LanguageExt
             fwd(child(index), message);
 
         /// <summary>
-        /// Forward a message to the next child in line (round-robin)
-        /// </summary>
-        /// <param name="message">Message to send</param>
-        public static Unit fwdNextChild<T>(T message) =>
-            fwd(NextChild, message);
-
-        /// <summary>
-        /// Forward a message the a random child
-        /// </summary>
-        /// <param name="message">Message to send</param>
-        public static Unit fwdRandomChild<T>(T message) =>
-            fwd(RandomChild, message);
-
-        /// <summary>
         /// Forward a message to a named child process
         /// </summary>
         /// <param name="name">Name of the child process</param>
         public static Unit fwdChild<T>(ProcessName name) =>
-            fwd<T>(Self.Child(name));
+            fwd(Self.Child(name));
 
         /// <summary>
         /// Forward a message to a child process (found by index)
@@ -95,18 +81,6 @@ namespace LanguageExt
         /// </remarks>
         /// <param name="index">Index of the child process (see remarks)</param>
         public static Unit fwdChild<T>(int index) =>
-            fwd<T>(child(index));
-
-        /// <summary>
-        /// Forward a message to the next child in line (round-robin)
-        /// </summary>
-        public static Unit fwdNextChild<T>() =>
-            fwd<T>(NextChild);
-
-        /// <summary>
-        /// Forward a message the a random child
-        /// </summary>
-        public static Unit fwdRandomChild<T>() =>
-            fwd<T>(RandomChild);
+            fwd(child(index));
     }
 }

@@ -162,8 +162,8 @@ module ProcessFs =
         let pid = Process.spawn(new ProcessName(name), new Func<'state>(setup), new Func<'state, 'msg, 'state>(messageHandler), flags)
         fun () -> pid
 
-    let spawnN count name flags setup messageHandler = 
-        let pids = Process.spawnN(count, new ProcessName(name), new Func<'state>(setup), new Func<'state, 'msg, 'state>(messageHandler), flags)
+    let spawnMany count name flags setup messageHandler = 
+        let pids = Process.spawnMany(count, new ProcessName(name), new Func<'state>(setup), new Func<'state, 'msg, 'state>(messageHandler), flags)
         pids |> Seq.map(fun pid -> fun () -> pid )
 
     let internal roundRobinInbox map (s:unit) msg = 
@@ -173,7 +173,7 @@ module ProcessFs =
         manyMap msg |> Seq.iter (fun imsg -> tellNextChild (map imsg) Sender)
 
     let internal roundRobinSetup count flags inbox = 
-        spawnN count "worker" flags NoSetup (fun (_:unit) msg -> inbox msg) |> ignore
+        spawnMany count "worker" flags NoSetup (fun (_:unit) msg -> inbox msg) |> ignore
 
     let spawnRoundRobin name count flags inbox =
         spawn name flags (fun () -> roundRobinSetup count flags inbox) (roundRobinInbox id)

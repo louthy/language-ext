@@ -90,7 +90,10 @@
     <Compile Include="ICluster.cs" />
     <Compile Include="ILocalActorInbox.cs" />
     <Compile Include="IProcess.cs" />
+    <Compile Include="Prelude_DeadLetters.cs" />
     <Compile Include="Prelude_Session.cs" />
+    <Compile Include="Prelude_Obsolete.cs" />
+    <Compile Include="Router_RoundRobin.cs" />
     <Compile Include="SessionManagerProcess.cs" />
     <Compile Include="Strategy\Strategy.cs" />
     <Compile Include="Prelude_Reply.cs" />

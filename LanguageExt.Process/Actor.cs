@@ -29,7 +29,6 @@ namespace LanguageExt
         StrategyState strategyState = StrategyState.Empty;
         EventWaitHandle request;
         volatile ActorResponse response;
-        int roundRobinIndex = -1;
         object sync = new object();
         bool remoteSubsAcquired;
 
@@ -130,11 +129,6 @@ namespace LanguageExt
             subs = Map.empty<string, IDisposable>();
             return unit;
         }
-
-        public int GetNextRoundRobinIndex() =>
-            Children.Count == 0
-                ? 0 
-                : roundRobinIndex = (roundRobinIndex + 1) % Children.Count;
 
         public ProcessFlags Flags => 
             flags;
@@ -497,6 +491,12 @@ namespace LanguageExt
                     {
                         logErr($"ProcessAsk request.Message is not T {request.Message}");
                     }
+
+                    strategyState = strategyState.With(
+                        Failures: 0,
+                        LastFailure: DateTime.MaxValue,
+                        BackoffAmount: 0 * seconds
+                        );
                 }
                 catch (Exception e)
                 {
@@ -606,6 +606,12 @@ namespace LanguageExt
                     {
                         logErr($"ProcessMessage request.Message is not T {message}");
                     }
+
+                    strategyState = strategyState.With(
+                        Failures: 0,
+                        LastFailure: DateTime.MaxValue,
+                        BackoffAmount: 0*seconds
+                        );
                 }
                 catch (Exception e)
                 {

@@ -279,21 +279,5 @@ namespace LanguageExt
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         public static Unit tellChild<T>(int index, T message, ProcessId sender = new ProcessId()) =>
             tell(child(index), message, sender);
-
-        /// <summary>
-        /// Send a message to the next child in line (round-robin)
-        /// </summary>
-        /// <param name="message">Message to send</param>
-        /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
-        public static Unit tellNextChild<T>(T message, ProcessId sender = new ProcessId()) =>
-            tell(NextChild, message, sender);
-
-        /// <summary>
-        /// Send a message the a random child
-        /// </summary>
-        /// <param name="message">Message to send</param>
-        /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
-        public static Unit tellRandomChild<T>(T message, ProcessId sender = new ProcessId()) =>
-            tell(RandomChild, message, sender);
     }
 }
