@@ -96,6 +96,7 @@
     <Compile Include="RootProcess.cs" />
     <Compile Include="Router_Broadcast.cs" />
     <Compile Include="Router_Random.cs" />
+    <Compile Include="Router_LeastBusy.cs" />
     <Compile Include="Router_RoundRobin.cs" />
     <Compile Include="SessionManagerProcess.cs" />
     <Compile Include="Strategy\Strategy.cs" />
