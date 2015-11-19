@@ -46,8 +46,8 @@ namespace Strategies
                 Inbox:    (pid, _) => pid,
                 Strategy: OneForOne(
                               Retries(5),
-                                  Always(Directive.Restart),
-                                  Redirect(
+                              Always(Directive.Restart),
+                              Redirect(
                                   When<Restart>(MessageDirective.ForwardToSelf)))
                 );
 
@@ -87,10 +87,10 @@ namespace Strategies
                 },
                 Strategy: AllForOne(
                               Retries(5),
-                                  Match(
-                                      With<ProcessSetupException>(Directive.Restart)),
-                                  Redirect(
-                                      When<Restart>(MessageDirective.ForwardToSelf)))
+                              Match(
+                                  With<ProcessSetupException>(Directive.Restart)),
+                              Redirect(
+                                  When<Restart>(MessageDirective.ForwardToSelf)))
                 );
 
             tell(supervisor, "Hello");
