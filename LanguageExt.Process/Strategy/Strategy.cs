@@ -187,11 +187,7 @@ namespace LanguageExt
         /// <param name="directive">Directive to return</param>
         /// <returns>Strategy computation as a State monad</returns>
         public static State<StrategyContext, Unit> Always(Directive directive) =>
-            Match(
-                With<ProcessKillException>(Directive.Stop),
-                With<ProcessSetupException>(Directive.Stop),
-                Otherwise(directive)
-            );
+            Match(Otherwise(directive));
 
         /// <summary>
         /// Match a range of State computations that take the Exception that caused
