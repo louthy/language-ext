@@ -87,7 +87,7 @@ namespace LanguageExt
                         Id,
                         Parent.Actor.Id,
                         Sender,
-                        Parent.Actor.Children.Keys.Map(n => new ProcessId(n)).Filter(x => x != Id),
+                        Parent.Actor.Children.Values.Map(n => n.Actor.Id).Filter(x => x != Id),
                         e,
                         null,
                         Parent.Actor.Strategy
@@ -504,7 +504,7 @@ namespace LanguageExt
                         Id,
                         Parent.Actor.Id,
                         Sender,
-                        Parent.Actor.Children.Keys.Map(n => new ProcessId(n)).Filter(x => x != Id),
+                        Parent.Actor.Children.Values.Map(n => n.Actor.Id).Filter(x => x != Id),
                         e,
                         request,
                         Parent.Actor.Strategy
@@ -619,7 +619,7 @@ namespace LanguageExt
                         Id,
                         Parent.Actor.Id,
                         Sender,
-                        Parent.Actor.Children.Keys.Map(n => new ProcessId(n)).Filter(x => x != Id),
+                        Parent.Actor.Children.Values.Map(n => n.Actor.Id).Filter(x => x != Id),
                         e,
                         message,
                         Parent.Actor.Strategy
@@ -647,39 +647,47 @@ namespace LanguageExt
             State<StrategyContext, Unit> strategy
             )
         {
-            // Build a strategy specifically for this event
-            var failureStrategy = strategy.Failure(
-                    pid,
-                    parent,
-                    sender,
-                    siblings,
-                    ex,
-                    message
-                );
-
-            // Invoke the strategy with the running state
-            var result = failureStrategy(strategyState);
-            var decision = result.Value;
-
-            // Save the strategy state back to the actor
-            strategyState = result.State;
-
-            if (decision.ProcessDirective.Type != DirectiveType.Stop && decision.Pause > 0*seconds)
+            try
             {
-                decision.Affects.Iter(p => pause(p));
-                delay(
-                    () => RunProcessDirective(pid, sender, ex, message, decision), 
-                    decision.Pause
-                );
-            }
-            else
-            {
-                // Run the instruction for the Process (stop/restart/etc.)
-                RunProcessDirective(pid, sender, ex, message, decision);
-            }
+                // Build a strategy specifically for this event
+                var failureStrategy = strategy.Failure(
+                        pid,
+                        parent,
+                        sender,
+                        siblings,
+                        ex,
+                        message
+                    );
 
-            // Run the instruction for the message (dead-letters/send-to-self/...)
-            return RunMessageDirective(pid, sender, decision, ex, message);
+                // Invoke the strategy with the running state
+                var result = failureStrategy(strategyState);
+                var decision = result.Value;
+
+                // Save the strategy state back to the actor
+                strategyState = result.State;
+
+                if (decision.ProcessDirective.Type != DirectiveType.Stop && decision.Pause > 0 * seconds)
+                {
+                    decision.Affects.Iter(p => pause(p));
+                    delay(
+                        () => RunProcessDirective(pid, sender, ex, message, decision),
+                        decision.Pause
+                    );
+                }
+                else
+                {
+                    // Run the instruction for the Process (stop/restart/etc.)
+                    RunProcessDirective(pid, sender, ex, message, decision);
+                }
+
+                // Run the instruction for the message (dead-letters/send-to-self/...)
+                return RunMessageDirective(pid, sender, decision, ex, message);
+            }
+            catch (Exception e)
+            {
+                logErr("Strategy exception in " + Id, e);
+                return InboxDirective.Default;
+            }
         }
 
         InboxDirective RunMessageDirective(
@@ -806,7 +814,7 @@ namespace LanguageExt
                 pid,
                 Parent.Actor.Id,
                 sender,
-                Parent.Actor.Children.Keys.Map(n => new ProcessId(n)).Filter(x => x != pid),
+                Parent.Actor.Children.Values.Map(n => n.Actor.Id).Filter(x => x != Id),
                 ex,
                 message,
                 Parent.Actor.Strategy

@@ -203,9 +203,8 @@ namespace LanguageExt
         public static State<StrategyContext, Unit> Match(params State<Exception, Option<Directive>>[] directives) =>
             state => StateResult.Return(
                 state.With(
-                    Directive: choose(ProcessSetting.StandardDirectives
-                                                    .Concat(directives)
-                                                    .ToArray())(state.Exception).Value), unit);
+                    Directive: choose(directives.Concat(ProcessSetting.StandardDirectives)
+                                                .ToArray())(state.Exception).Value), unit);
 
         /// <summary>
         /// Match a range of State computations that take the currently selected 
