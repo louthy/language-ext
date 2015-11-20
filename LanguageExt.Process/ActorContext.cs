@@ -18,6 +18,9 @@ namespace LanguageExt
         static ActorItem rootItem;
         static ActorRequestContext userContext;
 
+        static Map<ProcessId, Set<ProcessId>> watchers;
+        static Map<ProcessId, Set<ProcessId>> watchings;
+
         static ActorContext()
         {
             Startup(None);
@@ -36,6 +39,8 @@ namespace LanguageExt
             lock (sync)
             {
                 if (started) return unit;
+                watchers = Map.empty<ProcessId, Set<ProcessId>>();
+                watchings = Map.empty<ProcessId, Set<ProcessId>>();
                 var root = ProcessId.Top.Child(name);
                 var rootInbox = new ActorInboxLocal<ActorSystemState, Unit>();
                 var parent = new ActorItem(new NullProcess(), new NullInbox(), ProcessFlags.Default);
@@ -50,8 +55,30 @@ namespace LanguageExt
                 started = true;
 
                 SessionManager.Init(cluster);
+                ClusterWatch(cluster);
             }
             return unit;
+        }
+
+        private static void ClusterWatch(Option<ICluster> cluster)
+        {
+            var monitor = System[ActorConfig.Default.MonitorProcessName];
+
+            cluster.IfSome(c =>
+            {
+                Process.observe<NodeOnline>(monitor).Subscribe(x =>
+                {
+                    Console.WriteLine("Online: " + x.Name);
+                });
+
+                Process.observe<NodeOffline>(monitor).Subscribe(x =>
+                {
+                    Console.WriteLine("Offline: " + x.Name);
+                    RemoveWatchingOfRemote(x.Name);
+                });
+            });
+
+            Process.tell(monitor, new ClusterMonitor.Msg(ClusterMonitor.MsgTag.Heartbeat));
         }
 
         public static Unit Shutdown()
@@ -75,6 +102,118 @@ namespace LanguageExt
             var saved = cluster;
             Shutdown();
             Startup(saved);
+            return unit;
+        }
+
+        private static Unit RemoveWatchingOfRemote(ProcessName node)
+        {
+            var root = ProcessId.Top[node];
+
+            foreach (var watching in watchings)
+            {
+                if (watching.Key.Take(1) == root)
+                {
+                    RemoteDispatchTerminate(watching.Key);
+                }
+            }
+            return unit;
+        }
+
+        public static Unit AddWatcher(ProcessId watcher, ProcessId watching)
+        {
+            Console.WriteLine(watcher + " is watching " + watching);
+
+            lock(sync)
+            {
+                watchers = watchers.AddOrUpdate(watching,
+                    Some: set => set.AddOrUpdate(watcher),
+                    None: ()  => Set(watcher)
+                );
+
+                watchings = watchings.AddOrUpdate(watcher,
+                    Some: set => set.AddOrUpdate(watching),
+                    None: ()  => Set(watching)
+                );
+            }
+            return unit;
+        }
+
+        public static Unit RemoveWatcher(ProcessId watcher, ProcessId watching)
+        {
+            Console.WriteLine(watcher + " stopped watching " + watching);
+
+            lock (sync)
+            {
+                watchers = watchers.AddOrUpdate(watching,
+                    Some: set => set.Remove(watcher),
+                    None: ()  => Set.empty<ProcessId>()
+                );
+
+                if (watchers[watching].IsEmpty)
+                {
+                    watchers = watchers.Remove(watching);
+                }
+
+                watchings = watchings.AddOrUpdate(watcher,
+                    Some: set => set.Remove(watching),
+                    None: ()  => Set.empty<ProcessId>()
+                );
+
+                if (watchings[watcher].IsEmpty)
+                {
+                    watchers = watchers.Remove(watcher);
+                }
+
+            }
+            return unit;
+        }
+
+        static Unit RemoteDispatchTerminate(ProcessId terminating)
+        {
+            watchings.Find(terminating).IfSome(ws =>
+            {
+                var term = new TerminatedMessage(terminating);
+                ws.Iter(w =>
+                {
+                    try
+                    {
+                        TellUserControl(w, term);
+                    }
+                    catch (Exception e)
+                    {
+                        Process.logErr(e);
+                    }
+                });
+            });
+            watchings.Remove(terminating);
+            watchers = watchers.Remove(terminating);
+
+            return unit;
+        }
+
+        public static Unit DispatchTerminate(ProcessId terminating)
+        {
+            watchers.Find(terminating).IfSome(ws =>
+            {
+                var term = new TerminatedMessage(terminating);
+                ws.Iter(w =>
+                {
+                    try
+                    {
+                        TellUserControl(w, term);
+                    }
+                    catch (Exception e)
+                    {
+                        Process.logErr(e);
+                    }
+                });
+            });
+
+            watchers = watchers.Remove(terminating);
+
+            watchings.Find(terminating).IfSome(ws => ws.Iter(w => GetDispatcher(w).UnWatch(terminating)));
+            watchings.Remove(terminating);
+
             return unit;
         }
 

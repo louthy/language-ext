@@ -8,15 +8,14 @@ using static LanguageExt.Process;
 namespace LanguageExt
 {
     /// <summary>
-    /// NOT IN USE
-    /// This is a speculative idea for the root process to create a DNS like
-    /// system for finding other nodes in the cluster.
+    /// Process that monitors the state of the cluster
     /// </summary>
-    class RootProcess
+    class ClusterMonitor
     {
         const string MembersKey = "sys-cluster-members";
         const string RegisteredKey = "sys-dns";
-        static readonly Time HeartbeatFreq = 5*seconds;
+        static readonly Time HeartbeatFreq = 1*seconds;
+        static readonly Time OfflineCutoff = 3*seconds;
 
         public enum MsgTag
         {
@@ -67,8 +66,10 @@ namespace LanguageExt
         /// <summary>
         /// Root Process setup
         /// </summary>
-        public static State Setup() =>
-            Heartbeat(State.Empty, ActorContext.Cluster);
+        public static State Setup()
+        {
+            return Heartbeat(State.Empty, ActorContext.Cluster);
+        }
 
         /// <summary>
         /// Root Process inbox
@@ -85,7 +86,6 @@ namespace LanguageExt
             return state;
         }
 
-
         /// <summary>
         /// If this node is part of a cluster then it updates a shared map of 
         /// node-names to states.  This also downloads the latest map so the
@@ -100,8 +100,16 @@ namespace LanguageExt
                 {
                     try
                     {
+                        var cutOff = DateTime.UtcNow.Add(0 * seconds - OfflineCutoff);
+
                         c.HashFieldAddOrUpdate(MembersKey, c.NodeName.Value, new MemberState(DateTime.UtcNow));
-                        return new State(c.GetHashFields<MemberState>(MembersKey));
+                        var newState = new State(c.GetHashFields<MemberState>(MembersKey).Where(m => m.LastHeartbeat > cutOff));
+                        var diffs = DiffState(state, newState);
+
+                        diffs.Item1.Iter(offline => publish(new NodeOffline(offline)));
+                        diffs.Item2.Iter(online  => publish(new NodeOnline(online)));
+
+                        return newState;
                     }
                     catch(Exception e)
                     {
@@ -110,6 +118,13 @@ namespace LanguageExt
                     }
                 })
             .IfNone(HeartbeatLocal(state));
+
+        static Tuple<Set<string>, Set<string>> DiffState(State oldState, State newState)
+        {
+            var oldSet = Set.createRange(oldState.Members.Keys);
+            var newSet = Set.createRange(newState.Members.Keys);
+            return Tuple(oldSet - newSet, newSet - oldSet);
+        }
 
         static State HeartbeatLocal(State state) =>
             state.SetMember("root", new MemberState(DateTime.UtcNow));

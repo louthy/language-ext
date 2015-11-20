@@ -26,8 +26,8 @@ namespace LanguageExt
         readonly Option<ICluster> cluster;
         Map<string, IDisposable> subs = Map.empty<string, IDisposable>();
         Map<string, ActorItem> children = Map.empty<string, ActorItem>();
-        Set<ProcessId> watchers = Set.empty<ProcessId>();
-        Set<ProcessId> watching = Set.empty<ProcessId>();
+        //Set<ProcessId> watchers = Set.empty<ProcessId>();
+        //Set<ProcessId> watching = Set.empty<ProcessId>();
         Option<S> state;
         StrategyState strategyState = StrategyState.Empty;
         EventWaitHandle request;
@@ -329,46 +329,26 @@ namespace LanguageExt
         /// Add a watcher of this Process
         /// </summary>
         /// <param name="pid">Id of the Process that will watch this Process</param>
-        public Unit AddWatcher(ProcessId pid)
-        {
-            lock(sync)
-            {
-                watchers = watchers.AddOrUpdate(pid);
-            }
-            return unit;
-        }
+        public Unit AddWatcher(ProcessId pid) =>
+            ActorContext.AddWatcher(pid, Id);
 
         /// <summary>
         /// Remove a watcher of this Process
         /// </summary>
         /// <param name="pid">Id of the Process that will stop watching this Process</param>
-        public Unit RemoveWatcher(ProcessId pid)
-        {
-            lock (sync)
-            {
-                watchers = watchers.Remove(pid);
-            }
-            return unit;
-        }
+        public Unit RemoveWatcher(ProcessId pid) =>
+            ActorContext.RemoveWatcher(pid, Id);
 
         public Unit DispatchWatch(ProcessId pid)
         {
-            lock(sync)
-            {
-                ActorContext.GetDispatcher(pid).Watch(Id);
-                watching = watching.AddOrUpdate(pid);
-                return unit;
-            }
+            ActorContext.GetDispatcher(pid).Watch(Id);
+            return ActorContext.AddWatcher(pid, Id);
         }
 
         public Unit DispatchUnWatch(ProcessId pid)
         {
-            lock (sync)
-            {
-                ActorContext.GetDispatcher(pid).UnWatch(Id);
-                watching = watching.Remove(pid);
-                return unit;
-            }
+            ActorContext.GetDispatcher(pid).UnWatch(Id);
+            return ActorContext.RemoveWatcher(pid, Id);
         }
 
         /// <summary>
@@ -395,21 +375,8 @@ namespace LanguageExt
                 strategyState = StrategyState.Empty;
                 DisposeState();
 
-                var term = new TerminatedMessage(Id);
-                watchers.Iter(w =>
-                {
-                    try
-                    {
-                        ActorContext.TellUserControl(w, term);
-                    }
-                    catch(Exception e)
-                    {
-                        logErr(e);
-                    }
-                });
-                watchers = Set.empty<ProcessId>();
-                watching.Iter(pid => DispatchUnWatch(pid));
-                watching = Set.empty<ProcessId>();
+                ActorContext.DispatchTerminate(Id);
+
                 return unit;
             }
         }
