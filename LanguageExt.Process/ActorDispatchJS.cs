@@ -75,5 +75,15 @@ namespace LanguageExt
         {
             throw new NotSupportedException();
         }
+
+        public Unit DispatchWatch(ProcessId pid)
+        {
+            throw new NotSupportedException();
+        }
+
+        public Unit DispatchUnWatch(ProcessId pid)
+        {
+            throw new NotSupportedException();
+        }
     }
 }

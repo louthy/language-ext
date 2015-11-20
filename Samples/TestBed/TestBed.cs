@@ -194,6 +194,10 @@ namespace TestBed
             {
                 Console.WriteLine(msg);
             }
+
+            public void OnTerminated(ProcessId pid)
+            {
+            }
         }
 
         public static void ClassBasedProcess()

@@ -27,9 +27,15 @@ namespace LanguageExt
                 case Message.TagSpec.UserTerminated:    return new TerminatedMessage(sender);
 
                 case Message.TagSpec.GetChildren:       return UserControlMessage.GetChildren;
+                case Message.TagSpec.StartupProcess:    return SystemMessage.StartupProcess;
                 case Message.TagSpec.ShutdownProcess:   return SystemMessage.ShutdownProcess;
 
                 case Message.TagSpec.Restart:           return SystemMessage.Restart;
+
+                case Message.TagSpec.DispatchWatch:    return (SystemDispatchWatchMessage)DeserialiseMsgContent(msg);
+                case Message.TagSpec.DispatchUnWatch:  return (SystemDispatchUnWatchMessage)DeserialiseMsgContent(msg);
+                case Message.TagSpec.Watch:            return (SystemAddWatcherMessage)DeserialiseMsgContent(msg);
+                case Message.TagSpec.UnWatch:          return (SystemRemoveWatcherMessage)DeserialiseMsgContent(msg);
             }
 
             throw new Exception($"Unknown Message Type: {msg.Type}");

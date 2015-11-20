@@ -58,7 +58,8 @@ namespace LanguageExt
 
         void SubscribeToSysInboxChannel()
         {
-            cluster.SubscribeToChannel<string>(ClusterSystemInboxNotifyKey,
+            cluster.UnsubscribeChannel(ClusterSystemInboxNotifyKey);
+            cluster.SubscribeToChannel<string>(ClusterSystemInboxNotifyKey).Subscribe(
                 msg =>
                 {
                     if (sysInbox.CurrentQueueLength == 0)
@@ -71,7 +72,8 @@ namespace LanguageExt
 
         void SubscribeToUserInboxChannel()
         {
-            cluster.SubscribeToChannel<string>(ClusterUserInboxNotifyKey,
+            cluster.UnsubscribeChannel(ClusterUserInboxNotifyKey);
+            cluster.SubscribeToChannel<string>(ClusterUserInboxNotifyKey).Subscribe(
                 msg =>
                 {
                     if (userInbox.CurrentQueueLength == 0)

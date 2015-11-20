@@ -44,12 +44,12 @@ namespace LanguageExt
         /// <summary>
         /// Subscribe to a named channel
         /// </summary>
-        void SubscribeToChannel(string channelName, System.Type type, Action<object> handler);
+        IObservable<Object> SubscribeToChannel(string channelName, System.Type type);
 
         /// <summary>
         /// Subscribe to a named channel
         /// </summary>
-        void SubscribeToChannel<T>(string channelName, Action<T> handler);
+        IObservable<T> SubscribeToChannel<T>(string channelName);
 
         /// <summary>
         /// Unsubscribe from a channel (removes all subscribers from a channel)

@@ -53,5 +53,10 @@ namespace LanguageExt
         public Unit UnWatch(ProcessId pid) =>
             Raise<Unit>();
 
+        public Unit DispatchWatch(ProcessId pid) =>
+            Raise<Unit>();
+
+        public Unit DispatchUnWatch(ProcessId pid) =>
+            Raise<Unit>();
     }
 }

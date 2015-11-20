@@ -4,6 +4,7 @@ using LanguageExt.Trans;
 using static LanguageExt.Process;
 using static LanguageExt.Prelude;
 using Microsoft.FSharp.Control;
+using Newtonsoft.Json;
 
 namespace LanguageExt
 {
@@ -61,15 +62,21 @@ namespace LanguageExt
 
         void SubscribeToSysInboxChannel()
         {
-            cluster.SubscribeToChannel<string>(ClusterSystemInboxNotifyKey, msg => sysNotify.Post(msg));
-            // We want the check done asyncronously, in case the setup function creates child processes that
-            // won't exist if we invoke directly.
-            cluster.PublishToChannel(ClusterSystemInboxNotifyKey, Guid.NewGuid().ToString());
+            //cluster.SubscribeToChannel<string>(ClusterSystemInboxNotifyKey, msg => sysNotify.Post(msg));
+            //// We want the check done asyncronously, in case the setup function creates child processes that
+            //// won't exist if we invoke directly.
+            //cluster.PublishToChannel(ClusterSystemInboxNotifyKey, Guid.NewGuid().ToString());
+
+            // System inbox is just listening to the notifications, that means that system
+            // messages don't persist.
+            cluster.UnsubscribeChannel(ClusterSystemInboxNotifyKey);
+            cluster.SubscribeToChannel<RemoteMessageDTO>(ClusterSystemInboxNotifyKey).Subscribe(SysInbox);
         }
 
         void SubscribeToUserInboxChannel()
         {
-            cluster.SubscribeToChannel<string>(ClusterUserInboxNotifyKey, msg => userNotify.Post(msg));
+            cluster.UnsubscribeChannel(ClusterUserInboxNotifyKey);
+            cluster.SubscribeToChannel<string>(ClusterUserInboxNotifyKey).Subscribe(msg => userNotify.Post(msg));
             // We want the check done asyncronously, in case the setup function creates child processes that
             // won't exist if we invoke directly.
             cluster.PublishToChannel(ClusterUserInboxNotifyKey, Guid.NewGuid().ToString());
@@ -107,6 +114,47 @@ namespace LanguageExt
             return unit;
         }
 
+        /// <summary>
+        /// TODO: This is a combination of code in ActorCommon.GetNextMessage and
+        ///       CheckRemoteInbox.  Some factoring is needed.
+        /// </summary>
+        void SysInbox(RemoteMessageDTO dto)
+        {
+            try
+            {
+                if (dto == null)
+                {
+                    // Failed to deserialise properly
+                    return;
+                }
+                if (dto.Tag == 0 && dto.Type == 0)
+                {
+                    // Message is bad
+                    tell(ActorContext.DeadLetters, DeadLetter.create(dto.Sender, actor.Id, null, "Failed to deserialise message: ", dto));
+                    return;
+                }
+                var msg = MessageSerialiser.DeserialiseMsg(dto, actor.Id);
+
+                try
+                {
+                    lock(sync)
+                    {
+                        ActorInboxCommon.SystemMessageInbox(actor, this, (SystemMessage)msg, parent);
+                    }
+                }
+                catch (Exception e)
+                {
+                    ActorContext.WithContext(new ActorItem(actor, this, actor.Flags), parent, dto.Sender, msg as ActorRequest, msg, msg.SessionId, () => replyErrorIfAsked(e));
+                    tell(ActorContext.DeadLetters, DeadLetter.create(dto.Sender, actor.Id, e, "Remote message inbox.", msg));
+                    logSysErr(e);
+                }
+            }
+            catch (Exception e)
+            {
+                logSysErr(e);
+            }
+        }
+
         void CheckRemoteInbox(string key, bool pausable)
         {
             var inbox = this;
@@ -123,7 +171,6 @@ namespace LanguageExt
                         {
                             switch (msg.MessageType)
                             {
-                                case Message.Type.System:      directive = ActorInboxCommon.SystemMessageInbox(actor, inbox, (SystemMessage)msg, parent); break;
                                 case Message.Type.User:        directive = ActorInboxCommon.UserMessageInbox(actor, inbox, (UserControlMessage)msg, parent); break;
                                 case Message.Type.UserControl: directive = ActorInboxCommon.UserMessageInbox(actor, inbox, (UserControlMessage)msg, parent); break;
                             }

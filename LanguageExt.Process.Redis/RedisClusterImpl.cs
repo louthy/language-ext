@@ -22,6 +22,8 @@ namespace LanguageExt
         int databaseNumber;
         ConnectionMultiplexer redis;
 
+        Map<string, Subject<RedisValue>> subscriptions = Map.empty<string, Subject<RedisValue>>();
+
         /// <summary>
         /// Ctor
         /// </summary>
@@ -108,52 +110,78 @@ namespace LanguageExt
                 JsonConvert.SerializeObject(data)
                 );
 
+        private Subject<RedisValue> GetSubject(string channelName)
+        {
+            Subject<RedisValue> subject = null;
+            lock (subscriptions)
+            {
+                if (subscriptions.ContainsKey(channelName))
+                {
+                    subject = subscriptions[channelName];
+                }
+                else
+                {
+                    subject = new Subject<RedisValue>();
+                    subscriptions = subscriptions.Add(channelName, subject);
+
+                    redis.GetSubscriber().Subscribe(
+                        channelName,
+                        (channel, value) =>
+                        {
+                            if (channel == channelName && !value.IsNullOrEmpty)
+                            {
+                                subject.OnNext(value);
+                            }
+                        });
+                }
+            }
+            return subject;
+        }
+
         /// <summary>
         /// Subscribe to a named channel
         /// </summary>
-        public void SubscribeToChannel(string channelName, Type type, Action<object> handler)
-        {
-            UnsubscribeChannel(channelName);
-            redis.GetSubscriber().Subscribe(
-                channelName,
-                (channel, value) =>
-                {
-                    if (channel == channelName && !value.IsNullOrEmpty)
+        public IObservable<Object> SubscribeToChannel(string channelName, Type type) =>
+            GetSubject(channelName)
+                .Select(value => {
+                    try
                     {
-                        try
-                        {
-                            handler(JsonConvert.DeserializeObject(value, type));
-                        }
-                        catch
-                        {
-                        }
+                        return Some(JsonConvert.DeserializeObject(value, type));
                     }
-                });
-        }
-
-        public void SubscribeToChannel<T>(string channelName, Action<T> handler)
-        {
-            UnsubscribeChannel(channelName);
-            redis.GetSubscriber().Subscribe(
-                channelName,
-                (channel, value) =>
-                {
-                    if (channel == channelName && !value.IsNullOrEmpty)
+                    catch
                     {
-                        try
-                        {
-                            handler(JsonConvert.DeserializeObject<T>(value));
-                        }
-                        catch
-                        {
-                        }
+                        return None;
                     }
-                });
-        }
+                 })
+                .Where(x => x.IsSome)
+                .Select(x => x.IfNoneUnsafe(null));
+ 
+        public IObservable<T> SubscribeToChannel<T>(string channelName) =>
+            GetSubject(channelName)
+                .Select(value => {
+                    try
+                    {
+                        return Some(JsonConvert.DeserializeObject<T>(value));
+                    }
+                    catch
+                    {
+                        return None;
+                    }
+                 })
+                .Where(x => x.IsSome)
+                .Select(x => x.IfNoneUnsafe(null));
 
         public void UnsubscribeChannel(string channelName)
         {
             redis.GetSubscriber().Unsubscribe(channelName);
+            lock (subscriptions)
+            {
+                if (subscriptions.ContainsKey(channelName))
+                {
+                    subscriptions[channelName].OnCompleted();
+                    subscriptions = subscriptions.Remove(channelName);
+                }
+            }
         }
 
         public void SetValue(string key, object value) =>

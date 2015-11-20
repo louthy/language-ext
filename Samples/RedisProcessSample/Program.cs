@@ -25,17 +25,18 @@ namespace RedisPublishSample
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-test", "localhost:6379", "0");
+            Cluster.connect("redis", "redis-publish-test", "localhost:6379", "0");
 
             // Launch a process that publishes a random number as fast as possible
             var pid = spawn<Random, int>("redis-pubsub-random-test", Setup, Inbox, ProcessFlags.RemotePublish);
 
             // Listen to the published results coming back from the Redis channel
-            subscribe<int>(pid, Console.WriteLine);
+            //subscribe<int>(pid, Console.WriteLine);
 
             // Start it off by sending the first message
-            tell(pid, 0); 
+            tell(pid, 0);
 
+            Console.WriteLine("Values are being published.  Run RedisSubscribeSample to see them");
             Console.ReadKey();
         }
 

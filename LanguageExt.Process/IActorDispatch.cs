@@ -16,5 +16,7 @@ namespace LanguageExt
         int GetInboxCount();
         Unit Watch(ProcessId pid);
         Unit UnWatch(ProcessId pid);
+        Unit DispatchWatch(ProcessId pid);
+        Unit DispatchUnWatch(ProcessId pid);
     }
 }

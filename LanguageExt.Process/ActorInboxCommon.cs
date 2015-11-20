@@ -122,7 +122,15 @@ namespace LanguageExt
                         actor.RemoveWatcher(rwm.Id);
                         break;
 
+                    case Message.TagSpec.DispatchWatch:
+                        var dwm = msg as SystemDispatchWatchMessage;
+                        actor.DispatchWatch(dwm.Id);
+                        break;
 
+                    case Message.TagSpec.DispatchUnWatch:
+                        var duwm = msg as SystemDispatchUnWatchMessage;
+                        actor.DispatchUnWatch(duwm.Id);
+                        break;
                 }
                 return InboxDirective.Default;
             });

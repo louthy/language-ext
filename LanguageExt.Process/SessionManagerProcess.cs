@@ -48,7 +48,8 @@ namespace LanguageExt
                 cluster.IfSome(c =>
                 {
                     c.UnsubscribeChannel(SessionManagerProcess.SessionsNotify);
-                    c.SubscribeToChannel<SessionManagerProcess.Msg>(SessionManagerProcess.SessionsNotify, msg => tell(pid, msg.MakeRemote()));
+                    c.SubscribeToChannel<SessionManagerProcess.Msg>(SessionManagerProcess.SessionsNotify)
+                        .Subscribe(msg => tell(pid, msg.MakeRemote()));
                 });
             }
         }

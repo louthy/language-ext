@@ -31,7 +31,7 @@ namespace LanguageExt
         /// <param name="Inbox">Function that is the process</param>
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
-        /// <param name="Terminate">Message function to call when a Process [that this Process
+        /// <param name="Terminated">Message function to call when a Process [that this Process
         /// watches] terminates</param>
         /// <returns>A ProcessId that identifies the child</returns>
         public static ProcessId spawn<T>(
@@ -40,7 +40,7 @@ namespace LanguageExt
             ProcessFlags Flags = ProcessFlags.Default,
             State<StrategyContext, Unit> Strategy = null,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize,
-            Action<ProcessId> Terminate = null
+            Action<ProcessId> Terminated = null
             ) =>
             spawn<Unit, T>(
                 Name,
@@ -53,7 +53,7 @@ namespace LanguageExt
                 Strategy,
                 MaxMailboxSize,
                 (state, pid) => {
-                    Terminate(pid);
+                    Terminated(pid);
                     return state;
                 }
             );
@@ -69,7 +69,7 @@ namespace LanguageExt
         /// <param name="Inbox">Function that is the process</param>
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
-        /// <param name="Terminate">Message function to call when a Process [that this Process
+        /// <param name="Terminated">Message function to call when a Process [that this Process
         /// watches] terminates</param>
         /// <returns>A ProcessId that identifies the child</returns>
         public static ProcessId spawnUnit<T>(
@@ -78,9 +78,9 @@ namespace LanguageExt
             ProcessFlags Flags = ProcessFlags.Default,
             State<StrategyContext, Unit> Strategy = null,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize,
-            Func<ProcessId, Unit> Terminate = null
+            Func<ProcessId, Unit> Terminated = null
             ) =>
-            spawn<Unit, T>(Name, () => unit, (state, msg) => { Inbox(msg); return state; }, Flags, Strategy, MaxMailboxSize, (state, pid) => { Terminate(pid); return state; });
+            spawn<Unit, T>(Name, () => unit, (state, msg) => { Inbox(msg); return state; }, Flags, Strategy, MaxMailboxSize, (state, pid) => { Terminated(pid); return state; });
 
         /// <summary>
         /// Create a new process by name.  
@@ -94,7 +94,7 @@ namespace LanguageExt
         /// <param name="Inbox">Function that is the process</param>
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
-        /// <param name="Terminate">Message function to call when a Process [that this Process
+        /// <param name="Terminated">Message function to call when a Process [that this Process
         /// watches] terminates</param>
         /// <returns>A ProcessId that identifies the child</returns>
         public static ProcessId spawn<S, T>(
@@ -104,9 +104,9 @@ namespace LanguageExt
             ProcessFlags Flags = ProcessFlags.Default,
             State<StrategyContext, Unit> Strategy = null,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize,
-            Func<S, ProcessId, S> Terminate = null
+            Func<S, ProcessId, S> Terminated = null
             ) =>
-            ActorContext.ActorCreate(ActorContext.SelfProcess, Name, Inbox, Setup, Terminate, Strategy, Flags, MaxMailboxSize, false);
+            ActorContext.ActorCreate(ActorContext.SelfProcess, Name, Inbox, Setup, Terminated, Strategy, Flags, MaxMailboxSize, false);
 
         /// <summary>
         /// Create N child processes.
@@ -122,7 +122,7 @@ namespace LanguageExt
         /// <param name="Inbox">Function that is the process</param>
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
-        /// <param name="Terminate">Message function to call when a Process [that this Process
+        /// <param name="Terminated">Message function to call when a Process [that this Process
         /// watches] terminates</param>
         /// <returns>ProcessId IEnumerable</returns>
         public static IEnumerable<ProcessId> spawnMany<T>(
@@ -132,9 +132,9 @@ namespace LanguageExt
             ProcessFlags Flags = ProcessFlags.Default,
             State<StrategyContext, Unit> Strategy = null,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize,
-            Action<ProcessId> Terminate = null
+            Action<ProcessId> Terminated = null
             ) =>
-            List.map(Range(0, Count), n => spawn($"{Name}-{n}", Inbox, Flags, Strategy, MaxMailboxSize, Terminate)).ToList();
+            List.map(Range(0, Count), n => spawn($"{Name}-{n}", Inbox, Flags, Strategy, MaxMailboxSize, Terminated)).ToList();
 
         /// <summary>
         /// Create N child processes.
@@ -151,7 +151,7 @@ namespace LanguageExt
         /// <param name="Inbox">Function that is the process</param>
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
-        /// <param name="Terminate">Message function to call when a Process [that this Process
+        /// <param name="Terminated">Message function to call when a Process [that this Process
         /// watches] terminates</param>
         /// <returns>ProcessId IEnumerable</returns>
         public static IEnumerable<ProcessId> spawnMany<S, T>(
@@ -162,9 +162,9 @@ namespace LanguageExt
             ProcessFlags Flags = ProcessFlags.Default,
             State<StrategyContext, Unit> Strategy = null,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize,
-            Func<S, ProcessId, S> Terminate = null
+            Func<S, ProcessId, S> Terminated = null
             ) =>
-            List.map(Range(0, Count), n => ActorContext.ActorCreate(ActorContext.SelfProcess, $"{Name}-{n}", Inbox, Setup, Terminate, Strategy, Flags, MaxMailboxSize, false)).ToList();
+            List.map(Range(0, Count), n => ActorContext.ActorCreate(ActorContext.SelfProcess, $"{Name}-{n}", Inbox, Setup, Terminated, Strategy, Flags, MaxMailboxSize, false)).ToList();
 
         /// <summary>
         /// Create N child processes.
@@ -181,7 +181,7 @@ namespace LanguageExt
         /// <param name="Inbox">Function that is the process</param>
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
-        /// <param name="Terminate">Message function to call when a Process [that this Process
+        /// <param name="Terminated">Message function to call when a Process [that this Process
         /// watches] terminates</param>
         /// <returns>ProcessId IEnumerable</returns>
         public static IEnumerable<ProcessId> spawnMany<S, T>(
@@ -191,9 +191,9 @@ namespace LanguageExt
             ProcessFlags Flags = ProcessFlags.Default,
             State<StrategyContext, Unit> Strategy = null,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize,
-            Func<S, ProcessId, S> Terminate = null
+            Func<S, ProcessId, S> Terminated = null
             ) =>
-            Map.map(Spec, (id,state) => ActorContext.ActorCreate(ActorContext.SelfProcess, $"{Name}-{id}", Inbox, state, Terminate, Strategy, Flags, MaxMailboxSize, false)).Values.ToList();
+            Map.map(Spec, (id,state) => ActorContext.ActorCreate(ActorContext.SelfProcess, $"{Name}-{id}", Inbox, state, Terminated, Strategy, Flags, MaxMailboxSize, false)).Values.ToList();
 
         /// <summary>
         /// Spawn by type

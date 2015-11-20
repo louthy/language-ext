@@ -69,5 +69,11 @@ namespace LanguageExt
 
         public Unit UnWatch(ProcessId pid) =>
             Actor.RemoveWatcher(pid);
+
+        public Unit DispatchWatch(ProcessId watching) =>
+            Actor.DispatchWatch(watching);
+
+        public Unit DispatchUnWatch(ProcessId watching) =>
+            Actor.DispatchUnWatch(watching);
     }
 }

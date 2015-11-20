@@ -20,6 +20,8 @@ namespace LanguageExt
         public static SystemMessage Unpause => new SystemUnpauseMessage();
         public static SystemMessage Watch(ProcessId pid) => new SystemAddWatcherMessage(pid);
         public static SystemMessage UnWatch(ProcessId pid) => new SystemRemoveWatcherMessage(pid);
+        public static SystemMessage DispatchWatch(ProcessId pid) => new SystemDispatchWatchMessage(pid);
+        public static SystemMessage DispatchUnWatch(ProcessId pid) => new SystemDispatchUnWatchMessage(pid);
     }
 
     class StartupProcessMessage : SystemMessage
@@ -100,7 +102,7 @@ namespace LanguageExt
 
         public SystemAddWatcherMessage(ProcessId id)
         {
-            Id = Id;
+            Id = id;
         }
         public ProcessId Id { get; }
     }
@@ -111,7 +113,29 @@ namespace LanguageExt
 
         public SystemRemoveWatcherMessage(ProcessId id)
         {
-            Id = Id;
+            Id = id;
+        }
+        public ProcessId Id { get; }
+    }
+
+    class SystemDispatchWatchMessage : SystemMessage
+    {
+        public override TagSpec Tag => TagSpec.DispatchWatch;
+
+        public SystemDispatchWatchMessage(ProcessId id)
+        {
+            Id = id;
+        }
+        public ProcessId Id { get; }
+    }
+
+    class SystemDispatchUnWatchMessage : SystemMessage
+    {
+        public override TagSpec Tag => TagSpec.DispatchUnWatch;
+
+        public SystemDispatchUnWatchMessage(ProcessId id)
+        {
+            Id = id;
         }
         public ProcessId Id { get; }
     }

@@ -22,6 +22,12 @@ namespace Watchers
             ProcessId pong = ProcessId.None;
             ProcessId ping = ProcessId.None;
 
+            // Let Language Ext know that Redis exists
+            RedisCluster.register();
+
+            // Connect to the Redis cluster
+            Cluster.connect("redis", "redis-watchers", "localhost", "0");
+
             ping = spawn<string>(
                 Name:      "ping",
                 Inbox:     msg =>
@@ -29,7 +35,8 @@ namespace Watchers
                     Console.WriteLine(msg);
                     tell(pong, "pong", 100*ms);
                 },
-                Terminate: pid => Console.WriteLine(pid + " is pushing up the daisies")
+                Terminated: pid => Console.WriteLine(pid + " is pushing up the daisies"),
+                Flags: ProcessFlags.PersistInbox
             );
 
             pong = spawn<string>(
@@ -39,7 +46,8 @@ namespace Watchers
                     Console.WriteLine(msg);
                     tell(ping, "ping", 100*ms);
                 },
-                Terminate: pid => Console.WriteLine(pid + " is pushing up the daisies")
+                Terminated: pid => Console.WriteLine(pid + " is pushing up the daisies"),
+                Flags: ProcessFlags.PersistInbox
             );
 
             watch(ping, pong);

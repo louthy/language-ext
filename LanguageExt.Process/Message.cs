@@ -31,6 +31,8 @@ namespace LanguageExt
             Unpause                     = 12,
             Watch                       = 16,
             UnWatch                     = 17,
+            DispatchWatch               = 18,
+            DispatchUnWatch             = 19,
 
             // UserControlMessageTag
             User                        = 5,

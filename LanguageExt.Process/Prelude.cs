@@ -287,19 +287,22 @@ namespace LanguageExt
                 ? ActorContext.SelfProcess.Actor.DispatchUnWatch(pid)
                 : raiseUseInMsgLoopOnlyException<Unit>(nameof(watch));
 
-        public static Unit watch(ProcessId watcher, ProcessId watching)
-        {
-            var disp = ActorContext.GetDispatcher(watcher) as ActorDispatchLocal;
-            if (disp == null) throw new ArgumentException($"{watcher} must be local");
-            return disp.Actor.DispatchWatch(watching);
-        }
+        /// <summary>
+        /// Watch for the death of the watching process and tell the watcher
+        /// process when that happens.
+        /// </summary>
+        /// <param name="watcher">Watcher</param>
+        /// <param name="watching">Watched</param>
+        public static Unit watch(ProcessId watcher, ProcessId watching) =>
+            ActorContext.GetDispatcher(watcher).DispatchWatch(watching);
 
-        public static Unit unwatch(ProcessId watcher, ProcessId watching)
-        {
-            var disp = ActorContext.GetDispatcher(watcher) as ActorDispatchLocal;
-            if (disp == null) throw new ArgumentException($"{watcher} must be local");
-            return disp.Actor.DispatchUnWatch(watching);
-        }
+        /// <summary>
+        /// Stop watching for the death of the watching process
+        /// </summary>
+        /// <param name="watcher">Watcher</param>
+        /// <param name="watching">Watched</param>
+        public static Unit unwatch(ProcessId watcher, ProcessId watching) =>
+            ActorContext.GetDispatcher(watcher).DispatchUnWatch(watching);
 
         /// <summary>
         /// Return True if the message sent is a Tell and not an Ask
