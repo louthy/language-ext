@@ -26,8 +26,6 @@ namespace LanguageExt
         readonly Option<ICluster> cluster;
         Map<string, IDisposable> subs = Map.empty<string, IDisposable>();
         Map<string, ActorItem> children = Map.empty<string, ActorItem>();
-        //Set<ProcessId> watchers = Set.empty<ProcessId>();
-        //Set<ProcessId> watching = Set.empty<ProcessId>();
         Option<S> state;
         StrategyState strategyState = StrategyState.Empty;
         EventWaitHandle request;

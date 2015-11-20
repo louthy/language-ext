@@ -58,9 +58,6 @@ namespace Watchers
             Console.WriteLine("Press key to kill ping");
             Console.ReadKey();
             kill(ping);
-            Console.WriteLine("Press key to kill pong");
-            Console.ReadKey();
-            kill(pong);
             Console.WriteLine("Press key to exit");
             Console.ReadKey();
         }

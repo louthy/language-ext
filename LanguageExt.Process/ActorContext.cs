@@ -68,12 +68,12 @@ namespace LanguageExt
             {
                 Process.observe<NodeOnline>(monitor).Subscribe(x =>
                 {
-                    Console.WriteLine("Online: " + x.Name);
+                    Process.logInfo("Online: " + x.Name);
                 });
 
                 Process.observe<NodeOffline>(monitor).Subscribe(x =>
                 {
-                    Console.WriteLine("Offline: " + x.Name);
+                    Process.logInfo("Offline: " + x.Name);
                     RemoveWatchingOfRemote(x.Name);
                 });
             });
@@ -121,7 +121,7 @@ namespace LanguageExt
 
         public static Unit AddWatcher(ProcessId watcher, ProcessId watching)
         {
-            Console.WriteLine(watcher + " is watching " + watching);
+            Process.logInfo(watcher + " is watching " + watching);
 
             lock(sync)
             {
@@ -140,7 +140,7 @@ namespace LanguageExt
 
         public static Unit RemoveWatcher(ProcessId watcher, ProcessId watching)
         {
-            Console.WriteLine(watcher + " stopped watching " + watching);
+            Process.logInfo(watcher + " stopped watching " + watching);
 
             lock (sync)
             {
