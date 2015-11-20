@@ -17,6 +17,7 @@ namespace LanguageExt
         static Option<ICluster> cluster;
         static ActorItem rootItem;
         static ActorRequestContext userContext;
+        static ClusterMonitor.State clusterState;
 
         static Map<ProcessId, Set<ProcessId>> watchers;
         static Map<ProcessId, Set<ProcessId>> watchings;
@@ -60,6 +61,9 @@ namespace LanguageExt
             return unit;
         }
 
+        public static ClusterMonitor.State ClusterState => 
+            clusterState;
+
         private static void ClusterWatch(Option<ICluster> cluster)
         {
             var monitor = System[ActorConfig.Default.MonitorProcessName];
@@ -75,6 +79,11 @@ namespace LanguageExt
                 {
                     Process.logInfo("Offline: " + x.Name);
                     RemoveWatchingOfRemote(x.Name);
+                });
+
+                Process.observe<ClusterMonitor.State>(monitor).Subscribe(x =>
+                {
+                    clusterState = x;
                 });
             });
 

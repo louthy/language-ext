@@ -1,5 +1,6 @@
 ﻿using LanguageExt.UnitsOfMeasure;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -316,13 +317,20 @@ namespace LanguageExt
                 : raiseUseInMsgLoopOnlyException<bool>(nameof(isTell));
 
         /// <summary>
+        /// Get a list of cluster nodes that are online
+        /// </summary>
+        public static IEnumerable<ProcessName> ClusterNodes =>
+            ActorContext.ClusterState == null
+                ? new ProcessName[0]
+                : ActorContext.ClusterState.Members.Keys.Map(m => new ProcessName(m));
+
+        /// <summary>
         /// Return True if the message sent is an Ask and not a Tell
         /// </summary>
         /// <remarks>
         /// This should be used from within a process' message loop only
         /// </remarks>
         public static bool isAsk => !isTell;
-
 
         /// <summary>
         /// Use in message loop exception
