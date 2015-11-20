@@ -34,7 +34,12 @@ namespace Routers
             var hello = spawn("hello", (string msg) => Console.WriteLine(msg + " Hello"));
             var world = spawn("world", (string msg) => Console.WriteLine(msg + " World"));
 
-            var test = Router.broadcast<string>("broadcast2", new[] { hello, world });
+            var test = Router.broadcast<string>(
+                "broadcast2", 
+                new[] { hello, world }, 
+                Options: RouterOption.RemoveWorkerWhenTerminated
+                );
+
             tell(test, "--> ");
 
             Console.WriteLine("Press any key");

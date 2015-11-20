@@ -298,6 +298,6 @@ namespace LanguageExt
         /// Number of unprocessed items
         /// </summary>
         public int Count =>
-            userInbox.CurrentQueueLength;
+            (userInbox?.CurrentQueueLength).GetValueOrDefault();
     }
 }
