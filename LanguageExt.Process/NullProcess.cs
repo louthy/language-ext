@@ -22,9 +22,14 @@ namespace LanguageExt
         public Unit Shutdown(bool maintainState) => unit;
         public Unit LinkChild(ActorItem item) => unit;
         public Unit UnlinkChild(ProcessId item) => unit;
+        public Unit AddWatcher(ProcessId item) => unit;
+        public Unit RemoveWatcher(ProcessId item) => unit;
+        public Unit DispatchWatch(ProcessId item) => unit;
+        public Unit DispatchUnWatch(ProcessId item) => unit;
         public Unit Publish(object message) => unit;
         public IObservable<object> PublishStream => null;
         public IObservable<object> StateStream => null;
+        public InboxDirective ProcessTerminated(ProcessId pid) => InboxDirective.Default;
         public InboxDirective ProcessMessage(object message) => InboxDirective.Default;
         public InboxDirective ProcessAsk(ActorRequest request) => InboxDirective.Default;
         public Unit AddSubscription(ProcessId pid, IDisposable sub) => Unit.Default;

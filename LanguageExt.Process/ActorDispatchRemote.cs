@@ -64,5 +64,11 @@ namespace LanguageExt
 
         public int GetInboxCount() =>
             Cluster.QueueLength(ActorInboxCommon.ClusterUserInboxKey(ProcessId));
+
+        public Unit Watch(ProcessId pid) =>
+            TellSystem(SystemMessage.Watch(pid), pid);
+
+        public Unit UnWatch(ProcessId pid) =>
+            TellSystem(SystemMessage.UnWatch(pid), pid);
     }
 }

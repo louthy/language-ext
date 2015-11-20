@@ -14,5 +14,7 @@ namespace LanguageExt
         Unit Publish(object message);
         Unit Kill();
         int GetInboxCount();
+        Unit Watch(ProcessId pid);
+        Unit UnWatch(ProcessId pid);
     }
 }

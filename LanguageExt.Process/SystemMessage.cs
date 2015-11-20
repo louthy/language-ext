@@ -18,6 +18,8 @@ namespace LanguageExt
         public static SystemMessage Restart => new SystemRestartMessage();
         public static SystemMessage Pause => new SystemPauseMessage();
         public static SystemMessage Unpause => new SystemUnpauseMessage();
+        public static SystemMessage Watch(ProcessId pid) => new SystemAddWatcherMessage(pid);
+        public static SystemMessage UnWatch(ProcessId pid) => new SystemRemoveWatcherMessage(pid);
     }
 
     class StartupProcessMessage : SystemMessage
@@ -90,5 +92,27 @@ namespace LanguageExt
 
         public override string ToString() =>
             "ShutdownProcess";
+    }
+
+    class SystemAddWatcherMessage : SystemMessage
+    {
+        public override TagSpec Tag => TagSpec.Watch;
+
+        public SystemAddWatcherMessage(ProcessId id)
+        {
+            Id = Id;
+        }
+        public ProcessId Id { get; }
+    }
+
+    class SystemRemoveWatcherMessage : SystemMessage
+    {
+        public override TagSpec Tag => TagSpec.UnWatch;
+
+        public SystemRemoveWatcherMessage(ProcessId id)
+        {
+            Id = Id;
+        }
+        public ProcessId Id { get; }
     }
 }

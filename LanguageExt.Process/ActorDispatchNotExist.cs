@@ -46,5 +46,12 @@ namespace LanguageExt
 
         public int GetInboxCount() =>
             0;
+
+        public Unit Watch(ProcessId pid) =>
+            Raise<Unit>();
+
+        public Unit UnWatch(ProcessId pid) =>
+            Raise<Unit>();
+
     }
 }

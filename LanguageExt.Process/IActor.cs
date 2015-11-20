@@ -67,6 +67,18 @@ namespace LanguageExt
         Unit UnlinkChild(ProcessId pid);
 
         /// <summary>
+        /// Add a watcher of this Process
+        /// </summary>
+        /// <param name="pid">Id of the Process that will watch this Process</param>
+        Unit AddWatcher(ProcessId pid);
+
+        /// <summary>
+        /// Remove a watcher of this Process
+        /// </summary>
+        /// <param name="pid">Id of the Process that will stop watching this Process</param>
+        Unit RemoveWatcher(ProcessId pid);
+
+        /// <summary>
         /// Publish to the PublishStream
         /// </summary>
         Unit Publish(object message);
@@ -83,11 +95,16 @@ namespace LanguageExt
 
         InboxDirective ProcessMessage(object message);
         InboxDirective ProcessAsk(ActorRequest request);
+        InboxDirective ProcessTerminated(ProcessId id);
+
         R ProcessRequest<R>(ProcessId pid, object message);
         Unit ProcessResponse(ActorResponse response);
         Unit ShutdownProcess(bool maintainState);
 
         Unit AddSubscription(ProcessId pid, IDisposable sub);
         Unit RemoveSubscription(ProcessId pid);
+
+        Unit DispatchWatch(ProcessId pid);
+        Unit DispatchUnWatch(ProcessId pid);
     }
 }

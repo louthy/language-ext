@@ -270,6 +270,38 @@ namespace LanguageExt
             ActorContext.TellSystem(pid, SystemMessage.Unpause);
 
         /// <summary>
+        /// Watch another Process in case it terminates
+        /// </summary>
+        /// <param name="pid">Process to watch</param>
+        public static Unit watch(ProcessId pid) =>
+            InMessageLoop
+                ? ActorContext.SelfProcess.Actor.DispatchWatch(pid)
+                : raiseUseInMsgLoopOnlyException<Unit>(nameof(watch));
+
+        /// <summary>
+        /// Un-watch another Process that this Process has been watching
+        /// </summary>
+        /// <param name="pid">Process to watch</param>
+        public static Unit unwatch(ProcessId pid) =>
+            InMessageLoop
+                ? ActorContext.SelfProcess.Actor.DispatchUnWatch(pid)
+                : raiseUseInMsgLoopOnlyException<Unit>(nameof(watch));
+
+        public static Unit watch(ProcessId watcher, ProcessId watching)
+        {
+            var disp = ActorContext.GetDispatcher(watcher) as ActorDispatchLocal;
+            if (disp == null) throw new ArgumentException($"{watcher} must be local");
+            return disp.Actor.DispatchWatch(watching);
+        }
+
+        public static Unit unwatch(ProcessId watcher, ProcessId watching)
+        {
+            var disp = ActorContext.GetDispatcher(watcher) as ActorDispatchLocal;
+            if (disp == null) throw new ArgumentException($"{watcher} must be local");
+            return disp.Actor.DispatchUnWatch(watching);
+        }
+
+        /// <summary>
         /// Return True if the message sent is a Tell and not an Ask
         /// </summary>
         /// <remarks>

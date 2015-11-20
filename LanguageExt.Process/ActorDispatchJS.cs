@@ -65,5 +65,15 @@ namespace LanguageExt
         public Unit Kill() =>
             // TODO: Not yet implemented on the JS side
             ProcessId.Tell(SystemMessage.ShutdownProcess, ActorContext.Self);
+
+        public Unit Watch(ProcessId pid)
+        {
+            throw new NotSupportedException();
+        }
+
+        public Unit UnWatch(ProcessId pid)
+        {
+            throw new NotSupportedException();
+        }
     }
 }

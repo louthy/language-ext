@@ -188,48 +188,52 @@ namespace LanguageExt
         public static ProcessId ActorCreate<S, T>(
             ActorItem parent, 
             ProcessName name, 
-            Func<T, Unit> actorFn, 
+            Func<T, Unit> actorFn,
+            Func<S, ProcessId, S> termFn,
             State<StrategyContext, Unit> strategy, 
             ProcessFlags flags, 
             int maxMailboxSize, 
             bool lazy
             ) =>
-            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), strategy, flags, maxMailboxSize, lazy);
+            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), termFn, strategy, flags, maxMailboxSize, lazy);
 
         public static ProcessId ActorCreate<S, T>(
             ActorItem parent, 
             ProcessName name, 
-            Action<T> actorFn, 
+            Action<T> actorFn,
+            Func<S, ProcessId, S> termFn,
             State<StrategyContext, Unit> strategy, 
             ProcessFlags flags, 
             int maxMailboxSize, 
             bool lazy
             ) =>
-            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), strategy, flags, maxMailboxSize, lazy);
-
-        public static ProcessId ActorCreate<S, T>(
-            ActorItem parent, 
-            ProcessName name, 
-            Func<S, T, S> actorFn, 
-            Func<S> setupFn, 
-            State<StrategyContext, Unit> strategy, 
-            ProcessFlags flags, 
-            int maxMailboxSize, 
-            bool lazy
-            ) =>
-            ActorCreate<S, T>(parent, name, actorFn, _ => setupFn(), strategy, flags, maxMailboxSize, lazy);
+            ActorCreate<S, T>(parent, name, (s, t) => { actorFn(t); return default(S); }, () => default(S), termFn, strategy, flags, maxMailboxSize, lazy);
 
         public static ProcessId ActorCreate<S, T>(
             ActorItem parent, 
             ProcessName name, 
             Func<S, T, S> actorFn, 
-            Func<IActor, S> setupFn, 
+            Func<S> setupFn,
+            Func<S, ProcessId, S> termFn,
+            State<StrategyContext, Unit> strategy, 
+            ProcessFlags flags, 
+            int maxMailboxSize, 
+            bool lazy
+            ) =>
+            ActorCreate(parent, name, actorFn, _ => setupFn(), termFn, strategy, flags, maxMailboxSize, lazy);
+
+        public static ProcessId ActorCreate<S, T>(
+            ActorItem parent, 
+            ProcessName name, 
+            Func<S, T, S> actorFn, 
+            Func<IActor, S> setupFn,
+            Func<S, ProcessId, S> termFn,
             State<StrategyContext, Unit> strategy, 
             ProcessFlags flags, 
             int maxMailboxSize, 
             bool lazy)
         {
-            var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn, strategy, flags);
+            var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn, termFn, strategy, flags);
 
             IActorInbox inbox = null;
             if ((flags & ProcessFlags.ListenRemoteAndLocal) == ProcessFlags.ListenRemoteAndLocal && cluster.IsSome)
@@ -442,7 +446,12 @@ namespace LanguageExt
                             regd,
                             name,
                             RegisteredActor<T>.Inbox,
-                            () => processId,
+                            () =>
+                            {
+                                Process.watch(processId);
+                                return processId;
+                            },
+                            (state, pid) => { Process.kill(); return state; },
                             Process.DefaultStrategy,
                             flags,
                             maxMailboxSize,

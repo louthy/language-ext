@@ -63,5 +63,11 @@ namespace LanguageExt
 
         public int GetInboxCount() =>
             Inbox.Count;
+
+        public Unit Watch(ProcessId pid) =>
+            Actor.AddWatcher(pid);
+
+        public Unit UnWatch(ProcessId pid) =>
+            Actor.RemoveWatcher(pid);
     }
 }

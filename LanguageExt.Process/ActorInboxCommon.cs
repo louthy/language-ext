@@ -111,6 +111,18 @@ namespace LanguageExt
                     case Message.TagSpec.Pause:
                         inbox.Pause();
                         break;
+
+                    case Message.TagSpec.Watch:
+                        var awm = msg as SystemAddWatcherMessage;
+                        actor.AddWatcher(awm.Id);
+                        break;
+
+                    case Message.TagSpec.UnWatch:
+                        var rwm = msg as SystemRemoveWatcherMessage;
+                        actor.RemoveWatcher(rwm.Id);
+                        break;
+
+
                 }
                 return InboxDirective.Default;
             });
@@ -128,6 +140,10 @@ namespace LanguageExt
                     var urmsg = (ActorResponse)msg;
                     ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, urmsg.ReplyFrom, null, msg, msg.SessionId, () => actor.ProcessResponse(urmsg));
                     break;
+
+                case Message.TagSpec.UserTerminated:
+                    var utmsg = (TerminatedMessage)msg;
+                    return ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, utmsg.Id, null, msg, msg.SessionId, () => actor.ProcessTerminated(utmsg.Id));
 
                 case Message.TagSpec.User:
                     var umsg = (UserMessage)msg;

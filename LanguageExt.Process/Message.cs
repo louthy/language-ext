@@ -29,12 +29,15 @@ namespace LanguageExt
             ChildFaulted                = 10,
             Pause                       = 11,
             Unpause                     = 12,
+            Watch                       = 16,
+            UnWatch                     = 17,
 
             // UserControlMessageTag
             User                        = 5,
             UserAsk                     = 6,
             UserReply                   = 7,
-            Null                        = 13, ///< Does nothing but wake up an inbox
+            UserTerminated              = 15,
+            Null                        = 13, /// Does nothing but wake up an inbox
 
             // ActorSystemMessageTag
             StartupProcess              = 14,

@@ -44,6 +44,20 @@ namespace LanguageExt
         public object Content { get; }
     }
 
+    public class TerminatedMessage : UserControlMessage
+    {
+        public override Type MessageType => Type.UserControl;
+        public override TagSpec Tag      => TagSpec.UserTerminated;
+
+        public ProcessId Id;
+
+        [JsonConstructor]
+        public TerminatedMessage(ProcessId id)
+        {
+            Id = id;
+        }
+    }
+
     public class RemoteMessageDTO
     {
         public int Type;

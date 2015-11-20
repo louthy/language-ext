@@ -17,5 +17,11 @@ namespace LanguageExt
         /// </summary>
         /// <param name="msg">Message</param>
         void OnMessage(T msg);
+
+        /// <summary>
+        /// Invoked when a watched Process terminates
+        /// </summary>
+        /// <param name="pid">Process ID of the Process that terminated</param>
+        void OnTerminated(ProcessId pid);
     }
 }

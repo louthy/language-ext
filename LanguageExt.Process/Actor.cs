@@ -18,13 +18,16 @@ namespace LanguageExt
     class Actor<S, T> : IActor
     {
         readonly Func<S, T, S> actorFn;
+        readonly Func<S, ProcessId, S> termFn;
         readonly Func<IActor, S> setupFn;
         readonly ProcessFlags flags;
         readonly Subject<object> publishSubject = new Subject<object>();
         readonly Subject<object> stateSubject = new Subject<object>();
         readonly Option<ICluster> cluster;
-        Map<string, IDisposable> subs = Map.create<string, IDisposable>();
-        Map<string, ActorItem> children = Map.create<string, ActorItem>();
+        Map<string, IDisposable> subs = Map.empty<string, IDisposable>();
+        Map<string, ActorItem> children = Map.empty<string, ActorItem>();
+        Set<ProcessId> watchers = Set.empty<ProcessId>();
+        Set<ProcessId> watching = Set.empty<ProcessId>();
         Option<S> state;
         StrategyState strategyState = StrategyState.Empty;
         EventWaitHandle request;
@@ -32,7 +35,16 @@ namespace LanguageExt
         object sync = new object();
         bool remoteSubsAcquired;
 
-        internal Actor(Option<ICluster> cluster, ActorItem parent, ProcessName name, Func<S, T, S> actor, Func<IActor, S> setup, State<StrategyContext, Unit> strategy, ProcessFlags flags)
+        internal Actor(
+            Option<ICluster> cluster, 
+            ActorItem parent, 
+            ProcessName name, 
+            Func<S, T, S> actor, 
+            Func<IActor, S> setup,
+            Func<S, ProcessId, S> term,
+            State<StrategyContext, Unit> strategy, 
+            ProcessFlags flags
+            )
         {
             if (setup == null) throw new ArgumentNullException(nameof(setup));
             if (actor == null) throw new ArgumentNullException(nameof(actor));
@@ -40,6 +52,7 @@ namespace LanguageExt
             this.cluster = cluster;
             this.flags = flags;
             actorFn = actor;
+            termFn = term;
             setupFn = setup;
             Parent = parent;
             Name = name;
@@ -313,6 +326,52 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Add a watcher of this Process
+        /// </summary>
+        /// <param name="pid">Id of the Process that will watch this Process</param>
+        public Unit AddWatcher(ProcessId pid)
+        {
+            lock(sync)
+            {
+                watchers = watchers.AddOrUpdate(pid);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Remove a watcher of this Process
+        /// </summary>
+        /// <param name="pid">Id of the Process that will stop watching this Process</param>
+        public Unit RemoveWatcher(ProcessId pid)
+        {
+            lock (sync)
+            {
+                watchers = watchers.Remove(pid);
+            }
+            return unit;
+        }
+
+        public Unit DispatchWatch(ProcessId pid)
+        {
+            lock(sync)
+            {
+                ActorContext.GetDispatcher(pid).Watch(Id);
+                watching = watching.AddOrUpdate(pid);
+                return unit;
+            }
+        }
+
+        public Unit DispatchUnWatch(ProcessId pid)
+        {
+            lock (sync)
+            {
+                ActorContext.GetDispatcher(pid).UnWatch(Id);
+                watching = watching.Remove(pid);
+                return unit;
+            }
+        }
+
+        /// <summary>
         /// Shutdown everything from this node down
         /// </summary>
         public Unit Shutdown(bool maintainState)
@@ -335,6 +394,22 @@ namespace LanguageExt
                 remoteSubsAcquired = false;
                 strategyState = StrategyState.Empty;
                 DisposeState();
+
+                var term = new TerminatedMessage(Id);
+                watchers.Iter(w =>
+                {
+                    try
+                    {
+                        ActorContext.TellUserControl(w, term);
+                    }
+                    catch(Exception e)
+                    {
+                        logErr(e);
+                    }
+                });
+                watchers = Set.empty<ProcessId>();
+                watching.Iter(pid => DispatchUnWatch(pid));
+                watching = Set.empty<ProcessId>();
                 return unit;
             }
         }
@@ -500,19 +575,8 @@ namespace LanguageExt
                 }
                 catch (Exception e)
                 {
-                    var directive = RunStrategy(
-                        Id,
-                        Parent.Actor.Id,
-                        Sender,
-                        Parent.Actor.Children.Values.Map(n => n.Actor.Id).Filter(x => x != Id),
-                        e,
-                        request,
-                        Parent.Actor.Strategy
-                    );
-
                     replyError(e);
-                    tell(ActorContext.Errors, e);
-                    return directive;
+                    return DefaultErrorHandler(request, e);
                 }
                 finally
                 {
@@ -535,6 +599,74 @@ namespace LanguageExt
                     replyIfAsked(ShutdownProcess(false));
                     break;
             }
+        }
+
+        public InboxDirective ProcessTerminated(ProcessId pid)
+        {
+            if (termFn == null) return InboxDirective.Default;
+
+            lock (sync)
+            {
+                var savedReq = ActorContext.CurrentRequest;
+                var savedFlags = ActorContext.ProcessFlags;
+                var savedMsg = ActorContext.CurrentMsg;
+
+                try
+                {
+                    ActorContext.CurrentRequest = null;
+                    ActorContext.ProcessFlags = flags;
+                    ActorContext.CurrentMsg = pid;
+
+                    //ActorContext.AssertSession();
+
+                    var stateIn = GetState();
+                    var stateOut = termFn(GetState(), pid);
+                    state = stateOut;
+                    try
+                    {
+                        if (notnull(stateOut) && !state.Equals(stateIn))
+                        {
+                            stateSubject.OnNext(stateOut);
+                        }
+                    }
+                    catch (Exception ue)
+                    {
+                        logErr(ue);
+                    }
+
+                    strategyState = strategyState.With(
+                        Failures: 0,
+                        LastFailure: DateTime.MaxValue,
+                        BackoffAmount: 0 * seconds
+                        );
+                }
+                catch (Exception e)
+                {
+                    return DefaultErrorHandler(pid, e);
+                }
+                finally
+                {
+                    ActorContext.CurrentRequest = savedReq;
+                    ActorContext.ProcessFlags = savedFlags;
+                    ActorContext.CurrentMsg = savedMsg;
+                }
+                return InboxDirective.Default;
+            }
+        }
+
+        private InboxDirective DefaultErrorHandler(object message, Exception e)
+        {
+            var directive = RunStrategy(
+                Id,
+                Parent.Actor.Id,
+                Sender,
+                Parent.Actor.Children.Values.Map(n => n.Actor.Id).Filter(x => x != Id),
+                e,
+                message,
+                Parent.Actor.Strategy
+            );
+            tell(ActorContext.Errors, e);
+            return directive;
         }
 
         /// <summary>
@@ -615,17 +747,7 @@ namespace LanguageExt
                 }
                 catch (Exception e)
                 {
-                    var directive = RunStrategy(
-                        Id,
-                        Parent.Actor.Id,
-                        Sender,
-                        Parent.Actor.Children.Values.Map(n => n.Actor.Id).Filter(x => x != Id),
-                        e,
-                        message,
-                        Parent.Actor.Strategy
-                    );
-                    tell(ActorContext.Errors, e);
-                    return directive;
+                    return DefaultErrorHandler(message, e);
                 }
                 finally
                 {

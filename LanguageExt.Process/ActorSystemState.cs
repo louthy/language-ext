@@ -43,6 +43,7 @@ namespace LanguageExt
                 rootProcessName,
                 ActorSystem.Inbox,
                 _ => this,
+                null,
                 Process.DefaultStrategy,
                 ProcessFlags.Default
             );
@@ -93,10 +94,10 @@ namespace LanguageExt
             logInfo("Process system starting up");
 
             // Top tier
-            system          = ActorCreate<object>(root, Config.SystemProcessName, publish, ProcessFlags.Default);
-            user            = ActorCreate<object>(root, Config.UserProcessName, publish, ProcessFlags.Default);
-            registered      = ActorCreate<object>(root, Config.RegisteredProcessName, publish, ProcessFlags.Default);
-            js              = ActorCreate<ProcessId, RelayMsg>(root, "js", RelayActor.Inbox, () => User["process-hub-js"], ProcessFlags.Default);
+            system          = ActorCreate<object>(root, Config.SystemProcessName, publish, null, ProcessFlags.Default);
+            user            = ActorCreate<object>(root, Config.UserProcessName, publish, null, ProcessFlags.Default);
+            registered      = ActorCreate<object>(root, Config.RegisteredProcessName, publish, null, ProcessFlags.Default);
+            js              = ActorCreate<ProcessId, RelayMsg>(root, "js", RelayActor.Inbox, () => User["process-hub-js"], null, ProcessFlags.Default);
 
             // Second tier
             sessions        = ActorCreate<SessionManagerProcess.State, SessionManagerProcess.Msg>(
@@ -104,16 +105,17 @@ namespace LanguageExt
                                 ActorConfig.Default.Sessions,
                                 SessionManagerProcess.Inbox,
                                 SessionManagerProcess.Setup,
+                                null,
                                 ProcessFlags.Default,
                                 100000
                                 );
 
-            deadLetters     = ActorCreate<DeadLetter>(system, Config.DeadLettersProcessName, publish, ProcessFlags.Default);
-            errors          = ActorCreate<Exception>(system, Config.ErrorsProcessName, publish, ProcessFlags.Default);
+            deadLetters     = ActorCreate<DeadLetter>(system, Config.DeadLettersProcessName, publish, null, ProcessFlags.Default);
+            errors          = ActorCreate<Exception>(system, Config.ErrorsProcessName, publish, null, ProcessFlags.Default);
 
-            inboxShutdown   = ActorCreate<IActorInbox>(system, Config.InboxShutdownProcessName, inbox => inbox.Shutdown(), ProcessFlags.Default, 100000);
+            inboxShutdown   = ActorCreate<IActorInbox>(system, Config.InboxShutdownProcessName, inbox => inbox.Shutdown(), null, ProcessFlags.Default, 100000);
 
-            reply = ask     = ActorCreate<Tuple<long, Dictionary<long, AskActorReq>>, object>(system, Config.AskProcessName, AskActor.Inbox, AskActor.Setup, ProcessFlags.ListenRemoteAndLocal);
+            reply = ask     = ActorCreate<Tuple<long, Dictionary<long, AskActorReq>>, object>(system, Config.AskProcessName, AskActor.Inbox, AskActor.Setup, null, ProcessFlags.ListenRemoteAndLocal);
 
             logInfo("Process system startup complete");
 
@@ -125,7 +127,7 @@ namespace LanguageExt
             logInfo("Process system shutting down");
 
             user?.Actor?.ShutdownProcess(true);
-            user = ActorCreate<object>(root, Config.UserProcessName, publish, ProcessFlags.Default);
+            user = ActorCreate<object>(root, Config.UserProcessName, publish, null, ProcessFlags.Default);
 
             if (ActorContext.CurrentRequest != null && ActorContext.CurrentRequest.RequestId != -1)
             {
@@ -137,21 +139,21 @@ namespace LanguageExt
             return unit;
         }
 
-        public ActorItem ActorCreate<T>(ActorItem parent, ProcessName name, Func<T, Unit> actorFn, ProcessFlags flags, int maxMailboxSize = -1)
+        public ActorItem ActorCreate<T>(ActorItem parent, ProcessName name, Func<T, Unit> actorFn, Func<Unit, ProcessId, Unit> termFn, ProcessFlags flags, int maxMailboxSize = -1)
         {
-            return ActorCreate<Unit, T>(parent, name, (s, t) => { actorFn(t); return unit; }, () => unit, flags, maxMailboxSize);
+            return ActorCreate<Unit, T>(parent, name, (s, t) => { actorFn(t); return unit; }, () => unit, termFn, flags, maxMailboxSize);
         }
 
-        public ActorItem ActorCreate<T>(ActorItem parent, ProcessName name, Action<T> actorFn, ProcessFlags flags, int maxMailboxSize = -1)
+        public ActorItem ActorCreate<T>(ActorItem parent, ProcessName name, Action<T> actorFn, Func<Unit, ProcessId, Unit> termFn, ProcessFlags flags, int maxMailboxSize = -1)
         {
-            return ActorCreate<Unit, T>(parent, name, (s, t) => { actorFn(t); return unit; }, () => unit, flags, maxMailboxSize);
+            return ActorCreate<Unit, T>(parent, name, (s, t) => { actorFn(t); return unit; }, () => unit, termFn, flags, maxMailboxSize);
         }
 
-        public ActorItem ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn, ProcessFlags flags, int maxMailboxSize = -1)
+        public ActorItem ActorCreate<S, T>(ActorItem parent, ProcessName name, Func<S, T, S> actorFn, Func<S> setupFn, Func<S, ProcessId, S> termFn, ProcessFlags flags, int maxMailboxSize = -1)
         {
             if (ProcessDoesNotExist(nameof(ActorCreate), parent.Actor.Id)) return null;
 
-            var actor = new Actor<S, T>(Cluster, parent, name, actorFn, _ => setupFn(), Process.DefaultStrategy, flags);
+            var actor = new Actor<S, T>(Cluster, parent, name, actorFn, _ => setupFn(), termFn, Process.DefaultStrategy, flags);
 
             IActorInbox inbox = null;
             if ((flags & ProcessFlags.ListenRemoteAndLocal) == ProcessFlags.ListenRemoteAndLocal && Cluster.IsSome)
