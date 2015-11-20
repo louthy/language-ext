@@ -285,7 +285,7 @@ namespace LanguageExt
         public static Unit unwatch(ProcessId pid) =>
             InMessageLoop
                 ? ActorContext.SelfProcess.Actor.DispatchUnWatch(pid)
-                : raiseUseInMsgLoopOnlyException<Unit>(nameof(watch));
+                : raiseUseInMsgLoopOnlyException<Unit>(nameof(unwatch));
 
         /// <summary>
         /// Watch for the death of the watching process and tell the watcher

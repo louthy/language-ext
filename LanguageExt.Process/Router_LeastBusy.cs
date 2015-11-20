@@ -76,14 +76,16 @@ namespace LanguageExt
         public static ProcessId leastBusy<T>(
             ProcessName Name,
             IEnumerable<ProcessId> Workers,
+            bool RemoveWorkerWhenTerminated = true,
             ProcessFlags Flags = ProcessFlags.Default,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize
             )
         {
             if (Workers == null) throw new ArgumentNullException(nameof(Workers));
-            var workers = Workers.ToArray();
-            if (workers.Length < 1) throw new ArgumentException($"{nameof(Workers)} should have a length of at least 1");
-            return spawn<T>(
+            var workers = Set.createRange(Workers);
+            if (workers.Count < 1) throw new ArgumentException($"{nameof(Workers)} should have a length of at least 1");
+
+            var router = spawn<T>(
                 Name,
                 msg =>
                 {
@@ -95,8 +97,16 @@ namespace LanguageExt
                 },
                 Flags,
                 DefaultStrategy,
-                MaxMailboxSize
+                MaxMailboxSize,
+                Terminated: pid => workers = workers.Remove(pid)
             );
+
+            if (RemoveWorkerWhenTerminated)
+            {
+                workers.Iter(w => watch(router, w));
+            }
+
+            return router;
         }
 
         /// <summary>
@@ -167,14 +177,15 @@ namespace LanguageExt
             ProcessName Name,
             IEnumerable<ProcessId> Workers,
             Func<T, U> Map,
+            bool RemoveWorkerWhenTerminated = true,
             ProcessFlags Flags = ProcessFlags.Default,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize
             )
         {
             if (Workers == null) throw new ArgumentNullException(nameof(Workers));
-            var workers = Workers.ToArray();
-            if (workers.Length < 1) throw new ArgumentException($"{nameof(Workers)} should have a length of at least 1");
-            return spawn<T>(
+            var workers = Set.createRange(Workers);
+            if (workers.Count < 1) throw new ArgumentException($"{nameof(Workers)} should have a length of at least 1");
+            var router = spawn<T>(
                 Name,
                 msg =>
                 {
@@ -187,8 +198,16 @@ namespace LanguageExt
                 },
                 Flags,
                 DefaultStrategy,
-                MaxMailboxSize
+                MaxMailboxSize,
+                Terminated: pid => workers = workers.Remove(pid)
             );
+
+            if (RemoveWorkerWhenTerminated)
+            {
+                workers.Iter(w => watch(router, w));
+            }
+
+            return router;
         }
 
         /// <summary>

@@ -80,6 +80,7 @@ namespace LanguageExt
         public static ProcessId roundRobin<T>(
             ProcessName Name,
             IEnumerable<ProcessId> Workers,
+            bool RemoveWorkerWhenTerminated = true,
             ProcessFlags Flags = ProcessFlags.Default,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize
             )
@@ -87,7 +88,7 @@ namespace LanguageExt
             if (Workers == null) throw new ArgumentNullException(nameof(Workers));
             var workers = Workers.ToArray();
             if (workers.Length < 1) throw new ArgumentException($"{nameof(Workers)} should have a length of at least 1");
-            return spawn<int, T>(
+            var router = spawn<int, T>(
                 Name,
                 () => 0,
                 (index, msg) =>
@@ -98,8 +99,16 @@ namespace LanguageExt
                 },
                 Flags,
                 DefaultStrategy,
-                MaxMailboxSize
+                MaxMailboxSize,
+                Terminated: (index, pid) => { workers = workers.Where(x => x != pid).ToArray(); return index; }
             );
+
+            if (RemoveWorkerWhenTerminated)
+            {
+                workers.Iter(w => watch(router, w));
+            }
+
+            return router;
         }
 
         /// <summary>
@@ -174,6 +183,7 @@ namespace LanguageExt
             ProcessName Name,
             IEnumerable<ProcessId> Workers,
             Func<T, U> Map,
+            bool RemoveWorkerWhenTerminated = true,
             ProcessFlags Flags = ProcessFlags.Default,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize
             )
@@ -181,7 +191,7 @@ namespace LanguageExt
             if (Workers == null) throw new ArgumentNullException(nameof(Workers));
             var workers = Workers.ToArray();
             if (workers.Length < 1) throw new ArgumentException($"{nameof(Workers)} should have a length of at least 1");
-            return spawn<int, T>(
+            var router = spawn<int, T>(
                 Name,
                 () => 0,
                 (index, msg) =>
@@ -193,8 +203,16 @@ namespace LanguageExt
                 },
                 Flags,
                 DefaultStrategy,
-                MaxMailboxSize
+                MaxMailboxSize,
+                Terminated: (index, pid) => { workers = workers.Where(x => x != pid).ToArray(); return index; }
             );
+
+            if (RemoveWorkerWhenTerminated)
+            {
+                workers.Iter(w => watch(router, w));
+            }
+
+            return router;
         }
 
         /// <summary>
@@ -288,6 +306,7 @@ namespace LanguageExt
             ProcessName Name,
             IEnumerable<ProcessId> Workers,
             Func<T, IEnumerable<U>> MapMany,
+            bool RemoveWorkerWhenTerminated = true,
             ProcessFlags Flags = ProcessFlags.Default,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize
             )
@@ -296,7 +315,7 @@ namespace LanguageExt
             var workers = Workers.ToArray();
             if (workers.Length < 1) throw new ArgumentException($"{nameof(Workers)} should have a length of at least 1");
 
-            return spawn<int, T>(
+            var router = spawn<int, T>(
                 Name,
                 () => 0,
                 (index, msg) =>
@@ -314,8 +333,16 @@ namespace LanguageExt
                 },
                 Flags,
                 DefaultStrategy,
-                MaxMailboxSize
+                MaxMailboxSize,
+                Terminated: (index, pid) => { workers = workers.Where(x => x != pid).ToArray(); return index; }
             );
+
+            if (RemoveWorkerWhenTerminated)
+            {
+                workers.Iter(w => watch(router, w));
+            }
+
+            return router;
         }
 
         /// <summary>
