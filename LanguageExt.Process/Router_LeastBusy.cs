@@ -76,7 +76,7 @@ namespace LanguageExt
         public static ProcessId leastBusy<T>(
             ProcessName Name,
             IEnumerable<ProcessId> Workers,
-            RouterOption Options = RouterOption.RemoveWorkerWhenTerminated,
+            RouterOption Options = RouterOption.Default,
             ProcessFlags Flags = ProcessFlags.Default,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize
             )
@@ -171,7 +171,7 @@ namespace LanguageExt
             ProcessName Name,
             IEnumerable<ProcessId> Workers,
             Func<T, U> Map,
-            RouterOption Options = RouterOption.RemoveWorkerWhenTerminated,
+            RouterOption Options = RouterOption.Default,
             ProcessFlags Flags = ProcessFlags.Default,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize
             )

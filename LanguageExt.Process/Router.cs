@@ -11,6 +11,7 @@ namespace LanguageExt
 {
     public enum RouterOption
     {
+        Default = 0,
         RemoveLocalWorkerWhenTerminated = 1,
         RemoveRemoteWorkerWhenTerminated = 2,
         RemoveWorkerWhenTerminated = 3
