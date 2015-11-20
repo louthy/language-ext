@@ -80,7 +80,7 @@ namespace LanguageExt
         public static ProcessId roundRobin<T>(
             ProcessName Name,
             IEnumerable<ProcessId> Workers,
-            bool RemoveWorkerWhenTerminated = true,
+            RouterOption Options = RouterOption.RemoveWorkerWhenTerminated,
             ProcessFlags Flags = ProcessFlags.Default,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize
             )
@@ -102,13 +102,7 @@ namespace LanguageExt
                 MaxMailboxSize,
                 Terminated: (index, pid) => { workers = workers.Where(x => x != pid).ToArray(); return index; }
             );
-
-            if (RemoveWorkerWhenTerminated)
-            {
-                workers.Iter(w => watch(router, w));
-            }
-
-            return router;
+            return WatchWorkers(router, workers, Options);
         }
 
         /// <summary>
@@ -183,7 +177,7 @@ namespace LanguageExt
             ProcessName Name,
             IEnumerable<ProcessId> Workers,
             Func<T, U> Map,
-            bool RemoveWorkerWhenTerminated = true,
+            RouterOption Options = RouterOption.RemoveWorkerWhenTerminated,
             ProcessFlags Flags = ProcessFlags.Default,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize
             )
@@ -206,13 +200,7 @@ namespace LanguageExt
                 MaxMailboxSize,
                 Terminated: (index, pid) => { workers = workers.Where(x => x != pid).ToArray(); return index; }
             );
-
-            if (RemoveWorkerWhenTerminated)
-            {
-                workers.Iter(w => watch(router, w));
-            }
-
-            return router;
+            return WatchWorkers(router, workers, Options);
         }
 
         /// <summary>
@@ -306,7 +294,7 @@ namespace LanguageExt
             ProcessName Name,
             IEnumerable<ProcessId> Workers,
             Func<T, IEnumerable<U>> MapMany,
-            bool RemoveWorkerWhenTerminated = true,
+            RouterOption Options = RouterOption.RemoveWorkerWhenTerminated,
             ProcessFlags Flags = ProcessFlags.Default,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize
             )
@@ -336,13 +324,7 @@ namespace LanguageExt
                 MaxMailboxSize,
                 Terminated: (index, pid) => { workers = workers.Where(x => x != pid).ToArray(); return index; }
             );
-
-            if (RemoveWorkerWhenTerminated)
-            {
-                workers.Iter(w => watch(router, w));
-            }
-
-            return router;
+            return WatchWorkers(router, workers, Options);
         }
 
         /// <summary>
