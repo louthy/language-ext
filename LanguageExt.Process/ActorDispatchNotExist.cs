@@ -51,12 +51,12 @@ namespace LanguageExt
             Raise<Unit>();
 
         public Unit UnWatch(ProcessId pid) =>
-            Raise<Unit>();
+            unit;
 
         public Unit DispatchWatch(ProcessId pid) =>
             Raise<Unit>();
 
         public Unit DispatchUnWatch(ProcessId pid) =>
-            Raise<Unit>();
+            unit;
     }
 }
