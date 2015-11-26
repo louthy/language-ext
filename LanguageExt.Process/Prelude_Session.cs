@@ -137,6 +137,6 @@ namespace LanguageExt
         /// on the Base64 encoding of a byte-array sizeInBytes long.  As a guide a 64 byte session ID turns into
         /// an 88 character string.</returns>
         static string makeSessionId(int sizeInBytes = DefaultSessionIdSizeInBytes) =>
-            randomBase64(sizeInBytes / 8);
+            randomBase64(sizeInBytes);
     }
 }
