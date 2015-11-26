@@ -1,13 +1,16 @@
 ﻿namespace LanguageExt
 
 open LanguageExt
+open LanguageExt.UnitsOfMeasure
 open System
+open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
 module ProcessFs = 
 
     type ProcessId = LanguageExt.ProcessId
+    type PID = unit -> ProcessId
 
-    let Pid (pid:ProcessId) = fun () -> pid
+    let MakePID (pid:ProcessId) : PID = fun () -> pid
 
     let DefaultFlags = 
         ProcessFlags.Default
@@ -69,7 +72,7 @@ module ProcessFs =
         Process.deregister(new ProcessName(name)) |> ignore
 
     let killSelf() = 
-        Process.kill |> ignore    
+        Process.kill |> ignore
 
     let kill pid = 
         Process.kill(pid) |> ignore
@@ -176,7 +179,7 @@ module ProcessFs =
     // Connects to a cluster.  At the moment we only support Redis, so open
     // LanguageExt.Process.Redis and call:
     //
-    //      RedisCluster.register()  
+    //      RedisCluster.register()
     //      clusterConnect "redis" "unique-name-for-this-service" "localhost" "0"
     //
     let clusterConnect clusterProvider nodeName connectionString catalogueString = 
@@ -184,4 +187,78 @@ module ProcessFs =
         Cluster.connect(clusterProvider,new ProcessName(nodeName),connectionString,catalogueString) |> ignore
 
     let clusterDisconnect () =
-        Cluster.disconnect() |> ignore        
+        Cluster.disconnect() |> ignore
+
+    /// <summary>
+    /// Starts a new session in the Process system
+    /// </summary>
+    /// <param name="timeoutSeconds">Session timeout is seconds</param>
+    /// <returns>Session ID of the newly created session</returns>
+    let sessionStart (timeoutSeconds:float<second>) =
+        Process.sessionStart((timeoutSeconds/1.0<second>) * LanguageExt.Prelude.seconds)
+
+    /// <summary>
+    /// Ends a session in the Process system with the specified
+    /// session ID
+    /// </summary>
+    /// <param name="sid">Session ID</param>
+    let sessionStop (sid:string) =
+        Process.sessionStop(sid) |> ignore
+
+    /// <summary>
+    /// Touch a session
+    /// Time-stamps the session so that its time-to-expiry is reset
+    /// </summary>
+    /// <param name="sid">Session ID</param>
+    let sessionTouch (sid:string) =
+        Process.sessionTouch(sid) |> ignore
+
+    /// <summary>
+    /// Gets the current session ID
+    /// </summary>
+    /// <remarks>Also touches the session so that its time-to-expiry 
+    /// is reset</remarks>
+    /// <returns>Optional session ID</returns>
+    let sessionId() =
+        Process.sessionId() |> LanguageExt.FSharp.fs
+
+    /// <summary>
+    /// Set the meta-data to store with the session, this is typically
+    /// user credentials when they've logged in.  But can be anything.
+    /// </summary>
+    /// <param name="sid">Session ID</param>
+    /// <param name="data">Data to store</param>
+    let sessionSetData (sid:string) (data:obj) =
+        Process.sessionSetData(sid,data) |> ignore
+
+    /// <summary>
+    /// Clear the meta-data stored with the session
+    /// </summary>
+    /// <param name="sid">Session ID</param>
+    let sessionClearData (sid:string) =
+        Process.sessionClearData(sid) |> ignore
+
+    /// <summary>
+    /// Get the meta-data stored with the session, this is typically
+    /// user credentials when they've logged in.  But can be anything.
+    /// </summary>
+    /// <param name="sid">Session ID</param>
+    let sessionGetData (sid:string) =
+        Process.sessionGetData(sid) |> LanguageExt.FSharp.fs
+
+    /// <summary>
+    /// Returns True if there is an active session
+    /// </summary>
+    /// <returns></returns>
+    let hasSession() =
+        Process.hasSession()
+
+    /// <summary>
+    /// Acquires a session for the duration of invocation of the 
+    /// provided function
+    /// </summary>
+    /// <param name="sid">Session ID</param>
+    /// <param name="f">Function to invoke</param>
+    /// <returns>Result of the function</returns>
+    let withSession (sid:string) (f : unit -> 'r) =
+        Process.withSession(sid, f)

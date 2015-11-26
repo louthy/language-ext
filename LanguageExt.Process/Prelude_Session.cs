@@ -27,11 +27,11 @@ namespace LanguageExt
         /// </summary>
         /// <param name="sid">Session ID</param>
         /// <param name="timeout">Session timeout</param>
-        public static Unit sessionStart(string sid, Time timeout)
+        public static string sessionStart(string sid, Time timeout)
         {
             SessionManager.Start(sid, (int)timeout.Seconds);
             SessionManager.SessionId = sid;
-            return unit;
+            return sid;
         }
 
         /// <summary>
@@ -39,13 +39,8 @@ namespace LanguageExt
         /// </summary>
         /// <param name="timeout">Session timeout</param>
         /// <returns>Session ID of the newly created session</returns>
-        public static string sessionStart(Time timeout)
-        {
-            var sid = makeSessionId();
-            SessionManager.Start(sid, (int)timeout.Seconds);
-            SessionManager.SessionId = sid;
-            return sid;
-        }
+        public static string sessionStart(Time timeout) =>
+            sessionStart(makeSessionId(), timeout);
 
         /// <summary>
         /// Ends a session in the Process system with the specified
@@ -133,7 +128,7 @@ namespace LanguageExt
         public static Unit withSession(string sid, Action f) =>
             withSession(sid, fun(f));
 
-        const int DefaultSessionIdSizeInBytes = 64;
+        const int DefaultSessionIdSizeInBytes = 32;
 
         /// <summary>
         /// Make a cryptographically strong session ID

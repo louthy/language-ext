@@ -22,7 +22,7 @@ namespace LanguageExt
             tell(pid, new SessionManagerProcess.Msg(SessionManagerProcess.MsgTag.TouchSession, sessionId, false));
 
         public static Unit Start(string sessionId, int timeoutSeconds) =>
-            tell(pid, new SessionManagerProcess.StartSessionMsg(sessionId, timeoutSeconds, false));
+            tell(pid, new SessionManagerProcess.Msg(SessionManagerProcess.MsgTag.StartSession, sessionId, false, timeoutSeconds));
 
         public static Unit Stop(string sessionId) =>
             tell(pid, new SessionManagerProcess.Msg(SessionManagerProcess.MsgTag.StopSession, sessionId, false));
@@ -31,7 +31,7 @@ namespace LanguageExt
             tell(pid, new SessionManagerProcess.Msg(SessionManagerProcess.MsgTag.CheckExpired, null, false));
 
         public static Unit SetSessionData(string sessionId, object sessionData) =>
-            tell(pid, new SessionManagerProcess.SetSessionMetadataMsg(sessionId, sessionData, false));
+            tell(pid, new SessionManagerProcess.Msg(SessionManagerProcess.MsgTag.SetSessionMetadata, sessionId, false, 0, sessionData));
 
         public static Unit ClearSessionData(string sessionId) =>
             tell(pid, new SessionManagerProcess.Msg(SessionManagerProcess.MsgTag.ClearSessionMetadata, sessionId, false));
@@ -122,50 +122,22 @@ namespace LanguageExt
         {
             public readonly MsgTag Tag;
             public readonly string SessionId;
+            public readonly int TimeoutSeconds;
+            public readonly object Data;
             public readonly bool Remote;
 
             [JsonConstructor]
-            public Msg(MsgTag tag, string sessionId, bool remote)
+            public Msg(MsgTag tag, string sessionId, bool remote, int timeoutSeconds = 0, object data = null)
             {
                 Tag = tag;
                 SessionId = sessionId;
                 Remote = remote;
-            }
-
-            public virtual Msg MakeRemote() =>
-                new Msg(Tag, SessionId, true);
-        }
-
-        public class StartSessionMsg : Msg
-        {
-            public readonly int TimeoutSeconds;
-
-            [JsonConstructor]
-            public StartSessionMsg(string sessionId, int timeoutSeconds, bool remote)
-                :
-                base(MsgTag.StartSession,sessionId,remote)
-            {
                 TimeoutSeconds = timeoutSeconds;
-            }
-
-            public override Msg MakeRemote() =>
-                new StartSessionMsg(SessionId, TimeoutSeconds, true);
-        }
-
-        public class SetSessionMetadataMsg : Msg
-        {
-            public readonly object Data;
-
-            [JsonConstructor]
-            public SetSessionMetadataMsg(string sessionId, object data, bool remote)
-                :
-                base(MsgTag.SetSessionMetadata, sessionId, remote)
-            {
                 Data = data;
             }
 
-            public override Msg MakeRemote() =>
-                new SetSessionMetadataMsg(SessionId, Data, true);
+            public virtual Msg MakeRemote() =>
+                new Msg(Tag, SessionId, true, TimeoutSeconds, Data);
         }
 
         public class Session
@@ -270,8 +242,7 @@ namespace LanguageExt
             switch (msg.Tag)
             {
                 case MsgTag.StartSession:
-                    var ssmsg = msg as StartSessionMsg;
-                    return state.SetSession(msg.SessionId, new Session(msg.SessionId, ssmsg.TimeoutSeconds, DateTime.UtcNow));
+                    return state.SetSession(msg.SessionId, new Session(msg.SessionId, msg.TimeoutSeconds, DateTime.UtcNow));
 
                 case MsgTag.StopSession:
                     return state.ClearSession(msg.SessionId);
@@ -280,8 +251,7 @@ namespace LanguageExt
                     return state.MapSession(msg.SessionId, s => s.Touch());
 
                 case MsgTag.SetSessionMetadata:
-                    var ssmmsg = msg as SetSessionMetadataMsg;
-                    return state.SetMetadatum(msg.SessionId, ssmmsg.Data);
+                    return state.SetMetadatum(msg.SessionId, msg.Data);
 
                 case MsgTag.ClearSessionMetadata:
                     return state.ClearSessionMetadatum(msg.SessionId);
@@ -302,7 +272,7 @@ namespace LanguageExt
                 switch (msg.Tag)
                 {
                     case MsgTag.StartSession:
-                        return StartSession(state, msg as StartSessionMsg);
+                        return StartSession(state, msg);
 
                     case MsgTag.StopSession:
                         return StopSession(state, msg);
@@ -316,7 +286,7 @@ namespace LanguageExt
                         return state;
 
                     case MsgTag.SetSessionMetadata:
-                        return SetSessionMetadata(state, msg as SetSessionMetadataMsg);
+                        return SetSessionMetadata(state, msg);
 
                     case MsgTag.ClearSessionMetadata:
                         return ClearSessionMetadata(state, msg);
@@ -330,7 +300,7 @@ namespace LanguageExt
         static string GetMetaKey(string sid) =>
             "SessionMeta_" + sid;
 
-        static State SetSessionMetadata(State state, SetSessionMetadataMsg msg) =>
+        static State SetSessionMetadata(State state, Msg msg) =>
             GetSession(state.Sessions, msg.SessionId).Match(
                 Some: s =>
                 {
@@ -450,7 +420,7 @@ namespace LanguageExt
         /// <param name="sessionId">Id of session to start</param>
         /// <param name="timeoutSeconds">Expiry</param>
         /// <returns>Updated sessions state</returns>
-        static State StartSession(State state, StartSessionMsg msg)
+        static State StartSession(State state, Msg msg)
         {
             var sessionId = msg.SessionId;
             var timeoutSeconds = msg.TimeoutSeconds;

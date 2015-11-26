@@ -198,7 +198,7 @@ namespace LanguageExt
 
         S GetState()
         {
-            var res = state.IfNone(InitState);
+            var res = state.IfNoneUnsafe(InitState);
             state = res;
             return res;
         }
