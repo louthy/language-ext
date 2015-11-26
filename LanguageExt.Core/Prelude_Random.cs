@@ -7,7 +7,7 @@ namespace LanguageExt
     public static partial class Prelude
     {
         readonly static RNGCryptoServiceProvider rnd = new RNGCryptoServiceProvider();
-        readonly static byte[] target = new byte[4096];
+        readonly static byte[] inttarget = new byte[4];
 
         /// <summary>
         /// Thread-safe cryptographically strong random number generator
@@ -18,8 +18,8 @@ namespace LanguageExt
         {
             lock (rnd)
             {
-                rnd.GetBytes(target);
-                return Math.Abs(BitConverter.ToInt32(target, 0)) % max;
+                rnd.GetBytes(inttarget);
+                return Math.Abs(BitConverter.ToInt32(inttarget, 0)) % max;
             }
         }
 
@@ -32,13 +32,10 @@ namespace LanguageExt
         public static string randomBase64(int bytesCount)
         {
             if (bytesCount < 1) throw new ArgumentException($"The minimum value for {nameof(bytesCount)} is 1");
-            if (bytesCount > 4096) throw new ArgumentException($"The maximum value for {nameof(bytesCount)} is 4096");
 
-            lock (rnd)
-            {
-                rnd.GetBytes(target);
-                return Convert.ToBase64String(target);
-            }
+            var bytes = new byte[bytesCount];
+            rnd.GetBytes(bytes);
+            return Convert.ToBase64String(bytes);
         }
     }
 }
