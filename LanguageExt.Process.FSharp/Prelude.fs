@@ -86,25 +86,25 @@ module ProcessFs =
     let replyIfAsked msg = 
         Process.reply msg |> ignore
 
-    let ask pid (message : 'a) = 
-        Process.ask(pid(), message)
+    let ask pid (message : 'a) : 'b = 
+        Process.ask<'b>(pid(), message)
 
-    let askChildren (message : 'a) = 
-        Process.askChildren(message,Int32.MaxValue)
+    let askChildren (message : 'a) : 'b seq = 
+        Process.askChildren<'b>(message,Int32.MaxValue)
 
-    let askChildrenTake (message : 'a) count = 
-        Process.askChildren(message,count)
+    let askChildrenTake (message : 'a) count : 'b seq = 
+        Process.askChildren<'b>(message,count)
 
     let askChildrenFirst (message : 'a) = 
         askChildrenTake message 1
 
-    let askParent (message : 'a) = 
+    let askParent (message : 'a) : 'b = 
         Process.askParent message 
 
-    let askChild name message = 
+    let askChild name (message : 'a) : 'b = 
         Process.askChild(new ProcessName(name), message)
 
-    let askChildByIndex (index:int) message = 
+    let askChildByIndex (index:int) (message : 'a) : 'b = 
         Process.askChild(index, message)
 
     let tell pid message sender = 

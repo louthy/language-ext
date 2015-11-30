@@ -5,6 +5,11 @@
 
 var unit = "(unit)";
 
+var failwith = function (err) {
+    console.error(err);
+    throw err;
+}
+
 var Process = (function () {
 
     var withContext = function (ctx, f) {
@@ -12,8 +17,9 @@ var Process = (function () {
 
         if (!ctx) {
             ctx = {
-                self:       User,
-                sender:     NoSender,
+                parent: User,
+                self: User,
+                sender: NoSender,
                 currentMsg: null,
                 currentReq: null
             };
@@ -24,35 +30,35 @@ var Process = (function () {
             res = f(context);
         }
         catch (e) {
-            error(e, ctx.self, ctx.currentMsg, ctx.sender);
+            error(e + "(" + context.self + ")", ctx.self, ctx.currentMsg, ctx.sender);
         }
         context = savedContext;
         return res;
     }
 
-    var actor      = { "/": { children: {} } };
-    var ignore     = function () { };
-    var id         = function (id) { return id };
-    var publish    = null;
+    var actor = { "/": { children: {} } };
+    var ignore = function () { };
+    var id = function (id) { return id };
+    var publish = null;
     var inboxStart = function (pid, parent, setup, inbox, stateless) {
 
         ctx = {
-            self:       pid,
-            parent:     parent,
-            sender:     NoSender,
+            self: pid,
+            parent: parent,
+            sender: NoSender,
             currentMsg: null,
             currentReq: null
         };
 
         var process = {
-            pid:        pid,
-            state:      null,
-            setup:      setup,
-            inbox:      inbox,
-            stateless:  stateless,
-            children:   {},
-            subs:       {},
-            obs:        {}
+            pid: pid,
+            state: null,
+            setup: setup,
+            inbox: inbox,
+            stateless: stateless,
+            children: {},
+            subs: {},
+            obs: {}
         };
 
         actor[parent].children[pid] = process;
@@ -64,27 +70,22 @@ var Process = (function () {
 
         return process;
     }
-    var Root        = "/root-js";
-    var System      = "/root-js/system";
+    var Root = "/root-js";
+    var System = "/root-js/system";
     var DeadLetters = "/root-js/system/dead-letters";
-    var Errors      = "/root-js/system/errors";
-    var User        = "/root-js/user";
-    var NoSender    = "/no-sender";
-    var root        = inboxStart(Root, "/", ignore, function (msg) { publish(msg); }, true);
-    var system      = inboxStart(System, Root, ignore, function (msg) { publish(msg); }, true);
-    var user        = inboxStart(User, Root, ignore, function (msg) { publish(msg); }, true);
-    var noSender    = inboxStart(NoSender, "/", ignore, function (msg) { publish(msg); }, true);
+    var Errors = "/root-js/system/errors";
+    var User = "/root-js/user";
+    var NoSender = "/no-sender";
+    var root = inboxStart(Root, "/", ignore, function (msg) { publish(msg); }, true);
+    var system = inboxStart(System, Root, ignore, function (msg) { publish(msg); }, true);
+    var user = inboxStart(User, Root, ignore, function (msg) { publish(msg); }, true);
+    var noSender = inboxStart(NoSender, "/", ignore, function (msg) { publish(msg); }, true);
     var deadLetters = inboxStart(DeadLetters, System, ignore, function (msg) { publish(msg); }, true);
-    var errors      = inboxStart(Errors, System, ignore, function (msg) { publish(msg); }, true);
+    var errors = inboxStart(Errors, System, ignore, function (msg) { publish(msg); }, true);
     var subscribeId = 1;
-    var context     = null;
+    var context = null;
 
-    var failwith = function (err) {
-        console.error(err);
-        throw err;
-    }
-
-    var inloop = function() {
+    var inloop = function () {
         return context != null;
     }
 
@@ -100,22 +101,19 @@ var Process = (function () {
     var spawn = function (name, setup, inbox) {
         if (typeof name === "undefined") failwith("spawn: 'name' not defined");
         var stateless = false;
-        if (arguments.length == 2)
-        {
+        if (arguments.length == 2) {
             inbox = setup;
             setup = function () { return {} };
             stateless = true;
         }
-        else
-        {
-            if( typeof setup !== "function" )
-            {
+        else {
+            if (typeof setup !== "function") {
                 var val = setup;
                 setup = function () { return val };
             }
         }
 
-        return withContext(null, function () {
+        return withContext(context, function () {
             var pid = context.self + "/" + name;
             inboxStart(pid, context.self, setup, inbox, stateless);
             return pid;
@@ -125,6 +123,7 @@ var Process = (function () {
     var tell = function (pid, msg, sender) {
         if (typeof pid === "undefined") failwith("tell: 'pid' not defined");
         if (typeof msg === "undefined") failwith("tell: 'msg' not defined");
+
         var ctx = {
             isAsk: false,
             self: pid,
@@ -199,8 +198,7 @@ var Process = (function () {
             if (isLocal(pid)) {
                 failwith("Process doesn't exist " + pid);
             }
-            else 
-            {
+            else {
                 failwith("'subscribe' is currently only available for intra-JS process calls.");
             }
         }
@@ -211,7 +209,7 @@ var Process = (function () {
 
         p.subs[id] = {
             next: function (msg) { onNext(msg); },
-            done: function ()    { onComplete(); }
+            done: function () { onComplete(); }
         };
 
         subscribeId++;
@@ -253,10 +251,9 @@ var Process = (function () {
 
     var subscribe = function (pid) {
         if (typeof pid === "undefined") failwith("subscribe: 'pid' not defined");
-        if (inloop())
-            subscribeSync(pid)
-        else
-            subscribeAsync(pid);
+        return inloop()
+            ? subscribeSync(pid)
+            : subscribeAsync(pid);
     }
 
     var unsubscribe = function (ctx) {
@@ -289,7 +286,8 @@ var Process = (function () {
             }
         }
 
-        var children = actor[pid].children;
+        var p = actor[pid];
+        var children = p.children;
         for (var i = 0; i < children.length; i++) {
             kill(children[i]);
         }
@@ -314,7 +312,7 @@ var Process = (function () {
         }
         p.subs = {};
 
-        delete actor[actor[pid].parent].children[pid];
+        delete actor[extractParent(pid)].children[pid];
         delete actor[pid];
     }
 
@@ -323,6 +321,7 @@ var Process = (function () {
     }
 
     var error = function (e, to, msg, sender) {
+        console.error(e);
         tell(Errors, { error: e, to: to, msg: msg, sender: getSender(sender) });
     }
 
@@ -366,7 +365,7 @@ var Process = (function () {
             return;
         }
 
-        for(var x in p.subs) {
+        for (var x in p.subs) {
             var sub = p.subs[x];
             if (typeof sub.next === "function") {
                 try {
@@ -383,20 +382,19 @@ var Process = (function () {
 
     var receive = function (event) {
         if (event.origin !== window.location.origin ||
-            typeof event.data !== "string" ) {
+            typeof event.data !== "string") {
             return;
         }
         var data = JSON.parse(event.data);
 
-        if (!data.processjs, 
+        if (!data.processjs,
             !data.pid ||
             !data.msg) {
             return;
         }
-        switch (data.processjs)
-        {
+        switch (data.processjs) {
             case "tell": receiveTell(data); break;
-            case "pub":  receivePub(data); break;
+            case "pub": receivePub(data); break;
         }
     }
 
@@ -480,30 +478,127 @@ var Process = (function () {
         }
     }
 
+    var extractParent = function (pid) {
+        var i = pid.lastIndexOf('/');
+        if (i == -1) return User;
+        return pid.substr(0, i);
+    }
+
     return {
-        ask:            ask,
-        connect:        connect,
-        isAsk:          isAsk,
-        isTell:         isTell,
-        kill:           kill,
-        publish:        publish,
-        reply:          reply,
-        receive:        receive,
-        spawn:          spawn,
-        subscribe:      subscribe,
-        tell:           tell,
-        tellDelay:      tellDelay,
+        ask: ask,
+        connect: connect,
+        isAsk: isAsk,
+        isTell: isTell,
+        kill: kill,
+        publish: publish,
+        reply: reply,
+        receive: receive,
+        spawn: spawn,
+        subscribe: subscribe,
+        tell: tell,
+        tellDelay: tellDelay,
         tellDeadLetter: deadLetter,
-        tellError:      error,
-        unsubscribe:    unsubscribe,
-        DeadLetters:    DeadLetters,
-        Errors:         Errors,
-        NoSender:       NoSender,
-        Log:            log,
-        Root:           Root,
-        System:         System,
-        User:           User,
+        tellError: error,
+        unsubscribe: unsubscribe,
+        DeadLetters: DeadLetters,
+        Errors: Errors,
+        NoSender: NoSender,
+        Log: log,
+        Root: Root,
+        System: System,
+        User: User,
+        Parent: function () { return context ? extractParent(context.self) : User },
+        Self: function () { return context ? context.self : User; },
+        Sender: function () { return context ? context.sender : NoSender; },
     };
 })();
 
 window.addEventListener("message", Process.receive, false);
+
+// Knockout.js Process view 
+if (typeof ko !== "undefined" && typeof ko.observable !== "undefined") {
+
+    Process.computed = function (fn) {
+        return { tag: "Computed", fn: fn };
+    };
+
+    Process.spawnView = function (name, containerId, templateId, setup, inbox) {
+
+        if (typeof setup !== "function") {
+            var val = setup;
+            setup = function () { return val };
+        }
+
+        return Process.spawn(name,
+            function () {
+
+                var view = function (state) {
+                    this.render = function (el) {
+                        ko.applyBindings(state, el)
+                    }
+                };
+
+                var state = setup();
+
+                state.with = function (patch) {
+                    var clone = Object.create(this);
+                    for (var key in patch) {
+                        clone[key] = patch[key];
+                    }
+                    return clone;
+                }
+
+                if (typeof state === "object") {
+                    for (var key in state) {
+                        if (typeof state[key] !== "undefined" && typeof state[key] !== "function") {
+                            if (state[key] != null && typeof state[key].tag === "string" && state[key].tag == "Computed") {
+                                // Nothing, we fix up the computed items next
+                            }
+                            if (Object.prototype.toString.call(state[key]) === Object.prototype.toString.call([])) {
+                                state[key] = ko.observableArray(state[key]);
+                            }
+                            else {
+                                state[key] = ko.observable(state[key]);
+                            }
+                        }
+                    }
+
+                    for (var key in state) {
+                        if (typeof state[key] !== "undefined" && typeof state[key] !== "function") {
+                            if (state[key] != null && typeof state[key].tag === "string" && state[key].tag == "Computed") {
+                                state[key] = ko.computed(state[key].fn, state);
+                            }
+                        }
+                    }
+                }
+
+                var refresh = function (s) {
+                    var el = document.createElement("div");
+                    el.innerHTML = $("#" + templateId).html();
+                    (new view(s)).render(el);
+                    $("#" + containerId).empty();
+                    $("#" + containerId).append(el);
+                };
+
+                refresh(state);
+
+                return {
+                    state: state,
+                    refresh: refresh
+                };
+            },
+            function (state, msg) {
+                var newState = inbox(state.state, msg);
+                if (newState != state.state) {
+                    state.refresh(newState);
+                    return {
+                        state: newState,
+                        refresh: state.refresh
+                    }
+                }
+                else {
+                    return state;
+                };
+            });
+    }
+}
