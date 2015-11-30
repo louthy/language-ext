@@ -467,7 +467,7 @@ There is one weakness to this approach, and that is that if you add a member pro
 ```
 In the example above `Greet(obj.SomeOtherValue);` will work until `arg` is used inside of the `Greet` function.  So that puts us back into the `null` realm.  There's nothing (that I'm aware of) that can be done about this.  `Some<T>` will throw a useful `SomeNotInitialisedException`, which should make life a little easier.
 ```
-    "Unitialised Some<T> in class member declaration."
+    "Unitialised Some<...>"
 ```
 So what's the best plan of attack to mitigate this?
 
