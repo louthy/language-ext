@@ -51,7 +51,7 @@ namespace LanguageExt
                     var child = Children.Skip(index).Take(1).ToArray();
                     if (child.Length == 0)
                     {
-                        dead("There are no children to route the message to");
+                        throw new NoRouterWorkersException();
                     }
                     else
                     {
@@ -147,7 +147,7 @@ namespace LanguageExt
                     var child = Children.Skip(index).Take(1).ToArray();
                     if (child.Length == 0)
                     {
-                        dead("There are no children to route the message to");
+                        throw new NoRouterWorkersException();
                     }
                     else
                     {
@@ -257,8 +257,7 @@ namespace LanguageExt
                             child = kids.Take(1).ToArray();
                             if (child.Length == 0)
                             {
-                                dead("There are no children to route the message to");
-                                return index;
+                                throw new NoRouterWorkersException();
                             }
                         }
 

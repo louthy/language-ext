@@ -30,10 +30,7 @@ namespace LanguageExt
             throw new NotImplementedException();
         }
 
-        public int GetInboxCount()
-        {
-            throw new NotImplementedException();
-        }
+        public int GetInboxCount() => -1;
 
         public Unit Tell(object message, ProcessId sender, Message.TagSpec tag) =>
             Tell(message, sender, "user", Message.Type.User, tag);

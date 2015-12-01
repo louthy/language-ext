@@ -47,12 +47,21 @@ namespace LanguageExt
                 },
                 (_, msg) =>
                 {
-                    var disps = Children.Map(c => Tuple(c, ActorContext.GetDispatcher(c)))
-                                        .Values
-                                        .OrderBy(c => c.Item2.GetInboxCount())
-                                        .ToList();
+                    var disps = (from child in Children.Map(c => Tuple(c, ActorContext.GetDispatcher(c))).Values
+                                 let count = child.Item2.GetInboxCount()
+                                 where count >= 0
+                                 orderby count
+                                 select child)
+                                .ToList();
 
-                    fwd(disps.First().Item1, msg);
+                    if (disps.Count == 0)
+                    {
+                        throw new NoRouterWorkersException();
+                    }
+                    else
+                    {
+                        fwd(disps.First().Item1, msg);
+                    }
                     return unit;
                 },
                 Flags, 
@@ -89,11 +98,21 @@ namespace LanguageExt
                 Name,
                 msg =>
                 {
-                    var disps = workers.Map(c => Tuple(c, ActorContext.GetDispatcher(c)))
-                                       .OrderBy(c => c.Item2.GetInboxCount())
-                                       .ToList();
+                    var disps = (from child in workers.Map(c => Tuple(c, ActorContext.GetDispatcher(c)))
+                                 let count = child.Item2.GetInboxCount()
+                                 where count >= 0
+                                 orderby count
+                                 select child)
+                                .ToList();
 
-                    fwd(disps.First().Item1, msg);
+                    if (disps.Count == 0)
+                    {
+                        throw new NoRouterWorkersException();
+                    }
+                    else
+                    {
+                        fwd(disps.First().Item1, msg);
+                    }
                 },
                 Flags,
                 DefaultStrategy,
@@ -142,12 +161,22 @@ namespace LanguageExt
                 {
                     var umsg = Map(msg);
 
-                    var disps = Children.Map(c => Tuple(c, ActorContext.GetDispatcher(c)))
-                                        .Values
-                                        .OrderBy(c => c.Item2.GetInboxCount())
-                                        .ToList();
+                    var disps = (from child in Children.Map(c => Tuple(c, ActorContext.GetDispatcher(c))).Values
+                                 let count = child.Item2.GetInboxCount()
+                                 where count >= 0
+                                 orderby count
+                                 select child)
+                                .ToList();
 
-                    return fwd(disps.First().Item1, umsg);
+                    if (disps.Count == 0)
+                    {
+                        throw new NoRouterWorkersException();
+                    }
+                    else
+                    {
+                        fwd(disps.First().Item1, umsg);
+                    }
+                    return unit;
                 },
                 Flags,
                 Strategy,
@@ -184,11 +213,21 @@ namespace LanguageExt
                 msg =>
                 {
                     var umsg = Map(msg);
-                    var disps = workers.Map(c => Tuple(c, ActorContext.GetDispatcher(c)))
-                                       .OrderBy(c => c.Item2.GetInboxCount())
-                                       .ToList();
+                    var disps = (from child in workers.Map(c => Tuple(c, ActorContext.GetDispatcher(c)))
+                                 let count = child.Item2.GetInboxCount()
+                                 where count >= 0
+                                 orderby count
+                                 select child)
+                                .ToList();
 
-                    fwd(disps.First().Item1, msg);
+                    if (disps.Count == 0)
+                    {
+                        throw new NoRouterWorkersException();
+                    }
+                    else
+                    {
+                        fwd(disps.First().Item1, msg);
+                    }
                 },
                 Flags,
                 DefaultStrategy,

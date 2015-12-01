@@ -84,7 +84,7 @@ module ProcessFs =
         Process.reply msg |> ignore
 
     let replyIfAsked msg = 
-        Process.reply msg |> ignore
+        Process.replyIfAsked msg |> ignore
 
     let ask pid (message : 'a) : 'b = 
         Process.ask<'b>(pid(), message)

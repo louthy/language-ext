@@ -304,5 +304,29 @@ namespace LanguageExt
         {
         }
     }
+
+    /// <summary>
+    /// There are no children to route the message to
+    /// </summary>
+    [Serializable]
+    public class NoRouterWorkersException : Exception
+    {
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public NoRouterWorkersException()
+            :
+            base("Router has no workers")
+        {
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        protected NoRouterWorkersException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+    }
     
+
 }
