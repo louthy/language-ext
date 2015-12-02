@@ -157,24 +157,6 @@ module ProcessFs =
         let pids = Process.spawnMany(count, new ProcessName(name), new Func<'state>(setup), new Func<'state, 'msg, 'state>(messageHandler), flags)
         pids |> Seq.map(fun pid -> fun () -> pid )
 
-//    let internal roundRobinInbox map (s:unit) msg = 
-//        tellNextChild (map msg) Sender
-//
-//    let internal roundRobinSetup count flags inbox = 
-//        spawnMany count "worker" flags NoSetup (fun (_:unit) msg -> inbox msg) |> ignore
-//
-//    let spawnRoundRobin name count flags inbox =
-//        spawn name flags (fun () -> roundRobinSetup count flags inbox) (roundRobinInbox id)
-//
-//    let spawnRoundRobinMap name map count flags inbox =
-//        spawn name flags (fun () -> roundRobinSetup count flags inbox) (roundRobinInbox map)
-//
-//    let spawnRoundRobinMany name manyMap count flags inbox =
-//        spawn name flags (fun () -> roundRobinSetup count flags inbox) (roundRobinInboxMany manyMap id)
-//
-//    let spawnRoundRobinManyMap name manyMap map count flags inbox =
-//        spawn name flags (fun () -> roundRobinSetup count flags inbox) (roundRobinInboxMany manyMap map)
-
     //
     // Connects to a cluster.  At the moment we only support Redis, so open
     // LanguageExt.Process.Redis and call:
@@ -189,76 +171,45 @@ module ProcessFs =
     let clusterDisconnect () =
         Cluster.disconnect() |> ignore
 
-    /// <summary>
     /// Starts a new session in the Process system
-    /// </summary>
-    /// <param name="timeoutSeconds">Session timeout is seconds</param>
-    /// <returns>Session ID of the newly created session</returns>
     let sessionStart (timeoutSeconds:float<second>) =
         Process.sessionStart((timeoutSeconds/1.0<second>) * LanguageExt.Prelude.seconds)
 
-    /// <summary>
     /// Ends a session in the Process system with the specified
     /// session ID
-    /// </summary>
-    /// <param name="sid">Session ID</param>
     let sessionStop (sid:string) =
         Process.sessionStop(sid) |> ignore
 
-    /// <summary>
     /// Touch a session
     /// Time-stamps the session so that its time-to-expiry is reset
-    /// </summary>
-    /// <param name="sid">Session ID</param>
     let sessionTouch (sid:string) =
         Process.sessionTouch(sid) |> ignore
 
-    /// <summary>
     /// Gets the current session ID
-    /// </summary>
-    /// <remarks>Also touches the session so that its time-to-expiry 
-    /// is reset</remarks>
-    /// <returns>Optional session ID</returns>
+    /// Also touches the session so that its time-to-expiry 
+    /// is reset
     let sessionId() =
         Process.sessionId() |> LanguageExt.FSharp.fs
 
-    /// <summary>
     /// Set the meta-data to store with the session, this is typically
     /// user credentials when they've logged in.  But can be anything.
-    /// </summary>
-    /// <param name="sid">Session ID</param>
-    /// <param name="data">Data to store</param>
     let sessionSetData (sid:string) (data:obj) =
         Process.sessionSetData(sid,data) |> ignore
 
-    /// <summary>
     /// Clear the meta-data stored with the session
-    /// </summary>
-    /// <param name="sid">Session ID</param>
     let sessionClearData (sid:string) =
         Process.sessionClearData(sid) |> ignore
 
-    /// <summary>
     /// Get the meta-data stored with the session, this is typically
     /// user credentials when they've logged in.  But can be anything.
-    /// </summary>
-    /// <param name="sid">Session ID</param>
     let sessionGetData (sid:string) =
         Process.sessionGetData(sid) |> LanguageExt.FSharp.fs
 
-    /// <summary>
     /// Returns True if there is an active session
-    /// </summary>
-    /// <returns></returns>
     let hasSession() =
         Process.hasSession()
 
-    /// <summary>
     /// Acquires a session for the duration of invocation of the 
     /// provided function
-    /// </summary>
-    /// <param name="sid">Session ID</param>
-    /// <param name="f">Function to invoke</param>
-    /// <returns>Result of the function</returns>
     let withSession (sid:string) (f : unit -> 'r) =
         Process.withSession(sid, f)

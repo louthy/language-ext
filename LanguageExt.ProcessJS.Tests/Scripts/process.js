@@ -522,6 +522,24 @@ if (typeof ko !== "undefined" && typeof ko.observable !== "undefined") {
         return { tag: "Computed", fn: fn };
     };
 
+    Process.clone = function (obj) {
+        if (null == obj || "object" != typeof obj) return obj;
+        var copy = obj.constructor();
+        for (var attr in obj) {
+            if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+        }
+        return copy;
+    }
+
+    Process.cloneMap = function (obj, fn) {
+        if (null == obj || "object" != typeof obj) return obj;
+        var copy = obj.constructor();
+        for (var attr in obj) {
+            if (obj.hasOwnProperty(attr)) copy[attr] = fn(obj[attr]);
+        }
+        return copy;
+    }
+
     Process.spawnView = function (name, containerId, templateId, setup, inbox) {
 
         if (typeof setup !== "function") {
@@ -540,35 +558,48 @@ if (typeof ko !== "undefined" && typeof ko.observable !== "undefined") {
 
                 var state = setup();
 
+                var makeObs = function (value) {
+                    if (value != null && typeof value !== "undefined" && typeof value !== "function") {
+                        if (value != null && typeof value.tag === "string" && value.tag == "Computed") {
+                            return ko.computed(state[key].fn, state);
+                        }
+                        if (Object.prototype.toString.call(value) === Object.prototype.toString.call([])) {
+                            return ko.observableArray(value);
+                        }
+                        else {
+                            return ko.observable(value);
+                        }
+                    }
+                    else {
+                        return value;
+                    }
+                }
+
                 state.with = function (patch) {
-                    var clone = Object.create(this);
+                    var clone = Process.clone(this);
                     for (var key in patch) {
-                        clone[key] = patch[key];
+                        if (patch.hasOwnProperty(key)) {
+                            var patchValue = patch[key];
+                            if (clone.hasOwnProperty(key)) {
+                                var clonedValue = clone[key];
+                                if (ko.isObservable(clonedValue)) {
+                                    clonedValue(patchValue);
+                                }
+                                else {
+                                    clone[key] = makeObs(patchValue);
+                                }
+                            }
+                            else {
+                                clone[key] = makeObs(patchValue);
+                            }
+                        }
                     }
                     return clone;
                 }
 
                 if (typeof state === "object") {
                     for (var key in state) {
-                        if (typeof state[key] !== "undefined" && typeof state[key] !== "function") {
-                            if (state[key] != null && typeof state[key].tag === "string" && state[key].tag == "Computed") {
-                                // Nothing, we fix up the computed items next
-                            }
-                            if (Object.prototype.toString.call(state[key]) === Object.prototype.toString.call([])) {
-                                state[key] = ko.observableArray(state[key]);
-                            }
-                            else {
-                                state[key] = ko.observable(state[key]);
-                            }
-                        }
-                    }
-
-                    for (var key in state) {
-                        if (typeof state[key] !== "undefined" && typeof state[key] !== "function") {
-                            if (state[key] != null && typeof state[key].tag === "string" && state[key].tag == "Computed") {
-                                state[key] = ko.computed(state[key].fn, state);
-                            }
-                        }
+                        state[key] = makeObs(state[key]);
                     }
                 }
 

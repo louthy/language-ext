@@ -1,9 +1,8 @@
-﻿using LanguageExt.UnitsOfMeasure;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -56,6 +55,13 @@ namespace LanguageExt
     /// </summary>
     public static partial class Process
     {
+        /// <summary>
+        /// Triggers when the Process system shuts down
+        /// Either subscribe to the OnNext or OnCompleted
+        /// </summary>
+        public static readonly IObservable<Unit> Shutdown =
+            shutdownSubj;
+
         /// <summary>
         /// Log of everything that's going on in the Languge Ext process system
         /// </summary>
@@ -331,23 +337,5 @@ namespace LanguageExt
         /// This should be used from within a process' message loop only
         /// </remarks>
         public static bool isAsk => !isTell;
-
-        /// <summary>
-        /// Use in message loop exception
-        /// </summary>
-        internal static T raiseUseInMsgLoopOnlyException<T>(string what) =>
-            failwith<T>($"'{what}' should be used from within a process' message loop only");
-
-        /// <summary>
-        /// Not in message loop exception
-        /// </summary>
-        internal static T raiseDontUseInMessageLoopException<T>(string what) =>
-            failwith<T>($"'{what}' should not be be used from within a process' message loop.");
-
-        /// <summary>
-        /// Returns true if in a message loop
-        /// </summary>
-        internal static bool InMessageLoop =>
-            ActorContext.Self.IsValid && ActorContext.Self.Path != ActorContext.User.Path;
     }
 }

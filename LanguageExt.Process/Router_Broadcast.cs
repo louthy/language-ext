@@ -60,7 +60,6 @@ namespace LanguageExt
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="Name">Delegator process name</param>
         /// <param name="Flags">Process flags</param>
-        /// <param name="Strategy">Failure supervision strategy</param>
         /// <returns>Process ID of the delegator process</returns>
         public static ProcessId broadcast<T>(
             ProcessName Name,

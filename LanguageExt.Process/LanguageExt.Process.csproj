@@ -92,6 +92,7 @@
     <Compile Include="IProcess.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Prelude_DeadLetters.cs" />
+    <Compile Include="Prelude_Internal.cs" />
     <Compile Include="Prelude_Session.cs" />
     <Compile Include="Prelude_Obsolete.cs" />
     <Compile Include="ClusterMonitor.cs" />

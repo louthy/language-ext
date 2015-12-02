@@ -18,6 +18,8 @@ namespace LanguageExt
         static ActorItem rootItem;
         static ActorRequestContext userContext;
         static ClusterMonitor.State clusterState;
+        static long startupTimestamp;
+        static IDisposable startupSubscription;
 
         static Map<ProcessId, Set<ProcessId>> watchers;
         static Map<ProcessId, Set<ProcessId>> watchings;
@@ -40,6 +42,10 @@ namespace LanguageExt
             lock (sync)
             {
                 if (started) return unit;
+
+                startupTimestamp = DateTime.UtcNow.Ticks;
+                startupSubscription = NotifyCluster(cluster, startupTimestamp);
+
                 watchers = Map.empty<ProcessId, Set<ProcessId>>();
                 watchings = Map.empty<ProcessId, Set<ProcessId>>();
                 var root = ProcessId.Top.Child(name);
@@ -60,6 +66,28 @@ namespace LanguageExt
             }
             return unit;
         }
+
+        const string ClusterOnlineKey = "cluster-node-online";
+        class ClusterOnline
+        {
+            public string Name;
+            public long Timestamp;
+        }
+
+        static IDisposable NotifyCluster(Option<ICluster> cluster, long timestamp) =>
+            cluster.Map(c =>
+            {
+                c.PublishToChannel(ClusterOnlineKey, new ClusterOnline { Name = c.NodeName.Value, Timestamp = timestamp });
+                return c.SubscribeToChannel<ClusterOnline>(ClusterOnlineKey)
+                        .Where( node => node.Name == c.NodeName.Value && node.Timestamp > timestamp )
+                        .Take(1)
+                        .Subscribe( _ =>
+                         {
+                            Process.shutdownAll();
+                            c.Disconnect();
+                         });
+            })
+           .IfNone(() => Observable.Return(new ClusterOnline()).Take(1).Subscribe());
 
         public static ClusterMonitor.State ClusterState => 
             clusterState;
@@ -96,10 +124,12 @@ namespace LanguageExt
             {
                 if (rootItem != null)
                 {
+                    startupSubscription.Dispose();
                     var item = rootItem;
                     rootItem = null;
                     item.Actor.ShutdownProcess(true);
                     started = false;
+                    Process.OnShutdown();
                     Startup(None);
                 }
             }
