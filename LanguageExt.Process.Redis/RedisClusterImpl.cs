@@ -106,12 +106,13 @@ namespace LanguageExt
         /// </summary>
         public int PublishToChannel(string channelName, object data) =>
             (int)redis.GetSubscriber().Publish(
-                channelName,
+                channelName + Config.CatalogueName,
                 JsonConvert.SerializeObject(data)
                 );
 
         private Subject<RedisValue> GetSubject(string channelName)
         {
+            channelName += Config.CatalogueName;
             Subject<RedisValue> subject = null;
             lock (subscriptions)
             {
@@ -173,6 +174,8 @@ namespace LanguageExt
 
         public void UnsubscribeChannel(string channelName)
         {
+            channelName += Config.CatalogueName;
+
             redis.GetSubscriber().Unsubscribe(channelName);
             lock (subscriptions)
             {

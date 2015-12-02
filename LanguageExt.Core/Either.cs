@@ -193,7 +193,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Right value</returns>
         public Unit IfLeft(Action<L> Left)
         {
-            if (IsLeft)
+            if (!IsBottom && IsLeft)
             {
                 Left(LeftValue);
             }
@@ -207,7 +207,7 @@ namespace LanguageExt
         /// <returns>Unit</returns>
         public Unit IfRight(Action<R> Right)
         {
-            if (IsRight)
+            if (!IsBottom && IsRight)
             {
                 Right(right);
             }
