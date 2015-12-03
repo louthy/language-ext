@@ -44,6 +44,7 @@ namespace LanguageExt
                 if (started) return unit;
 
                 startupTimestamp = DateTime.UtcNow.Ticks;
+                startupSubscription?.Dispose();
                 startupSubscription = NotifyCluster(cluster, startupTimestamp);
 
                 watchers = Map.empty<ProcessId, Set<ProcessId>>();
@@ -125,6 +126,7 @@ namespace LanguageExt
                 if (rootItem != null)
                 {
                     startupSubscription.Dispose();
+                    startupSubscription = null;
                     var item = rootItem;
                     rootItem = null;
                     item.Actor.ShutdownProcess(true);
