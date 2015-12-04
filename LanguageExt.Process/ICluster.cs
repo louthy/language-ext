@@ -27,6 +27,14 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Role that this node plays in the cluster
+        /// </summary>
+        ProcessName Role
+        {
+            get;
+        }
+
+        /// <summary>
         /// Connect to cluster
         /// </summary>
         void Connect();

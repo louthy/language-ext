@@ -29,10 +29,6 @@ namespace LanguageExt
         public Unit Tell(object message, ProcessId sender, Message.TagSpec tag) =>
             Tell(message, sender, "user", Message.Type.User, tag);
 
-        // Deprecated: System messages are notifications only now
-        // public Unit TellSystem(SystemMessage message, ProcessId sender) =>
-        //    Tell(message, sender, "system", Message.Type.System, message.Tag);
-
         public Unit TellUserControl(UserControlMessage message, ProcessId sender) =>
             Tell(message, sender, "user", Message.Type.UserControl, message.Tag);
 

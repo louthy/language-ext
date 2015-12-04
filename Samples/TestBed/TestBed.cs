@@ -146,7 +146,7 @@ namespace TestBed
                 RedisCluster.register();
 
                 // Connect to the Redis cluster
-                Cluster.connect("redis", "redis-test", "localhost", "0");
+                Cluster.connect("redis", "redis-test", "localhost", "0", "global");
 
                 string value = null;
                 var pid = spawn<string>("reg-proc", msg => value = msg);
@@ -305,7 +305,7 @@ namespace TestBed
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-test", "localhost", "0");
+            Cluster.connect("redis", "redis-test", "localhost", "0", "global");
 
             try
             {
@@ -352,7 +352,7 @@ namespace TestBed
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-test", "localhost", "0");
+            Cluster.connect("redis", "redis-test", "localhost", "0", "global");
 
             var helloServer = spawn<string>("hello-server", msg =>
                 {

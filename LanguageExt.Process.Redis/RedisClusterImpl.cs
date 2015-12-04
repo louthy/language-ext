@@ -54,6 +54,13 @@ namespace LanguageExt
         public ProcessName NodeName =>
             Config.NodeName;
 
+
+        /// <summary>
+        /// Role that this node plays in the cluster
+        /// </summary>
+        public ProcessName Role =>
+            Config.Role;
+
         /// <summary>
         /// Return true if connected to cluster
         /// </summary>

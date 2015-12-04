@@ -17,13 +17,13 @@ namespace RedisStateSample
         static void Main(string[] args)
         {
             // Log what's going on
-            ProcessLog.Subscribe(Console.WriteLine);
+            ProcessSystemLog.Subscribe(Console.WriteLine);
 
             // Let Language Ext know that Redis exists
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-test", "localhost", "0");
+            Cluster.connect("redis", "redis-test", "localhost", "0", "global");
 
             // Spawn the process
             var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistInbox);

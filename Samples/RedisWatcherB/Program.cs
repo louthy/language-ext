@@ -20,7 +20,7 @@ namespace RedisWatcherB
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-watcher-b", "localhost", "0");
+            Cluster.connect("redis", "redis-watcher-b", "localhost", "0", "global");
 
             var pong = spawn<string>(
                 Name: "pong",

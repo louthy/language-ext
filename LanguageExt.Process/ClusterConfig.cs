@@ -11,16 +11,19 @@ namespace LanguageExt
         public readonly ProcessName NodeName;
         public readonly string ConnectionString;
         public readonly string CatalogueName;
+        public readonly ProcessName Role;
 
         public ClusterConfig(
             ProcessName nodeName,
             string connectionString,
-            string catalogueName
+            string catalogueName,
+            ProcessName role
         )
         {
             NodeName = nodeName;
             ConnectionString = connectionString;
             CatalogueName = catalogueName;
+            Role = role;
         }
     }
 }

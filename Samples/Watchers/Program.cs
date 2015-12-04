@@ -26,7 +26,7 @@ namespace Watchers
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-watchers", "localhost", "0");
+            Cluster.connect("redis", "redis-watchers", "localhost", "0", "global");
 
             ping = spawn<string>(
                 Name:      "ping",

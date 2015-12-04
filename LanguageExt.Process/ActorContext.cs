@@ -36,6 +36,7 @@ namespace LanguageExt
             ActorContext.cluster = cluster;
             var name = GetRootProcessName();
             if (name.Value == "root" && cluster.IsSome) throw new ArgumentException("Cluster node name cannot be 'root', it's reserved for local use only.");
+            if (name.Value == "role" && cluster.IsSome) throw new ArgumentException("Cluster node name cannot be 'role', it's reserved for internal use.");
             if (name.Value == "registered") throw new ArgumentException("Node name cannot be 'registered', it's reserved for registered processes.");
             if (name.Value == "js") throw new ArgumentException("Node name cannot be 'js', it's reserved for ProcessJS.");
 
@@ -469,6 +470,9 @@ namespace LanguageExt
         public static ProcessId Root =>
             rootItem.Actor.Id;
 
+        public static readonly ProcessId Role =
+            ProcessId.Top["role"];
+
         public static ActorRequestContext Context
         {
             get
@@ -740,19 +744,41 @@ namespace LanguageExt
                 Some: c  => new ActorDispatchRemote(pid, c),
                 None: () => new ActorDispatchNotExist(pid));
 
+        internal static IActorDispatch GetRoleDispatcher(ProcessId pid)
+        {
+            if (pid.Count() < 3) throw new InvalidProcessIdException("Invalid role Process ID");
+            var role = pid.Skip(1).Take(1).GetName();
+            var type = pid.Skip(2).Take(1).GetName();
+
+            // TODO: Generalise this to allow plugable dispatchers
+            switch (type.Value)
+            {
+                case "broadcast":   return new RoleDispatchBroadcast(role, pid.Skip(3));
+                case "least-busy":  return new RoleDispatchLeastBusy(role, pid.Skip(3));
+                case "random":      return new RoleDispatchRandom(role, pid.Skip(3));
+                case "round-robin": return new RoleDispatchRoundRobin(role, pid.Skip(3));
+                default: return new ActorDispatchNotExist(pid);
+            }
+        }
+
         internal static bool IsRegistered(ProcessId pid) =>
             pid.Take(2).GetName().Value == ActorConfig.Default.RegisteredProcessName.Value;
 
         internal static bool IsLocal(ProcessId pid) =>
             pid.Head() == Root;
 
+        internal static bool IsRole(ProcessId pid) =>
+            pid.Head() == Role;
+
         internal static IActorDispatch GetDispatcher(ProcessId pid) =>
             pid.IsValid
-                ? IsRegistered(pid)
-                    ? GetRegisteredDispatcher(pid)
-                    : IsLocal(pid)
-                        ? GetLocalDispatcher(pid)
-                        : GetRemoteDispatcher(pid)
+                ? IsRole(pid)
+                    ? GetRoleDispatcher(pid)
+                    : IsRegistered(pid)
+                        ? GetRegisteredDispatcher(pid)
+                        : IsLocal(pid)
+                            ? GetLocalDispatcher(pid)
+                            : GetRemoteDispatcher(pid)
                 : new ActorDispatchNotExist(pid);
 
         static IActorDispatch GetDispatcher(ProcessId pid, ActorItem current, ProcessId orig)

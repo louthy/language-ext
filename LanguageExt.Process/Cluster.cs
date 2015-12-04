@@ -38,10 +38,11 @@ namespace LanguageExt
             string providerName,
             ProcessName nodeName,
             string connectionString,
-            string catalogueName
+            string catalogueName,
+            ProcessName role
         )
         {
-            var cluster = ClusterFactory.CreateCluster(providerName, config(nodeName,connectionString,catalogueName));
+            var cluster = ClusterFactory.CreateCluster(providerName, config(nodeName,connectionString,catalogueName, role));
             cluster.Connect();
             return ActorContext.RegisterCluster(cluster);
         }
@@ -61,12 +62,14 @@ namespace LanguageExt
         public static ClusterConfig config(
             ProcessName nodeName,
             string connectionString,
-            string catalogueName
+            string catalogueName,
+            ProcessName role
         ) => 
             new ClusterConfig(
                 nodeName, 
                 connectionString, 
-                catalogueName
+                catalogueName,
+                role
             );
 
     }

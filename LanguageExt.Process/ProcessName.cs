@@ -65,5 +65,16 @@ namespace LanguageExt
                 : obj is ProcessName
                     ? CompareTo((ProcessName)obj)
                     : -1;
+
+        public static bool operator == (ProcessName lhs, ProcessName rhs) =>
+            lhs.Equals(rhs);
+
+        public static bool operator !=(ProcessName lhs, ProcessName rhs) =>
+            !lhs.Equals(rhs);
+
+        public override bool Equals(object obj) =>
+            obj is ProcessName
+                ? Equals((ProcessName)obj)
+                : false;
     }
 }

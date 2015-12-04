@@ -10,13 +10,13 @@ namespace RedisSession
         static void Main(string[] args)
         {
             // Remove this to get on-screen logging
-            ProcessLog.Subscribe(Console.WriteLine);
+            ProcessSystemLog.Subscribe(Console.WriteLine);
 
             // Let Language Ext know that Redis exists
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-session-test", "localhost:6379", "0");
+            Cluster.connect("redis", "redis-session-test", "localhost:6379", "0", "global");
 
             var ping = ProcessId.None;
             var pong = ProcessId.None;

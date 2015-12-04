@@ -72,7 +72,7 @@ namespace LanguageExt
         /// <summary>
         /// Log of everything that's going on in the Languge Ext process system
         /// </summary>
-        public static readonly IObservable<ProcessLogItem> ProcessLog = 
+        public static readonly IObservable<ProcessLogItem> ProcessSystemLog = 
             log.ObserveOn(TaskPoolScheduler.Default);
 
         /// <summary>
@@ -332,10 +332,13 @@ namespace LanguageExt
         /// <summary>
         /// Get a list of cluster nodes that are online
         /// </summary>
-        public static IEnumerable<ProcessName> ClusterNodes =>
+        public static IEnumerable<ClusterNode> ClusterNodes =>
             ActorContext.ClusterState == null
-                ? new ProcessName[0]
-                : ActorContext.ClusterState.Members.Keys.Map(m => new ProcessName(m));
+                ? new ClusterNode[0]
+                : ActorContext.ClusterState
+                              .Members
+                              .Map((k,v) => new ClusterNode(new ProcessName(k), v.Role))
+                              .Values;
 
         /// <summary>
         /// Return True if the message sent is an Ask and not a Tell

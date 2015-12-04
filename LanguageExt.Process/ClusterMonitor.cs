@@ -54,12 +54,15 @@ namespace LanguageExt
         public class MemberState
         {
             public readonly DateTime LastHeartbeat;
+            public readonly ProcessName Role;
 
             public MemberState(
-                DateTime lastHeartbeat
+                DateTime lastHeartbeat,
+                ProcessName role
             )
             {
                 LastHeartbeat = lastHeartbeat;
+                Role = role;
             }
         }
 
@@ -102,7 +105,7 @@ namespace LanguageExt
                     {
                         var cutOff = DateTime.UtcNow.Add(0 * seconds - OfflineCutoff);
 
-                        c.HashFieldAddOrUpdate(MembersKey, c.NodeName.Value, new MemberState(DateTime.UtcNow));
+                        c.HashFieldAddOrUpdate(MembersKey, c.NodeName.Value, new MemberState(DateTime.UtcNow, c.Role));
                         var newState = new State(c.GetHashFields<MemberState>(MembersKey).Where(m => m.LastHeartbeat > cutOff));
                         var diffs = DiffState(state, newState);
 
@@ -127,7 +130,7 @@ namespace LanguageExt
         }
 
         static State HeartbeatLocal(State state) =>
-            state.SetMember("root", new MemberState(DateTime.UtcNow));
+            state.SetMember("root", new MemberState(DateTime.UtcNow, ""));
 
         static string GetNodeName(Option<ICluster> cluster) =>
             cluster.Map(c => c.NodeName.Value).IfNone("root");

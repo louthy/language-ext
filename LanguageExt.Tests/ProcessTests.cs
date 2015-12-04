@@ -25,7 +25,7 @@ namespace LanguageExtTests
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-test", "localhost", "0");
+            Cluster.connect("redis", "redis-test", "localhost", "0", "global");
 
             var world = spawn<ProcessId, string>("world",
                 () => spawn<string>("hello", msg => failwith<Unit>("Failed!"), ProcessFlags.PersistInbox),
@@ -127,14 +127,14 @@ namespace LanguageExtTests
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-test", "localhost", "0");
+            Cluster.connect("redis", "redis-test", "localhost", "0", "global");
 
             string value = null;
             var pid = spawn<string>("reg-proc", msg => value = msg);
 
             var regid = register<string>("woooo amazing", pid);
 
-            Thread.Sleep(10);
+            Thread.Sleep(100);
 
             var kids = children(Registered);
 
@@ -143,21 +143,21 @@ namespace LanguageExtTests
 
             tell(regid, "hello");
 
-            Thread.Sleep(10);  
+            Thread.Sleep(100);  
 
             Assert.True(value == "hello");
 
             tell(find("woooo amazing"), "world");
 
-            Thread.Sleep(10);
+            Thread.Sleep(100);
 
             Assert.True(value == "world");
 
-            Thread.Sleep(10);
+            Thread.Sleep(100);
 
             deregister("woooo amazing");
 
-            Thread.Sleep(10);
+            Thread.Sleep(100);
 
             kids = children(Registered);
             Assert.True(kids.Count() == 0);

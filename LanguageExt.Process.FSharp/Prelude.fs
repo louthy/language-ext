@@ -177,9 +177,9 @@ module ProcessFs =
     //      RedisCluster.register()
     //      clusterConnect "redis" "unique-name-for-this-service" "localhost" "0"
     //
-    let clusterConnect clusterProvider nodeName connectionString catalogueString = 
+    let clusterConnect clusterProvider nodeName connectionString catalogueString role = 
         Cluster.disconnect() |> ignore
-        Cluster.connect(clusterProvider,new ProcessName(nodeName),connectionString,catalogueString) |> ignore
+        Cluster.connect(clusterProvider,new ProcessName(nodeName),connectionString,catalogueString,role) |> ignore
 
     let clusterDisconnect () =
         Cluster.disconnect() |> ignore

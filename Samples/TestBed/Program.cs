@@ -35,7 +35,7 @@ namespace TestBed
             //Tests.WrappedListOfOptionsTest2();
             //Tests.Lists();
 
-            ProcessLog.Subscribe(Console.WriteLine);
+            ProcessSystemLog.Subscribe(Console.WriteLine);
 
             Tests.KillChildTest();
 

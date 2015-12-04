@@ -20,7 +20,7 @@ namespace RedisSubscribeSample
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-subscribe-test", "localhost:6379", "0");
+            Cluster.connect("redis", "redis-subscribe-test", "localhost:6379", "0", "global");
 
             var pid = ProcessId.Top["redis-publish-test"]["user"]["redis-pubsub-random-test"];
 
