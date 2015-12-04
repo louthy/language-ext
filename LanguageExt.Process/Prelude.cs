@@ -59,6 +59,13 @@ namespace LanguageExt
         /// Triggers when the Process system shuts down
         /// Either subscribe to the OnNext or OnCompleted
         /// </summary>
+        public static readonly IObservable<CancelShutdown> PreShutdown =
+            preShutdownSubj;
+
+        /// <summary>
+        /// Triggers when the Process system shuts down
+        /// Either subscribe to the OnNext or OnCompleted
+        /// </summary>
         public static readonly IObservable<Unit> Shutdown =
             shutdownSubj;
 

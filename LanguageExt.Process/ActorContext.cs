@@ -83,10 +83,21 @@ namespace LanguageExt
                         .Where( node => node.Name == c.NodeName.Value && node.Timestamp > timestamp )
                         .Take(1)
                         .Subscribe( _ =>
-                         {
-                            Process.shutdownAll();
-                            c.Disconnect();
-                         });
+                        {
+                            var cancel = new CancelShutdown();
+                            try
+                            {
+                                Process.OnPreShutdown(cancel);
+                            }
+                            finally
+                            {
+                                if (!cancel.Cancelled)
+                                {
+                                    Process.shutdownAll();
+                                    c.Disconnect();
+                                }
+                            }
+                        });
             })
            .IfNone(() => Observable.Return(new ClusterOnline()).Take(1).Subscribe());
 

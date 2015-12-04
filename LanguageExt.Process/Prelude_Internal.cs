@@ -25,11 +25,21 @@ namespace LanguageExt
             ActorContext.Self.IsValid && ActorContext.Self.Path != ActorContext.User.Path;
 
         static Subject<Unit> shutdownSubj = new Subject<Unit>();
+        static Subject<CancelShutdown> preShutdownSubj = new Subject<CancelShutdown>();
 
         internal static void OnShutdown()
         {
             shutdownSubj.OnNext(unit);
             shutdownSubj.OnCompleted();
+        }
+
+        internal static void OnPreShutdown(CancelShutdown cancel)
+        {
+            preShutdownSubj.OnNext(cancel);
+            if (!cancel.Cancelled)
+            {
+                preShutdownSubj.OnCompleted();
+            }
         }
     }
 }

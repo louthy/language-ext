@@ -81,6 +81,7 @@
     <Compile Include="ActorInboxRemote.cs" />
     <Compile Include="ActorItem.cs" />
     <Compile Include="ActorRequestContext.cs" />
+    <Compile Include="CancelShutdown.cs" />
     <Compile Include="ClusterConfig.cs" />
     <Compile Include="DeadLetter.cs" />
     <Compile Include="Exceptions.cs" />
