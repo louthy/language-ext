@@ -8,16 +8,16 @@ namespace LanguageExt
 {
     public static partial class Role
     {
-        public static ProcessId broadcast(ProcessName role) =>
-            ProcessId.Top["role"][role]["broadcast"];
+        public static readonly ProcessId broadcast =
+            ProcessId.Top["role"]["broadcast"];
 
-        public static ProcessId leastBusy(ProcessName role) =>
-            ProcessId.Top["role"][role]["least-busy"];
+        public static readonly ProcessId leastBusy =
+            ProcessId.Top["role"]["least-busy"];
 
-        public static ProcessId random(ProcessName role) =>
-            ProcessId.Top["role"][role]["random"];
+        public static readonly ProcessId random =
+            ProcessId.Top["role"]["random"];
 
-        public static ProcessId roundRobin(ProcessName role) =>
-            ProcessId.Top["role"][role]["round-robin"];
+        public static readonly ProcessId roundRobin =
+            ProcessId.Top["role"]["round-robin"];
     }
 }

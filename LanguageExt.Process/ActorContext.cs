@@ -747,8 +747,8 @@ namespace LanguageExt
         internal static IActorDispatch GetRoleDispatcher(ProcessId pid)
         {
             if (pid.Count() < 3) throw new InvalidProcessIdException("Invalid role Process ID");
-            var role = pid.Skip(1).Take(1).GetName();
-            var type = pid.Skip(2).Take(1).GetName();
+            var type = pid.Skip(1).Take(1).GetName();
+            var role = pid.Skip(2).Take(1).GetName();
 
             // TODO: Generalise this to allow plugable dispatchers
             switch (type.Value)
