@@ -40,7 +40,7 @@ var Process = (function () {
     var ignore = function () { };
     var id = function (id) { return id };
     var publish = null;
-    var inboxStart = function (pid, parent, setup, inbox, stateless) {
+    var inboxStart = function (pid, parent, setup, inbox, stateless, shutdown) {
 
         ctx = {
             self: pid,
@@ -58,7 +58,8 @@ var Process = (function () {
             stateless: stateless,
             children: {},
             subs: {},
-            obs: {}
+            obs: {},
+            shutdown: shutdown
         };
 
         actor[parent].children[pid] = process;
@@ -98,7 +99,7 @@ var Process = (function () {
         return sender || (inloop() ? context.self : NoSender);
     }
 
-    var spawn = function (name, setup, inbox) {
+    var spawn = function (name, setup, inbox, shutdown) {
         if (typeof name === "undefined") failwith("spawn: 'name' not defined");
         var stateless = false;
         if (arguments.length == 2) {
@@ -115,7 +116,7 @@ var Process = (function () {
 
         return withContext(context, function () {
             var pid = context.self + "/" + name;
-            inboxStart(pid, context.self, setup, inbox, stateless);
+            inboxStart(pid, context.self, setup, inbox, stateless, shutdown);
             return pid;
         });
     }
@@ -290,6 +291,10 @@ var Process = (function () {
         var children = p.children;
         for (var i = 0; i < children.length; i++) {
             kill(children[i]);
+        }
+
+        if (typeof p.shutdown === "function") {
+            p.shutdown();
         }
 
         for (var x in p.obs) {
@@ -548,10 +553,12 @@ if (typeof ko !== "undefined" && typeof ko.observable !== "undefined") {
         }
 
         return Process.spawn(name,
+            // Setup
             function () {
 
                 var view = function (state) {
                     this.render = function (el) {
+                        ko.cleanNode($("#" + containerId)[0]);
                         ko.applyBindings(state, el)
                     }
                 };
@@ -618,6 +625,7 @@ if (typeof ko !== "undefined" && typeof ko.observable !== "undefined") {
                     refresh: refresh
                 };
             },
+            // Inbox
             function (state, msg) {
                 var newState = inbox(state.state, msg);
                 if (newState != state.state) {
@@ -630,6 +638,11 @@ if (typeof ko !== "undefined" && typeof ko.observable !== "undefined") {
                 else {
                     return state;
                 };
+            },
+            // Shutdown
+            function () {
+                ko.cleanNode($("#" + containerId)[0]);
+                $("#" + containerId).empty();
             });
     }
 }

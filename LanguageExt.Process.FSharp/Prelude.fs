@@ -54,8 +54,11 @@ module ProcessFs =
     let children pid : FSharp.Collections.Map<string,ProcessId> = 
         FSharp.fs(Process.children(pid))
 
-    let NoSetup() = 
-        ()
+    // Used to represent the lack of a setup function for a Process
+    let NoSetup() = ()
+
+    // Used to coerce a stateless inbox function into one that takes a unit state
+    let NoState (inbox:'msg -> unit) = (fun (_:unit) (msg:'msg) -> inbox msg |> ignore)
     
     let findProcess name = 
         Process.find(new ProcessName(name))
@@ -80,11 +83,21 @@ module ProcessFs =
     let shutdownAll() = 
         Process.shutdownAll() |> ignore
 
-    let reply msg = 
+    let isAsk () =
+        Process.isAsk
+
+    /// Reply to an ask
+    let reply msg : unit = 
         Process.reply msg |> ignore
 
-    let replyIfAsked msg = 
+    /// Reply if asked
+    let replyIfAsked msg : unit = 
         Process.replyIfAsked msg |> ignore
+
+    /// Reply to the asker, or if it's not an ask then tell the sender
+    /// via a message to their inbox.
+    let replyOrTellSender msg : unit = 
+        Process.replyOrTellSender msg |> ignore
 
     let ask pid (message : 'a) : 'b = 
         Process.ask<'b>(pid(), message)

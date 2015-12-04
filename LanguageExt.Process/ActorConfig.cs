@@ -20,7 +20,7 @@ namespace LanguageExt
         public readonly ProcessName MonitorProcessName           = "monitor";
 
         public readonly TimeSpan    Timeout                      = TimeSpan.FromSeconds(30);
-        public readonly int         MaxMailboxSize               = 10000;
+        public readonly int         MaxMailboxSize               = 100000;
         public readonly Time        SessionTimeoutCheckFrequency = 60.Seconds();
 
         public readonly JsonSerializerSettings JsonSerializerSettings =

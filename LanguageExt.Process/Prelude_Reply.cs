@@ -105,5 +105,16 @@ namespace LanguageExt
             InMessageLoop && isAsk
                 ? replyError(errorMessage)
                 : unit;
+
+        /// <summary>
+        /// Reply to the asker, or if it's not an ask then tell the sender
+        /// via a message to their inbox.
+        /// </summary>
+        public static Unit replyOrTellSender<T>(T message) =>
+            isAsk
+                ? reply(message)
+                : Sender.IsValid
+                    ? tell(Sender, message, Self)
+                    : unit;
     }
 }
