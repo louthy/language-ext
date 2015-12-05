@@ -26,7 +26,7 @@ namespace LanguageExt
             Broadcast = Dispatch.register(broadcast, roleNodes);
 
             // Least busy
-            LeastBusy = Dispatch.register(broadcast, leaf =>
+            LeastBusy = Dispatch.register(leastBusy, leaf =>
                             roleNodes(leaf)
                                 .Map(pid => Tuple(inboxCount(pid), pid))
                                 .OrderBy(tup => tup.Item1)
@@ -34,7 +34,7 @@ namespace LanguageExt
                                 .Take(1));
 
             // Random
-            Random = Dispatch.register(broadcast, leaf => {
+            Random = Dispatch.register(random, leaf => {
                 var workers = roleNodes(leaf).ToArray();
                 return new ProcessId[1] { workers[Prelude.random(workers.Length)] };
                 });
@@ -42,7 +42,7 @@ namespace LanguageExt
             // Round-robin
             object sync = new object();
             Map<string, int> roundRobinState = Map.empty<string, int>();
-            RoundRobin = Dispatch.register(broadcast, leaf => {
+            RoundRobin = Dispatch.register(roundRobin, leaf => {
                 var key = leaf.ToString();
                 var workers = roleNodes(leaf).ToArray();
                 int index = 0;
