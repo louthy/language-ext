@@ -319,6 +319,14 @@ namespace LanguageExt
             ActorContext.GetDispatcher(watcher).DispatchUnWatch(watching);
 
         /// <summary>
+        /// Find the number of items in the Process inbox
+        /// </summary>
+        /// <param name="pid">Process</param>
+        /// <returns>Number of items in the Process inbox</returns>
+        public static int inboxCount(ProcessId pid) =>
+            ActorContext.GetDispatcher(pid).GetInboxCount();
+
+        /// <summary>
         /// Return True if the message sent is a Tell and not an Ask
         /// </summary>
         /// <remarks>

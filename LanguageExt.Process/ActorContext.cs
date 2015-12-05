@@ -20,6 +20,7 @@ namespace LanguageExt
         static ClusterMonitor.State clusterState;
         static long startupTimestamp;
         static IDisposable startupSubscription;
+        static Map<ProcessName, Func<ProcessId, IEnumerable<ProcessId>>> dispatchers = Map.empty<ProcessName, Func<ProcessId, IEnumerable<ProcessId>>>();
 
         static Map<ProcessId, Set<ProcessId>> watchers;
         static Map<ProcessId, Set<ProcessId>> watchings;
@@ -36,7 +37,7 @@ namespace LanguageExt
             ActorContext.cluster = cluster;
             var name = GetRootProcessName();
             if (name.Value == "root" && cluster.IsSome) throw new ArgumentException("Cluster node name cannot be 'root', it's reserved for local use only.");
-            if (name.Value == "role" && cluster.IsSome) throw new ArgumentException("Cluster node name cannot be 'role', it's reserved for internal use.");
+            if (name.Value == "disp" && cluster.IsSome) throw new ArgumentException("Cluster node name cannot be 'disp', it's reserved for internal use.");
             if (name.Value == "registered") throw new ArgumentException("Node name cannot be 'registered', it's reserved for registered processes.");
             if (name.Value == "js") throw new ArgumentException("Node name cannot be 'js', it's reserved for ProcessJS.");
 
@@ -65,6 +66,24 @@ namespace LanguageExt
 
                 SessionManager.Init(cluster);
                 ClusterWatch(cluster);
+            }
+            return unit;
+        }
+
+        public static ProcessId AddDispatcher(ProcessName name, Func<ProcessId, IEnumerable<ProcessId>> selector)
+        {
+            lock(sync)
+            {
+                dispatchers = dispatchers.AddOrUpdate(name, selector);
+            }
+            return ProcessId.Top["disp"][name];
+        }
+
+        public static Unit RemoveDispatcher(ProcessName name)
+        {
+            lock (sync)
+            {
+                dispatchers = dispatchers.Remove(name);
             }
             return unit;
         }
@@ -470,8 +489,8 @@ namespace LanguageExt
         public static ProcessId Root =>
             rootItem.Actor.Id;
 
-        public static readonly ProcessId Role =
-            ProcessId.Top["role"];
+        public static readonly ProcessId Disp =
+            ProcessId.Top["disp"];
 
         public static ActorRequestContext Context
         {
@@ -744,21 +763,13 @@ namespace LanguageExt
                 Some: c  => new ActorDispatchRemote(pid, c),
                 None: () => new ActorDispatchNotExist(pid));
 
-        internal static IActorDispatch GetRoleDispatcher(ProcessId pid)
+        internal static IActorDispatch GetPluginDispatcher(ProcessId pid)
         {
             if (pid.Count() < 3) throw new InvalidProcessIdException("Invalid role Process ID");
             var type = pid.Skip(1).Take(1).GetName();
-            var role = pid.Skip(2).Take(1).GetName();
-
-            // TODO: Generalise this to allow plugable dispatchers
-            switch (type.Value)
-            {
-                case "broadcast":   return new RoleDispatchBroadcast(role, pid.Skip(3));
-                case "least-busy":  return new RoleDispatchLeastBusy(role, pid.Skip(3));
-                case "random":      return new RoleDispatchRandom(role, pid.Skip(3));
-                case "round-robin": return new RoleDispatchRoundRobin(role, pid.Skip(3));
-                default: return new ActorDispatchNotExist(pid);
-            }
+            return dispatchers.Find(type)
+                              .Map(selector => new ActorDispatchGroup(selector(pid.Skip(2))) as IActorDispatch)
+                              .IfNone(() => new ActorDispatchNotExist(pid));
         }
 
         internal static bool IsRegistered(ProcessId pid) =>
@@ -767,13 +778,13 @@ namespace LanguageExt
         internal static bool IsLocal(ProcessId pid) =>
             pid.Head() == Root;
 
-        internal static bool IsRole(ProcessId pid) =>
-            pid.Head() == Role;
+        internal static bool IsDisp(ProcessId pid) =>
+            pid.Head() == Disp;
 
         internal static IActorDispatch GetDispatcher(ProcessId pid) =>
             pid.IsValid
-                ? IsRole(pid)
-                    ? GetRoleDispatcher(pid)
+                ? IsDisp(pid)
+                    ? GetPluginDispatcher(pid)
                     : IsRegistered(pid)
                         ? GetRegisteredDispatcher(pid)
                         : IsLocal(pid)

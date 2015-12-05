@@ -85,6 +85,7 @@
     <Compile Include="ClusterConfig.cs" />
     <Compile Include="ClusterNode.cs" />
     <Compile Include="DeadLetter.cs" />
+    <Compile Include="Dispatch.cs" />
     <Compile Include="Role.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Factory.cs" />
@@ -99,10 +100,7 @@
     <Compile Include="Prelude_Session.cs" />
     <Compile Include="Prelude_Obsolete.cs" />
     <Compile Include="ClusterMonitor.cs" />
-    <Compile Include="RoleDispatchBroadcast.cs" />
-    <Compile Include="RoleDispatchLeastBusy.cs" />
-    <Compile Include="RoleDispatchRandom.cs" />
-    <Compile Include="RoleDispatchRoundRobin.cs" />
+    <Compile Include="ActorDispatchGroup.cs" />
     <Compile Include="Router.cs" />
     <Compile Include="Router_Broadcast.cs" />
     <Compile Include="Router_Random.cs" />

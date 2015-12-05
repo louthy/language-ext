@@ -6,29 +6,27 @@ using System.Reactive.Linq;
 
 namespace LanguageExt
 {
-    class RoleDispatchBroadcast : IActorDispatch
+    class ActorDispatchGroup : IActorDispatch
     {
-        readonly ProcessName role;
-        readonly ProcessId leaf;
+        readonly ProcessId[] group;
+        readonly int count;
 
-        public RoleDispatchBroadcast(ProcessName role, ProcessId leaf)
+        public ActorDispatchGroup(IEnumerable<ProcessId> group)
         {
-            this.role = role;
-            this.leaf = leaf;
+            this.group = group.ToArray();
+            this.count = this.group.Length;
         }
 
         private IEnumerable<IActorDispatch> GetWorkers() =>
-            ActorContext.ClusterState
-                        .Members
-                        .Filter(state => state.Role == role)
-                        .Keys
-                        .Map(node => ActorContext.GetDispatcher(ProcessId.Top[node].Append(leaf)));
+            group.Map(pid => ActorContext.GetDispatcher(pid));
 
         private Unit IterRoleMembers(Action<IActorDispatch> action) =>
             GetWorkers().Iter(action);
 
         private IEnumerable<R> MapRoleMembers<R>(Func<IActorDispatch, R> map) =>
-            GetWorkers().Map(map).AsParallel();
+            count > 1
+                ? GetWorkers().Map(map).AsParallel()
+                : GetWorkers().Map(map);
 
         public Unit Ask(object message, ProcessId sender) =>
             IterRoleMembers(d => d.Ask(message, sender));
