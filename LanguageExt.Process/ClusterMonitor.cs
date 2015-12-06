@@ -130,7 +130,7 @@ namespace LanguageExt
         }
 
         static State HeartbeatLocal(State state) =>
-            state.SetMember("root", new MemberState(DateTime.UtcNow, ""));
+            state.SetMember("root", new MemberState(DateTime.UtcNow, "local"));
 
         static string GetNodeName(Option<ICluster> cluster) =>
             cluster.Map(c => c.NodeName.Value).IfNone("root");
