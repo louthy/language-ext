@@ -125,6 +125,7 @@
     <Compile Include="StackTests.cs" />
     <Compile Include="TryOptionMonadTests.cs" />
     <Compile Include="TryMonadTests.cs" />
+    <Compile Include="TrySimpleTests.cs" />
     <Compile Include="TryOutTests.cs" />
     <Compile Include="TupleTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

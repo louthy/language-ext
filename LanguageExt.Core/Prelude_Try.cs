@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Linq.Expressions;
-using System.Collections.Concurrent;
 using System.Linq;
-using LanguageExt.Trans;
 
 namespace LanguageExt
 {
