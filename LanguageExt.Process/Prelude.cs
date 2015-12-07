@@ -340,13 +340,10 @@ namespace LanguageExt
         /// <summary>
         /// Get a list of cluster nodes that are online
         /// </summary>
-        public static IEnumerable<ClusterNode> ClusterNodes =>
+        public static Map<ProcessName, ClusterNode> ClusterNodes =>
             ActorContext.ClusterState == null
-                ? new ClusterNode[0]
-                : ActorContext.ClusterState
-                              .Members
-                              .Map((k,v) => new ClusterNode(new ProcessName(k), v.Role))
-                              .Values;
+                ? Map.empty<ProcessName, ClusterNode>()
+                : ActorContext.ClusterState.Members;
 
         /// <summary>
         /// Return True if the message sent is an Ask and not a Tell

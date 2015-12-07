@@ -92,6 +92,7 @@
   <ItemGroup>
     <Compile Include="Divisible.cs" />
     <Compile Include="Multiplicable.cs" />
+    <Compile Include="ProcessIdTests.cs" />
     <Compile Include="ProcessStrategyTests.cs" />
     <Compile Include="Subtractable.cs" />
     <Compile Include="Appendable.cs" />

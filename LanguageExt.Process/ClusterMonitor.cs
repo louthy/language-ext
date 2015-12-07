@@ -35,35 +35,20 @@ namespace LanguageExt
 
         public class State
         {
-            public readonly Map<string, MemberState> Members;
+            public readonly Map<ProcessName, ClusterNode> Members;
 
-            public static readonly State Empty = new State(Map.empty<string, MemberState>());
+            public static readonly State Empty = new State(Map.empty<ProcessName, ClusterNode>());
 
-            public State(Map<string, MemberState> members)
+            public State(Map<ProcessName, ClusterNode> members)
             {
                 Members = members;
             }
 
-            public State SetMember(string nodeName, MemberState state) =>
+            public State SetMember(ProcessName nodeName, ClusterNode state) =>
                 new State(Members.AddOrUpdate(nodeName, state));
 
-            public State RemoveMember(string nodeName) =>
+            public State RemoveMember(ProcessName nodeName) =>
                 new State(Members.Remove(nodeName));
-        }
-
-        public class MemberState
-        {
-            public readonly DateTime LastHeartbeat;
-            public readonly ProcessName Role;
-
-            public MemberState(
-                DateTime lastHeartbeat,
-                ProcessName role
-            )
-            {
-                LastHeartbeat = lastHeartbeat;
-                Role = role;
-            }
         }
 
         /// <summary>
@@ -105,12 +90,15 @@ namespace LanguageExt
                     {
                         var cutOff = DateTime.UtcNow.Add(0 * seconds - OfflineCutoff);
 
-                        c.HashFieldAddOrUpdate(MembersKey, c.NodeName.Value, new MemberState(DateTime.UtcNow, c.Role));
-                        var newState = new State(c.GetHashFields<MemberState>(MembersKey).Where(m => m.LastHeartbeat > cutOff));
+                        c.HashFieldAddOrUpdate(MembersKey, c.NodeName.Value, new ClusterNode(c.NodeName, DateTime.UtcNow, c.Role));
+                        var newState = new State(c.GetHashFields<ProcessName, ClusterNode>(MembersKey, s => new ProcessName(s))
+                                                  .Where(m => m.LastHeartbeat > cutOff));
                         var diffs = DiffState(state, newState);
 
-                        diffs.Item1.Iter(offline => publish(new NodeOffline(offline)));
-                        diffs.Item2.Iter(online  => publish(new NodeOnline(online)));
+                        
+
+                        diffs.Item1.Iter(offline => publish(state.Members[offline]));
+                        diffs.Item2.Iter(online  => publish(newState.Members[online]));
 
                         return newState;
                     }
@@ -122,7 +110,7 @@ namespace LanguageExt
                 })
             .IfNone(HeartbeatLocal(state));
 
-        static Tuple<Set<string>, Set<string>> DiffState(State oldState, State newState)
+        static Tuple<Set<ProcessName>, Set<ProcessName>> DiffState(State oldState, State newState)
         {
             var oldSet = Set.createRange(oldState.Members.Keys);
             var newSet = Set.createRange(newState.Members.Keys);
@@ -130,7 +118,7 @@ namespace LanguageExt
         }
 
         static State HeartbeatLocal(State state) =>
-            state.SetMember("root", new MemberState(DateTime.UtcNow, "local"));
+            state.SetMember("root", new ClusterNode("root", DateTime.UtcNow, "local"));
 
         static string GetNodeName(Option<ICluster> cluster) =>
             cluster.Map(c => c.NodeName.Value).IfNone("root");

@@ -36,13 +36,40 @@ namespace LanguageExt
                 throw new InvalidProcessNameException();
             }
 
-            var invalid = System.IO.Path.GetInvalidFileNameChars();
-            if ((from c in value where invalid.Contains(c) select c).Count() > 0)
+            value = value.ToLower();
+            if (value[0] == '[' && value[value.Length - 1] == ']')
             {
-                throw new InvalidProcessNameException();
+                // Validate the inner ProcessIds
+                value.Substring(1, value.Length - 2).Split(',').Map(x => new ProcessId(x)).ToList();
             }
-            Value = value.ToLower();
+            else
+            {
+
+                var invalid = System.IO.Path.GetInvalidFileNameChars().Append(new[] { '[', ']', ',' });
+                if ((from c in value where invalid.Contains(c) select c).Count() > 0)
+                {
+                    throw new InvalidProcessNameException();
+                }
+            }
+            Value = value;
         }
+
+        private ProcessName(IEnumerable<ProcessId> values)
+        {
+            if(values == null) throw new InvalidProcessNameException();
+            Value = $"[{String.Join(",", values)}]";
+        }
+
+        public static ProcessName FromSelection(IEnumerable<ProcessId> pids) =>
+            new ProcessName(pids);
+
+        public bool IsSelection =>
+            Value != null && Value.Length > 0 && Value[0] == '[' && Value[Value.Length - 1] == ']';
+
+        public IEnumerable<ProcessId> GetSelection() =>
+            IsSelection
+                ? Value.Substring(1, Value.Length - 2).Split(',').Map(x => new ProcessId(x))
+                : new ProcessId[0];
 
         public override string ToString() =>
             Value;

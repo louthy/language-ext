@@ -119,6 +119,7 @@ namespace LanguageExt
         bool DeleteHashField(string key, string field);
         int DeleteHashFields(string key, IEnumerable<string> fields);
         Map<string, T> GetHashFields<T>(string key);
+        Map<K, T> GetHashFields<K, T>(string key, Func<string, K> keyBuilder);
         Option<T> GetHashField<T>(string key, string field);
         Map<string, T> GetHashFields<T>(string key, IEnumerable<string> fields);
 

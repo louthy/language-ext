@@ -29,29 +29,93 @@ namespace LanguageExt
         public static Unit deregister(ProcessName name) =>
             ActorContext.RemoveDispatcher(name);
 
+        /// <summary>
+        /// Builds a ProcessId that represents a set of Processes.  When used for
+        /// operations like 'tell', the message is dispatched to all Processes in 
+        /// the set.
+        /// </summary>
+        /// <example>
+        ///     tell( Dispatch.broadcast(pid1,pid2,pid3), "Hello" );
+        /// </example>
         public static ProcessId broadcast(IEnumerable<ProcessId> processIds) =>
-            Broadcast.Append(String.Join(",", processIds.Map(x => x.Path)));
+            Broadcast[processIds];
 
+        /// <summary>
+        /// Builds a ProcessId that represents a set of Processes.  When used 
+        /// for operations like 'tell', the message is dispatched to the least busy
+        /// Process from the set.
+        /// </summary>
+        /// <example>
+        ///     tell( Dispatch.leastBusy(pid1,pid2,pid3), "Hello" );
+        /// </example>
         public static ProcessId leastBusy(IEnumerable<ProcessId> processIds) =>
-            LeastBusy.Append(String.Join(",", processIds.Map(x => x.Path)));
+            LeastBusy[processIds];
 
+        /// <summary>
+        /// Builds a ProcessId that represents a set of Processes.  When used 
+        /// for operations like 'tell', the message is dispatched to a cryptographically
+        /// random Process from the set.
+        /// </summary>
+        /// <example>
+        ///     tell( Dispatch.random(pid1,pid2,pid3), "Hello" );
+        /// </example>
         public static ProcessId random(IEnumerable<ProcessId> processIds) =>
-            Random.Append(String.Join(",", processIds.Map(x => x.Path)));
+            Random[processIds];
 
+        /// <summary>
+        /// Builds a ProcessId that represents a set of Processes.  When used 
+        /// for operations like 'tell', the message is dispatched to the Processes in a 
+        /// round-robin fashion
+        /// </summary>
+        /// <example>
+        ///     tell( Dispatch.roundRobin(pid1,pid2,pid3), "Hello" );
+        /// </example>
         public static ProcessId roundRobin(IEnumerable<ProcessId> processIds) =>
-            RoundRobin.Append(String.Join(",", processIds.Map(x => x.Path)));
+            RoundRobin[processIds];
 
+        /// <summary>
+        /// Builds a ProcessId that represents a set of Processes.  When used for
+        /// operations like 'tell', the message is dispatched to all Processes in 
+        /// the set.
+        /// </summary>
+        /// <example>
+        ///     tell( Dispatch.broadcast(pid1,pid2,pid3), "Hello" );
+        /// </example>
         public static ProcessId broadcast(ProcessId processId, params ProcessId[] processIds) =>
-            Broadcast.Append(String.Join(",", processId.Cons(processIds).Map(x => x.Path)));
+            Broadcast[processId.Cons(processIds)];
 
+        /// <summary>
+        /// Builds a ProcessId that represents a set of Processes.  When used 
+        /// for operations like 'tell', the message is dispatched to the least busy
+        /// Process from the set.
+        /// </summary>
+        /// <example>
+        ///     tell( Dispatch.leastBusy(pid1,pid2,pid3), "Hello" );
+        /// </example>
         public static ProcessId leastBusy(ProcessId processId, params ProcessId[] processIds) =>
-            LeastBusy.Append(String.Join(",", processId.Cons(processIds).Map(x => x.Path)));
+            LeastBusy[processId.Cons(processIds)];
 
+        /// <summary>
+        /// Builds a ProcessId that represents a set of Processes.  When used 
+        /// for operations like 'tell', the message is dispatched to a cryptographically
+        /// random Process from the set.
+        /// </summary>
+        /// <example>
+        ///     tell( Dispatch.random(pid1,pid2,pid3), "Hello" );
+        /// </example>
         public static ProcessId random(ProcessId processId, params ProcessId[] processIds) =>
-            Random.Append(String.Join(",", processId.Cons(processIds).Map(x => x.Path)));
+            Random[processId.Cons(processIds)];
 
+        /// <summary>
+        /// Builds a ProcessId that represents a set of Processes.  When used 
+        /// for operations like 'tell', the message is dispatched to the Processes in a 
+        /// round-robin fashion
+        /// </summary>
+        /// <example>
+        ///     tell( Dispatch.roundRobin(pid1,pid2,pid3), "Hello" );
+        /// </example>
         public static ProcessId roundRobin(ProcessId processId, params ProcessId[] processIds) =>
-            RoundRobin.Append(String.Join(",", processId.Cons(processIds).Map(x => x.Path)));
+            RoundRobin[processId.Cons(processIds)];
 
         static readonly ProcessId Broadcast;
         static readonly ProcessId LeastBusy;
@@ -65,7 +129,7 @@ namespace LanguageExt
             ProcessName random     = "random";
             ProcessName roundRobin = "round-robin";
 
-            var processes = fun((ProcessId leaf) => leaf.Path.Split(',').Map(x => new ProcessId(x)));
+            var processes = fun((ProcessId leaf) => leaf.GetSelection());
 
             // Broadcast
             Broadcast = Dispatch.register(broadcast, processes);

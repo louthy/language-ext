@@ -9,11 +9,13 @@ namespace LanguageExt
     public class ClusterNode
     {
         public readonly ProcessName NodeName;
+        public readonly DateTime LastHeartbeat;
         public readonly ProcessName Role;
 
-        internal ClusterNode(ProcessName nodeName, ProcessName role)
+        public ClusterNode(ProcessName nodeName, DateTime lastHeartbeat, ProcessName role)
         {
             NodeName = nodeName;
+            LastHeartbeat = lastHeartbeat;
             Role = role;
         }
     }

@@ -24,11 +24,6 @@ namespace TestBed
     {
         static void Main(string[] args)
         {
-            Tests.MemoTest3();
-            Tests.LstRevLastIndexTest();
-            Console.ReadKey();
-            return;
-
             //Tests.QueueCollectionFunctions();
             //Tests.StackCollectionFunctions();
             //Tests.WrappedListOfOptionsTest1();

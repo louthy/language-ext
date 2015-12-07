@@ -783,13 +783,15 @@ namespace LanguageExt
 
         internal static IActorDispatch GetDispatcher(ProcessId pid) =>
             pid.IsValid
-                ? IsDisp(pid)
-                    ? GetPluginDispatcher(pid)
-                    : IsRegistered(pid)
-                        ? GetRegisteredDispatcher(pid)
-                        : IsLocal(pid)
-                            ? GetLocalDispatcher(pid)
-                            : GetRemoteDispatcher(pid)
+                ? pid.IsSelection
+                    ? new ActorDispatchGroup(pid.GetSelection())
+                    : IsDisp(pid)
+                        ? GetPluginDispatcher(pid)
+                        : IsRegistered(pid)
+                            ? GetRegisteredDispatcher(pid)
+                            : IsLocal(pid)
+                                ? GetLocalDispatcher(pid)
+                                : GetRemoteDispatcher(pid)
                 : new ActorDispatchNotExist(pid);
 
         static IActorDispatch GetDispatcher(ProcessId pid, ActorItem current, ProcessId orig)

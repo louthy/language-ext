@@ -285,6 +285,12 @@ namespace LanguageExt
                 Map.empty<string, T>(), 
                 (m, e) => m.Add(e.Name, JsonConvert.DeserializeObject<T>(e.Value)));
 
+        public Map<K, T> GetHashFields<K, T>(string key, Func<string,K> keyBuilder) =>
+            Db.HashGetAll(key)
+              .Fold(
+                Map.empty<K, T>(),
+                (m, e) => m.Add(keyBuilder(e.Name), JsonConvert.DeserializeObject<T>(e.Value)));
+
         public Option<T> GetHashField<T>(string key, string field)
         {
             var res = Db.HashGet(key, field);

@@ -13,6 +13,8 @@ namespace Dispatchers
     {
         static void Main(string[] args)
         {
+            ProcessId test = "/disp/broadcast/[/root/user/c,/root/user/b,/root/user/c]";
+
             //RedisCluster.register();
             //Cluster.connect("redis", "disp-test", "localhost", "0", "dispatch-role");
 
@@ -33,10 +35,10 @@ namespace Dispatchers
 
                 switch (Console.ReadKey().KeyChar)
                 {
-                    case '1': pid = Dispatch.broadcast(pida, pidb, pidc); break;
-                    case '2': pid = Dispatch.leastBusy(pida, pidb, pidc); break;
+                    case '1': pid = Dispatch.broadcast(pida, pidb, pidc);  break;
+                    case '2': pid = Dispatch.leastBusy(pida, pidb, pidc);  break;
                     case '3': pid = Dispatch.roundRobin(pida, pidb, pidc); break;
-                    case '4': pid = Dispatch.random(pida, pidb, pidc); break;
+                    case '4': pid = Dispatch.random(pida, pidb, pidc);     break;
                 }
                 Console.WriteLine();
 

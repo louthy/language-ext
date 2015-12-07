@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace LanguageExt
 {
@@ -42,10 +44,7 @@ namespace LanguageExt
             {
                 try
                 {
-                    parts = path.Substring(1)
-                                .Split(Sep)
-                                .Select(p => new ProcessName(p))
-                                .ToArray();
+                    parts = SplitOnSep(path).ToArray();
                 }
                 catch (InvalidProcessNameException)
                 {
@@ -73,11 +72,65 @@ namespace LanguageExt
             }
         }
 
+        private static IEnumerable<ProcessName> SplitOnSep(string path)
+        {
+            var builder = new StringBuilder();
+            var selection = false;
+            foreach (var c in path)
+            {
+                if (selection)
+                {
+                    if (c == ']')
+                    {
+                        selection = false;
+                    }
+                    builder.Append(c);
+                }
+                else
+                {
+                    switch (c)
+                    {
+                        case '[':
+                            selection = true;
+                            if (builder.Length > 0)
+                            {
+                                throw new InvalidProcessIdException($"Selection types must cover entire names. ie. {Sep}[{Sep}root,{Sep}node]{Sep}user, not {Sep}test[{Sep}root,{Sep}node]{Sep}user");
+                            }
+                            builder.Append('[');
+                            break;
+
+                        case Sep:
+                            if (builder.Length > 0)
+                            {
+                                yield return new ProcessName(builder.ToString());
+                                builder.Length = 0;
+                            }
+                            break;
+
+                        default:
+                            builder.Append(c);
+                            break;
+                    }
+                }
+            }
+            if (builder.Length > 0)
+            {
+                yield return new ProcessName(builder.ToString());
+            }
+        }
+
         /// <summary>
         /// Generate new ProcessId that represents a child of this process ID
         /// </summary>
         /// <returns>Process ID</returns>
         public ProcessId this[ProcessName child] => 
+            Child(child);
+
+        /// <summary>
+        /// Generate new ProcessId that represents a child of this process ID
+        /// </summary>
+        /// <returns>Process ID</returns>
+        public ProcessId this[IEnumerable<ProcessId> child] =>
             Child(child);
 
         /// <summary>
@@ -91,6 +144,61 @@ namespace LanguageExt
                 : parts.Length == 0
                     ? new ProcessId("" + Sep + name)
                     : new ProcessId(Path + Sep + name);
+
+        /// <summary>
+        /// Generate new ProcessId that represents a child of this process ID
+        /// </summary>
+        /// <param name="name">Name of the child process</param>
+        /// <returns>Process ID</returns>
+        public ProcessId Child(IEnumerable<ProcessId> name) =>
+            parts == null
+                ? failwith<ProcessId>("ProcessId is None")
+                : parts.Length == 0
+                    ? new ProcessId("" + Sep + ProcessName.FromSelection(name))
+                    : new ProcessId(Path + Sep + ProcessName.FromSelection(name));
+
+        /// <summary>
+        /// Returns true if the ProcessId represents a selection of N process
+        /// paths
+        /// </summary>
+        public bool IsSelection =>
+            parts == null || parts.Length == 0
+                ? false
+                : parts[0].IsSelection;
+
+        /// <summary>
+        /// If this ProcessId represents a selection of N process paths then
+        /// this function will return those paths as separate ProcessIds.
+        /// </summary>
+        /// <returns>An enumerable of ProcessIds representing the selection.
+        /// Zero ProcessIds will be returned if the ProcessId is invalid.
+        /// One ProcessId will be returned if this ProcessId doesn't represent
+        /// a selection.
+        /// </returns>
+        public IEnumerable<ProcessId> GetSelection()
+        {
+            var self = this;
+
+            return parts == null || parts.Length == 0
+                ? new ProcessId[0]
+                : parts[0].IsSelection
+                    ? from x in parts[0].GetSelection()
+                      from y in x.Append(self.Skip(1)).GetSelection()
+                      select y
+                    : new ProcessId[] { self };
+
+            //return parts == null || parts.Length == 0
+            //    ? new ProcessId[0]
+            //    : parts[0].IsSelection
+            //        ? from selection in parts[0].GetSelection()
+            //          let pid = selection.Append(self.Skip(1))
+            //          let childSelection = pid.GetSelection().ToArray()
+            //          from y in childSelection.Length == 0
+            //              ? new ProcessId[] { pid }
+            //              : childSelection
+            //          select y
+            //        : new ProcessId[] { self };
+        }
 
         /// <summary>
         /// Get the parent ProcessId
@@ -153,7 +261,7 @@ namespace LanguageExt
         /// <summary>
         /// Process ID name separator
         /// </summary>
-        public readonly static char Sep = '/';
+        public const char Sep = '/';
 
         /// <summary>
         /// Equality check
@@ -234,7 +342,9 @@ namespace LanguageExt
         public ProcessId Append(ProcessId pid) =>
             IsValid && pid.IsValid
                 ? Path + pid.Path
-                : raise<ProcessId>(new InvalidProcessIdException());
+                : IsValid
+                    ? pid
+                    : raise<ProcessId>(new InvalidProcessIdException());
 
         /// <summary>
         /// Absolute root of the process system
