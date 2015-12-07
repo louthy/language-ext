@@ -1,4 +1,6 @@
-﻿using System.Reactive.Subjects;
+﻿using System;
+using System.Threading.Tasks;
+using System.Reactive.Subjects;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -41,5 +43,18 @@ namespace LanguageExt
                 preShutdownSubj.OnCompleted();
             }
         }
+
+        internal static IDisposable safedelay(Action f, TimeSpan delayFor) =>
+             Task.Delay(delayFor).ContinueWith(_ =>
+               {
+                   try
+                   {
+                       f();
+                   }
+                   catch { }
+               });
+
+        internal static IDisposable safedelay(Action f, DateTime delayUntil) =>
+             safedelay(f, delayUntil - DateTime.UtcNow);
     }
 }

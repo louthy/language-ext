@@ -39,7 +39,7 @@ namespace LanguageExt
         /// for any other reason.</returns>
         public static IDisposable publish<T>(T message, TimeSpan delayFor) =>
             InMessageLoop
-                ? delay(() => ActorContext.Publish(message), delayFor).Subscribe()
+                ? safedelay(() => ActorContext.Publish(message), delayFor)
                 : raiseUseInMsgLoopOnlyException<IDisposable>(nameof(publish));
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace LanguageExt
         /// for any other reason.</returns>
         public static IDisposable publish<T>(T message, DateTime delayUntil) =>
             InMessageLoop
-                ? delay(() => ActorContext.Publish(message), delayUntil).Subscribe()
+                ? safedelay(() => ActorContext.Publish(message), delayUntil)
                 : raiseUseInMsgLoopOnlyException<IDisposable>(nameof(publish));
 
         /// <summary>

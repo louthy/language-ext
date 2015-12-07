@@ -67,7 +67,7 @@ namespace LanguageExt
         /// Forward a message to a named child process
         /// </summary>
         /// <param name="name">Name of the child process</param>
-        public static Unit fwdChild<T>(ProcessName name) =>
+        public static Unit fwdChild(ProcessName name) =>
             fwd(Self.Child(name));
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace LanguageExt
         /// behaviour, so feel that's acceptable.  
         /// </remarks>
         /// <param name="index">Index of the child process (see remarks)</param>
-        public static Unit fwdChild<T>(int index) =>
+        public static Unit fwdChild(int index) =>
             fwd(child(index));
     }
 }

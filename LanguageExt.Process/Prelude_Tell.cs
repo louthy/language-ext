@@ -48,7 +48,7 @@ namespace LanguageExt
         /// <param name="delayFor">How long to delay sending for</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         public static IDisposable tell<T>(ProcessId pid, T message, TimeSpan delayFor, ProcessId sender = default(ProcessId)) =>
-            delay(() => tell(pid, message, sender), delayFor).Subscribe();
+            safedelay(() => tell(pid, message, sender), delayFor);
 
         /// <summary>
         /// Send a message at a specified time in the future
@@ -63,7 +63,7 @@ namespace LanguageExt
         /// <param name="delayUntil">Date and time to send</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         public static IDisposable tell<T>(ProcessId pid, T message, DateTime delayUntil, ProcessId sender = default(ProcessId)) =>
-            delay(() => tell(pid, message, sender), delayUntil).Subscribe();
+            safedelay(() => tell(pid, message, sender), delayUntil);
 
         /// <summary>
         /// Tell children the same message
@@ -92,7 +92,7 @@ namespace LanguageExt
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
         public static IDisposable tellChildren<T>(T message, TimeSpan delayFor, ProcessId sender = new ProcessId()) =>
-            delay(() => tellChildren(message, sender), delayFor).Subscribe();
+            safedelay(() => tellChildren(message, sender), delayFor);
 
         /// <summary>
         /// Tell children the same message, delayed.
@@ -106,7 +106,7 @@ namespace LanguageExt
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
         public static IDisposable tellChildren<T>(T message, DateTime delayUntil, ProcessId sender = new ProcessId()) =>
-            delay(() => tellChildren(message, sender), delayUntil).Subscribe();
+            safedelay(() => tellChildren(message, sender), delayUntil);
 
         /// <summary>
         /// Tell children the same message
@@ -129,7 +129,7 @@ namespace LanguageExt
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
         public static IDisposable tellChildren<T>(T message, TimeSpan delayFor, Func<ProcessId, bool> predicate, ProcessId sender = new ProcessId()) =>
-            delay(() => tellChildren(message, predicate, sender), delayFor).Subscribe();
+            safedelay(() => tellChildren(message, predicate, sender), delayFor);
 
         /// <summary>
         /// Tell children the same message, delayed.
@@ -145,7 +145,7 @@ namespace LanguageExt
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
         public static IDisposable tellChildren<T>(T message, DateTime delayUntil, Func<ProcessId, bool> predicate, ProcessId sender = new ProcessId()) =>
-            delay(() => tellChildren(message, predicate, sender), delayUntil).Subscribe();
+            safedelay(() => tellChildren(message, predicate, sender), delayUntil);
 
         /// <summary>
         /// Send a message to the parent process
