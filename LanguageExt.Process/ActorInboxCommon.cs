@@ -176,7 +176,7 @@ namespace LanguageExt
             if (message is ActorRequest)
             {
                 var req = (ActorRequest)message;
-                if (!typeof(T).IsAssignableFrom(req.Message.GetType()) && !typeof(Message).IsAssignableFrom(req.Message.GetType()))
+                if (!(req.Message is T) && !(req.Message is Message))
                 {
                     var emsg = $"Invalid message type for ask (expected {typeof(T)})";
                     tell(ActorContext.DeadLetters, DeadLetter.create(sender, self, emsg, message));

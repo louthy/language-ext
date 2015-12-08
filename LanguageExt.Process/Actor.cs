@@ -402,7 +402,7 @@ namespace LanguageExt
                 }
             }
 
-            if (!typeof(T).IsAssignableFrom(message.GetType()))
+            if (!(message is T))
             {
                 tell(ActorContext.DeadLetters, DeadLetter.create(Sender, Self, $"Invalid message type for tell (expected {typeof(T)})", message));
                 return None;
