@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !DOT_NET_CORE
+using System;
 using System.Linq;
 using System.ComponentModel;
 using System.Globalization;
@@ -171,3 +172,4 @@ namespace LanguageExt
                 None: () => ConvertToValueNull(context, culture, destinationType, baseConvertTo));
     }
 }
+#endif

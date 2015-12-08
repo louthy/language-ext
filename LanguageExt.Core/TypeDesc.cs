@@ -56,7 +56,7 @@ namespace LanguageExt
             IsDivisible = typeof(IDivisible).IsAssignableFrom(type);
             IsString = type == typeof(string);
 
-            if (type.IsValueType)
+            if (type.GetTypeInfo().IsValueType)
             {
                 var valueType = type == typeof(bool) ? ValueTypeDesc.Bool
                               : type == typeof(char) ? ValueTypeDesc.Char

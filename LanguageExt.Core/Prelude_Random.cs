@@ -6,7 +6,7 @@ namespace LanguageExt
 {
     public static partial class Prelude
     {
-        readonly static RNGCryptoServiceProvider rnd = new RNGCryptoServiceProvider();
+        readonly static RandomNumberGenerator rnd = RandomNumberGenerator.Create();
         readonly static byte[] inttarget = new byte[4];
 
         /// <summary>

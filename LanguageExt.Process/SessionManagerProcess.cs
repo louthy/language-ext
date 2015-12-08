@@ -79,7 +79,7 @@ namespace LanguageExt
             set
             {
                 value.Match(
-                    Some: x => CallContext.LogicalSetData("lang-ext-session", x),
+                    Some: x  => CallContext.LogicalSetData("lang-ext-session", x),
                     None: () => CallContext.FreeNamedDataSlot("lang-ext-session"));
             }
         }

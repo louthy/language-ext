@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace LanguageExt
 {
@@ -211,13 +210,6 @@ namespace LanguageExt
         /// Ctor
         /// </summary>
         public BottomException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        protected BottomException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }

@@ -6,7 +6,7 @@ using static LanguageExt.Process;
 
 namespace LanguageExt
 {
-    public partial class Dispatch
+    public class Dispatch
     {
         /// <summary>
         /// Registers a dispatcher for a role

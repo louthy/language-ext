@@ -288,6 +288,9 @@ var Process = (function () {
         }
 
         var p = actor[pid];
+        if ("undefined" === typeof p) {
+            return;
+        }
         var children = p.children;
         for (var i = 0; i < children.length; i++) {
             kill(children[i]);

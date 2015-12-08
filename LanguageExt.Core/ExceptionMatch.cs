@@ -44,7 +44,7 @@ namespace LanguageExt
         /// <returns>Matching context - you must use 'Otherwise()' to invoke</returns>
         public ExceptionMatch<R> With<TException>(Func<TException, R> map) where TException : Exception
         {
-            if (typeof(TException).IsAssignableFrom(exception.GetType()))
+            if (exception is TException)
             {
                 value = map(exception as TException);
                 valueSet = true;
@@ -62,6 +62,7 @@ namespace LanguageExt
             {
                 return value;
             }
+            else
             {
                 throw exception;
             }

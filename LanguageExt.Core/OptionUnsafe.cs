@@ -19,7 +19,9 @@ namespace LanguageExt
     /// type 'unsafe'.  
     /// </summary>
     [Serializable]
-    [TypeConverter(typeof(OptionalTypeConverter))]
+#if !DOT_NET_CORE
+    [TypeConverter(typeof(OptionalTypeConverter))] 
+#endif
     public struct OptionUnsafe<T> : 
         IOptional, 
         IComparable<OptionUnsafe<T>>, 

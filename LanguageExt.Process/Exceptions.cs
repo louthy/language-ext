@@ -36,13 +36,6 @@ namespace LanguageExt
         public NamedProcessAlreadyExistsException(string message, Exception innerException) : base(message, innerException)
         {
         }
-
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        protected NamedProcessAlreadyExistsException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
     }
 
     /// <summary>
@@ -71,13 +64,6 @@ namespace LanguageExt
         /// Ctor
         /// </summary>
         public InvalidProcessNameException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        protected InvalidProcessNameException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }
@@ -110,13 +96,6 @@ namespace LanguageExt
         public InvalidProcessIdException(string message, Exception innerException) : base(message, innerException)
         {
         }
-
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        protected InvalidProcessIdException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
     }
 
     /// <summary>
@@ -145,13 +124,6 @@ namespace LanguageExt
         /// Ctor
         /// </summary>
         public NoChildProcessesException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        protected NoChildProcessesException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }
@@ -183,13 +155,6 @@ namespace LanguageExt
             Self = self;
             Sender = sender;
         }
-
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        protected ProcessException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
     }
 
     /// <summary>
@@ -212,13 +177,6 @@ namespace LanguageExt
             base("Process failed to start: "+self, innerException)
         {
             Self = self;
-        }
-
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        protected ProcessSetupException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
         }
     }
 
@@ -250,13 +208,6 @@ namespace LanguageExt
         public ProcessKillException(string message, Exception innerException) : base(message, innerException)
         {
         }
-
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        protected ProcessKillException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
     }
 
     /// <summary>
@@ -271,13 +222,6 @@ namespace LanguageExt
         public ProcessInboxFullException(ProcessId pid, int maximumSize, string type)
             :
             base("Process (" + pid + ") "+ type + " inbox is full (Maximum items: " + maximumSize + ")")
-        {
-        }
-
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        protected ProcessInboxFullException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }
@@ -296,13 +240,6 @@ namespace LanguageExt
             base("Session expired")
         {
         }
-
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        protected ProcessSessionExpired(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
     }
 
     /// <summary>
@@ -319,14 +256,5 @@ namespace LanguageExt
             base("Router has no workers")
         {
         }
-
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        protected NoRouterWorkersException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
     }
-    
-
 }

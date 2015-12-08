@@ -17,7 +17,9 @@ namespace LanguageExt
     /// To extract the value you must use the 'match' function.
     /// </summary>
     [Serializable]
-    [TypeConverter(typeof(OptionalTypeConverter))]
+    #if !DOT_NET_CORE    
+    [TypeConverter(typeof(OptionalTypeConverter))] 
+    #endif
     public struct Option<T> :
         IOptional,
         IComparable<Option<T>>,

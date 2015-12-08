@@ -97,11 +97,11 @@ namespace LanguageExt
         /// <summary>
         /// Use with the 'match' function to match values and map a result
         /// </summary>
-        public static Func<T, Option<R>> with<T, R>(Func<T, R> map)
+        public static Func<Exception, Option<R>> with<T, R>(Func<T, R> map)
             where T : Exception =>
-            (T input) =>
-                input.GetType() == typeof(T)
-                    ? Some(map(input))
+            (Exception input) =>
+                input is T
+                    ? Some(map((T)input))
                     : None;
 
         /// <summary>

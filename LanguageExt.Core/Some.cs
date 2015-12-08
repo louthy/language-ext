@@ -26,7 +26,9 @@ namespace LanguageExt
         }
     }
 
-    [TypeConverter(typeof(SomeTypeConverter))]
+#if !DOT_NET_CORE
+    [TypeConverter(typeof(OptionalTypeConverter))] 
+#endif
     public struct Some<T> : IOptional
     {
         readonly T value;
