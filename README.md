@@ -1124,7 +1124,14 @@ So you know where things are, and what they're called, and they're easily addres
 ```C#
     tell("/my-stuff/user/hello", "Hello!");
 ```
-Even that isn't great if you don't know what the name of the 'app' is running a process.  So processes can register by a single name, that goes into a 'shared hierarchy':
+Or you can use the `ProcessId` API to build the path:
+```C#
+   ProcessId a = "/my-stuff/user/hello";
+   ProcessId b = tell(ProcessId.Top["my-stuff"]["user"]["hello"]);
+   ProcessId c = tell(ProcessId.User["hello"]);   // (from 'my-stuff' node)
+   // a == b == c
+```
+Even that isn't great if you don't know what the name of the 'app' that is running a Process.  So processes can register by a single name, that goes into a 'shared hierarchy':
 ```
     /registered/...
 ```
@@ -1140,11 +1147,13 @@ Your process now has two addresses, the `/my-stuff/user/hello-world` address and
 ```C#
     tell(find("hello-world"), "Hi!");
 ```
-You can also use roles to dispatch to cluster nodes within a role.  For example you may have mail-sending cluster nodes.  You can do simple load balancing like so:
+You can also use roles to dispatch to cluster nodes within a role.  For example you may have mail-sending nodes in your cluster.  You can do simple load balancing like so:
 ```C#
    tell(Role.LeastBusy["smtp"]["user"]["sender"], email);
 ```
-That will find all Processes in the cluster that are in the `smtp` role (specified by the last parameter when you call `Cluster.connect`), work out which one has the smallest queue and send the message to its `/user/sender` Process.  You can also use:
+That will find all Processes in the cluster that are in the `smtp` role (specified by the last parameter when you call `Cluster.connect`), it then works out which one has the smallest queue and sends the message to its `/user/sender` Process.  
+
+You can also use:
 ```C#
     Role.Broadcast - sends to all nodes
     Role.RoundRobin - sends to one node at a time in a round-robin fashion
@@ -1156,9 +1165,9 @@ That will find all Processes in the cluster that are in the `smtp` role (specifi
 ```
 Also note that this:
 ```C#
-    Role.LeastBusy["smtp"]["user"]["sender"]
+    ProcessId pid = Role.LeastBusy["smtp"]["user"]["sender"]
 ```
-Generates a normal `ProcessId` just like any other  `ProcessId`, and therefore can be used with any function in the API that accepts a `ProcessId`.  So cluster dispatch becomes trivial.
+Generates a normal `ProcessId` just like any other  `ProcessId`, and therefore can be used with any function in the API that accepts a `ProcessId` and can be validly passed around just like any other `ProcessId`.  So cluster dispatch a communication becomes trivial.
 
 ### Persistence
 There is an `ICluster` interface that you can use the implement your own persistence layer.  However out of the box there is persistence to Redis (using `LanguageExt.Process.Redis`).  
