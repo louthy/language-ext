@@ -16,7 +16,6 @@ namespace LanguageExt
             return () => value.Value;
         }
 
-#if !DOT_NET_CORE
         /// <summary>
         /// Returns a Func<T,R> that wraps func.  Each time the resulting
         /// Func<T,R> is called with a new value, its result is memoized (cached).
@@ -160,6 +159,5 @@ namespace LanguageExt
                 return dict.TryRemove(key, out ignore);
             }
         }
-#endif
     }
 }
