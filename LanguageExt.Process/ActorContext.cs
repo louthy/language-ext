@@ -141,7 +141,7 @@ namespace LanguageExt
                     RemoveWatchingOfRemote(x.Name);
                 });
 
-                Process.observe<ClusterMonitor.State>(monitor).Subscribe(x =>
+                Process.observeState<ClusterMonitor.State>(monitor).Subscribe(x =>
                 {
                     clusterState = x;
                 });
