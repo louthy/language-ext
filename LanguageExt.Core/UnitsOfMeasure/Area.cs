@@ -12,7 +12,6 @@ namespace LanguageExt.UnitsOfMeasure
     /// value, then extract using various unit-of-measure
     /// accessors (SqMetres, SqCentimetres, etc.) or divide by 1.SqMetre()
     /// </summary>
-    [Serializable]
     public struct Area :
         IAppendable<Area>,
         ISubtractable<Area>,

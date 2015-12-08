@@ -76,7 +76,6 @@ namespace LanguageExt
     /// <summary>
     /// Result is null
     /// </summary>
-    [Serializable]
     public class ResultIsNullException : Exception
     {
         /// <summary>
@@ -105,7 +104,6 @@ namespace LanguageExt
     /// <summary>
     /// Option T is none
     /// </summary>
-    [Serializable]
     public class OptionIsNoneException : Exception
     {
         /// <summary>
@@ -134,7 +132,6 @@ namespace LanguageExt
     /// <summary>
     /// Either is not right
     /// </summary>
-    [Serializable]
     public class EitherIsNotRightException : Exception
     {
         /// <summary>
@@ -163,7 +160,6 @@ namespace LanguageExt
     /// <summary>
     /// Either is not left
     /// </summary>
-    [Serializable]
     public class EitherIsNotLeftException : Exception
     {
         /// <summary>
@@ -192,7 +188,6 @@ namespace LanguageExt
     /// <summary>
     /// Value is bottom
     /// </summary>
-    [Serializable]
     public class BottomException : Exception
     {
         /// <summary>

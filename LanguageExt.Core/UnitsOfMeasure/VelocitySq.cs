@@ -7,7 +7,6 @@ namespace LanguageExt.UnitsOfMeasure
     /// Numeric VelocitySquared value
     /// Handles unit conversions automatically
     /// </summary>
-    [Serializable]
     public struct VelocitySq :
         IAppendable<VelocitySq>,
         ISubtractable<VelocitySq>,

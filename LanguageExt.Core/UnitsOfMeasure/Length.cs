@@ -12,7 +12,6 @@ namespace LanguageExt.UnitsOfMeasure
     /// value, then extract using various unit-of-measure
     /// accessors (Metres, Centimetres, etc.) or divide by 1.Metre()
     /// </summary>
-    [Serializable]
     public struct Length :
         IAppendable<Length>,
         ISubtractable<Length>,

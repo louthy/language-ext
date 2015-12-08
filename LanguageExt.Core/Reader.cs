@@ -29,7 +29,7 @@ namespace LanguageExt
         internal ReaderResult(T value, bool isBottom = false)
         {
             this.value = value;
-            IsBottom = isBottom;
+            IsBottom = isBottom; 
         }
 
         public static implicit operator ReaderResult<T>(T value) =>

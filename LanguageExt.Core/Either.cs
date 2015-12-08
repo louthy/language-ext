@@ -26,7 +26,6 @@ namespace LanguageExt
     /// </remarks>
     /// <typeparam name="L">Left</typeparam>
     /// <typeparam name="R">Right</typeparam>
-    [Serializable]
     public struct Either<L, R> :
         IEither,
         IComparable<Either<L,R>>,
@@ -40,7 +39,7 @@ namespace LanguageExt
     {
         public readonly static Either<L, R> Bottom = new Either<L, R>();
 
-        readonly R right;
+        readonly R right; 
         readonly L left;
 
         private Either(R right)

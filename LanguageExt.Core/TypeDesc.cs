@@ -50,10 +50,10 @@ namespace LanguageExt
 
         public TypeDesc(Type type)
         {
-            IsAppendable = typeof(IAppendable).IsAssignableFrom(type);
-            IsSubtractable = typeof(ISubtractable).IsAssignableFrom(type);
-            IsMultiplicable = typeof(IMultiplicable).IsAssignableFrom(type);
-            IsDivisible = typeof(IDivisible).IsAssignableFrom(type);
+            IsAppendable = typeof(IAppendable).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
+            IsSubtractable = typeof(ISubtractable).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
+            IsMultiplicable = typeof(IMultiplicable).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
+            IsDivisible = typeof(IDivisible).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
             IsString = type == typeof(string);
 
             if (type.GetTypeInfo().IsValueType)

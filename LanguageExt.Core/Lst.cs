@@ -12,7 +12,6 @@ namespace LanguageExt
     /// Immutable list
     /// </summary>
     /// <typeparam name="T">Value type</typeparam>
-    [Serializable]
     public class Lst<T> : 
         IEnumerable<T>, 
         IEnumerable, 
@@ -360,7 +359,6 @@ namespace LanguageExt
              select TypeDesc.Divide(x, y, TypeDesc<T>.Default)).Freeze();
     }
 
-    [Serializable]
     internal class ListItem<T>
     {
         public static readonly ListItem<T> Empty = new ListItem<T>(0, 0, default(T), null, null);

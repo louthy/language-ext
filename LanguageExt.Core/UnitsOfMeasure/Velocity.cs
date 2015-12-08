@@ -12,7 +12,6 @@ namespace LanguageExt.UnitsOfMeasure
     /// value, then extract using various unit-of-measure
     /// accessors (MetresPerSecond, etc.) or divide by 1.MetrePerSecond()
     /// </summary>
-    [Serializable]
     public struct Velocity :
         IAppendable<Velocity>,
         ISubtractable<Velocity>,

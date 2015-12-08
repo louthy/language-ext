@@ -12,7 +12,6 @@ namespace LanguageExt.UnitsOfMeasure
     /// accessors (Milliseconds, Seconds, etc.) or divide by 1.Second()
     /// Implicitly convertible to TimeSpan
     /// </summary>
-    [Serializable]
     public struct Time :
         IAppendable<Time>,
         ISubtractable<Time>,

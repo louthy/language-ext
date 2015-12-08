@@ -18,7 +18,6 @@ namespace LanguageExt
     /// is expressly forbidden for Option T.  That is what makes this
     /// type 'unsafe'.  
     /// </summary>
-    [Serializable]
 #if !DOT_NET_CORE
     [TypeConverter(typeof(OptionalTypeConverter))] 
 #endif

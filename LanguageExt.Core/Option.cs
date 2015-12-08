@@ -16,7 +16,6 @@ namespace LanguageExt
     ///     2. None    -- which means there's no value stored inside
     /// To extract the value you must use the 'match' function.
     /// </summary>
-    [Serializable]
     #if !DOT_NET_CORE    
     [TypeConverter(typeof(OptionalTypeConverter))] 
     #endif

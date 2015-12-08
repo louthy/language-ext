@@ -17,7 +17,6 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="K">Key type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
-    [Serializable]
     public class Map<K, V> : 
         IEnumerable<IMapItem<K, V>>, 
         IReadOnlyDictionary<K,V>, 
@@ -763,7 +762,6 @@ namespace LanguageExt
         }
     }
 
-    [Serializable]
     internal class MapItem<K, V> : IMapItem<K, V>
     {
         public static readonly MapItem<K, V> Empty = new MapItem<K, V>(0, 0, default(K), default(V), null, null);
