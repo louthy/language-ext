@@ -1110,10 +1110,10 @@ So there's a supervision hierarchy, where you have a `root` process, then a chil
     /root/system/dead-letters
     etc.
 ```
-When you create a Redis cluster connection the second argument is the name of the node in the 'cluster' (i.e. the name of the app/service/website, whatever it is your code does).  
+When you create a Redis cluster connection the second argument is the name of the node in the 'cluster' (i.e. the name of the app/service/website, whatever it is your code does).  The last argument is the role of the node in the cluster (see `Role.Broadcast`, `Role.LeastBusy`, `Role.Random`, `Role.RoundRobin`, `Role.First` - for cluster dispatch methods).
 ```C#
     RedisCluster.register();
-    Cluster.connect("redis", "my-stuff", "localhost", "0");
+    Cluster.connect("redis", "my-stuff", "localhost", "0","my-node-role");
 ```
 Then your user hierarchy looks like this:
 ```C#
@@ -1137,10 +1137,29 @@ This goes in:
     /registered/hello-world
 ```
 Your process now has two addresses, the `/my-stuff/user/hello-world` address and the `/registered/hello-world` address that anyone can find calling `find("hello-world")`.  This makes it very simple to bootstrap processes and get messages to them even if you don't know what system is actually dealing with it:
-:
 ```C#
     tell(find("hello-world"), "Hi!");
 ```
+You can also use roles to dispatch to cluster nodes within a role.  For example you may have mail-sending cluster nodes.  You can do simple load balancing like so:
+```C#
+   tell(Role.LeastBusy["smtp"]["user"]["sender"], email);
+```
+That will find all Processes in the cluster that are in the `smtp` role (specified by the last parameter when you call `Cluster.connect`), work out which one has the smallest queue and send the message to its `/user/sender` Process.  You can also use:
+```C#
+    Role.Broadcast - sends to all nodes
+    Role.RoundRobin - sends to one node at a time in a round-robin fashion
+    Role.Random - sends to a random node
+    Role.First - sends to the first node (sorted by node name: the second parameter to Cluster.connect)
+    Role.Second - sends to the second node
+    Role.Third - sends to the third node
+    Role.Last - sends to the last node
+```
+Also note that this:
+```C#
+    Role.LeastBusy["smtp"]["user"]["sender"]
+```
+Generates a normal `ProcessId` just like any other  `ProcessId`, and therefore can be used with any function in the API that accepts a `ProcessId`.  So cluster dispatch becomes trivial.
+
 ### Persistence
 There is an `ICluster` interface that you can use the implement your own persistence layer.  However out of the box there is persistence to Redis (using `LanguageExt.Process.Redis`).  
 
