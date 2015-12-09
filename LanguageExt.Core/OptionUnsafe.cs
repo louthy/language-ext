@@ -18,7 +18,7 @@ namespace LanguageExt
     /// is expressly forbidden for Option T.  That is what makes this
     /// type 'unsafe'.  
     /// </summary>
-#if !(NETFX_CORE || DNXCORE50)
+#if !COREFX
     [TypeConverter(typeof(OptionalTypeConverter))] 
 #endif
     public struct OptionUnsafe<T> : 

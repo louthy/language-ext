@@ -13,7 +13,7 @@ namespace LanguageExt
     {
         static FSharpFunc<A,B> ToFSharpFunc<A, B>(Func<A, B> f)
         {
-#if (NETFX_CORE || DNXCORE50)
+#if COREFX
             return (FSharpFunc<A, B>)typeof(FSharpFunc<A, B>).GetTypeInfo().GetDeclaredMethod("op_Implicit").Invoke(null, new[] { f });
 #else
             return FuncConvert.ToFSharpFunc<A,B>(new Converter<A, B>(f));

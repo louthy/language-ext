@@ -2,8 +2,8 @@
   "version": "1.7.5-*",
   "authors": [ "Paul Louth" ],
   "owners": ["paullouth"],
-  "title": "LanguageExt.Core",
-  "description": "This library uses and abuses the features of C# 6 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself. It also includes an 'Erlang like' process system (actors) that can optionally persist messages and state to Redis (note you can use it without Redis for in-app messaging). The process system additionally supports Rx streams of messages and state allowing for a complete system of reactive events and message dispatch.",
+  "title": "LanguageExt.Process",
+  "description": "Actor library component that works with LanguageExt.Core: A library that uses and abuses the features of C# 6 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself. It also includes an 'Erlang like' process system (actors) that can optionally persist messages and state to Redis (note you can use it without Redis for in-app messaging). The process system additionally supports Rx streams of messages and state allowing for a complete system of reactive events and message dispatch.",
   "tags": [ "C#", "Functional", "Language Extension", "Monad", "Option", "Either", "Reader", "Writer", "State", "List", "Set", "Map", "Queue", "Memo", "Memoization", "Immutable", "Lambda", "Pattern Matching", "Tuple", "Actor", "Process", "Akka", "Redis" ],
   "releaseNotes": "",
   "iconUrl": "https://camo.githubusercontent.com/08525ae465a9061150679d871731e77b399c2a94/687474703a2f2f7777772e34666f75722e6f72672f696d616765732f6c616e672d6578742d6c6f676f2e706e67",
@@ -24,7 +24,10 @@
     }
   },
   "dependencies": {
-    "Rx-Main": "2.2.5.0"
+    "LanguageExt.Core": "1.7.5",
+    "Newtonsoft.Json": "7.0.1",
+    "Rx-Main": "2.2.5.0",
+    "FSharp.Core": "4.0.0.1"
   },
   "frameworks": {
     "dnx451": {
@@ -42,11 +45,13 @@
         "System.Runtime.Extensions": "4.0.10",
         "System.Linq": "4.0.0",
         "System.Linq.Expressions": "4.0.0",
-        "System.Collections": "4.0.10",
-        "System.Collections.Concurrent": "4.0.10",
         "System.Linq.Queryable": "4.0.0",
+        "System.Linq.Parallel": "4.0.0",
+        "System.Collections": "4.0.10",
         "System.Threading": "4.0.10",
-        "System.Security.Cryptography.RandomNumberGenerator": "4.0.0-beta-23225"
+        "System.Threading.Tasks": "4.0.10",
+        "System.Security.Cryptography.RandomNumberGenerator": "4.0.0-beta-23225",
+        "System.ComponentModel": "4.0.0",
       }
     }
   },

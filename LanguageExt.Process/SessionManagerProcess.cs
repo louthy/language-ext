@@ -2,7 +2,7 @@
 using System;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
-#if (NETFX_CORE || DNXCORE50)
+#if COREFX
 using System.Threading;
 #else
 using System.Runtime.Remoting.Messaging;
@@ -69,7 +69,7 @@ namespace LanguageExt
             SessionId.IfSome(sid => SessionId = sessions.Sessions.Find(sid).Map(s => s.Id));
         }
 
-#if (NETFX_CORE || DNXCORE50)
+#if COREFX
         static AsyncLocal<string> sessionAsyncLocal = new AsyncLocal<string>();
 #endif
 
@@ -77,7 +77,7 @@ namespace LanguageExt
         {
             get
             {
-#if (NETFX_CORE || DNXCORE50)
+#if COREFX
                 return Optional(sessionAsyncLocal.Value);
 #else
                 return Optional(CallContext.LogicalGetData("lang-ext-session") as string);
@@ -85,7 +85,7 @@ namespace LanguageExt
             }
             set
             {
-#if (NETFX_CORE || DNXCORE50)
+#if COREFX
                 sessionAsyncLocal.Value = value.IfNoneUnsafe((string)null);
 #else
                 value.Match(

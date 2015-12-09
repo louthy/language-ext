@@ -1,4 +1,4 @@
-﻿#if !(NETFX_CORE || DNXCORE50)
+﻿#if !COREFX
 using System;
 using System.Linq;
 using System.ComponentModel;
