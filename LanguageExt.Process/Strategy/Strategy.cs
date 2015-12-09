@@ -2,6 +2,7 @@
 using System.Linq;
 using LanguageExt.UnitsOfMeasure;
 using static LanguageExt.Prelude;
+using System.Reflection;
 
 namespace LanguageExt
 {
@@ -225,7 +226,7 @@ namespace LanguageExt
         /// <returns>Strategy computation as a State monad</returns>
         public static State<Exception, Option<Directive>> With<TException>(Func<TException, Directive> map) where TException : Exception =>
             from ex in get<Exception>()
-            let typeMatch = typeof(TException).IsAssignableFrom(ex.GetType())
+            let typeMatch = typeof(TException).GetTypeInfo().IsAssignableFrom(ex.GetType().GetTypeInfo())
             select typeMatch
                 ? Some(map((TException)ex))
                 : None;
@@ -261,7 +262,7 @@ namespace LanguageExt
 
         public static State<Directive, Option<MessageDirective>> When<TDirective>(Func<TDirective, MessageDirective> map) where TDirective : Directive =>
             from directive in get<Directive>()
-            let typeMatch = typeof(TDirective).IsAssignableFrom(directive.GetType())
+            let typeMatch = typeof(TDirective).GetTypeInfo().IsAssignableFrom(directive.GetType().GetTypeInfo())
             select typeMatch
                 ? Some(map((TDirective)directive))
                 : None;

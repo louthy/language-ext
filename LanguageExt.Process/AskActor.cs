@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
+using System.Reflection;
 using System.Threading;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
@@ -49,7 +50,7 @@ namespace LanguageExt
                             try
                             {
                                 var msgtype = Type.GetType(res.ResponseMessageType);
-                                if (msgtype == res.Message.GetType() && typeof(Exception).IsAssignableFrom(msgtype))
+                                if (msgtype == res.Message.GetType() && typeof(Exception).GetTypeInfo().IsAssignableFrom(msgtype.GetTypeInfo()))
                                 {
                                     // Type is fine, just return it as an error
                                     ex = (Exception)res.Message;

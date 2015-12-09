@@ -26,7 +26,7 @@ namespace LanguageExt
         }
     }
 
-#if !DOT_NET_CORE
+#if !(NETFX_CORE || DNXCORE50)
     [TypeConverter(typeof(OptionalTypeConverter))] 
 #endif
     public struct Some<T> : IOptional

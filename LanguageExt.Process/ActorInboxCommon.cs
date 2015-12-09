@@ -5,13 +5,23 @@ using System.Threading;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
+using System.Reflection;
 
 namespace LanguageExt
 {
     static class ActorInboxCommon
     {
+        static FSharpFunc<A,B> ToFSharpFunc<A, B>(Func<A, B> f)
+        {
+#if (NETFX_CORE || DNXCORE50)
+            return (FSharpFunc<A, B>)typeof(FSharpFunc<A, B>).GetTypeInfo().GetDeclaredMethod("op_Implicit").Invoke(null, new[] { f });
+#else
+            return FuncConvert.ToFSharpFunc<A,B>(new Converter<A, B>(f));
+#endif
+        }
+
         public static FSharpAsync<A> CreateAsync<A>(Func<Task<A>> f) =>
-            FSharpAsync.FromContinuations<A>(
+            FSharpAsync.FromContinuations(
                 FuncConvert.ToFSharpFunc<Tuple<FSharpFunc<A, Microsoft.FSharp.Core.Unit>, FSharpFunc<Exception, Microsoft.FSharp.Core.Unit>, FSharpFunc<OperationCanceledException, Microsoft.FSharp.Core.Unit>>>(
                     conts =>
                     {
@@ -24,7 +34,7 @@ namespace LanguageExt
 
         public static FSharpMailboxProcessor<TMsg> Mailbox<TMsg>(CancellationToken cancelToken, Action<TMsg> handler)
         {
-            var body = FuncConvert.ToFSharpFunc<FSharpMailboxProcessor<TMsg>, FSharpAsync<Microsoft.FSharp.Core.Unit>>(
+            var body = ToFSharpFunc<FSharpMailboxProcessor<TMsg>, FSharpAsync<Microsoft.FSharp.Core.Unit>>(
                 mbox =>
                     CreateAsync<Microsoft.FSharp.Core.Unit>(async () =>
                     {

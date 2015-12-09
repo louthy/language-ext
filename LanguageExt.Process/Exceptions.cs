@@ -11,7 +11,6 @@ namespace LanguageExt
     /// <summary>
     /// Named process already exists
     /// </summary>
-    [Serializable]
     public class NamedProcessAlreadyExistsException : Exception
     {
         /// <summary>
@@ -41,7 +40,6 @@ namespace LanguageExt
     /// <summary>
     /// Invalid process name
     /// </summary>
-    [Serializable]
     public class InvalidProcessNameException : Exception
     {
         /// <summary>
@@ -71,7 +69,6 @@ namespace LanguageExt
     /// <summary>
     /// Invalid process ID
     /// </summary>
-    [Serializable]
     public class InvalidProcessIdException : Exception
     {
         /// <summary>
@@ -101,7 +98,6 @@ namespace LanguageExt
     /// <summary>
     /// NoChildProcessesException
     /// </summary>
-    [Serializable]
     public class NoChildProcessesException : Exception
     {
         /// <summary>
@@ -131,7 +127,6 @@ namespace LanguageExt
     /// <summary>
     /// A process threw an exception in its message loop
     /// </summary>
-    [Serializable]
     public class ProcessException : Exception
     {
         /// <summary>
@@ -160,7 +155,6 @@ namespace LanguageExt
     /// <summary>
     /// A process threw an exception in its setup function
     /// </summary>
-    [Serializable]
     public class ProcessSetupException : Exception
     {
         /// <summary>
@@ -183,7 +177,6 @@ namespace LanguageExt
     /// <summary>
     /// Kill process
     /// </summary>
-    [Serializable]
     public class ProcessKillException : Exception
     {
         /// <summary>
@@ -213,7 +206,6 @@ namespace LanguageExt
     /// <summary>
     /// Process inbox is full
     /// </summary>
-    [Serializable]
     public class ProcessInboxFullException : Exception
     {
         /// <summary>
@@ -229,7 +221,6 @@ namespace LanguageExt
     /// <summary>
     /// Session expired
     /// </summary>
-    [Serializable]
     public class ProcessSessionExpired : Exception
     {
         /// <summary>
@@ -245,7 +236,6 @@ namespace LanguageExt
     /// <summary>
     /// There are no children to route the message to
     /// </summary>
-    [Serializable]
     public class NoRouterWorkersException : Exception
     {
         /// <summary>

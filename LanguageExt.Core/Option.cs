@@ -16,9 +16,9 @@ namespace LanguageExt
     ///     2. None    -- which means there's no value stored inside
     /// To extract the value you must use the 'match' function.
     /// </summary>
-    #if !DOT_NET_CORE    
+#if !(NETFX_CORE || DNXCORE50)
     [TypeConverter(typeof(OptionalTypeConverter))] 
-    #endif
+#endif
     public struct Option<T> :
         IOptional,
         IComparable<Option<T>>,

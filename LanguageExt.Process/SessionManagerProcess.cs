@@ -1,13 +1,12 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
-using System.Threading.Tasks;
-
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
+#if (NETFX_CORE || DNXCORE50)
+using System.Threading;
+#else
+using System.Runtime.Remoting.Messaging;
+#endif
 
 namespace LanguageExt
 {
@@ -70,17 +69,29 @@ namespace LanguageExt
             SessionId.IfSome(sid => SessionId = sessions.Sessions.Find(sid).Map(s => s.Id));
         }
 
+#if (NETFX_CORE || DNXCORE50)
+        static AsyncLocal<string> sessionAsyncLocal = new AsyncLocal<string>();
+#endif
+
         public static Option<string> SessionId
         {
             get
             {
+#if (NETFX_CORE || DNXCORE50)
+                return Optional(sessionAsyncLocal.Value);
+#else
                 return Optional(CallContext.LogicalGetData("lang-ext-session") as string);
+#endif
             }
             set
             {
+#if (NETFX_CORE || DNXCORE50)
+                sessionAsyncLocal.Value = value.IfNoneUnsafe((string)null);
+#else
                 value.Match(
                     Some: x  => CallContext.LogicalSetData("lang-ext-session", x),
                     None: () => CallContext.FreeNamedDataSlot("lang-ext-session"));
+#endif
             }
         }
 

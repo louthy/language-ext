@@ -45,7 +45,7 @@ namespace LanguageExt
         }
 
         internal static IDisposable safedelay(Action f, TimeSpan delayFor) =>
-             Task.Delay(delayFor).ContinueWith(_ =>
+             (IDisposable)Task.Delay(delayFor).ContinueWith(_ =>
                {
                    try
                    {

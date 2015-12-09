@@ -1,4 +1,4 @@
-﻿#if !DOT_NET_CORE
+﻿#if !(NETFX_CORE || DNXCORE50)
 using System;
 using System.Linq;
 using System.ComponentModel;
