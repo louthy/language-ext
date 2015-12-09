@@ -85,6 +85,89 @@
         }
       }
     },
+    "DNX,Version=v4.6.1": {
+      "FSharp.Core/4.0.0.1": {
+        "type": "package",
+        "compile": {
+          "lib/net40/FSharp.Core.dll": {}
+        },
+        "runtime": {
+          "lib/net40/FSharp.Core.dll": {}
+        }
+      },
+      "LanguageExt.Core/1.7.5": {
+        "type": "project",
+        "framework": "DNX,Version=v4.6.1",
+        "dependencies": {
+          "Rx-Main": "2.2.5"
+        }
+      },
+      "Newtonsoft.Json/7.0.1": {
+        "type": "package",
+        "compile": {
+          "lib/net45/Newtonsoft.Json.dll": {}
+        },
+        "runtime": {
+          "lib/net45/Newtonsoft.Json.dll": {}
+        }
+      },
+      "Rx-Core/2.2.5": {
+        "type": "package",
+        "dependencies": {
+          "Rx-Interfaces": "2.2.5"
+        },
+        "compile": {
+          "lib/net45/System.Reactive.Core.dll": {}
+        },
+        "runtime": {
+          "lib/net45/System.Reactive.Core.dll": {}
+        }
+      },
+      "Rx-Interfaces/2.2.5": {
+        "type": "package",
+        "compile": {
+          "lib/net45/System.Reactive.Interfaces.dll": {}
+        },
+        "runtime": {
+          "lib/net45/System.Reactive.Interfaces.dll": {}
+        }
+      },
+      "Rx-Linq/2.2.5": {
+        "type": "package",
+        "dependencies": {
+          "Rx-Core": "2.2.5",
+          "Rx-Interfaces": "2.2.5"
+        },
+        "compile": {
+          "lib/net45/System.Reactive.Linq.dll": {}
+        },
+        "runtime": {
+          "lib/net45/System.Reactive.Linq.dll": {}
+        }
+      },
+      "Rx-Main/2.2.5": {
+        "type": "package",
+        "dependencies": {
+          "Rx-Core": "2.2.5",
+          "Rx-Interfaces": "2.2.5",
+          "Rx-Linq": "2.2.5",
+          "Rx-PlatformServices": "2.2.5"
+        }
+      },
+      "Rx-PlatformServices/2.2.5": {
+        "type": "package",
+        "dependencies": {
+          "Rx-Core": "2.2.5",
+          "Rx-Interfaces": "2.2.5"
+        },
+        "compile": {
+          "lib/net45/System.Reactive.PlatformServices.dll": {}
+        },
+        "runtime": {
+          "lib/net45/System.Reactive.PlatformServices.dll": {}
+        }
+      }
+    },
     "DNXCore,Version=v5.0": {
       "FSharp.Core/4.0.0.1": {
         "type": "package",
@@ -620,6 +703,172 @@
       "LanguageExt.Core/1.7.5": {
         "type": "project",
         "framework": "DNX,Version=v4.5.1",
+        "dependencies": {
+          "Rx-Main": "2.2.5"
+        }
+      },
+      "Newtonsoft.Json/7.0.1": {
+        "type": "package",
+        "compile": {
+          "lib/net45/Newtonsoft.Json.dll": {}
+        },
+        "runtime": {
+          "lib/net45/Newtonsoft.Json.dll": {}
+        }
+      },
+      "Rx-Core/2.2.5": {
+        "type": "package",
+        "dependencies": {
+          "Rx-Interfaces": "2.2.5"
+        },
+        "compile": {
+          "lib/net45/System.Reactive.Core.dll": {}
+        },
+        "runtime": {
+          "lib/net45/System.Reactive.Core.dll": {}
+        }
+      },
+      "Rx-Interfaces/2.2.5": {
+        "type": "package",
+        "compile": {
+          "lib/net45/System.Reactive.Interfaces.dll": {}
+        },
+        "runtime": {
+          "lib/net45/System.Reactive.Interfaces.dll": {}
+        }
+      },
+      "Rx-Linq/2.2.5": {
+        "type": "package",
+        "dependencies": {
+          "Rx-Core": "2.2.5",
+          "Rx-Interfaces": "2.2.5"
+        },
+        "compile": {
+          "lib/net45/System.Reactive.Linq.dll": {}
+        },
+        "runtime": {
+          "lib/net45/System.Reactive.Linq.dll": {}
+        }
+      },
+      "Rx-Main/2.2.5": {
+        "type": "package",
+        "dependencies": {
+          "Rx-Core": "2.2.5",
+          "Rx-Interfaces": "2.2.5",
+          "Rx-Linq": "2.2.5",
+          "Rx-PlatformServices": "2.2.5"
+        }
+      },
+      "Rx-PlatformServices/2.2.5": {
+        "type": "package",
+        "dependencies": {
+          "Rx-Core": "2.2.5",
+          "Rx-Interfaces": "2.2.5"
+        },
+        "compile": {
+          "lib/net45/System.Reactive.PlatformServices.dll": {}
+        },
+        "runtime": {
+          "lib/net45/System.Reactive.PlatformServices.dll": {}
+        }
+      }
+    },
+    "DNX,Version=v4.6.1/win7-x86": {
+      "FSharp.Core/4.0.0.1": {
+        "type": "package",
+        "compile": {
+          "lib/net40/FSharp.Core.dll": {}
+        },
+        "runtime": {
+          "lib/net40/FSharp.Core.dll": {}
+        }
+      },
+      "LanguageExt.Core/1.7.5": {
+        "type": "project",
+        "framework": "DNX,Version=v4.6.1",
+        "dependencies": {
+          "Rx-Main": "2.2.5"
+        }
+      },
+      "Newtonsoft.Json/7.0.1": {
+        "type": "package",
+        "compile": {
+          "lib/net45/Newtonsoft.Json.dll": {}
+        },
+        "runtime": {
+          "lib/net45/Newtonsoft.Json.dll": {}
+        }
+      },
+      "Rx-Core/2.2.5": {
+        "type": "package",
+        "dependencies": {
+          "Rx-Interfaces": "2.2.5"
+        },
+        "compile": {
+          "lib/net45/System.Reactive.Core.dll": {}
+        },
+        "runtime": {
+          "lib/net45/System.Reactive.Core.dll": {}
+        }
+      },
+      "Rx-Interfaces/2.2.5": {
+        "type": "package",
+        "compile": {
+          "lib/net45/System.Reactive.Interfaces.dll": {}
+        },
+        "runtime": {
+          "lib/net45/System.Reactive.Interfaces.dll": {}
+        }
+      },
+      "Rx-Linq/2.2.5": {
+        "type": "package",
+        "dependencies": {
+          "Rx-Core": "2.2.5",
+          "Rx-Interfaces": "2.2.5"
+        },
+        "compile": {
+          "lib/net45/System.Reactive.Linq.dll": {}
+        },
+        "runtime": {
+          "lib/net45/System.Reactive.Linq.dll": {}
+        }
+      },
+      "Rx-Main/2.2.5": {
+        "type": "package",
+        "dependencies": {
+          "Rx-Core": "2.2.5",
+          "Rx-Interfaces": "2.2.5",
+          "Rx-Linq": "2.2.5",
+          "Rx-PlatformServices": "2.2.5"
+        }
+      },
+      "Rx-PlatformServices/2.2.5": {
+        "type": "package",
+        "dependencies": {
+          "Rx-Core": "2.2.5",
+          "Rx-Interfaces": "2.2.5"
+        },
+        "compile": {
+          "lib/net45/System.Reactive.PlatformServices.dll": {}
+        },
+        "runtime": {
+          "lib/net45/System.Reactive.PlatformServices.dll": {}
+        }
+      }
+    },
+    "DNX,Version=v4.6.1/win7-x64": {
+      "FSharp.Core/4.0.0.1": {
+        "type": "package",
+        "compile": {
+          "lib/net40/FSharp.Core.dll": {}
+        },
+        "runtime": {
+          "lib/net40/FSharp.Core.dll": {}
+        }
+      },
+      "LanguageExt.Core/1.7.5": {
+        "type": "project",
+        "framework": "DNX,Version=v4.6.1",
         "dependencies": {
           "Rx-Main": "2.2.5"
         }
@@ -2613,11 +2862,11 @@
     "": [
       "LanguageExt.Core >= 1.7.5",
       "Newtonsoft.Json >= 7.0.1",
-      "Rx-Main >= 2.2.5"
-    ],
-    "DNX,Version=v4.5.1": [
+      "Rx-Main >= 2.2.5",
       "FSharp.Core >= 4.0.0.1"
     ],
+    "DNX,Version=v4.5.1": [],
+    "DNX,Version=v4.6.1": [],
     "DNXCore,Version=v5.0": [
       "System.Runtime >= 4.0.20",
       "System.Runtime.Extensions >= 4.0.10",
@@ -2629,8 +2878,7 @@
       "System.Threading >= 4.0.10",
       "System.Threading.Tasks >= 4.0.10",
       "System.Security.Cryptography.RandomNumberGenerator >= 4.0.0-beta-23225",
-      "System.ComponentModel >= 4.0.0",
-      "FSharp.Core >= 4.0.0.1"
+      "System.ComponentModel >= 4.0.0"
     ]
   }
 }
