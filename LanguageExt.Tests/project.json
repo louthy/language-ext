@@ -1,0 +1,46 @@
+{
+  "version": "1.7.5-*",
+  "authors": [ "Paul Louth" ],
+  "owners": ["paullouth"],
+  "title": "LanguageExt Unit Tests",
+  "description": "Lang Ext Unit Tests",
+  "projectUrl": "https://github.com/louthy/language-ext",
+  "licenseUrl": "https://github.com/louthy/language-ext/blob/master/LICENSE.md",
+  "copyright": "Copyright (c) Paul Louth",
+  "configurations": {
+    "Debug": {
+      "compilationOptions": {
+        "define": [ "DEBUG", "TRACE" ]
+      }
+    },
+    "Release": {
+      "compilationOptions": {
+        "define": [ "RELEASE", "TRACE" ],
+        "optimize": true
+      }
+    }
+  },
+  "dependencies": {
+    "LanguageExt.Core": "1.7.5",
+    "LanguageExt.Process": "1.7.5",
+    "LanguageExt.Process.Redis": "1.7.5",
+    "LanguageExt.FSharp": "1.7.5",
+    "LanguageExt.ProcessJS": "1.7.5",
+    "Newtonsoft.Json": "7.0.1",
+    "Rx-Main": "2.2.5.0",
+    "StackExchange.Redis": "1.0.488",
+    "FSharp.Core": "4.0.0.1",
+    "xunit": "2.1.0"
+  },
+  "frameworks": {
+    "dnx451": {
+      "dependencies": {
+      },
+      "frameworkAssemblies": {
+        "System.Runtime": "4.0.10.0",
+        "System.Threading.Tasks": "4.0.0.0"
+      }
+    }
+  },
+  "compile": "*.cs"
+}
