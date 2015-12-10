@@ -31,11 +31,10 @@ namespace LanguageExt
     ///     Because of this, processes are also in a 'supervision hierarchy'.  Essentially
     ///     each process can spawn child-processes and the parent process 'owns' the child.  
     /// 
-    ///     Although not currently implemented in Language Ext processes (it will be 
-    ///     soon), it is usually possible to have strategies for what happens when a child 
-    ///     dies.  Currently the process just restarts with its original state.  The inbox 
-    ///     always survives a crash and the failed message is sent to a 'dead letters' 
-    ///     process.  You can monitor this. 
+    ///     Processes have a default failure strategy where the process just restarts with
+    ///     its original state.  The inbox always survives a crash and the failed message 
+    ///     is sent to a 'dead letters' process.  You can monitor this. You can also provide
+    ///     bespoke strategies for different types of failure behaviours (See Strategy folder)
     /// 
     ///     So post crash the process restarts and continues processing the next message.
     /// 
