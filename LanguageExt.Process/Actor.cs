@@ -360,9 +360,13 @@ namespace LanguageExt
                 {
                     cluster.IfSome(c =>
                     {
+                        // TODO: Make this transactional 
+                        // {
                         c.Delete(StateKey);
                         c.Delete(ActorInboxCommon.ClusterUserInboxKey(Id));
                         c.Delete(ActorInboxCommon.ClusterSystemInboxKey(Id));
+                        ActorContext.DeregisterById(Id);
+                        // }
                     });
                 }
 

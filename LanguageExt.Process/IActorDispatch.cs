@@ -13,10 +13,12 @@ namespace LanguageExt
         Map<string, ProcessId> GetChildren();
         Unit Publish(object message);
         Unit Kill();
+        Unit Shutdown();
         int GetInboxCount();
         Unit Watch(ProcessId pid);
         Unit UnWatch(ProcessId pid);
         Unit DispatchWatch(ProcessId pid);
         Unit DispatchUnWatch(ProcessId pid);
+        bool IsLocal { get; }
     }
 }

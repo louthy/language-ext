@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
 using static LanguageExt.Prelude;
@@ -9,7 +10,6 @@ namespace LanguageExt
     /// <summary>
     /// 
     ///     Process: Obsolete functions
-    /// 
     /// 
     /// </summary>
     public static partial class Process
@@ -25,6 +25,7 @@ namespace LanguageExt
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
         /// <returns>Process ID of the delegator process</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("spawnRoundRobin is obsolete, use Router.roundRobin instead")]
         public static ProcessId spawnRoundRobin<T>(
             ProcessName Name,
@@ -48,6 +49,7 @@ namespace LanguageExt
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
         /// <returns>Process ID of the delegator process</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("spawnRoundRobin is obsolete, use Router.roundRobin instead")]
         public static ProcessId spawnRoundRobin<S, T>(
             ProcessName Name, 

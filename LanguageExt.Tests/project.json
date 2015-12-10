@@ -1,7 +1,7 @@
 {
   "version": "1.7.5-*",
   "authors": [ "Paul Louth" ],
-  "owners": ["paullouth"],
+  "owners": [ "paullouth" ],
   "title": "LanguageExt Unit Tests",
   "description": "Lang Ext Unit Tests",
   "projectUrl": "https://github.com/louthy/language-ext",
@@ -30,11 +30,17 @@
     "Rx-Main": "2.2.5.0",
     "StackExchange.Redis": "1.0.488",
     "FSharp.Core": "4.0.0.1",
-    "xunit": "2.1.0"
+    "xunit.assert": "2.1.0-*",
+    "xunit.extensibility.execution": "2.1.0-*"
+  },
+  "commands": {
+    "test": "xunit.runner.aspnet"
   },
   "frameworks": {
     "dnx451": {
       "dependencies": {
+        "Microsoft.Dnx.Compilation.CSharp": "1.0.0-*",
+        "xunit.runner.aspnet": "2.0.0-aspnet-*"
       },
       "frameworkAssemblies": {
         "System.Runtime": "4.0.10.0",

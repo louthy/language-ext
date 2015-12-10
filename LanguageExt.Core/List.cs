@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using System.ComponentModel;
 
 namespace LanguageExt
 {
@@ -878,6 +879,7 @@ namespace LanguageExt
             return false;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("headSafe has been deprecated, please use headOrNone")]
         public static Option<T> headSafe<T>(IEnumerable<T> list) =>
             (from x in list
@@ -1182,6 +1184,7 @@ public static class __EnumnerableExt
     public static T Head<T>(this IEnumerable<T> list) =>
         LanguageExt.List.head(list);
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Obsolete("HeadSafe has been deprecated, please use HeadOrNone")]
     public static Option<T> HeadSafe<T>(this IEnumerable<T> list) =>
         LanguageExt.List.headOrNone(list);

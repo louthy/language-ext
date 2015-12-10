@@ -11,7 +11,6 @@ namespace LanguageExt
         public readonly ProcessName SystemProcessName            = "system";
         public readonly ProcessName UserProcessName              = "user";
         public readonly ProcessName DeadLettersProcessName       = "dead-letters";
-        public readonly ProcessName RegisteredProcessName        = "registered";
         public readonly ProcessName ErrorsProcessName            = "errors";
         public readonly ProcessName AskProcessName               = "ask";
         public readonly ProcessName ReplyProcessName             = "reply";

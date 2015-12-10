@@ -305,6 +305,7 @@ namespace LanguageExt
         /// Project the Either into a Lst R
         /// </summary>
         /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("ToList has been deprecated.  Please use RightToList.")]
         public Lst<R> ToList() =>
             toList(AsEnumerable());
@@ -313,6 +314,7 @@ namespace LanguageExt
         /// Project the Either into an ImmutableArray R
         /// </summary>
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("ToArray has been deprecated.  Please use RightToArray.")]
         public R[] ToArray() =>
             toArray<R>(AsEnumerable());
@@ -373,6 +375,7 @@ namespace LanguageExt
         /// Project the Either into a IEnumerable R
         /// </summary>
         /// <returns>If the Either is in a Right state, a IEnumerable of R with one item.  A zero length IEnumerable R otherwise</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("AsEnumerable has been deprecated.  Please use RightAsEnumerable.")]
         public IEnumerable<R> AsEnumerable()
         {
@@ -710,6 +713,7 @@ namespace LanguageExt
         /// <summary>
         /// Deprecated
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("'Failure' has been deprecated.  Please use 'Left' instead")]
         public R Failure(Func<R> None) =>
             Match(identity, _ => None());
@@ -717,6 +721,7 @@ namespace LanguageExt
         /// <summary>
         /// Deprecated
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("'Failure' has been deprecated.  Please use 'Left' instead")]
         public R Failure(R noneValue) =>
             Match(identity, _ => noneValue);

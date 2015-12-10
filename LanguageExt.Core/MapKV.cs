@@ -6,6 +6,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Threading;
 using System.Runtime.CompilerServices;
+using System.ComponentModel;
 
 namespace LanguageExt
 {
@@ -596,6 +597,7 @@ namespace LanguageExt
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("TryGetValue is obsolete, use TryFind instead")]
         public bool TryGetValue(K key, out V value)
         {

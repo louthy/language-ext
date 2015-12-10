@@ -111,7 +111,8 @@ namespace LanguageExt
                         break;
 
                     case Message.TagSpec.ShutdownProcess:
-                        kill(actor.Id);
+                        var sp = msg as ShutdownProcessMessage;
+                        actor.ShutdownProcess(sp.MaintainState);
                         break;
 
                     case Message.TagSpec.Unpause:

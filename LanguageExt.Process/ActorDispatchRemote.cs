@@ -56,7 +56,10 @@ namespace LanguageExt
             ignore(Cluster.PublishToChannel(ActorInboxCommon.ClusterPubSubKey(ProcessId), message));
 
         public Unit Kill() =>
-            ProcessId.Tell(SystemMessage.ShutdownProcess, ActorContext.Self);
+            ProcessId.Tell(SystemMessage.ShutdownProcess(false), ActorContext.Self);
+
+        public Unit Shutdown() =>
+            ProcessId.Tell(SystemMessage.ShutdownProcess(true), ActorContext.Self);
 
         public int GetInboxCount() =>
             Cluster.QueueLength(ActorInboxCommon.ClusterUserInboxKey(ProcessId));
@@ -72,5 +75,7 @@ namespace LanguageExt
 
         public Unit DispatchUnWatch(ProcessId watching) =>
             TellSystem(SystemMessage.DispatchUnWatch(watching), watching);
+
+        public bool IsLocal => false;
     }
 }

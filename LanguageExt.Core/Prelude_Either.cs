@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace LanguageExt
 {
@@ -623,6 +624,7 @@ namespace LanguageExt
         /// <typeparam name="R">Right</typeparam>
         /// <param name="either">Either to project</param>
         /// <returns>If the Either is in a Right state, an IQueryable of R with one item.  A zero length IQueryable R otherwise</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("ToQuery has been deprecated.  Please use RightToQuery.")]
         public static IQueryable<R> toQuery<L, R>(Either<L, R> either) =>
             either.AsEnumerable().AsQueryable();

@@ -38,7 +38,6 @@ namespace LanguageExt
             var name = GetRootProcessName();
             if (name.Value == "root" && cluster.IsSome) throw new ArgumentException("Cluster node name cannot be 'root', it's reserved for local use only.");
             if (name.Value == "disp" && cluster.IsSome) throw new ArgumentException("Cluster node name cannot be 'disp', it's reserved for internal use.");
-            if (name.Value == "registered") throw new ArgumentException("Node name cannot be 'registered', it's reserved for registered processes.");
             if (name.Value == "js") throw new ArgumentException("Node name cannot be 'js', it's reserved for ProcessJS.");
 
             lock (sync)
@@ -48,6 +47,10 @@ namespace LanguageExt
                 startupTimestamp = DateTime.UtcNow.Ticks;
                 startupSubscription?.Dispose();
                 startupSubscription = NotifyCluster(cluster, startupTimestamp);
+
+                Dispatch.init();
+                Role.init();
+                Reg.init();
 
                 watchers = Map.empty<ProcessId, Set<ProcessId>>();
                 watchings = Map.empty<ProcessId, Set<ProcessId>>();
@@ -87,6 +90,12 @@ namespace LanguageExt
             }
             return unit;
         }
+
+        public static Func<ProcessId, IEnumerable<ProcessId>> GetDispatcherFunc(ProcessName name) =>
+            dispatchers.Find(name,
+                Some: x => x,
+                None: () => (ProcessId Id) => (new ProcessId[0]).AsEnumerable()
+                );
 
         const string ClusterOnlineKey = "cluster-node-online";
         class ClusterOnline
@@ -528,9 +537,6 @@ namespace LanguageExt
         public static ProcessId User =>
             Root[ActorConfig.Default.UserProcessName];
 
-        public static ProcessId Registered =>
-            Root[ActorConfig.Default.RegisteredProcessName];
-
         public static ProcessId Errors =>
             System[ActorConfig.Default.ErrorsProcessName];
 
@@ -595,19 +601,6 @@ namespace LanguageExt
             }
         }
 
-        static Option<ActorItem> GetRegisteredItem()
-        {
-            var children = rootItem?.Actor?.Children;
-            if (notnull(children) && children.ContainsKey(ActorConfig.Default.RegisteredProcessName.Value))
-            {
-                return Some(children[ActorConfig.Default.RegisteredProcessName.Value]);
-            }
-            else
-            {
-                return None;
-            }
-        }
-
         static Option<ActorItem> GetAskItem()
         {
             var children = rootItem?.Actor?.Children;
@@ -652,30 +645,152 @@ namespace LanguageExt
             }
         }
 
-        public static ProcessId Register<T>(ProcessName name, ProcessId processId, ProcessFlags flags, int maxMailboxSize) =>
-            processId.IsValid
-                ? GetRegisteredItem().Match(
-                     Some: regd =>
-                        ActorCreate<ProcessId, T>(
-                            regd,
-                            name,
-                            RegisteredActor<T>.Inbox,
-                            () =>
-                            {
-                                Process.watch(processId);
-                                return processId;
-                            },
-                            (state, pid) => { Process.kill(); return state; },
-                            Process.DefaultStrategy,
-                            flags,
-                            maxMailboxSize,
-                            true
-                        ),
-                     None: () => ProcessId.None)
-                : ProcessId.None;
+        static object regsync = new object();
+        static Map<ProcessName, Set<ProcessId>> registeredProcessNames = Map<ProcessName, Set<ProcessId>>();
+        static Map<ProcessId, Set<ProcessName>> registeredProcessIds   = Map<ProcessId, Set<ProcessName>>();
 
-        public static Unit Deregister(ProcessName name) =>
-            Process.kill(Registered.Child(name));
+        public static Set<ProcessId> GetLocalRegistered(ProcessName name) =>
+            registeredProcessNames
+                .Find(name)
+                .IfNone(Set.empty<ProcessId>());
+
+        public static ProcessId Register(ProcessName name, ProcessId pid)
+        {
+            if( !pid.IsValid )
+            {
+                throw new InvalidProcessIdException();
+            }
+
+            Cluster.Match(
+                Some: c =>
+                {
+                    if (IsLocal(pid) && GetDispatcher(pid).IsLocal)
+                    {
+                        AddLocalRegistered(name, pid);
+                    }
+                    else
+                    {
+                        // TODO - Make this transactional
+                        // {
+                        c.SetAddOrUpdate(ProcessId.Top["__registered"][name].Path, pid.Path);
+                        c.SetAddOrUpdate(pid.Path + "-registered", name.Value);
+                        // }
+                    }
+                },
+                None: () => AddLocalRegistered(name, pid)
+            );
+            return Disp["reg"][name];
+        }
+
+        static void AddLocalRegistered(ProcessName name, ProcessId pid)
+        {
+            lock (regsync)
+            {
+                registeredProcessNames = registeredProcessNames.AddOrUpdate(name,
+                    Some: set => set.AddOrUpdate(pid),
+                    None: ()  => Set(pid)
+                );
+                registeredProcessIds = registeredProcessIds.AddOrUpdate(pid,
+                    Some: set => set.AddOrUpdate(name),
+                    None: ()  => Set(name)
+                );
+            }
+        }
+
+        public static Unit DeregisterByName(ProcessName name)
+        {
+            Cluster.Match(
+                Some: c =>
+                {
+                    RemoveLocalRegisteredByName(name);
+                    var regpath = (ProcessId.Top["__registered"][name]).Path;
+
+                    // TODO - Make this transactional
+                    // {
+                    var pids = c.GetSet<string>(regpath);
+                    pids.Iter(pid =>
+                    {
+                        c.SetRemove(pid + "-registered", name.Value);
+                    });
+                    c.Delete(regpath);
+                    // }
+                },
+                None: () =>
+                {
+                    RemoveLocalRegisteredByName(name);
+                }
+            );
+            return unit;
+        }
+
+        public static Unit DeregisterById(ProcessId pid)
+        {
+            if (!pid.IsValid) throw new InvalidProcessIdException();
+            if (pid.Take(2) == Disp["reg"])
+            {
+                throw new InvalidProcessIdException(@"
+When de-registering a Process, you should use its actual ProcessId, not its registered
+ProcessId.  Multiple Processes can be registered with the same name, and therefore share
+the same registered ProcessId.  The de-register system can only know for sure which Process
+to de-register if you pass in the actual ProcessId.  If you want to deregister all Processes
+by name then use Process.deregisterByName(name).");
+            }
+
+            Cluster.Match(
+                Some: c =>
+                {
+                    if (IsLocal(pid) && GetDispatcher(pid).IsLocal)
+                    {
+                        RemoveLocalRegisteredById(pid);
+                    }
+                    else
+                    {
+                        var path = pid.Path;
+                        var regpath = path + "-registered";
+
+                        // TODO - Make this transactional
+                        // {
+                        var names = c.GetSet<string>(regpath);
+                        names.Iter(name =>
+                        {
+                           c.SetRemove(ProcessId.Top["__registered"][name].Path, path);
+                        });
+                        c.Delete(regpath);
+                        // }
+                    }
+                },
+                None: () =>
+                {
+                    RemoveLocalRegisteredById(pid);
+                }
+            );
+            return unit;
+        }
+
+        static void RemoveLocalRegisteredById(ProcessId pid)
+        {
+            lock (regsync)
+            {
+                var names = registeredProcessIds.Find(pid).IfNone(Set.empty<ProcessName>());
+                names.Iter(name =>
+                    registeredProcessNames = registeredProcessNames.SetItem(name, registeredProcessNames[name].Remove(pid))
+                );
+                registeredProcessIds = registeredProcessIds.Remove(pid);
+            }
+        }
+
+        static void RemoveLocalRegisteredByName(ProcessName name)
+        {
+            lock (regsync)
+            {
+                var pids = registeredProcessNames.Find(name).IfNone(Set.empty<ProcessId>());
+
+                pids.Iter(pid =>
+                    registeredProcessIds = registeredProcessIds.SetItem(pid, registeredProcessIds[pid].Remove(name))
+                );
+                registeredProcessNames = registeredProcessNames.Remove(name);
+            }
+        }
 
         public static R WithContext<R>(ActorItem self, ActorItem parent, ProcessId sender, ActorRequest request, object msg, Option<string> sessionId, Func<R> f)
         {
@@ -719,18 +834,6 @@ namespace LanguageExt
                 ? sender
                 : Self;
 
-        internal static IActorDispatch GetRegisteredDispatcher(ProcessId pid) =>
-            GetRegisteredItem().Match(
-                Some: regd =>
-                    pid.Count() == 2
-                        ? new ActorDispatchLocal(regd)
-                        : regd.Actor.Children.ContainsKey(pid.Skip(2).GetName().Value)
-                                ? GetDispatcher(pid.Tail(), rootItem, pid)
-                                : cluster.Match<IActorDispatch>(
-                                    Some: c  => new ActorDispatchRemote(pid.Skip(1), c),
-                                    None: () => new ActorDispatchNotExist(pid)),
-                None: () => new ActorDispatchNotExist(pid));
-
         internal static IActorDispatch GetJsDispatcher(ProcessId pid)
         {
             switch (pid.Count())
@@ -772,9 +875,6 @@ namespace LanguageExt
                               .IfNone(() => new ActorDispatchNotExist(pid));
         }
 
-        internal static bool IsRegistered(ProcessId pid) =>
-            pid.Take(2).GetName().Value == ActorConfig.Default.RegisteredProcessName.Value;
-
         internal static bool IsLocal(ProcessId pid) =>
             pid.Head() == Root;
 
@@ -787,11 +887,9 @@ namespace LanguageExt
                     ? new ActorDispatchGroup(pid.GetSelection())
                     : IsDisp(pid)
                         ? GetPluginDispatcher(pid)
-                        : IsRegistered(pid)
-                            ? GetRegisteredDispatcher(pid)
-                            : IsLocal(pid)
-                                ? GetLocalDispatcher(pid)
-                                : GetRemoteDispatcher(pid)
+                        : IsLocal(pid)
+                            ? GetLocalDispatcher(pid)
+                            : GetRemoteDispatcher(pid)
                 : new ActorDispatchNotExist(pid);
 
         static IActorDispatch GetDispatcher(ProcessId pid, ActorItem current, ProcessId orig)
@@ -839,7 +937,9 @@ namespace LanguageExt
         public static Map<string, ProcessId> GetChildren(ProcessId pid) =>
             GetDispatcher(pid).GetChildren();
 
-        public static Unit Kill(ProcessId pid) =>
-            GetDispatcher(pid).Kill();
+        public static Unit Kill(ProcessId pid, bool maintainState) =>
+            maintainState
+                ? GetDispatcher(pid).Shutdown()
+                : GetDispatcher(pid).Kill();
     }
 }

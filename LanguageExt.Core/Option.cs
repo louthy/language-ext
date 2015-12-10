@@ -230,10 +230,12 @@ namespace LanguageExt
         public T IfNoneUnsafe(T noneValue) =>
             MatchUnsafe(identity, () => noneValue);
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("'Failure' has been deprecated.  Please use 'IfNone' instead")]
         public T Failure(Func<T> None) =>
             Match(identity, None);
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("'Failure' has been deprecated.  Please use 'IfNone' instead")]
         public T Failure(T noneValue) =>
             Match(identity, () => noneValue);

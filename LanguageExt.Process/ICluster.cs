@@ -122,6 +122,9 @@ namespace LanguageExt
         Map<K, T> GetHashFields<K, T>(string key, Func<string, K> keyBuilder);
         Option<T> GetHashField<T>(string key, string field);
         Map<string, T> GetHashFields<T>(string key, IEnumerable<string> fields);
-
+        void SetAddOrUpdate<T>(string key, T value);
+        void SetRemove<T>(string key, T value);
+        Set<T> GetSet<T>(string key);
+        bool SetContains<T>(string key, T value);
     }
 }

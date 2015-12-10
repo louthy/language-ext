@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using System.ComponentModel;
 
 namespace LanguageExt
 {
@@ -11,6 +12,7 @@ namespace LanguageExt
     {
         public static T head<T>(IQueryable<T> list) => list.First();
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("headSafe has been deprecated, please use headOrNone")]
         public static Option<T> headSafe<T>(IQueryable<T> list) =>
             (from x in list
@@ -135,6 +137,7 @@ public static class __QueryExt
     public static T Head<T>(this IQueryable<T> list) =>
         LanguageExt.Query.head(list);
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [Obsolete("HeadSafe has been deprecated, please use HeadOrNone")]
     public static Option<T> HeadSafe<T>(this IQueryable<T> list) =>
         LanguageExt.Query.headSafe(list);

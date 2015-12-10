@@ -61,7 +61,11 @@ namespace LanguageExt
 
         public Unit Kill() =>
             // TODO: Not yet implemented on the JS side
-            ProcessId.Tell(SystemMessage.ShutdownProcess, ActorContext.Self);
+            ProcessId.Tell(SystemMessage.ShutdownProcess(false), ActorContext.Self);
+
+        public Unit Shutdown() =>
+            // TODO: Not yet implemented on the JS side
+            ProcessId.Tell(SystemMessage.ShutdownProcess(true), ActorContext.Self);
 
         public Unit Watch(ProcessId pid)
         {
@@ -82,5 +86,7 @@ namespace LanguageExt
         {
             throw new NotSupportedException();
         }
+
+        public bool IsLocal => false;
     }
 }

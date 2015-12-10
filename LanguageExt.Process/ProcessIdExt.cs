@@ -45,16 +45,60 @@ public static class __ProcessIdExt
             .Head();
 
     /// <summary>
-    /// Register as a named process
+    /// Register a named process (a kind of DNS for Processes).  
+    /// 
+    /// If the Process is visible to the cluster (PersistInbox) then the 
+    /// registration becomes a permanent named look-up until Process.deregister 
+    /// is called.
+    /// 
+    /// See remarks.
     /// </summary>
-    public static ProcessId Register<T>(this ProcessId self, ProcessFlags flags = ProcessFlags.Default, int maxMailboxSize = ProcessSetting.DefaultMailboxSize) =>
-        ActorContext.Register<T>(self.GetName(), self, flags, ProcessSetting.DefaultMailboxSize);
+    /// <remarks>
+    /// Multiple Processes can register under the same name.  You may use 
+    /// a dispatcher to work on them collectively (wherever they are in the 
+    /// cluster).  i.e. 
+    /// 
+    ///     var regd = pid.Register(name);
+    ///     Dispatch.Broadcast[regd].Tell("Hello");
+    ///     Dispatch.First[regd].Tell("Hello");
+    ///     Dispatch.LeastBusy[regd].Tell("Hello");
+    ///     Dispatch.Random[regd].Tell("Hello");
+    ///     Dispatch.RoundRobin[regd].Tell("Hello");
+    /// 
+    ///     This should be used from within a process' message loop only
+    /// </remarks>
+    /// <param name="name">Name to register under</param>
+    /// <returns>A ProcessId that allows dispatching to the process via the name.  The result
+    /// would look like /disp/reg/name</returns>
+    public static ProcessId Register(this ProcessId self) =>
+        ActorContext.Register(self.GetName(), self);
 
     /// <summary>
-    /// Register as a named process
+    /// Register a named process (a kind of DNS for Processes).  
+    /// 
+    /// If the Process is visible to the cluster (PersistInbox) then the 
+    /// registration becomes a permanent named look-up until Process.deregister 
+    /// is called.
+    /// 
+    /// See remarks.
     /// </summary>
-    public static ProcessId Register<T>(this ProcessId self, ProcessName name, ProcessFlags flags = ProcessFlags.Default, int maxMailboxSize = ProcessSetting.DefaultMailboxSize) =>
-        ActorContext.Register<T>(name, self, flags, maxMailboxSize);
+    /// <remarks>
+    /// Multiple Processes can register under the same name.  You may use 
+    /// a dispatcher to work on them collectively (wherever they are in the 
+    /// cluster).  i.e. 
+    /// 
+    ///     var regd = pid.Register(name);
+    ///     Dispatch.Broadcast[regd].Tell("Hello");
+    ///     Dispatch.First[regd].Tell("Hello");
+    ///     Dispatch.LeastBusy[regd].Tell("Hello");
+    ///     Dispatch.Random[regd].Tell("Hello");
+    ///     Dispatch.RoundRobin[regd].Tell("Hello");
+    /// </remarks>
+    /// <param name="name">Name to register under</param>
+    /// <returns>A ProcessId that allows dispatching to the process via the name.  The result
+    /// would look like /disp/reg/name</returns>
+    public static ProcessId Register(this ProcessId self, ProcessName name) =>
+        ActorContext.Register(name, self);
 
     /// <summary>
     /// Kill the process.
@@ -62,7 +106,15 @@ public static class __ProcessIdExt
     /// jumps ahead of any messages already in the process's queue.
     /// </summary>
     public static Unit Kill(this ProcessId self) =>
-        self.Tell(SystemMessage.ShutdownProcess, ActorContext.Self);
+        self.Tell(SystemMessage.ShutdownProcess(false), ActorContext.Self);
+
+    /// <summary>
+    /// Kill the process.
+    /// Forces the process to shutdown.  The kill message 
+    /// jumps ahead of any messages already in the process's queue.
+    /// </summary>
+    public static Unit Shutdown(this ProcessId self) =>
+        self.Tell(SystemMessage.ShutdownProcess(true), ActorContext.Self);
 
     //
     // Ask
@@ -77,10 +129,10 @@ public static class __ProcessIdExt
     public static T Ask<T>(this ProcessId pid, object message) =>
         ask<T>(pid, message);
 
-
     //
     // Pub Sub
     //
+
     /// <summary>
     /// Subscribes our inbox to another process publish stream.  When it calls 'publish' it will
     /// arrive in our inbox.

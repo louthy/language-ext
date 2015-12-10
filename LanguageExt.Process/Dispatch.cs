@@ -122,6 +122,12 @@ namespace LanguageExt
         static readonly ProcessId Random;
         static readonly ProcessId RoundRobin;
 
+        internal static Unit init()
+        {
+            // Triggers static ctor
+            return unit;
+        }
+
         static Dispatch()
         {
             ProcessName broadcast  = "broadcast";
@@ -129,13 +135,33 @@ namespace LanguageExt
             ProcessName random     = "random";
             ProcessName roundRobin = "round-robin";
 
-            var processes = fun((ProcessId leaf) => leaf.GetSelection());
+            var processes = fun((ProcessId leaf) =>
+            {
+                if(!leaf.IsValid)
+                {
+                    return new ProcessId[0];
+                }
+                if (leaf.IsSelection)
+                {
+                    return leaf.GetSelection();
+                }
+                if(leaf.Head().GetName() == "disp")
+                {
+                    leaf = leaf.Skip(1);
+                    if (!leaf.IsValid)
+                    {
+                        return new ProcessId[0];
+                    }
+                    return ActorContext.GetDispatcherFunc(leaf.Head().GetName())(leaf.Skip(1));
+                }
+                return new ProcessId[1] { leaf };
+            });
 
             // Broadcast
-            Broadcast = Dispatch.register(broadcast, processes);
+            Broadcast = register(broadcast, processes);
 
             // Least busy
-            LeastBusy = Dispatch.register(leastBusy, leaf =>
+            LeastBusy = register(leastBusy, leaf =>
                             processes(leaf)
                                 .Map(pid => Tuple(inboxCount(pid), pid))
                                 .OrderBy(tup => tup.Item1)
@@ -143,7 +169,7 @@ namespace LanguageExt
                                 .Take(1));
 
             // Random
-            Random = Dispatch.register(random, leaf => {
+            Random = register(random, leaf => {
                 var workers = processes(leaf).ToArray();
                 return new ProcessId[1] { workers[Prelude.random(workers.Length)] };
             });
@@ -151,7 +177,7 @@ namespace LanguageExt
             // Round-robin
             object sync = new object();
             Map<string, int> roundRobinState = Map.empty<string, int>();
-            RoundRobin = Dispatch.register(roundRobin, leaf => {
+            RoundRobin = register(roundRobin, leaf => {
                 var key = leaf.ToString();
                 var workers = processes(leaf).ToArray();
                 int index = 0;

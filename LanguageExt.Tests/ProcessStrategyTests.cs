@@ -9,6 +9,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 using static LanguageExt.Strategy;
+using System.Threading;
 
 namespace LanguageExtTests
 {
@@ -39,6 +40,8 @@ namespace LanguageExtTests
         public void RealTest()
         {
             shutdownAll();
+
+            Thread.Sleep(100);
 
             var strategy = OneForOne(
                 Retries(5, 1 * hour),
@@ -108,6 +111,10 @@ namespace LanguageExtTests
             {
                 Assert.True(pe.Message == "Process issue: other");
             }
+
+            // Give it a chance to shutdown otherwise
+            // we might get a timeout instead.
+            Thread.Sleep(100);
 
             // Here the strategy has shut down the Process for failing too often
             try

@@ -1,6 +1,5 @@
 ﻿using Xunit;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Reactive.Linq;
@@ -91,12 +90,9 @@ namespace LanguageExtTests
             string value = null;
             var pid = spawn<string>("reg-proc", msg => value = msg);
 
-            var regid = register<string>("woooo amazing", pid);
+            var regid = register("woooo amazing", pid);
 
-            var kids = children(Registered);
-
-            Assert.True(kids.Count() == 1);
-            Assert.True(kids["woooo amazing"].Path == "/root/registered/woooo amazing");
+            Assert.True(regid == "/disp/reg/woooo amazing");
 
             tell(regid, "hello");
 
@@ -110,12 +106,15 @@ namespace LanguageExtTests
 
             Assert.True(value == "world");
 
-            deregister("woooo amazing");
+            deregisterById(pid);
 
             Thread.Sleep(100);
 
-            kids = children(Registered);
-            Assert.True(kids.Count() == 0);
+            tell(find("woooo amazing"), "noooo");
+
+            Thread.Sleep(100);
+
+            Assert.True(value != "noooo");
         }
 
         [Fact]
@@ -132,18 +131,15 @@ namespace LanguageExtTests
             string value = null;
             var pid = spawn<string>("reg-proc", msg => value = msg);
 
-            var regid = register<string>("woooo amazing", pid);
+            var regid = register("woooo amazing", pid);
+
+            Assert.True(regid == "/disp/reg/woooo amazing");
 
             Thread.Sleep(100);
 
-            var kids = children(Registered);
-
-            Assert.True(kids.Count() == 1);
-            Assert.True(kids["woooo amazing"].Path == "/redis-test/registered/woooo amazing");
-
             tell(regid, "hello");
 
-            Thread.Sleep(100);  
+            Thread.Sleep(100);
 
             Assert.True(value == "hello");
 
@@ -153,14 +149,15 @@ namespace LanguageExtTests
 
             Assert.True(value == "world");
 
-            Thread.Sleep(100);
-
-            deregister("woooo amazing");
+            deregisterById(pid);
 
             Thread.Sleep(100);
 
-            kids = children(Registered);
-            Assert.True(kids.Count() == 0);
+            tell(find("woooo amazing"), "noooo");
+
+            Thread.Sleep(100);
+
+            Assert.True(value != "noooo");
         }
 
         [Fact]

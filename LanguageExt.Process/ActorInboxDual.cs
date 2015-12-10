@@ -42,10 +42,7 @@ namespace LanguageExt
                 ? ActorConfig.Default.MaxMailboxSize
                 : maxMailboxSize;
 
-            // Registered process remote address hack
-            actorPath = actor.Id.Path.StartsWith(Registered.Path, StringComparison.Ordinal)
-                ? actor.Id.Skip(1).ToString()
-                : actor.Id.ToString();
+            actorPath = actor.Id.ToString();
 
             userInbox = StartMailbox<UserControlMessage>(actor, ClusterUserInboxKey, tokenSource.Token, ActorInboxCommon.UserMessageInbox, true);
             sysInbox = StartMailbox<SystemMessage>(actor, ClusterSystemInboxKey, tokenSource.Token, ActorInboxCommon.SystemMessageInbox, false);

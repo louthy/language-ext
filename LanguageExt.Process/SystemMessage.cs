@@ -13,7 +13,7 @@ namespace LanguageExt
         public static SystemMessage LinkChild(ActorItem item) => new SystemLinkChildMessage(item);
         public static SystemMessage UnlinkChild(ProcessId pid) => new SystemUnLinkChildMessage(pid);
         public static SystemMessage ChildFaulted(ProcessId pid, ProcessId sender, Exception ex, object msg) => new SystemChildFaultedMessage(pid, sender, ex, msg);
-        public static SystemMessage ShutdownProcess => new ShutdownProcessMessage();
+        public static SystemMessage ShutdownProcess(bool maintainState) => new ShutdownProcessMessage(maintainState);
         public static SystemMessage StartupProcess => new StartupProcessMessage();
         public static SystemMessage Restart => new SystemRestartMessage();
         public static SystemMessage Pause => new SystemPauseMessage();
@@ -91,9 +91,15 @@ namespace LanguageExt
     class ShutdownProcessMessage : SystemMessage
     {
         public override TagSpec Tag => TagSpec.ShutdownProcess;
+        public readonly bool MaintainState;
+
+        public ShutdownProcessMessage(bool maintainState)
+        {
+            MaintainState = maintainState;
+        }
 
         public override string ToString() =>
-            "ShutdownProcess";
+            $"ShutdownProcess({MaintainState})";
     }
 
     class SystemAddWatcherMessage : SystemMessage

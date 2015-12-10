@@ -26,7 +26,6 @@ namespace LanguageExt
         ActorItem user;
         ActorItem system;
         ActorItem deadLetters;
-        ActorItem registered;
         ActorItem errors;
         ActorItem inboxShutdown;
         ActorItem ask;
@@ -55,8 +54,6 @@ namespace LanguageExt
             RootProcess = rootProcess;
             RootInbox = rootInbox;
             RootProcessName = rootProcessName;
-
-            RootProcess.Id.Child(Config.RegisteredProcessName);
         }
 
         private Option<ActorItem> GetItem(ProcessId pid) =>
@@ -97,7 +94,6 @@ namespace LanguageExt
             // Top tier
             system          = ActorCreate<object>(root, Config.SystemProcessName, publish, null, ProcessFlags.Default);
             user            = ActorCreate<object>(root, Config.UserProcessName, publish, null, ProcessFlags.Default);
-            registered      = ActorCreate<object>(root, Config.RegisteredProcessName, publish, null, ProcessFlags.Default);
             js              = ActorCreate<ProcessId, RelayMsg>(root, "js", RelayActor.Inbox, () => User["process-hub-js"], null, ProcessFlags.Default);
 
             // Second tier

@@ -96,7 +96,7 @@ namespace LanguageExtTests
             obj.SomeOtherValue = "123";
             Console.WriteLine(obj.SomeOtherValue);
             Assert.True(obj.SomeValue == "Hello");
-            Assert.True(obj.SomeOtherValue != null);
+            Assert.True(obj.SomeOtherValue.IsSome);
             Greet(obj.SomeOtherValue);
         }
 

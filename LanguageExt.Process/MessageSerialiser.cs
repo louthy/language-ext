@@ -28,7 +28,7 @@ namespace LanguageExt
 
                 case Message.TagSpec.GetChildren:       return UserControlMessage.GetChildren;
                 case Message.TagSpec.StartupProcess:    return SystemMessage.StartupProcess;
-                case Message.TagSpec.ShutdownProcess:   return SystemMessage.ShutdownProcess;
+                case Message.TagSpec.ShutdownProcess:   return (ShutdownProcessMessage)DeserialiseMsgContent(msg);
 
                 case Message.TagSpec.Restart:           return SystemMessage.Restart;
 

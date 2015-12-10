@@ -9,6 +9,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
+    [Flags]
     public enum RouterOption
     {
         Default = 0,

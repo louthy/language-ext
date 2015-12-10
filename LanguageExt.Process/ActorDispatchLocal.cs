@@ -41,18 +41,24 @@ namespace LanguageExt
             Inbox.Ask(message, sender);
 
         public Unit Kill() =>
+            ShutdownProcess(false);
+
+        public Unit Shutdown() =>
+            ShutdownProcess(true);
+
+        Unit ShutdownProcess(bool maintainState) =>
             ActorContext.WithContext(
                 new ActorItem(
-                    Actor, 
-                    (IActorInbox)Inbox, 
+                    Actor,
+                    (IActorInbox)Inbox,
                     Actor.Flags
-                    ), 
-                Actor.Parent, 
-                ProcessId.NoSender, 
-                null, 
-                SystemMessage.ShutdownProcess, 
-                None, 
-                () => Actor.ShutdownProcess(false)
+                    ),
+                Actor.Parent,
+                ProcessId.NoSender,
+                null,
+                SystemMessage.ShutdownProcess(maintainState),
+                None,
+                () => Actor.ShutdownProcess(maintainState)
             );
 
         public Map<string, ProcessId> GetChildren() =>
@@ -75,5 +81,7 @@ namespace LanguageExt
 
         public Unit DispatchUnWatch(ProcessId watching) =>
             Actor.DispatchUnWatch(watching);
+
+        public bool IsLocal => true;
     }
 }

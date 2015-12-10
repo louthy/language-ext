@@ -59,20 +59,20 @@ namespace LanguageExt
         /// Triggers when the Process system shuts down
         /// Either subscribe to the OnNext or OnCompleted
         /// </summary>
-        public static readonly IObservable<CancelShutdown> PreShutdown =
+        public static IObservable<CancelShutdown> PreShutdown =>
             preShutdownSubj;
 
         /// <summary>
         /// Triggers when the Process system shuts down
         /// Either subscribe to the OnNext or OnCompleted
         /// </summary>
-        public static readonly IObservable<Unit> Shutdown =
+        public static IObservable<Unit> Shutdown =>
             shutdownSubj;
 
         /// <summary>
         /// Log of everything that's going on in the Languge Ext process system
         /// </summary>
-        public static readonly IObservable<ProcessLogItem> ProcessSystemLog = 
+        public static IObservable<ProcessLogItem> ProcessSystemLog => 
             log.ObserveOn(TaskPoolScheduler.Default);
 
         /// <summary>
@@ -125,13 +125,6 @@ namespace LanguageExt
         /// </summary>
         public static ProcessId Errors =>
             ActorContext.Errors;
-
-        /// <summary>
-        /// Registered process root
-        /// It allows local and distributed processes to be found by name 
-        /// </summary>
-        public static ProcessId Registered =>
-            ActorContext.Registered;
 
         /// <summary>
         /// Sender process ID
@@ -188,45 +181,13 @@ namespace LanguageExt
                 : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(child));
 
         /// <summary>
-        /// Find a registered process by name
-        /// </summary>
-        /// <param name="name">Process name</param>
-        /// <returns>ProcessId or ProcessId.None</returns>
-        public static ProcessId find(ProcessName name) =>
-            ActorContext.Registered.Child(name);
-
-        /// <summary>
-        /// Register self as a named process
-        /// </summary>
-        /// <remarks>
-        /// This should be used from within a process' message loop only
-        /// </remarks>
-        /// <typeparam name="T">The message type of the actor to register</typeparam>
-        /// <param name="name">Name to register under</param>
-        public static ProcessId register<T>(ProcessName name, ProcessFlags flags = ProcessFlags.Default, int maxMailboxSize = ProcessSetting.DefaultMailboxSize) =>
-            InMessageLoop
-                ? ActorContext.Register<T>(name, Self, flags, maxMailboxSize)
-                : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(name));
-
-        /// <summary>
-        /// Register the name with the process
-        /// </summary>
-        /// <typeparam name="T">The message type of the actor to register</typeparam>
-        /// <param name="name">Name to register under</param>
-        /// <param name="process">Process to be registered</param>
-        public static ProcessId register<T>(ProcessName name, ProcessId process, ProcessFlags flags = ProcessFlags.Default, int maxMailboxSize = ProcessSetting.DefaultMailboxSize) =>
-            ActorContext.Register<T>(name, process, flags, maxMailboxSize);
-
-        /// <summary>
-        /// Deregister the process associated with the name
-        /// </summary>
-        /// <param name="name">Name of the process to deregister</param>
-        public static Unit deregister(ProcessName name) =>
-            ActorContext.Deregister(name);
-
-        /// <summary>
-        /// Forces the current running process to shutdown.  The kill message 
-        /// jumps ahead of any messages already in the queue.
+        /// Immediately kills the Process that is running from within its message
+        /// loop.  It does this by throwing a ProcessKillException which is caught
+        /// and triggers the shutdown of the Process.  Any Process that has a 
+        /// persistent inbox or state will also have its persistent data wiped.  
+        /// If the Process is registered it will have its registration revoked.
+        /// If you wish for the data to be maintained for future spawns then call 
+        /// Process.shutdown()
         /// </summary>
         /// <remarks>
         /// This should be used from within a process' message loop only
@@ -237,21 +198,38 @@ namespace LanguageExt
                 : raiseUseInMsgLoopOnlyException<Unit>(nameof(kill));
 
         /// <summary>
-        /// Shutdown the currently running process.
-        /// This differs from kill() in that the shutdown message just joins
-        /// the back of the queue like all other messages allowing any backlog
-        /// to be processed first.
+        /// Shutdown the currently running process.  The shutdown message jumps 
+        /// ahead of any messages already in the process's queue but doesn't exit
+        /// immediately like kill().  Any Process that has a persistent inbox or 
+        /// state will have its state maintained for future spawns.  If you wish 
+        /// for the data to be dropped then call Process.kill()
         /// </summary>
         public static Unit shutdown() =>
-            kill(Self);
+            shutdown(Self);
 
         /// <summary>
         /// Kill a specified running process.
-        /// Forces the specified process to shutdown.  The kill message 
-        /// jumps ahead of any messages already in the process's queue.
+        /// Forces the specified Process to shutdown.  The kill message jumps 
+        /// ahead of any messages already in the process's queue.  Any Process
+        /// that has a persistent inbox or state will also have its persistent
+        /// data wiped.  If the Process is registered it will also its 
+        /// registration revoked.
+        /// If you wish for the data to be maintained for future
+        /// spawns then call Process.shutdown(pid);
         /// </summary>
         public static Unit kill(ProcessId pid) =>
-            ActorContext.Kill(pid);
+            ActorContext.Kill(pid, false);
+
+        /// <summary>
+        /// Shutdown a specified running process.
+        /// Forces the specified Process to shutdown.  The shutdown message jumps 
+        /// ahead of any messages already in the process's queue.  Any Process
+        /// that has a persistent inbox or state will have its state maintained
+        /// for future spawns.  If you wish for the data to be dropped then call
+        /// Process.kill(pid)
+        /// </summary>
+        public static Unit shutdown(ProcessId pid) =>
+            ActorContext.Kill(pid, true);
 
         /// <summary>
         /// Shutdown all processes and restart

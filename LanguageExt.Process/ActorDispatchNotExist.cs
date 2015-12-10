@@ -44,6 +44,9 @@ namespace LanguageExt
         public Unit Kill() => 
             unit;
 
+        public Unit Shutdown() =>
+            unit;
+
         public int GetInboxCount() =>
             -1;
 
@@ -58,5 +61,7 @@ namespace LanguageExt
 
         public Unit DispatchUnWatch(ProcessId pid) =>
             unit;
+
+        public bool IsLocal => Raise<bool>();
     }
 }

@@ -50,6 +50,9 @@ namespace LanguageExt
         public Unit Kill() =>
             IterRoleMembers(d => d.Kill());
 
+        public Unit Shutdown() =>
+            IterRoleMembers(d => d.Shutdown());
+
         public IObservable<T> Observe<T>() =>
             Observable.Merge(MapRoleMembers(disp => disp.Observe<T>()));
 
@@ -73,5 +76,7 @@ namespace LanguageExt
 
         public Unit Watch(ProcessId pid) =>
             IterRoleMembers(d => d.Watch(pid));
+
+        public bool IsLocal => false;
     }
 }

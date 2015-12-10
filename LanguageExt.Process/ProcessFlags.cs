@@ -34,9 +34,7 @@ namespace LanguageExt
         ///     * The user process received the message, and threw an error which
         ///       resulted in the message being redirected to DeadLettters.
         /// 
-        /// Note: This limited strategy for dealing with failed messages will
-        ///       be improved upon in future versions (retry mechanisms, back-of-the-
-        ///       queue pushing, etc.)
+        /// Note: Use the Strategy system for more complex failure behaviours.
         /// </remarks>
         PersistInbox = 2,
 

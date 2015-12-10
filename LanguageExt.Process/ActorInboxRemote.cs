@@ -31,10 +31,7 @@ namespace LanguageExt
                 : maxMailboxSize;
             this.parent = parent;
 
-            // Registered process remote address hack
-            actorPath = actor.Id.Path.StartsWith(Registered.Path, StringComparison.Ordinal)
-                ? actor.Id.Skip(1).ToString()
-                : actor.Id.ToString();
+            actorPath = actor.Id.ToString();
 
             userNotify = ActorInboxCommon.StartNotifyMailbox(tokenSource.Token, msgId => CheckRemoteInbox(ClusterUserInboxKey, true));
             sysNotify = ActorInboxCommon.StartNotifyMailbox(tokenSource.Token, msgId => CheckRemoteInbox(ClusterSystemInboxKey, false));

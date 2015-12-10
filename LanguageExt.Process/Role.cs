@@ -15,7 +15,7 @@ namespace LanguageExt
     /// you can build a ProcessId that is resolved at the time of doing a 'tell', 'ask',
     /// 'subscribe', etc.  This can allow reliable messaging to Processes in the cluster.
     /// </summary>
-    public static partial class Role
+    public static class Role
     {
         /// <summary>
         /// A ProcessId that represents a set of nodes in a cluster.  When used for
@@ -128,6 +128,12 @@ namespace LanguageExt
         ///     tell( Role.Last["message-role"]["user"]["message-log"], "Hello" );
         /// </example>
         public static readonly ProcessId Last;
+
+        internal static Unit init()
+        {
+            // Triggers static ctor
+            return unit;
+        }
 
         /// <summary>
         /// Static ctor

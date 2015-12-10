@@ -261,6 +261,18 @@ namespace LanguageExt
             }
         }
 
+        public void SetAddOrUpdate<T>(string key, T value) =>
+            Db.SetAdd(key, JsonConvert.SerializeObject(value));
+
+        public Set<T> GetSet<T>(string key) =>
+            Set.createRange(Db.SetMembers(key).Map(x => JsonConvert.DeserializeObject<T>(x)));
+
+        public void SetRemove<T>(string key, T value) =>
+            Db.SetRemove(key, JsonConvert.SerializeObject(value));
+
+        public bool SetContains<T>(string key, T value) =>
+            Db.SetContains(key, JsonConvert.SerializeObject(value));
+
         public bool HashFieldExists(string key, string field) =>
             Db.HashExists(key, field);
 
