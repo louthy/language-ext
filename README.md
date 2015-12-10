@@ -978,7 +978,9 @@ Creating something to log `string` messages to the console is as easy as:
 ```
 Or if you want a stateful, thread-safe cache:
 ```C#
-    public enum CacheMsgType
+class Cache<K, V>
+{
+    enum Tag
     {
         Add,
         Remove,
@@ -986,44 +988,62 @@ Or if you want a stateful, thread-safe cache:
         Flush
     }
 
-    class CacheMsg
+    class Msg
     {
-        public CacheMsgType Type;
-        public string Key;
-        public Thing Value;
+        public Tag Tag;
+        public K Key;
+        public ExpiringValue Value;
     }
 
-    public ProcessId SpawnThingCache()
+    class ExpiringValue
     {
+        public DateTime Expiry;
+        public V Value;
+    }
+
+    public static Unit Add(ProcessId pid, K key, V value) =>
+        tell(pid, new Msg { Tag = Tag.Add, Key = key, Value = new ExpiringValue { Value = value, Expiry = DateTime.UtcNow }});
+
+    public static Unit Remove(ProcessId pid, K key) =>
+        tell(pid, new Msg { Tag = Tag.Remove, Key = key });
+
+    public static V Get(ProcessId pid, K key) =>
+        ask<V>(pid, new Msg { Tag = Tag.Get, Key = key });
+
+    public static Unit Flush(ProcessId pid) =>
+        tell(pid, new Msg { Tag = Tag.Flush });
+
+    public static ProcessId Spawn(ProcessName name) =>
         // Argument 1 is the name of the process
         // Argument 2 is the setup function: returns a new empty cache (Map)
         // Argument 3 checks the message type and upates the state except when
         //            it's a 'Get' in which case it Finds the cache item and if
         //            it exists, calls 'reply', and then returns the state 
         //            untouched.
-    
-        return spawn<Map<string, Thing>, CacheMsg>(
-            "cache",
-            () => Map<string, Thing>(),
-            (state, msg) =>
-                  msg.Type == CacheMsgType.Add    ? state.AddOrUpdate(msg.Key, msg.Value)
-                : msg.Type == CacheMsgType.Remove ? state.Remove(msg.Key)
-                : msg.Type == CacheMsgType.Get    ? state.Find(msg.Key).IfSome(reply).Return(state)
-                : msg.Type == CacheMsgType.Flush  ? state.Filter(s => s.Expiry < DateTime.Now)
-                : state
-        );
-    }
+        spawn<Map<K, ExpiringValue>, Msg>(
+            name,
+            () => Map<K, ExpiringValue>(),
+            (state, msg) => 
+                match(msg.Tag,
+                    with(Tag.Add,    _ => state.AddOrUpdate(msg.Key, msg.Value)),
+                    with(Tag.Remove, _ => state.Remove(msg.Key)),
+                    with(Tag.Get,    _ => state.Find(msg.Key).Map(v => v.Value).IfSome(reply).Return(state)),
+                    with(Tag.Flush,  _ => state.Filter(s => s.Expiry < DateTime.Now))));
+}
+
 ```
 The `ProcessId` is just a wrapped string path, so you can serialise it and pass it around, then anything can find and communicate with your cache:
 ```C#
+    var pid = Cache<string,string>.Spawn("my-cache");
+    
     // Add a new item to the cache
-    tell(cache, new CacheMsg { Type = CacheMsgType.Add, Key = "test", Value = new Thing() });
-
+    Cache<string,string>.Add(pid, "test", "hello, world");
+    
     // Get an item from the cache
-    var thing = ask<Thing>(cache, new CacheMsg { Type = CacheMsgType.Get, Key = "test" });
+    var thing = Cache<string,string>.Get(pid, "test");
 
     // Remove an item from the cache
-    tell(cache, new CacheMsg { Type = CacheMsgType.Remove, Key = "test", Value = new Thing() });
+    Cache<string,string>.Remove(pid, "test");
 ```
 Periodically you will probably want to flush the cache contents.  Just fire up another process, they're basically free (and by using functions rather than classes, very easy to put into little worker modules):
 ```C#
@@ -1035,7 +1055,7 @@ Periodically you will probably want to flush the cache contents.  Just fire up a
         var flush = spawn<Unit>(
             "cache-flush", _ =>
             {
-                tell(cache, new CacheMsg { Type = CacheMsgType.Flush });
+                Cache<string,string>.Flush(cache);
                 tellSelf(unit, TimeSpan.FromMinutes(10));
             });
 
