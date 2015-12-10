@@ -121,6 +121,10 @@ namespace LanguageExt
         static readonly ProcessId LeastBusy;
         static readonly ProcessId Random;
         static readonly ProcessId RoundRobin;
+        static readonly ProcessId First;
+        static readonly ProcessId Second;
+        static readonly ProcessId Third;
+        static readonly ProcessId Last;
 
         internal static Unit init()
         {
@@ -134,6 +138,11 @@ namespace LanguageExt
             ProcessName leastBusy  = "least-busy";
             ProcessName random     = "random";
             ProcessName roundRobin = "round-robin";
+
+            ProcessName first = "first";
+            ProcessName second = "second";
+            ProcessName third = "third";
+            ProcessName last = "last";
 
             var processes = fun((ProcessId leaf) =>
             {
@@ -159,6 +168,18 @@ namespace LanguageExt
 
             // Broadcast
             Broadcast = register(broadcast, processes);
+
+            // First
+            First = register(first, leaf => processes(leaf).Take(1));
+
+            // Second
+            Second = register(second, leaf => processes(leaf).Skip(1).Take(1));
+
+            // Third
+            Third = register(third, leaf => processes(leaf).Skip(2).Take(1));
+
+            // Last
+            Last = register(last, leaf => processes(leaf).Reverse().Take(1));
 
             // Least busy
             LeastBusy = register(leastBusy, leaf =>

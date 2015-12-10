@@ -32,6 +32,16 @@ namespace LanguageExt
             {
                 throw new InvalidProcessIdException();
             }
+            if(path[0] == '@')
+            {
+                // Is it a registered process
+                var regd = Process.find(new ProcessName(path.Substring(1)));
+                parts = regd.parts;
+                name = regd.name;
+                Path = regd.Path;
+                return;
+            }
+
             if (path[0] != Sep)
             {
                 throw new InvalidProcessIdException();

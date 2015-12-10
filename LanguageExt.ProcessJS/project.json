@@ -28,16 +28,17 @@
     "LanguageExt.Process": "1.7.5",
     "Newtonsoft.Json": "7.0.1",
     "Rx-Main": "2.2.5.0",
-    "FSharp.Core": "4.0.0.1",
-    "Microsoft.AspNet.SignalR": "2.2.0"
+    "FSharp.Core": "4.0.0.1"
   },
   "frameworks": {
     "dnx451": {
       "dependencies": {
+        "Microsoft.AspNet.SignalR": "2.2.0"
       }
     },
     "dnx461": {
       "dependencies": {
+        "Microsoft.AspNet.SignalR": "2.2.0"
       }
     }
   },
