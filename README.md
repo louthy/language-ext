@@ -1068,7 +1068,7 @@ The public constructor is the setup function, the object itself is the state, an
 How about a bit of load balancing?  This creates 100 processes, and as the messages come in to the parent `indexer` process, it automatically allocates the messages to its 100 child processes in a round-robin fashion:
 
 ```C#
-    var load = spawnRoundRobin<Thing>("indexer", 100, DoIndexing);
+    var load = Router.roundRobin<Thing>("indexer", 100, DoIndexing);
 ```
 
 So as you can see that's a pretty powerful technique.  Remember the process could be running on another machine, and as long as the messages serialise you can talk to them by process ID.  
@@ -1102,20 +1102,20 @@ A good example of this is the 'Dead Letters' process, it gets all the messages t
 That's it!  For a key piece of infrastructure.  So it's then possible to easily listen and log issues, or hook it up to a process that persists the dead letter messages.
 
 ### 'Discoverability'
-On other actor systems I was struggling to reliably get messages from one machine to another, or to know the process ID of a remote actor so I could message it.  What I want to do with this is to keep it super light, and lean.  I want to keep the setup options simple, and the 'discoverability' easy.
+Being able to find other Processes in a cluster (or within the same AppDomain) and dispatch or route to them is essential.  There's a supervision hierarchy, where you have a `root` process, then a child `user` process under which you create your processes, and in turn they create child processes creating a tree structure with which you can use to route messages locally.  
 
-So there's a supervision hierarchy, where you have a `root` process, then a child `user` process under which you create your processes (and in turn they create child processes).  There's also `system` process under `root` that handles stuff like dead-letters and various other housekeeping tasks.  
+There's also `system` process under `root` that handles stuff like dead-letters and various other housekeeping tasks.  
 ```C#
     /root/user/...
     /root/system/dead-letters
     etc.
 ```
-When you create a Redis cluster connection the second argument is the name of the node in the 'cluster' (i.e. the name of the app/service/website, whatever it is your code does).  The last argument is the role of the node in the cluster (see `Role.Broadcast`, `Role.LeastBusy`, `Role.Random`, `Role.RoundRobin`, `Role.First` - for cluster dispatch methods).
+When you create a Redis cluster connection the second argument is the name of the node in the 'cluster' (i.e. the name of the app/service/website, whatever it is your code does).  The last argument is the _role_ of the node in the cluster (see `Role.Broadcast`, `Role.LeastBusy`, `Role.Random`, `Role.RoundRobin`, `Role.First` - for cluster dispatch methods).  There is a static property `Process.ClusterNodes` that allows you to interrogate which nodes are online and what their role is.
 ```C#
     RedisCluster.register();
     Cluster.connect("redis", "my-stuff", "localhost", "0","my-node-role");
 ```
-Then your user hierarchy looks like this:
+Then instead of having `root` as the top level Process in your hierarchy, you have `my-stuff`:
 ```C#
     /my-stuff/user/...
     /my-stuff/system/dead-letters
@@ -1131,9 +1131,9 @@ Or you can use the `ProcessId` API to build the path:
    ProcessId c = tell(ProcessId.User["hello"]);   // (from 'my-stuff' node)
    // a == b == c
 ```
-Even that isn't great if you don't know what the name of the 'app' that is running a Process.  So processes can register by a single name, that goes into a 'shared hierarchy':
+Even that isn't great if you don't know what the name of the 'app' that is running a Process.  So processes can register by a single name, that goes into a 'shared namespace'.  It's a kind of DNS for processes:
 ```
-    /registered/...
+    /disp/reg/<name>
 ```
 To register:
 ```C#
@@ -1141,33 +1141,13 @@ To register:
 ```
 This goes in:
 ```
-    /registered/hello-world
+    /disp/reg/hello-world
 ```
-Your process now has two addresses, the `/my-stuff/user/hello-world` address and the `/registered/hello-world` address that anyone can find calling `find("hello-world")`.  This makes it very simple to bootstrap processes and get messages to them even if you don't know what system is actually dealing with it:
+Your process now has two addresses, the `/my-stuff/user/hello-world` address and the `/disp/reg/hello-world` address that anyone can find by calling `find("hello-world")`.  This makes it very simple to bootstrap processes and get messages to them even if you don't know what system is actually dealing with it:
 ```C#
     tell(find("hello-world"), "Hi!");
 ```
-You can also use roles to dispatch to cluster nodes within a role.  For example you may have mail-sending nodes in your cluster.  You can do simple load balancing like so:
-```C#
-   tell(Role.LeastBusy["smtp"]["user"]["sender"], email);
-```
-That will find all Processes in the cluster that are in the `smtp` role (specified by the last parameter when you call `Cluster.connect`), it then works out which one has the smallest queue and sends the message to its `/user/sender` Process.  
-
-You can also use:
-```C#
-    Role.Broadcast - sends to all nodes
-    Role.RoundRobin - sends to one node at a time in a round-robin fashion
-    Role.Random - sends to a random node
-    Role.First - sends to the first node (sorted by node name: the second parameter to Cluster.connect)
-    Role.Second - sends to the second node
-    Role.Third - sends to the third node
-    Role.Last - sends to the last node
-```
-Also note that this:
-```C#
-    ProcessId pid = Role.LeastBusy["smtp"]["user"]["sender"]
-```
-Generates a normal `ProcessId` just like any other  `ProcessId`, and therefore can be used with any function in the API that accepts a `ProcessId` and can be validly passed around just like any other `ProcessId`.  So cluster dispatch a communication becomes trivial.
+Along with routers, dispatchers and roles the ability to find, route and dispatch to other nodes in the cluster is trivial.  For a full discussion on routing, roles and dispatchers [see here](https://github.com/louthy/language-ext/wiki/Process-system-message-dispatch)
 
 ### Persistence
 There is an `ICluster` interface that you can use the implement your own persistence layer.  However out of the box there is persistence to Redis (using `LanguageExt.Process.Redis`).  
