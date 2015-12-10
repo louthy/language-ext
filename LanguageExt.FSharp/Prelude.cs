@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Microsoft.FSharp.Core;
 using Microsoft.FSharp.Collections;
 using static LanguageExt.Prelude;
-//using System.Collections.Immutable;
 
 namespace LanguageExt
 {
@@ -21,19 +20,15 @@ namespace LanguageExt
         /// Convert a LanguageExt Option into an F# Option 
         /// </summary>
         public static FSharpOption<T> fs<T>(Option<T> option) =>
-            option.IsNone
-                ? FSharpOption<T>.None
-                : match(option,
-                     Some: v =>  FSharpOption<T>.Some(v),
-                     None: () => failwith<FSharpOption<T>>("returns null, so can't use the None branch"));
+            option.Map(FSharpOption<T>.Some)
+                  .IfNoneUnsafe(FSharpOption<T>.None);
 
         /// <summary>
         /// Convert a LanguageExt OptionUnsafe into an F# Option 
         /// </summary>
         public static FSharpOption<T> fs<T>(OptionUnsafe<T> option) =>
-            matchUnsafe(option,
-                Some: v => FSharpOption<T>.Some(v),
-                None: () => FSharpOption<T>.None);
+            option.Map(FSharpOption<T>.Some)
+                  .IfNoneUnsafe(FSharpOption<T>.None);
 
         /// <summary>
         /// Convert an F# List into an IEnumerable T

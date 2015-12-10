@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Reflection;
 using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
@@ -88,6 +89,7 @@ namespace LanguageExt
                     }
                     catch (Exception e)
                     {
+                        // Not our errors, so just log and move on
                         logErr(e);
                     }
 
@@ -237,7 +239,15 @@ namespace LanguageExt
                 throw new ProcessSetupException(Id.Path, e);
             }
 
-            stateSubject.OnNext(state);
+            try
+            {
+                stateSubject.OnNext(state);
+            }
+            catch (Exception ue)
+            {
+                // Not our errors, so just log and move on
+                logErr(ue);
+            }
             return state;
         }
 
@@ -256,7 +266,15 @@ namespace LanguageExt
         /// </summary>
         public Unit Publish(object message)
         {
-            publishSubject.OnNext(message);
+            try
+            { 
+                publishSubject.OnNext(message);
+            }
+            catch (Exception ue)
+            {
+                // Not our errors, so just log and move on
+                logErr(ue);
+            }
             return unit;
         }
 
@@ -481,8 +499,8 @@ namespace LanguageExt
                 try
                 {
                     ActorContext.CurrentRequest = request;
-                    ActorContext.ProcessFlags = flags;
-                    ActorContext.CurrentMsg = request.Message;
+                    ActorContext.ProcessFlags   = flags;
+                    ActorContext.CurrentMsg     = request.Message;
 
                     //ActorContext.AssertSession();
 
@@ -502,11 +520,16 @@ namespace LanguageExt
                                         }
                                         catch (Exception ue)
                                         {
+                                            // Not our errors, so just log and move on
                                             logErr(ue);
                                         }
                                         return stateOut;
                                     },
-                                    None: () => state
+                                    None: () =>
+                                    {
+                                        replyError(new AskException($"Can't ask {Id.Path}, message is not {typeof(T).GetTypeInfo().Name} : {request.Message}"));
+                                        return state;
+                                    }
                                 );
                     }
                     else if (request.Message is T)
@@ -523,6 +546,7 @@ namespace LanguageExt
                         }
                         catch (Exception ue)
                         {
+                            // Not our errors, so just log and move on
                             logErr(ue);
                         }
                         state = stateOut;
@@ -533,7 +557,10 @@ namespace LanguageExt
                     }
                     else
                     {
-                        logErr($"ProcessAsk request.Message is not T {request.Message}");
+                        // Failure to deserialise is not our problem, its the sender's
+                        // so we don't throw here.
+                        replyError(new AskException($"Can't ask {Id.Path}, message is not {typeof(T).GetTypeInfo().Name} : {request.Message}"));
+                        return InboxDirective.Default;
                     }
 
                     strategyState = strategyState.With(
@@ -576,21 +603,22 @@ namespace LanguageExt
 
             lock (sync)
             {
-                var savedReq = ActorContext.CurrentRequest;
+                var savedReq   = ActorContext.CurrentRequest;
                 var savedFlags = ActorContext.ProcessFlags;
-                var savedMsg = ActorContext.CurrentMsg;
+                var savedMsg   = ActorContext.CurrentMsg;
 
                 try
                 {
                     ActorContext.CurrentRequest = null;
-                    ActorContext.ProcessFlags = flags;
-                    ActorContext.CurrentMsg = pid;
+                    ActorContext.ProcessFlags   = flags;
+                    ActorContext.CurrentMsg     = pid;
 
                     //ActorContext.AssertSession();
 
                     var stateIn = GetState();
                     var stateOut = termFn(GetState(), pid);
                     state = stateOut;
+
                     try
                     {
                         if (notnull(stateOut) && !state.Equals(stateIn))
@@ -600,6 +628,7 @@ namespace LanguageExt
                     }
                     catch (Exception ue)
                     {
+                        // Not our errors, so just log and move on
                         logErr(ue);
                     }
 
@@ -616,14 +645,14 @@ namespace LanguageExt
                 finally
                 {
                     ActorContext.CurrentRequest = savedReq;
-                    ActorContext.ProcessFlags = savedFlags;
-                    ActorContext.CurrentMsg = savedMsg;
+                    ActorContext.ProcessFlags   = savedFlags;
+                    ActorContext.CurrentMsg     = savedMsg;
                 }
                 return InboxDirective.Default;
             }
         }
 
-        private InboxDirective DefaultErrorHandler(object message, Exception e)
+        InboxDirective DefaultErrorHandler(object message, Exception e)
         {
             var directive = RunStrategy(
                 Id,
@@ -675,6 +704,7 @@ namespace LanguageExt
                                         }
                                         catch (Exception ue)
                                         {
+                                            // Not our errors, so just log and move on
                                             logErr(ue);
                                         }
                                         return stateOut;
@@ -696,6 +726,7 @@ namespace LanguageExt
                         }
                         catch (Exception ue)
                         {
+                            // Not our errors, so just log and move on
                             logErr(ue);
                         }
                     }
@@ -705,7 +736,8 @@ namespace LanguageExt
                     }
                     else
                     {
-                        logErr($"ProcessMessage request.Message is not T {message}");
+                        logErr($"Can't tell {Id.Path}, message is not {typeof(T).GetTypeInfo().Name} : {message}");
+                        return InboxDirective.Default;
                     }
 
                     strategyState = strategyState.With(

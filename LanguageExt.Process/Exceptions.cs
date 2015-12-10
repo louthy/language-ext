@@ -125,6 +125,19 @@ namespace LanguageExt
     }
 
     /// <summary>
+    /// The message can't be asked
+    /// </summary>
+    public class AskException : Exception
+    {
+        public AskException(string message)
+            :
+            base(message)
+        {
+        }
+    }
+
+
+    /// <summary>
     /// A process threw an exception in its message loop
     /// </summary>
     public class ProcessException : Exception
