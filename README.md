@@ -344,7 +344,7 @@ I know, it's that damn monad word again.  They're actually not scary at all, and
     Option<int> six = Some(6);
     Option<int> none = None;
 
-    // This exprssion succeeds because all items to the right of 'in' are Some of int
+    // This expression succeeds because all items to the right of 'in' are Some of int
     // and therefore it lands in the Some lambda.
     int r = match( from x in two
                    from y in four
@@ -436,7 +436,7 @@ By wrapping `string` as `Some<string>` we get free runtime `null` checking. Esse
 ```
 If you're wondering how it works, well `Some<T>` is a `struct`, and has implicit conversation operators that convert a type of `T` to a type of `Some<T>`.  The constructor of `Some<T>` ensures that the value of `T` has a non-null value.
 
-There is also an implicit cast operator from `Some<T>` to `Option<T>`.  The `Some<T>` will automatically put the `Option<T>` into a `Some` state.  It's not possible to go the other way and cast from `Option<T>` to `Some<T>`, because the `Option<T>` could be in a `None` state which wouid cause the `Some<T>` to throw `ValueIsNullException`.  We want to avoid exceptions being thrown, so you must explicitly `match` to extract the `Some` value.
+There is also an implicit cast operator from `Some<T>` to `Option<T>`.  The `Some<T>` will automatically put the `Option<T>` into a `Some` state.  It's not possible to go the other way and cast from `Option<T>` to `Some<T>`, because the `Option<T>` could be in a `None` state which would cause the `Some<T>` to throw `ValueIsNullException`.  We want to avoid exceptions being thrown, so you must explicitly `match` to extract the `Some` value.
 
 There is one weakness to this approach, and that is that if you add a member property or field to a class which is a  `struct`, and if you don't initialise it, then C# is happy to go along with that.  This is the reason why you shouldn't normally include reference members inside structs (or if you do, have a strategy for dealing with it).
 
@@ -551,7 +551,7 @@ There's support for `Cons`, which is the functional way of constructing lists:
     Assert.IsTrue(array[4] == 5);
 ```
 
-_Note, this isn't the strict definition of `Cons`, but it's a pragmatic implementation that returns an `IEnumerable<T>`, is lazy, and behaves the same.  Functional purists, please don't get too worked up!  I am yet to think of a way of implemeting a proper type-safe `cons` (that can also represent trees, etc.) in C#._
+_Note, this isn't the strict definition of `Cons`, but it's a pragmatic implementation that returns an `IEnumerable<T>`, is lazy, and behaves the same.  Functional purists, please don't get too worked up!  I am yet to think of a way of implementing a proper type-safe `cons` (that can also represent trees, etc.) in C#._
 
 Functional languages usually have a shortcut list constructor syntax that makes the `Cons` approach easier.  It usually looks something like this:
 
@@ -669,7 +669,7 @@ However, you can provide up to seven handlers, one for an empty list and six for
         Assert.IsTrue(Product(list5) == 12000000);
     }
 ```
-Those patterns should be very familiar to anyone who's ventured into the functional world.  For those that haven't, the `(x,xs)` convention might seem odd.  `x` is the item at the head of the list - `list.First()` in LINQ world.  `xs` (many X-es) is the tail of the list - `list.Skip(1)` in LINQ.  This recursive pattern of working on the head of the list until the list runs out is pretty much how loops are done in the funcitonal world.  
+Those patterns should be very familiar to anyone who's ventured into the functional world.  For those that haven't, the `(x,xs)` convention might seem odd.  `x` is the item at the head of the list - `list.First()` in LINQ world.  `xs` (many X-es) is the tail of the list - `list.Skip(1)` in LINQ.  This recursive pattern of working on the head of the list until the list runs out is pretty much how loops are done in the functional world.  
 
 Be wary of recursive processing however.  C# will happily blow up the stack after a few thousand iterations.  
 
@@ -907,7 +907,7 @@ __What's the Actor model?__
 * It has its own blob of state that only it can see and update
 * It has a message queue (inbox)
 * It processes the messages one at a time (single threaded remember)
-* When a message comes in, it can change its state; when the next message arrives it gets that modifiied state.
+* When a message comes in, it can change its state; when the next message arrives it gets that modified state.
 * It has a parent Actor
 * It can `spawn` child Actors
 * It can `tell` messages to other Actors
@@ -1016,7 +1016,7 @@ class Cache<K, V>
     public static ProcessId Spawn(ProcessName name) =>
         // Argument 1 is the name of the process
         // Argument 2 is the setup function: returns a new empty cache (Map)
-        // Argument 3 checks the message type and upates the state except when
+        // Argument 3 checks the message type and updates the state except when
         //            it's a 'Get' in which case it Finds the cache item and if
         //            it exists, calls 'reply', and then returns the state 
         //            untouched.
