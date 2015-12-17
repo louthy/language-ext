@@ -33,6 +33,8 @@
   "frameworks": {
     "net45": {
       "dependencies": {
+        "Microsoft.Owin": "3.0.1",
+        "Microsoft.Owin.Security": "3.0.1",
         "Microsoft.AspNet.SignalR": "2.2.0"
       },
       "frameworkAssemblies": {
@@ -41,6 +43,8 @@
     },
     "net46": {
       "dependencies": {
+        "Microsoft.Owin": "3.0.1",
+        "Microsoft.Owin.Security": "3.0.1",
         "Microsoft.AspNet.SignalR": "2.2.0"
       },
       "frameworkAssemblies": {

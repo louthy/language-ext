@@ -20,6 +20,7 @@ namespace LanguageExt
         /// <summary>
         /// A ProcessId that represents a set of nodes in a cluster.  When used for
         /// operations like 'tell', the message is dispatched to all nodes in the set.
+        /// See remarks.
         /// </summary>
         /// <remarks>
         /// You may create a reference to child nodes in the usual way:
@@ -34,6 +35,7 @@ namespace LanguageExt
         /// A ProcessId that represents a set of nodes in a cluster.  When used for
         /// operations like 'tell', the message is dispatched to the least busy from
         /// the set.
+        /// See remarks.
         /// </summary>
         /// <remarks>
         /// You may create a reference to child nodes in the usual way:
@@ -48,6 +50,7 @@ namespace LanguageExt
         /// A ProcessId that represents a set of nodes in a cluster.  When used for
         /// operations like 'tell', the message is dispatched to a cryptographically
         /// random node from the set.
+        /// See remarks.
         /// </summary>
         /// <remarks>
         /// You may create a reference to child nodes in the usual way:
@@ -62,13 +65,14 @@ namespace LanguageExt
         /// A ProcessId that represents a set of nodes in a cluster.  When used for
         /// operations like 'tell', the message is dispatched to the nodes in a round-
         /// robin fashion
+        /// See remarks.
         /// </summary>
         /// <remarks>
         /// You may create a reference to child nodes in the usual way:
-        ///     Role.Random["my-role"]["user"]["child-1"][...]
+        ///     Role.RoundRobin["my-role"]["user"]["child-1"][...]
         /// </remarks>
         /// <example>
-        ///     tell( Role.Random["message-role"]["user"]["message-log"], "Hello" );
+        ///     tell( Role.RoundRobin["message-role"]["user"]["message-log"], "Hello" );
         /// </example>
         public static readonly ProcessId RoundRobin;
 
@@ -77,6 +81,7 @@ namespace LanguageExt
         /// operations like 'tell', the node names are sorted in ascending order and 
         /// the message is dispatched to the first one.  This can be used for leader
         /// election for example.
+        /// See remarks.
         /// </summary>
         /// <remarks>
         /// You may create a reference to child nodes in the usual way:
@@ -91,6 +96,7 @@ namespace LanguageExt
         /// A ProcessId that represents a set of nodes in a cluster.  When used for 
         /// operations like 'tell', the node names are sorted in ascending order and 
         /// the message is dispatched to the second one.
+        /// See remarks.
         /// </summary>
         /// <remarks>
         /// You may create a reference to child nodes in the usual way:
@@ -105,6 +111,7 @@ namespace LanguageExt
         /// A ProcessId that represents a set of nodes in a cluster.  When used for 
         /// operations like 'tell', the node names are sorted in ascending order and 
         /// the message is dispatched to the third one.
+        /// See remarks.
         /// </summary>
         /// <remarks>
         /// You may create a reference to child nodes in the usual way:
@@ -119,6 +126,7 @@ namespace LanguageExt
         /// A ProcessId that represents a set of nodes in a cluster.  When used for 
         /// operations like 'tell', the node names are sorted in descending order and 
         /// the message is dispatched to the first one.
+        /// See remarks.
         /// </summary>
         /// <remarks>
         /// You may create a reference to child nodes in the usual way:
@@ -128,6 +136,43 @@ namespace LanguageExt
         ///     tell( Role.Last["message-role"]["user"]["message-log"], "Hello" );
         /// </example>
         public static readonly ProcessId Last;
+
+        /// <summary>
+        /// Builds a ProcessId that represents the next node in the role that this node
+        /// is a part of.  If there is only one node in the role then any messages sent
+        /// will be sent to the leaf-process with itself.  Unlike other Roles, you do 
+        /// not specify the role-name as the first child. 
+        /// See remarks.
+        /// </summary>
+        /// <remarks>
+        /// You may create a reference to child nodes in the usual way:
+        ///     Role.Next["user"]["child-1"][...]
+        /// </remarks>
+        /// <example>
+        ///     tell( Role.Next["user"]["message-log"], "Hello" );
+        /// </example>
+        public static ProcessId Next =>
+            nextRoot[Root.GetName()];
+
+        /// <summary>
+        /// Builds a ProcessId that represents the previous node in the role that this 
+        /// node is a part of.  If there is only one node in the role then any messages 
+        /// sent will be sent to the leaf-process with itself.  Unlike other Roles, you 
+        /// do not specify the role-name as the first child. 
+        /// See remarks.
+        /// </summary>
+        /// <remarks>
+        /// You may create a reference to child nodes in the usual way:
+        ///     Role.Prev["user"]["child-1"][...]
+        /// </remarks>
+        /// <example>
+        ///     tell( Role.Prev["user"]["message-log"], "Hello" );
+        /// </example>
+        public static ProcessId Prev =>
+            prevRoot[Root.GetName()];
+
+        static readonly ProcessId nextRoot;
+        static readonly ProcessId prevRoot;
 
         internal static Unit init()
         {
@@ -145,6 +190,8 @@ namespace LanguageExt
             ProcessName second      = "role-second";
             ProcessName third       = "role-third";
             ProcessName last        = "role-last";
+            ProcessName next        = "role-next";
+            ProcessName prev        = "role-prev";
             ProcessName broadcast   = "role-broadcast";
             ProcessName leastBusy   = "role-least-busy";
             ProcessName random      = "role-random";
@@ -154,6 +201,36 @@ namespace LanguageExt
                 ClusterNodes.Values
                             .Filter(node => node.Role == leaf.Take(1).GetName())
                             .Map(node => ProcessId.Top[node.Role].Append(leaf.Skip(1))));
+
+            var nextNode = fun((bool fwd) => fun((ProcessId leaf) =>
+            {
+                var self = leaf.Take(1).GetName();
+                var isNext = false;
+
+                var nodes = fwd
+                    ? ClusterNodes.Values.Append(ClusterNodes.Values)
+                    : ClusterNodes.Values.Append(ClusterNodes.Values).Reverse(); //< TODO: Inefficient
+
+                foreach (var node in nodes)
+                {
+                    if (isNext)
+                    {
+                        return new[] { ProcessId.Top[node.Role].Append(leaf.Skip(1)) }.AsEnumerable();
+                    }
+
+                    if (node.NodeName == self)
+                    {
+                        isNext = true;
+                    }
+                }
+                return new ProcessId[0].AsEnumerable();
+            }));
+
+            // Next 
+            nextRoot = Dispatch.register(next, nextNode(true));
+
+            // Prev 
+            prevRoot = Dispatch.register(prev, nextNode(false));
 
             // First
             First = Dispatch.register(first, leaf => roleNodes(leaf).Take(1));
