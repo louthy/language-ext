@@ -51,7 +51,10 @@ namespace LanguageExt
                    {
                        f();
                    }
-                   catch { }
+                   catch (Exception e)
+                   {
+                       logErr(e);
+                   }
                });
 
         internal static IDisposable safedelay(Action f, DateTime delayUntil) =>

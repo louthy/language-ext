@@ -1,0 +1,40 @@
+{
+  "version": "1.7.7-*",
+  "authors": [ "Paul Louth" ],
+  "owners": ["paullouth"],
+  "title": "LanguageExt.Process.FSharp",
+  "description": "F# API for the LanguageExt.Process actor library component that works with LanguageExt.Core: A library that uses and abuses the features of C# 6 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself. It also includes an 'Erlang like' process system (actors) that can optionally persist messages and state to Redis (note you can use it without Redis for in-app messaging). The process system additionally supports Rx streams of messages and state allowing for a complete system of reactive events and message dispatch.",
+  "tags": [ "F#", "C#", "Functional", "Language Extension", "Monad", "Option", "Either", "Reader", "Writer", "State", "List", "Set", "Map", "Queue", "Memo", "Memoization", "Immutable", "Lambda", "Pattern Matching", "Tuple", "Actor", "Process", "Akka", "Redis" ],
+  "releaseNotes": "",
+  "iconUrl": "https://camo.githubusercontent.com/08525ae465a9061150679d871731e77b399c2a94/687474703a2f2f7777772e34666f75722e6f72672f696d616765732f6c616e672d6578742d6c6f676f2e706e67",
+  "projectUrl": "https://github.com/louthy/language-ext",
+  "licenseUrl": "https://github.com/louthy/language-ext/blob/master/LICENSE.md",
+  "copyright": "Copyright (c) Paul Louth",
+
+  "dependencies": {
+    "FSharp.Dnx": "1.0.0-beta1",
+    "LanguageExt.Core": "1.7.7",
+    "LanguageExt.Process": "1.7.7",
+    "LanguageExt.FSharp": "1.7.7"
+  },
+  "frameworks": {
+    "dnx451": {
+    },
+    "dnx461": {
+    }
+  },
+  "compiler": {
+    "name": "F#",
+    "compilerAssembly": "FSharp.Dnx",
+    "compilerType": "FSharp.Dnx.FSharpProjectCompiler"
+  },
+  "fsharp": {
+    "files": [
+    "AssemblyInfo.fs",
+    "Prelude.fs",
+    "Dispatch.fs",
+    "Role.fs",
+    "Router.fs"
+    ]
+  }
+}

@@ -66,7 +66,6 @@ module ProcessFs =
         | "/__special__/parent"       -> Process.Parent
         | "/__special__/user"         -> Process.User
         | "/__special__/dead-letters" -> Process.DeadLetters
-        | "/__special__/registered"   -> Process.Registered
         | "/__special__/root"         -> Process.Root
         | "/__special__/errors"       -> Process.Errors
         | _                           -> pid
@@ -84,17 +83,88 @@ module ProcessFs =
     let NoState (inbox:'msg -> unit) = 
         (fun (_:unit) (msg:'msg) -> inbox msg |> ignore)
     
+    /// Find a process by its *registered* name (a kind of DNS for Processes).
+    /// 
+    /// Multiple Processes can register under the same name.  You may use 
+    /// a dispatcher to work on them collectively (wherever they are in the 
+    /// cluster).  i.e. 
+    /// 
+    ///     var regd = register "proc" pid
+    ///     tell DispatchFs.Broadcast.[regd] "Hello" Self
+    ///     tell DispatchFs.First.[regd] "Hello" Self
+    ///     tell DispatchFs.LeastBusy.[regd] "Hello" Self
+    ///     tell DispatchFs.Random.[regd] "Hello" Self
+    ///     tell DispatchFs.RoundRobin.[regd] "Hello" Self
     let findProcess name = 
         Process.find(new ProcessName(name))
 
+    /// Register a named process (a kind of DNS for Processes).  
+    /// 
+    /// If the Process is visible to the cluster (PersistInbox) then the 
+    /// registration becomes a permanent named look-up until Process.deregister 
+    /// is called.
+    /// 
+    /// Multiple Processes can register under the same name.  You may use 
+    /// a dispatcher to work on them collectively (wherever they are in the 
+    /// cluster).  i.e. 
+    /// 
+    ///     var regd = registerSelf proc
+    ///     tell DispatchFs.Broadcast.[regd] "Hello" Self
+    ///     tell DispatchFs.First.[regd] "Hello" Self
+    ///     tell DispatchFs.LeastBusy.[regd] "Hello" Self
+    ///     tell DispatchFs.Random.[regd] "Hello" Self
+    ///     tell DispatchFs.RoundRobin.[regd] "Hello" Self
+    /// 
+    ///     This should be used from within a process' message loop only
     let registerSelf name = 
         Process.register(new ProcessName(name))
 
-    let register name processId flags = 
-        Process.register(new ProcessName(name),processId,flags,LanguageExt.ProcessSetting.DefaultMailboxSize)
+    /// Register a named process (a kind of DNS for Processes).  
+    /// 
+    /// If the Process is visible to the cluster (PersistInbox) then the 
+    /// registration becomes a permanent named look-up until Process.deregister 
+    /// is called.
+    /// 
+    /// Multiple Processes can register under the same name.  You may use 
+    /// a dispatcher to work on them collectively (wherever they are in the 
+    /// cluster).  i.e. 
+    /// 
+    ///     var regd = register "proc" pid
+    ///     tell DispatchFs.Broadcast.[regd] "Hello" Self
+    ///     tell DispatchFs.First.[regd] "Hello" Self
+    ///     tell DispatchFs.LeastBusy.[regd] "Hello" Self
+    ///     tell DispatchFs.Random.[regd] "Hello" Self
+    ///     tell DispatchFs.RoundRobin.[regd] "Hello" Self
+    /// 
+    ///     This should be used from within a process' message loop only
+    let register name processId = 
+        Process.register(new ProcessName(name),processId)
 
-    let deregister name = 
-        Process.deregister(new ProcessName(name)) |> ignore
+    /// Deregister all Processes associated with a name. NOTE: Be very careful
+    /// with usage of this function if you didn't handle the registration you
+    /// are potentially disconnecting many Processes from their registered name.
+    /// 
+    /// Any Process (or dispatcher, or role, etc.) can be registered by a name - 
+    /// a kind of DNS for ProcessIds.  There can be multiple names associated
+    /// with a single ProcessId and multiple ProcessIds associated with a name.
+    /// 
+    /// This function removes all registered ProcessIds for a specific name.
+    /// If you wish to deregister all names registered for specific Process then
+    /// use deregisterById pid
+    let deregisterByName name = 
+        Process.deregisterByName(new ProcessName(name)) |> ignore
+
+    /// Deregister a Process from any names it's been registered as.
+    /// 
+    /// Any Process (or dispatcher, or role, etc.) can be registered by a name - 
+    /// a kind of DNS for ProcessIds.  There can be multiple names associated
+    /// with a single ProcessId.  
+    /// 
+    /// This function removes all registered names for a specific ProcessId.
+    /// If you wish to deregister all ProcessIds registered under a name then
+    /// use deregisterByName name
+    let deregisterById pid = 
+        Process.deregisterById(pid |> resolvePID) |> ignore
 
     let killSelf() = 
         Process.kill |> ignore

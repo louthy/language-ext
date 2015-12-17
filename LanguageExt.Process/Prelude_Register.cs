@@ -146,10 +146,10 @@ namespace LanguageExt
         /// 
         /// This function removes all registered ProcessIds for a specific name.
         /// If you wish to deregister all names registered for specific Process then
-        /// use Process.deregisterById(name)
+        /// use Process.deregisterById(pid)
         /// </remarks>
         /// <param name="name">Name of the process to deregister</param>
-        public static Unit deregisterByName(ProcessId process) =>
-            ActorContext.DeregisterById(process);
+        public static Unit deregisterByName(ProcessName name) =>
+            ActorContext.DeregisterByName(name);
     }
 }
