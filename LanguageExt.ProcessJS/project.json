@@ -1,5 +1,5 @@
 {
-  "version": "1.7.7-*",
+  "version": "1.7.9-*",
   "authors": [ "Paul Louth" ],
   "owners": ["paullouth"],
   "title": "LanguageExt.ProcessJS",
@@ -24,13 +24,29 @@
     }
   },
   "dependencies": {
-    "LanguageExt.Core": "1.7.7",
-    "LanguageExt.Process": "1.7.7",
+    "LanguageExt.Core": "1.7.9",
+    "LanguageExt.Process": "1.7.9",
     "Newtonsoft.Json": "7.0.1",
     "Rx-Main": "2.2.5.0",
     "FSharp.Core": "4.0.0.1"
   },
   "frameworks": {
+    "net45": {
+      "dependencies": {
+        "Microsoft.AspNet.SignalR": "2.2.0"
+      },
+      "frameworkAssemblies": {
+        "System.Core": "4.0.0.0"
+      }
+    },
+    "net46": {
+      "dependencies": {
+        "Microsoft.AspNet.SignalR": "2.2.0"
+      },
+      "frameworkAssemblies": {
+        "System.Core": "4.0.0.0"
+      }
+    },
     "dnx451": {
       "dependencies": {
         "Microsoft.AspNet.SignalR": "2.2.0"

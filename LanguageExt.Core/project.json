@@ -1,5 +1,5 @@
 {
-  "version": "1.7.7-*",
+  "version": "1.7.9-*",
   "authors": [ "Paul Louth" ],
   "owners": [ "paullouth" ],
   "title": "LanguageExt.Core",
@@ -28,6 +28,16 @@
     "Rx-Main": "2.2.5.0"
   },
   "frameworks": {
+    "net45": {
+      "frameworkAssemblies": {
+        "System.Core": "4.0.0.0"
+      }
+    },
+    "net46": {
+      "frameworkAssemblies": {
+        "System.Core": "4.0.0.0"
+      }
+    },
     "dnx451": {
       "dependencies": {
       }

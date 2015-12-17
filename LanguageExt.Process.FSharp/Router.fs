@@ -29,7 +29,7 @@ module RouterFs =
 
     /// Spawns a new process with that routes each message to all workers
     /// Each message is mapped before being broadcast.
-    let broadcastMapWith (name:string) (count:int) (workers:ProcessId list) (option:RouterOption) (flags:ProcessFlags) (mapper:'tmsg -> 'umsg) =
+    let broadcastMapWith (name:string) (workers:ProcessId list) (option:RouterOption) (flags:ProcessFlags) (mapper:'tmsg -> 'umsg) =
         Router.broadcastMap(new ProcessName(name), workers, new Func<'tmsg,'umsg>(mapper), option, flags)
 
     /// Spawns a new process with N worker processes, each message is mapped 
@@ -59,9 +59,9 @@ module RouterFs =
     let leastBusyMap (name:string) (count:int) (flags:ProcessFlags) (setup:unit -> 'state) (inbox:'state -> 'umsg -> 'state) (mapper:'tmsg -> 'umsg) =
         Router.leastBusyMap(new ProcessName(name), count, new Func<'state>(setup), new Func<'state,'umsg,'state>(inbox), new Func<'tmsg,'umsg>(mapper), flags)
 
-    /// Spawns a new process with Count worker processes, each message is mapped
+    /// Spawns a new process with worker processes, each message is mapped
     /// and sent to the least busy worker
-    let leastBusyMapWith (name:string) (count:int) (workers:ProcessId list) (option:RouterOption) (flags:ProcessFlags) (mapper:'tmsg -> 'umsg) =
+    let leastBusyMapWith (name:string) (workers:ProcessId list) (option:RouterOption) (flags:ProcessFlags) (mapper:'tmsg -> 'umsg) =
         Router.broadcastMap(new ProcessName(name), workers, new Func<'tmsg,'umsg>(mapper), option, flags)
 
     /// Spawns a new process with Count worker processes, each message is sent to one worker
@@ -81,7 +81,7 @@ module RouterFs =
 
     /// Spawns a new process with that routes each message to the Workers
     /// randomly.
-    let randomMapWith (name:string) (count:int) (workers:ProcessId list) (option:RouterOption) (flags:ProcessFlags) (mapper:'tmsg -> 'umsg) =
+    let randomMapWith (name:string) (workers:ProcessId list) (option:RouterOption) (flags:ProcessFlags) (mapper:'tmsg -> 'umsg) =
         Router.randomMap(new ProcessName(name), workers, new Func<'tmsg,'umsg>(mapper), option, flags)
 
     /// Spawns a new process with N worker processes, each message is mapped 
@@ -113,7 +113,7 @@ module RouterFs =
 
     /// Spawns a new process with that routes each message is mapped and 
     /// sent to the Workers in a round robin fashion.
-    let roundRobinMapWith (name:string) (count:int) (workers:ProcessId list) (option:RouterOption) (flags:ProcessFlags) (mapper:'tmsg -> 'umsg) =
+    let roundRobinMapWith (name:string) (workers:ProcessId list) (option:RouterOption) (flags:ProcessFlags) (mapper:'tmsg -> 'umsg) =
         Router.roundRobinMap(new ProcessName(name), workers, new Func<'tmsg,'umsg>(mapper), option, flags)
 
     /// Spawns a new process with N worker processes, each message is mapped 
