@@ -82,7 +82,13 @@ namespace LanguageExt
             }
         }
 
-        private static IEnumerable<ProcessName> SplitOnSep(string path)
+        /// <summary>
+        /// Traverses a string extracting an enumerable of ProcessNames that
+        /// make up the path.
+        /// </summary>
+        /// <param name="path">Path to traverse</param>
+        /// <returns>Enumerable of ProcessNames</returns>
+        static IEnumerable<ProcessName> SplitOnSep(string path)
         {
             var builder = new StringBuilder();
             var selection = false;
@@ -122,6 +128,10 @@ namespace LanguageExt
                             break;
                     }
                 }
+            }
+            if (selection)
+            {
+                throw new InvalidProcessIdException("ProcessId has an opening selection: '[', but no selection close: ']'");
             }
             if (builder.Length > 0)
             {
@@ -196,18 +206,6 @@ namespace LanguageExt
                       from y in x.Append(self.Skip(1)).GetSelection()
                       select y
                     : new ProcessId[] { self };
-
-            //return parts == null || parts.Length == 0
-            //    ? new ProcessId[0]
-            //    : parts[0].IsSelection
-            //        ? from selection in parts[0].GetSelection()
-            //          let pid = selection.Append(self.Skip(1))
-            //          let childSelection = pid.GetSelection().ToArray()
-            //          from y in childSelection.Length == 0
-            //              ? new ProcessId[] { pid }
-            //              : childSelection
-            //          select y
-            //        : new ProcessId[] { self };
         }
 
         /// <summary>

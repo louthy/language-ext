@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 
@@ -171,6 +172,12 @@ namespace LanguageExt
         public static ProcessId Prev =>
             prevRoot[Root.GetName()];
 
+        public static IEnumerable<ProcessId> NodeIds(ProcessId leaf) =>
+            Nodes(leaf).Values.Map(node => ProcessId.Top[node.NodeName].Append(leaf.Skip(1)));
+
+        public static Map<ProcessName, ClusterNode> Nodes(ProcessId leaf) =>
+            ClusterNodes.Filter(node => node.Role == leaf.Take(1).GetName());
+
         static readonly ProcessId nextRoot;
         static readonly ProcessId prevRoot;
 
@@ -197,25 +204,21 @@ namespace LanguageExt
             ProcessName random      = "role-random";
             ProcessName roundRobin  = "role-round-robin";
 
-            var roleNodes = fun((ProcessId leaf) =>
-                ClusterNodes.Values
-                            .Filter(node => node.Role == leaf.Take(1).GetName())
-                            .Map(node => ProcessId.Top[node.Role].Append(leaf.Skip(1))));
-
             var nextNode = fun((bool fwd) => fun((ProcessId leaf) =>
             {
                 var self = leaf.Take(1).GetName();
                 var isNext = false;
+                var nodeMap = Nodes(leaf);
 
                 var nodes = fwd
-                    ? ClusterNodes.Values.Append(ClusterNodes.Values)
-                    : ClusterNodes.Values.Append(ClusterNodes.Values).Reverse(); //< TODO: Inefficient
+                    ? nodeMap.Values.Append(nodeMap.Values)
+                    : nodeMap.Values.Append(nodeMap.Values).Reverse(); //< TODO: Inefficient
 
                 foreach (var node in nodes)
                 {
                     if (isNext)
                     {
-                        return new[] { ProcessId.Top[node.Role].Append(leaf.Skip(1)) }.AsEnumerable();
+                        return new[] { ProcessId.Top[node.NodeName].Append(leaf.Skip(1)) }.AsEnumerable();
                     }
 
                     if (node.NodeName == self)
@@ -233,23 +236,23 @@ namespace LanguageExt
             prevRoot = Dispatch.register(prev, nextNode(false));
 
             // First
-            First = Dispatch.register(first, leaf => roleNodes(leaf).Take(1));
+            First = Dispatch.register(first, leaf => NodeIds(leaf).Take(1));
 
             // Second
-            Second = Dispatch.register(second, leaf => roleNodes(leaf).Skip(1).Take(1));
+            Second = Dispatch.register(second, leaf => NodeIds(leaf).Skip(1).Take(1));
 
             // Third
-            Third = Dispatch.register(third, leaf => roleNodes(leaf).Skip(2).Take(1));
+            Third = Dispatch.register(third, leaf => NodeIds(leaf).Skip(2).Take(1));
 
             // Last
-            Last = Dispatch.register(last, leaf => roleNodes(leaf).Reverse().Take(1));
+            Last = Dispatch.register(last, leaf => NodeIds(leaf).Reverse().Take(1));
 
             // Broadcast
-            Broadcast = Dispatch.register(broadcast, roleNodes);
+            Broadcast = Dispatch.register(broadcast, NodeIds);
 
             // Least busy
             LeastBusy = Dispatch.register(leastBusy, leaf =>
-                            roleNodes(leaf)
+                            NodeIds(leaf)
                                 .Map(pid => Tuple(inboxCount(pid), pid))
                                 .OrderBy(tup => tup.Item1)
                                 .Map(tup => tup.Item2)
@@ -257,7 +260,7 @@ namespace LanguageExt
 
             // Random
             Random = Dispatch.register(random, leaf => {
-                var workers = roleNodes(leaf).ToArray();
+                var workers = NodeIds(leaf).ToArray();
                 return new ProcessId[1] { workers[Prelude.random(workers.Length)] };
                 });
 
@@ -266,7 +269,7 @@ namespace LanguageExt
             Map<string, int> roundRobinState = Map.empty<string, int>();
             RoundRobin = Dispatch.register(roundRobin, leaf => {
                 var key = leaf.ToString();
-                var workers = roleNodes(leaf).ToArray();
+                var workers = NodeIds(leaf).ToArray();
                 int index = 0;
                 lock (sync)
                 {
