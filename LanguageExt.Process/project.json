@@ -1,7 +1,7 @@
 {
-  "version": "1.7.9-*",
+  "version": "1.7.10-*",
   "authors": [ "Paul Louth" ],
-  "owners": ["paullouth"],
+  "owners": [ "paullouth" ],
   "title": "LanguageExt.Process",
   "description": "Actor library component that works with LanguageExt.Core: A library that uses and abuses the features of C# 6 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself. It also includes an 'Erlang like' process system (actors) that can optionally persist messages and state to Redis (note you can use it without Redis for in-app messaging). The process system additionally supports Rx streams of messages and state allowing for a complete system of reactive events and message dispatch.",
   "tags": [ "C#", "Functional", "Language Extension", "Monad", "Option", "Either", "Reader", "Writer", "State", "List", "Set", "Map", "Queue", "Memo", "Memoization", "Immutable", "Lambda", "Pattern Matching", "Tuple", "Actor", "Process", "Akka", "Redis" ],
@@ -24,7 +24,7 @@
     }
   },
   "dependencies": {
-    "LanguageExt.Core": "1.7.9",
+    "LanguageExt.Core": "1.7.10",
     "Newtonsoft.Json": "7.0.1",
     "Rx-Main": "2.2.5.0",
     "FSharp.Core": "4.0.0.1"

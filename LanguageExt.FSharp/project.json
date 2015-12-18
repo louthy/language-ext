@@ -1,7 +1,7 @@
 {
-  "version": "1.7.9-*",
+  "version": "1.7.10-*",
   "authors": [ "Paul Louth" ],
-  "owners": ["paullouth"],
+  "owners": [ "paullouth" ],
   "title": "LanguageExt.FSharp",
   "description": "Helper library for LanguageExt.Core that facilitates conversion between F# native types like Option, Map, List, etc to .NET and Language Ext types.",
   "tags": [ "C#", "Functional", "Language Extension", "Monad", "Option", "Either", "Reader", "Writer", "State", "List", "Set", "Map", "Queue", "Memo", "Memoization", "Immutable", "Lambda", "Pattern Matching", "Tuple", "Actor", "Process", "Akka", "Redis" ],
@@ -24,7 +24,7 @@
     }
   },
   "dependencies": {
-    "LanguageExt.Core": "1.7.9",
+    "LanguageExt.Core": "1.7.10",
     "FSharp.Core": "4.0.0.1"
   },
   "frameworks": {
