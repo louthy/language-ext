@@ -10,7 +10,7 @@ Documention | Source
 [Process system overview](https://github.com/louthy/language-ext/wiki/Process-system) | [Prelude.cs](https://github.com/louthy/language-ext/edit/master/LanguageExt.Process/Prelude.cs)
 [Message dispatch](https://github.com/louthy/language-ext/wiki/Process-system-message-dispatch) | 
 
-__Getting started__
+### Getting started
 
 Make sure you have the `LanguageExt.Process` DLL included in your project.  If you're using F# then you will also need to include `LanguageExt.Process.FSharp`.
 
@@ -21,7 +21,7 @@ In F# you should:
 open LanguageExt.ProcessFs
 ```
 
-__Nuget__
+### Nuget
 
 Nu-get package | Description
 ---------------|-------------
@@ -31,7 +31,7 @@ Nu-get package | Description
 [LanguageExt.Process.FSharp](https://www.nuget.org/packages/LanguageExt.Process.FSharp) | F# API to the `LangaugeExt.Process` system
 [LanguageExt.ProcessJS](https://www.nuget.org/packages/LanguageExt.ProcessJS) | Javascript API to the `LangaugeExt.Process` system.  Supports running of Processes in a client browser, with hooks for two-way UI binding
 
-__What's the Actor model?__
+### What's the Actor model?
 
 * An actor is a single threaded process
 * It has its own blob of state that only it can see and update
