@@ -5,11 +5,6 @@ An issue with working with C# is that no matter how much of this library you tak
 
 The [Actor model](https://en.wikipedia.org/wiki/Actor_model) + functional message handling expressions are the perfect programming model for that.  Concurrent programming in C# isn't a huge amount of fun.  Yes the TPL gets you lots of stuff for free, but it doesn't magically protect you from race conditions or accessing shared state, and definitely doesn't help with accessing shared external state like a database.
 
-Documention | Source
---------|-------------| ---------
-[Process system overview](https://github.com/louthy/language-ext/wiki/Process-system) | [Prelude.cs](https://github.com/louthy/language-ext/edit/master/LanguageExt.Process/Prelude.cs)
-[Message dispatch](https://github.com/louthy/language-ext/wiki/Process-system-message-dispatch) | 
-
 ### Getting started
 
 Make sure you have the `LanguageExt.Process` DLL included in your project.  If you're using F# then you will also need to include `LanguageExt.Process.FSharp`.
@@ -41,6 +36,11 @@ If you want to use it with Redis, include `LanguageExt.Process.Redis.dll`.  To c
 * Argument 5 is the role for the node in the cluster - it's just a name that allows grouping of nodes for message dispatch
 
 Note, neither of those lines are needed if you're doing in-app messaging only.
+
+Documention | Source
+--------|-------------| ---------
+[Process system overview](https://github.com/louthy/language-ext/wiki/Process-system) | [Prelude.cs](https://github.com/louthy/language-ext/edit/master/LanguageExt.Process/Prelude.cs)
+[Message dispatch](https://github.com/louthy/language-ext/wiki/Process-system-message-dispatch) | 
 
 ### Nuget
 
