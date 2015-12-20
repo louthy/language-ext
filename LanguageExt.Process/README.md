@@ -46,7 +46,7 @@ Documention | Description
 [Ask](https://github.com/louthy/language-ext/wiki/Ask) | Request/response for processes - use this sparingly.
 [Message dispatch](https://github.com/louthy/language-ext/wiki/Process-system-message-dispatch) | The power of any actor system, especially when it comes to a changing network topology is in its message routing and dispatching
 [ProcessId](https://github.com/louthy/language-ext/wiki/ProcessId) |  `Process` address/location mechansim
-[Routers](https://github.com/louthy/language-ext/wiki/Routers) | Processes that manage sets of 'worker' processes by routing their received messages by following pre-defined behaviours, e.g. Round-robin, broadcast, etc.
+[Routers](https://github.com/louthy/language-ext/wiki/Routers) | A router is a `Process`  that manage sets of 'worker' processes by routing the received messages, following pre-defined behaviours, e.g. Round-robin, broadcast, etc.
 [Dispatchers](https://github.com/louthy/language-ext/wiki/Dispatchers) | Similar to routers but without the need for a router process, all routing is done by the sender
 [Registered processes](https://github.com/louthy/language-ext/wiki/Registered-processes) | A sort of DNS for Processes, can also register dispatchers
 [Roles](https://github.com/louthy/language-ext/wiki/Roles) | A special type of dispatcher that's aware of the aliveness of cluster nodes and what their roles are
