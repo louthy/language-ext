@@ -21,6 +21,27 @@ In F# you should:
 open LanguageExt.ProcessFs
 ```
 
+If you want to use it with Redis, include `LanguageExt.Process.Redis.dll`.  To connect to Redis use:
+
+```C#
+    // C#
+    RedisCluster.register();
+    Cluster.connect("redis", "my-redis-node", "localhost", "0", "my-redis-role");
+```
+```F#
+    // F#
+    RedisCluster.register()
+    connect "redis" "my-redis-test" "localhost" "0" "my-redis-role"
+```
+
+* Argument 1 is fixed for Redis
+* Argument 2 is your app's node name to make it uniquely addressable in the cluster
+* Argument 3 is a comma separated list of Redis nodes to connect to
+* Argument 4 is the Redis database number to connect to
+* Argument 5 is the role for the node in the cluster - it's just a name that allows grouping of nodes for message dispatch
+
+Note, neither of those lines are needed if you're doing in-app messaging only.
+
 ### Nuget
 
 Nu-get package | Description
