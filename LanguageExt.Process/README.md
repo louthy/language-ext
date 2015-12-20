@@ -51,18 +51,3 @@ Nu-get package | Description
 [LanguageExt.Process.Redis](https://www.nuget.org/packages/LanguageExt.Process.Redis) | Cluster support for the `LangaugeExt.Process` system for cluster aware processes using Redis for queue and state persistence
 [LanguageExt.Process.FSharp](https://www.nuget.org/packages/LanguageExt.Process.FSharp) | F# API to the `LangaugeExt.Process` system
 [LanguageExt.ProcessJS](https://www.nuget.org/packages/LanguageExt.ProcessJS) | Javascript API to the `LangaugeExt.Process` system.  Supports running of Processes in a client browser, with hooks for two-way UI binding
-
-### What's the Actor model?
-
-* An actor is a single threaded process
-* It has its own blob of state that only it can see and update
-* It has a message queue (inbox)
-* It processes the messages one at a time (single threaded remember)
-* When a message comes in, it can change its state; when the next message arrives it gets that modified state.
-* It has a parent Actor
-* It can `spawn` child Actors
-* It can `tell` messages to other Actors
-* It can `ask` for replies from other Actors
-* They're very lightweight, you can create 10,000s of them no problem
-
-So you have a little bundle of self contained computation, attached to a blob of private state, that can get messages telling it to do stuff with its private state.  Sounds like OO right?  Well, it is, but as Alan Kay envisioned it.  The slight difference with this is that it enforces execution order, and therefore there's no shared state access, and no race conditions (within the actor).  
