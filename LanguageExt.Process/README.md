@@ -37,6 +37,8 @@ If you want to use it with Redis, include `LanguageExt.Process.Redis.dll`.  To c
 
 Note, neither of those lines are needed if you're doing in-app messaging only.
 
+### Documentation
+
 Documention | Source
 --------|-------------| ---------
 [Process system overview](https://github.com/louthy/language-ext/wiki/Process-system) | [Prelude.cs](https://github.com/louthy/language-ext/edit/master/LanguageExt.Process/Prelude.cs)
