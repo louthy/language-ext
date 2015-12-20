@@ -39,10 +39,15 @@ Note, neither of those lines are needed if you're doing in-app messaging only.
 
 ### Documentation
 
-Documention | Source
+Documention | Description
 --------|-------------| ---------
-[Process system overview](https://github.com/louthy/language-ext/wiki/Process-system) | [Prelude.cs](https://github.com/louthy/language-ext/edit/master/LanguageExt.Process/Prelude.cs)
-[Message dispatch](https://github.com/louthy/language-ext/wiki/Process-system-message-dispatch) | 
+[Process system overview](https://github.com/louthy/language-ext/wiki/Process-system) | A quick guide to the core features of the Process system
+[Message dispatch](https://github.com/louthy/language-ext/wiki/Process-system-message-dispatch) | The power of any actor system, especially when it comes to a changing network topology is in its message routing and dispatching
+[ProcessId](https://github.com/louthy/language-ext/wiki/ProcessId) |  Process address/location mechansim
+[Routers](https://github.com/louthy/language-ext/wiki/Routers) | Processes that manage sets of 'worker' processes by routing their received messages by following pre-defined behaviours, e.g. Round-robin, broadcast, etc.
+[Dispatchers](https://github.com/louthy/language-ext/wiki/Dispatchers) | Similar to routers but without the need for a router process, all routing is done by the sender
+[Registered processes](https://github.com/louthy/language-ext/wiki/Registered-processes) | A sort of DNS for Processes, can also register dispatchers
+[Roles](https://github.com/louthy/language-ext/wiki/Roles) | A special type of dispatcher that's aware of the aliveness of cluster nodes and what their roles are
 
 ### Nuget
 
