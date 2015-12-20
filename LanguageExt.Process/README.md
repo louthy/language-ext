@@ -41,9 +41,10 @@ Note, neither of those lines are needed if you're doing in-app messaging only.
 
 Documention | Description
 --------|-------------| ---------
-[Process system overview](https://github.com/louthy/language-ext/wiki/Process-system) | A quick guide to the core features of the Process system
+[Process system overview](https://github.com/louthy/language-ext/wiki/Process-system) | A quick guide to the core features of the `Process` system
+[Tell](https://github.com/louthy/language-ext/wiki/Tell) | Send a message to a `Process` - This should be your prefered mechanism for communicating with processes
 [Message dispatch](https://github.com/louthy/language-ext/wiki/Process-system-message-dispatch) | The power of any actor system, especially when it comes to a changing network topology is in its message routing and dispatching
-[ProcessId](https://github.com/louthy/language-ext/wiki/ProcessId) |  Process address/location mechansim
+[ProcessId](https://github.com/louthy/language-ext/wiki/ProcessId) |  `Process` address/location mechansim
 [Routers](https://github.com/louthy/language-ext/wiki/Routers) | Processes that manage sets of 'worker' processes by routing their received messages by following pre-defined behaviours, e.g. Round-robin, broadcast, etc.
 [Dispatchers](https://github.com/louthy/language-ext/wiki/Dispatchers) | Similar to routers but without the need for a router process, all routing is done by the sender
 [Registered processes](https://github.com/louthy/language-ext/wiki/Registered-processes) | A sort of DNS for Processes, can also register dispatchers
