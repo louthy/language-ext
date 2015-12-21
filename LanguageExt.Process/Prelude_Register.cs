@@ -33,6 +33,35 @@ namespace LanguageExt
         /// <summary>
         /// Find a process by its *registered* name (a kind of DNS for Processes).
         /// 
+        /// Names are registered in roles.  This function will find registered 
+        /// processes in the current role only.  Use the 'find' variant to find 
+        /// registered processes in other roles.
+        /// 
+        /// See remarks.
+        /// </summary>
+        /// <remarks>
+        /// Multiple Processes can register under the same name.  You may use 
+        /// a dispatcher to work on them collectively (wherever they are in the 
+        /// cluster).  i.e. 
+        /// 
+        ///     var regd = register("proc", pid);
+        ///     tell(Dispatch.Broadcast[regd], "Hello");
+        ///     tell(Dispatch.First[regd], "Hello");
+        ///     tell(Dispatch.LeastBusy[regd], "Hello");
+        ///     tell(Dispatch.Random[regd], "Hello");
+        ///     tell(Dispatch.RoundRobin[regd], "Hello");
+        ///     
+        /// </remarks>
+        /// <param name="name">Process name</param>
+        /// <returns>A ProcessId that allows dispatching to the process(es).  The result
+        /// would look like /disp/reg/name</returns>
+        public static ProcessId find(ProcessName name) =>
+            ActorContext.Disp["reg"][$"{Role.Current.Value}-{name.Value}"];
+
+        /// <summary>
+        /// Find a process by its *registered* name (a kind of DNS for Processes) in the
+        /// role specified.
+        /// 
         /// See remarks.
         /// </summary>
         /// <remarks>
@@ -51,8 +80,8 @@ namespace LanguageExt
         /// <param name="name">Process name</param>
         /// <returns>A ProcessId that allows dispatching to the process(es).  The result
         /// would look like /disp/reg/name</returns>
-        public static ProcessId find(ProcessName name) =>
-            ActorContext.Disp["reg"][name];
+        public static ProcessId find(ProcessName role, ProcessName name) =>
+            ActorContext.Disp["reg"][$"{role.Value}-{name.Value}"];
 
         /// <summary>
         /// Register a named process (a kind of DNS for Processes).  
@@ -82,7 +111,7 @@ namespace LanguageExt
         /// would look like /disp/reg/name</returns>
         public static ProcessId register(ProcessName name) =>
             InMessageLoop
-                ? ActorContext.Register(name, Self)
+                ? ActorContext.Register($"{Role.Current.Value}-{name.Value}", Self)
                 : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(name));
 
         /// <summary>
@@ -112,7 +141,7 @@ namespace LanguageExt
         /// <returns>A ProcessId that allows dispatching to the process(es).  The result
         /// would look like /disp/reg/name</returns>
         public static ProcessId register(ProcessName name, ProcessId process) =>
-            ActorContext.Register(name, process);
+            ActorContext.Register($"{Role.Current.Value}-{name.Value}", process);
 
         /// <summary>
         /// Deregister a Process from any names it's been registered as.
@@ -150,6 +179,6 @@ namespace LanguageExt
         /// </remarks>
         /// <param name="name">Name of the process to deregister</param>
         public static Unit deregisterByName(ProcessName name) =>
-            ActorContext.DeregisterByName(name);
+            ActorContext.DeregisterByName($"{Role.Current.Value}-{name.Value}");
     }
 }

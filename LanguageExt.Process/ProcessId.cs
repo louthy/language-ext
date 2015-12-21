@@ -34,8 +34,7 @@ namespace LanguageExt
             }
             if(path[0] == '@')
             {
-                // Is it a registered process
-                var regd = Process.find(new ProcessName(path.Substring(1)));
+                var regd = ParseRegisteredProcess(path.Substring(1));
                 parts = regd.parts;
                 name = regd.name;
                 Path = regd.Path;
@@ -79,6 +78,33 @@ namespace LanguageExt
             else
             {
                 name = "$";
+            }
+        }
+
+        static ProcessId ParseRegisteredProcess(string name)
+        {
+            if(name.Length == 0) throw new InvalidProcessNameException("Registerd process name has nothing following the '@'");
+
+            var parts = name.Split(':');
+            if( parts.Length == 0) throw new InvalidProcessNameException();
+            if( parts.Length > 2) throw new InvalidProcessNameException("Too many ':' in the registered process name");
+
+            if ((from p in parts
+                 from c in p
+                 where ProcessName.InvalidNameChars.Contains(c)
+                 select c)
+                .Any())
+            {
+                throw new InvalidProcessNameException();
+            }
+
+            if (parts.Length == 1)
+            {
+                return Process.find(Role.Current, parts[0]);
+            }
+            else
+            {
+                return Process.find(parts[0], parts[1]);
             }
         }
 

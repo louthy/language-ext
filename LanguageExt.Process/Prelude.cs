@@ -1,8 +1,10 @@
-﻿using System;
+﻿using LanguageExt.UnitsOfMeasure;
+using System;
 using System.Collections.Generic;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -245,12 +247,25 @@ namespace LanguageExt
 
         /// <summary>
         /// Pauses a running process.  Messages will still be accepted into the Process'
-        /// inbox (unless the inbox is full); but they won't be processes until the
+        /// inbox (unless the inbox is full); but they won't be processed until the
         /// Process is unpaused: <see cref="unpause(ProcessId)"/>
         /// </summary>
         /// <param name="pid">Process to pause</param>
         public static Unit pause(ProcessId pid) =>
             ActorContext.TellSystem(pid, SystemMessage.Pause);
+
+        /// <summary>
+        /// Pauses a running process.  Messages will still be accepted into the Process'
+        /// inbox (unless the inbox is full); but they won't be processed until the
+        /// Process is unpaused: <see cref="unpause(ProcessId)"/> manually, or until the 
+        /// delay expires.
+        /// </summary>
+        /// <param name="pid">Process to pause</param>
+        public static IDisposable pauseFor(ProcessId pid, Time delay)
+        {
+            pause(pid);
+            return (IDisposable)Task.Delay((int)delay.Milliseconds).ContinueWith(_ => unpause(pid));
+        }
 
         /// <summary>
         /// Un-pauses a paused process.  Messages that have built-up in the inbox whilst

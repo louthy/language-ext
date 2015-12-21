@@ -37,8 +37,8 @@ namespace LanguageExt.UnitsOfMeasure
         public override bool Equals(object obj) =>
             obj == null
                 ? false
-                : obj is Length
-                    ? Equals((Length)obj)
+                : obj is Velocity
+                    ? Equals((Velocity)obj)
                     : false;
 
         public override int GetHashCode() =>

@@ -19,6 +19,12 @@ namespace LanguageExt
     public static class Role
     {
         /// <summary>
+        /// Find out the role that this node is a part of
+        /// </summary>
+        public static ProcessName Current =>
+            Root.Take(1).GetName();
+
+        /// <summary>
         /// A ProcessId that represents a set of nodes in a cluster.  When used for
         /// operations like 'tell', the message is dispatched to all nodes in the set.
         /// See remarks.

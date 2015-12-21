@@ -19,6 +19,9 @@ namespace LanguageExt
     {
         public readonly string Value;
 
+        public static readonly char[] InvalidNameChars =
+            System.IO.Path.GetInvalidFileNameChars().Append(new[] { '[', ']', ',' }).Distinct().ToArray();
+
         /// <summary>
         /// Ctor
         /// </summary>
@@ -44,9 +47,7 @@ namespace LanguageExt
             }
             else
             {
-
-                var invalid = System.IO.Path.GetInvalidFileNameChars().Append(new[] { '[', ']', ',' });
-                if ((from c in value where invalid.Contains(c) select c).Count() > 0)
+                if ((from c in value where InvalidNameChars.Contains(c) select c).Any())
                 {
                     throw new InvalidProcessNameException();
                 }
