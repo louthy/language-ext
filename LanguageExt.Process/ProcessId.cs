@@ -386,12 +386,12 @@ namespace LanguageExt
         public static readonly ProcessId Top = 
             new ProcessId(Sep.ToString());
 
-        private static R failwith<R>(string message)
+        static R failwith<R>(string message)
         {
             throw new Exception(message);
         }
 
-        private static R raise<R>(Exception ex)
+        static R raise<R>(Exception ex)
         {
             throw ex;
         }

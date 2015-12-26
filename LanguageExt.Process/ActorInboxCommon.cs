@@ -255,7 +255,7 @@ namespace LanguageExt
             pid.Path;
 
         public static string ClusterInboxKey(ProcessId pid, string type) =>
-            ClusterKey(pid) + "-"+ type + "-inbox";
+            ClusterKey(pid) + "-" + type + "-inbox";
 
         public static string ClusterUserInboxKey(ProcessId pid) =>
             ClusterInboxKey(pid, "user");
@@ -271,6 +271,9 @@ namespace LanguageExt
 
         public static string ClusterSystemInboxNotifyKey(ProcessId pid) =>
             ClusterInboxNotifyKey(pid, "system");
+
+        public static string ClusterMetaDataKey(ProcessId pid) =>
+            ClusterKey(pid) + "-metadata";
 
         public static string ClusterPubSubKey(ProcessId pid) =>
             ClusterKey(pid) + "-pubsub";

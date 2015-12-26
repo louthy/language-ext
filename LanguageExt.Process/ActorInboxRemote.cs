@@ -59,11 +59,6 @@ namespace LanguageExt
 
         void SubscribeToSysInboxChannel()
         {
-            //cluster.SubscribeToChannel<string>(ClusterSystemInboxNotifyKey, msg => sysNotify.Post(msg));
-            //// We want the check done asyncronously, in case the setup function creates child processes that
-            //// won't exist if we invoke directly.
-            //cluster.PublishToChannel(ClusterSystemInboxNotifyKey, Guid.NewGuid().ToString());
-
             // System inbox is just listening to the notifications, that means that system
             // messages don't persist.
             cluster.UnsubscribeChannel(ClusterSystemInboxNotifyKey);
