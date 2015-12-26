@@ -10,8 +10,8 @@ Concurrent programming in C# isn't a huge amount of fun.  Yes the TPL gets you l
 Documention | Description
 ------------|------------
 [Process system overview](https://github.com/louthy/language-ext/wiki/Process-system) | A quick guide to the core features of the `Process` system
-[Tell](https://github.com/louthy/language-ext/wiki/Tell) | Send a message to a `Process` - This should be your prefered mechanism for communicating with processes
-[Ask](https://github.com/louthy/language-ext/wiki/Ask) | Request/response for processes - use this sparingly.
+[`tell`](https://github.com/louthy/language-ext/wiki/Tell) | Send a message to a `Process` - This should be your prefered mechanism for communicating with processes
+[`ask`](https://github.com/louthy/language-ext/wiki/Ask) | Request/response for processes - use this sparingly.
 [Publish / Subscribe](https://github.com/louthy/language-ext/wiki/Publish) | Mechanism for a Process to publish messages and state.  Other processes can subscribe through their inbox or external systems can subscribe through Reactive streams (Observables).
 [Message dispatch](https://github.com/louthy/language-ext/wiki/Process-system-message-dispatch) | The power of any actor system, especially when it comes to a changing network topology is in its message routing and dispatching
 [ProcessId](https://github.com/louthy/language-ext/wiki/ProcessId) |  `Process` address/location mechansim
