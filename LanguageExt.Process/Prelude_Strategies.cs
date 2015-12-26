@@ -3,7 +3,7 @@ using static LanguageExt.Strategy;
 
 namespace LanguageExt
 {
-    public partial class Process
+    public static partial class Process
     {
         /// <summary>
         /// Default Process strategy if one isn't provided on spawn
