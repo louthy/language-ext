@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using static LanguageExt.Prelude;
@@ -6,7 +7,7 @@ using static LanguageExt.Process;
 
 namespace LanguageExt
 {
-    internal class ActorDispatchRemote : IActorDispatch
+    class ActorDispatchRemote : IActorDispatch
     {
         public readonly ProcessId ProcessId;
         public readonly ICluster Cluster;
@@ -26,6 +27,69 @@ namespace LanguageExt
         public IObservable<T> ObserveState<T>() =>
             Cluster.SubscribeToChannel<T>(ActorInboxCommon.ClusterStatePubSubKey(ProcessId));
 
+        public bool HasStateTypeOf<T>()
+        {
+            if (Cluster.Exists(ActorInboxCommon.ClusterMetaDataKey(ProcessId)))
+            {
+                var meta = Cluster.GetValue<ProcessMetaData>(ActorInboxCommon.ClusterMetaDataKey(ProcessId));
+
+                return meta.MsgTypeNames.Fold(false, (value, typ) =>
+                    value
+                        ? true
+                        : typeof(T).GetTypeInfo().IsAssignableFrom(Type.GetType(typ).GetTypeInfo()));
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        public bool CanAccept<T>()
+        {
+            if (Cluster.Exists(ActorInboxCommon.ClusterMetaDataKey(ProcessId)))
+            {
+                var meta = Cluster.GetValue<ProcessMetaData>(ActorInboxCommon.ClusterMetaDataKey(ProcessId));
+                if (typeof(T) == typeof(TerminatedMessage) || typeof(T) == typeof(UserControlMessage) || typeof(T) == typeof(SystemMessage))
+                {
+                    return true;
+                }
+                return meta.MsgTypeNames.Fold(false, (value, typ) =>
+                    value
+                        ? true
+                        : Type.GetType(typ).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()));
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        void ValidateMessageType(object message, ProcessId sender)
+        {
+            if(message == null)
+            {
+                throw new ProcessException($"Invalid message.  Null is not allowed for Process ({ProcessId}).", ProcessId.Path, sender.Path, null);
+            }
+            if (message is TerminatedMessage || message is UserControlMessage || message is SystemMessage)
+            {
+                return;
+            }
+            if (Cluster.Exists(ActorInboxCommon.ClusterMetaDataKey(ProcessId)))
+            {
+                var meta = Cluster.GetValue<ProcessMetaData>(ActorInboxCommon.ClusterMetaDataKey(ProcessId));
+
+                var valid = meta.MsgTypeNames.Fold(false, (value, typ) =>
+                    value
+                        ? true
+                        : Type.GetType(typ).GetTypeInfo().IsAssignableFrom(message.GetType().GetTypeInfo()));
+
+                if( !valid )
+                {
+                    throw new ProcessException($"Invalid message-type ({message.GetType().Name}) for Process ({ProcessId}).  The Process accepts: ({String.Join(", ", meta.MsgTypeNames)})", ProcessId.Path, sender.Path, null);
+                }
+            }
+        }
+
         public Unit Tell(object message, ProcessId sender, Message.TagSpec tag) =>
             Tell(message, sender, "user", Message.Type.User, tag);
 
@@ -41,6 +105,7 @@ namespace LanguageExt
 
         public Unit Tell(object message, ProcessId sender, string inbox, Message.Type type, Message.TagSpec tag)
         {
+            ValidateMessageType(message, sender);
             var dto = RemoteMessageDTO.Create(message, ProcessId, sender, type, tag);
             var inboxKey = ActorInboxCommon.ClusterInboxKey(ProcessId, inbox);
             var inboxNotifyKey = ActorInboxCommon.ClusterInboxNotifyKey(ProcessId, inbox);

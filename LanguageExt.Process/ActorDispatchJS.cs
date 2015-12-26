@@ -41,7 +41,7 @@ namespace LanguageExt
         public Unit TellUserControl(UserControlMessage message, ProcessId sender) =>
             Tell(message, sender, "system", Message.Type.UserControl, message.Tag);
 
-        private Unit Tell(object message, ProcessId sender, string inbox, Message.Type type, Message.TagSpec tag)
+        Unit Tell(object message, ProcessId sender, string inbox, Message.Type type, Message.TagSpec tag)
         {
             var dto = RemoteMessageDTO.Create(message, ProcessId, sender, type, tag);
             // The standard structure for remote js relay paths are  "/root/js/{connection-id}/..."
@@ -58,6 +58,9 @@ namespace LanguageExt
         {
             throw new NotSupportedException();
         }
+
+        public bool CanAccept<T>() => true;
+        public bool HasStateTypeOf<T>() => true;
 
         public Unit Kill() =>
             // TODO: Not yet implemented on the JS side

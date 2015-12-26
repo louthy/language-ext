@@ -7,17 +7,14 @@ namespace LanguageExt
 {
     public class ProcessMetaData
     {
-        public readonly string MsgTypeName;
+        public readonly string[] MsgTypeNames;
         public readonly string StateTypeName;
 
-        public ProcessMetaData(string msgTypeName, string stateTypeName)
+        public ProcessMetaData(string[] msgTypeNames, string stateTypeName)
         {
-            MsgTypeName = msgTypeName;
+            MsgTypeNames = msgTypeNames;
             StateTypeName = stateTypeName;
         }
-
-        public Type GetMsgType() =>
-            Type.GetType(MsgTypeName);
 
         public Type GetStateType() =>
             Type.GetType(StateTypeName);

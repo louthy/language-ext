@@ -28,8 +28,17 @@ namespace LanguageExt
             where x is T
             select (T)x;
 
-        public Unit Tell(object message, ProcessId sender, Message.TagSpec tag) =>
-            Inbox.Tell(message, sender);
+        public bool HasStateTypeOf<T>() =>
+            Inbox.HasStateTypeOf<T>();
+
+        public bool CanAccept<T>() =>
+            Inbox.CanAcceptMessageType<T>();
+
+        public Unit Tell(object message, ProcessId sender, Message.TagSpec tag)
+        {
+            Inbox.ValidateMessageType(message, sender);
+            return Inbox.Tell(message, sender);
+        }
 
         public Unit TellSystem(SystemMessage message, ProcessId sender) =>
             Inbox.TellSystem(message);

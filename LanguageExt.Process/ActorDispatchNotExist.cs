@@ -41,6 +41,12 @@ namespace LanguageExt
         public Unit Publish(object message) =>
             Raise<Unit>();
 
+        public bool CanAccept<T>() =>
+            false;
+
+        public bool HasStateTypeOf<T>() =>
+            false;
+
         public Unit Kill() => 
             unit;
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Reflection;
 using Microsoft.FSharp.Control;
 using System.Reactive.Linq;
 using System.Reactive.Concurrency;
@@ -296,5 +297,39 @@ namespace LanguageExt
         /// </summary>
         public int Count =>
             (userInbox?.CurrentQueueLength).GetValueOrDefault();
+
+        public bool HasStateTypeOf<TState>() =>
+            typeof(TState).GetTypeInfo().IsAssignableFrom(typeof(S).GetTypeInfo());
+
+        public bool CanAcceptMessageType<TMsg>()
+        {
+            if (typeof(TMsg) == typeof(TerminatedMessage) || typeof(TMsg) == typeof(UserControlMessage) || typeof(TMsg) == typeof(SystemMessage))
+            {
+                return true;
+            }
+
+            if (typeof(T).GetTypeInfo().IsAssignableFrom(typeof(TMsg).GetTypeInfo()))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public void ValidateMessageType(object message, ProcessId sender)
+        {
+            if (message == null)
+            {
+                throw new ProcessException($"Invalid message.  Null is not allowed for Process ({actor.Id}).", actor.Id.Path, sender.Path, null);
+            }
+            if (message is TerminatedMessage || message is UserControlMessage || message is SystemMessage)
+            {
+                return;
+            }
+            if (!(message is T))
+            {
+                throw new ProcessException($"Invalid message-type ({message.GetType().Name}) for Process ({actor.Id}).  The Process accepts: ({typeof(T)})", actor.Id.Path, sender.Path, null);
+            }
+        }
     }
 }

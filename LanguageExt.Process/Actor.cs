@@ -383,6 +383,7 @@ namespace LanguageExt
                         c.Delete(StateKey);
                         c.Delete(ActorInboxCommon.ClusterUserInboxKey(Id));
                         c.Delete(ActorInboxCommon.ClusterSystemInboxKey(Id));
+                        c.Delete(ActorInboxCommon.ClusterMetaDataKey(Id));
                         ActorContext.DeregisterById(Id);
                         // }
                     });

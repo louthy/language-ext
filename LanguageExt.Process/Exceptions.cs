@@ -136,7 +136,6 @@ namespace LanguageExt
         }
     }
 
-
     /// <summary>
     /// A process threw an exception in its message loop
     /// </summary>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
@@ -228,5 +229,79 @@ namespace LanguageExt
               }
             );
         }
+
+#if !COREFX
+
+        /// <summary>
+        /// Proxy based system for processes that are defined by a single type: 
+        /// their state type.  The state type holds state in its member variables
+        /// and its message handlers are its member functions.  This function builds
+        /// a proxy from the interface passed so that you can invoke the message-
+        /// handlers in a strongly typed way.
+        /// </summary>
+        /// <typeparam name="TProcess">Interface type that represents the Process
+        /// </typeparam>
+        /// <param name="pid">ProcessId of the Process to proxy</param>
+        /// <returns>An interface that automatically tells and asks depending on
+        /// method arguments and return types.</returns>
+        public static TProcess proxy<TProcess>(ProcessId pid) =>
+            ProxyBuilder.Build<TProcess>(pid);
+
+        /// <summary>
+        /// Spawn by type
+        /// Communication is via proxy
+        /// </summary>
+        /// <typeparam name="TProcess">Process type</typeparam>
+        /// <param name="Name">Name of process to spawn</param>
+        /// <param name="Flags">Process flags</param>
+        /// <param name="Strategy">Failure supervision strategy</param>
+        /// <returns>TProcess proxy</returns>
+        public static ProcessId spawn<TProcess>(
+            ProcessName Name,
+            Func<TProcess> Setup,
+            ProcessFlags Flags = ProcessFlags.Default,
+            State<StrategyContext, Unit> Strategy = null,
+            int MaxMailboxSize = ProcessSetting.DefaultMailboxSize
+            )
+        {
+            var pid = spawn<TProcess, ProxyMsg>(Name, Setup,
+              (process, msg) => {
+
+                  var types = msg.ArgTypes.Map(Type.GetType).ToArray();
+                  var args = msg.Args.Map((i, x) => JsonConvert.DeserializeObject(x, types[i])).ToArray();
+                  var method = process.GetType().GetMethod(msg.Method, types);
+
+                  var result = method.Invoke(process, args);
+
+                  if (msg.ReturnType != "System.Void")
+                  {
+                      replyOrTellSender(result);
+                  }
+                  return process;
+              },
+              Flags,
+              Strategy,
+              MaxMailboxSize,
+              (process, termpid) => {
+                  var method = process.GetType().GetMethod("OnTerminated");
+                  if (method != null)
+                  {
+                      method.Invoke(process, new object[] { termpid });
+                  }
+                  return process;
+              }
+            );
+            return pid;
+        }
+
+        public static ProcessId spawn<TProcess>(
+            ProcessName Name,
+            ProcessFlags Flags = ProcessFlags.Default,
+            State<StrategyContext, Unit> Strategy = null,
+            int MaxMailboxSize = ProcessSetting.DefaultMailboxSize
+            )
+            where TProcess : new() =>
+            spawn(Name, () => new TProcess(), Flags, Strategy, MaxMailboxSize);
+#endif
     }
 }

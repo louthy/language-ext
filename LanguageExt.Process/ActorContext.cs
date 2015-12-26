@@ -328,6 +328,11 @@ namespace LanguageExt
 
         public static T Ask<T>(ProcessId pid, object message)
         {
+            return (T)Ask(pid, message);
+        }
+
+        public static object Ask(ProcessId pid, object message)
+        {
             if (false) //Process.InMessageLoop)
             {
                 //return SelfProcess.Actor.ProcessRequest<T>(pid, message);
@@ -372,7 +377,7 @@ namespace LanguageExt
                         }
                         else
                         {
-                            return (T)response.Response;
+                            return response.Response;
                         }
                     }
                 }

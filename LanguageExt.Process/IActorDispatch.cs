@@ -2,7 +2,7 @@
 
 namespace LanguageExt
 {
-    internal interface IActorDispatch
+    interface IActorDispatch
     {
         IObservable<T> Observe<T>();
         IObservable<T> ObserveState<T>();
@@ -20,5 +20,7 @@ namespace LanguageExt
         Unit DispatchWatch(ProcessId pid);
         Unit DispatchUnWatch(ProcessId pid);
         bool IsLocal { get; }
+        bool CanAccept<T>();
+        bool HasStateTypeOf<T>();
     }
 }
