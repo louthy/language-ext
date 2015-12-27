@@ -1053,7 +1053,7 @@ For those that actually prefer the class based approach - or would at least pref
 ```C#
     interface ICache
     {
-        void Add(string key, string value);
+        void Add(string key, string value, DateTime expires);
         void Remove(string key);
         string Get(string key);
         void Flush();
@@ -1073,7 +1073,7 @@ For those that actually prefer the class based approach - or would at least pref
             state = state.Remove(key);
         }
         
-        public void Get(string key)
+        public string Get(string key)
         {
             return state[key];
         }
