@@ -962,7 +962,7 @@ Creating something to log `string` messages to the console is as easy as:
 ```
 Or if you want a stateful, thread-safe cache:
 ```C#
-class Cache<K, V>
+static class Cache
 {
     enum Tag
     {
@@ -975,23 +975,23 @@ class Cache<K, V>
     class Msg
     {
         public Tag Tag;
-        public K Key;
+        public string Key;
         public ExpiringValue Value;
     }
 
     class ExpiringValue
     {
         public DateTime Expiry;
-        public V Value;
+        public string Value;
     }
 
-    public static Unit Add(ProcessId pid, K key, V value) =>
+    public static Unit Add(ProcessId pid, string key, string value) =>
         tell(pid, new Msg { Tag = Tag.Add, Key = key, Value = new ExpiringValue { Value = value, Expiry = DateTime.UtcNow }});
 
-    public static Unit Remove(ProcessId pid, K key) =>
+    public static Unit Remove(ProcessId pid, string key) =>
         tell(pid, new Msg { Tag = Tag.Remove, Key = key });
 
-    public static V Get(ProcessId pid, K key) =>
+    public static string Get(ProcessId pid, string key) =>
         ask<V>(pid, new Msg { Tag = Tag.Get, Key = key });
 
     public static Unit Flush(ProcessId pid) =>
@@ -1004,9 +1004,9 @@ class Cache<K, V>
         //            it's a 'Get' in which case it Finds the cache item and if
         //            it exists, calls 'reply', and then returns the state 
         //            untouched.
-        spawn<Map<K, ExpiringValue>, Msg>(
+        spawn<Map<string, ExpiringValue>, Msg>(
             name,
-            () => Map<K, ExpiringValue>(),
+            () => Map<string, ExpiringValue>(),
             (state, msg) => 
                 match(msg.Tag,
                     with(Tag.Add,    _ => state.AddOrUpdate(msg.Key, msg.Value)),
@@ -1018,16 +1018,16 @@ class Cache<K, V>
 ```
 The `ProcessId` is just a wrapped string path, so you can serialise it and pass it around, then anything can find and communicate with your cache:
 ```C#
-    var pid = Cache<string,string>.Spawn("my-cache");
+    var pid = Cache.Spawn("my-cache");
     
     // Add a new item to the cache
-    Cache<string,string>.Add(pid, "test", "hello, world");
+    Cache.Add(pid, "test", "hello, world");
     
     // Get an item from the cache
-    var thing = Cache<string,string>.Get(pid, "test");
+    var thing = Cache.Get(pid, "test");
 
     // Remove an item from the cache
-    Cache<string,string>.Remove(pid, "test");
+    Cache.Remove(pid, "test");
 ```
 Periodically you will probably want to flush the cache contents.  Just fire up another process, they're basically free (and by using functions rather than classes, very easy to put into little worker modules):
 ```C#
@@ -1048,34 +1048,40 @@ Periodically you will probably want to flush the cache contents.  Just fire up a
     }
 ```
 
-For those that actually prefer the class based approach, the you can do that also:
+For those that actually prefer the class based approach - or would at least prefer the class based approach for the larger/more-complex processes - there's a very nice strongly-typed approach:
 
 ```C#
-    class Logger : IProcess<string>
+    interface ILogger
     {
-        public void OnMessage(string message)
-        {
-            Console.WriteLine(message);
-        }
+        void Info(string message);
+        void Warn(string message);
+        void Error(string message);
+    }
+
+    class Logger : ILogger
+    {
+        public void Info(string message)  => Console.WriteLine($"INFO: {message}");
+        public void Warn(string message)  => Console.WriteLine($"WARN: {message}");
+        public void Error(string message) => Console.WriteLine($"ERRO: {message}");
     }
 ```
 
 Create it like so:
 ```C#
-    var log = spawn<Logger,string>("logger");
+    var logId = spawn<Logger>("logger");
+    var logProxy = proxy<ILogger>(logId);
 
-    tell(log,"Hello, World");
+    logProxy.Info("This is all fine");
+    logProxy.Error("It isn't now!");
 ```
+The proxy can be built from anywhere, the Process system will generate a cocrete implementation for the interface that will dispatch to the `Process` specified.  
 
-The public constructor is the setup function, the object itself is the state, and if you derive it from `IDisposable` then it will be called when the process is shutdown or restarted.  That gives the full object lifecycle management but with processes.
-
-How about a bit of load balancing?  This creates 100 processes, and as the messages come in to the parent `indexer` process, it automatically allocates the messages to its 100 child processes in a round-robin fashion:
-
+If you only need to work with the `Process` locally, then you can short-cut and go straight to the proxy:
 ```C#
-    var load = Router.roundRobin<Thing>("indexer", 100, DoIndexing);
+    var logProxy = spawn<Logger>("logger", () => new Logged());
 ```
 
-So as you can see that's a pretty powerful technique.  Remember the process could be running on another machine, and as long as the messages serialise you can talk to them by process ID.  
+So as you can see that's a pretty powerful technique.  Remember the process could be running on another machine, and as long as the messages serialise you can talk to them by process ID or via proxy.
 
 ### Publish system
 
