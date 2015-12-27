@@ -1063,9 +1063,9 @@ For those that actually prefer the class based approach - or would at least pref
     {
         Map<string, ExpiringValue> state = Map.empty<string, ExpiringValue>();
         
-        public void Add(string key, string value)
+        public void Add(string key, string value, DateTime expires)
         {
-            state = state.Add(key, new ExpiringValue(value, DateTime.UtcNow.AddMinutes(1)));
+            state = state.Add(key, new ExpiringValue(value, expires));
         }
         
         public void Remove(string key)
@@ -1090,7 +1090,7 @@ Create it like so:
     var cache = spawn<Cache>("cache");
     var cacheProxy = proxy<ICache>(cache);
 
-    cacheProxy.Add("test", "hello, world");
+    cacheProxy.Add("test", "hello, world", DateTime.UtcNow.AddMinutes(10));
     
     // Get an item from the cache
     var thing = cacheProxy.Get("test");
