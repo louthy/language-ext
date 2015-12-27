@@ -192,6 +192,138 @@ namespace LanguageExt
                 ReturnType = "System.Void"
             });
         }
+        public static void VoidInvoke9(ProcessId pid, string method, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8, object arg9)
+        {
+            Process.tell(pid, new ProxyMsg
+            {
+                Method = method,
+                Args = new string[] {
+                    JsonConvert.SerializeObject(arg1),
+                    JsonConvert.SerializeObject(arg2),
+                    JsonConvert.SerializeObject(arg3),
+                    JsonConvert.SerializeObject(arg4),
+                    JsonConvert.SerializeObject(arg5),
+                    JsonConvert.SerializeObject(arg6),
+                    JsonConvert.SerializeObject(arg7),
+                    JsonConvert.SerializeObject(arg8),
+                    JsonConvert.SerializeObject(arg9)
+                },
+                ArgTypes = new string[] {
+                    arg1.GetType().GetTypeInfo().FullName,
+                    arg2.GetType().GetTypeInfo().FullName,
+                    arg3.GetType().GetTypeInfo().FullName,
+                    arg4.GetType().GetTypeInfo().FullName,
+                    arg5.GetType().GetTypeInfo().FullName,
+                    arg6.GetType().GetTypeInfo().FullName,
+                    arg7.GetType().GetTypeInfo().FullName,
+                    arg8.GetType().GetTypeInfo().FullName,
+                    arg9.GetType().GetTypeInfo().FullName
+                },
+                ReturnType = "System.Void"
+            });
+        }
+        public static void VoidInvoke10(ProcessId pid, string method, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8, object arg9, object arg10)
+        {
+            Process.tell(pid, new ProxyMsg
+            {
+                Method = method,
+                Args = new string[] {
+                    JsonConvert.SerializeObject(arg1),
+                    JsonConvert.SerializeObject(arg2),
+                    JsonConvert.SerializeObject(arg3),
+                    JsonConvert.SerializeObject(arg4),
+                    JsonConvert.SerializeObject(arg5),
+                    JsonConvert.SerializeObject(arg6),
+                    JsonConvert.SerializeObject(arg7),
+                    JsonConvert.SerializeObject(arg8),
+                    JsonConvert.SerializeObject(arg9),
+                    JsonConvert.SerializeObject(arg10)
+                },
+                ArgTypes = new string[] {
+                    arg1.GetType().GetTypeInfo().FullName,
+                    arg2.GetType().GetTypeInfo().FullName,
+                    arg3.GetType().GetTypeInfo().FullName,
+                    arg4.GetType().GetTypeInfo().FullName,
+                    arg5.GetType().GetTypeInfo().FullName,
+                    arg6.GetType().GetTypeInfo().FullName,
+                    arg7.GetType().GetTypeInfo().FullName,
+                    arg8.GetType().GetTypeInfo().FullName,
+                    arg9.GetType().GetTypeInfo().FullName,
+                    arg10.GetType().GetTypeInfo().FullName
+                },
+                ReturnType = "System.Void"
+            });
+        }
+        public static void VoidInvoke11(ProcessId pid, string method, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8, object arg9, object arg10, object arg11)
+        {
+            Process.tell(pid, new ProxyMsg
+            {
+                Method = method,
+                Args = new string[] {
+                    JsonConvert.SerializeObject(arg1),
+                    JsonConvert.SerializeObject(arg2),
+                    JsonConvert.SerializeObject(arg3),
+                    JsonConvert.SerializeObject(arg4),
+                    JsonConvert.SerializeObject(arg5),
+                    JsonConvert.SerializeObject(arg6),
+                    JsonConvert.SerializeObject(arg7),
+                    JsonConvert.SerializeObject(arg8),
+                    JsonConvert.SerializeObject(arg9),
+                    JsonConvert.SerializeObject(arg10),
+                    JsonConvert.SerializeObject(arg11)
+                },
+                ArgTypes = new string[] {
+                    arg1.GetType().GetTypeInfo().FullName,
+                    arg2.GetType().GetTypeInfo().FullName,
+                    arg3.GetType().GetTypeInfo().FullName,
+                    arg4.GetType().GetTypeInfo().FullName,
+                    arg5.GetType().GetTypeInfo().FullName,
+                    arg6.GetType().GetTypeInfo().FullName,
+                    arg7.GetType().GetTypeInfo().FullName,
+                    arg8.GetType().GetTypeInfo().FullName,
+                    arg9.GetType().GetTypeInfo().FullName,
+                    arg10.GetType().GetTypeInfo().FullName,
+                    arg11.GetType().GetTypeInfo().FullName
+                },
+                ReturnType = "System.Void"
+            });
+        }
+        public static void VoidInvoke12(ProcessId pid, string method, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8, object arg9, object arg10, object arg11, object arg12)
+        {
+            Process.tell(pid, new ProxyMsg
+            {
+                Method = method,
+                Args = new string[] {
+                    JsonConvert.SerializeObject(arg1),
+                    JsonConvert.SerializeObject(arg2),
+                    JsonConvert.SerializeObject(arg3),
+                    JsonConvert.SerializeObject(arg4),
+                    JsonConvert.SerializeObject(arg5),
+                    JsonConvert.SerializeObject(arg6),
+                    JsonConvert.SerializeObject(arg7),
+                    JsonConvert.SerializeObject(arg8),
+                    JsonConvert.SerializeObject(arg9),
+                    JsonConvert.SerializeObject(arg10),
+                    JsonConvert.SerializeObject(arg11),
+                    JsonConvert.SerializeObject(arg12)
+                },
+                ArgTypes = new string[] {
+                    arg1.GetType().GetTypeInfo().FullName,
+                    arg2.GetType().GetTypeInfo().FullName,
+                    arg3.GetType().GetTypeInfo().FullName,
+                    arg4.GetType().GetTypeInfo().FullName,
+                    arg5.GetType().GetTypeInfo().FullName,
+                    arg6.GetType().GetTypeInfo().FullName,
+                    arg7.GetType().GetTypeInfo().FullName,
+                    arg8.GetType().GetTypeInfo().FullName,
+                    arg9.GetType().GetTypeInfo().FullName,
+                    arg10.GetType().GetTypeInfo().FullName,
+                    arg11.GetType().GetTypeInfo().FullName,
+                    arg12.GetType().GetTypeInfo().FullName
+                },
+                ReturnType = "System.Void"
+            });
+        }
 
         public static object Invoke0(ProcessId pid, string method, Type rettyp)
         {
@@ -367,6 +499,138 @@ namespace LanguageExt
                     arg6.GetType().GetTypeInfo().FullName,
                     arg7.GetType().GetTypeInfo().FullName,
                     arg8.GetType().GetTypeInfo().FullName
+                },
+                ReturnType = rettyp.GetTypeInfo().FullName
+            });
+        }
+        public static object Invoke9(ProcessId pid, string method, Type rettyp, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8, object arg9)
+        {
+            return ActorContext.Ask(pid, new ProxyMsg
+            {
+                Method = method,
+                Args = new string[] {
+                    JsonConvert.SerializeObject(arg1),
+                    JsonConvert.SerializeObject(arg2),
+                    JsonConvert.SerializeObject(arg3),
+                    JsonConvert.SerializeObject(arg4),
+                    JsonConvert.SerializeObject(arg5),
+                    JsonConvert.SerializeObject(arg6),
+                    JsonConvert.SerializeObject(arg7),
+                    JsonConvert.SerializeObject(arg8),
+                    JsonConvert.SerializeObject(arg9)
+                },
+                ArgTypes = new string[] {
+                    arg1.GetType().GetTypeInfo().FullName,
+                    arg2.GetType().GetTypeInfo().FullName,
+                    arg3.GetType().GetTypeInfo().FullName,
+                    arg4.GetType().GetTypeInfo().FullName,
+                    arg5.GetType().GetTypeInfo().FullName,
+                    arg6.GetType().GetTypeInfo().FullName,
+                    arg7.GetType().GetTypeInfo().FullName,
+                    arg8.GetType().GetTypeInfo().FullName,
+                    arg9.GetType().GetTypeInfo().FullName
+                },
+                ReturnType = rettyp.GetTypeInfo().FullName
+            });
+        }
+        public static object Invoke10(ProcessId pid, string method, Type rettyp, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8, object arg9, object arg10)
+        {
+            return ActorContext.Ask(pid, new ProxyMsg
+            {
+                Method = method,
+                Args = new string[] {
+                    JsonConvert.SerializeObject(arg1),
+                    JsonConvert.SerializeObject(arg2),
+                    JsonConvert.SerializeObject(arg3),
+                    JsonConvert.SerializeObject(arg4),
+                    JsonConvert.SerializeObject(arg5),
+                    JsonConvert.SerializeObject(arg6),
+                    JsonConvert.SerializeObject(arg7),
+                    JsonConvert.SerializeObject(arg8),
+                    JsonConvert.SerializeObject(arg9),
+                    JsonConvert.SerializeObject(arg10)
+                },
+                ArgTypes = new string[] {
+                    arg1.GetType().GetTypeInfo().FullName,
+                    arg2.GetType().GetTypeInfo().FullName,
+                    arg3.GetType().GetTypeInfo().FullName,
+                    arg4.GetType().GetTypeInfo().FullName,
+                    arg5.GetType().GetTypeInfo().FullName,
+                    arg6.GetType().GetTypeInfo().FullName,
+                    arg7.GetType().GetTypeInfo().FullName,
+                    arg8.GetType().GetTypeInfo().FullName,
+                    arg9.GetType().GetTypeInfo().FullName,
+                    arg10.GetType().GetTypeInfo().FullName
+                },
+                ReturnType = rettyp.GetTypeInfo().FullName
+            });
+        }
+        public static object Invoke11(ProcessId pid, string method, Type rettyp, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8, object arg9, object arg10, object arg11)
+        {
+            return ActorContext.Ask(pid, new ProxyMsg
+            {
+                Method = method,
+                Args = new string[] {
+                    JsonConvert.SerializeObject(arg1),
+                    JsonConvert.SerializeObject(arg2),
+                    JsonConvert.SerializeObject(arg3),
+                    JsonConvert.SerializeObject(arg4),
+                    JsonConvert.SerializeObject(arg5),
+                    JsonConvert.SerializeObject(arg6),
+                    JsonConvert.SerializeObject(arg7),
+                    JsonConvert.SerializeObject(arg8),
+                    JsonConvert.SerializeObject(arg9),
+                    JsonConvert.SerializeObject(arg10),
+                    JsonConvert.SerializeObject(arg11)
+                },
+                ArgTypes = new string[] {
+                    arg1.GetType().GetTypeInfo().FullName,
+                    arg2.GetType().GetTypeInfo().FullName,
+                    arg3.GetType().GetTypeInfo().FullName,
+                    arg4.GetType().GetTypeInfo().FullName,
+                    arg5.GetType().GetTypeInfo().FullName,
+                    arg6.GetType().GetTypeInfo().FullName,
+                    arg7.GetType().GetTypeInfo().FullName,
+                    arg8.GetType().GetTypeInfo().FullName,
+                    arg9.GetType().GetTypeInfo().FullName,
+                    arg10.GetType().GetTypeInfo().FullName,
+                    arg11.GetType().GetTypeInfo().FullName
+                },
+                ReturnType = rettyp.GetTypeInfo().FullName
+            });
+        }
+        public static object Invoke12(ProcessId pid, string method, Type rettyp, object arg1, object arg2, object arg3, object arg4, object arg5, object arg6, object arg7, object arg8, object arg9, object arg10, object arg11, object arg12)
+        {
+            return ActorContext.Ask(pid, new ProxyMsg
+            {
+                Method = method,
+                Args = new string[] {
+                    JsonConvert.SerializeObject(arg1),
+                    JsonConvert.SerializeObject(arg2),
+                    JsonConvert.SerializeObject(arg3),
+                    JsonConvert.SerializeObject(arg4),
+                    JsonConvert.SerializeObject(arg5),
+                    JsonConvert.SerializeObject(arg6),
+                    JsonConvert.SerializeObject(arg7),
+                    JsonConvert.SerializeObject(arg8),
+                    JsonConvert.SerializeObject(arg9),
+                    JsonConvert.SerializeObject(arg10),
+                    JsonConvert.SerializeObject(arg11),
+                    JsonConvert.SerializeObject(arg12)
+                },
+                ArgTypes = new string[] {
+                    arg1.GetType().GetTypeInfo().FullName,
+                    arg2.GetType().GetTypeInfo().FullName,
+                    arg3.GetType().GetTypeInfo().FullName,
+                    arg4.GetType().GetTypeInfo().FullName,
+                    arg5.GetType().GetTypeInfo().FullName,
+                    arg6.GetType().GetTypeInfo().FullName,
+                    arg7.GetType().GetTypeInfo().FullName,
+                    arg8.GetType().GetTypeInfo().FullName,
+                    arg9.GetType().GetTypeInfo().FullName,
+                    arg10.GetType().GetTypeInfo().FullName,
+                    arg11.GetType().GetTypeInfo().FullName,
+                    arg12.GetType().GetTypeInfo().FullName
                 },
                 ReturnType = rettyp.GetTypeInfo().FullName
             });
