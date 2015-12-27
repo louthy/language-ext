@@ -10,7 +10,7 @@ This library uses and abuses the features of C# 6 to provide a functional 'Base 
 Nu-get package | Description
 ---------------|-------------
 [LanguageExt.Core](https://www.nuget.org/packages/LanguageExt.Core) | All of the core types and functional 'prelude'.  This is all that's needed to get started.
-[LanguageExt.FSharp](https://www.nuget.org/packages/LanguageExt.FSharp) | F# to C# interop library.  Provides interop between the LanguageExt.Core types (like `Option`, `List` and `Map`) to the F# equivalents, as well as interop between core BCL types and F#
+[LanguageExt.FSharp](https://www.nuget.org/packages/LanguageExt.FSharp) | F# to C# interop libraary.  Provides interop between the LanguageExt.Core types (like `Option`, `List` and `Map`) to the F# equivalents, as well as interop between core BCL types and F#
 [LanguageExt.Process](https://www.nuget.org/packages/LanguageExt.Process) | 'Erlang like' actor system for in-app messaging and massive concurrency
 [LanguageExt.Process.Redis](https://www.nuget.org/packages/LanguageExt.Process.Redis) | Cluster support for the `LangaugeExt.Process` system for cluster aware processes using Redis for queue and state persistence
 [LanguageExt.Process.FSharp](https://www.nuget.org/packages/LanguageExt.Process.FSharp) | F# API to the `LangaugeExt.Process` system
@@ -1048,7 +1048,7 @@ Periodically you will probably want to flush the cache contents.  Just fire up a
     }
 ```
 
-For those that actually prefer the class based approach - or would at least prefer the class based approach for the larger/more-complex processes then there is an interface proxy system.  The previous `Cache` example where there's quite bit of boiler-plate because of C#'s lack of pattern-matching could be implemented thus:
+For those that actually prefer the class based approach - or would at least prefer the class based approach for the larger/more-complex processes then there is an interface proxy system.  The previous `Cache` example where there's quite bit of boiler-plate because of C#'s lack of discriminated unions and pattern-matching could be implemented thus:
 
 ```C#
     interface ICache
