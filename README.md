@@ -956,7 +956,7 @@ You still need to create classes for messages and the like, that's unavoidable (
 
 Creating something to log `string` messages to the console is as easy as:
 ```C#
-    var log = spawn<string>("logger", Console.WriteLine);
+    ProcessId log = spawn<string>("logger", Console.WriteLine);
 
     tell(log, "Hello, World");
 ```
@@ -1089,23 +1089,32 @@ For those that actually prefer the class based approach - or would at least pref
 
 Create it like so:
 ```C#
-    var cache = spawn<Cache>("cache");
-    var cacheProxy = proxy<ICache>(cache);
-
-    cacheProxy.Add("test", "hello, world", DateTime.UtcNow.AddMinutes(10));
+    // Spawn the Cache process with a state-type of Cache - it accepts the ProxyMsg
+    // type for messages which are auto-unpacked and used to invoke methods on the
+    // Cache state object.
+    ProcessId pid = spawn<Cache>("cache");
     
-    // Get an item from the cache
-    var thing = cacheProxy.Get("test");
+    // Generate an ICache proxy for calling the methods on Cache.  The proxy function
+    // maps the interface onto tell and ask calls, and packs up the method dispatch
+    // requests into ProxyMsgs.  It also does a type-check to make sure the Process
+    // actually has a state-type of ICache.
+    ICache cache = proxy<ICache>(pid);
+
+    // Call the ICache.Add method.  This is translated into a Process.tell 
+    cache.Add("test", "hello, world", DateTime.UtcNow.AddMinutes(10));
+    
+    // Get an item from the cache.  This is translated into a Process.ask
+    var thing = cache.Get("test");
 
     // Remove an item from the cache
-    cacheProxy.Remove("test");
+    cache.Remove("test");
 ```
 You could continue to use a stand-alone flush process, but it would need to use the proxy to communicate:
 ```C#
     var flush = spawn<Unit>(
         "cache-flush", _ =>
         {
-            proxy<ICache>(cacheId).Flush();
+            proxy<ICache>(pid).Flush();
             tellSelf(unit, TimeSpan.FromMinutes(10));
         });
 ```
@@ -1113,7 +1122,7 @@ The proxy can be built from anywhere, the Process system will auto-generate a co
 
 If you only need to work with the `Process` locally, then you can short-cut and go straight to the proxy:
 ```C#
-    var cacheProxy = spawn<ICache>("cache", () => new Cache());
+    ICache cache = spawn<ICache>("cache", () => new Cache());
 ```
 With the proxy approach we are back in the imperative world.  But in some circumstances it is more valuable.  If you imagine that each method on ICache is actually an inbox handler, you'll realise we still have the protection of single-threaded access and so the mutable nature of the `Process` state isn't the concern it would be if it was a regular class.
 
