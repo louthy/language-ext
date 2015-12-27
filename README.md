@@ -1048,7 +1048,7 @@ Periodically you will probably want to flush the cache contents.  Just fire up a
     }
 ```
 
-For those that actually prefer the class based approach - or would at least prefer the class based approach for the larger/more-complex processes.  The previous `Cache` example where there's quite bit of boiler-plate because of C#'s lack of pattern-matching could be implemented thus:
+For those that actually prefer the class based approach - or would at least prefer the class based approach for the larger/more-complex processes then there is an interface proxy system.  The previous `Cache` example where there's quite bit of boiler-plate because of C#'s lack of pattern-matching could be implemented thus:
 
 ```C#
     interface ICache
