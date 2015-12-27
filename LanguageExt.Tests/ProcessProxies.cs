@@ -33,6 +33,8 @@ namespace LanguageExt.Tests
         [Fact]
         public void ProxyTest1()
         {
+            Process.shutdownAll();
+
             var pid = Process.spawn<MyProcess>("proxy-test1");
 
             var proxy = Process.proxy<IMyProcess>(pid);
@@ -46,6 +48,8 @@ namespace LanguageExt.Tests
         [Fact]
         public void ProxyTest2()
         {
+            Process.shutdownAll();
+
             var proxy = Process.spawn<IMyProcess>("proxy-test2", () => new MyProcess());
 
             proxy.Hello("Hello");

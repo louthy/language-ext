@@ -1,7 +1,7 @@
 {
-  "version": "1.7.11-*",
+  "version": "1.7.14-*",
   "authors": [ "Paul Louth" ],
-  "owners": ["paullouth"],
+  "owners": [ "paullouth" ],
   "title": "LanguageExt.Process.FSharp",
   "description": "F# API for the LanguageExt.Process actor library component that works with LanguageExt.Core: A library that uses and abuses the features of C# 6 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself. It also includes an 'Erlang like' process system (actors) that can optionally persist messages and state to Redis (note you can use it without Redis for in-app messaging). The process system additionally supports Rx streams of messages and state allowing for a complete system of reactive events and message dispatch.",
   "tags": [ "F#", "C#", "Functional", "Language Extension", "Monad", "Option", "Either", "Reader", "Writer", "State", "List", "Set", "Map", "Queue", "Memo", "Memoization", "Immutable", "Lambda", "Pattern Matching", "Tuple", "Actor", "Process", "Akka", "Redis" ],
@@ -13,9 +13,9 @@
 
   "dependencies": {
     "FSharp.Dnx": "1.0.0-beta1",
-    "LanguageExt.Core": "1.7.11",
-    "LanguageExt.Process": "1.7.11",
-    "LanguageExt.FSharp": "1.7.11"
+    "LanguageExt.Core": "1.7.14",
+    "LanguageExt.Process": "1.7.14",
+    "LanguageExt.FSharp": "1.7.14"
   },
   "frameworks": {
     "dnx451": {
@@ -30,11 +30,11 @@
   },
   "fsharp": {
     "files": [
-    "AssemblyInfo.fs",
-    "Prelude.fs",
-    "Dispatch.fs",
-    "Role.fs",
-    "Router.fs"
+      "AssemblyInfo.fs",
+      "Prelude.fs",
+      "Dispatch.fs",
+      "Role.fs",
+      "Router.fs"
     ]
   }
 }

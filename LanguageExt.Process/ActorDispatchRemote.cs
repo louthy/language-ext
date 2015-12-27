@@ -33,10 +33,9 @@ namespace LanguageExt
             {
                 var meta = Cluster.GetValue<ProcessMetaData>(ActorInboxCommon.ClusterMetaDataKey(ProcessId));
 
-                return meta.MsgTypeNames.Fold(false, (value, typ) =>
-                    value
-                        ? true
-                        : typeof(T).GetTypeInfo().IsAssignableFrom(Type.GetType(typ).GetTypeInfo()));
+                return meta == null
+                    ? true
+                    : typeof(T).GetTypeInfo().IsAssignableFrom(Type.GetType(meta.StateTypeName).GetTypeInfo());
             }
             else
             {
@@ -48,12 +47,14 @@ namespace LanguageExt
         {
             if (Cluster.Exists(ActorInboxCommon.ClusterMetaDataKey(ProcessId)))
             {
-                var meta = Cluster.GetValue<ProcessMetaData>(ActorInboxCommon.ClusterMetaDataKey(ProcessId));
                 if (typeof(T) == typeof(TerminatedMessage) || typeof(T) == typeof(UserControlMessage) || typeof(T) == typeof(SystemMessage))
                 {
                     return true;
                 }
-                return meta.MsgTypeNames.Fold(false, (value, typ) =>
+                var meta = Cluster.GetValue<ProcessMetaData>(ActorInboxCommon.ClusterMetaDataKey(ProcessId));
+                return meta == null || meta.MsgTypeNames == null
+                    ? true
+                    : meta.MsgTypeNames.Fold(false, (value, typ) =>
                     value
                         ? true
                         : Type.GetType(typ).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()));
@@ -78,10 +79,12 @@ namespace LanguageExt
             {
                 var meta = Cluster.GetValue<ProcessMetaData>(ActorInboxCommon.ClusterMetaDataKey(ProcessId));
 
-                var valid = meta.MsgTypeNames.Fold(false, (value, typ) =>
-                    value
-                        ? true
-                        : Type.GetType(typ).GetTypeInfo().IsAssignableFrom(message.GetType().GetTypeInfo()));
+                var valid = meta == null || meta.MsgTypeNames == null
+                    ? true
+                    : meta.MsgTypeNames.Fold(false, (value, typ) =>
+                        value
+                            ? true
+                            : Type.GetType(typ).GetTypeInfo().IsAssignableFrom(message.GetType().GetTypeInfo()));
 
                 if( !valid )
                 {
