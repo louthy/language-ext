@@ -7,8 +7,8 @@ namespace LanguageExt
 {
     public class ProcessMetaData
     {
-        public readonly string[] MsgTypeNames;
-        public readonly string StateTypeName;
+        public string[] MsgTypeNames;
+        public string StateTypeName;
 
         public ProcessMetaData(string[] msgTypeNames, string stateTypeName)
         {
