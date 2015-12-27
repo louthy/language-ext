@@ -248,52 +248,44 @@ namespace LanguageExt
             ProxyBuilder.Build<TProcess>(pid);
 
         /// <summary>
-        /// Spawn by type
-        /// Communication is via proxy
+        /// Spawn by iterface type.  You must provide a Setup function that returns
+        /// the concrete implementation of TProcessInterface. 
+        /// Communication is via a generated proxy: the returned TProcessInterface.
+        /// </summary>
+        /// <typeparam name="TProcess">Process type</typeparam>
+        /// <param name="Name">Name of process to spawn</param>
+        /// <param name="Setup">You must provide a Setup function that returns
+        /// the concrete implementation of TProcessInterface</param>
+        /// <param name="Flags">Process flags</param>
+        /// <param name="Strategy">Failure supervision strategy</param>
+        /// <returns>TProcessInterface - The proxy for communicating with the Process</returns>
+        public static TProcessInterface spawn<TProcessInterface>(
+            ProcessName Name,
+            Func<TProcessInterface> Setup,
+            ProcessFlags Flags = ProcessFlags.Default,
+            State<StrategyContext, Unit> Strategy = null,
+            int MaxMailboxSize = ProcessSetting.DefaultMailboxSize
+            ) =>
+            proxy<TProcessInterface>(spawn<TProcessInterface, ProxyMsg>(
+              Name, 
+              Setup,
+              ProxyMsgInbox,
+              Flags,
+              Strategy,
+              MaxMailboxSize,
+              ProxyTerminatedInbox
+            ));
+
+        /// <summary>
+        /// Spawn by type.  
+        /// Communication is via proxy - call Process.proxy(pid) on the resulting
+        /// ProcessId to send tells and asks in a strongly typed fashion.
         /// </summary>
         /// <typeparam name="TProcess">Process type</typeparam>
         /// <param name="Name">Name of process to spawn</param>
         /// <param name="Flags">Process flags</param>
         /// <param name="Strategy">Failure supervision strategy</param>
-        /// <returns>TProcess proxy</returns>
-        public static ProcessId spawn<TProcess>(
-            ProcessName Name,
-            Func<TProcess> Setup,
-            ProcessFlags Flags = ProcessFlags.Default,
-            State<StrategyContext, Unit> Strategy = null,
-            int MaxMailboxSize = ProcessSetting.DefaultMailboxSize
-            )
-        {
-            var pid = spawn<TProcess, ProxyMsg>(Name, Setup,
-              (process, msg) => {
-
-                  var types = msg.ArgTypes.Map(Type.GetType).ToArray();
-                  var args = msg.Args.Map((i, x) => JsonConvert.DeserializeObject(x, types[i])).ToArray();
-                  var method = process.GetType().GetMethod(msg.Method, types);
-
-                  var result = method.Invoke(process, args);
-
-                  if (msg.ReturnType != "System.Void")
-                  {
-                      replyOrTellSender(result);
-                  }
-                  return process;
-              },
-              Flags,
-              Strategy,
-              MaxMailboxSize,
-              (process, termpid) => {
-                  var method = process.GetType().GetMethod("OnTerminated");
-                  if (method != null)
-                  {
-                      method.Invoke(process, new object[] { termpid });
-                  }
-                  return process;
-              }
-            );
-            return pid;
-        }
-
+        /// <returns>TProcessInterface - The proxy for communicating with the Process</returns>
         public static ProcessId spawn<TProcess>(
             ProcessName Name,
             ProcessFlags Flags = ProcessFlags.Default,
@@ -301,7 +293,43 @@ namespace LanguageExt
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize
             )
             where TProcess : new() =>
-            spawn(Name, () => new TProcess(), Flags, Strategy, MaxMailboxSize);
+            spawn<TProcess, ProxyMsg>(
+              Name, 
+              () => new TProcess(),
+              ProxyMsgInbox,
+              Flags,
+              Strategy,
+              MaxMailboxSize,
+              ProxyTerminatedInbox
+            );
+
+
+        static S ProxyTerminatedInbox<S>(S process, ProcessId termpid)
+        {
+            var method = process.GetType().GetMethod("OnTerminated");
+            if (method != null)
+            {
+                method.Invoke(process, new object[] { termpid });
+            }
+            return process;
+        }
+
+        static S ProxyMsgInbox<S>(S process, ProxyMsg msg)
+        {
+            var types = msg.ArgTypes.Map(Type.GetType).ToArray();
+            var args = msg.Args.Map((i, x) => JsonConvert.DeserializeObject(x, types[i])).ToArray();
+            var method = process.GetType().GetMethod(msg.Method, types);
+
+            var result = method.Invoke(process, args);
+
+            if (msg.ReturnType != "System.Void")
+            {
+                replyOrTellSender(result);
+            }
+            return process;
+        }
+
+
 #endif
     }
 }
