@@ -10,7 +10,7 @@ This library uses and abuses the features of C# 6 to provide a functional 'Base 
 Nu-get package | Description
 ---------------|-------------
 [LanguageExt.Core](https://www.nuget.org/packages/LanguageExt.Core) | All of the core types and functional 'prelude'.  This is all that's needed to get started.
-[LanguageExt.FSharp](https://www.nuget.org/packages/LanguageExt.FSharp) | F# to C# interop library.  Provides interop between the LanguageExt.Core types (like `Option`, `List` and `Map`) to the F# equivalents, as well as interop between core BCL types and F#
+[LanguageExt.FSharp](https://www.nuget.org/packages/LanguageExt.FSharp) | F# to C# interop libraary.  Provides interop between the LanguageExt.Core types (like `Option`, `List` and `Map`) to the F# equivalents, as well as interop between core BCL types and F#
 [LanguageExt.Process](https://www.nuget.org/packages/LanguageExt.Process) | 'Erlang like' actor system for in-app messaging and massive concurrency
 [LanguageExt.Process.Redis](https://www.nuget.org/packages/LanguageExt.Process.Redis) | Cluster support for the `LangaugeExt.Process` system for cluster aware processes using Redis for queue and state persistence
 [LanguageExt.Process.FSharp](https://www.nuget.org/packages/LanguageExt.Process.FSharp) | F# API to the `LangaugeExt.Process` system
@@ -900,7 +900,7 @@ __What's the Actor model?__
 
 So you have a little bundle of self contained computation, attached to a blob of private state, that can get messages telling it to do stuff with its private state.  Sounds like OO right?  Well, it is, but as Alan Kay envisioned it.  The slight difference with this is that it enforces execution order, and therefore there's no shared state access, and no race conditions (within the actor).  
 
-__Distributed__
+### Distributed
 
 The messages being sent to actors can also travel between machines, so now we have distributed processes too.  This is how to send a message from one process to another _on the same machine_ using `LanguageExt.Process`:
 ```C#
@@ -912,7 +912,7 @@ Now this is how to send a message from one process to another _on a different ma
 ```
 It's the same. Decoupled, thread-safe, without race conditions.  What's not to like?
 
-__How?__
+### How? 
 
 Sometimes this stuff is just easier by example, so here's a quick example, it spawns three processes, one logging process, one that sends a 'ping' message and one that sends a 'pong' message. They schedule the delivery of messages every 100 ms. The logger is simply: `Console.WriteLine`:
 
@@ -949,7 +949,7 @@ There are lots of Actor systems out there, so what makes this any different?  Ob
 * Made process discovery simple
 * Made a 'functional first' API
 
-### Remove the need to declare new classes for processes (actors)
+### Functions if you want them
 If your process is stateless then you just provide an `Action<TMsg>` to handle the messages, if your process is stateful then you provide a `Func<TState>` setup function, and a `Func<TState,TMsg, TState>` to handle the messages (any seasoned functional programmer will notice that is the signature of a fold).  This makes it  easy to create new processes and reduces the cognitive overload of having loads of classes for what should be small packets of computation.
 
 You still need to create classes for messages and the like, that's unavoidable (Use F# to create a 'messages' project, it's much quicker and easier).  But also, it's desirable, because it's the messages that define the interface and the interaction, not the processing class.
@@ -962,7 +962,7 @@ Creating something to log `string` messages to the console is as easy as:
 ```
 Or if you want a stateful, thread-safe cache:
 ```C#
-class Cache<K, V>
+static class Cache
 {
     enum Tag
     {
@@ -975,23 +975,23 @@ class Cache<K, V>
     class Msg
     {
         public Tag Tag;
-        public K Key;
+        public string Key;
         public ExpiringValue Value;
     }
 
     class ExpiringValue
     {
         public DateTime Expiry;
-        public V Value;
+        public string Value;
     }
 
-    public static Unit Add(ProcessId pid, K key, V value) =>
-        tell(pid, new Msg { Tag = Tag.Add, Key = key, Value = new ExpiringValue { Value = value, Expiry = DateTime.UtcNow }});
+    public static Unit Add(ProcessId pid, string key, string value) =>
+        tell(pid, new Msg { Tag = Tag.Add, Key = key, Value = new ExpiringValue { Value = value, Expiry = DateTime.UtcNow.AddMinutes(1) }});
 
-    public static Unit Remove(ProcessId pid, K key) =>
+    public static Unit Remove(ProcessId pid, string key) =>
         tell(pid, new Msg { Tag = Tag.Remove, Key = key });
 
-    public static V Get(ProcessId pid, K key) =>
+    public static string Get(ProcessId pid, string key) =>
         ask<V>(pid, new Msg { Tag = Tag.Get, Key = key });
 
     public static Unit Flush(ProcessId pid) =>
@@ -1004,30 +1004,30 @@ class Cache<K, V>
         //            it's a 'Get' in which case it Finds the cache item and if
         //            it exists, calls 'reply', and then returns the state 
         //            untouched.
-        spawn<Map<K, ExpiringValue>, Msg>(
+        spawn<Map<string, ExpiringValue>, Msg>(
             name,
-            () => Map<K, ExpiringValue>(),
+            () => Map<string, ExpiringValue>(),
             (state, msg) => 
                 match(msg.Tag,
                     with(Tag.Add,    _ => state.AddOrUpdate(msg.Key, msg.Value)),
                     with(Tag.Remove, _ => state.Remove(msg.Key)),
                     with(Tag.Get,    _ => state.Find(msg.Key).Map(v => v.Value).IfSome(reply).Return(state)),
-                    with(Tag.Flush,  _ => state.Filter(s => s.Expiry < DateTime.Now))));
+                    with(Tag.Flush,  _ => state.Filter(s => s.Expiry < DateTime.UtcNow))));
 }
 
 ```
 The `ProcessId` is just a wrapped string path, so you can serialise it and pass it around, then anything can find and communicate with your cache:
 ```C#
-    var pid = Cache<string,string>.Spawn("my-cache");
+    var pid = Cache.Spawn("my-cache");
     
     // Add a new item to the cache
-    Cache<string,string>.Add(pid, "test", "hello, world");
+    Cache.Add(pid, "test", "hello, world");
     
     // Get an item from the cache
-    var thing = Cache<string,string>.Get(pid, "test");
+    var thing = Cache.Get(pid, "test");
 
     // Remove an item from the cache
-    Cache<string,string>.Remove(pid, "test");
+    Cache.Remove(pid, "test");
 ```
 Periodically you will probably want to flush the cache contents.  Just fire up another process, they're basically free (and by using functions rather than classes, very easy to put into little worker modules):
 ```C#
@@ -1039,7 +1039,7 @@ Periodically you will probably want to flush the cache contents.  Just fire up a
         var flush = spawn<Unit>(
             "cache-flush", _ =>
             {
-                Cache<string,string>.Flush(cache);
+                Cache.Flush(cache);
                 tellSelf(unit, TimeSpan.FromMinutes(10));
             });
 
@@ -1048,34 +1048,76 @@ Periodically you will probably want to flush the cache contents.  Just fire up a
     }
 ```
 
-For those that actually prefer the class based approach, the you can do that also:
+### Classes if you want them
+
+For those that actually prefer the class based approach - or would at least prefer the class based approach for the larger/more-complex processes then there is an interface proxy system.  The previous `Cache` example where there's quite bit of boiler-plate because of C#'s lack of discriminated unions and pattern-matching could be implemented thus:
 
 ```C#
-    class Logger : IProcess<string>
+    interface ICache
     {
-        public void OnMessage(string message)
+        void Add(string key, string value);
+        void Remove(string key);
+        string Get(string key);
+        void Flush();
+    }
+
+    class Cache : ICache
+    {
+        Map<string, ExpiringValue> state = Map.empty<string, ExpiringValue>();
+        
+        public void Add(string key, string value, DateTime expires)
         {
-            Console.WriteLine(message);
+            state = state.Add(key, new ExpiringValue(value, expires));
+        }
+        
+        public void Remove(string key)
+        {
+            state = state.Remove(key);
+        }
+        
+        public string Get(string key)
+        {
+            return state[key];
+        }
+        
+        public void Flush()
+        {
+            state = state.Filter(s => s.Expiry < DateTime.UtcNow);
         }
     }
 ```
 
 Create it like so:
 ```C#
-    var log = spawn<Logger,string>("logger");
+    var cache = spawn<Cache>("cache");
+    var cacheProxy = proxy<ICache>(cache);
 
-    tell(log,"Hello, World");
+    cacheProxy.Add("test", "hello, world", DateTime.UtcNow.AddMinutes(10));
+    
+    // Get an item from the cache
+    var thing = cacheProxy.Get("test");
+
+    // Remove an item from the cache
+    cacheProxy.Remove("test");
 ```
-
-The public constructor is the setup function, the object itself is the state, and if you derive it from `IDisposable` then it will be called when the process is shutdown or restarted.  That gives the full object lifecycle management but with processes.
-
-How about a bit of load balancing?  This creates 100 processes, and as the messages come in to the parent `indexer` process, it automatically allocates the messages to its 100 child processes in a round-robin fashion:
-
+You could continue to use a stand-alone flush process, but it would need to use the proxy to communicate:
 ```C#
-    var load = Router.roundRobin<Thing>("indexer", 100, DoIndexing);
+    var flush = spawn<Unit>(
+        "cache-flush", _ =>
+        {
+            proxy<ICache>(cacheId).Flush();
+            tellSelf(unit, TimeSpan.FromMinutes(10));
+        });
 ```
+The proxy can be built from anywhere, the Process system will auto-generate a concrete implementation for the interface that will dispatch to the `Process` specified.  It also type checks your interface against what the actual `Process` is running adding an extra bit of type-safety to the procedure. 
 
-So as you can see that's a pretty powerful technique.  Remember the process could be running on another machine, and as long as the messages serialise you can talk to them by process ID.  
+If you only need to work with the `Process` locally, then you can short-cut and go straight to the proxy:
+```C#
+    var cacheProxy = spawn<ICache>("cache", () => new Cache());
+```
+With the proxy approach we are back in the imperative world.  But in some circumstances it is more valuable.  If you imagine that each method on ICache is actually an inbox handler, you'll realise we still have the protection of single-threaded access and so the mutable nature of the `Process` state isn't the concern it would be if it was a regular class.
+
+As you can see that's a pretty powerful technique.  Remember the process could be running on another machine, and as long as the messages serialise you can talk to them by process ID or via proxy.
 
 ### Publish system
 
