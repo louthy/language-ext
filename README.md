@@ -949,7 +949,7 @@ There are lots of Actor systems out there, so what makes this any different?  Ob
 * Made process discovery simple
 * Made a 'functional first' API
 
-### Remove the need to declare new classes for processes (actors)
+### Functions if you want them
 If your process is stateless then you just provide an `Action<TMsg>` to handle the messages, if your process is stateful then you provide a `Func<TState>` setup function, and a `Func<TState,TMsg, TState>` to handle the messages (any seasoned functional programmer will notice that is the signature of a fold).  This makes it  easy to create new processes and reduces the cognitive overload of having loads of classes for what should be small packets of computation.
 
 You still need to create classes for messages and the like, that's unavoidable (Use F# to create a 'messages' project, it's much quicker and easier).  But also, it's desirable, because it's the messages that define the interface and the interaction, not the processing class.
@@ -1048,6 +1048,8 @@ Periodically you will probably want to flush the cache contents.  Just fire up a
     }
 ```
 
+### Classes if you want them
+
 For those that actually prefer the class based approach - or would at least prefer the class based approach for the larger/more-complex processes then there is an interface proxy system.  The previous `Cache` example where there's quite bit of boiler-plate because of C#'s lack of discriminated unions and pattern-matching could be implemented thus:
 
 ```C#
@@ -1073,7 +1075,7 @@ For those that actually prefer the class based approach - or would at least pref
             state = state.Remove(key);
         }
         
-        public void Get(string key)
+        public string Get(string key)
         {
             return state[key];
         }
@@ -1096,7 +1098,7 @@ Create it like so:
     var thing = cacheProxy.Get("test");
 
     // Remove an item from the cache
-    cacheProxy.Remove(pid, "test");
+    cacheProxy.Remove("test");
 ```
 You could continue to use a stand-alone flush process, but it would need to use the proxy to communicate:
 ```C#
