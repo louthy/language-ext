@@ -986,7 +986,7 @@ static class Cache
     }
 
     public static Unit Add(ProcessId pid, string key, string value) =>
-        tell(pid, new Msg { Tag = Tag.Add, Key = key, Value = new ExpiringValue { Value = value, Expiry = DateTime.UtcNow }});
+        tell(pid, new Msg { Tag = Tag.Add, Key = key, Value = new ExpiringValue { Value = value, Expiry = DateTime.UtcNow.AddMinutes(1) }});
 
     public static Unit Remove(ProcessId pid, string key) =>
         tell(pid, new Msg { Tag = Tag.Remove, Key = key });
@@ -1012,7 +1012,7 @@ static class Cache
                     with(Tag.Add,    _ => state.AddOrUpdate(msg.Key, msg.Value)),
                     with(Tag.Remove, _ => state.Remove(msg.Key)),
                     with(Tag.Get,    _ => state.Find(msg.Key).Map(v => v.Value).IfSome(reply).Return(state)),
-                    with(Tag.Flush,  _ => state.Filter(s => s.Expiry < DateTime.Now))));
+                    with(Tag.Flush,  _ => state.Filter(s => s.Expiry < DateTime.UtcNow))));
 }
 
 ```
@@ -1048,38 +1048,63 @@ Periodically you will probably want to flush the cache contents.  Just fire up a
     }
 ```
 
-For those that actually prefer the class based approach - or would at least prefer the class based approach for the larger/more-complex processes - there's a very nice strongly-typed approach:
+For those that actually prefer the class based approach - or would at least prefer the class based approach for the larger/more-complex processes.  The previous `Cache` example where there's quite bit of boiler-plate because of C#'s lack of pattern-matching could be implemented thus:
 
 ```C#
-    interface ILogger
+    interface ICache
     {
-        void Info(string message);
-        void Warn(string message);
-        void Error(string message);
+        void Add(string key, string value);
+        void Remove(string key);
+        string Get(string key);
+        void Flush();
     }
 
-    class Logger : ILogger
+    class Cache : ICache
     {
-        public void Info(string message)  => Console.WriteLine($"INFO: {message}");
-        public void Warn(string message)  => Console.WriteLine($"WARN: {message}");
-        public void Error(string message) => Console.WriteLine($"ERRO: {message}");
+        Map<string, ExpiringValue> state = Map.empty<string, ExpiringValue>();
+        
+        public void Add(string key, string value)
+        {
+            state = state.Add(key, new ExpiringValue(value, DateTime.UtcNow.AddMinutes(1)));
+        }
+        
+        public void Remove(string key)
+        {
+            state = state.Remove(key);
+        }
+        
+        public void Get(string key)
+        {
+            return state[key];
+        }
+        
+        public void Flush()
+        {
+            state = state.Filter(s => s.Expiry < DateTime.UtcNow);
+        }
     }
 ```
 
 Create it like so:
 ```C#
-    var logId = spawn<Logger>("logger");
-    var logProxy = proxy<ILogger>(logId);
+    var cache = spawn<Cache>("cache");
+    var cacheProxy = proxy<ICache>(cache);
 
-    logProxy.Info("This is all fine");
-    logProxy.Error("It isn't now!");
+    cacheProxy.Add("test", "hello, world");
+    
+    // Get an item from the cache
+    var thing = cacheProxy.Get("test");
+
+    // Remove an item from the cache
+    cacheProxy.Remove(pid, "test");
 ```
-The proxy can be built from anywhere, the Process system will generate a cocrete implementation for the interface that will dispatch to the `Process` specified.  
+The proxy can be built from anywhere, the Process system will auto-generate a concrete implementation for the interface that will dispatch to the `Process` specified.  
 
 If you only need to work with the `Process` locally, then you can short-cut and go straight to the proxy:
 ```C#
-    var logProxy = spawn<Logger>("logger", () => new Logged());
+    var cacheProxy = spawn<ICache>("cache", () => new Cache());
 ```
+We are back in the imperative world.  But in some circumstances it is more valuable.  If you imagine that each method on ICache is actually an inbox handler, you'll realise we still have the protection of single-threaded access and so the mutable nature of the `Process` state isn't the concern it would be if it was a regular class.
 
 So as you can see that's a pretty powerful technique.  Remember the process could be running on another machine, and as long as the messages serialise you can talk to them by process ID or via proxy.
 
