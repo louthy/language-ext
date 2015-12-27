@@ -900,7 +900,7 @@ __What's the Actor model?__
 
 So you have a little bundle of self contained computation, attached to a blob of private state, that can get messages telling it to do stuff with its private state.  Sounds like OO right?  Well, it is, but as Alan Kay envisioned it.  The slight difference with this is that it enforces execution order, and therefore there's no shared state access, and no race conditions (within the actor).  
 
-__Distributed__
+### Distributed
 
 The messages being sent to actors can also travel between machines, so now we have distributed processes too.  This is how to send a message from one process to another _on the same machine_ using `LanguageExt.Process`:
 ```C#
@@ -912,7 +912,7 @@ Now this is how to send a message from one process to another _on a different ma
 ```
 It's the same. Decoupled, thread-safe, without race conditions.  What's not to like?
 
-__How?__
+### How? 
 
 Sometimes this stuff is just easier by example, so here's a quick example, it spawns three processes, one logging process, one that sends a 'ping' message and one that sends a 'pong' message. They schedule the delivery of messages every 100 ms. The logger is simply: `Console.WriteLine`:
 
@@ -1039,7 +1039,7 @@ Periodically you will probably want to flush the cache contents.  Just fire up a
         var flush = spawn<Unit>(
             "cache-flush", _ =>
             {
-                Cache<string,string>.Flush(cache);
+                Cache.Flush(cache);
                 tellSelf(unit, TimeSpan.FromMinutes(10));
             });
 
@@ -1053,7 +1053,7 @@ For those that actually prefer the class based approach - or would at least pref
 ```C#
     interface ICache
     {
-        void Add(string key, string value, DateTime expires);
+        void Add(string key, string value);
         void Remove(string key);
         string Get(string key);
         void Flush();
@@ -1073,7 +1073,7 @@ For those that actually prefer the class based approach - or would at least pref
             state = state.Remove(key);
         }
         
-        public string Get(string key)
+        public void Get(string key)
         {
             return state[key];
         }
@@ -1098,15 +1098,24 @@ Create it like so:
     // Remove an item from the cache
     cacheProxy.Remove(pid, "test");
 ```
-The proxy can be built from anywhere, the Process system will auto-generate a concrete implementation for the interface that will dispatch to the `Process` specified.  
+You could continue to use a stand-alone flush process, but it would need to use the proxy to communicate:
+```C#
+    var flush = spawn<Unit>(
+        "cache-flush", _ =>
+        {
+            proxy<ICache>(cacheId).Flush();
+            tellSelf(unit, TimeSpan.FromMinutes(10));
+        });
+```
+The proxy can be built from anywhere, the Process system will auto-generate a concrete implementation for the interface that will dispatch to the `Process` specified.  It also type checks your interface against what the actual `Process` is running adding an extra bit of type-safety to the procedure. 
 
 If you only need to work with the `Process` locally, then you can short-cut and go straight to the proxy:
 ```C#
     var cacheProxy = spawn<ICache>("cache", () => new Cache());
 ```
-We are back in the imperative world.  But in some circumstances it is more valuable.  If you imagine that each method on ICache is actually an inbox handler, you'll realise we still have the protection of single-threaded access and so the mutable nature of the `Process` state isn't the concern it would be if it was a regular class.
+With the proxy approach we are back in the imperative world.  But in some circumstances it is more valuable.  If you imagine that each method on ICache is actually an inbox handler, you'll realise we still have the protection of single-threaded access and so the mutable nature of the `Process` state isn't the concern it would be if it was a regular class.
 
-So as you can see that's a pretty powerful technique.  Remember the process could be running on another machine, and as long as the messages serialise you can talk to them by process ID or via proxy.
+As you can see that's a pretty powerful technique.  Remember the process could be running on another machine, and as long as the messages serialise you can talk to them by process ID or via proxy.
 
 ### Publish system
 
