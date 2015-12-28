@@ -1053,7 +1053,7 @@ Periodically you will probably want to flush the cache contents.  Just fire up a
 For those that actually prefer the class based approach - or would at least prefer the class based approach for the larger/more-complex processes then there is an interface proxy system.  The previous `Cache` example where there's quite bit of boiler-plate because of C#'s lack of discriminated unions and pattern-matching could be implemented thus:
 
 ```C#
-    interface ICache
+    public interface ICache
     {
         void Add(string key, string value);
         void Remove(string key);
@@ -1061,7 +1061,7 @@ For those that actually prefer the class based approach - or would at least pref
         void Flush();
     }
 
-    class Cache : ICache
+    public class Cache : ICache
     {
         Map<string, ExpiringValue> state = Map.empty<string, ExpiringValue>();
         
@@ -1087,7 +1087,7 @@ For those that actually prefer the class based approach - or would at least pref
     }
 ```
 
-Create it like so:
+Use it like so:
 ```C#
     // Spawn the Cache process with a state-type of Cache - it accepts the ProxyMsg
     // type for messages which are auto-unpacked and used to invoke methods on the
@@ -1130,7 +1130,7 @@ As you can see that's a pretty powerful technique.  Remember the process could b
 
 ### Publish system
 
-Most other actor systems expect you to `tell` all messages directly to other actors.  If you want a pub-sub model then you're expected to create a publisher actor that can take subscription messages, that it uses to manage a registry of publishers to deliver messages to.  It's all a bit bulky and unnecessary.
+Most other actor systems expect you to `tell` all messages directly to other actors.  If you want a pub-sub model then you're required to create a publisher actor that can take subscription messages from other actors; the publisher actor then manages a 'registry' of subscribers to deliver messages to.  It's all a bit bulky and unnecessary.
 
 So with `LanguageExt.Process` each process manages its own internal subscriber list.  If a process needs to announce something it calls:
 
@@ -1144,13 +1144,13 @@ Another process can subscribe to that by calling:
 ```
 _(The subscriber can do this in its setup phase, and the process system will auto-unsub when the process dies, and auto-resub when it restarts)_
 
-This means the messages that are published by one process can be consumed by any number of others (via their inbox in the normal way).  I found I was jumping through hoops to do this with other actor systems.  But sometimes, as I say, you want to jump outside of that system.
+This means the messages that are published by one process can be consumed by any number of others (via their inbox in the normal way).
 
-For example, if your code is outside of the process system, it can get an `IObservable` stream instead:
+However, sometimes you want to jump outside of that system.  For example, if your code is outside of the process system, it can get an `IObservable` stream instead:
 ```C#
-var sub =  observe<Thing>(processId).Subscribe( msg => ...);
+    var sub = observe<Thing>(processId).Subscribe(msg => ...);
 ```
-A good example of this is the 'Dead Letters' process, it gets all the messages that failed for one reason or another (serialisation problems, the process doesn't exist, the process crashed, etc.).  All it does is call `publish(msg)`.  This is how it's defined:
+A good example of this is the 'Dead Letters' process, it gets all the messages that failed for one reason or another (serialisation problems, the process doesn't exist, the process crashed, etc.).  All it does is call `publish(msg)`, which allows you to subscribe to it for logging purposes.  This is how it's defined:
 ```C#
     var deadLetters = spawn<DeadLetter>("dead-letters",publish);
 ```
@@ -1165,17 +1165,17 @@ There's also `system` process under `root` that handles stuff like dead-letters 
     /root/system/dead-letters
     etc.
 ```
-When you create a Redis cluster connection the second argument is the name of the node in the 'cluster' (i.e. the name of the app/service/website, whatever it is your code does).  The last argument is the _role_ of the node in the cluster (see `Role.Broadcast`, `Role.LeastBusy`, `Role.Random`, `Role.RoundRobin`, `Role.First` - for cluster dispatch methods).  There is a static property `Process.ClusterNodes` that allows you to interrogate which nodes are online and what their role is.
+When you create a Redis cluster connection the second argument is the name of the node in the 'cluster' (i.e. the name of the app/service/website, whatever it is).  The last argument is the _role_ of the node in the cluster (see `Role.Broadcast`, `Role.LeastBusy`, `Role.Random`, `Role.RoundRobin`, `Role.First` - for cluster dispatch methods).  There is a static property `Process.ClusterNodes` that allows you to interrogate the nodes are online and what their role is.
 ```C#
     RedisCluster.register();
-    Cluster.connect("redis", "my-stuff", "localhost", "0","my-node-role");
+    Cluster.connect("redis", "my-stuff", "localhost", "0", "my-node-role");
 ```
 Then instead of having `root` as the top level Process in your hierarchy, you have `my-stuff`:
 ```C#
     /my-stuff/user/...
     /my-stuff/system/dead-letters
 ```
-So you know where things are, and what they're called, and they're easily addressable.  You can just 'tell' the address:
+Therefore you know where things are, and what they're called, and they're easily addressable.  You can just 'tell' the address:
 ```C#
     tell("/my-stuff/user/hello", "Hello!");
 ```
@@ -1225,14 +1225,8 @@ Here's an example of persisting both:
     var pid = spawn<string>("redis-inbox-sample", Inbox, ProcessFlags.PersistAll);
 ```
 
-### Style
-The final thing was I wanted from the process system was just style really, I wanted something that complemented the Language-Ext style, was 'functional first' rather than as an afterthought.  It's still alpha, but it's looking pretty good (files to look at are `Prelude.cs`, `Prelude_Ask.cs`, `Prelude_Tell.cs`, `Prelude_PubSub.cs`, `Prelude_Spawn.cs`).  
+[Process system documentation](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md) 
 
-One wish-list item is to create an IO monad that captures all of the IO functions like `tell`, `ask`, `reply`, and `publish` as a series of continuations so that I can create a single transaction from one message loop, and use that transaction to do hyper-robust message sequencing.  Currently delivery is asynchronous, so sometimes you're at the mercy of the thread-pool.  
-
-It would also allow for high quality unit testing of the process computation, because you could mock the IO functions.  
-
-Hopefully I can get to that soon.
 
 ### The rest
 I haven't had time to document everything, so here's a quick list of what was missed:
