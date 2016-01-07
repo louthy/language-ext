@@ -1,0 +1,15 @@
+﻿{
+  "dependencies": {
+    "Newtonsoft.Json": "7.0.1",
+    "Rx-Main": "2.2.5.0",
+    "StackExchange.Redis": "1.0.488"
+  },
+  "frameworks": {
+    "net45": {
+      "frameworkAssemblies": {}
+    }
+  },
+  "runtimes": {
+    "win": {}
+  }
+}

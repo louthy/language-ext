@@ -297,7 +297,7 @@ var Process = (function () {
         }
 
         if (typeof p.shutdown === "function") {
-            p.shutdown();
+            p.shutdown(p.state);
         }
 
         for (var x in p.obs) {
@@ -548,7 +548,7 @@ if (typeof ko !== "undefined" && typeof ko.observable !== "undefined") {
         return copy;
     }
 
-    Process.spawnView = function (name, containerId, templateId, setup, inbox) {
+    Process.spawnView = function (name, containerId, templateId, setup, inbox, shutdown) {
 
         if (typeof setup !== "function") {
             var val = setup;
@@ -643,9 +643,12 @@ if (typeof ko !== "undefined" && typeof ko.observable !== "undefined") {
                 };
             },
             // Shutdown
-            function () {
+            function (state) {
                 ko.cleanNode($("#" + containerId)[0]);
                 $("#" + containerId).empty();
+                if ("function" === typeof shutdown) {
+                    shutdown(state);
+                }
             });
     }
 }

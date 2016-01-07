@@ -1,0 +1,15 @@
+﻿{
+  "dependencies": {
+    "Newtonsoft.Json": "7.0.1",
+    "Rx-Main": "2.2.5.0",
+    "FSharp.Core": "4.0.0.1"
+  },
+  "frameworks": {
+    "net45": {
+      "frameworkAssemblies": {}
+    }
+  },
+  "runtimes": {
+    "win": {}
+  }
+}
