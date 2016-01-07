@@ -1,10 +1,16 @@
-version: 1.7.5.{build}
-os: Previous Visual Studio 2015 RC
-build:
-  publish_nuget: true
-  publish_nuget_symbols: true
-  include_nuget_references: true
-  verbosity: minimal
-before_test:
-- cmd: xunit.console.clr4 <assembly> /appveyor
+configuration: CI
 
+version: 1.7.15.{build}
+
+assembly_info:
+  patch: true
+  file: AssemblyInfo.*
+  assembly_version: "{version}"
+  assembly_file_version: "{version}"
+  assembly_informational_version: "{version}"
+
+before_build:
+ - nuget restore
+
+build:
+  verbosity: minimal
