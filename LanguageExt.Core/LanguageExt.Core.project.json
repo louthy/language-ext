@@ -4,10 +4,10 @@
   },
   "frameworks": {
     "net45": {
-      "frameworkAssemblies": {}
+      "frameworkAssemblies": { }
     }
   },
   "runtimes": {
-    "win": {}
+    "win": { }
   }
 }

@@ -46,7 +46,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile />
-    <OutputPath>..\lib\</OutputPath>
+    <OutputPath>bin\CI</OutputPath>
   </PropertyGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '11.0'">
