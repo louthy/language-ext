@@ -25,7 +25,7 @@ namespace Throughput
             int sleepFor = sleepForMax;
             while (sleepFor > 0)
             {
-                Console.WriteLine("Sleeping for "+sleepFor+" seconds whist it warms up");
+                Console.WriteLine("Sleeping for "+sleepFor+" seconds whilst it warms up");
                 Thread.Sleep(1000);
                 sleepFor--;
             }

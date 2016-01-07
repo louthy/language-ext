@@ -16,7 +16,7 @@ namespace ProcessSample
             var pong = ProcessId.None;
 
             // Start a process which simply writes the messages it receives to std-out
-            var logger = spawn<string>("logger", Console.WriteLine);
+            var logger = spawn<string>("logger", x => Console.WriteLine(x));
 
             // Ping process
             ping = spawn<string>("ping", msg =>

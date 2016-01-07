@@ -55,41 +55,41 @@ namespace TestBed
             Debug.Assert(rev.LastIndexOf(2) == 2, "Should have been 2, actually is: " + rev.LastIndexOf(2));
         }
 
-        public static void LocalRegisterTest()
-        {
-            shutdownAll();
+        //public static void LocalRegisterTest()
+        //{
+        //    shutdownAll();
 
-            string value = null;
-            var pid = spawn<string>("reg-proc", msg => value = msg);
+        //    string value = null;
+        //    var pid = spawn<string>("reg-proc", msg => value = msg);
 
-            var regid = register<string>("woooo amazing", pid);
+        //    var regid = register("woooo amazing", pid);
 
-            //Thread.Sleep(100);
+        //    //Thread.Sleep(100);
 
-            var kids = children(Registered);
+        //    var kids = children(Registered);
 
-            Debug.Assert(kids.Count() == 1);
-            Debug.Assert(kids["woooo amazing"].Path == "/root/registered/woooo amazing");
+        //    Debug.Assert(kids.Count() == 1);
+        //    Debug.Assert(kids["woooo amazing"].Path == "/root/registered/woooo amazing");
 
-            tell(regid, "hello");
+        //    tell(regid, "hello");
 
-            Thread.Sleep(100);
+        //    Thread.Sleep(100);
 
-            Debug.Assert(value == "hello");
+        //    Debug.Assert(value == "hello");
 
-            tell(find("woooo amazing"), "world");
+        //    tell(find("woooo amazing"), "world");
 
-            Thread.Sleep(100);
+        //    Thread.Sleep(100);
 
-            Debug.Assert(value == "world");
+        //    Debug.Assert(value == "world");
 
-            deregister("woooo amazing");
+        //    deregisterById(pid);
 
-            Thread.Sleep(10);
+        //    Thread.Sleep(10);
 
-            kids = children(Registered);
-            Debug.Assert(kids.Count() == 0);
-        }
+        //    kids = children(Registered);
+        //    Debug.Assert(kids.Count() == 0);
+        //}
 
         public static void KillChildTest()
         {
@@ -136,56 +136,56 @@ namespace TestBed
             Console.ReadKey();
         }
 
-        public static void RegisterTest()
-        {
-            try
-            {
-                shutdownAll();
+        //public static void RegisterTest()
+        //{
+        //    try
+        //    {
+        //        shutdownAll();
 
-                // Let Language Ext know that Redis exists
-                RedisCluster.register();
+        //        // Let Language Ext know that Redis exists
+        //        RedisCluster.register();
 
-                // Connect to the Redis cluster
-                Cluster.connect("redis", "redis-test", "localhost", "0", "global");
+        //        // Connect to the Redis cluster
+        //        Cluster.connect("redis", "redis-test", "localhost", "0", "global");
 
-                string value = null;
-                var pid = spawn<string>("reg-proc", msg => value = msg);
+        //        string value = null;
+        //        var pid = spawn<string>("reg-proc", msg => value = msg);
 
-                var regid = register<string>("woooo amazing", pid);
+        //        var regid = register<string>("woooo amazing", pid);
 
-                Thread.Sleep(10);
+        //        Thread.Sleep(10);
 
-                var kids = children(Registered);
+        //        var kids = children(Registered);
 
-                Debug.Assert(kids.Count() == 1);
-                Debug.Assert(kids["woooo amazing"].Path == "/registered/woooo amazing");
+        //        Debug.Assert(kids.Count() == 1);
+        //        Debug.Assert(kids["woooo amazing"].Path == "/registered/woooo amazing");
 
-                tell(regid, "hello");
+        //        tell(regid, "hello");
 
-                Thread.Sleep(10);
+        //        Thread.Sleep(10);
 
-                Debug.Assert(value == "hello");
+        //        Debug.Assert(value == "hello");
 
-                tell(find("woooo amazing"), "world");
+        //        tell(find("woooo amazing"), "world");
 
-                Thread.Sleep(10);
+        //        Thread.Sleep(10);
 
-                Debug.Assert(value == "world");
+        //        Debug.Assert(value == "world");
 
-                Thread.Sleep(10);
+        //        Thread.Sleep(10);
 
-                deregister("woooo amazing");
+        //        deregister("woooo amazing");
 
-                Thread.Sleep(10);
+        //        Thread.Sleep(10);
 
-                kids = children(Registered);
-                Debug.Assert(kids.Count() == 0);
-            }
-            finally
-            {
-                Cluster.disconnect();
-            }
-        }
+        //        kids = children(Registered);
+        //        Debug.Assert(kids.Count() == 0);
+        //    }
+        //    finally
+        //    {
+        //        Cluster.disconnect();
+        //    }
+        //}
 
 
         class Log : IProcess<string>
@@ -328,21 +328,21 @@ namespace TestBed
             Thread.Sleep(1000);
         }
 
-        public static void RegisteredAskReply()
-        {
-            shutdownAll();
+        //public static void RegisteredAskReply()
+        //{
+        //    shutdownAll();
 
-            var helloServer = spawn<string>("hello-server", msg =>
-            {
-                reply("Hello, " + msg);
-            });
+        //    var helloServer = spawn<string>("hello-server", msg =>
+        //    {
+        //        reply("Hello, " + msg);
+        //    });
 
-            var hi = register<string>("hi", helloServer);
+        //    var hi = register<string>("hi", helloServer);
 
-            var response = ask<string>(find("hi"), "Paul");
+        //    var response = ask<string>(find("hi"), "Paul");
 
-            Debug.Assert(response == "Hello, Paul");
-        }
+        //    Debug.Assert(response == "Hello, Paul");
+        //}
 
         public static void AskReply()
         {
@@ -672,7 +672,7 @@ namespace TestBed
             int value = 0;
 
             var pid = spawn<int, string>("SpawnAndKillHierarchy.TopLevel",
-                () => { spawn<string>("SpawnAndKillHierarchy.ChildLevel", Console.WriteLine); return 0; },
+                () => { spawn<string>("SpawnAndKillHierarchy.ChildLevel", x => Console.WriteLine(x)); return 0; },
                 (_, msg) => value = Int32.Parse(msg)
             );
 

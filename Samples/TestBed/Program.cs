@@ -35,14 +35,14 @@ namespace TestBed
             Tests.KillChildTest();
 
             Tests.ProcessStartupError();
-            Tests.LocalRegisterTest();
+            //Tests.LocalRegisterTest();
             Tests.AskReply();
             Tests.MassiveSpawnAndKillHierarchy();
             Tests.AskReplyError();
-            Tests.RegisterTest();
+            //Tests.RegisterTest();
 
             Tests.ProcessStartupError();
-            Tests.RegisteredAskReply();
+            //Tests.RegisteredAskReply();
 
             Tests.ClassBasedProcess();
             Tests.AsyncOption();
