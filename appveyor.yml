@@ -2,6 +2,8 @@ configuration: CI
 
 version: 1.7.15.{build}
 
+os: Visual Studio 2015
+
 assembly_info:
   patch: true
   file: AssemblyInfo.*
@@ -14,3 +16,4 @@ before_build:
 
 build:
   verbosity: minimal
+  project: language-ext.sln
