@@ -1,5 +1,5 @@
 {
-  "version": "1.7.15-*",
+  "version": "1.7.17-*",
   "authors": [ "Paul Louth" ],
   "owners": [ "paullouth" ],
   "title": "LanguageExt.Process.FSharp",
@@ -13,9 +13,9 @@
 
   "dependencies": {
     "FSharp.Dnx": "1.0.0-beta1",
-    "LanguageExt.Core": "1.7.15",
-    "LanguageExt.Process": "1.7.15",
-    "LanguageExt.FSharp": "1.7.15"
+    "LanguageExt.Core": "1.7.17",
+    "LanguageExt.Process": "1.7.17",
+    "LanguageExt.FSharp": "1.7.17"
   },
   "frameworks": {
     "dnx451": {

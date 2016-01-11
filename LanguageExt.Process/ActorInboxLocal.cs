@@ -3,6 +3,7 @@ using System;
 using System.Threading;
 using System.Reflection;
 using static LanguageExt.Prelude;
+using Newtonsoft.Json;
 
 namespace LanguageExt
 {
@@ -212,21 +213,24 @@ namespace LanguageExt
             return true;
         }
 
-        public void ValidateMessageType(object message, ProcessId sender)
+        public object ValidateMessageType(object message, ProcessId sender)
         {
             if (message == null)
             {
                 throw new ProcessException($"Invalid message.  Null is not allowed for Process ({actor.Id}).", actor.Id.Path, sender.Path, null);
             }
-            if (message is TerminatedMessage || message is UserControlMessage || message is SystemMessage)
+
+            if (message is T || message is TerminatedMessage || message is UserControlMessage || message is SystemMessage)
             {
-                return;
+                return message;
             }
 
-            if( !(message is T ) )
+            if (message is string)
             {
-                throw new ProcessException($"Invalid message-type ({message.GetType().Name}) for Process ({actor.Id}).  The Process accepts: ({typeof(T)})", actor.Id.Path, sender.Path, null);
+                return JsonConvert.DeserializeObject<T>((string)message);
             }
+
+            throw new ProcessException($"Invalid message-type ({message.GetType().Name}) for Process ({actor.Id}).  The Process accepts: ({typeof(T)})", actor.Id.Path, sender.Path, null);
         }
     }
 }

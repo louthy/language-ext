@@ -162,6 +162,17 @@ namespace LanguageExt
             Self = self;
             Sender = sender;
         }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public ProcessException(string message, string self, string sender)
+            :
+            base(message)
+        {
+            Self = self;
+            Sender = sender;
+        }
     }
 
     /// <summary>

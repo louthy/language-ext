@@ -58,7 +58,7 @@ namespace LanguageExt
             {
                 if (Cluster.Exists(ActorInboxCommon.ClusterMetaDataKey(ProcessId)))
                 {
-                    if (typeof(T) == typeof(TerminatedMessage) || typeof(T) == typeof(UserControlMessage) || typeof(T) == typeof(SystemMessage))
+                    if (typeof(TerminatedMessage).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()) || typeof(UserControlMessage).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()) || typeof(SystemMessage).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()))
                     {
                         return true;
                     }
@@ -68,6 +68,8 @@ namespace LanguageExt
                         : meta.MsgTypeNames.Fold(false, (value, typ) =>
                         {
                             var lhsType = Type.GetType(typ)?.GetTypeInfo();
+                            if (lhsType == null) return false;
+
                             var rhsType = typeof(T).GetTypeInfo();
 
                             return value
@@ -104,6 +106,8 @@ namespace LanguageExt
                         : meta.MsgTypeNames.Fold(false, (value, typ) =>
                             {
                                 var lhsType = Type.GetType(typ)?.GetTypeInfo();
+                                if (lhsType == null) throw new ProcessException("Can't resolve message type: " + typ, ProcessId.Path, sender.Path);
+
                                 var rhsType = message.GetType().GetTypeInfo();
 
                                 return value

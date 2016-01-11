@@ -36,7 +36,7 @@ namespace LanguageExt
 
         public Unit Tell(object message, ProcessId sender, Message.TagSpec tag)
         {
-            Inbox.ValidateMessageType(message, sender);
+            message = Inbox.ValidateMessageType(message, sender);
             return Inbox.Tell(message, sender);
         }
 

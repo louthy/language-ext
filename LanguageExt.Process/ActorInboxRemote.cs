@@ -40,8 +40,8 @@ namespace LanguageExt
             SubscribeToUserInboxChannel();
 
             this.cluster.SetValue(ActorInboxCommon.ClusterMetaDataKey(actor.Id), new ProcessMetaData(
-                new[] { typeof(T).FullName },
-                typeof(S).FullName
+                new[] { typeof(T).AssemblyQualifiedName },
+                typeof(S).AssemblyQualifiedName
                 ));
 
             return unit;
