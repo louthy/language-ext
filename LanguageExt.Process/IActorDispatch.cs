@@ -20,7 +20,7 @@ namespace LanguageExt
         Unit DispatchWatch(ProcessId pid);
         Unit DispatchUnWatch(ProcessId pid);
         bool IsLocal { get; }
-        bool CanAccept<T>();
-        bool HasStateTypeOf<T>();
+        Either<string, bool> CanAccept<T>();
+        Either<string, bool> HasStateTypeOf<T>();
     }
 }

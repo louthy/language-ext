@@ -27,99 +27,53 @@ namespace LanguageExt
         public IObservable<T> ObserveState<T>() =>
             Cluster.SubscribeToChannel<T>(ActorInboxCommon.ClusterStatePubSubKey(ProcessId));
 
-        public bool HasStateTypeOf<T>()
+        public Either<string, bool> HasStateTypeOf<T>()
         {
-            Try<bool> valid = () =>
+            if (Cluster.Exists(ActorInboxCommon.ClusterMetaDataKey(ProcessId)))
             {
-                if (Cluster.Exists(ActorInboxCommon.ClusterMetaDataKey(ProcessId)))
-                {
-                    var meta = Cluster.GetValue<ProcessMetaData>(ActorInboxCommon.ClusterMetaDataKey(ProcessId));
-
-                    var rhsType = meta == null
-                        ? null
-                        : Type.GetType(meta.StateTypeName)?.GetTypeInfo();
-
-                    return meta == null || rhsType == null
-                        ? true
-                        : typeof(T).GetTypeInfo().IsAssignableFrom(rhsType);
-                }
-                else
+                var meta = Cluster.GetValue<ProcessMetaData>(ActorInboxCommon.ClusterMetaDataKey(ProcessId));
+                if(meta == null)
                 {
                     return true;
                 }
-            };
 
-            return valid.IfFail(true);
+                return TypeHelper.HasStateTypeOf(typeof(T), meta.StateTypeInterfaces);
+            }
+            else
+            {
+                return true;
+            }
         }
 
-        public bool CanAccept<T>()
+        public Either<string, bool> CanAccept<T>()
         {
-            Try<bool> valid = () =>
+            if (Cluster.Exists(ActorInboxCommon.ClusterMetaDataKey(ProcessId)))
             {
-                if (Cluster.Exists(ActorInboxCommon.ClusterMetaDataKey(ProcessId)))
-                {
-                    if (typeof(TerminatedMessage).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()) || typeof(UserControlMessage).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()) || typeof(SystemMessage).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()))
-                    {
-                        return true;
-                    }
-                    var meta = Cluster.GetValue<ProcessMetaData>(ActorInboxCommon.ClusterMetaDataKey(ProcessId));
-                    return meta == null || meta.MsgTypeNames == null
-                        ? true
-                        : meta.MsgTypeNames.Fold(false, (value, typ) =>
-                        {
-                            var lhsType = Type.GetType(typ)?.GetTypeInfo();
-                            if (lhsType == null) return false;
-
-                            var rhsType = typeof(T).GetTypeInfo();
-
-                            return value
-                                ? true
-                                : lhsType.IsAssignableFrom(rhsType);
-                        });
-                }
-                else
-                {
-                    return true;
-                }
-            };
-
-            return valid.IfFail(true);
+                var meta = Cluster.GetValue<ProcessMetaData>(ActorInboxCommon.ClusterMetaDataKey(ProcessId));
+                return meta == null
+                    ? true
+                    : TypeHelper.IsMessageValidForProcess(typeof(T), meta.MsgTypeNames).Map(_ => true);
+            }
+            else
+            {
+                return true;
+            }
         }
 
         void ValidateMessageType(object message, ProcessId sender)
         {
-            if(message == null)
-            {
-                throw new ProcessException($"Invalid message.  Null is not allowed for Process ({ProcessId}).", ProcessId.Path, sender.Path, null);
-            }
-            if (message is TerminatedMessage || message is UserControlMessage || message is SystemMessage)
-            {
-                return;
-            }
             if (Cluster.Exists(ActorInboxCommon.ClusterMetaDataKey(ProcessId)))
             {
-                Try<bool> valid = () =>
+                var meta = Cluster.GetValue<ProcessMetaData>(ActorInboxCommon.ClusterMetaDataKey(ProcessId));
+                if( meta == null )
                 {
-                    var meta = Cluster.GetValue<ProcessMetaData>(ActorInboxCommon.ClusterMetaDataKey(ProcessId));
-                    return meta == null || meta.MsgTypeNames == null
-                        ? true
-                        : meta.MsgTypeNames.Fold(false, (value, typ) =>
-                            {
-                                var lhsType = Type.GetType(typ)?.GetTypeInfo();
-                                if (lhsType == null) throw new ProcessException("Can't resolve message type: " + typ, ProcessId.Path, sender.Path);
-
-                                var rhsType = message.GetType().GetTypeInfo();
-
-                                return value
-                                    ? true
-                                    : lhsType.IsAssignableFrom(rhsType);
-                            });
-                };
-
-                if( !valid.IfFail(true) )
-                {
-                    throw new ProcessException($"Invalid message-type ({message.GetType().Name}) for Process ({ProcessId}).", ProcessId.Path, sender.Path, null);
+                    return;
                 }
+
+                TypeHelper.IsMessageValidForProcess(message, meta.MsgTypeNames).IfLeft((string err) =>
+                {
+                    throw new ProcessException($"{err} for Process ({ProcessId}).", ProcessId.Path, sender.Path, null);
+                });
             }
         }
 

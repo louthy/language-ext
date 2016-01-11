@@ -47,11 +47,11 @@ namespace LanguageExt
         public int GetInboxCount() =>
             List.fold(MapRoleMembers(disp => disp.GetInboxCount()), 0, (s, x) => s + x);
 
-        public bool CanAccept<T>() =>
-            List.fold(MapRoleMembers(disp => disp.CanAccept<T>()), true, (s, x) => s && x);
+        public Either<string, bool> CanAccept<T>() =>
+            List.fold(MapRoleMembers(disp => disp.CanAccept<T>()), true, (s, x) => s && x.IsRight);
 
-        public bool HasStateTypeOf<T>() =>
-            List.fold(MapRoleMembers(disp => disp.HasStateTypeOf<T>()), true, (s, x) => s && x);
+        public Either<string, bool> HasStateTypeOf<T>() =>
+            List.fold(MapRoleMembers(disp => disp.HasStateTypeOf<T>()), true, (s, x) => s && x.IsRight);
 
         public Unit Kill() =>
             IterRoleMembers(d => d.Kill());

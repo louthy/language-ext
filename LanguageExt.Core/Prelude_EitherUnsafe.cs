@@ -384,8 +384,8 @@ namespace LanguageExt
         /// <param name="either">Either to map</param>
         /// <param name="mapper">Map function</param>
         /// <returns>Mapped Either</returns>
-        public static EitherUnsafe<Ret, R> map<L, R, Ret>(EitherUnsafe<L, R> either, Func<L, Ret> mapper) =>
-            either.Map(mapper);
+        public static EitherUnsafe<Ret, R> mapLeft<L, R, Ret>(EitherUnsafe<L, R> either, Func<L, Ret> mapper) =>
+            either.MapLeft(mapper);
 
         /// <summary>
         /// Bi-maps the value in the Either if it's in a Right state
@@ -398,8 +398,8 @@ namespace LanguageExt
         /// <param name="Right">Right map function</param>
         /// <param name="Left">Left map function</param>
         /// <returns>Mapped Either</returns>
-        public static EitherUnsafe<LRet, RRet> map<L, R, LRet, RRet>(EitherUnsafe<L, R> either, Func<R, RRet> Right, Func<L, LRet> Left) =>
-            either.Map(Right, Left);
+        public static EitherUnsafe<LRet, RRet> bimap<L, R, LRet, RRet>(EitherUnsafe<L, R> either, Func<R, RRet> Right, Func<L, LRet> Left) =>
+            either.BiMap(Right, Left);
 
         /// <summary>
         /// Partial application map

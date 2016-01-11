@@ -2,6 +2,7 @@
 using System;
 using System.Threading;
 using System.Reflection;
+using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using Newtonsoft.Json;
 
@@ -195,42 +196,20 @@ namespace LanguageExt
         public int Count =>
             ((userInbox?.CurrentQueueLength) + (userQueue?.Count)).GetValueOrDefault();
 
-        public bool HasStateTypeOf<TState>() =>
-            typeof(TState).GetTypeInfo().IsAssignableFrom(typeof(S).GetTypeInfo());
+        public Either<string, bool> HasStateTypeOf<TState>() =>
+            TypeHelper.HasStateTypeOf(typeof(TState), typeof(S).GetInterfaces());
 
-        public bool CanAcceptMessageType<TMsg>()
-        {
-            if (typeof(TMsg) == typeof(TerminatedMessage) || typeof(TMsg) == typeof(UserControlMessage) || typeof(TMsg) == typeof(SystemMessage))
-            {
-                return true;
-            }
-
-            if (typeof(T).GetTypeInfo().IsAssignableFrom(typeof(TMsg).GetTypeInfo()))
-            {
-                return false;
-            }
-
-            return true;
-        }
+        public Either<string, bool> CanAcceptMessageType<TMsg>() =>
+            TypeHelper.IsMessageValidForProcess(typeof(TMsg), new[] { typeof(T) });
 
         public object ValidateMessageType(object message, ProcessId sender)
         {
-            if (message == null)
+            var res = TypeHelper.IsMessageValidForProcess(message, new[] { typeof(T) });
+            res.IfLeft(err =>
             {
-                throw new ProcessException($"Invalid message.  Null is not allowed for Process ({actor.Id}).", actor.Id.Path, sender.Path, null);
-            }
-
-            if (message is T || message is TerminatedMessage || message is UserControlMessage || message is SystemMessage)
-            {
-                return message;
-            }
-
-            if (message is string)
-            {
-                return JsonConvert.DeserializeObject<T>((string)message);
-            }
-
-            throw new ProcessException($"Invalid message-type ({message.GetType().Name}) for Process ({actor.Id}).  The Process accepts: ({typeof(T)})", actor.Id.Path, sender.Path, null);
+                throw new ProcessException($"{err } for Process ({actor.Id}).", actor.Id.Path, sender.Path, null);
+            });
+            return res.LiftUnsafe();
         }
     }
 }

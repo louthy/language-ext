@@ -59,8 +59,8 @@ namespace LanguageExt
             throw new NotSupportedException();
         }
 
-        public bool CanAccept<T>() => true;
-        public bool HasStateTypeOf<T>() => true;
+        public Either<string, bool> CanAccept<T>() => true;
+        public Either<string, bool> HasStateTypeOf<T>() => true;
 
         public Unit Kill() =>
             // TODO: Not yet implemented on the JS side

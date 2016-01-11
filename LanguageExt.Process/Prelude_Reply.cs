@@ -17,6 +17,11 @@ namespace LanguageExt
     /// </summary>
     public static partial class Process
     {
+        /// <summary>
+        /// Use this to cancel a reply in the proxy system
+        /// </summary>
+        public static readonly NoReturn noreply = 
+            NoReturn.Default;
 
         /// <summary>
         /// Reply to an ask
@@ -25,21 +30,23 @@ namespace LanguageExt
         /// This should be used from within a process' message loop only
         /// </remarks>
         public static Unit reply<T>(T message) =>
-            InMessageLoop
-                ? ActorContext.CurrentRequest == null
-                    ? failwith<Unit>("You can't reply to this message.  It wasn't an 'ask'.  Use isAsk to confirm whether something is an 'ask' or a 'tell'")
-                    : ActorContext.Tell(
-                        ActorContext.CurrentRequest.ReplyTo, 
-                            new ActorResponse(
-                                message,
-                                message.GetType().AssemblyQualifiedName,
-                                ActorContext.CurrentRequest.ReplyTo, 
-                                ActorContext.Self, 
-                                ActorContext.CurrentRequest.RequestId
-                            ), 
-                            ActorContext.Self
-                        )
-                : raiseUseInMsgLoopOnlyException<Unit>(nameof(reply));
+            (message is IReturn) && !((IReturn)message).HasValue
+                ? unit
+                : InMessageLoop
+                    ? ActorContext.CurrentRequest == null
+                        ? failwith<Unit>("You can't reply to this message.  It wasn't an 'ask'.  Use isAsk to confirm whether something is an 'ask' or a 'tell'")
+                        : ActorContext.Tell(
+                            ActorContext.CurrentRequest.ReplyTo, 
+                                new ActorResponse(
+                                    message,
+                                    message.GetType().AssemblyQualifiedName,
+                                    ActorContext.CurrentRequest.ReplyTo, 
+                                    ActorContext.Self, 
+                                    ActorContext.CurrentRequest.RequestId
+                                ), 
+                                ActorContext.Self
+                            )
+                    : raiseUseInMsgLoopOnlyException<Unit>(nameof(reply));
 
         /// <summary>
         /// Reply if asked
@@ -114,7 +121,9 @@ namespace LanguageExt
             isAsk
                 ? reply(message)
                 : Sender.IsValid
-                    ? tell(Sender, message, Self)
+                    ? (message is IReturn) && !((IReturn)message).HasValue
+                        ? unit
+                        : tell(Sender, message, Self)
                     : unit;
     }
 }

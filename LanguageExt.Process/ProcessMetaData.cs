@@ -9,11 +9,13 @@ namespace LanguageExt
     {
         public string[] MsgTypeNames;
         public string StateTypeName;
+        public string[] StateTypeInterfaces;
 
-        public ProcessMetaData(string[] msgTypeNames, string stateTypeName)
+        public ProcessMetaData(string[] msgTypeNames, string stateTypeName, string[] stateTypeInterfaces)
         {
             MsgTypeNames = msgTypeNames;
             StateTypeName = stateTypeName;
+            StateTypeInterfaces = stateTypeInterfaces;
         }
 
         public Type GetStateType() =>

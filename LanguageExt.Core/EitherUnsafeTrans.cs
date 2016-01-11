@@ -32,11 +32,11 @@ namespace LanguageExt
         public static bool ExistsT<L, R>(this IEnumerable<EitherUnsafe<L, R>> self, Func<R, bool> Right, Func<L, bool> Left) =>
             self.Exists(x => x.Exists(Right, Left));
 
-        public static IEnumerable<EitherUnsafe<Ret, R>> MapT<L, R, Ret>(this IEnumerable<EitherUnsafe<L, R>> self, Func<L, Ret> mapper) =>
-            self.Map(x => x.Map(mapper));
+        public static IEnumerable<EitherUnsafe<Ret, R>> MapLeftT<L, R, Ret>(this IEnumerable<EitherUnsafe<L, R>> self, Func<L, Ret> mapper) =>
+            self.Map(x => x.MapLeft(mapper));
 
-        public static IEnumerable<EitherUnsafe<LRet, RRet>> MapT<L, R, LRet, RRet>(this IEnumerable<EitherUnsafe<L, R>> self, Func<R, RRet> Right, Func<L, LRet> Left) =>
-            self.Map(x => x.Map(Right, Left));
+        public static IEnumerable<EitherUnsafe<LRet, RRet>> BiMapT<L, R, LRet, RRet>(this IEnumerable<EitherUnsafe<L, R>> self, Func<R, RRet> Right, Func<L, LRet> Left) =>
+            self.Map(x => x.BiMap(Right, Left));
 
         public static IEnumerable<EitherUnsafe<Ret, R>> BindT<L, R, Ret>(this IEnumerable<EitherUnsafe<L, R>> self, Func<L, EitherUnsafe<Ret, R>> binder) =>
             self.Map(x => x.Bind(binder));
@@ -77,11 +77,11 @@ namespace LanguageExt
         public static bool existsT<L, R>(IEnumerable<EitherUnsafe<L, R>> self, Func<R, bool> Right, Func<L, bool> Left) =>
             self.Exists(x => x.Exists(Right, Left));
 
-        public static IEnumerable<EitherUnsafe<Ret, R>> mapT<L, R, Ret>(IEnumerable<EitherUnsafe<L, R>> self, Func<L, Ret> mapper) =>
-            self.Map(x => x.Map(mapper));
+        public static IEnumerable<EitherUnsafe<Ret, R>> mapLeftT<L, R, Ret>(IEnumerable<EitherUnsafe<L, R>> self, Func<L, Ret> mapper) =>
+            self.Map(x => x.MapLeft(mapper));
 
-        public static IEnumerable<EitherUnsafe<LRet, RRet>> mapT<L, R, LRet, RRet>(IEnumerable<EitherUnsafe<L, R>> self, Func<R, RRet> Right, Func<L, LRet> Left) =>
-            self.Map(x => x.Map(Right, Left));
+        public static IEnumerable<EitherUnsafe<LRet, RRet>> bimapT<L, R, LRet, RRet>(IEnumerable<EitherUnsafe<L, R>> self, Func<R, RRet> Right, Func<L, LRet> Left) =>
+            self.Map(x => x.BiMap(Right, Left));
 
         public static IEnumerable<EitherUnsafe<Ret, R>> bindT<L, R, Ret>(IEnumerable<EitherUnsafe<L, R>> self, Func<L, EitherUnsafe<Ret, R>> binder) =>
             self.Map(x => x.Bind(binder));

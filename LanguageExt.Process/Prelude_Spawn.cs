@@ -322,14 +322,12 @@ namespace LanguageExt
 
             var result = method.Invoke(process, args);
 
-            if (msg.ReturnType != "System.Void")
+            if (msg.ReturnType != "System.Void" && notnull(result))
             {
                 replyOrTellSender(result);
             }
             return process;
         }
-
-
 #endif
     }
 }

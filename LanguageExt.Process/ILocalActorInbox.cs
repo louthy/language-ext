@@ -9,8 +9,8 @@ namespace LanguageExt
         Unit TellUserControl(UserControlMessage message);
         Unit TellSystem(SystemMessage message);
         object ValidateMessageType(object message, ProcessId sender);
-        bool CanAcceptMessageType<TMsg>();
-        bool HasStateTypeOf<TState>();
+        Either<string, bool> CanAcceptMessageType<TMsg>();
+        Either<string, bool> HasStateTypeOf<TState>();
         int Count { get; }
     }
 }

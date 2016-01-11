@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using LanguageExt.Trans;
 using static LanguageExt.Process;
@@ -41,7 +42,8 @@ namespace LanguageExt
 
             this.cluster.SetValue(ActorInboxCommon.ClusterMetaDataKey(actor.Id), new ProcessMetaData(
                 new[] { typeof(T).AssemblyQualifiedName },
-                typeof(S).AssemblyQualifiedName
+                typeof(S).AssemblyQualifiedName,
+                typeof(S).GetInterfaces().Map(x => x.AssemblyQualifiedName).ToArray()
                 ));
 
             return unit;

@@ -47,6 +47,7 @@
     <Compile Include="ProcessIdTests.cs" />
     <Compile Include="ProcessProxies.cs" />
     <Compile Include="ProcessStrategyTests.cs" />
+    <Compile Include="ProcessTypeChecks.cs" />
     <Compile Include="Subtractable.cs" />
     <Compile Include="Appendable.cs" />
     <Compile Include="DelayTests.cs" />

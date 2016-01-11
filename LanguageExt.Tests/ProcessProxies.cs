@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using static LanguageExt.Process;
 
 namespace LanguageExt.Tests
 {
@@ -10,6 +11,9 @@ namespace LanguageExt.Tests
     {
         void Hello(string msg);
         int World(string msg);
+        Return<int> NoReply(string msg);
+        Return<int> NoReply2(string msg);
+        Return<int> MsgLength(string msg);
     }
 
     public class MyProcess : IMyProcess
@@ -25,6 +29,24 @@ namespace LanguageExt.Tests
         {
             state.Add(msg);
             return state.Count;
+        }
+
+        public Return<int> NoReply(string msg)
+        {
+            return noreply;
+        }
+
+        public Return<int> NoReply2(string msg)
+        {
+            return null;
+        }
+
+        public Return<int> MsgLength(string msg)
+        {
+            if (msg.Length == 0)
+                return noreply;
+            else
+                return msg.Length;
         }
     }
 
@@ -58,5 +80,14 @@ namespace LanguageExt.Tests
             Assert.True(res == 2);
         }
 
+        [Fact]
+        public void ProxyTest3()
+        {
+            Process.shutdownAll();
+
+            var proxy = Process.spawn<IMyProcess>("proxy-test3", () => new MyProcess());
+
+            Assert.True(proxy.MsgLength("Hello") == 5);
+        }
     }
 }

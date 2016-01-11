@@ -28,10 +28,10 @@ namespace LanguageExt
             where x is T
             select (T)x;
 
-        public bool HasStateTypeOf<T>() =>
+        public Either<string, bool> HasStateTypeOf<T>() =>
             Inbox.HasStateTypeOf<T>();
 
-        public bool CanAccept<T>() =>
+        public Either<string, bool> CanAccept<T>() =>
             Inbox.CanAcceptMessageType<T>();
 
         public Unit Tell(object message, ProcessId sender, Message.TagSpec tag)

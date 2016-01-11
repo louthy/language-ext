@@ -1118,7 +1118,7 @@ public static class __EitherExt
     /// <param name="self">Either to map</param>
     /// <param name="mapper">Map function</param>
     /// <returns>Mapped Either</returns>
-    public static Either<Ret, R> Map<L, R, Ret>(this Either<L, R> self, Func<L, Ret> mapper) =>
+    public static Either<Ret, R> MapLeft<L, R, Ret>(this Either<L, R> self, Func<L, Ret> mapper) =>
         self.IsBottom
             ? Either<Ret, R>.Bottom
             : self.IsLeft
@@ -1136,7 +1136,7 @@ public static class __EitherExt
     /// <param name="Right">Right map function</param>
     /// <param name="Left">Left map function</param>
     /// <returns>Mapped Either</returns>
-    public static Either<LRet, RRet> Map<L, R, LRet, RRet>(this Either<L, R> self, Func<R, RRet> Right, Func<L, LRet> Left) =>
+    public static Either<LRet, RRet> BiMap<L, R, LRet, RRet>(this Either<L, R> self, Func<R, RRet> Right, Func<L, LRet> Left) =>
         self.IsBottom
             ? Either<LRet, RRet>.Bottom
             : self.IsRight

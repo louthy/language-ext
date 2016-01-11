@@ -72,6 +72,7 @@
     <Compile Include="ProcessMetaData.cs" />
     <Compile Include="ProxyBuilder.cs" />
     <Compile Include="Reg.cs" />
+    <Compile Include="Return.cs" />
     <Compile Include="Role.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Factory.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="Strategy\StrategyEvent.cs" />
     <Compile Include="Strategy\StrategyState.cs" />
     <Compile Include="SystemMessage.cs" />
+    <Compile Include="TypeHelper.cs" />
     <Compile Include="UserControlMessage.cs" />
   </ItemGroup>
   <ItemGroup>

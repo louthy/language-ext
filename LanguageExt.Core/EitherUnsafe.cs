@@ -1076,7 +1076,7 @@ public static class __EitherUnsafeExt
     /// <param name="self">Either to map</param>
     /// <param name="mapper">Map function</param>
     /// <returns>Mapped Either</returns>
-    public static EitherUnsafe<Ret, R> Map<L, R, Ret>(this EitherUnsafe<L, R> self, Func<L, Ret> mapper) =>
+    public static EitherUnsafe<Ret, R> MapLeft<L, R, Ret>(this EitherUnsafe<L, R> self, Func<L, Ret> mapper) =>
         self.IsBottom
             ? new EitherUnsafe<Ret, R>(true)
             : self.IsLeft
@@ -1094,7 +1094,7 @@ public static class __EitherUnsafeExt
     /// <param name="Right">Right map function</param>
     /// <param name="Left">Left map function</param>
     /// <returns>Mapped Either</returns>
-    public static EitherUnsafe<LRet, RRet> Map<L, R, LRet, RRet>(this EitherUnsafe<L, R> self, Func<R, RRet> Right, Func<L, LRet> Left) =>
+    public static EitherUnsafe<LRet, RRet> BiMap<L, R, LRet, RRet>(this EitherUnsafe<L, R> self, Func<R, RRet> Right, Func<L, LRet> Left) =>
         self.IsBottom
             ? new EitherUnsafe<LRet, RRet>(true)
             : self.IsRight
