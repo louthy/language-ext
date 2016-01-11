@@ -1,0 +1,12 @@
+{
+    "projects": [ 
+        "Languageext.Core", 
+        "Languageext.FSharp", 
+        "Languageext.Process", 
+        "Languageext.Process.FSharp", 
+        "Languageext.Process.Redis", 
+        "Languageext.Processjs", 
+        "Languageext.Processjs.Tests", 
+        "Languageext.Tests" 
+    ]
+ }
