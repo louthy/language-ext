@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 using Xunit;
 
 namespace LanguageExtTests
@@ -67,13 +68,13 @@ namespace LanguageExtTests
         [Fact]
         public void StateTypeTest1()
         {
-            Assert.True(TypeHelper.HasStateTypeOf(typeof(ITestProcess), typeof(TestProcess).GetInterfaces()).IsRight);
+            Assert.True(TypeHelper.HasStateTypeOf(typeof(ITestProcess), typeof(TestProcess).GetTypeInfo().ImplementedInterfaces.ToArray()).IsRight);
         }
 
         [Fact]
         public void StateTypeTest2()
         {
-            Assert.False(TypeHelper.HasStateTypeOf(typeof(TestProcess2), typeof(TestProcess).GetInterfaces()).IsRight);
+            Assert.False(TypeHelper.HasStateTypeOf(typeof(TestProcess2), typeof(TestProcess).GetTypeInfo().ImplementedInterfaces.ToArray()).IsRight);
         }
     }
 }

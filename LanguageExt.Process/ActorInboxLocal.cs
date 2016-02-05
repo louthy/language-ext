@@ -1,5 +1,6 @@
 ﻿using Microsoft.FSharp.Control;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Reflection;
 using LanguageExt.Trans;
@@ -197,7 +198,10 @@ namespace LanguageExt
             ((userInbox?.CurrentQueueLength) + (userQueue?.Count)).GetValueOrDefault();
 
         public Either<string, bool> HasStateTypeOf<TState>() =>
-            TypeHelper.HasStateTypeOf(typeof(TState), typeof(S).GetInterfaces());
+            TypeHelper.HasStateTypeOf(
+                typeof(TState),
+                typeof(S).GetTypeInfo().ImplementedInterfaces.ToArray()
+                );
 
         public Either<string, bool> CanAcceptMessageType<TMsg>() =>
             TypeHelper.IsMessageValidForProcess(typeof(TMsg), new[] { typeof(T) });

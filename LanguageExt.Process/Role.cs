@@ -19,10 +19,13 @@ namespace LanguageExt
     public static class Role
     {
         /// <summary>
-        /// Find out the role that this node is a part of
+        /// The role that this node is a part of
         /// </summary>
-        public static ProcessName Current =>
-            Root.Take(1).GetName();
+        public static ProcessName Current
+        {
+            get;
+            private set;
+        }
 
         /// <summary>
         /// A ProcessId that represents a set of nodes in a cluster.  When used for
@@ -187,9 +190,9 @@ namespace LanguageExt
         static readonly ProcessId nextRoot;
         static readonly ProcessId prevRoot;
 
-        internal static Unit init()
+        internal static Unit init(ProcessName name)
         {
-            // Triggers static ctor
+            Current = name;
             return unit;
         }
 

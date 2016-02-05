@@ -49,7 +49,7 @@ namespace LanguageExt
                 startupSubscription = NotifyCluster(cluster, startupTimestamp);
 
                 Dispatch.init();
-                Role.init();
+                Role.init(cluster.Map(r => r.Role).IfNone("local"));
                 Reg.init();
 
                 watchers = Map.empty<ProcessId, Set<ProcessId>>();

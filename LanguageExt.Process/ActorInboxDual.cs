@@ -300,7 +300,9 @@ namespace LanguageExt
             (userInbox?.CurrentQueueLength).GetValueOrDefault();
 
         public Either<string, bool> HasStateTypeOf<TState>() =>
-            TypeHelper.HasStateTypeOf(typeof(TState), typeof(S).GetInterfaces());
+            TypeHelper.HasStateTypeOf(typeof(TState),
+            typeof(S).GetTypeInfo().ImplementedInterfaces.ToArray()
+            );
 
         public Either<string, bool> CanAcceptMessageType<TMsg>() =>
             TypeHelper.IsMessageValidForProcess(typeof(TMsg), new[] { typeof(T) });
