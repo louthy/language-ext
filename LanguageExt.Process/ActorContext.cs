@@ -871,14 +871,22 @@ by name then use Process.deregisterByName(name).");
                 Some: c  => new ActorDispatchRemote(pid, c),
                 None: () => new ActorDispatchNotExist(pid));
 
-        internal static IActorDispatch GetPluginDispatcher(ProcessId pid)
+        internal static Option<Func<ProcessId, IEnumerable<ProcessId>>> GetProcessSelector(ProcessId pid)
         {
             if (pid.Count() < 3) throw new InvalidProcessIdException("Invalid role Process ID");
             var type = pid.Skip(1).Take(1).GetName();
-            return dispatchers.Find(type)
-                              .Map(selector => new ActorDispatchGroup(selector(pid.Skip(2))) as IActorDispatch)
-                              .IfNone(() => new ActorDispatchNotExist(pid));
+            return dispatchers.Find(type);
         }
+
+        internal static IEnumerable<ProcessId> ResolveProcessIdSelection(ProcessId pid) =>
+            GetProcessSelector(pid)
+                .Map(selector => selector(pid.Skip(2)))
+                .IfNone(() => new ProcessId[0]);
+
+        internal static IActorDispatch GetPluginDispatcher(ProcessId pid) =>
+            GetProcessSelector(pid)
+                .Map(selector => new ActorDispatchGroup(selector(pid.Skip(2))) as IActorDispatch)
+                .IfNone(() => new ActorDispatchNotExist(pid));
 
         internal static bool IsLocal(ProcessId pid) =>
             pid.Head() == Root;

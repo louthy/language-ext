@@ -344,5 +344,18 @@ namespace LanguageExt
         /// This should be used from within a process' message loop only
         /// </remarks>
         public static bool isAsk => !isTell;
+
+        /// <summary>
+        /// Resolves a ProcessId into the absolute ProcessIds that it represents
+        /// This allows live resolution of role-based ProcessIds to their real node
+        /// ProcessIds.  
+        /// </summary>
+        /// <remarks>Mostly useful for debugging, but could be useful for layering
+        /// additional logic to any message dispatch.
+        /// </remarks>
+        /// <param name="pid"></param>
+        /// <returns>Enumerable of resolved ProcessIds - could be zero length</returns>
+        public static IEnumerable<ProcessId> resolve(ProcessId pid) =>
+            ActorContext.ResolveProcessIdSelection(pid);
     }
 }
