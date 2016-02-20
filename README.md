@@ -12,9 +12,9 @@ Nu-get package | Description
 [LanguageExt.Core](https://www.nuget.org/packages/LanguageExt.Core) | All of the core types and functional 'prelude'.  This is all that's needed to get started.
 [LanguageExt.FSharp](https://www.nuget.org/packages/LanguageExt.FSharp) | F# to C# interop libraary.  Provides interop between the LanguageExt.Core types (like `Option`, `List` and `Map`) to the F# equivalents, as well as interop between core BCL types and F#
 [LanguageExt.Process](https://www.nuget.org/packages/LanguageExt.Process) | 'Erlang like' actor system for in-app messaging and massive concurrency
-[LanguageExt.Process.Redis](https://www.nuget.org/packages/LanguageExt.Process.Redis) | Cluster support for the `LangaugeExt.Process` system for cluster aware processes using Redis for queue and state persistence
-[LanguageExt.Process.FSharp](https://www.nuget.org/packages/LanguageExt.Process.FSharp) | F# API to the `LangaugeExt.Process` system
-[LanguageExt.ProcessJS](https://www.nuget.org/packages/LanguageExt.ProcessJS) | Javascript API to the `LangaugeExt.Process` system.  Supports running of Processes in a client browser, with hooks for two-way UI binding
+[LanguageExt.Process.Redis](https://www.nuget.org/packages/LanguageExt.Process.Redis) | Cluster support for the `LanguageExt.Process` system for cluster aware processes using Redis for queue and state persistence
+[LanguageExt.Process.FSharp](https://www.nuget.org/packages/LanguageExt.Process.FSharp) | F# API to the `LanguageExt.Process` system
+[LanguageExt.ProcessJS](https://www.nuget.org/packages/LanguageExt.ProcessJS) | Javascript API to the `LanguageExt.Process` system.  Supports running of Processes in a client browser, with hooks for two-way UI binding.
  
 __Twitter:__ 
 https://twitter.com/paullouth
@@ -60,7 +60,7 @@ _If you're not using C# 6 yet, then you can still use this library.  Anywhere in
 
 ### Getting started
 
-To use this library, simply include `LanguageExt.Core.dll` in your project or grab it from NuGet.  And then stick this at the top of each cs file that needs it:
+To use this library, simply include `LanguageExt.Core.dll` in your project or grab it from NuGet. And then stick this at the top of each cs file that needs it:
 ```C#
 using LanguageExt;
 using static LanguageExt.Prelude;
