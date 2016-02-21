@@ -10,11 +10,11 @@ This library uses and abuses the features of C# 6 to provide a functional 'Base 
 Nu-get package | Description
 ---------------|-------------
 [LanguageExt.Core](https://www.nuget.org/packages/LanguageExt.Core) | All of the core types and functional 'prelude'.  This is all that's needed to get started.
-[LanguageExt.FSharp](https://www.nuget.org/packages/LanguageExt.FSharp) | F# to C# interop libraary.  Provides interop between the LanguageExt.Core types (like `Option`, `List` and `Map`) to the F# equivalents, as well as interop between core BCL types and F#
+[LanguageExt.FSharp](https://www.nuget.org/packages/LanguageExt.FSharp) | F# to C# interop library.  Provides interop between the LanguageExt.Core types (like `Option`, `List` and `Map`) to the F# equivalents, as well as interop between core BCL types and F#
 [LanguageExt.Process](https://www.nuget.org/packages/LanguageExt.Process) | 'Erlang like' actor system for in-app messaging and massive concurrency
-[LanguageExt.Process.Redis](https://www.nuget.org/packages/LanguageExt.Process.Redis) | Cluster support for the `LangaugeExt.Process` system for cluster aware processes using Redis for queue and state persistence
-[LanguageExt.Process.FSharp](https://www.nuget.org/packages/LanguageExt.Process.FSharp) | F# API to the `LangaugeExt.Process` system
-[LanguageExt.ProcessJS](https://www.nuget.org/packages/LanguageExt.ProcessJS) | Javascript API to the `LangaugeExt.Process` system.  Supports running of Processes in a client browser, with hooks for two-way UI binding
+[LanguageExt.Process.Redis](https://www.nuget.org/packages/LanguageExt.Process.Redis) | Cluster support for the `LanguageExt.Process` system for cluster aware processes using Redis for queue and state persistence
+[LanguageExt.Process.FSharp](https://www.nuget.org/packages/LanguageExt.Process.FSharp) | F# API to the `LanguageExt.Process` system
+[LanguageExt.ProcessJS](https://www.nuget.org/packages/LanguageExt.ProcessJS) | Javascript API to the `LanguageExt.Process` system.  Supports running of Processes in a client browser, with hooks for two-way UI binding.
  
 __Twitter:__ 
 https://twitter.com/paullouth
@@ -46,7 +46,7 @@ There is however a naming guide that will stand you in good stead whilst reading
     Lst<int> items = List(1,2,3,4,5);
     Map<int,string> dict = Map(Tuple(1, "Hello"), Tuple(2, "World"));
 ```
-* Any (non-type constructor) static functions that can be used on their own by `using static LanguageExt.___` are camelCase.
+* Any (non-type constructor) static functions that can be used on their own by `using static LanguageExt.Prelude` are camelCase.
 ```C#
     var x = map(opt, v => v * 2);
 ```
@@ -60,7 +60,7 @@ _If you're not using C# 6 yet, then you can still use this library.  Anywhere in
 
 ### Getting started
 
-To use this library, simply include `LanguageExt.Core.dll` in your project or grab it from NuGet.  And then stick this at the top of each cs file that needs it:
+To use this library, simply include `LanguageExt.Core.dll` in your project or grab it from NuGet. And then stick this at the top of each cs file that needs it:
 ```C#
 using LanguageExt;
 using static LanguageExt.Prelude;
@@ -492,7 +492,7 @@ Note, if you're creating a `Func` or `Action` that take parameters, you must pro
 
 ## Void isn't a real type
 
-Functional languages have a concept of a type that has one possible value, itself, called `Unit`.  As an example `bool` has two values: `true` and `false`.  `Unit` has one value, usually represented in functional languages as `()`.  You can imagine that methods that take no arguments, do in fact take one argument of `()`.  Anyway, we can't use the `()` representation in C#, so `LanguageExt` now provides `unit`.
+Functional languages have a concept of a type that has one possible value, itself, called `Unit`.  As an example `bool` has two possible values: `true` and `false`.  `Unit` has one possible value, usually represented in functional languages as `()`.  You can imagine that methods that take no arguments, do in fact take one argument of `()`.  Anyway, we can't use the `()` representation in C#, so `LanguageExt` now provides `unit`.
 
 ```C#
     public Unit Empty()
@@ -501,7 +501,7 @@ Functional languages have a concept of a type that has one possible value, itsel
     }
 ```
 
-`Unit` is the type and `unit` is the value.  It is used throughout the `LanguageExt` library instead of `void`.  The primary reason is that if you want to program functionally then all functions should return a value and `void` isn't a first-class value.  This can help a lot with LINQ expressions for example.
+`Unit` is the type and `unit` is the value.  It is used throughout the `LanguageExt` library instead of `void`.  The primary reason is that if you want to program functionally then all functions should return a value and `void` is a type with zero possible values - and that's the type-theory reason why `void` is a pain in the arse in C#.  This can help a lot with LINQ expressions.
 
 ## Mutable lists and dictionaries
 
