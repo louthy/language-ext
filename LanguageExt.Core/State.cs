@@ -149,9 +149,9 @@ namespace LanguageExt
             return (S state) =>
             {
                 var resT = self(state);
-                if (resT.IsBottom) StateResult.Bottom<S, V>(state);
+                if (resT.IsBottom) return StateResult.Bottom<S, V>(state);
                 var resU = bind(resT.Value)(resT.State);
-                if (resU.IsBottom) StateResult.Bottom<S, V>(resT.State);
+                if (resU.IsBottom) return StateResult.Bottom<S, V>(resT.State);
                 var resV = project(resT.Value, resU.Value);
                 return StateResult.Return(resU.State, resV);
             };
