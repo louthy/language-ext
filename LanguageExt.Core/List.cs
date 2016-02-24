@@ -1010,6 +1010,7 @@ public static class __EnumnerableExt
         }
         else
         {
+            list = list.Memo();
             var head = list.HeadOrNone();
             var tail = list.Skip(1);
 
@@ -1035,6 +1036,7 @@ public static class __EnumnerableExt
         }
         else
         {
+            list = list.Memo();
             var head = list.HeadOrNone();
             var tail = list.Skip(1);
             if (head.IsNone)
@@ -1062,6 +1064,7 @@ public static class __EnumnerableExt
         )
     {
         if (list == null) return Empty();
+        list = list.Memo();
         var items = new Lst<T>(list.Take(3)); 
         switch (items.Count)
         {
@@ -1084,6 +1087,7 @@ public static class __EnumnerableExt
         )
     {
         if (list == null) return Empty();
+        list = list.Memo();
         var items = new Lst<T>(list.Take(4));
         switch (items.Count)
         {
@@ -1108,6 +1112,7 @@ public static class __EnumnerableExt
         )
     {
         if (list == null) return Empty();
+        list = list.Memo();
         var items = new Lst<T>(list.Take(5));
         switch (items.Count)
         {
@@ -1134,6 +1139,7 @@ public static class __EnumnerableExt
         )
     {
         if (list == null) return Empty();
+        list = list.Memo();
         var items = new Lst<T>(list.Take(6));
         switch (items.Count)
         {
@@ -1162,6 +1168,7 @@ public static class __EnumnerableExt
         )
     {
         if (list == null) return Empty();
+        list = list.Memo();
         var items = new Lst<T>(list.Take(7));
         switch (items.Count)
         {

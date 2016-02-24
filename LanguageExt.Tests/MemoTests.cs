@@ -34,7 +34,7 @@ namespace LanguageExtTests
 
             Func<int, int> fn = x => x + fix;
 
-            var m = fn.memoUnsafe();
+            var m = fn.MemoUnsafe();
 
             var nums1 = map(Range(0, count), i => m(i));
 
@@ -57,7 +57,7 @@ namespace LanguageExtTests
 
             Func<int, int> fn = x => x + fix;
 
-            var m = fn.memo();
+            var m = fn.Memo();
 
             var nums1 = freeze(map(Range(0, count), i => m(i)));
 

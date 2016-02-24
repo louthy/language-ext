@@ -66,6 +66,7 @@
     <Compile Include="ISubtractable.cs" />
     <Compile Include="IAppendable.cs" />
     <Compile Include="Lst.cs" />
+    <Compile Include="MemoEnumerable.cs" />
     <Compile Include="ObjectPool.cs" />
     <Compile Include="ObservableExt.cs" />
     <Compile Include="Prelude_Random.cs" />

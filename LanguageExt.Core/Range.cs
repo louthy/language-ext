@@ -40,6 +40,10 @@ namespace LanguageExt
             if (Step > 0)
             {
                 var to = From + Count;
+                if(to < From)
+                {
+                    throw new OverflowException();
+                }
                 for (var i = From; i < to; i += Step)
                 {
                     yield return i;
@@ -48,6 +52,10 @@ namespace LanguageExt
             else
             {
                 var to = From - Count;
+                if (to > From)
+                {
+                    throw new OverflowException();
+                }
                 for (var i = From; i > to; i += Step)
                 {
                     yield return i;
