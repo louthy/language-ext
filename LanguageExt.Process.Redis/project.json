@@ -1,5 +1,5 @@
 {
-  "version": "1.7.22-*",
+  "version": "1.7.23-*",
   "authors": [ "Paul Louth" ],
   "owners": [ "paullouth" ],
   "title": "LanguageExt.Process.Redis",
@@ -24,8 +24,8 @@
     }
   },
   "dependencies": {
-    "LanguageExt.Core": "1.7.22",
-    "LanguageExt.Process": "1.7.22",
+    "LanguageExt.Core": "1.7.23",
+    "LanguageExt.Process": "1.7.23",
     "Newtonsoft.Json": "7.0.1",
     "Rx-Main": "2.2.5.0"
   },

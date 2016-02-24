@@ -294,14 +294,16 @@ namespace LanguageExt
         public Map<string, T> GetHashFields<T>(string key) =>
             Db.HashGetAll(key)
               .Fold(
-                Map.empty<string, T>(), 
-                (m, e) => m.Add(e.Name, JsonConvert.DeserializeObject<T>(e.Value)));
+                Map.empty<string, T>(),
+                (m, e) => m.Add(e.Name, JsonConvert.DeserializeObject<T>(e.Value)))
+              .Filter(notnull);
 
         public Map<K, T> GetHashFields<K, T>(string key, Func<string,K> keyBuilder) =>
             Db.HashGetAll(key)
               .Fold(
                 Map.empty<K, T>(),
-                (m, e) => m.Add(keyBuilder(e.Name), JsonConvert.DeserializeObject<T>(e.Value)));
+                (m, e) => m.Add(keyBuilder(e.Name), JsonConvert.DeserializeObject<T>(e.Value)))
+              .Filter(notnull);
 
         public Option<T> GetHashField<T>(string key, string field)
         {
@@ -316,9 +318,66 @@ namespace LanguageExt
               .Filter(x => !x.Item1.IsNullOrEmpty)
               .Fold(
                   Map.empty<string, T>(),
-                  (m, e) => m.Add(e.Item2, JsonConvert.DeserializeObject<T>(e.Item1)));
+                  (m, e) => m.Add(e.Item2, JsonConvert.DeserializeObject<T>(e.Item1)))
+              .Filter(notnull);
 
-        private IDatabase Db => 
+        // TODO: These facts exist elsewhere - normalise
+        const string userInboxSuffix = "-user-inbox";
+        const string metaDataSuffix  = "-metadata";
+        const string regdPrefix      = "/__registered/";
+
+        /// <summary>
+        /// Runs a query on all servers in the Redis cluster for the key specified
+        /// with a prefix and suffix applied.  Returns a list of Redis keys
+        /// </summary>
+        /// <remarks>
+        /// Wildcard is *
+        /// </remarks>
+        IEnumerable<string> QueryKeys(string keyQuery, string prefix, string suffix) =>
+            from keys in map($"{prefix}{keyQuery}{suffix}", ibxkey =>
+                    redis.GetEndPoints()
+                        .Map(ep => redis.GetServer(ep))
+                        .Map(sv => sv.Keys(databaseNumber, ibxkey)))
+            from redisKey in keys
+            let strKey = (string)redisKey
+            select strKey;
+
+        /// <summary>
+        /// Finds all registered names in a role
+        /// </summary>
+        /// <param name="role">Role to limit search to</param>
+        /// <param name="keyQuery">Key query.  * is a wildcard</param>
+        /// <returns>Registered names</returns>
+        public IEnumerable<ProcessName> QueryRegistered(string role, string keyQuery) =>
+            map($"{regdPrefix}{role}-", prefix =>
+                from strKey in QueryKeys(keyQuery, prefix, "")
+                select new ProcessName(strKey.Substring(prefix.Length)));
+
+        /// <summary>
+        /// Finds all the processes based on the search pattern provided.  Note the returned
+        /// ProcessIds may contain processes that aren't currently active.  You can still post
+        /// to them however.
+        /// </summary>
+        /// <param name="keyQuery">Key query.  * is a wildcard</param>
+        /// <returns>Matching ProcessIds</returns>
+        public IEnumerable<ProcessId> QueryProcesses(string keyQuery) =>
+            from strKey in QueryKeys(keyQuery, "", userInboxSuffix)
+            select new ProcessId(strKey.Substring(0, strKey.Length - userInboxSuffix.Length));
+
+        /// <summary>
+        /// Finds all the processes based on the search pattern provided and then returns the
+        /// meta-data associated with them.
+        /// </summary>
+        /// <param name="keyQuery">Key query.  * is a wildcard</param>
+        /// <returns>Map of ProcessId to ProcessMetaData</returns>
+        public Map<ProcessId, ProcessMetaData> QueryProcessMetaData(string keyQuery) =>
+            Map.createRange(
+                map(QueryKeys(keyQuery, "", metaDataSuffix).Map(x => (RedisKey)x).ToArray(), keys =>
+                    keys.Map(x => (string)x)
+                        .Map( x => (ProcessId)x.Substring(0 ,x.Length - metaDataSuffix.Length))
+                        .Zip(Db.StringGet(keys).Map(x => JsonConvert.DeserializeObject<ProcessMetaData>(x)))));
+
+        IDatabase Db => 
             redis.GetDatabase(databaseNumber);
     }
 }

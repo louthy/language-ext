@@ -113,6 +113,31 @@ namespace LanguageExt
         /// <param name="key">Key</param>
         int QueueLength(string key);
 
+        /// <summary>
+        /// Finds all registered names in a role
+        /// </summary>
+        /// <param name="role">Role to limit search to</param>
+        /// <param name="keyQuery">Key query.  * is a wildcard</param>
+        /// <returns>Registered names</returns>
+        IEnumerable<ProcessName> QueryRegistered(string role, string keyQuery);
+
+        /// <summary>
+        /// Finds all the processes based on the search pattern provided.  Note the returned
+        /// ProcessIds may contain processes that aren't currently active.  You can still post
+        /// to them however.
+        /// </summary>
+        /// <param name="keyQuery">Key query.  * is a wildcard</param>
+        /// <returns>Matching ProcessIds</returns>
+        IEnumerable<ProcessId> QueryProcesses(string keyQuery);
+
+        /// <summary>
+        /// Finds all the processes based on the search pattern provided and then returns the
+        /// meta-data associated with them.
+        /// </summary>
+        /// <param name="keyQuery">Key query.  * is a wildcard</param>
+        /// <returns>Map of ProcessId to ProcessMetaData</returns>
+        Map<ProcessId, ProcessMetaData> QueryProcessMetaData(string keyQuery);
+
         bool HashFieldExists(string key, string field);
         void HashFieldAddOrUpdate<T>(string key, string field, T value);
         void HashFieldAddOrUpdate<T>(string key, Map<string, T> fields);

@@ -67,6 +67,7 @@
     <Compile Include="ClusterNode.cs" />
     <Compile Include="DeadLetter.cs" />
     <Compile Include="Dispatch.cs" />
+    <Compile Include="Prelude_Query.cs" />
     <Compile Include="Prelude_Register.cs" />
     <Compile Include="ProcessAssert.cs" />
     <Compile Include="ProcessMetaData.cs" />

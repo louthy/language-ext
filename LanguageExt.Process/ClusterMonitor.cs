@@ -41,11 +41,13 @@ namespace LanguageExt
 
             public State(Map<ProcessName, ClusterNode> members)
             {
-                Members = members;
+                Members = members.Filter(node => node != null);
             }
 
             public State SetMember(ProcessName nodeName, ClusterNode state) =>
-                new State(Members.AddOrUpdate(nodeName, state));
+                state == null
+                    ? RemoveMember(nodeName)
+                    : new State(Members.AddOrUpdate(nodeName, state));
 
             public State RemoveMember(ProcessName nodeName) =>
                 new State(Members.Remove(nodeName));

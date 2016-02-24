@@ -15,8 +15,6 @@ namespace LanguageExt
 
         public static Tuple<long,Dictionary<long, AskActorReq>> Inbox(Tuple<long, Dictionary<long, AskActorReq>> state, object msg)
         {
-            logInfo("AskActor.Inbox start");
-
             var reqId = state.Item1;
             var dict = state.Item2;
 
@@ -25,11 +23,7 @@ namespace LanguageExt
                 reqId++;
 
                 var req = (AskActorReq)msg;
-
-                logInfo($"About to send ask request - reqId: {reqId}");
                 ActorContext.Ask(req.To, new ActorRequest(req.Message, req.To, Self, reqId), Self);
-
-                logInfo($"Sent ask request - reqId: {reqId}");
                 dict.Add(reqId, req);
             }
             else
@@ -37,7 +31,6 @@ namespace LanguageExt
                 var res = (ActorResponse)msg;
                 if (dict.ContainsKey(res.RequestId))
                 {
-                    logInfo($"Ask response has returned - reqId: {reqId}");
                     var req = dict[res.RequestId];
                     try
                     {
@@ -94,8 +87,6 @@ namespace LanguageExt
                     logWarn($"Request ID doesn't exist: {res.RequestId}");
                 }
             }
-
-            logInfo("AskActor.Inbox done");
 
             return new Tuple<long, Dictionary<long, AskActorReq>>(reqId, dict);
         }
