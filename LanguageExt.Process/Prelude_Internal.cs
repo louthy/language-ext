@@ -59,5 +59,11 @@ namespace LanguageExt
 
         internal static IDisposable safedelay(Action f, DateTime delayUntil) =>
              safedelay(f, delayUntil - DateTime.UtcNow);
+
+        /// <summary>
+        /// Not advised to use this directly, but allows access to the underlying data-store.
+        /// </summary>
+        public static Option<ICluster> SystemCluster => 
+            ActorContext.Cluster;
     }
 }
