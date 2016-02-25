@@ -200,7 +200,9 @@ namespace LanguageExt
         public Either<string, bool> HasStateTypeOf<TState>() =>
             TypeHelper.HasStateTypeOf(
                 typeof(TState),
-                typeof(S).GetTypeInfo().ImplementedInterfaces.ToArray()
+                typeof(S).Cons(
+                    typeof(S).GetTypeInfo().ImplementedInterfaces
+                    ).ToArray()
                 );
 
         public Either<string, bool> CanAcceptMessageType<TMsg>() =>

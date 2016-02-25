@@ -92,7 +92,7 @@ namespace LanguageExtTests
 
             var regid = register("woooo amazing", pid);
 
-            Assert.True(regid == "/disp/reg/root-woooo amazing");
+            Assert.True(regid == "/disp/reg/local-woooo amazing");
 
             tell(regid, "hello");
 
@@ -133,7 +133,7 @@ namespace LanguageExtTests
 
             var regid = register("woooo amazing", pid);
 
-            Assert.True(regid == "/disp/reg/redis-test-woooo amazing");
+            Assert.True(regid == "/disp/reg/global-woooo amazing");
 
             Thread.Sleep(100);
 

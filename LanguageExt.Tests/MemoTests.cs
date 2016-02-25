@@ -1,5 +1,6 @@
 ﻿using Xunit;
 using System;
+using System.Linq;
 using LanguageExt;
 using static LanguageExt.List;
 using static LanguageExt.Prelude;
@@ -68,6 +69,15 @@ namespace LanguageExtTests
             var matches = length(filter(zip(nums1, nums2, (a, b) => a == b), v => v));
 
             Assert.True(matches == count, "Numbers don't match (" + matches + " total matches, should be " + count + ")");
+        }
+
+        [Fact]
+        public void ListMemoTest()
+        {
+            var vals = List(1,2,3,4,5).Memo();
+
+            Assert.True(vals.Sum() == 15);
+            Assert.True(vals.Sum() == 15);
         }
 
         /*      

@@ -29,7 +29,7 @@ namespace LanguageExtTests
         public void TestRegistered()
         {
             ProcessId test1 = "@registered";
-            Assert.True(test1.Path == "/disp/reg/root-registered");
+            Assert.True(test1.Path == "/disp/reg/local-registered");
 
             ProcessId test2 = "@another:registered";
             Assert.True(test2.Path == "/disp/reg/another-registered");

@@ -21,10 +21,11 @@ namespace LanguageExt
     /// </remarks>
     public class MemoEnumerable<T> : IEnumerable<T>
     {
-        IEnumerable<T> seq;
-        IEnumerator<T> iter;
+        readonly IEnumerable<T> seq;
+        readonly IEnumerator<T> iter;
+        readonly object sync = new object();
         Lst<T> items = List.empty<T>();
-        object sync = new object();
+        bool complete;
 
         internal MemoEnumerable(IEnumerable<T> seq)
         {
@@ -40,10 +41,14 @@ namespace LanguageExt
                 {
                     yield return item;
                 }
-                while (iter.MoveNext())
+                if (!complete)
                 {
-                    items = items.Add(iter.Current);
-                    yield return iter.Current;
+                    while (iter.MoveNext())
+                    {
+                        items = items.Add(iter.Current);
+                        yield return iter.Current;
+                    }
+                    complete = true;
                 }
             }
         }
