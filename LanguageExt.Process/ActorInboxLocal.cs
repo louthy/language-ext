@@ -171,7 +171,7 @@ namespace LanguageExt
                     while (userQueue.Count > 0)
                     {
                         newQueue = newQueue.Enqueue(userQueue.Peek());
-                        userQueue.Dequeue();
+                        userQueue = userQueue.Dequeue();
                     }
 
                     userQueue = newQueue;
