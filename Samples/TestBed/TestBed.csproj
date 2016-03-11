@@ -89,10 +89,6 @@
       <Project>{5d8bb155-2e39-4a63-8100-2004cbcf529e}</Project>
       <Name>LanguageExt.FSharp</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\LanguageExt.IO\LanguageExt.IO.fsproj">
-      <Project>{e4f0df2d-fa42-4213-adb6-08e6fcf5b409}</Project>
-      <Name>LanguageExt.IO</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\LanguageExt.Process.FSharp\LanguageExt.Process.FSharp.fsproj">
       <Project>{d208187f-adf0-4f22-bdaa-33ab92f0e88d}</Project>
       <Name>LanguageExt.Process.FSharp</Name>
