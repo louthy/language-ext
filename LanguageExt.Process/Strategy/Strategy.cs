@@ -228,6 +228,15 @@ namespace LanguageExt
             );
 
         /// <summary>
+        /// Provides a message redirection strategy that always uses the same MessageDirective
+        /// regardless of the Directive provided.
+        /// </summary>
+        /// <param name="defaultDirective">Default message directive</param>
+        /// <returns>Strategy computation as a State monad</returns>
+        public static State<StrategyContext, Unit> Redirect(MessageDirective defaultDirective) =>
+            Redirect(Otherwise(defaultDirective));
+
+        /// <summary>
         /// Used within the Strategy.Match function to match an Exception to a Directive.  
         /// Use the function's generic type to specify the type of Exception to match.
         /// </summary>
