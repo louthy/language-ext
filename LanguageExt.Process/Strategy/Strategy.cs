@@ -165,6 +165,16 @@ namespace LanguageExt
             select y;
 
         /// <summary>
+        /// Applies a strategy that causes the Process to 'back off' for a fixed amount of 
+        /// time.  That is it will be paused for an amount of time before it can continue 
+        /// doing other operations.  This strategy never causes a Process to be stopped.
+        /// </summary>
+        /// <param name="Amount">Back-off time period</param>
+        /// <returns>Strategy computation as a State monad</returns>
+        public static State<StrategyContext, Unit> Backoff(Time Amount) =>
+            Backoff(Amount, Double.MaxValue*seconds, 0*seconds);
+
+        /// <summary>
         /// Increase the failure count state
         /// </summary>
         public static readonly State<StrategyContext, Unit> IncFailureCount =
