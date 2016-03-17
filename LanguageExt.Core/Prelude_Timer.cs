@@ -44,7 +44,7 @@ namespace LanguageExt
             }
             else
             {
-                Task.Delay(delayFor).ContinueWith(_ => f()).Start();
+                Task.Delay(delayFor).ContinueWith(_ => f());
             }
             return unit;
         }
