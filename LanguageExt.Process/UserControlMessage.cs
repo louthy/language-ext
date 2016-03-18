@@ -96,7 +96,7 @@ namespace LanguageExt
                                 : message.GetType().AssemblyQualifiedName,
                 Content     = message == null
                                 ? null
-                                : JsonConvert.SerializeObject(message, ActorConfig.Default.JsonSerializerSettings)
+                                : JsonConvert.SerializeObject(message, ActorSystemConfig.Default.JsonSerializerSettings)
             };
 
         internal static RemoteMessageDTO CreateRequest(ActorRequest req, ProcessId to, ProcessId sender) =>
@@ -112,7 +112,7 @@ namespace LanguageExt
                 Sender      = sender.ToString(),
                 ReplyTo     = req.ReplyTo.ToString(),
                 ContentType = req.Message.GetType().AssemblyQualifiedName,
-                Content     = JsonConvert.SerializeObject(req.Message, ActorConfig.Default.JsonSerializerSettings)
+                Content     = JsonConvert.SerializeObject(req.Message, ActorSystemConfig.Default.JsonSerializerSettings)
             };
 
         internal static RemoteMessageDTO CreateResponse(ActorResponse res, ProcessId to, ProcessId sender) =>
@@ -130,7 +130,7 @@ namespace LanguageExt
                 Sender      = res.ReplyFrom.ToString(),
                 ReplyTo     = res.ReplyTo.ToString(),
                 ContentType = res.Message.GetType().AssemblyQualifiedName,
-                Content     = JsonConvert.SerializeObject(res.Message, ActorConfig.Default.JsonSerializerSettings)
+                Content     = JsonConvert.SerializeObject(res.Message, ActorSystemConfig.Default.JsonSerializerSettings)
             };
     }
 }

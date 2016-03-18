@@ -293,7 +293,7 @@ namespace LanguageExt
 
                     case MsgTag.CheckExpired:
                         state = CheckExpired(state);
-                        tellSelf(new Msg(MsgTag.CheckExpired, null, false), ActorConfig.Default.SessionTimeoutCheckFrequency);
+                        tellSelf(new Msg(MsgTag.CheckExpired, null, false), ActorSystemConfig.Default.SessionTimeoutCheckFrequency);
                         return state;
 
                     case MsgTag.SetSessionMetadata:

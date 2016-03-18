@@ -18,7 +18,7 @@ namespace LanguageExt
         public readonly Option<ICluster> Cluster;
         public readonly IActorInbox RootInbox;
         public readonly IActor RootProcess;
-        public readonly ActorConfig Config;
+        public readonly ActorSystemConfig Config;
         public readonly ProcessName RootProcessName;
 
         ActorItem root;
@@ -33,7 +33,7 @@ namespace LanguageExt
         ActorItem reply;
         ActorItem monitor;
 
-        public ActorSystemState(Option<ICluster> cluster, ProcessId rootId, IActor rootProcess, IActorInbox rootInbox, ProcessName rootProcessName, ActorConfig config)
+        public ActorSystemState(Option<ICluster> cluster, ProcessId rootId, IActor rootProcess, IActorInbox rootInbox, ProcessName rootProcessName, ActorSystemConfig config)
         {
             var parent = new ActorItem(new NullProcess(), new NullInbox(), ProcessFlags.Default);
 
@@ -99,7 +99,7 @@ namespace LanguageExt
             // Second tier
             sessions        = ActorCreate<SessionManagerProcess.State, SessionManagerProcess.Msg>(
                                 system, 
-                                ActorConfig.Default.Sessions,
+                                ActorSystemConfig.Default.Sessions,
                                 SessionManagerProcess.Inbox,
                                 SessionManagerProcess.Setup,
                                 null,

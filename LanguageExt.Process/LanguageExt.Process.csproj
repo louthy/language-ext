@@ -51,7 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actor.cs" />
-    <Compile Include="ActorConfig.cs" />
+    <Compile Include="ActorSystemConfig.cs" />
     <Compile Include="ActorContext.cs" />
     <Compile Include="ActorDispatchJS.cs" />
     <Compile Include="ActorDispatchLocal.cs" />

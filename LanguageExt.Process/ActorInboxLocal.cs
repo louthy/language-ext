@@ -31,7 +31,7 @@ namespace LanguageExt
             this.tokenSource = new CancellationTokenSource();
             this.actor = (Actor<S, T>)process;
             this.maxMailboxSize = maxMailboxSize < 0
-                ? ActorConfig.Default.MaxMailboxSize
+                ? ActorSystemConfig.Default.MaxMailboxSize
                 : maxMailboxSize;
 
             userInbox = StartMailbox<UserControlMessage>(actor, tokenSource.Token, StatefulUserInbox);

@@ -59,7 +59,7 @@ namespace LanguageExt
                 var parent = new ActorItem(new NullProcess(), new NullInbox(), ProcessFlags.Default);
 
                 var go = new AutoResetEvent(false);
-                var state = new ActorSystemState(cluster, root, null, rootInbox, cluster.Map(x => x.NodeName).IfNone(ActorConfig.Default.RootProcessName), ActorConfig.Default);
+                var state = new ActorSystemState(cluster, root, null, rootInbox, cluster.Map(x => x.NodeName).IfNone(ActorSystemConfig.Default.RootProcessName), ActorSystemConfig.Default);
                 var rootProcess = state.RootProcess;
                 state.Startup();
                 userContext = new ActorRequestContext(rootProcess.Children["user"], ProcessId.NoSender, rootItem, null, null, ProcessFlags.Default);
@@ -135,7 +135,7 @@ namespace LanguageExt
 
         private static void ClusterWatch(Option<ICluster> cluster)
         {
-            var monitor = System[ActorConfig.Default.MonitorProcessName];
+            var monitor = System[ActorSystemConfig.Default.MonitorProcessName];
 
             cluster.IfSome(c =>
             {
@@ -321,7 +321,7 @@ namespace LanguageExt
                 Process.tell(AskId, req);
             }
 
-            handle.Wait(ActorConfig.Default.Timeout);
+            handle.Wait(ActorSystemConfig.Default.Timeout);
 
             return responses.Where(r => !r.IsFaulted).Map(r => (T)r.Response);
         }
@@ -360,7 +360,7 @@ namespace LanguageExt
                     {
                         var inbox = ask.Inbox as ILocalActorInbox;
                         inbox.Tell(req, Self);
-                        handle.WaitOne(ActorConfig.Default.Timeout);
+                        handle.WaitOne(ActorSystemConfig.Default.Timeout);
                     });
 
                 if (askItem)
@@ -390,7 +390,7 @@ namespace LanguageExt
 
         public static ProcessName GetRootProcessName() =>
             cluster.Map(x => x.NodeName)
-                   .IfNone(ActorConfig.Default.RootProcessName);
+                   .IfNone(ActorSystemConfig.Default.RootProcessName);
 
         public static Unit RegisterCluster(ICluster cluster)
         {
@@ -537,16 +537,16 @@ namespace LanguageExt
             Context.Self.Actor.Parent.Actor.Id;
 
         public static ProcessId System =>
-            Root[ActorConfig.Default.SystemProcessName];
+            Root[ActorSystemConfig.Default.SystemProcessName];
 
         public static ProcessId User =>
-            Root[ActorConfig.Default.UserProcessName];
+            Root[ActorSystemConfig.Default.UserProcessName];
 
         public static ProcessId Errors =>
-            System[ActorConfig.Default.ErrorsProcessName];
+            System[ActorSystemConfig.Default.ErrorsProcessName];
 
         public static ProcessId DeadLetters =>
-            System[ActorConfig.Default.DeadLettersProcessName];
+            System[ActorSystemConfig.Default.DeadLettersProcessName];
 
         public static Map<string, ProcessId> Children =>
             Context.Self.Actor.Children.Map(c => c.Actor.Id);
@@ -555,7 +555,7 @@ namespace LanguageExt
             cluster.Map(c => c.NodeName).IfNone("user");
 
         internal static ProcessId AskId =>
-            System[ActorConfig.Default.AskProcessName];
+            System[ActorSystemConfig.Default.AskProcessName];
 
         public static ActorRequest CurrentRequest
         {
@@ -609,13 +609,13 @@ namespace LanguageExt
         static Option<ActorItem> GetAskItem()
         {
             var children = rootItem?.Actor?.Children;
-            if (notnull(children) && children.ContainsKey(ActorConfig.Default.SystemProcessName.Value))
+            if (notnull(children) && children.ContainsKey(ActorSystemConfig.Default.SystemProcessName.Value))
             {
-                var sys = children[ActorConfig.Default.SystemProcessName.Value];
+                var sys = children[ActorSystemConfig.Default.SystemProcessName.Value];
                 children = sys.Actor.Children;
-                if (children.ContainsKey(ActorConfig.Default.AskProcessName.Value))
+                if (children.ContainsKey(ActorSystemConfig.Default.AskProcessName.Value))
                 {
-                    return Some(children[ActorConfig.Default.AskProcessName.Value]);
+                    return Some(children[ActorSystemConfig.Default.AskProcessName.Value]);
                 }
                 else
                 {
@@ -631,13 +631,13 @@ namespace LanguageExt
         public static Option<ActorItem> GetInboxShutdownItem()
         {
             var children = rootItem?.Actor?.Children;
-            if (notnull(children) && children.ContainsKey(ActorConfig.Default.SystemProcessName.Value))
+            if (notnull(children) && children.ContainsKey(ActorSystemConfig.Default.SystemProcessName.Value))
             {
-                var sys = children[ActorConfig.Default.SystemProcessName.Value];
+                var sys = children[ActorSystemConfig.Default.SystemProcessName.Value];
                 children = sys.Actor.Children;
-                if (children.ContainsKey(ActorConfig.Default.InboxShutdownProcessName.Value))
+                if (children.ContainsKey(ActorSystemConfig.Default.InboxShutdownProcessName.Value))
                 {
-                    return Some(children[ActorConfig.Default.InboxShutdownProcessName.Value]);
+                    return Some(children[ActorSystemConfig.Default.InboxShutdownProcessName.Value]);
                 }
                 else
                 {

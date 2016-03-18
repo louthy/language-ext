@@ -41,7 +41,7 @@ namespace LanguageExt
             this.parent = parent;
             this.cluster = cluster.LiftUnsafe();
             this.maxMailboxSize = maxMailboxSize < 0
-                ? ActorConfig.Default.MaxMailboxSize
+                ? ActorSystemConfig.Default.MaxMailboxSize
                 : maxMailboxSize;
 
             actorPath = actor.Id.ToString();

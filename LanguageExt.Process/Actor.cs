@@ -446,7 +446,7 @@ namespace LanguageExt
                 response = null;
                 request = new AutoResetEvent(false);
                 ActorContext.Ask(pid, new ActorRequest(message, pid, Self, 0), Self);
-                request.WaitOne(ActorConfig.Default.Timeout);
+                request.WaitOne(ActorSystemConfig.Default.Timeout);
 
                 if (response == null)
                 {

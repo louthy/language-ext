@@ -5,7 +5,7 @@ using System.Runtime.Serialization.Formatters;
 
 namespace LanguageExt
 {
-    class ActorConfig
+    class ActorSystemConfig
     {
         public readonly ProcessName RootProcessName              = "root";
         public readonly ProcessName SystemProcessName            = "system";
@@ -29,8 +29,8 @@ namespace LanguageExt
                 TypeNameAssemblyFormat = FormatterAssemblyStyle.Full
             };
 
-        public readonly static ActorConfig Default =
-            new ActorConfig();
+        public readonly static ActorSystemConfig Default =
+            new ActorSystemConfig();
     }
 
     public class ProcessSetting

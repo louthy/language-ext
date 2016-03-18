@@ -29,7 +29,7 @@ namespace LanguageExt
             this.actor = (Actor<S, T>)process;
             this.cluster = cluster.LiftUnsafe();
             this.maxMailboxSize = maxMailboxSize < 0
-                ? ActorConfig.Default.MaxMailboxSize
+                ? ActorSystemConfig.Default.MaxMailboxSize
                 : maxMailboxSize;
             this.parent = parent;
 
