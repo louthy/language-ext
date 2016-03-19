@@ -81,6 +81,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitsOfMeasureSample", "Sam
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Watchers", "Samples\Watchers\Watchers.csproj", "{7456CBB3-F9A5-4119-9C17-77E4846D1D8C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Parsec", "LanguageExt.Parsec\LanguageExt.Parsec.csproj", "{49F181C4-D5B4-4076-BE96-1B516903AD8C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		CI|Any CPU = CI|Any CPU
@@ -220,6 +222,12 @@ Global
 		{7456CBB3-F9A5-4119-9C17-77E4846D1D8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7456CBB3-F9A5-4119-9C17-77E4846D1D8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7456CBB3-F9A5-4119-9C17-77E4846D1D8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49F181C4-D5B4-4076-BE96-1B516903AD8C}.CI|Any CPU.ActiveCfg = Release|Any CPU
+		{49F181C4-D5B4-4076-BE96-1B516903AD8C}.CI|Any CPU.Build.0 = Release|Any CPU
+		{49F181C4-D5B4-4076-BE96-1B516903AD8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49F181C4-D5B4-4076-BE96-1B516903AD8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49F181C4-D5B4-4076-BE96-1B516903AD8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49F181C4-D5B4-4076-BE96-1B516903AD8C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Divisible.cs" />
     <Compile Include="Multiplicable.cs" />
+    <Compile Include="ParsecTests.cs" />
     <Compile Include="ProcessIdTests.cs" />
     <Compile Include="ProcessProxies.cs" />
     <Compile Include="ProcessStrategyTests.cs" />
@@ -92,6 +93,10 @@
     <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj">
       <Project>{c0fa07a0-8b83-4fa5-acfb-14185d5c4484}</Project>
       <Name>LanguageExt.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LanguageExt.Parsec\LanguageExt.Parsec.csproj">
+      <Project>{49f181c4-d5b4-4076-be96-1b516903ad8c}</Project>
+      <Name>LanguageExt.Parsec</Name>
     </ProjectReference>
     <ProjectReference Include="..\LanguageExt.Process.Redis\LanguageExt.Process.Redis.csproj">
       <Project>{dc05f334-346b-41bc-bea5-bfbe24e52b5f}</Project>
