@@ -413,7 +413,7 @@ namespace LanguageExt
             choice(names.Map(x=>symbol(x)));
 
         public readonly static Parser<string> ident =
-            from x in lower
+            from x in letter
             from xs in many(letterOrDigit)
             select new string(x.Cons(xs).ToArray());
 
