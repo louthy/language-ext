@@ -9,6 +9,6 @@ namespace LanguageExt
     public static class ___StringExt
     {
         public static PString ToPString(this string value) =>
-            new PString(value, Pos.Zero, Pos.Zero, Sidedness.Onside);
+            PString.Zero.SetValue(value);
     }
 }

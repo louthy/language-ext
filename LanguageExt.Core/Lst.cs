@@ -12,6 +12,9 @@ namespace LanguageExt
     /// Immutable list
     /// </summary>
     /// <typeparam name="T">Value type</typeparam>
+#if !COREFX
+    [Serializable]
+#endif
     public class Lst<T> : 
         IEnumerable<T>, 
         IEnumerable, 
@@ -359,7 +362,10 @@ namespace LanguageExt
              select TypeDesc.Divide(x, y, TypeDesc<T>.Default)).Freeze();
     }
 
-    internal class ListItem<T>
+#if !COREFX
+    [Serializable]
+#endif
+    class ListItem<T>
     {
         public static readonly ListItem<T> Empty = new ListItem<T>(0, 0, default(T), null, null);
 
@@ -393,7 +399,7 @@ namespace LanguageExt
         }
     }
 
-    internal static class ListModule
+    static class ListModule
     {
         public static S Fold<S, T>(ListItem<T> node, S state, Func<S, T, S> folder)
         {

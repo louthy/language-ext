@@ -27,7 +27,8 @@ namespace LanguageExt
     }
 
 #if !COREFX
-    [TypeConverter(typeof(OptionalTypeConverter))] 
+    [TypeConverter(typeof(OptionalTypeConverter))]
+    [Serializable]
 #endif
     public struct Some<T> : IOptional
     {

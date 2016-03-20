@@ -89,7 +89,7 @@ namespace LanguageExt
     /// tame the messyness and to make it as functional as possible (primarly by making all methods 
     /// into expressions).
     /// </summary>
-    internal class TypeConv
+    class TypeConv
     {
         readonly Type type;
         readonly Type simpleType;

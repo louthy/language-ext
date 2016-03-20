@@ -16,6 +16,9 @@ namespace LanguageExt
     /// http://en.wikipedia.org/wiki/AVL_tree
     /// </summary>
     /// <typeparam name="T">List item type</typeparam>
+#if !COREFX
+    [Serializable]
+#endif
     public class Set<T> : 
         IEnumerable<T>, 
         IEnumerable, 

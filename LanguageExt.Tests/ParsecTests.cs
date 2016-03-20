@@ -42,7 +42,7 @@ namespace LanguageExtTests
             Assert.False(r.IsFaulted);
             Assert.True(r.Results.Count() == 1);
             Assert.True(r.Result == 'H');
-            Assert.True(r.Remaining.Value == "ello");
+            Assert.True(r.Remaining.ToString() == "ello");
         }
 
         [Fact]
@@ -64,14 +64,14 @@ namespace LanguageExtTests
             Assert.False(r1.IsFaulted);
             Assert.True(r1.Results.Count() == 1);
             Assert.True(r1.Result == 'H');
-            Assert.True(r1.Remaining.Value == "ello");
+            Assert.True(r1.Remaining.ToString() == "ello");
 
             var r2 = parse(p, r1.Remaining);
 
             Assert.False(r2.IsFaulted);
             Assert.True(r2.Results.Count() == 1);
             Assert.True(r2.Result == 'e');
-            Assert.True(r2.Remaining.Value == "llo");
+            Assert.True(r2.Remaining.ToString() == "llo");
 
         }
 
@@ -86,7 +86,7 @@ namespace LanguageExtTests
             Assert.False(r.IsFaulted);
             Assert.True(r.Results.Count() == 1);
             Assert.True(r.Result == 'H');
-            Assert.True(r.Remaining.Value == "ello");
+            Assert.True(r.Remaining.ToString() == "ello");
         }
 
         [Fact]
@@ -102,7 +102,7 @@ namespace LanguageExtTests
             Assert.True(r.Results.Count() == 1);
             Assert.True(r.Result.Item1 == 'H');
             Assert.True(r.Result.Item2 == 'e');
-            Assert.True(r.Remaining.Value == "llo");
+            Assert.True(r.Remaining.ToString() == "llo");
         }
 
         [Fact]
@@ -115,7 +115,7 @@ namespace LanguageExtTests
             Assert.False(r.IsFaulted);
             Assert.True(r.Results.Count() == 1);
             Assert.True(r.Result == 'a');
-            Assert.True(r.Remaining.Value == "");
+            Assert.True(r.Remaining.ToString() == "");
         }
 
         [Fact]
@@ -128,7 +128,7 @@ namespace LanguageExtTests
             Assert.False(r.IsFaulted);
             Assert.True(r.Results.Count() == 1);
             Assert.True(r.Result == '1');
-            Assert.True(r.Remaining.Value == "");
+            Assert.True(r.Remaining.ToString() == "");
         }
 
         [Fact]
@@ -144,7 +144,7 @@ namespace LanguageExtTests
             Assert.True(r.Results.Count() == 1);
             Assert.True(r.Result.Item1 == 'a');
             Assert.True(r.Result.Item2 == '1');
-            Assert.True(r.Remaining.Value == "");
+            Assert.True(r.Remaining.ToString() == "");
         }
 
         [Fact]
@@ -156,7 +156,7 @@ namespace LanguageExtTests
             Assert.False(r.IsFaulted);
             Assert.True(r.Results.Count() == 1);
             Assert.True(r.Result == 'H');
-            Assert.True(r.Remaining.Value == "ello");
+            Assert.True(r.Remaining.ToString() == "ello");
         }
 
         [Fact]
@@ -178,7 +178,7 @@ namespace LanguageExtTests
             Assert.False(r.IsFaulted);
             Assert.True(r.Results.Count() == 1);
             Assert.True(r.Result == 'h');
-            Assert.True(r.Remaining.Value == "ello");
+            Assert.True(r.Remaining.ToString() == "ello");
         }
 
         [Fact]
@@ -200,7 +200,7 @@ namespace LanguageExtTests
             Assert.False(r.IsFaulted);
             Assert.True(r.Results.Count() == 1);
             Assert.True(r.Result == '1');
-            Assert.True(r.Remaining.Value == "234");
+            Assert.True(r.Remaining.ToString() == "234");
         }
 
         [Fact]
@@ -222,7 +222,7 @@ namespace LanguageExtTests
             Assert.False(r.IsFaulted);
             Assert.True(r.Results.Count() == 1);
             Assert.True(r.Result == 'h');
-            Assert.True(r.Remaining.Value == "ello");
+            Assert.True(r.Remaining.ToString() == "ello");
         }
 
         [Fact]
@@ -244,7 +244,7 @@ namespace LanguageExtTests
             Assert.False(r.IsFaulted);
             Assert.True(r.Results.Count() == 1);
             Assert.True(r.Result == "hello");
-            Assert.True(r.Remaining.Value == "   ");
+            Assert.True(r.Remaining.ToString() == "   ");
         }
 
         [Fact]
@@ -266,7 +266,7 @@ namespace LanguageExtTests
             Assert.False(r.IsFaulted);
             Assert.True(r.Results.Count() == 1);
             Assert.True(r.Result == "hello");
-            Assert.True(r.Remaining.Value == " world");
+            Assert.True(r.Remaining.ToString() == " world");
         }
 
         [Fact]
@@ -288,7 +288,7 @@ namespace LanguageExtTests
             Assert.False(r.IsFaulted);
             Assert.True(r.Results.Count() == 1);
             Assert.True(r.Result == 1234);
-            Assert.True(r.Remaining.Value == "  ");
+            Assert.True(r.Remaining.ToString() == "  ");
         }
 
         [Fact]
@@ -310,7 +310,7 @@ namespace LanguageExtTests
             Assert.False(r.IsFaulted);
             Assert.True(r.Results.Count() == 1);
             Assert.True(r.Result == 1234);
-            Assert.True(r.Remaining.Value == "  ");
+            Assert.True(r.Remaining.ToString() == "  ");
         }
 
         [Fact]
@@ -322,7 +322,7 @@ namespace LanguageExtTests
             Assert.False(r.IsFaulted);
             Assert.True(r.Results.Count() == 1);
             Assert.True(r.Result == -1234);
-            Assert.True(r.Remaining.Value == "  ");
+            Assert.True(r.Remaining.ToString() == "  ");
         }
 
         [Fact]
@@ -344,7 +344,7 @@ namespace LanguageExtTests
             Assert.False(r.IsFaulted);
             Assert.True(r.Results.Count() == 1);
             Assert.True(r.Result == 1);
-            Assert.True(r.Remaining.Value == "");
+            Assert.True(r.Remaining.ToString() == "");
         }
 
         [Fact]
@@ -371,7 +371,7 @@ namespace LanguageExtTests
             Assert.True(arr[1] == 2);
             Assert.True(arr[2] == 3);
             Assert.True(arr[3] == 4);
-            Assert.True(r.Remaining.Value == "");
+            Assert.True(r.Remaining.ToString() == "");
         }
 
         [Fact]
@@ -388,7 +388,7 @@ namespace LanguageExtTests
             Assert.True(arr[1] == 2);
             Assert.True(arr[2] == 3);
             Assert.True(arr[3] == 4);
-            Assert.True(r.Remaining.Value == "");
+            Assert.True(r.Remaining.ToString() == "");
         }
 
         [Fact]
@@ -439,7 +439,7 @@ namespace LanguageExtTests
             Assert.False(r.IsFaulted);
             Assert.True(r.Results.Count() == 1);
             Assert.True(r.Result == "     A comment");
-            Assert.True(r.Remaining.Value == "abc");
+            Assert.True(r.Remaining.ToString() == "abc");
         }
 
         [Fact]

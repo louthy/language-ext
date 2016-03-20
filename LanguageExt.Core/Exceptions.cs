@@ -5,6 +5,9 @@ namespace LanguageExt
     /// <summary>
     /// Some T not initialised
     /// </summary>
+#if !COREFX
+    [Serializable]
+#endif
     public class SomeNotInitialisedException : Exception
     {
         /// <summary>
@@ -20,6 +23,9 @@ namespace LanguageExt
     /// <summary>
     /// Value is none
     /// </summary>
+#if !COREFX
+    [Serializable]
+#endif
     public class ValueIsNoneException : Exception
     {
         /// <summary>
@@ -48,6 +54,9 @@ namespace LanguageExt
     /// <summary>
     /// Value is null
     /// </summary>
+#if !COREFX
+    [Serializable]
+#endif
     public class ValueIsNullException : Exception
     {
         /// <summary>
@@ -76,6 +85,9 @@ namespace LanguageExt
     /// <summary>
     /// Result is null
     /// </summary>
+#if !COREFX
+    [Serializable]
+#endif
     public class ResultIsNullException : Exception
     {
         /// <summary>
@@ -104,6 +116,9 @@ namespace LanguageExt
     /// <summary>
     /// Option T is none
     /// </summary>
+#if !COREFX
+    [Serializable]
+#endif
     public class OptionIsNoneException : Exception
     {
         /// <summary>
@@ -132,6 +147,9 @@ namespace LanguageExt
     /// <summary>
     /// Either is not right
     /// </summary>
+#if !COREFX
+    [Serializable]
+#endif
     public class EitherIsNotRightException : Exception
     {
         /// <summary>
@@ -160,6 +178,9 @@ namespace LanguageExt
     /// <summary>
     /// Either is not left
     /// </summary>
+#if !COREFX
+    [Serializable]
+#endif
     public class EitherIsNotLeftException : Exception
     {
         /// <summary>
@@ -188,6 +209,9 @@ namespace LanguageExt
     /// <summary>
     /// Value is bottom
     /// </summary>
+#if !COREFX
+    [Serializable]
+#endif
     public class BottomException : Exception
     {
         /// <summary>
@@ -209,6 +233,9 @@ namespace LanguageExt
         }
     }
 
+#if !COREFX
+    [Serializable]
+#endif
     public class NotAppendableException : Exception
     {
         public NotAppendableException(Type t)
@@ -217,6 +244,9 @@ namespace LanguageExt
         }
     }
 
+#if !COREFX
+    [Serializable]
+#endif
     public class NotSubtractableException : Exception
     {
         public NotSubtractableException(Type t)
@@ -225,6 +255,9 @@ namespace LanguageExt
         }
     }
 
+#if !COREFX
+    [Serializable]
+#endif
     public class NotMultiplicableException : Exception
     {
         public NotMultiplicableException(Type t)
@@ -233,6 +266,9 @@ namespace LanguageExt
         }
     }
 
+#if !COREFX
+    [Serializable]
+#endif
     public class NotDivisibleException : Exception
     {
         public NotDivisibleException(Type t)

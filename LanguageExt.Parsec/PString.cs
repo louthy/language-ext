@@ -8,35 +8,40 @@ namespace LanguageExt
 {
     public class PString
     {
-        public readonly string Value;
+        internal readonly string Value;
+        public readonly int Index;
         public readonly Pos Pos;
         public readonly Pos DefPos;
         public readonly Sidedness Side;
 
-        public PString(string value, Pos pos, Pos defPos, Sidedness side)
+        public PString(string value, int index, Pos pos, Pos defPos, Sidedness side)
         {
             Value = value;
+            Index = index;
             Pos = pos;
             DefPos = defPos;
             Side = side;
         }
 
         public PString SetDefPos(Pos defpos) =>
-            new PString(Value, Pos, defpos, Side);
+            new PString(Value, Index, Pos, defpos, Side);
 
         public PString SetPos(Pos pos) =>
-            new PString(Value, pos, DefPos, Side);
+            new PString(Value, Index, pos, DefPos, Side);
 
         public PString SetSide(Sidedness side) =>
-            new PString(Value, Pos, DefPos, side);
+            new PString(Value, Index, Pos, DefPos, side);
 
         public PString SetValue(string value) =>
-            new PString(value, Pos, DefPos, Side);
+            new PString(value, Index, Pos, DefPos, Side);
+
+        public PString SetIndex(int index) =>
+            new PString(Value, index, Pos, DefPos, Side);
 
         public override string ToString() =>
-            Value;
+            Value.Substring(Index);
 
         public static readonly PString Zero =
-            new PString("", Pos.Zero, Pos.Zero, Sidedness.Onside);
+            new PString("", 0, Pos.Zero, Pos.Zero, Sidedness.Onside);
     }
 }

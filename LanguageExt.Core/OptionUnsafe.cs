@@ -19,7 +19,8 @@ namespace LanguageExt
     /// type 'unsafe'.  
     /// </summary>
 #if !COREFX
-    [TypeConverter(typeof(OptionalTypeConverter))] 
+    [TypeConverter(typeof(OptionalTypeConverter))]
+    [Serializable]
 #endif
     public struct OptionUnsafe<T> : 
         IOptional, 

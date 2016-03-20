@@ -18,6 +18,9 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="K">Key type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
+#if !COREFX
+    [Serializable]
+#endif
     public class Map<K, V> : 
         IEnumerable<IMapItem<K, V>>, 
         IReadOnlyDictionary<K,V>, 
@@ -764,7 +767,10 @@ namespace LanguageExt
         }
     }
 
-    internal class MapItem<K, V> : IMapItem<K, V>
+#if !COREFX
+    [Serializable]
+#endif
+    class MapItem<K, V> : IMapItem<K, V>
     {
         public static readonly MapItem<K, V> Empty = new MapItem<K, V>(0, 0, default(K), default(V), null, null);
 
@@ -806,7 +812,7 @@ namespace LanguageExt
 
     }
 
-    internal static class MapModule
+    static class MapModule
     {
         public static S Fold<S, K, V>(MapItem<K, V> node, S state, Func<S, K, V, S> folder)
         {

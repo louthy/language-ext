@@ -31,13 +31,13 @@ namespace LanguageExt
         DateTime
     }
 
-    internal static class TypeDesc<T>
+    static class TypeDesc<T>
     {
         public readonly static TypeDesc Default = 
             new TypeDesc(typeof(T));
     }
 
-    internal class TypeDesc
+    class TypeDesc
     {
         public readonly bool IsNumeric;
         public readonly bool IsString;

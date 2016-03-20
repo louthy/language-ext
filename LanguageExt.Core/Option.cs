@@ -17,7 +17,8 @@ namespace LanguageExt
     /// To extract the value you must use the 'match' function.
     /// </summary>
 #if !COREFX
-    [TypeConverter(typeof(OptionalTypeConverter))] 
+    [TypeConverter(typeof(OptionalTypeConverter))]
+    [Serializable]
 #endif
     public struct Option<T> :
         IOptional,

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
+#if !COREFX
+    [Serializable]
+#endif
     public class LinqDisposable<T> : ILinqDisposable
         where T : class, IDisposable
     {

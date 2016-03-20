@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace LanguageExt
 {
+#if !COREFX
     [Serializable]
-    internal class ParserException : Exception
+#endif
+    class ParserException : Exception
     {
         public ParserException()
         {
@@ -15,10 +16,6 @@ namespace LanguageExt
         }
 
         public ParserException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        protected ParserException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }

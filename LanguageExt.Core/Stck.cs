@@ -8,6 +8,9 @@ namespace LanguageExt
     /// Immutable stack
     /// </summary>
     /// <typeparam name="T">Stack element type</typeparam>
+#if !COREFX
+    [Serializable]
+#endif
     public class Stck<T> : IEnumerable<T>, IEnumerable, IAppendable<Stck<T>>
     {
         public readonly static Stck<T> Empty = new Stck<T>();

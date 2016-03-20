@@ -19,7 +19,7 @@ namespace LanguageExt
     /// Each item is cached internally, so this method doesn't allow for evaluation of
     /// infinite sequences.
     /// </remarks>
-    public class MemoEnumerable<T> : IEnumerable<T>
+    class MemoEnumerable<T> : IEnumerable<T>
     {
         readonly IEnumerable<T> seq;
         readonly IEnumerator<T> iter;

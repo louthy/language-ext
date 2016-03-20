@@ -11,6 +11,9 @@ namespace LanguageExt
     ///       .With&lt;ArgumentNullException&gt;(e =&gt; "Arg null")
     ///       .Otherwise("Not handled")
     /// </example>
+#if !COREFX
+    [Serializable]
+#endif
     public class ExceptionMatch<R>
     {
         readonly Exception exception;

@@ -48,6 +48,10 @@ namespace LanguageExt
         public static Parser<T> zero<T>() =>
             inp => Successes<T>();
 
+        /// <summary>
+        /// A parser that always fails
+        /// </summary>
+        /// <param name="err">Error message to use when parsed</param>
         public static Parser<T> failure<T>(string err) =>
             inp => Failure<T>(new ParserError(err, inp));
 
@@ -61,14 +65,23 @@ namespace LanguageExt
         static bool onside(Pos pos, Pos delta) =>
             pos.Column > delta.Column || pos.Line == delta.Line;
 
-        static Tuple<char,string,Pos> newstate(string inp, Pos pos)
+        static ParserResult<char> newstate(PString inp)
         {
-            var x = inp[0];
-            var xs = inp.Substring(1); // gah!
-            var newpos = x == '\n' ? new Pos(pos.Line + 1, 0)
-                       : x == '\t' ? new Pos(pos.Line, ((pos.Column / 4) + 1) * 4)
-                       : new Pos(pos.Line, pos.Column + 1);
-            return Tuple(x, xs, newpos);
+            var x = inp.Value[inp.Index];
+
+            var newpos = x == '\n' ? new Pos(inp.Pos.Line + 1, 0)
+                       : x == '\t' ? new Pos(inp.Pos.Line, ((inp.Pos.Column / 4) + 1) * 4)
+                       : new Pos(inp.Pos.Line, inp.Pos.Column + 1);
+
+            return Success(x,
+                new PString(
+                    inp.Value,
+                    inp.Index+1,
+                    newpos,
+                    inp.DefPos,
+                    onside(newpos, inp.DefPos)
+                        ? Sidedness.Onside
+                        : Sidedness.Offside));
         }
 
         /// <summary>
@@ -78,25 +91,9 @@ namespace LanguageExt
         /// </summary>
         public static readonly Parser<char> item =
             (PString inp) =>
-            {
-                if (inp.Value == "")
-                {
-                    return Failure<char>("End of stream", inp);
-                }
-                else
-                {
-                    var ns = newstate(inp.Value, inp.Pos);
-                    return Success(
-                        ns.Item1,
-                        new PString(
-                            ns.Item2,
-                            ns.Item3,
-                            inp.DefPos,
-                            onside(ns.Item3, inp.DefPos)
-                                ? Sidedness.Onside
-                                : Sidedness.Offside));
-                }
-            };
+                inp.Index >= inp.Value.Length
+                    ? Failure<char>("End of stream", inp)
+                    : newstate(inp);
 
         static readonly Parser<Pos> getPos =
             (PString inp) => Success(inp.Pos, inp);
