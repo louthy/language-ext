@@ -8,13 +8,18 @@ namespace LanguageExt
 {
     public class ParserError
     {
-        public string Message;
-        public PString Location;
+        public readonly Pos Pos;
+        public readonly string Message;
+        public readonly Lst<string> Expected;
 
-        public ParserError(string message, PString location)
+        public ParserError(Pos pos, string message, Lst<string> expected)
         {
+            Pos = pos;
             Message = message;
-            Location = location;
+            Expected = expected;
         }
+
+        public ParserError Expect(string expected) =>
+            new ParserError(Pos, Message, List.create(expected));
     }
 }

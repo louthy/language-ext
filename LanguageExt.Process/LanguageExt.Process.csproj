@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actor.cs" />
-    <Compile Include="ActorConfig.cs" />
     <Compile Include="ActorSystemConfig.cs" />
     <Compile Include="ActorContext.cs" />
     <Compile Include="ActorDispatchJS.cs" />
@@ -66,6 +65,11 @@
     <Compile Include="CancelShutdown.cs" />
     <Compile Include="ClusterConfig.cs" />
     <Compile Include="ClusterNode.cs" />
+    <Compile Include="Config\ActorConfig.cs" />
+    <Compile Include="Config\Attrs.cs" />
+    <Compile Include="Config\EnumerableAttrExt.cs" />
+    <Compile Include="Config\Parser.cs" />
+    <Compile Include="Config\Tokens.cs" />
     <Compile Include="DeadLetter.cs" />
     <Compile Include="Dispatch.cs" />
     <Compile Include="Prelude_Query.cs" />

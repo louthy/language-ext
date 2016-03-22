@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Parsec.cs" />
+    <Compile Include="Parsec.Internal.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="ParserError.cs" />
     <Compile Include="Exceptions.cs" />

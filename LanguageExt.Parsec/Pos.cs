@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
+    /// <summary>
+    /// Represents a parser source position
+    /// </summary>
     public class Pos
     {
         public readonly int Line;
