@@ -83,29 +83,25 @@ namespace LanguageExt
                     ? EmptyError<char>(ParserError.SysUnExpect(inp.Pos, "end of stream"))
                     : newstate(inp);
 
-        public static ParserResult<T> mergeOk<T>(T x, PString inp, ParserError msg1, ParserError msg2) =>
-            msg1 != null && msg2 != null && (msg1.Pos.Column != msg2.Pos.Column || msg1.Pos.Line != msg2.Pos.Line)
-                ? EmptyOK(x, inp, msg1.Merge(msg2))
-                : EmptyOK(x, inp, merge(msg1, msg2));
+        public static ParserError mergeError(ParserError err1, ParserError err2) =>
+            err1 == null && err2 == null   ? ParserError.Unknown(Pos.Zero)
+          : err1 == null                   ? err2
+          : err2 == null                   ? err1          : String.IsNullOrEmpty(err1.Msg) ? err2
+          : String.IsNullOrEmpty(err2.Msg) ? err1
+          : Pos.Compare(
+              err1.Pos, err2.Pos,
+              EQ: () =>
+                err1 > err2 
+                    ? new ParserError(err1.Tag, err1.Pos, err1.Msg, List.append(err1.Expected, err2.Expected).Freeze())
+                    : new ParserError(err2.Tag, err2.Pos, err2.Msg, List.append(err1.Expected, err2.Expected).Freeze()),
+              GT: () => err1,
+              LT: () => err2
+              );
 
-        public static ParserResult<T> mergeError<T>(ParserError msg1, ParserError msg2) =>
-            msg1 != null && msg2 != null && (msg1.Pos.Column != msg2.Pos.Column || msg1.Pos.Line != msg2.Pos.Line)
-                ? EmptyError<T>(msg1.Merge(msg2))
-                : EmptyError<T>(merge(msg1, msg2));
-
-        public static Reply<T> mergeErrorReply<T>(ParserError msg1, Reply<T> reply) =>
+        public static Reply<T> mergeErrorReply<T>(ParserError err, Reply<T> reply) =>
             reply.Tag == ReplyTag.OK
-                ? Reply.OK(reply.Result, reply.State, merge(msg1, reply.Error))
-                : Reply.Error<T>(merge(msg1, reply.Error));
-
-        public static ParserError merge(ParserError exp1, ParserError exp2) =>
-            exp1 == null && exp2 == null
-                ? exp1
-                : exp1 == null
-                    ? exp2
-                    : exp2 == null                        ? exp1                        : (exp1.Pos.Column != exp2.Pos.Column || exp1.Pos.Line != exp2.Pos.Line)
-                            ? exp1.Merge(exp2) //failwith<ParserError>("no")
-                            : new ParserError(exp1.Tag, exp1.Pos, exp1.Msg, List.append(exp1.Expected, exp2.Expected).Freeze(), merge(exp1.Inner, exp2.Inner));
+                ? Reply.OK(reply.Result, reply.State, mergeError(err, reply.Error))
+                : Reply.Error<T>(mergeError(err, reply.Error));
 
         /// <summary>
         /// The parser attempt(p) behaves like parser p, except that it
@@ -130,20 +126,59 @@ namespace LanguageExt
             };
 
         /// <summary>
+        /// lookAhead(p) parses p without consuming any input.
+        /// If p fails and consumes some input, so does lookAhead(p). Combine with 
+        /// 'attempt' if this is undesirable.
+        /// </summary>
+        public static Parser<T> lookAhead<T>(Parser<T> p) =>
+            inp =>
+            {
+                var res = p(inp);
+                if (res.Reply.Tag == ReplyTag.OK)
+                {
+                    return EmptyOK(res.Reply.Result, inp);
+                }
+                else
+                {
+                    return res;
+                }
+            };
+
+
+
+        /// <summary>
         /// Logical OR for parsers
         /// Parse p, if it fails parse q
         /// </summary>
         public static Parser<T> either<T>(Parser<T> p, Parser<T> q) =>
-            state =>
-                p(state).Match(
-                    EmptyError: err =>
-                        q(state).Match(
-                            EmptyOK:       (x, s1, err1) => EmptyOK(x,s1,merge(err, err1)),
-                            EmptyError:    err1          => EmptyError<T>(merge(err, err1)),
-                            ConsumedOK:    (x, s1, err1) => ConsumedOK(x, s1, err1),
-                            ConsumedError: err1          => ConsumedError<T>(err1)),
-                    Otherwise: other => other
-                );
+            inp =>
+            {
+                var m = p(inp);
+
+                // meerr
+                if(m.Tag == ResultTag.Empty && m.Reply.Tag == ReplyTag.Error)
+                {
+                    var n = q(inp);
+
+                    // neok
+                    if(n.Tag == ResultTag.Empty && n.Reply.Tag == ReplyTag.OK)
+                    {
+                        return EmptyOK(n.Reply.Result, n.Reply.State, mergeError(m.Reply.Error, n.Reply.Error));
+                    }
+
+                    // nerr
+                    if (n.Tag == ResultTag.Empty && n.Reply.Tag == ReplyTag.Error)
+                    {
+                        return EmptyError<T>(mergeError(m.Reply.Error, n.Reply.Error));
+                    }
+
+                    // cerr, cok
+                    return n;
+                }
+
+                // cok, cerr, eok
+                return m;
+            };
 
         /// <summary>
         /// Logical OR for parsers
@@ -255,7 +290,7 @@ namespace LanguageExt
         /// of each parser is returned.
         /// </summary>
         public static Parser<IEnumerable<T>> chain<T>(params Parser<T>[] ps) =>
-            attempt(chaini(ps,0).Map(x => x.Freeze().AsEnumerable()));
+            chaini(ps,0).Map(x => x.Freeze().AsEnumerable());
 
         /// <summary>
         /// Runs a sequence of parsers, if any fail then the failure state is
@@ -263,7 +298,7 @@ namespace LanguageExt
         /// of each parser is returned.
         /// </summary>
         public static Parser<IEnumerable<T>> chain<T>(IEnumerable<Parser<T>> ps) =>
-            attempt(chaini(ps.ToArray(), 0).Map(x => x.Freeze().AsEnumerable()));
+            chaini(ps.ToArray(), 0).Map(x => x.Freeze().AsEnumerable());
 
         /// <summary>
         /// Must match any character in a string of characters
@@ -369,8 +404,10 @@ namespace LanguageExt
         /// Parses whitespaces and comments
         /// </summary>
         public readonly static Parser<string> junk =
-            from xs in many(either(spaces, comment))
-             select String.Join("", xs);
+            either(
+                from xs in many(either(spaces, comment))
+                select String.Join("", xs),
+                result(""));
 
         /// <summary>
         /// Parses a token - first runs parser p, followed by junk
@@ -379,9 +416,9 @@ namespace LanguageExt
         /// <param name="p"></param>
         /// <returns></returns>
         public static Parser<T> token<T>(Parser<T> p) =>
-            from v in p
-            from _ in junk
-            select v;
+            attempt(from v in p
+                    from _ in junk
+                    select v);
 
         /// <summary>
         /// Parses a series of tokenised integers separated by sep
@@ -398,7 +435,7 @@ namespace LanguageExt
         /// <summary>
         /// parses inner, wrapped by left and right
         /// </summary>
-        public static Parser<T> wrappedBy<L, R, T>(Parser<L> left, Parser<R> right, Parser<T> inner) =>
+        public static Parser<T> between<L, R, T>(Parser<L> left, Parser<R> right, Parser<T> inner) =>
             from l in token(left)
             from v in token(inner)
             from r in token(right)
@@ -408,28 +445,28 @@ namespace LanguageExt
         /// Parses inner, wrapped by [ ]
         /// </summary>
         public static Parser<T> brackets<T>(Parser<T> inner) =>
-            wrappedBy(ch('['), ch(']'), inner);
+            between(ch('['), ch(']'), inner);
 
         /// <summary>
         /// Parses inner, wrapped by ( )
         /// </summary>
         public static Parser<T> parens<T>(Parser<T> inner) =>
-            wrappedBy(ch('('), ch(')'), inner);
+            between(ch('('), ch(')'), inner);
 
         /// <summary>
         /// Parses inner, wrapped by { }
         /// </summary>
         public static Parser<T> braces<T>(Parser<T> inner) =>
-            wrappedBy(ch('{'), ch('}'), inner);
+            between(ch('{'), ch('}'), inner);
 
         /// <summary>
         /// Parses inner, wrapped by &lt; &gt;
         /// </summary>
         public static Parser<T> angles<T>(Parser<T> inner) =>
-            wrappedBy(ch('<'), ch('>'), inner);
+            between(ch('<'), ch('>'), inner);
 
         /// <summary>
-        /// Parses a symbol: a tokenised string 
+        /// Parses a symbol: a string token
         /// </summary>
         public static Parser<string> symbol(string name) =>
             token(str(name))
@@ -447,7 +484,7 @@ namespace LanguageExt
         /// Parses an identifier: a letter followed by many letters or digits
         /// </summary>
         public readonly static Parser<string> ident =
-            (from x in letter
+            (from x  in letter
              from xs in many(letterOrDigit)
              select new string(x.Cons(xs).ToArray()))
             .label("identifier");
@@ -457,7 +494,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="names">Reserved names</param>
         public static Parser<string> identifier(IEnumerable<string> names) =>
-            token(from id in ident
+            token(from id  in ident
                   from res in names.Contains(id)
                         ? failure<string>("reserved identifier")
                         : result(id)
@@ -467,32 +504,32 @@ namespace LanguageExt
         /// <summary>
         /// Parses sep separated p, wrapped by left and right
         /// </summary>
-        public static Parser<IEnumerable<T>> wrappedAndSep<L,R,T,S>(Parser<L> left, Parser<R> right, Parser<S> sep, Parser<T> p) =>
-            wrappedBy(left, right, sepBy1(token(p), sep));
+        public static Parser<IEnumerable<T>> betweenAndSep<L,R,T,S>(Parser<L> left, Parser<R> right, Parser<S> sep, Parser<T> p) =>
+            between(left, right, sepBy1(token(p), sep));
 
         /// <summary>
         /// Parses comma separated p, wrapped by [ ]
         /// </summary>
         public static Parser<IEnumerable<T>> commaBrackets<T>(Parser<T> p) =>
-            wrappedAndSep(ch('['), ch(']'), symbol(","), p);
+            betweenAndSep(ch('['), ch(']'), symbol(","), p);
 
         /// <summary>
         /// Parses comma separated p, wrapped by ( )
         /// </summary>
         public static Parser<IEnumerable<T>> commaParens<T>(Parser<T> p) =>
-            wrappedAndSep(ch('('), ch(')'), symbol(","), p);
+            betweenAndSep(ch('('), ch(')'), symbol(","), p);
 
         /// <summary>
         /// Parses comma separated p, wrapped by { }
         /// </summary>
         public static Parser<IEnumerable<T>> commaBraces<T>(Parser<T> p) =>
-            wrappedAndSep(ch('{'), ch('}'), symbol(","), p);
+            betweenAndSep(ch('{'), ch('}'), symbol(","), p);
 
         /// <summary>
         /// Parses comma separated p, wrapped by &lt; &gt;
         /// </summary>
         public static Parser<IEnumerable<T>> commaAngles<T>(Parser<T> p) =>
-            wrappedAndSep(ch('<'), ch('>'), symbol(","), p);
+            betweenAndSep(ch('<'), ch('>'), symbol(","), p);
 
         /// <summary>
         /// Optionaly parses p
@@ -563,22 +600,24 @@ namespace LanguageExt
         /// e.g. """a string"""
         /// </summary>
         public readonly static Parser<string> heavyString =
-            asString(wrappedBy(
-                str("\"\"\""),
-                str("\"\"\""),
-                many(satisfy(c => c != '"'))));
+            asString(
+                between(
+                    str("\"\"\""),
+                    str("\"\"\""),
+                    many(satisfy(c => c != '"'))));
 
         /// <summary>
         /// Parses a string-literal with full consideration of escape-codes
         /// </summary>
         public readonly static Parser<string> stringLiteral =
             token(
-                choice(
-                    heavyString,
+                either(
+                    attempt(heavyString),
                     from a in ch('"')
                     from s in asString(many(stringChar))
                     from b in ch('"')
-                    select s)).label("string");
+                    select s))
+           .label("string");
 
         /// <summary>
         /// Allows inline logging of parser results

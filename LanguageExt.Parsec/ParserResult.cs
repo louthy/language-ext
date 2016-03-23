@@ -150,5 +150,8 @@ namespace LanguageExt
             }
             return ConsumedError(Reply.Error);
         }
+
+        public ParserResult<U> Select<U>(Func<T,U> map) =>
+            new ParserResult<U>(Tag, Reply.Select(map));
     }
 }

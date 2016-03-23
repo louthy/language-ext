@@ -177,7 +177,7 @@ namespace LanguageExt
 
         readonly static Parser<State<StrategyContext, Unit>> match =
             from _      in symbol("match")
-            from direx  in many(exceptionDirective)
+            from direx  in many(attempt(exceptionDirective))
             from other  in optional(otherwiseDirective)
             let dirs = direx.Append(other.AsEnumerable()).ToArray()
             from ok     in dirs.Length > 0
@@ -186,7 +186,7 @@ namespace LanguageExt
             select Strategy.Match(dirs);
 
         readonly static Parser<State<StrategyContext, Unit>> redirectMatch =
-            from direx in many(matchMessageDirective)
+            from direx in many(attempt(matchMessageDirective))
             from other in optional(otherwiseMsgDirective)
             let dirs = direx.Append(other.AsEnumerable()).ToArray()
             from ok in dirs.Length > 0

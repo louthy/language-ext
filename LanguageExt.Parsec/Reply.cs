@@ -57,5 +57,10 @@ namespace LanguageExt
             Tag == ReplyTag.Error
                 ? Reply.Error<U>(Error)
                 : Reply.OK(project(s, Result), State, Error);
+
+        public Reply<U> Select<U>(Func<T, U> map) =>
+            Tag == ReplyTag.Error
+                ? Reply.Error<U>(Error)
+                : Reply.OK(map(Result), State, Error);
     }
 }
