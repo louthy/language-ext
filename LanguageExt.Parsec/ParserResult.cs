@@ -20,9 +20,6 @@ namespace LanguageExt
         public static ParserResult<T> EmptyOK<T>(T value, PString input, ParserError error = null) =>
             new ParserResult<T>(ResultTag.Empty, Reply.OK(value, input, error));
 
-        public static ParserResult<T> EmptyError<T>(Pos pos, string message) =>
-            new ParserResult<T>(ResultTag.Empty, Reply.Error<T>(pos, message, List.empty<string>()));
-
         public static ParserResult<T> EmptyError<T>(ParserError error) =>
             new ParserResult<T>(ResultTag.Empty, Reply.Error<T>(error));
 
@@ -31,9 +28,6 @@ namespace LanguageExt
 
         public static ParserResult<T> ConsumedOK<T>(T value, PString input, ParserError error) =>
             new ParserResult<T>(ResultTag.Consumed, Reply.OK(value, input, error));
-
-        public static ParserResult<T> ConsumedError<T>(Pos pos, string message, Lst<string> expected) =>
-            new ParserResult<T>(ResultTag.Consumed, Reply.Error<T>(pos, message, expected));
 
         public static ParserResult<T> ConsumedError<T>(ParserError error) =>
             new ParserResult<T>(ResultTag.Consumed, Reply.Error<T>(error));
@@ -44,12 +38,6 @@ namespace LanguageExt
     {
         Consumed,
         Empty
-    }
-
-    public enum ReplyTag
-    {
-        OK,
-        Error
     }
 
     public class ParserResult<T>
@@ -142,23 +130,6 @@ namespace LanguageExt
         }
 
         public R Match<R>(
-            Func<Reply<T>, R> Consumed,
-            Func<T, PString, ParserError, R> EmptyOK,
-            Func<ParserError, R> EmptyError
-            )
-        {
-            if (Tag == ResultTag.Empty && Reply.Tag == ReplyTag.OK)
-            {
-                return EmptyOK(Reply.Result, Reply.State, Reply.Error);
-            }
-            if (Tag == ResultTag.Empty && Reply.Tag == ReplyTag.Error)
-            {
-                return EmptyError(Reply.Error);
-            }
-            return Consumed(Reply);
-        }
-
-        public R Match<R>(
             Func<T, PString, ParserError, R> ConsumedOK,
             Func<ParserError, R> ConsumedError,
             Func<T, PString, ParserError, R> EmptyOK,
@@ -179,49 +150,5 @@ namespace LanguageExt
             }
             return ConsumedError(Reply.Error);
         }
-    }
-
-    public static class Reply
-    {
-        public static Reply<T> OK<T>(T result, PString remaining, ParserError error = null) =>
-            new Reply<T>(result, remaining, error);
-
-        public static Reply<T> Error<T>(Pos pos, string message, Lst<string> expected) =>
-            new Reply<T>(new ParserError(pos, message, expected, null));
-
-        public static Reply<T> Error<T>(ParserError error) =>
-            new Reply<T>(error);
-    }
-
-    public class Reply<T>
-    {
-        public readonly ReplyTag Tag;
-        public readonly T Result;
-        public readonly PString State;
-        public readonly ParserError Error;
-
-        internal Reply(ParserError error)
-        {
-            Debug.Assert(error != null);
-
-            Tag = ReplyTag.Error;
-            Error = error;
-            State = PString.Zero;
-        }
-
-        internal Reply(T result, PString remaining, ParserError error = null)
-        {
-            Debug.Assert(notnull(result));
-
-            Tag = ReplyTag.OK;
-            State = remaining;
-            Result = result;
-            Error = error;
-        }
-
-        public Reply<U> Project<S, U>(S s, Func<S, T, U> project) =>
-            Tag == ReplyTag.Error
-                ? Reply.Error<U>(Error)
-                : Reply.OK(project(s, Result), State, Error);
     }
 }

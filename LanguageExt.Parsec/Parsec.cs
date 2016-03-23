@@ -41,22 +41,29 @@ namespace LanguageExt
                 match(inp.UserState,
                     Some: x => x is T
                         ? ConsumedOK((T)x, inp)
-                        : EmptyError<T>(inp.Pos, "User state type-mismatch"),
-                    None: () => EmptyError<T>(inp.Pos, "No user state set"));
+                        : EmptyError<T>(ParserError.Message(inp.Pos, "User state type-mismatch")),
+                    None: () => EmptyError<T>(ParserError.Message(inp.Pos, "No user state set")));
 
         /// <summary>
         /// 'empty' parser
         /// No error, no results
         /// </summary>
         public static Parser<T> zero<T>() =>
-            inp => EmptyError<T>(inp.Pos, "unknown error");
+            inp => EmptyError<T>(ParserError.Unknown(inp.Pos));
 
         /// <summary>
         /// A parser that always fails
         /// </summary>
         /// <param name="err">Error message to use when parsed</param>
         public static Parser<T> failure<T>(string err) =>
-            inp => EmptyError<T>(inp.Pos, err);
+            inp => EmptyError<T>(ParserError.Message(inp.Pos, err));
+
+        /// <summary>
+        /// A parser that always fails
+        /// </summary>
+        /// <param name="err">Error message to use when parsed</param>
+        public static Parser<T> unexpected<T>(string err) =>
+            inp => EmptyError<T>(ParserError.UnExpect(inp.Pos, err));
 
         /// <summary>
         /// Always success parser.  Returns the value provided.  
@@ -73,7 +80,7 @@ namespace LanguageExt
         public static readonly Parser<char> item =
             (PString inp) =>
                 inp.Index >= inp.Value.Length
-                    ? EmptyError<char>(inp.Pos, "end of stream")
+                    ? EmptyError<char>(ParserError.SysUnExpect(inp.Pos, "end of stream"))
                     : newstate(inp);
 
         public static ParserResult<T> mergeOk<T>(T x, PString inp, ParserError msg1, ParserError msg2) =>
@@ -97,15 +104,15 @@ namespace LanguageExt
                 : exp1 == null
                     ? exp2
                     : exp2 == null                        ? exp1                        : (exp1.Pos.Column != exp2.Pos.Column || exp1.Pos.Line != exp2.Pos.Line)
-                            ? exp1.Merge(exp2)
-                            : new ParserError(exp1.Pos, exp1.Message, List.append(exp1.Expected, exp2.Expected).Freeze(), merge(exp1.Inner, exp2.Inner));
+                            ? exp1.Merge(exp2) //failwith<ParserError>("no")
+                            : new ParserError(exp1.Tag, exp1.Pos, exp1.Msg, List.append(exp1.Expected, exp2.Expected).Freeze(), merge(exp1.Inner, exp2.Inner));
 
         /// <summary>
-        /// The parser try p behaves like parser p, except that it
+        /// The parser attempt(p) behaves like parser p, except that it
         /// pretends that it hasn't consumed any input when an error occurs.
         /// This combinator is used whenever arbitrary look ahead is needed.
         /// Since it pretends that it hasn't consumed any input when p fails,
-        /// the('<|>') combinator will try its second alternative even when the
+        /// the either combinator will try its second alternative even when the
         /// first parser failed while consuming input.
         /// </summary>
         public static Parser<T> attempt<T>(Parser<T> p) =>
@@ -171,7 +178,7 @@ namespace LanguageExt
             {
                 if (inp.Index >= inp.Value.Length)
                 {
-                    return EmptyError<char>(inp.Pos, "end of stream");
+                    return EmptyError<char>(ParserError.SysUnExpect(inp.Pos, "end of stream"));
                 }
                 else
                 {
@@ -185,15 +192,16 @@ namespace LanguageExt
                         }
                         else
                         {
-                            return EmptyError<char>(inp.Pos, $"\"{ns.Reply.Result}\"");
+                            return EmptyError<char>(ParserError.SysUnExpect(inp.Pos, $"\"{ns.Reply.Result}\""));
                         }
                     }
                     else
                     {
-                        return EmptyError<char>(inp.Pos, "end of stream");
+                        return EmptyError<char>(ParserError.SysUnExpect(inp.Pos, "end of stream"));
                     }
                 }
             };
+
 
         public static Parser<char> ch(char c) =>
             satisfy(x => x == c).label($"'{c}'");

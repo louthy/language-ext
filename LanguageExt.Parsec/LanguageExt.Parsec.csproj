@@ -49,6 +49,7 @@
     <Compile Include="Pos.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PString.cs" />
+    <Compile Include="Reply.cs" />
     <Compile Include="Sidedness.cs" />
     <Compile Include="StringExt.cs" />
   </ItemGroup>

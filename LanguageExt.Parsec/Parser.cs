@@ -24,11 +24,25 @@ public static class ___ParserExt
     /// <param name="expected">What was expected</param>
     public static Parser<T> label<T>(this Parser<T> p, string expected) =>
         inp =>
-            p(inp).Match(
-                EmptyError: msg           => EmptyError<T>(msg.Expect(expected)),
-                EmptyOK:    (x, st, msg)  => EmptyOK(x, st, msg == null ? null : msg.Expect(expected)),
-                Consumed:   reply         => Consumed(reply)
-                );
+        {
+            var res = p(inp);
+            if (res.Tag == ResultTag.Consumed)
+            {
+                return res;
+            }
+            if (res.Reply.Tag == ReplyTag.Error)
+            {
+                return EmptyError<T>(ParserError.Expect(inp.Pos, res.Reply.Error.Msg, expected));
+            }
+            if (res.Reply.Error == null || res.Reply.Error.Tag == ParserErrorTag.Unknown)
+            {
+                return res;
+            }
+            else
+            {
+                return EmptyOK(res.Reply.Result, res.Reply.State, ParserError.Expect(inp.Pos, res.Reply.Error.Msg, expected));
+            }
+        };
 
     public static ParserResult<T> Parse<T>(this Parser<T> self, PString input) =>
         self(input);
@@ -42,9 +56,9 @@ public static class ___ParserExt
     public static Parser<T> Where<T>(this Parser<T> self, Func<T,bool> pred) =>
         inp =>
             self(inp).Match(
-                EmptyOK:        (x,rem,msg) => pred(x) ? EmptyOK(x,rem, msg) : EmptyError<T>(inp.Pos,""),
+                EmptyOK:        (x,rem,msg) => pred(x) ? EmptyOK(x,rem, msg) : EmptyError<T>(ParserError.SysUnExpect(inp.Pos, $"\"{x}\"")),
                 EmptyError:     msg         => EmptyError<T>(msg),
-                ConsumedOK:     (x,rem,msg) => pred(x) ? ConsumedOK(x,rem, msg) : EmptyError<T>(inp.Pos, ""),
+                ConsumedOK:     (x,rem,msg) => pred(x) ? ConsumedOK(x,rem, msg) : EmptyError<T>(ParserError.SysUnExpect(inp.Pos, $"\"{x}\"")),
                 ConsumedError:  msg         => ConsumedError<T>(msg));
 
     public static Parser<U> Map<T, U>(this Parser<T> self, Func<T, U> map) =>

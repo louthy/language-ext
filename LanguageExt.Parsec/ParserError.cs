@@ -6,32 +6,56 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
+    public enum ParserErrorTag
+    {
+        Unknown,
+        SysUnExpect,
+        UnExpect,
+        Expect,
+        Message
+    }
+
     public class ParserError
     {
+        public readonly ParserErrorTag Tag;
         public readonly Pos Pos;
-        public readonly string Message;
+        public readonly string Msg;
         public readonly Lst<string> Expected;
         public readonly ParserError Inner;
 
-        public ParserError(Pos pos, string message, Lst<string> expected, ParserError inner)
+        public ParserError(ParserErrorTag tag, Pos pos, string message, Lst<string> expected, ParserError inner)
         {
+            Tag = tag;
             Pos = pos;
-            Message = message;
+            Msg = message;
             Expected = expected;
             Inner = inner;
         }
 
-        public ParserError Expect(string expected) =>
-            new ParserError(Pos, Message, List.create(expected), Inner);
+        public static ParserError Unknown(Pos pos) =>
+            new ParserError(ParserErrorTag.Unknown, pos, "", List.empty<string>(), null);
+
+        public static ParserError SysUnExpect(Pos pos, string message) =>
+            new ParserError(ParserErrorTag.SysUnExpect, pos, message, List.empty<string>(), null);
+
+        public static ParserError UnExpect(Pos pos, string message) =>
+            new ParserError(ParserErrorTag.UnExpect, pos, message, List.empty<string>(), null);
+
+        public static ParserError Expect(Pos pos, string message, string expected) =>
+            new ParserError(ParserErrorTag.Expect, pos, message, List.create(expected), null);
+
+        public static ParserError Message(Pos pos, string message) =>
+            new ParserError(ParserErrorTag.Message, pos, message, List.empty<string>(), null);
 
         public ParserError Merge(ParserError inner) =>
-            new ParserError(Pos, Message, Expected, inner);
+            new ParserError(Tag, Pos, Msg, Expected, inner);
 
         public override string ToString() =>
-            $"parse error at (line {Pos.Line + 1}, column {Pos.Column + 1}):\n" +
-                (String.IsNullOrEmpty(Message)
-                    ? $"expecting {String.Join(", ", Expected)}\n"
-                    : $"unexpected {Message}\n" +
-                      $"expecting {String.Join(", ", Expected)}");
+            $"error at (line {Pos.Line + 1}, column {Pos.Column + 1}):\n" +
+              ( Tag == ParserErrorTag.UnExpect    ? $"unexpected {Msg}"
+              : Tag == ParserErrorTag.SysUnExpect ? $"unexpected {Msg}"
+              : Tag == ParserErrorTag.Message     ? Msg
+              : Tag == ParserErrorTag.Expect      ? $"unexpected {Msg}\nexpecting {String.Join(", ", Expected)}"
+              : "unknown error");
     }
 }

@@ -437,9 +437,6 @@ namespace LanguageExtTests
                         retries:  count = 5, duration=30 seconds
                         back-off: min = 2 seconds, max = 1 hour, step = 5 seconds
                         
-                        always:   stop
-                        redirect: forward-to-self
-
                         match
                         | System.NotImplementedException -> stop
                         | System.ArgumentNullException   -> escalate
