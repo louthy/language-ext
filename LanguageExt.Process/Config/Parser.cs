@@ -52,31 +52,41 @@ namespace LanguageExt
             from s in stringLiteral
             select new StringAttr(name, s) as Attr;
 
+        static readonly Parser<MessageDirective> fwdToSelf =
+            from _ in symbol("forward-to-self")
+            select new ForwardToSelf() as MessageDirective;
+
+        static readonly Parser<MessageDirective> fwdToParent =
+            from _ in symbol("forward-to-parent")
+            select new ForwardToParent() as MessageDirective;
+
+        static readonly Parser<MessageDirective> fwdToDeadLetters =
+            from _ in symbol("forward-to-dead-letters")
+            select new ForwardToDeadLetters() as MessageDirective;
+
+        static readonly Parser<MessageDirective> stayInQueue =
+            from _ in symbol("stay-in-queue")
+            select new StayInQueue() as MessageDirective;
+
+        static readonly Parser<MessageDirective> fwdToProcess =
+            from _   in symbol("forward-to-process")
+            from pid in stringLiteral
+            select new ForwardToProcess(new ProcessId(pid)) as MessageDirective;
+
         static Parser<MessageDirective> msgDirective =>
-            from x in choice(
-                symbol("forward-to-dead-letters"),
-                symbol("forward-to-self"),
-                symbol("forward-to-parent"),
-                symbol("forward-to-process"),
-                symbol("stay-in-queue"))
-            from dir in x == "forward-to-process"     ? from pid in stringLiteral
-                                                        select new ForwardToProcess(new ProcessId(pid)) as MessageDirective
-                      : x == "stay-in-queue"          ? result(new ForwardToSelf() as MessageDirective)
-                      : x == "forward-to-dead-parent" ? result(new ForwardToParent() as MessageDirective)
-                      : x == "forward-to-dead-self"   ? result(new ForwardToSelf() as MessageDirective)
-                      : result(new ForwardToDeadLetters() as MessageDirective)
-            select dir;
+            choice(
+                fwdToDeadLetters,
+                fwdToSelf,
+                fwdToParent,
+                fwdToProcess,
+                stayInQueue);
 
         static Parser<Directive> directive =>
-            from x in choice(
-                symbol("resume"),
-                symbol("restart"),
-                symbol("stop"),
-                symbol("escalate"))
-            select x == "escalate" ? Directive.Escalate
-                 : x == "restart"  ? Directive.Restart
-                 : x == "resume"   ? Directive.Resume
-                 : Directive.Stop;
+            choice(
+                symbol("resume").Map(_ => Directive.Resume),
+                symbol("restart").Map(_ => Directive.Restart),
+                symbol("stop").Map(_ => Directive.Stop),
+                symbol("escalate").Map(_ => Directive.Escalate));
 
         static Parser<Attr> strAttr(string name) =>
             from x in symbol(name)
@@ -84,11 +94,8 @@ namespace LanguageExt
             from s in stringLiteral
             select new StringAttr(name, s) as Attr;
 
-        static Parser<Attr> timeAttr(string name) =>
-            from x in symbol(name)
-            from _ in symbol("=")
-            from v in token(integer)
-            from u in choice(
+        static readonly Parser<string> timeUnit =
+            choice(
                 symbol("seconds"),
                 symbol("second"),
                 symbol("secs"),
@@ -104,7 +111,13 @@ namespace LanguageExt
                 symbol("hours"),
                 symbol("hour"),
                 symbol("hr"))
-               .label("Unit of time (e.g. seconds, mins, hours, hr, sec, min...)")
+               .label("Unit of time (e.g. seconds, mins, hours, hr, sec, min...)");
+
+        static Parser<Attr> timeAttr(string name) =>
+            from x in symbol(name)
+            from _ in symbol("=")
+            from v in token(integer)
+            from u in timeUnit
             select new TimeAttr(name, v, u) as Attr;
 
         static Parser<List<Attr>> stratAttrs(string name, params Parser<Attr>[] attrs) =>
@@ -129,14 +142,8 @@ namespace LanguageExt
             from d in token(directive)
             select Strategy.Always(d);
 
-        readonly static Parser<State<StrategyContext, Unit>> redirect =
-            from n in symbol("redirect")
-            from _ in symbol(":")
-            from d in token(msgDirective)
-            select Strategy.Redirect(d);
-
         readonly static Parser<Type> type =
-            from x  in letter
+            from x in letter
             from xs in many1(choice(letter, ch('.'), ch('_')))
             select Type.GetType(new string(x.Cons(xs).ToArray()));
 
@@ -169,16 +176,32 @@ namespace LanguageExt
             select Strategy.Otherwise(d);
 
         readonly static Parser<State<StrategyContext, Unit>> match =
-            from _ in symbol("match")
-            from direx in many1(exceptionDirective)
-            from other in optional(otherwiseDirective)
-            select Strategy.Match(direx.Append(other.AsEnumerable()).ToArray());
+            from _      in symbol("match")
+            from direx  in many(exceptionDirective)
+            from other  in optional(otherwiseDirective)
+            let dirs = direx.Append(other.AsEnumerable()).ToArray()
+            from ok     in dirs.Length > 0
+                ? result(dirs)
+                : failure<State<Exception, Option<Directive>>[]>("'match' must be followed by at least one clause")
+            select Strategy.Match(dirs);
 
         readonly static Parser<State<StrategyContext, Unit>> redirectMatch =
-            from _ in symbol("redirect")
-            from direx in many1(matchMessageDirective)
+            from direx in many(matchMessageDirective)
             from other in optional(otherwiseMsgDirective)
-            select Strategy.Redirect(direx.Append(other.AsEnumerable()).ToArray());
+            let dirs = direx.Append(other.AsEnumerable()).ToArray()
+            from ok in dirs.Length > 0
+                ? result(dirs)
+                : failure<State<Directive, Option<MessageDirective>>[]>("'redirect when' must be followed by at least one clause")
+            select Strategy.Redirect(dirs);
+
+        readonly static Parser<State<StrategyContext, Unit>> redirect =
+            from n in symbol("redirect")
+            from t in either(symbol(":"), symbol("when"))
+            from r in t == ":"
+               ? from d in token(msgDirective)
+                 select Strategy.Redirect(d)
+               : redirectMatch
+            select r;
 
         readonly static Parser<State<StrategyContext, Unit>> retries =
             from attrs in stratAttrs("retries", numericAttr("count"), timeAttr("duration"))
@@ -205,7 +228,6 @@ namespace LanguageExt
                     retries,
                     backoff,
                     always,
-                    redirectMatch,
                     redirect,
                     match));
 

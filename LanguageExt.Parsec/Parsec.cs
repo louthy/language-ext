@@ -28,7 +28,7 @@ namespace LanguageExt
         /// through the computation.
         /// </summary>
         public static Parser<Unit> setState<T>(T state) =>
-            (PString inp) => ConsumedOK(unit, inp.SetUserState(state));
+            inp => ConsumedOK(unit, inp.SetUserState(state));
 
         /// <summary>
         /// Special parser for getting user state that was previously
@@ -37,18 +37,19 @@ namespace LanguageExt
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static Parser<T> getState<T>() =>
-            (PString inp) => match(inp.UserState,
-                                Some: x => x is T
-                                                ? ConsumedOK((T)x, inp)
-                                                : EmptyError<T>(inp.Pos, "User state type-mismatch"),
-                                None: () => EmptyError<T>(inp.Pos, "No user state set"));
+            inp => 
+                match(inp.UserState,
+                    Some: x => x is T
+                        ? ConsumedOK((T)x, inp)
+                        : EmptyError<T>(inp.Pos, "User state type-mismatch"),
+                    None: () => EmptyError<T>(inp.Pos, "No user state set"));
 
         /// <summary>
         /// 'empty' parser
         /// No error, no results
         /// </summary>
         public static Parser<T> zero<T>() =>
-            inp => EmptyError<T>(inp.Pos, "");
+            inp => EmptyError<T>(inp.Pos, "unknown error");
 
         /// <summary>
         /// A parser that always fails
@@ -75,39 +76,52 @@ namespace LanguageExt
                     ? EmptyError<char>(inp.Pos, "end of stream")
                     : newstate(inp);
 
-        public static ParserResult<T> mergeOk<T>(T x, PString inp, ParserError msg1, ParserError msg2)
-        {
-            if (msg1 != null && msg2 != null && msg1.Pos.Column != msg2.Pos.Column)
-            {
-                x = x;
-            }
+        public static ParserResult<T> mergeOk<T>(T x, PString inp, ParserError msg1, ParserError msg2) =>
+            msg1 != null && msg2 != null && (msg1.Pos.Column != msg2.Pos.Column || msg1.Pos.Line != msg2.Pos.Line)
+                ? EmptyOK(x, inp, msg1.Merge(msg2))
+                : EmptyOK(x, inp, merge(msg1, msg2));
 
-            return EmptyOK(x, inp, merge(msg1, msg2));
-        }
+        public static ParserResult<T> mergeError<T>(ParserError msg1, ParserError msg2) =>
+            msg1 != null && msg2 != null && (msg1.Pos.Column != msg2.Pos.Column || msg1.Pos.Line != msg2.Pos.Line)
+                ? EmptyError<T>(msg1.Merge(msg2))
+                : EmptyError<T>(merge(msg1, msg2));
 
-        public static ParserResult<T> mergeError<T>(ParserError msg1, ParserError msg2)
-        {
-            if (msg1 != null && msg2 != null && msg1.Pos.Column != msg2.Pos.Column)
-            {
-                msg1 = msg1;
-            }
+        public static Reply<T> mergeErrorReply<T>(ParserError msg1, Reply<T> reply) =>
+            reply.Tag == ReplyTag.OK
+                ? Reply.OK(reply.Result, reply.State, merge(msg1, reply.Error))
+                : Reply.Error<T>(merge(msg1, reply.Error));
 
-            return EmptyError<T>(merge(msg1, msg2));
-        }
-
-        public static ParserError merge(ParserError exp1, ParserError exp2)
-        {
-            if (exp1 != null && exp2 != null && exp1.Pos.Column != exp2.Pos.Column)
-            {
-                exp1 = exp1;
-            }
-
-            return exp1 == null && exp2 == null
+        public static ParserError merge(ParserError exp1, ParserError exp2) =>
+            exp1 == null && exp2 == null
                 ? exp1
                 : exp1 == null
                     ? exp2
-                    : exp2 == null                        ? exp1                        : new ParserError(exp1.Pos, exp1.Message, List.append(exp1.Expected, exp2.Expected).Freeze());
-        }
+                    : exp2 == null                        ? exp1                        : (exp1.Pos.Column != exp2.Pos.Column || exp1.Pos.Line != exp2.Pos.Line)
+                            ? exp1.Merge(exp2)
+                            : new ParserError(exp1.Pos, exp1.Message, List.append(exp1.Expected, exp2.Expected).Freeze(), merge(exp1.Inner, exp2.Inner));
+
+        /// <summary>
+        /// The parser try p behaves like parser p, except that it
+        /// pretends that it hasn't consumed any input when an error occurs.
+        /// This combinator is used whenever arbitrary look ahead is needed.
+        /// Since it pretends that it hasn't consumed any input when p fails,
+        /// the('<|>') combinator will try its second alternative even when the
+        /// first parser failed while consuming input.
+        /// </summary>
+        public static Parser<T> attempt<T>(Parser<T> p) =>
+            inp =>
+            {
+                var res = p(inp);
+                if (res.Tag == ResultTag.Consumed && res.Reply.Tag == ReplyTag.Error)
+                {
+                    return EmptyError<T>(res.Reply.Error);
+                }
+                else
+                {
+                    return res;
+                }
+            };
+
         /// <summary>
         /// Logical OR for parsers
         /// Parse p, if it fails parse q
@@ -115,19 +129,14 @@ namespace LanguageExt
         public static Parser<T> either<T>(Parser<T> p, Parser<T> q) =>
             state =>
                 p(state).Match(
-                    EmptyError: msg1 =>
+                    EmptyError: err =>
                         q(state).Match(
-                            EmptyError: msg2           => mergeError<T>(msg1, msg2),
-                            EmptyOK:    (x, inp, msg2) => mergeOk(x, inp, msg1, msg2),
-                            Consumed:   consumed       => consumed
-                            ),
-                    EmptyOK: (x,inp,msg1) =>
-                        q(state).Match(
-                            EmptyError: msg2           => mergeOk(x, inp, msg1, msg2),
-                            EmptyOK:    (_, __, msg2)  => mergeOk(x, inp, msg1, msg2),
-                            Consumed:   consumed       => consumed
-                            ),
-                    Consumed: consumed => consumed);
+                            EmptyOK:       (x, s1, err1) => EmptyOK(x,s1,merge(err, err1)),
+                            EmptyError:    err1          => EmptyError<T>(merge(err, err1)),
+                            ConsumedOK:    (x, s1, err1) => ConsumedOK(x, s1, err1),
+                            ConsumedError: err1          => ConsumedError<T>(err1)),
+                    Otherwise: other => other
+                );
 
         /// <summary>
         /// Logical OR for parsers
@@ -164,7 +173,8 @@ namespace LanguageExt
                 {
                     return EmptyError<char>(inp.Pos, "end of stream");
                 }
-                else {
+                else
+                {
                     var ns = newstate(inp);
 
                     if (ns.Tag == ResultTag.Consumed)
@@ -175,7 +185,7 @@ namespace LanguageExt
                         }
                         else
                         {
-                            return EmptyError<char>(inp.Pos, ns.Reply.Result.ToString());
+                            return EmptyError<char>(inp.Pos, $"\"{ns.Reply.Result}\"");
                         }
                     }
                     else
@@ -184,9 +194,6 @@ namespace LanguageExt
                     }
                 }
             };
-            //from x in item
-            //where pred(x)
-            //select x;
 
         public static Parser<char> ch(char c) =>
             satisfy(x => x == c).label($"'{c}'");
@@ -207,48 +214,32 @@ namespace LanguageExt
             either(letter, digit).label("letter or digit");
 
         public static Parser<IEnumerable<T>> many<T>(Parser<T> p) =>
-            inp =>
-            {
-                var value = new List<T>();
-                var current = inp;
-
-                while (true)
-                {
-                    var res = p(current);
-
-                    if (res.Tag == ResultTag.Consumed && res.Reply.Tag == ReplyTag.OK)
-                    {
-                        value.Add(res.Reply.Result);
-                        current = res.Reply.Remaining;
-                    }
-                    else if (res.Tag == ResultTag.Consumed && res.Reply.Tag == ReplyTag.Error)
-                    {
-                        return ConsumedError<IEnumerable<T>>(res.Reply.Remaining, res.Reply.Error);
-                    }
-                    else if (res.Tag == ResultTag.Empty && res.Reply.Tag == ReplyTag.OK)
-                    {
-                        return EmptyError<IEnumerable<T>>(inp.Pos, "Combinator 'many' is applied to a parser that accepts an empty string.");
-                    }
-                    else 
-                    {
-                        // Empty Error - actually means success
-                        return ConsumedOK<IEnumerable<T>>(value, current, res.Reply.Error);
-                    }
-                }
-            };
+            either(many1(p), result(new T[0].AsEnumerable()));
 
         public static Parser<IEnumerable<T>> many1<T>(Parser<T> p) =>
-            from x in p
+            from x  in p
             from xs in many(p)
             select x.Cons(xs);
 
+        static Parser<T> choicei<T>(Parser<T>[] ps, int index) =>
+           index == ps.Length - 1
+                ? ps[index]
+                : either(ps[index], choicei(ps, index + 1));
+
         public static Parser<T> choice<T>(params Parser<T>[] ps) =>
-           choice(ps.AsEnumerable());
+            ps.Length == 0
+                ? zero<T>()
+                : choicei(ps, 0);
 
         public static Parser<T> choice<T>(IEnumerable<Parser<T>> ps) =>
-            ps.Count() == 1
-                ? ps.Head()
-                : either(ps.Head(), choice(ps.Tail()));
+            choicei(ps.ToArray(), 0);
+
+        static Parser<IEnumerable<T>> chaini<T>(Parser<T>[] ps, int index) =>
+           index == ps.Length - 1
+                ? ps[index].Map(x => new[] { x }.AsEnumerable())
+                : from x in ps[index]
+                  from y in chaini(ps, index + 1)
+                  select x.Cons(y);
 
         /// <summary>
         /// Runs a sequence of parsers, if any fail then the failure state is
@@ -256,7 +247,7 @@ namespace LanguageExt
         /// of each parser is returned.
         /// </summary>
         public static Parser<IEnumerable<T>> chain<T>(params Parser<T>[] ps) =>
-            chain(ps.AsEnumerable());
+            attempt(chaini(ps,0).Map(x => x.Freeze().AsEnumerable()));
 
         /// <summary>
         /// Runs a sequence of parsers, if any fail then the failure state is
@@ -264,11 +255,7 @@ namespace LanguageExt
         /// of each parser is returned.
         /// </summary>
         public static Parser<IEnumerable<T>> chain<T>(IEnumerable<Parser<T>> ps) =>
-            ps.Count() == 1
-                ? ps.Head().Map(x => new[] {x}.AsEnumerable())
-                : from x in ps.Head()
-                  from y in chain(ps.Tail())
-                  select x.Cons(y);
+            attempt(chaini(ps.ToArray(), 0).Map(x => x.Freeze().AsEnumerable()));
 
         /// <summary>
         /// Must match any character in a string of characters
@@ -375,7 +362,7 @@ namespace LanguageExt
         /// </summary>
         public readonly static Parser<string> junk =
             from xs in many(either(spaces, comment))
-            select String.Join("", xs);
+             select String.Join("", xs);
 
         /// <summary>
         /// Parses a token - first runs parser p, followed by junk
@@ -505,9 +492,9 @@ namespace LanguageExt
         public static Parser<Option<T>> optional<T>(Parser<T> p) =>
             inp =>
             {
-                var r = p(inp);
-                return r.Tag == ResultTag.Consumed && r.Reply.Tag == ReplyTag.OK
-                    ? ConsumedOK(Option<T>.Some(r.Reply.Result), r.Reply.Remaining)
+                var r = p.Map(x => Option<T>.Some(x))(inp);
+                return r.Reply.Tag == ReplyTag.OK
+                    ? r
                     : EmptyOK(Option<T>.None, inp);
             };
 
@@ -569,8 +556,8 @@ namespace LanguageExt
         /// </summary>
         public readonly static Parser<string> heavyString =
             asString(wrappedBy(
-                chain(ch('"'), ch('"'), ch('"')),
-                chain(ch('"'), ch('"'), ch('"')),
+                str("\"\"\""),
+                str("\"\"\""),
                 many(satisfy(c => c != '"'))));
 
         /// <summary>
@@ -580,9 +567,33 @@ namespace LanguageExt
             token(
                 choice(
                     heavyString,
-                    wrappedBy(ch('"'), ch('"'), asString(many(stringChar)))))
-                   .label("string");
+                    from a in ch('"')
+                    from s in asString(many(stringChar))
+                    from b in ch('"')
+                    select s)).label("string");
 
+        /// <summary>
+        /// Allows inline logging of parser results
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="p"></param>
+        /// <param name="Succ"></param>
+        /// <param name="Fail"></param>
+        /// <returns></returns>
+        public static Parser<T> log<T>(this Parser<T> p, Action<T> Succ, Action<ParserError> Fail) =>
+            inp =>
+            {
+                var res = p(inp);
+                if (res.Reply.Tag == ReplyTag.Error)
+                {
+                    Fail(res.Reply.Error);
+                }
+                else
+                {
+                    Succ(res.Reply.Result);
+                }
+                return res;
+            };
 
     }
 }

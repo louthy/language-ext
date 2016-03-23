@@ -40,7 +40,7 @@ namespace LanguageExtTests
 
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == 'H');
-            Assert.True(r.Reply.Remaining.ToString() == "ello");
+            Assert.True(r.Reply.State.ToString() == "ello");
         }
 
         [Fact]
@@ -60,13 +60,13 @@ namespace LanguageExtTests
 
             Assert.False(r1.IsFaulted);
             Assert.True(r1.Reply.Result == 'H');
-            Assert.True(r1.Reply.Remaining.ToString() == "ello");
+            Assert.True(r1.Reply.State.ToString() == "ello");
 
-            var r2 = parse(p, r1.Reply.Remaining);
+            var r2 = parse(p, r1.Reply.State);
 
             Assert.False(r2.IsFaulted);
             Assert.True(r2.Reply.Result == 'e');
-            Assert.True(r2.Reply.Remaining.ToString() == "llo");
+            Assert.True(r2.Reply.State.ToString() == "llo");
 
         }
 
@@ -80,7 +80,7 @@ namespace LanguageExtTests
 
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == 'H');
-            Assert.True(r.Reply.Remaining.ToString() == "ello");
+            Assert.True(r.Reply.State.ToString() == "ello");
         }
 
         [Fact]
@@ -95,7 +95,7 @@ namespace LanguageExtTests
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result.Item1 == 'H');
             Assert.True(r.Reply.Result.Item2 == 'e');
-            Assert.True(r.Reply.Remaining.ToString() == "llo");
+            Assert.True(r.Reply.State.ToString() == "llo");
         }
 
         [Fact]
@@ -107,7 +107,7 @@ namespace LanguageExtTests
 
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == 'a');
-            Assert.True(r.Reply.Remaining.ToString() == "");
+            Assert.True(r.Reply.State.ToString() == "");
         }
 
         [Fact]
@@ -119,7 +119,7 @@ namespace LanguageExtTests
 
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == '1');
-            Assert.True(r.Reply.Remaining.ToString() == "");
+            Assert.True(r.Reply.State.ToString() == "");
         }
 
         [Fact]
@@ -134,7 +134,7 @@ namespace LanguageExtTests
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result.Item1 == 'a');
             Assert.True(r.Reply.Result.Item2 == '1');
-            Assert.True(r.Reply.Remaining.ToString() == "");
+            Assert.True(r.Reply.State.ToString() == "");
         }
 
         [Fact]
@@ -145,7 +145,7 @@ namespace LanguageExtTests
 
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == 'H');
-            Assert.True(r.Reply.Remaining.ToString() == "ello");
+            Assert.True(r.Reply.State.ToString() == "ello");
         }
 
         [Fact]
@@ -165,7 +165,7 @@ namespace LanguageExtTests
 
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == 'h');
-            Assert.True(r.Reply.Remaining.ToString() == "ello");
+            Assert.True(r.Reply.State.ToString() == "ello");
         }
 
         [Fact]
@@ -185,7 +185,7 @@ namespace LanguageExtTests
 
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == '1');
-            Assert.True(r.Reply.Remaining.ToString() == "234");
+            Assert.True(r.Reply.State.ToString() == "234");
         }
 
         [Fact]
@@ -205,7 +205,7 @@ namespace LanguageExtTests
 
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == 'h');
-            Assert.True(r.Reply.Remaining.ToString() == "ello");
+            Assert.True(r.Reply.State.ToString() == "ello");
         }
 
         [Fact]
@@ -225,7 +225,7 @@ namespace LanguageExtTests
 
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == "hello");
-            Assert.True(r.Reply.Remaining.ToString() == "   ");
+            Assert.True(r.Reply.State.ToString() == "   ");
         }
 
         [Fact]
@@ -245,7 +245,7 @@ namespace LanguageExtTests
 
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == "hello");
-            Assert.True(r.Reply.Remaining.ToString() == " world");
+            Assert.True(r.Reply.State.ToString() == " world");
         }
 
         [Fact]
@@ -265,7 +265,7 @@ namespace LanguageExtTests
 
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == 1234);
-            Assert.True(r.Reply.Remaining.ToString() == "  ");
+            Assert.True(r.Reply.State.ToString() == "  ");
         }
 
         [Fact]
@@ -285,7 +285,7 @@ namespace LanguageExtTests
 
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == 1234);
-            Assert.True(r.Reply.Remaining.ToString() == "  ");
+            Assert.True(r.Reply.State.ToString() == "  ");
         }
 
         [Fact]
@@ -296,7 +296,7 @@ namespace LanguageExtTests
 
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == -1234);
-            Assert.True(r.Reply.Remaining.ToString() == "  ");
+            Assert.True(r.Reply.State.ToString() == "  ");
         }
 
         [Fact]
@@ -316,7 +316,7 @@ namespace LanguageExtTests
 
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == 1);
-            Assert.True(r.Reply.Remaining.ToString() == "");
+            Assert.True(r.Reply.State.ToString() == "");
         }
 
         [Fact]
@@ -341,7 +341,7 @@ namespace LanguageExtTests
             Assert.True(arr[1] == 2);
             Assert.True(arr[2] == 3);
             Assert.True(arr[3] == 4);
-            Assert.True(r.Reply.Remaining.ToString() == "");
+            Assert.True(r.Reply.State.ToString() == "");
         }
 
         [Fact]
@@ -357,7 +357,7 @@ namespace LanguageExtTests
             Assert.True(arr[1] == 2);
             Assert.True(arr[2] == 3);
             Assert.True(arr[3] == 4);
-            Assert.True(r.Reply.Remaining.ToString() == "");
+            Assert.True(r.Reply.State.ToString() == "");
         }
 
         [Fact]
@@ -403,7 +403,25 @@ namespace LanguageExtTests
             var r = parse(p, "    // A comment\nabc");
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == "     A comment");
-            Assert.True(r.Reply.Remaining.ToString() == "abc");
+            Assert.True(r.Reply.State.ToString() == "abc");
+        }
+
+        [Fact]
+        public void HeavyStringLiteralComb()
+        {
+            var p = stringLiteral;
+            var r = parse(p, "\"\"\"abc\"\"\"");
+            Assert.False(r.IsFaulted);
+            Assert.True(r.Reply.Result == "abc");
+        }
+
+        [Fact]
+        public void StringLiteralComb()
+        {
+            var p = stringLiteral;
+            var r = parse(p, "\"/abc\"");
+            Assert.False(r.IsFaulted);
+            Assert.True(r.Reply.Result == "/abc");
         }
 
         [Fact]
@@ -427,7 +445,7 @@ namespace LanguageExtTests
                         | System.ArgumentNullException   -> escalate
                         | _                              -> restart
 
-                        redirect
+                        redirect when
                         | restart  -> forward-to-parent
                         | escalate -> forward-to-self
                         | stop     -> forward-to-process ""/root/test/567""
@@ -442,7 +460,7 @@ namespace LanguageExtTests
 
             Assert.False(res.IsFaulted);
             var conf = res.Reply.Result;
-            var remain = res.Reply.Remaining;
+            var remain = res.Reply.State;
 
             Assert.True(conf.Pid.Path == "/root/test/123");
             Assert.True((conf.Flags & ProcessFlags.PersistInbox) != 0);
@@ -451,7 +469,7 @@ namespace LanguageExtTests
             Assert.True(conf.MailboxSize == 1000);
             Assert.True(conf.Settings["blah"] == "Something for the process to use");
             Assert.True(conf.Settings["another"] == "Another setting");
-            Assert.True(res.Reply.Remaining.ToString() == "");
+            Assert.True(res.Reply.State.ToString() == "");
         }
 
         [Fact]

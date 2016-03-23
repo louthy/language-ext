@@ -27,7 +27,7 @@ public static class ___ParserExt
             p(inp).Match(
                 EmptyError: msg           => EmptyError<T>(msg.Expect(expected)),
                 EmptyOK:    (x, st, msg)  => EmptyOK(x, st, msg == null ? null : msg.Expect(expected)),
-                Consumed:   other         => other
+                Consumed:   reply         => Consumed(reply)
                 );
 
     public static ParserResult<T> Parse<T>(this Parser<T> self, PString input) =>
@@ -45,7 +45,7 @@ public static class ___ParserExt
                 EmptyOK:        (x,rem,msg) => pred(x) ? EmptyOK(x,rem, msg) : EmptyError<T>(inp.Pos,""),
                 EmptyError:     msg         => EmptyError<T>(msg),
                 ConsumedOK:     (x,rem,msg) => pred(x) ? ConsumedOK(x,rem, msg) : EmptyError<T>(inp.Pos, ""),
-                ConsumedError:  (rem,msg)   => ConsumedError<T>(rem,msg));
+                ConsumedError:  msg         => ConsumedError<T>(msg));
 
     public static Parser<U> Map<T, U>(this Parser<T> self, Func<T, U> map) =>
         self.Select(map);
@@ -56,39 +56,47 @@ public static class ___ParserExt
                 EmptyOK:        (x,rem,msg) => EmptyOK(map(x),rem, msg),
                 EmptyError:     msg         => EmptyError<U>(msg),
                 ConsumedOK:     (x,rem,msg) => ConsumedOK(map(x),rem, msg),
-                ConsumedError:  (rem,msg)   => ConsumedError<U>(rem,msg));
-
-    public static Parser<U> Bind<T, U>(this Parser<T> self, Func<T, Parser<U>> bind) =>
-        inp =>
-            self(inp).Match(
-                EmptyOK:        (x,rem,msg) => bind(x)(rem),
-                EmptyError:     msg         => EmptyError<U>(msg),
-                ConsumedOK:     (x,rem,msg) => bind(x)(rem),
-                ConsumedError:  (rem,msg)   => ConsumedError<U>(rem,msg));
+                ConsumedError:  msg         => ConsumedError<U>(msg));
 
     public static Parser<V> SelectMany<T, U, V>(
         this Parser<T> self,
         Func<T, Parser<U>> bind,
         Func<T, U, V> project) =>
-        inp =>
-            self(inp).Match(
-                EmptyOK: (t, rem1, msg1) =>  
-                    bind(t)(rem1).Match(
-                        EmptyOK:        (u, rem2, msg2) => mergeOk(project(t, u), rem2, msg1, msg2),
-                        EmptyError:     msg2            => mergeError<V>(msg1, msg2),
-                        ConsumedOK:     (u, rem, msg2)  => ConsumedOK(project(t, u), rem, msg1),
-                        ConsumedError:  (rem, msg2)     => ConsumedError<V>(rem, merge(msg1, msg2))),
+        state =>
+            self(state).Match(
 
-                EmptyError: msg => 
-                    EmptyError<V>(msg),
+                // consumed-okay case for self
+                ConsumedOK: (x, s, err) =>
+                    bind(x)(s).Match(
 
-                ConsumedOK: (t, rem1, msg1) => 
-                    bind(t)(rem1).Match(
-                        EmptyOK:        (u, rem2, msg2) => mergeOk(project(t, u), rem2, msg1, msg2),
-                        EmptyError:     msg2            => mergeError<V>(msg1, msg2),
-                        ConsumedOK:     (u, rem2, msg2) => ConsumedOK<V>(project(t, u), rem2, msg2),
-                        ConsumedError:  (rem, msg2)     => ConsumedError<V>(rem, msg2)),
+                        // if bind(x) consumes, those go straigt up
+                        ConsumedOK:    (x1, s1, err1) => ConsumedOK(project(x,x1), s1, err1),
+                        ConsumedError: err1           => ConsumedError<V>(err1),
 
-                ConsumedError: (rem, msg) =>        
-                    ConsumedError<V>(rem, msg));
+                        // if bind(x) doesn't consume input, but is okay,
+                        // we still return in the consumed continuation
+                        EmptyOK:       (x1, s1, err1) => EmptyOK(project(x, x1), s1, merge(err, err1)),
+
+                        // if bind(x) doesn't consume input, but errors,
+                        // we return the error in the 'consumed-error'
+                        // continuation
+                        EmptyError:    err1           => ConsumedError<V>(merge(err, err1))
+                    ),
+
+                // empty-ok case for self
+                EmptyOK: (x, s, err) =>
+                    bind(x)(s).Match(
+                        // in these cases, (k x) can return as empty
+                        ConsumedOK:    (x1, s1, err1) => ConsumedOK(project(x, x1), s1, err1),
+                        EmptyOK:       (x1, s1, err1) => EmptyOK(project(x, x1), s1, merge(err, err1)),
+                        ConsumedError: err1           => ConsumedError<V>(err1),
+                        EmptyError:    err1           => EmptyError<V>(merge(err, err1))
+                    ),
+
+                ConsumedError: err =>
+                    ConsumedError<V>(err),
+
+                EmptyError: err =>
+                    EmptyError<V>(err)
+            );
 }
