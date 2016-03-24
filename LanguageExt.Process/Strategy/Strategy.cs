@@ -292,7 +292,10 @@ namespace LanguageExt
         /// <returns>Strategy computation as a State monad</returns>
         public static State<Exception, Option<Directive>> Otherwise(Func<Exception, Directive> map) =>
             from ex in get<Exception>()
-            select Some(map(ex));
+            select 
+                (ex is ProcessKillException) || (ex is ProcessSetupException)
+                    ? None
+                    : Some(map(ex));
 
         /// <summary>
         /// Used within the Strategy.Match function to provide a default Directive if the

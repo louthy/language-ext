@@ -895,8 +895,8 @@ namespace LanguageExt
 
         public Unit ShutdownProcess(bool maintainState)
         {
-            Parent.Actor.UnlinkChild(Id);
             ShutdownProcessRec(ActorContext.SelfProcess, ActorContext.GetInboxShutdownItem().Map(x => (ILocalActorInbox)x.Inbox), maintainState);
+            Parent.Actor.UnlinkChild(Id);
 
             children = Map.empty<string, ActorItem>();
             return unit;
