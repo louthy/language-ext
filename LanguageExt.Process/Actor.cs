@@ -105,7 +105,8 @@ namespace LanguageExt
                         null,
                         Parent.Actor.Strategy
                     );
-                    tell(ActorContext.Errors, e);
+
+                    if(!(e is ProcessKillException)) tell(ActorContext.Errors, e);
                 }
                 finally
                 {
@@ -664,7 +665,7 @@ namespace LanguageExt
                 message,
                 Parent.Actor.Strategy
             );
-            tell(ActorContext.Errors, e);
+            if (!(e is ProcessKillException)) tell(ActorContext.Errors, e);
             return directive;
         }
 
