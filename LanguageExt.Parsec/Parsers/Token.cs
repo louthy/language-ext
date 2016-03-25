@@ -101,7 +101,15 @@ namespace LanguageExt.Parsec
               : def.CommentLine == null ? skipMany(either(simpleSpace, oneLineComment).label(""))
               : skipMany(choice(simpleSpace, oneLineComment, multiLineComment).label(""));
 
-            var symbol = fun((string name) => lexeme<string>(whiteSpace)(str(name)));
+            var lexemeStr      = lexemeDef<string>(whiteSpace);
+            var lexemeCh       = lexemeDef<char>(whiteSpace);
+            var lexemeInt      = lexemeDef<int>(whiteSpace);
+            var lexemeDbl      = lexemeDef<double>(whiteSpace);
+            var lexemeUnit     = lexemeDef<Unit>(whiteSpace);
+            var lexemeFnIntInt = lexemeDef<Func<int,int>>(whiteSpace);
+            var lexemeEiIntDbl = lexemeDef<Either<int,double>>(whiteSpace);
+
+            var symbol = fun((string name) => lexemeStr(str(name)));
 
             var semi = symbol(";");
             var comma = symbol(",");
@@ -152,7 +160,7 @@ namespace LanguageExt.Parsec
                                select fun((int d) => d),
                                result(fun((int d) => d)));
 
-            var int_ = from f in lexeme<Func<int, int>>(whiteSpace)(signi)
+            var int_ = from f in lexemeFnIntInt(signi)
                        from n in nat
                        select f(n);
 
@@ -177,7 +185,7 @@ namespace LanguageExt.Parsec
             var characterChar = either(charLetter, charEscape).label("literal character");
 
             var charLiteral =
-                lexeme<char>(whiteSpace)(
+                lexemeCh(
                     between(
                         ch('\''),
                         ch('\'').label("end of character"),
@@ -212,7 +220,7 @@ namespace LanguageExt.Parsec
 
 
             var stringLiteral =
-                lexeme<string>(whiteSpace)(
+                lexemeStr(
                     from s in between(
                         ch('"'),
                         ch('"'),
@@ -276,13 +284,13 @@ namespace LanguageExt.Parsec
                 from f in fractExponent(n)
                 select f;
 
-            var natural = lexeme<int>(whiteSpace)(nat).label("natural");
-            var integer = lexeme<int>(whiteSpace)(int_).label("integer");
-            var float_ = lexeme<double>(whiteSpace)(floating).label("float");
-            var naturalOrFloat = lexeme<Either<int, double>>(whiteSpace)(natFloat).label("number");
+            var natural        = lexemeInt(nat).label("natural");
+            var integer        = lexemeInt(int_).label("integer");
+            var float_         = lexemeDbl(floating).label("float");
+            var naturalOrFloat = lexemeEiIntDbl(natFloat).label("number");
 
             var reservedOp = fun((string name) =>
-                lexeme<Unit>(whiteSpace)(
+                lexemeUnit(
                     attempt(
                         from n in str(name)
                         from _ in notFollowedBy(def.OpLetter).label("end of " + name)
@@ -294,7 +302,7 @@ namespace LanguageExt.Parsec
                        .label("operator");
 
             var operator_ =
-                lexeme<string>(whiteSpace)(
+                lexemeStr(
                     attempt(
                         from name in oper
                         from op in def.ReservedOpNames.Contains(name)
@@ -321,7 +329,7 @@ namespace LanguageExt.Parsec
                          select new string(c.Cons(cs).ToArray()))
                         .label("identifier");
 
-            var identifier = lexeme<string>(whiteSpace)(
+            var identifier = lexemeStr(
                 attempt(
                     from name in ident
                     from r in isReservedName(name)
@@ -335,7 +343,7 @@ namespace LanguageExt.Parsec
             //    : /* TODO - fully implement case insensitive version*/);
 
             var reserved = fun((string name) =>
-                lexeme<string>(whiteSpace)(
+                lexemeStr(
                     attempt(
                         from x in caseString(name)
                         from _ in notFollowedBy(def.IdentLetter).label("end of " + name)
@@ -364,16 +372,14 @@ namespace LanguageExt.Parsec
                 );
         }
 
-        static Func<Parser<T>, Parser<T>> lexeme<T>(Parser<Unit> ws) =>
-            (Parser<T> p) =>
-                from _ in ws
+        static Func<Parser<T>, Parser<T>> lexemeDef<T>(Parser<Unit> whiteSpace)
+        {
+            var ws = whiteSpace;
+            return (Parser<T> p) =>
                 from x in p
+                from _ in ws
                 select x;
-
-        static Parser<string> defsymbol(Parser<Unit> ws, string name) =>
-            from _ in ws
-            from x in lexeme<string>(ws)(str(name))
-            select x;
+        }
 
         static Parser<T> parseEsc<T>(char c, T code) =>
             from _ in ch(c)

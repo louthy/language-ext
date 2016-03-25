@@ -271,7 +271,7 @@ namespace LanguageExtTests
 
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == 1234);
-            Assert.True(r.Reply.State.ToString() == "  ");
+            Assert.True(r.Reply.State.ToString() == "");
         }
 
         [Fact]
@@ -295,7 +295,7 @@ namespace LanguageExtTests
 
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == 1234);
-            Assert.True(r.Reply.State.ToString() == "  ");
+            Assert.True(r.Reply.State.ToString() == "");
         }
 
         [Fact]
@@ -308,7 +308,7 @@ namespace LanguageExtTests
 
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == -1234);
-            Assert.True(r.Reply.State.ToString() == "  ");
+            Assert.True(r.Reply.State.ToString() == "");
         }
 
         [Fact]
@@ -519,9 +519,11 @@ namespace LanguageExtTests
 
             Assert.True(res.IsFaulted);
 
-            //Assert.True(res.Reply.Error.Message.StartsWith("Expected: 'pid', 'flags'"));
-            //Assert.True(res.Reply.Error.Location.Pos.Column == 16);
-            //Assert.True(res.Reply.Error.Location.Pos.Line == 2);
+            Assert.True(res.Reply.Error.Msg == "y");
+            Assert.True(res.Reply.Error.Pos.Column + 1 == 20);
+            Assert.True(res.Reply.Error.Pos.Line + 1 == 3);
+            Assert.True(res.Reply.Error.Expected.Count == 1);
+            Assert.True(res.Reply.Error.Expected.Head() == "end of pid");
         }
 
         [Fact]
@@ -540,10 +542,10 @@ namespace LanguageExtTests
             var res = parse(ActorConfigParser.Parser, conftext);
 
             Assert.True(res.IsFaulted);
-
-            //Assert.True(res.Reply.Error.Message.StartsWith("Expected: 'pid', 'flags'"));
-            //Assert.True(res.Reply.Error.Location.Pos.Column == 16);
-            //Assert.True(res.Reply.Error.Location.Pos.Line == 2);
+            Assert.True(res.Reply.Error.Tag == ParserErrorTag.Expect);
+            Assert.True(res.Reply.Error.Msg == "\"P\"");
+            Assert.True(res.Reply.Error.Pos.Column == 46);
+            Assert.True(res.Reply.Error.Pos.Line == 3);
         }
     }
 }

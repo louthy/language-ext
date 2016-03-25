@@ -15,37 +15,36 @@ namespace LanguageExt
     {
         // Process config definition
         readonly static GenLanguageDef definition = GenLanguageDef.Empty.With(
-            CommentStart: "/*",
-            CommentEnd: "*/",
-            CommentLine: "//",
+            CommentStart:   "/*",
+            CommentEnd:     "*/",
+            CommentLine:    "//",
             NestedComments: true,
-            IdentStart: letter,
-            IdentLetter: either(alphaNum, oneOf("-_")),
-            ReservedNames: List("pid", "strategy", "flags", "mailbox-size", "one-for-one", "all-for-one", "settings"));
+            IdentStart:     letter,
+            IdentLetter:    either(alphaNum, oneOf("-_")),
+            ReservedNames:  List("pid", "strategy", "flags", "mailbox-size", "one-for-one", "all-for-one", "settings"));
 
         // Token parser
         readonly static GenTokenParser tokenParser = 
             Token.makeTokenParser(definition);
 
         // Elements of the token parser to use below
-        readonly static Parser<string> identifier = tokenParser.Identifier;
-        readonly static Parser<string> stringLiteral = tokenParser.StringLiteral;
-        readonly static Parser<int> integer = tokenParser.Integer;
-        readonly static Parser<int> natural = tokenParser.Natural;
-        readonly static Parser<Unit> whiteSpace = tokenParser.WhiteSpace;
-        readonly static Func<string,Parser<string>> symbol = name => tokenParser.Symbol(name);
-        readonly static Func<string,Parser<string>> reserved = tokenParser.Reserved;
-        static Parser<T> token<T>(Parser<T> p) => tokenParser.Lexeme(p);
-        static Parser<T> brackets<T>(Parser<T> p) => tokenParser.Brackets(p);
-        static Parser<Lst<T>> commaSep<T>(Parser<T> p) => tokenParser.CommaSep(p);
-        static Parser<Lst<T>> commaSep1<T>(Parser<T> p) => tokenParser.CommaSep1(p);
+        readonly static Parser<string> identifier            =  tokenParser.Identifier;
+        readonly static Parser<string> stringLiteral         =  tokenParser.StringLiteral;
+        readonly static Parser<int> integer                  =  tokenParser.Integer;
+        readonly static Parser<int> natural                  =  tokenParser.Natural;
+        readonly static Parser<Unit> whiteSpace              =  tokenParser.WhiteSpace;
+        readonly static Func<string,Parser<string>> symbol   =  tokenParser.Symbol;
+        readonly static Func<string,Parser<string>> reserved =  tokenParser.Reserved;
+        static Parser<T> token<T>(Parser<T> p)               => tokenParser.Lexeme(p);
+        static Parser<T> brackets<T>(Parser<T> p)            => tokenParser.Brackets(p);
+        static Parser<Lst<T>> commaSep<T>(Parser<T> p)       => tokenParser.CommaSep(p);
+        static Parser<Lst<T>> commaSep1<T>(Parser<T> p)      => tokenParser.CommaSep1(p);
 
         readonly static Parser<ActorConfigToken> pid =
-            (from _   in reserved("pid")
-             from __  in symbol(":")
-             from pid in stringLiteral
-             select new PidToken(new ProcessId(pid)) as ActorConfigToken)
-            .label("pid statement");
+            from _   in reserved("pid")
+            from __  in symbol(":")
+            from pid in stringLiteral
+            select new PidToken(new ProcessId(pid)) as ActorConfigToken;
 
         static Parser<ProcessFlags> flagMap(string name, ProcessFlags flag) =>
             attempt(
@@ -63,18 +62,16 @@ namespace LanguageExt
                 flagMap("remote-state-publish", ProcessFlags.RemoteStatePublish));
 
         readonly static Parser<ActorConfigToken> flags =
-            (from _  in reserved("flags")
-             from __ in symbol(":")
-             from fs in brackets(commaSep(flag))
-             select new FlagsToken(List.fold(fs, ProcessFlags.Default, (s, x) => s | x)) as ActorConfigToken)
-            .label("flags statement");
+            from _  in reserved("flags")
+            from __ in symbol(":")
+            from fs in brackets(commaSep(flag))
+            select new FlagsToken(List.fold(fs, ProcessFlags.Default, (s, x) => s | x)) as ActorConfigToken;
 
         readonly static Parser<ActorConfigToken> maxMailboxSize =
-            (from _  in reserved("mailbox-size")
-             from __ in symbol(":")
-             from sz in natural
-             select new MailboxSizeToken(sz) as ActorConfigToken)
-            .label("mailbox-size statement");
+            from _  in reserved("mailbox-size")
+            from __ in symbol(":")
+            from sz in natural
+            select new MailboxSizeToken(sz) as ActorConfigToken;
 
         static Parser<Attr> numericAttr(string name) =>
             from x in symbol(name)
@@ -241,18 +238,16 @@ namespace LanguageExt
                 : Strategy.Retries(attrs.GetNumericAttr("count"), attrs.GetTimeAttr("duration"));
 
         readonly static Parser<Tuple<string, string>> setting =
-            (from key in identifier
-             from _   in symbol(":")
-             from val in stringLiteral
-             select Tuple(key, val))
-            .label("setting");
+            from key in identifier
+            from _   in symbol(":")
+            from val in stringLiteral
+            select Tuple(key, val);
 
         readonly static Parser<ActorConfigToken> settings =
-            (from n in reserved("settings")
-             from _ in symbol(":")
-             from s in many1(attempt(setting))
-             select new SettingsToken(Map.createRange(s)) as ActorConfigToken)
-            .label("settings statement");
+            from n in reserved("settings")
+            from _ in symbol(":")
+            from s in many1(attempt(setting))
+            select new SettingsToken(Map.createRange(s)) as ActorConfigToken;
 
         readonly static Parser<IEnumerable<State<StrategyContext, Unit>>> strategies =
             many1(
@@ -276,11 +271,10 @@ namespace LanguageExt
             select Strategy.AllForOne(attrs.ToArray());
 
         readonly static Parser<ActorConfigToken> strategy =
-            (from a in reserved("strategy")
-             from b in symbol(":")
-             from s in either(attempt(oneForOne), allForOne)
-             select new StrategyToken(s) as ActorConfigToken)
-            .label("strategy statement");
+            from a in reserved("strategy")
+            from b in symbol(":")
+            from s in either(attempt(oneForOne), allForOne)
+            select new StrategyToken(s) as ActorConfigToken;
 
         public readonly static Parser<ActorConfig> Parser =
             from _ in whiteSpace
