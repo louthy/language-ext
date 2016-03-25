@@ -41,7 +41,7 @@ namespace LanguageExt
         static Parser<Lst<T>> commaSep1<T>(Parser<T> p)      => tokenParser.CommaSep1(p);
 
         readonly static Parser<ActorConfigToken> pid =
-            from _   in reserved("pid")
+            from _   in attempt(reserved("pid"))
             from __  in symbol(":")
             from pid in stringLiteral
             select new PidToken(new ProcessId(pid)) as ActorConfigToken;
@@ -62,13 +62,13 @@ namespace LanguageExt
                 flagMap("remote-state-publish", ProcessFlags.RemoteStatePublish));
 
         readonly static Parser<ActorConfigToken> flags =
-            from _  in reserved("flags")
+            from _  in attempt(reserved("flags"))
             from __ in symbol(":")
             from fs in brackets(commaSep(flag))
             select new FlagsToken(List.fold(fs, ProcessFlags.Default, (s, x) => s | x)) as ActorConfigToken;
 
         readonly static Parser<ActorConfigToken> maxMailboxSize =
-            from _  in reserved("mailbox-size")
+            from _  in attempt(reserved("mailbox-size"))
             from __ in symbol(":")
             from sz in natural
             select new MailboxSizeToken(sz) as ActorConfigToken;
@@ -148,7 +148,7 @@ namespace LanguageExt
             select new TimeAttr(name, v, u) as Attr;
 
         static Parser<List<Attr>> stratAttrs(string name, params Parser<Attr>[] attrs) =>
-            from n in reserved(name)
+            from n in attempt(reserved(name))
             from o in symbol("(")
             from a in commaSep1(choice(attrs.Map(token).Map(attempt)))
             from c in symbol(")")
@@ -165,7 +165,7 @@ namespace LanguageExt
             select Strategy.Pause(attrs.GetTimeAttr("duration"));
 
         readonly static Parser<State<StrategyContext, Unit>> always =
-            from n in reserved("always")
+            from n in attempt(reserved("always"))
             from _ in symbol(":")
             from d in token(directive)
             select Strategy.Always(d);
@@ -204,7 +204,7 @@ namespace LanguageExt
             select Strategy.Otherwise(d);
 
         readonly static Parser<State<StrategyContext, Unit>> match =
-            from _      in reserved("match")
+            from _      in attempt(reserved("match"))
             from direx  in many(attempt(exceptionDirective))
             from other  in optional(otherwiseDirective)
             let dirs = direx.Append(other.AsEnumerable()).ToArray()
@@ -223,7 +223,7 @@ namespace LanguageExt
             select Strategy.Redirect(dirs);
 
         readonly static Parser<State<StrategyContext, Unit>> redirect =
-            from n in reserved("redirect")
+            from n in attempt(reserved("redirect"))
             from t in either(attempt(symbol(":")), reserved("when"))
             from r in t == ":"
                ? from d in token(msgDirective)
@@ -244,7 +244,7 @@ namespace LanguageExt
             select Tuple(key, val);
 
         readonly static Parser<ActorConfigToken> settings =
-            from n in reserved("settings")
+            from n in attempt(reserved("settings"))
             from _ in symbol(":")
             from s in many1(attempt(setting))
             select new SettingsToken(Map.createRange(s)) as ActorConfigToken;
@@ -252,26 +252,26 @@ namespace LanguageExt
         readonly static Parser<IEnumerable<State<StrategyContext, Unit>>> strategies =
             many1(
                 choice(
-                    attempt(retries),
-                    attempt(backoff),
-                    attempt(always),
-                    attempt(redirect),
-                    attempt(match)));
+                    retries,
+                    backoff,
+                    always,
+                    redirect,
+                    match));
 
         readonly static Parser<State<StrategyContext, Unit>> oneForOne =
-            from a in reserved("one-for-one")
+            from a in attempt(reserved("one-for-one"))
             from b in symbol(":")
             from attrs in strategies
             select Strategy.OneForOne(attrs.ToArray());
 
         readonly static Parser<State<StrategyContext, Unit>> allForOne =
-            from a in reserved("all-for-one")
+            from a in attempt(reserved("all-for-one"))
             from b in symbol(":")
             from attrs in strategies
             select Strategy.AllForOne(attrs.ToArray());
 
         readonly static Parser<ActorConfigToken> strategy =
-            from a in reserved("strategy")
+            from a in attempt(reserved("strategy"))
             from b in symbol(":")
             from s in either(attempt(oneForOne), allForOne)
             select new StrategyToken(s) as ActorConfigToken;
@@ -280,11 +280,11 @@ namespace LanguageExt
             from _ in whiteSpace
             from tokens in many1(
                 choice(
-                    attempt(pid),
-                    attempt(flags),
-                    attempt(strategy),
-                    attempt(settings),
-                    attempt(maxMailboxSize)))
+                    pid,
+                    flags,
+                    strategy,
+                    settings,
+                    maxMailboxSize))
             select new ActorConfig(tokens);
     }
 }
