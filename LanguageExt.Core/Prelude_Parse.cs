@@ -38,6 +38,18 @@ namespace LanguageExt
                 : None;
         }
 
+        public static Option<int> parseInt(string value, int fromBase)
+        {
+            try
+            {
+                return Convert.ToInt32(value, fromBase);
+            }
+            catch
+            {
+                return None;
+            }
+        }
+
         public static Option<short> parseShort(string value)
         {
             short result;

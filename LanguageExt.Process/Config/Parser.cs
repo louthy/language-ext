@@ -2,48 +2,89 @@
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
-using static LanguageExt.Parsec;
+using LanguageExt.Parsec;
+using static LanguageExt.Prelude;
+using static LanguageExt.Parsec.Prim;
+using static LanguageExt.Parsec.Char;
+using static LanguageExt.Parsec.Expr;
+using static LanguageExt.Parsec.Token;
 
 namespace LanguageExt
 {
     public static class ActorConfigParser
     {
+        // Process config definition
+        readonly static GenLanguageDef definition = GenLanguageDef.Empty.With(
+            CommentStart: "/*",
+            CommentEnd: "*/",
+            CommentLine: "//",
+            NestedComments: true,
+            IdentStart: letter,
+            IdentLetter: either(alphaNum, oneOf("-_")),
+            ReservedNames: List("pid", "strategy", "flags", "mailbox-size", "one-for-one", "all-for-one", "settings"));
+
+        // Token parser
+        readonly static GenTokenParser tokenParser = 
+            Token.makeTokenParser(definition);
+
+        // Elements of the token parser to use below
+        readonly static Parser<string> identifier = tokenParser.Identifier;
+        readonly static Parser<string> stringLiteral = tokenParser.StringLiteral;
+        readonly static Parser<int> integer = tokenParser.Integer;
+        readonly static Parser<int> natural = tokenParser.Natural;
+        readonly static Parser<Unit> whiteSpace = tokenParser.WhiteSpace;
+        readonly static Func<string,Parser<string>> symbol = name => tokenParser.Symbol(name);
+        readonly static Func<string,Parser<string>> reserved = tokenParser.Reserved;
+        static Parser<T> token<T>(Parser<T> p) => tokenParser.Lexeme(p);
+        static Parser<T> brackets<T>(Parser<T> p) => tokenParser.Brackets(p);
+        static Parser<Lst<T>> commaSep<T>(Parser<T> p) => tokenParser.CommaSep(p);
+        static Parser<Lst<T>> commaSep1<T>(Parser<T> p) => tokenParser.CommaSep1(p);
+
         readonly static Parser<ActorConfigToken> pid =
-            from _   in symbol("pid")
-            from __  in symbol(":")
-            from pid in stringLiteral
-            select new PidToken(new ProcessId(pid)) as ActorConfigToken;
+            (from _   in reserved("pid")
+             from __  in symbol(":")
+             from pid in stringLiteral
+             select new PidToken(new ProcessId(pid)) as ActorConfigToken)
+            .label("pid statement");
+
+        static Parser<string> id = 
+            inp => ParserResult.EmptyOK<string>("", inp, null);
 
         static Parser<ProcessFlags> flagMap(string name, ProcessFlags flag) =>
-            from x in symbol(name)
-            select flag;
+            attempt(
+             from _ in id
+             from x in str(name)
+             select flag);
 
         readonly static Parser<ProcessFlags> flag =
-            choice(
-                flagMap("default", ProcessFlags.Default),
-                flagMap("listen-remote-and-local", ProcessFlags.ListenRemoteAndLocal),
-                flagMap("persist-all", ProcessFlags.PersistAll),
-                flagMap("persist-inbox", ProcessFlags.PersistInbox),
-                flagMap("persist-state", ProcessFlags.PersistState),
-                flagMap("remote-publish", ProcessFlags.RemotePublish),
-                flagMap("remote-state-publish", ProcessFlags.RemoteStatePublish));
+            token(
+                choice(
+                    flagMap("default", ProcessFlags.Default),
+                    flagMap("listen-remote-and-local", ProcessFlags.ListenRemoteAndLocal),
+                    flagMap("persist-all", ProcessFlags.PersistAll),
+                    flagMap("persist-inbox", ProcessFlags.PersistInbox),
+                    flagMap("persist-state", ProcessFlags.PersistState),
+                    flagMap("remote-publish", ProcessFlags.RemotePublish),
+                    flagMap("remote-state-publish", ProcessFlags.RemoteStatePublish)));
 
         readonly static Parser<ActorConfigToken> flags =
-            (from _  in symbol("flags")
+            (from _  in reserved("flags")
              from __ in symbol(":")
-             from fs in commaBrackets(flag)
-             select new FlagsToken(List.fold(fs, ProcessFlags.Default, (s, x) => s | x)) as ActorConfigToken);
+             from fs in brackets(commaSep(flag))
+             select new FlagsToken(List.fold(fs, ProcessFlags.Default, (s, x) => s | x)) as ActorConfigToken)
+            .label("flags statement");
 
         readonly static Parser<ActorConfigToken> maxMailboxSize =
-            from _  in symbol("mailbox-size")
-            from __ in symbol(":")
-            from sz in token(natural)
-            select new MailboxSizeToken(sz) as ActorConfigToken;
+            (from _  in reserved("mailbox-size")
+             from __ in symbol(":")
+             from sz in natural
+             select new MailboxSizeToken(sz) as ActorConfigToken)
+            .label("mailbox-size statement");
 
         static Parser<Attr> numericAttr(string name) =>
             from x in symbol(name)
             from _ in symbol("=")
-            from v in token(integer)
+            from v in integer
             select new NumericAttr(name, v) as Attr;
 
         static Parser<Attr> stringAttr(string name) =>
@@ -53,23 +94,23 @@ namespace LanguageExt
             select new StringAttr(name, s) as Attr;
 
         static readonly Parser<MessageDirective> fwdToSelf =
-            from _ in symbol("forward-to-self")
+            from _ in reserved("forward-to-self")
             select new ForwardToSelf() as MessageDirective;
 
         static readonly Parser<MessageDirective> fwdToParent =
-            from _ in symbol("forward-to-parent")
+            from _ in reserved("forward-to-parent")
             select new ForwardToParent() as MessageDirective;
 
         static readonly Parser<MessageDirective> fwdToDeadLetters =
-            from _ in symbol("forward-to-dead-letters")
+            from _ in reserved("forward-to-dead-letters")
             select new ForwardToDeadLetters() as MessageDirective;
 
         static readonly Parser<MessageDirective> stayInQueue =
-            from _ in symbol("stay-in-queue")
+            from _ in reserved("stay-in-queue")
             select new StayInQueue() as MessageDirective;
 
         static readonly Parser<MessageDirective> fwdToProcess =
-            from _   in symbol("forward-to-process")
+            from _   in reserved("forward-to-process")
             from pid in stringLiteral
             select new ForwardToProcess(new ProcessId(pid)) as MessageDirective;
 
@@ -83,47 +124,42 @@ namespace LanguageExt
 
         static Parser<Directive> directive =>
             choice(
-                symbol("resume").Map(_ => Directive.Resume),
-                symbol("restart").Map(_ => Directive.Restart),
-                symbol("stop").Map(_ => Directive.Stop),
-                symbol("escalate").Map(_ => Directive.Escalate));
-
-        static Parser<Attr> strAttr(string name) =>
-            from x in symbol(name)
-            from _ in symbol("=")
-            from s in stringLiteral
-            select new StringAttr(name, s) as Attr;
+                reserved("resume").Map(_ => Directive.Resume),
+                reserved("restart").Map(_ => Directive.Restart),
+                reserved("stop").Map(_ => Directive.Stop),
+                reserved("escalate").Map(_ => Directive.Escalate));
 
         static readonly Parser<string> timeUnit =
             choice(
-                symbol("seconds"),
-                symbol("second"),
-                symbol("secs"),
-                symbol("sec"),
-                symbol("s"),
-                symbol("minutes"),
-                symbol("minute"),
-                symbol("mins"),
-                symbol("min"),
-                symbol("milliseconds"),
-                symbol("millisecond"),
-                symbol("ms"),
-                symbol("hours"),
-                symbol("hour"),
-                symbol("hr"))
+                attempt(reserved("seconds")),
+                attempt(reserved("second")),
+                attempt(reserved("secs")),
+                attempt(reserved("sec")),
+                attempt(reserved("s")),
+                attempt(reserved("minutes")),
+                attempt(reserved("minute")),
+                attempt(reserved("mins")),
+                attempt(reserved("min")),
+                attempt(reserved("milliseconds")),
+                attempt(reserved("millisecond")),
+                attempt(reserved("ms")),
+                attempt(reserved("hours")),
+                attempt(reserved("hour")),
+                reserved("hr"))
                .label("Unit of time (e.g. seconds, mins, hours, hr, sec, min...)");
 
         static Parser<Attr> timeAttr(string name) =>
-            from x in symbol(name)
+            from x in reserved(name)
             from _ in symbol("=")
-            from v in token(integer)
+            from v in integer
             from u in timeUnit
             select new TimeAttr(name, v, u) as Attr;
 
         static Parser<List<Attr>> stratAttrs(string name, params Parser<Attr>[] attrs) =>
-            from n in symbol(name)
-            from _ in symbol(":")
-            from a in sepBy1(choice(attrs), token(ch(',')))
+            from n in reserved(name)
+            from o in symbol("(")
+            from a in commaSep1(choice(attrs.Map(token).Map(attempt)))
+            from c in symbol(")")
             select a.ToList();
 
         readonly static Parser<State<StrategyContext, Unit>> backoff =
@@ -137,7 +173,7 @@ namespace LanguageExt
             select Strategy.Pause(attrs.GetTimeAttr("duration"));
 
         readonly static Parser<State<StrategyContext, Unit>> always =
-            from n in symbol("always")
+            from n in reserved("always")
             from _ in symbol(":")
             from d in token(directive)
             select Strategy.Always(d);
@@ -158,7 +194,7 @@ namespace LanguageExt
             from b in symbol("|")
             from t in symbol("_")
             from a in symbol("->")
-            from d in directive
+            from d in token(directive)
             select Strategy.Otherwise(d);
 
         readonly static Parser<State<Directive, Option<MessageDirective>>> matchMessageDirective =
@@ -176,7 +212,7 @@ namespace LanguageExt
             select Strategy.Otherwise(d);
 
         readonly static Parser<State<StrategyContext, Unit>> match =
-            from _      in symbol("match")
+            from _      in reserved("match")
             from direx  in many(attempt(exceptionDirective))
             from other  in optional(otherwiseDirective)
             let dirs = direx.Append(other.AsEnumerable()).ToArray()
@@ -195,8 +231,8 @@ namespace LanguageExt
             select Strategy.Redirect(dirs);
 
         readonly static Parser<State<StrategyContext, Unit>> redirect =
-            from n in symbol("redirect")
-            from t in either(symbol(":"), symbol("when"))
+            from n in reserved("redirect")
+            from t in either(attempt(symbol(":")), reserved("when"))
             from r in t == ":"
                ? from d in token(msgDirective)
                  select Strategy.Redirect(d)
@@ -210,54 +246,55 @@ namespace LanguageExt
                 : Strategy.Retries(attrs.GetNumericAttr("count"), attrs.GetTimeAttr("duration"));
 
         readonly static Parser<Tuple<string, string>> setting =
-            (from key in token(ident)
+            (from key in identifier
              from _   in symbol(":")
              from val in stringLiteral
-             select Tuple.Create(key, val))
+             select Tuple(key, val))
             .label("setting");
 
         readonly static Parser<ActorConfigToken> settings =
-            from n in symbol("settings")
-            from _ in symbol(":")
-            from s in many1(setting)
-            select new SettingsToken(Map.createRange(s)) as ActorConfigToken;
+            (from n in reserved("settings")
+             from _ in symbol(":")
+             from s in many1(attempt(setting))
+             select new SettingsToken(Map.createRange(s)) as ActorConfigToken)
+            .label("settings statement");
 
         readonly static Parser<IEnumerable<State<StrategyContext, Unit>>> strategies =
             many1(
                 choice(
-                    retries,
-                    backoff,
-                    always,
-                    redirect,
-                    match));
+                    attempt(retries),
+                    attempt(backoff),
+                    attempt(always),
+                    attempt(redirect),
+                    attempt(match)));
 
         readonly static Parser<State<StrategyContext, Unit>> oneForOne =
-            from a in symbol("one-for-one")
+            from a in reserved("one-for-one")
             from b in symbol(":")
             from attrs in strategies
             select Strategy.OneForOne(attrs.ToArray());
 
         readonly static Parser<State<StrategyContext, Unit>> allForOne =
-            from a in symbol("all-for-one")
+            from a in reserved("all-for-one")
             from b in symbol(":")
             from attrs in strategies
             select Strategy.AllForOne(attrs.ToArray());
 
         readonly static Parser<ActorConfigToken> strategy =
-            from a in symbol("strategy")
-            from b in symbol(":")
-            from s in either(oneForOne, allForOne)
-            select new StrategyToken(s) as ActorConfigToken;
+            (from a in reserved("strategy")
+             from b in symbol(":")
+             from s in either(attempt(oneForOne), allForOne)
+             select new StrategyToken(s) as ActorConfigToken)
+            .label("strategy statement");
 
         public readonly static Parser<ActorConfig> Parser =
-            from _      in junk
             from tokens in many1(
                 choice(
-                    pid, 
-                    flags, 
-                    strategy, 
-                    settings,
-                    maxMailboxSize))
+                    attempt(pid),
+                    attempt(flags),
+                    attempt(strategy),
+                    attempt(settings),
+                    attempt(maxMailboxSize)))
             select new ActorConfig(tokens);
     }
 }

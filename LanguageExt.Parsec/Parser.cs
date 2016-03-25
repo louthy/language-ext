@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using LanguageExt;
+using LanguageExt.Parsec;
 using static LanguageExt.Prelude;
-using static LanguageExt.Parsec;
-using static LanguageExt.ParserResult;
+using static LanguageExt.Parsec.Prim;
+using static LanguageExt.Parsec.ParserResult;
+using System.Diagnostics;
 
-namespace LanguageExt
+namespace LanguageExt.Parsec
 {
     /// <summary>
     /// Parser delegate type - Parses an input PString and returns a ParserResult
@@ -56,9 +58,9 @@ public static class ___ParserExt
     public static Parser<T> Where<T>(this Parser<T> self, Func<T, bool> pred) =>
         inp =>
             self(inp).Match(
-                EmptyOK: (x, rem, msg) => pred(x) ? EmptyOK(x, rem, msg) : EmptyError<T>(ParserError.SysUnExpect(inp.Pos, $"\"{x}\"")),
+                EmptyOK: (x, rem, msg) => pred(x) ? EmptyOK(x, rem, msg) : EmptyError<T>(ParserError.SysUnexpect(inp.Pos, $"\"{x}\"")),
                 EmptyError: msg => EmptyError<T>(msg),
-                ConsumedOK: (x, rem, msg) => pred(x) ? ConsumedOK(x, rem, msg) : EmptyError<T>(ParserError.SysUnExpect(inp.Pos, $"\"{x}\"")),
+                ConsumedOK: (x, rem, msg) => pred(x) ? ConsumedOK(x, rem, msg) : EmptyError<T>(ParserError.SysUnexpect(inp.Pos, $"\"{x}\"")),
                 ConsumedError: msg => ConsumedError<T>(msg));
 
     public static Parser<U> Map<T, U>(this Parser<T> self, Func<T, U> map) =>
@@ -73,6 +75,8 @@ public static class ___ParserExt
         Func<T, U, V> project) =>
             inp =>
             {
+                Debug.Assert(inp != null);
+
                 var t = self(inp);
 
                 // cok

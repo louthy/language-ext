@@ -7,7 +7,7 @@
     <ProjectGuid>{49F181C4-D5B4-4076-BE96-1B516903AD8C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LanguageExt</RootNamespace>
+    <RootNamespace>LanguageExt.Parsec</RootNamespace>
     <AssemblyName>LanguageExt.Parsec</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -40,6 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GenLanguageDef.cs" />
+    <Compile Include="GenTokenParser.cs" />
     <Compile Include="Parsec.cs" />
     <Compile Include="Parsec.Internal.cs" />
     <Compile Include="Parser.cs" />
@@ -47,11 +49,17 @@
     <Compile Include="Exceptions.cs" />
     <Compile Include="ParserResult.cs" />
     <Compile Include="Pos.cs" />
+    <Compile Include="Parsers\Char.cs" />
+    <Compile Include="Parsers\Expr.cs" />
+    <Compile Include="Parsers\Language.cs" />
+    <Compile Include="Parsers\Operators.cs" />
+    <Compile Include="Parsers\Prim.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PString.cs" />
     <Compile Include="Reply.cs" />
     <Compile Include="Sidedness.cs" />
     <Compile Include="StringExt.cs" />
+    <Compile Include="Parsers\Token.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj">

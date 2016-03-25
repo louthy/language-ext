@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LanguageExt
+namespace LanguageExt.Parsec
 {
 #if !COREFX
     [Serializable]

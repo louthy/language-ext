@@ -7,7 +7,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Diagnostics;
 
-namespace LanguageExt
+namespace LanguageExt.Parsec
 {
     public enum ReplyTag
     {

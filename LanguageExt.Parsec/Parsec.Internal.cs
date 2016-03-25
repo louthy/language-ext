@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using static LanguageExt.Parsec;
-using static LanguageExt.ParserResult;
+using static LanguageExt.Parsec.Prim;
+using static LanguageExt.Parsec.ParserResult;
 
-namespace LanguageExt
+namespace LanguageExt.Parsec
 {
-    static class ParsecInternal
+    static class Internal
     {
         public static bool onside(Pos pos, Pos delta) =>
             pos.Column > delta.Column || pos.Line == delta.Line;
@@ -42,5 +42,25 @@ namespace LanguageExt
                         : Sidedness.Offside,
                     inp.UserState));
         }
+
+        public static Parser<T> choicei<T>(Parser<T>[] ps, int index) =>
+           index == ps.Length - 1
+                ? ps[index]
+                : either(ps[index], choicei(ps, index + 1));
+
+        public static Parser<IEnumerable<T>> chaini<T>(Parser<T>[] ps, int index) =>
+           index == ps.Length - 1
+                ? ps[index].Map(x => new[] { x }.AsEnumerable())
+                : from x in ps[index]
+                  from y in chaini(ps, index + 1)
+                  select x.Cons(y);
+
+        public static Parser<IEnumerable<T>> counti<T>(int n, Parser<T> p) =>
+           n <= 0
+                ? result(new T [0].AsEnumerable())
+                : from x in p
+                  from y in counti(n-1, p)
+                  select x.Cons(y);
+
     }
 }

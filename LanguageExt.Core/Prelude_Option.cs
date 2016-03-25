@@ -280,6 +280,13 @@ namespace LanguageExt
             ) =>
             match(list, Some, () => None);
 
+        /// <summary>
+        /// Extracts from a list of 'Option' all the 'Some' elements.
+        /// All the 'Some' elements are extracted in order.
+        /// </summary>
+        public static IEnumerable<T> somes<T>(IEnumerable<Option<T>> list) =>
+            list.Somes();
+
         public static Lst<T> toList<T>(Option<T> option) =>
             option.ToList();
 

@@ -1,6 +1,6 @@
 ﻿using static LanguageExt.Prelude;
 
-namespace LanguageExt
+namespace LanguageExt.Parsec
 {
     /// <summary>
     /// Represents the parser source text and the parser's 

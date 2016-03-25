@@ -536,6 +536,21 @@ namespace LanguageExt
 
 public static class __OptionExt
 {
+    /// <summary>
+    /// Extracts from a list of 'Option' all the 'Some' elements.
+    /// All the 'Some' elements are extracted in order.
+    /// </summary>
+    public static IEnumerable<T> Somes<T>(this IEnumerable<Option<T>> self)
+    {
+        foreach (var item in self)
+        {
+            if (item.IsSome)
+            {
+                yield return item.Value;
+            }
+        }
+    }
+
     public static T? ToNullable<T>(this Option<T> self) where T : struct =>
         self.IsNone
             ? (T?)null

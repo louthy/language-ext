@@ -6,8 +6,12 @@ using System.Threading.Tasks;
 using Xunit;
 
 using LanguageExt;
+using LanguageExt.Parsec;
 using static LanguageExt.Prelude;
-using static LanguageExt.Parsec;
+using static LanguageExt.Parsec.Prim;
+using static LanguageExt.Parsec.Char;
+using static LanguageExt.Parsec.Expr;
+using static LanguageExt.Parsec.Token;
 
 namespace LanguageExtTests
 {
@@ -35,7 +39,7 @@ namespace LanguageExtTests
         [Fact]
         public void ItemComb()
         {
-            var p = item;
+            var p = anyChar;
             var r = parse(p, "Hello");
 
             Assert.False(r.IsFaulted);
@@ -46,7 +50,7 @@ namespace LanguageExtTests
         [Fact]
         public void ItemFailComb()
         {
-            var p = item;
+            var p = anyChar;
             var r = parse(p, "");
 
             Assert.True(r.IsFaulted);
@@ -55,7 +59,7 @@ namespace LanguageExtTests
         [Fact]
         public void Item2Comb()
         {
-            var p = item;
+            var p = anyChar;
             var r1 = parse(p, "Hello");
 
             Assert.False(r1.IsFaulted);
@@ -73,7 +77,7 @@ namespace LanguageExtTests
         [Fact]
         public void Item1LinqComb()
         {
-            var p = from x in item
+            var p = from x in anyChar
                     select x;
 
             var r = parse(p, "Hello");
@@ -86,8 +90,8 @@ namespace LanguageExtTests
         [Fact]
         public void Item2LinqComb()
         {
-            var p = from x in item
-                    from y in item
+            var p = from x in anyChar
+                    from y in anyChar
                     select Tuple(x, y);
 
             var r = parse(p, "Hello");
@@ -220,7 +224,7 @@ namespace LanguageExtTests
         [Fact]
         public void WordComb()
         {
-            var p = word;
+            var p = asString(many1(letter));
             var r = parse(p, "hello   ");
 
             Assert.False(r.IsFaulted);
@@ -231,7 +235,7 @@ namespace LanguageExtTests
         [Fact]
         public void WordFailComb()
         {
-            var p = word;
+            var p = asString(many1(letter));
             var r = parse(p, "1ello  ");
 
             Assert.True(r.IsFaulted);
@@ -260,7 +264,9 @@ namespace LanguageExtTests
         [Fact]
         public void NaturalNumberComb()
         {
-            var p = natural;
+            var tok = makeTokenParser(Language.HaskellStyle);
+
+            var p = tok.Natural;
             var r = parse(p, "1234  ");
 
             Assert.False(r.IsFaulted);
@@ -271,7 +277,9 @@ namespace LanguageExtTests
         [Fact]
         public void NaturalNumberFailComb()
         {
-            var p = natural;
+            var tok = makeTokenParser(Language.HaskellStyle);
+
+            var p = tok.Natural;
             var r = parse(p, "no match");
 
             Assert.True(r.IsFaulted);
@@ -280,7 +288,9 @@ namespace LanguageExtTests
         [Fact]
         public void IntegerNumberComb()
         {
-            var p = integer;
+            var tok = makeTokenParser(Language.HaskellStyle);
+
+            var p = tok.Integer;
             var r = parse(p, "1234  ");
 
             Assert.False(r.IsFaulted);
@@ -291,7 +301,9 @@ namespace LanguageExtTests
         [Fact]
         public void IntegerNegativeNumberComb()
         {
-            var p = integer;
+            var tok = makeTokenParser(Language.HaskellStyle);
+
+            var p = tok.Integer;
             var r = parse(p, "-1234  ");
 
             Assert.False(r.IsFaulted);
@@ -302,7 +314,9 @@ namespace LanguageExtTests
         [Fact]
         public void IntegerNumberFailComb()
         {
-            var p = integer;
+            var tok = makeTokenParser(Language.HaskellStyle);
+
+            var p = tok.Integer;
             var r = parse(p, "no match");
 
             Assert.True(r.IsFaulted);
@@ -311,7 +325,12 @@ namespace LanguageExtTests
         [Fact]
         public void BracketAndIntegerComb()
         {
-            var p = brackets(integer);
+            var tok = makeTokenParser(Language.HaskellStyle);
+
+            var p = from x in tok.Brackets(tok.Integer)
+                    from _ in tok.WhiteSpace
+                    select x;
+
             var r = parse(p, "[1]  ");
 
             Assert.False(r.IsFaulted);
@@ -322,7 +341,9 @@ namespace LanguageExtTests
         [Fact]
         public void BracketAndIntegerFailComb()
         {
-            var p = brackets(integer);
+            var tok = makeTokenParser(Language.HaskellStyle);
+
+            var p = tok.Brackets(tok.Integer);
             var r = parse(p, "[x]  ");
 
             Assert.True(r.IsFaulted);
@@ -331,7 +352,11 @@ namespace LanguageExtTests
         [Fact]
         public void BracketAndIntegerListComb()
         {
-            var p = commaBrackets(integer);
+            var tok = makeTokenParser(Language.HaskellStyle);
+
+            var p = from x in tok.BracketsCommaSep(tok.Integer)
+                    from _ in tok.WhiteSpace
+                    select x;
             var r = parse(p, "[1,2,3,4]  ");
 
             Assert.False(r.IsFaulted);
@@ -347,7 +372,12 @@ namespace LanguageExtTests
         [Fact]
         public void BracketAndSpacedIntegerListComb()
         {
-            var p = commaBrackets(integer);
+            var tok = makeTokenParser(Language.HaskellStyle);
+
+            var p = from x in tok.BracketsCommaSep(tok.Integer)
+                    from _ in tok.WhiteSpace
+                    select x;
+
             var r = parse(p, "[ 1, 2 ,3,   4]  ");
 
             Assert.False(r.IsFaulted);
@@ -363,7 +393,9 @@ namespace LanguageExtTests
         [Fact]
         public void BracketAndIntegerListFailComb()
         {
-            var p = commaBrackets(integer);
+            var tok = makeTokenParser(Language.HaskellStyle);
+
+            var p = tok.BracketsCommaSep(tok.Integer);
             var r = parse(p, "[1,x,3,4]  ");
 
             Assert.True(r.IsFaulted);
@@ -372,53 +404,53 @@ namespace LanguageExtTests
         [Fact]
         public void JunkEmptyComb()
         {
-            var p = junk;
+            var tok = makeTokenParser(Language.HaskellStyle);
+
+            var p = tok.WhiteSpace;
             var r = parse(p, "");
             Assert.False(r.IsFaulted);
-            Assert.True(r.Reply.Result == "");
+            Assert.True(r.Reply.Result == unit);
         }
 
         [Fact]
         public void JunkNoMatchComb()
         {
-            var p = junk;
+            var tok = makeTokenParser(Language.HaskellStyle);
+
+            var p = tok.WhiteSpace;
             var r = parse(p, ",");
             Assert.False(r.IsFaulted);
-            Assert.True(r.Reply.Result == "");
+            Assert.True(r.Reply.Result == unit);
         }
 
         [Fact]
         public void JunkFourSpacesComb()
         {
-            var p = junk;
+            var tok = makeTokenParser(Language.HaskellStyle);
+
+            var p = tok.WhiteSpace;
             var r = parse(p, "    ,");
             Assert.False(r.IsFaulted);
-            Assert.True(r.Reply.Result == "    ");
+            Assert.True(r.Reply.Result == unit);
         }
 
         [Fact]
         public void JunkFourSpacesThenCommentComb()
         {
-            var p = junk;
+            var tok = makeTokenParser(Language.JavaStyle);
+            var p = tok.WhiteSpace;
             var r = parse(p, "    // A comment\nabc");
             Assert.False(r.IsFaulted);
-            Assert.True(r.Reply.Result == "     A comment");
+            Assert.True(r.Reply.Result == unit);
             Assert.True(r.Reply.State.ToString() == "abc");
-        }
-
-        [Fact]
-        public void HeavyStringLiteralComb()
-        {
-            var p = stringLiteral;
-            var r = parse(p, "\"\"\"abc\"\"\"");
-            Assert.False(r.IsFaulted);
-            Assert.True(r.Reply.Result == "abc");
         }
 
         [Fact]
         public void StringLiteralComb()
         {
-            var p = stringLiteral;
+            var tok = makeTokenParser(Language.HaskellStyle);
+
+            var p = tok.StringLiteral;
             var r = parse(p, "\"/abc\"");
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == "/abc");
@@ -434,8 +466,9 @@ namespace LanguageExtTests
 
                 strategy:
                     one-for-one:
-                        retries:  count = 5, duration=30 seconds
-                        back-off: min = 2 seconds, max = 1 hour, step = 5 seconds
+
+                        retries (count = 5, duration=30 seconds)
+                        back-off (min = 2 seconds, max = 1 hour, step = 5 seconds)
                         
                         match
                         | System.NotImplementedException -> stop

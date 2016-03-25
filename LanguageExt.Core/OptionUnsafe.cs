@@ -477,6 +477,21 @@ namespace LanguageExt
 public static class __OptionUnsafeExt
 {
     /// <summary>
+    /// Extracts from a list of 'Option' all the 'Some' elements.
+    /// All the 'Some' elements are extracted in order.
+    /// </summary>
+    public static IEnumerable<T> Somes<T>(this IEnumerable<OptionUnsafe<T>> self)
+    {
+        foreach (var item in self)
+        {
+            if (item.IsSome)
+            {
+                yield return item.Value;
+            }
+        }
+    }
+
+    /// <summary>
     /// Apply an Optional value to an Optional function
     /// </summary>
     /// <param name="opt">Optional function</param>

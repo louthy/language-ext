@@ -5,8 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using static LanguageExt.Parsec;
-
 namespace LanguageExt
 {
     public class ActorConfig

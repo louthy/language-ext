@@ -1,18 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using static LanguageExt.Prelude;
 
-namespace LanguageExt
+namespace LanguageExt.Parsec
 {
     public enum ParserErrorTag
     {
         Unknown     = 0,        // numbered because the
-        SysUnExpect = 1,        // order is important
-        UnExpect    = 2,
+        SysUnexpect = 1,        // order is important
+        Unexpect    = 2,
         Expect      = 3,
         Message     = 4
     }
@@ -37,11 +32,11 @@ namespace LanguageExt
         public static ParserError Unknown(Pos pos) =>
             new ParserError(ParserErrorTag.Unknown, pos, "", List.empty<string>(), null);
 
-        public static ParserError SysUnExpect(Pos pos, string message) =>
-            new ParserError(ParserErrorTag.SysUnExpect, pos, message, List.empty<string>(), null);
+        public static ParserError SysUnexpect(Pos pos, string message) =>
+            new ParserError(ParserErrorTag.SysUnexpect, pos, message, List.empty<string>(), null);
 
-        public static ParserError UnExpect(Pos pos, string message) =>
-            new ParserError(ParserErrorTag.UnExpect, pos, message, List.empty<string>(), null);
+        public static ParserError Unexpect(Pos pos, string message) =>
+            new ParserError(ParserErrorTag.Unexpect, pos, message, List.empty<string>(), null);
 
         public static ParserError Expect(Pos pos, string message, string expected) =>
             new ParserError(ParserErrorTag.Expect, pos, message, List.create(expected), null);
@@ -50,11 +45,11 @@ namespace LanguageExt
             new ParserError(ParserErrorTag.Message, pos, message, List.empty<string>(), null);
 
         public override string ToString() =>
-            $"{Tag} error at (line {Pos.Line + 1}, column {Pos.Column + 1}):\n" +
-              ( Tag == ParserErrorTag.UnExpect    ? $"unexpected {Msg}"
-              : Tag == ParserErrorTag.SysUnExpect ? $"unexpected {Msg}"
+            $"error at (line {Pos.Line + 1}, column {Pos.Column + 1}):\n" +
+              ( Tag == ParserErrorTag.Unexpect    ? $"unexpected {Msg}"
+              : Tag == ParserErrorTag.SysUnexpect ? $"unexpected {Msg}"
               : Tag == ParserErrorTag.Message     ? Msg
-              : Tag == ParserErrorTag.Expect      ? $"unexpected {Msg}\nexpecting {String.Join(", ", Expected)}"
+              : Tag == ParserErrorTag.Expect      ? $"unexpected {Msg}\nexpecting {String.Join(", ", Expected.Filter(x => !String.IsNullOrEmpty(x)))}"
               : "unknown error");
 
         public bool Equals(ParserError other) =>

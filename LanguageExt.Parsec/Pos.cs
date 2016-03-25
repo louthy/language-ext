@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LanguageExt
+namespace LanguageExt.Parsec
 {
     /// <summary>
     /// Represents a parser source position

@@ -204,5 +204,12 @@ namespace LanguageExt
 
         public static IQueryable<T> toQuery<T>(OptionUnsafe<T> option) =>
             option.AsEnumerable().AsQueryable();
+
+        /// <summary>
+        /// Extracts from a list of 'Option' all the 'Some' elements.
+        /// All the 'Some' elements are extracted in order.
+        /// </summary>
+        public static IEnumerable<T> somesUnsafe<T>(IEnumerable<OptionUnsafe<T>> list) =>
+            list.Somes();
     }
 }
