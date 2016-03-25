@@ -42,7 +42,6 @@
   <ItemGroup>
     <Compile Include="GenLanguageDef.cs" />
     <Compile Include="GenTokenParser.cs" />
-    <Compile Include="Parsec.cs" />
     <Compile Include="Parsec.Internal.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="ParserError.cs" />
