@@ -17,7 +17,7 @@ namespace LanguageExt.Parsec
         /// string. This parser will fail on identifiers that are reserved
         /// words. Legal identifier (start) characters and reserved words are
         /// defined in the 'LanguageDef' that is passed to
-        /// 'makeTokenParser'. An @identifier@ is treated as
+        /// 'makeTokenParser'. An identifier is treated as
         /// a single token using 'try'.
         /// </summary>
         public readonly Parser<string> Identifier;
@@ -35,15 +35,15 @@ namespace LanguageExt.Parsec
         /// operator. This parser will fail on any operators that are reserved
         /// operators. Legal operator (start) characters and reserved operators
         /// are defined in the 'LanguageDef' that is passed to
-        /// 'makeTokenParser'. An @operator@ is treated as a
+        /// 'makeTokenParser'. An operator is treated as a
         /// single token using 'try'. 
         /// </summary>
         public readonly Parser<string> Operator;
 
         /// <summary>
-        /// The lexeme parser @reservedOp name@ parses @symbol
-        /// name@, but it also checks that the @name@ is not a prefix of a
-        /// valid operator. A @reservedOp@ is treated as a single token using
+        /// The lexeme parser reservedOp name parses symbol
+        /// name, but it also checks that the name is not a prefix of a
+        /// valid operator. A reservedOp is treated as a single token using
         /// 'try'. 
         /// </summary>
         public readonly Func<string, Parser<Unit>> ReservedOp;
@@ -108,44 +108,38 @@ namespace LanguageExt.Parsec
 
         /// <summary>
         /// Parses a positive whole number in the hexadecimal system. The number
-        /// should be prefixed with \"0x\" or \"0X\". Returns the value of the
+        /// should be prefixed with "0x" or "0X". Returns the value of the
         /// number.
         /// </summary>
         public readonly Parser<int> Hexadecimal;
 
         /// <summary>
         /// Parses a positive whole number in the octal system. The number
-        /// should be prefixed with \"0o\" or \"0O\". Returns the value of the
+        /// should be prefixed with "0o" or "0O". Returns the value of the
         /// number. 
         /// </summary>
         public readonly Parser<int> Octal;
 
         /// <summary>
-        /// Lexeme parser @symbol s@ parses 'string' @s@ and skips
+        /// Lexeme parser symbol(s) parses 'string' s and skips
         /// trailing white space. 
         /// </summary>
         public readonly Func<string, Parser<string>> Symbol;
 
         /// <summary>
-        /// @lexeme p@ first applies parser @p@ and than the 'whiteSpace'
-        /// parser, returning the value of @p@. Every lexical
-        /// token (lexeme) is defined using @lexeme@, this way every parse
-        /// starts at a point without white space. Parsers that use @lexeme@ are
-        /// called /lexeme/ parsers in this document.
+        /// lexeme(p) first applies parser p and than the 'whiteSpace'
+        /// parser, returning the value of p. Every lexical
+        /// token (lexeme) is defined using lexeme, this way every parse
+        /// starts at a point without white space. Parsers that use lexeme are
+        /// called lexeme parsers in this document.
         /// 
         /// The only point where the 'whiteSpace' parser should be
         /// called explicitly is the start of the main parser in order to skip
         /// any leading white space.
-        /// 
-        /// >    mainParser  = do{ spaces
-        /// >                     ; ds <- many (lexeme digit)
-        /// >                     ; eof
-        /// >                     ; return (sum ds)
-        /// >                     }
         /// </summary>
         public Parser<T> Lexeme<T>(Parser<T> p) =>
-            from _ in WhiteSpace
             from x in p
+            from _ in WhiteSpace
             select x;
 
         /// <summary>
@@ -158,8 +152,8 @@ namespace LanguageExt.Parsec
         public readonly Parser<Unit> WhiteSpace;
 
         /// <summary>
-        /// Lexeme parser @parens p@ parses @p@ enclosed in parenthesis,
-        /// returning the value of @p@.
+        /// Lexeme parser parens(p) parses p enclosed in parenthesis,
+        /// returning the value of p.
         /// </summary>
         public Parser<T> Parens<T>(Parser<T> p) =>
             from o in Symbol("(")
@@ -168,8 +162,8 @@ namespace LanguageExt.Parsec
             select x;
 
         /// <summary>
-        /// Lexeme parser @braces p@ parses @p@ enclosed in braces (\'{\' and
-        /// \'}\'), returning the value of @p@. 
+        /// Lexeme parser braces(p) parses p enclosed in braces { and
+        /// }, returning the value of p. 
         /// </summary>
         public Parser<T> Braces<T>(Parser<T> p) =>
             from o in Symbol("{")
@@ -178,8 +172,8 @@ namespace LanguageExt.Parsec
             select x;
 
         /// <summary>
-        /// Lexeme parser @angles p@ parses @p@ enclosed in angle brackets (\'\<\'
-        /// and \'>\'), returning the value of @p@. 
+        /// Lexeme parser angles(p) parses p enclosed in angle brackets <
+        /// and >, returning the value of p. 
         /// </summary>
         public Parser<T> Angles<T>(Parser<T> p) =>
             from o in Symbol("<")
@@ -188,8 +182,8 @@ namespace LanguageExt.Parsec
             select x;
 
         /// <summary>
-        /// Lexeme parser @brackets p@ parses @p@ enclosed in brackets (\'[\'
-        /// and \']\'), returning the value of @p@. 
+        /// Lexeme parser brackets(p) parses p enclosed in brackets [
+        /// and ], returning the value of p. 
         /// </summary>
         public Parser<T> Brackets<T>(Parser<T> p) =>
             from o in Symbol("[")
@@ -198,56 +192,56 @@ namespace LanguageExt.Parsec
             select x;
 
         /// <summary>
-        /// Lexeme parser |semi| parses the character \';\' and skips any
-        /// trailing white space. Returns the string \";\". 
+        /// Lexeme parser semi parses the character ; and skips any
+        /// trailing white space. Returns the string ";". 
         /// </summary>
         public readonly Parser<string> Semi;
 
         /// <summary>
-        /// Lexeme parser @comma@ parses the character \',\' and skips any
-        /// trailing white space. Returns the string \",\". 
+        /// Lexeme parser comma parses the character , and skips any
+        /// trailing white space. Returns the string ",". 
         /// </summary>
         public readonly Parser<string> Comma;
 
         /// <summary>
-        /// Lexeme parser @colon@ parses the character \':\' and skips any
-        /// trailing white space. Returns the string \":\". 
+        /// Lexeme parser colon parses the character : and skips any
+        /// trailing white space. Returns the string ":". 
         /// </summary>
         public readonly Parser<string> Colon;
 
         /// <summary>
-        /// Lexeme parser @dot@ parses the character \'.\' and skips any
-        /// trailing white space. Returns the string \".\". 
+        /// Lexeme parser dot parses the character . and skips any
+        /// trailing white space. Returns the string ".". 
         /// </summary>
         public readonly Parser<string> Dot;
 
         /// <summary>
-        /// Lexeme parser @semiSep p@ parses /zero/ or more occurrences of @p@
-        /// separated by 'semi'. Returns a list of values returned by
-        /// @p@.
+        /// Lexeme parser semiSep(p) parses /zero/ or more occurrences of p
+        /// separated by semi. Returns a list of values returned by
+        /// p.
         /// </summary>
         public Parser<Lst<T>> SemiSep<T>(Parser<T> p) =>
             sepBy(p, Semi).Map(x => List.createRange(x));
 
         /// <summary>
-        /// Lexeme parser @semiSep1 p@ parses /one/ or more occurrences of @p@
-        /// separated by 'semi'. Returns a list of values returned by @p@. 
+        /// Lexeme parser semiSep1(p) parses /one/ or more occurrences of p
+        /// separated by 'semi'. Returns a list of values returned by p. 
         /// </summary>
         public Parser<Lst<T>> SemiSep1<T>(Parser<T> p) =>
             sepBy1(p, Semi).Map(x => List.createRange(x));
 
         /// <summary>
-        /// Lexeme parser @commaSep p@ parses /zero/ or more occurrences of
-        /// @p@ separated by 'comma'. Returns a list of values returned
-        /// by @p@. 
+        /// Lexeme parser commaSep(p) parses /zero/ or more occurrences of
+        /// p separated by 'comma'. Returns a list of values returned
+        /// by p. 
         /// </summary>
         public Parser<Lst<T>> CommaSep<T>(Parser<T> p) =>
             sepBy(p, Comma).Map(x => List.createRange(x));
 
         /// <summary>
-        /// Lexeme parser @commaSep1 p@ parses /one/ or more occurrences of
-        /// @p@ separated by 'comma'. Returns a list of values returned
-        /// by @p@. 
+        /// Lexeme parser commaSep1(p) parses /one/ or more occurrences of
+        /// p separated by 'comma'. Returns a list of values returned
+        /// by p. 
         /// </summary>
         public Parser<Lst<T>> CommaSep1<T>(Parser<T> p) =>
             sepBy1(p, Comma).Map(x => List.createRange(x));

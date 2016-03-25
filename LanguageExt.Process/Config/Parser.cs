@@ -47,25 +47,20 @@ namespace LanguageExt
              select new PidToken(new ProcessId(pid)) as ActorConfigToken)
             .label("pid statement");
 
-        static Parser<string> id = 
-            inp => ParserResult.EmptyOK<string>("", inp, null);
-
         static Parser<ProcessFlags> flagMap(string name, ProcessFlags flag) =>
             attempt(
-             from _ in id
-             from x in str(name)
+             from x in symbol(name)
              select flag);
 
         readonly static Parser<ProcessFlags> flag =
-            token(
-                choice(
-                    flagMap("default", ProcessFlags.Default),
-                    flagMap("listen-remote-and-local", ProcessFlags.ListenRemoteAndLocal),
-                    flagMap("persist-all", ProcessFlags.PersistAll),
-                    flagMap("persist-inbox", ProcessFlags.PersistInbox),
-                    flagMap("persist-state", ProcessFlags.PersistState),
-                    flagMap("remote-publish", ProcessFlags.RemotePublish),
-                    flagMap("remote-state-publish", ProcessFlags.RemoteStatePublish)));
+            choice(
+                flagMap("default", ProcessFlags.Default),
+                flagMap("listen-remote-and-local", ProcessFlags.ListenRemoteAndLocal),
+                flagMap("persist-all", ProcessFlags.PersistAll),
+                flagMap("persist-inbox", ProcessFlags.PersistInbox),
+                flagMap("persist-state", ProcessFlags.PersistState),
+                flagMap("remote-publish", ProcessFlags.RemotePublish),
+                flagMap("remote-state-publish", ProcessFlags.RemoteStatePublish));
 
         readonly static Parser<ActorConfigToken> flags =
             (from _  in reserved("flags")
@@ -288,6 +283,7 @@ namespace LanguageExt
             .label("strategy statement");
 
         public readonly static Parser<ActorConfig> Parser =
+            from _ in whiteSpace
             from tokens in many1(
                 choice(
                     attempt(pid),

@@ -18,42 +18,42 @@ namespace LanguageExt.Parsec
     {
         /// <summary>
         /// Describes the start of a block comment. Use the empty string if the
-        /// language doesn't support block comments. For example \"\/*\". 
+        /// language doesn't support block comments. For example "/*". 
         /// </summary>
         public readonly string CommentStart;
 
         /// <summary>
         /// Describes the end of a block comment. Use the empty string if the
-        /// language doesn't support block comments. For example \"*\/\". 
+        /// language doesn't support block comments. For example "*\". 
         /// </summary>
         public readonly string CommentEnd;
 
         /// <summary>
         /// Describes the start of a line comment. Use the empty string if the
-        /// language doesn't support line comments. For example \"\/\/\". 
+        /// language doesn't support line comments. For example "//". 
         /// </summary>
         public readonly string CommentLine;
 
         /// <summary>
-        ///  Set to 'True' if the language supports nested block comments. 
+        /// Set to 'True' if the language supports nested block comments. 
         /// </summary>
         public readonly bool NestedComments;
 
         /// <summary>
         /// This parser should accept any start characters of identifiers. For
-        /// example @letter \<|> char \'_\'@. 
+        /// example either(letter,char('_')). 
         /// </summary>
         public readonly Parser<char> IdentStart;
 
         /// <summary>
         /// This parser should accept any legal tail characters of identifiers.
-        /// For example @alphaNum \<|> char \'_\'@. 
+        /// For example either(alphaNum, char('_')). 
         /// </summary>
         public readonly Parser<char> IdentLetter;
 
         /// <summary>
         /// This parser should accept any start characters of operators. For
-        /// example @oneOf \":!#$%&*+.\/\<=>?\@\\\\^|-~\"@ 
+        /// example oneOf(":!#$%&*+.\/\<=>?\@\\\\^|-~")
         /// </summary>
         public readonly Parser<char> OpStart;
 
