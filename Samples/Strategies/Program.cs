@@ -20,8 +20,8 @@ namespace Strategies
             {
                 Process.configure();
 
-                Test2();
                 Test1();
+                Test2();
             }
             catch (Exception e)
             {
@@ -85,7 +85,6 @@ namespace Strategies
 
             tell(supervisor, "Hello");
 
-            Console.WriteLine("Test 2: Press enter when messages stop");
             Console.ReadKey();
         }
     }

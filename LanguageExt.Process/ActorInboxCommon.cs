@@ -121,7 +121,7 @@ namespace LanguageExt
 
                     case Message.TagSpec.Pause:
                         inbox.Pause();
-                        break;
+                        return InboxDirective.Pause;
 
                     case Message.TagSpec.Watch:
                         var awm = msg as SystemAddWatcherMessage;

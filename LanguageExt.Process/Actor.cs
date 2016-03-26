@@ -811,6 +811,7 @@ namespace LanguageExt
                         () => RunProcessDirective(pid, sender, ex, message, decision),
                         decision.Pause
                     );
+                    return InboxDirective.Pause | RunMessageDirective(pid, sender, decision, ex, message);
                 }
                 else
                 {

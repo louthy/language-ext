@@ -159,6 +159,12 @@ namespace LanguageExt
             this(null, args)
         {
         }
+
+        public static ArgumentsSpec Variant(Func<Map<string, SettingValue>, object> build, params ArgumentSpec[] args) =>
+            new ArgumentsSpec(build, args);
+
+        public static ArgumentsSpec Variant(params ArgumentSpec[] args) =>
+            new ArgumentsSpec(args);
     }
 
     public class SettingSpec

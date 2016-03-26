@@ -24,7 +24,10 @@ namespace LanguageExt
             NestedComments: true,
             IdentStart: letter,
             IdentLetter: either(alphaNum, oneOf("-_")),
-            ReservedNames: List("pid", "strategy", "flags", "mailbox-size", "one-for-one", "all-for-one", "settings"));
+            ReservedNames: List(
+                "pid", "strategy", "flags", "mailbox-size", "one-for-one", "all-for-one", "settings"
+                
+                ));
 
         // Token parser
         readonly static GenTokenParser tokenParser =
@@ -127,7 +130,7 @@ namespace LanguageExt
                .label("Unit of time (e.g. seconds, mins, hours, hr, sec, min...)");
 
         static Parser<SettingValue> timeAttr(string name) =>
-            from v in integer
+            from v in floating
             from u in timeUnit
             from r in TimeAttr.TryParse(v, u).Match(
                 Some: result,

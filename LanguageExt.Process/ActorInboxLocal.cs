@@ -163,26 +163,43 @@ namespace LanguageExt
             {
                 while (userQueue.Count > 0)
                 {
+                    // Don't process messages if we've been paused
+                    if (IsPaused) return InboxDirective.Pause;
+
                     var qmsg = userQueue.Peek();
                     userQueue = userQueue.Dequeue();
-                    ActorInboxCommon.UserMessageInbox(actor, inbox, qmsg, parent);
+                    ProcessInboxDirective(ActorInboxCommon.UserMessageInbox(actor, inbox, qmsg, parent), qmsg);
                 }
-                var directive = ActorInboxCommon.UserMessageInbox(actor, inbox, msg, parent);
 
-                if (directive == InboxDirective.PushToFrontOfQueue)
+                if (IsPaused)
                 {
-                    var newQueue = Que<UserControlMessage>.Empty;
-
-                    while (userQueue.Count > 0)
-                    {
-                        newQueue = newQueue.Enqueue(userQueue.Peek());
-                        userQueue = userQueue.Dequeue();
-                    }
-
-                    userQueue = newQueue;
+                    // Don't process the message if we've been paused
+                    userQueue = userQueue.Enqueue(msg);
+                    return InboxDirective.Pause;
                 }
+
+                return ProcessInboxDirective(ActorInboxCommon.UserMessageInbox(actor, inbox, msg, parent), msg);
             }
             return InboxDirective.Default;
+        }
+
+        InboxDirective ProcessInboxDirective(InboxDirective directive, UserControlMessage msg)
+        {
+            IsPaused = (directive & InboxDirective.Pause) != 0;
+
+            if ((directive & InboxDirective.PushToFrontOfQueue) != 0)
+            {
+                var newQueue = Que<UserControlMessage>.Empty.Enqueue(msg);
+
+                while (userQueue.Count > 0)
+                {
+                    newQueue = newQueue.Enqueue(userQueue.Peek());
+                    userQueue = userQueue.Dequeue();
+                }
+
+                userQueue = newQueue;
+            }
+            return directive;
         }
 
         FSharpMailboxProcessor<TMsg> StartMailbox<TMsg>(Actor<S, T> actor, CancellationToken cancelToken, Func<Actor<S, T>, IActorInbox, TMsg, ActorItem, InboxDirective> handler) where TMsg : Message =>

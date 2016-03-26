@@ -285,19 +285,19 @@ namespace LanguageExt.Parsec
             //    select f;
 
             // -1.05e+003
-            var floating = from si in optional(oneOf("+-"))
+            var floating = from si in optionOrElse("", from x in oneOf("+-") select x.ToString())
                            from nu in asString(many(digit))
-                           from pt in dot
-                           from frac in optional(
+                           from frac in optionOrElse("",
+                               from pt in dot
                                from fr in asString(many(digit))
-                               from ex in optional(
+                               from ex in optionOrElse("",
                                    from e in oneOf("eE")
                                    from s in oneOf("+-")
                                    from n in asString(many1(digit))
                                    select $"{e}{s}{n}"
                                    )
-                               select $"{fr}{ex.IfNone("")}")
-                           let all = $"{si.Map(x => x.ToString()).IfNone("")}{nu}{pt}{frac.IfNone("")}"
+                               select $"{pt}{fr}{ex}")
+                           let all = $"{si}{nu}{frac}"
                            let opt = parseDouble(all)
                            from res in opt.Match(
                                x => result(x),

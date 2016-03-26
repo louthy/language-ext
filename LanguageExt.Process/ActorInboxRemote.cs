@@ -188,6 +188,12 @@ namespace LanguageExt
                         }
                         finally
                         {
+                            if ((directive & InboxDirective.Pause) != 0)
+                            {
+                                IsPaused = true;
+                                directive = directive & (~InboxDirective.Pause);
+                            }
+
                             if (directive == InboxDirective.Default)
                             {
                                 cluster.Dequeue<RemoteMessageDTO>(key);

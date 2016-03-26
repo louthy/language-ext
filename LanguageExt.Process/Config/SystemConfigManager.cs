@@ -96,19 +96,25 @@ namespace LanguageExt
 
                 SettingSpec.Attr("pause", settings => Strategy.Pause((Time)settings["duration"].Value), ArgumentSpec.Time("duration")),
 
-                SettingSpec.Attr("retries-in",
-                    settings => Strategy.Retries((int)settings["count"].Value,(Time)settings["duration"].Value),
-                        ArgumentSpec.Int("count"), ArgumentSpec.Time("duration")),
+                SettingSpec.Attr(
+                    "retries",
+                    ArgumentsSpec.Variant(
+                        settings => Strategy.Retries((int)settings["count"].Value,(Time)settings["duration"].Value),
+                        ArgumentSpec.Int("count"),
+                        ArgumentSpec.Time("duration")),
 
-                SettingSpec.Attr("retries", settings => Strategy.Retries((int)settings["count"].Value), ArgumentSpec.Int("count")),
+                    ArgumentsSpec.Variant(
+                        settings => Strategy.Retries((int)settings["count"].Value),
+                        ArgumentSpec.Int("count"))
+                ),
 
-                SettingSpec.Attr("back-off",
-                    new ArgumentsSpec(
+                SettingSpec.Attr("backoff",
+                    ArgumentsSpec.Variant(
                         settings => Strategy.Backoff((Time)settings["min"].Value,(Time)settings["max"].Value,(Time)settings["step"].Value),
                         ArgumentSpec.Time("min"), ArgumentSpec.Time("max"), ArgumentSpec.Time("step")
                         ),
 
-                    new ArgumentsSpec(
+                    ArgumentsSpec.Variant(
                         settings => Strategy.Backoff((Time)settings["duration"].Value),
                         ArgumentSpec.Time("duration")
                         )),

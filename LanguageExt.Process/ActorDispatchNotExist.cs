@@ -30,7 +30,7 @@ namespace LanguageExt
             Raise<Unit>();
 
         public Unit TellSystem(SystemMessage message, ProcessId sender) =>
-            Raise<Unit>();
+            unit;
 
         public Unit TellUserControl(UserControlMessage message, ProcessId sender) =>
             Raise<Unit>();
