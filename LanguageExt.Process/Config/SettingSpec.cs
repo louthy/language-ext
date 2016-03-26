@@ -23,7 +23,8 @@ namespace LanguageExt
         Strategy,
         StrategyMatch,
         StrategyRedirect,
-        Directive
+        Directive,
+        Map
     }
 
     public class ArgumentType
@@ -80,6 +81,9 @@ namespace LanguageExt
         public static ArgumentType Array(ArgumentType genericType) =>
             new ArgumentType(ArgumentTypeTag.Array, genericType);
 
+        public static ArgumentType Map(ArgumentType genericType) =>
+            new ArgumentType(ArgumentTypeTag.Map, genericType);
+
         public static ArgumentType Directive =>
             new ArgumentType(ArgumentTypeTag.Directive);
     }
@@ -130,6 +134,9 @@ namespace LanguageExt
 
         public static ArgumentSpec Array(string name, ArgumentType genericType) =>
             new ArgumentSpec(name, ArgumentType.Array(genericType));
+
+        public static ArgumentSpec Map(string name, ArgumentType genericType) =>
+            new ArgumentSpec(name, ArgumentType.Map(genericType));
 
         public static ArgumentSpec Directive(string name) =>
             new ArgumentSpec(name, ArgumentType.Directive);

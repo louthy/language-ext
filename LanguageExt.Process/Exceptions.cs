@@ -270,4 +270,19 @@ namespace LanguageExt
         {
         }
     }
+
+    public class ProcessConfigException : Exception
+    {
+        public ProcessConfigException()
+        {
+        }
+
+        public ProcessConfigException(string message) : base(message)
+        {
+        }
+
+        public ProcessConfigException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
 }

@@ -897,16 +897,8 @@ namespace LanguageExtTests
                 session-timeout:   60 seconds
                 mailbox-size:      10000
 
-
-                processes: [
-
-                    /////////////////////////////////////////////////////////////////////////
-                    // root test 123
-                    pid:          ""/root/test/123""
-                    flags:        [persist-inbox, persist-state, remote-publish]
-                    mailbox-size: 1000
-
-                    strategy: 
+                strategies: [
+                    my-strategy:
                         one-for-one:
                             retries: count = 5, duration=30 seconds
                             back-off: min = 2 seconds, max = 1 hour, step = 5 seconds
@@ -922,17 +914,23 @@ namespace LanguageExtTests
                             | stop     -> forward-to-process ""/root/test/567""
                             | _        -> forward-to-dead-letters,
 
-                    /////////////////////////////////////////////////////////////////////////
-                    // root test 567
-                    pid:          ""/root/test/567""
-                    flags:        [persist-inbox, persist-state, remote-publish]
-                    mailbox-size: 100
-                    
-                    strategy:
+                    my-other-strategy:
                         one-for-one:
-                            redirect: forward-to-process ""/root/test/567""
-                            always: resume
                             pause: 1 second
+                            always: resume
+                            redirect: forward-to-process ""/root/test/567""
+                ]
+
+                processes: [
+                    pid:          ""/root/test/123""
+                    flags:        [persist-inbox, persist-state, remote-publish]
+                    mailbox-size: 1000
+                    strategy:     @my-strategy,
+
+                    pid:          ""/root/test/567""
+                    flags:        [persist-inbox, persist-state]
+                    mailbox-size: 100
+                    strategy:     @my-other-strategy
                 ]
                 ";
 
@@ -978,6 +976,7 @@ namespace LanguageExtTests
                 SettingSpec.Attr("session-timeout", ArgumentSpec.Time("value")),
                 SettingSpec.Attr("mailbox-size", ArgumentSpec.Int("value")),
                 SettingSpec.Attr("settings", ArgumentSpec.Int("value")),
+                SettingSpec.Attr("strategies", ArgumentSpec.Map("value", ArgumentType.Strategy(strategy))),
                 SettingSpec.Attr("processes", ArgumentSpec.Array("value", process)));
 
             var res = parse(sys.Settings, text);
@@ -986,12 +985,13 @@ namespace LanguageExtTests
 
             var result = res.Reply.Result;
 
-            Assert.True(result.Count == 4);
+            Assert.True(result.Count == 5);
 
             var timeout = result["timeout"];
             var session = result["session-timeout"];
             var mailbox= result["mailbox-size"];
             var procs = result["processes"];
+            var strats = result["strategies"];
 
             Assert.True(timeout.Name == "timeout");
             Assert.True(timeout.Values.Count == 1);
@@ -1007,6 +1007,14 @@ namespace LanguageExtTests
             Assert.True(mailbox.Values.Count == 1);
             Assert.True(mailbox.Values["value"].Type.Tag == ArgumentTypeTag.Int);
             Assert.True((int)mailbox.Values["value"].Value == 10000);
+
+            Assert.True(strats.Name == "strategies");
+            Assert.True(strats.Values.Count == 1);
+            var stratsValue = strats.Values["value"];
+            Assert.True(stratsValue.Type.Tag == ArgumentTypeTag.Map);
+            Assert.True(stratsValue.Type.GenericType.Tag == ArgumentTypeTag.Strategy);
+
+            Map<string, StrategySettings> ss = (Map<string, StrategySettings>)stratsValue.Value;
 
             Assert.True(procs.Name == "processes");
             Assert.True(procs.Values.Count == 1);

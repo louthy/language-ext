@@ -46,6 +46,9 @@ namespace LanguageExt
         public static SettingValue Array(string name, object value, ArgumentType genericType) =>
             new SettingValue(name, ArgumentType.Array(genericType), value);
 
+        public static SettingValue Map(string name, object value, ArgumentType genericType) =>
+            new SettingValue(name, ArgumentType.Map(genericType), value);
+
         public static SettingValue ProcessFlags(string name, ProcessFlags value) =>
             new SettingValue(name, ArgumentType.ProcessFlags, value);
 
@@ -58,6 +61,9 @@ namespace LanguageExt
         public static SettingValue Strategy(string name, SettingSpec[] spec, string type, Lst<SettingToken> values) =>
             new SettingValue(name, ArgumentType.Strategy(spec), new StrategySettings(type, values));
 
+        public static SettingValue Strategy(string name, SettingSpec[] spec, string named) =>
+            new SettingValue(name, ArgumentType.Strategy(spec), new StrategySettings(named));
+
         public static SettingValue StrategyMatch(string name, State<StrategyContext, Unit> value) =>
             new SettingValue(name, ArgumentType.StrategyMatch, value);
 
@@ -68,7 +74,14 @@ namespace LanguageExt
     public class StrategySettings
     {
         public readonly string Type;
+        public readonly string NamedStrategy;
         public readonly State<StrategyContext, Unit> Value;
+
+        public StrategySettings(string named)
+        {
+            Type = "named";
+            NamedStrategy = named;
+        }
 
         public StrategySettings(string type, Lst<SettingToken> values)
         {
@@ -122,53 +135,6 @@ namespace LanguageExt
             Name = name;
             Spec = spec;
             Values = Map.createRange(values.Map(x => Tuple.Create(x.Name, x)));
-        }
-    }
-
-
-    public class PidToken : ProcessConfigToken
-    {
-        public readonly ProcessId Pid;
-        public PidToken(ProcessId pid)
-        {
-            Pid = pid;
-        }
-    }
-
-    public class FlagsToken : ProcessConfigToken
-    {
-        public readonly ProcessFlags Flags;
-        public FlagsToken(ProcessFlags flags)
-        {
-            Flags = flags;
-        }
-    }
-
-    public class MailboxSizeToken : ProcessConfigToken
-    {
-        public readonly int Size;
-        public MailboxSizeToken(int size)
-        {
-            Size = size;
-        }
-    }
-
-    public class StrategyToken : ProcessConfigToken
-    {
-        public readonly State<StrategyContext, Unit> Strategy;
-        public StrategyToken(State<StrategyContext, Unit> strategy)
-        {
-            Strategy = strategy;
-        }
-    }
-
-    public class SettingsToken : ProcessConfigToken
-    {
-        public readonly Map<string, string> Settings;
-
-        public SettingsToken(Map<string, string> settings)
-        {
-            Settings = settings;
         }
     }
 }

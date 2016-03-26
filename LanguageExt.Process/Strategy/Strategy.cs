@@ -35,6 +35,16 @@ namespace LanguageExt
             state => Compose(stages)(state.With(Affects: state.Siblings));
 
         /// <summary>
+        /// Named strategy from configuration
+        /// </summary>
+        public static State<StrategyContext, Unit> Named(string name) =>
+            ActorContext.Config.StratSettings
+                        .Find(name)
+                        .Match(
+                            Some: x  => x.Value,
+                            None: () => failwith<State<StrategyContext, Unit>>("Named strategy not found: " + name));
+
+        /// <summary>
         /// Get the context state State monad
         /// </summary>
         public static readonly State<StrategyContext, StrategyContext> Context =

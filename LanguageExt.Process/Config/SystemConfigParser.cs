@@ -14,7 +14,7 @@ using LanguageExt.UnitsOfMeasure;
 
 namespace LanguageExt
 {
-    public class SystemConfigParser
+    public class ProcessSystemConfigParser
     {
         // Process config definition
         readonly static GenLanguageDef definition = GenLanguageDef.Empty.With(
@@ -251,28 +251,36 @@ namespace LanguageExt
         static Func<SettingSpec[], Func<string, Parser<SettingValue>>> strategyAttr =>
             strategySettings =>
                 name =>
-                    from type in attempt(either(reserved("all-for-one"), reserved("one-for-one")))
-                    from _    in symbol(":")
-                    from ss   in settings(strategySettings)
-                    select SettingValue.Strategy(name, strategySettings, type, ss);
+                    choice(
+                        from _ in symbol("@")
+                        from n in identifier
+                        select SettingValue.Strategy(name, strategySettings, "named"),
 
+                        from type in attempt(either(reserved("all-for-one"), reserved("one-for-one")))
+                        from _ in symbol(":")
+                        from ss in settings(strategySettings)
+                        select SettingValue.Strategy(name, strategySettings, type, ss));
+
+        static Parser<SettingValue> typedAttr(ArgumentType type, string name) =>
+              type.Tag == ArgumentTypeTag.Time ? timeAttr(name)
+            : type.Tag == ArgumentTypeTag.Int ? integerAttr(name)
+            : type.Tag == ArgumentTypeTag.String ? stringAttr(name)
+            : type.Tag == ArgumentTypeTag.Double ? doubleAttr(name)
+            : type.Tag == ArgumentTypeTag.ProcessId ? processIdAttr(name)
+            : type.Tag == ArgumentTypeTag.ProcessName ? processNameAttr(name)
+            : type.Tag == ArgumentTypeTag.ProcessFlags ? flagsAttr(name)
+            : type.Tag == ArgumentTypeTag.Directive ? directiveAttr(name)
+            : type.Tag == ArgumentTypeTag.Process ? processAttr(type.Spec)(name)
+            : type.Tag == ArgumentTypeTag.Strategy ? strategyAttr(type.Spec)(name)
+            : type.Tag == ArgumentTypeTag.Array ? arrayAttr(type)(name)
+            : type.Tag == ArgumentTypeTag.Map ? mapAttr(type)(name)
+            : failure<SettingValue>("Not supported argument type: " + type);
+                        
         static Func<ArgumentType, Func<string, Parser<SettingValue>>> arrayAttr =>
             type =>
                 name => 
                     brackets(
-                        from xs in commaSep(
-                            type.Tag == ArgumentTypeTag.Time ? timeAttr(name)
-                          : type.Tag == ArgumentTypeTag.Int ? integerAttr(name)
-                          : type.Tag == ArgumentTypeTag.String ? stringAttr(name)
-                          : type.Tag == ArgumentTypeTag.Double ? doubleAttr(name)
-                          : type.Tag == ArgumentTypeTag.ProcessId ? processIdAttr(name)
-                          : type.Tag == ArgumentTypeTag.ProcessName ? processNameAttr(name)
-                          : type.Tag == ArgumentTypeTag.ProcessFlags ? flagsAttr(name)
-                          : type.Tag == ArgumentTypeTag.Directive ? directiveAttr(name)
-                          : type.Tag == ArgumentTypeTag.Process ? processAttr(type.Spec)(name)
-                          : type.Tag == ArgumentTypeTag.Strategy ? strategyAttr(type.Spec)(name)
-                          : type.Tag == ArgumentTypeTag.Array ? failure<SettingValue>("Nested arrays not allowed")
-                          : failure<SettingValue>("Not supported argument type: " + type))
+                        from xs in commaSep(typedAttr(type, name))
                         select SettingValue.Array(
                             name,
                               type.Tag == ArgumentTypeTag.Time ? (object)xs.Map(x => (Time)x.Value).Freeze()
@@ -285,8 +293,38 @@ namespace LanguageExt
                             : type.Tag == ArgumentTypeTag.Directive ? (object)xs.Map(x => (Directive)x.Value).Freeze()
                             : type.Tag == ArgumentTypeTag.Process ? (object)xs.Map(x => (ProcessSettings)x.Value).Freeze()
                             : type.Tag == ArgumentTypeTag.Strategy ? (object)xs.Map(x => (StrategySettings)x.Value).Freeze()
+                            : type.Tag == ArgumentTypeTag.Array ? (object)xs.Map(x => x.Value).Freeze()
+                            : type.Tag == ArgumentTypeTag.Map ? (object)xs.Map(x => x.Value).Freeze()
                             : (object)null,
-                            type));
+                            type
+                            ));
+
+        static Func<ArgumentType, Func<string, Parser<SettingValue>>> mapAttr =>
+            type =>
+                name =>
+                    brackets(
+                        from xs in commaSep(
+                            from x in identifier
+                            from _ in symbol(":")
+                            from v in typedAttr(type, name)
+                            select Tuple(x, v.Value))
+                        select SettingValue.Map(
+                            name,
+                              type.Tag == ArgumentTypeTag.Time ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (Time)y)))
+                            : type.Tag == ArgumentTypeTag.Int ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (int)y)))
+                            : type.Tag == ArgumentTypeTag.String ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (string)y)))
+                            : type.Tag == ArgumentTypeTag.Double ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (double)y)))
+                            : type.Tag == ArgumentTypeTag.ProcessId ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (ProcessId)y)))
+                            : type.Tag == ArgumentTypeTag.ProcessName ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (ProcessName)y)))
+                            : type.Tag == ArgumentTypeTag.ProcessFlags ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (ProcessFlags)y)))
+                            : type.Tag == ArgumentTypeTag.Directive ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (Directive)y)))
+                            : type.Tag == ArgumentTypeTag.Process ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (ProcessSettings)y)))
+                            : type.Tag == ArgumentTypeTag.Strategy ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (StrategySettings)y)))
+                            : type.Tag == ArgumentTypeTag.Array ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => y)))
+                            : type.Tag == ArgumentTypeTag.Map ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => y)))
+                            : (object)null,
+                            type
+                            ));
 
 
         /// <summary>
@@ -303,9 +341,10 @@ namespace LanguageExt
                     : spec.Type.Tag == ArgumentTypeTag.ProcessName ? attr(spec.Name, processNameAttr)
                     : spec.Type.Tag == ArgumentTypeTag.ProcessFlags ? attr(spec.Name, flagsAttr)
                     : spec.Type.Tag == ArgumentTypeTag.Directive ? attr(spec.Name, directiveAttr)
-                    : spec.Type.Tag == ArgumentTypeTag.Array ? attr(spec.Name, arrayAttr(spec.Type.GenericType))
                     : spec.Type.Tag == ArgumentTypeTag.Process ? attr(spec.Name, processAttr(spec.Type.Spec))
                     : spec.Type.Tag == ArgumentTypeTag.Strategy ? attr(spec.Name, strategyAttr(spec.Type.Spec))
+                    : spec.Type.Tag == ArgumentTypeTag.Array ? attr(spec.Name, arrayAttr(spec.Type.GenericType))
+                    : spec.Type.Tag == ArgumentTypeTag.Map ? attr(spec.Name, mapAttr(spec.Type.GenericType))
                     : failure<SettingValue>("Unknown argument type: " + spec.Type.Tag)));
 
 
@@ -323,9 +362,10 @@ namespace LanguageExt
                     : spec.Type.Tag == ArgumentTypeTag.ProcessName ? processNameAttr(spec.Name)
                     : spec.Type.Tag == ArgumentTypeTag.ProcessFlags ? flagsAttr(spec.Name)
                     : spec.Type.Tag == ArgumentTypeTag.Directive ? directiveAttr(spec.Name)
-                    : spec.Type.Tag == ArgumentTypeTag.Array ? arrayAttr(spec.Type.GenericType)(spec.Name)
                     : spec.Type.Tag == ArgumentTypeTag.Process ? processAttr(spec.Type.Spec)(spec.Name)
                     : spec.Type.Tag == ArgumentTypeTag.Strategy ? strategyAttr(spec.Type.Spec)(spec.Name)
+                    : spec.Type.Tag == ArgumentTypeTag.Array ? arrayAttr(spec.Type.GenericType)(spec.Name)
+                    : spec.Type.Tag == ArgumentTypeTag.Map ? mapAttr(spec.Type.GenericType)(spec.Name)
                     : failure<SettingValue>("Unknown argument type: " + spec.Type.Tag)));
 
 
@@ -375,7 +415,7 @@ namespace LanguageExt
         public Parser<Map<string, SettingToken>> Settings;
 
 
-        public SystemConfigParser(params SettingSpec[] settingSpecs)
+        public ProcessSystemConfigParser(params SettingSpec[] settingSpecs)
         {
             Settings = from ws in whiteSpace
                        from ss in settings(settingSpecs)

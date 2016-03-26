@@ -54,25 +54,11 @@ namespace LanguageExt.Parsec
         public ParserResult<U> Project<S, U>(S s, Func<S, T, U> project) =>
             new ParserResult<U>(Tag, Reply.Project(s, project));
 
-        public override string ToString()
-        {
-            if(Reply.Error != null)
-            {
-                var err = Reply.Error;
-                var sb = new StringBuilder();
-                while(err != null)
-                {
-                    sb.AppendLine(err.ToString());
-                    sb.AppendLine();
-                    err = err.Inner;
-                }
-                return sb.ToString();
-            }
-            else
-            {
-                return "success";
-            }
-        }
+        public override string ToString() =>
+            Reply.Error == null
+                ? "success"
+                : Reply.Error.ToString();
+
         public bool IsFaulted =>
             Reply.Tag == ReplyTag.Error;
 

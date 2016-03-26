@@ -18,6 +18,8 @@ namespace Strategies
         {
             try
             {
+                Process.configure();
+
                 Test2();
                 Test1();
             }
@@ -44,11 +46,7 @@ namespace Strategies
                 Name:     "test1-supervisor",
                 Setup:    setup,
                 Inbox:    (pid, _) => pid,
-                Strategy: OneForOne(
-                              Retries(5),
-                              Always(Directive.Restart),
-                              Redirect(
-                                  When<Restart>(MessageDirective.ForwardToSelf)))
+                Strategy: Named("test1-strat")
                 );
 
             Console.WriteLine("Test 1: Press enter when messages stop");
@@ -85,12 +83,14 @@ namespace Strategies
                     fwd(pid);
                     return pid;
                 },
-                Strategy: AllForOne(
-                              Retries(5),
-                              Match(
-                                  With<ProcessSetupException>(Directive.Restart)),
-                              Redirect(
-                                  When<Restart>(MessageDirective.ForwardToSelf)))
+                Strategy: Named("test2-strat")
+
+                //Strategy: AllForOne(
+                //              Retries(5),
+                //              Match(
+                //                  With<ProcessSetupException>(Directive.Restart)),
+                //              Redirect(
+                //                  When<Restart>(MessageDirective.ForwardToSelf)))
                 );
 
             tell(supervisor, "Hello");

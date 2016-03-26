@@ -57,6 +57,24 @@ namespace LanguageExt
     public static partial class Process
     {
         /// <summary>
+        /// Configure the process system
+        /// Ideally call this before spawning any processes, but it can be updated
+        /// live if necessary.
+        /// </summary>
+        /// <param name="path">Path of the configuration file to load, if no path
+        /// is provided then the system will look for 'process.conf' in the folder of 
+        /// the entry assembly; if no file is found then it will check the parent
+        /// folder.</param>
+        /// <returns></returns>
+        public static Unit configure(string path = null)
+        {
+            var mgr = new ProcessSystemConfigManager();
+            mgr.Initialise(path);
+            ActorContext.SetConfig(mgr);
+            return unit;
+        }
+
+        /// <summary>
         /// Triggers when the Process system shuts down
         /// Either subscribe to the OnNext or OnCompleted
         /// </summary>

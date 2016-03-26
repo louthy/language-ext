@@ -12,6 +12,8 @@ namespace ProcessSample
             // Remove this to get on-screen logging
             ProcessSystemLog.Subscribe(Console.WriteLine);
 
+            Process.configure();
+
             var ping = ProcessId.None;
             var pong = ProcessId.None;
 
