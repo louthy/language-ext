@@ -15,7 +15,7 @@ namespace LanguageExt
         public readonly int MailboxSize = ProcessSetting.DefaultMailboxSize;
         public readonly Map<string, string> Settings = Map.empty<string,string>();
 
-        internal ActorConfig(IEnumerable<ActorConfigToken> tokens)
+        internal ActorConfig(IEnumerable<ProcessConfigToken> tokens)
         {
             foreach(var token in tokens)
             {

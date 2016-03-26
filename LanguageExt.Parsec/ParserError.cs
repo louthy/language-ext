@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Parsec
@@ -44,12 +45,19 @@ namespace LanguageExt.Parsec
         public static ParserError Message(Pos pos, string message) =>
             new ParserError(ParserErrorTag.Message, pos, message, List.empty<string>(), null);
 
+        private static string FormatExpects(Lst<string> expects) =>
+            expects.Count == 0
+                ? ""
+                : expects.Count == 1
+                    ? $"expecting {expects.Head()}"
+                    : $"expecting {String.Join(", ", expects.Take(expects.Count - 1))} or {expects.Last()}";
+
         public override string ToString() =>
             $"error at (line {Pos.Line + 1}, column {Pos.Column + 1}):\n" +
               ( Tag == ParserErrorTag.Unexpect    ? $"unexpected {Msg}"
               : Tag == ParserErrorTag.SysUnexpect ? $"unexpected {Msg}"
               : Tag == ParserErrorTag.Message     ? Msg
-              : Tag == ParserErrorTag.Expect      ? $"unexpected {Msg}\nexpecting {String.Join(", ", Expected.Filter(x => !String.IsNullOrEmpty(x)))}"
+              : Tag == ParserErrorTag.Expect      ? $"unexpected {Msg}\n{FormatExpects(Expected.Filter(x => !String.IsNullOrEmpty(x)))}"
               : "unknown error");
 
         public bool Equals(ParserError other) =>

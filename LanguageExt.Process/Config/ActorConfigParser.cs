@@ -40,11 +40,21 @@ namespace LanguageExt
         static Parser<Lst<T>> commaSep<T>(Parser<T> p)       => tokenParser.CommaSep(p);
         static Parser<Lst<T>> commaSep1<T>(Parser<T> p)      => tokenParser.CommaSep1(p);
 
-        readonly static Parser<ActorConfigToken> pid =
+        readonly static Parser<ProcessId> processId =
+            token(
+                from xs in many1(choice(lower, digit, oneOf("@/[,]: ")))
+                let  r   = (new string (xs.ToArray())).Trim()
+                let  pid = ProcessId.TryParse(r)
+                from res in pid.Match(
+                    Right: x  => result(x),
+                    Left:  ex => failure<ProcessId>(ex.Message))
+                select res);
+
+        readonly static Parser<ProcessConfigToken> pid =
             from _   in attempt(reserved("pid"))
             from __  in symbol(":")
-            from pid in stringLiteral
-            select new PidToken(new ProcessId(pid)) as ActorConfigToken;
+            from pid in processId
+            select new PidToken(pid) as ProcessConfigToken;
 
         static Parser<ProcessFlags> flagMap(string name, ProcessFlags flag) =>
             attempt(
@@ -61,17 +71,17 @@ namespace LanguageExt
                 flagMap("remote-publish", ProcessFlags.RemotePublish),
                 flagMap("remote-state-publish", ProcessFlags.RemoteStatePublish));
 
-        readonly static Parser<ActorConfigToken> flags =
+        readonly static Parser<ProcessConfigToken> flags =
             from _  in attempt(reserved("flags"))
             from __ in symbol(":")
             from fs in brackets(commaSep(flag))
-            select new FlagsToken(List.fold(fs, ProcessFlags.Default, (s, x) => s | x)) as ActorConfigToken;
+            select new FlagsToken(List.fold(fs, ProcessFlags.Default, (s, x) => s | x)) as ProcessConfigToken;
 
-        readonly static Parser<ActorConfigToken> maxMailboxSize =
+        readonly static Parser<ProcessConfigToken> maxMailboxSize =
             from _  in attempt(reserved("mailbox-size"))
             from __ in symbol(":")
             from sz in natural
-            select new MailboxSizeToken(sz) as ActorConfigToken;
+            select new MailboxSizeToken(sz) as ProcessConfigToken;
 
         static Parser<Attr> numericAttr(string name) =>
             from x in symbol(name)
@@ -103,8 +113,8 @@ namespace LanguageExt
 
         static readonly Parser<MessageDirective> fwdToProcess =
             from _   in reserved("forward-to-process")
-            from pid in stringLiteral
-            select new ForwardToProcess(new ProcessId(pid)) as MessageDirective;
+            from pid in processId
+            select new ForwardToProcess(pid) as MessageDirective;
 
         static Parser<MessageDirective> msgDirective =>
             choice(
@@ -243,11 +253,11 @@ namespace LanguageExt
             from val in stringLiteral
             select Tuple(key, val);
 
-        readonly static Parser<ActorConfigToken> settings =
+        readonly static Parser<ProcessConfigToken> settings =
             from n in attempt(reserved("settings"))
             from _ in symbol(":")
             from s in many1(attempt(setting))
-            select new SettingsToken(Map.createRange(s)) as ActorConfigToken;
+            select new SettingsToken(Map.createRange(s)) as ProcessConfigToken;
 
         readonly static Parser<IEnumerable<State<StrategyContext, Unit>>> strategies =
             many1(
@@ -270,11 +280,11 @@ namespace LanguageExt
             from attrs in strategies
             select Strategy.AllForOne(attrs.ToArray());
 
-        readonly static Parser<ActorConfigToken> strategy =
+        readonly static Parser<ProcessConfigToken> strategy =
             from a in attempt(reserved("strategy"))
             from b in symbol(":")
             from s in either(attempt(oneForOne), allForOne)
-            select new StrategyToken(s) as ActorConfigToken;
+            select new StrategyToken(s) as ProcessConfigToken;
 
         public readonly static Parser<ActorConfig> Parser =
             from _ in whiteSpace

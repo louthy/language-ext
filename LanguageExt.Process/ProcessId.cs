@@ -28,23 +28,40 @@ namespace LanguageExt
         [JsonConstructor]
         public ProcessId(string path)
         {
+            var res = TryParse(path).IfLeft(ex => raise<ProcessId>(ex));
+
+            parts = res.parts;
+            name = res.name;
+            Path = res.Path;
+        }
+
+        ProcessId(ProcessName[] parts, ProcessName name, string path)
+        {
+            this.parts = parts;
+            this.name = name;
+            this.Path = path;
+        }
+
+        public static Either<Exception, ProcessId> TryParse(string path)
+        {
             if (path == null || path.Length == 0)
             {
-                throw new InvalidProcessIdException();
+                return new InvalidProcessIdException();
             }
-            if(path[0] == '@')
+            if (path[0] == '@')
             {
-                var regd = ParseRegisteredProcess(path.Substring(1));
-                parts = regd.parts;
-                name = regd.name;
-                Path = regd.Path;
-                return;
+                return ParseRegisteredProcess(path.Substring(1));
             }
 
             if (path[0] != Sep)
             {
-                throw new InvalidProcessIdException();
+                return new InvalidProcessIdException();
             }
+
+            ProcessName[] parts = null;
+            ProcessName name;
+            string finalPath = null;
+
             if (path.Length == 1)
             {
                 parts = new ProcessName[0];
@@ -57,11 +74,11 @@ namespace LanguageExt
                 }
                 catch (InvalidProcessNameException)
                 {
-                    throw new InvalidProcessIdException();
+                    return new InvalidProcessIdException();
                 }
             }
 
-            Path = parts == null
+            finalPath = parts == null
                 ? ""
                 : parts.Length == 0
                     ? Sep.ToString()
@@ -79,15 +96,23 @@ namespace LanguageExt
             {
                 name = "$";
             }
+
+            return new ProcessId(parts, name, finalPath);
         }
 
-        static ProcessId ParseRegisteredProcess(string name)
+        static ProcessId ParseRegisteredProcess(string name) =>
+            TryParseRegisteredProcess(name)
+                .Match(
+                    Right: r => r,
+                    Left: ex => raise<ProcessId>(ex));
+
+        static Either<Exception, ProcessId> TryParseRegisteredProcess(string name)
         {
-            if(name.Length == 0) throw new InvalidProcessNameException("Registerd process name has nothing following the '@'");
+            if (name.Length == 0) return new InvalidProcessNameException("Registerd process name has nothing following the '@'");
 
             var parts = name.Split(':');
-            if( parts.Length == 0) throw new InvalidProcessNameException();
-            if( parts.Length > 2) throw new InvalidProcessNameException("Too many ':' in the registered process name");
+            if (parts.Length == 0) return new InvalidProcessNameException();
+            if (parts.Length > 2) return new InvalidProcessNameException("Too many ':' in the registered process name");
 
             if ((from p in parts
                  from c in p
@@ -95,7 +120,7 @@ namespace LanguageExt
                  select c)
                 .Any())
             {
-                throw new InvalidProcessNameException();
+                return new InvalidProcessNameException();
             }
 
             if (parts.Length == 1)

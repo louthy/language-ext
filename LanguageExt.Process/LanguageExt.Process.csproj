@@ -68,7 +68,10 @@
     <Compile Include="Config\ActorConfig.cs" />
     <Compile Include="Config\Attrs.cs" />
     <Compile Include="Config\EnumerableAttrExt.cs" />
-    <Compile Include="Config\Parser.cs" />
+    <Compile Include="Config\Manager.cs" />
+    <Compile Include="Config\ActorConfigParser.cs" />
+    <Compile Include="Config\SettingSpec.cs" />
+    <Compile Include="Config\SystemConfigParser.cs" />
     <Compile Include="Config\Tokens.cs" />
     <Compile Include="DeadLetter.cs" />
     <Compile Include="Dispatch.cs" />

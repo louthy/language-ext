@@ -279,10 +279,31 @@ namespace LanguageExt.Parsec
                     select r,
                     decimalFloat);
 
-            var floating =
-                from n in dec
-                from f in fractExponent(n)
-                select f;
+            //var floating =
+            //    from n in dec
+            //    from f in fractExponent(n)
+            //    select f;
+
+            // -1.05e+003
+            var floating = from si in optional(oneOf("+-"))
+                           from nu in asString(many(digit))
+                           from pt in dot
+                           from frac in optional(
+                               from fr in asString(many(digit))
+                               from ex in optional(
+                                   from e in oneOf("eE")
+                                   from s in oneOf("+-")
+                                   from n in asString(many1(digit))
+                                   select $"{e}{s}{n}"
+                                   )
+                               select $"{fr}{ex.IfNone("")}")
+                           let all = $"{si.Map(x => x.ToString()).IfNone("")}{nu}{pt}{frac.IfNone("")}"
+                           let opt = parseDouble(all)
+                           from res in opt.Match(
+                               x => result(x),
+                               () => failure<double>("Invalid floating point value")
+                           )
+                           select res;
 
             var natural        = lexemeInt(nat).label("natural");
             var integer        = lexemeInt(int_).label("integer");

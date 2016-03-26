@@ -29,29 +29,12 @@ namespace LanguageExt
         [JsonConstructor]
         public ProcessName(string value)
         {
-            if (value == null || value.Length == 0)
-            {
-                throw new InvalidProcessNameException();
-            }
+            var res = TryParse(value).IfLeft(ex => Prelude.raise<ProcessName>(ex));
+            Value = res.Value;
+        }
 
-            if (value.Length == 0)
-            {
-                throw new InvalidProcessNameException();
-            }
-
-            value = value.ToLower();
-            if (value[0] == '[' && value[value.Length - 1] == ']')
-            {
-                // Validate the inner ProcessIds
-                value.Substring(1, value.Length - 2).Split(',').Map(x => new ProcessId(x)).ToList();
-            }
-            else
-            {
-                if ((from c in value where InvalidNameChars.Contains(c) select c).Any())
-                {
-                    throw new InvalidProcessNameException();
-                }
-            }
+        private ProcessName(string value, bool _)
+        {
             Value = value;
         }
 
@@ -59,6 +42,43 @@ namespace LanguageExt
         {
             if(values == null) throw new InvalidProcessNameException();
             Value = $"[{String.Join(",", values)}]";
+        }
+
+        public static Either<Exception, ProcessName> TryParse(string value)
+        {
+            if (value == null || value.Length == 0)
+            {
+                return new InvalidProcessNameException();
+            }
+
+            if (value.Length == 0)
+            {
+                return new InvalidProcessNameException();
+            }
+
+            value = value.ToLower();
+            if (value[0] == '[' && value[value.Length - 1] == ']')
+            {
+                // Validate the inner ProcessIds
+
+                var exs = value.Substring(1, value.Length - 2)
+                        .Split(',')
+                        .Map(ProcessId.TryParse)
+                        .Lefts();
+
+                if ( exs.Any() )
+                {
+                    return exs.First();
+                }
+            }
+            else
+            {
+                if ((from c in value where InvalidNameChars.Contains(c) select c).Any())
+                {
+                    return new InvalidProcessNameException();
+                }
+            }
+            return new ProcessName(value, true);
         }
 
         public static ProcessName FromSelection(IEnumerable<ProcessId> pids) =>
