@@ -106,6 +106,7 @@ namespace LanguageExt
         public readonly Option<ProcessFlags> Flags;
         public readonly Option<int> MailboxSize;
         public readonly Option<State<StrategyContext, Unit>> Strategy;
+        public readonly Option<string> NamedStrategy;
         public readonly Map<string, SettingToken> Settings;
 
         public ProcessSettings(Lst<SettingToken> values)
@@ -116,6 +117,7 @@ namespace LanguageExt
             Flags       = GetValue<ProcessFlags>("flags");
             MailboxSize = GetValue<int>("mailbox-size");
             Strategy    = GetValue<StrategySettings>("strategy").Map(x => x.Value);
+            NamedStrategy = GetValue<StrategySettings>("strategy").Map(x => x.NamedStrategy);
         }
 
         Option<T> GetValue<T>(string name) =>

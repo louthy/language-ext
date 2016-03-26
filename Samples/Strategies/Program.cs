@@ -45,8 +45,7 @@ namespace Strategies
             var supervisor = spawn<ProcessId, Unit>(
                 Name:     "test1-supervisor",
                 Setup:    setup,
-                Inbox:    (pid, _) => pid,
-                Strategy: Named("test1-strat")
+                Inbox:    (pid, _) => pid
                 );
 
             Console.WriteLine("Test 1: Press enter when messages stop");
@@ -82,16 +81,7 @@ namespace Strategies
                 Inbox: (pid, _) => {
                     fwd(pid);
                     return pid;
-                },
-                Strategy: Named("test2-strat")
-
-                //Strategy: AllForOne(
-                //              Retries(5),
-                //              Match(
-                //                  With<ProcessSetupException>(Directive.Restart)),
-                //              Redirect(
-                //                  When<Restart>(MessageDirective.ForwardToSelf)))
-                );
+                });
 
             tell(supervisor, "Hello");
 

@@ -254,7 +254,7 @@ namespace LanguageExt
                     choice(
                         from _ in symbol("@")
                         from n in identifier
-                        select SettingValue.Strategy(name, strategySettings, "named"),
+                        select SettingValue.Strategy(name, strategySettings, n),
 
                         from type in attempt(either(reserved("all-for-one"), reserved("one-for-one")))
                         from _ in symbol(":")

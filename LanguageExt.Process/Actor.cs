@@ -48,6 +48,7 @@ namespace LanguageExt
             if (setup == null) throw new ArgumentNullException(nameof(setup));
             if (actor == null) throw new ArgumentNullException(nameof(actor));
 
+            Id = parent.Actor.Id[name];
             this.cluster = cluster;
             this.flags = flags;
             actorFn = actor;
@@ -55,10 +56,16 @@ namespace LanguageExt
             setupFn = setup;
             Parent = parent;
             Name = name;
-            Strategy = strategy ?? Process.DefaultStrategy;
-            Id = parent.Actor.Id[name];
+            Strategy = strategy ?? ResolveStrategy();
             SetupRemoteSubscriptions(cluster, flags);
         }
+
+        State<StrategyContext, Unit> ResolveStrategy() =>
+            (from settings in ActorContext.Config.ProcessSettings.Find(Id)
+             from named in settings.NamedStrategy
+             from strategy in ActorContext.Config.StratSettings.Find(named)
+             select strategy.Value)
+            .IfNone(Process.DefaultStrategy);
 
         /// <summary>
         /// Start up - placeholder
