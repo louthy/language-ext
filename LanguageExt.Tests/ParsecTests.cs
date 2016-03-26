@@ -458,110 +458,11 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void ActorConfigParserTest1()
-        {
-            var conftext = @"
-            
-                timeout:           30 seconds
-                session-timeout:   60 seconds
-                mailbox-size:      10000
-
-                processes:
-                    process:
-                        pid:          ""/root/test/123""
-                        flags:        [persist-inbox, persist-state, remote-publish]
-                        mailbox-size: 1000
-
-                        strategy:
-                            one-for-one:
-
-                                retries: count = 5, duration=30 seconds
-                                back-off: min = 2 seconds, max = 1 hour, step = 5 seconds
-                        
-                                match
-                                | System.NotImplementedException -> stop
-                                | System.ArgumentNullException   -> escalate
-                                | _                              -> restart
-
-                                redirect when
-                                | restart  -> forward-to-parent
-                                | escalate -> forward-to-self
-                                | stop     -> forward-to-process ""/root/test/567""
-                                | _        -> forward-to-dead-letters
-
-                        settings:
-                            blah:    ""Something for the process to use""
-                            another: ""Another setting""
-            ";
-
-            var res = parse(ActorConfigParser.Parser, conftext);
-
-            Assert.False(res.IsFaulted);
-            var conf = res.Reply.Result;
-            var remain = res.Reply.State;
-
-            Assert.True(conf.Pid.Path == "/root/te st/123");
-            Assert.True((conf.Flags & ProcessFlags.PersistInbox) != 0);
-            Assert.True((conf.Flags & ProcessFlags.PersistState) != 0);
-            Assert.True((conf.Flags & ProcessFlags.RemotePublish) != 0);
-            Assert.True(conf.MailboxSize == 1000);
-            Assert.True(conf.Settings["blah"] == "Something for the process to use");
-            Assert.True(conf.Settings["another"] == "Another setting");
-            Assert.True(res.Reply.State.ToString() == "");
-        }
-
-        [Fact]
-        public void ActorConfigParserFailTest1()
-        {
-            var conftext = @"
-
-                pidy:          ""/root/test/123""
-                flagsy:        [persist-inbox, persist-state, remote-publish]
-                mailbox-sizey: 1000
-                settingsy:
-                    blah:    ""Something for the process to use""
-                    another: ""Another setting""
-            ";
-
-            var res = parse(ActorConfigParser.Parser, conftext);
-
-            Assert.True(res.IsFaulted);
-
-            Assert.True(res.Reply.Error.Msg == "y");
-            Assert.True(res.Reply.Error.Pos.Column + 1 == 20);
-            Assert.True(res.Reply.Error.Pos.Line + 1 == 3);
-            Assert.True(res.Reply.Error.Expected.Count == 1);
-            Assert.True(res.Reply.Error.Expected.Head() == "end of pid");
-        }
-
-        [Fact]
-        public void ActorConfigParserFailTest2()
-        {
-            var conftext = @"
-
-                pid:          ""/root/test/123""
-                flags:        [persist-inbox, PersisT-State, remote-publish]
-                mailbox-size: 1000
-                settings:
-                    blah:    ""Something for the process to use""
-                    another: ""Another setting""
-            ";
-
-            var res = parse(ActorConfigParser.Parser, conftext);
-
-            Assert.True(res.IsFaulted);
-            Assert.True(res.Reply.Error.Tag == ParserErrorTag.Expect);
-            Assert.True(res.Reply.Error.Msg == "\"P\"");
-            Assert.True(res.Reply.Error.Pos.Column == 46);
-            Assert.True(res.Reply.Error.Pos.Line == 3);
-        }
-
-        [Fact]
         public void SettingTokenIntTest()
         {
             var text = @"my-setting: 123";
 
-            var sys = new SystemConfigParser(
+            var sys = new ProcessSystemConfigParser(
                     SettingSpec.Attr("my-setting", ArgumentSpec.Int("value"))
                     );
 
@@ -582,7 +483,7 @@ namespace LanguageExtTests
         {
             var text = @"my-setting: 123.45";
 
-            var sys = new SystemConfigParser(
+            var sys = new ProcessSystemConfigParser(
                     SettingSpec.Attr("my-setting", ArgumentSpec.Double("value"))
                     );
 
@@ -604,7 +505,7 @@ namespace LanguageExtTests
         {
             var text = @"my-setting: ""abc"" ";
 
-            var sys = new SystemConfigParser(
+            var sys = new ProcessSystemConfigParser(
                     SettingSpec.Attr("my-setting", ArgumentSpec.String("value"))
                     );
 
@@ -626,7 +527,7 @@ namespace LanguageExtTests
         {
             var text = @"my-setting: 4 hours ";
 
-            var sys = new SystemConfigParser(
+            var sys = new ProcessSystemConfigParser(
                     SettingSpec.Attr("my-setting", ArgumentSpec.Time("value"))
                     );
 
@@ -648,7 +549,7 @@ namespace LanguageExtTests
         {
             var text = @"my-setting: ""/root/user/blah"" ";
 
-            var sys = new SystemConfigParser(
+            var sys = new ProcessSystemConfigParser(
                     SettingSpec.Attr("my-setting", ArgumentSpec.ProcessId("value"))
                     );
 
@@ -670,7 +571,7 @@ namespace LanguageExtTests
         {
             var text = @"my-setting: ""root-proc-name"" ";
 
-            var sys = new SystemConfigParser(
+            var sys = new ProcessSystemConfigParser(
                     SettingSpec.Attr("my-setting", ArgumentSpec.ProcessName("value"))
                     );
 
@@ -692,7 +593,7 @@ namespace LanguageExtTests
         {
             var text = @"my-setting: [persist-inbox, persist-state, remote-publish] ";
 
-            var sys = new SystemConfigParser(
+            var sys = new ProcessSystemConfigParser(
                     SettingSpec.Attr("my-setting", ArgumentSpec.ProcessFlags("value"))
                     );
 
@@ -718,7 +619,7 @@ namespace LanguageExtTests
         {
             var text = @"my-setting: [1,2,3 , 4] ";
 
-            var sys = new SystemConfigParser(
+            var sys = new ProcessSystemConfigParser(
                     SettingSpec.Attr("my-setting", ArgumentSpec.Array("value", ArgumentType.Int))
                     );
 
@@ -748,7 +649,7 @@ namespace LanguageExtTests
         {
             var text = @"my-setting: [""hello"",""world""] ";
 
-            var sys = new SystemConfigParser(
+            var sys = new ProcessSystemConfigParser(
                     SettingSpec.Attr("my-setting", ArgumentSpec.Array("value", ArgumentType.String))
                     );
 
@@ -776,7 +677,7 @@ namespace LanguageExtTests
         {
             var text = @"my-setting: max = 123, name = ""hello"" ";
 
-            var sys = new SystemConfigParser(
+            var sys = new ProcessSystemConfigParser(
                     SettingSpec.Attr("my-setting", ArgumentSpec.Int("max"), ArgumentSpec.String("name"))
                     );
 
@@ -805,7 +706,7 @@ namespace LanguageExtTests
         {
             var text = @"my-setting: max = 123, name = ""hello"", coef = [0.1,0.3,0.5] ";
 
-            var sys = new SystemConfigParser(
+            var sys = new ProcessSystemConfigParser(
                     SettingSpec.Attr("my-setting",
                         ArgumentSpec.Int("max"),
                         ArgumentSpec.String("name"),
@@ -849,7 +750,7 @@ namespace LanguageExtTests
         {
             var text = @"my-setting: max = 123, name = ""hello"", coef = [0.1,0.3,0.5], flags = [listen-remote-and-local] ";
 
-            var sys = new SystemConfigParser(
+            var sys = new ProcessSystemConfigParser(
                     SettingSpec.Attr("my-setting",
                         ArgumentSpec.Int("max"),
                         ArgumentSpec.String("name"),
@@ -971,7 +872,7 @@ namespace LanguageExtTests
                 SettingSpec.Attr("mailbox-size", ArgumentSpec.Int("value")),
                 SettingSpec.Attr("strategy", ArgumentSpec.Strategy("value", strategy)));
 
-            var sys = new SystemConfigParser(
+            var sys = new ProcessSystemConfigParser(
                 SettingSpec.Attr("timeout", ArgumentSpec.Time("value")),
                 SettingSpec.Attr("session-timeout", ArgumentSpec.Time("value")),
                 SettingSpec.Attr("mailbox-size", ArgumentSpec.Int("value")),

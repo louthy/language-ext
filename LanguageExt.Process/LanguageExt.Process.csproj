@@ -65,11 +65,8 @@
     <Compile Include="CancelShutdown.cs" />
     <Compile Include="ClusterConfig.cs" />
     <Compile Include="ClusterNode.cs" />
-    <Compile Include="Config\ActorConfig.cs" />
     <Compile Include="Config\Attrs.cs" />
-    <Compile Include="Config\EnumerableAttrExt.cs" />
     <Compile Include="Config\SystemConfigManager.cs" />
-    <Compile Include="Config\ActorConfigParser.cs" />
     <Compile Include="Config\SettingSpec.cs" />
     <Compile Include="Config\SystemConfigParser.cs" />
     <Compile Include="Config\Tokens.cs" />
