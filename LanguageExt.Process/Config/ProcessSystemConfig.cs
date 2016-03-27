@@ -40,6 +40,7 @@ namespace LanguageExt
         public Map<string, StrategyToken> StratSettings =>
             stratSettings;
 
+#if !COREFX
         string FindLocalConfig() =>
             map(Path.Combine(Directory.GetParent(Assembly.GetEntryAssembly().Location).FullName, "process.conf"),
                 (string path1) => File.Exists(path1)
@@ -48,8 +49,17 @@ namespace LanguageExt
                         (string path2) => File.Exists(path2)
                             ? path2
                             : ""));
+#endif
 
-        public void Initialise(Option<string> configFilename)
+#if COREFX
+        public void InitialiseFromText(Option<string> configText) =>
+            configText.Iter(ParseConfigText);
+
+#else
+        public void InitialiseFromText(Option<string> configText) =>
+            configText.Iter(ParseConfigText);
+
+        public void InitialiseFromFile(Option<string> configFilename)
         {
             (from p in configFilename.Map(Some: x => File.Exists(x) ? x : "", None: () => FindLocalConfig())
              where p != ""
@@ -58,8 +68,14 @@ namespace LanguageExt
 
         void LoadConfigFile(string path)
         {
-            var res = parse(Parser, File.ReadAllText(path));
-            if( res.IsFaulted || res.Reply.State.ToString().Length > 0)
+            ParseConfigText(File.ReadAllText(path));
+        }
+#endif
+
+        void ParseConfigText(string text)
+        {
+            var res = parse(Parser, text);
+            if (res.IsFaulted || res.Reply.State.ToString().Length > 0)
             {
                 throw new ProcessConfigException(res.ToString());
             }

@@ -72,6 +72,7 @@
     <Compile Include="Config\Tokens.cs" />
     <Compile Include="DeadLetter.cs" />
     <Compile Include="Dispatch.cs" />
+    <Compile Include="Prelude_Configure.cs" />
     <Compile Include="Prelude_Query.cs" />
     <Compile Include="Prelude_Register.cs" />
     <Compile Include="Prelude_Settings.cs" />
