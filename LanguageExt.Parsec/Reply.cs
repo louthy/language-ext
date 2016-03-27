@@ -43,13 +43,21 @@ namespace LanguageExt.Parsec
             State = PString.Zero;
         }
 
-        internal Reply(T result, PString remaining, ParserError error = null)
+        internal Reply(T result, PString state, ParserError error = null)
         {
             Debug.Assert(notnull(result));
 
             Tag = ReplyTag.OK;
-            State = remaining;
+            State = state;
             Result = result;
+            Error = error;
+        }
+
+        Reply(ReplyTag tag, T result, PString state, ParserError error)
+        {
+            Tag = tag;
+            Result = result;
+            State = state;
             Error = error;
         }
 
@@ -62,5 +70,8 @@ namespace LanguageExt.Parsec
             Tag == ReplyTag.Error
                 ? Reply.Error<U>(Error)
                 : Reply.OK(map(Result), State, Error);
+
+        internal Reply<T> SetEndIndex(int endIndex) =>
+            new Reply<T>(Tag, Result, State.SetEndIndex(endIndex), Error);
     }
 }

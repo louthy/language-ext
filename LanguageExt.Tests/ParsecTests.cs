@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Xunit;
 
 using LanguageExt;
+using M = LanguageExt.Map;
 using LanguageExt.Parsec;
 using static LanguageExt.Prelude;
 using static LanguageExt.Parsec.Prim;
@@ -794,108 +795,72 @@ namespace LanguageExtTests
         {
             var text = @"
             
-                timeout:           30 seconds
-                session-timeout:   60 seconds
-                mailbox-size:      10000
+                time timeout:           30 seconds
+                time session-timeout:   60 seconds
+                int mailbox-size:      10000
 
-                strategies: [
-                    my-strategy:
-                        one-for-one:
-                            retries: count = 5, duration=30 seconds
-                            back-off: min = 2 seconds, max = 1 hour, step = 5 seconds
+                strategy my-strategy:
+                    one-for-one:
+                        retries: count = 5, duration=30 seconds
+                        backoff: min = 2 seconds, max = 1 hour, step = 5 seconds
                         
-                            match
-                            | System.NotImplementedException -> stop
-                            | System.ArgumentNullException   -> escalate
-                            | _                              -> restart
+                        match
+                         | System.NotImplementedException -> stop
+                         | System.ArgumentNullException   -> escalate
+                         | _                              -> restart
 
-                            redirect when
-                            | restart  -> forward-to-parent
-                            | escalate -> forward-to-self
-                            | stop     -> forward-to-process ""/root/test/567""
-                            | _        -> forward-to-dead-letters,
+                        redirect when
+                         | restart  -> forward-to-parent
+                         | escalate -> forward-to-self
+                         | stop     -> forward-to-process /root/test/567
+                         | _        -> forward-to-dead-letters
 
-                    my-other-strategy:
-                        one-for-one:
-                            pause: 1 second
-                            always: resume
-                            redirect: forward-to-process ""/root/test/567""
-                ]
+                strategy my-other-strategy:
+                    one-for-one:
+                        pause: 1 second
+                        always: resume
+                        redirect: forward-to-process /root/test/567
 
-                processes: [
-                    pid:          ""/root/test/123""
+                process abc:
+                    pid:          /root/test/123
                     flags:        [persist-inbox, persist-state, remote-publish]
                     mailbox-size: 1000
-                    strategy:     @my-strategy,
+                    strategy:     my-strategy
 
-                    pid:          ""/root/test/567""
+                process def:
+                    pid:          /root/test/567
                     flags:        [persist-inbox, persist-state]
                     mailbox-size: 100
-                    strategy:     @my-other-strategy
-                ]
+                    strategy:     my-other-strategy
                 ";
 
-            var strategy = new[] {
-                FuncSpec.Attr("always", settings => Strategy.Always((Directive)settings["value"].Value),  FieldSpec.Directive("value")), 
+            var config = new ProcessSystemConfig();
 
-                FuncSpec.Attr("pause", settings => Strategy.Pause((Time)settings["duration"].Value), FieldSpec.Time("duration")),
-
-                FuncSpec.Attr("retries",
-                    new ArgumentsSpec(
-                        settings => Strategy.Retries((int)settings["count"].Value,(Time)settings["duration"].Value),
-                        FieldSpec.Int("count"), FieldSpec.Time("duration")),
-
-                    new ArgumentsSpec(
-                        settings => Strategy.Retries((int)settings["count"].Value),
-                        FieldSpec.Int("count"))
-                        ),
-
-                FuncSpec.Attr("back-off",
-                    new ArgumentsSpec(
-                        settings => Strategy.Backoff((Time)settings["min"].Value,(Time)settings["max"].Value,(Time)settings["step"].Value),
-                        FieldSpec.Time("min"), FieldSpec.Time("max"), FieldSpec.Time("step")
-                        ),
-
-                    new ArgumentsSpec(
-                        settings => Strategy.Backoff((Time)settings["duration"].Value),
-                        FieldSpec.Time("duration")
-                        )),
-
-                FuncSpec.AttrNoArgs("match"),
-
-                FuncSpec.AttrNoArgs("redirect")
-            };
-
-            var process = new[] {
-                FuncSpec.Attr("pid", FieldSpec.ProcessId("value")),
-                FuncSpec.Attr("flags", FieldSpec.ProcessFlags("value")),
-                FuncSpec.Attr("mailbox-size", FieldSpec.Int("value")),
-                FuncSpec.Attr("strategy", FieldSpec.Strategy("value"))
-                };
-
-            var sys = new ProcessSystemConfigParser(
-                process,
-                strategy,
-                FuncSpec.Attr("timeout", FieldSpec.Time("value")),
-                FuncSpec.Attr("session-timeout", FieldSpec.Time("value")),
-                FuncSpec.Attr("mailbox-size", FieldSpec.Int("value")),
-                FuncSpec.Attr("settings", FieldSpec.Int("value")),
-                FuncSpec.Attr("strategies", FieldSpec.Map("value", ArgumentType.Strategy)),
-                FuncSpec.Attr("processes", FieldSpec.Array("value", ArgumentType.Process)));
-
-            var res = parse(sys.Settings, text);
+            var res = parse(config.Parser, text);
 
             Assert.False(res.IsFaulted);
 
             var result = res.Reply.Result;
 
-            Assert.True(result.Count == 5);
+            Assert.True(result.Count == 7);
 
             var timeout = result["timeout"];
             var session = result["session-timeout"];
             var mailbox= result["mailbox-size"];
-            var procs = result["processes"];
-            var strats = result["strategies"];
+
+            // Load process settings
+            var processes = M.createRange(from val in result.Values
+                                          where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Process
+                                          let p = (ProcessToken)val.Values.Values.First().Value
+                                          where p.ProcessId.IsSome
+                                          let id = p.ProcessId.IfNone(ProcessId.None)
+                                          select Tuple(id, p));
+
+            var strats = M.createRange(from val in result.Values
+                                       where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Strategy
+                                       let s = (StrategyToken)val.Values.Values.First().Value
+                                       select Tuple(val.Name, s));
+
 
             Assert.True(timeout.Name == "timeout");
             Assert.True(timeout.Values.Count == 1);
@@ -912,21 +877,8 @@ namespace LanguageExtTests
             Assert.True(mailbox.Values["value"].Type.Tag == ArgumentTypeTag.Int);
             Assert.True((int)mailbox.Values["value"].Value == 10000);
 
-            Assert.True(strats.Name == "strategies");
-            Assert.True(strats.Values.Count == 1);
-            var stratsValue = strats.Values["value"];
-            Assert.True(stratsValue.Type.Tag == ArgumentTypeTag.Map);
-            Assert.True(stratsValue.Type.GenericType.Tag == ArgumentTypeTag.Strategy);
-
-            Map<string, StrategyToken> ss = (Map<string, StrategyToken>)stratsValue.Value;
-
-            Assert.True(procs.Name == "processes");
-            Assert.True(procs.Values.Count == 1);
-            var procsValue = procs.Values["value"];
-            Assert.True(procsValue.Type.Tag == ArgumentTypeTag.Array);
-            Assert.True(procsValue.Type.GenericType.Tag == ArgumentTypeTag.Process);
-
-            Lst<ProcessToken> ps = (Lst<ProcessToken>)procsValue.Value;
+            Assert.True(strats.Count == 2);
+            Assert.True(processes.Count == 2);
 
         }
     }

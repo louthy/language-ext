@@ -30,7 +30,7 @@ namespace LanguageExt.Parsec
         public static Parser<char> satisfy(Func<char, bool> pred) =>
             inp =>
             {
-                if (inp.Index >= inp.Value.Length)
+                if (inp.Index >= inp.EndIndex)
                 {
                     return EmptyError<char>(ParserError.SysUnexpect(inp.Pos, "end of stream"));
                 }

@@ -10,6 +10,7 @@ using static LanguageExt.Parsec.Char;
 using static LanguageExt.Parsec.Expr;
 using static LanguageExt.Parsec.Prim;
 using static LanguageExt.Parsec.Token;
+using static LanguageExt.Parsec.Indent;
 using LanguageExt.UnitsOfMeasure;
 
 namespace LanguageExt
@@ -33,7 +34,7 @@ namespace LanguageExt
                 IdentStart: letter,
                 IdentLetter: either(alphaNum, oneOf("-_")),
                 ReservedNames: List(
-                    "pid", "strategy", "flags", "mailbox-size", "one-for-one", "all-for-one", "settings",
+                    "pid", "strategy", "flags", "one-for-one", "all-for-one", "settings",
                     "strategies", "processes", "retries", "backoff", "always", "redirect", "when",
                     "restart", "stop", "resume", "escalate",
                     "default", "listen-remote-and-local", "persist-all", "persist-inbox", "persist-state", "remote-publish", "remote-state-publish",
@@ -76,6 +77,8 @@ namespace LanguageExt
             Func<string, Parser<Unit>> reservedOp = tokenParser.ReservedOp;
 
             Func<FuncSpec[], Parser<Lst<LocalsToken>>> settings = null;
+            //Func<FuncSpec[], Parser<Lst<LocalsToken>>> strategySettings = null;
+            //Func<FuncSpec[], Parser<Lst<LocalsToken>>> processSettings = null;
             Func<ArgumentType, Func<string, Parser<ValueToken>>> arrayAttr = null;
             Func<ArgumentType, Func<string, Parser<ValueToken>>> mapAttr = null;
             Func<ArgumentType, string, Parser<ValueToken>> valueInst = null;
@@ -84,20 +87,18 @@ namespace LanguageExt
 
             Parser <ProcessId> processId =
                 token(
-                    from o in symbol("\"")
-                    from xs in many1(choice(lower, digit, oneOf("@/[,-_]{}(): ")))
-                    from c in symbol("\"")
+                    from xs in many1(choice(lower, digit, oneOf("@/[,-_]{}: ")))
                     let r = (new string(xs.ToArray())).Trim()
                     let pid = ProcessId.TryParse(r)
                     from res in pid.Match(
                         Right: x => result(x),
-                        Left: ex => failure<ProcessId>(ex.Message))
+                        Left: ex => failure<ProcessId>($"{ex.Message} '({r})'"))
                     select res);
 
             Parser<ProcessName> processName =
                 token(
                     from o in symbol("\"")
-                    from xs in many1(choice(lower, digit, oneOf("@/[,-_]{}(): ")))
+                    from xs in many1(choice(lower, digit, oneOf("@/[,-_]{}: ")))
                     from c in symbol("\"")
                     let r = (new string(xs.ToArray())).Trim()
                     let n = ProcessName.TryParse(r)
@@ -210,8 +211,8 @@ namespace LanguageExt
 
             Parser<MessageDirective> fwdToProcess =
                 from _ in reserved("forward-to-process")
-                from pid in processId
-                select new ForwardToProcess(pid) as MessageDirective;
+                from pid in attempt(expr(ArgumentType.ProcessId)).label("'forward-to-process <ProcessId>'")
+                select new ForwardToProcess((ProcessId)pid.Value) as MessageDirective;
 
             Parser<MessageDirective> msgDirective =
                 choice(
@@ -289,27 +290,22 @@ namespace LanguageExt
                    : redirectMatch
                 select ValueToken.StrategyRedirect("redirect", r);
         
-            Func<FuncSpec[], Func<string, Parser<ValueToken>>> buildProcessAttr =
-                processSettings =>
-                    name =>
-                        from ss in settings(processSettings)
-                        select ValueToken.Process(name, ss);
+            Func<FuncSpec[], Func<string, Parser<ValueToken>>> buildProcessAttr = ps => name =>
+                from ss in settings(ps)
+                select ValueToken.Process(name, ss);
 
             Func<string, Parser<ValueToken>> processAttr = buildProcessAttr(processSpecs);
 
-            Func<FuncSpec[], Func<string, Parser<ValueToken>>> buildStrategyAttr =
-                (FuncSpec[] strategySettings) =>
-                    (string name) =>
-                        choice(
-                            from _ in symbol("@")
-                            from n in identifier
-                            select ValueToken.Strategy(name, n),
+            Func<FuncSpec[], Func<string, Parser<ValueToken>>> buildStrategyAttr = stratSet => name =>
+                choice(
+                    from _ in symbol("@")
+                    from n in identifier
+                    select ValueToken.Strategy(name, n),
 
-                            from t in attempt(either(reserved("all-for-one"), reserved("one-for-one")))
-                            from _ in symbol(":")
-                            from ss in settings(strategySettings)
-                            select ValueToken.Strategy(name, t, ss)
-                        );
+                    from t in attempt(either(reserved("all-for-one"), reserved("one-for-one")))
+                    from _ in symbol(":")
+                    from ss in settings(stratSet)
+                    select ValueToken.Strategy(name, t, ss));
 
             Func<string, Parser<ValueToken>> strategyAttr = buildStrategyAttr(strategySpecs);
 
@@ -431,8 +427,7 @@ namespace LanguageExt
                                                 : failure<ValueToken>($"invalid type for identifier '{id}', expected {t.Tag} got {v.Type.Tag}"),
                                 None: () => failure<ValueToken>($"unknown identifier '{id}' ")
                             )
-                            select v.SetName(name)
-                        ),
+                            select v.SetName(name)),
                           t.Tag == ArgumentTypeTag.String ? stringAttr(name)
                         : t.Tag == ArgumentTypeTag.Time ? timeAttr(name)
                         : t.Tag == ArgumentTypeTag.Int ? integerAttr(name)
@@ -521,29 +516,30 @@ namespace LanguageExt
                               select List.create(a)
                             : argumentMany(settingName, spec);
 
-
+            // Top level settings
             settings =
                 (specs) =>
                     from sets in many(
-                        either(
-                            choice(
-                                specs.Map(setting =>
-                                    setting.Name == "match" ? from m in match
-                                                              select new LocalsToken(setting.Name, null, m)
-                                  : setting.Name == "redirect" ? from r in redirect
-                                                                 select new LocalsToken(setting.Name, null, r)
-                                  : from nam in attempt(reserved(setting.Name))
-                                    from _ in symbol(":")
-                                    from tok in choice(setting.Variants.Map(variant =>
-                                        from vals in arguments(nam, variant)
-                                        select new LocalsToken(setting.Name, variant, vals.ToArray())))
-                                    select tok)),
-                            from x in valueDef
-                            select new LocalsToken(x.Name, ArgumentsSpec.Variant(new FieldSpec("value", x.Type)), x)
-                        ))
+                        indented(1,
+                            either(
+                                // Funcs
+                                choice(
+                                    specs.Map(setting =>
+                                        setting.Name == "match" ? from m in match
+                                                                  select new LocalsToken(setting.Name, null, m)
+                                      : setting.Name == "redirect" ? from r in redirect
+                                                                     select new LocalsToken(setting.Name, null, r)
+                                      : from nam in attempt(reserved(setting.Name))
+                                        from _ in symbol(":")
+                                        from tok in choice(setting.Variants.Map(variant =>
+                                            from vals in arguments(nam, variant)
+                                            select new LocalsToken(setting.Name, variant, vals.ToArray())))
+                                        select tok)),
+                                // Var defs
+                                from x in valueDef
+                                select new LocalsToken(x.Name, ArgumentsSpec.Variant(new FieldSpec("value", x.Type)), x.SetName("value"))
+                                )))
                     select List.createRange(sets);
-
-
 
             Settings = from ws in whiteSpace
                        from __ in setState(Map.empty<string,ValueToken>())

@@ -35,6 +35,7 @@ namespace LanguageExt.Parsec
                 new PString(
                     inp.Value,
                     inp.Index + 1,
+                    inp.EndIndex,
                     newpos,
                     inp.DefPos,
                     onside(newpos, inp.DefPos)
@@ -45,14 +46,14 @@ namespace LanguageExt.Parsec
 
         public static Parser<T> choicei<T>(Parser<T>[] ps, int index) =>
             ps.Length == 0
-                ? failure<T>("no choice")
+                ? unexpected<T>("no choice")
                 : index == ps.Length - 1
                     ? ps[index]
                     : either(ps[index], choicei(ps, index + 1));
 
         public static Parser<IEnumerable<T>> chaini<T>(Parser<T>[] ps, int index) =>
             ps.Length == 0
-                ? failure<IEnumerable<T>>("no choice")
+                ? unexpected<IEnumerable<T>>("no chain")
                 : index == ps.Length - 1
                     ? ps[index].Map(x => new[] { x }.AsEnumerable())
                     : from x in ps[index]

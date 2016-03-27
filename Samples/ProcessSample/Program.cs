@@ -24,14 +24,14 @@ namespace ProcessSample
             ping = spawn<string>("ping", msg =>
             {
                 tell(logger, msg);
-                tell(pong, "ping", TimeSpan.FromMilliseconds(100));
+                tell(pong, $"ping {setting("name", "")}", TimeSpan.FromMilliseconds(100));
             });
 
             // Pong process
             pong = spawn<string>("pong", msg =>
             {
                 tell(logger, msg);
-                tell(ping, "pong", TimeSpan.FromMilliseconds(100));
+                tell(ping, $"pong {setting("name", "")}", TimeSpan.FromMilliseconds(100));
             });
 
             // Trigger

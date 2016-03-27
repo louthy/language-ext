@@ -47,6 +47,7 @@
     <Compile Include="ParserError.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="ParserResult.cs" />
+    <Compile Include="Parsers\Indent.cs" />
     <Compile Include="Pos.cs" />
     <Compile Include="Parsers\Char.cs" />
     <Compile Include="Parsers\Expr.cs" />

@@ -66,14 +66,15 @@
     <Compile Include="ClusterConfig.cs" />
     <Compile Include="ClusterNode.cs" />
     <Compile Include="Config\Attrs.cs" />
-    <Compile Include="Config\SystemConfigManager.cs" />
+    <Compile Include="Config\ProcessSystemConfig.cs" />
     <Compile Include="Config\SettingSpec.cs" />
-    <Compile Include="Config\SystemConfigParser.cs" />
+    <Compile Include="Config\ProcessSystemConfigParser.cs" />
     <Compile Include="Config\Tokens.cs" />
     <Compile Include="DeadLetter.cs" />
     <Compile Include="Dispatch.cs" />
     <Compile Include="Prelude_Query.cs" />
     <Compile Include="Prelude_Register.cs" />
+    <Compile Include="Prelude_Settings.cs" />
     <Compile Include="ProcessAssert.cs" />
     <Compile Include="ProcessMetaData.cs" />
     <Compile Include="ProxyBuilder.cs" />

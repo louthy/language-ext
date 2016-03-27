@@ -12,7 +12,7 @@ namespace LanguageExt
         [ThreadStatic]
         static ActorRequestContext context;
 
-        static ProcessSystemConfigManager config;
+        static ProcessSystemConfig config;
         static object sync = new object();
         static volatile bool started = false;
         static Option<ICluster> cluster;
@@ -45,7 +45,7 @@ namespace LanguageExt
             {
                 if (started) return unit;
 
-                config = config ?? new ProcessSystemConfigManager();
+                config = config ?? new ProcessSystemConfig(null);
 
                 startupTimestamp = DateTime.UtcNow.Ticks;
                 startupSubscription?.Dispose();
@@ -76,11 +76,11 @@ namespace LanguageExt
             return unit;
         }
 
-        public static ProcessSystemConfigManager Config =>
+        public static ProcessSystemConfig Config =>
             config;
 
-        public static void SetConfig(ProcessSystemConfigManager mgr) =>
-            config = mgr ?? new ProcessSystemConfigManager();
+        public static void SetConfig(ProcessSystemConfig mgr) =>
+            config = mgr ?? new ProcessSystemConfig(null);
 
         public static ProcessId AddDispatcher(ProcessName name, Func<ProcessId, IEnumerable<ProcessId>> selector)
         {

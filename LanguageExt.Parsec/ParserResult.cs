@@ -51,6 +51,9 @@ namespace LanguageExt.Parsec
             Reply = reply;
         }
 
+        public ParserResult<T> SetEndIndex(int endIndex) =>
+            new ParserResult<T>(Tag, Reply.SetEndIndex(endIndex));
+
         public ParserResult<U> Project<S, U>(S s, Func<S, T, U> project) =>
             new ParserResult<U>(Tag, Reply.Project(s, project));
 
