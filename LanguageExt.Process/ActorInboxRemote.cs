@@ -220,8 +220,8 @@ namespace LanguageExt
             tokenSource?.Dispose();
             tokenSource = null;
 
-            cluster?.UnsubscribeChannel(ClusterUserInboxNotifyKey);
-            cluster?.UnsubscribeChannel(ClusterSystemInboxNotifyKey);
+            try { cluster?.UnsubscribeChannel(ClusterUserInboxNotifyKey); } catch { };
+            try { cluster?.UnsubscribeChannel(ClusterSystemInboxNotifyKey); } catch { };
             cluster = null;
         }
     }
