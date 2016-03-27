@@ -16,411 +16,537 @@ namespace LanguageExt
 {
     public class ProcessSystemConfigParser
     {
-        // Process config definition
-        readonly static GenLanguageDef definition = GenLanguageDef.Empty.With(
-            CommentStart: "/*",
-            CommentEnd: "*/",
-            CommentLine: "//",
-            NestedComments: true,
-            IdentStart: letter,
-            IdentLetter: either(alphaNum, oneOf("-_")),
-            ReservedNames: List(
-                "pid", "strategy", "flags", "mailbox-size", "one-for-one", "all-for-one", "settings"
-                
-                ));
 
-        // Token parser
-        readonly static GenTokenParser tokenParser =
-            Token.makeTokenParser(definition);
-
-        // Elements of the token parser to use below
-        readonly static Parser<string> identifier = tokenParser.Identifier;
-        readonly static Parser<string> stringLiteral = tokenParser.StringLiteral;
-        readonly static Parser<int> integer = tokenParser.Integer;
-        readonly static Parser<double> floating = tokenParser.Float;
-        readonly static Parser<int> natural = tokenParser.Natural;
-        readonly static Parser<Unit> whiteSpace = tokenParser.WhiteSpace;
-        readonly static Func<string, Parser<string>> symbol = tokenParser.Symbol;
-        readonly static Func<string, Parser<string>> reserved = tokenParser.Reserved;
-        static Parser<T> token<T>(Parser<T> p) => tokenParser.Lexeme(p);
-        static Parser<T> brackets<T>(Parser<T> p) => tokenParser.Brackets(p);
-        static Parser<Lst<T>> commaSep<T>(Parser<T> p) => tokenParser.CommaSep(p);
-        static Parser<Lst<T>> commaSep1<T>(Parser<T> p) => tokenParser.CommaSep1(p);
-
-        readonly static Parser<ProcessId> processId =
-            token(
-                from o in symbol("\"")
-                from xs in many1(choice(lower, digit, oneOf("@/[,-_]{}(): ")))
-                from c in symbol("\"")
-                let r = (new string(xs.ToArray())).Trim()
-                let pid = ProcessId.TryParse(r)
-                from res in pid.Match(
-                    Right: x => result(x),
-                    Left: ex => failure<ProcessId>(ex.Message))
-                select res);
-
-        readonly static Parser<ProcessName> processName =
-            token(
-                from o in symbol("\"")
-                from xs in many1(choice(lower, digit, oneOf("@/[,-_]{}(): ")))
-                from c in symbol("\"")
-                let r = (new string(xs.ToArray())).Trim()
-                let n = ProcessName.TryParse(r)
-                from res in n.Match(
-                    Right: x => result(x),
-                    Left: ex => failure<ProcessName>(ex.Message))
-                select res);
-
-        static Parser<SettingValue> doubleAttr(string name) =>
-            from v in floating
-            select SettingValue.Double(name, v);
-
-        static Parser<SettingValue> integerAttr(string name) =>
-            from v in integer
-            select SettingValue.Int(name, v);
-
-        static Parser<SettingValue> stringAttr(string name) =>
-            from s in stringLiteral
-            select SettingValue.String(name, s);
-
-        static Parser<SettingValue> processIdAttr(string name) =>
-            from pid in processId
-            select SettingValue.ProcessId(name, pid);
-
-        static Parser<SettingValue> processNameAttr(string name) =>
-            from n in processName
-            select SettingValue.ProcessName(name, n);
-
-        static Parser<ProcessFlags> flagMap(string name, ProcessFlags flag) =>
-            attempt(
-             from x in symbol(name)
-             select flag);
-
-        readonly static Parser<ProcessFlags> flag =
-            choice(
-                flagMap("default", ProcessFlags.Default),
-                flagMap("listen-remote-and-local", ProcessFlags.ListenRemoteAndLocal),
-                flagMap("persist-all", ProcessFlags.PersistAll),
-                flagMap("persist-inbox", ProcessFlags.PersistInbox),
-                flagMap("persist-state", ProcessFlags.PersistState),
-                flagMap("remote-publish", ProcessFlags.RemotePublish),
-                flagMap("remote-state-publish", ProcessFlags.RemoteStatePublish));
-
-        static Parser<SettingValue> flagsAttr(string name) =>
-            from fs in brackets(commaSep(flag))
-            select SettingValue.ProcessFlags(name, List.fold(fs, ProcessFlags.Default, (s, x) => s | x));
-
-        static readonly Parser<string> timeUnit =
-            choice(
-                attempt(reserved("seconds")),
-                attempt(reserved("second")),
-                attempt(reserved("secs")),
-                attempt(reserved("sec")),
-                attempt(reserved("s")),
-                attempt(reserved("minutes")),
-                attempt(reserved("minute")),
-                attempt(reserved("mins")),
-                attempt(reserved("min")),
-                attempt(reserved("milliseconds")),
-                attempt(reserved("millisecond")),
-                attempt(reserved("ms")),
-                attempt(reserved("hours")),
-                attempt(reserved("hour")),
-                reserved("hr"))
-               .label("Unit of time (e.g. seconds, mins, hours, hr, sec, min...)");
-
-        static Parser<SettingValue> timeAttr(string name) =>
-            from v in floating
-            from u in timeUnit
-            from r in TimeAttr.TryParse(v, u).Match(
-                Some: result,
-                None: () => failure<Time>("Invalid unit of time"))
-            select SettingValue.Time(name, r);
-
-        static Parser<SettingValue> attr(string name, Func<string, Parser<SettingValue>> p) =>
-            from x in reserved(name)
-            from _ in symbol("=")
-            from v in p(name)
-            select v;
-
-        static Func<SettingSpec[], Func<string, Parser<SettingValue>>> processAttr =>
-            processSettings =>
-                name =>
-                    from ss in settings(processSettings)
-                    select SettingValue.Process(name, processSettings, ss);
-
-        readonly static Parser<Type> type =
-            from x in letter
-            from xs in many1(choice(letter, ch('.'), ch('_')))
-            select Type.GetType(new string(x.Cons(xs).ToArray()));
-
-        static readonly Parser<MessageDirective> fwdToSelf =
-            from _ in reserved("forward-to-self")
-            select new ForwardToSelf() as MessageDirective;
-
-        static readonly Parser<MessageDirective> fwdToParent =
-            from _ in reserved("forward-to-parent")
-            select new ForwardToParent() as MessageDirective;
-
-        static readonly Parser<MessageDirective> fwdToDeadLetters =
-            from _ in reserved("forward-to-dead-letters")
-            select new ForwardToDeadLetters() as MessageDirective;
-
-        static readonly Parser<MessageDirective> stayInQueue =
-            from _ in reserved("stay-in-queue")
-            select new StayInQueue() as MessageDirective;
-
-        static readonly Parser<MessageDirective> fwdToProcess =
-            from _ in reserved("forward-to-process")
-            from pid in processId
-            select new ForwardToProcess(pid) as MessageDirective;
-
-        static Parser<MessageDirective> msgDirective =>
-            choice(
-                fwdToDeadLetters,
-                fwdToSelf,
-                fwdToParent,
-                fwdToProcess,
-                stayInQueue);
-
-        static Parser<Directive> directive =>
-            choice(
-                reserved("resume").Map(_ => Directive.Resume),
-                reserved("restart").Map(_ => Directive.Restart),
-                reserved("stop").Map(_ => Directive.Stop),
-                reserved("escalate").Map(_ => Directive.Escalate));
-
-        
-        static Parser<SettingValue> directiveAttr(string name) =>
-            from d in directive
-            select SettingValue.Directive(name, d);
-
-        readonly static Parser<State<Exception, Option<Directive>>> exceptionDirective =
-            from b in symbol("|")
-            from t in token(type)
-            from a in symbol("->")
-            from d in token(directive)
-            select Strategy.With(d, t);
-
-        readonly static Parser<State<Exception, Option<Directive>>> otherwiseDirective =
-            from b in symbol("|")
-            from t in symbol("_")
-            from a in symbol("->")
-            from d in token(directive)
-            select Strategy.Otherwise(d);
-
-        readonly static Parser<State<Directive, Option<MessageDirective>>> matchMessageDirective =
-            from b in symbol("|")
-            from d in token(directive)
-            from a in symbol("->")
-            from m in token(msgDirective)
-            select Strategy.When(m, d);
-
-        readonly static Parser<State<Directive, Option<MessageDirective>>> otherwiseMsgDirective =
-            from b in symbol("|")
-            from t in symbol("_")
-            from a in symbol("->")
-            from d in token(msgDirective)
-            select Strategy.Otherwise(d);
-
-        readonly static Parser<SettingValue> match =
-            from _     in attempt(reserved("match"))
-            from direx in many(attempt(exceptionDirective))
-            from other in optional(otherwiseDirective)
-            let dirs = direx.Append(other.AsEnumerable()).ToArray()
-            from ok    in dirs.Length > 0
-                ? result(dirs)
-                : failure<State<Exception, Option<Directive>>[]>("'match' must be followed by at least one clause")
-            select SettingValue.StrategyMatch("match", Strategy.Match(dirs));
-
-        readonly static Parser<State<StrategyContext, Unit>> redirectMatch =
-            from direx in many(attempt(matchMessageDirective))
-            from other in optional(otherwiseMsgDirective)
-            let dirs = direx.Append(other.AsEnumerable()).ToArray()
-            from ok in dirs.Length > 0
-                ? result(dirs)
-                : failure<State<Directive, Option<MessageDirective>>[]>("'redirect when' must be followed by at least one clause")
-            select Strategy.Redirect(dirs);
-
-        readonly static Parser<SettingValue> redirect =
-            from n  in attempt(reserved("redirect"))
-            from t  in either(attempt(symbol(":")), reserved("when"))
-            from r  in t == ":"
-               ? from d in token(msgDirective)
-                 select Strategy.Redirect(d)
-               : redirectMatch
-            select SettingValue.StrategyRedirect("redirect", r);
-
-        static Func<SettingSpec[], Func<string, Parser<SettingValue>>> strategyAttr =>
-            strategySettings =>
-                name =>
-                    choice(
-                        from _ in symbol("@")
-                        from n in identifier
-                        select SettingValue.Strategy(name, strategySettings, n),
-
-                        from type in attempt(either(reserved("all-for-one"), reserved("one-for-one")))
-                        from _ in symbol(":")
-                        from ss in settings(strategySettings)
-                        select SettingValue.Strategy(name, strategySettings, type, ss));
-
-        static Parser<SettingValue> typedAttr(ArgumentType type, string name) =>
-              type.Tag == ArgumentTypeTag.Time ? timeAttr(name)
-            : type.Tag == ArgumentTypeTag.Int ? integerAttr(name)
-            : type.Tag == ArgumentTypeTag.String ? stringAttr(name)
-            : type.Tag == ArgumentTypeTag.Double ? doubleAttr(name)
-            : type.Tag == ArgumentTypeTag.ProcessId ? processIdAttr(name)
-            : type.Tag == ArgumentTypeTag.ProcessName ? processNameAttr(name)
-            : type.Tag == ArgumentTypeTag.ProcessFlags ? flagsAttr(name)
-            : type.Tag == ArgumentTypeTag.Directive ? directiveAttr(name)
-            : type.Tag == ArgumentTypeTag.Process ? processAttr(type.Spec)(name)
-            : type.Tag == ArgumentTypeTag.Strategy ? strategyAttr(type.Spec)(name)
-            : type.Tag == ArgumentTypeTag.Array ? arrayAttr(type)(name)
-            : type.Tag == ArgumentTypeTag.Map ? mapAttr(type)(name)
-            : failure<SettingValue>("Not supported argument type: " + type);
-                        
-        static Func<ArgumentType, Func<string, Parser<SettingValue>>> arrayAttr =>
-            type =>
-                name => 
-                    brackets(
-                        from xs in commaSep(typedAttr(type, name))
-                        select SettingValue.Array(
-                            name,
-                              type.Tag == ArgumentTypeTag.Time ? (object)xs.Map(x => (Time)x.Value).Freeze()
-                            : type.Tag == ArgumentTypeTag.Int ? (object)xs.Map(x => (int)x.Value).Freeze()
-                            : type.Tag == ArgumentTypeTag.String ? (object)xs.Map(x => (string)x.Value).Freeze()
-                            : type.Tag == ArgumentTypeTag.Double ? (object)xs.Map(x => (double)x.Value).Freeze()
-                            : type.Tag == ArgumentTypeTag.ProcessId ? (object)xs.Map(x => (ProcessId)x.Value).Freeze()
-                            : type.Tag == ArgumentTypeTag.ProcessName ? (object)xs.Map(x => (ProcessName)x.Value).Freeze()
-                            : type.Tag == ArgumentTypeTag.ProcessFlags ? (object)xs.Map(x => (ProcessFlags)x.Value).Freeze()
-                            : type.Tag == ArgumentTypeTag.Directive ? (object)xs.Map(x => (Directive)x.Value).Freeze()
-                            : type.Tag == ArgumentTypeTag.Process ? (object)xs.Map(x => (ProcessSettings)x.Value).Freeze()
-                            : type.Tag == ArgumentTypeTag.Strategy ? (object)xs.Map(x => (StrategySettings)x.Value).Freeze()
-                            : type.Tag == ArgumentTypeTag.Array ? (object)xs.Map(x => x.Value).Freeze()
-                            : type.Tag == ArgumentTypeTag.Map ? (object)xs.Map(x => x.Value).Freeze()
-                            : (object)null,
-                            type
-                            ));
-
-        static Func<ArgumentType, Func<string, Parser<SettingValue>>> mapAttr =>
-            type =>
-                name =>
-                    brackets(
-                        from xs in commaSep(
-                            from x in identifier
-                            from _ in symbol(":")
-                            from v in typedAttr(type, name)
-                            select Tuple(x, v.Value))
-                        select SettingValue.Map(
-                            name,
-                              type.Tag == ArgumentTypeTag.Time ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (Time)y)))
-                            : type.Tag == ArgumentTypeTag.Int ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (int)y)))
-                            : type.Tag == ArgumentTypeTag.String ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (string)y)))
-                            : type.Tag == ArgumentTypeTag.Double ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (double)y)))
-                            : type.Tag == ArgumentTypeTag.ProcessId ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (ProcessId)y)))
-                            : type.Tag == ArgumentTypeTag.ProcessName ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (ProcessName)y)))
-                            : type.Tag == ArgumentTypeTag.ProcessFlags ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (ProcessFlags)y)))
-                            : type.Tag == ArgumentTypeTag.Directive ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (Directive)y)))
-                            : type.Tag == ArgumentTypeTag.Process ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (ProcessSettings)y)))
-                            : type.Tag == ArgumentTypeTag.Strategy ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (StrategySettings)y)))
-                            : type.Tag == ArgumentTypeTag.Array ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => y)))
-                            : type.Tag == ArgumentTypeTag.Map ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => y)))
-                            : (object)null,
-                            type
-                            ));
+        GenLanguageDef definition;
+        GenTokenParser tokenParser;
+        public Parser<Map<string, LocalsToken>> Settings;
 
 
-        /// <summary>
-        /// Parses a named argument: name = value
-        /// </summary>
-        static Parser<SettingValue> namedArgument(string settingName, ArgumentSpec spec) =>
-            attempt(
-                token(
-                    spec.Type.Tag == ArgumentTypeTag.Time ? attr(spec.Name, timeAttr)
-                    : spec.Type.Tag == ArgumentTypeTag.Int ? attr(spec.Name, integerAttr)
-                    : spec.Type.Tag == ArgumentTypeTag.String ? attr(spec.Name, stringAttr)
-                    : spec.Type.Tag == ArgumentTypeTag.Double ? attr(spec.Name, doubleAttr)
-                    : spec.Type.Tag == ArgumentTypeTag.ProcessId ? attr(spec.Name, processIdAttr)
-                    : spec.Type.Tag == ArgumentTypeTag.ProcessName ? attr(spec.Name, processNameAttr)
-                    : spec.Type.Tag == ArgumentTypeTag.ProcessFlags ? attr(spec.Name, flagsAttr)
-                    : spec.Type.Tag == ArgumentTypeTag.Directive ? attr(spec.Name, directiveAttr)
-                    : spec.Type.Tag == ArgumentTypeTag.Process ? attr(spec.Name, processAttr(spec.Type.Spec))
-                    : spec.Type.Tag == ArgumentTypeTag.Strategy ? attr(spec.Name, strategyAttr(spec.Type.Spec))
-                    : spec.Type.Tag == ArgumentTypeTag.Array ? attr(spec.Name, arrayAttr(spec.Type.GenericType))
-                    : spec.Type.Tag == ArgumentTypeTag.Map ? attr(spec.Name, mapAttr(spec.Type.GenericType))
-                    : failure<SettingValue>("Unknown argument type: " + spec.Type.Tag)));
-
-
-        /// <summary>
-        /// Parses a single non-named argument
-        /// </summary>
-        static Parser<SettingValue> argument(string settingName, ArgumentSpec spec) =>
-            attempt(
-                token(
-                    spec.Type.Tag == ArgumentTypeTag.Time ? timeAttr(spec.Name)
-                    : spec.Type.Tag == ArgumentTypeTag.Int ? integerAttr(spec.Name)
-                    : spec.Type.Tag == ArgumentTypeTag.String ? stringAttr(spec.Name)
-                    : spec.Type.Tag == ArgumentTypeTag.Double ? doubleAttr(spec.Name)
-                    : spec.Type.Tag == ArgumentTypeTag.ProcessId ? processIdAttr(spec.Name)
-                    : spec.Type.Tag == ArgumentTypeTag.ProcessName ? processNameAttr(spec.Name)
-                    : spec.Type.Tag == ArgumentTypeTag.ProcessFlags ? flagsAttr(spec.Name)
-                    : spec.Type.Tag == ArgumentTypeTag.Directive ? directiveAttr(spec.Name)
-                    : spec.Type.Tag == ArgumentTypeTag.Process ? processAttr(spec.Type.Spec)(spec.Name)
-                    : spec.Type.Tag == ArgumentTypeTag.Strategy ? strategyAttr(spec.Type.Spec)(spec.Name)
-                    : spec.Type.Tag == ArgumentTypeTag.Array ? arrayAttr(spec.Type.GenericType)(spec.Name)
-                    : spec.Type.Tag == ArgumentTypeTag.Map ? mapAttr(spec.Type.GenericType)(spec.Name)
-                    : failure<SettingValue>("Unknown argument type: " + spec.Type.Tag)));
-
-
-        /// <summary>
-        ///  Parses many arguments, wrapped in ( )
-        /// </summary>
-        static Parser<Lst<SettingValue>> argumentMany(string settingName, ArgumentsSpec spec) =>
-            //from o in symbol("(")
-            from a in commaSep1(choice(spec.Args.Map(arg => namedArgument(settingName, arg))))
-            //from c in symbol(")")
-            from r in a.Count == spec.Args.Length
-                ? result(a)
-                : failure<Lst<SettingValue>>("Invalid arguments for " + settingName)
-            select r;
-
-        /// <summary>
-        /// Parses the arguments for a setting
-        /// </summary>
-        /// <param name="settingName"></param>
-        /// <param name="spec"></param>
-        /// <returns></returns>
-        static Parser<Lst<SettingValue>> Arguments(string settingName, ArgumentsSpec spec) =>
-            spec.Args.Length == 0
-                ? failure<Lst<SettingValue>>("Invalid arguments spec, has zero arguments")
-                : spec.Args.Length == 1
-                    ? from a in argument(settingName, spec.Args.Head())
-                      select List.create(a)
-                    : argumentMany(settingName, spec);
-
-
-        static Parser<Lst<SettingToken>> settings(SettingSpec[] settingSpecs) =>
-            from settings in many(
-                choice(
-                    settingSpecs.Map(setting =>
-                        setting.Name == "match"    ? from m in match
-                                                     select new SettingToken(setting.Name, null, m)
-                      : setting.Name == "redirect" ? from r in redirect
-                                                     select new SettingToken(setting.Name, null, r)
-                      : from nam in attempt(reserved(setting.Name))
-                        from _ in symbol(":")
-                        from tok in choice(setting.Variants.Map(variant =>
-                            from vals in Arguments(nam, variant)
-                            select new SettingToken(setting.Name, variant, vals.ToArray())))
-                        select tok)))
-            select List.createRange(settings);
-
-        public Parser<Map<string, SettingToken>> Settings;
-
-
-        public ProcessSystemConfigParser(params SettingSpec[] settingSpecs)
+        void InitialiseParser()
         {
+            // Process config definition
+            definition = GenLanguageDef.Empty.With(
+                CommentStart: "/*",
+                CommentEnd: "*/",
+                CommentLine: "//",
+                NestedComments: true,
+                IdentStart: letter,
+                IdentLetter: either(alphaNum, oneOf("-_")),
+                ReservedNames: List(
+                    "pid", "strategy", "flags", "mailbox-size", "one-for-one", "all-for-one", "settings",
+                    "strategies", "processes", "retries", "backoff", "always", "redirect", "when",
+                    "restart", "stop", "resume", "escalate",
+                    "default", "listen-remote-and-local", "persist-all", "persist-inbox", "persist-state", "remote-publish", "remote-state-publish",
+                    "forward-to-self", "forward-to-dead-letters", "forward-to-parent", "forward-to-process", "stay-in-queue",
+                    "string", "int", "float", "time", "process-flags", "process-id", "process-name", "map", "array", "directive", "process"
+                    ));
+
+            // Token parser
+            tokenParser = makeTokenParser(definition);
+        }
+
+        Parser<T> token<T>(Parser<T> p) =>
+            tokenParser.Lexeme(p);
+
+        Parser<T> brackets<T>(Parser<T> p) =>
+            tokenParser.Brackets(p);
+
+        Parser<T> parens<T>(Parser<T> p) =>
+            tokenParser.Parens(p);
+
+        Parser<Lst<T>> commaSep<T>(Parser<T> p) =>
+            tokenParser.CommaSep(p);
+
+        Parser<Lst<T>> commaSep1<T>(Parser<T> p) =>
+            tokenParser.CommaSep1(p);
+
+        public ProcessSystemConfigParser(FuncSpec[] processSpecs, FuncSpec[] strategySpecs, params FuncSpec[] settingSpecs)
+        {
+            InitialiseParser();
+
+            // Elements of the token parser to use below
+            Parser<string> identifier = tokenParser.Identifier;
+            Parser<string> stringLiteral = tokenParser.StringLiteral;
+            Parser<int> integer = tokenParser.Integer;
+            Parser<double> floating = tokenParser.Float;
+            Parser<int> natural = tokenParser.Natural;
+            Parser<Unit> whiteSpace = tokenParser.WhiteSpace;
+            Func<string, Parser<string>> symbol = tokenParser.Symbol;
+            Func<string, Parser<string>> reserved = tokenParser.Reserved;
+            Func<string, Parser<Unit>> reservedOp = tokenParser.ReservedOp;
+
+            Func<FuncSpec[], Parser<Lst<LocalsToken>>> settings = null;
+            Func<ArgumentType, Func<string, Parser<ValueToken>>> arrayAttr = null;
+            Func<ArgumentType, Func<string, Parser<ValueToken>>> mapAttr = null;
+            Func<ArgumentType, string, Parser<ValueToken>> valueInst = null;
+            Func<ArgumentType, Parser<ValueToken>> expr = null;
+            Parser <ArgumentType> typeDef = null;
+
+            Parser <ProcessId> processId =
+                token(
+                    from o in symbol("\"")
+                    from xs in many1(choice(lower, digit, oneOf("@/[,-_]{}(): ")))
+                    from c in symbol("\"")
+                    let r = (new string(xs.ToArray())).Trim()
+                    let pid = ProcessId.TryParse(r)
+                    from res in pid.Match(
+                        Right: x => result(x),
+                        Left: ex => failure<ProcessId>(ex.Message))
+                    select res);
+
+            Parser<ProcessName> processName =
+                token(
+                    from o in symbol("\"")
+                    from xs in many1(choice(lower, digit, oneOf("@/[,-_]{}(): ")))
+                    from c in symbol("\"")
+                    let r = (new string(xs.ToArray())).Trim()
+                    let n = ProcessName.TryParse(r)
+                    from res in n.Match(
+                        Right: x => result(x),
+                        Left: ex => failure<ProcessName>(ex.Message))
+                    select res);
+
+            Func<string, Parser<ValueToken>> doubleAttr =
+                name =>
+                    from v in floating
+                    select ValueToken.Double(name, v);
+
+            Func<string, Parser<ValueToken>> integerAttr =
+                name =>
+                    from v in integer
+                    select ValueToken.Int(name, v);
+
+            Func<string, Parser<ValueToken>> stringAttr =
+                name =>
+                    from s in stringLiteral
+                    select ValueToken.String(name, s);
+
+            Func<string, Parser<ValueToken>> processIdAttr =
+                name =>
+                    from pid in processId
+                    select ValueToken.ProcessId(name, pid);
+
+            Func<string, Parser<ValueToken>> processNameAttr =
+                name =>
+                    from n in processName
+                    select ValueToken.ProcessName(name, n);
+
+            Func<string, ProcessFlags, Parser<ProcessFlags>> flagMap =
+                (name, flags) =>
+                    attempt(
+                    from x in reserved(name)
+                    select flags);
+
+            Parser<ProcessFlags> flag =
+                choice(
+                    flagMap("default", ProcessFlags.Default),
+                    flagMap("listen-remote-and-local", ProcessFlags.ListenRemoteAndLocal),
+                    flagMap("persist-all", ProcessFlags.PersistAll),
+                    flagMap("persist-inbox", ProcessFlags.PersistInbox),
+                    flagMap("persist-state", ProcessFlags.PersistState),
+                    flagMap("remote-publish", ProcessFlags.RemotePublish),
+                    flagMap("remote-state-publish", ProcessFlags.RemoteStatePublish));
+
+            Func<string, Parser<ValueToken>> flagsAttr =
+                name =>
+                    from fs in brackets(commaSep(flag))
+                    select ValueToken.ProcessFlags(name, List.fold(fs, ProcessFlags.Default, (s, x) => s | x));
+
+            Parser<string> timeUnit =
+                choice(
+                    attempt(reserved("seconds")),
+                    attempt(reserved("second")),
+                    attempt(reserved("secs")),
+                    attempt(reserved("sec")),
+                    attempt(reserved("s")),
+                    attempt(reserved("minutes")),
+                    attempt(reserved("minute")),
+                    attempt(reserved("mins")),
+                    attempt(reserved("min")),
+                    attempt(reserved("milliseconds")),
+                    attempt(reserved("millisecond")),
+                    attempt(reserved("ms")),
+                    attempt(reserved("hours")),
+                    attempt(reserved("hour")),
+                    reserved("hr"))
+                   .label("Unit of time (e.g. seconds, mins, hours, hr, sec, min...)");
+
+            Func<string, Parser<ValueToken>> timeAttr =
+                name =>
+                    from v in floating
+                    from u in timeUnit
+                    from r in TimeAttr.TryParse(v, u).Match(
+                        Some: result,
+                        None: () => failure<Time>("Invalid unit of time"))
+                    select ValueToken.Time(name, r);
+
+            Func<string, Parser<ValueToken>, Parser<ValueToken>> attr =
+                (name, p) =>
+                    from x in reserved(name)
+                    from _ in symbol("=")
+                    from v in p
+                    select v.SetName(name);
+
+            Parser<Type> type =
+                from x in letter
+                from xs in many1(choice(letter, ch('.'), ch('_')))
+                select Type.GetType(new string(x.Cons(xs).ToArray()));
+
+            Parser<MessageDirective> fwdToSelf =
+                from _ in reserved("forward-to-self")
+                select new ForwardToSelf() as MessageDirective;
+
+            Parser<MessageDirective> fwdToParent =
+                from _ in reserved("forward-to-parent")
+                select new ForwardToParent() as MessageDirective;
+
+            Parser<MessageDirective> fwdToDeadLetters =
+                from _ in reserved("forward-to-dead-letters")
+                select new ForwardToDeadLetters() as MessageDirective;
+
+            Parser<MessageDirective> stayInQueue =
+                from _ in reserved("stay-in-queue")
+                select new StayInQueue() as MessageDirective;
+
+            Parser<MessageDirective> fwdToProcess =
+                from _ in reserved("forward-to-process")
+                from pid in processId
+                select new ForwardToProcess(pid) as MessageDirective;
+
+            Parser<MessageDirective> msgDirective =
+                choice(
+                    fwdToDeadLetters,
+                    fwdToSelf,
+                    fwdToParent,
+                    fwdToProcess,
+                    stayInQueue);
+
+            Parser<Directive> directive =
+                choice(
+                    reserved("resume").Map(_ => Directive.Resume),
+                    reserved("restart").Map(_ => Directive.Restart),
+                    reserved("stop").Map(_ => Directive.Stop),
+                    reserved("escalate").Map(_ => Directive.Escalate));
+
+            Func<string, Parser<ValueToken>> directiveAttr =
+                name =>
+                    from d in directive
+                    select ValueToken.Directive(name, d);
+
+            Parser<State<Exception, Option<Directive>>> exceptionDirective =
+                from b in symbol("|")
+                from t in token(type)
+                from a in symbol("->")
+                from d in token(directive)
+                select Strategy.With(d, t);
+
+            Parser<State<Exception, Option<Directive>>> otherwiseDirective =
+                from b in symbol("|")
+                from t in symbol("_")
+                from a in symbol("->")
+                from d in token(directive)
+                select Strategy.Otherwise(d);
+
+            Parser<State<Directive, Option<MessageDirective>>> matchMessageDirective =
+                from b in symbol("|")
+                from d in token(directive)
+                from a in symbol("->")
+                from m in token(msgDirective)
+                select Strategy.When(m, d);
+
+            Parser<State<Directive, Option<MessageDirective>>> otherwiseMsgDirective =
+                from b in symbol("|")
+                from t in symbol("_")
+                from a in symbol("->")
+                from d in token(msgDirective)
+                select Strategy.Otherwise(d);
+
+            Parser<ValueToken> match =
+                from _ in attempt(reserved("match"))
+                from direx in many(attempt(exceptionDirective))
+                from other in optional(otherwiseDirective)
+                let dirs = direx.Append(other.AsEnumerable()).ToArray()
+                from ok in dirs.Length > 0
+                    ? result(dirs)
+                    : failure<State<Exception, Option<Directive>>[]>("'match' must be followed by at least one clause")
+                select ValueToken.StrategyMatch("match", Strategy.Match(dirs));
+
+            Parser<State<StrategyContext, Unit>> redirectMatch =
+                from direx in many(attempt(matchMessageDirective))
+                from other in optional(otherwiseMsgDirective)
+                let dirs = direx.Append(other.AsEnumerable()).ToArray()
+                from ok in dirs.Length > 0
+                    ? result(dirs)
+                    : failure<State<Directive, Option<MessageDirective>>[]>("'redirect when' must be followed by at least one clause")
+                select Strategy.Redirect(dirs);
+
+            Parser<ValueToken> redirect =
+                from n in attempt(reserved("redirect"))
+                from t in either(attempt(symbol(":")), reserved("when"))
+                from r in t == ":"
+                   ? from d in token(msgDirective)
+                     select Strategy.Redirect(d)
+                   : redirectMatch
+                select ValueToken.StrategyRedirect("redirect", r);
+        
+            Func<FuncSpec[], Func<string, Parser<ValueToken>>> buildProcessAttr =
+                processSettings =>
+                    name =>
+                        from ss in settings(processSettings)
+                        select ValueToken.Process(name, ss);
+
+            Func<string, Parser<ValueToken>> processAttr = buildProcessAttr(processSpecs);
+
+            Func<FuncSpec[], Func<string, Parser<ValueToken>>> buildStrategyAttr =
+                (FuncSpec[] strategySettings) =>
+                    (string name) =>
+                        choice(
+                            from _ in symbol("@")
+                            from n in identifier
+                            select ValueToken.Strategy(name, n),
+
+                            from t in attempt(either(reserved("all-for-one"), reserved("one-for-one")))
+                            from _ in symbol(":")
+                            from ss in settings(strategySettings)
+                            select ValueToken.Strategy(name, t, ss)
+                        );
+
+            Func<string, Parser<ValueToken>> strategyAttr = buildStrategyAttr(strategySpecs);
+
+            Func < ArgumentType, string, Parser<ValueToken>> typedAttr = (t, name) =>
+                  t.Tag == ArgumentTypeTag.Time ? timeAttr(name)
+                : t.Tag == ArgumentTypeTag.Int ? integerAttr(name)
+                : t.Tag == ArgumentTypeTag.String ? stringAttr(name)
+                : t.Tag == ArgumentTypeTag.Double ? doubleAttr(name)
+                : t.Tag == ArgumentTypeTag.ProcessId ? processIdAttr(name)
+                : t.Tag == ArgumentTypeTag.ProcessName ? processNameAttr(name)
+                : t.Tag == ArgumentTypeTag.ProcessFlags ? flagsAttr(name)
+                : t.Tag == ArgumentTypeTag.Directive ? directiveAttr(name)
+                : t.Tag == ArgumentTypeTag.Process ? processAttr(name)
+                : t.Tag == ArgumentTypeTag.Strategy ? strategyAttr(name)
+                : t.Tag == ArgumentTypeTag.Array ? arrayAttr(t)(name)
+                : t.Tag == ArgumentTypeTag.Map ? mapAttr(t)(name)
+                : failure<ValueToken>("Not supported argument type: " + type);
+
+            arrayAttr = t => name =>
+                brackets(
+                    from xs in commaSep(expr(t))
+                    select ValueToken.Array(
+                        name,
+                            t.Tag == ArgumentTypeTag.Time ? (object)xs.Map(x => (Time)x.Value).Freeze()
+                          : t.Tag == ArgumentTypeTag.Int ? (object)xs.Map(x => (int)x.Value).Freeze()
+                          : t.Tag == ArgumentTypeTag.String ? (object)xs.Map(x => (string)x.Value).Freeze()
+                          : t.Tag == ArgumentTypeTag.Double ? (object)xs.Map(x => (double)x.Value).Freeze()
+                          : t.Tag == ArgumentTypeTag.ProcessId ? (object)xs.Map(x => (ProcessId)x.Value).Freeze()
+                          : t.Tag == ArgumentTypeTag.ProcessName ? (object)xs.Map(x => (ProcessName)x.Value).Freeze()
+                          : t.Tag == ArgumentTypeTag.ProcessFlags ? (object)xs.Map(x => (ProcessFlags)x.Value).Freeze()
+                          : t.Tag == ArgumentTypeTag.Directive ? (object)xs.Map(x => (Directive)x.Value).Freeze()
+                          : t.Tag == ArgumentTypeTag.Process ? (object)xs.Map(x => (ProcessToken)x.Value).Freeze()
+                          : t.Tag == ArgumentTypeTag.Strategy ? (object)xs.Map(x => (StrategyToken)x.Value).Freeze()
+                          : t.Tag == ArgumentTypeTag.Array ? (object)xs.Map(x => x.Value).Freeze()
+                          : t.Tag == ArgumentTypeTag.Map ? (object)xs.Map(x => x.Value).Freeze()
+                          : (object)null, t ));
+
+            mapAttr = t => name =>
+                brackets(
+                    from xs in commaSep(
+                        from x in identifier
+                        from _ in symbol(":")
+                        from v in expr(t)
+                        select Tuple(x, v.Value))
+                    select ValueToken.Map(
+                        name,
+                        t.Tag == ArgumentTypeTag.Time ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (Time)y)))
+                        : t.Tag == ArgumentTypeTag.Int ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (int)y)))
+                        : t.Tag == ArgumentTypeTag.String ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (string)y)))
+                        : t.Tag == ArgumentTypeTag.Double ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (double)y)))
+                        : t.Tag == ArgumentTypeTag.ProcessId ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (ProcessId)y)))
+                        : t.Tag == ArgumentTypeTag.ProcessName ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (ProcessName)y)))
+                        : t.Tag == ArgumentTypeTag.ProcessFlags ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (ProcessFlags)y)))
+                        : t.Tag == ArgumentTypeTag.Directive ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (Directive)y)))
+                        : t.Tag == ArgumentTypeTag.Process ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (ProcessToken)y)))
+                        : t.Tag == ArgumentTypeTag.Strategy ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (StrategyToken)y)))
+                        : t.Tag == ArgumentTypeTag.Array ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => y)))
+                        : t.Tag == ArgumentTypeTag.Map ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => y)))
+                        : (object)null, t ));
+
+            Parser<ArgumentType> mapTypeDef =
+                from x in symbol("map")
+                from g in typeDef
+                select ArgumentType.Map(g);
+
+            Parser<ArgumentType> arrayTypeDef =
+                from x in symbol("array")
+                from g in typeDef
+                select ArgumentType.Array(g);
+
+            typeDef =
+                choice(
+                    reserved("string").Map(_ => ArgumentType.String),
+                    reserved("time").Map(_ => ArgumentType.Time),
+                    reserved("float").Map(_ => ArgumentType.Double),
+                    reserved("int").Map(_ => ArgumentType.Int),
+                    reserved("process-flags").Map(_ => ArgumentType.ProcessFlags),
+                    reserved("process-id").Map(_ => ArgumentType.ProcessId),
+                    reserved("process-name").Map(_ => ArgumentType.ProcessName),
+                    mapTypeDef,
+                    arrayTypeDef,
+                    reserved("directive").Map(_ => ArgumentType.Directive),
+                    reserved("strategy").Map(_ => ArgumentType.Strategy),
+                    reserved("process").Map( _ => ArgumentType.Process)
+                );
+
+            Parser<ValueToken> valueDef =
+                from typ in either(
+                    attempt(reserved("let")).Map(x => Option<ArgumentType>.None),
+                    typeDef.Map(Option<ArgumentType>.Some)
+                )
+                from id in identifier.label("identifier")
+                from __ in symbol(":")
+                from v in typ.Map(
+                    t => valueInst(t, id)).IfNone(() => 
+                        choice(
+                            stringAttr(id),
+                            attempt(timeAttr(id)),
+                            integerAttr(id),
+                            doubleAttr(id),
+                            attempt(flagsAttr(id)),
+                            directiveAttr(id),
+                            strategyAttr(id),
+                            processAttr(id)))
+
+                from locals in getState<Map<string, ValueToken>>().Map(x => x.AddOrUpdate(id, v))
+                from ___ in setState(locals)
+                select v;
+
+            valueInst =
+                (t, name) =>
+                    either(
+                        attempt(
+                            from id in identifier
+                            from locals in getState<Map<string, ValueToken>>()
+                            from v in locals.Find(id).Match(
+                                Some: v => v.Type.Tag == t.Tag
+                                                ? result(v)
+                                                : failure<ValueToken>($"invalid type for identifier '{id}', expected {t.Tag} got {v.Type.Tag}"),
+                                None: () => failure<ValueToken>($"unknown identifier '{id}' ")
+                            )
+                            select v.SetName(name)
+                        ),
+                          t.Tag == ArgumentTypeTag.String ? stringAttr(name)
+                        : t.Tag == ArgumentTypeTag.Time ? timeAttr(name)
+                        : t.Tag == ArgumentTypeTag.Int ? integerAttr(name)
+                        : t.Tag == ArgumentTypeTag.Double ? doubleAttr(name)
+                        : t.Tag == ArgumentTypeTag.ProcessFlags ? flagsAttr(name)
+                        : t.Tag == ArgumentTypeTag.ProcessId ? processIdAttr(name)
+                        : t.Tag == ArgumentTypeTag.ProcessName ? processNameAttr(name)
+                        : t.Tag == ArgumentTypeTag.Map ? mapAttr(t.GenericType)(name)
+                        : t.Tag == ArgumentTypeTag.Array ? arrayAttr(t.GenericType)(name)
+                        : t.Tag == ArgumentTypeTag.Directive ? directiveAttr(name)
+                        : t.Tag == ArgumentTypeTag.Process ? processAttr(name)
+                        : t.Tag == ArgumentTypeTag.Strategy ? strategyAttr(name)
+                        : failure<ValueToken>($"value-type for '{t.Tag}'"));
+
+
+            Func<string, Func<ValueToken, ValueToken, ValueToken>, Assoc, Operator<ValueToken>> binary =
+                (name, f, assoc) =>
+                     Operator.Infix<ValueToken>(assoc,
+                        from x in reservedOp(name)
+                        select f);
+
+            Func<string, Func<ValueToken, ValueToken>, Operator<ValueToken>> prefix =
+                (name, f) =>
+                    Operator.Prefix<ValueToken>(
+                        from x in reservedOp(name)
+                        select f);
+
+            Func<string, Func<ValueToken, ValueToken>, Operator<ValueToken>> postfix =
+                (name, f) =>
+                    Operator.Postfix<ValueToken>(from x in reservedOp(name)
+                                                 select f);
+
+            Operator<ValueToken>[][] table = {
+                new [] { prefix("-",ValueToken.Negate), prefix("+",t=>t) },
+                new [] { postfix("++", ValueToken.Incr) },
+                new [] { binary("*", ValueToken.Mul, Assoc.Left), binary("/", ValueToken.Div, Assoc.Left) },
+                new [] { binary("+", ValueToken.Add, Assoc.Left), binary("-", ValueToken.Sub, Assoc.Left) }
+            };
+
+            Func<ArgumentType, Parser<ValueToken>> term =
+                expected =>
+                    choice(
+                        parens(lazyp(() => expr(expected))),
+                        valueInst(expected, ""));
+
+            expr =
+                expected =>
+                    buildExpressionParser(table, term(expected));
+
+            /// <summary>
+            /// Parses a named argument: name = value
+            /// </summary>
+            Func<string, FieldSpec, Parser<ValueToken>> namedArgument =
+                (settingName, spec) =>
+                    attempt(token(attr(spec.Name, expr(spec.Type))));
+
+            /// <summary>
+            /// Parses a single non-named argument
+            /// </summary>
+            Func<string, FieldSpec, Parser<ValueToken>> argument =
+                (settingName, spec) =>
+                    attempt(token(expr(spec.Type).Map(x => x.SetName(spec.Name))));
+
+            /// <summary>
+            ///  Parses many arguments, wrapped in ( )
+            /// </summary>
+            Func<string, ArgumentsSpec, Parser<Lst<ValueToken>>> argumentMany =
+                (settingName, spec) =>
+                    //from o in symbol("(")
+                    from a in commaSep1(choice(spec.Args.Map(arg => namedArgument(settingName, arg))))
+                        //from c in symbol(")")
+                from r in a.Count == spec.Args.Length
+                        ? result(a)
+                        : failure<Lst<ValueToken>>("Invalid arguments for " + settingName)
+                    select r;
+
+            /// <summary>
+            /// Parses the arguments for a setting
+            /// </summary>
+            Func<string, ArgumentsSpec, Parser<Lst<ValueToken>>> arguments =
+                (settingName, spec) =>
+                    spec.Args.Length == 0
+                        ? failure<Lst<ValueToken>>("Invalid arguments spec, has zero arguments")
+                        : spec.Args.Length == 1
+                            ? from a in argument(settingName, spec.Args.Head())
+                              select List.create(a)
+                            : argumentMany(settingName, spec);
+
+
+            settings =
+                (specs) =>
+                    from sets in many(
+                        either(
+                            choice(
+                                specs.Map(setting =>
+                                    setting.Name == "match" ? from m in match
+                                                              select new LocalsToken(setting.Name, null, m)
+                                  : setting.Name == "redirect" ? from r in redirect
+                                                                 select new LocalsToken(setting.Name, null, r)
+                                  : from nam in attempt(reserved(setting.Name))
+                                    from _ in symbol(":")
+                                    from tok in choice(setting.Variants.Map(variant =>
+                                        from vals in arguments(nam, variant)
+                                        select new LocalsToken(setting.Name, variant, vals.ToArray())))
+                                    select tok)),
+                            from x in valueDef
+                            select new LocalsToken(x.Name, ArgumentsSpec.Variant(new FieldSpec("value", x.Type)), x)
+                        ))
+                    select List.createRange(sets);
+
+
+
             Settings = from ws in whiteSpace
+                       from __ in setState(Map.empty<string,ValueToken>())
                        from ss in settings(settingSpecs)
                        select Map.createRange(ss.Map(x => Tuple(x.Name, x)));
         }

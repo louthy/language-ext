@@ -33,19 +33,19 @@ namespace LanguageExt.Parsec
         ///    var binary = fun((string name, Func<int,int,int> f, Assoc assoc) =>
         ///         Operator.Infix<int>( assoc,
         ///                              from x in reservedOp(name)
-        ///                              return fun );
+        ///                              select fun );
         ///                              
         ///    var prefix = fun((string name, Func<int,int> f) =>
         ///         Operator.Prefix<int>(from x in reservedOp(name)
-        ///                              return fun );
+        ///                              select fun );
         /// 
         ///    var postfix = fun((string name, Func<int,int> f) =>
         ///         Operator.Postfix<int>(from x in reservedOp(name)
-        ///                               return fun );
+        ///                               select fun );
         ///         
         ///    Operator<int>[][] table = { { prefix("-",negate), prefix("+",id) }
         ///                              , { postfix("++", incr) }
-        ///                              , { binary("*", mult), Assoc.Left), binary("/", div, Assoc.Left) }
+        ///                              , { binary("*", mult) Assoc.Left), binary("/", div, Assoc.Left) }
         ///                              , { binary("+", add, Assoc.Left), binary("-", subtr, Assoc.Left) } };
         ///              ]
         ///    var term              = either(parens(expr),natural).label("simple expression")

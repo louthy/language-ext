@@ -35,13 +35,13 @@ namespace LanguageExt
         bool remoteSubsAcquired;
 
         internal Actor(
-            Option<ICluster> cluster, 
-            ActorItem parent, 
-            ProcessName name, 
-            Func<S, T, S> actor, 
+            Option<ICluster> cluster,
+            ActorItem parent,
+            ProcessName name,
+            Func<S, T, S> actor,
             Func<IActor, S> setup,
             Func<S, ProcessId, S> term,
-            State<StrategyContext, Unit> strategy, 
+            State<StrategyContext, Unit> strategy,
             ProcessFlags flags
             )
         {
@@ -66,12 +66,18 @@ namespace LanguageExt
             SetupRemoteSubscriptions(cluster, flags);
         }
 
-        State<StrategyContext, Unit> ResolveStrategy(Option<ProcessSettings> procSettings) =>
+        State<StrategyContext, Unit> ResolveStrategy(Option<ProcessToken> procSettings) =>
+            (from settings in procSettings
+             from strat in settings.Strategy.IfNone(Named(procSettings))
+             select strat)
+            .IfNone(Process.DefaultStrategy);
+
+        State<StrategyContext, Unit> Named(Option<ProcessToken> procSettings) =>
             (from settings in procSettings
              from named in settings.NamedStrategy
              from strategy in ActorContext.Config.StratSettings.Find(named)
              select strategy.Value)
-            .IfNone(Process.DefaultStrategy);
+           .IfNone(Process.DefaultStrategy);
 
         /// <summary>
         /// Start up - placeholder

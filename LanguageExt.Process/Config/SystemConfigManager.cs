@@ -18,21 +18,21 @@ namespace LanguageExt
 {
     public class ProcessSystemConfigManager
     {
-        Map<ProcessId, ProcessSettings> processSettings;
-        Map<string, StrategySettings> stratSettings;
-        readonly Parser<Map<string, SettingToken>> parser;
+        Map<ProcessId, ProcessToken> processSettings;
+        Map<string, StrategyToken> stratSettings;
+        readonly Parser<Map<string, LocalsToken>> parser;
 
         public ProcessSystemConfigManager()
         {
             parser = InitialiseParser();
-            processSettings = Map.empty<ProcessId, ProcessSettings>();
-            stratSettings = Map.empty<string, StrategySettings>();
+            processSettings = Map.empty<ProcessId, ProcessToken>();
+            stratSettings = Map.empty<string, StrategyToken>();
         }
 
-        public Map<ProcessId, ProcessSettings> ProcessSettings => 
+        public Map<ProcessId, ProcessToken> ProcessSettings => 
             processSettings;
 
-        public Map<string, StrategySettings> StratSettings =>
+        public Map<string, StrategyToken> StratSettings =>
             stratSettings;
 
         string FindLocalConfig() =>
@@ -69,74 +69,77 @@ namespace LanguageExt
             ActorSystemConfig.Default.MaxMailboxSize               = GetSingleArg<int>(settings, "mailbox-size", "value").IfNone(ActorSystemConfig.Default.MaxMailboxSize);
 
             // Load process settings
-            processSettings = GetSingleArg<Lst<ProcessSettings>>(settings, "processes", "value")
-                .MapT((ProcessSettings x) =>
+            processSettings = GetSingleArg<Lst<ProcessToken>>(settings, "processes", "value")
+                .MapT((ProcessToken x) =>
                     x.ProcessId.Match(
                         pid  => Tuple(pid, x),
-                        () => raise<Tuple<ProcessId,ProcessSettings>>(new ProcessConfigException("A process in the configuration file is missing the 'pid' attribute"))
+                        () => raise<Tuple<ProcessId,ProcessToken>>(new ProcessConfigException("A process in the configuration file is missing the 'pid' attribute"))
                     ))
                 .Map(x => Map.createRange(x))
-                .IfNone(Map.empty<ProcessId, ProcessSettings>());
+                .IfNone(Map.empty<ProcessId, ProcessToken>());
 
             // Load strategy settings
-            stratSettings = GetSingleArg<Map<string, StrategySettings>>(settings, "strategies", "value")
-                .IfNone(Map.empty<string, StrategySettings>());
+            stratSettings = GetSingleArg<Map<string, StrategyToken>>(settings, "strategies", "value")
+                .IfNone(Map.empty<string, StrategyToken>());
 
         }
 
-        static Option<T> GetSingleArg<T>(Map<string,SettingToken> settings, string name, string argName) =>
+        static Option<T> GetSingleArg<T>(Map<string,LocalsToken> settings, string name, string argName) =>
             from y in settings.Find(name).Map(tok => tok.Values.Find(argName).Map(x => (T)x.Value))
             from z in y
             select z;
 
-        Parser<Map<string,SettingToken>> InitialiseParser()
+        Parser<Map<string,LocalsToken>> InitialiseParser()
         {
             var strategy = new[] {
-                SettingSpec.Attr("always", settings => Strategy.Always((Directive)settings["value"].Value),  ArgumentSpec.Directive("value")),
+                FuncSpec.Attr("always", settings => Strategy.Always((Directive)settings["value"].Value),  FieldSpec.Directive("value")),
 
-                SettingSpec.Attr("pause", settings => Strategy.Pause((Time)settings["duration"].Value), ArgumentSpec.Time("duration")),
+                FuncSpec.Attr("pause", settings => Strategy.Pause((Time)settings["duration"].Value), FieldSpec.Time("duration")),
 
-                SettingSpec.Attr(
+                FuncSpec.Attr(
                     "retries",
                     ArgumentsSpec.Variant(
                         settings => Strategy.Retries((int)settings["count"].Value,(Time)settings["duration"].Value),
-                        ArgumentSpec.Int("count"),
-                        ArgumentSpec.Time("duration")),
+                        FieldSpec.Int("count"),
+                        FieldSpec.Time("duration")),
 
                     ArgumentsSpec.Variant(
                         settings => Strategy.Retries((int)settings["count"].Value),
-                        ArgumentSpec.Int("count"))
+                        FieldSpec.Int("count"))
                 ),
 
-                SettingSpec.Attr("backoff",
+                FuncSpec.Attr("backoff",
                     ArgumentsSpec.Variant(
                         settings => Strategy.Backoff((Time)settings["min"].Value,(Time)settings["max"].Value,(Time)settings["step"].Value),
-                        ArgumentSpec.Time("min"), ArgumentSpec.Time("max"), ArgumentSpec.Time("step")
+                        FieldSpec.Time("min"), FieldSpec.Time("max"), FieldSpec.Time("step")
                         ),
 
                     ArgumentsSpec.Variant(
                         settings => Strategy.Backoff((Time)settings["duration"].Value),
-                        ArgumentSpec.Time("duration")
+                        FieldSpec.Time("duration")
                         )),
 
-                SettingSpec.AttrNoArgs("match"),
+                FuncSpec.AttrNoArgs("match"),
 
-                SettingSpec.AttrNoArgs("redirect")
+                FuncSpec.AttrNoArgs("redirect")
             };
 
-            var process = ArgumentType.Process(
-                SettingSpec.Attr("pid", ArgumentSpec.ProcessId("value")),
-                SettingSpec.Attr("flags", ArgumentSpec.ProcessFlags("value")),
-                SettingSpec.Attr("mailbox-size", ArgumentSpec.Int("value")),
-                SettingSpec.Attr("strategy", ArgumentSpec.Strategy("value", strategy)));
+            var process = new[] {
+                FuncSpec.Attr("pid", FieldSpec.ProcessId("value")),
+                FuncSpec.Attr("flags", FieldSpec.ProcessFlags("value")),
+                FuncSpec.Attr("mailbox-size", FieldSpec.Int("value")),
+                FuncSpec.Attr("strategy", FieldSpec.Strategy("value"))
+            };
 
             var sys = new ProcessSystemConfigParser(
-                SettingSpec.Attr("timeout", ArgumentSpec.Time("value")),
-                SettingSpec.Attr("session-timeout-check", ArgumentSpec.Time("value")),
-                SettingSpec.Attr("mailbox-size", ArgumentSpec.Int("value")),
-                SettingSpec.Attr("settings", ArgumentSpec.Int("value")),
-                SettingSpec.Attr("strategies", ArgumentSpec.Map("value", ArgumentType.Strategy(strategy))),
-                SettingSpec.Attr("processes", ArgumentSpec.Array("value", process)));
+                process,
+                strategy,
+                FuncSpec.Attr("timeout", FieldSpec.Time("value")),
+                FuncSpec.Attr("session-timeout-check", FieldSpec.Time("value")),
+                FuncSpec.Attr("mailbox-size", FieldSpec.Int("value")),
+                FuncSpec.Attr("settings", FieldSpec.Int("value")),
+                FuncSpec.Attr("strategies", FieldSpec.Map("value", ArgumentType.Strategy)),
+                FuncSpec.Attr("processes", FieldSpec.Array("value", ArgumentType.Process)));
 
             return sys.Settings;
         }

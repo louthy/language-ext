@@ -44,16 +44,20 @@ namespace LanguageExt.Parsec
         }
 
         public static Parser<T> choicei<T>(Parser<T>[] ps, int index) =>
-           index == ps.Length - 1
-                ? ps[index]
-                : either(ps[index], choicei(ps, index + 1));
+            ps.Length == 0
+                ? failure<T>("no choice")
+                : index == ps.Length - 1
+                    ? ps[index]
+                    : either(ps[index], choicei(ps, index + 1));
 
         public static Parser<IEnumerable<T>> chaini<T>(Parser<T>[] ps, int index) =>
-           index == ps.Length - 1
-                ? ps[index].Map(x => new[] { x }.AsEnumerable())
-                : from x in ps[index]
-                  from y in chaini(ps, index + 1)
-                  select x.Cons(y);
+            ps.Length == 0
+                ? failure<IEnumerable<T>>("no choice")
+                : index == ps.Length - 1
+                    ? ps[index].Map(x => new[] { x }.AsEnumerable())
+                    : from x in ps[index]
+                      from y in chaini(ps, index + 1)
+                      select x.Cons(y);
 
         public static Parser<IEnumerable<T>> counti<T>(int n, Parser<T> p) =>
            n <= 0

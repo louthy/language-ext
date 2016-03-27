@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 
 using LanguageExt;
 using static LanguageExt.Prelude;
+using LanguageExt.UnitsOfMeasure;
 
 namespace LanguageExt
 {
     public enum ArgumentTypeTag
     {
+        Unknown,
         Int,
         Double,
         String,
@@ -31,12 +33,10 @@ namespace LanguageExt
     {
         public readonly ArgumentTypeTag Tag;
         public readonly ArgumentType GenericType;
-        public readonly SettingSpec[] Spec;
 
-        ArgumentType(ArgumentTypeTag tag, SettingSpec[] spec = null)
+        ArgumentType(ArgumentTypeTag tag)
         {
             Tag = tag;
-            Spec = spec;
         }
 
         ArgumentType(ArgumentTypeTag tag, ArgumentType genericType)
@@ -44,6 +44,9 @@ namespace LanguageExt
             Tag = tag;
             GenericType = genericType;
         }
+
+        public readonly static ArgumentType Unknown =
+            new ArgumentType(ArgumentTypeTag.Unknown);
 
         public readonly static ArgumentType Int = 
             new ArgumentType(ArgumentTypeTag.Int);
@@ -66,11 +69,11 @@ namespace LanguageExt
         public readonly static ArgumentType ProcessFlags =
             new ArgumentType(ArgumentTypeTag.ProcessFlags);
 
-        public static ArgumentType Process(params SettingSpec[] spec) =>
-            new ArgumentType(ArgumentTypeTag.Process, spec);
+        public static ArgumentType Process =>
+            new ArgumentType(ArgumentTypeTag.Process);
 
-        public static ArgumentType Strategy(params SettingSpec[] spec) =>
-            new ArgumentType(ArgumentTypeTag.Strategy, spec);
+        public static ArgumentType Strategy =>
+            new ArgumentType(ArgumentTypeTag.Strategy);
 
         public static ArgumentType StrategyMatch =>
             new ArgumentType(ArgumentTypeTag.StrategyMatch);
@@ -88,110 +91,110 @@ namespace LanguageExt
             new ArgumentType(ArgumentTypeTag.Directive);
     }
 
-    public class ArgumentSpec
+    public class FieldSpec
     {
         public readonly string Name;
         public readonly ArgumentType Type;
 
-        ArgumentSpec(string name, ArgumentType type)
+        internal FieldSpec(string name, ArgumentType type)
         {
             Name = name;
             Type = type;
         }
 
-        public static ArgumentSpec Int(string name) =>
-            new ArgumentSpec(name, ArgumentType.Int);
+        public static FieldSpec Int(string name) =>
+            new FieldSpec(name, ArgumentType.Int);
 
-        public static ArgumentSpec Double(string name) =>
-            new ArgumentSpec(name, ArgumentType.Double);
+        public static FieldSpec Double(string name) =>
+            new FieldSpec(name, ArgumentType.Double);
 
-        public static ArgumentSpec String(string name) =>
-            new ArgumentSpec(name, ArgumentType.String);
+        public static FieldSpec String(string name) =>
+            new FieldSpec(name, ArgumentType.String);
 
-        public static ArgumentSpec Time(string name) =>
-            new ArgumentSpec(name, ArgumentType.Time);
+        public static FieldSpec Time(string name) =>
+            new FieldSpec(name, ArgumentType.Time);
 
-        public static ArgumentSpec ProcessId(string name) =>
-            new ArgumentSpec(name, ArgumentType.ProcessId);
+        public static FieldSpec ProcessId(string name) =>
+            new FieldSpec(name, ArgumentType.ProcessId);
 
-        public static ArgumentSpec ProcessName(string name) =>
-            new ArgumentSpec(name, ArgumentType.ProcessName);
+        public static FieldSpec ProcessName(string name) =>
+            new FieldSpec(name, ArgumentType.ProcessName);
 
-        public static ArgumentSpec ProcessFlags(string name) =>
-            new ArgumentSpec(name, ArgumentType.ProcessFlags);
+        public static FieldSpec ProcessFlags(string name) =>
+            new FieldSpec(name, ArgumentType.ProcessFlags);
 
-        public static ArgumentSpec Process(string name, params SettingSpec[] spec) =>
-            new ArgumentSpec(name, ArgumentType.Process(spec));
+        public static FieldSpec Process(string name) =>
+            new FieldSpec(name, ArgumentType.Process);
 
-        public static ArgumentSpec Strategy(string name, params SettingSpec[] spec) =>
-            new ArgumentSpec(name, ArgumentType.Strategy(spec));
+        public static FieldSpec Strategy(string name) =>
+            new FieldSpec(name, ArgumentType.Strategy);
 
-        public static ArgumentSpec StrategyMatch(string name) =>
-            new ArgumentSpec(name, ArgumentType.StrategyMatch);
+        public static FieldSpec StrategyMatch(string name) =>
+            new FieldSpec(name, ArgumentType.StrategyMatch);
 
-        public static ArgumentSpec StrategyRedirect(string name) =>
-            new ArgumentSpec(name, ArgumentType.StrategyRedirect);
+        public static FieldSpec StrategyRedirect(string name) =>
+            new FieldSpec(name, ArgumentType.StrategyRedirect);
 
-        public static ArgumentSpec Array(string name, ArgumentType genericType) =>
-            new ArgumentSpec(name, ArgumentType.Array(genericType));
+        public static FieldSpec Array(string name, ArgumentType genericType) =>
+            new FieldSpec(name, ArgumentType.Array(genericType));
 
-        public static ArgumentSpec Map(string name, ArgumentType genericType) =>
-            new ArgumentSpec(name, ArgumentType.Map(genericType));
+        public static FieldSpec Map(string name, ArgumentType genericType) =>
+            new FieldSpec(name, ArgumentType.Map(genericType));
 
-        public static ArgumentSpec Directive(string name) =>
-            new ArgumentSpec(name, ArgumentType.Directive);
+        public static FieldSpec Directive(string name) =>
+            new FieldSpec(name, ArgumentType.Directive);
 
     }
 
     public class ArgumentsSpec
     {
-        public readonly ArgumentSpec[] Args;
-        public readonly Func<Map<string,SettingValue>, object> Build;
+        public readonly FieldSpec[] Args;
+        public readonly Func<Map<string,ValueToken>, object> Ctor;
 
-        public ArgumentsSpec(Func<Map<string, SettingValue>, object> build, params ArgumentSpec[] args)
+        public ArgumentsSpec(Func<Map<string, ValueToken>, object> ctor, params FieldSpec[] args)
         {
             Args = args;
-            Build = build;
+            Ctor = ctor;
         }
 
-        public ArgumentsSpec(params ArgumentSpec[] args)
+        public ArgumentsSpec(params FieldSpec[] args)
             :
             this(null, args)
         {
         }
 
-        public static ArgumentsSpec Variant(Func<Map<string, SettingValue>, object> build, params ArgumentSpec[] args) =>
-            new ArgumentsSpec(build, args);
+        public static ArgumentsSpec Variant(Func<Map<string, ValueToken>, object> ctor, params FieldSpec[] args) =>
+            new ArgumentsSpec(ctor, args);
 
-        public static ArgumentsSpec Variant(params ArgumentSpec[] args) =>
+        public static ArgumentsSpec Variant(params FieldSpec[] args) =>
             new ArgumentsSpec(args);
     }
 
-    public class SettingSpec
+    public class FuncSpec
     {
         public readonly string Name;
         public readonly ArgumentsSpec[] Variants;
 
-        public SettingSpec(string name, params ArgumentsSpec[] variants)
+        public FuncSpec(string name, params ArgumentsSpec[] variants)
         {
             Name = name;
             Variants = variants;
         }
 
-        public static SettingSpec Attr(string name, params ArgumentsSpec[] variants) =>
-            new SettingSpec(name, variants);
+        public static FuncSpec Attr(string name, params ArgumentsSpec[] variants) =>
+            new FuncSpec(name, variants);
 
-        public static SettingSpec AttrNoArgs(string name) =>
-            new SettingSpec(name, new[] { new ArgumentsSpec() });
+        public static FuncSpec AttrNoArgs(string name) =>
+            new FuncSpec(name, new[] { new ArgumentsSpec() });
 
-        public static SettingSpec AttrNoArgs(string name, Func<string, SettingValue, object> f) =>
-            new SettingSpec(name, new[] { new ArgumentsSpec() });
+        public static FuncSpec AttrNoArgs(string name, Func<string, ValueToken, object> f) =>
+            new FuncSpec(name, new[] { new ArgumentsSpec() });
 
-        public static SettingSpec Attr(string name, params ArgumentSpec[] args) =>
-            new SettingSpec(name, new [] { new ArgumentsSpec(args) });
+        public static FuncSpec Attr(string name, params FieldSpec[] args) =>
+            new FuncSpec(name, new [] { new ArgumentsSpec(args) });
 
-        public static SettingSpec Attr(string name, Func<Map<string, SettingValue>, object> f,  params ArgumentSpec[] args) =>
-            new SettingSpec(name, new[] { new ArgumentsSpec(f, args) });
+        public static FuncSpec Attr(string name, Func<Map<string, ValueToken>, object> f,  params FieldSpec[] args) =>
+            new FuncSpec(name, new[] { new ArgumentsSpec(f, args) });
 
     }
 }

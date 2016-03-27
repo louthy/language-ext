@@ -27,6 +27,20 @@ namespace LanguageExt.Parsec
             p.Parse(input);
 
         /// <summary>
+        /// Lazy parser - useful in recursive scenarios.
+        /// </summary>
+        public static Parser<T> lazyp<T>(Func<Parser<T>> fn) =>
+            inp => fn()(inp);
+
+        /// <summary>
+        /// This parser is useful to put at the top of LINQ expressions, it
+        /// makes it easier to put breakpoints on the actual first parser
+        /// in an expression.  It returns unit
+        /// </summary>
+        public static Parser<Unit> unitp =>
+            inp => EmptyOK(unit, inp);
+
+        /// <summary>
         /// Special parser for setting user-state that propagates 
         /// through the computation.
         /// </summary>

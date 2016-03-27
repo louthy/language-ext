@@ -57,7 +57,7 @@ namespace LanguageExt.Parsec
               ( Tag == ParserErrorTag.Unexpect    ? $"unexpected {Msg}"
               : Tag == ParserErrorTag.SysUnexpect ? $"unexpected {Msg}"
               : Tag == ParserErrorTag.Message     ? Msg
-              : Tag == ParserErrorTag.Expect      ? $"unexpected {Msg}, {FormatExpects(Expected.Filter(x => !String.IsNullOrEmpty(x)))}"
+              : Tag == ParserErrorTag.Expect      ? $"unexpected {Msg}, {FormatExpects(Expected.Filter(x => !String.IsNullOrEmpty(x)).Distinct().Freeze())}"
               : "unknown error");
 
         public bool Equals(ParserError other) =>
