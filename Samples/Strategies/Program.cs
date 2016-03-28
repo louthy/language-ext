@@ -18,7 +18,7 @@ namespace Strategies
         {
             try
             {
-                Process.configureFromFile();
+                Process.readConfigFromFile();
 
                 Test1();
                 Test2();

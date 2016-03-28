@@ -397,8 +397,7 @@ namespace LanguageExt
                     reserved("strategy").Map(_ => ArgumentType.Strategy),
                     reserved("process").Map( _ => ArgumentType.Process),
                     reserved("router").Map(_ => ArgumentType.Process),
-                    reserved("router-type").Map(_ => ArgumentType.DispatcherType),
-                    reserved("disp-type").Map(_ => ArgumentType.DispatcherType)
+                    reserved("disp").Map(_ => ArgumentType.DispatcherType)
                 );
 
             Parser<ValueToken> valueDef =

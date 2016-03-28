@@ -263,15 +263,25 @@ namespace LanguageExt
         public readonly Option<State<StrategyContext, Unit>> Strategy;
         public readonly Map<string, LocalsToken> Settings;
         public readonly Option<ProcessName> RegisteredName;
+        public readonly Option<string> Dispatch;
+        public readonly Option<string> Route;
+        public readonly Option<Lst<ProcessToken>> Workers;
+        public readonly Option<int> WorkerCount;
+        public readonly Option<string> WorkerName;
 
         public ProcessToken(Lst<LocalsToken> values)
         {
-            Settings = Map.createRange(values.Map(x => Tuple.Create(x.Name, x)));
-
-            ProcessId      = GetValue<ProcessId>("pid");
-            Flags          = GetValue<ProcessFlags>("flags");
-            MailboxSize    = GetValue<int>("mailbox-size");
-            Strategy       = GetValue<StrategyToken>("strategy").Map(x => x.Value);
+            Settings        = Map.createRange(values.Map(x => Tuple.Create(x.Name, x)));
+            ProcessId       = GetValue<ProcessId>("pid");
+            Flags           = GetValue<ProcessFlags>("flags");
+            MailboxSize     = GetValue<int>("mailbox-size");
+            Dispatch        = GetValue<string>("dispatch");
+            Route           = GetValue<string>("route");
+            RegisteredName  = GetValue<ProcessName>("register-as");
+            Strategy        = GetValue<StrategyToken>("strategy").Map(x => x.Value);
+            Workers         = GetValue<Lst<ProcessToken>>("workers");
+            WorkerCount     = GetValue<int>("worker-count");
+            WorkerName      = GetValue<string>("worker-name");
         }
 
         ProcessToken(
@@ -280,7 +290,12 @@ namespace LanguageExt
             Option<int> mailboxSize,
             Option<State<StrategyContext, Unit>> strategy,
             Map<string, LocalsToken> settings,
-            Option<ProcessName> registeredName
+            Option<ProcessName> registeredName,
+            Option<string> dispatch,
+            Option<string> route,
+            Option<Lst<ProcessToken>> workers,
+            Option<int> workerCount,
+            Option<string> workerName
             )
         {
             Settings = settings;
@@ -289,10 +304,15 @@ namespace LanguageExt
             MailboxSize = mailboxSize;
             Strategy = strategy;
             RegisteredName = registeredName;
+            Dispatch = dispatch;
+            Route = route;
+            Workers = workers;
+            WorkerCount = workerCount;
+            WorkerName = workerName;
         }
 
         public ProcessToken SetRegisteredName(ProcessName registeredName) =>
-            new ProcessToken(ProcessId, Flags, MailboxSize, Strategy, Settings, registeredName);
+            new ProcessToken(ProcessId, Flags, MailboxSize, Strategy, Settings, registeredName, Dispatch, Route, Workers, WorkerCount, WorkerName);
 
         Option<T> GetValue<T>(string name) =>
             from y in Settings.Find(name).Map(tok => tok.Values.Find("value").Map(x => (T)x.Value))

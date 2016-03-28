@@ -12,7 +12,20 @@ namespace ProcessSample
             // Remove this to get on-screen logging
             ProcessSystemLog.Subscribe(Console.WriteLine);
 
-            Process.configureFromFile();
+            RedisCluster.register();
+            //Cluster.connect("redis", "ping-pong", "localhost", "0", "ping-pong");
+            //Process.readConfigFromCluster();
+            //Process.readConfigFromFile();
+            //Process.writeConfigToCluster();
+            //if ( readSetting("name","") == "" )
+            //{
+            //    writeSetting("name", "Paul");
+            //}
+            //else
+            //{
+            //    Console.WriteLine(readSetting("name", ""));
+            //    writeSetting("name", "Paul");
+            //}
 
             var ping = ProcessId.None;
             var pong = ProcessId.None;
@@ -25,9 +38,12 @@ namespace ProcessSample
             {
                 tell(logger, msg);
 
-                var res = settingList<int>("arr");
+                var res = readListSetting<int>("arr");
+                var name = readSetting("name", "");
+                var ind = readSetting("count", 0);
+                writeSetting("count", ind + 1);
 
-                tell(pong, $"ping {setting("name", "")}", TimeSpan.FromMilliseconds(100));
+                tell(pong, $"ping {name}-{ind}", TimeSpan.FromMilliseconds(100));
             });
 
             // Pong process
@@ -35,9 +51,12 @@ namespace ProcessSample
             {
                 tell(logger, msg);
 
-                var map = settingMap<string>("map");
+                var map = readMapSetting<string>("map");
+                var name = readSetting("name", "");
+                var ind = readSetting("count", 0);
+                writeSetting("count", ind + 1);
 
-                tell(ping, $"pong {setting("name", "")}", TimeSpan.FromMilliseconds(100));
+                tell(ping, $"pong {name}-{ind}", TimeSpan.FromMilliseconds(100));
             });
 
             // Trigger

@@ -27,17 +27,17 @@ namespace LanguageExt
         /// 
         ///     router broadcast1: 
         ///         pid:			/root/user/broadcast1
-        ///         router-type:	broadcast
+        ///         route:	        broadcast
         ///         worker-count:	10
         /// 
         ///     router broadcast2: 
         ///         pid:			/root/user/broadcast2
-        ///         router-type:	broadcast
+        ///         route:	        broadcast
         ///         workers:		[hello, world]
         /// 
         ///     router least: 
         ///         pid:			/role/user/least
-        ///         router-type:	least-busy
+        ///         route:	        least-busy
         ///         workers:		[one, two, three]
         /// 
         /// </example>
@@ -47,10 +47,8 @@ namespace LanguageExt
         public static ProcessId fromConfig<T>(ProcessName name)
         {
             var id       = Self[name];
-            var settings = ActorContext.Config.GetProcessSettings(id);
-            var type     = ActorContext.Config.GetProcessSetting<string>(id, "router-type");
-            var workers  = ActorContext.Config.GetProcessSetting<Lst<ProcessToken>>(id, "workers")
-                                              .IfNone(Lst<ProcessToken>.Empty)
+            var type     = ActorContext.Config.GetRouterDispatch(id);
+            var workers  = ActorContext.Config.GetRouterWorkers(id)
                                               .Map(p => p.ProcessId.IfNone(ProcessId.None) )
                                               .Filter(pid => pid != ProcessId.None);
 
@@ -77,7 +75,7 @@ namespace LanguageExt
                             throw new Exception($"Unsupported router type (for config system setup): {t} ");
                     }
                 })
-               .IfNone(() => failwith<ProcessId>($"router-type not specified for {id}"));
+               .IfNone(() => failwith<ProcessId>($"'dispatch' not specified for {id}"));
         }
 
         /// <summary>
@@ -87,17 +85,17 @@ namespace LanguageExt
         /// 
         ///     router broadcast1: 
         ///         pid:			/root/user/broadcast1
-        ///         router-type:	broadcast
+        ///         route:	        broadcast
         ///         worker-count:	10
         /// 
         ///     router broadcast2: 
         ///         pid:			/root/user/broadcast2
-        ///         router-type:	broadcast
+        ///         route:	        broadcast
         ///         workers:		[hello, world]
         /// 
         ///     router least: 
         ///         pid:			/role/user/least
-        ///         router-type:	least-busy
+        ///         route:	        least-busy
         ///         workers:		[one, two, three]
         /// 
         /// </example>
@@ -114,17 +112,17 @@ namespace LanguageExt
         /// 
         ///     router broadcast1: 
         ///         pid:			/root/user/broadcast1
-        ///         router-type:	broadcast
+        ///         route:	        broadcast
         ///         worker-count:	10
         /// 
         ///     router broadcast2: 
         ///         pid:			/root/user/broadcast2
-        ///         router-type:	broadcast
+        ///         route:	        broadcast
         ///         workers:		[hello, world]
         /// 
         ///     router least: 
         ///         pid:			/role/user/least
-        ///         router-type:	least-busy
+        ///         route:	        least-busy
         ///         workers:		[one, two, three]
         /// 
         /// </example>
@@ -141,17 +139,17 @@ namespace LanguageExt
         /// 
         ///     router broadcast1: 
         ///         pid:			/root/user/broadcast1
-        ///         router-type:	broadcast
+        ///         route:	        broadcast
         ///         worker-count:	10
         /// 
         ///     router broadcast2: 
         ///         pid:			/root/user/broadcast2
-        ///         router-type:	broadcast
+        ///         route:	        broadcast
         ///         workers:		[hello, world]
         /// 
         ///     router least: 
         ///         pid:			/role/user/least
-        ///         router-type:	least-busy
+        ///         route:	        least-busy
         ///         workers:		[one, two, three]
         /// 
         /// </example>
@@ -161,13 +159,12 @@ namespace LanguageExt
         public static ProcessId fromConfig<S, T>(ProcessName name, Func<S> Setup, Func<S,T,S> Inbox)
         {
             var id       = Self[name];
-            var settings = ActorContext.Config.GetProcessSettings(id);
-            var type     = ActorContext.Config.GetProcessSetting<string>(id, "router-type");
-            var workers  = ActorContext.Config.GetProcessSetting<int>(id, "worker-count");
+            var type     = ActorContext.Config.GetRouterDispatch(id);
+            var workers  = ActorContext.Config.GetRouterWorkerCount(id);
             var flags    = ActorContext.Config.GetProcessFlags(id);
             var mbs      = ActorContext.Config.GetProcessMailboxSize(id);
             var strategy = ActorContext.Config.GetProcessStrategy(id);
-            var wrkrName = ActorContext.Config.GetProcessSetting<string>(id, "workers-name").IfNone("worker");
+            var wrkrName = ActorContext.Config.GetRouterWorkerName(id).IfNone("worker");
 
             return type.Map(t =>
                 {
@@ -189,7 +186,7 @@ namespace LanguageExt
                             throw new Exception($"Unsupported router type (for config system setup): {t} ");
                     }
                 })
-               .IfNone(() => failwith<ProcessId>($"router-type not specified for {id}"));
+               .IfNone(() => failwith<ProcessId>($"'dispatch' not specified for {id}"));
         }
 
 

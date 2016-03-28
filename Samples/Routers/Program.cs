@@ -15,7 +15,7 @@ namespace Routers
     {
         static void Main(string[] args)
         {
-            Process.configureFromFile();
+            Process.readConfigFromFile();
 
             //Test1();
             //Test2();

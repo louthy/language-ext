@@ -489,7 +489,17 @@ namespace LanguageExt
 
             // Auto register if there are config settings and we
             // have the variable name it was assigned to.
-            Config.GetProcessRegisteredName(actor.Id).Iter(regName => Register(regName, actor.Id));
+            Config.GetProcessRegisteredName(actor.Id).Iter(regName =>
+            {
+                // Also check if 'dispatch' is specified in the config, if so we will
+                // register the Process as a role dispatcher PID instead of just its
+                // PID.  
+                Config.GetProcessDispatch(actor.Id)
+                      .Match(
+                        Some: disp => Process.register(regName, Disp[disp][Role.Current].Append(actor.Id.Skip(1))),
+                        None: ()   => Process.register(regName, actor.Id)
+                      );
+            });
 
             try
             {

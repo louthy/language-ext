@@ -254,6 +254,9 @@ namespace LanguageExt
         public static string ClusterKey(ProcessId pid) =>
             pid.Path;
 
+        public static string ClusterSettingsKey(ProcessId pid) =>
+            ClusterKey(pid) + "@settings";
+
         public static string ClusterInboxKey(ProcessId pid, string type) =>
             ClusterKey(pid) + "-" + type + "-inbox";
 

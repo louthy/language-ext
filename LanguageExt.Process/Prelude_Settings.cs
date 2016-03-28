@@ -22,12 +22,13 @@ namespace LanguageExt
         /// settings.  
         /// </summary>
         /// <param name="name">Name of the setting</param>
-        /// <param name="defaultValue">Default value to use if it doesn't exist</param>
         /// <param name="prop">If the setting is a complex value (like a map or record), then 
         /// this selects the property of the setting to access</param>
-        /// <returns>Configuration setting value</returns>
-        public static T setting<T>(string name, T defaultValue, string prop = "value") =>
-            setting<T>(name, prop).IfNone(defaultValue);
+        /// <returns>Optional configuration setting value</returns>
+        public static T readSetting<T>(string name, string prop, T defaultValue) =>
+            InMessageLoop
+                ? settingProcess(name, prop, defaultValue)
+                : settingRole(name, prop, defaultValue);
 
         /// <summary>
         /// Access a setting 
@@ -40,10 +41,10 @@ namespace LanguageExt
         /// <param name="prop">If the setting is a complex value (like a map or record), then 
         /// this selects the property of the setting to access</param>
         /// <returns>Optional configuration setting value</returns>
-        public static Option<T> setting<T>(string name, string prop = "value") =>
+        public static T readSetting<T>(string name, T defaultValue) =>
             InMessageLoop
-                ? settingProcess<T>(name, prop)
-                : settingRole<T>(name, prop);
+                ? settingProcess(name, "value", defaultValue)
+                : settingRole(name, "value", defaultValue);
 
         /// <summary>
         /// Access a list setting 
@@ -56,8 +57,8 @@ namespace LanguageExt
         /// <param name="prop">If the setting is a complex value (like a map or record), then 
         /// this selects the property of the setting to access</param>
         /// <returns>Optional configuration setting value</returns>
-        public static Lst<T> settingList<T>(string name, string prop = "value") =>
-            setting(name, List.empty<T>(), prop);
+        public static Lst<T> readListSetting<T>(string name, string prop = "value") =>
+            readSetting(name, prop, List.empty<T>());
 
         /// <summary>
         /// Access a map setting 
@@ -70,13 +71,18 @@ namespace LanguageExt
         /// <param name="prop">If the setting is a complex value (like a map or record), then 
         /// this selects the property of the setting to access</param>
         /// <returns>Optional configuration setting value</returns>
-        public static Map<string, T> settingMap<T>(string name, string prop = "value") =>
-            setting(name, Map.empty<string, T>(), prop);
+        public static Map<string, T> readMapSetting<T>(string name, string prop = "value") =>
+            readSetting(name, prop, Map.empty<string, T>());
 
-        static Option<T> settingProcess<T>(string name, string prop = "value") =>
-            ActorContext.Config.GetProcessSetting<T>(Self, name, prop);
+        public static Unit writeSetting(string name, object value, string prop = "value") =>
+            InMessageLoop
+                ? ActorContext.Config.WriteSettingOverride(ActorInboxCommon.ClusterSettingsKey(Self), value, name, prop)
+                : ActorContext.Config.WriteSettingOverride($"role-{Role.Current.Value}@settings", value, name, prop);
 
-        static Option<T> settingRole<T>(string name, string prop = "value") =>
-            ActorContext.Config.GetRoleSetting<T>(name, prop);
+        static T settingProcess<T>(string name, string prop, T defaultValue) =>
+            ActorContext.Config.GetProcessSetting(Self, name, prop, defaultValue);
+
+        static T settingRole<T>(string name, string prop, T defaultValue) =>
+            ActorContext.Config.GetRoleSetting(name, prop, defaultValue);
     }
 }
