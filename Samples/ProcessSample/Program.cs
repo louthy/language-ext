@@ -13,9 +13,11 @@ namespace ProcessSample
             ProcessSystemLog.Subscribe(Console.WriteLine);
 
             RedisCluster.register();
-            //Cluster.connect("redis", "ping-pong", "localhost", "0", "ping-pong");
+            Process.readConfigFromFile();
+
+            Cluster.connect("redis", "ping-pong", "localhost", "0", "ping-pong");
+
             //Process.readConfigFromCluster();
-            //Process.readConfigFromFile();
             //Process.writeConfigToCluster();
             //if ( readSetting("name","") == "" )
             //{
@@ -64,6 +66,9 @@ namespace ProcessSample
 
 
             Console.ReadKey();
+
+            kill(ping);
+            kill(pong);
         }
     }
 }

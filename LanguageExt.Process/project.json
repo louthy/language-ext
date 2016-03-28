@@ -1,5 +1,5 @@
 {
-  "version": "1.7.30-*",
+  "version": "1.7.31-*",
   "authors": [ "Paul Louth" ],
   "owners": [ "paullouth" ],
   "title": "LanguageExt.Process",
@@ -24,8 +24,8 @@
     }
   },
   "dependencies": {
-    "LanguageExt.Core": "1.7.30",
-    "LanguageExt.Parsec": "1.7.30",
+    "LanguageExt.Core": "1.7.31",
+    "LanguageExt.Parsec": "1.7.31",
     "Newtonsoft.Json": "7.0.1",
     "Rx-Main": "2.2.5.0",
     "FSharp.Core": "4.0.0.1"

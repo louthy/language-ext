@@ -57,6 +57,18 @@ namespace LanguageExt
         public void LoadFromText(Option<string> configText) =>
             configText.Iter(ParseConfigText);
 
+#if COREFX
+        /// <summary>
+        /// Setup using the configuration settings from pre-saved spec in the cluster
+        /// If you haven't set one up, 
+        /// </summary>
+        public Unit LoadFromCluster()
+        {
+            var key = $"role-{Role.Current}@spec";
+            ActorContext.Cluster.IfSome( c => { if (c.Exists(key)) LoadFromText(c.GetValue<string>(key));});
+            return unit;
+        }
+#else
         /// <summary>
         /// Setup using the configuration settings in the file specified
         /// </summary>
@@ -83,7 +95,7 @@ namespace LanguageExt
                 );
             return unit;
         }
-
+#endif
         /// <summary>
         /// Saves the current state of the settings to the cluster
         /// 
@@ -94,7 +106,7 @@ namespace LanguageExt
         /// NOTE: The settings are saved for the role, and will be shared 
         /// between multiple nodes in the role.
         /// </summary>
-        public Unit SaveToCluser()
+        public Unit SaveToCluster()
         {
             var key = $"role-{Role.Current}@spec";
 
@@ -116,17 +128,67 @@ namespace LanguageExt
         static ProcessId RolePid(ProcessId pid) =>
             ProcessId.Top["role"].Append(pid.Skip(1));
 
-        internal Unit WriteSettingOverride(string key, object value, string name, string prop = "value")
+        /// <summary>
+        /// Write a single override setting
+        /// </summary>
+        internal Unit WriteSettingOverride(string key, object value, string name, string prop, ProcessFlags flags)
         {
             if (value == null) failwith<Unit>("Settings can't be null");
 
             var propKey = $"{name}@{prop}";
-            ActorContext.Cluster.Iter( c =>
-                {
-                    c.HashFieldAddOrUpdate(key, propKey, value);
-                });
+
+            if (flags != ProcessFlags.Default)
+            {
+                ActorContext.Cluster.Iter(c =>
+                   {
+                       c.HashFieldAddOrUpdate(key, propKey, value);
+                   });
+            }
 
             settingOverrides = settingOverrides.AddOrUpdate(key, propKey, value);
+            return unit;
+        }
+
+        /// <summary>
+        /// Clear a single override setting
+        /// </summary>
+        internal Unit ClearSettingOverride(string key, string name, string prop, ProcessFlags flags)
+        {
+            var propKey = $"{name}@{prop}";
+            if (flags != ProcessFlags.Default)
+            {
+                ActorContext.Cluster.Iter(c =>
+                {
+                    c.DeleteHashField(key, propKey);
+                });
+            }
+
+            settingOverrides = settingOverrides.Remove(key, propKey);
+            return unit;
+        }
+
+        /// <summary>
+        /// Clear all override settings for either the process or role
+        /// </summary>
+        internal Unit ClearSettingsOverride(string key, ProcessFlags flags)
+        {
+            if (flags != ProcessFlags.Default)
+            {
+                ActorContext.Cluster.Iter(c =>
+                {
+                    c.Delete(key);
+                });
+            }
+
+            return ClearInMemorySettingsOverride(key);
+        }
+
+        /// <summary>
+        /// Clear all override settings for either the process or role
+        /// </summary>
+        internal Unit ClearInMemorySettingsOverride(string key)
+        {
+            settingOverrides = settingOverrides.Remove(key);
             return unit;
         }
 
@@ -161,7 +223,7 @@ namespace LanguageExt
         /// <param name="prop">Name of property within the setting (for complex 
         /// types, not value types)</param>
         /// <returns></returns>
-        internal T GetProcessSetting<T>(ProcessId pid, string name, string prop, T defaultValue)
+        internal T GetProcessSetting<T>(ProcessId pid, string name, string prop, T defaultValue, ProcessFlags flags)
         {
             // First see if we have the value cached
             var key     = ActorInboxCommon.ClusterSettingsKey(pid);
@@ -170,9 +232,14 @@ namespace LanguageExt
             if (over.IsSome) return over.Map(x => (T)x).IfNoneUnsafe(defaultValue);
 
             // Next check the data store
-            var tover = from x in ActorContext.Cluster.Map(c => c.GetHashField<T>(key, propKey))
+            Option<T> tover = None;
+
+            if (flags != ProcessFlags.Default)
+            {
+                tover = from x in ActorContext.Cluster.Map(c => c.GetHashField<T>(key, propKey))
                         from y in x
                         select y;
+            }
 
             if (tover.IsSome)
             {

@@ -208,6 +208,9 @@ namespace LanguageExt
         public bool Delete(string key) =>
             Retry(() => Db.KeyDelete(key));
 
+        public bool DeleteMany(params string[] keys) =>
+            Retry(() => Db.KeyDelete(keys.Map(k => (RedisKey)k).ToArray())==keys.Length);
+
         public int QueueLength(string key) =>
             Retry(() => (int)Db.ListLength(key));
 

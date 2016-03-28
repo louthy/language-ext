@@ -388,18 +388,23 @@ namespace LanguageExt
         {
             lock(sync)
             {
-                if (maintainState == false)
+                if (maintainState == false && Flags != ProcessFlags.Default)
                 {
                     cluster.IfSome(c =>
                     {
                         // TODO: Make this transactional 
                         // {
-                        c.Delete(StateKey);
-                        c.Delete(ActorInboxCommon.ClusterUserInboxKey(Id));
-                        c.Delete(ActorInboxCommon.ClusterSystemInboxKey(Id));
-                        c.Delete(ActorInboxCommon.ClusterMetaDataKey(Id));
+                        c.DeleteMany(
+                            StateKey,
+                            ActorInboxCommon.ClusterUserInboxKey(Id),
+                            ActorInboxCommon.ClusterSystemInboxKey(Id),
+                            ActorInboxCommon.ClusterMetaDataKey(Id),
+                            ActorInboxCommon.ClusterSettingsKey(Id));
+
                         ActorContext.DeregisterById(Id);
                         // }
+
+                        ActorContext.Config.ClearInMemorySettingsOverride(ActorInboxCommon.ClusterSettingsKey(Id));
                     });
                 }
 

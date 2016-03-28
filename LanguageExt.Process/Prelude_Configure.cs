@@ -172,7 +172,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns></returns>
         public static Unit writeConfigToCluster() =>
-            ActorContext.Config.SaveToCluser();
+            ActorContext.Config.SaveToCluster();
 
 #if !COREFX
         /// <summary>
