@@ -20,6 +20,107 @@ namespace LanguageExt
 
     public static partial class Router
     {
+        /// <summary>
+        /// Spawn a router using the settings in the config
+        /// </summary>
+        /// <example>
+        /// 
+        ///     router broadcast1: 
+        ///         pid:			/root/user/broadcast1
+        ///         router-type:	broadcast
+        ///         worker-count:	10
+        /// 
+        ///     router broadcast2: 
+        ///         pid:			/root/user/broadcast2
+        ///         router-type:	broadcast
+        ///         workers:		[hello, world]
+        /// 
+        ///     router least: 
+        ///         pid:			/role/user/least
+        ///         router-type:	least-busy
+        ///         workers:		[one, two, three]
+        /// 
+        /// </example>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">Name of the child process that will be the router</param>
+        /// <returns>ProcessId of the router</returns>
+        public static ProcessId fromConfig<T>(ProcessName name)
+        {
+            var id       = Self[name];
+            var settings = ActorContext.Config.GetProcessSettings(id);
+            var type     = ActorContext.Config.GetProcessSetting<string>(id, "router-type");
+            var workers  = ActorContext.Config.GetProcessSetting<Lst<ProcessToken>>(id, "workers")
+                                              .IfNone(Lst<ProcessToken>.Empty)
+                                              .Map(p => p.ProcessId.IfNone(ProcessId.None) )
+                                              .Filter(pid => pid != ProcessId.None);
+
+            var flags    = ActorContext.Config.GetProcessFlags(id);
+            var mbs      = ActorContext.Config.GetProcessMailboxSize(id);
+
+            return type.Map(t =>
+                {
+                    // TODO: Consider the best approach to generalise this, so that bespoke router
+                    //       types can make use of the config system too.
+                    switch (t)
+                    {
+                        case "broadcast":
+                            return broadcast<T>(name, workers, RouterOption.Default, flags, mbs);
+                        case "hash":
+                            return hash<T>(name, workers, null, RouterOption.Default, flags, mbs);
+                        case "least-busy":
+                            return leastBusy<T>(name, workers, RouterOption.Default, flags, mbs);
+                        case "random":
+                            return random<T>(name, workers, RouterOption.Default, flags, mbs);
+                        case "round-robin":
+                            return roundRobin<T>(name, workers, RouterOption.Default, flags, mbs);
+                        default:
+                            throw new Exception($"Unsupported router type (for config system setup): {t} ");
+                    }
+                })
+               .IfNone(() => failwith<ProcessId>($"router-type not specified for {id}"));
+        }
+
+        public static ProcessId fromConfig<T>(ProcessName name, Func<T, Unit> Inbox) =>
+            fromConfig<Unit, T>(name, () => unit, (_, m) => Inbox(m));
+
+        public static ProcessId fromConfig<T>(ProcessName name, Action<T> Inbox) =>
+            fromConfig<Unit, T>(name, () => unit, (_, m) => { Inbox(m); return unit; });
+
+        public static ProcessId fromConfig<S, T>(ProcessName name, Func<S> Setup, Func<S,T,S> Inbox)
+        {
+            var id       = Self[name];
+            var settings = ActorContext.Config.GetProcessSettings(id);
+            var type     = ActorContext.Config.GetProcessSetting<string>(id, "router-type");
+            var workers  = ActorContext.Config.GetProcessSetting<int>(id, "worker-count");
+            var flags    = ActorContext.Config.GetProcessFlags(id);
+            var mbs      = ActorContext.Config.GetProcessMailboxSize(id);
+            var strategy = ActorContext.Config.GetProcessStrategy(id);
+            var wrkrName = ActorContext.Config.GetProcessSetting<string>(id, "workers-name").IfNone("worker");
+
+            return type.Map(t =>
+                {
+                    // TODO: Consider the best approach to generalise this, so that bespoke router
+                    //       types can make use of the config system too.
+                    switch (t)
+                    {
+                        case "broadcast":
+                            return broadcast(name, workers.IfNone(2), Setup, Inbox, flags, strategy, mbs, wrkrName);
+                        case "hash":
+                            return hash(name, workers.IfNone(2), Setup, Inbox, null, flags, strategy, mbs, wrkrName);
+                        case "least-busy":
+                            return leastBusy(name, workers.IfNone(2), Setup, Inbox, flags, strategy, mbs, wrkrName);
+                        case "random":
+                            return random(name, workers.IfNone(2), Setup, Inbox, flags, strategy, mbs, wrkrName);
+                        case "round-robin":
+                            return roundRobin(name, workers.IfNone(2), Setup, Inbox, flags, strategy, mbs, wrkrName);
+                        default:
+                            throw new Exception($"Unsupported router type (for config system setup): {t} ");
+                    }
+                })
+               .IfNone(() => failwith<ProcessId>($"router-type not specified for {id}"));
+        }
+
+
         internal static ProcessId WatchWorkers(ProcessId router, IEnumerable<ProcessId> workers, RouterOption option)
         {
             if ((option & RouterOption.RemoveLocalWorkerWhenTerminated) == RouterOption.RemoveLocalWorkerWhenTerminated)

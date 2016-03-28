@@ -48,13 +48,31 @@ namespace LanguageExt
         public Option<State<StrategyContext, Unit>> GetStrategy(string name) =>
             stratSettings.Find(name).Map(x => x.Value);
 
+        private static ProcessId RolePid(ProcessId pid) =>
+            ProcessId.Top["role"].Append(pid.Skip(1));
+
         /// <summary>
         /// Returns the token that represents all the settings for a Process
         /// </summary>
-        Option<ProcessToken> GetProcessSettings(ProcessId pid) =>
-            pid.IsValid && pid.Count() > 1
-                ? processSettings.Find(pid.Skip(1))
-                : None;
+        public Option<ProcessToken> GetProcessSettings(ProcessId pid)
+        {
+            if (pid.IsValid && pid.Count() > 1)
+            {
+                var exact = processSettings.Find(pid);
+                if( exact.IsNone )
+                {
+                    return processSettings.Find(RolePid(pid));
+                }
+                else
+                {
+                    return exact;
+                }
+            }
+            else
+            { 
+                return None;
+            }
+        }
 
         /// <summary>
         /// Get a named process setting
@@ -210,7 +228,7 @@ namespace LanguageExt
                 FuncSpec.Attr("flags", FieldSpec.ProcessFlags("value")),
                 FuncSpec.Attr("mailbox-size", FieldSpec.Int("value")),
 
-                //FuncSpec.Attr("router-type", FieldSpec.RouterType("value")),
+                FuncSpec.Attr("router-type", FieldSpec.DispatcherType("value")),
                 FuncSpec.Attr("workers", FieldSpec.Array("value", ArgumentType.Process)),
                 FuncSpec.Attr("worker-count", FieldSpec.Int("value")),
                 FuncSpec.Attr("worker-name", FieldSpec.String("value")),

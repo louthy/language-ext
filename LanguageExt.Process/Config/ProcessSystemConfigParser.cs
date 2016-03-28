@@ -39,7 +39,8 @@ namespace LanguageExt
                     "restart", "stop", "resume", "escalate",
                     "default", "listen-remote-and-local", "persist-all", "persist-inbox", "persist-state", "remote-publish", "remote-state-publish",
                     "forward-to-self", "forward-to-dead-letters", "forward-to-parent", "forward-to-process", "stay-in-queue",
-                    "string", "int", "float", "time", "process-flags", "process-id", "process-name", "directive", "process"
+                    "string", "int", "float", "time", "process-flags", "process-id", "process-name", "directive", 
+                    "process", "router", "dispatcher", "role"
                     ));
 
             // Token parser
@@ -77,8 +78,6 @@ namespace LanguageExt
             Func<string, Parser<Unit>> reservedOp = tokenParser.ReservedOp;
 
             Func<FuncSpec[], Parser<Lst<LocalsToken>>> settings = null;
-            //Func<FuncSpec[], Parser<Lst<LocalsToken>>> strategySettings = null;
-            //Func<FuncSpec[], Parser<Lst<LocalsToken>>> processSettings = null;
             Func<ArgumentType, Func<string, Parser<ValueToken>>> arrayAttr = null;
             Func<ArgumentType, Func<string, Parser<ValueToken>>> mapAttr = null;
             Func<ArgumentType, string, Parser<ValueToken>> valueInst = null;
@@ -222,6 +221,25 @@ namespace LanguageExt
                     fwdToProcess,
                     stayInQueue);
 
+            Parser<string> dispType =
+                choice(
+                    reserved("broadcast"),
+                    attempt(reserved("least-busy")),
+                    attempt(reserved("round-robin")),
+                    reserved("random"),
+                    reserved("hash"),
+                    reserved("first"),
+                    reserved("second"),
+                    reserved("third"),
+                    reserved("last")
+                );
+
+            Func<string, Parser<ValueToken>> dispTypeAttr =
+                name =>
+                    from d in dispType
+                    select ValueToken.DispatcherType(name, d);
+
+
             Parser<Directive> directive =
                 choice(
                     reserved("resume").Map(_ => Directive.Resume),
@@ -315,6 +333,7 @@ namespace LanguageExt
               : t.Tag == ArgumentTypeTag.Directive ? directiveAttr(name)
               : t.Tag == ArgumentTypeTag.Process ? processAttr(name)
               : t.Tag == ArgumentTypeTag.Strategy ? strategyAttr(name)
+              : t.Tag == ArgumentTypeTag.DispatcherType ? dispTypeAttr(name)
               : t.Tag == ArgumentTypeTag.Array ? arrayAttr(t)(name)
               : t.Tag == ArgumentTypeTag.Map ? mapAttr(t)(name)
               : failure<ValueToken>("Not supported argument type: " + type);
@@ -334,6 +353,7 @@ namespace LanguageExt
                           : t.Tag == ArgumentTypeTag.Directive ? (object)xs.Map(x => (Directive)x.Value).Freeze()
                           : t.Tag == ArgumentTypeTag.Process ? (object)xs.Map(x => (ProcessToken)x.Value).Freeze()
                           : t.Tag == ArgumentTypeTag.Strategy ? (object)xs.Map(x => (StrategyToken)x.Value).Freeze()
+                          : t.Tag == ArgumentTypeTag.DispatcherType ? (object)xs.Map(x => (string)x.Value).Freeze()
                           : t.Tag == ArgumentTypeTag.Array ? (object)xs.Map(x => x.Value).Freeze()
                           : t.Tag == ArgumentTypeTag.Map ? (object)xs.Map(x => x.Value).Freeze()
                           : (object)null, t))
@@ -358,6 +378,7 @@ namespace LanguageExt
                         : t.Tag == ArgumentTypeTag.Directive ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (Directive)y)))
                         : t.Tag == ArgumentTypeTag.Process ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (ProcessToken)y)))
                         : t.Tag == ArgumentTypeTag.Strategy ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (StrategyToken)y)))
+                        : t.Tag == ArgumentTypeTag.DispatcherType ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (string)y)))
                         : t.Tag == ArgumentTypeTag.Array ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => y)))
                         : t.Tag == ArgumentTypeTag.Map ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => y)))
                         : (object)null, t ))
@@ -374,7 +395,10 @@ namespace LanguageExt
                     reserved("process-name").Map(_ => ArgumentType.ProcessName),
                     reserved("directive").Map(_ => ArgumentType.Directive),
                     reserved("strategy").Map(_ => ArgumentType.Strategy),
-                    reserved("process").Map( _ => ArgumentType.Process)
+                    reserved("process").Map( _ => ArgumentType.Process),
+                    reserved("router").Map(_ => ArgumentType.Process),
+                    reserved("router-type").Map(_ => ArgumentType.DispatcherType),
+                    reserved("disp-type").Map(_ => ArgumentType.DispatcherType)
                 );
 
             Parser<ValueToken> valueDef =
@@ -401,8 +425,10 @@ namespace LanguageExt
                                   doubleAttr(id),
                                   attempt(flagsAttr(id)),
                                   directiveAttr(id),
+                                  dispTypeAttr(id),
                                   strategyAttr(id),
-                                  processAttr(id)))
+                                  processAttr(id)
+                         ))
                 from locals in getState<Map<string, ValueToken>>().Map(x => x.AddOrUpdate(id, v))
                 from ___ in setState(locals)
                 select v;
@@ -432,6 +458,7 @@ namespace LanguageExt
                         : t.Tag == ArgumentTypeTag.Directive ? directiveAttr(name)
                         : t.Tag == ArgumentTypeTag.Process ? processAttr(name)
                         : t.Tag == ArgumentTypeTag.Strategy ? strategyAttr(name)
+                        : t.Tag == ArgumentTypeTag.DispatcherType ? dispTypeAttr(name)
                         : failure<ValueToken>($"value-type for '{t.Tag}'"));
 
 
