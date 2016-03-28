@@ -90,6 +90,10 @@ namespace LanguageExt
             throw new NotSupportedException();
         }
 
-        public bool IsLocal => false;
+        public bool IsLocal => 
+            false;
+
+        public bool Exists =>
+            Prelude.raise<bool>(new NotSupportedException());
     }
 }

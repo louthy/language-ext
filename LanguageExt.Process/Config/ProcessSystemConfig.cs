@@ -16,29 +16,128 @@ using LanguageExt.UnitsOfMeasure;
 
 namespace LanguageExt
 {
+    /// <summary>
+    /// Parses and provides access to configuration settings relating
+    /// to the role and individual processes.
+    /// </summary>
     public class ProcessSystemConfig
     {
-        Map<string, LocalsToken> globalSettings;
+        Map<string, LocalsToken> roleSettings;
         Map<ProcessId, ProcessToken> processSettings;
         Map<string, StrategyToken> stratSettings;
         public readonly Parser<Map<string, LocalsToken>> Parser;
+        Time timeout = 30*seconds;
+        int maxMailboxSize = 100000;
 
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="strategyFuncs">Allows bespoke strategies to be plugged 
+        /// into the parser</param>
         public ProcessSystemConfig(IEnumerable<FuncSpec> strategyFuncs = null)
         {
             Parser = InitialiseParser(strategyFuncs);
-            globalSettings = Map.empty<string, LocalsToken>();
+            roleSettings = Map.empty<string, LocalsToken>();
             processSettings = Map.empty<ProcessId, ProcessToken>();
             stratSettings = Map.empty<string, StrategyToken>();
         }
 
-        public Map<string, LocalsToken> GlobalSettings =>
-            globalSettings;
+        /// <summary>
+        /// Returns a named strategy
+        /// </summary>
+        public Option<State<StrategyContext, Unit>> GetStrategy(string name) =>
+            stratSettings.Find(name).Map(x => x.Value);
 
-        public Map<ProcessId, ProcessToken> ProcessSettings => 
-            processSettings;
+        /// <summary>
+        /// Returns the token that represents all the settings for a Process
+        /// </summary>
+        Option<ProcessToken> GetProcessSettings(ProcessId pid) =>
+            pid.IsValid && pid.Count() > 1
+                ? processSettings.Find(pid.Skip(1))
+                : None;
 
-        public Map<string, StrategyToken> StratSettings =>
-            stratSettings;
+        /// <summary>
+        /// Get a named process setting
+        /// </summary>
+        /// <param name="pid">Process</param>
+        /// <param name="name">Name of setting</param>
+        /// <param name="prop">Name of property within the setting (for complex 
+        /// types, not value types)</param>
+        /// <returns></returns>
+        public Option<T> GetProcessSetting<T>(ProcessId pid, string name, string prop = "value") =>
+            from t in GetProcessSettings(pid)
+            from s in t.Settings.Find(name)
+            from v in s.Values.Find(prop)
+            // TODO: Type check
+            select (T)v.Value;
+
+        /// <summary>
+        /// Get the mailbox size for a Process.  Returns a default size if one
+        /// hasn't been set in the config.
+        /// </summary>
+        public int GetProcessMailboxSize(ProcessId pid) =>
+            (from x in GetProcessSettings(pid)
+             from y in x.MailboxSize
+             select y)
+            .IfNone(maxMailboxSize);
+
+        /// <summary>
+        /// Get the flags for a Process.  Returns ProcessFlags.Default if none
+        /// have been set in the config.
+        /// </summary>
+        public ProcessFlags GetProcessFlags(ProcessId pid) =>
+            (from x in GetProcessSettings(pid)
+             from y in x.Flags
+             select y)
+            .IfNone(ProcessFlags.Default);
+
+        /// <summary>
+        /// Get the strategy for a Process.  Returns Process.DefaultStrategy if one
+        /// hasn't been set in the config.
+        /// </summary>
+        public State<StrategyContext, Unit> GetProcessStrategy(ProcessId pid) =>
+            (from x in GetProcessSettings(pid)
+             from y in x.Strategy
+             select y)
+            .IfNone(Process.DefaultStrategy);
+
+        /// <summary>
+        /// Get the role wide timeout setting.  This specifies how long the timeout
+        /// is for 'ask' operations.
+        /// </summary>
+        public Time Timeout => 
+            timeout;
+
+        /// <summary>
+        /// This is the setting for how often sessions are checked for expiry, *not*
+        /// the expiry time itself.  That is set on each sessionStart()
+        /// </summary>
+        public Time SessionTimeoutCheckFrequency =>
+            GetRoleSetting<Time>("session-timeout-check").IfNone(60 * seconds);
+
+        /// <summary>
+        /// Get a named role setting
+        /// </summary>
+        public Option<T> GetRoleSetting<T>(string name, string prop = "value") =>
+            from setting in roleSettings.Find(name)
+            from valtok in setting.Values.Find(prop)
+                // TODO: Type check
+            select (T)valtok.Value;
+
+        Option<ArgumentType> GetProcessSettingType(ProcessId pid, string name, string prop = "value") =>
+            from t in GetProcessSettings(pid)
+            from s in t.Settings.Find(name)
+            from v in s.Values.Find(prop)
+            select v.Type;
+
+        Option<LocalsToken> GetRoleSettings(string name) =>
+            roleSettings.Find(name);
+
+        Option<ArgumentType> GetRoleSettingType(string name, string prop = "value") =>
+            from setting in roleSettings.Find(name)
+            from valtok in setting.Values.Find(prop)
+            select valtok.Type;
+
 
 #if !COREFX
         string FindLocalConfig() =>
@@ -74,61 +173,53 @@ namespace LanguageExt
 
         void ParseConfigText(string text)
         {
+            // Parse the config text
             var res = parse(Parser, text);
             if (res.IsFaulted || res.Reply.State.ToString().Length > 0)
             {
                 throw new ProcessConfigException(res.ToString());
             }
 
-            var settings = res.Reply.Result;
-
-            // Some global settings first
-            // TODO - remove the static ActorSystemConfig class and 
-            //        bring all settings in here
-            ActorSystemConfig.Default.Timeout                      = GetSingleArg<Time>(settings, "timeout", "value").IfNone(ActorSystemConfig.Default.Timeout);
-            ActorSystemConfig.Default.SessionTimeoutCheckFrequency = GetSingleArg<Time>(settings, "session-timeout-check", "value").IfNone(ActorSystemConfig.Default.SessionTimeoutCheckFrequency);
-            ActorSystemConfig.Default.MaxMailboxSize               = GetSingleArg<int>(settings, "mailbox-size", "value").IfNone(ActorSystemConfig.Default.MaxMailboxSize);
-
-            // Load process settings
-            processSettings = Map.createRange(from val in settings.Values
+            // Extract the process settings
+            processSettings = Map.createRange(from val in res.Reply.Result.Values
                                               where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Process
                                               let p = (ProcessToken)val.Values.Values.First().Value
                                               where p.ProcessId.IsSome
                                               let id = p.ProcessId.IfNone(ProcessId.None)
                                               select Tuple(id, p));
 
-            stratSettings = Map.createRange(from val in settings.Values
+            // Extract the strategy settings
+            stratSettings = Map.createRange(from val in res.Reply.Result.Values
                                             where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Strategy
                                             let s = (StrategyToken)val.Values.Values.First().Value
                                             select Tuple(val.Name, s));
 
-            globalSettings = settings;
+            roleSettings = res.Reply.Result;
+
+            // Cache the frequently accessed
+            maxMailboxSize = GetRoleSetting<int>("mailbox-size").IfNone(100000);
+            timeout = GetRoleSetting<Time>("timeout").IfNone(30 * seconds);
+
 
         }
-
-        static Option<T> GetSingleArg<T>(Map<string,LocalsToken> settings, string name, string argName) =>
-            from y in settings.Find(name).Map(tok => tok.Values.Find(argName).Map(x => (T)x.Value))
-            from z in y
-            select z;
-
+        
         Parser<Map<string,LocalsToken>> InitialiseParser(IEnumerable<FuncSpec> strategyFuncs)
         {
             var process = new[] {
                 FuncSpec.Attr("pid", FieldSpec.ProcessId("value")),
                 FuncSpec.Attr("flags", FieldSpec.ProcessFlags("value")),
                 FuncSpec.Attr("mailbox-size", FieldSpec.Int("value")),
+
+                //FuncSpec.Attr("router-type", FieldSpec.RouterType("value")),
+                FuncSpec.Attr("workers", FieldSpec.Array("value", ArgumentType.Process)),
+                FuncSpec.Attr("worker-count", FieldSpec.Int("value")),
+                FuncSpec.Attr("worker-name", FieldSpec.String("value")),
                 FuncSpec.Attr("strategy", FieldSpec.Strategy("value"))
             };
 
             var sys = new ProcessSystemConfigParser(
                 process,
                 BuildStrategySpec(strategyFuncs)
-                //FuncSpec.Attr("timeout", FieldSpec.Time("value")),
-                //FuncSpec.Attr("session-timeout-check", FieldSpec.Time("value")),
-                //FuncSpec.Attr("mailbox-size", FieldSpec.Int("value")),
-                //FuncSpec.Attr("settings", FieldSpec.Int("value"))
-                //FuncSpec.Attr("strategies", FieldSpec.Map("value", ArgumentType.Strategy)),
-                //FuncSpec.Attr("processes", FieldSpec.Array("value", ArgumentType.Process))
             );
 
             return sys.Settings;

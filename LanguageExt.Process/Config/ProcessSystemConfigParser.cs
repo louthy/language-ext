@@ -27,19 +27,19 @@ namespace LanguageExt
         {
             // Process config definition
             definition = GenLanguageDef.Empty.With(
-                CommentStart: "/*",
-                CommentEnd: "*/",
+                CommentStart: "(-",
+                CommentEnd: "-)",
                 CommentLine: "//",
                 NestedComments: true,
                 IdentStart: letter,
                 IdentLetter: either(alphaNum, oneOf("-_")),
                 ReservedNames: List(
-                    "pid", "strategy", "flags", "one-for-one", "all-for-one", "settings",
-                    "strategies", "processes", "retries", "backoff", "always", "redirect", "when",
+                    "pid", "strategy", "flags", "one-for-one", "all-for-one",
+                    "retries", "backoff", "always", "redirect", "when",
                     "restart", "stop", "resume", "escalate",
                     "default", "listen-remote-and-local", "persist-all", "persist-inbox", "persist-state", "remote-publish", "remote-state-publish",
                     "forward-to-self", "forward-to-dead-letters", "forward-to-parent", "forward-to-process", "stay-in-queue",
-                    "string", "int", "float", "time", "process-flags", "process-id", "process-name", "map", "array", "directive", "process"
+                    "string", "int", "float", "time", "process-flags", "process-id", "process-name", "directive", "process"
                     ));
 
             // Token parser
@@ -297,32 +297,27 @@ namespace LanguageExt
             Func<string, Parser<ValueToken>> processAttr = buildProcessAttr(processSpecs);
 
             Func<FuncSpec[], Func<string, Parser<ValueToken>>> buildStrategyAttr = stratSet => name =>
-                choice(
-                    from _ in symbol("@")
-                    from n in identifier
-                    select ValueToken.Strategy(name, n),
-
-                    from t in attempt(either(reserved("all-for-one"), reserved("one-for-one")))
-                    from _ in symbol(":")
-                    from ss in settings(stratSet)
-                    select ValueToken.Strategy(name, t, ss));
+                from t in attempt(either(reserved("all-for-one"), reserved("one-for-one")))
+                from _ in symbol(":")
+                from ss in settings(stratSet)
+                select ValueToken.Strategy(name, t, ss);
 
             Func<string, Parser<ValueToken>> strategyAttr = buildStrategyAttr(strategySpecs);
 
-            Func < ArgumentType, string, Parser<ValueToken>> typedAttr = (t, name) =>
-                  t.Tag == ArgumentTypeTag.Time ? timeAttr(name)
-                : t.Tag == ArgumentTypeTag.Int ? integerAttr(name)
-                : t.Tag == ArgumentTypeTag.String ? stringAttr(name)
-                : t.Tag == ArgumentTypeTag.Double ? doubleAttr(name)
-                : t.Tag == ArgumentTypeTag.ProcessId ? processIdAttr(name)
-                : t.Tag == ArgumentTypeTag.ProcessName ? processNameAttr(name)
-                : t.Tag == ArgumentTypeTag.ProcessFlags ? flagsAttr(name)
-                : t.Tag == ArgumentTypeTag.Directive ? directiveAttr(name)
-                : t.Tag == ArgumentTypeTag.Process ? processAttr(name)
-                : t.Tag == ArgumentTypeTag.Strategy ? strategyAttr(name)
-                : t.Tag == ArgumentTypeTag.Array ? arrayAttr(t)(name)
-                : t.Tag == ArgumentTypeTag.Map ? mapAttr(t)(name)
-                : failure<ValueToken>("Not supported argument type: " + type);
+            Func<ArgumentType, string, Parser<ValueToken>> typedAttr = (t, name) =>
+                t.Tag == ArgumentTypeTag.Time ? timeAttr(name)
+              : t.Tag == ArgumentTypeTag.Int ? integerAttr(name)
+              : t.Tag == ArgumentTypeTag.String ? stringAttr(name)
+              : t.Tag == ArgumentTypeTag.Double ? doubleAttr(name)
+              : t.Tag == ArgumentTypeTag.ProcessId ? processIdAttr(name)
+              : t.Tag == ArgumentTypeTag.ProcessName ? processNameAttr(name)
+              : t.Tag == ArgumentTypeTag.ProcessFlags ? flagsAttr(name)
+              : t.Tag == ArgumentTypeTag.Directive ? directiveAttr(name)
+              : t.Tag == ArgumentTypeTag.Process ? processAttr(name)
+              : t.Tag == ArgumentTypeTag.Strategy ? strategyAttr(name)
+              : t.Tag == ArgumentTypeTag.Array ? arrayAttr(t)(name)
+              : t.Tag == ArgumentTypeTag.Map ? mapAttr(t)(name)
+              : failure<ValueToken>("Not supported argument type: " + type);
 
             arrayAttr = t => name =>
                 brackets(
@@ -341,7 +336,8 @@ namespace LanguageExt
                           : t.Tag == ArgumentTypeTag.Strategy ? (object)xs.Map(x => (StrategyToken)x.Value).Freeze()
                           : t.Tag == ArgumentTypeTag.Array ? (object)xs.Map(x => x.Value).Freeze()
                           : t.Tag == ArgumentTypeTag.Map ? (object)xs.Map(x => x.Value).Freeze()
-                          : (object)null, t ));
+                          : (object)null, t))
+                .label("array");
 
             mapAttr = t => name =>
                 brackets(
@@ -364,17 +360,8 @@ namespace LanguageExt
                         : t.Tag == ArgumentTypeTag.Strategy ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (StrategyToken)y)))
                         : t.Tag == ArgumentTypeTag.Array ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => y)))
                         : t.Tag == ArgumentTypeTag.Map ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => y)))
-                        : (object)null, t ));
-
-            Parser<ArgumentType> mapTypeDef =
-                from x in symbol("map")
-                from g in typeDef
-                select ArgumentType.Map(g);
-
-            Parser<ArgumentType> arrayTypeDef =
-                from x in symbol("array")
-                from g in typeDef
-                select ArgumentType.Array(g);
+                        : (object)null, t ))
+                .label("map");
 
             typeDef =
                 choice(
@@ -385,8 +372,6 @@ namespace LanguageExt
                     reserved("process-flags").Map(_ => ArgumentType.ProcessFlags),
                     reserved("process-id").Map(_ => ArgumentType.ProcessId),
                     reserved("process-name").Map(_ => ArgumentType.ProcessName),
-                    mapTypeDef,
-                    arrayTypeDef,
                     reserved("directive").Map(_ => ArgumentType.Directive),
                     reserved("strategy").Map(_ => ArgumentType.Strategy),
                     reserved("process").Map( _ => ArgumentType.Process)
@@ -397,20 +382,27 @@ namespace LanguageExt
                     attempt(reserved("let")).Map(x => Option<ArgumentType>.None),
                     typeDef.Map(Option<ArgumentType>.Some)
                 )
+                from arr in optional(symbol("[]"))
+                from _   in arr.IsSome && typ.IsNone
+                    ? failure<Unit>("when declaring an array you must specify the type, you can't use 'let'")
+                    : result<Unit>(unit)
                 from id in identifier.label("identifier")
                 from __ in symbol(":")
-                from v in typ.Map(
-                    t => valueInst(t, id)).IfNone(() => 
-                        choice(
-                            stringAttr(id),
-                            attempt(timeAttr(id)),
-                            integerAttr(id),
-                            doubleAttr(id),
-                            attempt(flagsAttr(id)),
-                            directiveAttr(id),
-                            strategyAttr(id),
-                            processAttr(id)))
-
+                from v in arr.IsSome
+                    ? either(
+                        attempt(valueInst(ArgumentType.Map(typ.IfNone(ArgumentType.Unknown)), id)),
+                        valueInst(ArgumentType.Array(typ.IfNone(ArgumentType.Unknown)), id))
+                    : typ.Map( t => valueInst(t, id))
+                         .IfNone(() => 
+                              choice(
+                                  stringAttr(id),
+                                  attempt(timeAttr(id)),
+                                  integerAttr(id),
+                                  doubleAttr(id),
+                                  attempt(flagsAttr(id)),
+                                  directiveAttr(id),
+                                  strategyAttr(id),
+                                  processAttr(id)))
                 from locals in getState<Map<string, ValueToken>>().Map(x => x.AddOrUpdate(id, v))
                 from ___ in setState(locals)
                 select v;
@@ -445,20 +437,21 @@ namespace LanguageExt
 
             Func<string, Func<ValueToken, ValueToken, ValueToken>, Assoc, Operator<ValueToken>> binary =
                 (name, f, assoc) =>
-                     Operator.Infix<ValueToken>(assoc,
+                     Operator.Infix(assoc,
                         from x in reservedOp(name)
                         select f);
 
             Func<string, Func<ValueToken, ValueToken>, Operator<ValueToken>> prefix =
                 (name, f) =>
-                    Operator.Prefix<ValueToken>(
+                    Operator.Prefix(
                         from x in reservedOp(name)
                         select f);
 
             Func<string, Func<ValueToken, ValueToken>, Operator<ValueToken>> postfix =
                 (name, f) =>
-                    Operator.Postfix<ValueToken>(from x in reservedOp(name)
-                                                 select f);
+                    Operator.Postfix(
+                        from x in reservedOp(name)
+                        select f);
 
             Operator<ValueToken>[][] table = {
                 new [] { prefix("-",ValueToken.Negate), prefix("+",t=>t) },

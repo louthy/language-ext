@@ -49,35 +49,18 @@ namespace LanguageExt
             if (actor == null) throw new ArgumentNullException(nameof(actor));
 
             Id = parent.Actor.Id[name];
-            var procSettings = ActorContext.Config.ProcessSettings.Find(Id);
-
             this.cluster = cluster;
             this.flags = flags == ProcessFlags.Default
-                            ? (from x in procSettings
-                               from y in x.Flags
-                               select y).IfNone(flags)
+                            ? ActorContext.Config.GetProcessFlags(Id)
                             : flags;
             actorFn = actor;
             termFn = term;
             setupFn = setup;
             Parent = parent;
             Name = name;
-            Strategy = strategy ?? ResolveStrategy(procSettings);
+            Strategy = strategy;
             SetupRemoteSubscriptions(cluster, flags);
         }
-
-        State<StrategyContext, Unit> ResolveStrategy(Option<ProcessToken> procSettings) =>
-            (from settings in procSettings
-             from strat in settings.Strategy.IfNone(Named(procSettings))
-             select strat)
-            .IfNone(Process.DefaultStrategy);
-
-        State<StrategyContext, Unit> Named(Option<ProcessToken> procSettings) =>
-            (from settings in procSettings
-             from named in settings.NamedStrategy
-             from strategy in ActorContext.Config.StratSettings.Find(named)
-             select strategy.Value)
-           .IfNone(Process.DefaultStrategy);
 
         /// <summary>
         /// Start up - placeholder
@@ -140,7 +123,18 @@ namespace LanguageExt
         /// <summary>
         /// Failure strategy
         /// </summary>
-        public State<StrategyContext, Unit> Strategy { get; }
+        State<StrategyContext, Unit> strategy;
+        public State<StrategyContext, Unit> Strategy
+        {
+            get
+            {
+                return strategy ?? ActorContext.Config.GetProcessStrategy(Id);
+            }
+            private set
+            {
+                strategy = value;
+            }
+        }
 
         public Unit AddSubscription(ProcessId pid, IDisposable sub)
         {
@@ -466,7 +460,7 @@ namespace LanguageExt
                 response = null;
                 request = new AutoResetEvent(false);
                 ActorContext.Ask(pid, new ActorRequest(message, pid, Self, 0), Self);
-                request.WaitOne(ActorSystemConfig.Default.Timeout);
+                request.WaitOne(ActorContext.Config.Timeout);
 
                 if (response == null)
                 {

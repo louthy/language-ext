@@ -26,7 +26,8 @@ namespace LanguageExt
         StrategyMatch,
         StrategyRedirect,
         Directive,
-        Map
+        Map,
+        Dispatcher
     }
 
     public class ArgumentType
@@ -89,6 +90,9 @@ namespace LanguageExt
 
         public static ArgumentType Directive =>
             new ArgumentType(ArgumentTypeTag.Directive);
+
+        public static ArgumentType Dispatcher =>
+            new ArgumentType(ArgumentTypeTag.Dispatcher);
     }
 
     public class FieldSpec
@@ -143,6 +147,9 @@ namespace LanguageExt
 
         public static FieldSpec Directive(string name) =>
             new FieldSpec(name, ArgumentType.Directive);
+
+        public static FieldSpec Dispatcher(string name) =>
+            new FieldSpec(name, ArgumentType.Dispatcher);
 
     }
 

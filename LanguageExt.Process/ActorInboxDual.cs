@@ -42,13 +42,7 @@ namespace LanguageExt
             this.parent = parent;
             this.cluster = cluster.LiftUnsafe();
 
-            var procSettings = ActorContext.Config.ProcessSettings.Find(process.Id);
-
-            this.maxMailboxSize = maxMailboxSize < 0
-                ? (from x in procSettings
-                   from y in x.MailboxSize
-                   select y).IfNone(ActorSystemConfig.Default.MaxMailboxSize)
-                : maxMailboxSize;
+            this.maxMailboxSize = maxMailboxSize;
 
             actorPath = actor.Id.ToString();
 
@@ -104,6 +98,11 @@ namespace LanguageExt
         string ClusterSystemInboxNotifyKey =>
             ActorInboxCommon.ClusterSystemInboxNotifyKey(actorPath);
 
+        int MailboxSize =>
+            maxMailboxSize < 0
+                ? ActorContext.Config.GetProcessMailboxSize(actor.Id)
+                : maxMailboxSize;
+
         public bool IsPaused
         {
             get;
@@ -141,9 +140,9 @@ namespace LanguageExt
 
         public Unit Ask(object message, ProcessId sender)
         {
-            if (userInbox.CurrentQueueLength >= maxMailboxSize)
+            if (userInbox.CurrentQueueLength >= MailboxSize)
             {
-                throw new ProcessInboxFullException(actor.Id, maxMailboxSize, "user");
+                throw new ProcessInboxFullException(actor.Id, MailboxSize, "user");
             }
 
             if (userInbox != null)
@@ -166,9 +165,9 @@ namespace LanguageExt
 
         public Unit Tell(object message, ProcessId sender)
         {
-            if (userInbox.CurrentQueueLength >= maxMailboxSize)
+            if (userInbox.CurrentQueueLength >= MailboxSize)
             {
-                throw new ProcessInboxFullException(actor.Id, maxMailboxSize, "user");
+                throw new ProcessInboxFullException(actor.Id, MailboxSize, "user");
             }
 
             if (userInbox != null)
@@ -191,9 +190,9 @@ namespace LanguageExt
 
         public Unit TellSystem(SystemMessage message)
         {
-            if (sysInbox.CurrentQueueLength >= maxMailboxSize)
+            if (sysInbox.CurrentQueueLength >= MailboxSize)
             {
-                throw new ProcessInboxFullException(actor.Id, maxMailboxSize, "system");
+                throw new ProcessInboxFullException(actor.Id, MailboxSize, "system");
             }
 
             if (sysInbox != null)
@@ -206,9 +205,9 @@ namespace LanguageExt
 
         public Unit TellUserControl(UserControlMessage msg)
         {
-            if (userInbox.CurrentQueueLength >= maxMailboxSize)
+            if (userInbox.CurrentQueueLength >= MailboxSize)
             {
-                throw new ProcessInboxFullException(actor.Id, maxMailboxSize, "user");
+                throw new ProcessInboxFullException(actor.Id, MailboxSize, "user");
             }
 
             if (userInbox != null)

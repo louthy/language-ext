@@ -276,6 +276,21 @@ namespace LanguageExt
             ActorContext.TellSystem(pid, SystemMessage.Unpause);
 
         /// <summary>
+        /// Find out if a process exists
+        /// 
+        ///     Rules:
+        ///         * Local processes   - the process must actually be alive and in-memory
+        ///         * Remote processes  - the process must have an inbox to receive messages 
+        ///                               and may be active, but it's not required.
+        ///         * Dispatchers/roles - at least one process in the collection must exist(pid)
+        ///         * JS processes      - not current supported
+        /// </summary>
+        /// <param name="pid">Process ID to check</param>
+        /// <returns>True if exists</returns>
+        public static bool exists(ProcessId pid) =>
+            ActorContext.GetDispatcher(pid).Exists;
+
+        /// <summary>
         /// Watch another Process in case it terminates
         /// </summary>
         /// <param name="pid">Process to watch</param>

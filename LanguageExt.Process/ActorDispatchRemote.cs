@@ -128,6 +128,10 @@ namespace LanguageExt
         public Unit DispatchUnWatch(ProcessId watching) =>
             TellSystem(SystemMessage.DispatchUnWatch(watching), watching);
 
-        public bool IsLocal => false;
+        public bool IsLocal => 
+            false;
+
+        public bool Exists =>
+            Cluster.Exists(ActorInboxCommon.ClusterMetaDataKey(ProcessId));
     }
 }

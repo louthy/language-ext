@@ -24,6 +24,9 @@ namespace ProcessSample
             ping = spawn<string>("ping", msg =>
             {
                 tell(logger, msg);
+
+                var res = settingList<int>("arr");
+
                 tell(pong, $"ping {setting("name", "")}", TimeSpan.FromMilliseconds(100));
             });
 
@@ -31,6 +34,9 @@ namespace ProcessSample
             pong = spawn<string>("pong", msg =>
             {
                 tell(logger, msg);
+
+                var map = settingMap<string>("map");
+
                 tell(ping, $"pong {setting("name", "")}", TimeSpan.FromMilliseconds(100));
             });
 

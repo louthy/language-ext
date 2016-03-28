@@ -68,6 +68,10 @@ namespace LanguageExt
         public Unit DispatchUnWatch(ProcessId pid) =>
             unit;
 
-        public bool IsLocal => Raise<bool>();
+        public bool IsLocal => 
+            false;
+
+        public bool Exists =>
+            false;
     }
 }

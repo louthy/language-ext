@@ -91,6 +91,10 @@ namespace LanguageExt
         public Unit DispatchUnWatch(ProcessId watching) =>
             Actor.DispatchUnWatch(watching);
 
-        public bool IsLocal => true;
+        public bool IsLocal => 
+            true;
+
+        public bool Exists =>
+            true;
     }
 }

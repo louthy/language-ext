@@ -66,7 +66,7 @@ namespace LanguageExt
                 var rootProcess = state.RootProcess;
                 state.Startup();
                 userContext = new ActorRequestContext(rootProcess.Children["user"], ProcessId.NoSender, rootItem, null, null, ProcessFlags.Default);
-                rootInbox.Startup(rootProcess, parent, cluster, ProcessSetting.DefaultMailboxSize);
+                rootInbox.Startup(rootProcess, parent, cluster, config.GetProcessMailboxSize(rootProcess.Id));
                 rootItem = new ActorItem(rootProcess, rootInbox, ProcessFlags.Default);
                 started = true;
 
@@ -330,7 +330,7 @@ namespace LanguageExt
                 Process.tell(AskId, req);
             }
 
-            handle.Wait(ActorSystemConfig.Default.Timeout);
+            handle.Wait(ActorContext.Config.Timeout);
 
             return responses.Where(r => !r.IsFaulted).Map(r => (T)r.Response);
         }
@@ -369,7 +369,7 @@ namespace LanguageExt
                     {
                         var inbox = ask.Inbox as ILocalActorInbox;
                         inbox.Tell(req, Self);
-                        handle.WaitOne(ActorSystemConfig.Default.Timeout);
+                        handle.WaitOne(ActorContext.Config.Timeout);
                     });
 
                 if (askItem)

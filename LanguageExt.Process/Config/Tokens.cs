@@ -58,14 +58,25 @@ namespace LanguageExt
         public static ValueToken Strategy(string name, string type, Lst<LocalsToken> values) =>
             new ValueToken(name, ArgumentType.Strategy, new StrategyToken(type, values));
 
-        public static ValueToken Strategy(string name, string named) =>
-            new ValueToken(name, ArgumentType.Strategy, new StrategyToken(named));
-
         public static ValueToken StrategyMatch(string name, State<StrategyContext, Unit> value) =>
             new ValueToken(name, ArgumentType.StrategyMatch, value);
 
         public static ValueToken StrategyRedirect(string name, State<StrategyContext, Unit> value) =>
             new ValueToken(name, ArgumentType.StrategyRedirect, value);
+
+        public static ValueToken Dispatcher(string name, string type, Lst<ProcessToken> processes) =>
+            new ValueToken(
+                name, 
+                ArgumentType.Dispatcher, 
+                LanguageExt.ProcessId.Top["disp"][type][processes.Map(x => x.ProcessId.IfNone(LanguageExt.ProcessId.None))]
+            );
+
+        public static ValueToken Role(string name, string type, ProcessToken process) =>
+            new ValueToken(
+                name,
+                ArgumentType.Dispatcher,
+                LanguageExt.ProcessId.Top["disp"]["role"][type]["user"].Append(process.ProcessId.IfNone(LanguageExt.ProcessId.None))
+            );
 
         public ValueToken SetName(string name) =>
             new ValueToken(name, Type, Value);
@@ -295,14 +306,7 @@ namespace LanguageExt
     public class StrategyToken
     {
         public readonly string Type;
-        public readonly string NamedStrategy;
         public readonly State<StrategyContext, Unit> Value;
-
-        public StrategyToken(string named)
-        {
-            Type = "named";
-            NamedStrategy = named;
-        }
 
         public StrategyToken(string type, Lst<LocalsToken> values)
         {
@@ -327,7 +331,6 @@ namespace LanguageExt
         public readonly Option<ProcessFlags> Flags;
         public readonly Option<int> MailboxSize;
         public readonly Option<State<StrategyContext, Unit>> Strategy;
-        public readonly Option<string> NamedStrategy;
         public readonly Map<string, LocalsToken> Settings;
 
         public ProcessToken(Lst<LocalsToken> values)
@@ -338,7 +341,6 @@ namespace LanguageExt
             Flags         = GetValue<ProcessFlags>("flags");
             MailboxSize   = GetValue<int>("mailbox-size");
             Strategy      = GetValue<StrategyToken>("strategy").Map(x => x.Value);
-            NamedStrategy = GetValue<StrategyToken>("strategy").Map(x => x.NamedStrategy);
         }
 
         Option<T> GetValue<T>(string name) =>

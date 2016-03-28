@@ -29,13 +29,7 @@ namespace LanguageExt
             this.actor = (Actor<S, T>)process;
             this.cluster = cluster.LiftUnsafe();
 
-            var procSettings = ActorContext.Config.ProcessSettings.Find(process.Id);
-
-            this.maxMailboxSize = maxMailboxSize < 0
-                ? (from x in procSettings
-                   from y in x.MailboxSize
-                   select y).IfNone(ActorSystemConfig.Default.MaxMailboxSize)
-                : maxMailboxSize;
+            this.maxMailboxSize = maxMailboxSize;
             this.parent = parent;
 
             actorPath = actor.Id.ToString();
@@ -69,6 +63,11 @@ namespace LanguageExt
 
         string ClusterSystemInboxNotifyKey =>
             ActorInboxCommon.ClusterSystemInboxNotifyKey(actorPath);
+
+        int MailboxSize =>
+            maxMailboxSize < 0
+                ? ActorContext.Config.GetProcessMailboxSize(actor.Id)
+                : maxMailboxSize;
 
         void SubscribeToSysInboxChannel()
         {

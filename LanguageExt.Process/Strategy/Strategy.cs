@@ -36,13 +36,11 @@ namespace LanguageExt
 
         /// <summary>
         /// Named strategy from configuration
-        /// </summary>
+        /// </summary>S
         public static State<StrategyContext, Unit> Named(string name) =>
-            ActorContext.Config.StratSettings
-                        .Find(name)
-                        .Match(
-                            Some: x  => x.Value,
-                            None: () => failwith<State<StrategyContext, Unit>>("Named strategy not found: " + name));
+            ActorContext.Config
+                        .GetStrategy(name)
+                        .IfNone(() => failwith<State<StrategyContext, Unit>>("Named strategy not found: " + name));
 
         /// <summary>
         /// Get the context state State monad

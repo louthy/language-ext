@@ -83,6 +83,10 @@ namespace LanguageExt
         public Unit Watch(ProcessId pid) =>
             IterRoleMembers(d => d.Watch(pid));
 
-        public bool IsLocal => false;
+        public bool IsLocal => 
+            false;
+
+        public bool Exists =>
+            MapRoleMembers(disp => disp).Exists(x => x.Exists);
     }
 }
