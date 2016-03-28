@@ -80,12 +80,84 @@ namespace LanguageExt
                .IfNone(() => failwith<ProcessId>($"router-type not specified for {id}"));
         }
 
+        /// <summary>
+        /// Spawn a router using the settings in the config
+        /// </summary>
+        /// <example>
+        /// 
+        ///     router broadcast1: 
+        ///         pid:			/root/user/broadcast1
+        ///         router-type:	broadcast
+        ///         worker-count:	10
+        /// 
+        ///     router broadcast2: 
+        ///         pid:			/root/user/broadcast2
+        ///         router-type:	broadcast
+        ///         workers:		[hello, world]
+        /// 
+        ///     router least: 
+        ///         pid:			/role/user/least
+        ///         router-type:	least-busy
+        ///         workers:		[one, two, three]
+        /// 
+        /// </example>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">Name of the child process that will be the router</param>
+        /// <returns>ProcessId of the router</returns>
         public static ProcessId fromConfig<T>(ProcessName name, Func<T, Unit> Inbox) =>
             fromConfig<Unit, T>(name, () => unit, (_, m) => Inbox(m));
 
+        /// <summary>
+        /// Spawn a router using the settings in the config
+        /// </summary>
+        /// <example>
+        /// 
+        ///     router broadcast1: 
+        ///         pid:			/root/user/broadcast1
+        ///         router-type:	broadcast
+        ///         worker-count:	10
+        /// 
+        ///     router broadcast2: 
+        ///         pid:			/root/user/broadcast2
+        ///         router-type:	broadcast
+        ///         workers:		[hello, world]
+        /// 
+        ///     router least: 
+        ///         pid:			/role/user/least
+        ///         router-type:	least-busy
+        ///         workers:		[one, two, three]
+        /// 
+        /// </example>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">Name of the child process that will be the router</param>
+        /// <returns>ProcessId of the router</returns>
         public static ProcessId fromConfig<T>(ProcessName name, Action<T> Inbox) =>
             fromConfig<Unit, T>(name, () => unit, (_, m) => { Inbox(m); return unit; });
 
+        /// <summary>
+        /// Spawn a router using the settings in the config
+        /// </summary>
+        /// <example>
+        /// 
+        ///     router broadcast1: 
+        ///         pid:			/root/user/broadcast1
+        ///         router-type:	broadcast
+        ///         worker-count:	10
+        /// 
+        ///     router broadcast2: 
+        ///         pid:			/root/user/broadcast2
+        ///         router-type:	broadcast
+        ///         workers:		[hello, world]
+        /// 
+        ///     router least: 
+        ///         pid:			/role/user/least
+        ///         router-type:	least-busy
+        ///         workers:		[one, two, three]
+        /// 
+        /// </example>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">Name of the child process that will be the router</param>
+        /// <returns>ProcessId of the router</returns>
         public static ProcessId fromConfig<S, T>(ProcessName name, Func<S> Setup, Func<S,T,S> Inbox)
         {
             var id       = Self[name];

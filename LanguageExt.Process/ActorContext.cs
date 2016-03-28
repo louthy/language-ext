@@ -487,6 +487,10 @@ namespace LanguageExt
 
             parent.Actor.LinkChild(item);
 
+            // Auto register if there are config settings and we
+            // have the variable name it was assigned to.
+            Config.GetProcessRegisteredName(actor.Id).Iter(regName => Register(regName, actor.Id));
+
             try
             {
                 inbox.Startup(actor, parent, cluster, maxMailboxSize);

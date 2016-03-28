@@ -262,16 +262,37 @@ namespace LanguageExt
         public readonly Option<int> MailboxSize;
         public readonly Option<State<StrategyContext, Unit>> Strategy;
         public readonly Map<string, LocalsToken> Settings;
+        public readonly Option<ProcessName> RegisteredName;
 
         public ProcessToken(Lst<LocalsToken> values)
         {
             Settings = Map.createRange(values.Map(x => Tuple.Create(x.Name, x)));
 
-            ProcessId     = GetValue<ProcessId>("pid");
-            Flags         = GetValue<ProcessFlags>("flags");
-            MailboxSize   = GetValue<int>("mailbox-size");
-            Strategy      = GetValue<StrategyToken>("strategy").Map(x => x.Value);
+            ProcessId      = GetValue<ProcessId>("pid");
+            Flags          = GetValue<ProcessFlags>("flags");
+            MailboxSize    = GetValue<int>("mailbox-size");
+            Strategy       = GetValue<StrategyToken>("strategy").Map(x => x.Value);
         }
+
+        ProcessToken(
+            Option<ProcessId> processId,
+            Option<ProcessFlags> flags,
+            Option<int> mailboxSize,
+            Option<State<StrategyContext, Unit>> strategy,
+            Map<string, LocalsToken> settings,
+            Option<ProcessName> registeredName
+            )
+        {
+            Settings = settings;
+            ProcessId = processId;
+            Flags = flags;
+            MailboxSize = mailboxSize;
+            Strategy = strategy;
+            RegisteredName = registeredName;
+        }
+
+        public ProcessToken SetRegisteredName(ProcessName registeredName) =>
+            new ProcessToken(ProcessId, Flags, MailboxSize, Strategy, Settings, registeredName);
 
         Option<T> GetValue<T>(string name) =>
             from y in Settings.Find(name).Map(tok => tok.Values.Find("value").Map(x => (T)x.Value))

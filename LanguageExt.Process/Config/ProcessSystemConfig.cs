@@ -89,6 +89,14 @@ namespace LanguageExt
             // TODO: Type check
             select (T)v.Value;
 
+
+        /// <summary>
+        /// </summary>
+        public Option<ProcessName> GetProcessRegisteredName(ProcessId pid) =>
+            from x in GetProcessSettings(pid)
+            from y in x.RegisteredName
+            select y;
+
         /// <summary>
         /// Get the mailbox size for a Process.  Returns a default size if one
         /// hasn't been set in the config.
@@ -173,9 +181,15 @@ namespace LanguageExt
             configText.Iter(ParseConfigText);
 
 #else
+        /// <summary>
+        /// Setup using the configuration settings text
+        /// </summary>
         public void InitialiseFromText(Option<string> configText) =>
             configText.Iter(ParseConfigText);
 
+        /// <summary>
+        /// Setup using the configuration settings in the file specified
+        /// </summary>
         public void InitialiseFromFile(Option<string> configFilename)
         {
             (from p in configFilename.Map(Some: x => File.Exists(x) ? x : "", None: () => FindLocalConfig())
@@ -204,7 +218,7 @@ namespace LanguageExt
                                               let p = (ProcessToken)val.Values.Values.First().Value
                                               where p.ProcessId.IsSome
                                               let id = p.ProcessId.IfNone(ProcessId.None)
-                                              select Tuple(id, p));
+                                              select Tuple(id, p.SetRegisteredName(val.Name)));
 
             // Extract the strategy settings
             stratSettings = Map.createRange(from val in res.Reply.Result.Values
