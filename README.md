@@ -15,6 +15,7 @@ Nu-get package | Description
 [LanguageExt.Process.Redis](https://www.nuget.org/packages/LanguageExt.Process.Redis) | Cluster support for the `LanguageExt.Process` system for cluster aware processes using Redis for queue and state persistence
 [LanguageExt.Process.FSharp](https://www.nuget.org/packages/LanguageExt.Process.FSharp) | F# API to the `LanguageExt.Process` system
 [LanguageExt.ProcessJS](https://www.nuget.org/packages/LanguageExt.ProcessJS) | Javascript API to the `LanguageExt.Process` system.  Supports running of Processes in a client browser, with hooks for two-way UI binding.
+[LanguageExt.Parsec](https://www.nuget.org/packages/LanguageExt.Parsec) | Port of the [Haskell parsec library](https://hackage.haskell.org/package/parsec)
  
 __Twitter:__ 
 https://twitter.com/paullouth
@@ -97,6 +98,7 @@ Feature | Description
 `EitherUnsafe<L,R>` | Right/Left choice monad that can be used with `null` values
 `Try<T>` | Exception catching monad
 `TryOption<T>` | Option monad with third state 'Fail' that catches exceptions
+`Parser<T>` | Parser monad and full parser combinators library: LanguageExt.Parsec
 `Reader<E,T>` | Reader monad
 `Writer<O,T>` | Writer monad
 `State<S,T>` | State monad
