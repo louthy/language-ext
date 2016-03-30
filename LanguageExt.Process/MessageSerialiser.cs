@@ -31,6 +31,8 @@ namespace LanguageExt
                 case Message.TagSpec.ShutdownProcess:   return (ShutdownProcessMessage)DeserialiseMsgContent(msg);
 
                 case Message.TagSpec.Restart:           return SystemMessage.Restart;
+                case Message.TagSpec.Pause:             return SystemMessage.Pause;
+                case Message.TagSpec.Unpause:           return SystemMessage.Unpause;
 
                 case Message.TagSpec.DispatchWatch:    return (SystemDispatchWatchMessage)DeserialiseMsgContent(msg);
                 case Message.TagSpec.DispatchUnWatch:  return (SystemDispatchUnWatchMessage)DeserialiseMsgContent(msg);
@@ -38,7 +40,7 @@ namespace LanguageExt
                 case Message.TagSpec.UnWatch:          return (SystemRemoveWatcherMessage)DeserialiseMsgContent(msg);
             }
 
-            throw new Exception($"Unknown Message Type: {msg.Type}");
+            throw new Exception($"Unknown Message Tag: {msg.Tag}");
         }
 
         private static object DeserialiseMsgContent(RemoteMessageDTO msg)
