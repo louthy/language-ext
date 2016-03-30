@@ -542,7 +542,12 @@ namespace LanguageExt
         {
             if (Context.Ops != null)
             {
-                Context = Context.SetOps(Context.Ops.Run());
+                while (Context.Ops.Ops.Count > 0)
+                {
+                    var ops = Context.Ops;
+                    Context = Context.SetOps(ProcessOpTransaction.Start(Context.Self.Actor.Id));
+                    ops.Run();
+                }
             }
             return unit;
         }

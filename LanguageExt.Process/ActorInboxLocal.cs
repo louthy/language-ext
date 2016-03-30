@@ -111,13 +111,13 @@ namespace LanguageExt
 
         public Unit TellSystem(SystemMessage message)
         {
-            if (sysInbox.CurrentQueueLength >= MailboxSize)
-            {
-                throw new ProcessInboxFullException(actor.Id, MailboxSize, "system");
-            }
-
             if (sysInbox != null)
             {
+                if (sysInbox.CurrentQueueLength >= MailboxSize)
+                {
+                    throw new ProcessInboxFullException(actor.Id, MailboxSize, "system");
+                }
+
                 if (message == null) throw new ArgumentNullException(nameof(message));
                 sysInbox.Post(message);
             }

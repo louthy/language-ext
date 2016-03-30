@@ -53,7 +53,7 @@ namespace LanguageExt.Parsec
                     : $"expecting {String.Join(", ", expects.Take(expects.Count - 1))} or {expects.Last()}";
 
         public override string ToString() =>
-            $"error at (line {Pos.Line + 1}, column {Pos.Column + 1}): " +
+            $"error at {Pos}: " +
               ( Tag == ParserErrorTag.Unexpect    ? $"unexpected {Msg}"
               : Tag == ParserErrorTag.SysUnexpect ? $"unexpected {Msg}"
               : Tag == ParserErrorTag.Message     ? Msg

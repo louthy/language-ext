@@ -32,10 +32,10 @@ namespace LanguageExt
             IterRoleMembers(d => d.Ask(message, sender));
 
         public Unit DispatchUnWatch(ProcessId pid) =>
-            ProcessOp.IO(() => IterRoleMembers(d => d.DispatchUnWatch(pid)));
+            IterRoleMembers(d => d.DispatchUnWatch(pid));
 
         public Unit DispatchWatch(ProcessId pid) =>
-            ProcessOp.IO(() => IterRoleMembers(d => d.DispatchWatch(pid)));
+            IterRoleMembers(d => d.DispatchWatch(pid));
 
         public Map<string, ProcessId> GetChildren() =>
             List.fold(
@@ -54,10 +54,10 @@ namespace LanguageExt
             List.fold(MapRoleMembers(disp => disp.HasStateTypeOf<T>()), true, (s, x) => s && x.IsRight);
 
         public Unit Kill() =>
-            ProcessOp.IO(() => IterRoleMembers(d => d.Kill()));
+            IterRoleMembers(d => d.Kill());
 
         public Unit Shutdown() =>
-            ProcessOp.IO(() => IterRoleMembers(d => d.Shutdown()));
+            IterRoleMembers(d => d.Shutdown());
 
         public IObservable<T> Observe<T>() =>
             Observable.Merge(MapRoleMembers(disp => disp.Observe<T>()));
@@ -66,22 +66,22 @@ namespace LanguageExt
             Observable.Merge(MapRoleMembers(disp => disp.ObserveState<T>()));
 
         public Unit Publish(object message) =>
-            ProcessOp.IO(() => IterRoleMembers(d => d.Publish(message)));
+            IterRoleMembers(d => d.Publish(message));
 
         public Unit Tell(object message, ProcessId sender, Message.TagSpec tag) =>
-            ProcessOp.IO(() => IterRoleMembers(d => d.Tell(message, sender, tag)));
+            IterRoleMembers(d => d.Tell(message, sender, tag));
 
         public Unit TellSystem(SystemMessage message, ProcessId sender) =>
-            ProcessOp.IO(() => IterRoleMembers(d => d.TellSystem(message, sender)));
+            IterRoleMembers(d => d.TellSystem(message, sender));
 
         public Unit TellUserControl(UserControlMessage message, ProcessId sender) =>
-            ProcessOp.IO(() => IterRoleMembers(d => d.TellUserControl(message, sender)));
+            IterRoleMembers(d => d.TellUserControl(message, sender));
 
         public Unit UnWatch(ProcessId pid) =>
-            ProcessOp.IO(() => IterRoleMembers(d => d.UnWatch(pid)));
+            IterRoleMembers(d => d.UnWatch(pid));
 
         public Unit Watch(ProcessId pid) =>
-            ProcessOp.IO(() => IterRoleMembers(d => d.Watch(pid)));
+            IterRoleMembers(d => d.Watch(pid));
 
         public bool IsLocal => 
             false;

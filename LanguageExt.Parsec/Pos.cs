@@ -33,7 +33,7 @@ namespace LanguageExt.Parsec
             Tuple.Create(Line, Column).GetHashCode();
 
         public override string ToString() =>
-            $"({Line}, {Column})";
+            $"(line {Line + 1}, column {Column + 1})";
 
         public int CompareTo(Pos other) =>
             Line < other.Line

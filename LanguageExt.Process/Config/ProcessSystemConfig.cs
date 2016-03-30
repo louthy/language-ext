@@ -373,7 +373,16 @@ namespace LanguageExt.Config
             var res = parse(Parser, text);
             if (res.IsFaulted || res.Reply.State.ToString().Length > 0)
             {
-                throw new ProcessConfigException(res.ToString());
+                if (res.IsFaulted)
+                {
+                    throw new ProcessConfigException(res.ToString());
+                }
+                else
+                {
+                    var clipped = res.Reply.State.ToString();
+                    clipped = clipped.Substring(0, Math.Min(40, clipped.Length));
+                    throw new ProcessConfigException($"Configuration parse error at {res.Reply.State.Pos}, near: {clipped}");
+                }
             }
 
             // Extract the process settings

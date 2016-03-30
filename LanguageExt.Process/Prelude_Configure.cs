@@ -66,8 +66,8 @@ namespace LanguageExt
         /// <param name="strategyFuncs">Plugin extra strategy behaviours by passing in a list of FuncSpecs.</param>
         public static AppProfile initialiseWeb(Action<AppProfile> setup, IEnumerable<FuncSpec> strategyFuncs = null)
         {
+            if (appProfile != null) return appProfile;
             if (HttpContext.Current == null) throw new NotSupportedException("There must be a valid HttpContext.Current to call ProcessConfig.initialiseWeb()");
-            if (config != null) return appProfile;
             return initialiseFileSystem(hostName(HttpContext.Current), setup, strategyFuncs);
         }
 
@@ -185,7 +185,7 @@ namespace LanguageExt
                 config = new ProcessSystemConfig(nodeName.IfNone(""), strategyFuncs);
                 config.ParseConfigText(configText);
 
-                AppProfile profile = AppProfile.NonClustered;
+                appProfile = AppProfile.NonClustered;
 
                 nodeName.Iter(node =>
                 {
@@ -196,7 +196,7 @@ namespace LanguageExt
                     var env = config.GetClusterSetting<string>("env", "value");
                     var userEnv = config.GetClusterSetting<string>("user-env", "value");
 
-                    profile = new AppProfile(
+                    appProfile = new AppProfile(
                         node,
                         role,
                         clusterConn,
@@ -210,8 +210,8 @@ namespace LanguageExt
 
                 config.PostConnect();
 
-                setup(profile);
-                return profile;
+                setup(appProfile);
+                return appProfile;
             }
         }
 
