@@ -475,11 +475,11 @@ namespace LanguageExt
             var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn, termFn, strategy, flags);
 
             IActorInbox inbox = null;
-            if ((flags & ProcessFlags.ListenRemoteAndLocal) == ProcessFlags.ListenRemoteAndLocal && cluster.IsSome)
+            if ((actor.Flags & ProcessFlags.ListenRemoteAndLocal) == ProcessFlags.ListenRemoteAndLocal && cluster.IsSome)
             {
                 inbox = new ActorInboxDual<S, T>();
             }
-            else if ((flags & ProcessFlags.PersistInbox) == ProcessFlags.PersistInbox && cluster.IsSome)
+            else if ((actor.Flags & ProcessFlags.PersistInbox) == ProcessFlags.PersistInbox && cluster.IsSome)
             {
                 inbox = new ActorInboxRemote<S, T>();
             }
@@ -488,7 +488,7 @@ namespace LanguageExt
                 inbox = new ActorInboxLocal<S, T>();
             }
 
-            var item = new ActorItem(actor, inbox, flags);
+            var item = new ActorItem(actor, inbox, actor.Flags);
 
             parent.Actor.LinkChild(item);
 
@@ -501,7 +501,7 @@ namespace LanguageExt
                 // PID.  
                 ProcessConfig.Settings.GetProcessDispatch(actor.Id)
                       .Match(
-                        Some: disp => Process.register(regName, Disp[disp][Role.Current].Append(actor.Id.Skip(1))),
+                        Some: disp => Process.register(regName, Disp[$"role-{disp}"][Role.Current].Append(actor.Id.Skip(1))),
                         None: ()   => Process.register(regName, actor.Id)
                       );
             });
