@@ -3,7 +3,7 @@ using LanguageExt.UnitsOfMeasure;
 
 using static LanguageExt.Prelude;
 
-namespace LanguageExt
+namespace LanguageExt.Config
 {
     static class TimeAttr
     {

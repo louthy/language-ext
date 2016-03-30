@@ -38,7 +38,7 @@ namespace LanguageExt
         /// Named strategy from configuration
         /// </summary>S
         public static State<StrategyContext, Unit> Named(string name) =>
-            ActorContext.Config
+            ProcessConfig.Settings
                         .GetStrategy(name)
                         .IfNone(() => failwith<State<StrategyContext, Unit>>("Named strategy not found: " + name));
 

@@ -51,8 +51,8 @@ namespace LanguageExt
             Id = parent.Actor.Id[name];
             this.cluster = cluster;
             this.flags = flags == ProcessFlags.Default
-                            ? ActorContext.Config.GetProcessFlags(Id)
-                            : flags;
+                ? ProcessConfig.Settings.GetProcessFlags(Id)
+                : flags;
             actorFn = actor;
             termFn = term;
             setupFn = setup;
@@ -128,7 +128,7 @@ namespace LanguageExt
         {
             get
             {
-                return strategy ?? ActorContext.Config.GetProcessStrategy(Id);
+                return strategy ?? ProcessConfig.Settings.GetProcessStrategy(Id);
             }
             private set
             {
@@ -161,7 +161,7 @@ namespace LanguageExt
             flags;
 
         string StateKey => 
-            Id.Path + "-state";
+            Id.Path + "@state";
 
         void SetupRemoteSubscriptions(Option<ICluster> cluster, ProcessFlags flags)
         {
@@ -236,6 +236,7 @@ namespace LanguageExt
                         state = cluster.LiftUnsafe().Exists(StateKey)
                             ? cluster.LiftUnsafe().GetValue<S>(StateKey)
                             : setupFn(this);
+
                     }
                     catch (Exception e)
                     {
@@ -247,6 +248,8 @@ namespace LanguageExt
                 {
                     state = setupFn(this);
                 }
+
+                ActorContext.RunContextOps();
             }
             catch (Exception e)
             {
@@ -404,7 +407,7 @@ namespace LanguageExt
                         ActorContext.DeregisterById(Id);
                         // }
 
-                        ActorContext.Config.ClearInMemorySettingsOverride(ActorInboxCommon.ClusterSettingsKey(Id));
+                        ProcessConfig.Settings.ClearInMemorySettingsOverride(ActorInboxCommon.ClusterSettingsKey(Id));
                     });
                 }
 
@@ -465,7 +468,7 @@ namespace LanguageExt
                 response = null;
                 request = new AutoResetEvent(false);
                 ActorContext.Ask(pid, new ActorRequest(message, pid, Self, 0), Self);
-                request.WaitOne(ActorContext.Config.Timeout);
+                request.WaitOne(ProcessConfig.Settings.Timeout);
 
                 if (response == null)
                 {
@@ -588,6 +591,8 @@ namespace LanguageExt
                         LastFailure: DateTime.MaxValue,
                         BackoffAmount: 0 * seconds
                         );
+
+                    ActorContext.RunContextOps();
                 }
                 catch (Exception e)
                 {
@@ -657,6 +662,8 @@ namespace LanguageExt
                         LastFailure: DateTime.MaxValue,
                         BackoffAmount: 0 * seconds
                         );
+
+                    ActorContext.RunContextOps();
                 }
                 catch (Exception e)
                 {
@@ -684,6 +691,7 @@ namespace LanguageExt
                 Parent.Actor.Strategy
             );
             if (!(e is ProcessKillException)) tell(ActorContext.Errors, e);
+            ActorContext.RunContextOps();
             return directive;
         }
 
@@ -765,6 +773,8 @@ namespace LanguageExt
                         LastFailure: DateTime.MaxValue,
                         BackoffAmount: 0*seconds
                         );
+
+                    ActorContext.RunContextOps();
                 }
                 catch (Exception e)
                 {
@@ -812,7 +822,7 @@ namespace LanguageExt
                 if (decision.ProcessDirective.Type != DirectiveType.Stop && decision.Pause > 0 * seconds)
                 {
                     decision.Affects.Iter(p => pause(p));
-                    delay(
+                    safedelay(
                         () => RunProcessDirective(pid, sender, ex, message, decision),
                         decision.Pause
                     );

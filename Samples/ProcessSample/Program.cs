@@ -2,6 +2,7 @@
 using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
+using static LanguageExt.ProcessConfig;
 
 namespace ProcessSample
 {
@@ -13,21 +14,7 @@ namespace ProcessSample
             ProcessSystemLog.Subscribe(Console.WriteLine);
 
             RedisCluster.register();
-            Process.readConfigFromFile();
-
-            Cluster.connect("redis", "ping-pong", "localhost", "0", "ping-pong");
-
-            //Process.readConfigFromCluster();
-            //Process.writeConfigToCluster();
-            //if ( readSetting("name","") == "" )
-            //{
-            //    writeSetting("name", "Paul");
-            //}
-            //else
-            //{
-            //    Console.WriteLine(readSetting("name", ""));
-            //    writeSetting("name", "Paul");
-            //}
+            ProcessConfig.initialiseFileSystem("ping-pong");
 
             var ping = ProcessId.None;
             var pong = ProcessId.None;
@@ -40,10 +27,10 @@ namespace ProcessSample
             {
                 tell(logger, msg);
 
-                var res = readListSetting<int>("arr");
-                var name = readSetting("name", "");
-                var ind = readSetting("count", 0);
-                writeSetting("count", ind + 1);
+                var res = readList<int>("arr");
+                var name = read("name", "");
+                var ind = read("count", 0);
+                write("count", ind + 1);
 
                 tell(pong, $"ping {name}-{ind}", TimeSpan.FromMilliseconds(100));
             });
@@ -53,17 +40,16 @@ namespace ProcessSample
             {
                 tell(logger, msg);
 
-                var map = readMapSetting<string>("map");
-                var name = readSetting("name", "");
-                var ind = readSetting("count", 0);
-                writeSetting("count", ind + 1);
+                var map = readMap<string>("map");
+                var name = read("name", "");
+                var ind = read("count", 0);
+                write("count", ind + 1);
 
                 tell(ping, $"pong {name}-{ind}", TimeSpan.FromMilliseconds(100));
             });
-
+                        
             // Trigger
-            tell(pong, "start");
-
+            tell(ping, "start");
 
             Console.ReadKey();
 

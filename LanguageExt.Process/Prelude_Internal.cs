@@ -44,18 +44,39 @@ namespace LanguageExt
             }
         }
 
-        internal static IDisposable safedelay(Action f, TimeSpan delayFor) =>
-             (IDisposable)Task.Delay(delayFor).ContinueWith(_ =>
-               {
-                   try
-                   {
-                       f();
-                   }
-                   catch (Exception e)
-                   {
-                       logErr(e);
-                   }
-               });
+        internal static IDisposable safedelay(Action f, TimeSpan delayFor)
+        {
+            var savedContext = ActorContext.Context;
+            var savedSession = SessionManager.SessionId;
+
+            return (IDisposable)Task.Delay(delayFor).ContinueWith(_ =>
+              {
+                  try
+                  {
+                      ActorContext.WithContext(
+                                   savedContext.Self,
+                                   savedContext.Parent,
+                                   savedContext.Sender,
+                                   savedContext.CurrentRequest,
+                                   savedContext.CurrentMsg,
+                                   savedSession,
+                                   () =>
+                                   {
+                                       f();
+
+                                       // Run the operations that affect the settings and sending of tells
+                                       // in the order which they occured in the actor
+                                       ActorContext.Context?.Ops?.Run();
+                                   }
+                                 );
+
+                  }
+                  catch (Exception e)
+                  {
+                      logErr(e);
+                  }
+              });
+        }
 
         internal static IDisposable safedelay(Action f, DateTime delayUntil) =>
              safedelay(f, delayUntil - DateTime.UtcNow);

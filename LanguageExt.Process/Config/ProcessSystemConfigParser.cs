@@ -13,15 +13,19 @@ using static LanguageExt.Parsec.Token;
 using static LanguageExt.Parsec.Indent;
 using LanguageExt.UnitsOfMeasure;
 
-namespace LanguageExt
+namespace LanguageExt.Config
 {
     public class ProcessSystemConfigParser
     {
+        // TODO: Create a general type system, with per-type rules for parsing,
+        //       usage in maps, lists, etc.  Lots of switches below would be 
+        //       avoided and would make it much easier to add new types.  Perhaps
+        //       even find a way of using .NET types with a wrapper that parses
+        //       and instantiates.
 
         GenLanguageDef definition;
         GenTokenParser tokenParser;
         public Parser<Map<string, LocalsToken>> Settings;
-
 
         void InitialiseParser()
         {
@@ -40,7 +44,7 @@ namespace LanguageExt
                     "default", "listen-remote-and-local", "persist-all", "persist-inbox", "persist-state", "remote-publish", "remote-state-publish",
                     "forward-to-self", "forward-to-dead-letters", "forward-to-parent", "forward-to-process", "stay-in-queue",
                     "string", "int", "float", "time", "process-flags", "process-id", "process-name", "directive", 
-                    "process", "router", "dispatcher", "role"
+                    "process", "router", "dispatcher", "cluster", "true", "false", "bool"
                     ));
 
             // Token parser
@@ -62,7 +66,7 @@ namespace LanguageExt
         Parser<Lst<T>> commaSep1<T>(Parser<T> p) =>
             tokenParser.CommaSep1(p);
 
-        public ProcessSystemConfigParser(FuncSpec[] processSpecs, FuncSpec[] strategySpecs, params FuncSpec[] settingSpecs)
+        public ProcessSystemConfigParser(string nodeName, FuncSpec[] processSpecs, FuncSpec[] strategySpecs, FuncSpec[] clusterSpecs, params FuncSpec[] settingSpecs)
         {
             InitialiseParser();
 
@@ -97,7 +101,7 @@ namespace LanguageExt
             Parser<ProcessName> processName =
                 token(
                     from o in symbol("\"")
-                    from xs in many1(choice(lower, digit, oneOf("@/[,-_]{}: ")))
+                    from xs in many1(choice(lower, digit, oneOf("@/[,-_]{.}: ")))
                     from c in symbol("\"")
                     let r = (new string(xs.ToArray())).Trim()
                     let n = ProcessName.TryParse(r)
@@ -105,6 +109,13 @@ namespace LanguageExt
                         Right: x => result(x),
                         Left: ex => failure<ProcessName>(ex.Message))
                     select res);
+
+            Func<string, Parser<ValueToken>> boolAttr =
+                name =>
+                    from v in choice(
+                        reserved("true"),
+                        reserved("false"))
+                    select ValueToken.Bool(name, v == "true");
 
             Func<string, Parser<ValueToken>> doubleAttr =
                 name =>
@@ -314,6 +325,18 @@ namespace LanguageExt
 
             Func<string, Parser<ValueToken>> processAttr = buildProcessAttr(processSpecs);
 
+            Func<FuncSpec[], Func<string, Parser<ValueToken>>> buildClusterAttr = ps => name =>
+                from ss in settings(ps)
+                let token = new ClusterToken(ss)
+                from __ in token.NodeName.Map(x => x == nodeName).IfNone(false)
+                    ? from state in getState<ParserState>()
+                      from newst in setState(state.SetCluster(token.Settings))
+                      select newst
+                    : result(unit)
+                select ValueToken.Cluster(name, token);
+
+            Func<string, Parser<ValueToken>> clusterAttr = buildClusterAttr(clusterSpecs);
+
             Func<FuncSpec[], Func<string, Parser<ValueToken>>> buildStrategyAttr = stratSet => name =>
                 from t in attempt(either(reserved("all-for-one"), reserved("one-for-one")))
                 from _ in symbol(":")
@@ -322,21 +345,6 @@ namespace LanguageExt
 
             Func<string, Parser<ValueToken>> strategyAttr = buildStrategyAttr(strategySpecs);
 
-            Func<ArgumentType, string, Parser<ValueToken>> typedAttr = (t, name) =>
-                t.Tag == ArgumentTypeTag.Time ? timeAttr(name)
-              : t.Tag == ArgumentTypeTag.Int ? integerAttr(name)
-              : t.Tag == ArgumentTypeTag.String ? stringAttr(name)
-              : t.Tag == ArgumentTypeTag.Double ? doubleAttr(name)
-              : t.Tag == ArgumentTypeTag.ProcessId ? processIdAttr(name)
-              : t.Tag == ArgumentTypeTag.ProcessName ? processNameAttr(name)
-              : t.Tag == ArgumentTypeTag.ProcessFlags ? flagsAttr(name)
-              : t.Tag == ArgumentTypeTag.Directive ? directiveAttr(name)
-              : t.Tag == ArgumentTypeTag.Process ? processAttr(name)
-              : t.Tag == ArgumentTypeTag.Strategy ? strategyAttr(name)
-              : t.Tag == ArgumentTypeTag.DispatcherType ? dispTypeAttr(name)
-              : t.Tag == ArgumentTypeTag.Array ? arrayAttr(t)(name)
-              : t.Tag == ArgumentTypeTag.Map ? mapAttr(t)(name)
-              : failure<ValueToken>("Not supported argument type: " + type);
 
             arrayAttr = t => name =>
                 brackets(
@@ -344,6 +352,7 @@ namespace LanguageExt
                     select ValueToken.Array(
                         name,
                             t.Tag == ArgumentTypeTag.Time ? (object)xs.Map(x => (Time)x.Value).Freeze()
+                          : t.Tag == ArgumentTypeTag.Bool ? (object)xs.Map(x => (bool)x.Value).Freeze()
                           : t.Tag == ArgumentTypeTag.Int ? (object)xs.Map(x => (int)x.Value).Freeze()
                           : t.Tag == ArgumentTypeTag.String ? (object)xs.Map(x => (string)x.Value).Freeze()
                           : t.Tag == ArgumentTypeTag.Double ? (object)xs.Map(x => (double)x.Value).Freeze()
@@ -352,6 +361,7 @@ namespace LanguageExt
                           : t.Tag == ArgumentTypeTag.ProcessFlags ? (object)xs.Map(x => (ProcessFlags)x.Value).Freeze()
                           : t.Tag == ArgumentTypeTag.Directive ? (object)xs.Map(x => (Directive)x.Value).Freeze()
                           : t.Tag == ArgumentTypeTag.Process ? (object)xs.Map(x => (ProcessToken)x.Value).Freeze()
+                          : t.Tag == ArgumentTypeTag.Cluster ? (object)xs.Map(x => (ClusterToken)x.Value).Freeze()
                           : t.Tag == ArgumentTypeTag.Strategy ? (object)xs.Map(x => (StrategyToken)x.Value).Freeze()
                           : t.Tag == ArgumentTypeTag.DispatcherType ? (object)xs.Map(x => (string)x.Value).Freeze()
                           : t.Tag == ArgumentTypeTag.Array ? (object)xs.Map(x => x.Value).Freeze()
@@ -369,6 +379,7 @@ namespace LanguageExt
                     select ValueToken.Map(
                         name,
                         t.Tag == ArgumentTypeTag.Time ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (Time)y)))
+                        : t.Tag == ArgumentTypeTag.Bool ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (bool)y)))
                         : t.Tag == ArgumentTypeTag.Int ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (int)y)))
                         : t.Tag == ArgumentTypeTag.String ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (string)y)))
                         : t.Tag == ArgumentTypeTag.Double ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (double)y)))
@@ -377,6 +388,7 @@ namespace LanguageExt
                         : t.Tag == ArgumentTypeTag.ProcessFlags ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (ProcessFlags)y)))
                         : t.Tag == ArgumentTypeTag.Directive ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (Directive)y)))
                         : t.Tag == ArgumentTypeTag.Process ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (ProcessToken)y)))
+                        : t.Tag == ArgumentTypeTag.Cluster ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (ClusterToken)y)))
                         : t.Tag == ArgumentTypeTag.Strategy ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (StrategyToken)y)))
                         : t.Tag == ArgumentTypeTag.DispatcherType ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => (string)y)))
                         : t.Tag == ArgumentTypeTag.Array ? (object)Map.createRange(xs.Map(x => x.MapSecond(y => y)))
@@ -386,6 +398,7 @@ namespace LanguageExt
 
             typeDef =
                 choice(
+                    reserved("bool").Map(_ => ArgumentType.Bool),
                     reserved("string").Map(_ => ArgumentType.String),
                     reserved("time").Map(_ => ArgumentType.Time),
                     reserved("float").Map(_ => ArgumentType.Double),
@@ -396,11 +409,47 @@ namespace LanguageExt
                     reserved("directive").Map(_ => ArgumentType.Directive),
                     reserved("strategy").Map(_ => ArgumentType.Strategy),
                     reserved("process").Map( _ => ArgumentType.Process),
+                    reserved("cluster").Map( _ => ArgumentType.Cluster),
                     reserved("router").Map(_ => ArgumentType.Process),
                     reserved("disp").Map(_ => ArgumentType.DispatcherType)
                 );
 
-            Parser<ValueToken> valueDef =
+            Parser<ValueToken> clusterVar =
+                attempt(
+                        from _ in reserved("cluster")
+                        from d in symbol(".")
+                        from id in identifier
+                        from sub in optional(from d2 in symbol(".")
+                                             from id2 in identifier
+                                             select id2).Map(x => x.IfNone("value"))
+                        from state in getState<ParserState>()   // TODO: This can be generalised into an object walking system
+                        from v in state.Cluster.Match(          //       where an object (in this case the cluster), is in 'scope'
+                            Some: cluster =>                    //       and recursive walking of the dot operator will find the
+                                cluster.Find(id).Match(         //       value.
+                                    Some: locals =>
+                                        locals.Values.Find(sub)
+                                                     .Match(
+                                                          Some: v => result(v),
+                                                          None: () => failure<ValueToken>($"unknown identifier 'cluster.{id}'")),
+                                    None: () => failure<ValueToken>($"unknown identifier 'cluster.{id}'")),
+                            None: () => failure<ValueToken>($"cluster.{id} used when a cluster with a node-name attribute set to '{nodeName}' hasn't been defined"))
+                        select v
+                    );
+
+            Parser<ValueToken> variable =
+                either(
+                    clusterVar,
+                    attempt(
+                        from id in identifier
+                        from state in getState<ParserState>()
+                        from v in state.Local(id).Match(
+                            Some: v => result(v),
+                            None: () => failure<ValueToken>($"unknown identifier '{id}' "))
+                        select v
+                    )
+                );
+
+            Parser <ValueToken> valueDef =
                 from typ in either(
                     attempt(reserved("let")).Map(x => Option<ArgumentType>.None),
                     typeDef.Map(Option<ArgumentType>.Some)
@@ -415,9 +464,11 @@ namespace LanguageExt
                     ? either(
                         attempt(valueInst(ArgumentType.Map(typ.IfNone(ArgumentType.Unknown)), id)),
                         valueInst(ArgumentType.Array(typ.IfNone(ArgumentType.Unknown)), id))
-                    : typ.Map( t => valueInst(t, id))
+                    : typ.Map( t => expr(t).Map(x => x.SetName(id) ))
                          .IfNone(() => 
                               choice(
+                                  variable.Map(x => x.SetName(id)),
+                                  boolAttr(id),
                                   stringAttr(id),
                                   attempt(timeAttr(id)),
                                   integerAttr(id),
@@ -426,27 +477,23 @@ namespace LanguageExt
                                   directiveAttr(id),
                                   dispTypeAttr(id),
                                   strategyAttr(id),
-                                  processAttr(id)
+                                  processAttr(id),
+                                  clusterAttr(id)
                          ))
-                from locals in getState<Map<string, ValueToken>>().Map(x => x.AddOrUpdate(id, v))
-                from ___ in setState(locals)
+                from state in getState<ParserState>()
+                from res in state.LocalExists(id)
+                    ? failure<ParserState>($"A value with the name '{id}' already declared")
+                    : result(state.AddLocal(id, v))
+                from ___ in setState(res)
                 select v;
 
             valueInst =
                 (t, name) =>
                     either(
-                        attempt(
-                            from id in identifier
-                            from locals in getState<Map<string, ValueToken>>()
-                            from v in locals.Find(id).Match(
-                                Some: v => v.Type.Tag == t.Tag
-                                                ? result(v)
-                                                : failure<ValueToken>($"invalid type for identifier '{id}', expected {t.Tag} got {v.Type.Tag}"),
-                                None: () => failure<ValueToken>($"unknown identifier '{id}' ")
-                            )
-                            select v.SetName(name)),
+                        variable,
                           t.Tag == ArgumentTypeTag.String ? stringAttr(name)
                         : t.Tag == ArgumentTypeTag.Time ? timeAttr(name)
+                        : t.Tag == ArgumentTypeTag.Bool ? boolAttr(name)
                         : t.Tag == ArgumentTypeTag.Int ? integerAttr(name)
                         : t.Tag == ArgumentTypeTag.Double ? doubleAttr(name)
                         : t.Tag == ArgumentTypeTag.ProcessFlags ? flagsAttr(name)
@@ -456,6 +503,7 @@ namespace LanguageExt
                         : t.Tag == ArgumentTypeTag.Array ? arrayAttr(t.GenericType)(name)
                         : t.Tag == ArgumentTypeTag.Directive ? directiveAttr(name)
                         : t.Tag == ArgumentTypeTag.Process ? processAttr(name)
+                        : t.Tag == ArgumentTypeTag.Cluster ? clusterAttr(name)
                         : t.Tag == ArgumentTypeTag.Strategy ? strategyAttr(name)
                         : t.Tag == ArgumentTypeTag.DispatcherType ? dispTypeAttr(name)
                         : failure<ValueToken>($"value-type for '{t.Tag}'"));
@@ -515,10 +563,8 @@ namespace LanguageExt
             /// </summary>
             Func<string, ArgumentsSpec, Parser<Lst<ValueToken>>> argumentMany =
                 (settingName, spec) =>
-                    //from o in symbol("(")
                     from a in commaSep1(choice(spec.Args.Map(arg => namedArgument(settingName, arg))))
-                        //from c in symbol(")")
-                from r in a.Count == spec.Args.Length
+                    from r in a.Count == spec.Args.Length
                         ? result(a)
                         : failure<Lst<ValueToken>>("Invalid arguments for " + settingName)
                     select r;
@@ -536,32 +582,34 @@ namespace LanguageExt
                             : argumentMany(settingName, spec);
 
             // Top level settings
-            settings =
-                (specs) =>
-                    from sets in many(
-                        indented(1,
-                            either(
-                                // Funcs
-                                choice(
-                                    specs.Map(setting =>
-                                        setting.Name == "match" ? from m in match
-                                                                  select new LocalsToken(setting.Name, null, m)
-                                      : setting.Name == "redirect" ? from r in redirect
-                                                                     select new LocalsToken(setting.Name, null, r)
-                                      : from nam in attempt(reserved(setting.Name))
-                                        from _ in symbol(":")
-                                        from tok in choice(setting.Variants.Map(variant =>
-                                            from vals in arguments(nam, variant)
-                                            select new LocalsToken(setting.Name, variant, vals.ToArray())))
-                                        select tok)),
-                                // Var defs
-                                from x in valueDef
-                                select new LocalsToken(x.Name, ArgumentsSpec.Variant(new FieldSpec("value", x.Type)), x.SetName("value"))
-                                )))
-                    select List.createRange(sets);
+            settings = (specs) =>
+                from state in getState<ParserState>()
+                from sets in many(
+                    indented1(
+                        either(
+                            // Funcs
+                            choice(
+                                specs.Map(setting =>
+                                      setting.Name == "match" ? from m in match
+                                                                select new LocalsToken(setting.Name, null, m)
+                                    : setting.Name == "redirect" ? from r in redirect
+                                                                   select new LocalsToken(setting.Name, null, r)
+                                    : from nam in attempt(reserved(setting.Name))
+                                    from _ in symbol(":")
+                                    from tok in choice(setting.Variants.Map(variant =>
+                                        from vals in arguments(nam, variant)
+                                        select new LocalsToken(setting.Name, variant, vals.ToArray())))
+                                    select tok)),
+                            // Var defs
+                            from x in valueDef
+                            select new LocalsToken(x.Name, ArgumentsSpec.Variant(new FieldSpec("value", x.Type)), x.SetName("value"))
+                            )))
+                from newState in getState<ParserState>()
+                from _ in setState(state.SetCluster(newState.Cluster))
+                select List.createRange(sets);
 
             Settings = from ws in whiteSpace
-                       from __ in setState(Map.empty<string,ValueToken>())
+                       from __ in setState(ParserState.Empty)
                        from ss in settings(settingSpecs)
                        select Map.createRange(ss.Map(x => Tuple(x.Name, x)));
         }

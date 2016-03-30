@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using LanguageExt;
 using static LanguageExt.Prelude;
 using LanguageExt.UnitsOfMeasure;
 
-namespace LanguageExt
+namespace LanguageExt.Config
 {
     public enum ArgumentTypeTag
     {
         Unknown,
+        Bool,
         Int,
         Double,
         String,
@@ -28,7 +24,8 @@ namespace LanguageExt
         Directive,
         Map,
         Dispatcher,
-        DispatcherType
+        DispatcherType,
+        Cluster
     }
 
     public class ArgumentType
@@ -49,6 +46,9 @@ namespace LanguageExt
 
         public readonly static ArgumentType Unknown =
             new ArgumentType(ArgumentTypeTag.Unknown);
+
+        public readonly static ArgumentType Bool =
+            new ArgumentType(ArgumentTypeTag.Bool);
 
         public readonly static ArgumentType Int = 
             new ArgumentType(ArgumentTypeTag.Int);
@@ -98,6 +98,9 @@ namespace LanguageExt
         public static ArgumentType DispatcherType =>
             new ArgumentType(ArgumentTypeTag.DispatcherType);
 
+        public static ArgumentType Cluster =>
+            new ArgumentType(ArgumentTypeTag.Cluster);
+
     }
 
     public class FieldSpec
@@ -113,6 +116,9 @@ namespace LanguageExt
 
         public static FieldSpec Int(string name) =>
             new FieldSpec(name, ArgumentType.Int);
+
+        public static FieldSpec Bool(string name) =>
+            new FieldSpec(name, ArgumentType.Bool);
 
         public static FieldSpec Double(string name) =>
             new FieldSpec(name, ArgumentType.Double);
@@ -158,6 +164,9 @@ namespace LanguageExt
 
         public static FieldSpec DispatcherType(string name) =>
             new FieldSpec(name, ArgumentType.DispatcherType);
+
+        public static FieldSpec Cluster(string name) =>
+            new FieldSpec(name, ArgumentType.Cluster);
     }
 
     public class ArgumentsSpec

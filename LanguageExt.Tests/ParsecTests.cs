@@ -13,6 +13,7 @@ using static LanguageExt.Parsec.Prim;
 using static LanguageExt.Parsec.Char;
 using static LanguageExt.Parsec.Expr;
 using static LanguageExt.Parsec.Token;
+using LanguageExt.Config;
 using LanguageExt.UnitsOfMeasure;
 
 namespace LanguageExtTests
@@ -834,7 +835,7 @@ namespace LanguageExtTests
                     strategy:     my-other-strategy
                 ";
 
-            var config = new ProcessSystemConfig();
+            var config = new ProcessSystemConfig("test");
 
             var res = parse(config.Parser, text);
 

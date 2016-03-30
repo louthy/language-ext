@@ -47,13 +47,13 @@ namespace LanguageExt
         public static ProcessId fromConfig<T>(ProcessName name)
         {
             var id       = Self[name];
-            var type     = ActorContext.Config.GetRouterDispatch(id);
-            var workers  = ActorContext.Config.GetRouterWorkers(id)
-                                              .Map(p => p.ProcessId.IfNone(ProcessId.None) )
-                                              .Filter(pid => pid != ProcessId.None);
+            var type     = ProcessConfig.Settings.GetRouterDispatch(id);
+            var workers  = ProcessConfig.Settings.GetRouterWorkers(id)
+                                                 .Map(p => p.ProcessId.IfNone(ProcessId.None) )
+                                                 .Filter(pid => pid != ProcessId.None);
 
-            var flags    = ActorContext.Config.GetProcessFlags(id);
-            var mbs      = ActorContext.Config.GetProcessMailboxSize(id);
+            var flags    = ProcessConfig.Settings.GetProcessFlags(id);
+            var mbs      = ProcessConfig.Settings.GetProcessMailboxSize(id);
 
             return type.Map(t =>
                 {
@@ -159,12 +159,12 @@ namespace LanguageExt
         public static ProcessId fromConfig<S, T>(ProcessName name, Func<S> Setup, Func<S,T,S> Inbox)
         {
             var id       = Self[name];
-            var type     = ActorContext.Config.GetRouterDispatch(id);
-            var workers  = ActorContext.Config.GetRouterWorkerCount(id);
-            var flags    = ActorContext.Config.GetProcessFlags(id);
-            var mbs      = ActorContext.Config.GetProcessMailboxSize(id);
-            var strategy = ActorContext.Config.GetProcessStrategy(id);
-            var wrkrName = ActorContext.Config.GetRouterWorkerName(id).IfNone("worker");
+            var type     = ProcessConfig.Settings.GetRouterDispatch(id);
+            var workers  = ProcessConfig.Settings.GetRouterWorkerCount(id);
+            var flags    = ProcessConfig.Settings.GetProcessFlags(id);
+            var mbs      = ProcessConfig.Settings.GetProcessMailboxSize(id);
+            var strategy = ProcessConfig.Settings.GetProcessStrategy(id);
+            var wrkrName = ProcessConfig.Settings.GetRouterWorkerName(id);
 
             return type.Map(t =>
                 {

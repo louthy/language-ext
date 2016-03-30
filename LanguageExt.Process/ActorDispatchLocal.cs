@@ -34,26 +34,27 @@ namespace LanguageExt
         public Either<string, bool> CanAccept<T>() =>
             Inbox.CanAcceptMessageType<T>();
 
-        public Unit Tell(object message, ProcessId sender, Message.TagSpec tag)
-        {
-            message = Inbox.ValidateMessageType(message, sender);
-            return Inbox.Tell(message, sender);
-        }
+        public Unit Tell(object message, ProcessId sender, Message.TagSpec tag) =>
+            ProcessOp.IO(() =>
+            {
+                message = Inbox.ValidateMessageType(message, sender);
+                return Inbox.Tell(message, sender);
+            });
 
         public Unit TellSystem(SystemMessage message, ProcessId sender) =>
-            Inbox.TellSystem(message);
+            ProcessOp.IO(() => Inbox.TellSystem(message));
 
         public Unit TellUserControl(UserControlMessage message, ProcessId sender) =>
-            Inbox.TellUserControl(message);
+            ProcessOp.IO(() => Inbox.TellUserControl(message));
 
         public Unit Ask(object message, ProcessId sender) =>
             Inbox.Ask(message, sender);
 
         public Unit Kill() =>
-            ShutdownProcess(false);
+            ProcessOp.IO(() => ShutdownProcess(false));
 
         public Unit Shutdown() =>
-            ShutdownProcess(true);
+            ProcessOp.IO(() => ShutdownProcess(true));
 
         Unit ShutdownProcess(bool maintainState) =>
             ActorContext.WithContext(
@@ -74,22 +75,22 @@ namespace LanguageExt
             Actor.Children.Map(a => a.Actor.Id);
 
         public Unit Publish(object message) =>
-            Actor.Publish(message);
+            ProcessOp.IO(() => Actor.Publish(message));
 
         public int GetInboxCount() =>
             Inbox.Count;
 
         public Unit Watch(ProcessId pid) =>
-            Actor.AddWatcher(pid);
+            ProcessOp.IO(() => Actor.AddWatcher(pid));
 
         public Unit UnWatch(ProcessId pid) =>
-            Actor.RemoveWatcher(pid);
+            ProcessOp.IO(() => Actor.RemoveWatcher(pid));
 
         public Unit DispatchWatch(ProcessId watching) =>
-            Actor.DispatchWatch(watching);
+            ProcessOp.IO(() => Actor.DispatchWatch(watching));
 
         public Unit DispatchUnWatch(ProcessId watching) =>
-            Actor.DispatchUnWatch(watching);
+            ProcessOp.IO(() => Actor.DispatchUnWatch(watching));
 
         public bool IsLocal => 
             true;

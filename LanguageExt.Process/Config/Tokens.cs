@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using LanguageExt.UnitsOfMeasure;
 using LanguageExt.Trans;
 
-namespace LanguageExt
+namespace LanguageExt.Config
 {
     public class ValueToken
     {
@@ -21,6 +21,9 @@ namespace LanguageExt
             Type = type;
             Value = value;
         }
+
+        public static ValueToken Bool(string name, bool value) =>
+            new ValueToken(name, ArgumentType.Bool, value);
 
         public static ValueToken Int(string name, int value) =>
             new ValueToken(name, ArgumentType.Int, value);
@@ -74,12 +77,15 @@ namespace LanguageExt
                 LanguageExt.ProcessId.Top["disp"][type][processes.Map(x => x.ProcessId.IfNone(LanguageExt.ProcessId.None))]
             );
 
-        public static ValueToken Role(string name, string type, ProcessToken process) =>
-            new ValueToken(
-                name,
-                ArgumentType.Dispatcher,
-                LanguageExt.ProcessId.Top["disp"]["role"][type]["user"].Append(process.ProcessId.IfNone(LanguageExt.ProcessId.None))
-            );
+        //public static ValueToken Role(string name, string type, ProcessToken process) =>
+        //    new ValueToken(
+        //        name,
+        //        ArgumentType.Dispatcher,
+        //        LanguageExt.ProcessId.Top["disp"]["role"][type]["user"].Append(process.ProcessId.IfNone(LanguageExt.ProcessId.None))
+        //    );
+
+        public static ValueToken Cluster(string name, ClusterToken value) =>
+            new ValueToken(name, ArgumentType.Cluster, value);
 
         public ValueToken SetName(string name) =>
             new ValueToken(name, Type, Value);
@@ -312,7 +318,81 @@ namespace LanguageExt
         }
 
         public ProcessToken SetRegisteredName(ProcessName registeredName) =>
-            new ProcessToken(ProcessId, Flags, MailboxSize, Strategy, Settings, registeredName, Dispatch, Route, Workers, WorkerCount, WorkerName);
+            new ProcessToken(
+                ProcessId, 
+                Flags, 
+                MailboxSize, 
+                Strategy,
+                Settings.AddOrUpdate("register-as", new LocalsToken("register-as", ArgumentsSpec.Variant(FieldSpec.ProcessName("value")), ValueToken.ProcessName("value", registeredName))),
+                registeredName, 
+                Dispatch, 
+                Route, 
+                Workers, 
+                WorkerCount, 
+                WorkerName
+            );
+
+        Option<T> GetValue<T>(string name) =>
+            from y in Settings.Find(name).Map(tok => tok.Values.Find("value").Map(x => (T)x.Value))
+            from z in y
+            select z;
+    }
+
+    public class ClusterToken
+    {
+        public readonly Map<string, LocalsToken> Settings;
+        public readonly Option<string> NodeName;
+        public readonly Option<string> Role;
+        public readonly Option<string> Connection;
+        public readonly Option<string> Database;
+        public readonly Option<string> Env;
+        public readonly Option<string> UserEnv;
+
+        public ClusterToken(Lst<LocalsToken> values)
+        {
+            Settings = Map.createRange(values.Map(x => Tuple.Create(x.Name, x)));
+            NodeName = GetValue<string>("node-name");
+            Role = GetValue<string>("role");
+            Connection = GetValue<string>("connection");
+            Database = GetValue<string>("database");
+            Env = GetValue<string>("env");
+            UserEnv = GetValue<string>("user-env");
+
+            if (NodeName.IsNone) throw new Exception("cluster requires a 'node-name' attribute");
+            if (Role.IsNone) throw new Exception("cluster requires a 'role' attribute");
+            if (Connection.IsNone) throw new Exception("cluster requires a 'connection' attribute");
+            if (Database.IsNone) throw new Exception("cluster requires a 'database' attribute");
+        }
+
+        ClusterToken(
+            Map<string, LocalsToken> settings,
+            Option<string> nodeName,
+            Option<string> role,
+            Option<string> connection,
+            Option<string> database,
+            Option<string> env,
+            Option<string> userEnv
+            )
+        {
+            Settings = settings;
+            NodeName = nodeName;
+            Role = role;
+            Connection = connection;
+            Database = database;
+            Env = env;
+            UserEnv = userEnv;
+        }
+
+        public ClusterToken SetEnvironment(string env) =>
+            new ClusterToken(
+                Settings.AddOrUpdate("env",new LocalsToken("env",ArgumentsSpec.Variant(FieldSpec.String("value")), ValueToken.String("value", env))),
+                NodeName, 
+                Role, 
+                Connection, 
+                Database, 
+                env, 
+                UserEnv
+            );
 
         Option<T> GetValue<T>(string name) =>
             from y in Settings.Find(name).Map(tok => tok.Values.Find("value").Map(x => (T)x.Value))

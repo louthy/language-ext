@@ -18,7 +18,7 @@ namespace Strategies
         {
             try
             {
-                Process.readConfigFromFile();
+                ProcessConfig.initialiseFileSystem();
 
                 Test1();
                 Test2();

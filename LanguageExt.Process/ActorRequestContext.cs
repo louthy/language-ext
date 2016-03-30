@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LanguageExt.Config;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,7 @@ namespace LanguageExt
         public readonly object CurrentMsg;
         public readonly ActorRequest CurrentRequest;
         public readonly ProcessFlags ProcessFlags;
+        public readonly ProcessOpTransaction Ops;
 
         public ActorRequestContext(
             ActorItem self,
@@ -21,7 +23,8 @@ namespace LanguageExt
             ActorItem parent,
             object currentMsg,
             ActorRequest currentRequest,
-            ProcessFlags processFlags
+            ProcessFlags processFlags,
+            ProcessOpTransaction ops
             )
         {
             Self = self;
@@ -30,6 +33,7 @@ namespace LanguageExt
             CurrentMsg = currentMsg;
             CurrentRequest = currentRequest;
             ProcessFlags = processFlags;
+            Ops = ops;
         }
 
         public ActorRequestContext SetProcessFlags(ProcessFlags flags) =>
@@ -39,7 +43,8 @@ namespace LanguageExt
                 Parent,
                 CurrentMsg,
                 CurrentRequest,
-                flags
+                flags,
+                Ops
             );
 
         public ActorRequestContext SetCurrentRequest(ActorRequest currentRequest) =>
@@ -49,7 +54,8 @@ namespace LanguageExt
                 Parent,
                 CurrentMsg,
                 currentRequest,
-                ProcessFlags
+                ProcessFlags,
+                Ops
             );
 
         public ActorRequestContext SetCurrentMessage(object currentMsg) =>
@@ -59,7 +65,20 @@ namespace LanguageExt
                 Parent,
                 currentMsg,
                 CurrentRequest,
-                ProcessFlags
+                ProcessFlags,
+                Ops
             );
+
+        public ActorRequestContext SetOps(ProcessOpTransaction ops) =>
+            new ActorRequestContext(
+                Self,
+                Sender,
+                Parent,
+                CurrentMsg,
+                CurrentRequest,
+                ProcessFlags,
+                ops
+            );
+
     }
 }

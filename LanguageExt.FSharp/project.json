@@ -1,5 +1,5 @@
 {
-  "version": "1.7.32-*",
+  "version": "1.7.33-*",
   "authors": [ "Paul Louth" ],
   "owners": [ "paullouth" ],
   "title": "LanguageExt.FSharp",
@@ -24,7 +24,7 @@
     }
   },
   "dependencies": {
-    "LanguageExt.Core": "1.7.32",
+    "LanguageExt.Core": "1.7.33",
     "FSharp.Core": "4.0.0.1"
   },
   "frameworks": {

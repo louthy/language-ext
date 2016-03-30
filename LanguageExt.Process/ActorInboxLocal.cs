@@ -126,7 +126,7 @@ namespace LanguageExt
 
         int MailboxSize =>
             maxMailboxSize < 0
-                ? ActorContext.Config.GetProcessMailboxSize(actor.Id)
+                ? ProcessConfig.Settings.GetProcessMailboxSize(actor.Id)
                 : maxMailboxSize;
 
         public bool IsPaused

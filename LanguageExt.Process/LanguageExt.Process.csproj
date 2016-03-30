@@ -42,7 +42,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -62,10 +64,13 @@
     <Compile Include="ActorInboxRemote.cs" />
     <Compile Include="ActorItem.cs" />
     <Compile Include="ActorRequestContext.cs" />
+    <Compile Include="AppProfile.cs" />
     <Compile Include="CancelShutdown.cs" />
     <Compile Include="ClusterConfig.cs" />
     <Compile Include="ClusterNode.cs" />
     <Compile Include="Config\Attrs.cs" />
+    <Compile Include="ProcessOp.cs" />
+    <Compile Include="Config\ParserState.cs" />
     <Compile Include="Config\ProcessSystemConfig.cs" />
     <Compile Include="Config\SettingSpec.cs" />
     <Compile Include="Config\ProcessSystemConfigParser.cs" />

@@ -12,7 +12,6 @@ namespace LanguageExt
         [ThreadStatic]
         static ActorRequestContext context;
 
-        static ProcessSystemConfig config;
         static object sync = new object();
         static volatile bool started = false;
         static Option<ICluster> cluster;
@@ -45,8 +44,6 @@ namespace LanguageExt
             {
                 if (started) return unit;
 
-                config = config ?? new ProcessSystemConfig(null);
-
                 startupTimestamp = DateTime.UtcNow.Ticks;
                 startupSubscription?.Dispose();
                 startupSubscription = NotifyCluster(cluster, startupTimestamp);
@@ -62,11 +59,25 @@ namespace LanguageExt
                 var parent = new ActorItem(new NullProcess(), new NullInbox(), ProcessFlags.Default);
 
                 var go = new AutoResetEvent(false);
-                var state = new ActorSystemState(cluster, root, null, rootInbox, cluster.Map(x => x.NodeName).IfNone(ActorSystemConfig.Default.RootProcessName), ActorSystemConfig.Default);
+                var state = new ActorSystemState(
+                    cluster, 
+                    root, null, 
+                    rootInbox, 
+                    cluster.Map(x => x.NodeName).IfNone(ActorSystemConfig.Default.RootProcessName), 
+                    ActorSystemConfig.Default
+                    );
                 var rootProcess = state.RootProcess;
                 state.Startup();
-                userContext = new ActorRequestContext(rootProcess.Children["user"], ProcessId.NoSender, rootItem, null, null, ProcessFlags.Default);
-                rootInbox.Startup(rootProcess, parent, cluster, config.GetProcessMailboxSize(rootProcess.Id));
+                userContext = new ActorRequestContext(
+                    rootProcess.Children["user"], 
+                    ProcessId.NoSender, 
+                    rootItem, 
+                    null, 
+                    null, 
+                    ProcessFlags.Default,
+                    ProcessOpTransaction.Start(rootProcess.Children["user"].Actor.Id)
+                    );
+                rootInbox.Startup(rootProcess, parent, cluster, ProcessConfig.Settings.GetProcessMailboxSize(rootProcess.Id));
                 rootItem = new ActorItem(rootProcess, rootInbox, ProcessFlags.Default);
                 started = true;
 
@@ -75,12 +86,6 @@ namespace LanguageExt
             }
             return unit;
         }
-
-        public static ProcessSystemConfig Config =>
-            config;
-
-        public static void SetConfig(ProcessSystemConfig mgr) =>
-            config = mgr ?? new ProcessSystemConfig(null);
 
         public static ProcessId AddDispatcher(ProcessName name, Func<ProcessId, IEnumerable<ProcessId>> selector)
         {
@@ -330,7 +335,7 @@ namespace LanguageExt
                 Process.tell(AskId, req);
             }
 
-            handle.Wait(ActorContext.Config.Timeout);
+            handle.Wait(ProcessConfig.Settings.Timeout);
 
             return responses.Where(r => !r.IsFaulted).Map(r => (T)r.Response);
         }
@@ -369,7 +374,7 @@ namespace LanguageExt
                     {
                         var inbox = ask.Inbox as ILocalActorInbox;
                         inbox.Tell(req, Self);
-                        handle.WaitOne(ActorContext.Config.Timeout);
+                        handle.WaitOne(ProcessConfig.Settings.Timeout);
                     });
 
                 if (askItem)
@@ -489,12 +494,12 @@ namespace LanguageExt
 
             // Auto register if there are config settings and we
             // have the variable name it was assigned to.
-            Config.GetProcessRegisteredName(actor.Id).Iter(regName =>
+            ProcessConfig.Settings.GetProcessRegisteredName(actor.Id).Iter(regName =>
             {
                 // Also check if 'dispatch' is specified in the config, if so we will
                 // register the Process as a role dispatcher PID instead of just its
                 // PID.  
-                Config.GetProcessDispatch(actor.Id)
+                ProcessConfig.Settings.GetProcessDispatch(actor.Id)
                       .Match(
                         Some: disp => Process.register(regName, Disp[disp][Role.Current].Append(actor.Id.Skip(1))),
                         None: ()   => Process.register(regName, actor.Id)
@@ -529,6 +534,19 @@ namespace LanguageExt
         public static readonly ProcessId Disp =
             ProcessId.Top["disp"];
 
+        /// <summary>
+        /// Run the operations that affect the settings and sending of tells
+        /// in the order which they occured in the actor
+        /// </summary>
+        public static Unit RunContextOps()
+        {
+            if (Context.Ops != null)
+            {
+                Context = Context.SetOps(Context.Ops.Run());
+            }
+            return unit;
+        }
+
         public static ActorRequestContext Context
         {
             get
@@ -542,6 +560,10 @@ namespace LanguageExt
                 {
                     return context;
                 }
+            }
+            set
+            {
+                context = value;
             }
         }
 
@@ -834,7 +856,8 @@ by name then use Process.deregisterByName(name).");
                     parent,
                     msg,
                     request,
-                    ProcessFlags.Default
+                    ProcessFlags.Default,
+                    ProcessOpTransaction.Start(self.Actor.Id)
                 );
                 return f();
             }

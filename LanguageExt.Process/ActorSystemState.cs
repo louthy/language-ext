@@ -173,7 +173,7 @@ namespace LanguageExt
                 parent.Actor.LinkChild(item);
                 inbox.Startup(actor, actor.Parent, Cluster, 
                     maxMailboxSize == -1 
-                        ? ActorContext.Config.GetProcessMailboxSize(actor.Id)
+                        ? ProcessConfig.Settings.GetProcessMailboxSize(actor.Id)
                         : maxMailboxSize
                     );
             }
