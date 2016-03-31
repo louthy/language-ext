@@ -19,6 +19,7 @@
         T("Writer",      "Out, !T",             "self",                                           DelType.Func0),
         T("State",       "State, !T",           "self",                                           DelType.Func1),
         T("Rws",         "Env, Out, State, !T", "self",                                           DelType.Func1),
+        T("Task",        "!T",					"self.Result",								      DelType.Not),
     };
 
 
@@ -170,6 +171,7 @@
 using System; 
 using System.Collections.Generic;
 using System.Collections;
+using System.Threading.Tasks;
 using System.Linq;
 using System.ComponentModel;
 using LanguageExt;
@@ -247,7 +249,7 @@ namespace LanguageExt.Trans
 
     public string GenerateOuterFuncs(string ns,IEnumerable<string> funcs, IEnumerable<TypeDesc> types, int tabs, bool filterSame)
     {
-        Func<TypeDesc, string> pre  = type => Tabs(Summary("",1)+"TABS1 public static partial class "+ns.Replace("TYPE",type.TypeAlias) +" {");
+        Func<TypeDesc, string> pre  = type => Tabs(Summary("",1)+"TABS1 public static partial class "+ns.Replace("TYPE",type.TypeAlias) +"T {");
         Func<TypeDesc, string> post = type => Tabs("TABS1 }");
         Func<string,string,IEnumerable<string>,string> all = (a,b,c) => String.Join("\r\n",a,String.Join("\r\n", c),b);
 

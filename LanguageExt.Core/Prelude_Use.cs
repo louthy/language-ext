@@ -10,12 +10,101 @@ namespace LanguageExt
 {
     public static partial class Prelude
     {
-        /// <summary>
-        /// Use with Try monad in LINQ expressions to auto-clean up disposable items
-        /// </summary>
         public static Try<LinqDisposable<T>> use<T>(Try<T> computation)
             where T : class, IDisposable =>
             computation.Map(x => new LinqDisposable<T>(x));
+
+        /// <summary>
+        /// Use with Try monad in LINQ expressions to auto-clean up disposable items
+        /// </summary>
+        public static Try<U> use<T, U>(Try<T> computation, Func<T, U> map) where T : class, IDisposable => () =>
+        {
+            var resT = computation.Try();
+            if (resT.IsFaulted)
+            {
+                return new TryResult<U>(resT.Exception);
+            }
+            else
+            {
+                try
+                {
+                    var resU = map(resT.Value);
+                    resT.Value?.Dispose();
+                    return new TryResult<U>(resU);
+                }
+                catch(Exception e)
+                {
+                    return new TryResult<U>(e);
+                }
+                finally
+                {
+                    resT.Value?.Dispose();
+                }
+            }
+        };
+
+        /// <summary>
+        /// Use with Try monad in LINQ expressions to auto-clean up disposable items
+        /// </summary>
+        public static Try<U> use<T, U>(Try<T> computation, Func<T, Try<U>> bind) where T : class, IDisposable => () =>
+        {
+            var resT = computation.Try();
+            if (resT.IsFaulted)
+            {
+                return new TryResult<U>(resT.Exception);
+            }
+            else
+            {
+                try
+                {
+                    var resU = bind(resT.Value);
+                    resT.Value?.Dispose();
+                    return resU.Try();
+                }
+                catch (Exception e)
+                {
+                    return new TryResult<U>(e);
+                }
+                finally
+                {
+                    resT.Value?.Dispose();
+                }
+            }
+        };
+
+        /// <summary>
+        /// Use with Task in LINQ expressions to auto-clean up disposable items
+        /// </summary>
+        public static async Task<U> use<T, U>(Task<T> computation, Func<T, U> map) where T : class, IDisposable
+        {
+            T t = null;
+            try
+            {
+                t = await computation;
+                return map(t);
+            }
+            finally
+            {
+                t?.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Use with Task in LINQ expressions to auto-clean up disposable items
+        /// </summary>
+        public static async Task<U> use<T, U>(Task<T> computation, Func<T, Task<U>> bind) where T : class, IDisposable
+        {
+            T t = null;
+            try
+            {
+                t = await computation;
+                return await bind(t);
+            }
+            finally
+            {
+                t?.Dispose();
+            }
+        }
 
         /// <summary>
         /// Use with Try monad in LINQ expressions to auto-clean up disposable items

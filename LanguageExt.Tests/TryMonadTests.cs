@@ -3,6 +3,7 @@ using LanguageExt;
 using System.IO;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
+using LanguageExt.Trans;
 using System;
 using System.Net;
 
@@ -190,5 +191,11 @@ namespace LanguageExtTests
             from lines  in getLines(source.Value)
             from line   in lines
             select line;
+
+        [Fact]
+        public void UrlTest()
+        {
+            getURLContent("http://www.google.com").IterT(x => Console.WriteLine(x));
+        }
     }
 }

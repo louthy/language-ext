@@ -14,7 +14,7 @@ namespace ProcessSample
             ProcessSystemLog.Subscribe(Console.WriteLine);
 
             RedisCluster.register();
-            ProcessConfig.initialiseFileSystem("ping-pong");
+            ProcessConfig.initialiseFileSystem("ping-pong-1");
 
             var ping = ProcessId.None;
             var pong = ProcessId.None;
