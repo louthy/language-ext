@@ -25,6 +25,18 @@ namespace LanguageExtTests
             Assert.True(computation.Result == 10);
         }
 
+        [Fact]
+        public void TaskLINQTest2()
+        {
+            var computation = from x in Action1(0)
+                              from y in Action2(x)
+                              from opt in Action3(y)
+                              select from z in opt 
+                                     select x + y + z;
+
+            Assert.True(computation.Result == 10);
+        }
+
         public async Task<int> Action1(int x)
         {
             await Task.Delay(100);

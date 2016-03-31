@@ -1,4 +1,4 @@
-configuration: CI
+configuration: AppVeyorBuild
 
 version: 1.7.15.{build}
 
@@ -16,4 +16,4 @@ before_build:
 
 build:
   verbosity: minimal
-  project: language-ext.sln
+  project: language-ext.sln
