@@ -53,6 +53,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionObservable.cs" />
+    <Compile Include="Prelude_Tasks.cs" />
+    <Compile Include="Task.cs" />
     <Compile Include="Compose.cs" />
     <Compile Include="ILinqDisposable.cs" />
     <Compile Include="LinqDisposable.cs" />

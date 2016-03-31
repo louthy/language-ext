@@ -1,6 +1,7 @@
 ﻿using System; 
 using System.Collections.Generic;
 using System.Collections;
+using System.Threading.Tasks;
 using System.Linq;
 using System.ComponentModel;
 using LanguageExt;
@@ -17,7 +18,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -26,7 +27,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -35,7 +36,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -44,7 +45,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -53,7 +54,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -62,7 +63,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -71,7 +72,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -80,7 +81,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -89,7 +90,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -98,7 +99,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -107,7 +108,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -116,7 +117,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -125,7 +126,16 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class ListT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<Task<V>> SelectMany<T, U, V>(this IEnumerable<T> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class OptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -134,7 +144,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -143,7 +153,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -152,7 +162,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -161,7 +171,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -170,7 +180,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -179,7 +189,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -188,7 +198,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -197,7 +207,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -206,7 +216,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -215,7 +225,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -224,7 +234,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -233,7 +243,16 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Option<Task<V>> SelectMany<T, U, V>(this Option<T> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -242,7 +261,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -251,7 +270,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -260,7 +279,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -269,7 +288,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -278,7 +297,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -287,7 +306,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -296,7 +315,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -305,7 +324,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -314,7 +333,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -323,7 +342,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -332,7 +351,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -341,7 +360,16 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class OptionUnsafeT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<Task<V>> SelectMany<T, U, V>(this OptionUnsafe<T> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -350,7 +378,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -359,7 +387,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -368,7 +396,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -377,7 +405,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -386,7 +414,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -395,7 +423,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -404,7 +432,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -413,7 +441,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -422,7 +450,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -431,7 +459,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -440,7 +468,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -449,7 +477,16 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class ListT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<Task<V>> SelectMany<T, U, V>(this Lst<T> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class MapT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -458,7 +495,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -467,7 +504,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -476,7 +513,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -485,7 +522,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -494,7 +531,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -503,7 +540,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -512,7 +549,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -521,7 +558,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -530,7 +567,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -539,7 +576,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -548,7 +585,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -557,7 +594,16 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class MapT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, Task<V>> SelectMany<K, T, U, V>(this Map<K, T> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TryOptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -566,7 +612,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -575,7 +621,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -584,7 +630,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -593,7 +639,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -602,7 +648,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -611,7 +657,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -620,7 +666,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -629,7 +675,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -638,7 +684,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -647,7 +693,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -656,7 +702,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -665,7 +711,16 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryOptionT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<Task<V>> SelectMany<T, U, V>(this TryOption<T> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TryT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -674,7 +729,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -683,7 +738,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -692,7 +747,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -701,7 +756,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -710,7 +765,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -719,7 +774,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -728,7 +783,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -737,7 +792,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -746,7 +801,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -755,7 +810,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -764,7 +819,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -773,7 +828,16 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class TryT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Try<Task<V>> SelectMany<T, U, V>(this Try<T> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class EitherT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -782,7 +846,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -791,7 +855,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -800,7 +864,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -809,7 +873,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -818,7 +882,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -827,7 +891,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -836,7 +900,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -845,7 +909,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -854,7 +918,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -863,7 +927,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -872,7 +936,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -881,7 +945,16 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, Task<V>> SelectMany<L, T, U, V>(this Either<L, T> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -890,7 +963,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -899,7 +972,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -908,7 +981,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -917,7 +990,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -926,7 +999,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -935,7 +1008,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -944,7 +1017,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -953,7 +1026,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -962,7 +1035,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -971,7 +1044,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -980,7 +1053,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -989,7 +1062,16 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class EitherUnsafeT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, Task<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, T> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class ReaderT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -998,7 +1080,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class ReaderT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1007,7 +1089,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class ReaderT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1016,7 +1098,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class ReaderT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1025,7 +1107,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class ReaderT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1034,7 +1116,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class ReaderT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1043,7 +1125,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class ReaderT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1052,7 +1134,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class ReaderT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1061,7 +1143,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class ReaderT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1070,7 +1152,16 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class ReaderT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, Task<V>> SelectMany<Env, T, U, V>(this Reader<Env, T> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class WriterT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1079,7 +1170,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class WriterT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1088,7 +1179,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class WriterT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1097,7 +1188,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class WriterT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1106,7 +1197,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class WriterT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1115,7 +1206,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class WriterT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1124,7 +1215,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class WriterT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1133,7 +1224,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class WriterT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1142,7 +1233,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class WriterT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1151,7 +1242,16 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class WriterT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, Task<V>> SelectMany<Out, T, U, V>(this Writer<Out, T> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class StateT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1160,7 +1260,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class StateT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1169,7 +1269,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class StateT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1178,7 +1278,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class StateT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1187,7 +1287,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class StateT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1196,7 +1296,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class StateT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1205,7 +1305,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class StateT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1214,7 +1314,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class StateT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1223,7 +1323,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class StateT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1232,7 +1332,16 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class StateT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, Task<V>> SelectMany<State, T, U, V>(this State<State, T> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class RwsT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1241,7 +1350,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class RwsT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1250,7 +1359,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class RwsT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1259,7 +1368,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class RwsT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1268,7 +1377,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class RwsT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1277,7 +1386,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class RwsT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1286,7 +1395,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class RwsT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1295,7 +1404,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class RwsT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1304,7 +1413,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class RwsT {
         /// <summary>
         /// SelectMany
         /// </summary>
@@ -1313,7 +1422,133 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class RwsT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, Task<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, T> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<IEnumerable<V>> SelectMany<T, U, V>(this Task<T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Option<V>> SelectMany<T, U, V>(this Task<T> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<OptionUnsafe<V>> SelectMany<T, U, V>(this Task<T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Lst<V>> SelectMany<T, U, V>(this Task<T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Map<K, V>> SelectMany<T, K, U, V>(this Task<T> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<TryOption<V>> SelectMany<T, U, V>(this Task<T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Try<V>> SelectMany<T, U, V>(this Task<T> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Either<L, V>> SelectMany<T, L, U, V>(this Task<T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Task<T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Reader<Env, V>> SelectMany<T, Env, U, V>(this Task<T> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Writer<Out, V>> SelectMany<T, Out, U, V>(this Task<T> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<State<State, V>> SelectMany<T, State, U, V>(this Task<T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this Task<T> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -1366,7 +1601,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -1419,7 +1654,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -1472,7 +1707,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -1525,7 +1760,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -1578,7 +1813,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -1631,7 +1866,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -1684,7 +1919,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -1737,7 +1972,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -1790,7 +2025,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -1843,7 +2078,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -1896,7 +2131,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -1949,7 +2184,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2002,7 +2237,60 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class ListT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT(IEnumerable<Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<T>(IEnumerable<Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static IEnumerable<Task<U>> bindT<T, U>(IEnumerable<Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<T>(IEnumerable<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static IEnumerable<Task<T>> filterT<T>(IEnumerable<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<T, V>(IEnumerable<Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<T>(IEnumerable<Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<T>(IEnumerable<Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static IEnumerable<Task<U>> mapT<T, U>(IEnumerable<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<T>(IEnumerable<Task<T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(IEnumerable<Task<T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<Task<V>> SelectMany<T, U, V>(this IEnumerable<Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class OptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2055,7 +2343,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2108,7 +2396,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2161,7 +2449,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2214,7 +2502,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2267,7 +2555,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2320,7 +2608,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2373,7 +2661,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2426,7 +2714,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2479,7 +2767,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2532,7 +2820,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2585,7 +2873,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2638,7 +2926,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Option {
+    public static partial class OptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2691,7 +2979,60 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT(Option<Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<T>(Option<Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Option<Task<U>> bindT<T, U>(Option<Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<T>(Option<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Option<Task<T>> filterT<T>(Option<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<T, V>(Option<Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<T>(Option<Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<T>(Option<Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Option<Task<U>> mapT<T, U>(Option<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<T>(Option<Task<T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(Option<Task<T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Option<Task<V>> SelectMany<T, U, V>(this Option<Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2744,7 +3085,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2797,7 +3138,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2850,7 +3191,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2903,7 +3244,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -2956,7 +3297,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3009,7 +3350,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3062,7 +3403,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3115,7 +3456,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3168,7 +3509,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3221,7 +3562,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3274,7 +3615,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3327,7 +3668,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafe {
+    public static partial class OptionUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3380,7 +3721,60 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class OptionUnsafeT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT(OptionUnsafe<Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<T>(OptionUnsafe<Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static OptionUnsafe<Task<U>> bindT<T, U>(OptionUnsafe<Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<T>(OptionUnsafe<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static OptionUnsafe<Task<T>> filterT<T>(OptionUnsafe<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<T, V>(OptionUnsafe<Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<T>(OptionUnsafe<Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<T>(OptionUnsafe<Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static OptionUnsafe<Task<U>> mapT<T, U>(OptionUnsafe<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<T>(OptionUnsafe<Task<T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(OptionUnsafe<Task<T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<Task<V>> SelectMany<T, U, V>(this OptionUnsafe<Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3433,7 +3827,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3486,7 +3880,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3539,7 +3933,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3592,7 +3986,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3645,7 +4039,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3698,7 +4092,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3751,7 +4145,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3804,7 +4198,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3857,7 +4251,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3910,7 +4304,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -3963,7 +4357,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4016,7 +4410,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class List {
+    public static partial class ListT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4069,7 +4463,60 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class ListT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT(Lst<Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<T>(Lst<Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Lst<Task<U>> bindT<T, U>(Lst<Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<T>(Lst<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Lst<Task<T>> filterT<T>(Lst<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<T, V>(Lst<Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<T>(Lst<Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<T>(Lst<Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Lst<Task<U>> mapT<T, U>(Lst<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<T>(Lst<Task<T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(Lst<Task<T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<Task<V>> SelectMany<T, U, V>(this Lst<Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class MapT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4122,7 +4569,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4175,7 +4622,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4228,7 +4675,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4281,7 +4728,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4334,7 +4781,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4387,7 +4834,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4440,7 +4887,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4493,7 +4940,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4546,7 +4993,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4599,7 +5046,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4652,7 +5099,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4705,7 +5152,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Map {
+    public static partial class MapT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4758,7 +5205,60 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class MapT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT<K>(Map<K, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<K, T>(Map<K, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Map<K, Task<U>> bindT<K, T, U>(Map<K, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<K, T>(Map<K, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Map<K, Task<T>> filterT<K, T>(Map<K, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<K, T, V>(Map<K, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<K, T>(Map<K, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<K, T>(Map<K, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Map<K, Task<U>> mapT<K, T, U>(Map<K, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<K, T>(Map<K, Task<T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<K, T>(Map<K, Task<T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, Task<V>> SelectMany<K, T, U, V>(this Map<K, Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TryOptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4811,7 +5311,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4864,7 +5364,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4917,7 +5417,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -4970,7 +5470,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5023,7 +5523,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5076,7 +5576,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5129,7 +5629,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5182,7 +5682,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5235,7 +5735,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5288,7 +5788,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5341,7 +5841,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5394,7 +5894,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOption {
+    public static partial class TryOptionT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5447,7 +5947,60 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryOptionT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT(TryOption<Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<T>(TryOption<Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static TryOption<Task<U>> bindT<T, U>(TryOption<Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<T>(TryOption<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static TryOption<Task<T>> filterT<T>(TryOption<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<T, V>(TryOption<Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<T>(TryOption<Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<T>(TryOption<Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static TryOption<Task<U>> mapT<T, U>(TryOption<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<T>(TryOption<Task<T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(TryOption<Task<T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<Task<V>> SelectMany<T, U, V>(this TryOption<Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TryT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5500,7 +6053,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5553,7 +6106,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5606,7 +6159,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5659,7 +6212,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5712,7 +6265,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5765,7 +6318,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5818,7 +6371,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5871,7 +6424,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5924,7 +6477,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -5977,7 +6530,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6030,7 +6583,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6083,7 +6636,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Try {
+    public static partial class TryT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6136,7 +6689,60 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class TryT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT(Try<Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<T>(Try<Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Try<Task<U>> bindT<T, U>(Try<Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<T>(Try<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Try<Task<T>> filterT<T>(Try<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<T, V>(Try<Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<T>(Try<Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<T>(Try<Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Try<Task<U>> mapT<T, U>(Try<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<T>(Try<Task<T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(Try<Task<T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Try<Task<V>> SelectMany<T, U, V>(this Try<Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class EitherT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6189,7 +6795,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6242,7 +6848,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6295,7 +6901,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6348,7 +6954,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6401,7 +7007,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6454,7 +7060,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6507,7 +7113,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6560,7 +7166,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6613,7 +7219,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6666,7 +7272,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6719,7 +7325,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6772,7 +7378,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Either {
+    public static partial class EitherT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6825,7 +7431,60 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT<L>(Either<L, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<L, T>(Either<L, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Either<L, Task<U>> bindT<L, T, U>(Either<L, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<L, T>(Either<L, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Either<L, Task<T>> filterT<L, T>(Either<L, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<L, T, V>(Either<L, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<L, T>(Either<L, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<L, T>(Either<L, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Either<L, Task<U>> mapT<L, T, U>(Either<L, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<L, T>(Either<L, Task<T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<L, T>(Either<L, Task<T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, Task<V>> SelectMany<L, T, U, V>(this Either<L, Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6878,7 +7537,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6931,7 +7590,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -6984,7 +7643,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7037,7 +7696,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7090,7 +7749,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7143,7 +7802,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7196,7 +7855,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7249,7 +7908,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7302,7 +7961,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7355,7 +8014,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7408,7 +8067,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7461,7 +8120,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafe {
+    public static partial class EitherUnsafeT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7514,7 +8173,60 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class EitherUnsafeT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT<L>(EitherUnsafe<L, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<L, T>(EitherUnsafe<L, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static EitherUnsafe<L, Task<U>> bindT<L, T, U>(EitherUnsafe<L, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<L, T>(EitherUnsafe<L, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static EitherUnsafe<L, Task<T>> filterT<L, T>(EitherUnsafe<L, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<L, T, V>(EitherUnsafe<L, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<L, T>(EitherUnsafe<L, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<L, T>(EitherUnsafe<L, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static EitherUnsafe<L, Task<U>> mapT<L, T, U>(EitherUnsafe<L, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<L, T>(EitherUnsafe<L, Task<T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<L, T>(EitherUnsafe<L, Task<T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, Task<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class ReaderT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7567,7 +8279,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class ReaderT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7620,7 +8332,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class ReaderT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7673,7 +8385,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class ReaderT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7726,7 +8438,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class ReaderT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7779,7 +8491,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class ReaderT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7832,7 +8544,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class ReaderT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7885,7 +8597,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class ReaderT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7938,7 +8650,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class ReaderT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -7991,7 +8703,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Reader {
+    public static partial class ReaderT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8044,7 +8756,60 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class ReaderT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static Reader<Env, int> sumT<Env>(Reader<Env, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static Reader<Env, int> countT<Env, T>(Reader<Env, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Reader<Env, Task<U>> bindT<Env, T, U>(Reader<Env, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static Reader<Env, bool> existsT<Env, T>(Reader<Env, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Reader<Env, Task<T>> filterT<Env, T>(Reader<Env, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static Reader<Env, V> foldT<Env, T, V>(Reader<Env, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static Reader<Env, bool> forallT<Env, T>(Reader<Env, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Reader<Env, Unit> iterT<Env, T>(Reader<Env, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Reader<Env, Task<U>> mapT<Env, T, U>(Reader<Env, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<Env, T>(Reader<Env, Task<T>> self , Env liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<Env, T>(Reader<Env, Task<T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, Task<V>> SelectMany<Env, T, U, V>(this Reader<Env, Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class WriterT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8097,7 +8862,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class WriterT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8150,7 +8915,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class WriterT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8203,7 +8968,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class WriterT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8256,7 +9021,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class WriterT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8309,7 +9074,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class WriterT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8362,7 +9127,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class WriterT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8415,7 +9180,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class WriterT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8468,7 +9233,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class WriterT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8521,7 +9286,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Writer {
+    public static partial class WriterT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8574,7 +9339,60 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class WriterT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static Writer<Out, int> sumT<Out>(Writer<Out, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static Writer<Out, int> countT<Out, T>(Writer<Out, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Writer<Out, Task<U>> bindT<Out, T, U>(Writer<Out, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static Writer<Out, bool> existsT<Out, T>(Writer<Out, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Writer<Out, Task<T>> filterT<Out, T>(Writer<Out, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static Writer<Out, V> foldT<Out, T, V>(Writer<Out, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static Writer<Out, bool> forallT<Out, T>(Writer<Out, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Writer<Out, Unit> iterT<Out, T>(Writer<Out, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Writer<Out, Task<U>> mapT<Out, T, U>(Writer<Out, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<Out, T>(Writer<Out, Task<T>> self )  where T : struct => self.ValueT()().Value;
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<Out, T>(Writer<Out, Task<T>> self )  where T : class => self.ValueT()().Value;
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, Task<V>> SelectMany<Out, T, U, V>(this Writer<Out, Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class StateT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8627,7 +9445,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class StateT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8680,7 +9498,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class StateT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8733,7 +9551,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class StateT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8786,7 +9604,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class StateT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8839,7 +9657,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class StateT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8892,7 +9710,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class StateT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8945,7 +9763,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class StateT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -8998,7 +9816,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class StateT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -9051,7 +9869,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class State {
+    public static partial class StateT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -9104,7 +9922,60 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class StateT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static State<State, int> sumT<State>(State<State, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static State<State, int> countT<State, T>(State<State, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static State<State, Task<U>> bindT<State, T, U>(State<State, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static State<State, bool> existsT<State, T>(State<State, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static State<State, Task<T>> filterT<State, T>(State<State, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static State<State, V> foldT<State, T, V>(State<State, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static State<State, bool> forallT<State, T>(State<State, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static State<State, Unit> iterT<State, T>(State<State, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static State<State, Task<U>> mapT<State, T, U>(State<State, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<State, T>(State<State, Task<T>> self , State liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<State, T>(State<State, Task<T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, Task<V>> SelectMany<State, T, U, V>(this State<State, Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class RwsT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -9157,7 +10028,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class RwsT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -9210,7 +10081,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class RwsT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -9263,7 +10134,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class RwsT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -9316,7 +10187,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class RwsT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -9369,7 +10240,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class RwsT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -9422,7 +10293,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class RwsT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -9475,7 +10346,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class RwsT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -9528,7 +10399,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class RwsT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -9581,7 +10452,7 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class Rws {
+    public static partial class RwsT {
         /// <summary>
         /// Sum
         /// </summary>
@@ -9630,6 +10501,801 @@ namespace LanguageExt
         /// SelectMany
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, Rws<Env, Out, State, V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class RwsT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static Rws<Env, Out, State, int> sumT<Env, Out, State>(Rws<Env, Out, State, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static Rws<Env, Out, State, int> countT<Env, Out, State, T>(Rws<Env, Out, State, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Rws<Env, Out, State, Task<U>> bindT<Env, Out, State, T, U>(Rws<Env, Out, State, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static Rws<Env, Out, State, bool> existsT<Env, Out, State, T>(Rws<Env, Out, State, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Rws<Env, Out, State, Task<T>> filterT<Env, Out, State, T>(Rws<Env, Out, State, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static Rws<Env, Out, State, V> foldT<Env, Out, State, T, V>(Rws<Env, Out, State, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static Rws<Env, Out, State, bool> forallT<Env, Out, State, T>(Rws<Env, Out, State, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Rws<Env, Out, State, Unit> iterT<Env, Out, State, T>(Rws<Env, Out, State, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Rws<Env, Out, State, Task<U>> mapT<Env, Out, State, T, U>(Rws<Env, Out, State, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<Env, Out, State, T>(Rws<Env, Out, State, Task<T>> self , Tuple<Env,State> liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<Env, Out, State, T>(Rws<Env, Out, State, Task<T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, Task<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT(Task<IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<T>(Task<IEnumerable<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<IEnumerable<U>> bindT<T, U>(Task<IEnumerable<T>> self, Func<T, IEnumerable<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<T>(Task<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<IEnumerable<T>> filterT<T>(Task<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<T, V>(Task<IEnumerable<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<T>(Task<IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<T>(Task<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<IEnumerable<U>> mapT<T, U>(Task<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<T>(Task<IEnumerable<T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(Task<IEnumerable<T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<IEnumerable<V>> SelectMany<T, U, V>(this Task<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT(Task<Option<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<T>(Task<Option<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Option<U>> bindT<T, U>(Task<Option<T>> self, Func<T, Option<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<T>(Task<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Option<T>> filterT<T>(Task<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<T, V>(Task<Option<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<T>(Task<Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<T>(Task<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Option<U>> mapT<T, U>(Task<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<T>(Task<Option<T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(Task<Option<T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Option<V>> SelectMany<T, U, V>(this Task<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT(Task<OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<T>(Task<OptionUnsafe<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<OptionUnsafe<U>> bindT<T, U>(Task<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<T>(Task<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<OptionUnsafe<T>> filterT<T>(Task<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<T, V>(Task<OptionUnsafe<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<T>(Task<OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<T>(Task<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<OptionUnsafe<U>> mapT<T, U>(Task<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<T>(Task<OptionUnsafe<T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(Task<OptionUnsafe<T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<OptionUnsafe<V>> SelectMany<T, U, V>(this Task<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT(Task<Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<T>(Task<Lst<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Lst<U>> bindT<T, U>(Task<Lst<T>> self, Func<T, Lst<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<T>(Task<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Lst<T>> filterT<T>(Task<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<T, V>(Task<Lst<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<T>(Task<Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<T>(Task<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Lst<U>> mapT<T, U>(Task<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<T>(Task<Lst<T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(Task<Lst<T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Lst<V>> SelectMany<T, U, V>(this Task<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT<K>(Task<Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<T, K>(Task<Map<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Map<K, U>> bindT<T, K, U>(Task<Map<K, T>> self, Func<T, Map<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<T, K>(Task<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Map<K, T>> filterT<T, K>(Task<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<T, K, V>(Task<Map<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<T, K>(Task<Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<T, K>(Task<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Map<K, U>> mapT<T, K, U>(Task<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<T, K>(Task<Map<K, T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T, K>(Task<Map<K, T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Map<K, V>> SelectMany<T, K, U, V>(this Task<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT(Task<TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<T>(Task<TryOption<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<TryOption<U>> bindT<T, U>(Task<TryOption<T>> self, Func<T, TryOption<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<T>(Task<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<TryOption<T>> filterT<T>(Task<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<T, V>(Task<TryOption<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<T>(Task<TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<T>(Task<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<TryOption<U>> mapT<T, U>(Task<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<T>(Task<TryOption<T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(Task<TryOption<T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<TryOption<V>> SelectMany<T, U, V>(this Task<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT(Task<Try<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<T>(Task<Try<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Try<U>> bindT<T, U>(Task<Try<T>> self, Func<T, Try<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<T>(Task<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Try<T>> filterT<T>(Task<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<T, V>(Task<Try<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<T>(Task<Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<T>(Task<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Try<U>> mapT<T, U>(Task<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<T>(Task<Try<T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(Task<Try<T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Try<V>> SelectMany<T, U, V>(this Task<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT<L>(Task<Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<T, L>(Task<Either<L, T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Either<L, U>> bindT<T, L, U>(Task<Either<L, T>> self, Func<T, Either<L, U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<T, L>(Task<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Either<L, T>> filterT<T, L>(Task<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<T, L, V>(Task<Either<L, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<T, L>(Task<Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<T, L>(Task<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Either<L, U>> mapT<T, L, U>(Task<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<T, L>(Task<Either<L, T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T, L>(Task<Either<L, T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Either<L, V>> SelectMany<T, L, U, V>(this Task<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT<L>(Task<EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<T, L>(Task<EitherUnsafe<L, T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<EitherUnsafe<L, U>> bindT<T, L, U>(Task<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<T, L>(Task<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<EitherUnsafe<L, T>> filterT<T, L>(Task<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<T, L, V>(Task<EitherUnsafe<L, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<T, L>(Task<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<T, L>(Task<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<EitherUnsafe<L, U>> mapT<T, L, U>(Task<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<T, L>(Task<EitherUnsafe<L, T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T, L>(Task<EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Task<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static Reader<Env, int> sumT<Env>(Task<Reader<Env, int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static Reader<Env, int> countT<T, Env>(Task<Reader<Env, T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Reader<Env, U>> bindT<T, Env, U>(Task<Reader<Env, T>> self, Func<T, Reader<Env, U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static Reader<Env, bool> existsT<T, Env>(Task<Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Reader<Env, T>> filterT<T, Env>(Task<Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static Reader<Env, V> foldT<T, Env, V>(Task<Reader<Env, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static Reader<Env, bool> forallT<T, Env>(Task<Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Reader<Env, Unit> iterT<T, Env>(Task<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Reader<Env, U>> mapT<T, Env, U>(Task<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static Reader<Env, T> liftT<T, Env>(Task<Reader<Env, T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static Reader<Env, T> LiftUnsafeT<T, Env>(Task<Reader<Env, T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Reader<Env, V>> SelectMany<T, Env, U, V>(this Task<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static Writer<Out, int> sumT<Out>(Task<Writer<Out, int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static Writer<Out, int> countT<T, Out>(Task<Writer<Out, T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Writer<Out, U>> bindT<T, Out, U>(Task<Writer<Out, T>> self, Func<T, Writer<Out, U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static Writer<Out, bool> existsT<T, Out>(Task<Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Writer<Out, T>> filterT<T, Out>(Task<Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static Writer<Out, V> foldT<T, Out, V>(Task<Writer<Out, T>> self, V state, Func<V, T, V> fold) => ()=> self.FoldT(state,(s,x) => x.FoldT(s, fold)().Value);
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static Writer<Out, bool> forallT<T, Out>(Task<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Writer<Out, Unit> iterT<T, Out>(Task<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Writer<Out, U>> mapT<T, Out, U>(Task<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static Writer<Out, T> liftT<T, Out>(Task<Writer<Out, T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static Writer<Out, T> LiftUnsafeT<T, Out>(Task<Writer<Out, T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Writer<Out, V>> SelectMany<T, Out, U, V>(this Task<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static State<State, int> sumT<State>(Task<State<State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static State<State, int> countT<T, State>(Task<State<State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<State<State, U>> bindT<T, State, U>(Task<State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static State<State, bool> existsT<T, State>(Task<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<State<State, T>> filterT<T, State>(Task<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static State<State, V> foldT<T, State, V>(Task<State<State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static State<State, bool> forallT<T, State>(Task<State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static State<State, Unit> iterT<T, State>(Task<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<State<State, U>> mapT<T, State, U>(Task<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static State<State, T> liftT<T, State>(Task<State<State, T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static State<State, T> LiftUnsafeT<T, State>(Task<State<State, T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<State<State, V>> SelectMany<T, State, U, V>(this Task<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static Rws<Env, Out, State, int> sumT<Env, Out, State>(Task<Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static Rws<Env, Out, State, int> countT<T, Env, Out, State>(Task<Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Rws<Env, Out, State, U>> bindT<T, Env, Out, State, U>(Task<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static Rws<Env, Out, State, bool> existsT<T, Env, Out, State>(Task<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Rws<Env, Out, State, T>> filterT<T, Env, Out, State>(Task<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static Rws<Env, Out, State, V> foldT<T, Env, Out, State, V>(Task<Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static Rws<Env, Out, State, bool> forallT<T, Env, Out, State>(Task<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Rws<Env, Out, State, Unit> iterT<T, Env, Out, State>(Task<Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Rws<Env, Out, State, U>> mapT<T, Env, Out, State, U>(Task<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static Rws<Env, Out, State, T> liftT<T, Env, Out, State>(Task<Rws<Env, Out, State, T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(Task<Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this Task<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskT {
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int sumT(Task<Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int countT<T>(Task<Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Task<U>> bindT<T, U>(Task<Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool existsT<T>(Task<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Task<T>> filterT<T>(Task<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V foldT<T, V>(Task<Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool forallT<T>(Task<Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit iterT<T>(Task<Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Task<U>> mapT<T, U>(Task<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T liftT<T>(Task<Task<T>> self )  where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(Task<Task<T>> self )  where T : class => self.ValueT();
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Task<V>> SelectMany<T, U, V>(this Task<Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
 }
 
@@ -10288,7 +11954,57 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class TaskMonad {
+        internal static T InnerValue<T>(this Task<T> self) => self.Result;
+        /// <summary>
+        /// Sum
+        /// </summary>
+        internal static int SumT(this Task<int> self) => self.Sum();
+        /// <summary>
+        /// Count
+        /// </summary>
+        internal static int CountT<T>(this Task<T> self) => self.Count();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        internal static Task<U> BindT<T, U>(this Task<T> self, Func<T, Task<U>> binder) => self.Bind(binder);
+        /// <summary>
+        /// Exists
+        /// </summary>
+        internal static bool ExistsT<T>(this Task<T> self, Func<T, bool> pred) => self.Exists(pred);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        internal static Task<T> FilterT<T>(this Task<T> self, Func<T, bool> pred) => self.Filter(pred);
+        /// <summary>
+        /// Fold
+        /// </summary>
+        internal static V FoldT<T, V>(this Task<T> self, V state, Func<V, T, V> fold) => self.Fold(state,fold);
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        internal static bool ForAllT<T>(this Task<T> self, Func<T, bool> pred) => self.ForAll(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        internal static Unit IterT<T>(this Task<T> self, Action<T> action) => self.Iter(action);
+        /// <summary>
+        /// Map
+        /// </summary>
+        internal static Task<U> MapT<T, U>(this Task<T> self, Func<T, U> mapper) => self.Map(mapper);
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T Lift<T>(this Task<T> self ) where T : struct => self.InnerValue();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafe<T>(this Task<T> self ) where T : class => self.InnerValue();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class ListTMonadT {
         internal static T ValueT<T>(this IEnumerable<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -10338,7 +12054,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static T ValueT<T>(this IEnumerable<Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -10388,7 +12104,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static T ValueT<T>(this IEnumerable<OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -10438,7 +12154,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static T ValueT<T>(this IEnumerable<Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -10488,7 +12204,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static T ValueT<T, K>(this IEnumerable<Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -10538,7 +12254,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static T ValueT<T>(this IEnumerable<TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -10588,7 +12304,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static T ValueT<T>(this IEnumerable<Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -10638,7 +12354,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static T ValueT<T, L>(this IEnumerable<Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -10688,7 +12404,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static T ValueT<T, L>(this IEnumerable<EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -10738,7 +12454,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static Reader<Env, T> ValueT<T, Env>(this IEnumerable<Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -10788,7 +12504,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static Writer<Out, T> ValueT<T, Out>(this IEnumerable<Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -10838,7 +12554,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static State<State, T> ValueT<T, State>(this IEnumerable<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -10888,7 +12604,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<T, Env, Out, State>(this IEnumerable<Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -10938,7 +12654,57 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class ListTMonadT {
+        internal static T ValueT<T>(this IEnumerable<Task<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT(this IEnumerable<Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<T>(this IEnumerable<Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static IEnumerable<Task<U>> BindT<T, U>(this IEnumerable<Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<T>(this IEnumerable<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static IEnumerable<Task<T>> FilterT<T>(this IEnumerable<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<T, V>(this IEnumerable<Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<T>(this IEnumerable<Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<T>(this IEnumerable<Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static IEnumerable<Task<U>> MapT<T, U>(this IEnumerable<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<T>(this IEnumerable<Task<T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(this IEnumerable<Task<T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class OptionTMonadT {
         internal static T ValueT<T>(this Option<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -10988,7 +12754,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         internal static T ValueT<T>(this Option<Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11038,7 +12804,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         internal static T ValueT<T>(this Option<OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11088,7 +12854,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         internal static T ValueT<T>(this Option<Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11138,7 +12904,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         internal static T ValueT<T, K>(this Option<Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11188,7 +12954,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         internal static T ValueT<T>(this Option<TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11238,7 +13004,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         internal static T ValueT<T>(this Option<Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11288,7 +13054,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         internal static T ValueT<T, L>(this Option<Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11338,7 +13104,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         internal static T ValueT<T, L>(this Option<EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11388,7 +13154,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         internal static Reader<Env, T> ValueT<T, Env>(this Option<Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11438,7 +13204,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         internal static Writer<Out, T> ValueT<T, Out>(this Option<Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11488,7 +13254,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         internal static State<State, T> ValueT<T, State>(this Option<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11538,7 +13304,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<T, Env, Out, State>(this Option<Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11588,7 +13354,57 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionTMonadT {
+        internal static T ValueT<T>(this Option<Task<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT(this Option<Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<T>(this Option<Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Option<Task<U>> BindT<T, U>(this Option<Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<T>(this Option<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Option<Task<T>> FilterT<T>(this Option<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<T, V>(this Option<Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<T>(this Option<Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<T>(this Option<Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Option<Task<U>> MapT<T, U>(this Option<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<T>(this Option<Task<T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(this Option<Task<T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class OptionUnsafeTMonadT {
         internal static T ValueT<T>(this OptionUnsafe<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11638,7 +13454,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         internal static T ValueT<T>(this OptionUnsafe<Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11688,7 +13504,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         internal static T ValueT<T>(this OptionUnsafe<OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11738,7 +13554,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         internal static T ValueT<T>(this OptionUnsafe<Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11788,7 +13604,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         internal static T ValueT<T, K>(this OptionUnsafe<Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11838,7 +13654,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         internal static T ValueT<T>(this OptionUnsafe<TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11888,7 +13704,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         internal static T ValueT<T>(this OptionUnsafe<Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11938,7 +13754,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         internal static T ValueT<T, L>(this OptionUnsafe<Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -11988,7 +13804,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         internal static T ValueT<T, L>(this OptionUnsafe<EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12038,7 +13854,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         internal static Reader<Env, T> ValueT<T, Env>(this OptionUnsafe<Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12088,7 +13904,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         internal static Writer<Out, T> ValueT<T, Out>(this OptionUnsafe<Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12138,7 +13954,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         internal static State<State, T> ValueT<T, State>(this OptionUnsafe<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12188,7 +14004,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<T, Env, Out, State>(this OptionUnsafe<Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12238,7 +14054,57 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class OptionUnsafeTMonadT {
+        internal static T ValueT<T>(this OptionUnsafe<Task<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT(this OptionUnsafe<Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<T>(this OptionUnsafe<Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static OptionUnsafe<Task<U>> BindT<T, U>(this OptionUnsafe<Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<T>(this OptionUnsafe<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static OptionUnsafe<Task<T>> FilterT<T>(this OptionUnsafe<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<T, V>(this OptionUnsafe<Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<T>(this OptionUnsafe<Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<T>(this OptionUnsafe<Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static OptionUnsafe<Task<U>> MapT<T, U>(this OptionUnsafe<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<T>(this OptionUnsafe<Task<T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(this OptionUnsafe<Task<T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class ListTMonadT {
         internal static T ValueT<T>(this Lst<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12288,7 +14154,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static T ValueT<T>(this Lst<Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12338,7 +14204,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static T ValueT<T>(this Lst<OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12388,7 +14254,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static T ValueT<T>(this Lst<Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12438,7 +14304,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static T ValueT<T, K>(this Lst<Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12488,7 +14354,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static T ValueT<T>(this Lst<TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12538,7 +14404,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static T ValueT<T>(this Lst<Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12588,7 +14454,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static T ValueT<T, L>(this Lst<Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12638,7 +14504,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static T ValueT<T, L>(this Lst<EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12688,7 +14554,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static Reader<Env, T> ValueT<T, Env>(this Lst<Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12738,7 +14604,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static Writer<Out, T> ValueT<T, Out>(this Lst<Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12788,7 +14654,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static State<State, T> ValueT<T, State>(this Lst<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12838,7 +14704,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<T, Env, Out, State>(this Lst<Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12888,7 +14754,57 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class ListTMonadT {
+        internal static T ValueT<T>(this Lst<Task<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT(this Lst<Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<T>(this Lst<Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Lst<Task<U>> BindT<T, U>(this Lst<Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<T>(this Lst<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Lst<Task<T>> FilterT<T>(this Lst<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<T, V>(this Lst<Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<T>(this Lst<Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<T>(this Lst<Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Lst<Task<U>> MapT<T, U>(this Lst<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<T>(this Lst<Task<T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(this Lst<Task<T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class MapTMonadT {
         internal static T ValueT<K, T>(this Map<K, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12938,7 +14854,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         internal static T ValueT<K, T>(this Map<K, Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -12988,7 +14904,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         internal static T ValueT<K, T>(this Map<K, OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13038,7 +14954,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         internal static T ValueT<K, T>(this Map<K, Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13088,7 +15004,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         internal static T ValueT<K, T>(this Map<K, Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13138,7 +15054,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         internal static T ValueT<K, T>(this Map<K, TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13188,7 +15104,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         internal static T ValueT<K, T>(this Map<K, Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13238,7 +15154,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         internal static T ValueT<K, T, L>(this Map<K, Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13288,7 +15204,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         internal static T ValueT<K, T, L>(this Map<K, EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13338,7 +15254,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         internal static Reader<Env, T> ValueT<K, T, Env>(this Map<K, Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13388,7 +15304,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         internal static Writer<Out, T> ValueT<K, T, Out>(this Map<K, Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13438,7 +15354,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         internal static State<State, T> ValueT<K, T, State>(this Map<K, State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13488,7 +15404,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<K, T, Env, Out, State>(this Map<K, Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13538,7 +15454,57 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class MapTMonadT {
+        internal static T ValueT<K, T>(this Map<K, Task<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT<K>(this Map<K, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<K, T>(this Map<K, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Map<K, Task<U>> BindT<K, T, U>(this Map<K, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<K, T>(this Map<K, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Map<K, Task<T>> FilterT<K, T>(this Map<K, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<K, T, V>(this Map<K, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<K, T>(this Map<K, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<K, T>(this Map<K, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Map<K, Task<U>> MapT<K, T, U>(this Map<K, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<K, T>(this Map<K, Task<T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<K, T>(this Map<K, Task<T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TryOptionTMonadT {
         internal static T ValueT<T>(this TryOption<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13588,7 +15554,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         internal static T ValueT<T>(this TryOption<Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13638,7 +15604,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         internal static T ValueT<T>(this TryOption<OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13688,7 +15654,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         internal static T ValueT<T>(this TryOption<Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13738,7 +15704,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         internal static T ValueT<T, K>(this TryOption<Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13788,7 +15754,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         internal static T ValueT<T>(this TryOption<TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13838,7 +15804,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         internal static T ValueT<T>(this TryOption<Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13888,7 +15854,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         internal static T ValueT<T, L>(this TryOption<Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13938,7 +15904,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         internal static T ValueT<T, L>(this TryOption<EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -13988,7 +15954,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         internal static Reader<Env, T> ValueT<T, Env>(this TryOption<Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14038,7 +16004,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         internal static Writer<Out, T> ValueT<T, Out>(this TryOption<Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14088,7 +16054,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         internal static State<State, T> ValueT<T, State>(this TryOption<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14138,7 +16104,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<T, Env, Out, State>(this TryOption<Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14188,7 +16154,57 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryOptionTMonadT {
+        internal static T ValueT<T>(this TryOption<Task<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT(this TryOption<Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<T>(this TryOption<Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static TryOption<Task<U>> BindT<T, U>(this TryOption<Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<T>(this TryOption<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static TryOption<Task<T>> FilterT<T>(this TryOption<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<T, V>(this TryOption<Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<T>(this TryOption<Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<T>(this TryOption<Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static TryOption<Task<U>> MapT<T, U>(this TryOption<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<T>(this TryOption<Task<T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(this TryOption<Task<T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TryTMonadT {
         internal static T ValueT<T>(this Try<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14238,7 +16254,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         internal static T ValueT<T>(this Try<Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14288,7 +16304,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         internal static T ValueT<T>(this Try<OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14338,7 +16354,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         internal static T ValueT<T>(this Try<Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14388,7 +16404,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         internal static T ValueT<T, K>(this Try<Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14438,7 +16454,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         internal static T ValueT<T>(this Try<TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14488,7 +16504,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         internal static T ValueT<T>(this Try<Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14538,7 +16554,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         internal static T ValueT<T, L>(this Try<Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14588,7 +16604,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         internal static T ValueT<T, L>(this Try<EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14638,7 +16654,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         internal static Reader<Env, T> ValueT<T, Env>(this Try<Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14688,7 +16704,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         internal static Writer<Out, T> ValueT<T, Out>(this Try<Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14738,7 +16754,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         internal static State<State, T> ValueT<T, State>(this Try<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14788,7 +16804,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<T, Env, Out, State>(this Try<Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14838,7 +16854,57 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class TryTMonadT {
+        internal static T ValueT<T>(this Try<Task<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT(this Try<Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<T>(this Try<Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Try<Task<U>> BindT<T, U>(this Try<Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<T>(this Try<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Try<Task<T>> FilterT<T>(this Try<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<T, V>(this Try<Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<T>(this Try<Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<T>(this Try<Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Try<Task<U>> MapT<T, U>(this Try<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<T>(this Try<Task<T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(this Try<Task<T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class EitherTMonadT {
         internal static T ValueT<L, T>(this Either<L, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14888,7 +16954,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         internal static T ValueT<L, T>(this Either<L, Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14938,7 +17004,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         internal static T ValueT<L, T>(this Either<L, OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -14988,7 +17054,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         internal static T ValueT<L, T>(this Either<L, Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15038,7 +17104,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         internal static T ValueT<L, T, K>(this Either<L, Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15088,7 +17154,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         internal static T ValueT<L, T>(this Either<L, TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15138,7 +17204,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         internal static T ValueT<L, T>(this Either<L, Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15188,7 +17254,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         internal static T ValueT<L, T>(this Either<L, Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15238,7 +17304,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         internal static T ValueT<L, T>(this Either<L, EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15288,7 +17354,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         internal static Reader<Env, T> ValueT<L, T, Env>(this Either<L, Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15338,7 +17404,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         internal static Writer<Out, T> ValueT<L, T, Out>(this Either<L, Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15388,7 +17454,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         internal static State<State, T> ValueT<L, T, State>(this Either<L, State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15438,7 +17504,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<L, T, Env, Out, State>(this Either<L, Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15488,7 +17554,57 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherTMonadT {
+        internal static T ValueT<L, T>(this Either<L, Task<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT<L>(this Either<L, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<L, T>(this Either<L, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Either<L, Task<U>> BindT<L, T, U>(this Either<L, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<L, T>(this Either<L, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Either<L, Task<T>> FilterT<L, T>(this Either<L, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<L, T, V>(this Either<L, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<L, T>(this Either<L, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<L, T>(this Either<L, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Either<L, Task<U>> MapT<L, T, U>(this Either<L, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<L, T>(this Either<L, Task<T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<L, T>(this Either<L, Task<T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class EitherUnsafeTMonadT {
         internal static T ValueT<L, T>(this EitherUnsafe<L, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15538,7 +17654,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         internal static T ValueT<L, T>(this EitherUnsafe<L, Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15588,7 +17704,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         internal static T ValueT<L, T>(this EitherUnsafe<L, OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15638,7 +17754,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         internal static T ValueT<L, T>(this EitherUnsafe<L, Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15688,7 +17804,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         internal static T ValueT<L, T, K>(this EitherUnsafe<L, Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15738,7 +17854,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         internal static T ValueT<L, T>(this EitherUnsafe<L, TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15788,7 +17904,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         internal static T ValueT<L, T>(this EitherUnsafe<L, Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15838,7 +17954,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         internal static T ValueT<L, T>(this EitherUnsafe<L, Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15888,7 +18004,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         internal static T ValueT<L, T>(this EitherUnsafe<L, EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15938,7 +18054,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         internal static Reader<Env, T> ValueT<L, T, Env>(this EitherUnsafe<L, Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -15988,7 +18104,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         internal static Writer<Out, T> ValueT<L, T, Out>(this EitherUnsafe<L, Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16038,7 +18154,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         internal static State<State, T> ValueT<L, T, State>(this EitherUnsafe<L, State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16088,7 +18204,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<L, T, Env, Out, State>(this EitherUnsafe<L, Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16138,7 +18254,57 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class EitherUnsafeTMonadT {
+        internal static T ValueT<L, T>(this EitherUnsafe<L, Task<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT<L>(this EitherUnsafe<L, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<L, T>(this EitherUnsafe<L, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static EitherUnsafe<L, Task<U>> BindT<L, T, U>(this EitherUnsafe<L, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<L, T>(this EitherUnsafe<L, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static EitherUnsafe<L, Task<T>> FilterT<L, T>(this EitherUnsafe<L, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<L, T, V>(this EitherUnsafe<L, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<L, T>(this EitherUnsafe<L, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<L, T>(this EitherUnsafe<L, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static EitherUnsafe<L, Task<U>> MapT<L, T, U>(this EitherUnsafe<L, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<L, T>(this EitherUnsafe<L, Task<T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<L, T>(this EitherUnsafe<L, Task<T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class ReaderTMonadT {
         internal static Reader<Env, T> ValueT<Env, T>(this Reader<Env, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16188,7 +18354,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         internal static Reader<Env, T> ValueT<Env, T>(this Reader<Env, Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16238,7 +18404,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         internal static Reader<Env, T> ValueT<Env, T>(this Reader<Env, OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16288,7 +18454,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         internal static Reader<Env, T> ValueT<Env, T>(this Reader<Env, Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16338,7 +18504,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         internal static Reader<Env, T> ValueT<Env, T, K>(this Reader<Env, Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16388,7 +18554,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         internal static Reader<Env, T> ValueT<Env, T>(this Reader<Env, TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16438,7 +18604,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         internal static Reader<Env, T> ValueT<Env, T>(this Reader<Env, Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16488,7 +18654,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         internal static Reader<Env, T> ValueT<Env, T, L>(this Reader<Env, Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16538,7 +18704,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         internal static Reader<Env, T> ValueT<Env, T, L>(this Reader<Env, EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16588,7 +18754,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         internal static Reader<Env, Reader<Env, T>> ValueT<Env, T>(this Reader<Env, Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16638,7 +18804,57 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class ReaderTMonadT {
+        internal static Reader<Env, T> ValueT<Env, T>(this Reader<Env, Task<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static Reader<Env, int> SumT<Env>(this Reader<Env, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static Reader<Env, int> CountT<Env, T>(this Reader<Env, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Reader<Env, Task<U>> BindT<Env, T, U>(this Reader<Env, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static Reader<Env, bool> ExistsT<Env, T>(this Reader<Env, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Reader<Env, Task<T>> FilterT<Env, T>(this Reader<Env, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static Reader<Env, V> FoldT<Env, T, V>(this Reader<Env, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static Reader<Env, bool> ForAllT<Env, T>(this Reader<Env, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Reader<Env, Unit> IterT<Env, T>(this Reader<Env, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Reader<Env, Task<U>> MapT<Env, T, U>(this Reader<Env, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<Env, T>(this Reader<Env, Task<T>> self , Env liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<Env, T>(this Reader<Env, Task<T>> self , Env liftArg) where T : class => self.ValueT()(liftArg).Value;
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class WriterTMonadT {
         internal static Writer<Out, T> ValueT<Out, T>(this Writer<Out, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16688,7 +18904,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         internal static Writer<Out, T> ValueT<Out, T>(this Writer<Out, Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16738,7 +18954,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         internal static Writer<Out, T> ValueT<Out, T>(this Writer<Out, OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16788,7 +19004,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         internal static Writer<Out, T> ValueT<Out, T>(this Writer<Out, Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16838,7 +19054,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         internal static Writer<Out, T> ValueT<Out, T, K>(this Writer<Out, Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16888,7 +19104,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         internal static Writer<Out, T> ValueT<Out, T>(this Writer<Out, TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16938,7 +19154,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         internal static Writer<Out, T> ValueT<Out, T>(this Writer<Out, Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -16988,7 +19204,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         internal static Writer<Out, T> ValueT<Out, T, L>(this Writer<Out, Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17038,7 +19254,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         internal static Writer<Out, T> ValueT<Out, T, L>(this Writer<Out, EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17088,7 +19304,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         internal static Writer<Out, Writer<Out, T>> ValueT<Out, T>(this Writer<Out, Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17138,7 +19354,57 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class WriterTMonadT {
+        internal static Writer<Out, T> ValueT<Out, T>(this Writer<Out, Task<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static Writer<Out, int> SumT<Out>(this Writer<Out, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static Writer<Out, int> CountT<Out, T>(this Writer<Out, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Writer<Out, Task<U>> BindT<Out, T, U>(this Writer<Out, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static Writer<Out, bool> ExistsT<Out, T>(this Writer<Out, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Writer<Out, Task<T>> FilterT<Out, T>(this Writer<Out, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static Writer<Out, V> FoldT<Out, T, V>(this Writer<Out, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static Writer<Out, bool> ForAllT<Out, T>(this Writer<Out, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Writer<Out, Unit> IterT<Out, T>(this Writer<Out, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Writer<Out, Task<U>> MapT<Out, T, U>(this Writer<Out, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<Out, T>(this Writer<Out, Task<T>> self ) where T : struct => self.ValueT()().Value;
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<Out, T>(this Writer<Out, Task<T>> self ) where T : class => self.ValueT()().Value;
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class StateTMonadT {
         internal static State<State, T> ValueT<State, T>(this State<State, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17188,7 +19454,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         internal static State<State, T> ValueT<State, T>(this State<State, Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17238,7 +19504,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         internal static State<State, T> ValueT<State, T>(this State<State, OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17288,7 +19554,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         internal static State<State, T> ValueT<State, T>(this State<State, Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17338,7 +19604,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         internal static State<State, T> ValueT<State, T, K>(this State<State, Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17388,7 +19654,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         internal static State<State, T> ValueT<State, T>(this State<State, TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17438,7 +19704,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         internal static State<State, T> ValueT<State, T>(this State<State, Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17488,7 +19754,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         internal static State<State, T> ValueT<State, T, L>(this State<State, Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17538,7 +19804,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         internal static State<State, T> ValueT<State, T, L>(this State<State, EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17588,7 +19854,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         internal static State<State, State<State, T>> ValueT<State, T>(this State<State, State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17638,7 +19904,57 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class StateTMonadT {
+        internal static State<State, T> ValueT<State, T>(this State<State, Task<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static State<State, int> SumT<State>(this State<State, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static State<State, int> CountT<State, T>(this State<State, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static State<State, Task<U>> BindT<State, T, U>(this State<State, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static State<State, bool> ExistsT<State, T>(this State<State, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static State<State, Task<T>> FilterT<State, T>(this State<State, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static State<State, V> FoldT<State, T, V>(this State<State, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static State<State, bool> ForAllT<State, T>(this State<State, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static State<State, Unit> IterT<State, T>(this State<State, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static State<State, Task<U>> MapT<State, T, U>(this State<State, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<State, T>(this State<State, Task<T>> self , State liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<State, T>(this State<State, Task<T>> self , State liftArg) where T : class => self.ValueT()(liftArg).Value;
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class RwsTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T>(this Rws<Env, Out, State, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17688,7 +20004,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T>(this Rws<Env, Out, State, Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17738,7 +20054,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T>(this Rws<Env, Out, State, OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17788,7 +20104,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T>(this Rws<Env, Out, State, Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17838,7 +20154,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T, K>(this Rws<Env, Out, State, Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17888,7 +20204,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T>(this Rws<Env, Out, State, TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17938,7 +20254,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T>(this Rws<Env, Out, State, Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -17988,7 +20304,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T, L>(this Rws<Env, Out, State, Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -18038,7 +20354,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T, L>(this Rws<Env, Out, State, EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -18088,7 +20404,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         internal static Rws<Env, Out, State, Rws<Env, Out, State, T>> ValueT<Env, Out, State, T>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
@@ -18134,6 +20450,756 @@ namespace LanguageExt.Trans
         /// LiftUnsafe
         /// </summary>
         public static Rws<Env, Out, State, T> LiftUnsafeT<Env, Out, State, T>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self , Tuple<Env,State> liftArg) where T : class => self.ValueT()(liftArg).Value;
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class RwsTMonadT {
+        internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T>(this Rws<Env, Out, State, Task<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static Rws<Env, Out, State, int> SumT<Env, Out, State>(this Rws<Env, Out, State, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static Rws<Env, Out, State, int> CountT<Env, Out, State, T>(this Rws<Env, Out, State, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Rws<Env, Out, State, Task<U>> BindT<Env, Out, State, T, U>(this Rws<Env, Out, State, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static Rws<Env, Out, State, bool> ExistsT<Env, Out, State, T>(this Rws<Env, Out, State, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Rws<Env, Out, State, Task<T>> FilterT<Env, Out, State, T>(this Rws<Env, Out, State, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static Rws<Env, Out, State, V> FoldT<Env, Out, State, T, V>(this Rws<Env, Out, State, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static Rws<Env, Out, State, bool> ForAllT<Env, Out, State, T>(this Rws<Env, Out, State, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Rws<Env, Out, State, Unit> IterT<Env, Out, State, T>(this Rws<Env, Out, State, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Rws<Env, Out, State, Task<U>> MapT<Env, Out, State, T, U>(this Rws<Env, Out, State, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<Env, Out, State, T>(this Rws<Env, Out, State, Task<T>> self , Tuple<Env,State> liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<Env, Out, State, T>(this Rws<Env, Out, State, Task<T>> self , Tuple<Env,State> liftArg) where T : class => self.ValueT()(liftArg).Value;
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        internal static T ValueT<T>(this Task<IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT(this Task<IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<T>(this Task<IEnumerable<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<IEnumerable<U>> BindT<T, U>(this Task<IEnumerable<T>> self, Func<T, IEnumerable<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<T>(this Task<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<IEnumerable<T>> FilterT<T>(this Task<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<T, V>(this Task<IEnumerable<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<T>(this Task<IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<T>(this Task<IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<IEnumerable<U>> MapT<T, U>(this Task<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<T>(this Task<IEnumerable<T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(this Task<IEnumerable<T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        internal static T ValueT<T>(this Task<Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT(this Task<Option<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<T>(this Task<Option<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Option<U>> BindT<T, U>(this Task<Option<T>> self, Func<T, Option<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<T>(this Task<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Option<T>> FilterT<T>(this Task<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<T, V>(this Task<Option<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<T>(this Task<Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<T>(this Task<Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Option<U>> MapT<T, U>(this Task<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<T>(this Task<Option<T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(this Task<Option<T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        internal static T ValueT<T>(this Task<OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT(this Task<OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<T>(this Task<OptionUnsafe<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<OptionUnsafe<U>> BindT<T, U>(this Task<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<T>(this Task<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<OptionUnsafe<T>> FilterT<T>(this Task<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<T, V>(this Task<OptionUnsafe<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<T>(this Task<OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<T>(this Task<OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<OptionUnsafe<U>> MapT<T, U>(this Task<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<T>(this Task<OptionUnsafe<T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(this Task<OptionUnsafe<T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        internal static T ValueT<T>(this Task<Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT(this Task<Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<T>(this Task<Lst<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Lst<U>> BindT<T, U>(this Task<Lst<T>> self, Func<T, Lst<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<T>(this Task<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Lst<T>> FilterT<T>(this Task<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<T, V>(this Task<Lst<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<T>(this Task<Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<T>(this Task<Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Lst<U>> MapT<T, U>(this Task<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<T>(this Task<Lst<T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(this Task<Lst<T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        internal static T ValueT<T, K>(this Task<Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT<K>(this Task<Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<T, K>(this Task<Map<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Map<K, U>> BindT<T, K, U>(this Task<Map<K, T>> self, Func<T, Map<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<T, K>(this Task<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Map<K, T>> FilterT<T, K>(this Task<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<T, K, V>(this Task<Map<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<T, K>(this Task<Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<T, K>(this Task<Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Map<K, U>> MapT<T, K, U>(this Task<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<T, K>(this Task<Map<K, T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T, K>(this Task<Map<K, T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        internal static T ValueT<T>(this Task<TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT(this Task<TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<T>(this Task<TryOption<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<TryOption<U>> BindT<T, U>(this Task<TryOption<T>> self, Func<T, TryOption<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<T>(this Task<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<TryOption<T>> FilterT<T>(this Task<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<T, V>(this Task<TryOption<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<T>(this Task<TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<T>(this Task<TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<TryOption<U>> MapT<T, U>(this Task<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<T>(this Task<TryOption<T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(this Task<TryOption<T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        internal static T ValueT<T>(this Task<Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT(this Task<Try<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<T>(this Task<Try<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Try<U>> BindT<T, U>(this Task<Try<T>> self, Func<T, Try<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<T>(this Task<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Try<T>> FilterT<T>(this Task<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<T, V>(this Task<Try<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<T>(this Task<Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<T>(this Task<Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Try<U>> MapT<T, U>(this Task<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<T>(this Task<Try<T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(this Task<Try<T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        internal static T ValueT<T, L>(this Task<Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT<L>(this Task<Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<T, L>(this Task<Either<L, T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Either<L, U>> BindT<T, L, U>(this Task<Either<L, T>> self, Func<T, Either<L, U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<T, L>(this Task<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Either<L, T>> FilterT<T, L>(this Task<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<T, L, V>(this Task<Either<L, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<T, L>(this Task<Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<T, L>(this Task<Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Either<L, U>> MapT<T, L, U>(this Task<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<T, L>(this Task<Either<L, T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T, L>(this Task<Either<L, T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        internal static T ValueT<T, L>(this Task<EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT<L>(this Task<EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<T, L>(this Task<EitherUnsafe<L, T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<EitherUnsafe<L, U>> BindT<T, L, U>(this Task<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<T, L>(this Task<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<EitherUnsafe<L, T>> FilterT<T, L>(this Task<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<T, L, V>(this Task<EitherUnsafe<L, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<T, L>(this Task<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<T, L>(this Task<EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<EitherUnsafe<L, U>> MapT<T, L, U>(this Task<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<T, L>(this Task<EitherUnsafe<L, T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T, L>(this Task<EitherUnsafe<L, T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        internal static Reader<Env, T> ValueT<T, Env>(this Task<Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static Reader<Env, int> SumT<Env>(this Task<Reader<Env, int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static Reader<Env, int> CountT<T, Env>(this Task<Reader<Env, T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Reader<Env, U>> BindT<T, Env, U>(this Task<Reader<Env, T>> self, Func<T, Reader<Env, U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static Reader<Env, bool> ExistsT<T, Env>(this Task<Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Reader<Env, T>> FilterT<T, Env>(this Task<Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static Reader<Env, V> FoldT<T, Env, V>(this Task<Reader<Env, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static Reader<Env, bool> ForAllT<T, Env>(this Task<Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Reader<Env, Unit> IterT<T, Env>(this Task<Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Reader<Env, U>> MapT<T, Env, U>(this Task<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static Reader<Env, T> LiftT<T, Env>(this Task<Reader<Env, T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static Reader<Env, T> LiftUnsafeT<T, Env>(this Task<Reader<Env, T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        internal static Writer<Out, T> ValueT<T, Out>(this Task<Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static Writer<Out, int> SumT<Out>(this Task<Writer<Out, int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static Writer<Out, int> CountT<T, Out>(this Task<Writer<Out, T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Writer<Out, U>> BindT<T, Out, U>(this Task<Writer<Out, T>> self, Func<T, Writer<Out, U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static Writer<Out, bool> ExistsT<T, Out>(this Task<Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Writer<Out, T>> FilterT<T, Out>(this Task<Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static Writer<Out, V> FoldT<T, Out, V>(this Task<Writer<Out, T>> self, V state, Func<V, T, V> fold) => ()=> self.FoldT(state,(s,x) => x.FoldT(s, fold)().Value);
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static Writer<Out, bool> ForAllT<T, Out>(this Task<Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Writer<Out, Unit> IterT<T, Out>(this Task<Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Writer<Out, U>> MapT<T, Out, U>(this Task<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static Writer<Out, T> LiftT<T, Out>(this Task<Writer<Out, T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static Writer<Out, T> LiftUnsafeT<T, Out>(this Task<Writer<Out, T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        internal static State<State, T> ValueT<T, State>(this Task<State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static State<State, int> SumT<State>(this Task<State<State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static State<State, int> CountT<T, State>(this Task<State<State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<State<State, U>> BindT<T, State, U>(this Task<State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static State<State, bool> ExistsT<T, State>(this Task<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<State<State, T>> FilterT<T, State>(this Task<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static State<State, V> FoldT<T, State, V>(this Task<State<State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static State<State, bool> ForAllT<T, State>(this Task<State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static State<State, Unit> IterT<T, State>(this Task<State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<State<State, U>> MapT<T, State, U>(this Task<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static State<State, T> LiftT<T, State>(this Task<State<State, T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static State<State, T> LiftUnsafeT<T, State>(this Task<State<State, T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        internal static Rws<Env, Out, State, T> ValueT<T, Env, Out, State>(this Task<Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static Rws<Env, Out, State, int> SumT<Env, Out, State>(this Task<Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static Rws<Env, Out, State, int> CountT<T, Env, Out, State>(this Task<Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Rws<Env, Out, State, U>> BindT<T, Env, Out, State, U>(this Task<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static Rws<Env, Out, State, bool> ExistsT<T, Env, Out, State>(this Task<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Rws<Env, Out, State, T>> FilterT<T, Env, Out, State>(this Task<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static Rws<Env, Out, State, V> FoldT<T, Env, Out, State, V>(this Task<Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static Rws<Env, Out, State, bool> ForAllT<T, Env, Out, State>(this Task<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Rws<Env, Out, State, Unit> IterT<T, Env, Out, State>(this Task<Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Rws<Env, Out, State, U>> MapT<T, Env, Out, State, U>(this Task<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static Rws<Env, Out, State, T> LiftT<T, Env, Out, State>(this Task<Rws<Env, Out, State, T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(this Task<Rws<Env, Out, State, T>> self ) where T : class => self.ValueT();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        internal static T ValueT<T>(this Task<Task<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        /// <summary>
+        /// Sum
+        /// </summary>
+        public static int SumT(this Task<Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        /// <summary>
+        /// Count
+        /// </summary>
+        public static int CountT<T>(this Task<Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        /// <summary>
+        /// Bind
+        /// </summary>
+        public static Task<Task<U>> BindT<T, U>(this Task<Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        /// <summary>
+        /// Exists
+        /// </summary>
+        public static bool ExistsT<T>(this Task<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        /// <summary>
+        /// Filter
+        /// </summary>
+        public static Task<Task<T>> FilterT<T>(this Task<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// Fold
+        /// </summary>
+        public static V FoldT<T, V>(this Task<Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        /// <summary>
+        /// ForAll
+        /// </summary>
+        public static bool ForAllT<T>(this Task<Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        /// <summary>
+        /// Iter
+        /// </summary>
+        public static Unit IterT<T>(this Task<Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        /// <summary>
+        /// Map
+        /// </summary>
+        public static Task<Task<U>> MapT<T, U>(this Task<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Lift
+        /// </summary>
+        public static T LiftT<T>(this Task<Task<T>> self ) where T : struct => self.ValueT();
+        /// <summary>
+        /// LiftUnsafe
+        /// </summary>
+        public static T LiftUnsafeT<T>(this Task<Task<T>> self ) where T : class => self.ValueT();
     }
 
     namespace Linq
@@ -18362,7 +21428,24 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class TaskMonad {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] internal static Task<U> Select<T, U>(this Task<T> self, Func<T, U> mapper) => self.Map(mapper);
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] internal static Task<T> Where<T>(this Task<T> self, Func<T, bool> pred) => self.Filter(pred);
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] internal static Task<V> SelectMany<T, U, V>(this Task<T> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18379,7 +21462,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18396,7 +21479,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18413,7 +21496,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18430,7 +21513,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18447,7 +21530,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18464,7 +21547,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18481,7 +21564,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18498,7 +21581,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18515,7 +21598,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18532,7 +21615,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18549,7 +21632,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18566,7 +21649,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18583,7 +21666,24 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class ListTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<Task<U>> Select<T, U>(this IEnumerable<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<Task<T>> Where<T>(this IEnumerable<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<Task<V>> SelectMany<T, U, V>(this IEnumerable<Task<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class OptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18600,7 +21700,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18617,7 +21717,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18634,7 +21734,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18651,7 +21751,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18668,7 +21768,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18685,7 +21785,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18702,7 +21802,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18719,7 +21819,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18736,7 +21836,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18753,7 +21853,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18770,7 +21870,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18787,7 +21887,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionTMonad {
+    public static partial class OptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18804,7 +21904,24 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Option<Task<U>> Select<T, U>(this Option<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Option<Task<T>> Where<T>(this Option<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Option<Task<V>> SelectMany<T, U, V>(this Option<Task<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class OptionUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18821,7 +21938,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18838,7 +21955,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18855,7 +21972,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18872,7 +21989,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18889,7 +22006,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18906,7 +22023,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18923,7 +22040,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18940,7 +22057,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18957,7 +22074,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18974,7 +22091,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -18991,7 +22108,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19008,7 +22125,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class OptionUnsafeTMonad {
+    public static partial class OptionUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19025,7 +22142,24 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class OptionUnsafeTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<Task<U>> Select<T, U>(this OptionUnsafe<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<Task<T>> Where<T>(this OptionUnsafe<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<Task<V>> SelectMany<T, U, V>(this OptionUnsafe<Task<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19042,7 +22176,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19059,7 +22193,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19076,7 +22210,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19093,7 +22227,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19110,7 +22244,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19127,7 +22261,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19144,7 +22278,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19161,7 +22295,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19178,7 +22312,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19195,7 +22329,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19212,7 +22346,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19229,7 +22363,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ListTMonad {
+    public static partial class ListTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19246,7 +22380,24 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class ListTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<Task<U>> Select<T, U>(this Lst<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<Task<T>> Where<T>(this Lst<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<Task<V>> SelectMany<T, U, V>(this Lst<Task<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class MapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19263,7 +22414,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19280,7 +22431,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19297,7 +22448,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19314,7 +22465,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19331,7 +22482,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19348,7 +22499,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19365,7 +22516,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19382,7 +22533,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19399,7 +22550,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19416,7 +22567,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19433,7 +22584,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19450,7 +22601,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class MapTMonad {
+    public static partial class MapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19467,7 +22618,24 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class MapTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, Task<U>> Select<K, T, U>(this Map<K, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, Task<T>> Where<K, T>(this Map<K, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, Task<V>> SelectMany<K, T, U, V>(this Map<K, Task<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TryOptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19484,7 +22652,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19501,7 +22669,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19518,7 +22686,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19535,7 +22703,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19552,7 +22720,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19569,7 +22737,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19586,7 +22754,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19603,7 +22771,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19620,7 +22788,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19637,7 +22805,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19654,7 +22822,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19671,7 +22839,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryOptionTMonad {
+    public static partial class TryOptionTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19688,7 +22856,24 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryOptionTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<Task<U>> Select<T, U>(this TryOption<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<Task<T>> Where<T>(this TryOption<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<Task<V>> SelectMany<T, U, V>(this TryOption<Task<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TryTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19705,7 +22890,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19722,7 +22907,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19739,7 +22924,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19756,7 +22941,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19773,7 +22958,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19790,7 +22975,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19807,7 +22992,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19824,7 +23009,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19841,7 +23026,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19858,7 +23043,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19875,7 +23060,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19892,7 +23077,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class TryTMonad {
+    public static partial class TryTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19909,7 +23094,24 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class TryTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Try<Task<U>> Select<T, U>(this Try<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Try<Task<T>> Where<T>(this Try<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Try<Task<V>> SelectMany<T, U, V>(this Try<Task<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class EitherTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19926,7 +23128,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19943,7 +23145,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19960,7 +23162,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19977,7 +23179,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -19994,7 +23196,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20011,7 +23213,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20028,7 +23230,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20045,7 +23247,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20062,7 +23264,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20079,7 +23281,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20096,7 +23298,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20113,7 +23315,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherTMonad {
+    public static partial class EitherTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20130,7 +23332,24 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, Task<U>> Select<L, T, U>(this Either<L, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, Task<T>> Where<L, T>(this Either<L, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, Task<V>> SelectMany<L, T, U, V>(this Either<L, Task<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class EitherUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20147,7 +23366,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20164,7 +23383,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20181,7 +23400,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20198,7 +23417,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20215,7 +23434,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20232,7 +23451,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20249,7 +23468,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20266,7 +23485,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20283,7 +23502,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20300,7 +23519,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20317,7 +23536,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20334,7 +23553,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class EitherUnsafeTMonad {
+    public static partial class EitherUnsafeTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20351,7 +23570,24 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class EitherUnsafeTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, Task<U>> Select<L, T, U>(this EitherUnsafe<L, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, Task<T>> Where<L, T>(this EitherUnsafe<L, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, Task<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Task<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class ReaderTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20368,7 +23604,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20385,7 +23621,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20402,7 +23638,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20419,7 +23655,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20436,7 +23672,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20453,7 +23689,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20470,7 +23706,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20487,7 +23723,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20504,7 +23740,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class ReaderTMonad {
+    public static partial class ReaderTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20521,7 +23757,24 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class ReaderTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, Task<U>> Select<Env, T, U>(this Reader<Env, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, Task<T>> Where<Env, T>(this Reader<Env, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, Task<V>> SelectMany<Env, T, U, V>(this Reader<Env, Task<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class WriterTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20538,7 +23791,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20555,7 +23808,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20572,7 +23825,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20589,7 +23842,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20606,7 +23859,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20623,7 +23876,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20640,7 +23893,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20657,7 +23910,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20674,7 +23927,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class WriterTMonad {
+    public static partial class WriterTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20691,7 +23944,24 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class WriterTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, Task<U>> Select<Out, T, U>(this Writer<Out, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, Task<T>> Where<Out, T>(this Writer<Out, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, Task<V>> SelectMany<Out, T, U, V>(this Writer<Out, Task<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class StateTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20708,7 +23978,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20725,7 +23995,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20742,7 +24012,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20759,7 +24029,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20776,7 +24046,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20793,7 +24063,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20810,7 +24080,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20827,7 +24097,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20844,7 +24114,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class StateTMonad {
+    public static partial class StateTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20861,7 +24131,24 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class StateTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, Task<U>> Select<State, T, U>(this State<State, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, Task<T>> Where<State, T>(this State<State, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, Task<V>> SelectMany<State, T, U, V>(this State<State, Task<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class RwsTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20878,7 +24165,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20895,7 +24182,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20912,7 +24199,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20929,7 +24216,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20946,7 +24233,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20963,7 +24250,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20980,7 +24267,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -20997,7 +24284,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -21014,7 +24301,7 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class RwsTMonad {
+    public static partial class RwsTMonadT {
         /// <summary>
         /// Select
         /// </summary>
@@ -21027,6 +24314,261 @@ namespace LanguageExt.Trans
         /// SelectMany
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, Rws<Env, Out, State, V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class RwsTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, Task<U>> Select<Env, Out, State, T, U>(this Rws<Env, Out, State, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, Task<T>> Where<Env, Out, State, T>(this Rws<Env, Out, State, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, Task<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, Task<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<IEnumerable<U>> Select<T, U>(this Task<IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<IEnumerable<T>> Where<T>(this Task<IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<IEnumerable<V>> SelectMany<T, U, V>(this Task<IEnumerable<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Option<U>> Select<T, U>(this Task<Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Option<T>> Where<T>(this Task<Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Option<V>> SelectMany<T, U, V>(this Task<Option<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<OptionUnsafe<U>> Select<T, U>(this Task<OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<OptionUnsafe<T>> Where<T>(this Task<OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<OptionUnsafe<V>> SelectMany<T, U, V>(this Task<OptionUnsafe<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Lst<U>> Select<T, U>(this Task<Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Lst<T>> Where<T>(this Task<Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Lst<V>> SelectMany<T, U, V>(this Task<Lst<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Map<K, U>> Select<T, K, U>(this Task<Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Map<K, T>> Where<T, K>(this Task<Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Map<K, V>> SelectMany<T, K, U, V>(this Task<Map<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<TryOption<U>> Select<T, U>(this Task<TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<TryOption<T>> Where<T>(this Task<TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<TryOption<V>> SelectMany<T, U, V>(this Task<TryOption<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Try<U>> Select<T, U>(this Task<Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Try<T>> Where<T>(this Task<Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Try<V>> SelectMany<T, U, V>(this Task<Try<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Either<L, U>> Select<T, L, U>(this Task<Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Either<L, T>> Where<T, L>(this Task<Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Either<L, V>> SelectMany<T, L, U, V>(this Task<Either<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<EitherUnsafe<L, U>> Select<T, L, U>(this Task<EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<EitherUnsafe<L, T>> Where<T, L>(this Task<EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Task<EitherUnsafe<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Reader<Env, U>> Select<T, Env, U>(this Task<Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Reader<Env, T>> Where<T, Env>(this Task<Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Reader<Env, V>> SelectMany<T, Env, U, V>(this Task<Reader<Env, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Writer<Out, U>> Select<T, Out, U>(this Task<Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Writer<Out, T>> Where<T, Out>(this Task<Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Writer<Out, V>> SelectMany<T, Out, U, V>(this Task<Writer<Out, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<State<State, U>> Select<T, State, U>(this Task<State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<State<State, T>> Where<T, State>(this Task<State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<State<State, V>> SelectMany<T, State, U, V>(this Task<State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Rws<Env, Out, State, U>> Select<T, Env, Out, State, U>(this Task<Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Rws<Env, Out, State, T>> Where<T, Env, Out, State>(this Task<Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this Task<Rws<Env, Out, State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public static partial class TaskTMonadT {
+        /// <summary>
+        /// Select
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Task<U>> Select<T, U>(this Task<Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        /// <summary>
+        /// Where
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Task<T>> Where<T>(this Task<Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        /// <summary>
+        /// SelectMany
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Task<V>> SelectMany<T, U, V>(this Task<Task<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     }
 }

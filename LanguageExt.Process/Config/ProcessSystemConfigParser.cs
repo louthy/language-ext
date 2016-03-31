@@ -584,26 +584,24 @@ namespace LanguageExt.Config
             // Top level settings
             settings = (specs) =>
                 from state in getState<ParserState>()
-                from sets in many(
-                    indented1(
-                        either(
-                            // Funcs
-                            choice(
-                                specs.Map(setting =>
-                                      setting.Name == "match" ? from m in match
-                                                                select new LocalsToken(setting.Name, null, m)
-                                    : setting.Name == "redirect" ? from r in redirect
-                                                                   select new LocalsToken(setting.Name, null, r)
-                                    : from nam in attempt(reserved(setting.Name))
-                                    from _ in symbol(":")
-                                    from tok in choice(setting.Variants.Map(variant =>
-                                        from vals in arguments(nam, variant)
-                                        select new LocalsToken(setting.Name, variant, vals.ToArray())))
-                                    select tok)),
-                            // Var defs
-                            from x in valueDef
-                            select new LocalsToken(x.Name, ArgumentsSpec.Variant(new FieldSpec("value", x.Type)), x.SetName("value"))
-                            )))
+                from sets in many(token(indented1(either(
+                    // Funcs
+                    choice(
+                        specs.Map(setting =>
+                                setting.Name == "match" ? from m in match
+                                                        select new LocalsToken(setting.Name, null, m)
+                            : setting.Name == "redirect" ? from r in redirect
+                                                            select new LocalsToken(setting.Name, null, r)
+                            : from nam in attempt(reserved(setting.Name))
+                            from _ in symbol(":")
+                            from tok in choice(setting.Variants.Map(variant =>
+                                from vals in arguments(nam, variant)
+                                select new LocalsToken(setting.Name, variant, vals.ToArray())))
+                            select tok)),
+                    // Var defs
+                    from x in valueDef
+                    select new LocalsToken(x.Name, ArgumentsSpec.Variant(new FieldSpec("value", x.Type)), x.SetName("value"))
+                    ))))
                 from newState in getState<ParserState>()
                 from _ in setState(state.SetCluster(newState.Cluster))
                 select List.createRange(sets);
