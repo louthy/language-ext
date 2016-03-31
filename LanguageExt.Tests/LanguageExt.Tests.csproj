@@ -42,6 +42,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AsyncTests.cs" />
     <Compile Include="Divisible.cs" />
     <Compile Include="Multiplicable.cs" />
     <Compile Include="ParsecTests.cs" />

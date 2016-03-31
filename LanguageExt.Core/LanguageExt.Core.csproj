@@ -120,6 +120,7 @@
     <Compile Include="RWS.cs" />
     <Compile Include="State.cs" />
     <Compile Include="Stck.cs" />
+    <Compile Include="Task.cs" />
     <Compile Include="Try.cs" />
     <Compile Include="TryOption.cs" />
     <Compile Include="TryOutExt.cs" />
