@@ -64,48 +64,38 @@ namespace LanguageExtTests
         Task<Uri> parseUri(string uri) => 
             new Uri(uri).AsTask();
 
-        Task<WebRequest> openConnection(Uri uri) =>
-            WebRequest.CreateDefault(uri).AsTask();
+        Task<WebClient> getClient() =>
+            Task.FromResult(new WebClient());
 
-        Task<WebResponse> getInputStream(WebRequest req) =>
-            req.GetResponseAsync();
+        Task<string> getContent(Uri uri, WebClient client) =>
+            client.DownloadStringTaskAsync(uri);
 
-        Task<Stream> getSource(WebResponse resp) =>
-            resp.GetResponseStream().AsTask();
+        Task<Lst<string>> getLines(string text) =>
+            Task.FromResult(text.Split('\n').Freeze());
 
-        IEnumerable<string> readAllLines(Stream stream)
-        {
-            List<char> cs = new List<char>();
-            while (true)
-            {
-                int b = stream.ReadByte();
-                if (b == -1 || b == 0) yield break;
-
-                if (b == 13)
-                {
-                    yield return new String(cs.ToArray());
-                    cs.Clear();
-                }
-                if (b > 30) cs.Add((char)b);
-            }
-        }
-
-        Task<IEnumerable<string>> getLines(Stream stream) =>
-            readAllLines(stream).ToList().AsEnumerable().AsTask();
-
-        public Task<IEnumerable<string>> getURLContent(string url) =>
-            from u in parseUri(url)
-            from conn in openConnection(u)
-            from result in use(
-                getInputStream(conn),
-                stream => use(getSource(stream), getLines)
-                )
+        Task<Lst<string>> getURLContent(string uri) =>
+            from address in parseUri(uri)
+            from result  in use(
+                getClient(),
+                client => from content in getContent(address, client)
+                          from lines   in getLines(content)
+                          select lines)
             select result;
 
         [Fact]
         public void UrlTest()
         {
+            // Iterates all lines of content
             getURLContent("http://www.google.com").IterT(x => Console.WriteLine(x));
+
+            // Counts the number of lines
+            int numberOfLines = getURLContent("http://www.google.com").CountT();
+
+            // Maps the lines to line-lengths, then sums them
+            int totalSize = getURLContent("http://www.google.com")
+                                .MapT(x => x.Length)
+                                .SumT();
         }
+
     }
 }
