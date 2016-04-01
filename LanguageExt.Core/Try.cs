@@ -706,20 +706,14 @@ public static class __TryExt
                 var resU = bind(resT.Value).Try();
                 if (resU.IsFaulted)
                 {
-                    //if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                     return new TryResult<V>(resT.Exception);
                 }
                 try
                 {
-                    var res = new TryResult<V>(project(resT.Value, resU.Value));
-                    //if (resU.Value is ILinqDisposable) (resU.Value as ILinqDisposable).Dispose();
-                    //if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
-                    return res;
+                    return new TryResult<V>(project(resT.Value, resU.Value));
                 }
                 catch (Exception e)
                 {
-                    //if (resU.Value is ILinqDisposable) (resU.Value as ILinqDisposable).Dispose();
-                    //if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                     TryConfig.ErrorLogger(e);
                     return new TryResult<V>(e);
                 }
