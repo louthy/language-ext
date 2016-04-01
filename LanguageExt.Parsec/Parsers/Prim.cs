@@ -274,7 +274,42 @@ namespace LanguageExt.Parsec
         /// Enumerable of the returned values of p.
         /// </returns>
         public static Parser<IEnumerable<T>> many<T>(Parser<T> p) =>
-            either(many1(p), result(new T[0].AsEnumerable()));
+            inp =>
+            {
+                var current = inp;
+                List<T> results = new List<T>();
+                ParserError error = null;
+
+                while(true)
+                {
+                    var t = p(current);
+
+                    // cok
+                    if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
+                    {
+                        results.Add(t.Reply.Result);
+                        current = t.Reply.State;
+                        error = t.Reply.Error;
+                        continue;
+                    }
+
+                    // eok
+                    if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
+                    {
+                        // eok, eerr
+                        return EmptyError<IEnumerable<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'many' is applied to a parser that accepts an empty string.", List.empty<string>()));
+                    }
+
+                    // cerr
+                    if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
+                    {
+                        return ConsumedError<IEnumerable<T>>(mergeError(error, t.Reply.Error));
+                    }
+
+                    // eerr
+                    return EmptyOK<IEnumerable<T>>(results, current, mergeError(error, t.Reply.Error));
+                }
+            };
 
         /// <summary>
         /// many1(p) applies the parser p one or more times.
