@@ -19,8 +19,13 @@ namespace LanguageExt
     {
         static object sync = new object();
         static AppProfile appProfile;
-        static ProcessSystemConfig config = new ProcessSystemConfig("");
+        static ProcessSystemConfig config;
         static Map<string, object> processSettings = Map.empty<string, object>();
+
+        static ProcessConfig()
+        {
+            config = new ProcessSystemConfig("");
+        }
 
         /// <summary>
         /// Resets the configuration system to all default settings (i.e. empty).  Use this call followed by

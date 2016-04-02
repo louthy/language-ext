@@ -214,6 +214,7 @@ namespace LanguageExt
 
         public static Option<Tuple<RemoteMessageDTO, Message>> GetNextMessage(ICluster cluster, ProcessId self, string key)
         {
+            if (cluster == null) return None;
             Message msg = null;
             RemoteMessageDTO dto = null;
 

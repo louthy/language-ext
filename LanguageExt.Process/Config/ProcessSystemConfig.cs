@@ -27,20 +27,24 @@ namespace LanguageExt.Config
     public class ProcessSystemConfig
     {
         public readonly string NodeName = "";
-        public readonly Parser<Map<string, LocalsToken>> Parser;
+        public readonly Parser<Lst<NamedValueToken>> Parser;
         readonly object sync = new object();
 
-        Map<string, LocalsToken> roleSettings;
+        Map<string, ValueToken> roleSettings;
         Map<ProcessId, ProcessToken> processSettings;
-        Map<string, StrategyToken> stratSettings;
+        Map<string, State<StrategyContext, Unit>> stratSettings;
         Map<string, ClusterToken> clusterSettings;
         Map<string, Map<string, object>> settingOverrides;
-        Map<string, LocalsToken> cluster;
+        ClusterToken cluster;
 
         Time timeout = 30 * seconds;
         Time sessionTimeoutCheck = 60 * seconds;
         int maxMailboxSize = 100000;
         bool transactionalIO = true;
+        Types types;
+        TypeDef processType;
+        TypeDef strategyType;
+        TypeDef clusterType;
 
         /// <summary>
         /// Ctor
@@ -50,6 +54,7 @@ namespace LanguageExt.Config
         {
             NodeName = nodeName ?? "";
             ClearSettings();
+            types = new Types();
             Parser = InitialiseParser(nodeName, strategyFuncs);
         }
 
@@ -57,7 +62,7 @@ namespace LanguageExt.Config
         /// Returns a named strategy
         /// </summary>
         internal Option<State<StrategyContext, Unit>> GetStrategy(string name) =>
-            stratSettings.Find(name).Map(x => x.Value);
+            stratSettings.Find(name);
 
         internal Option<Map<string, object>> GetProcessSettingsOverrides(ProcessId pid) =>
             settingOverrides.Find(pid.Path);
@@ -130,13 +135,13 @@ namespace LanguageExt.Config
         /// <returns></returns>
         internal T GetProcessSetting<T>(ProcessId pid, string name, string prop, T defaultValue, ProcessFlags flags)
         {
-            var empty = Map.empty<string, LocalsToken>();
+            var empty = Map.empty<string, ValueToken>();
 
             var settingsMaps = new[] {
                     processSettings.Find(pid).Map(token => token.Settings).IfNone(empty),
                     processSettings.Find(RolePid(pid)).Map(token => token.Settings).IfNone(empty),
                     roleSettings,
-                    cluster
+                    cluster.Settings
                 };
 
             return GetSettingGeneral(settingsMaps, ActorInboxCommon.ClusterSettingsKey(pid), name, prop, defaultValue, flags);
@@ -152,13 +157,13 @@ namespace LanguageExt.Config
         /// <returns></returns>
         internal Option<T> GetProcessSetting<T>(ProcessId pid, string name, string prop, ProcessFlags flags)
         {
-            var empty = Map.empty<string, LocalsToken>();
+            var empty = Map.empty<string, ValueToken>();
 
             var settingsMaps = new[] {
                     processSettings.Find(pid).Map(token => token.Settings).IfNone(empty),
                     processSettings.Find(RolePid(pid)).Map(token => token.Settings).IfNone(empty),
                     roleSettings,
-                    cluster
+                    cluster.Settings
                 };
 
             return GetSettingGeneral<T>(settingsMaps, ActorInboxCommon.ClusterSettingsKey(pid), name, prop, flags);
@@ -172,10 +177,9 @@ namespace LanguageExt.Config
         /// types, not value types)</param>
         internal T GetRoleSetting<T>(string name, string prop, T defaultValue)
         {
-            var empty = Map.empty<string, LocalsToken>();
             var key = $"role-{Role.Current}@settings";
             var flags = ActorContext.Cluster.Map(_ => ProcessFlags.PersistState).IfNone(ProcessFlags.Default);
-            var settingsMaps = new[] { roleSettings, cluster };
+            var settingsMaps = new[] { roleSettings, cluster.Settings };
             return GetSettingGeneral(settingsMaps, key, name, prop, defaultValue, flags);
         }
 
@@ -205,13 +209,12 @@ namespace LanguageExt.Config
         /// types, not value types)</param>
         internal Option<T> GetClusterSetting<T>(string name, string prop)
         {
-            var empty = Map.empty<string, LocalsToken>();
             var key = "cluster@settings";
-            var settingsMaps = new[] { cluster };
+            var settingsMaps = new[] { cluster.Settings };
             return GetSettingGeneral<T>(settingsMaps, key, name, prop, ProcessFlags.Default);
         }
 
-        internal T GetSettingGeneral<T>(IEnumerable<Map<string, LocalsToken>> settingsMaps, string key, string name, string prop, T defaultValue, ProcessFlags flags)
+        internal T GetSettingGeneral<T>(IEnumerable<Map<string, ValueToken>> settingsMaps, string key, string name, string prop, T defaultValue, ProcessFlags flags)
         {
             var res = GetSettingGeneral<T>(settingsMaps, key, name, prop, flags);
 
@@ -225,7 +228,7 @@ namespace LanguageExt.Config
             return res.IfNone(defaultValue);
         }
 
-        internal Option<T> GetSettingGeneral<T>(IEnumerable<Map<string,LocalsToken>> settingsMaps, string key, string name, string prop, ProcessFlags flags)
+        internal Option<T> GetSettingGeneral<T>(IEnumerable<Map<string, ValueToken>> settingsMaps, string key, string name, string prop, ProcessFlags flags)
         {
             var propKey = $"{name}@{prop}";
 
@@ -249,12 +252,15 @@ namespace LanguageExt.Config
                 }
             }
 
-            foreach(var settings in settingsMaps)
+            foreach (var settings in settingsMaps)
             {
-                tover = from s in settings.Find(name)
-                        from v in s.Values.Find(prop)
-                      // TODO: Type check
-                        select (T)v.Value;
+                tover = from opt1 in prop == "value"
+                            ? from tok in settings.Find(name)  
+                              from map in MapTokenType<T>(tok).Map(v => (T)v.Value)
+                              select map
+                            : settings.Find(name).Map(v => v.GetItem<T>(prop))
+                        from opt2 in opt1
+                        select opt2;
 
                 if (tover.IsSome)
                 {
@@ -264,6 +270,18 @@ namespace LanguageExt.Config
                 }
             }
             return None;
+        }
+
+        Option<ValueToken> MapTokenType<T>(ValueToken token)
+        {
+            var type = typeof(T).GetTypeInfo();
+            if (type.IsAssignableFrom(token.Value.GetType().GetTypeInfo()))
+            {
+                return new ValueToken(token.Type, Convert.ChangeType(token.Value, type));
+            }
+            return from def in types.TypeMap.Find(type.FullName)
+                   from map in def.Convert(token)
+                   select map;
         }
 
         void AddOrUpdateProcessOverride<T>(string key, string propKey, Option<T> tover)
@@ -340,8 +358,7 @@ namespace LanguageExt.Config
         /// hasn't been set in the config.
         /// </summary>
         internal State<StrategyContext, Unit> GetProcessStrategy(ProcessId pid) =>
-            GetProcessSetting<StrategyToken>(pid, "strategy", "value", ProcessFlags.Default)
-           .Map(tok => tok.Value)
+            GetProcessSetting<State<StrategyContext, Unit>>(pid, "strategy", "value", ProcessFlags.Default)
            .IfNone(Process.DefaultStrategy);
 
         /// <summary>
@@ -363,7 +380,7 @@ namespace LanguageExt.Config
 
         internal void ParseConfigText(string text)
         {
-            if(String.IsNullOrWhiteSpace(text))
+            if (String.IsNullOrWhiteSpace(text))
             {
                 ClearSettings();
                 return;
@@ -387,44 +404,51 @@ namespace LanguageExt.Config
 
             // Extract the process settings
             processSettings = List.fold(
-                from val in res.Reply.Result.Values
-                where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Process
-                let p = (ProcessToken)val.Values.Values.First().Value
-                where p.ProcessId.IsSome
-                let id = p.ProcessId.IfNone(ProcessId.None)
-                select Tuple(id, p.RegisteredName.IsNone ? p.SetRegisteredName(val.Name) : p),
+                from nv in res.Reply.Result
+                where nv.Value.Type == processType
+                let process = nv.Value.Cast<ProcessToken>()
+                let pid = process.ProcessId
+                where pid.IsSome
+                let reg = process.RegisteredName
+                let final = process.SetRegisteredName(new ValueToken(types.ProcessName, reg.IfNone(new ProcessName(nv.Name))))
+                select Tuple(pid.IfNone(ProcessId.None), final),
                 Map.empty<ProcessId, ProcessToken>(),
                 (s, x) => Map.tryAdd(s, x.Item1, x.Item2, (_, p) => failwith<Map<ProcessId, ProcessToken>>("Process declared twice: " + p.RegisteredName.IfNone("not defined"))));
-                
 
-            // Extract the strategy settings
-            stratSettings = List.fold(
-                from val in res.Reply.Result.Values
-                where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Strategy
-                let s = (StrategyToken)val.Values.Values.First().Value
-                select Tuple(val.Name, s),
-                Map.empty<string, StrategyToken>(),
-                (s, x) => Map.tryAdd(s, x.Item1, x.Item2, (_, __) => failwith<Map<string, StrategyToken>>("Strategy declared twice: " + x.Item1)));
 
             // Extract the cluster settings
+            stratSettings = List.fold(
+                from nv in res.Reply.Result
+                where nv.Value.Type == strategyType
+                let strategy = nv.Value.Cast<State<StrategyContext, Unit>>()
+                select Tuple(nv.Name, strategy),
+                Map.empty<string, State<StrategyContext, Unit>>(),
+                (s, x) => Map.tryAdd(s, x.Item1, x.Item2, (_, __) => failwith<Map<string, State<StrategyContext, Unit>>>("Strategy declared twice: " + x.Item1)));
+
+            // Extract the strategy settings
             clusterSettings = List.fold(
-                from val in res.Reply.Result.Values
-                where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Cluster
-                let cluster = (ClusterToken)val.Values.Values.First().Value
-                select Tuple(cluster.NodeName.IfNone(""), cluster.Env.IsNone ? cluster.SetEnvironment(val.Name) : cluster),
+                from nv in res.Reply.Result
+                where nv.Value.Type == clusterType
+                let cluster = nv.Value.Cast<ClusterToken>()
+                let env = cluster.Env
+                let nodeName = cluster.NodeName
+                where nodeName.IsSome
+                let final = cluster.SetEnvironment(new ValueToken(types.String, env.IfNone(nv.Name)))
+                select Tuple(nodeName.IfNone(""), final),
                 Map.empty<string, ClusterToken>(),
                 (s, x) => Map.tryAdd(s, x.Item1, x.Item2, (_, c) => failwith<Map<string, ClusterToken>>("Cluster declared twice: " + c.Env.IfNone(""))));
 
-            roleSettings = res.Reply.Result;
+            roleSettings = List.fold(
+                res.Reply.Result,
+                Map.empty<string, ValueToken>(),
+                (s, x) => Map.addOrUpdate(s, x.Name, x.Value)
+            );
 
             if (!String.IsNullOrEmpty(NodeName))
             {
-                var clusterOpt = clusterSettings.Find(NodeName);
-                if (clusterOpt.IsNone)
-                {
-                    throw new Exception($"Cluster defintion missing that has a node-name attribute and a value of: '{NodeName}'");
-                }
-                cluster = clusterOpt.Map(token => token.Settings).IfNone(Map.empty<string, LocalsToken>());
+                cluster = clusterSettings
+                                .Find(NodeName)
+                                .IfNone(() => failwith<ClusterToken>($"Cluster defintion missing that has a node-name attribute and a value of: '{NodeName}'"));
             }
         }
 
@@ -439,107 +463,117 @@ namespace LanguageExt.Config
 
         void ClearSettings()
         {
-            roleSettings = Map<string, LocalsToken>.Empty;
+            roleSettings = Map<string, ValueToken>.Empty;
             processSettings = Map<ProcessId, ProcessToken>.Empty;
-            stratSettings = Map<string, StrategyToken>.Empty;
+            stratSettings = Map<string, State<StrategyContext, Unit>>.Empty;
             clusterSettings = Map<string, ClusterToken>.Empty;
             settingOverrides = Map<string, Map<string, object>>.Empty;
-            cluster = Map.empty<string, LocalsToken>();
+            cluster = ClusterToken.Empty;
             timeout = 30 * seconds;
             sessionTimeoutCheck = 60 * seconds;
             maxMailboxSize = 100000;
             transactionalIO = true;
         }
 
-        Parser<Map<string,LocalsToken>> InitialiseParser(string nodeName, IEnumerable<FuncSpec> strategyFuncs)
+
+
+        Parser<Lst<NamedValueToken>> InitialiseParser(string nodeName, IEnumerable<FuncSpec> strategyFuncs)
         {
-            var process = new[] {
-                FuncSpec.Attr("pid", FieldSpec.ProcessId("value")),
-                FuncSpec.Attr("flags", FieldSpec.ProcessFlags("value")),
-                FuncSpec.Attr("mailbox-size", FieldSpec.Int("value")),
+            strategyFuncs = strategyFuncs ?? new FuncSpec[0];
 
-                FuncSpec.Attr("dispatch", FieldSpec.DispatcherType("value")),
-                FuncSpec.Attr("route", FieldSpec.DispatcherType("value")),
-                FuncSpec.Attr("workers", FieldSpec.Array("value", ArgumentType.Process)),
-                FuncSpec.Attr("worker-count", FieldSpec.Int("value")),
-                FuncSpec.Attr("worker-name", FieldSpec.String("value")),
-                FuncSpec.Attr("strategy", FieldSpec.Strategy("value"))
-            };
+            clusterType = new TypeDef(
+                "cluster",
+                nvs => new ClusterToken(nvs),
+                20,
+                FuncSpec.Property("node-name", () => types.String),
+                FuncSpec.Property("role", () => types.String),
+                FuncSpec.Property("provider", () => types.String),
+                FuncSpec.Property("connection", () => types.String),
+                FuncSpec.Property("database", () => types.String),
+                FuncSpec.Property("env", () => types.String),
+                FuncSpec.Property("user-env", () => types.String));
 
-            var cluster = new[] {
-                FuncSpec.Attr("node-name", FieldSpec.String("value")),
-                FuncSpec.Attr("role", FieldSpec.String("value")),
-                FuncSpec.Attr("provider", FieldSpec.String("value")),
-                FuncSpec.Attr("connection", FieldSpec.String("value")),
-                FuncSpec.Attr("database", FieldSpec.String("value")),
-                FuncSpec.Attr("env", FieldSpec.String("value")),
-                FuncSpec.Attr("user-env", FieldSpec.String("value"))
-            };
+            types.Register(clusterType);
+
+            processType = new TypeDef(
+                "process",
+                nvs => new ProcessToken(nvs),
+                20,
+                FuncSpec.Property("pid", () => types.ProcessId),
+                FuncSpec.Property("flags", () => types.ProcessFlags),
+                FuncSpec.Property("mailbox-size", () => types.Int),
+                FuncSpec.Property("dispatch", () => types.DispatcherType),
+                FuncSpec.Property("route", () => types.DispatcherType),
+                FuncSpec.Property("workers", () => TypeDef.Array(() => processType)),
+                FuncSpec.Property("worker-count", () => types.Int),
+                FuncSpec.Property("worker-name", () => types.String),
+                FuncSpec.Property("strategy", () => strategyType));
+
+            types.Register(processType);
+
+            strategyType = BuildStrategySpec(types, strategyFuncs);
+
+            types.Register(strategyType);
 
             var sys = new ProcessSystemConfigParser(
                 nodeName,
-                process,
-                BuildStrategySpec(strategyFuncs),
-                cluster
+                types
             );
 
             return sys.Settings;
         }
 
-        FuncSpec[] BuildStrategySpec(IEnumerable<FuncSpec> strategyFuncs)
+        TypeDef BuildStrategySpec(Types types, IEnumerable<FuncSpec> strategyFuncs)
         {
-            strategyFuncs = strategyFuncs ?? new FuncSpec[0];
-            var funcsToAdd = Set.createRange(strategyFuncs.Map(x => x.Name));
-            return GetPredefinedStrategyFuncs().Filter(x => !funcsToAdd.Contains(x.Name))
-                                                   .Append(strategyFuncs)
-                                                   .ToArray();
+            TypeDef strategy = null;
+
+            Func<Lst<NamedValueToken>, State<StrategyContext, Unit>[]> compose = items => items.Map(x => (State<StrategyContext, Unit>)x.Value.Value).ToArray();
+
+
+            var oneForOne = FuncSpec.Property("one-for-one", () => strategy, () => strategy, value => Strategy.OneForOne((State<StrategyContext, Unit>)value));
+            var allForOne = FuncSpec.Property("all-for-one", () => strategy, () => strategy, value => Strategy.AllForOne((State<StrategyContext, Unit>)value));
+
+            var always = FuncSpec.Property("always", () => strategy, () => types.Directive, value => Strategy.Always((Directive)value));
+            var pause = FuncSpec.Property("pause", () => strategy, () => types.Time, value => Strategy.Pause((Time)value));
+            var retries1 = FuncSpec.Property("retries", () => strategy, () => types.Int, value => Strategy.Retries((int)value));
+
+            var retries2 = FuncSpec.Attrs(
+                "retries",
+                () => strategy,
+                locals => Strategy.Retries((int)locals["count"], (Time)locals["duration"]),
+                new FieldSpec("count", () => types.Int),
+                new FieldSpec("duration", () => types.Time)
+            );
+
+            var backoff1 = FuncSpec.Attrs(
+                "backoff",
+                () => strategy,
+                locals => Strategy.Backoff((Time)locals["min"], (Time)locals["max"], (Time)locals["step"]),
+                new FieldSpec("min", () => types.Time),
+                new FieldSpec("max", () => types.Time),
+                new FieldSpec("step", () => types.Time)
+            );
+
+            var backoff2 = FuncSpec.Property("backoff", () => strategy, () => types.Time, value => Strategy.Backoff((Time)value));
+
+            // match
+            // | exception -> directive
+            // | _         -> directive
+            var match = FuncSpec.Special("match", () => strategy);
+
+            // redirect when
+            // | directive -> message-directive
+            // | _         -> message-directive
+            var redirect = FuncSpec.Special("redirect", () => strategy);
+
+            strategy = new TypeDef(
+                "strategy",
+                s => Strategy.Compose(compose(s)),
+                20,
+                new[] { oneForOne, allForOne, always, pause, retries1, retries2, backoff1, backoff2, match, redirect }.Append(strategyFuncs).ToArray()
+            );
+
+            return strategy;
         }
-
-        FuncSpec[] GetPredefinedStrategyFuncs() =>
-            new[] {
-
-                // always: directive
-                FuncSpec.Attr("always", settings => Strategy.Always((Directive)settings["value"].Value),  FieldSpec.Directive("value")),
-
-                // always: pause: duration
-                FuncSpec.Attr("pause", settings => Strategy.Pause((Time)settings["duration"].Value), FieldSpec.Time("duration")),
-
-                // retries: count = int
-                // retries: count = int, duration = time
-                FuncSpec.Attr(
-                    "retries",
-                    ArgumentsSpec.Variant(
-                        settings => Strategy.Retries((int)settings["count"].Value,(Time)settings["duration"].Value),
-                        FieldSpec.Int("count"),
-                        FieldSpec.Time("duration")),
-
-                    ArgumentsSpec.Variant(
-                        settings => Strategy.Retries((int)settings["count"].Value),
-                        FieldSpec.Int("count"))
-                ),
-
-                // retries: backoff: duration
-                // retries: backoff: min = time, max = time, step = time
-                FuncSpec.Attr("backoff",
-                    ArgumentsSpec.Variant(
-                        settings => Strategy.Backoff((Time)settings["min"].Value,(Time)settings["max"].Value,(Time)settings["step"].Value),
-                        FieldSpec.Time("min"), FieldSpec.Time("max"), FieldSpec.Time("step")
-                        ),
-
-                    ArgumentsSpec.Variant(
-                        settings => Strategy.Backoff((Time)settings["duration"].Value),
-                        FieldSpec.Time("duration")
-                        )),
-
-                // match
-                // | exception -> directive
-                // | _         -> directive
-                FuncSpec.AttrNoArgs("match"),
-
-                // redirect when
-                // | directive -> message-directive
-                // | _         -> message-directive
-                FuncSpec.AttrNoArgs("redirect")
-            };
     }
 }

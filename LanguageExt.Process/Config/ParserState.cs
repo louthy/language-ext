@@ -6,11 +6,11 @@ namespace LanguageExt.Config
 {
     public class ParserState
     {
-        public readonly Option<Map<string,LocalsToken>> Cluster;
+        public readonly Option<ClusterToken> Cluster;
         public readonly Map<string, ValueToken> Locals;
 
         public ParserState(
-            Option<Map<string, LocalsToken>> cluster,
+            Option<ClusterToken> cluster,
             Map<string, ValueToken> locals
             )
         {
@@ -18,10 +18,10 @@ namespace LanguageExt.Config
             Locals = locals;
         }
 
-        public ParserState SetCluster(Map<string, LocalsToken> cluster) =>
+        public ParserState SetCluster(ClusterToken cluster) =>
             new ParserState(cluster, Locals);
 
-        public ParserState SetCluster(Option<Map<string, LocalsToken>> cluster) =>
+        public ParserState SetCluster(Option<ClusterToken> cluster) =>
             new ParserState(cluster, Locals);
 
         public bool LocalExists(string name) =>

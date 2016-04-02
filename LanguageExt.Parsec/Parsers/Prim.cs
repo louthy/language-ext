@@ -636,7 +636,8 @@ namespace LanguageExt.Parsec
         public static ParserError mergeError(ParserError err1, ParserError err2) =>
             err1 == null && err2 == null ? ParserError.Unknown(Pos.Zero)
           : err1 == null ? err2
-          : err2 == null ? err1          : String.IsNullOrEmpty(err1.Msg) ? err2
+          : err2 == null ? err1
+          : String.IsNullOrEmpty(err1.Msg) ? err2
           : String.IsNullOrEmpty(err2.Msg) ? err1
           : Pos.Compare(
               err1.Pos, err2.Pos,

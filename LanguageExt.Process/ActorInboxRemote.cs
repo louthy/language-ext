@@ -99,7 +99,7 @@ namespace LanguageExt
                 if (!IsPaused)
                 {
                     IsPaused = true;
-                    cluster.UnsubscribeChannel(ClusterUserInboxNotifyKey);
+                    cluster?.UnsubscribeChannel(ClusterUserInboxNotifyKey);
                 }
             }
             return unit;
@@ -162,7 +162,7 @@ namespace LanguageExt
         void CheckRemoteInbox(string key, bool pausable)
         {
             var inbox = this;
-            var count = cluster.QueueLength(key);
+            var count = cluster?.QueueLength(key) ?? 0;
 
             while (count > 0 && (!pausable || !IsPaused))
             {
@@ -195,7 +195,7 @@ namespace LanguageExt
 
                             if (directive == InboxDirective.Default)
                             {
-                                cluster.Dequeue<RemoteMessageDTO>(key);
+                                cluster?.Dequeue<RemoteMessageDTO>(key);
                             }
                         }
                     }));

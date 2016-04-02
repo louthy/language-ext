@@ -69,6 +69,8 @@
     <Compile Include="ClusterConfig.cs" />
     <Compile Include="ClusterNode.cs" />
     <Compile Include="Config\Attrs.cs" />
+    <Compile Include="Config\TypeDef.cs" />
+    <Compile Include="Config\Types.cs" />
     <Compile Include="ProcessOp.cs" />
     <Compile Include="Config\ParserState.cs" />
     <Compile Include="Config\ProcessSystemConfig.cs" />

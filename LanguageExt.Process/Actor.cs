@@ -681,6 +681,9 @@ namespace LanguageExt
 
         InboxDirective DefaultErrorHandler(object message, Exception e)
         {
+            // Wipe all transactional outputs because of the error
+            ActorContext.Context = ActorContext.Context.SetOps(ProcessOpTransaction.Start(Id));
+
             var directive = RunStrategy(
                 Id,
                 Parent.Actor.Id,
@@ -691,6 +694,8 @@ namespace LanguageExt
                 Parent.Actor.Strategy
             );
             if (!(e is ProcessKillException)) tell(ActorContext.Errors, e);
+
+            // Run any transactional outputs caused by the strategy computation
             ActorContext.RunContextOps();
             return directive;
         }
@@ -713,8 +718,6 @@ namespace LanguageExt
                     ActorContext.CurrentRequest = null;
                     ActorContext.ProcessFlags = flags;
                     ActorContext.CurrentMsg = message;
-
-                    //ActorContext.AssertSession();
 
                     if (typeof(T) != typeof(string) && message is string)
                     {
@@ -871,7 +874,10 @@ namespace LanguageExt
                     return InboxDirective.PushToFrontOfQueue;
 
                 default:
-                    tell(ActorContext.DeadLetters, DeadLetter.create(sender, pid, e, "Process error: ", message));
+                    if (!(e is ProcessKillException))
+                    {
+                        tell(ActorContext.DeadLetters, DeadLetter.create(sender, pid, e, "Process error: ", message));
+                    }
                     return InboxDirective.Default;
             }
         }

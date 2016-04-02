@@ -3,6 +3,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 using static LanguageExt.ProcessConfig;
+using LanguageExt.Config;
 
 namespace ProcessSample
 {

@@ -111,10 +111,10 @@ namespace LanguageExt
             ProcessOp.IO(() => Cluster.PublishToChannel(ActorInboxCommon.ClusterPubSubKey(ProcessId), message));
 
         public Unit Kill() =>
-            ProcessId.Tell(SystemMessage.ShutdownProcess(false), ActorContext.Self);
+            TellSystem(SystemMessage.ShutdownProcess(false), ActorContext.Self);
 
         public Unit Shutdown() =>
-            ProcessId.Tell(SystemMessage.ShutdownProcess(true), ActorContext.Self);
+            TellSystem(SystemMessage.ShutdownProcess(true), ActorContext.Self);
 
         public int GetInboxCount() =>
             Cluster.QueueLength(ActorInboxCommon.ClusterUserInboxKey(ProcessId));

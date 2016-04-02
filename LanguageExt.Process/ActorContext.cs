@@ -13,7 +13,7 @@ namespace LanguageExt
         static ActorRequestContext context;
 
         static object sync = new object();
-        static volatile bool started = false;
+        static bool started;
         static Option<ICluster> cluster;
         static ActorItem rootItem;
         static ActorRequestContext userContext;
@@ -29,6 +29,7 @@ namespace LanguageExt
         {
             Startup(None);
         }
+
 
         public static Unit Startup(Option<ICluster> cluster)
         {
@@ -186,6 +187,7 @@ namespace LanguageExt
                     item.Actor.ShutdownProcess(true);
                     started = false;
                     Process.OnShutdown();
+                    started = false;
                     Startup(None);
                 }
             }
