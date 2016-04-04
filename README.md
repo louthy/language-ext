@@ -111,6 +111,7 @@ Feature | Description
 `Writer<O,T>` | Writer monad
 `State<S,T>` | State monad
 `Rws<E,O,S,T>` | Reader/Writer/State monad
+`Task<T>` extensions | Extension methods for `Task<T>` that make it into a functor, applicative, foldable, ierable and a monad
 Monad transformers | A higher kinded type (ish)
 `Process` library | [Actor system.  The same as Erlang processes for massive concurrency with state management.](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
 Redis persistence | [Persistence of the `Process` system message-queues and state, for robustness and inter-app communication.](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
