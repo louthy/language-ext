@@ -78,6 +78,14 @@ There is also:
 * `LanguageExt.Process` 
 * `LanguageExt.Trans` 
 * `LanguageExt.Trans.Linq` 
+* `LanguageExt.Parsec`
+* `LanguageExt.Parsec.Char`
+* `LanguageExt.Parsec.Expr`
+* `LanguageExt.Parsec.Prim`
+* `LanguageExt.Parsec.Token`
+* `LanguageExt.Parsec.Indent`
+* `LanguageExt.UnitsOfMeasure`
+
 
 _(more on those later)_
 
