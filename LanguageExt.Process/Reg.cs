@@ -29,10 +29,10 @@ namespace LanguageExt
                 var name = leaf.Head().GetName();
                 var key  = ProcessId.Top["__registered"][name].Path;
 
-                return ActorContext.Cluster
+                return ActorContext.System(leaf).Cluster
                                    .Map(x => x.GetSet<ProcessId>(key))
                                    .IfNone(Set.empty<ProcessId>())
-                                   .Append(ActorContext.GetLocalRegistered(name))
+                                   .Append(ActorContext.System(leaf).GetLocalRegistered(name))
                                    .Map(pid => pid.Append(leaf.Skip(1)))
                                    .AsEnumerable();
             });

@@ -23,7 +23,7 @@ namespace LanguageExt
                 reqId++;
 
                 var req = (AskActorReq)msg;
-                ActorContext.Ask(req.To, new ActorRequest(req.Message, req.To, Self, reqId), Self);
+                ActorContext.System(req.To).Ask(req.To, new ActorRequest(req.Message, req.To, Self, reqId), Self);
                 dict.Add(reqId, req);
             }
             else

@@ -86,7 +86,7 @@ namespace LanguageExt
             {
                 Type        = (int)type,
                 Tag         = (int)tag,
-                To          = to.Path,
+                To          = to.ToString(),
                 RequestId   = -1,
                 MessageId   = Guid.NewGuid(),
                 Sender      = sender.ToString(),
@@ -106,7 +106,7 @@ namespace LanguageExt
                 Tag         = (int)Message.TagSpec.UserAsk,
                 Child       = null,
                 Exception   = null,
-                To          = to.Path,
+                To          = to.ToString(),
                 RequestId   = req.RequestId,
                 MessageId   = Guid.NewGuid(),
                 Sender      = sender.ToString(),
@@ -124,7 +124,7 @@ namespace LanguageExt
                 Exception   = res.IsFaulted
                                 ? "RESPERR"
                                 : null,
-                To          = to.Path,
+                To          = to.ToString(),
                 RequestId   = res.RequestId,
                 MessageId   = Guid.NewGuid(),
                 Sender      = res.ReplyFrom.ToString(),

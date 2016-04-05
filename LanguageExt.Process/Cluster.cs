@@ -7,7 +7,7 @@ using LanguageExt;
 
 namespace LanguageExt
 {
-    public static class Cluster
+    static class Cluster
     {
         /// <summary>
         /// Connect to a cluster
@@ -15,13 +15,13 @@ namespace LanguageExt
         /// <param name="providerName">Provider name is a unique name for the persistence layer 
         /// type, for example: "redis"</param>
         /// <param name="config">Cluster config</param>
-        public static Unit connect(
+        public static ICluster connect(
             string providerName, 
             ClusterConfig config)
         {
             var cluster = ClusterFactory.CreateCluster(providerName, config);
             cluster.Connect();
-            return ActorContext.RegisterCluster(cluster);
+            return cluster;
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace LanguageExt
         /// </param>
         /// <param name="connectionString">Provider defined connection string</param>
         /// <param name="catalogueName">>Provider defined catalogue name</param>
-        public static Unit connect(
+        public static ICluster connect(
             string providerName,
             ProcessName nodeName,
             string connectionString,
@@ -44,15 +44,18 @@ namespace LanguageExt
         {
             var cluster = ClusterFactory.CreateCluster(providerName, config(nodeName,connectionString,catalogueName, role));
             cluster.Connect();
-            return ActorContext.RegisterCluster(cluster);
+            return cluster;
         }
 
         /// <summary>
         /// Disconnect from a cluster
         /// </summary>
         /// <param name="cluster">Cluster to disconnect from</param>
-        public static Unit disconnect() =>
-            ActorContext.DeregisterCluster();
+        public static Unit disconnect(ICluster cluster)
+        {
+            cluster.Disconnect();
+            return Unit.Default;
+        }
 
         /// <param name="nodeName">Unique name for this process.  It becomes the name of the root 
         /// node and allows other services on the cluster to discover you and communicate with you.

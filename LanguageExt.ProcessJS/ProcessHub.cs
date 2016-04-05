@@ -132,7 +132,7 @@ namespace LanguageExt
             var spid = FixRootName(pid);
             Bouncer(spid, () =>
             {
-                tell(Root["js"], new InboundRelayMsg(Context.ConnectionId, message, spid, FixSender(sender), false), FixSender(sender));
+                tell(Root(spid.System)["js"], new InboundRelayMsg(Context.ConnectionId, message, spid, FixSender(sender), false), FixSender(sender));
             });
         }
 
@@ -144,7 +144,7 @@ namespace LanguageExt
             var spid = FixRootName(pid);
             Bouncer(spid, () =>
             {
-                tell(Root["js"], new RelayMsg(RelayMsg.MsgTag.Subscribe, Context.ConnectionId, spid, FixSender(sender), false), FixSender(sender));
+                tell(Root(spid.System)["js"], new RelayMsg(RelayMsg.MsgTag.Subscribe, Context.ConnectionId, spid, FixSender(sender), false), FixSender(sender));
             });
         }
 
@@ -156,7 +156,7 @@ namespace LanguageExt
             var spid = FixRootName(pid);
             Bouncer(spid, () =>
             {
-                tell(Root["js"], new RelayMsg(RelayMsg.MsgTag.Unsubscribe, Context.ConnectionId, spid, FixSender(sender), false), FixSender(sender));
+                tell(Root(spid.System)["js"], new RelayMsg(RelayMsg.MsgTag.Unsubscribe, Context.ConnectionId, spid, FixSender(sender), false), FixSender(sender));
             });
         }
 
@@ -164,7 +164,7 @@ namespace LanguageExt
         {
             ProcessId cpid = pid;
             return cpid.Take(1).GetName().Value == "root"
-                ? Root.Append(cpid.Skip(1))
+                ? Root(cpid.System).Append(cpid.Skip(1))
                 : cpid;
         }
 
@@ -205,7 +205,9 @@ namespace LanguageExt
         private void Connect()
         {
             EnsureProcessHub();
-            tell(Root["js"], new RelayMsg(RelayMsg.MsgTag.Connected, Context.ConnectionId, ProcessId.NoSender, ProcessId.NoSender, false));
+            Systems.Map(sys =>
+                tell(Root(sys)["js"], new RelayMsg(RelayMsg.MsgTag.Connected, Context.ConnectionId, ProcessId.NoSender, ProcessId.NoSender, false))
+                );
         }
 
         public override Task OnConnected()
@@ -222,7 +224,9 @@ namespace LanguageExt
 
         public override Task OnDisconnected(bool stopCalled)
         {
-            tell(Root["js"], new RelayMsg(RelayMsg.MsgTag.Disconnected, Context.ConnectionId, ProcessId.NoSender, ProcessId.NoSender, false));
+            Systems.Map(sys =>
+                tell(Root(sys)["js"], new RelayMsg(RelayMsg.MsgTag.Disconnected, Context.ConnectionId, ProcessId.NoSender, ProcessId.NoSender, false))
+            );
             return base.OnDisconnected(stopCalled);
         }
     }

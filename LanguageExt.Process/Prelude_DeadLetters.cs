@@ -19,9 +19,9 @@ namespace LanguageExt
         /// </summary>
         /// <param name="message">Dead letter message</param>
         /// <param name="reason">Reason for the dead-letter</param>
-        public static Unit dead(object message, string reason) =>
+        public static Unit dead(object message, string reason, SystemName system = default(SystemName)) =>
             tell(
-                ActorContext.DeadLetters, 
+                ActorContext.System(system).DeadLetters, 
                 DeadLetter.create(
                     Sender, 
                     Self,
@@ -35,9 +35,9 @@ namespace LanguageExt
         /// </summary>
         /// <param name="message">Dead letter message</param>
         /// <param name="ex">Exception that caused the dead-letter</param>
-        public static Unit dead(object message, Exception ex) =>
+        public static Unit dead(object message, Exception ex, SystemName system = default(SystemName)) =>
             tell(
-                ActorContext.DeadLetters,
+                ActorContext.System(system).DeadLetters,
                 DeadLetter.create(
                     Sender,
                     Self,
@@ -52,9 +52,9 @@ namespace LanguageExt
         /// <param name="message">Dead letter message</param>
         /// <param name="ex">Exception that caused the dead-letter</param>
         /// <param name="reason">Reason for the dead-letter</param>
-        public static Unit dead(object message, Exception ex, string reason) =>
+        public static Unit dead(object message, Exception ex, string reason, SystemName system = default(SystemName)) =>
             tell(
-                ActorContext.DeadLetters,
+                ActorContext.System(system).DeadLetters,
                 DeadLetter.create(
                     Sender,
                     Self,
@@ -68,14 +68,14 @@ namespace LanguageExt
         /// structre)
         /// </summary>
         /// <param name="reason">Reason for the dead-letter</param>
-        public static Unit dead(string reason) =>
+        public static Unit dead(string reason, SystemName system = default(SystemName)) =>
             tell(
-                ActorContext.DeadLetters,
+                ActorContext.System(system).DeadLetters,
                 DeadLetter.create(
                     Sender,
                     Self,
                     reason,
-                    ActorContext.CurrentMsg
+                    ActorContext.Request.CurrentMsg
             ));
 
         /// <summary>
@@ -83,14 +83,14 @@ namespace LanguageExt
         /// structre)
         /// </summary>
         /// <param name="ex">Exception that caused the dead-letter</param>
-        public static Unit dead(Exception ex) =>
+        public static Unit dead(Exception ex, SystemName system = default(SystemName)) =>
             tell(
-                ActorContext.DeadLetters,
+                ActorContext.System(system).DeadLetters,
                 DeadLetter.create(
                     Sender,
                     Self,
                     ex,
-                    ActorContext.CurrentMsg
+                    ActorContext.Request.CurrentMsg
             ));
 
         /// <summary>
@@ -99,15 +99,15 @@ namespace LanguageExt
         /// </summary>
         /// <param name="ex">Exception that caused the dead-letter</param>
         /// <param name="reason">Reason for the dead-letter</param>
-        public static Unit dead(Exception ex, string reason) =>
+        public static Unit dead(Exception ex, string reason, SystemName system = default(SystemName)) =>
             tell(
-                ActorContext.DeadLetters,
+                ActorContext.System(system).DeadLetters,
                 DeadLetter.create(
                     Sender,
                     Self,
                     ex,
                     reason,
-                    ActorContext.CurrentMsg
+                    ActorContext.Request.CurrentMsg
             ));
     }
 }

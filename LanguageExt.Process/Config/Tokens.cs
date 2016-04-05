@@ -146,22 +146,22 @@ namespace LanguageExt.Config
         }
 
         public ProcessToken SetRegisteredName(ValueToken registeredName) =>
-        new ProcessToken(
-            ProcessId, 
-            Flags, 
-            MailboxSize, 
-            Strategy,
-            Settings.AddOrUpdate("register-as", registeredName),
-            (ProcessName)registeredName.Value, 
-            Dispatch, 
-            Route, 
-            Workers, 
-            WorkerCount, 
-            WorkerName
-        );
+            new ProcessToken(
+                ProcessId, 
+                Flags, 
+                MailboxSize, 
+                Strategy,
+                Settings.AddOrUpdate("register-as", registeredName),
+                (ProcessName)registeredName.Value, 
+                Dispatch, 
+                Route, 
+                Workers, 
+                WorkerCount, 
+                WorkerName
+            );
 
         Option<T> GetValue<T>(string name) =>
-           Settings.Find(name).Map(tok => (T)tok.Value);
+           Settings.Find(name).Map(tok => tok.Cast<T>());
     }
 
     public class ClusterToken
@@ -221,7 +221,7 @@ namespace LanguageExt.Config
             );
 
         Option<T> GetValue<T>(string name) =>
-           Settings.Find(name).Map(tok => (T)tok.Value);
+           Settings.Find(name).Map(tok => tok.Cast<T>());
 
         public readonly static ClusterToken Empty =
             new ClusterToken(Map.empty<string, ValueToken>(), None, None, None, None, None, None);

@@ -38,11 +38,11 @@ public static class __ProcessIdExt
     /// call will mostly be used for load balancing, and round-robin type 
     /// behaviour, so feel that's acceptable.  
     /// </remarks>
-    public static ProcessId GetChild(this ProcessId self, int index) =>
-        GetChildren(self)
-            .Skip(index % ActorContext.SelfProcess.Actor.Children.Count)
-            .Map(kv => kv.Value)
-            .Head();
+    public static ProcessId GetChild(this ProcessId self, int index)
+    {
+        var kids = children(self);
+        return kids.Values.Skip(index % kids.Count).Take(1).FirstOrDefault();
+    }
 
     /// <summary>
     /// Register a named process (a kind of DNS for Processes).  
@@ -71,7 +71,7 @@ public static class __ProcessIdExt
     /// <returns>A ProcessId that allows dispatching to the process via the name.  The result
     /// would look like /disp/reg/name</returns>
     public static ProcessId Register(this ProcessId self) =>
-        ActorContext.Register(self.GetName(), self);
+        ActorContext.System(self).Register(self.GetName(), self);
 
     /// <summary>
     /// Register a named process (a kind of DNS for Processes).  
@@ -98,7 +98,7 @@ public static class __ProcessIdExt
     /// <returns>A ProcessId that allows dispatching to the process via the name.  The result
     /// would look like /disp/reg/name</returns>
     public static ProcessId Register(this ProcessId self, ProcessName name) =>
-        ActorContext.Register(name, self);
+        ActorContext.System(self).Register(name, self);
 
     /// <summary>
     /// Kill the process.
@@ -106,7 +106,7 @@ public static class __ProcessIdExt
     /// jumps ahead of any messages already in the process's queue.
     /// </summary>
     public static Unit Kill(this ProcessId self) =>
-        self.Tell(SystemMessage.ShutdownProcess(false), ActorContext.Self);
+        self.Tell(SystemMessage.ShutdownProcess(false), Self);
 
     /// <summary>
     /// Kill the process.
@@ -114,7 +114,7 @@ public static class __ProcessIdExt
     /// jumps ahead of any messages already in the process's queue.
     /// </summary>
     public static Unit Shutdown(this ProcessId self) =>
-        self.Tell(SystemMessage.ShutdownProcess(true), ActorContext.Self);
+        self.Tell(SystemMessage.ShutdownProcess(true), Self);
 
     //
     // Ask

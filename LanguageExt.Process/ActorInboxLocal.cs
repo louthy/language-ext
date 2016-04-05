@@ -5,6 +5,7 @@ using System.Threading;
 using System.Reflection;
 using LanguageExt.Trans;
 using static LanguageExt.Prelude;
+using static LanguageExt.Process;
 using Newtonsoft.Json;
 
 namespace LanguageExt
@@ -62,8 +63,8 @@ namespace LanguageExt
         ProcessId GetSender(ProcessId sender) =>
             sender = sender.IsValid
                 ? sender
-                : ActorContext.Self.IsValid
-                    ? ActorContext.Self
+                : Self.IsValid
+                    ? Self
                     : ProcessId.NoSender;
 
         public Unit Ask(object message, ProcessId sender)
@@ -126,7 +127,7 @@ namespace LanguageExt
 
         int MailboxSize =>
             maxMailboxSize < 0
-                ? ProcessConfig.Settings.GetProcessMailboxSize(actor.Id)
+                ? ActorContext.System(actor.Id).Settings.GetProcessMailboxSize(actor.Id)
                 : maxMailboxSize;
 
         public bool IsPaused

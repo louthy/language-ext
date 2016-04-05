@@ -8,6 +8,7 @@ using LanguageExt.UnitsOfMeasure;
 using System.Reactive.Subjects;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using LanguageExt.Config;
 
 namespace LanguageExt
 {
@@ -42,7 +43,8 @@ namespace LanguageExt
             Func<IActor, S> setup,
             Func<S, ProcessId, S> term,
             State<StrategyContext, Unit> strategy,
-            ProcessFlags flags
+            ProcessFlags flags,
+            ProcessSystemConfig settings
             )
         {
             if (setup == null) throw new ArgumentNullException(nameof(setup));
@@ -51,7 +53,7 @@ namespace LanguageExt
             Id = parent.Actor.Id[name];
             this.cluster = cluster;
             this.flags = flags == ProcessFlags.Default
-                ? ProcessConfig.Settings.GetProcessFlags(Id)
+                ? settings.GetProcessFlags(Id)
                 : flags;
             actorFn = actor;
             termFn = term;
@@ -71,15 +73,15 @@ namespace LanguageExt
             {
                 if (state.IsSome) return unit;
 
-                var savedReq = ActorContext.CurrentRequest;
-                var savedFlags = ActorContext.ProcessFlags;
-                var savedMsg = ActorContext.CurrentMsg;
+                var savedReq = ActorContext.Request.CurrentRequest;
+                var savedFlags = ActorContext.Request.ProcessFlags;
+                var savedMsg = ActorContext.Request.CurrentMsg;
 
                 try
                 {
-                    ActorContext.CurrentRequest = null;
-                    ActorContext.ProcessFlags = flags;
-                    ActorContext.CurrentMsg = null;
+                    ActorContext.Request.CurrentRequest = null;
+                    ActorContext.Request.ProcessFlags = flags;
+                    ActorContext.Request.CurrentMsg = null;
 
                     var stateValue = GetState();
                     try
@@ -108,13 +110,13 @@ namespace LanguageExt
                         Parent.Actor.Strategy
                     );
 
-                    if(!(e is ProcessKillException)) tell(ActorContext.Errors, e);
+                    if(!(e is ProcessKillException)) tell(ActorContext.System(Id).Errors, e);
                 }
                 finally
                 {
-                    ActorContext.CurrentRequest = savedReq;
-                    ActorContext.ProcessFlags = savedFlags;
-                    ActorContext.CurrentMsg = savedMsg;
+                    ActorContext.Request.CurrentRequest = savedReq;
+                    ActorContext.Request.ProcessFlags = savedFlags;
+                    ActorContext.Request.CurrentMsg = savedMsg;
                 }
                 return unit;
             }
@@ -128,7 +130,7 @@ namespace LanguageExt
         {
             get
             {
-                return strategy ?? ProcessConfig.Settings.GetProcessStrategy(Id);
+                return strategy ?? ActorContext.System(Id).Settings.GetProcessStrategy(Id);
             }
             private set
             {
@@ -249,7 +251,7 @@ namespace LanguageExt
                     state = setupFn(this);
                 }
 
-                ActorContext.RunContextOps();
+                ActorContext.Request.RunOps();
             }
             catch (Exception e)
             {
@@ -363,25 +365,25 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pid">Id of the Process that will watch this Process</param>
         public Unit AddWatcher(ProcessId pid) =>
-            ActorContext.AddWatcher(pid, Id);
+            ActorContext.System(Id).AddWatcher(pid, Id);
 
         /// <summary>
         /// Remove a watcher of this Process
         /// </summary>
         /// <param name="pid">Id of the Process that will stop watching this Process</param>
         public Unit RemoveWatcher(ProcessId pid) =>
-            ActorContext.RemoveWatcher(pid, Id);
+            ActorContext.System(Id).RemoveWatcher(pid, Id);
 
         public Unit DispatchWatch(ProcessId pid)
         {
-            ActorContext.GetDispatcher(pid).Watch(Id);
-            return ActorContext.AddWatcher(pid, Id);
+            ActorContext.System(Id).GetDispatcher(pid).Watch(Id);
+            return ActorContext.System(Id).AddWatcher(pid, Id);
         }
 
         public Unit DispatchUnWatch(ProcessId pid)
         {
-            ActorContext.GetDispatcher(pid).UnWatch(Id);
-            return ActorContext.RemoveWatcher(pid, Id);
+            ActorContext.System(Id).GetDispatcher(pid).UnWatch(Id);
+            return ActorContext.System(Id).RemoveWatcher(pid, Id);
         }
 
         /// <summary>
@@ -404,10 +406,10 @@ namespace LanguageExt
                             ActorInboxCommon.ClusterMetaDataKey(Id),
                             ActorInboxCommon.ClusterSettingsKey(Id));
 
-                        ActorContext.DeregisterById(Id);
+                            ActorContext.System(Id).DeregisterById(Id);
                         // }
 
-                        ProcessConfig.Settings.ClearInMemorySettingsOverride(ActorInboxCommon.ClusterSettingsKey(Id));
+                        ActorContext.System(Id).Settings.ClearInMemorySettingsOverride(ActorInboxCommon.ClusterSettingsKey(Id));
                     });
                 }
 
@@ -418,7 +420,7 @@ namespace LanguageExt
                 strategyState = StrategyState.Empty;
                 DisposeState();
 
-                ActorContext.DispatchTerminate(Id);
+                ActorContext.System(Id).DispatchTerminate(Id);
 
                 return unit;
             }
@@ -428,7 +430,7 @@ namespace LanguageExt
         {
             if (message == null)
             {
-                tell(ActorContext.DeadLetters, DeadLetter.create(Sender, Self, $"Message is null for tell (expected {typeof(T)})", message));
+                tell(ActorContext.System(Id).DeadLetters, DeadLetter.create(Sender, Self, $"Message is null for tell (expected {typeof(T)})", message));
                 return None;
             }
 
@@ -442,14 +444,14 @@ namespace LanguageExt
                 }
                 catch
                 {
-                    tell(ActorContext.DeadLetters, DeadLetter.create(Sender, Self, $"Invalid message type for tell (expected {typeof(T)})", message));
+                    tell(ActorContext.System(Id).DeadLetters, DeadLetter.create(Sender, Self, $"Invalid message type for tell (expected {typeof(T)})", message));
                     return None;
                 }
             }
 
             if (!(message is T))
             {
-                tell(ActorContext.DeadLetters, DeadLetter.create(Sender, Self, $"Invalid message type for tell (expected {typeof(T)})", message));
+                tell(ActorContext.System(Id).DeadLetters, DeadLetter.create(Sender, Self, $"Invalid message type for tell (expected {typeof(T)})", message));
                 return None;
             }
 
@@ -467,8 +469,8 @@ namespace LanguageExt
 
                 response = null;
                 request = new AutoResetEvent(false);
-                ActorContext.Ask(pid, new ActorRequest(message, pid, Self, 0), Self);
-                request.WaitOne(ProcessConfig.Settings.Timeout);
+                ActorContext.System(Id).Ask(pid, new ActorRequest(message, pid, Self, 0), Self);
+                request.WaitOne(ActorContext.System(Id).Settings.Timeout);
 
                 if (response == null)
                 {
@@ -515,15 +517,15 @@ namespace LanguageExt
         {
             lock(sync)
             {
-                var savedMsg = ActorContext.CurrentMsg;
-                var savedFlags = ActorContext.ProcessFlags;
-                var savedReq = ActorContext.CurrentRequest;
+                var savedMsg = ActorContext.Request.CurrentMsg;
+                var savedFlags = ActorContext.Request.ProcessFlags;
+                var savedReq = ActorContext.Request.CurrentRequest;
 
                 try
                 {
-                    ActorContext.CurrentRequest = request;
-                    ActorContext.ProcessFlags   = flags;
-                    ActorContext.CurrentMsg     = request.Message;
+                    ActorContext.Request.CurrentRequest = request;
+                    ActorContext.Request.ProcessFlags   = flags;
+                    ActorContext.Request.CurrentMsg     = request.Message;
 
                     //ActorContext.AssertSession();
 
@@ -592,18 +594,20 @@ namespace LanguageExt
                         BackoffAmount: 0 * seconds
                         );
 
-                    ActorContext.RunContextOps();
+                    ActorContext.Request.RunOps();
                 }
                 catch (Exception e)
                 {
+                    ActorContext.Request.SetOps(ProcessOpTransaction.Start(Id));
                     replyError(e);
+                    ActorContext.Request.RunOps();
                     return DefaultErrorHandler(request, e);
                 }
                 finally
                 {
-                    ActorContext.CurrentMsg = savedMsg;
-                    ActorContext.ProcessFlags = savedFlags;
-                    ActorContext.CurrentRequest = savedReq;
+                    ActorContext.Request.CurrentMsg = savedMsg;
+                    ActorContext.Request.ProcessFlags = savedFlags;
+                    ActorContext.Request.CurrentRequest = savedReq;
                 }
                 return InboxDirective.Default;
             }
@@ -628,15 +632,15 @@ namespace LanguageExt
 
             lock (sync)
             {
-                var savedReq   = ActorContext.CurrentRequest;
-                var savedFlags = ActorContext.ProcessFlags;
-                var savedMsg   = ActorContext.CurrentMsg;
+                var savedReq   = ActorContext.Request.CurrentRequest;
+                var savedFlags = ActorContext.Request.ProcessFlags;
+                var savedMsg   = ActorContext.Request.CurrentMsg;
 
                 try
                 {
-                    ActorContext.CurrentRequest = null;
-                    ActorContext.ProcessFlags   = flags;
-                    ActorContext.CurrentMsg     = pid;
+                    ActorContext.Request.CurrentRequest = null;
+                    ActorContext.Request.ProcessFlags   = flags;
+                    ActorContext.Request.CurrentMsg     = pid;
 
                     //ActorContext.AssertSession();
 
@@ -663,7 +667,7 @@ namespace LanguageExt
                         BackoffAmount: 0 * seconds
                         );
 
-                    ActorContext.RunContextOps();
+                    ActorContext.Request.RunOps();
                 }
                 catch (Exception e)
                 {
@@ -671,9 +675,9 @@ namespace LanguageExt
                 }
                 finally
                 {
-                    ActorContext.CurrentRequest = savedReq;
-                    ActorContext.ProcessFlags   = savedFlags;
-                    ActorContext.CurrentMsg     = savedMsg;
+                    ActorContext.Request.CurrentRequest = savedReq;
+                    ActorContext.Request.ProcessFlags   = savedFlags;
+                    ActorContext.Request.CurrentMsg     = savedMsg;
                 }
                 return InboxDirective.Default;
             }
@@ -682,7 +686,7 @@ namespace LanguageExt
         InboxDirective DefaultErrorHandler(object message, Exception e)
         {
             // Wipe all transactional outputs because of the error
-            ActorContext.Context = ActorContext.Context.SetOps(ProcessOpTransaction.Start(Id));
+            ActorContext.Request.SetOps(ProcessOpTransaction.Start(Id));
 
             var directive = RunStrategy(
                 Id,
@@ -693,10 +697,10 @@ namespace LanguageExt
                 message,
                 Parent.Actor.Strategy
             );
-            if (!(e is ProcessKillException)) tell(ActorContext.Errors, e);
+            if (!(e is ProcessKillException)) tell(ActorContext.System(Id).Errors, e);
 
             // Run any transactional outputs caused by the strategy computation
-            ActorContext.RunContextOps();
+            ActorContext.Request.RunOps();
             return directive;
         }
 
@@ -709,15 +713,15 @@ namespace LanguageExt
         {
             lock(sync)
             {
-                var savedReq = ActorContext.CurrentRequest;
-                var savedFlags = ActorContext.ProcessFlags;
-                var savedMsg = ActorContext.CurrentMsg;
+                var savedReq = ActorContext.Request.CurrentRequest;
+                var savedFlags = ActorContext.Request.ProcessFlags;
+                var savedMsg = ActorContext.Request.CurrentMsg;
 
                 try
                 {
-                    ActorContext.CurrentRequest = null;
-                    ActorContext.ProcessFlags = flags;
-                    ActorContext.CurrentMsg = message;
+                    ActorContext.Request.CurrentRequest = null;
+                    ActorContext.Request.ProcessFlags = flags;
+                    ActorContext.Request.CurrentMsg = message;
 
                     if (typeof(T) != typeof(string) && message is string)
                     {
@@ -777,7 +781,7 @@ namespace LanguageExt
                         BackoffAmount: 0*seconds
                         );
 
-                    ActorContext.RunContextOps();
+                    ActorContext.Request.RunOps();
                 }
                 catch (Exception e)
                 {
@@ -785,9 +789,9 @@ namespace LanguageExt
                 }
                 finally
                 {
-                    ActorContext.CurrentRequest = savedReq;
-                    ActorContext.ProcessFlags = savedFlags;
-                    ActorContext.CurrentMsg = savedMsg;
+                    ActorContext.Request.CurrentRequest = savedReq;
+                    ActorContext.Request.ProcessFlags = savedFlags;
+                    ActorContext.Request.CurrentMsg = savedMsg;
                 }
                 return InboxDirective.Default;
             }
@@ -876,7 +880,7 @@ namespace LanguageExt
                 default:
                     if (!(e is ProcessKillException))
                     {
-                        tell(ActorContext.DeadLetters, DeadLetter.create(sender, pid, e, "Process error: ", message));
+                        tell(ActorContext.System(Id).DeadLetters, DeadLetter.create(sender, pid, e, "Process error: ", message));
                     }
                     return InboxDirective.Default;
             }
@@ -929,14 +933,13 @@ namespace LanguageExt
             }
         }
 
-        public Unit ShutdownProcess(bool maintainState)
-        {
-            ShutdownProcessRec(ActorContext.SelfProcess, ActorContext.GetInboxShutdownItem().Map(x => (ILocalActorInbox)x.Inbox), maintainState);
-            Parent.Actor.UnlinkChild(Id);
-
-            children = Map.empty<string, ActorItem>();
-            return unit;
-        }
+        public Unit ShutdownProcess(bool maintainState) =>
+            Parent.Actor.Children.Find(Name.Value).IfSome(self =>
+            {
+                 ShutdownProcessRec(self, ActorContext.System(Id).GetInboxShutdownItem().Map(x => (ILocalActorInbox)x.Inbox), maintainState);
+                 Parent.Actor.UnlinkChild(Id);
+                 children = Map.empty<string, ActorItem>();
+            });
 
         void ShutdownProcessRec(ActorItem item, Option<ILocalActorInbox> inboxShutdown, bool maintainState)
         {

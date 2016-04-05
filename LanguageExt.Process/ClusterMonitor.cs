@@ -36,29 +36,31 @@ namespace LanguageExt
         public class State
         {
             public readonly Map<ProcessName, ClusterNode> Members;
+            public readonly SystemName System;
 
-            public static readonly State Empty = new State(Map.empty<ProcessName, ClusterNode>());
+            public static readonly State Empty = new State(Map.empty<ProcessName, ClusterNode>(), default(SystemName));
 
-            public State(Map<ProcessName, ClusterNode> members)
+            public State(Map<ProcessName, ClusterNode> members, SystemName system)
             {
                 Members = members.Filter(node => node != null);
+                System = system;
             }
 
             public State SetMember(ProcessName nodeName, ClusterNode state) =>
                 state == null
                     ? RemoveMember(nodeName)
-                    : new State(Members.AddOrUpdate(nodeName, state));
+                    : new State(Members.AddOrUpdate(nodeName, state), System);
 
             public State RemoveMember(ProcessName nodeName) =>
-                new State(Members.Remove(nodeName));
+                new State(Members.Remove(nodeName), System);
         }
 
         /// <summary>
         /// Root Process setup
         /// </summary>
-        public static State Setup()
+        public static State Setup(SystemName system)
         {
-            return Heartbeat(State.Empty, ActorContext.Cluster);
+            return Heartbeat(State.Empty, ActorContext.System(system).Cluster);
         }
 
         /// <summary>
@@ -69,7 +71,7 @@ namespace LanguageExt
             switch (msg.Tag)
             {
                 case MsgTag.Heartbeat:
-                    state = Heartbeat(state, ActorContext.Cluster);
+                    state = Heartbeat(state, ActorContext.System(state.System).Cluster);
                     tellSelf(new Msg(MsgTag.Heartbeat), HeartbeatFreq + (random(1000)*milliseconds));
                     return state;
             }
@@ -94,7 +96,7 @@ namespace LanguageExt
 
                         c.HashFieldAddOrUpdate(MembersKey, c.NodeName.Value, new ClusterNode(c.NodeName, DateTime.UtcNow, c.Role));
                         var newState = new State(c.GetHashFields<ProcessName, ClusterNode>(MembersKey, s => new ProcessName(s))
-                                                  .Where(m => m.LastHeartbeat > cutOff));
+                                                  .Where(m => m.LastHeartbeat > cutOff), state.System);
                         var diffs = DiffState(state, newState);
 
                         

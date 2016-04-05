@@ -8,6 +8,11 @@ namespace LanguageExt
 {
     public class Dispatch
     {
+        readonly static object sync = new object();
+
+        static Map<ProcessName, Func<ProcessId, IEnumerable<ProcessId>>> dispatchers = 
+            Map.empty<ProcessName, Func<ProcessId, IEnumerable<ProcessId>>>();
+
         /// <summary>
         /// Registers a dispatcher for a role
         /// Dispatchers take in a 'leaf' ProcessId (i.e. /user/my-process) and return an enumerable
@@ -19,15 +24,27 @@ namespace LanguageExt
         /// is used.</param>
         /// <returns>A root dispatcher ProcessId.  Use this to create new ProcessIds that will
         /// be passed to the selector function whenever the dispatcher based ProcessId is used</returns>
-        public static ProcessId register(ProcessName name, Func<ProcessId, IEnumerable<ProcessId>> selector) =>
-            ActorContext.AddDispatcher(name, selector);
+        public static ProcessId register(ProcessName name, Func<ProcessId, IEnumerable<ProcessId>> selector)
+        {
+            lock (sync)
+            {
+                dispatchers = dispatchers.AddOrUpdate(name, selector);
+            }
+            return ProcessId.Top["disp"][name];
+        }
 
         /// <summary>
         /// Removes the dispatcher registration for the named dispatcher
         /// </summary>
         /// <param name="name">Name of the dispatcher to remove</param>
-        public static Unit deregister(ProcessName name) =>
-            ActorContext.RemoveDispatcher(name);
+        public static Unit deregister(ProcessName name)
+        {
+            lock (sync)
+            {
+                dispatchers = dispatchers.Remove(name);
+            }
+            return unit;
+        }
 
         /// <summary>
         /// Builds a ProcessId that represents a set of Processes.  When used for
@@ -132,6 +149,15 @@ namespace LanguageExt
             return unit;
         }
 
+        public static Func<ProcessId, IEnumerable<ProcessId>> getFunc(ProcessName name) =>
+            dispatchers.Find(name,
+                Some: x => x,
+                None: () => (ProcessId Id) => (new ProcessId[0]).AsEnumerable()
+                );
+
+        public static Option<Func<ProcessId, IEnumerable<ProcessId>>> getFuncOption(ProcessName name) =>
+            dispatchers.Find(name);
+
         static Dispatch()
         {
             ProcessName broadcast  = "broadcast";
@@ -161,7 +187,7 @@ namespace LanguageExt
                     {
                         return new ProcessId[0];
                     }
-                    return ActorContext.GetDispatcherFunc(leaf.Head().GetName())(leaf.Skip(1));
+                    return getFunc(leaf.Head().GetName())(leaf.Skip(1));
                 }
                 return new ProcessId[1] { leaf };
             });

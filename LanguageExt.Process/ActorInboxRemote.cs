@@ -19,7 +19,6 @@ namespace LanguageExt
         Actor<S, T> actor;
         ActorItem parent;
         int maxMailboxSize;
-        string actorPath;
         object sync = new object();
 
         public Unit Startup(IActor process, ActorItem parent, Option<ICluster> cluster, int maxMailboxSize)
@@ -32,10 +31,8 @@ namespace LanguageExt
             this.maxMailboxSize = maxMailboxSize;
             this.parent = parent;
 
-            actorPath = actor.Id.ToString();
-
-            userNotify = ActorInboxCommon.StartNotifyMailbox(tokenSource.Token, msgId => CheckRemoteInbox(ClusterUserInboxKey, true));
-            sysNotify = ActorInboxCommon.StartNotifyMailbox(tokenSource.Token, msgId => CheckRemoteInbox(ClusterSystemInboxKey, false));
+            userNotify = ActorInboxCommon.StartNotifyMailbox(tokenSource.Token, msgId => CheckRemoteInbox(ActorInboxCommon.ClusterUserInboxKey(actor.Id), true));
+            sysNotify = ActorInboxCommon.StartNotifyMailbox(tokenSource.Token, msgId => CheckRemoteInbox(ActorInboxCommon.ClusterSystemInboxKey(actor.Id), false));
 
             SubscribeToSysInboxChannel();
             SubscribeToUserInboxChannel();
@@ -49,41 +46,26 @@ namespace LanguageExt
             return unit;
         }
 
-        string ClusterKey =>
-            ActorInboxCommon.ClusterKey(actorPath);
-
-        string ClusterUserInboxKey =>
-            ActorInboxCommon.ClusterUserInboxKey(actorPath);
-
-        string ClusterSystemInboxKey =>
-            ActorInboxCommon.ClusterSystemInboxKey(actorPath);
-
-        string ClusterUserInboxNotifyKey =>
-            ActorInboxCommon.ClusterUserInboxNotifyKey(actorPath);
-
-        string ClusterSystemInboxNotifyKey =>
-            ActorInboxCommon.ClusterSystemInboxNotifyKey(actorPath);
-
         int MailboxSize =>
             maxMailboxSize < 0
-                ? ProcessConfig.Settings.GetProcessMailboxSize(actor.Id)
+                ? ActorContext.System(actor.Id).Settings.GetProcessMailboxSize(actor.Id)
                 : maxMailboxSize;
 
         void SubscribeToSysInboxChannel()
         {
             // System inbox is just listening to the notifications, that means that system
             // messages don't persist.
-            cluster.UnsubscribeChannel(ClusterSystemInboxNotifyKey);
-            cluster.SubscribeToChannel<RemoteMessageDTO>(ClusterSystemInboxNotifyKey).Subscribe(SysInbox);
+            cluster.UnsubscribeChannel(ActorInboxCommon.ClusterSystemInboxNotifyKey(actor.Id));
+            cluster.SubscribeToChannel<RemoteMessageDTO>(ActorInboxCommon.ClusterSystemInboxNotifyKey(actor.Id)).Subscribe(SysInbox);
         }
 
         void SubscribeToUserInboxChannel()
         {
-            cluster.UnsubscribeChannel(ClusterUserInboxNotifyKey);
-            cluster.SubscribeToChannel<string>(ClusterUserInboxNotifyKey).Subscribe(msg => userNotify.Post(msg));
+            cluster.UnsubscribeChannel(ActorInboxCommon.ClusterUserInboxNotifyKey(actor.Id));
+            cluster.SubscribeToChannel<string>(ActorInboxCommon.ClusterUserInboxNotifyKey(actor.Id)).Subscribe(msg => userNotify.Post(msg));
             // We want the check done asyncronously, in case the setup function creates child processes that
             // won't exist if we invoke directly.
-            cluster.PublishToChannel(ClusterUserInboxNotifyKey, Guid.NewGuid().ToString());
+            cluster.PublishToChannel(ActorInboxCommon.ClusterUserInboxNotifyKey(actor.Id), Guid.NewGuid().ToString());
         }
 
         public bool IsPaused
@@ -99,7 +81,7 @@ namespace LanguageExt
                 if (!IsPaused)
                 {
                     IsPaused = true;
-                    cluster?.UnsubscribeChannel(ClusterUserInboxNotifyKey);
+                    cluster?.UnsubscribeChannel(ActorInboxCommon.ClusterUserInboxNotifyKey(actor.Id));
                 }
             }
             return unit;
@@ -134,7 +116,7 @@ namespace LanguageExt
                 if (dto.Tag == 0 && dto.Type == 0)
                 {
                     // Message is bad
-                    tell(ActorContext.DeadLetters, DeadLetter.create(dto.Sender, actor.Id, null, "Failed to deserialise message: ", dto));
+                    tell(ActorContext.System(actor.Id).DeadLetters, DeadLetter.create(dto.Sender, actor.Id, null, "Failed to deserialise message: ", dto));
                     return;
                 }
                 var msg = MessageSerialiser.DeserialiseMsg(dto, actor.Id);
@@ -148,8 +130,8 @@ namespace LanguageExt
                 }
                 catch (Exception e)
                 {
-                    ActorContext.WithContext(new ActorItem(actor, this, actor.Flags), parent, dto.Sender, msg as ActorRequest, msg, msg.SessionId, () => replyErrorIfAsked(e));
-                    tell(ActorContext.DeadLetters, DeadLetter.create(dto.Sender, actor.Id, e, "Remote message inbox.", msg));
+                    ActorContext.System(actor.Id).WithContext(new ActorItem(actor, this, actor.Flags), parent, dto.Sender, msg as ActorRequest, msg, msg.SessionId, () => replyErrorIfAsked(e));
+                    tell(ActorContext.System(actor.Id).DeadLetters, DeadLetter.create(dto.Sender, actor.Id, e, "Remote message inbox.", msg));
                     logSysErr(e);
                 }
             }
@@ -181,8 +163,8 @@ namespace LanguageExt
                         }
                         catch (Exception e)
                         {
-                            ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, dto.Sender, msg as ActorRequest, msg, msg.SessionId, () => replyErrorIfAsked(e));
-                            tell(ActorContext.DeadLetters, DeadLetter.create(dto.Sender, actor.Id, e, "Remote message inbox.", msg));
+                            ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, dto.Sender, msg as ActorRequest, msg, msg.SessionId, () => replyErrorIfAsked(e));
+                            tell(ActorContext.System(actor.Id).DeadLetters, DeadLetter.create(dto.Sender, actor.Id, e, "Remote message inbox.", msg));
                             logSysErr(e);
                         }
                         finally
@@ -219,8 +201,8 @@ namespace LanguageExt
             tokenSource?.Dispose();
             tokenSource = null;
 
-            try { cluster?.UnsubscribeChannel(ClusterUserInboxNotifyKey); } catch { };
-            try { cluster?.UnsubscribeChannel(ClusterSystemInboxNotifyKey); } catch { };
+            try { cluster?.UnsubscribeChannel(ActorInboxCommon.ClusterUserInboxNotifyKey(actor.Id)); } catch { };
+            try { cluster?.UnsubscribeChannel(ActorInboxCommon.ClusterSystemInboxNotifyKey(actor.Id)); } catch { };
             cluster = null;
         }
     }

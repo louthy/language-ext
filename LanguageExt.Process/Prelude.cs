@@ -83,9 +83,7 @@ namespace LanguageExt
         /// This should be used from within a process message loop only
         /// </remarks>
         public static ProcessId Self =>
-            InMessageLoop
-                ? ActorContext.Self
-                : ActorContext.User;
+            ActorContext.Self;
 
         /// <summary>
         /// Parent process ID
@@ -95,37 +93,37 @@ namespace LanguageExt
         /// </remarks>
         public static ProcessId Parent =>
             InMessageLoop
-                ? ActorContext.Parent
+                ? ActorContext.Request.Parent.Actor.Id
                 : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(Parent));
 
         /// <summary>
         /// Root process ID
         /// The Root process is the parent of all processes
         /// </summary>
-        public static ProcessId Root =>
-            ActorContext.Root;
+        public static ProcessId Root(SystemName system = default(SystemName)) =>
+            ActorContext.System(system).Root;
 
         /// <summary>
         /// User process ID
         /// The User process is the default entry process, your first process spawned
         /// will be a child of this process.
         /// </summary>
-        public static ProcessId User =>
-            ActorContext.User;
+        public static ProcessId User(SystemName system = default(SystemName)) =>
+            ActorContext.System(system).User;
 
         /// <summary>
         /// Dead letters process
         /// Subscribe to it to monitor the failed messages (<see cref="subscribe(ProcessId)"/>)
         /// </summary>
-        public static ProcessId DeadLetters =>
-            ActorContext.DeadLetters;
+        public static ProcessId DeadLetters(SystemName system = default(SystemName)) =>
+            ActorContext.System(system).DeadLetters;
 
         /// <summary>
         /// Errors process
         /// Subscribe to it to monitor the errors thrown 
         /// </summary>
-        public static ProcessId Errors =>
-            ActorContext.Errors;
+        public static ProcessId Errors(SystemName system = default(SystemName)) =>
+            ActorContext.System(system).Errors;
 
         /// <summary>
         /// Sender process ID
@@ -133,7 +131,7 @@ namespace LanguageExt
         /// be provided).
         /// </summary>
         public static ProcessId Sender =>
-            ActorContext.Sender;
+            ActorContext.Request.Sender;
 
         /// <summary>
         /// Get the child processes of the running process
@@ -143,21 +141,21 @@ namespace LanguageExt
         /// </remarks>
         public static Map<string, ProcessId> Children =>
             InMessageLoop
-                ? ActorContext.Children
+                ? ActorContext.Request.Children
                 : raiseUseInMsgLoopOnlyException<Map<string,ProcessId>>(nameof(Children));
 
         /// <summary>
         /// Get the child processes of the process ID provided
         /// </summary>
         public static Map<string, ProcessId> children(ProcessId pid) =>
-            ActorContext.GetChildren(pid);
+            ActorContext.System(pid).GetChildren(pid);
 
         /// <summary>
         /// Get the child processes by name
         /// </summary>
         public static ProcessId child(ProcessName name) =>
             InMessageLoop
-                ? Self.Child(name)
+                ? Self[name]
                 : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(child));
 
         /// <summary>
@@ -171,13 +169,12 @@ namespace LanguageExt
         /// </remarks>
         public static ProcessId child(int index) =>
             InMessageLoop
-                ? ActorContext.SelfProcess.Actor.Children.Count == 0
+                ? ActorContext.Request.Children.Count == 0
                     ? raise<ProcessId>(new NoChildProcessesException())
-                    : ActorContext.SelfProcess
-                                  .Actor
+                    : ActorContext.Request
                                   .Children
-                                  .Skip(index % ActorContext.SelfProcess.Actor.Children.Count)
-                                  .Map( kv => kv.Value.Actor.Id )
+                                  .Skip(index % ActorContext.Request.Children.Count)
+                                  .Map( kv => kv.Value )
                                   .Head()
                 : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(child));
 
@@ -219,7 +216,7 @@ namespace LanguageExt
         /// spawns then call Process.shutdown(pid);
         /// </summary>
         public static Unit kill(ProcessId pid) =>
-            ActorContext.Kill(pid, false);
+            ActorContext.System(pid).Kill(pid, false);
 
         /// <summary>
         /// Shutdown a specified running process.
@@ -230,20 +227,26 @@ namespace LanguageExt
         /// Process.kill(pid)
         /// </summary>
         public static Unit shutdown(ProcessId pid) =>
-            ActorContext.Kill(pid, true);
+            ActorContext.System(pid).Kill(pid, true);
 
         /// <summary>
-        /// Shutdown all processes and restart
+        /// Shutdown all processes on the specified process-system
+        /// </summary>
+        public static Unit shutdownSystem(SystemName system) =>
+            ActorContext.StopSystem(system);
+
+        /// <summary>
+        /// Shutdown all processes on all process-systems
         /// </summary>
         public static Unit shutdownAll() =>
-            ActorContext.Shutdown();
+            ActorContext.StopAllSystems();
 
         /// <summary>
         /// Forces a running process to restart.  This will reset its state and drop
         /// any subscribers, or any of its subscriptions.
         /// </summary>
         public static Unit restart(ProcessId pid) =>
-            ActorContext.TellSystem(pid, SystemMessage.Restart);
+            ActorContext.System(pid).TellSystem(pid, SystemMessage.Restart);
 
         /// <summary>
         /// Pauses a running process.  Messages will still be accepted into the Process'
@@ -252,7 +255,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pid">Process to pause</param>
         public static Unit pause(ProcessId pid) =>
-            ActorContext.TellSystem(pid, SystemMessage.Pause);
+            ActorContext.System(pid).TellSystem(pid, SystemMessage.Pause);
 
         /// <summary>
         /// Pauses a running process.  Messages will still be accepted into the Process'
@@ -273,7 +276,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pid">Process to un-pause</param>
         public static Unit unpause(ProcessId pid) =>
-            ActorContext.TellSystem(pid, SystemMessage.Unpause);
+            ActorContext.System(pid).TellSystem(pid, SystemMessage.Unpause);
 
         /// <summary>
         /// Find out if a process exists
@@ -288,7 +291,7 @@ namespace LanguageExt
         /// <param name="pid">Process ID to check</param>
         /// <returns>True if exists</returns>
         public static bool exists(ProcessId pid) =>
-            ActorContext.GetDispatcher(pid).Exists;
+            ActorContext.System(pid).GetDispatcher(pid).Exists;
 
         /// <summary>
         /// Watch another Process in case it terminates
@@ -296,7 +299,7 @@ namespace LanguageExt
         /// <param name="pid">Process to watch</param>
         public static Unit watch(ProcessId pid) =>
             InMessageLoop
-                ? ActorContext.SelfProcess.Actor.DispatchWatch(pid)
+                ? ActorContext.Request.Self.Actor.DispatchWatch(pid)
                 : raiseUseInMsgLoopOnlyException<Unit>(nameof(watch));
 
         /// <summary>
@@ -305,7 +308,7 @@ namespace LanguageExt
         /// <param name="pid">Process to watch</param>
         public static Unit unwatch(ProcessId pid) =>
             InMessageLoop
-                ? ActorContext.SelfProcess.Actor.DispatchUnWatch(pid)
+                ? ActorContext.Request.Self.Actor.DispatchUnWatch(pid)
                 : raiseUseInMsgLoopOnlyException<Unit>(nameof(unwatch));
 
         /// <summary>
@@ -315,7 +318,7 @@ namespace LanguageExt
         /// <param name="watcher">Watcher</param>
         /// <param name="watching">Watched</param>
         public static Unit watch(ProcessId watcher, ProcessId watching) =>
-            ActorContext.GetDispatcher(watcher).DispatchWatch(watching);
+            ActorContext.System(watcher).GetDispatcher(watcher).DispatchWatch(watching);
 
         /// <summary>
         /// Stop watching for the death of the watching process
@@ -323,7 +326,7 @@ namespace LanguageExt
         /// <param name="watcher">Watcher</param>
         /// <param name="watching">Watched</param>
         public static Unit unwatch(ProcessId watcher, ProcessId watching) =>
-            ActorContext.GetDispatcher(watcher).DispatchUnWatch(watching);
+            ActorContext.System(watcher).GetDispatcher(watcher).DispatchUnWatch(watching);
 
         /// <summary>
         /// Find the number of items in the Process inbox
@@ -331,7 +334,7 @@ namespace LanguageExt
         /// <param name="pid">Process</param>
         /// <returns>Number of items in the Process inbox</returns>
         public static int inboxCount(ProcessId pid) =>
-            ActorContext.GetDispatcher(pid).GetInboxCount();
+            ActorContext.System(pid).GetDispatcher(pid).GetInboxCount();
 
         /// <summary>
         /// Return True if the message sent is a Tell and not an Ask
@@ -341,16 +344,22 @@ namespace LanguageExt
         /// </remarks>
         public static bool isTell =>
             InMessageLoop
-                ? ActorContext.CurrentRequest == null
+                ? ActorContext.Request.CurrentRequest == null
                 : raiseUseInMsgLoopOnlyException<bool>(nameof(isTell));
 
         /// <summary>
         /// Get a list of cluster nodes that are online
         /// </summary>
-        public static Map<ProcessName, ClusterNode> ClusterNodes =>
-            ActorContext.ClusterState == null
+        public static Map<ProcessName, ClusterNode> ClusterNodes(SystemName system = default(SystemName)) =>
+            ActorContext.System(system).ClusterState == null
                 ? Map.empty<ProcessName, ClusterNode>()
-                : ActorContext.ClusterState.Members;
+                : ActorContext.System(system).ClusterState.Members;
+
+        /// <summary>
+        /// List of system names running on this node
+        /// </summary>
+        public static Lst<SystemName> Systems =
+            ActorContext.Systems;
 
         /// <summary>
         /// Return True if the message sent is an Ask and not a Tell
@@ -371,6 +380,6 @@ namespace LanguageExt
         /// <param name="pid"></param>
         /// <returns>Enumerable of resolved ProcessIds - could be zero length</returns>
         public static IEnumerable<ProcessId> resolve(ProcessId pid) =>
-            ActorContext.ResolveProcessIdSelection(pid);
+            ActorContext.System(pid).ResolveProcessIdSelection(pid);
     }
 }

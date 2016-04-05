@@ -18,7 +18,7 @@ namespace LanguageExt
         }
 
         private IEnumerable<IActorDispatch> GetWorkers() =>
-            group.Map(pid => ActorContext.GetDispatcher(pid));
+            group.Map(pid => ActorContext.System(pid).GetDispatcher(pid));
 
         private Unit IterRoleMembers(Action<IActorDispatch> action) =>
             GetWorkers().Iter(action);

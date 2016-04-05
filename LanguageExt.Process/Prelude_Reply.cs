@@ -33,18 +33,18 @@ namespace LanguageExt
             (message is IReturn) && !((IReturn)message).HasValue
                 ? unit
                 : InMessageLoop
-                    ? ActorContext.CurrentRequest == null
+                    ? ActorContext.Request.CurrentRequest == null
                         ? failwith<Unit>("You can't reply to this message.  It wasn't an 'ask'.  Use isAsk to confirm whether something is an 'ask' or a 'tell'")
-                        : ActorContext.Tell(
-                            ActorContext.CurrentRequest.ReplyTo, 
+                        : ActorContext.System(default(SystemName)).Tell(
+                            ActorContext.Request.CurrentRequest.ReplyTo, 
                                 new ActorResponse(
                                     message,
                                     message.GetType().AssemblyQualifiedName,
-                                    ActorContext.CurrentRequest.ReplyTo, 
-                                    ActorContext.Self, 
-                                    ActorContext.CurrentRequest.RequestId
+                                    ActorContext.Request.CurrentRequest.ReplyTo, 
+                                    ActorContext.Request.Self.Actor.Id, 
+                                    ActorContext.Request.CurrentRequest.RequestId
                                 ), 
-                                ActorContext.Self
+                                ActorContext.Request.Self.Actor.Id
                             )
                     : raiseUseInMsgLoopOnlyException<Unit>(nameof(reply));
 
@@ -67,18 +67,18 @@ namespace LanguageExt
         /// </remarks>
         public static Unit replyError(Exception exception) =>
             InMessageLoop
-                ? ActorContext.CurrentRequest == null
+                ? ActorContext.Request.CurrentRequest == null
                     ? failwith<Unit>("You can't reply to this message.  It wasn't an 'ask'.  Use isAsk to confirm whether something is an 'ask' or a 'tell'")
-                    : ActorContext.Tell(ActorContext.CurrentRequest.ReplyTo, 
+                    : ActorContext.System(default(SystemName)).Tell(ActorContext.Request.CurrentRequest.ReplyTo, 
                             new ActorResponse(
                                 exception, 
                                 exception.GetType().AssemblyQualifiedName, 
-                                ActorContext.CurrentRequest.ReplyTo, 
-                                ActorContext.Self, 
-                                ActorContext.CurrentRequest.RequestId,
+                                ActorContext.Request.CurrentRequest.ReplyTo, 
+                                ActorContext.Request.Self.Actor.Id, 
+                                ActorContext.Request.CurrentRequest.RequestId,
                                 true
                             ), 
-                            ActorContext.Self
+                            ActorContext.Request.Self.Actor.Id
                         )
                 : raiseUseInMsgLoopOnlyException<Unit>(nameof(reply));
 

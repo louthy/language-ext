@@ -60,15 +60,7 @@ module ProcessFs =
         Process.Self.IsValid
 
     let resolvePID (pid:ProcessId) : ProcessId = 
-        match pid.Path with
-        | "/__special__/self"         -> Process.Self
-        | "/__special__/sender"       -> Process.Sender
-        | "/__special__/parent"       -> Process.Parent
-        | "/__special__/user"         -> Process.User
-        | "/__special__/dead-letters" -> Process.DeadLetters
-        | "/__special__/root"         -> Process.Root
-        | "/__special__/errors"       -> Process.Errors
-        | _                           -> pid
+        Process.resolvePID(pid)
 
     let childrenSelf() : FSharp.Collections.Map<string,ProcessId> = 
         FSharp.fs(Process.Children)
@@ -137,8 +129,8 @@ module ProcessFs =
     ///     tell DispatchFs.RoundRobin.[regd] "Hello" Self
     /// 
     ///     This should be used from within a process' message loop only
-    let register name processId = 
-        Process.register(new ProcessName(name),processId)
+    let register name processId system = 
+        Process.register(new ProcessName(name), resolvePID(processId))
 
     /// Deregister all Processes associated with a name. NOTE: Be very careful
     /// with usage of this function if you didn't handle the registration you
@@ -266,12 +258,11 @@ module ProcessFs =
     //
     //      RedisCluster.register()
     //      clusterConnect "redis" "unique-name-for-this-service" "localhost" "0"
-    let clusterConnect clusterProvider nodeName connectionString catalogueString role = 
-        Cluster.disconnect() |> ignore
-        Cluster.connect(clusterProvider,new ProcessName(nodeName),connectionString,catalogueString,role) |> ignore
-
-    let clusterDisconnect () =
-        Cluster.disconnect() |> ignore
+//    let clusterConnect clusterProvider nodeName connectionString catalogueString role = 
+//        Cluster.connect(clusterProvider,new ProcessName(nodeName),connectionString,catalogueString,role)
+//
+//    let clusterDisconnect cluster =
+//        Cluster.disconnect cluster
 
     /// Starts a new session in the Process system
     let sessionStart (timeoutSeconds:float<second>) : SessionId =
@@ -296,17 +287,20 @@ module ProcessFs =
 
     /// Set the meta-data to store with the session, this is typically
     /// user credentials when they've logged in.  But can be anything.
-    let sessionSetData (sid:SessionId) (data:obj) =
-        Process.sessionSetData(sid,data) |> ignore
 
-    /// Clear the meta-data stored with the session
-    let sessionClearData (sid:SessionId) =
-        Process.sessionClearData(sid) |> ignore
+    // TODO: Restore once the functionality is back in the main library
 
-    /// Get the meta-data stored with the session, this is typically
-    /// user credentials when they've logged in.  But can be anything.
-    let sessionGetData (sid:SessionId) =
-        Process.sessionGetData(sid) |> LanguageExt.FSharp.fs
+//    let sessionSetData (sid:SessionId) (data:obj) =
+//        Process.sessionSetData(sid,data) |> ignore
+//
+//    /// Clear the meta-data stored with the session
+//    let sessionClearData (sid:SessionId) =
+//        Process.sessionClearData(sid) |> ignore
+//
+//    /// Get the meta-data stored with the session, this is typically
+//    /// user credentials when they've logged in.  But can be anything.
+//    let sessionGetData (sid:SessionId) =
+//        Process.sessionGetData(sid) |> LanguageExt.FSharp.fs
 
     /// Returns True if there is an active session
     let hasSession() =

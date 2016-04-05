@@ -24,7 +24,7 @@ namespace LanguageExtTests
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-test", "localhost", "0", "global");
+            ProcessConfig.initialise("sys", "global", "redis-ask-reply-test", "localhost", "0");
 
             var world = spawn<ProcessId, string>("world",
                 () => spawn<string>("hello", msg => failwith<Unit>("Failed!"), ProcessFlags.PersistInbox),
@@ -46,6 +46,7 @@ namespace LanguageExtTests
         public void AskReply()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             var helloServer = spawn<string>("hello-server", msg =>
             {
@@ -62,6 +63,7 @@ namespace LanguageExtTests
         {
             shutdownAll();
 
+            ProcessConfig.initialise();
             // Spawn a process
             var pid = spawn<string>("pubsub", msg =>
             {
@@ -86,6 +88,7 @@ namespace LanguageExtTests
         public void LocalRegisterTest()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             string value = null;
             var pid = spawn<string>("reg-proc", msg => value = msg);
@@ -126,7 +129,7 @@ namespace LanguageExtTests
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-test", "localhost", "0", "global");
+            ProcessConfig.initialise("sys", "global", "redis-test", "localhost", "0");
 
             string value = null;
             var pid = spawn<string>("reg-proc", msg => value = msg);
@@ -135,27 +138,27 @@ namespace LanguageExtTests
 
             Assert.True(regid == "/disp/reg/global-woooo amazing");
 
-            Thread.Sleep(100);
+            Thread.Sleep(200);
 
             tell(regid, "hello");
 
-            Thread.Sleep(100);
+            Thread.Sleep(200);
 
             Assert.True(value == "hello");
 
             tell(find("woooo amazing"), "world");
 
-            Thread.Sleep(100);
+            Thread.Sleep(200);
 
             Assert.True(value == "world");
 
             deregisterById(pid);
 
-            Thread.Sleep(100);
+            Thread.Sleep(200);
 
             tell(find("woooo amazing"), "noooo");
 
-            Thread.Sleep(100);
+            Thread.Sleep(200);
 
             Assert.True(value != "noooo");
         }
@@ -164,6 +167,7 @@ namespace LanguageExtTests
         public void SpawnProcess()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             string value = null;
             var pid = spawn<string>("SpawnProcess", msg => value = msg);
@@ -180,6 +184,7 @@ namespace LanguageExtTests
         public void SpawnErrorSurviveProcess()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             int value = 0;
             int count = 0;
@@ -206,6 +211,7 @@ namespace LanguageExtTests
         public void SpawnAndKillProcess()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             string value = null;
             var pid = spawn<string>("SpawnAndKillProcess", msg => value = msg);
@@ -225,13 +231,14 @@ namespace LanguageExtTests
             Thread.Sleep(10);
 
             Assert.True(value == "1");
-            Assert.True(children(User).Length == 0);
+            Assert.True(children(User()).Length == 0);
         }
 
         [Fact]
         public void SpawnAndKillHierarchy()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             string value = null;
             ProcessId parentId;
@@ -267,13 +274,14 @@ namespace LanguageExtTests
             Thread.Sleep(10);
 
             Assert.True(value == "1", "Expected 1, actually equals: "+ value);
-            Assert.True(children(User).Length == 0);
+            Assert.True(children(User()).Length == 0);
         }
 
         [Fact]
         public static void ProcessStartupInvalidTypeError()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             try
             {
@@ -292,27 +300,30 @@ namespace LanguageExtTests
             }
         }
 
-        [Fact]
-        public static void ProcessStartupError()
-        {
-            shutdownAll();
+        //  Startup works differently now, it's runs asynchronously, but not
+        //  on the first message. This will need a new test.
+        //
+        //[Fact]
+        //public static void ProcessStartupError()
+        //{
+        //    shutdownAll();
 
-            try
-            {
-                var pid = spawn<Unit, string>("world",
-                    () => failwith<Unit>("Failed!"),
-                    (_, __) => _, ProcessFlags.PersistInbox
-                    );
+        //    try
+        //    {
+        //        var pid = spawn<Unit, string>("world",
+        //            () => failwith<Unit>("Failed!"),
+        //            (_, __) => _, ProcessFlags.PersistInbox
+        //            );
 
-                ask<Unit>(pid, "test");
+        //        ask<Unit>(pid, "test");
 
-                throw new Exception("Shouldn't get here");
-            }
-            catch (ProcessException e)
-            {
-                Assert.True(e.Message == "Process issue: Process failed to start: /root/user/world");
-            }
-        }
+        //        throw new Exception("Shouldn't get here");
+        //    }
+        //    catch (ProcessException e)
+        //    {
+        //        Assert.True(e.Message == "Process issue: Process failed to start: /root/user/world");
+        //    }
+        //}
 
         public static int DepthMax(int depth) =>
             depth == 0
@@ -329,6 +340,7 @@ namespace LanguageExtTests
             int max = DepthMax(depth);
 
             shutdownAll();
+            ProcessConfig.initialise();
 
             var actor = fun((Unit s, string msg) =>
             {
@@ -358,29 +370,30 @@ namespace LanguageExtTests
 
             Thread.Sleep(500);
 
-            Assert.True(children(User).Count() == 0);
+            Assert.True(children(User()).Count() == 0);
         }
 
         [Fact]
         public void ScheduledMsgTest()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             string v = "";
 
             var p = spawn<string>("test-sch", x => v = x);
 
-            var future = DateTime.Now.AddSeconds(3);
+            var future = DateTime.UtcNow.AddSeconds(3);
 
             tell(p, "hello", future);
 
-            while (DateTime.Now < future)
+            while (DateTime.UtcNow < future)
             {
                 Assert.True(v == "");
                 Thread.Sleep(10);
             }
 
-            while (DateTime.Now < future.AddMilliseconds(100))
+            while (DateTime.UtcNow < future.AddMilliseconds(1000))
             {
                 Thread.Sleep(10);
             }

@@ -27,10 +27,10 @@ namespace LanguageExt
         /// </summary>
         /// <param name="sid">Session ID</param>
         /// <param name="timeout">Session timeout</param>
-        public static string sessionStart(string sid, Time timeout)
+        public static string sessionStart(string sid, Time timeout, SystemName system = default(SystemName))
         {
-            SessionManager.Start(sid, (int)timeout.Seconds);
-            SessionManager.SessionId = sid;
+            ActorContext.System(system).Sessions.Start(sid, (int)(timeout/1.Seconds()));
+            ActorContext.SessionId = sid;
             return sid;
         }
 
@@ -47,16 +47,16 @@ namespace LanguageExt
         /// session ID
         /// </summary>
         /// <param name="sid">Session ID</param>
-        public static Unit sessionStop(string sid) =>
-            SessionManager.Stop(sid);
+        public static Unit sessionStop(string sid, SystemName system = default(SystemName)) =>
+            ActorContext.System(system).Sessions.Stop(sid);
 
         /// <summary>
         /// Touch a session
         /// Time-stamps the session so that its time-to-expiry is reset
         /// </summary>
         /// <param name="sid">Session ID</param>
-        public static Unit sessionTouch(string sid) =>
-            SessionManager.Touch(sid);
+        public static Unit sessionTouch(string sid, SystemName system = default(SystemName)) =>
+            ActorContext.System(system).Sessions.Touch(sid);
 
         /// <summary>
         /// Gets the current session ID
@@ -64,43 +64,45 @@ namespace LanguageExt
         /// <remarks>Also touches the session so that its time-to-expiry 
         /// is reset</remarks>
         /// <returns>Optional session ID</returns>
-        public static Option<string> sessionId() 
+        public static Option<string> sessionId(SystemName system = default(SystemName)) 
         {
-            var sid = SessionManager.SessionId;
-            sid.IfSome(SessionManager.Touch);
+            var sid = ActorContext.SessionId;
+            sid.IfSome(x => sessionTouch(x, system));
             return sid;
         }
 
-        /// <summary>
-        /// Set the meta-data to store with the session, this is typically
-        /// user credentials when they've logged in.  But can be anything.
-        /// </summary>
-        /// <param name="sid">Session ID</param>
-        /// <param name="data">Data to store</param>
-        public static void sessionSetData(string sid, object data) =>
-            SessionManager.SetSessionData(sid, data);
+        // TODO: Restore this functionality
 
-        /// <summary>
-        /// Clear the meta-data stored with the session
-        /// </summary>
-        /// <param name="sid">Session ID</param>
-        public static void sessionClearData(string sid) =>
-            SessionManager.ClearSessionData(sid);
+        ///// <summary>
+        ///// Set the meta-data to store with the session, this is typically
+        ///// user credentials when they've logged in.  But can be anything.
+        ///// </summary>
+        ///// <param name="sid">Session ID</param>
+        ///// <param name="data">Data to store</param>
+        //public static void sessionSetData(string sid, object data, SystemName system = default(SystemName)) =>
+        //    SessionManager.SetSessionData(sid, data, system);
 
-        /// <summary>
-        /// Get the meta-data stored with the session, this is typically
-        /// user credentials when they've logged in.  But can be anything.
-        /// </summary>
-        /// <param name="sid">Session ID</param>
-        public static Option<T> sessionGetData<T>(string sid) =>
-            SessionManager.GetSessionData<T>(sid);
+        ///// <summary>
+        ///// Clear the meta-data stored with the session
+        ///// </summary>
+        ///// <param name="sid">Session ID</param>
+        //public static void sessionClearData(string sid, SystemName system = default(SystemName)) =>
+        //    SessionManager.ClearSessionData(sid, system);
+
+        ///// <summary>
+        ///// Get the meta-data stored with the session, this is typically
+        ///// user credentials when they've logged in.  But can be anything.
+        ///// </summary>
+        ///// <param name="sid">Session ID</param>
+        //public static Option<T> sessionGetData<T>(string sid, SystemName system = default(SystemName)) =>
+        //    SessionManager.GetSessionData<T>(sid, system);
 
         /// <summary>
         /// Returns True if there is an active session
         /// </summary>
         /// <returns></returns>
         public static bool hasSession() =>
-            SessionManager.SessionId.IsSome;
+            ActorContext.SessionId.IsSome;
 
         /// <summary>
         /// Acquires a session for the duration of invocation of the 
@@ -109,15 +111,17 @@ namespace LanguageExt
         /// <param name="sid">Session ID</param>
         /// <param name="f">Function to invoke</param>
         /// <returns>Result of the function</returns>
-        public static R withSession<R>(string sid, Func<R> f) =>
-            ActorContext.WithContext<R>(
-                ActorContext.SelfProcess,
-                ActorContext.SelfProcess.Actor.Parent,
-                Process.Sender, 
-                ActorContext.CurrentRequest, 
-                ActorContext.CurrentMsg, 
-                Some(sid), 
-                f);
+        public static R withSession<R>(string sid, Func<R> f, SystemName system = default(SystemName)) =>
+            InMessageLoop
+                ? ActorContext.System(system).WithContext<R>(
+                    ActorContext.Request.Self,
+                    ActorContext.Request.Self.Actor.Parent,
+                    Process.Sender,
+                    ActorContext.Request.CurrentRequest,
+                    ActorContext.Request.CurrentMsg,
+                    Some(sid),
+                    f)
+                : raiseUseInMsgLoopOnlyException<R>(nameof(withSession));
 
         /// <summary>
         /// Acquires a session for the duration of invocation of the 

@@ -13,6 +13,8 @@ namespace LanguageExtTests
         [Fact]
         public void TestSelectionIds()
         {
+            ProcessConfig.initialise();
+
             ProcessId test = "/disp/broadcast/[/root/user/a,/root/user/b,/root/user/c]";
 
             Assert.True(test.Take(1).GetName() == "disp");
@@ -28,6 +30,8 @@ namespace LanguageExtTests
         [Fact]
         public void TestRegistered()
         {
+            ProcessConfig.initialise();
+
             ProcessId test1 = "@registered";
             Assert.True(test1.Path == "/disp/reg/local-registered");
 

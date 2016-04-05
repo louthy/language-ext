@@ -35,7 +35,7 @@ namespace LanguageExt
             }
             catch (Exception e)
             {
-                tell(Errors, e);
+                tell(Errors(hub.System), e);
             }
             return hub;
         }
@@ -54,7 +54,7 @@ namespace LanguageExt
                     if (rmsg.IsAsk)
                     {
                         // Ask not supported
-                        tell(Errors, "'ask' not supported from JS to server.");
+                        tell(Errors(hub.System), "'ask' not supported from JS to server.");
                     }
                     else
                     {
@@ -71,9 +71,9 @@ namespace LanguageExt
                     var subscriber   = rmsg.Sender;
                     var connectionId = rmsg.ConnectionId;
 
-                    ActorContext.SelfProcess.Actor.AddSubscription(
+                    ActorContext.Request.Self.Actor.AddSubscription(
                         rmsg.To,
-                        ActorContext.Observe<object>(pid).Subscribe(x =>
+                        ActorContext.System(pid).Observe<object>(pid).Subscribe(x =>
                             tell(hub, 
                                  new OutboundRelayMsg(
                                      connectionId,
@@ -94,7 +94,7 @@ namespace LanguageExt
                     break;
 
                 case RelayMsg.MsgTag.Unsubscribe:
-                    ActorContext.SelfProcess.Actor.RemoveSubscription(rmsg.To);
+                    ActorContext.Request.Self.Actor.RemoveSubscription(rmsg.To);
                     break;
             }
             return hub;

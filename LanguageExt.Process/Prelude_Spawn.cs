@@ -105,9 +105,22 @@ namespace LanguageExt
             ProcessFlags Flags = ProcessFlags.Default,
             State<StrategyContext, Unit> Strategy = null,
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize,
-            Func<S, ProcessId, S> Terminated = null
-            ) =>
-            ActorContext.ActorCreate(ActorContext.SelfProcess, Name, Inbox, Setup, Terminated, Strategy, Flags, MaxMailboxSize, false);
+            Func<S, ProcessId, S> Terminated = null,
+            SystemName System = default(SystemName)
+            )
+        {
+            if (System.IsValid && ActorContext.Request != null) throw new ProcessException("When spawning you can only specify a System from outside of a Process", ActorContext.Self[Name].Path, "");
+
+            var sys = System.IsValid
+                ? ActorContext.System(System)
+                : ActorContext.DefaultSystem;
+
+            var parent = System.IsValid
+                ? sys.UserContext.Self
+                : ActorContext.SelfProcess;
+
+            return sys.ActorCreate(parent, Name, Inbox, Setup, Terminated, Strategy, Flags, MaxMailboxSize, false);
+        }
 
         /// <summary>
         /// Create N child processes.
@@ -165,7 +178,7 @@ namespace LanguageExt
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize,
             Func<S, ProcessId, S> Terminated = null
             ) =>
-            List.map(Range(0, Count), n => ActorContext.ActorCreate(ActorContext.SelfProcess, $"{Name}-{n}", Inbox, Setup, Terminated, Strategy, Flags, MaxMailboxSize, false)).ToList();
+            List.map(Range(0, Count), n => ActorContext.System(default(SystemName)).ActorCreate(ActorContext.SelfProcess, $"{Name}-{n}", Inbox, Setup, Terminated, Strategy, Flags, MaxMailboxSize, false)).ToList();
 
         /// <summary>
         /// Create N child processes.
@@ -194,7 +207,7 @@ namespace LanguageExt
             int MaxMailboxSize = ProcessSetting.DefaultMailboxSize,
             Func<S, ProcessId, S> Terminated = null
             ) =>
-            Map.map(Spec, (id,state) => ActorContext.ActorCreate(ActorContext.SelfProcess, $"{Name}-{id}", Inbox, state, Terminated, Strategy, Flags, MaxMailboxSize, false)).Values.ToList();
+            Map.map(Spec, (id,state) => ActorContext.System(default(SystemName)).ActorCreate(ActorContext.SelfProcess, $"{Name}-{id}", Inbox, state, Terminated, Strategy, Flags, MaxMailboxSize, false)).Values.ToList();
 
         /// <summary>
         /// Spawn by type

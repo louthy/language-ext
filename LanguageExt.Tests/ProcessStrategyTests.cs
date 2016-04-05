@@ -36,98 +36,97 @@ namespace LanguageExtTests
                     When<Restart>(MessageDirective.ForwardToParent),
                     Otherwise(MessageDirective.ForwardToDeadLetters)));
 
-        // TODO: Look into this, seems to get stuck
+        [Fact]
+        public void RealTest()
+        {
+            shutdownAll();
+            ProcessConfig.initialise();
 
-        //[Fact]
-        //public void RealTest()
-        //{
-        //    shutdownAll();
+            Thread.Sleep(100);
 
-        //    Thread.Sleep(100);
+            var strategy = OneForOne(
+                Retries(5, 1 * hour),
+                Always(Directive.Restart)
+                );
 
-        //    var strategy = OneForOne(
-        //        Retries(5, 1 * hour),
-        //        Always(Directive.Restart)
-        //        );
+            // Spawn a parent with a strategy for its children
+            var pid = spawn<ProcessId, int>(
+                    "hello", 
+                    () => spawnUnit(
+                        "world",
+                        function(
+                            with(0, _ => reply(0)),
+                            with(1, _ => failwith<Unit>("one")),
+                            with(2, _ => failwith<Unit>("two")),
+                            otherwise<int, Unit>(_ => failwith<Unit>("other")))
+                        ),
+                    (child, msg) => 
+                    {
+                        fwd(child, msg);
+                        return child;
+                    }, 
+                    Strategy: strategy
+                );
 
-        //    // Spawn a parent with a strategy for its children
-        //    var pid = spawn<ProcessId, int>(
-        //            "hello", 
-        //            () => spawnUnit(
-        //                "world",
-        //                function(
-        //                    with(0, _ => reply(0)),
-        //                    with(1, _ => failwith<Unit>("one")),
-        //                    with(2, _ => failwith<Unit>("two")),
-        //                    otherwise<int, Unit>(_ => failwith<Unit>("other")))
-        //                ),
-        //            (child, msg) => 
-        //            {
-        //                fwd(child, msg);
-        //                return child;
-        //            }, 
-        //            Strategy: strategy
-        //        );
+            Assert.True(ask<int>(pid, 0) == 0);
+            Assert.True(ask<int>(pid, 0) == 0);
+            Assert.True(ask<int>(pid, 0) == 0);
 
-        //    Assert.True(ask<int>(pid, 0) == 0);
-        //    Assert.True(ask<int>(pid, 0) == 0);
-        //    Assert.True(ask<int>(pid, 0) == 0);
+            try
+            {
+                ask<int>(pid, 1);
+            }
+            catch (ProcessException pe)
+            {
+                Assert.True(pe.Message == "Process issue: one");
+            }
+            try
+            {
+                ask<int>(pid, 2);
+            }
+            catch (ProcessException pe)
+            {
+                Assert.True(pe.Message == "Process issue: two");
+            }
+            try
+            {
+                ask<int>(pid, 3);
+            }
+            catch (ProcessException pe)
+            {
+                Assert.True(pe.Message == "Process issue: other");
+            }
+            try
+            {
+                ask<int>(pid, 4);
+            }
+            catch (ProcessException pe)
+            {
+                Assert.True(pe.Message == "Process issue: other");
+            }
+            try
+            {
+                ask<int>(pid, 5);
+            }
+            catch (ProcessException pe)
+            {
+                Assert.True(pe.Message == "Process issue: other");
+            }
 
-        //    try
-        //    {
-        //        ask<int>(pid, 1);
-        //    }
-        //    catch (ProcessException pe)
-        //    {
-        //        Assert.True(pe.Message == "Process issue: one");
-        //    }
-        //    try
-        //    {
-        //        ask<int>(pid, 2);
-        //    }
-        //    catch (ProcessException pe)
-        //    {
-        //        Assert.True(pe.Message == "Process issue: two");
-        //    }
-        //    try
-        //    {
-        //        ask<int>(pid, 3);
-        //    }
-        //    catch (ProcessException pe)
-        //    {
-        //        Assert.True(pe.Message == "Process issue: other");
-        //    }
-        //    try
-        //    {
-        //        ask<int>(pid, 4);
-        //    }
-        //    catch (ProcessException pe)
-        //    {
-        //        Assert.True(pe.Message == "Process issue: other");
-        //    }
-        //    try
-        //    {
-        //        ask<int>(pid, 5);
-        //    }
-        //    catch (ProcessException pe)
-        //    {
-        //        Assert.True(pe.Message == "Process issue: other");
-        //    }
+            // Give it a chance to shutdown otherwise
+            // we might get a timeout instead.
+            Thread.Sleep(100);
 
-        //    // Give it a chance to shutdown otherwise
-        //    // we might get a timeout instead.
-        //    Thread.Sleep(100);
-
-        //    // Here the strategy has shut down the Process for failing too often
-        //    try
-        //    {
-        //        ask<int>(pid, 999);
-        //    }
-        //    catch (ProcessException pe)
-        //    {
-        //        Assert.True(pe.Message == "Process issue: Doesn't exist (/root/user/hello/world)");
-        //    }
-        //}
+            // Here the strategy has shut down the Process for failing too often
+            try
+            {
+                ask<int>(pid, 999);
+            }
+            catch (ProcessException pe)
+            {
+                Assert.True(pe.Message == "Process issue: Doesn't exist (//sys/root/user/hello/world)");
+            }
+        }
 
 
         [Fact]

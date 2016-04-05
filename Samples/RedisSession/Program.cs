@@ -16,7 +16,7 @@ namespace RedisSession
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-session-test", "localhost:6379", "0", "global");
+            ProcessConfig.initialise("sys", "global", "redis-session-test", "localhost", "0");
 
             var ping = ProcessId.None;
             var pong = ProcessId.None;

@@ -18,6 +18,8 @@ namespace Dispatchers
             //RedisCluster.register();
             //Cluster.connect("redis", "disp-test", "localhost", "0", "dispatch-role");
 
+            ProcessConfig.initialise();
+
             var pida = spawn<int>("A", x => Console.WriteLine("A" + x));
             var pidb = spawn<int>("B", x => Console.WriteLine("B" + x));
             var pidc = spawn<int>("C", x => Console.WriteLine("C" + x));

@@ -233,7 +233,7 @@ namespace LanguageExt
                 throw new ArgumentNullException();
             }
 
-            return ActorContext.Ask(pid, new ProxyMsg
+            return ActorContext.System(pid).Ask(pid, new ProxyMsg
             {
                 Method = method,
                 Args = args.Map(JsonConvert.SerializeObject).ToArray(),

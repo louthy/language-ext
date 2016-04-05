@@ -47,7 +47,7 @@ namespace LanguageExt
                 },
                 (_, msg) =>
                 {
-                    var disps = (from child in Children.Map(c => Tuple(c, ActorContext.GetDispatcher(c))).Values
+                    var disps = (from child in Children.Map(c => Tuple(c, ActorContext.System(c).GetDispatcher(c))).Values
                                  let count = child.Item2.GetInboxCount()
                                  where count >= 0
                                  orderby count
@@ -98,7 +98,7 @@ namespace LanguageExt
                 Name,
                 msg =>
                 {
-                    var disps = (from child in workers.Map(c => Tuple(c, ActorContext.GetDispatcher(c)))
+                    var disps = (from child in workers.Map(c => Tuple(c, ActorContext.System(c).GetDispatcher(c)))
                                  let count = child.Item2.GetInboxCount()
                                  where count >= 0
                                  orderby count
@@ -161,7 +161,7 @@ namespace LanguageExt
                 {
                     var umsg = Map(msg);
 
-                    var disps = (from child in Children.Map(c => Tuple(c, ActorContext.GetDispatcher(c))).Values
+                    var disps = (from child in Children.Map(c => Tuple(c, ActorContext.System(c).GetDispatcher(c))).Values
                                  let count = child.Item2.GetInboxCount()
                                  where count >= 0
                                  orderby count
@@ -213,7 +213,7 @@ namespace LanguageExt
                 msg =>
                 {
                     var umsg = Map(msg);
-                    var disps = (from child in workers.Map(c => Tuple(c, ActorContext.GetDispatcher(c)))
+                    var disps = (from child in workers.Map(c => Tuple(c, ActorContext.System(c).GetDispatcher(c)))
                                  let count = child.Item2.GetInboxCount()
                                  where count >= 0
                                  orderby count

@@ -17,6 +17,11 @@ namespace LanguageExt
         readonly ProcessName name;
 
         /// <summary>
+        /// The Process system qualifier
+        /// </summary>
+        public readonly SystemName System;
+
+        /// <summary>
         /// Absolute path of the process ID
         /// </summary>
         public readonly string Path;
@@ -33,13 +38,25 @@ namespace LanguageExt
             parts = res.parts;
             name = res.name;
             Path = res.Path;
+            System = res.System;
         }
 
-        ProcessId(ProcessName[] parts, ProcessName name, string path)
+        ProcessId(string path, SystemName system)
+        {
+            var res = TryParse(path).IfLeft(ex => raise<ProcessId>(ex));
+
+            parts = res.parts;
+            name = res.name;
+            Path = res.Path;
+            System = system;
+        }
+
+        ProcessId(ProcessName[] parts, SystemName system, ProcessName name, string path)
         {
             this.parts = parts;
             this.name = name;
             this.Path = path;
+            this.System = system;
         }
 
         public static Either<Exception, ProcessId> TryParse(string path)
@@ -48,6 +65,25 @@ namespace LanguageExt
             {
                 return new InvalidProcessIdException();
             }
+
+            var system = "";
+
+            if( path.StartsWith("//"))
+            {
+                var end = path.IndexOf('/', 2);
+                end = end == -1
+                    ? path.IndexOf("@", 2)
+                    : end;
+
+                if(end == -1)
+                {
+                    return new InvalidProcessIdException($"Invalid ProcessId ({path}), nothing following the system specifier");
+                }
+
+                system = path.Substring(2, end - 2);
+                path = path.Substring(end);
+            }
+
             if (path[0] == '@')
             {
                 return ParseRegisteredProcess(path.Substring(1));
@@ -97,7 +133,7 @@ namespace LanguageExt
                 name = "$";
             }
 
-            return new ProcessId(parts, name, finalPath);
+            return new ProcessId(parts, system == "" ? default(SystemName) : system, name, finalPath);
         }
 
         static ProcessId ParseRegisteredProcess(string name) =>
@@ -213,8 +249,8 @@ namespace LanguageExt
             parts == null
                 ? failwith<ProcessId>("ProcessId is None")
                 : parts.Length == 0
-                    ? new ProcessId("" + Sep + name)
-                    : new ProcessId(Path + Sep + name);
+                    ? new ProcessId("" + Sep + name, System)
+                    : new ProcessId(Path + Sep + name, System);
 
         /// <summary>
         /// Generate new ProcessId that represents a child of this process ID
@@ -225,8 +261,8 @@ namespace LanguageExt
             parts == null
                 ? failwith<ProcessId>("ProcessId is None")
                 : parts.Length == 0
-                    ? new ProcessId("" + Sep + ProcessName.FromSelection(name))
-                    : new ProcessId(Path + Sep + ProcessName.FromSelection(name));
+                    ? new ProcessId("" + Sep + ProcessName.FromSelection(name), System)
+                    : new ProcessId(Path + Sep + ProcessName.FromSelection(name), System);
 
         /// <summary>
         /// Returns true if the ProcessId represents a selection of N process
@@ -275,14 +311,18 @@ namespace LanguageExt
         /// </summary>
         /// <param name="value">String representation of the process ID</param>
         public static implicit operator ProcessId(string value) =>
-            new ProcessId(value);
+            value == null
+                ? ProcessId.NoSender
+                : new ProcessId(value);
 
         /// <summary>
         /// Convert the ProcessId to a string
         /// </summary>
         /// <returns>String representation of the process ID</returns>
         public override string ToString() =>
-            Path;
+            System.IsValid
+                ? $"//{System}{Path}"
+                : Path;
 
         /// <summary>
         /// Hash code of process ID
@@ -366,13 +406,13 @@ namespace LanguageExt
         /// Remove path elements from the start of the path
         /// </summary>
         public ProcessId Skip(int count) =>
-            new ProcessId(Top + String.Join(Sep.ToString(), parts.Skip(count)));
+            new ProcessId(Top + String.Join(Sep.ToString(), parts.Skip(count)), System);
 
         /// <summary>
         /// Take N elements of the path
         /// </summary>
         public ProcessId Take(int count) =>
-            new ProcessId(Top + String.Join(Sep.ToString(), parts.Take(count)));
+            new ProcessId(Top + String.Join(Sep.ToString(), parts.Take(count)), System);
 
         /// <summary>
         /// Take head of path
@@ -400,7 +440,7 @@ namespace LanguageExt
         /// </summary>
         public ProcessId Append(ProcessId pid) =>
             IsValid && pid.IsValid
-                ? Path + pid.Path
+                ? new ProcessId(Path + pid.Path, pid.System)
                 : IsValid
                     ? pid
                     : raise<ProcessId>(new InvalidProcessIdException());
@@ -410,6 +450,12 @@ namespace LanguageExt
         /// </summary>
         public static readonly ProcessId Top = 
             new ProcessId(Sep.ToString());
+
+        /// <summary>
+        /// Set the Process system that this ProcessId belongs to
+        /// </summary>
+        public ProcessId SetSystem(SystemName system) =>
+            new ProcessId(Path, system);
 
         static R failwith<R>(string message)
         {

@@ -11,9 +11,9 @@ namespace LanguageExt
 
         public static Unit IO(Action op)
         {
-            if (Process.InMessageLoop && ProcessConfig.Settings.TransactionalIO)
+            if (Process.InMessageLoop && ActorContext.System(default(SystemName)).Settings.TransactionalIO)
             {
-                ActorContext.Context = ActorContext.Context.SetOps(ActorContext.Context.Ops.IO(op));
+                ActorContext.Request.SetOps(ActorContext.Request.Ops.IO(op));
                 return unit;
             }
             else
@@ -25,9 +25,9 @@ namespace LanguageExt
 
         public static Unit IO(Func<Unit> op)
         {
-            if (Process.InMessageLoop && ProcessConfig.Settings.TransactionalIO)
+            if (Process.InMessageLoop && ActorContext.System(default(SystemName)).Settings.TransactionalIO)
             {
-                ActorContext.Context = ActorContext.Context.SetOps(ActorContext.Context.Ops.IO(op));
+                ActorContext.Request.SetOps(ActorContext.Request.Ops.IO(op));
                 return unit;
             }
             else
@@ -81,11 +81,11 @@ namespace LanguageExt
         {
             var val = Settings.IfNone(Map<string, object>.Empty).Find($"{name}@{prop}");
             if (val.IsSome) return val.Map(x => (T)x).IfNone(defaultValue);
-            return ProcessConfig.Settings.GetProcessSetting<T>(ProcessId, name, prop, flags).IfNone(defaultValue);
+            return ActorContext.System(ProcessId).Settings.GetProcessSetting<T>(ProcessId, name, prop, flags).IfNone(defaultValue);
         }
 
         public static ProcessOpTransaction Start(ProcessId pid) =>
-            new ProcessOpTransaction(pid, Que<ProcessOp>.Empty, ProcessConfig.Settings.GetProcessSettingsOverrides(pid));
+            new ProcessOpTransaction(pid, Que<ProcessOp>.Empty, ActorContext.System(pid).Settings.GetProcessSettingsOverrides(pid));
 
         public ProcessOpTransaction Run()
         {
@@ -134,7 +134,7 @@ namespace LanguageExt
         }
 
         public override Unit Run(ProcessId pid) =>
-            ProcessConfig.Settings.WriteSettingOverride(ActorInboxCommon.ClusterSettingsKey(pid), Value, Name, Prop, Flags);
+            ActorContext.System(pid).Settings.WriteSettingOverride(ActorInboxCommon.ClusterSettingsKey(pid), Value, Name, Prop, Flags);
     }
 
     class ClearConfigOp : ProcessOp
@@ -151,7 +151,7 @@ namespace LanguageExt
         }
 
         public override Unit Run(ProcessId pid) =>
-            ProcessConfig.Settings.ClearSettingOverride(ActorInboxCommon.ClusterSettingsKey(pid), Name, Prop, Flags);
+            ActorContext.System(pid).Settings.ClearSettingOverride(ActorInboxCommon.ClusterSettingsKey(pid), Name, Prop, Flags);
     }
 
     class ClearAllOp : ProcessOp
@@ -164,6 +164,6 @@ namespace LanguageExt
         }
 
         public override Unit Run(ProcessId pid) =>
-            ProcessConfig.Settings.ClearSettingsOverride(ActorInboxCommon.ClusterSettingsKey(pid), Flags);
+            ActorContext.System(pid).Settings.ClearSettingsOverride(ActorInboxCommon.ClusterSettingsKey(pid), Flags);
     }
 }

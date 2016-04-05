@@ -32,8 +32,6 @@ namespace LanguageExt
         int maxMailboxSize;
         object sync = new object();
 
-        string actorPath;
-
         public Unit Startup(IActor process, ActorItem parent, Option<ICluster> cluster, int maxMailboxSize)
         {
             if (cluster.IsNone) throw new Exception("Remote inboxes not supported when there's no cluster");
@@ -44,10 +42,8 @@ namespace LanguageExt
 
             this.maxMailboxSize = maxMailboxSize;
 
-            actorPath = actor.Id.ToString();
-
-            userInbox = StartMailbox<UserControlMessage>(actor, ClusterUserInboxKey, tokenSource.Token, StatefulUserInbox, true);
-            sysInbox = StartMailbox<SystemMessage>(actor, ClusterSystemInboxKey, tokenSource.Token, ActorInboxCommon.SystemMessageInbox, false);
+            userInbox = StartMailbox<UserControlMessage>(actor, ActorInboxCommon.ClusterUserInboxKey(actor.Id), tokenSource.Token, StatefulUserInbox, true);
+            sysInbox = StartMailbox<SystemMessage>(actor, ActorInboxCommon.ClusterSystemInboxKey(actor.Id), tokenSource.Token, ActorInboxCommon.SystemMessageInbox, false);
 
             SubscribeToSysInboxChannel();
             SubscribeToUserInboxChannel();
@@ -57,50 +53,35 @@ namespace LanguageExt
 
         void SubscribeToSysInboxChannel()
         {
-            cluster.UnsubscribeChannel(ClusterSystemInboxNotifyKey);
-            cluster.SubscribeToChannel<string>(ClusterSystemInboxNotifyKey).Subscribe(
+            cluster.UnsubscribeChannel(ActorInboxCommon.ClusterSystemInboxNotifyKey(actor.Id));
+            cluster.SubscribeToChannel<string>(ActorInboxCommon.ClusterSystemInboxNotifyKey(actor.Id)).Subscribe(
                 msg =>
                 {
                     if (sysInbox.CurrentQueueLength == 0)
                     {
-                        CheckRemoteInbox(ClusterSystemInboxKey, cluster, actor.Id, sysInbox, userInbox, false);
+                        CheckRemoteInbox(ActorInboxCommon.ClusterSystemInboxKey(actor.Id), cluster, actor.Id, sysInbox, userInbox, false);
                     }
                 });
-            cluster.PublishToChannel(ClusterSystemInboxNotifyKey, Guid.NewGuid().ToString());
+            cluster.PublishToChannel(ActorInboxCommon.ClusterSystemInboxNotifyKey(actor.Id), Guid.NewGuid().ToString());
         }
 
         void SubscribeToUserInboxChannel()
         {
-            cluster.UnsubscribeChannel(ClusterUserInboxNotifyKey);
-            cluster.SubscribeToChannel<string>(ClusterUserInboxNotifyKey).Subscribe(
+            cluster.UnsubscribeChannel(ActorInboxCommon.ClusterUserInboxNotifyKey(actor.Id));
+            cluster.SubscribeToChannel<string>(ActorInboxCommon.ClusterUserInboxNotifyKey(actor.Id)).Subscribe(
                 msg =>
                 {
                     if (userInbox.CurrentQueueLength == 0)
                     {
-                        CheckRemoteInbox(ClusterUserInboxKey, cluster, actor.Id, sysInbox, userInbox, true);
+                        CheckRemoteInbox(ActorInboxCommon.ClusterUserInboxKey(actor.Id), cluster, actor.Id, sysInbox, userInbox, true);
                     }
                 });
-            cluster.PublishToChannel(ClusterUserInboxNotifyKey, Guid.NewGuid().ToString());
+            cluster.PublishToChannel(ActorInboxCommon.ClusterUserInboxNotifyKey(actor.Id), Guid.NewGuid().ToString());
         }
-
-        string ClusterKey =>
-            ActorInboxCommon.ClusterKey(actorPath);
-
-        string ClusterUserInboxKey =>
-            ActorInboxCommon.ClusterUserInboxKey(actorPath);
-
-        string ClusterSystemInboxKey =>
-            ActorInboxCommon.ClusterSystemInboxKey(actorPath);
-
-        string ClusterUserInboxNotifyKey =>
-            ActorInboxCommon.ClusterUserInboxNotifyKey(actorPath);
-
-        string ClusterSystemInboxNotifyKey =>
-            ActorInboxCommon.ClusterSystemInboxNotifyKey(actorPath);
 
         int MailboxSize =>
             maxMailboxSize < 0
-                ? ProcessConfig.Settings.GetProcessMailboxSize(actor.Id)
+                ? ActorContext.System(actor.Id).Settings.GetProcessMailboxSize(actor.Id)
                 : maxMailboxSize;
 
         public bool IsPaused
@@ -116,7 +97,7 @@ namespace LanguageExt
                 if (!IsPaused)
                 {
                     IsPaused = true;
-                    cluster.UnsubscribeChannel(ClusterUserInboxNotifyKey);
+                    cluster.UnsubscribeChannel(ActorInboxCommon.ClusterUserInboxNotifyKey(actor.Id));
                 }
             }
             return unit;
@@ -238,8 +219,8 @@ namespace LanguageExt
             tokenSource?.Dispose();
             tokenSource = null;
 
-            cluster?.UnsubscribeChannel(ClusterUserInboxNotifyKey);
-            cluster?.UnsubscribeChannel(ClusterSystemInboxNotifyKey);
+            cluster?.UnsubscribeChannel(ActorInboxCommon.ClusterUserInboxNotifyKey(actor.Id));
+            cluster?.UnsubscribeChannel(ActorInboxCommon.ClusterSystemInboxNotifyKey(actor.Id));
             cluster = null;
         }
 
@@ -337,7 +318,7 @@ namespace LanguageExt
                 catch (Exception e)
                 {
                     replyErrorIfAsked(e);
-                    tell(ActorContext.DeadLetters, DeadLetter.create(ActorContext.Sender, actor.Id, e, "Remote message inbox.", msg));
+                    tell(ActorContext.System(actor.Id).DeadLetters, DeadLetter.create(ActorContext.Request.Sender, actor.Id, e, "Remote message inbox.", msg));
                     logSysErr(e);
                 }
                 finally

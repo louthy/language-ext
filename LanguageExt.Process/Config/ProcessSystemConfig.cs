@@ -21,41 +21,52 @@ namespace LanguageExt.Config
     /// Parses and provides access to configuration settings relating
     /// to the role and individual processes.
     /// </summary>
-    /// <remarks>
-    /// TODO: Tidy this class up, it's a bit icky.
-    /// </remarks>
     public class ProcessSystemConfig
     {
+        public readonly SystemName SystemName;
+        public readonly Option<ClusterToken> Cluster;
         public readonly string NodeName = "";
-        public readonly Parser<Lst<NamedValueToken>> Parser;
+        readonly Map<string, ValueToken> roleSettings;
+        readonly Map<ProcessId, ProcessToken> processSettings;
+        readonly Map<string, State<StrategyContext, Unit>> stratSettings;
         readonly object sync = new object();
+        readonly Types types;
 
-        Map<string, ValueToken> roleSettings;
-        Map<ProcessId, ProcessToken> processSettings;
-        Map<string, State<StrategyContext, Unit>> stratSettings;
-        Map<string, ClusterToken> clusterSettings;
         Map<string, Map<string, object>> settingOverrides;
-        ClusterToken cluster;
-
         Time timeout = 30 * seconds;
         Time sessionTimeoutCheck = 60 * seconds;
         int maxMailboxSize = 100000;
         bool transactionalIO = true;
-        Types types;
-        TypeDef processType;
-        TypeDef strategyType;
-        TypeDef clusterType;
 
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        /// <param name="strategyFuncs">Allows bespoke strategies to be plugged into the parser</param>
-        public ProcessSystemConfig(string nodeName, IEnumerable<FuncSpec> strategyFuncs = null)
+        public readonly static ProcessSystemConfig Empty =
+            new ProcessSystemConfig(
+                default(SystemName),
+                "root",
+                Map.empty<string, ValueToken>(),
+                Map.empty<ProcessId, ProcessToken>(),
+                Map.empty<string, State<StrategyContext, Unit>>(),
+                null,
+                new Types()
+            );
+
+        public ProcessSystemConfig(
+            SystemName systemName,
+            string nodeName,
+            Map<string, ValueToken> roleSettings,
+            Map<ProcessId, ProcessToken> processSettings,
+            Map<string, State<StrategyContext, Unit>> stratSettings,
+            ClusterToken cluster,
+            Types types
+            )
         {
-            NodeName = nodeName ?? "";
-            ClearSettings();
-            types = new Types();
-            Parser = InitialiseParser(nodeName, strategyFuncs);
+            SystemName = systemName;
+            NodeName = nodeName;
+            this.settingOverrides = Map.empty<string, Map<string, object>>();
+            this.roleSettings = roleSettings;
+            this.processSettings = processSettings;
+            this.stratSettings = stratSettings;
+            this.Cluster = cluster;
+            this.types = types;
         }
 
         /// <summary>
@@ -84,7 +95,7 @@ namespace LanguageExt.Config
 
             if (flags != ProcessFlags.Default)
             {
-                ActorContext.Cluster.Iter(c => c.HashFieldAddOrUpdate(key, propKey, value));
+                ActorContext.System(SystemName).Cluster.Iter(c => c.HashFieldAddOrUpdate(key, propKey, value));
             }
             settingOverrides = settingOverrides.AddOrUpdate(key, propKey, value);
             return unit;
@@ -98,7 +109,7 @@ namespace LanguageExt.Config
             var propKey = $"{name}@{prop}";
             if (flags != ProcessFlags.Default)
             {
-                ActorContext.Cluster.Iter(c => c.DeleteHashField(key, propKey));
+                ActorContext.System(SystemName).Cluster.Iter(c => c.DeleteHashField(key, propKey));
             }
             settingOverrides = settingOverrides.Remove(key, propKey);
             return unit;
@@ -111,7 +122,7 @@ namespace LanguageExt.Config
         {
             if (flags != ProcessFlags.Default)
             {
-                ActorContext.Cluster.Iter(c => c.Delete(key));
+                ActorContext.System(SystemName).Cluster.Iter(c => c.Delete(key));
             }
             return ClearInMemorySettingsOverride(key);
         }
@@ -141,7 +152,7 @@ namespace LanguageExt.Config
                     processSettings.Find(pid).Map(token => token.Settings).IfNone(empty),
                     processSettings.Find(RolePid(pid)).Map(token => token.Settings).IfNone(empty),
                     roleSettings,
-                    cluster.Settings
+                    Cluster.Map(c => c.Settings).IfNone(empty)
                 };
 
             return GetSettingGeneral(settingsMaps, ActorInboxCommon.ClusterSettingsKey(pid), name, prop, defaultValue, flags);
@@ -163,7 +174,7 @@ namespace LanguageExt.Config
                     processSettings.Find(pid).Map(token => token.Settings).IfNone(empty),
                     processSettings.Find(RolePid(pid)).Map(token => token.Settings).IfNone(empty),
                     roleSettings,
-                    cluster.Settings
+                    Cluster.Map(c => c.Settings).IfNone(empty)
                 };
 
             return GetSettingGeneral<T>(settingsMaps, ActorInboxCommon.ClusterSettingsKey(pid), name, prop, flags);
@@ -177,9 +188,10 @@ namespace LanguageExt.Config
         /// types, not value types)</param>
         internal T GetRoleSetting<T>(string name, string prop, T defaultValue)
         {
+            var empty = Map.empty<string, ValueToken>();
             var key = $"role-{Role.Current}@settings";
-            var flags = ActorContext.Cluster.Map(_ => ProcessFlags.PersistState).IfNone(ProcessFlags.Default);
-            var settingsMaps = new[] { roleSettings, cluster.Settings };
+            var flags = ActorContext.System(SystemName).Cluster.Map(_ => ProcessFlags.PersistState).IfNone(ProcessFlags.Default);
+            var settingsMaps = new[] { roleSettings, Cluster.Map(c => c.Settings).IfNone(empty) };
             return GetSettingGeneral(settingsMaps, key, name, prop, defaultValue, flags);
         }
 
@@ -210,7 +222,8 @@ namespace LanguageExt.Config
         internal Option<T> GetClusterSetting<T>(string name, string prop)
         {
             var key = "cluster@settings";
-            var settingsMaps = new[] { cluster.Settings };
+            var empty = Map.empty<string, ValueToken>();
+            var settingsMaps = new[] { Cluster.Map(c => c.Settings).IfNone(empty) };
             return GetSettingGeneral<T>(settingsMaps, key, name, prop, ProcessFlags.Default);
         }
 
@@ -236,11 +249,11 @@ namespace LanguageExt.Config
             var over = settingOverrides.Find(key, propKey);
             if (over.IsSome) return over.Map(x => (T)x);
 
-            // Next check the custer data store (Redis usually)
+            // Next check the cluster data store (Redis usually)
             Option<T> tover = None;
-            if (flags != ProcessFlags.Default)
+            if (flags != ProcessFlags.Default && SystemName.IsValid)
             {
-                tover = from x in ActorContext.Cluster.Map(c => c.GetHashField<T>(key, propKey))
+                tover = from x in ActorContext.System(SystemName).Cluster.Map(c => c.GetHashField<T>(key, propKey))
                         from y in x
                         select y;
 
@@ -378,80 +391,6 @@ namespace LanguageExt.Config
         internal bool TransactionalIO =>
             transactionalIO;
 
-        internal void ParseConfigText(string text)
-        {
-            if (String.IsNullOrWhiteSpace(text))
-            {
-                ClearSettings();
-                return;
-            }
-
-            // Parse the config text
-            var res = parse(Parser, text);
-            if (res.IsFaulted || res.Reply.State.ToString().Length > 0)
-            {
-                if (res.IsFaulted)
-                {
-                    throw new ProcessConfigException(res.ToString());
-                }
-                else
-                {
-                    var clipped = res.Reply.State.ToString();
-                    clipped = clipped.Substring(0, Math.Min(40, clipped.Length));
-                    throw new ProcessConfigException($"Configuration parse error at {res.Reply.State.Pos}, near: {clipped}");
-                }
-            }
-
-            // Extract the process settings
-            processSettings = List.fold(
-                from nv in res.Reply.Result
-                where nv.Value.Type == processType
-                let process = nv.Value.Cast<ProcessToken>()
-                let pid = process.ProcessId
-                where pid.IsSome
-                let reg = process.RegisteredName
-                let final = process.SetRegisteredName(new ValueToken(types.ProcessName, reg.IfNone(new ProcessName(nv.Name))))
-                select Tuple(pid.IfNone(ProcessId.None), final),
-                Map.empty<ProcessId, ProcessToken>(),
-                (s, x) => Map.tryAdd(s, x.Item1, x.Item2, (_, p) => failwith<Map<ProcessId, ProcessToken>>("Process declared twice: " + p.RegisteredName.IfNone("not defined"))));
-
-
-            // Extract the cluster settings
-            stratSettings = List.fold(
-                from nv in res.Reply.Result
-                where nv.Value.Type == strategyType
-                let strategy = nv.Value.Cast<State<StrategyContext, Unit>>()
-                select Tuple(nv.Name, strategy),
-                Map.empty<string, State<StrategyContext, Unit>>(),
-                (s, x) => Map.tryAdd(s, x.Item1, x.Item2, (_, __) => failwith<Map<string, State<StrategyContext, Unit>>>("Strategy declared twice: " + x.Item1)));
-
-            // Extract the strategy settings
-            clusterSettings = List.fold(
-                from nv in res.Reply.Result
-                where nv.Value.Type == clusterType
-                let cluster = nv.Value.Cast<ClusterToken>()
-                let env = cluster.Env
-                let nodeName = cluster.NodeName
-                where nodeName.IsSome
-                let final = cluster.SetEnvironment(new ValueToken(types.String, env.IfNone(nv.Name)))
-                select Tuple(nodeName.IfNone(""), final),
-                Map.empty<string, ClusterToken>(),
-                (s, x) => Map.tryAdd(s, x.Item1, x.Item2, (_, c) => failwith<Map<string, ClusterToken>>("Cluster declared twice: " + c.Env.IfNone(""))));
-
-            roleSettings = List.fold(
-                res.Reply.Result,
-                Map.empty<string, ValueToken>(),
-                (s, x) => Map.addOrUpdate(s, x.Name, x.Value)
-            );
-
-            if (!String.IsNullOrEmpty(NodeName))
-            {
-                cluster = clusterSettings
-                                .Find(NodeName)
-                                .IfNone(() => failwith<ClusterToken>($"Cluster defintion missing that has a node-name attribute and a value of: '{NodeName}'"));
-            }
-        }
-
         internal void PostConnect()
         {
             // Cache the frequently accessed
@@ -459,121 +398,6 @@ namespace LanguageExt.Config
             timeout = GetRoleSetting("timeout", "value", 30 * seconds);
             sessionTimeoutCheck = GetRoleSetting("session-timeout-check", "value", 60 * seconds);
             transactionalIO = GetRoleSetting("transactional-io", "value", true);
-        }
-
-        void ClearSettings()
-        {
-            roleSettings = Map<string, ValueToken>.Empty;
-            processSettings = Map<ProcessId, ProcessToken>.Empty;
-            stratSettings = Map<string, State<StrategyContext, Unit>>.Empty;
-            clusterSettings = Map<string, ClusterToken>.Empty;
-            settingOverrides = Map<string, Map<string, object>>.Empty;
-            cluster = ClusterToken.Empty;
-            timeout = 30 * seconds;
-            sessionTimeoutCheck = 60 * seconds;
-            maxMailboxSize = 100000;
-            transactionalIO = true;
-        }
-
-
-
-        Parser<Lst<NamedValueToken>> InitialiseParser(string nodeName, IEnumerable<FuncSpec> strategyFuncs)
-        {
-            strategyFuncs = strategyFuncs ?? new FuncSpec[0];
-
-            clusterType = new TypeDef(
-                "cluster",
-                nvs => new ClusterToken(nvs),
-                20,
-                FuncSpec.Property("node-name", () => types.String),
-                FuncSpec.Property("role", () => types.String),
-                FuncSpec.Property("provider", () => types.String),
-                FuncSpec.Property("connection", () => types.String),
-                FuncSpec.Property("database", () => types.String),
-                FuncSpec.Property("env", () => types.String),
-                FuncSpec.Property("user-env", () => types.String));
-
-            types.Register(clusterType);
-
-            processType = new TypeDef(
-                "process",
-                nvs => new ProcessToken(nvs),
-                20,
-                FuncSpec.Property("pid", () => types.ProcessId),
-                FuncSpec.Property("flags", () => types.ProcessFlags),
-                FuncSpec.Property("mailbox-size", () => types.Int),
-                FuncSpec.Property("dispatch", () => types.DispatcherType),
-                FuncSpec.Property("route", () => types.DispatcherType),
-                FuncSpec.Property("workers", () => TypeDef.Array(() => processType)),
-                FuncSpec.Property("worker-count", () => types.Int),
-                FuncSpec.Property("worker-name", () => types.String),
-                FuncSpec.Property("strategy", () => strategyType));
-
-            types.Register(processType);
-
-            strategyType = BuildStrategySpec(types, strategyFuncs);
-
-            types.Register(strategyType);
-
-            var sys = new ProcessSystemConfigParser(
-                nodeName,
-                types
-            );
-
-            return sys.Settings;
-        }
-
-        TypeDef BuildStrategySpec(Types types, IEnumerable<FuncSpec> strategyFuncs)
-        {
-            TypeDef strategy = null;
-
-            Func<Lst<NamedValueToken>, State<StrategyContext, Unit>[]> compose = items => items.Map(x => (State<StrategyContext, Unit>)x.Value.Value).ToArray();
-
-
-            var oneForOne = FuncSpec.Property("one-for-one", () => strategy, () => strategy, value => Strategy.OneForOne((State<StrategyContext, Unit>)value));
-            var allForOne = FuncSpec.Property("all-for-one", () => strategy, () => strategy, value => Strategy.AllForOne((State<StrategyContext, Unit>)value));
-
-            var always = FuncSpec.Property("always", () => strategy, () => types.Directive, value => Strategy.Always((Directive)value));
-            var pause = FuncSpec.Property("pause", () => strategy, () => types.Time, value => Strategy.Pause((Time)value));
-            var retries1 = FuncSpec.Property("retries", () => strategy, () => types.Int, value => Strategy.Retries((int)value));
-
-            var retries2 = FuncSpec.Attrs(
-                "retries",
-                () => strategy,
-                locals => Strategy.Retries((int)locals["count"], (Time)locals["duration"]),
-                new FieldSpec("count", () => types.Int),
-                new FieldSpec("duration", () => types.Time)
-            );
-
-            var backoff1 = FuncSpec.Attrs(
-                "backoff",
-                () => strategy,
-                locals => Strategy.Backoff((Time)locals["min"], (Time)locals["max"], (Time)locals["step"]),
-                new FieldSpec("min", () => types.Time),
-                new FieldSpec("max", () => types.Time),
-                new FieldSpec("step", () => types.Time)
-            );
-
-            var backoff2 = FuncSpec.Property("backoff", () => strategy, () => types.Time, value => Strategy.Backoff((Time)value));
-
-            // match
-            // | exception -> directive
-            // | _         -> directive
-            var match = FuncSpec.Special("match", () => strategy);
-
-            // redirect when
-            // | directive -> message-directive
-            // | _         -> message-directive
-            var redirect = FuncSpec.Special("redirect", () => strategy);
-
-            strategy = new TypeDef(
-                "strategy",
-                s => Strategy.Compose(compose(s)),
-                20,
-                new[] { oneForOne, allForOne, always, pause, retries1, retries2, backoff1, backoff2, match, redirect }.Append(strategyFuncs).ToArray()
-            );
-
-            return strategy;
         }
     }
 }

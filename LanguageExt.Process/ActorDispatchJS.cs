@@ -1,4 +1,5 @@
 ﻿using System;
+using static LanguageExt.Process;
 
 namespace LanguageExt
 {
@@ -64,11 +65,11 @@ namespace LanguageExt
 
         public Unit Kill() =>
             // TODO: Not yet implemented on the JS side
-            ProcessId.Tell(SystemMessage.ShutdownProcess(false), ActorContext.Self);
+            ProcessId.Tell(SystemMessage.ShutdownProcess(false), Self);
 
         public Unit Shutdown() =>
             // TODO: Not yet implemented on the JS side
-            ProcessId.Tell(SystemMessage.ShutdownProcess(true), ActorContext.Self);
+            ProcessId.Tell(SystemMessage.ShutdownProcess(true), Self);
 
         public Unit Watch(ProcessId pid)
         {

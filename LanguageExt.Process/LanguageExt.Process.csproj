@@ -71,6 +71,7 @@
     <Compile Include="Config\Attrs.cs" />
     <Compile Include="Config\TypeDef.cs" />
     <Compile Include="Config\Types.cs" />
+    <Compile Include="SystemName.cs" />
     <Compile Include="ProcessOp.cs" />
     <Compile Include="Config\ParserState.cs" />
     <Compile Include="Config\ProcessSystemConfig.cs" />
@@ -82,7 +83,6 @@
     <Compile Include="Prelude_Configure.cs" />
     <Compile Include="Prelude_Query.cs" />
     <Compile Include="Prelude_Register.cs" />
-    <Compile Include="Prelude_Settings.cs" />
     <Compile Include="ProcessAssert.cs" />
     <Compile Include="ProcessMetaData.cs" />
     <Compile Include="ProxyBuilder.cs" />
@@ -128,7 +128,7 @@
     <Compile Include="ActorInboxLocal.cs" />
     <Compile Include="ActorRequestResponse.cs" />
     <Compile Include="ActorSystem.cs" />
-    <Compile Include="ActorSystemState.cs" />
+    <Compile Include="ActorSystemBootstrap.cs" />
     <Compile Include="AskActor.cs" />
     <Compile Include="Cluster.cs" />
     <Compile Include="Message.cs" />

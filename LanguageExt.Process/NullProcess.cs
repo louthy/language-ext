@@ -11,11 +11,18 @@ namespace LanguageExt
 {
     class NullProcess : IActor
     {
+        public readonly SystemName System;
+
+        public NullProcess(SystemName system)
+        {
+            System = system;
+        }
+
         public Map<string, ActorItem> Children => Map.empty<string, ActorItem>();
-        public ProcessId Id => ProcessId.Top;
+        public ProcessId Id => ProcessId.Top.SetSystem(System);
         public ProcessFlags Flags => ProcessFlags.Default;
         public ProcessName Name => "$";
-        public ActorItem Parent => new ActorItem(new NullProcess(), new NullInbox(), ProcessFlags.Default);
+        public ActorItem Parent => new ActorItem(new NullProcess(System), new NullInbox(), ProcessFlags.Default);
         public State<StrategyContext, Unit> Strategy => Process.DefaultStrategy;
         public Unit Restart() => unit;
         public Unit Startup() => unit;

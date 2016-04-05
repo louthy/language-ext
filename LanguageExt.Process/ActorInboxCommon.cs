@@ -80,7 +80,7 @@ namespace LanguageExt
 
         public static InboxDirective SystemMessageInbox<S,T>(Actor<S,T> actor, IActorInbox inbox, SystemMessage msg, ActorItem parent)
         {
-            return ActorContext.WithContext(new ActorItem(actor,inbox,actor.Flags), parent, ProcessId.NoSender, null, msg, msg.SessionId, () =>
+            return ActorContext.System(actor.Id).WithContext(new ActorItem(actor,inbox,actor.Flags), parent, ProcessId.NoSender, null, msg, msg.SessionId, () =>
             {
                 switch (msg.Tag)
                 {
@@ -153,20 +153,20 @@ namespace LanguageExt
             {
                 case Message.TagSpec.UserAsk:
                     var rmsg = (ActorRequest)msg;
-                    return ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, rmsg.ReplyTo, rmsg, msg, msg.SessionId, () => actor.ProcessAsk(rmsg));
+                    return ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, rmsg.ReplyTo, rmsg, msg, msg.SessionId, () => actor.ProcessAsk(rmsg));
 
                 case Message.TagSpec.UserReply:
                     var urmsg = (ActorResponse)msg;
-                    ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, urmsg.ReplyFrom, null, msg, msg.SessionId, () => actor.ProcessResponse(urmsg));
+                    ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, urmsg.ReplyFrom, null, msg, msg.SessionId, () => actor.ProcessResponse(urmsg));
                     break;
 
                 case Message.TagSpec.UserTerminated:
                     var utmsg = (TerminatedMessage)msg;
-                    return ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, utmsg.Id, null, msg, msg.SessionId, () => actor.ProcessTerminated(utmsg.Id));
+                    return ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, utmsg.Id, null, msg, msg.SessionId, () => actor.ProcessTerminated(utmsg.Id));
 
                 case Message.TagSpec.User:
                     var umsg = (UserMessage)msg;
-                    return ActorContext.WithContext(new ActorItem(actor, inbox, actor.Flags), parent, umsg.Sender, null, msg, msg.SessionId, () => actor.ProcessMessage(umsg.Content));
+                    return ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, umsg.Sender, null, msg, msg.SessionId, () => actor.ProcessMessage(umsg.Content));
 
                 case Message.TagSpec.ShutdownProcess:
                     kill(actor.Id);
@@ -180,7 +180,7 @@ namespace LanguageExt
             if (message == null)
             {
                 var emsg = $"Message is null for tell (expected {typeof(T)})";
-                tell(ActorContext.DeadLetters, DeadLetter.create(sender, self, emsg, message));
+                tell(ActorContext.System(self).DeadLetters, DeadLetter.create(sender, self, emsg, message));
                 return None;
             }
 
@@ -190,9 +190,9 @@ namespace LanguageExt
                 if (!(req.Message is T) && !(req.Message is Message))
                 {
                     var emsg = $"Invalid message type for ask (expected {typeof(T)})";
-                    tell(ActorContext.DeadLetters, DeadLetter.create(sender, self, emsg, message));
+                    tell(ActorContext.System(self).DeadLetters, DeadLetter.create(sender, self, emsg, message));
 
-                    ActorContext.Tell(
+                    ActorContext.System(self).Tell(
                         sender,
                         new ActorResponse(new Exception($"Invalid message type for ask (expected {typeof(T)})"),
                         typeof(Exception).AssemblyQualifiedName,
@@ -231,7 +231,7 @@ namespace LanguageExt
                 {
                     // Message is bad
                     cluster.Dequeue<RemoteMessageDTO>(key);
-                    tell(ActorContext.DeadLetters, DeadLetter.create(dto.Sender, self, null, "Failed to deserialise message: ", dto));
+                    tell(ActorContext.System(self).DeadLetters, DeadLetter.create(dto.Sender, self, null, "Failed to deserialise message: ", dto));
                     if (cluster.QueueLength(key) == 0) return None;
                 }
             }
@@ -245,7 +245,7 @@ namespace LanguageExt
             {
                 // Message can't be deserialised
                 cluster.Dequeue<RemoteMessageDTO>(key);
-                tell(ActorContext.DeadLetters, DeadLetter.create(dto.Sender, self, e, "Failed to deserialise message: ", msg));
+                tell(ActorContext.System(self).DeadLetters, DeadLetter.create(dto.Sender, self, e, "Failed to deserialise message: ", msg));
                 return None;
             }
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -12,12 +13,15 @@ namespace LanguageExt
         public readonly ActorItem Self;
         public readonly ProcessId Sender;
         public readonly ActorItem Parent;
-        public readonly object CurrentMsg;
-        public readonly ActorRequest CurrentRequest;
-        public readonly ProcessFlags ProcessFlags;
-        public readonly ProcessOpTransaction Ops;
+        public readonly ActorSystem System;
+
+        public ProcessOpTransaction Ops;
+        public object CurrentMsg;
+        public ActorRequest CurrentRequest;
+        public ProcessFlags ProcessFlags;
 
         public ActorRequestContext(
+            ActorSystem system,
             ActorItem self,
             ProcessId sender,
             ActorItem parent,
@@ -34,10 +38,12 @@ namespace LanguageExt
             CurrentRequest = currentRequest;
             ProcessFlags = processFlags;
             Ops = ops;
+            System = system;
         }
 
         public ActorRequestContext SetProcessFlags(ProcessFlags flags) =>
             new ActorRequestContext(
+                System,
                 Self,
                 Sender,
                 Parent,
@@ -49,6 +55,7 @@ namespace LanguageExt
 
         public ActorRequestContext SetCurrentRequest(ActorRequest currentRequest) =>
             new ActorRequestContext(
+                System,
                 Self,
                 Sender,
                 Parent,
@@ -60,6 +67,7 @@ namespace LanguageExt
 
         public ActorRequestContext SetCurrentMessage(object currentMsg) =>
             new ActorRequestContext(
+                System,
                 Self,
                 Sender,
                 Parent,
@@ -69,16 +77,31 @@ namespace LanguageExt
                 Ops
             );
 
-        public ActorRequestContext SetOps(ProcessOpTransaction ops) =>
-            new ActorRequestContext(
-                Self,
-                Sender,
-                Parent,
-                CurrentMsg,
-                CurrentRequest,
-                ProcessFlags,
-                ops
-            );
+        public void SetOps(ProcessOpTransaction ops)
+        {
+            Ops = ops;
+        }
 
+
+        /// <summary>
+        /// Run the operations that affect the settings and sending of tells
+        /// in the order which they occured in the actor
+        /// </summary>
+        public Unit RunOps()
+        {
+            if (Ops != null)
+            {
+                while (Ops.Ops.Count > 0)
+                {
+                    var ops = Ops;
+                    Ops = ProcessOpTransaction.Start(Ops.ProcessId);
+                    ops.Run();
+                }
+            }
+            return unit;
+        }
+
+        public Map<string, ProcessId> Children =>
+            Self.Actor.Children.Map(c => c.Actor.Id);
     }
 }

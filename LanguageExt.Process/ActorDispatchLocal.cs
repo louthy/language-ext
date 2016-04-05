@@ -57,7 +57,7 @@ namespace LanguageExt
             ProcessOp.IO(() => ShutdownProcess(true));
 
         Unit ShutdownProcess(bool maintainState) =>
-            ActorContext.WithContext(
+            ActorContext.System(Actor.Id).WithContext(
                 new ActorItem(
                     Actor,
                     (IActorInbox)Inbox,

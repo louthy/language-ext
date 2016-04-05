@@ -6,6 +6,7 @@ using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 using LanguageExt.Trans;
 using System.Threading;
+using LanguageExt.Config;
 
 namespace LanguageExt
 {
@@ -13,16 +14,17 @@ namespace LanguageExt
     /// Represents the state of the whole actor system.  Mostly it holds the store of
     /// processes (actors) and their inboxes.
     /// </summary>
-    internal class ActorSystemState
+    internal class ActorSystemBootstrap
     {
         public readonly Option<ICluster> Cluster;
         public readonly IActorInbox RootInbox;
         public readonly IActor RootProcess;
         public readonly ActorSystemConfig Config;
+        public readonly ProcessSystemConfig Settings;
         public readonly ProcessName RootProcessName;
+        public readonly SystemName System;
 
         ActorItem root;
-        ActorItem sessions;
         ActorItem user;
         ActorItem system;
         ActorItem deadLetters;
@@ -33,27 +35,36 @@ namespace LanguageExt
         ActorItem reply;
         ActorItem monitor;
 
-        public ActorSystemState(Option<ICluster> cluster, ProcessId rootId, IActor rootProcess, IActorInbox rootInbox, ProcessName rootProcessName, ActorSystemConfig config)
+        public ActorSystemBootstrap(SystemName system, Option<ICluster> cluster, ProcessId rootId, IActor rootProcess, IActorInbox rootInbox, ProcessName rootProcessName, ActorSystemConfig config, ProcessSystemConfig settings)
         {
-            var parent = new ActorItem(new NullProcess(), new NullInbox(), ProcessFlags.Default);
+            System = system;
 
-            rootProcess = new Actor<ActorSystemState, Unit>(
+            var parent = new ActorItem(new NullProcess(system), new NullInbox(), ProcessFlags.Default);
+
+            rootProcess = new Actor<ActorSystemBootstrap, Unit>(
                 cluster,
                 parent,
                 rootProcessName,
-                ActorSystem.Inbox,
+                SystemInbox,
                 _ => this,
                 null,
                 Process.DefaultStrategy,
-                ProcessFlags.Default
+                ProcessFlags.Default,
+                settings
             );
 
-            root = new ActorItem(rootProcess, RootInbox, rootProcess.Flags);
+            root = new ActorItem(rootProcess, rootInbox, rootProcess.Flags);
             Config = config;
+            Settings = settings;
             Cluster = cluster;
             RootProcess = rootProcess;
             RootInbox = rootInbox;
             RootProcessName = rootProcessName;
+        }
+
+        public ActorSystemBootstrap SystemInbox(ActorSystemBootstrap state, Unit msg)
+        {
+            return state;
         }
 
         private Option<ActorItem> GetItem(ProcessId pid) =>
@@ -87,29 +98,19 @@ namespace LanguageExt
         private ProcessName NodeName =>
             Cluster.Map(c => c.NodeName).IfNone("user");
 
-        public ActorSystemState Startup()
+        public ActorSystemBootstrap Startup()
         {
             logInfo("Process system starting up");
 
             // Top tier
             system          = ActorCreate<object>(root, Config.SystemProcessName, publish, null, ProcessFlags.Default);
             user            = ActorCreate<object>(root, Config.UserProcessName, publish, null, ProcessFlags.Default);
-            js              = ActorCreate<ProcessId, RelayMsg>(root, "js", RelayActor.Inbox, () => User["process-hub-js"], null, ProcessFlags.Default);
+            js              = ActorCreate<ProcessId, RelayMsg>(root, "js", RelayActor.Inbox, () => User(System)["process-hub-js"], null, ProcessFlags.Default);
 
             // Second tier
-            sessions        = ActorCreate<SessionManagerProcess.State, SessionManagerProcess.Msg>(
-                                system, 
-                                ActorSystemConfig.Default.Sessions,
-                                SessionManagerProcess.Inbox,
-                                SessionManagerProcess.Setup,
-                                null,
-                                ProcessFlags.Default,
-                                100000
-                                );
-
             deadLetters     = ActorCreate<DeadLetter>(system, Config.DeadLettersProcessName, publish, null, ProcessFlags.Default);
             errors          = ActorCreate<Exception>(system, Config.ErrorsProcessName, publish, null, ProcessFlags.Default);
-            monitor         = ActorCreate<ClusterMonitor.State, ClusterMonitor.Msg>(system, Config.MonitorProcessName, ClusterMonitor.Inbox, ClusterMonitor.Setup, null, ProcessFlags.Default);
+            monitor         = ActorCreate<ClusterMonitor.State, ClusterMonitor.Msg>(system, Config.MonitorProcessName, ClusterMonitor.Inbox, () => ClusterMonitor.Setup(System), null, ProcessFlags.Default);
 
             inboxShutdown   = ActorCreate<IActorInbox>(system, Config.InboxShutdownProcessName, inbox => inbox.Shutdown(), null, ProcessFlags.Default, 100000);
 
@@ -127,9 +128,9 @@ namespace LanguageExt
             user?.Actor?.ShutdownProcess(true);
             user = ActorCreate<object>(root, Config.UserProcessName, publish, null, ProcessFlags.Default);
 
-            if (ActorContext.CurrentRequest != null && ActorContext.CurrentRequest.RequestId != -1)
+            if (ActorContext.Request.CurrentRequest != null && ActorContext.Request.CurrentRequest.RequestId != -1)
             {
-                tell(ActorContext.CurrentRequest.ReplyTo, new ActorResponse(unit, unit.GetType().AssemblyQualifiedName, ActorContext.CurrentRequest.ReplyTo, root.Actor.Id, ActorContext.CurrentRequest.RequestId), ActorContext.Root);
+                tell(ActorContext.Request.CurrentRequest.ReplyTo, new ActorResponse(unit, unit.GetType().AssemblyQualifiedName, ActorContext.Request.CurrentRequest.ReplyTo, root.Actor.Id, ActorContext.Request.CurrentRequest.RequestId), ActorContext.System(System).Root);
             }
 
             logInfo("Process system shutdown complete");
@@ -151,7 +152,7 @@ namespace LanguageExt
         {
             if (ProcessDoesNotExist(nameof(ActorCreate), parent.Actor.Id)) return null;
 
-            var actor = new Actor<S, T>(Cluster, parent, name, actorFn, _ => setupFn(), termFn, Process.DefaultStrategy, flags);
+            var actor = new Actor<S, T>(Cluster, parent, name, actorFn, _ => setupFn(), termFn, Process.DefaultStrategy, flags, Settings);
 
             IActorInbox inbox = null;
             if ((actor.Flags & ProcessFlags.ListenRemoteAndLocal) == ProcessFlags.ListenRemoteAndLocal && Cluster.IsSome)
@@ -173,7 +174,7 @@ namespace LanguageExt
                 parent.Actor.LinkChild(item);
                 inbox.Startup(actor, actor.Parent, Cluster, 
                     maxMailboxSize == -1 
-                        ? ProcessConfig.Settings.GetProcessMailboxSize(actor.Id)
+                        ? Settings.GetProcessMailboxSize(actor.Id)
                         : maxMailboxSize
                     );
             }
