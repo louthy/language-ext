@@ -518,7 +518,7 @@ namespace LanguageExt.Config
                 : clusterSettings.Map(cluster => 
                       new ProcessSystemConfig(
                           cluster.Env.Map(e => new SystemName(e)).IfNone(default(SystemName)),
-                          nodeName,
+                          cluster.NodeName.IfNone(""),
                           roleSettings, 
                           processSettings, 
                           stratSettings, 

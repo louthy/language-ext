@@ -287,8 +287,8 @@ namespace LanguageExt.Config
 
         Option<ValueToken> MapTokenType<T>(ValueToken token)
         {
-            var type = typeof(T).GetTypeInfo();
-            if (type.IsAssignableFrom(token.Value.GetType().GetTypeInfo()))
+            var type = typeof(T);
+            if (type.GetTypeInfo().IsAssignableFrom(token.Value.GetType().GetTypeInfo()))
             {
                 return new ValueToken(token.Type, Convert.ChangeType(token.Value, type));
             }

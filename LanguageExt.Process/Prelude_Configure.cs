@@ -219,7 +219,9 @@ namespace LanguageExt
                     ? Map.create(Tuple(new SystemName(""), ProcessSystemConfig.Empty))
                     : parser.ParseConfigText(configText);
 
-                configs.Iter(StartFromConfig);
+                nodeName.Map(_ => configs.Filter(c => c.NodeName == nodeName).Iter(StartFromConfig))
+                        .IfNone(() => configs.Filter(c => c.NodeName == "root").Iter(StartFromConfig));
+
                 if(setup != null) setup();
                 return unit;
             }
@@ -234,20 +236,20 @@ namespace LanguageExt
                     {
                         // Extract cluster settings
                         var provider = config.GetClusterSetting("provider", "value", "redis");
-                            var role = config.GetClusterSetting("role", "value", name => clusterSettingMissing<string>(name));
-                            var clusterConn = config.GetClusterSetting("connection", "value", "localhost");
-                            var clusterDb = config.GetClusterSetting("database", "value", "0");
-                            var env = config.SystemName;
-                            var userEnv = config.GetClusterSetting<string>("user-env", "value");
+                        var role = config.GetClusterSetting("role", "value", name => clusterSettingMissing<string>(name));
+                        var clusterConn = config.GetClusterSetting("connection", "value", "localhost");
+                        var clusterDb = config.GetClusterSetting("database", "value", "0");
+                        var env = config.SystemName;
+                        var userEnv = config.GetClusterSetting<string>("user-env", "value");
 
-                            var appProfile = new AppProfile(
-                                config.NodeName,
-                                role,
-                                clusterConn,
-                                clusterDb,
-                                env,
-                                userEnv
-                                );
+                        var appProfile = new AppProfile(
+                            config.NodeName,
+                            role,
+                            clusterConn,
+                            clusterDb,
+                            env,
+                            userEnv
+                            );
 
                         // Look for an existing actor-system with the same system name
                         var current = ActorContext.Systems.Filter(c => c.Value == env).HeadOrNone();

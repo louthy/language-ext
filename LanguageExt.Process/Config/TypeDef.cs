@@ -60,15 +60,15 @@ namespace LanguageExt.Config
             GenericType = null;
             NodeName = nodeName;
 
-            var props = from p in type.GetTypeInfo().GetProperties()
+            var props = from p in type.GetRuntimeProperties()
                         where assembly.Exists(p.PropertyType)
                         select FuncSpec.Property(MakeName(p.Name), () => assembly.Get(p.PropertyType));
 
-            var fields = from p in type.GetTypeInfo().GetFields()
+            var fields = from p in type.GetRuntimeFields()
                          where assembly.Exists(p.FieldType)
                          select FuncSpec.Property(MakeName(p.Name), () => assembly.Get(p.FieldType));
 
-            var methods = from m in type.GetTypeInfo().GetMethods()
+            var methods = from m in type.GetRuntimeMethods()
                           where m.IsStatic &&
                                 assembly.Exists(m.ReturnType) && 
                                 m.GetParameters().Map(p => p.ParameterType).ForAll(assembly.Exists)
@@ -339,19 +339,33 @@ namespace LanguageExt.Config
         {
             var list = GenericList(type);
             input.Iter(x => list.Add(x));
-            var result = typeof(List).GetMethod("createRange").MakeGenericMethod(type).Invoke(null, new[] { list });
+            var args = new[] { list };
+            var result = typeof(List).GetRuntimeMethods()
+                                     .Where(m => m.Name == "createRange")
+                                     .Head()
+                                     .MakeGenericMethod(type)
+                                     .Invoke(null, args);
             return result;
         }
 
         static object MakeTypedMap(Map<string, object> input, Type type)
         {
             var tup = typeof(Tuple<,>).MakeGenericType(typeof(string),type);
-            var tupCreate = typeof(TypeDef).GetMethod("MakeTuple").MakeGenericMethod(type);
+            var tupCreate = typeof(TypeDef).GetRuntimeMethods()
+                                           .Where(m => m.Name == "MakeTuple")
+                                           .Head()
+                                           .MakeGenericMethod(type);
+
             var list = GenericList(tup);
 
             input.Iter((k, v) => list.Add(tupCreate.Invoke(null, new object[] { k, v })));
 
-            var result = typeof(Map).GetMethod("createRange").MakeGenericMethod(typeof(string), type).Invoke(null, new[] { list });
+            var args = new[] { list };
+            var result = typeof(Map).GetRuntimeMethods()
+                                    .Where(m => m.Name == "createRange")
+                                    .Head()
+                                    .MakeGenericMethod(typeof(string), type)
+                                    .Invoke(null, args);
             return result;
         }
 
