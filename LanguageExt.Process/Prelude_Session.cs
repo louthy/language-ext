@@ -36,6 +36,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Starts a new session in the Process system
+        /// NOTE: This function is asynchronous
         /// </summary>
         /// <param name="timeout">Session timeout</param>
         /// <returns>Session ID of the newly created session</returns>
@@ -45,6 +46,7 @@ namespace LanguageExt
         /// <summary>
         /// Ends a session in the Process system with the specified
         /// session ID
+        /// NOTE: This function is asynchronous
         /// </summary>
         /// <param name="sid">Session ID</param>
         public static Unit sessionStop(string sid, SystemName system = default(SystemName)) =>
@@ -71,31 +73,87 @@ namespace LanguageExt
             return sid;
         }
 
-        // TODO: Restore this functionality
+        /// <summary>
+        /// Set the meta-data to store with the session, this is typically
+        /// user credentials when they've logged in.  But can be anything.  It is a 
+        /// key/value store that is sync'd around the cluster.
+        /// NOTE: This function is asynchronous
+        /// </summary>
+        /// <param name="sid">Session ID</param>
+        /// <param name="key">Key</param>
+        /// <param name="value">Data value </param>
+        public static Unit sessionSetData(string sid, string key, object value, SystemName system = default(SystemName))
+        {
+            var time = (from session in ActorContext.System(system).Sessions.GetSession(sid)
+                        from data in session.Data.Find(key)
+                        select data.Time)
+                       .IfNone(0L);
 
-        ///// <summary>
-        ///// Set the meta-data to store with the session, this is typically
-        ///// user credentials when they've logged in.  But can be anything.
-        ///// </summary>
-        ///// <param name="sid">Session ID</param>
-        ///// <param name="data">Data to store</param>
-        //public static void sessionSetData(string sid, object data, SystemName system = default(SystemName)) =>
-        //    SessionManager.SetSessionData(sid, data, system);
+            if(time == 0L)
+            {
+                throw new Exception("Session not started");
+            }
 
-        ///// <summary>
-        ///// Clear the meta-data stored with the session
-        ///// </summary>
-        ///// <param name="sid">Session ID</param>
-        //public static void sessionClearData(string sid, SystemName system = default(SystemName)) =>
-        //    SessionManager.ClearSessionData(sid, system);
+            return ActorContext.System(system).Sessions.SetData(time + 1, sid, key, value);
+        }
 
-        ///// <summary>
-        ///// Get the meta-data stored with the session, this is typically
-        ///// user credentials when they've logged in.  But can be anything.
-        ///// </summary>
-        ///// <param name="sid">Session ID</param>
-        //public static Option<T> sessionGetData<T>(string sid, SystemName system = default(SystemName)) =>
-        //    SessionManager.GetSessionData<T>(sid, system);
+        /// <summary>
+        /// Clear the meta-data key stored with the session
+        /// NOTE: This function is asynchronous
+        /// </summary>
+        /// <param name="sid">Session ID</param>
+        /// <param name="key">Key</param>
+        public static Unit sessionClearData(string sid, string key, SystemName system = default(SystemName))
+        {
+            var time = (from session in ActorContext.System(system).Sessions.GetSession(sid)
+                        from data in session.Data.Find(key)
+                        select data.Time)
+                       .IfNone(0L);
+
+            if (time == 0L)
+            {
+                return unit;
+            }
+
+            return ActorContext.System(system).Sessions.ClearData(time, sid, key);
+        }
+
+        /// <summary>
+        /// Get the meta-data stored with the session.  
+        /// <para>
+        /// The session system allows concurrent updates from across the
+        /// cluster or from within the app-domain (from multiple processes).
+        /// To maintain the integrity of the data in any one session, the system 
+        /// uses a Vector Clock per-key.
+        /// </para>
+        /// <para>
+        /// That means that if two Processes update the session from the
+        /// same 'time' start point, then there will be a conflict and the session 
+        /// will  contain both values stored against the key.  
+        /// </para>
+        /// <para>
+        /// It is up to you 
+        /// to decide on the best approach to resolving the conflict.  Calling Head() / HeadOrNone() 
+        /// on the result will get the value that was written first, calling Last() 
+        /// will get the value that was written last.
+        /// However, being first or last doesn't necessarily make a value 'right', in
+        /// an asynchronous system the last value could be the newest or oldest.
+        /// Both value commits had the same start point, so if the consistency
+        /// of the session data is important to you then you should implement
+        /// a more robust strategy to deal with value conflicts, if integrity doesn't
+        /// really matter, call HeadOrNone().
+        /// </para>
+        /// </summary>
+        /// <param name="sid">Session ID</param>
+        public static Lst<T> sessionGetData<T>(string sid, string key, SystemName system = default(SystemName)) =>
+            (from session in ActorContext.System(system).Sessions.GetSession(sid)
+             from vector in session.Data.Find(key)
+             select vector.Vector.Map(obj =>
+                obj is T
+                    ? (T)obj
+                    : default(T)))
+            .IfNone(List.empty<T>())
+            .Filter(notnull);
 
         /// <summary>
         /// Returns True if there is an active session

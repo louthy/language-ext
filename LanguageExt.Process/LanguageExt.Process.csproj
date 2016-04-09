@@ -71,6 +71,11 @@
     <Compile Include="Config\Attrs.cs" />
     <Compile Include="Config\TypeDef.cs" />
     <Compile Include="Config\Types.cs" />
+    <Compile Include="Session\Session.cs" />
+    <Compile Include="Session\SessionAction.cs" />
+    <Compile Include="Session\SessionMonitor.cs" />
+    <Compile Include="Session\SessionSync.cs" />
+    <Compile Include="Session\SessionVector.cs" />
     <Compile Include="SystemName.cs" />
     <Compile Include="ProcessOp.cs" />
     <Compile Include="Config\ParserState.cs" />
@@ -109,7 +114,7 @@
     <Compile Include="Router_LeastBusy.cs" />
     <Compile Include="Router_Hash.cs" />
     <Compile Include="Router_RoundRobin.cs" />
-    <Compile Include="SessionManagerProcess.cs" />
+    <Compile Include="Session\SessionManager.cs" />
     <Compile Include="Strategy\Strategy.cs" />
     <Compile Include="Prelude_Reply.cs" />
     <Compile Include="Prelude_Strategies.cs" />

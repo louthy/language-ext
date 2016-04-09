@@ -113,7 +113,14 @@ namespace LanguageExtTests
 
             Thread.Sleep(100);
 
-            tell(find("woooo amazing"), "noooo");
+            try
+            {
+                tell(find("woooo amazing"), "noooo");
+            }
+            catch(Exception e)
+            {
+                Assert.True(e.Message.Contains("No processes in group"));
+            }
 
             Thread.Sleep(100);
 
@@ -156,7 +163,14 @@ namespace LanguageExtTests
 
             Thread.Sleep(200);
 
-            tell(find("woooo amazing"), "noooo");
+            try
+            {
+                tell(find("woooo amazing"), "noooo");
+            }
+            catch(Exception e)
+            {
+                Assert.True(e.Message.Contains("No processes in group"));
+            }
 
             Thread.Sleep(200);
 

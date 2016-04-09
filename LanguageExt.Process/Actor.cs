@@ -933,13 +933,18 @@ namespace LanguageExt
             }
         }
 
-        public Unit ShutdownProcess(bool maintainState) =>
-            Parent.Actor.Children.Find(Name.Value).IfSome(self =>
+        public Unit ShutdownProcess(bool maintainState)
+        {
+            lock (sync)
             {
-                 ShutdownProcessRec(self, ActorContext.System(Id).GetInboxShutdownItem().Map(x => (ILocalActorInbox)x.Inbox), maintainState);
-                 Parent.Actor.UnlinkChild(Id);
-                 children = Map.empty<string, ActorItem>();
-            });
+                return Parent.Actor.Children.Find(Name.Value).IfSome(self =>
+                {
+                    ShutdownProcessRec(self, ActorContext.System(Id).GetInboxShutdownItem().Map(x => (ILocalActorInbox)x.Inbox), maintainState);
+                    Parent.Actor.UnlinkChild(Id);
+                    children = Map.empty<string, ActorItem>();
+                });
+            }
+        }
 
         void ShutdownProcessRec(ActorItem item, Option<ILocalActorInbox> inboxShutdown, bool maintainState)
         {

@@ -900,7 +900,6 @@ public static class __MapExt
 
     public static Map<A, Map<B, Map<C, Map<D, T>>>> Remove<A, B, C, D, T>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, A aKey, B bKey, C cKey, D dKey)
     {
-        // TODO: Ugly and inefficient
         var res = self.Find(aKey, bKey, cKey);
         if (res.IsSome && res.CountT() > 1)
         {

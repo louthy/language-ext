@@ -15,6 +15,10 @@ namespace LanguageExt
         {
             this.group = group.ToArray();
             this.count = this.group.Length;
+            if( this.group.Length == 0 )
+            {
+                throw new ArgumentException("No processes in group - usually this means there are offline services.");
+            }
         }
 
         private IEnumerable<IActorDispatch> GetWorkers() =>

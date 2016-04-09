@@ -1,4 +1,5 @@
 ﻿using LanguageExt.Config;
+using LanguageExt.Session;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace LanguageExt
         public object CurrentMsg;
         public ActorRequest CurrentRequest;
         public ProcessFlags ProcessFlags;
+        public SessionVector Session;
 
         public ActorRequestContext(
             ActorSystem system,
@@ -28,7 +30,8 @@ namespace LanguageExt
             object currentMsg,
             ActorRequest currentRequest,
             ProcessFlags processFlags,
-            ProcessOpTransaction ops
+            ProcessOpTransaction ops,
+            SessionVector session
             )
         {
             Self = self;
@@ -39,6 +42,7 @@ namespace LanguageExt
             ProcessFlags = processFlags;
             Ops = ops;
             System = system;
+            Session = session;
         }
 
         public ActorRequestContext SetProcessFlags(ProcessFlags flags) =>
@@ -50,7 +54,8 @@ namespace LanguageExt
                 CurrentMsg,
                 CurrentRequest,
                 flags,
-                Ops
+                Ops,
+                Session
             );
 
         public ActorRequestContext SetCurrentRequest(ActorRequest currentRequest) =>
@@ -62,7 +67,8 @@ namespace LanguageExt
                 CurrentMsg,
                 currentRequest,
                 ProcessFlags,
-                Ops
+                Ops,
+                Session
             );
 
         public ActorRequestContext SetCurrentMessage(object currentMsg) =>
@@ -74,7 +80,8 @@ namespace LanguageExt
                 currentMsg,
                 CurrentRequest,
                 ProcessFlags,
-                Ops
+                Ops,
+                Session
             );
 
         public void SetOps(ProcessOpTransaction ops)

@@ -7,6 +7,7 @@ using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 using System.Threading;
 using LanguageExt.Config;
+using LanguageExt.Session;
 
 namespace LanguageExt
 {
@@ -47,7 +48,7 @@ namespace LanguageExt
             this.settings = settings;
             this.cluster = cluster;
             startupTimestamp = DateTime.UtcNow.Ticks;
-            sessionManager = new SessionManager(SystemName, cluster);
+            sessionManager = new SessionManager(cluster, SystemName, VectorClockConflictStrategy.Branch);
             watchers = Map.empty<ProcessId, Set<ProcessId>>();
             watchings = Map.empty<ProcessId, Set<ProcessId>>();
 
