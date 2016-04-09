@@ -373,9 +373,10 @@ namespace LanguageExt
 
         public bool Equals(Lst<T> other)
         {
+            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(other, null)) return false;
             var comparer = EqualityComparer<T>.Default;
-            return Count == other.Count && 
-                   this.Zip(other, (x, y) => comparer.Equals(x, y)).ForAll(x => x);
+            return Count == other.Count && this.Zip(other, (x, y) => comparer.Equals(x, y)).ForAll(x => x);
         }
 
         public static bool operator ==(Lst<T> lhs, Lst<T> rhs) =>

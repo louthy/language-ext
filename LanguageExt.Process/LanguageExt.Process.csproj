@@ -76,6 +76,7 @@
     <Compile Include="Session\SessionMonitor.cs" />
     <Compile Include="Session\SessionSync.cs" />
     <Compile Include="Session\SessionVector.cs" />
+    <Compile Include="SessionId.cs" />
     <Compile Include="SystemName.cs" />
     <Compile Include="ProcessOp.cs" />
     <Compile Include="Config\ParserState.cs" />

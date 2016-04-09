@@ -7,8 +7,8 @@ open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
 module ProcessFs = 
 
-    type SessionId = string
-    type ProcessId = LanguageExt.ProcessId
+    type SessionId   = LanguageExt.SessionId
+    type ProcessId   = LanguageExt.ProcessId
     type ProcessName = LanguageExt.ProcessName
 
     let DefaultFlags = 
@@ -270,13 +270,13 @@ module ProcessFs =
 
     /// Ends a session in the Process system with the specified
     /// session ID
-    let sessionStop (sid:SessionId) =
-        Process.sessionStop(sid) |> ignore
+    let sessionStop () =
+        Process.sessionStop() |> ignore
 
     /// Touch a session
     /// Time-stamps the session so that its time-to-expiry is reset
     let sessionTouch (sid:SessionId) =
-        Process.sessionTouch(sid) |> ignore
+        Process.sessionTouch() |> ignore
 
     /// Gets the current session ID
     /// Also touches the session so that its time-to-expiry 
@@ -290,17 +290,17 @@ module ProcessFs =
 
     // TODO: Restore once the functionality is back in the main library
 
-//    let sessionSetData (sid:SessionId) (data:obj) =
-//        Process.sessionSetData(sid,data) |> ignore
-//
-//    /// Clear the meta-data stored with the session
-//    let sessionClearData (sid:SessionId) =
-//        Process.sessionClearData(sid) |> ignore
-//
-//    /// Get the meta-data stored with the session, this is typically
-//    /// user credentials when they've logged in.  But can be anything.
-//    let sessionGetData (sid:SessionId) =
-//        Process.sessionGetData(sid) |> LanguageExt.FSharp.fs
+    let sessionSetData (key:string) (value:obj) =
+        Process.sessionSetData(key, value) |> ignore
+
+    /// Clear the meta-data stored with the session
+    let sessionClearData (key:string) =
+        Process.sessionClearData(key) |> ignore
+
+    /// Get the meta-data stored with the session, this is typically
+    /// user credentials when they've logged in.  But can be anything.
+    let sessionGetData (key:string) =
+        Process.sessionGetData(key) |> LanguageExt.FSharp.fs
 
     /// Returns True if there is an active session
     let hasSession() =

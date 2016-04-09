@@ -19,7 +19,7 @@ namespace LanguageExt
         static SystemName context;
 
         [ThreadStatic]
-        static Option<string> sessionId;
+        static Option<SessionId> sessionId;
 
         [ThreadStatic]
         static ActorRequestContext request;
@@ -162,7 +162,7 @@ namespace LanguageExt
         public static ActorRequestContext Request =>
             request;
 
-        public static Option<string> SessionId
+        public static Option<SessionId> SessionId
         {
             get
             {

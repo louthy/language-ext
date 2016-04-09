@@ -1,22 +1,35 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using static LanguageExt.Prelude;
-using LanguageExt.Trans;
 
 namespace LanguageExt.Session
 {
-    public enum VectorClockConflictStrategy
+    /// <summary>
+    /// Version vector conflict strategy
+    /// </summary>
+    public enum VectorConflictStrategy
     {
+        /// <summary>
+        /// Take the first item
+        /// </summary>
         First,
+
+        /// <summary>
+        /// Take the last item
+        /// </summary>
         Last,
+
+        /// <summary>
+        /// Keep all items of the same time
+        /// </summary>
         Branch
     }
 
-    class ValueVector
+    /// <summary>
+    /// Simple version vector.  There can be multiple values stored for the
+    /// same event. The implementation will be replaced with Dotted Version 
+    /// Vectors once I have implemented a general system for it in the Core.
+    /// </summary>
+    public class ValueVector
     {
         public readonly long Time;
         public readonly Lst<object> Vector;
@@ -27,7 +40,7 @@ namespace LanguageExt.Session
             Vector = root;
         }
 
-        public ValueVector AddValue(long time, object value, VectorClockConflictStrategy strategy)
+        public ValueVector AddValue(long time, object value, VectorConflictStrategy strategy)
         {
             if(Vector.Count == 0 || time > Time)
             {
@@ -41,7 +54,7 @@ namespace LanguageExt.Session
                 return this;
             }
 
-            if (Vector.Exists(x => x == value))
+            if (Vector.Exists(x => x.Equals(value)))
             {
                 // There's already an entry at the same time with the
                 // same value
@@ -52,54 +65,85 @@ namespace LanguageExt.Session
                 // Conflict!
                 switch(strategy)
                 {
-                    case VectorClockConflictStrategy.First:  return this;
-                    case VectorClockConflictStrategy.Last:   return new ValueVector(time, List(value));
-                    case VectorClockConflictStrategy.Branch: return new ValueVector(Time, Vector.Add(value));
-                    default: throw new ArgumentException("VectorClockConflictStrategy not supported: " + strategy);
+                    case VectorConflictStrategy.First:  return this;
+                    case VectorConflictStrategy.Last:   return new ValueVector(time, List(value));
+                    case VectorConflictStrategy.Branch: return new ValueVector(Time, Vector.Add(value));
+                    default: throw new ArgumentException("VectorConflictStrategy not supported: " + strategy);
                 }
             }
         }
     }
 
-    class SessionVector
+    public class SessionVector
     {
         public readonly int TimeoutSeconds;
-        public readonly Map<string, Versioned<object>> Data;
-        public DateTime LastAccess;
 
-        public static SessionVector Create(int timeout) =>
-            new SessionVector(Map.empty<string, Versioned<object>>(), DateTime.UtcNow, timeout);
+        Map<string, ValueVector> data;
+        DateTime lastAccess;
+        DateTime expires;
+        object sync = new object();
 
-        public SessionVector(Map<string, Versioned<object>> data, DateTime lastAccess, int timeoutSeconds)
+        public static SessionVector Create(int timeout, VectorConflictStrategy strategy) =>
+            new SessionVector(Map.empty<string, ValueVector>(), DateTime.UtcNow, timeout);
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public SessionVector(Map<string, ValueVector> data, DateTime lastAccess, int timeoutSeconds)
         {
-            Data = data;
-            LastAccess = lastAccess;
+            this.data = data;
+            this.lastAccess = lastAccess;
             TimeoutSeconds = timeoutSeconds;
         }
 
-        public void Touch() =>
-            LastAccess = DateTime.UtcNow;
+        /// <summary>
+        /// Key/value store for the session
+        /// </summary>
+        public Map<string, ValueVector> Data => data;
 
-        public SessionVector ClearKeyValue(long vector, string key) =>
-            new SessionVector(Data.Remove(key), DateTime.UtcNow, TimeoutSeconds);
+        /// <summary>
+        /// UTC date of last access
+        /// </summary>
+        public DateTime LastAccess => lastAccess;
 
-        public SessionVector SetKeyValue(long time, int nodeId, string key, object value)
+        /// <summary>
+        /// The date-time of expiry
+        /// </summary>
+        public DateTime Expires => expires;
+
+        /// <summary>
+        /// Invoke to keep the session alive
+        /// </summary>
+        public void Touch()
         {
-            Data.Find(key)
-                .Map( version =>
-                {
-                    var newVersion= version.Version.Incr()
+            lastAccess = DateTime.UtcNow;
+            expires = lastAccess.AddSeconds(TimeoutSeconds);
+        }
 
-                })
+        /// <summary>
+        /// Remove a key from the session key/value store
+        /// </summary>
+        public void ClearKeyValue(long vector, string key)
+        {
+            lock (sync)
+            {
+                data = data.Remove(key);
+            }
+            Touch();
+        }
 
-
-            //Versioned<object> v = new Versioned<object>(value, new VectorClock() )
-
-            //var data = Data.Find(key)
-            //               .Map(vector => Data.AddOrUpdate(key, vector.AddValue(time, value, strategy)))
-            //               .IfNone(() => Data.AddOrUpdate(key, new ValueVector(time, List(value))));
-
-            //return new SessionVector(data, DateTime.UtcNow, TimeoutSeconds);
+        /// <summary>
+        /// Add or update a key in the session key/value store
+        /// </summary>
+        public void SetKeyValue(long time, string key, object value, VectorConflictStrategy strategy)
+        {
+            lock (sync)
+            {
+                data = data.Find(key)
+                           .Map(vector => data.AddOrUpdate(key, vector.AddValue(time, value, strategy)))
+                           .IfNone(() => data.AddOrUpdate(key, new ValueVector(time, List(value))));
+            }
+            Touch();
         }
     }
 }

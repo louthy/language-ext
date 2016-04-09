@@ -20,15 +20,22 @@ namespace LanguageExt.Session
         /// </summary>
         /// <param name="sessionManager">Process ID of the session manager</param>
         /// <param name="checkFreq">Frequency to check</param>
-        public static Tuple<ProcessId, Time> Setup(ProcessId sessionManager, Time checkFreq) =>
-            Tuple(sessionManager, checkFreq);
+        public static Tuple<SessionSync, Time> Setup(SessionSync sync, Time checkFreq) =>
+            Tuple(sync, checkFreq);
 
         /// <summary>
         /// Inbox
         /// </summary>
-        public static Tuple<ProcessId, Time> Inbox(Tuple<ProcessId, Time> state, Unit _)
+        public static Tuple<SessionSync, Time> Inbox(Tuple<SessionSync, Time> state, Unit _)
         {
-            proxy<ISessionSync>(state.Item1).Sync();
+            try
+            {
+                state.Item1.ExpiredCheck();
+            }
+            catch(Exception e)
+            {
+                logErr(e);
+            }
             tellSelf(unit, state.Item2);
             return state;
         }

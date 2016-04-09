@@ -61,7 +61,7 @@ namespace LanguageExt
 
         public Message()
         {
-            SessionId = ActorContext.SessionId.IfNoneUnsafe((string)null);
+            SessionId = ActorContext.SessionId.Map(s => s.Value).IfNoneUnsafe((string)null);
         }
     }
 }

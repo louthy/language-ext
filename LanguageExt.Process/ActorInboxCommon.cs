@@ -80,7 +80,11 @@ namespace LanguageExt
 
         public static InboxDirective SystemMessageInbox<S,T>(Actor<S,T> actor, IActorInbox inbox, SystemMessage msg, ActorItem parent)
         {
-            return ActorContext.System(actor.Id).WithContext(new ActorItem(actor,inbox,actor.Flags), parent, ProcessId.NoSender, null, msg, msg.SessionId, () =>
+            var session = msg.SessionId == null
+                ? None
+                : Some(new SessionId(msg.SessionId));
+
+            return ActorContext.System(actor.Id).WithContext(new ActorItem(actor,inbox,actor.Flags), parent, ProcessId.NoSender, null, msg, session, () =>
             {
                 switch (msg.Tag)
                 {
@@ -149,24 +153,28 @@ namespace LanguageExt
 
         public static InboxDirective UserMessageInbox<S, T>(Actor<S, T> actor, IActorInbox inbox, UserControlMessage msg, ActorItem parent)
         {
+            var session = msg.SessionId == null 
+                ? None 
+                : Some(new SessionId(msg.SessionId));
+
             switch (msg.Tag)
             {
                 case Message.TagSpec.UserAsk:
                     var rmsg = (ActorRequest)msg;
-                    return ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, rmsg.ReplyTo, rmsg, msg, msg.SessionId, () => actor.ProcessAsk(rmsg));
+                    return ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, rmsg.ReplyTo, rmsg, msg, session, () => actor.ProcessAsk(rmsg));
 
                 case Message.TagSpec.UserReply:
                     var urmsg = (ActorResponse)msg;
-                    ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, urmsg.ReplyFrom, null, msg, msg.SessionId, () => actor.ProcessResponse(urmsg));
+                    ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, urmsg.ReplyFrom, null, msg, session, () => actor.ProcessResponse(urmsg));
                     break;
 
                 case Message.TagSpec.UserTerminated:
                     var utmsg = (TerminatedMessage)msg;
-                    return ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, utmsg.Id, null, msg, msg.SessionId, () => actor.ProcessTerminated(utmsg.Id));
+                    return ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, utmsg.Id, null, msg, session, () => actor.ProcessTerminated(utmsg.Id));
 
                 case Message.TagSpec.User:
                     var umsg = (UserMessage)msg;
-                    return ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, umsg.Sender, null, msg, msg.SessionId, () => actor.ProcessMessage(umsg.Content));
+                    return ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, umsg.Sender, null, msg, session, () => actor.ProcessMessage(umsg.Content));
 
                 case Message.TagSpec.ShutdownProcess:
                     kill(actor.Id);

@@ -10,15 +10,16 @@ namespace LanguageExt.Session
         const string SessionsNotify = "sys-sessions-notify";
         readonly Option<ICluster> cluster;
         readonly SystemName system;
+        readonly ProcessName nodeName;
         readonly SessionSync sync;
 
-        public SessionManager(Option<ICluster> cluster, SystemName system, VectorClockConflictStrategy strategy)
+        public SessionManager(Option<ICluster> cluster, SystemName system, ProcessName nodeName, VectorConflictStrategy strategy)
         {
             this.cluster = cluster;
             this.system = system;
-            var self = Self;
+            this.nodeName = nodeName;
 
-            sync = new SessionSync(cluster, system, strategy);
+            sync = new SessionSync(cluster, system, nodeName, strategy);
 
             cluster.Iter(c =>
                 c.SubscribeToChannel<SessionAction>(SessionsNotify).Subscribe(
@@ -28,56 +29,55 @@ namespace LanguageExt.Session
 
         public void Dispose()
         {
-            cluster.Iter(c => c.UnsubscribeChannel(SessionsNotify));
+            lock (sync)
+            {
+                cluster.Iter(c => c.UnsubscribeChannel(SessionsNotify));
+            }
         }
 
-        public Option<SessionVector> GetSession(string sessionId) =>
+        public Option<SessionVector> GetSession(SessionId sessionId) =>
             sync.GetSession(sessionId);
 
-        public Unit Start(string sessionId, int timeoutSeconds)
+        public Unit Start(SessionId sessionId, int timeoutSeconds)
         {
-            var action = SessionAction.Start(sessionId, timeoutSeconds);
-            cluster.Map(c => c.PublishToChannel(SessionsNotify, action))
-                   .IfNone(() => sync.Incoming(action));
-            return unit;
+            sync.Start(sessionId, timeoutSeconds);
+            return cluster.Iter(c => c.PublishToChannel(SessionsNotify, SessionAction.Start(sessionId, timeoutSeconds, system, nodeName)));
         }
 
-        public Unit Stop(string sessionId)
+        public Unit Stop(SessionId sessionId)
         {
-            var action = SessionAction.Stop(sessionId);
-            cluster.Map(c => c.PublishToChannel(SessionsNotify, action))
-                   .IfNone(() => sync.Incoming(action));
-            return unit;
+            sync.Stop(sessionId);
+            return cluster.Iter(c => c.PublishToChannel(SessionsNotify, SessionAction.Stop(sessionId, system, nodeName)));
         }
 
-        public Unit Touch(string sessionId)
+        public Unit Touch(SessionId sessionId)
         {
-            var action = SessionAction.Touch(sessionId);
-            cluster.Map(c => c.PublishToChannel(SessionsNotify, action))
-                   .IfNone(() => sync.Incoming(action));
-            return unit;
+            sync.Touch(sessionId);
+            return cluster.Iter(c => c.PublishToChannel(SessionsNotify, SessionAction.Touch(sessionId, system, nodeName)));
         }
 
-        public Unit SetData(long time, string sessionId, string key, object value)
+        public Unit SetData(long time, SessionId sessionId, string key, object value)
         {
-            var action = SessionAction.SetData(
+            sync.SetData(sessionId, key, value, time);
+
+            return cluster.Iter(c => c.PublishToChannel(SessionsNotify, SessionAction.SetData(
                 time,
                 sessionId,
                 key,
-                JsonConvert.SerializeObject(value, ActorSystemConfig.Default.JsonSerializerSettings)
-            );
-            cluster.Map(c => c.PublishToChannel(SessionsNotify, action))
-                   .IfNone(() => sync.Incoming(action));
-            return unit;
+                JsonConvert.SerializeObject(value, ActorSystemConfig.Default.JsonSerializerSettings),
+                system,
+                nodeName
+            )));
         }
 
-        public Unit ClearData(long time, string sessionId, string key)
+        public Unit ClearData(long time, SessionId sessionId, string key)
         {
-            cluster.Map(c =>
+            sync.ClearData(sessionId, key, time);
+
+            return cluster.Iter(c =>
                 c.PublishToChannel(
                     SessionsNotify,
-                    SessionAction.ClearData(time, sessionId, key)));
-            return unit;
+                    SessionAction.ClearData(time, sessionId, key, system, nodeName)));
         }
     }
 }

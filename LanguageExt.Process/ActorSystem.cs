@@ -48,7 +48,7 @@ namespace LanguageExt
             this.settings = settings;
             this.cluster = cluster;
             startupTimestamp = DateTime.UtcNow.Ticks;
-            sessionManager = new SessionManager(cluster, SystemName, VectorClockConflictStrategy.Branch);
+            sessionManager = new SessionManager(cluster, SystemName, appProfile.NodeName, VectorConflictStrategy.Branch);
             watchers = Map.empty<ProcessId, Set<ProcessId>>();
             watchings = Map.empty<ProcessId, Set<ProcessId>>();
 
@@ -82,8 +82,8 @@ namespace LanguageExt
                 null,
                 null,
                 ProcessFlags.Default,
-                null
-                );
+                null,
+                null);
             rootInbox.Startup(rootProcess, parent, cluster, settings.GetProcessMailboxSize(rootProcess.Id));
             rootItem = new ActorItem(rootProcess, rootInbox, ProcessFlags.Default);
         }
@@ -717,7 +717,7 @@ by name then use Process.deregisterByName(name).");
             }
         }
 
-        public R WithContext<R>(ActorItem self, ActorItem parent, ProcessId sender, ActorRequest request, object msg, Option<string> sessionId, Func<R> f)
+        public R WithContext<R>(ActorItem self, ActorItem parent, ProcessId sender, ActorRequest request, object msg, Option<SessionId> sessionId, Func<R> f)
         {
             var savedContext = ActorContext.Request;
             var savedSession = ActorContext.SessionId;
@@ -734,7 +734,11 @@ by name then use Process.deregisterByName(name).");
                     msg,
                     request,
                     ProcessFlags.Default,
-                    ProcessOpTransaction.Start(self.Actor.Id)
+                    ProcessOpTransaction.Start(self.Actor.Id),
+                    (from sid in sessionId
+                     from ses in ActorContext.System(self.Actor.Id).Sessions.GetSession(sid)
+                     select ses)
+                    .IfNoneUnsafe((SessionVector)null)
                 ));
                 return f();
             }
@@ -745,7 +749,7 @@ by name then use Process.deregisterByName(name).");
             }
         }
 
-        public Unit WithContext(ActorItem self, ActorItem parent, ProcessId sender, ActorRequest request, object msg, Option<string> sessionId, Action f) =>
+        public Unit WithContext(ActorItem self, ActorItem parent, ProcessId sender, ActorRequest request, object msg, Option<SessionId> sessionId, Action f) =>
             WithContext(self, parent, sender, request, msg, sessionId, fun(f));
 
         internal IObservable<T> Observe<T>(ProcessId pid) =>

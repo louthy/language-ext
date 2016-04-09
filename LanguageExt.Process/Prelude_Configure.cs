@@ -216,7 +216,7 @@ namespace LanguageExt
             {
                 var parser = new ProcessSystemConfigParser(nodeName.IfNone(""), new Types(), strategyFuncs);
                 var configs = String.IsNullOrWhiteSpace(configText)
-                    ? Map.create(Tuple(new SystemName("sys"), ProcessSystemConfig.Empty))
+                    ? Map.create(Tuple(new SystemName(""), ProcessSystemConfig.Empty))
                     : parser.ParseConfigText(configText);
 
                 configs.Iter(StartFromConfig);
@@ -302,7 +302,7 @@ namespace LanguageExt
                     },
                     None: () =>
                     {
-                        ActorContext.StartSystem(new SystemName("sys"), None, AppProfile.NonClustered, config);
+                        ActorContext.StartSystem(new SystemName(""), None, AppProfile.NonClustered, config);
                     });
             }
         }

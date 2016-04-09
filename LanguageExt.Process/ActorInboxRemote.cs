@@ -130,7 +130,11 @@ namespace LanguageExt
                 }
                 catch (Exception e)
                 {
-                    ActorContext.System(actor.Id).WithContext(new ActorItem(actor, this, actor.Flags), parent, dto.Sender, msg as ActorRequest, msg, msg.SessionId, () => replyErrorIfAsked(e));
+                    var session = msg.SessionId == null
+                        ? None
+                        : Some(new SessionId(msg.SessionId));
+
+                    ActorContext.System(actor.Id).WithContext(new ActorItem(actor, this, actor.Flags), parent, dto.Sender, msg as ActorRequest, msg, session, () => replyErrorIfAsked(e));
                     tell(ActorContext.System(actor.Id).DeadLetters, DeadLetter.create(dto.Sender, actor.Id, e, "Remote message inbox.", msg));
                     logSysErr(e);
                 }
@@ -163,7 +167,11 @@ namespace LanguageExt
                         }
                         catch (Exception e)
                         {
-                            ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, dto.Sender, msg as ActorRequest, msg, msg.SessionId, () => replyErrorIfAsked(e));
+                            var session = msg.SessionId == null
+                                ? None
+                                : Some(new SessionId(msg.SessionId));
+
+                            ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, dto.Sender, msg as ActorRequest, msg, session, () => replyErrorIfAsked(e));
                             tell(ActorContext.System(actor.Id).DeadLetters, DeadLetter.create(dto.Sender, actor.Id, e, "Remote message inbox.", msg));
                             logSysErr(e);
                         }
