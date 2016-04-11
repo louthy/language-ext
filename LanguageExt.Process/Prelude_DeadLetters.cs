@@ -6,11 +6,6 @@ using static LanguageExt.Map;
 
 namespace LanguageExt
 {
-    /// <summary>
-    /// 
-    ///     Process:  Dead letter functions
-    /// 
-    /// </summary>
     public static partial class Process
     {
         /// <summary>

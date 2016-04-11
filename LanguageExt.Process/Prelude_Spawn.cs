@@ -8,16 +8,18 @@ using static LanguageExt.Prelude;
 namespace LanguageExt
 {
     /// <summary>
-    /// 
+    /// <para>
     ///     Process: Spawn functions
-    /// 
+    /// </para>
+    /// <para>
     ///     The spawn functions create a new process.  Processes are either simple message receivers that
     ///     don't manage state and therefore only need a messageHandler.  Or they manage state over time.
-    /// 
+    /// </para>
+    /// <para>
     ///     If they manage state then you should also provide a 'setup' function that generates the initial
     ///     state.  This allows the process system to recover if a process crashes.  It can re-call the 
     ///     setup function to reset the state and continue processing the messages.
-    /// 
+    /// </para>
     /// </summary>
     public static partial class Process
     {

@@ -8,25 +8,29 @@ using static LanguageExt.Prelude;
 namespace LanguageExt
 {
     /// <summary>
-    /// 
+    /// <para>
     ///     Process registration - a kind of DNS for Processes
-    /// 
+    /// </para>
+    /// <para>
     ///     If the Process is visible to the cluster (PersistInbox) then the 
     ///     registration becomes a permanent named look-up until Process.deregister 
     ///     is called.
-    ///     
+    /// </para>
+    /// <para>
     ///     Multiple Processes can register under the same name.  You may use 
     ///     a dispatcher to work on them collectively (wherever they are in the 
     ///     cluster).  i.e. 
-    /// 
+    /// </para>
+    /// <para>
     ///         var regd = register("regd-name", pid);
-    ///         
+    /// </para>
+    /// <para>
     ///         tell(Dispatch.Broadcast[regd],  "Hello");
     ///         tell(Dispatch.First[regd],      "Hello");
     ///         tell(Dispatch.LeastBusy[regd],  "Hello");
     ///         tell(Dispatch.Random[regd],     "Hello");
     ///         tell(Dispatch.RoundRobin[regd], "Hello");
-    /// 
+    /// </para>
     /// </summary>
     public static partial class Process
     {

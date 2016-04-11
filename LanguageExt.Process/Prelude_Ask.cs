@@ -8,16 +8,18 @@ using static LanguageExt.Prelude;
 namespace LanguageExt
 {
     /// <summary>
-    /// 
+    /// <para>
     ///     Process: Ask functions
-    /// 
+    /// </para>
+    /// <para>
     ///     'ask' is a request/response system for processes.  You can ask a process a question (a message) and it
     ///     can reply using the 'Process.reply' function.  It doesn't have to and 'ask' will timeout after 
     ///     ActorConfig.Default.Timeout seconds. 
-    /// 
+    /// </para>
+    /// <para>
     ///     'ask' is blocking, because mostly it will be called from within a process and processes shouldn't 
     ///     perform asynchronous operations.
-    /// 
+    /// </para>
     /// </summary>
     public static partial class Process
     {

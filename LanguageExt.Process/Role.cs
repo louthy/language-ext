@@ -6,15 +6,18 @@ using static LanguageExt.Process;
 namespace LanguageExt
 {
     /// <summary>
+    /// <para>
     /// Each node in the cluster has a role name and at all times the cluster-nodes
     /// have a list of the alive nodes and their roles (Process.ClusterNodes).  Nodes 
     /// are removed from Process.ClusterNodes if they don't phone in. Process.ClusterNodes 
     /// is at most 3 seconds out-of-date and can therefore be used to reliably find
     /// out which nodes are available and what roles they do.  
-    /// 
+    /// </para>
+    /// <para>
     /// By using Role.First, Role.Broadcast, Role.LeastBusy, Role.Random and Role.RoundRobin
     /// you can build a ProcessId that is resolved at the time of doing a 'tell', 'ask',
     /// 'subscribe', etc.  This can allow reliable messaging to Processes in the cluster.
+    /// </para>
     /// </summary>
     public static class Role
     {

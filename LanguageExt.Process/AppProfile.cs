@@ -4,10 +4,14 @@ using static LanguageExt.Prelude;
 namespace LanguageExt
 {
     /// <summary>
+    /// <para>
     /// Application profile
+    /// </para>
+    /// <para>
     /// It provides the core settings used when initialising the Process
     /// system.  You don't create it yourself, it is passed to you once
     /// the config system has successfully parsed the config files.
+    /// </para>
     /// </summary>
     public class AppProfile
     {

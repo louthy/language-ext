@@ -7,7 +7,6 @@ namespace LanguageExt
 {
     public static partial class Process
     {
-
         /// <summary>
         /// Use in message loop exception
         /// </summary>

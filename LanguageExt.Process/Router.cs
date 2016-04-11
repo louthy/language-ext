@@ -24,22 +24,24 @@ namespace LanguageExt
         /// Spawn a router using the settings in the config
         /// </summary>
         /// <example>
-        /// 
+        /// <para>
         ///     router broadcast1: 
         ///         pid:			/root/user/broadcast1
         ///         route:	        broadcast
         ///         worker-count:	10
-        /// 
+        /// </para>
+        /// <para>
         ///     router broadcast2: 
         ///         pid:			/root/user/broadcast2
         ///         route:	        broadcast
         ///         workers:		[hello, world]
-        /// 
+        /// </para>
+        /// <para>
         ///     router least: 
         ///         pid:			/role/user/least
         ///         route:	        least-busy
         ///         workers:		[one, two, three]
-        /// 
+        /// </para>
         /// </example>
         /// <typeparam name="T"></typeparam>
         /// <param name="name">Name of the child process that will be the router</param>
@@ -82,22 +84,24 @@ namespace LanguageExt
         /// Spawn a router using the settings in the config
         /// </summary>
         /// <example>
-        /// 
+        /// <para>
         ///     router broadcast1: 
         ///         pid:			/root/user/broadcast1
         ///         route:	        broadcast
         ///         worker-count:	10
-        /// 
+        /// </para>
+        /// <para>
         ///     router broadcast2: 
         ///         pid:			/root/user/broadcast2
         ///         route:	        broadcast
         ///         workers:		[hello, world]
-        /// 
+        /// </para>
+        /// <para>
         ///     router least: 
         ///         pid:			/role/user/least
         ///         route:	        least-busy
         ///         workers:		[one, two, three]
-        /// 
+        /// </para>
         /// </example>
         /// <typeparam name="T"></typeparam>
         /// <param name="name">Name of the child process that will be the router</param>
@@ -109,22 +113,24 @@ namespace LanguageExt
         /// Spawn a router using the settings in the config
         /// </summary>
         /// <example>
-        /// 
+        /// <para>
         ///     router broadcast1: 
         ///         pid:			/root/user/broadcast1
         ///         route:	        broadcast
         ///         worker-count:	10
-        /// 
+        /// </para>
+        /// <para>
         ///     router broadcast2: 
         ///         pid:			/root/user/broadcast2
         ///         route:	        broadcast
         ///         workers:		[hello, world]
-        /// 
+        /// </para>
+        /// <para>
         ///     router least: 
         ///         pid:			/role/user/least
         ///         route:	        least-busy
         ///         workers:		[one, two, three]
-        /// 
+        /// </para>
         /// </example>
         /// <typeparam name="T"></typeparam>
         /// <param name="name">Name of the child process that will be the router</param>
@@ -136,22 +142,24 @@ namespace LanguageExt
         /// Spawn a router using the settings in the config
         /// </summary>
         /// <example>
-        /// 
+        /// <para>
         ///     router broadcast1: 
         ///         pid:			/root/user/broadcast1
         ///         route:	        broadcast
         ///         worker-count:	10
-        /// 
+        /// </para>
+        /// <para>
         ///     router broadcast2: 
         ///         pid:			/root/user/broadcast2
         ///         route:	        broadcast
         ///         workers:		[hello, world]
-        /// 
+        /// </para>
+        /// <para>
         ///     router least: 
         ///         pid:			/role/user/least
         ///         route:	        least-busy
         ///         workers:		[one, two, three]
-        /// 
+        /// </para>
         /// </example>
         /// <typeparam name="T"></typeparam>
         /// <param name="name">Name of the child process that will be the router</param>

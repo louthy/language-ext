@@ -4,16 +4,17 @@ using static LanguageExt.Prelude;
 namespace LanguageExt
 {
     /// <summary>
-    /// 
+    /// <para>
     ///     Process: Reply functions
-    /// 
+    /// </para>
+    /// <para>
     ///     The reply functions are used to send responses back to processes that have sent
     ///     a message using 'ask'.  The replyError variants are for bespoke error handling
     ///     but if you let the process throw an exception when something goes wrong, the 
     ///     Process system will auto-reply with an error response (and throw it for the
     ///     process that's asking).  If the asking process doesn't capture the error then
     ///     it will continue to cascade to the original asking process.
-    /// 
+    /// </para>
     /// </summary>
     public static partial class Process
     {

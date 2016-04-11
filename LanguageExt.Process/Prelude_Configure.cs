@@ -10,11 +10,6 @@ using static LanguageExt.Process;
 
 namespace LanguageExt
 {
-    /// <summary>
-    /// 
-    ///     Process system configuration
-    /// 
-    /// </summary>
     public static class ProcessConfig
     {
         static object sync = new object();

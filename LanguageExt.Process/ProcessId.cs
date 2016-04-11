@@ -7,9 +7,13 @@ using System.Text;
 namespace LanguageExt
 {
     /// <summary>
+    /// <para>
     /// Process identifier
+    /// </para>
+    /// <para>
     /// Use this to 'tell' a message to a process.  It can be serialised and passed around
     /// without concerns for internals.
+    /// </para>
     /// </summary>
     public struct ProcessId : IEquatable<ProcessId>, IComparable<ProcessId>, IComparable
     {

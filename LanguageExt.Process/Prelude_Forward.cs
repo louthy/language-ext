@@ -7,12 +7,13 @@ using static LanguageExt.Map;
 namespace LanguageExt
 {
     /// <summary>
-    /// 
+    /// <para>
     ///     Process:  Forward functions
-    /// 
+    /// </para>
+    /// <para>
     ///     'fwd' is used to forward a message onto another process whilst maintaining the original 
     ///     sender context (for 'ask' responses to go back to the right place).
-    /// 
+    /// </para>
     /// </summary>
     public static partial class Process
     {

@@ -6,13 +6,6 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    /// <summary>
-    /// 
-    ///     Process 
-    /// 
-    ///     Publish / Subscribe / Observe
-    /// 
-    /// </summary>
     public static partial class Process
     {
         /// <summary>

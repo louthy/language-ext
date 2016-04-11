@@ -12,14 +12,15 @@ using System.Reactive.Subjects;
 namespace LanguageExt
 {
     /// <summary>
-    /// 
+    /// <para>
     ///     Process: Session functions
-    /// 
+    /// </para>
+    /// <para>
     ///     These functions facilitate the use of sessions that live from
     ///     Process to Process.  Essentially if there's an active Session
     ///     ID then it will be packaged with each message that is sent via
     ///     tell or ask.  
-    /// 
+    /// </para>
     /// </summary>
     public static partial class Process
     {
