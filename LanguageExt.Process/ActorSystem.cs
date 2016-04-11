@@ -69,7 +69,8 @@ namespace LanguageExt
                 rootInbox,
                 cluster.Map(x => x.NodeName).IfNone(ActorSystemConfig.Default.RootProcessName),
                 ActorSystemConfig.Default,
-                Settings
+                Settings,
+                sessionManager.Sync
                 );
 
             var rootProcess = state.RootProcess;

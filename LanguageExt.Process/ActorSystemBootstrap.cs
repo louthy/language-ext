@@ -7,6 +7,8 @@ using static LanguageExt.Process;
 using LanguageExt.Trans;
 using System.Threading;
 using LanguageExt.Config;
+using LanguageExt.Session;
+using LanguageExt.UnitsOfMeasure;
 
 namespace LanguageExt
 {
@@ -23,6 +25,7 @@ namespace LanguageExt
         public readonly ProcessSystemConfig Settings;
         public readonly ProcessName RootProcessName;
         public readonly SystemName System;
+        public readonly SessionSync Sync;
 
         ActorItem root;
         ActorItem user;
@@ -30,14 +33,16 @@ namespace LanguageExt
         ActorItem deadLetters;
         ActorItem errors;
         ActorItem inboxShutdown;
+        ActorItem sessionMonitor;
         ActorItem ask;
         ActorItem js;
         ActorItem reply;
         ActorItem monitor;
 
-        public ActorSystemBootstrap(SystemName system, Option<ICluster> cluster, ProcessId rootId, IActor rootProcess, IActorInbox rootInbox, ProcessName rootProcessName, ActorSystemConfig config, ProcessSystemConfig settings)
+        public ActorSystemBootstrap(SystemName system, Option<ICluster> cluster, ProcessId rootId, IActor rootProcess, IActorInbox rootInbox, ProcessName rootProcessName, ActorSystemConfig config, ProcessSystemConfig settings, SessionSync sync)
         {
             System = system;
+            Sync = sync;
 
             var parent = new ActorItem(new NullProcess(system), new NullInbox(), ProcessFlags.Default);
 
@@ -108,6 +113,7 @@ namespace LanguageExt
             js              = ActorCreate<ProcessId, RelayMsg>(root, "js", RelayActor.Inbox, () => User(System)["process-hub-js"], null, ProcessFlags.Default);
 
             // Second tier
+            sessionMonitor = ActorCreate<Tuple<SessionSync, Time>, Unit>(system, Config.Sessions, SessionMonitor.Inbox, () => SessionMonitor.Setup(Sync, Settings.SessionTimeoutCheckFrequency), null, ProcessFlags.Default);
             deadLetters     = ActorCreate<DeadLetter>(system, Config.DeadLettersProcessName, publish, null, ProcessFlags.Default);
             errors          = ActorCreate<Exception>(system, Config.ErrorsProcessName, publish, null, ProcessFlags.Default);
             monitor         = ActorCreate<ClusterMonitor.State, ClusterMonitor.Msg>(system, Config.MonitorProcessName, ClusterMonitor.Inbox, () => ClusterMonitor.Setup(System), null, ProcessFlags.Default);
