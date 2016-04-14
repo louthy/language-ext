@@ -93,33 +93,33 @@ _(more on those later)_
 
 This library is quickly becoming a 'Base Class Library' for functional programming in C#.  The features include:
 
-Feature | Description
---------|------------
-`Lst<T>` | [Immutable list](https://github.com/louthy/language-ext/wiki/List-reference)
-`Map<K,V>` | Immutable map
-`Set<T>` | Immutable set
-`Que<T>` | Immutable queue
-`Stck<T>` | Immutable stack
-`Option<T>` | Option monad that can't be used with `null` values
-`OptionUnsafe<T>` | Option monad that can be used with `null` values
-`Either<L,R>` | Right/Left choice monad that won't accept `null` values
-`EitherUnsafe<L,R>` | Right/Left choice monad that can be used with `null` values
-`Try<T>` | Exception catching monad
-`TryOption<T>` | Option monad with third state 'Fail' that catches exceptions
-`Parser<T>` | Parser monad and full parser combinators library: LanguageExt.Parsec
-`Reader<E,T>` | Reader monad
-`Writer<O,T>` | Writer monad
-`State<S,T>` | State monad
-`Rws<E,O,S,T>` | Reader/Writer/State monad
-`Task<T>` extensions | Extension methods for `Task<T>` that make it into a functor, applicative, foldable, iterable and a monad
-Monad transformers | A higher kinded type (ish)
-`Process` library | [Actor system.  The same as Erlang processes for massive concurrency with state management.](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
-Redis persistence | [Persistence of the `Process` system message-queues and state, for robustness and inter-app communication.](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
-Currying | https://en.wikipedia.org/wiki/Currying
-Partial application | https://en.wikipedia.org/wiki/Partial_application
-Memoization | https://en.wikipedia.org/wiki/Memoization
-Improved lambda type inference | `var add = fun( (int x, int y) => x + y)`
-`IObservable<T>` extensions  | 
+Location | Feature | Description
+---------|---------|------------
+`Core` | `Lst<T>` | [Immutable list](https://github.com/louthy/language-ext/wiki/List-reference)
+`Core` | `Map<K,V>` | Immutable map
+`Core` | `Set<T>` | Immutable set
+`Core` | `Que<T>` | Immutable queue
+`Core` | `Stck<T>` | Immutable stack
+`Core` | `Option<T>` | Option monad that can't be used with `null` values
+`Core` | `OptionUnsafe<T>` | Option monad that can be used with `null` values
+`Core` | `Either<L,R>` | Right/Left choice monad that won't accept `null` values
+`Core` | `EitherUnsafe<L,R>` | Right/Left choice monad that can be used with `null` values
+`Core` | `Try<T>` | Exception catching monad
+`Core` | `TryOption<T>` | Option monad with third state 'Fail' that catches exceptions
+`Core` | `Reader<E,T>` | Reader monad
+`Core` | `Writer<O,T>` | Writer monad
+`Core` | `State<S,T>` | State monad
+`Core` | `Rws<E,O,S,T>` | Reader/Writer/State monad
+`Parsec` | `Parser<T>` | Parser monad and full parser combinators library: LanguageExt.Parsec
+`Core` | `Task<T>` extensions | Extension methods for `Task<T>` that make it into a functor, applicative, foldable, iterable and a monad
+`Core` | Monad transformers | A higher kinded type (ish)
+`Process` | `Process` library | [Actor system.  The same as Erlang processes for massive concurrency with state management.](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
+`Process.Redis` | Redis persistence | [Persistence of the `Process` system message-queues and state, for robustness and inter-app communication.](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
+`Core` | Currying | https://en.wikipedia.org/wiki/Currying
+`Core` | Partial application | https://en.wikipedia.org/wiki/Partial_application
+`Core` | Memoization | https://en.wikipedia.org/wiki/Memoization
+`Core` | Improved lambda type inference | `var add = fun( (int x, int y) => x + y)`
+`Core` | `IObservable<T>` extensions  | 
 
 It started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me:
 
