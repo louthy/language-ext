@@ -10,6 +10,7 @@ using static LanguageExt.Process;
 
 namespace LanguageExt.Session
 {
+    /// TODO: Session sync for new nodes coming online
     class SessionSync
     {
         const string SessionsNotify = "sys-sessions-notify";
