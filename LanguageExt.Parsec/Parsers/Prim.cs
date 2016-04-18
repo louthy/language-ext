@@ -60,6 +60,19 @@ namespace LanguageExt.Parsec
                     None: () => EmptyError<T>(ParserError.Message(inp.Pos, "No user state set")));
 
         /// <summary>
+        /// Get the current position of the parser in the source as a line
+        /// and column index (starting at 1 for both)
+        /// </summary>
+        public static readonly Parser<Pos> getPos =
+            (PString inp) => ConsumedOK(inp.Pos, inp);
+
+        /// <summary>
+        /// Get the current index into the source
+        /// </summary>
+        public static readonly Parser<int> getIndex =
+            (PString inp) => ConsumedOK(inp.Index, inp);
+
+        /// <summary>
         /// The parser unexpected(msg) always fails with an Unexpect error
         /// message msg without consuming any input.
         /// </summary>
@@ -152,9 +165,7 @@ namespace LanguageExt.Parsec
         /// The value of the succeeding parser.
         /// </returns>
         public static Parser<T> choice<T>(params Parser<T>[] ps) =>
-            ps.Length == 0
-                ? zero<T>()
-                : choicei(ps, 0);
+            choicei(ps);
 
         /// <summary>
         /// choice(ps) tries to apply the parsers in the list ps in order, until one 
@@ -164,7 +175,7 @@ namespace LanguageExt.Parsec
         /// The value of the succeeding parser.
         /// </returns>
         public static Parser<T> choice<T>(IEnumerable<Parser<T>> ps) =>
-            choicei(ps.ToArray(), 0);
+            choicei(ps.ToArray());
 
         /// <summary>
         /// Runs a sequence of parsers, if any fail then the failure state is
@@ -174,7 +185,7 @@ namespace LanguageExt.Parsec
         /// The result of each parser as an enumerable.
         /// </returns>
         public static Parser<IEnumerable<T>> chain<T>(params Parser<T>[] ps) =>
-            chaini(ps, 0).Map(x => x.Freeze().AsEnumerable());
+            chaini(ps).Map(x => x.Freeze().AsEnumerable());
 
         /// <summary>
         /// Runs a sequence of parsers, if any fail then the failure state is
@@ -184,7 +195,7 @@ namespace LanguageExt.Parsec
         /// The result of each parser as an enumerable.
         /// </returns>
         public static Parser<IEnumerable<T>> chain<T>(IEnumerable<Parser<T>> ps) =>
-            chaini(ps.ToArray(), 0).Map(x => x.Freeze().AsEnumerable());
+            chaini(ps.ToArray()).Map(x => x.Freeze().AsEnumerable());
 
         /// <summary>
         /// The parser attempt(p) behaves like parser p, except that it

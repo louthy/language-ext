@@ -702,9 +702,7 @@ public static class __OptionExt
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Option<T> Where<T>(this Option<T> self, Func<T, bool> pred) =>
-        self.Filter(pred)
-            ? self
-            : None;
+        self.Filter(pred);
 
     public static int Sum(this Option<int> self) =>
         self.IsSome
@@ -721,10 +719,7 @@ public static class __OptionExt
         var resU = bind(self.Value);
         if (resU.IsNone) return None;
 
-        var res = Optional(project(self.Value, resU.Value));
-        if (resU.Value is ILinqDisposable) (resU.Value as ILinqDisposable).Dispose();
-        if (self.Value is ILinqDisposable) (self.Value as ILinqDisposable).Dispose();
-        return res;
+        return Optional(project(self.Value, resU.Value));
     }
 
     /// <summary>

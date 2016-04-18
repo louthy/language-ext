@@ -53,12 +53,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionObservable.cs" />
+    <Compile Include="Prelude_Nullable.cs" />
     <Compile Include="DVV.cs" />
     <Compile Include="Prelude_Tasks.cs" />
     <Compile Include="Task.cs" />
     <Compile Include="Compose.cs" />
-    <Compile Include="ILinqDisposable.cs" />
-    <Compile Include="LinqDisposable.cs" />
     <Compile Include="EitherState.cs" />
     <Compile Include="EitherUnsafeTrans.cs" />
     <Compile Include="EitherTrans.cs" />

@@ -447,11 +447,9 @@ public static class __TryOptionExt
             try
             {
                 resU = select(resT.Value.Value);
-                if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
             }
             catch (Exception e)
             {
-                if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                 TryConfig.ErrorLogger(e);
                 return new TryOptionResult<U>(e);
             }
@@ -664,26 +662,20 @@ public static class __TryOptionExt
                 var resU = bind(resT.Value.Value).Try();
                 if (resU.IsFaulted)
                 {
-                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                     return new TryOptionResult<V>(resU.Exception);
                 }
                 if (resU.Value.IsNone)
                 {
-                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                     return new TryOptionResult<V>(None);
                 }
 
                 try
                 {
                     var res = new TryOptionResult<V>(project(resT.Value.Value, resU.Value.Value));
-                    if (resU.Value is ILinqDisposable) (resU.Value as ILinqDisposable).Dispose();
-                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                     return res;
                 }
                 catch (Exception e)
                 {
-                    if (resU.Value is ILinqDisposable) (resU.Value as ILinqDisposable).Dispose();
-                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                     TryConfig.ErrorLogger(e);
                     return new TryOptionResult<V>(e);
                 }
