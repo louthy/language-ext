@@ -388,11 +388,9 @@ public static class __TryExt
             try
             {
                 resU = select(resT.Value);
-                if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
             }
             catch (Exception e)
             {
-                if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                 TryConfig.ErrorLogger(e);
                 return new TryResult<U>(e);
             }

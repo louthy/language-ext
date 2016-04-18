@@ -10,10 +10,6 @@ namespace LanguageExt
 {
     public static partial class Prelude
     {
-        public static Try<LinqDisposable<T>> use<T>(Try<T> computation)
-            where T : class, IDisposable =>
-            computation.Map(x => new LinqDisposable<T>(x));
-
         /// <summary>
         /// Use with Try monad in LINQ expressions to auto-clean up disposable items
         /// </summary>
@@ -104,24 +100,6 @@ namespace LanguageExt
             {
                 t?.Dispose();
             }
-        }
-
-        /// <summary>
-        /// Use with Try monad in LINQ expressions to auto-clean up disposable items
-        /// </summary>
-        public static LinqDisposable<T> use<T>(T disposable)
-            where T : class, IDisposable
-        {
-            return new LinqDisposable<T>(disposable);
-        }
-
-        /// <summary>
-        /// Use with Try monad in LINQ expressions to auto-clean up disposable items
-        /// </summary>
-        public static LinqDisposable<T> use<T>(Func<T> generator)
-            where T : class, IDisposable
-        {
-            return new LinqDisposable<T>(generator());
         }
 
         /// <summary>
