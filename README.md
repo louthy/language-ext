@@ -1003,7 +1003,7 @@ static class Cache
         tell(pid, new Msg { Tag = Tag.Remove, Key = key });
 
     public static string Get(ProcessId pid, string key) =>
-        ask<V>(pid, new Msg { Tag = Tag.Get, Key = key });
+        ask<string>(pid, new Msg { Tag = Tag.Get, Key = key });
 
     public static Unit Flush(ProcessId pid) =>
         tell(pid, new Msg { Tag = Tag.Flush });
@@ -1193,9 +1193,8 @@ Therefore you know where things are, and what they're called, and they're easily
 Or you can use the `ProcessId` API to build the path:
 ```C#
    ProcessId a = "/my-stuff/user/hello";
-   ProcessId b = tell(ProcessId.Top["my-stuff"]["user"]["hello"]);
-   ProcessId c = tell(ProcessId.User["hello"]);   // (from 'my-stuff' node)
-   // a == b == c
+   ProcessId b = ProcessId.Top["my-stuff"]["user"]["hello"];
+   // a == b
 ```
 Even that isn't great if you don't know what the name of the 'app' that is running a Process.  So processes can register by a single name, that goes into a 'shared namespace'.  It's a kind of DNS for processes:
 ```
