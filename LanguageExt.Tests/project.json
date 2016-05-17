@@ -1,5 +1,5 @@
 {
-  "version": "1.8.1-alpha",
+  "version": "1.8.2-alpha",
   "authors": [ "Paul Louth" ],
   "owners": [ "paullouth" ],
   "title": "LanguageExt Unit Tests",
@@ -21,13 +21,13 @@
     }
   },
   "dependencies": {
-    "LanguageExt.Core": "1.8.1-alpha",
-    "LanguageExt.Parsec": "1.8.1-alpha",
-    "LanguageExt.Process": "1.8.1-alpha",
-    "LanguageExt.Process.FSharp": "1.8.1-alpha",
-    "LanguageExt.Process.Redis": "1.8.1-alpha",
-    "LanguageExt.FSharp": "1.8.1-alpha",
-    "LanguageExt.ProcessJS": "1.8.1-alpha",
+    "LanguageExt.Core": "1.8.2-alpha",
+    "LanguageExt.Parsec": "1.8.2-alpha",
+    "LanguageExt.Process": "1.8.2-alpha",
+    "LanguageExt.Process.FSharp": "1.8.2-alpha",
+    "LanguageExt.Process.Redis": "1.8.2-alpha",
+    "LanguageExt.FSharp": "1.8.2-alpha",
+    "LanguageExt.ProcessJS": "1.8.2-alpha",
     "Newtonsoft.Json": "7.0.1",
     "Rx-Main": "2.2.5.0",
     "StackExchange.Redis": "1.0.488",
