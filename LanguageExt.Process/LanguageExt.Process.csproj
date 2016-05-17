@@ -71,7 +71,6 @@
     <Compile Include="Config\Attrs.cs" />
     <Compile Include="Config\TypeDef.cs" />
     <Compile Include="Config\Types.cs" />
-    <Compile Include="Session\Session.cs" />
     <Compile Include="Session\SessionAction.cs" />
     <Compile Include="Session\SessionMonitor.cs" />
     <Compile Include="Session\SessionSync.cs" />

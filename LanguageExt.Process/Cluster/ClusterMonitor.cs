@@ -12,8 +12,7 @@ namespace LanguageExt
     /// </summary>
     class ClusterMonitor
     {
-        const string MembersKey = "sys-cluster-members";
-        const string RegisteredKey = "sys-dns";
+        public const string MembersKey = "sys-cluster-members";
         static readonly Time HeartbeatFreq = 1*seconds;
         static readonly Time OfflineCutoff = 3*seconds;
 
@@ -98,8 +97,6 @@ namespace LanguageExt
                         var newState = new State(c.GetHashFields<ProcessName, ClusterNode>(MembersKey, s => new ProcessName(s))
                                                   .Where(m => m.LastHeartbeat > cutOff), state.System);
                         var diffs = DiffState(state, newState);
-
-                        
 
                         diffs.Item1.Iter(offline => publish(state.Members[offline]));
                         diffs.Item2.Iter(online  => publish(newState.Members[online]));

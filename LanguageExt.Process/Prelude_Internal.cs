@@ -25,16 +25,16 @@ namespace LanguageExt
         internal static bool InMessageLoop =>
             ActorContext.InMessageLoop;
 
-        static Subject<Unit> shutdownSubj = new Subject<Unit>();
-        static Subject<CancelShutdown> preShutdownSubj = new Subject<CancelShutdown>();
+        static Subject<SystemName> shutdownSubj = new Subject<SystemName>();
+        static Subject<ShutdownCancellationToken> preShutdownSubj = new Subject<ShutdownCancellationToken>();
 
-        internal static void OnShutdown()
+        internal static void OnShutdown(SystemName system)
         {
-            shutdownSubj.OnNext(unit);
+            shutdownSubj.OnNext(system);
             shutdownSubj.OnCompleted();
         }
 
-        internal static void OnPreShutdown(CancelShutdown cancel)
+        internal static void OnPreShutdown(ShutdownCancellationToken cancel)
         {
             preShutdownSubj.OnNext(cancel);
             if (!cancel.Cancelled)

@@ -10,21 +10,19 @@ using static LanguageExt.Process;
 
 namespace LanguageExt.Session
 {
-    /// TODO: Session sync for new nodes coming online
+    /// <summary>
+    /// Manages the in-memory view of the sessions
+    /// </summary>
     class SessionSync
     {
-        const string SessionsNotify = "sys-sessions-notify";
-
-        Option<ICluster> cluster;
         SystemName system;
         ProcessName nodeName;
         Map<SessionId, SessionVector> sessions = Map.empty<SessionId, SessionVector>();
         VectorConflictStrategy strategy;
         object sync = new object();
 
-        public SessionSync(Option<ICluster> cluster, SystemName system, ProcessName nodeName, VectorConflictStrategy strategy)
+        public SessionSync(SystemName system, ProcessName nodeName, VectorConflictStrategy strategy)
         {
-            this.cluster = cluster;
             this.system = system;
             this.nodeName = nodeName;
             this.strategy = strategy;
@@ -33,24 +31,18 @@ namespace LanguageExt.Session
         public void ExpiredCheck()
         {
             var now = DateTime.UtcNow;
-            Lst<SessionId> ended = null;
-            lock (sync)
-            {
-                ended = sessions.Filter(s => s.Expires < now).Keys.Freeze();
-                sessions = sessions.Filter(s => s.Expires >= now);
-            }
-
-            ended.Iter(s =>
-            {
-                try
-                {
-                    sessionEnded.OnNext(s);
-                }
-                catch(Exception e)
-                {
-                    logErr(e);
-                }
-            });
+            sessions.Filter(s => s.Expires < now)
+                    .Iter((sid,_) =>
+                    {
+                        try
+                        {
+                            sessionEnded.OnNext(sid);
+                        }
+                        catch(Exception e)
+                        {
+                            logErr(e);
+                        }
+                    });
         }
 
         public int Incoming(SessionAction incoming)
@@ -63,7 +55,7 @@ namespace LanguageExt.Session
                     Touch(incoming.SessionId);
                     break;
                 case SessionActionTag.Start:
-                    Start(incoming.SessionId, incoming.Timeout);
+                    Start(incoming.SessionId, incoming.Timeout, Map.empty<string,object>());
                     break;
                 case SessionActionTag.Stop:
                     Stop(incoming.SessionId);
@@ -88,20 +80,26 @@ namespace LanguageExt.Session
         public Option<SessionVector> GetSession(SessionId sessionId) =>
             sessions.Find(sessionId);
 
+        internal Option<SessionVector> GetSession(Option<SessionId> sessionId) =>
+            from sid in sessionId
+            from ses in sessions.Find(sid)
+            select ses;
+
         /// <summary>
         /// Start a new session
         /// </summary>
-        public void Start(SessionId sessionId, int timeoutSeconds)
+        public SessionId Start(SessionId sessionId, int timeoutSeconds, Map<string,object> initialState)
         {
             lock (sync)
             {
                 if (sessions.ContainsKey(sessionId))
                 {
-                    return;
+                    return sessionId;
                 }
-                var session = SessionVector.Create(timeoutSeconds, VectorConflictStrategy.First);
+                var session = SessionVector.Create(timeoutSeconds, VectorConflictStrategy.First, initialState);
                 sessions = sessions.Add(sessionId, session);
             }
+            return sessionId;
         }
 
         /// <summary>
@@ -109,7 +107,7 @@ namespace LanguageExt.Session
         /// </summary>
         /// <param name="sessionId"></param>
         /// <param name="vector"></param>
-        public void Stop(SessionId sessionId)
+        public Unit Stop(SessionId sessionId)
         {
             lock (sync)
             {
@@ -119,28 +117,25 @@ namespace LanguageExt.Session
                 // is a deleted future.
                 sessions = sessions.Remove(sessionId);
             }
+            return unit;
         }
 
         /// <summary>
         /// Timestamp a sessions to keep it alive
         /// </summary>
-        public void Touch(SessionId sessionId) =>
+        public Unit Touch(SessionId sessionId) =>
             sessions.Find(sessionId).IfSome(s => s.Touch());
 
         /// <summary>
         /// Set data on the session key/value store
         /// </summary>
-        public void SetData(SessionId sessionId, string key, object value, long vector)
-        {
+        public Unit SetData(SessionId sessionId, string key, object value, long vector) =>
             sessions.Find(sessionId).Iter(s => s.SetKeyValue(vector, key, value, strategy));
-        }
 
         /// <summary>
         /// Clear a session key
         /// </summary>
-        public void ClearData(SessionId sessionId, string key, long vector)
-        {
+        public Unit ClearData(SessionId sessionId, string key, long vector) =>
             sessions.Find(sessionId).Iter(s => s.ClearKeyValue(vector, key));
-        }
     }
 }

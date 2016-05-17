@@ -144,11 +144,20 @@ namespace LanguageExt
         /// <returns>Map of ProcessId to ProcessMetaData</returns>
         Map<ProcessId, ProcessMetaData> QueryProcessMetaData(string keyQuery);
 
+        /// <summary>
+        /// Finds all session keys
+        /// </summary>
+        /// <returns>Session keys</returns>
+        IEnumerable<string> QuerySessionKeys();
+
+        // TODO: Docs
+
         bool HashFieldExists(string key, string field);
         void HashFieldAddOrUpdate<T>(string key, string field, T value);
         void HashFieldAddOrUpdate<T>(string key, Map<string, T> fields);
         bool DeleteHashField(string key, string field);
         int DeleteHashFields(string key, IEnumerable<string> fields);
+        Map<string, object> GetHashFields(string key);
         Map<string, T> GetHashFields<T>(string key);
         Map<K, T> GetHashFields<K, T>(string key, Func<string, K> keyBuilder);
         Option<T> GetHashField<T>(string key, string field);
@@ -157,5 +166,6 @@ namespace LanguageExt
         void SetRemove<T>(string key, T value);
         Set<T> GetSet<T>(string key);
         bool SetContains<T>(string key, T value);
+        bool SetExpire(string key, TimeSpan time);
     }
 }

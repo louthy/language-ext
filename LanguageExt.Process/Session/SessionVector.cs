@@ -83,17 +83,18 @@ namespace LanguageExt.Session
         DateTime expires;
         object sync = new object();
 
-        public static SessionVector Create(int timeout, VectorConflictStrategy strategy) =>
-            new SessionVector(Map.empty<string, ValueVector>(), DateTime.UtcNow, timeout);
+        public static SessionVector Create(int timeout, VectorConflictStrategy strategy, Map<string,object> initialState) =>
+            new SessionVector(Map.empty<string, ValueVector>(), DateTime.UtcNow, timeout, initialState);
 
         /// <summary>
         /// Ctor
         /// </summary>
-        public SessionVector(Map<string, ValueVector> data, DateTime lastAccess, int timeoutSeconds)
+        public SessionVector(Map<string, ValueVector> data, DateTime lastAccess, int timeoutSeconds, Map<string, object> initialState)
         {
             this.data = data;
             this.lastAccess = lastAccess;
             TimeoutSeconds = timeoutSeconds;
+            data = initialState.Map(obj => new ValueVector(0, List(obj)));
         }
 
         /// <summary>

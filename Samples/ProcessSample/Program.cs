@@ -20,6 +20,12 @@ namespace ProcessSample
             var ping = ProcessId.None;
             var pong = ProcessId.None;
 
+            Process.PreShutdown.Subscribe(_ =>
+            {
+                kill(ping);
+                kill(pong);
+            });
+
             // Start a process which simply writes the messages it receives to std-out
             var logger = spawn<string>("logger", x => Console.WriteLine(x));
 
@@ -54,8 +60,7 @@ namespace ProcessSample
 
             Console.ReadKey();
 
-            kill(ping);
-            kill(pong);
+            Process.shutdownAll();
         }
     }
 }

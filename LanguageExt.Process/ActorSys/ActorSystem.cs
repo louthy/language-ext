@@ -110,22 +110,7 @@ namespace LanguageExt
                 return c.SubscribeToChannel<ClusterOnline>(ClusterOnlineKey)
                         .Where(node => node.Name == c.NodeName.Value && node.Timestamp > timestamp)
                         .Take(1)
-                        .Subscribe(_ =>
-                        {
-                            var cancel = new CancelShutdown();
-                            try
-                            {
-                                OnPreShutdown(cancel);
-                            }
-                            finally
-                            {
-                                if (!cancel.Cancelled)
-                                {
-                                    shutdownAll();
-                                    c.Disconnect();
-                                }
-                            }
-                        });
+                        .Subscribe(_ => shutdownAll()); // Protects against multiple nodes with the same name running
             })
            .IfNone(() => Observable.Return(new ClusterOnline()).Take(1).Subscribe());
 
@@ -169,9 +154,8 @@ namespace LanguageExt
                     startupSubscription?.Dispose();
                     startupSubscription = null;
                     var item = ri;
-                    item?.Actor?.ShutdownProcess(true);
+                    ri.Actor.Children.Iter(c => c.Actor.ShutdownProcess(true));
                     cluster.IfSome(c => c?.Dispose());
-                    OnShutdown();
                 }
             }
         }
