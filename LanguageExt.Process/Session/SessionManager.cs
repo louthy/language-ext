@@ -1,5 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Reactive.Threading;
+using System.Reactive.Threading.Tasks;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
@@ -21,6 +25,7 @@ namespace LanguageExt.Session
         readonly ProcessName nodeName;
         IDisposable notify;
         IDisposable ended;
+        IDisposable touch;
 
         public SessionManager(Option<ICluster> cluster, SystemName system, ProcessName nodeName, VectorConflictStrategy strategy)
         {
@@ -49,6 +54,19 @@ namespace LanguageExt.Session
 
                 // Remove session keys when an in-memory session ends
                 ended = SessionEnded.Subscribe(sid => Stop(sid));
+
+                touch = Sync.Touched.Subscribe(tup =>
+                {
+                    try
+                    {
+                        c.HashFieldAddOrUpdate(SessionKey(tup.Item1), LastAccessKey, DateTime.UtcNow.Ticks);
+                        c.PublishToChannel(SessionsNotify, SessionAction.Touch(tup.Item1, system, nodeName));
+                    }
+                    catch(Exception e)
+                    {
+                        logErr(e);
+                    }
+                });
             });
         }
 
@@ -56,6 +74,7 @@ namespace LanguageExt.Session
         {
             notify?.Dispose();
             ended?.Dispose();
+            touch?.Dispose();
         }
 
         /// <summary>
@@ -93,12 +112,8 @@ namespace LanguageExt.Session
             return cluster.Iter(c => c.PublishToChannel(SessionsNotify, SessionAction.Stop(sessionId, system, nodeName)));
         }
 
-        public Unit Touch(SessionId sessionId)
-        {
+        public Unit Touch(SessionId sessionId) =>
             Sync.Touch(sessionId);
-            cluster.Iter(c => c.HashFieldAddOrUpdate(SessionKey(sessionId), LastAccessKey, DateTime.UtcNow.Ticks));
-            return cluster.Iter(c => c.PublishToChannel(SessionsNotify, SessionAction.Touch(sessionId, system, nodeName)));
-        }
 
         private Map<string, object> LoadData(SessionId sessionId) =>
             cluster.Map(c => c.GetHashFields(SessionKey(sessionId)))

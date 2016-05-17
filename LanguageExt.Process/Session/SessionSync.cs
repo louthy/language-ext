@@ -2,11 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using System.Reactive.Subjects;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Reactive.Threading;
+using System.Reactive.Threading.Tasks;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
+using System.Reactive.Concurrency;
 
 namespace LanguageExt.Session
 {
@@ -18,6 +21,9 @@ namespace LanguageExt.Session
         SystemName system;
         ProcessName nodeName;
         Map<SessionId, SessionVector> sessions = Map.empty<SessionId, SessionVector>();
+        Map<SessionId, Subject<Tuple<SessionId, DateTime>>> sessionTouched = Map.empty<SessionId, Subject<Tuple<SessionId, DateTime>>>();
+        Subject<Tuple<SessionId, DateTime>> touched = new Subject<Tuple<SessionId, DateTime>>();
+
         VectorConflictStrategy strategy;
         object sync = new object();
 
@@ -27,6 +33,8 @@ namespace LanguageExt.Session
             this.nodeName = nodeName;
             this.strategy = strategy;
         }
+
+        public IObservable<Tuple<SessionId, DateTime>> Touched => touched;
 
         public void ExpiredCheck()
         {
@@ -98,6 +106,15 @@ namespace LanguageExt.Session
                 }
                 var session = SessionVector.Create(timeoutSeconds, VectorConflictStrategy.First, initialState);
                 sessions = sessions.Add(sessionId, session);
+
+                // Create a subject per session that will buffer touches so we don't push too
+                // much over the net when not needed.  This routes to a single stream that isn't
+                // buffered.
+                var touch = new Subject<Tuple<SessionId, DateTime>>();
+                touch.Sample(TimeSpan.FromSeconds(1))
+                     .ObserveOn(TaskPoolScheduler.Default)
+                     .Subscribe(touched.OnNext);
+                sessionTouched = sessionTouched.Add(sessionId, touch);
             }
             return sessionId;
         }
@@ -116,6 +133,8 @@ namespace LanguageExt.Session
                 // are randomly generated, so any future event with the same session ID
                 // is a deleted future.
                 sessions = sessions.Remove(sessionId);
+                sessionTouched.Find(sessionId).Iter(sub => sub.OnCompleted());
+                sessionTouched = sessionTouched.Remove(sessionId);
             }
             return unit;
         }
@@ -124,7 +143,11 @@ namespace LanguageExt.Session
         /// Timestamp a sessions to keep it alive
         /// </summary>
         public Unit Touch(SessionId sessionId) =>
-            sessions.Find(sessionId).IfSome(s => s.Touch());
+            sessions.Find(sessionId).IfSome(s =>
+            {
+                s.Touch();
+                sessionTouched.Find(sessionId).Iter(sub => sub.OnNext(Tuple(sessionId, DateTime.UtcNow)));
+            });
 
         /// <summary>
         /// Set data on the session key/value store
