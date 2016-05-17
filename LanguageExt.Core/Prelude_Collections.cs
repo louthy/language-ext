@@ -92,7 +92,9 @@ namespace LanguageExt
         /// Create an immutable list
         /// </summary>
         public static Lst<T> toList<T>(IEnumerable<T> items) =>
-            new Lst<T>(items);
+            items is Lst<T>
+                ? (Lst<T>)items
+                : new Lst<T>(items);
 
         /// <summary>
         /// Create an immutable queue

@@ -28,8 +28,14 @@ namespace LanguageExt
 
         public static Unit StartSystem(SystemName system, Option<ICluster> cluster, AppProfile appProfile, ProcessSystemConfig config)
         {
+            if(systems.ContainsKey(system))
+            {
+                //throw new InvalidOperationException($"Process-system ({system}) already started");
+                StopSystem(system);
+            }
+
             var asystem = new ActorSystem(system, cluster, appProfile, config);
-            systems.TryAdd(system, asystem);
+            systems.AddOrUpdate(system, asystem,(_,__) => asystem);
             try
             {
                 asystem.Initialise();
@@ -50,7 +56,7 @@ namespace LanguageExt
         public static bool InMessageLoop =>
             request != null;
 
-        public static Lst<SystemName> Systems =
+        public static Lst<SystemName> Systems =>
             systems.Keys.Freeze();
 
         public static Unit StopAllSystems()

@@ -370,7 +370,7 @@ namespace LanguageExt
         /// <summary>
         /// List of system names running on this node
         /// </summary>
-        public static Lst<SystemName> Systems =
+        public static Lst<SystemName> Systems =>
             ActorContext.Systems;
 
         /// <summary>

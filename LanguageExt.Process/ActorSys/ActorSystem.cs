@@ -125,12 +125,12 @@ namespace LanguageExt
             {
                 observe<NodeOnline>(monitor).Subscribe(x =>
                 {
-                    Process.logInfo("Online: " + x.Name);
+                    logInfo("Online: " + x.Name);
                 });
 
                 observe<NodeOffline>(monitor).Subscribe(x =>
                 {
-                    Process.logInfo("Offline: " + x.Name);
+                    logInfo("Offline: " + x.Name);
                     RemoveWatchingOfRemote(x.Name);
                 });
 
