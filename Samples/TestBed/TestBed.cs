@@ -22,6 +22,32 @@ namespace TestBed
 {
     class Tests
     {
+
+        public static void StopStart()
+        {
+            StopStartImpl();
+            StopStartImpl();
+            StopStartImpl();
+            StopStartImpl();
+            StopStartImpl();
+            StopStartImpl();
+            StopStartImpl();
+        }
+
+        public static void StopStartImpl()
+        {
+            shutdownAll();
+            ProcessConfig.initialiseFileSystem();
+
+            ProcessId pid = spawn<string, string>("start-stop", () => "", (_, msg) => msg);
+            tell(pid, "1");
+            kill(pid);
+
+            var kids = children(User());
+            var len = kids.Length;
+            Debug.Assert(len == 0);
+        }
+
         public static void MemoTest3()
         {
             GC.Collect();

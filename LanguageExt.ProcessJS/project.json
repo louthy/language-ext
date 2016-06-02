@@ -1,5 +1,5 @@
 {
-  "version": "1.8.2-alpha",
+  "version": "1.8.3-alpha",
   "authors": [ "Paul Louth" ],
   "owners": [ "paullouth" ],
   "title": "LanguageExt.ProcessJS",
@@ -24,8 +24,8 @@
     }
   },
   "dependencies": {
-    "LanguageExt.Core": "1.8.2-alpha",
-    "LanguageExt.Process": "1.8.2-alpha",
+    "LanguageExt.Core": "1.8.3-alpha",
+    "LanguageExt.Process": "1.8.3-alpha",
     "Newtonsoft.Json": "7.0.1",
     "Rx-Main": "2.2.5.0",
     "FSharp.Core": "4.0.0.1"

@@ -24,6 +24,9 @@ namespace TestBed
     {
         static void Main(string[] args)
         {
+            Tests.StopStart();
+            return;
+
             //Tests.QueueCollectionFunctions();
             //Tests.StackCollectionFunctions();
             //Tests.WrappedListOfOptionsTest1();

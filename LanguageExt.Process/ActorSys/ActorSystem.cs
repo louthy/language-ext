@@ -75,6 +75,7 @@ namespace LanguageExt
 
             var rootProcess = state.RootProcess;
             state.Startup();
+            rootItem = new ActorItem(rootProcess, rootInbox, ProcessFlags.Default);
             userContext = new ActorRequestContext(
                 this,
                 rootProcess.Children["user"],
@@ -86,7 +87,6 @@ namespace LanguageExt
                 null,
                 null);
             rootInbox.Startup(rootProcess, parent, cluster, settings.GetProcessMailboxSize(rootProcess.Id));
-            rootItem = new ActorItem(rootProcess, rootInbox, ProcessFlags.Default);
         }
 
         public void Initialise()

@@ -25,32 +25,36 @@ namespace LanguageExt
         static ActorRequestContext request;
 
         static ConcurrentDictionary<SystemName, ActorSystem> systems = new ConcurrentDictionary<SystemName, ActorSystem>();
+        static readonly object sync = new object();
 
         public static Unit StartSystem(SystemName system, Option<ICluster> cluster, AppProfile appProfile, ProcessSystemConfig config)
         {
-            if(systems.ContainsKey(system))
+            lock (sync)
             {
-                //throw new InvalidOperationException($"Process-system ({system}) already started");
-                StopSystem(system);
-            }
+                if (systems.ContainsKey(system))
+                {
+                    //throw new InvalidOperationException($"Process-system ({system}) already started");
+                    StopSystem(system);
+                }
 
-            var asystem = new ActorSystem(system, cluster, appProfile, config);
-            systems.AddOrUpdate(system, asystem,(_,__) => asystem);
-            try
-            {
-                asystem.Initialise();
-            }
-            catch
-            {
-                systems.TryRemove(system, out asystem);
+                var asystem = new ActorSystem(system, cluster, appProfile, config);
+                systems.AddOrUpdate(system, asystem, (_, __) => asystem);
                 try
                 {
-                    asystem.Dispose();
+                    asystem.Initialise();
                 }
-                catch { }
-                throw;
+                catch
+                {
+                    systems.TryRemove(system, out asystem);
+                    try
+                    {
+                        asystem.Dispose();
+                    }
+                    catch { }
+                    throw;
+                }
+                return unit;
             }
-            return unit;
         }
 
         public static bool InMessageLoop =>
@@ -61,43 +65,48 @@ namespace LanguageExt
 
         public static Unit StopAllSystems()
         {
-            while (systems.Any())
+            lock (sync)
             {
-                var head = systems.Map(x => x.Key).FirstOrDefault();
-                StopSystem(head);
+                while (systems.Any())
+                {
+                    var head = systems.Map(x => x.Key).FirstOrDefault();
+                    StopSystem(head);
+                }
+                return unit;
             }
-
-            return unit;
         }
 
         public static Unit StopSystem(SystemName system)
         {
-            ActorSystem asystem = null;
-            var token = new ShutdownCancellationToken(system);
-            try
+            lock (sync)
             {
-                Process.OnPreShutdown(token);
-            }
-            finally
-            {
-                if (!token.Cancelled)
+                ActorSystem asystem = null;
+                var token = new ShutdownCancellationToken(system);
+                try
                 {
-                    try
+                    Process.OnPreShutdown(token);
+                }
+                finally
+                {
+                    if (!token.Cancelled)
                     {
-                        systems.TryGetValue(system, out asystem);
-                        if (asystem != null)
+                        try
                         {
-                            asystem.Dispose();
+                            systems.TryGetValue(system, out asystem);
+                            if (asystem != null)
+                            {
+                                asystem.Dispose();
+                            }
+                        }
+                        finally
+                        {
+                            systems.TryRemove(system, out asystem);
+                            Process.OnShutdown(system);
                         }
                     }
-                    finally
-                    {
-                        systems.TryRemove(system, out asystem);
-                        Process.OnShutdown(system);
-                    }
                 }
+                return unit;
             }
-            return unit;
         }
 
         public static Unit SetSystem(SystemName system)
