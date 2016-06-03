@@ -24,6 +24,8 @@ namespace LanguageExt
         [ThreadStatic]
         static ActorRequestContext request;
 
+        static SystemName defaultSystem;
+
         static ConcurrentDictionary<SystemName, ActorSystem> systems = new ConcurrentDictionary<SystemName, ActorSystem>();
         static readonly object sync = new object();
 
@@ -33,8 +35,7 @@ namespace LanguageExt
             {
                 if (systems.ContainsKey(system))
                 {
-                    //throw new InvalidOperationException($"Process-system ({system}) already started");
-                    StopSystem(system);
+                    throw new InvalidOperationException($"Process-system ({system}) already started");
                 }
 
                 var asystem = new ActorSystem(system, cluster, appProfile, config);
@@ -42,6 +43,14 @@ namespace LanguageExt
                 try
                 {
                     asystem.Initialise();
+
+                    // Set the default system if the 'default: yes' setting is in the ProcessSystemConfig
+                    defaultSystem = defaultSystem.IsValid
+                        ? (from c in config.Cluster
+                           where c.Default
+                           select system)
+                          .IfNone(defaultSystem)
+                        : system;
                 }
                 catch
                 {
@@ -80,6 +89,16 @@ namespace LanguageExt
         {
             lock (sync)
             {
+                if(context == system)
+                {
+                    context = default(SystemName);
+                }
+
+                if(defaultSystem == system)
+                {
+                    defaultSystem = default(SystemName);
+                }
+
                 ActorSystem asystem = null;
                 var token = new ShutdownCancellationToken(system);
                 try
@@ -132,28 +151,21 @@ namespace LanguageExt
 
         public static ActorSystem System(SystemName system)
         {
-            if (!system.IsValid)
+            ActorSystem asys = null;
+            if (system.IsValid)
             {
-                if (!context.IsValid)
+                if (systems.TryGetValue(system, out asys))
                 {
-                    switch (systems.Count)
-                    {
-                        case 0: throw new ProcessConfigException("You must call one of the  ProcessConfig.initialiseXXX functions");
-                        case 1: context = systems.Head().Key; break;
-                        default: throw new Exception("There are multiple Process systems running, you must specify a context when calling-in from outside of the Process system");
-                    }
+                    return asys;
                 }
-                ActorSystem asystem = null;
-                return systems.TryGetValue(context, out asystem)
-                    ? asystem
-                    : failwith<ActorSystem>($"Process-system does not exist {context}");
+                else
+                {
+                    return failwith<ActorSystem>($"Process-system does not exist {system}");
+                }
             }
             else
             {
-                ActorSystem asystem = null;
-                return systems.TryGetValue(system, out asystem)
-                    ? asystem
-                    : failwith<ActorSystem>($"Process-system does not exist {system}");
+                return DefaultSystem;
             }
         }
 
@@ -165,12 +177,20 @@ namespace LanguageExt
                 {
                     switch (systems.Count)
                     {
-                        case 0: throw new ProcessConfigException("You must call one of the  ProcessConfig.initialiseXXX functions");
-                        case 1: context = systems.Head().Key; break;
-                        default: throw new Exception("There are multiple Process systems running, you must specify a context when calling-in from outside of the Process system");
+                        case 0:  throw new ProcessConfigException("You must call one of the  ProcessConfig.initialiseXXX functions");
+                        default: context = defaultSystem; break;
                     }
                 }
-                return systems[context];
+
+                ActorSystem actsys;
+                if (systems.TryGetValue(context, out actsys))
+                {
+                    return actsys;
+                }
+                else
+                {
+                    throw new Exception("Process system ("+context+") not running");
+                }
             }
         }
 

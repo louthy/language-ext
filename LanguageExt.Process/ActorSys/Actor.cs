@@ -34,6 +34,7 @@ namespace LanguageExt
         volatile ActorResponse response;
         object sync = new object();
         bool remoteSubsAcquired;
+        IActorSystem sys;
 
         internal Actor(
             Option<ICluster> cluster,
@@ -44,12 +45,14 @@ namespace LanguageExt
             Func<S, ProcessId, S> term,
             State<StrategyContext, Unit> strategy,
             ProcessFlags flags,
-            ProcessSystemConfig settings
+            ProcessSystemConfig settings,
+            IActorSystem sys
             )
         {
             if (setup == null) throw new ArgumentNullException(nameof(setup));
             if (actor == null) throw new ArgumentNullException(nameof(actor));
 
+            this.sys = sys;
             Id = parent.Actor.Id[name];
             this.cluster = cluster;
             this.flags = flags == ProcessFlags.Default
@@ -110,7 +113,7 @@ namespace LanguageExt
                         Parent.Actor.Strategy
                     );
 
-                    if(!(e is ProcessKillException)) tell(ActorContext.System(Id).Errors, e);
+                    if(!(e is ProcessKillException)) tell(sys.Errors, e);
                 }
                 finally
                 {
@@ -130,7 +133,7 @@ namespace LanguageExt
         {
             get
             {
-                return strategy ?? ActorContext.System(Id).Settings.GetProcessStrategy(Id);
+                return strategy ?? sys.Settings.GetProcessStrategy(Id);
             }
             private set
             {
@@ -365,24 +368,24 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pid">Id of the Process that will watch this Process</param>
         public Unit AddWatcher(ProcessId pid) =>
-            ActorContext.System(Id).AddWatcher(pid, Id);
+            sys.AddWatcher(pid, Id);
 
         /// <summary>
         /// Remove a watcher of this Process
         /// </summary>
         /// <param name="pid">Id of the Process that will stop watching this Process</param>
         public Unit RemoveWatcher(ProcessId pid) =>
-            ActorContext.System(Id).RemoveWatcher(pid, Id);
+            sys.RemoveWatcher(pid, Id);
 
         public Unit DispatchWatch(ProcessId pid)
         {
-            ActorContext.System(Id).GetDispatcher(pid).Watch(Id);
+            sys.GetDispatcher(pid).Watch(Id);
             return ActorContext.System(Id).AddWatcher(pid, Id);
         }
 
         public Unit DispatchUnWatch(ProcessId pid)
         {
-            ActorContext.System(Id).GetDispatcher(pid).UnWatch(Id);
+            sys.GetDispatcher(pid).UnWatch(Id);
             return ActorContext.System(Id).RemoveWatcher(pid, Id);
         }
 
@@ -406,10 +409,10 @@ namespace LanguageExt
                             ActorInboxCommon.ClusterMetaDataKey(Id),
                             ActorInboxCommon.ClusterSettingsKey(Id));
 
-                            ActorContext.System(Id).DeregisterById(Id);
+                            sys.DeregisterById(Id);
                         // }
 
-                        ActorContext.System(Id).Settings.ClearInMemorySettingsOverride(ActorInboxCommon.ClusterSettingsKey(Id));
+                        sys.Settings.ClearInMemorySettingsOverride(ActorInboxCommon.ClusterSettingsKey(Id));
                     });
                 }
 
@@ -420,7 +423,7 @@ namespace LanguageExt
                 strategyState = StrategyState.Empty;
                 DisposeState();
 
-                ActorContext.System(Id).DispatchTerminate(Id);
+                sys.DispatchTerminate(Id);
 
                 return unit;
             }
@@ -430,7 +433,7 @@ namespace LanguageExt
         {
             if (message == null)
             {
-                tell(ActorContext.System(Id).DeadLetters, DeadLetter.create(Sender, Self, $"Message is null for tell (expected {typeof(T)})", message));
+                tell(sys.DeadLetters, DeadLetter.create(Sender, Self, $"Message is null for tell (expected {typeof(T)})", message));
                 return None;
             }
 
@@ -444,14 +447,14 @@ namespace LanguageExt
                 }
                 catch
                 {
-                    tell(ActorContext.System(Id).DeadLetters, DeadLetter.create(Sender, Self, $"Invalid message type for tell (expected {typeof(T)})", message));
+                    tell(sys.DeadLetters, DeadLetter.create(Sender, Self, $"Invalid message type for tell (expected {typeof(T)})", message));
                     return None;
                 }
             }
 
             if (!(message is T))
             {
-                tell(ActorContext.System(Id).DeadLetters, DeadLetter.create(Sender, Self, $"Invalid message type for tell (expected {typeof(T)})", message));
+                tell(sys.DeadLetters, DeadLetter.create(Sender, Self, $"Invalid message type for tell (expected {typeof(T)})", message));
                 return None;
             }
 
@@ -469,8 +472,8 @@ namespace LanguageExt
 
                 response = null;
                 request = new AutoResetEvent(false);
-                ActorContext.System(Id).Ask(pid, new ActorRequest(message, pid, Self, 0), Self);
-                request.WaitOne(ActorContext.System(Id).Settings.Timeout);
+                sys.Ask(pid, new ActorRequest(message, pid, Self, 0), Self);
+                request.WaitOne(sys.Settings.Timeout);
 
                 if (response == null)
                 {
@@ -697,7 +700,7 @@ namespace LanguageExt
                 message,
                 Parent.Actor.Strategy
             );
-            if (!(e is ProcessKillException)) tell(ActorContext.System(Id).Errors, e);
+            if (!(e is ProcessKillException)) tell(sys.Errors, e);
 
             // Run any transactional outputs caused by the strategy computation
             ActorContext.Request.RunOps();
@@ -880,7 +883,7 @@ namespace LanguageExt
                 default:
                     if (!(e is ProcessKillException))
                     {
-                        tell(ActorContext.System(Id).DeadLetters, DeadLetter.create(sender, pid, e, "Process error: ", message));
+                        tell(sys.DeadLetters, DeadLetter.create(sender, pid, e, "Process error: ", message));
                     }
                     return InboxDirective.Default;
             }
@@ -939,7 +942,7 @@ namespace LanguageExt
             {
                 return Parent.Actor.Children.Find(Name.Value).IfSome(self =>
                 {
-                    ShutdownProcessRec(self, ActorContext.System(Id).GetInboxShutdownItem().Map(x => (ILocalActorInbox)x.Inbox), maintainState);
+                    ShutdownProcessRec(self, sys.GetInboxShutdownItem().Map(x => (ILocalActorInbox)x.Inbox), maintainState);
                     Parent.Actor.UnlinkChild(Id);
                     children = Map.empty<string, ActorItem>();
                 });

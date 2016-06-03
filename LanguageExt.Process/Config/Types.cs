@@ -125,8 +125,11 @@ namespace LanguageExt.Config
                 typeof(bool),
                 p => from v in choice(
                         p.reserved("true"),
-                        p.reserved("false"))
-                     select (object)(v == "true"),
+                        p.reserved("false"),
+                        p.reserved("yes"),
+                        p.reserved("no")
+                        )
+                     select (object)(v == "true" || v == "yes"),
                 Map(
                     OpT("!=", () => Bool, (lhs, rhs) => (bool)lhs != (bool)rhs),
                     OpT("==", () => Bool, (lhs, rhs) => (bool)lhs == (bool)rhs),

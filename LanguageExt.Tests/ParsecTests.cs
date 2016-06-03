@@ -462,7 +462,11 @@ namespace LanguageExtTests
         [Fact]
         public void ProcessesSettingsParserTest()
         {
-            var text = @"
+            lock (ProcessTests.sync)
+            {
+                Process.shutdownAll();
+
+                var text = @"
 
                 bool  transactional-io: true
                 let   default-retries : 3
@@ -501,54 +505,54 @@ namespace LanguageExtTests
                     strategy:     testStrat2
                 ";
 
-            var config = ProcessConfig.initialise(text,None);
+                var config = ProcessConfig.initialise(text, None);
 
-            // TODO: Restore tests
+                // TODO: Restore tests
 
-            //var res = parse(config.Parser, text);
+                //var res = parse(config.Parser, text);
 
-            //Assert.False(res.IsFaulted);
+                //Assert.False(res.IsFaulted);
 
-            //var result = res.Reply.Result;
+                //var result = res.Reply.Result;
 
-            //Assert.True(result.Count == 7);
+                //Assert.True(result.Count == 7);
 
-            //var timeout = result["timeout"];
-            //var session = result["session-timeout"];
-            //var mailbox= result["mailbox-size"];
+                //var timeout = result["timeout"];
+                //var session = result["session-timeout"];
+                //var mailbox= result["mailbox-size"];
 
-            // Load process settings
-            //var processes = M.createRange(from val in result.Values
-            //                              where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Process
-            //                              let p = (ProcessToken)val.Values.Values.First().Value
-            //                              where p.ProcessId.IsSome
-            //                              let id = p.ProcessId.IfNone(ProcessId.None)
-            //                              select Tuple(id, p));
+                // Load process settings
+                //var processes = M.createRange(from val in result.Values
+                //                              where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Process
+                //                              let p = (ProcessToken)val.Values.Values.First().Value
+                //                              where p.ProcessId.IsSome
+                //                              let id = p.ProcessId.IfNone(ProcessId.None)
+                //                              select Tuple(id, p));
 
-            //var strats = M.createRange(from val in result.Values
-            //                           where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Strategy
-            //                           let s = (StrategyToken)val.Values.Values.First().Value
-            //                           select Tuple(val.Name, s));
+                //var strats = M.createRange(from val in result.Values
+                //                           where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Strategy
+                //                           let s = (StrategyToken)val.Values.Values.First().Value
+                //                           select Tuple(val.Name, s));
 
 
-            //Assert.True(timeout.Name == "timeout");
-            //Assert.True(timeout.Attributes.Count == 1);
-            //Assert.True(timeout.Attributes["value"].Type.Tag == ArgumentTypeTag.Time);
-            //Assert.True((Time)timeout.Attributes["value"].Value == 30*seconds);
+                //Assert.True(timeout.Name == "timeout");
+                //Assert.True(timeout.Attributes.Count == 1);
+                //Assert.True(timeout.Attributes["value"].Type.Tag == ArgumentTypeTag.Time);
+                //Assert.True((Time)timeout.Attributes["value"].Value == 30*seconds);
 
-            //Assert.True(session.Name == "session-timeout");
-            //Assert.True(session.Attributes.Count == 1);
-            //Assert.True(session.Attributes["value"].Type.Tag == ArgumentTypeTag.Time);
-            //Assert.True((Time)session.Attributes["value"].Value == 60 * seconds);
+                //Assert.True(session.Name == "session-timeout");
+                //Assert.True(session.Attributes.Count == 1);
+                //Assert.True(session.Attributes["value"].Type.Tag == ArgumentTypeTag.Time);
+                //Assert.True((Time)session.Attributes["value"].Value == 60 * seconds);
 
-            //Assert.True(mailbox.Name == "mailbox-size");
-            //Assert.True(mailbox.Attributes.Count == 1);
-            //Assert.True(mailbox.Attributes["value"].Type.Tag == ArgumentTypeTag.Int);
-            //Assert.True((int)mailbox.Attributes["value"].Value == 10000);
+                //Assert.True(mailbox.Name == "mailbox-size");
+                //Assert.True(mailbox.Attributes.Count == 1);
+                //Assert.True(mailbox.Attributes["value"].Type.Tag == ArgumentTypeTag.Int);
+                //Assert.True((int)mailbox.Attributes["value"].Value == 10000);
 
-            //Assert.True(strats.Count == 2);
-            //Assert.True(processes.Count == 2);
-
+                //Assert.True(strats.Count == 2);
+                //Assert.True(processes.Count == 2);
+            }
         }
     }
 }

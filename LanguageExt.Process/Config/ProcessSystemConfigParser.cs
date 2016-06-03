@@ -451,7 +451,9 @@ namespace LanguageExt.Config
                 FuncSpec.Property("connection", () => types.String),
                 FuncSpec.Property("database", () => types.String),
                 FuncSpec.Property("env", () => types.String),
-                FuncSpec.Property("user-env", () => types.String));
+                FuncSpec.Property("user-env", () => types.String),
+                FuncSpec.Property("default", () => types.Bool)
+                );
 
         public Map<SystemName, ProcessSystemConfig> ParseConfigText(string text)
         {

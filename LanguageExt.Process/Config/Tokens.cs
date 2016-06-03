@@ -173,6 +173,7 @@ namespace LanguageExt.Config
         public readonly Option<string> Database;
         public readonly Option<string> Env;
         public readonly Option<string> UserEnv;
+        public readonly bool Default;
 
         public ClusterToken(Lst<NamedValueToken> values)
         {
@@ -183,6 +184,7 @@ namespace LanguageExt.Config
             Database = GetValue<string>("database");
             Env = GetValue<string>("env");
             UserEnv = GetValue<string>("user-env");
+            Default = GetValue<bool>("default").IfNone(false);
 
             if (NodeName.IsNone) throw new Exception("cluster requires a 'node-name' attribute");
             if (Role.IsNone) throw new Exception("cluster requires a 'role' attribute");

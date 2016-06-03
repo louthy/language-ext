@@ -35,11 +35,11 @@ namespace LanguageExt
         public class State
         {
             public readonly Map<ProcessName, ClusterNode> Members;
-            public readonly SystemName System;
+            public readonly IActorSystem System;
 
-            public static readonly State Empty = new State(Map.empty<ProcessName, ClusterNode>(), default(SystemName));
+            public static readonly State Empty = new State(Map.empty<ProcessName, ClusterNode>(), null);
 
-            public State(Map<ProcessName, ClusterNode> members, SystemName system)
+            public State(Map<ProcessName, ClusterNode> members, IActorSystem system)
             {
                 Members = members.Filter(node => node != null);
                 System = system;
@@ -57,9 +57,9 @@ namespace LanguageExt
         /// <summary>
         /// Root Process setup
         /// </summary>
-        public static State Setup(SystemName system)
+        public static State Setup(IActorSystem system)
         {
-            return Heartbeat(State.Empty, ActorContext.System(system).Cluster);
+            return Heartbeat(State.Empty, system.Cluster);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace LanguageExt
             switch (msg.Tag)
             {
                 case MsgTag.Heartbeat:
-                    state = Heartbeat(state, ActorContext.System(state.System).Cluster);
+                    state = Heartbeat(state, state.System.Cluster);
                     tellSelf(new Msg(MsgTag.Heartbeat), HeartbeatFreq + (random(1000)*milliseconds));
                     return state;
             }

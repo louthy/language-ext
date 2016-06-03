@@ -11,7 +11,7 @@ using LanguageExt.Session;
 
 namespace LanguageExt
 {
-    class ActorSystem : IDisposable
+    class ActorSystem : IActorSystem, IDisposable
     {
         const string ClusterOnlineKey = "cluster-node-online";
 
@@ -63,7 +63,7 @@ namespace LanguageExt
             var parent = new ActorItem(new NullProcess(SystemName), new NullInbox(), ProcessFlags.Default);
 
             var state = new ActorSystemBootstrap(
-                SystemName,
+                this,
                 cluster,
                 root, null,
                 rootInbox,
@@ -94,6 +94,7 @@ namespace LanguageExt
             ClusterWatch(cluster);
         }
 
+        public SystemName Name => SystemName;
         public SessionManager Sessions => sessionManager;
         public ActorRequestContext UserContext => userContext;
 
@@ -140,7 +141,7 @@ namespace LanguageExt
                 });
             });
 
-            tell(monitor, new ClusterMonitor.Msg(ClusterMonitor.MsgTag.Heartbeat));
+            Tell(monitor, new ClusterMonitor.Msg(ClusterMonitor.MsgTag.Heartbeat), User);
         }
 
         public void Dispose()
@@ -300,10 +301,8 @@ namespace LanguageExt
             return responses.Where(r => !r.IsFaulted).Map(r => (T)r.Response);
         }
 
-        public T Ask<T>(ProcessId pid, object message)
-        {
-            return (T)Ask(pid, message);
-        }
+        public T Ask<T>(ProcessId pid, object message) =>
+            (T)Ask(pid, message);
 
         public object Ask(ProcessId pid, object message)
         {
@@ -422,7 +421,7 @@ namespace LanguageExt
             int maxMailboxSize,
             bool lazy)
         {
-            var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn, termFn, strategy, flags, ActorContext.System(parent.Actor.Id).Settings);
+            var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn, termFn, strategy, flags, ActorContext.System(parent.Actor.Id).Settings, this);
 
             IActorInbox inbox = null;
             if ((actor.Flags & ProcessFlags.ListenRemoteAndLocal) == ProcessFlags.ListenRemoteAndLocal && cluster.IsSome)
@@ -803,7 +802,7 @@ by name then use Process.deregisterByName(name).");
         internal bool IsDisp(ProcessId pid) =>
             pid.Head() == Disp;
 
-        internal IActorDispatch GetDispatcher(ProcessId pid) =>
+        public IActorDispatch GetDispatcher(ProcessId pid) =>
             pid.IsValid
                 ? pid.IsSelection
                     ? new ActorDispatchGroup(pid.GetSelection())

@@ -24,7 +24,7 @@ namespace LanguageExt
         public readonly ActorSystemConfig Config;
         public readonly ProcessSystemConfig Settings;
         public readonly ProcessName RootProcessName;
-        public readonly SystemName System;
+        public readonly IActorSystem System;
         public readonly SessionSync Sync;
 
         ActorItem root;
@@ -39,12 +39,12 @@ namespace LanguageExt
         ActorItem reply;
         ActorItem monitor;
 
-        public ActorSystemBootstrap(SystemName system, Option<ICluster> cluster, ProcessId rootId, IActor rootProcess, IActorInbox rootInbox, ProcessName rootProcessName, ActorSystemConfig config, ProcessSystemConfig settings, SessionSync sync)
+        public ActorSystemBootstrap(IActorSystem system, Option<ICluster> cluster, ProcessId rootId, IActor rootProcess, IActorInbox rootInbox, ProcessName rootProcessName, ActorSystemConfig config, ProcessSystemConfig settings, SessionSync sync)
         {
             System = system;
             Sync = sync;
 
-            var parent = new ActorItem(new NullProcess(system), new NullInbox(), ProcessFlags.Default);
+            var parent = new ActorItem(new NullProcess(system.Name), new NullInbox(), ProcessFlags.Default);
 
             rootProcess = new Actor<ActorSystemBootstrap, Unit>(
                 cluster,
@@ -55,7 +55,8 @@ namespace LanguageExt
                 null,
                 Process.DefaultStrategy,
                 ProcessFlags.Default,
-                settings
+                settings, 
+                system
             );
 
             root = new ActorItem(rootProcess, rootInbox, rootProcess.Flags);
@@ -110,7 +111,7 @@ namespace LanguageExt
             // Top tier
             system          = ActorCreate<object>(root, Config.SystemProcessName, publish, null, ProcessFlags.Default);
             user            = ActorCreate<object>(root, Config.UserProcessName, publish, null, ProcessFlags.Default);
-            js              = ActorCreate<ProcessId, RelayMsg>(root, "js", RelayActor.Inbox, () => User(System)["process-hub-js"], null, ProcessFlags.Default);
+            js              = ActorCreate<ProcessId, RelayMsg>(root, "js", RelayActor.Inbox, () => System.User["process-hub-js"], null, ProcessFlags.Default);
 
             // Second tier
             sessionMonitor = ActorCreate<Tuple<SessionSync, Time>, Unit>(system, Config.Sessions, SessionMonitor.Inbox, () => SessionMonitor.Setup(Sync, Settings.SessionTimeoutCheckFrequency), null, ProcessFlags.Default);
@@ -136,7 +137,7 @@ namespace LanguageExt
 
             if (ActorContext.Request.CurrentRequest != null && ActorContext.Request.CurrentRequest.RequestId != -1)
             {
-                tell(ActorContext.Request.CurrentRequest.ReplyTo, new ActorResponse(unit, unit.GetType().AssemblyQualifiedName, ActorContext.Request.CurrentRequest.ReplyTo, root.Actor.Id, ActorContext.Request.CurrentRequest.RequestId), ActorContext.System(System).Root);
+                tell(ActorContext.Request.CurrentRequest.ReplyTo, new ActorResponse(unit, unit.GetType().AssemblyQualifiedName, ActorContext.Request.CurrentRequest.ReplyTo, root.Actor.Id, ActorContext.Request.CurrentRequest.RequestId), System.Root);
             }
 
             logInfo("Process system shutdown complete");
@@ -158,7 +159,7 @@ namespace LanguageExt
         {
             if (ProcessDoesNotExist(nameof(ActorCreate), parent.Actor.Id)) return null;
 
-            var actor = new Actor<S, T>(Cluster, parent, name, actorFn, _ => setupFn(), termFn, Process.DefaultStrategy, flags, Settings);
+            var actor = new Actor<S, T>(Cluster, parent, name, actorFn, _ => setupFn(), termFn, Process.DefaultStrategy, flags, Settings, System);
 
             IActorInbox inbox = null;
             if ((actor.Flags & ProcessFlags.ListenRemoteAndLocal) == ProcessFlags.ListenRemoteAndLocal && Cluster.IsSome)
