@@ -37,7 +37,7 @@ namespace LanguageExt
             public readonly Map<ProcessName, ClusterNode> Members;
             public readonly IActorSystem System;
 
-            public static readonly State Empty = new State(Map.empty<ProcessName, ClusterNode>(), null);
+            public static State Empty(IActorSystem system) => new State(Map.empty<ProcessName, ClusterNode>(), system);
 
             public State(Map<ProcessName, ClusterNode> members, IActorSystem system)
             {
@@ -57,10 +57,8 @@ namespace LanguageExt
         /// <summary>
         /// Root Process setup
         /// </summary>
-        public static State Setup(IActorSystem system)
-        {
-            return Heartbeat(State.Empty, system.Cluster);
-        }
+        public static State Setup(IActorSystem system) =>
+            Heartbeat(State.Empty(system), system.Cluster);
 
         /// <summary>
         /// Root Process inbox
@@ -70,10 +68,21 @@ namespace LanguageExt
             switch (msg.Tag)
             {
                 case MsgTag.Heartbeat:
-                    state = Heartbeat(state, state.System.Cluster);
-                    tellSelf(new Msg(MsgTag.Heartbeat), HeartbeatFreq + (random(1000)*milliseconds));
-                    return state;
+                    try
+                    {
+                        return Heartbeat(state, state.System.Cluster);
+                    }
+                    catch(Exception e)
+                    {
+                        logErr(e);
+                    }
+                    finally
+                    {
+                        tellSelf(new Msg(MsgTag.Heartbeat), HeartbeatFreq + (random(1000) * milliseconds));
+                    }
+                    break;
             }
+
             return state;
         }
 
