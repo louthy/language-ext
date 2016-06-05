@@ -77,7 +77,7 @@ namespace LanguageExt
                             throw new Exception($"Unsupported router type (for config system setup): {t} ");
                     }
                 })
-               .IfNone(() => failwith<ProcessId>($"'dispatch' not specified for {id}"));
+               .IfNone(() => failwith<ProcessId>($"'route' not specified for {id}"));
         }
 
         /// <summary>
@@ -194,7 +194,7 @@ namespace LanguageExt
                             throw new Exception($"Unsupported router type (for config system setup): {t} ");
                     }
                 })
-               .IfNone(() => failwith<ProcessId>($"'dispatch' not specified for {id}"));
+               .IfNone(() => failwith<ProcessId>($"'route' not specified for {id}"));
         }
 
 

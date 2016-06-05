@@ -12,6 +12,16 @@ module RouterFs =
     let RemoveRemoteWorkerWhenTerminated = LanguageExt.RouterOption.RemoveRemoteWorkerWhenTerminated
     let RemoveWorkerWhenTerminated       = LanguageExt.RouterOption.RemoveWorkerWhenTerminated
 
+    /// Spawns a router based on the settings in process.conf
+    /// Uses existing processes as the routees
+    let fromConfigName (name:string) =
+        Router.fromConfig(new ProcessName(name))
+
+    /// Spawns a router based on the settings in process.conf
+    /// Creates child worker processes as the routees
+    let fromConfig (name:string) (setup:unit -> 'state) (inbox:'state -> 'msg -> 'state) =
+        Router.fromConfig(new ProcessName(name), new Func<'state>(setup), new Func<'state,'msg,'state>(inbox))
+
     /// Spawns a new process with Count worker processes, each message is sent to 
     /// all worker processes
     let broadcast (name:string) (count:int) (flags:ProcessFlags) (setup:unit -> 'state) (inbox:'state -> 'msg -> 'state) =
@@ -127,3 +137,35 @@ module RouterFs =
     /// processes in a round robin fashion.
     let roundRobinMapManyWith (name:string) (workers:ProcessId list) (option:RouterOption) (flags:ProcessFlags) (mapper:'tmsg -> 'umsg seq) =
         Router.roundRobinMapMany(new ProcessName(name), workers, new Func<'tmsg,'umsg seq>(mapper), option, flags)
+
+    /// Spawns a new process with Count worker processes, each message is sent to one worker
+    /// process in a round robin fashion.
+    let hash (name:string) (count:int) (flags:ProcessFlags) (setup:unit -> 'state) (inbox:'state -> 'msg -> 'state) (hashfn:int -> 'msg -> int) =
+        Router.hash(new ProcessName(name), count, setup, inbox, hashfn, flags)
+
+    /// Spawns a new process with that routes each message to the Workers
+    /// in a round robin fashion.
+    let hashWith (name:string) (workers:ProcessId list) (hashfn:int -> 'msg -> int) (option:RouterOption) (flags:ProcessFlags) =
+        Router.hash(new ProcessName(name), workers, hashfn, option, flags)
+
+    /// Spawns a new process with Count worker processes, each message is mapped
+    /// and sent to one worker process in a round robin fashion.
+    let hashMap (name:string) (count:int) (flags:ProcessFlags) (setup:unit -> 'state) (inbox:'state -> 'umsg -> 'state) (mapper:'tmsg -> 'umsg) (hashfn:int -> 'tmsg -> int) =
+        Router.hashMap(new ProcessName(name), count, setup, inbox, mapper, hashfn, flags)
+
+    /// Spawns a new process with that routes each message is mapped and 
+    /// sent to the Workers in a round robin fashion.
+    let hashMapWith (name:string) (workers:ProcessId list) (option:RouterOption) (flags:ProcessFlags) (mapper:'tmsg -> 'umsg) (hashfn:int -> 'umsg -> int) =
+        Router.hashMap(new ProcessName(name), workers, mapper, hashfn, option, flags)
+
+    /// Spawns a new process with N worker processes, each message is mapped 
+    /// from T to IEnumerable U before each resulting U is passed to the worker
+    /// processes in a round robin fashion.
+    let hashMapMany (name:string) (count:int) (flags:ProcessFlags) (setup:unit -> 'state) (inbox:'state -> 'umsg -> 'state) (mapper:'tmsg -> 'umsg seq) (hashfn:int -> 'umsg -> int) =
+        Router.hashMapMany(new ProcessName(name), count, setup, inbox, mapper, hashfn, flags)
+
+    /// Spawns a new process with N worker processes, each message is mapped 
+    /// from T to IEnumerable U before each resulting U is passed to the worker
+    /// processes in a round robin fashion.
+    let hashMapManyWith (name:string) (workers:ProcessId list) (option:RouterOption) (flags:ProcessFlags) (mapper:'tmsg -> 'umsg seq) (hashfn:int -> 'umsg -> int) =
+        Router.hashMapMany(new ProcessName(name), workers, mapper, hashfn, option, flags)
