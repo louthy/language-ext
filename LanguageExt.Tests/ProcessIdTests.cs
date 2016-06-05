@@ -20,9 +20,9 @@ namespace LanguageExtTests
 
                 ProcessId test = "/disp/broadcast/[/root/user/a,/root/user/b,/root/user/c]";
 
-                Assert.True(test.Take(1).GetName() == "disp");
-                Assert.True(test.Skip(1).Take(1).GetName() == "broadcast");
-                Assert.True(test.Skip(2).Take(1).GetName() == "[/root/user/a,/root/user/b,/root/user/c]");
+                Assert.True(test.Take(1).Name == "disp");
+                Assert.True(test.Skip(1).Take(1).Name == "broadcast");
+                Assert.True(test.Skip(2).Take(1).Name == "[/root/user/a,/root/user/b,/root/user/c]");
                 Assert.True(test.Skip(2).Take(1).IsSelection);
                 Assert.True(test.Skip(2).Take(1).GetSelection().Count() == 3);
                 Assert.True(test.Skip(2).Take(1).GetSelection().First().Path == "/root/user/a");

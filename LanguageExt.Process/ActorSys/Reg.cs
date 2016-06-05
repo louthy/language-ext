@@ -26,7 +26,7 @@ namespace LanguageExt
             ProcessName reg = "reg";
 
             var regs = fun((ProcessId leaf) => {
-                var name = leaf.Head().GetName();
+                var name = leaf.Head().Name;
                 var key  = ProcessId.Top["__registered"][name].Path;
 
                 return ActorContext.System(leaf).Cluster

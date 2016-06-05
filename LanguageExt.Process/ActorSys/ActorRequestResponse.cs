@@ -26,6 +26,9 @@ namespace LanguageExt
             ReplyTo = replyTo;
             RequestId = requestId;
         }
+
+        public ActorRequest SetSystem(SystemName sys) =>
+            new ActorRequest(Message, To.SetSystem(sys), ReplyTo.SetSystem(sys), RequestId);
     }
 
     internal class ActorResponse : UserControlMessage
@@ -50,5 +53,8 @@ namespace LanguageExt
             RequestId = requestId;
             IsFaulted = isFaulted;
         }
+
+        public ActorResponse SetSystem(SystemName sys) =>
+            new ActorResponse(Message, ResponseMessageType, ReplyTo.SetSystem(sys), ReplyFrom.SetSystem(sys), RequestId, IsFaulted);
     }
 }

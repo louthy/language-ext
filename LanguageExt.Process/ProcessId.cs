@@ -37,6 +37,7 @@ namespace LanguageExt
         [JsonConstructor]
         public ProcessId(string path)
         {
+            if (path == null) throw new ArgumentNullException(nameof(path));
             var res = TryParse(path).IfLeft(ex => raise<ProcessId>(ex));
 
             parts = res.parts;
@@ -47,6 +48,7 @@ namespace LanguageExt
 
         ProcessId(string path, SystemName system)
         {
+            if (path == null) throw new ArgumentNullException(nameof(path));
             var res = TryParse(path).IfLeft(ex => raise<ProcessId>(ex));
 
             parts = res.parts;
@@ -272,6 +274,7 @@ namespace LanguageExt
         /// Returns true if the ProcessId represents a selection of N process
         /// paths
         /// </summary>
+        [JsonIgnore]
         public bool IsSelection =>
             parts == null || parts.Length == 0
                 ? false
@@ -303,7 +306,8 @@ namespace LanguageExt
         /// Get the parent ProcessId
         /// </summary>
         /// <returns>Parent process ID</returns>
-        public ProcessId Parent() =>
+        [JsonIgnore]
+        public ProcessId Parent =>
             parts == null
                 ? failwith<ProcessId>("ProcessId is None")
                 : parts.Length == 0
@@ -339,6 +343,7 @@ namespace LanguageExt
         /// <summary>
         /// Returns true if this is a valid process ID
         /// </summary>
+        [JsonIgnore]
         public bool IsValid => 
             parts != null;
 
@@ -346,7 +351,8 @@ namespace LanguageExt
         /// Get the name of the process
         /// </summary>
         /// <returns></returns>
-        public ProcessName GetName() =>
+        [JsonIgnore]
+        public ProcessName Name =>
             name;
 
         /// <summary>
@@ -459,7 +465,9 @@ namespace LanguageExt
         /// Set the Process system that this ProcessId belongs to
         /// </summary>
         public ProcessId SetSystem(SystemName system) =>
-            new ProcessId(Path, system);
+            IsValid
+                ? new ProcessId(Path, system)
+                : this;
 
         static R failwith<R>(string message)
         {

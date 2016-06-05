@@ -42,6 +42,9 @@ namespace LanguageExt
         public ProcessId Sender { get; }
         public ProcessId ReplyTo { get; }
         public object Content { get; }
+
+        public UserMessage SetSystem(SystemName sys) =>
+            new UserMessage(Content, Sender.SetSystem(sys), ReplyTo.SetSystem(sys));
     }
 
     public class TerminatedMessage : UserControlMessage
@@ -56,6 +59,9 @@ namespace LanguageExt
         {
             Id = id;
         }
+
+        public TerminatedMessage SetSystem(SystemName sys) =>
+            new TerminatedMessage(Id.SetSystem(sys));
     }
 
     public class RemoteMessageDTO

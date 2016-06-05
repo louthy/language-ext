@@ -17,7 +17,7 @@ namespace LanguageExtTests
             ProcessId pid = "/root/user/test";
 
             Assert.True(pid.Path == "/root/user/test");
-            Assert.True(pid.GetName().Value == "test");
+            Assert.True(pid.Name.Value == "test");
             Assert.True(pid.Child("ing").Path == "/root/user/test/ing");
 
             var json = JsonConvert.SerializeObject(pid);
@@ -25,7 +25,7 @@ namespace LanguageExtTests
             pid = JsonConvert.DeserializeObject<ProcessId>(json);
 
             Assert.True(pid.Path == "/root/user/test");
-            Assert.True(pid.GetName().Value == "test");
+            Assert.True(pid.Name.Value == "test");
             Assert.True(pid.Child("ing").Path == "/root/user/test/ing");
         }
 

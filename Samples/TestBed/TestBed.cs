@@ -131,7 +131,7 @@ namespace TestBed
                             }
                             else
                             {
-                                if (Children.ContainsKey(cpid.GetName().Value))
+                                if (Children.ContainsKey(cpid.Name.Value))
                                 {
                                     reply(ask<string>(cpid, "echo") == "echo");
                                 }
@@ -744,7 +744,7 @@ namespace TestBed
 
             setup = fun(() =>
             {
-                int level = Int32.Parse(Self.GetName().Value.Split('_').First()) + 1;
+                int level = Int32.Parse(Self.Name.Value.Split('_').First()) + 1;
                 if (level <= depth)
                 {
                     iter(Range(0, nodes), i => spawn(level + "_" + i, setup, actor));
@@ -781,7 +781,7 @@ namespace TestBed
             {
                 Interlocked.Increment(ref count);
 
-                int level = Int32.Parse(Self.GetName().Value.Split('_').First()) + 1;
+                int level = Int32.Parse(Self.Name.Value.Split('_').First()) + 1;
                 if (level <= depth)
                 {
                     iter(Range(0, nodes), i => {

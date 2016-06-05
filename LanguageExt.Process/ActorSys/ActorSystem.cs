@@ -782,7 +782,7 @@ by name then use Process.deregisterByName(name).");
         internal Option<Func<ProcessId, IEnumerable<ProcessId>>> GetProcessSelector(ProcessId pid)
         {
             if (pid.Count() < 3) throw new InvalidProcessIdException("Invalid role Process ID");
-            var type = pid.Skip(1).Take(1).GetName();
+            var type = pid.Skip(1).Take(1).Name;
             return Dispatch.getFunc(type);
         }
 
@@ -830,7 +830,7 @@ by name then use Process.deregisterByName(name).");
             }
             else
             {
-                var child = pid.Head().GetName().Value;
+                var child = pid.Head().Name.Value;
                 if (current.Actor.Children.ContainsKey(child))
                 {
                     var process = current.Actor.Children[child];
@@ -872,8 +872,8 @@ by name then use Process.deregisterByName(name).");
         Option<ActorItem> GetLocalActor(ActorItem current, ProcessId walk, ProcessId pid)
         {
             if (current.Actor.Id == pid) return current;
-            var name = walk.Take(1).GetName();
-            return from child in current.Actor.Children.Find(walk.Take(1).GetName().Value)
+            var name = walk.Take(1).Name;
+            return from child in current.Actor.Children.Find(walk.Take(1).Name.Value)
                    from result in GetLocalActor(child, walk.Skip(1), pid)
                    select result;
         }

@@ -71,7 +71,7 @@ public static class __ProcessIdExt
     /// <returns>A ProcessId that allows dispatching to the process via the name.  The result
     /// would look like /disp/reg/name</returns>
     public static ProcessId Register(this ProcessId self) =>
-        ActorContext.System(self).Register(self.GetName(), self);
+        ActorContext.System(self).Register(self.Name, self);
 
     /// <summary>
     /// Register a named process (a kind of DNS for Processes).  

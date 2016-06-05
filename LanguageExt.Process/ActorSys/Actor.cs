@@ -346,7 +346,7 @@ namespace LanguageExt
         {
             lock(sync)
             {
-                children = children.Remove(pid.GetName().Value);
+                children = children.Remove(pid.Name.Value);
             }
             return unit;
         }
@@ -358,7 +358,7 @@ namespace LanguageExt
         {
             lock (sync)
             {
-                children = children.AddOrUpdate(item.Actor.Id.GetName().Value, item);
+                children = children.AddOrUpdate(item.Actor.Id.Name.Value, item);
             }
             return unit;
         }
@@ -866,7 +866,7 @@ namespace LanguageExt
             switch (directive.Type)
             {
                 case MessageDirectiveType.ForwardToParent:
-                    tell(pid.Parent(), message, sender);
+                    tell(pid.Parent, message, sender);
                     return InboxDirective.Default;
 
                 case MessageDirectiveType.ForwardToSelf:

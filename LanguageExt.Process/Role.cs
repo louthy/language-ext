@@ -165,7 +165,7 @@ namespace LanguageExt
         ///     tell( Role.Next["user"]["message-log"], "Hello" );
         /// </example>
         public static ProcessId Next(SystemName system = default(SystemName)) =>
-            nextRoot[Root(system).GetName()];
+            nextRoot[Root(system).Name];
 
         /// <summary>
         /// Builds a ProcessId that represents the previous node in the role that this 
@@ -182,13 +182,13 @@ namespace LanguageExt
         ///     tell( Role.Prev["user"]["message-log"], "Hello" );
         /// </example>
         public static ProcessId Prev(SystemName system = default(SystemName)) =>
-            prevRoot[Root(system).GetName()];
+            prevRoot[Root(system).Name];
 
         public static IEnumerable<ProcessId> NodeIds(ProcessId leaf) =>
             Nodes(leaf).Values.Map(node => ProcessId.Top[node.NodeName].Append(leaf.Skip(1)));
 
         public static Map<ProcessName, ClusterNode> Nodes(ProcessId leaf, SystemName system = default(SystemName)) =>
-            ClusterNodes(system).Filter(node => node.Role == leaf.Take(1).GetName());
+            ClusterNodes(system).Filter(node => node.Role == leaf.Take(1).Name);
 
         static readonly ProcessId nextRoot;
         static readonly ProcessId prevRoot;
@@ -218,7 +218,7 @@ namespace LanguageExt
 
             var nextNode = fun((bool fwd) => fun((ProcessId leaf) =>
             {
-                var self = leaf.Take(1).GetName();
+                var self = leaf.Take(1).Name;
                 var isNext = false;
                 var nodeMap = Nodes(leaf);
 

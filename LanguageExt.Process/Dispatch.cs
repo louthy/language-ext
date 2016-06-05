@@ -180,14 +180,14 @@ namespace LanguageExt
                 {
                     return leaf.GetSelection();
                 }
-                if(leaf.Head().GetName() == "disp")
+                if(leaf.Head().Name == "disp")
                 {
                     leaf = leaf.Skip(1);
                     if (!leaf.IsValid)
                     {
                         return new ProcessId[0];
                     }
-                    return getFunc(leaf.Head().GetName())(leaf.Skip(1));
+                    return getFunc(leaf.Head().Name)(leaf.Skip(1));
                 }
                 return new ProcessId[1] { leaf };
             });

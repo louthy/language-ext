@@ -46,7 +46,7 @@ namespace LanguageExt
         {
             var dto = RemoteMessageDTO.Create(message, ProcessId, sender, type, tag);
             // The standard structure for remote js relay paths are  "/root/js/{connection-id}/..."
-            var connectionId = ProcessId.Skip(2).Take(1).GetName().Value;
+            var connectionId = ProcessId.Skip(2).Take(1).Name.Value;
             dto.To = ProcessId.Skip(3).Path;
             var relayMsg = new OutboundRelayMsg(connectionId, dto, dto.To, sender, dto.RequestId != -1);
             return Process.tell(RelayId, relayMsg, sender);

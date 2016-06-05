@@ -80,10 +80,10 @@ namespace LanguageExt
                                      new RemoteMessageDTO {
                                         MessageId   = Guid.NewGuid(),
                                         Content     = JsonConvert.SerializeObject(x),
-                                        Sender      = pid.Path,
-                                        To          = subscriber.Path,
+                                        Sender      = pid.ToString(),
+                                        To          = subscriber.ToString(),
                                         ContentType = x.GetType().AssemblyQualifiedName,
-                                        ReplyTo     = pid.Path,
+                                        ReplyTo     = pid.ToString(),
                                         Tag         = (int)Message.TagSpec.User,
                                         Type        = (int)Message.Type.User
                                      },

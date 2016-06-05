@@ -69,6 +69,9 @@ namespace LanguageExt
             Child = pid;
         }
         public ProcessId Child { get; }
+
+        public SystemUnLinkChildMessage SetSystem(SystemName sys) =>
+            new SystemUnLinkChildMessage(Child.SetSystem(sys));
     }
 
     class SystemChildFaultedMessage : SystemMessage
@@ -86,6 +89,9 @@ namespace LanguageExt
         public ProcessId Sender { get; }
         public Exception Exception { get; }
         public object Message { get; }
+
+        public SystemChildFaultedMessage SetSystem(SystemName sys) =>
+            new SystemChildFaultedMessage(Child.SetSystem(sys), Sender.SetSystem(sys), Exception, Message);
     }
 
     class ShutdownProcessMessage : SystemMessage

@@ -88,7 +88,7 @@ namespace LanguageExt
             }
             else
             {
-                var child = pid.Head().GetName().Value;
+                var child = pid.Head().Name.Value;
                 if (current.Actor.Children.ContainsKey(child))
                 {
                     var process = current.Actor.Children[child];

@@ -102,12 +102,12 @@ namespace LanguageExt
                         break;
 
                     case Message.TagSpec.UnlinkChild:
-                        var ulc = msg as SystemUnLinkChildMessage;
+                        var ulc = (msg as SystemUnLinkChildMessage).SetSystem(actor.Id.System);
                         actor.UnlinkChild(ulc.Child);
                         break;
 
                     case Message.TagSpec.ChildFaulted:
-                        var cf = msg as SystemChildFaultedMessage;
+                        var cf = (msg as SystemChildFaultedMessage).SetSystem(actor.Id.System);
                         return actor.ChildFaulted(cf.Child, cf.Sender, cf.Exception, cf.Message);
 
                     case Message.TagSpec.StartupProcess:
@@ -160,20 +160,20 @@ namespace LanguageExt
             switch (msg.Tag)
             {
                 case Message.TagSpec.UserAsk:
-                    var rmsg = (ActorRequest)msg;
+                    var rmsg = ((ActorRequest)msg).SetSystem(actor.Id.System);
                     return ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, rmsg.ReplyTo, rmsg, msg, session, () => actor.ProcessAsk(rmsg));
 
                 case Message.TagSpec.UserReply:
-                    var urmsg = (ActorResponse)msg;
+                    var urmsg = ((ActorResponse)msg).SetSystem(actor.Id.System);
                     ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, urmsg.ReplyFrom, null, msg, session, () => actor.ProcessResponse(urmsg));
                     break;
 
                 case Message.TagSpec.UserTerminated:
-                    var utmsg = (TerminatedMessage)msg;
+                    var utmsg = ((TerminatedMessage)msg).SetSystem(actor.Id.System);
                     return ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, utmsg.Id, null, msg, session, () => actor.ProcessTerminated(utmsg.Id));
 
                 case Message.TagSpec.User:
-                    var umsg = (UserMessage)msg;
+                    var umsg = ((UserMessage)msg).SetSystem(actor.Id.System); ;
                     return ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, umsg.Sender, null, msg, session, () => actor.ProcessMessage(umsg.Content));
 
                 case Message.TagSpec.ShutdownProcess:

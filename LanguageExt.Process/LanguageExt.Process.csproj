@@ -136,7 +136,7 @@
     <Compile Include="ActorSys\ActorSystem.cs" />
     <Compile Include="ActorSys\ActorSystemBootstrap.cs" />
     <Compile Include="ActorSys\AskActor.cs" />
-    <Compile Include="Cluster\Cluster.cs" />
+    <Compile Include="Cluster.cs" />
     <Compile Include="Messages\Message.cs" />
     <Compile Include="ActorSys\NullInbox.cs" />
     <Compile Include="ActorSys\NullProcess.cs" />

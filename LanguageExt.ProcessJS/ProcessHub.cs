@@ -163,7 +163,7 @@ namespace LanguageExt
         private static ProcessId FixRootName(string pid)
         {
             ProcessId cpid = pid;
-            return cpid.Take(1).GetName().Value == "root"
+            return cpid.Take(1).Name.Value == "root"
                 ? Root(cpid.System).Append(cpid.Skip(1))
                 : cpid;
         }
