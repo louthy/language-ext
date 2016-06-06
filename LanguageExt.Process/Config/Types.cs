@@ -54,7 +54,7 @@ namespace LanguageExt.Config
         {
             Int = new TypeDef(
                 "int",
-                x => x,
+                (_,x) => x,
                 typeof(int),
                 p => from x in p.integer
                      select (object)x,
@@ -90,7 +90,7 @@ namespace LanguageExt.Config
 
             Double = new TypeDef(
                 "float",
-                x => x,
+                (_, x) => x,
                 typeof(double),
                 p => from x in p.floating
                      select (object)x,
@@ -121,7 +121,7 @@ namespace LanguageExt.Config
 
             Bool = new TypeDef(
                 "bool",
-                x => x,
+                (_, x) => x,
                 typeof(bool),
                 p => from v in choice(
                         p.reserved("true"),
@@ -147,7 +147,7 @@ namespace LanguageExt.Config
 
             String = new TypeDef(
                 "string",
-                x => x,
+                (_, x) => x,
                 typeof(string),
                 p => from _ in unitp
                      from v in p.stringLiteral
@@ -183,7 +183,7 @@ namespace LanguageExt.Config
 
             ProcessId = new TypeDef(
                 "process-id",
-                x => x,
+                (_, x) => x,
                 typeof(ProcessId),
                 p => from v in p.processId
                      select (object)v,
@@ -208,7 +208,7 @@ namespace LanguageExt.Config
 
             ProcessName = new TypeDef(
                 "process-name",
-                x => x,
+                (_, x) => x,
                 typeof(ProcessName),
                 p => from _ in unitp
                      from v in p.processName
@@ -254,7 +254,7 @@ namespace LanguageExt.Config
 
             ProcessFlags = new TypeDef(
                 "process-flags",
-                x => x,
+                (_, x) => x,
                 typeof(ProcessFlags),
                 p => from v in flagsValue(p)
                      select (object)v,
@@ -310,7 +310,7 @@ namespace LanguageExt.Config
 
             Time = new TypeDef(
                 "time",
-                x => x,
+                (_, x) => x,
                 typeof(Time),
                 p => from v in p.token(timeValue(p))
                      select (object)v,
@@ -357,7 +357,7 @@ namespace LanguageExt.Config
             Func<ProcessSystemConfigParser, Parser<MessageDirective>> fwdToProcess =
                 p =>
                     from _ in p.reserved("forward-to-process")
-                    from pid in attempt(p.expr(ProcessId)).label("'forward-to-process <ProcessId>'")
+                    from pid in attempt(p.expr(None, ProcessId)).label("'forward-to-process <ProcessId>'")
                     select new ForwardToProcess((ProcessId)pid.Value) as MessageDirective;
 
             Func<ProcessSystemConfigParser, Parser<MessageDirective>> msgDirective =
@@ -371,7 +371,7 @@ namespace LanguageExt.Config
 
             MessageDirective = new TypeDef(
                 "message-directive",
-                x => x,
+                (_, x) => x,
                 typeof(MessageDirective),
                 p => from v in p.token(msgDirective(p))
                      select (object)v,
@@ -396,7 +396,7 @@ namespace LanguageExt.Config
 
             Directive = new TypeDef(
                 "directive",
-                x => x,
+                (_, x) => x,
                 typeof(Directive),
                 p => from v in p.token(directive(p))
                      select (object)v,
@@ -427,7 +427,7 @@ namespace LanguageExt.Config
 
             DispatcherType = new TypeDef(
                 "disp",
-                x => x,
+                (_, x) => x,
                 typeof(string),
                 p => from v in p.token(dispType(p))
                      select (object)v,

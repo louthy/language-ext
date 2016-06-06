@@ -67,9 +67,6 @@ namespace LanguageExt.Config
         public Option<T> GetItem<T>(string name) =>
             ToList().Filter(nv => nv.Name == name).Map(nv => (T)nv.Value.Value).HeadOrNone();
 
-        public ValueToken AddItem(string name, ValueToken val) =>
-            new ValueToken(Type, ToList().Add(new NamedValueToken(name, val)));
-
         public T Cast<T>() => (T)Value;
              
     }
@@ -77,16 +74,15 @@ namespace LanguageExt.Config
     public class NamedValueToken
     {
         public readonly string Name;
+        public readonly Option<string> Alias;
         public readonly ValueToken Value;
 
-        public NamedValueToken(string name, ValueToken value)
+        public NamedValueToken(string name, ValueToken value, Option<string> alias)
         {
             Name = name;
             Value = value;
+            Alias = alias;
         }
-
-        public NamedValueToken AddItem(string name, ValueToken val) =>
-            new NamedValueToken(Name, Value.AddItem(name,val));
     }
 
     public class ProcessToken
@@ -167,6 +163,7 @@ namespace LanguageExt.Config
     public class ClusterToken
     {
         public readonly Map<string, ValueToken> Settings;
+        public readonly Option<string> Alias;
         public readonly Option<string> NodeName;
         public readonly Option<string> Role;
         public readonly Option<string> Connection;
@@ -175,8 +172,9 @@ namespace LanguageExt.Config
         public readonly Option<string> UserEnv;
         public readonly bool Default;
 
-        public ClusterToken(Lst<NamedValueToken> values)
+        public ClusterToken(Option<string> alias, Lst<NamedValueToken> values)
         {
+            Alias = alias;
             Settings = Map.createRange(values.Map(x => Tuple(x.Name, x.Value)));
             NodeName = GetValue<string>("node-name");
             Role = GetValue<string>("role");

@@ -177,13 +177,14 @@ namespace LanguageExt
                     Map.empty<ProcessId, ProcessToken>(),
                     Map.empty<string, State<StrategyContext, Unit>>(),
                     new ClusterToken(
+                        None,
                         List.create(
-                            new NamedValueToken("node-name", new ValueToken(types.String, nodeName.Value)),
-                            new NamedValueToken("role", new ValueToken(types.String, roleName.Value)),
-                            new NamedValueToken("env", new ValueToken(types.String, systemName.Value)),
-                            new NamedValueToken("connection", new ValueToken(types.String, connectionString)),
-                            new NamedValueToken("database", new ValueToken(types.String, catalogueName)),
-                            new NamedValueToken("provider", new ValueToken(types.String, providerName)))),
+                            new NamedValueToken("node-name", new ValueToken(types.String, nodeName.Value), None),
+                            new NamedValueToken("role", new ValueToken(types.String, roleName.Value), None),
+                            new NamedValueToken("env", new ValueToken(types.String, systemName.Value), None),
+                            new NamedValueToken("connection", new ValueToken(types.String, connectionString), None),
+                            new NamedValueToken("database", new ValueToken(types.String, catalogueName), None),
+                            new NamedValueToken("provider", new ValueToken(types.String, providerName), None))),
                     types
                 ));
             }

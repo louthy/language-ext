@@ -65,8 +65,8 @@ namespace LanguageExt.Config
         public readonly Func<string, FieldSpec, Parser<NamedValueToken>> argument;
         public readonly Func<string, FieldSpec, Parser<NamedValueToken>> namedArgument;
         public readonly Parser<NamedValueToken> valueDef;
-        public readonly Func<TypeDef, Parser<ValueToken>> term;
-        public readonly Func<TypeDef, Parser<ValueToken>> expr;
+        public readonly Func<Option<string>, TypeDef, Parser<ValueToken>> term;
+        public readonly Func<Option<string>, TypeDef, Parser<ValueToken>> expr;
         public readonly Parser<ValueToken> exprUnknownType;
         public readonly Parser<ValueToken> valueUntyped;
 
@@ -145,7 +145,7 @@ namespace LanguageExt.Config
             };
 
 
-            Func<TypeDef, Parser<ValueToken>> valueInst = null;
+            Func<Option<string>, TypeDef, Parser<ValueToken>> valueInst = null;
             Parser<TypeDef> typeName = null;
 
             // ProcessId parser
@@ -178,7 +178,7 @@ namespace LanguageExt.Config
                     from x in reserved(name)
                     from _ in symbol("=")
                     from v in p
-                    select new NamedValueToken(name,v);
+                    select new NamedValueToken(name,v,None);
 
             // Type name parser
             Parser<Type> type =
@@ -250,22 +250,31 @@ namespace LanguageExt.Config
             // Type name parser
             typeName = choice(types.AllInOrder.Map(t => reserved(t.Name).Map(_ => t)).ToArray());
 
-            // cluster.<property> parser -- TODO: generalise
+            // cluster.<alias>.<property> parser -- TODO: generalise
             Parser<ValueToken> clusterVar =
                 attempt(
                     from _ in reserved("cluster")
-                    from d in symbol(".")
-                    from id in identifier
+                    from tup in either(
+                        attempt(
+                            from d1 in symbol(".")
+                            from alias in identifier
+                            from d2 in symbol(".")
+                            from id in identifier
+                            select Tuple(alias, id)),
+                        attempt(
+                            from d in symbol(".")
+                            from id in identifier
+                            select Tuple("",id)))
                     from sub in optional(from d2 in symbol(".")
                                          from id2 in identifier
                                          select id2).Map(x => x.IfNone("value"))
                     from state in getState<ParserState>()                               // TODO: This can be generalised into an object walking system
-                    from v in state.Cluster.Match(                                      //       where an object (in this case the cluster), is in 'scope'
+                    from v in state.Clusters.Find(tup.Item1).Match(                     //       where an object (in this case the cluster), is in 'scope'
                         Some: cluster =>                                                //       and recursive walking of the dot operator will find the
-                            cluster.Settings.Find(id).Match(                            //       value.
+                            cluster.Settings.Find(tup.Item2).Match(                     //       value.
                                 Some: local => result(local),
-                                None: () => failure<ValueToken>($"unknown identifier 'cluster.{id}'")),
-                        None: () => failure<ValueToken>($"cluster.{id} used when a cluster with a node-name attribute set to '{nodeName}' hasn't been defined"))
+                                None: () => failure<ValueToken>($"unknown identifier 'cluster.{tup.Item2}'")),
+                        None: () => failure<ValueToken>($"cluster.{tup.Item2} used when a cluster with a node-name attribute set to '{nodeName}' hasn't been defined.  Or the cluster called '{nodeName}' exists and is aliased, and you're not providing the variable in the form: cluster.<alias>.<property-name>"))
                     select v
                 );
 
@@ -311,7 +320,7 @@ namespace LanguageExt.Config
 
             valueUntyped = choice(
                 variable,
-                choice(types.AllInOrder.Map(typ => attempt(typ.ValueParser(this).Map(val => new ValueToken(typ, typ.Ctor(val))))).ToArray())
+                choice(types.AllInOrder.Map(typ => attempt(typ.ValueParser(this).Map(val => new ValueToken(typ, typ.Ctor(None, val))))).ToArray())
             );
 
             // Expression term parser
@@ -336,14 +345,18 @@ namespace LanguageExt.Config
                     ? failure<Unit>("when declaring an array you must specify the type, you can't use 'let'")
                     : result<Unit>(unit)
                 from id in identifier.label("identifier")
+                from alias in optional(
+                        from a_ in reserved("as")
+                        from nm in identifier
+                        select nm)
                 from __ in symbol(":")
                 from v in arr.IsSome
                     ? either(
-                        attempt(valueInst(TypeDef.Map(() => typ.IfNone(TypeDef.Unknown)))),
-                        valueInst(TypeDef.Array(() => typ.IfNone(TypeDef.Unknown))))
-                    : typ.Map(t => expr(t))
+                        attempt(valueInst(alias, TypeDef.Map(() => typ.IfNone(TypeDef.Unknown)))),
+                        valueInst(alias, TypeDef.Array(() => typ.IfNone(TypeDef.Unknown))))
+                    : typ.Map(t => expr(alias, t))
                          .IfNone(() => exprUnknownType)
-                from nv in result(new NamedValueToken(id, v))
+                from nv in result(new NamedValueToken(id, v, alias))
                 from state in getState<ParserState>()
                 from res in state.LocalExists(id)
                     ? failure<ParserState>($"A value with the name '{id}' already declared")
@@ -352,14 +365,14 @@ namespace LanguageExt.Config
                 select nv;
 
             // Value or variable parser
-            valueInst = typ => either(variableOfType(typ), typ.ValueParser(this).Map(value => new ValueToken(typ, typ.Ctor(value))));
+            valueInst = (alias, typ) => either(variableOfType(typ), typ.ValueParser(this).Map(value => new ValueToken(typ, typ.Ctor(alias, value))));
 
             // Expression term parser
             term =
-                expected =>
+                (alias, expected) =>
                     choice(
-                        parens(lazyp(() => expr(expected))),
-                        valueInst(expected),
+                        parens(lazyp(() => expr(alias, expected))),
+                        valueInst(alias,expected),
                         from val in exprUnknownType
                         from res in val.Type == expected
                             ? result(val)
@@ -369,18 +382,18 @@ namespace LanguageExt.Config
 
             // Expression parser
             expr =
-                expected =>
-                    buildExpressionParser(table, term(expected));
+                (alias, expected) =>
+                    buildExpressionParser(table, term(alias, expected));
 
             // Parses a named argument: name = value
             namedArgument =
                 (settingName, spec) =>
-                    attempt(token(attr(spec.Name, expr(spec.Type()))));
+                    attempt(token(attr(spec.Name, expr(None, spec.Type()))));
 
             // Parses a single non-named argument
             argument =
                 (settingName, spec) =>
-                    attempt(token(expr(spec.Type()).Map(x => new NamedValueToken(spec.Name,x))));
+                    attempt(token(expr(None, spec.Type()).Map(x => new NamedValueToken(spec.Name, x, None))));
 
             // Parses many arguments, wrapped in ( )
             argumentMany =
@@ -402,7 +415,7 @@ namespace LanguageExt.Config
                             : argumentMany(settingName, spec);
 
             // Declare the global type
-            var globalType = new TypeDef("global", x=>x, typeof(Lst<NamedValueToken>), nodeName, 0);
+            var globalType = new TypeDef("global", (_,x)=>x, typeof(Lst<NamedValueToken>), nodeName, 0);
 
             // Global namespace
             parser = from ws in whiteSpace
@@ -415,7 +428,7 @@ namespace LanguageExt.Config
             new TypeDef(
                 "process",
                 typeof(ProcessToken),
-                nvs => new ProcessToken((Lst<NamedValueToken>)nvs),
+                (_,nvs) => new ProcessToken((Lst<NamedValueToken>)nvs),
                 20,
                 FuncSpec.Property("pid", () => types.ProcessId),
                 FuncSpec.Property("flags", () => types.ProcessFlags),
@@ -427,7 +440,7 @@ namespace LanguageExt.Config
             new TypeDef(
                 "router",
                 typeof(ProcessToken),
-                nvs => new ProcessToken((Lst<NamedValueToken>)nvs),
+                (_, nvs) => new ProcessToken((Lst<NamedValueToken>)nvs),
                 20,
                 FuncSpec.Property("pid", () => types.ProcessId),
                 FuncSpec.Property("flags", () => types.ProcessFlags),
@@ -443,7 +456,7 @@ namespace LanguageExt.Config
             new TypeDef(
                 "cluster",
                 typeof(ClusterToken),
-                nvs => new ClusterToken((Lst<NamedValueToken>)nvs),
+                (alias, nvs) => new ClusterToken(alias, (Lst<NamedValueToken>)nvs),
                 20,
                 FuncSpec.Property("node-name", () => types.String),
                 FuncSpec.Property("role", () => types.String),
@@ -502,9 +515,11 @@ namespace LanguageExt.Config
                 where nv.Value.Type == clusterType
                 let cluster = nv.Value.Cast<ClusterToken>()
                 let env = cluster.Env
+                let alias = cluster.Alias
+                let key = alias || env
                 let clusterNodeName = cluster.NodeName
-                where clusterNodeName.IsSome
-                let final = cluster.SetEnvironment(new ValueToken(types.String, env.IfNone(nv.Name)))
+                where clusterNodeName.Map(nn => nn == nodeName).IfNone(false)
+                let final = cluster.SetEnvironment(new ValueToken(types.String, key.IfNone(nv.Name)))
                 select Tuple(final.Env.IfNone(""), final),
                 Map.empty<SystemName, ClusterToken>(),
                 (s, x) => Map.tryAdd(s, new SystemName(x.Item1), x.Item2, (_, c) => failwith<Map<SystemName, ClusterToken>>("Cluster declared twice: " + c.Env.IfNone(""))));
@@ -574,7 +589,7 @@ namespace LanguageExt.Config
             strategy = new TypeDef(
                 "strategy",
                 typeof(State<StrategyContext,Unit>),
-                s => Strategy.Compose(compose((Lst<NamedValueToken>)s)),
+                (_,s) => Strategy.Compose(compose((Lst<NamedValueToken>)s)),
                 20,
                 new[] { oneForOne, allForOne, always, pause, retries1, retries2, backoff1, backoff2, match, redirect }.Append(strategyFuncs).ToArray()
             );

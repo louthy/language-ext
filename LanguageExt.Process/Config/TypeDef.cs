@@ -20,7 +20,7 @@ namespace LanguageExt.Config
         public readonly Type MapsTo;
         public readonly FuncSpec[] FuncSpecs;
         public readonly TypeDef GenericType;
-        public readonly Func<object, object> Ctor;
+        public readonly Func<Option<string>, object, object> Ctor;
         public readonly Func<ProcessSystemConfigParser, Parser<object>> ValueParser;
         public readonly Map<string, Func<ValueToken, ValueToken, ValueToken>> BinaryOperators;
         public readonly Map<string, Func<ValueToken, ValueToken>> PrefixOperators;
@@ -39,7 +39,7 @@ namespace LanguageExt.Config
         /// <param name="nodeName"></param>
         public TypeDef(
             Type type,
-            Func<object, object> ctor,
+            Func<Option<string>, object, object> ctor,
             Types assembly,
             int order,
             string name = null,
@@ -50,7 +50,7 @@ namespace LanguageExt.Config
 
             var info = type.GetTypeInfo();
             Order = order;
-            Ctor = ctor ?? (x => x);
+            Ctor = ctor ?? ((_,x) => x);
             MapsTo = type;
             Name = name ?? MakeName(info.Name);
             BinaryOperators = LanguageExt.Map.empty<string, Func<ValueToken, ValueToken, ValueToken>>();
@@ -84,7 +84,7 @@ namespace LanguageExt.Config
         public TypeDef(
             string name,
             Type mapsTo,
-            Func<object, object> ctor,
+            Func<Option<string>, object, object> ctor,
             int order,
             params FuncSpec[] funcSpecs
             )
@@ -102,7 +102,7 @@ namespace LanguageExt.Config
         /// <param name="funcSpecs"></param>
         public TypeDef(
             string name,
-            Func<object, object> ctor,
+            Func<Option<string>, object, object> ctor,
             Type mapsTo,
             string nodeName,
             int order,
@@ -112,7 +112,7 @@ namespace LanguageExt.Config
             MapsTo = mapsTo;
             Name = name;
             Order = order;
-            Ctor = ctor ?? (x => x);
+            Ctor = ctor ?? ((_,x) => x);
             BinaryOperators = LanguageExt.Map.empty<string, Func<ValueToken, ValueToken, ValueToken>>();
             PrefixOperators = LanguageExt.Map.empty<string, Func<ValueToken, ValueToken>>();
             PostfixOperators = LanguageExt.Map.empty<string, Func<ValueToken, ValueToken>>();
@@ -139,7 +139,7 @@ namespace LanguageExt.Config
         /// <param name="genericType"></param>
         public TypeDef(
             string name,
-            Func<object, object> ctor,
+            Func<Option<string>, object, object> ctor,
             Type mapsTo,
             Func<ProcessSystemConfigParser, Parser<object>> valueParser,
             Map<string, Func<ValueToken, ValueToken, ValueToken>> binaryOperators,
@@ -154,7 +154,7 @@ namespace LanguageExt.Config
 
             MapsTo = mapsTo;
             Name = name;
-            Ctor = ctor ?? (x => x);
+            Ctor = ctor ?? ((_,x) => x);
             ValueParser = valueParser.Memo();
             BinaryOperators = binaryOperators ?? LanguageExt.Map.empty<string, Func<ValueToken, ValueToken, ValueToken>>();
             PrefixOperators = prefixOperators ?? LanguageExt.Map.empty<string, Func<ValueToken, ValueToken>>();
@@ -179,11 +179,11 @@ namespace LanguageExt.Config
 
                                               // Hard-coded (for now) strategy match grammar
                                               func == "match" ? from m in p.match
-                                                                select new NamedValueToken("match", m)
+                                                                select new NamedValueToken("match", m, None)
 
                                               // Hard-coded (for now) strategy redirect grammar
                                             : func == "redirect" ? from r in p.redirect
-                                                                   select new NamedValueToken("redirect", r)
+                                                                   select new NamedValueToken("redirect", r, None)
 
                                               // Attempt to parse the known properties and function definitions
                                             : from nam in attempt(p.reserved(func))
@@ -191,13 +191,13 @@ namespace LanguageExt.Config
                                               from tok in choice(variants.Map(variant =>
                                                   from vals in p.arguments(nam, variant.Args)
                                                   let valmap = LanguageExt.Map.createRange(vals.Map(x => Tuple(x.Name, x)))
-                                                  select new NamedValueToken(nam, new ValueToken(variant.Type(), variant.Body(valmap)))))
+                                                  select new NamedValueToken(nam, new ValueToken(variant.Type(), variant.Body(valmap)), None)))
                                               select tok).Values.ToArray()),
 
                                     // Local value definitions
                                     from vd in p.valueDef
                                     from st in vd.Value.Type.Name == "cluster" && ((ClusterToken)vd.Value.Value).NodeName.Map(nn => nn.Equals(NodeName)).IfNone(false)
-                                        ? from ins in getState<ParserState>().Map(s => s.SetCluster(((ClusterToken)vd.Value.Value)))
+                                        ? from ins in getState<ParserState>().Map(s => s.AddCluster(vd.Alias.IfNone(""), ((ClusterToken)vd.Value.Value)))
                                           from _ in setState(ins)
                                           select vd
                                         : result(vd)
@@ -205,7 +205,7 @@ namespace LanguageExt.Config
                                 )
                             select result)))
                 from newState in getState<ParserState>()
-                from _ in setState(state.SetCluster(newState.Cluster))
+                from _ in setState(state.SetClusters(newState.Clusters))
                 select (object)funcs.Freeze();
         }
 
@@ -301,14 +301,14 @@ namespace LanguageExt.Config
 
             var def = new TypeDef(
                 "map",
-                xs => xs,
+                (_,xs) => xs,
                 typeof(Map<string,object>),
                 (ProcessSystemConfigParser p) =>
                     p.brackets(
                         from xs in p.commaSep(
                             from x in p.identifier
                             from _ in p.symbol(":")
-                            from v in p.expr(t())
+                            from v in p.expr(None,t())
                             select Tuple(x, v.Value))
                         select MakeTypedMap(LanguageExt.Map.createRange(xs), t().MapsTo))
                     .label("map"),
@@ -375,11 +375,11 @@ namespace LanguageExt.Config
 
             var def = new TypeDef(
                 "array",
-                xs => xs,
+                (_, xs) => xs,
                 typeof(Lst<object>),
                 (ProcessSystemConfigParser p) =>
                     p.brackets(
-                        from xs in p.commaSep(p.expr(t()))
+                        from xs in p.commaSep(p.expr(None, t()))
                         select MakeTypedLst(xs.Map(x => x.Value), t().MapsTo))
                     .label("array"),
                     LanguageExt.Map.create(
@@ -399,7 +399,7 @@ namespace LanguageExt.Config
 
         public static TypeDef Unknown = new TypeDef(
             "unknown",
-            xs => xs,
+            (_,xs) => xs,
             typeof(void),
             _ => failure<object>("unknown type"),
             null, null, null, null, null,
