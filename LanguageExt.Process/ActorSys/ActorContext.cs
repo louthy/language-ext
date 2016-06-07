@@ -229,7 +229,7 @@ namespace LanguageExt
             if (pid.Path == "/__special__/self" && Request == null) return System(context).User;
             if (pid.Path == "/__special__/self" && Request != null) return ActorContext.Self;
             if (pid.Path == "/__special__/sender" && Request == null) return ProcessId.NoSender;
-            if (pid.Path == "/__special__/sender" && Request != null) return Request.Self.Actor.Id;
+            if (pid.Path == "/__special__/sender" && Request != null) return Request.Sender;
             if (pid.Path == "/__special__/parent" && Request == null) return System(context).User;
             if (pid.Path == "/__special__/parent" && Request != null) return Request.Parent.Actor.Id;
             if (pid.Path == "/__special__/user") return System(context).User;
