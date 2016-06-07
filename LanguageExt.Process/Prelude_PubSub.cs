@@ -6,13 +6,6 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    /// <summary>
-    /// 
-    ///     Process 
-    /// 
-    ///     Publish / Subscribe / Observe
-    /// 
-    /// </summary>
     public static partial class Process
     {
         /// <summary>
@@ -71,7 +64,7 @@ namespace LanguageExt
         /// <returns>IDisposable, call IDispose to end the subscription</returns>
         public static Unit subscribe(ProcessId pid) =>
             InMessageLoop
-                ? ActorContext.SelfProcess.Actor.AddSubscription(pid, ActorContext.Observe<object>(pid).Subscribe(x => tell(Self, x, pid)))
+                ? ActorContext.Request.Self.Actor.AddSubscription(pid, ActorContext.System(pid).Observe<object>(pid).Subscribe(x => tell(Self, x, pid)))
                 : raiseUseInMsgLoopOnlyException<Unit>(nameof(subscribe));
 
         /// <summary>
@@ -80,7 +73,7 @@ namespace LanguageExt
         /// <param name="pid">Process to unsub from</param>
         public static Unit unsubscribe(ProcessId pid) =>
             InMessageLoop
-                ? ActorContext.SelfProcess.Actor.RemoveSubscription(pid)
+                ? ActorContext.Request.Self.Actor.RemoveSubscription(pid)
                 : raiseUseInMsgLoopOnlyException<Unit>(nameof(unsubscribe));
 
         /// <summary>
@@ -175,7 +168,7 @@ namespace LanguageExt
         public static IObservable<T> observe<T>(ProcessId pid) =>
             InMessageLoop
                 ? raiseDontUseInMessageLoopException<IObservable<T>>(nameof(observe))
-                : ActorContext.Observe<T>(pid);
+                : ActorContext.System(pid).Observe<T>(pid);
 
         /// <summary>
         /// Get an IObservable for a process's state stream.  When a process state updates at the end of its
@@ -193,7 +186,7 @@ namespace LanguageExt
         public static IObservable<T> observeState<T>(ProcessId pid) =>
             InMessageLoop
                 ? raiseDontUseInMessageLoopException<IObservable<T>>(nameof(observeState))
-                : ActorContext.ObserveState<T>(pid);
+                : ActorContext.System(pid).ObserveState<T>(pid);
 
 
         /// <summary>
@@ -209,9 +202,9 @@ namespace LanguageExt
         /// <returns>IObservable T</returns>
         public static Unit subscribeState<T>(ProcessId pid) =>
             InMessageLoop
-                ? ActorContext.SelfProcess.Actor.AddSubscription(
+                ? ActorContext.Request.Self.Actor.AddSubscription(
                       pid,
-                      ActorContext.ObserveState<T>(pid).Subscribe(x => tell(Self, x, pid)))
+                      ActorContext.System(pid).ObserveState<T>(pid).Subscribe(x => tell(Self, x, pid)))
                 : raiseUseInMsgLoopOnlyException<Unit>(nameof(subscribeState));
     }
 }

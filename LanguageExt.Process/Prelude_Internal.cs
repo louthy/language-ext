@@ -7,7 +7,6 @@ namespace LanguageExt
 {
     public static partial class Process
     {
-
         /// <summary>
         /// Use in message loop exception
         /// </summary>
@@ -24,18 +23,18 @@ namespace LanguageExt
         /// Returns true if in a message loop
         /// </summary>
         internal static bool InMessageLoop =>
-            ActorContext.Self.IsValid && ActorContext.Self.Path != ActorContext.User.Path;
+            ActorContext.InMessageLoop;
 
-        static Subject<Unit> shutdownSubj = new Subject<Unit>();
-        static Subject<CancelShutdown> preShutdownSubj = new Subject<CancelShutdown>();
+        static Subject<SystemName> shutdownSubj = new Subject<SystemName>();
+        static Subject<ShutdownCancellationToken> preShutdownSubj = new Subject<ShutdownCancellationToken>();
 
-        internal static void OnShutdown()
+        internal static void OnShutdown(SystemName system)
         {
-            shutdownSubj.OnNext(unit);
+            shutdownSubj.OnNext(system);
             shutdownSubj.OnCompleted();
         }
 
-        internal static void OnPreShutdown(CancelShutdown cancel)
+        internal static void OnPreShutdown(ShutdownCancellationToken cancel)
         {
             preShutdownSubj.OnNext(cancel);
             if (!cancel.Cancelled)
@@ -46,29 +45,35 @@ namespace LanguageExt
 
         internal static IDisposable safedelay(Action f, TimeSpan delayFor)
         {
-            var savedContext = ActorContext.Context;
-            var savedSession = SessionManager.SessionId;
+            var savedContext = ActorContext.Request;
+            var savedSession = ActorContext.SessionId;
 
             return (IDisposable)Task.Delay(delayFor).ContinueWith(_ =>
               {
                   try
                   {
-                      ActorContext.WithContext(
-                                   savedContext.Self,
-                                   savedContext.Parent,
-                                   savedContext.Sender,
-                                   savedContext.CurrentRequest,
-                                   savedContext.CurrentMsg,
-                                   savedSession,
-                                   () =>
-                                   {
-                                       f();
+                      if (savedContext == null)
+                      {
+                          f();
+                      }
+                      else
+                      {
+                          ActorContext.System(savedContext.Self.Actor.Id).WithContext(
+                                       savedContext.Self,
+                                       savedContext.Parent,
+                                       savedContext.Sender,
+                                       savedContext.CurrentRequest,
+                                       savedContext.CurrentMsg,
+                                       savedSession,
+                                       () =>
+                                       {
+                                           f();
 
-                                       // Run the operations that affect the settings and sending of tells
-                                       // in the order which they occured in the actor
-                                       ActorContext.Context?.Ops?.Run();
-                                   }
-                                 );
+                                           // Run the operations that affect the settings and sending of tells
+                                           // in the order which they occured in the actor
+                                           ActorContext.Request.Ops.Run();
+                                       });
+                      }
 
                   }
                   catch (Exception e)
@@ -84,7 +89,10 @@ namespace LanguageExt
         /// <summary>
         /// Not advised to use this directly, but allows access to the underlying data-store.
         /// </summary>
-        public static Option<ICluster> SystemCluster => 
-            ActorContext.Cluster;
+        public static Option<ICluster> SystemCluster(SystemName system = default(SystemName)) => 
+            ActorContext.System(system).Cluster;
+
+        public static ProcessId resolvePID(ProcessId pid) =>
+            ActorContext.ResolvePID(pid);
     }
 }

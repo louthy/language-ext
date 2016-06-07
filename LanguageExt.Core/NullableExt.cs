@@ -431,6 +431,35 @@ public static class __NullableExt
         return default(V?);
     }
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static IEnumerable<V> SelectMany<T, U, V>(this T? self,
+        Func<T, IEnumerable<U>> bind,
+        Func<T, U, V> project
+        )
+        where T : struct
+        where U : struct
+        where V : struct
+    {
+        if (!self.HasValue) return new V[0];
+        return bind(self.Value).Map(resU => project(self.Value, resU));
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static V? SelectMany<T, U, V>(this IEnumerable<T> self,
+        Func<T, U?> bind,
+        Func<T, U, V> project
+        )
+        where T : struct
+        where U : struct
+        where V : struct
+    {
+        var ta = self.Take(1).ToArray();
+        if (ta.Length == 0) return null;
+        var resU = bind(ta[0]);
+        if (!resU.HasValue) return null;
+        return project(ta[0], resU.Value);
+    }
+
     /// <summary>
     /// Match the two states of the IObservable&lt;Nullable&lt;T&gt;&gt; and return a stream of non-null Rs.
     /// </summary>

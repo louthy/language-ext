@@ -92,7 +92,9 @@ namespace LanguageExt
         /// Create an immutable list
         /// </summary>
         public static Lst<T> toList<T>(IEnumerable<T> items) =>
-            new Lst<T>(items);
+            items is Lst<T>
+                ? (Lst<T>)items
+                : new Lst<T>(items);
 
         /// <summary>
         /// Create an immutable queue
@@ -308,5 +310,153 @@ namespace LanguageExt
             match(LanguageExt.Map.find(map, key),
                    Some,
                    None);
+
+        /// <summary>
+        /// Convert value to [value] or [] if value == null
+        /// </summary>
+        public static IEnumerable<T> seq<T>(T value) =>
+            isnull(value)
+                ? new T[0]
+                : new T[] { value };
+
+        /// <summary>
+        /// Convert a nullable to an enumerable
+        /// HasValue : true = [x]
+        /// HasValue : false = []
+        /// </summary>
+        public static IEnumerable<T> seq<T>(T? value) where T : struct =>
+            value.AsEnumerable();
+
+        /// <summary>
+        /// Convert an Enumerable to an Enumerable
+        /// Deals with value == null by returning []
+        /// </summary>
+        public static IEnumerable<T> seq<T>(IEnumerable<T> value) =>
+            value == null
+                ? new T[0]
+                : value.AsEnumerable();
+
+        /// <summary>
+        /// Convert an option to an enumerable
+        /// Some(x) = [x]
+        /// None = []
+        /// </summary>
+        public static IEnumerable<T> seq<T>(Option<T> value) =>
+            value.AsEnumerable();
+
+        /// <summary>
+        /// Convert an option to an enumerable
+        /// Some(x) = [x]
+        /// None = []
+        /// </summary>
+        public static IEnumerable<T> seq<T>(OptionUnsafe<T> value) =>
+            value.AsEnumerable();
+
+        /// <summary>
+        /// Convert an either to an enumerable
+        /// Right(x) = [x]
+        /// Left(y) = []
+        /// </summary>
+        public static IEnumerable<T> seq<L, T>(Either<L, T> value) =>
+            value.RightAsEnumerable();
+
+        /// <summary>
+        /// Convert an either to an enumerable
+        /// Right(x) = [x]
+        /// Left(y) = []
+        /// </summary>
+        public static IEnumerable<T> seq<L, T>(EitherUnsafe<L, T> value) =>
+            value.RightAsEnumerable();
+
+        /// <summary>
+        /// Convert a Try to an enumerable
+        /// Succ(x) = [x]
+        /// Fail(e) = []
+        /// value is null : []
+        /// </summary>
+        public static IEnumerable<T> seq<T>(Try<T> value) =>
+            value == null
+                ? new T[0]
+                : value.AsEnumerable().Where(x => x.IsRight).Map(x => x.RightValue);
+
+        /// <summary>
+        /// Convert a TryOption to an enumerable
+        /// Succ(x) = [x]
+        /// Fail(e) = []
+        /// None = []
+        /// value is null : []
+        /// </summary>
+        public static IEnumerable<T> seq2<T>(TryOption<T> value) =>
+            value == null
+                ? new T[0]
+                : value.AsEnumerable().Where(x => x.IsRight).Map(x => x.RightValue);
+
+        /// <summary>
+        /// Convert a TryOption to an enumerable
+        /// Succ(x) = [either(_,x)]
+        /// Fail(e) = [either(exception,_)]
+        /// None = []
+        /// value is null : []
+        /// </summary>
+        public static IEnumerable<Either<Exception, T>> seq<T>(TryOption<T> value) =>
+            value == null
+                ? new Either<Exception,T>[0]
+                : value.AsEnumerable();
+
+        /// <summary>
+        /// Convert a tuple to an enumerable
+        /// </summary>
+        public static IEnumerable<T> seq<T>(Tuple<T> tup) =>
+            tup == null
+                ? new T[0]
+                : new[] { tup.Item1 };
+
+        /// <summary>
+        /// Convert a tuple to an enumerable
+        /// </summary>
+        public static IEnumerable<T> seq<T>(Tuple<T, T> tup) =>
+            tup == null
+                ? new T[0]
+                : new[] { tup.Item1, tup.Item2 };
+
+        /// <summary>
+        /// Convert a tuple to an enumerable
+        /// </summary>
+        public static IEnumerable<T> seq<T>(Tuple<T, T, T> tup) =>
+            tup == null
+                ? new T[0]
+                : new[] { tup.Item1, tup.Item2, tup.Item3 };
+
+        /// <summary>
+        /// Convert a tuple to an enumerable
+        /// </summary>
+        public static IEnumerable<T> seq<T>(Tuple<T, T, T, T> tup) =>
+            tup == null
+                ? new T[0]
+                : new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4 };
+
+        /// <summary>
+        /// Convert a tuple to an enumerable
+        /// </summary>
+        public static IEnumerable<T> seq<T>(Tuple<T, T, T, T, T> tup) =>
+            tup == null
+                ? new T[0]
+                : new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5 };
+
+        /// <summary>
+        /// Convert a tuple to an enumerable
+        /// </summary>
+        public static IEnumerable<T> seq<T>(Tuple<T, T, T, T, T, T> tup) =>
+            tup == null
+                ? new T[0]
+                : new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6 };
+
+        /// <summary>
+        /// Convert a tuple to an enumerable
+        /// </summary>
+        public static IEnumerable<T> seq<T>(Tuple<T, T, T, T, T, T, T> tup) =>
+            tup == null
+                ? new T[0]
+                : new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6, tup.Item7 };
     }
 }

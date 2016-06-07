@@ -10,6 +10,7 @@ using static LanguageExt.Parsec.Char;
 using static LanguageExt.Parsec.Expr;
 using static LanguageExt.Parsec.Token;
 using static LanguageExt.Parsec.Indent;
+using System.Collections;
 
 namespace LanguageExt.Config
 {
@@ -19,10 +20,8 @@ namespace LanguageExt.Config
         public readonly Type MapsTo;
         public readonly FuncSpec[] FuncSpecs;
         public readonly TypeDef GenericType;
-        public readonly Func<Lst<NamedValueToken>, object> Ctor;
+        public readonly Func<Option<string>, object, object> Ctor;
         public readonly Func<ProcessSystemConfigParser, Parser<object>> ValueParser;
-        public readonly Func<Lst<object>, object> ToLstValues;
-        public readonly Func<Map<string, object>, object> ToMapValues;
         public readonly Map<string, Func<ValueToken, ValueToken, ValueToken>> BinaryOperators;
         public readonly Map<string, Func<ValueToken, ValueToken>> PrefixOperators;
         public readonly Map<string, Func<ValueToken, ValueToken>> PostfixOperators;
@@ -40,7 +39,7 @@ namespace LanguageExt.Config
         /// <param name="nodeName"></param>
         public TypeDef(
             Type type,
-            Func<Lst<NamedValueToken>, object> ctor,
+            Func<Option<string>, object, object> ctor,
             Types assembly,
             int order,
             string name = null,
@@ -51,27 +50,25 @@ namespace LanguageExt.Config
 
             var info = type.GetTypeInfo();
             Order = order;
-            Ctor = ctor ?? (x => x);
+            Ctor = ctor ?? ((_,x) => x);
             MapsTo = type;
             Name = name ?? MakeName(info.Name);
             BinaryOperators = LanguageExt.Map.empty<string, Func<ValueToken, ValueToken, ValueToken>>();
             PrefixOperators = LanguageExt.Map.empty<string, Func<ValueToken, ValueToken>>();
             PostfixOperators = LanguageExt.Map.empty<string, Func<ValueToken, ValueToken>>();
             ConversionOperators = LanguageExt.Map.empty<string, Func<object, object>>();
-            ToLstValues = x => x;
-            ToMapValues = x => x;
             GenericType = null;
             NodeName = nodeName;
 
-            var props = from p in type.GetTypeInfo().GetProperties()
+            var props = from p in type.GetRuntimeProperties()
                         where assembly.Exists(p.PropertyType)
                         select FuncSpec.Property(MakeName(p.Name), () => assembly.Get(p.PropertyType));
 
-            var fields = from p in type.GetTypeInfo().GetFields()
+            var fields = from p in type.GetRuntimeFields()
                          where assembly.Exists(p.FieldType)
                          select FuncSpec.Property(MakeName(p.Name), () => assembly.Get(p.FieldType));
 
-            var methods = from m in type.GetTypeInfo().GetMethods()
+            var methods = from m in type.GetRuntimeMethods()
                           where m.IsStatic &&
                                 assembly.Exists(m.ReturnType) && 
                                 m.GetParameters().Map(p => p.ParameterType).ForAll(assembly.Exists)
@@ -86,12 +83,13 @@ namespace LanguageExt.Config
 
         public TypeDef(
             string name,
-            Func<Lst<NamedValueToken>, object> ctor,
+            Type mapsTo,
+            Func<Option<string>, object, object> ctor,
             int order,
             params FuncSpec[] funcSpecs
             )
             :
-            this(name, ctor, null, order, funcSpecs)
+            this(name, ctor, mapsTo, null, order, funcSpecs)
         {
         }
 
@@ -104,22 +102,21 @@ namespace LanguageExt.Config
         /// <param name="funcSpecs"></param>
         public TypeDef(
             string name,
-            Func<Lst<NamedValueToken>, object> ctor,
+            Func<Option<string>, object, object> ctor,
+            Type mapsTo,
             string nodeName,
             int order,
             params FuncSpec[] funcSpecs
             )
         {
-            MapsTo = typeof(Lst<NamedValueToken>);
+            MapsTo = mapsTo;
             Name = name;
             Order = order;
-            Ctor = ctor ?? (x => x);
+            Ctor = ctor ?? ((_,x) => x);
             BinaryOperators = LanguageExt.Map.empty<string, Func<ValueToken, ValueToken, ValueToken>>();
             PrefixOperators = LanguageExt.Map.empty<string, Func<ValueToken, ValueToken>>();
             PostfixOperators = LanguageExt.Map.empty<string, Func<ValueToken, ValueToken>>();
             ConversionOperators = LanguageExt.Map.empty<string, Func<object, object>>();
-            ToLstValues = x => x;
-            ToMapValues = x => x;
             GenericType = null;
             FuncSpecs = funcSpecs;
             NodeName = nodeName;
@@ -142,10 +139,9 @@ namespace LanguageExt.Config
         /// <param name="genericType"></param>
         public TypeDef(
             string name,
+            Func<Option<string>, object, object> ctor,
             Type mapsTo,
             Func<ProcessSystemConfigParser, Parser<object>> valueParser,
-            Func<Lst<object>, object> toLstValues,
-            Func<Map<string, object>, object> toMapValues,
             Map<string, Func<ValueToken, ValueToken, ValueToken>> binaryOperators,
             Map<string, Func<ValueToken, ValueToken>> prefixOperators,
             Map<string, Func<ValueToken, ValueToken>> postfixOperators,
@@ -158,13 +154,12 @@ namespace LanguageExt.Config
 
             MapsTo = mapsTo;
             Name = name;
+            Ctor = ctor ?? ((_,x) => x);
             ValueParser = valueParser.Memo();
             BinaryOperators = binaryOperators ?? LanguageExt.Map.empty<string, Func<ValueToken, ValueToken, ValueToken>>();
             PrefixOperators = prefixOperators ?? LanguageExt.Map.empty<string, Func<ValueToken, ValueToken>>();
             PostfixOperators = postfixOperators ?? LanguageExt.Map.empty<string, Func<ValueToken, ValueToken>>();
             ConversionOperators = conversionOperators ?? LanguageExt.Map.empty<string, Func<object, object>>();
-            ToLstValues = toLstValues;
-            ToMapValues = toMapValues;
             GenericType = genericType;
         }
 
@@ -184,11 +179,11 @@ namespace LanguageExt.Config
 
                                               // Hard-coded (for now) strategy match grammar
                                               func == "match" ? from m in p.match
-                                                                select new NamedValueToken("match", m)
+                                                                select new NamedValueToken("match", m, None)
 
                                               // Hard-coded (for now) strategy redirect grammar
                                             : func == "redirect" ? from r in p.redirect
-                                                                   select new NamedValueToken("redirect", r)
+                                                                   select new NamedValueToken("redirect", r, None)
 
                                               // Attempt to parse the known properties and function definitions
                                             : from nam in attempt(p.reserved(func))
@@ -196,13 +191,13 @@ namespace LanguageExt.Config
                                               from tok in choice(variants.Map(variant =>
                                                   from vals in p.arguments(nam, variant.Args)
                                                   let valmap = LanguageExt.Map.createRange(vals.Map(x => Tuple(x.Name, x)))
-                                                  select new NamedValueToken(nam, new ValueToken(variant.Type(), variant.Body(valmap)))))
+                                                  select new NamedValueToken(nam, new ValueToken(variant.Type(), variant.Body(valmap)), None)))
                                               select tok).Values.ToArray()),
 
                                     // Local value definitions
                                     from vd in p.valueDef
                                     from st in vd.Value.Type.Name == "cluster" && ((ClusterToken)vd.Value.Value).NodeName.Map(nn => nn.Equals(NodeName)).IfNone(false)
-                                        ? from ins in getState<ParserState>().Map(s => s.SetCluster(((ClusterToken)vd.Value.Value)))
+                                        ? from ins in getState<ParserState>().Map(s => s.AddCluster(vd.Alias.IfNone(""), ((ClusterToken)vd.Value.Value)))
                                           from _ in setState(ins)
                                           select vd
                                         : result(vd)
@@ -210,10 +205,8 @@ namespace LanguageExt.Config
                                 )
                             select result)))
                 from newState in getState<ParserState>()
-                from _ in setState(state.SetCluster(newState.Cluster))
-                select Ctor == null
-                    ? (object)funcs.Freeze()
-                    : Ctor(funcs.Freeze());
+                from _ in setState(state.SetClusters(newState.Clusters))
+                select (object)funcs.Freeze();
         }
 
 
@@ -308,18 +301,17 @@ namespace LanguageExt.Config
 
             var def = new TypeDef(
                 "map",
+                (_,xs) => xs,
                 typeof(Map<string,object>),
                 (ProcessSystemConfigParser p) =>
                     p.brackets(
                         from xs in p.commaSep(
                             from x in p.identifier
                             from _ in p.symbol(":")
-                            from v in p.expr(t())
+                            from v in p.expr(None,t())
                             select Tuple(x, v.Value))
-                        select (object)LanguageExt.Map.createRange(xs))
+                        select MakeTypedMap(LanguageExt.Map.createRange(xs), t().MapsTo))
                     .label("map"),
-                    list => failwith<Lst<object>>("Maps nested within lists not supported"),
-                    map  => failwith<Map<string, object>>("Maps nested within maps not supported"),
                     LanguageExt.Map.create(
                         Types.OpT("+", () => maps[t()], (lhs, rhs) => (Map<string, object>)lhs + (Map<string, object>)lhs),
                         Types.OpT("-", () => maps[t()], (lhs, rhs) => (Map<string, object>)lhs - (Map<string, object>)lhs)
@@ -334,20 +326,62 @@ namespace LanguageExt.Config
             return def;
         }
 
+        static IList GenericList(Type type)
+        {
+            var listType = typeof(List<>).MakeGenericType(type);
+            return (IList)Activator.CreateInstance(listType);
+        }
+
+        public static Tuple<string, T> MakeTuple<T>(string fst, T snd) =>
+            Tuple(fst, snd);
+
+        static object MakeTypedLst(Lst<object> input, Type type)
+        {
+            var list = GenericList(type);
+            input.Iter(x => list.Add(x));
+            var args = new[] { list };
+            var result = typeof(List).GetRuntimeMethods()
+                                     .Where(m => m.Name == "createRange")
+                                     .Head()
+                                     .MakeGenericMethod(type)
+                                     .Invoke(null, args);
+            return result;
+        }
+
+        static object MakeTypedMap(Map<string, object> input, Type type)
+        {
+            var tup = typeof(Tuple<,>).MakeGenericType(typeof(string),type);
+            var tupCreate = typeof(TypeDef).GetRuntimeMethods()
+                                           .Where(m => m.Name == "MakeTuple")
+                                           .Head()
+                                           .MakeGenericMethod(type);
+
+            var list = GenericList(tup);
+
+            input.Iter((k, v) => list.Add(tupCreate.Invoke(null, new object[] { k, v })));
+
+            var args = new[] { list };
+            var result = typeof(Map).GetRuntimeMethods()
+                                    .Where(m => m.Name == "createRange")
+                                    .Head()
+                                    .MakeGenericMethod(typeof(string), type)
+                                    .Invoke(null, args);
+            return result;
+        }
+
         public static TypeDef Array(Func<TypeDef> t)
         {
             if (lists.ContainsKey(t())) return lists[t()];
 
             var def = new TypeDef(
                 "array",
+                (_, xs) => xs,
                 typeof(Lst<object>),
                 (ProcessSystemConfigParser p) =>
                     p.brackets(
-                        from xs in p.commaSep(p.expr(t()))
-                        select (object)xs)
+                        from xs in p.commaSep(p.expr(None, t()))
+                        select MakeTypedLst(xs.Map(x => x.Value), t().MapsTo))
                     .label("array"),
-                    list => failwith<Lst<object>>("Maps nested within lists not supported"),
-                    map  => failwith<Map<string, object>>("Maps nested within maps not supported"),
                     LanguageExt.Map.create(
                         Types.OpT("+", () => maps[t()], (lhs, rhs) => (Lst<object>)lhs + (Lst<object>)lhs),
                         Types.OpT("*", () => maps[t()], (lhs, rhs) => (Lst<object>)lhs * (Lst<object>)lhs),
@@ -365,10 +399,9 @@ namespace LanguageExt.Config
 
         public static TypeDef Unknown = new TypeDef(
             "unknown",
+            (_,xs) => xs,
             typeof(void),
             _ => failure<object>("unknown type"),
-            x => x,
-            x => x,
             null, null, null, null, null,
             Int32.MaxValue
         );

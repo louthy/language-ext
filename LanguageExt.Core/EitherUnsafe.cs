@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
@@ -1272,5 +1273,30 @@ public static class __EitherUnsafeExt
         if (u.IsBottom) return new EitherUnsafe<L, V>(true);
         if (u.IsLeft) return EitherUnsafe<L, V>.Left(u.LeftValue);
         return project(self.RightValue, u.RightValue);
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static IEnumerable<V> SelectMany<L, T, U, V>(this EitherUnsafe<L, T> self,
+        Func<T, IEnumerable<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsBottom) return new V[0];
+        if (self.IsLeft) return new V[0];
+        return bind(self.RightValue).Map(u => project(self.RightValue, u));
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static EitherUnsafe<L, V> SelectMany<L, T, U, V>(this IEnumerable<T> self,
+        Func<T, EitherUnsafe<L, U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        var ta = self.Take(1).ToArray();
+        if (ta.Length == 0) return new EitherUnsafe<L, V>(true);
+        var u = bind(ta[0]);
+        if (u.IsBottom) return new EitherUnsafe< L, V > (true);
+        if (u.IsLeft) return EitherUnsafe<L, V>.Left(u.LeftValue);
+        return project(ta[0], u.RightValue);
     }
 }

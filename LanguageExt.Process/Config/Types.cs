@@ -54,11 +54,10 @@ namespace LanguageExt.Config
         {
             Int = new TypeDef(
                 "int",
+                (_,x) => x,
                 typeof(int),
                 p => from x in p.integer
                      select (object)x,
-                list => list.Map(x => (int)x),
-                map => map.Map(x => (int)x),
                 Map(
                     OpT("+", () => Int, (lhs, rhs) => (int)lhs + (int)rhs),
                     OpT("-", () => Int, (lhs, rhs) => (int)lhs - (int)rhs),
@@ -91,11 +90,10 @@ namespace LanguageExt.Config
 
             Double = new TypeDef(
                 "float",
+                (_, x) => x,
                 typeof(double),
                 p => from x in p.floating
                      select (object)x,
-                list => list.Map(x => (double)x),
-                map => map.Map(x => (double)x),
                 Map(
                     OpT("+", () => Int, (lhs, rhs) => (double)lhs + (double)rhs),
                     OpT("-", () => Int, (lhs, rhs) => (double)lhs - (double)rhs),
@@ -123,13 +121,15 @@ namespace LanguageExt.Config
 
             Bool = new TypeDef(
                 "bool",
+                (_, x) => x,
                 typeof(bool),
                 p => from v in choice(
                         p.reserved("true"),
-                        p.reserved("false"))
-                     select (object)(v == "true"),
-                list => list.Map(x => (bool)x),
-                map => map.Map(x => (bool)x),
+                        p.reserved("false"),
+                        p.reserved("yes"),
+                        p.reserved("no")
+                        )
+                     select (object)(v == "true" || v == "yes"),
                 Map(
                     OpT("!=", () => Bool, (lhs, rhs) => (bool)lhs != (bool)rhs),
                     OpT("==", () => Bool, (lhs, rhs) => (bool)lhs == (bool)rhs),
@@ -147,12 +147,11 @@ namespace LanguageExt.Config
 
             String = new TypeDef(
                 "string",
+                (_, x) => x,
                 typeof(string),
                 p => from _ in unitp
                      from v in p.stringLiteral
                      select (object)v,
-                list => list.Map(x => (string)x),
-                map => map.Map(x => (string)x),
                 Map(
                     OpT("+", () => String, (lhs, rhs) => (string)lhs + (string)rhs),
                     Op("==", (ValueToken lhs, ValueToken rhs) => new ValueToken(Bool, (string)lhs.Value == (string)rhs.Value)),
@@ -184,11 +183,10 @@ namespace LanguageExt.Config
 
             ProcessId = new TypeDef(
                 "process-id",
+                (_, x) => x,
                 typeof(ProcessId),
                 p => from v in p.processId
                      select (object)v,
-                list => list.Map(x => (ProcessId)x),
-                map => map.Map(x => (ProcessId)x),
                 Map(
                     OpT("+", () => String, (lhs, rhs) => ((ProcessId)lhs).Append((ProcessId)rhs)),
                     Op("==", (ValueToken lhs, ValueToken rhs) => new ValueToken(Bool, (ProcessId)lhs.Value == (ProcessId)rhs.Value)),
@@ -210,12 +208,11 @@ namespace LanguageExt.Config
 
             ProcessName = new TypeDef(
                 "process-name",
+                (_, x) => x,
                 typeof(ProcessName),
                 p => from _ in unitp
                      from v in p.processName
                      select (object)v,
-                list => list.Map(x => (ProcessName)x),
-                map => map.Map(x => (ProcessName)x),
                 Map(
                     Op("==", (ValueToken lhs, ValueToken rhs) => new ValueToken(Bool, (ProcessName)lhs.Value == (ProcessName)rhs.Value)),
                     Op("!=", (ValueToken lhs, ValueToken rhs) => new ValueToken(Bool, (ProcessName)lhs.Value != (ProcessName)rhs.Value)),
@@ -257,11 +254,10 @@ namespace LanguageExt.Config
 
             ProcessFlags = new TypeDef(
                 "process-flags",
+                (_, x) => x,
                 typeof(ProcessFlags),
                 p => from v in flagsValue(p)
                      select (object)v,
-                list => list.Map(x => (ProcessFlags)x),
-                map => map.Map(x => (ProcessFlags)x),
                 Map(
                     Op("==", (ValueToken lhs, ValueToken rhs) => new ValueToken(Bool, (ProcessFlags)lhs.Value == (ProcessFlags)rhs.Value)),
                     Op("!=", (ValueToken lhs, ValueToken rhs) => new ValueToken(Bool, (ProcessFlags)lhs.Value != (ProcessFlags)rhs.Value)),
@@ -314,11 +310,10 @@ namespace LanguageExt.Config
 
             Time = new TypeDef(
                 "time",
+                (_, x) => x,
                 typeof(Time),
                 p => from v in p.token(timeValue(p))
                      select (object)v,
-                list => list.Map(x => (Time)x),
-                map => map.Map(x => (Time)x),
                 Map(
                     OpT("+", () => String, (lhs, rhs) => ((Time)lhs + (Time)rhs)),
                     OpT("-", () => String, (lhs, rhs) => ((Time)lhs - (Time)rhs)),
@@ -362,7 +357,7 @@ namespace LanguageExt.Config
             Func<ProcessSystemConfigParser, Parser<MessageDirective>> fwdToProcess =
                 p =>
                     from _ in p.reserved("forward-to-process")
-                    from pid in attempt(p.expr(ProcessId)).label("'forward-to-process <ProcessId>'")
+                    from pid in attempt(p.expr(None, ProcessId)).label("'forward-to-process <ProcessId>'")
                     select new ForwardToProcess((ProcessId)pid.Value) as MessageDirective;
 
             Func<ProcessSystemConfigParser, Parser<MessageDirective>> msgDirective =
@@ -376,11 +371,10 @@ namespace LanguageExt.Config
 
             MessageDirective = new TypeDef(
                 "message-directive",
+                (_, x) => x,
                 typeof(MessageDirective),
                 p => from v in p.token(msgDirective(p))
                      select (object)v,
-                list => list.Map(x => (MessageDirective)x),
-                map => map.Map(x => (MessageDirective)x),
                 Map(
                     Op("==", (ValueToken lhs, ValueToken rhs) => new ValueToken(Bool, (MessageDirective)lhs.Value == (MessageDirective)rhs.Value)),
                     Op("!=", (ValueToken lhs, ValueToken rhs) => new ValueToken(Bool, (MessageDirective)lhs.Value != (MessageDirective)rhs.Value))
@@ -402,11 +396,10 @@ namespace LanguageExt.Config
 
             Directive = new TypeDef(
                 "directive",
+                (_, x) => x,
                 typeof(Directive),
                 p => from v in p.token(directive(p))
                      select (object)v,
-                list => list.Map(x => (Directive)x),
-                map => map.Map(x => (Directive)x),
                 Map(
                     Op("==", (ValueToken lhs, ValueToken rhs) => new ValueToken(Bool, (Directive)lhs.Value == (Directive)rhs.Value)),
                     Op("!=", (ValueToken lhs, ValueToken rhs) => new ValueToken(Bool, (Directive)lhs.Value != (Directive)rhs.Value))
@@ -434,11 +427,10 @@ namespace LanguageExt.Config
 
             DispatcherType = new TypeDef(
                 "disp",
+                (_, x) => x,
                 typeof(string),
                 p => from v in p.token(dispType(p))
                      select (object)v,
-                list => list.Map(x => (string)x),
-                map => map.Map(x => (string)x),
                 Map(
                     Op("==", (ValueToken lhs, ValueToken rhs) => new ValueToken(Bool, (string)lhs.Value == (string)rhs.Value)),
                     Op("!=", (ValueToken lhs, ValueToken rhs) => new ValueToken(Bool, (string)lhs.Value != (string)rhs.Value))
@@ -491,14 +483,14 @@ namespace LanguageExt.Config
         public TypeDef Get(string name) =>
             All[name];
 
-        public Unit Register(TypeDef type)
+        public TypeDef Register(TypeDef type)
         {
             All = All.Add(type.Name, type);
             AllInOrder = (from x in All.Values
                           orderby x.Order descending
                           select x)
                          .Freeze();
-            return unit;
+            return type;
         }
 
         public Unit MapTo(TypeDef def)

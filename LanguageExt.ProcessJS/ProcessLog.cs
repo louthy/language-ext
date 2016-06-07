@@ -39,7 +39,7 @@ namespace LanguageExt.ProcessJS
         /// </summary>
         /// <param name="processNameOverride">Override the default process name</param>
         /// <param name="logViewMax">Size of the log 'window'</param>
-        public static Unit startup(Option<ProcessName> processNameOverride, int logViewMax = 200)
+        public static Unit startup(Option<ProcessName> processNameOverride, int logViewMax = 200, SystemName system = default(SystemName))
         {
             if (processId.IsValid) return unit;
             lock (sync)
@@ -49,8 +49,8 @@ namespace LanguageExt.ProcessJS
                 processName = processNameOverride.IfNone("process-log");
                 processId = spawn<State, ProcessLogItem>(processName, () => setup(logViewMax), inbox);
 
-                deadLetterSub = subscribe<DeadLetter>(DeadLetters, msg => tellWarning(msg.ToString()));
-                errorSub = subscribe<Exception>(Errors, e => tellError(e));
+                deadLetterSub = subscribe<DeadLetter>(DeadLetters(system), msg => tellWarning(msg.ToString()));
+                errorSub = subscribe<Exception>(Errors(system), e => tellError(e));
             }
 
             return unit;

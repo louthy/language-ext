@@ -23,7 +23,8 @@ namespace LanguageExt
         IAppendable<Lst<T>>, 
         ISubtractable<Lst<T>>,
         IMultiplicable<Lst<T>>,
-        IDivisible<Lst<T>>
+        IDivisible<Lst<T>>,
+        IEquatable<Lst<T>>
     {
         /// <summary>
         /// Empty list
@@ -46,9 +47,18 @@ namespace LanguageExt
         /// </summary>
         internal Lst(IEnumerable<T> initial)
         {
-            var lst = new List<T>(initial);
-            Root = ListModule.FromList(lst, 0, lst.Count());
-            Rev = false;
+            if (initial is Lst<T>)
+            {
+                var lst = (Lst<T>)initial;
+                Root = lst.Root;
+                Rev = lst.Rev;
+            }
+            else
+            {
+                var lst = new List<T>(initial);
+                Root = ListModule.FromList(lst, 0, lst.Count());
+                Rev = false;
+            }
         }
 
         /// <summary>
@@ -360,6 +370,21 @@ namespace LanguageExt
             (from y in rhs.AsEnumerable()
              from x in this.AsEnumerable()
              select TypeDesc.Divide(x, y, TypeDesc<T>.Default)).Freeze();
+
+        public bool Equals(Lst<T> other)
+        {
+            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(other, null)) return false;
+            var comparer = EqualityComparer<T>.Default;
+            return Count == other.Count && this.Zip(other, (x, y) => comparer.Equals(x, y)).ForAll(x => x);
+        }
+
+        public static bool operator ==(Lst<T> lhs, Lst<T> rhs) =>
+            lhs.Equals(rhs);
+
+        public static bool operator !=(Lst<T> lhs, Lst<T> rhs) =>
+            !lhs.Equals(rhs);
+
     }
 
 #if !COREFX

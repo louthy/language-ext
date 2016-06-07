@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="ActionObservable.cs" />
     <Compile Include="Prelude_Nullable.cs" />
+    <Compile Include="DVV.cs" />
     <Compile Include="Prelude_Tasks.cs" />
     <Compile Include="Task.cs" />
     <Compile Include="Compose.cs" />
@@ -137,6 +138,8 @@
     <Compile Include="UnitsOfMeasure\Area.cs" />
     <Compile Include="UnitsOfMeasure\Length.cs" />
     <Compile Include="UnitsOfMeasure\Time.cs" />
+    <Compile Include="VectorClock.cs" />
+    <Compile Include="Versioned.cs" />
     <Compile Include="Writer.cs" />
   </ItemGroup>
   <ItemGroup>

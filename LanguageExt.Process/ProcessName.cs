@@ -13,7 +13,7 @@ namespace LanguageExt
     /// </summary>
     /// <remarks>
     /// It enforces the rules for process names.  Process have the same rules
-    /// as file-names Wn windows.  
+    /// as file-names in windows.  
     /// </remarks>
     public struct ProcessName : IEquatable<ProcessName>, IComparable<ProcessName>, IComparable
     {
@@ -37,6 +37,9 @@ namespace LanguageExt
         {
             Value = value;
         }
+
+        public bool IsValid =>
+            !String.IsNullOrEmpty(Value);
 
         private ProcessName(IEnumerable<ProcessId> values)
         {

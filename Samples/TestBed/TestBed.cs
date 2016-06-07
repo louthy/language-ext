@@ -22,6 +22,32 @@ namespace TestBed
 {
     class Tests
     {
+
+        public static void StopStart()
+        {
+            StopStartImpl();
+            StopStartImpl();
+            StopStartImpl();
+            StopStartImpl();
+            StopStartImpl();
+            StopStartImpl();
+            StopStartImpl();
+        }
+
+        public static void StopStartImpl()
+        {
+            shutdownAll();
+            ProcessConfig.initialiseFileSystem();
+
+            ProcessId pid = spawn<string, string>("start-stop", () => "", (_, msg) => msg);
+            tell(pid, "1");
+            kill(pid);
+
+            var kids = children(User());
+            var len = kids.Length;
+            Debug.Assert(len == 0);
+        }
+
         public static void MemoTest3()
         {
             GC.Collect();
@@ -58,6 +84,7 @@ namespace TestBed
         //public static void LocalRegisterTest()
         //{
         //    shutdownAll();
+        //    ProcessConfig.initialise();
 
         //    string value = null;
         //    var pid = spawn<string>("reg-proc", msg => value = msg);
@@ -104,7 +131,7 @@ namespace TestBed
                             }
                             else
                             {
-                                if (Children.ContainsKey(cpid.GetName().Value))
+                                if (Children.ContainsKey(cpid.Name.Value))
                                 {
                                     reply(ask<string>(cpid, "echo") == "echo");
                                 }
@@ -141,6 +168,7 @@ namespace TestBed
         //    try
         //    {
         //        shutdownAll();
+        //        ProcessConfig.initialise();
 
         //        // Let Language Ext know that Redis exists
         //        RedisCluster.register();
@@ -279,6 +307,7 @@ namespace TestBed
         public static void ProcessStartupError()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             try
             {
@@ -305,7 +334,7 @@ namespace TestBed
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-test", "localhost", "0", "global");
+            ProcessConfig.initialise("sys", "global", "redis-test", "localhost", "0");
 
             try
             {
@@ -331,6 +360,7 @@ namespace TestBed
         //public static void RegisteredAskReply()
         //{
         //    shutdownAll();
+        //    ProcessConfig.initialise();
 
         //    var helloServer = spawn<string>("hello-server", msg =>
         //    {
@@ -352,7 +382,7 @@ namespace TestBed
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-test", "localhost", "0", "global");
+            ProcessConfig.initialise("sys", "global", "redis-test", "localhost", "0");
 
             var helloServer = spawn<string>("hello-server", msg =>
                 {
@@ -368,6 +398,7 @@ namespace TestBed
         public static void PubSubTest()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             // Spawn a process
             var pid = spawn<string>("pubsub", msg =>
@@ -392,12 +423,14 @@ namespace TestBed
         public static void SpawnProcess()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             Console.WriteLine("*** ABOUT TO SHUTDOWN ***");
 
             shutdownAll();
 
             Console.WriteLine("*** SHUTDOWN COMPLETE ***");
+            ProcessConfig.initialise();
 
             var pid = spawn<string, string>("SpawnProcess", () => "", (_, msg) => msg);
 
@@ -414,7 +447,7 @@ namespace TestBed
 
             kill(pid);
 
-            Debug.Assert(children(User).Count == 0);
+            Debug.Assert(children(User()).Count == 0);
 
             Console.WriteLine("*** END OF TEST ***");
         }
@@ -622,6 +655,7 @@ namespace TestBed
         public static void SpawnErrorSurviveProcess()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             var pid = spawn<int, string>("SpawnAnErrorProcess", () => 0, (count,_) =>
             {
@@ -654,13 +688,14 @@ namespace TestBed
         public static void SpawnAndKillProcess()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             ProcessId pid = spawn<string, string>("SpawnAndKillProcess", () => "", (_, msg) => msg);
             tell(pid, "1");
             kill(pid);
             tell(pid, "2");
 
-            var kids = children(User);
+            var kids = children(User());
             var len = kids.Length;
             Debug.Assert(len == 0);
         }
@@ -668,6 +703,7 @@ namespace TestBed
         public static void SpawnAndKillHierarchy()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             int value = 0;
 
@@ -683,7 +719,7 @@ namespace TestBed
             Thread.Sleep(200);
 
             Debug.Assert(value == 1,"Expected 1, got "+value);
-            Debug.Assert(children(User).Length == 0);
+            Debug.Assert(children(User()).Length == 0);
         }
 
         public static int DepthMax(int depth) =>
@@ -699,6 +735,7 @@ namespace TestBed
             int max = DepthMax(depth);
 
             shutdownAll();
+            ProcessConfig.initialise();
 
             var actor = fun((Unit s, string msg) =>
             {
@@ -707,7 +744,7 @@ namespace TestBed
 
             setup = fun(() =>
             {
-                int level = Int32.Parse(Self.GetName().Value.Split('_').First()) + 1;
+                int level = Int32.Parse(Self.Name.Value.Split('_').First()) + 1;
                 if (level <= depth)
                 {
                     iter(Range(0, nodes), i => spawn(level + "_" + i, setup, actor));
@@ -719,12 +756,13 @@ namespace TestBed
             tell(zero, "Hello");
             kill(zero);
 
-            Debug.Assert(children(User).Count() == 0);
+            Debug.Assert(children(User()).Count() == 0);
         }
 
         public static void MassiveSpawnAndKillHierarchy()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             Func<Unit> setup = null;
             int count = 0;
@@ -743,7 +781,7 @@ namespace TestBed
             {
                 Interlocked.Increment(ref count);
 
-                int level = Int32.Parse(Self.GetName().Value.Split('_').First()) + 1;
+                int level = Int32.Parse(Self.Name.Value.Split('_').First()) + 1;
                 if (level <= depth)
                 {
                     iter(Range(0, nodes), i => {
@@ -765,7 +803,7 @@ namespace TestBed
 
             Thread.Sleep(3000);
 
-            Debug.Assert(children(User).Count() == 0);
+            Debug.Assert(children(User()).Count() == 0);
         }
 
         public static void ScheduledMsgTest()

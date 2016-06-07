@@ -8,25 +8,29 @@ using static LanguageExt.Prelude;
 namespace LanguageExt
 {
     /// <summary>
-    /// 
+    /// <para>
     ///     Process registration - a kind of DNS for Processes
-    /// 
+    /// </para>
+    /// <para>
     ///     If the Process is visible to the cluster (PersistInbox) then the 
     ///     registration becomes a permanent named look-up until Process.deregister 
     ///     is called.
-    ///     
+    /// </para>
+    /// <para>
     ///     Multiple Processes can register under the same name.  You may use 
     ///     a dispatcher to work on them collectively (wherever they are in the 
     ///     cluster).  i.e. 
-    /// 
+    /// </para>
+    /// <para>
     ///         var regd = register("regd-name", pid);
-    ///         
+    /// </para>
+    /// <para>
     ///         tell(Dispatch.Broadcast[regd],  "Hello");
     ///         tell(Dispatch.First[regd],      "Hello");
     ///         tell(Dispatch.LeastBusy[regd],  "Hello");
     ///         tell(Dispatch.Random[regd],     "Hello");
     ///         tell(Dispatch.RoundRobin[regd], "Hello");
-    /// 
+    /// </para>
     /// </summary>
     public static partial class Process
     {
@@ -56,7 +60,7 @@ namespace LanguageExt
         /// <returns>A ProcessId that allows dispatching to the process(es).  The result
         /// would look like /disp/reg/name</returns>
         public static ProcessId find(ProcessName name) =>
-            ActorContext.Disp["reg"][$"{Role.Current.Value}-{name.Value}"];
+            ActorContext.System(default(SystemName)).Disp["reg"][$"{Role.Current.Value}-{name.Value}"];
 
         /// <summary>
         /// Find a process by its *registered* name (a kind of DNS for Processes) in the
@@ -81,7 +85,7 @@ namespace LanguageExt
         /// <returns>A ProcessId that allows dispatching to the process(es).  The result
         /// would look like /disp/reg/name</returns>
         public static ProcessId find(ProcessName role, ProcessName name) =>
-            ActorContext.Disp["reg"][$"{role.Value}-{name.Value}"];
+            ActorContext.System(default(SystemName)).Disp["reg"][$"{role.Value}-{name.Value}"];
 
         /// <summary>
         /// Register a named process (a kind of DNS for Processes).  
@@ -109,9 +113,9 @@ namespace LanguageExt
         /// <param name="name">Name to register under</param>
         /// <returns>A ProcessId that allows dispatching to the process via the name.  The result
         /// would look like /disp/reg/name</returns>
-        public static ProcessId register(ProcessName name) =>
+        public static ProcessId register(ProcessName name, SystemName system = default(SystemName)) =>
             InMessageLoop
-                ? ActorContext.Register($"{Role.Current.Value}-{name.Value}", Self)
+                ? ActorContext.System(system).Register($"{Role.Current.Value}-{name.Value}", Self)
                 : raiseUseInMsgLoopOnlyException<ProcessId>(nameof(name));
 
         /// <summary>
@@ -141,7 +145,7 @@ namespace LanguageExt
         /// <returns>A ProcessId that allows dispatching to the process(es).  The result
         /// would look like /disp/reg/name</returns>
         public static ProcessId register(ProcessName name, ProcessId process) =>
-            ActorContext.Register($"{Role.Current.Value}-{name.Value}", process);
+            ActorContext.System(process).Register($"{Role.Current.Value}-{name.Value}", process);
 
         /// <summary>
         /// Deregister a Process from any names it's been registered as.
@@ -159,7 +163,7 @@ namespace LanguageExt
         /// </remarks>
         /// <param name="name">Name of the process to deregister</param>
         public static Unit deregisterById(ProcessId process) =>
-            ActorContext.DeregisterById(process);
+            ActorContext.System(process).DeregisterById(process);
 
         /// <summary>
         /// Deregister all Processes associated with a name. NOTE: Be very careful
@@ -178,7 +182,7 @@ namespace LanguageExt
         /// use Process.deregisterById(pid)
         /// </remarks>
         /// <param name="name">Name of the process to deregister</param>
-        public static Unit deregisterByName(ProcessName name) =>
-            ActorContext.DeregisterByName($"{Role.Current.Value}-{name.Value}");
+        public static Unit deregisterByName(ProcessName name, SystemName system = default(SystemName)) =>
+            ActorContext.System(system).DeregisterByName($"{Role.Current.Value}-{name.Value}");
     }
 }

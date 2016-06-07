@@ -83,6 +83,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Watchers", "Samples\Watcher
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Parsec", "LanguageExt.Parsec\LanguageExt.Parsec.csproj", "{49F181C4-D5B4-4076-BE96-1B516903AD8C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisSubscribeSample", "Samples\RedisSubscribeSample\RedisSubscribeSample.csproj", "{E2D6DAE8-8F03-4341-91DD-1D2B6BE94C6B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		AppVeyorBuild|Any CPU = AppVeyorBuild|Any CPU
@@ -275,6 +277,14 @@ Global
 		{49F181C4-D5B4-4076-BE96-1B516903AD8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49F181C4-D5B4-4076-BE96-1B516903AD8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49F181C4-D5B4-4076-BE96-1B516903AD8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2D6DAE8-8F03-4341-91DD-1D2B6BE94C6B}.AppVeyorBuild|Any CPU.ActiveCfg = Release|Any CPU
+		{E2D6DAE8-8F03-4341-91DD-1D2B6BE94C6B}.AppVeyorBuild|Any CPU.Build.0 = Release|Any CPU
+		{E2D6DAE8-8F03-4341-91DD-1D2B6BE94C6B}.CI|Any CPU.ActiveCfg = Release|Any CPU
+		{E2D6DAE8-8F03-4341-91DD-1D2B6BE94C6B}.CI|Any CPU.Build.0 = Release|Any CPU
+		{E2D6DAE8-8F03-4341-91DD-1D2B6BE94C6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2D6DAE8-8F03-4341-91DD-1D2B6BE94C6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2D6DAE8-8F03-4341-91DD-1D2B6BE94C6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2D6DAE8-8F03-4341-91DD-1D2B6BE94C6B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -311,5 +321,6 @@ Global
 		{6C1F3072-B86A-4EBD-BBC7-B45344FBD534} = {34BC0D3C-7EA4-4892-B752-19742BABB2F3}
 		{640B0287-33E2-4D67-B1BF-7229C081EA14} = {6C1F3072-B86A-4EBD-BBC7-B45344FBD534}
 		{7456CBB3-F9A5-4119-9C17-77E4846D1D8C} = {BBFD2A61-E90A-4F90-9B5F-FAA1C4C90455}
+		{E2D6DAE8-8F03-4341-91DD-1D2B6BE94C6B} = {04F8D74F-9399-4912-8197-54380A9F0948}
 	EndGlobalSection
 EndGlobal

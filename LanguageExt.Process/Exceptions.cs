@@ -38,6 +38,35 @@ namespace LanguageExt
     }
 
     /// <summary>
+    /// Invalid SystemName
+    /// </summary>
+    public class InvalidSystemNameException : Exception
+    {
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public InvalidSystemNameException()
+            :
+            base("Invalid system name")
+        {
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public InvalidSystemNameException(string message) : base(message)
+        {
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public InvalidSystemNameException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
+
+    /// <summary>
     /// Invalid process name
     /// </summary>
     public class InvalidProcessNameException : Exception

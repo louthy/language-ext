@@ -462,96 +462,97 @@ namespace LanguageExtTests
         [Fact]
         public void ProcessesSettingsParserTest()
         {
-            var text = @"
-            
-                time timeout:           30 seconds
-                time session-timeout:   60 seconds
-                int mailbox-size:      10000
+            lock (ProcessTests.sync)
+            {
+                Process.shutdownAll();
 
-                strategy my-strategy:
-                    one-for-one:
-                        retries: count = 5, duration=30 seconds
-                        backoff: min = 2 seconds, max = 1 hour, step = 5 seconds
-                        
-                        match
-                         | System.NotImplementedException -> stop
-                         | System.ArgumentNullException   -> escalate
-                         | _                              -> restart
+                var text = @"
+
+                bool  transactional-io: true
+                let   default-retries : 3
+                let   strSetting      : ""testing 123""
+                float dblSetting      : 1.25
+
+                strategy testStrat1: 
+	                one-for-one:
+		                retries: count = default-retries + 2, duration = 10 seconds
+		                backoff: 1 seconds
+
+                        always: restart
 
                         redirect when
-                         | restart  -> forward-to-parent
-                         | escalate -> forward-to-self
-                         | stop     -> forward-to-process /root/test/567
-                         | _        -> forward-to-dead-letters
+                         | restart  -> forward-to-self
+		                 | stop     -> forward-to-dead-letters
 
-                strategy my-other-strategy:
-                    one-for-one:
-                        pause: 1 second
-                        always: resume
-                        redirect: forward-to-process /root/test/567
+                strategy testStrat2: 
+                    all-for-one:
+                        retries: 5
+		                backoff: min = 1 seconds, max = 100 seconds, step = 2 second
+                        
+                        match
+                         | LanguageExt.ProcessSetupException -> restart
 
-                process abc:
-                    pid:          /root/test/123
-                    flags:        [persist-inbox, persist-state, remote-publish]
-                    mailbox-size: 1000
-                    strategy:     my-strategy
+                        redirect when
+                         | restart  -> forward-to-self
 
-                process def:
-                    pid:          /root/test/567
-                    flags:        [persist-inbox, persist-state]
-                    mailbox-size: 100
-                    strategy:     my-other-strategy
+                process test1Supervisor:
+	                pid:          /root/user/test1-supervisor
+                    strategy:     testStrat1
+                    string hello: ""world""
+
+                process test2Supervisor:
+                    pid:          /root/user/test2-supervisor
+                    strategy:     testStrat2
                 ";
 
-            var config = new ProcessSystemConfig("test");
+                var config = ProcessConfig.initialise(text, None);
 
-            var res = parse(config.Parser, text);
+                // TODO: Restore tests
 
-            // TODO: Restore tests
+                //var res = parse(config.Parser, text);
 
-            //Assert.False(res.IsFaulted);
+                //Assert.False(res.IsFaulted);
 
-            //var result = res.Reply.Result;
+                //var result = res.Reply.Result;
 
-            //Assert.True(result.Count == 7);
+                //Assert.True(result.Count == 7);
+
+                //var timeout = result["timeout"];
+                //var session = result["session-timeout"];
+                //var mailbox= result["mailbox-size"];
+
+                // Load process settings
+                //var processes = M.createRange(from val in result.Values
+                //                              where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Process
+                //                              let p = (ProcessToken)val.Values.Values.First().Value
+                //                              where p.ProcessId.IsSome
+                //                              let id = p.ProcessId.IfNone(ProcessId.None)
+                //                              select Tuple(id, p));
+
+                //var strats = M.createRange(from val in result.Values
+                //                           where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Strategy
+                //                           let s = (StrategyToken)val.Values.Values.First().Value
+                //                           select Tuple(val.Name, s));
 
 
-            //var timeout = result["timeout"];
-            //var session = result["session-timeout"];
-            //var mailbox= result["mailbox-size"];
+                //Assert.True(timeout.Name == "timeout");
+                //Assert.True(timeout.Attributes.Count == 1);
+                //Assert.True(timeout.Attributes["value"].Type.Tag == ArgumentTypeTag.Time);
+                //Assert.True((Time)timeout.Attributes["value"].Value == 30*seconds);
 
-            // Load process settings
-            //var processes = M.createRange(from val in result.Values
-            //                              where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Process
-            //                              let p = (ProcessToken)val.Values.Values.First().Value
-            //                              where p.ProcessId.IsSome
-            //                              let id = p.ProcessId.IfNone(ProcessId.None)
-            //                              select Tuple(id, p));
+                //Assert.True(session.Name == "session-timeout");
+                //Assert.True(session.Attributes.Count == 1);
+                //Assert.True(session.Attributes["value"].Type.Tag == ArgumentTypeTag.Time);
+                //Assert.True((Time)session.Attributes["value"].Value == 60 * seconds);
 
-            //var strats = M.createRange(from val in result.Values
-            //                           where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Strategy
-            //                           let s = (StrategyToken)val.Values.Values.First().Value
-            //                           select Tuple(val.Name, s));
+                //Assert.True(mailbox.Name == "mailbox-size");
+                //Assert.True(mailbox.Attributes.Count == 1);
+                //Assert.True(mailbox.Attributes["value"].Type.Tag == ArgumentTypeTag.Int);
+                //Assert.True((int)mailbox.Attributes["value"].Value == 10000);
 
-
-            //Assert.True(timeout.Name == "timeout");
-            //Assert.True(timeout.Attributes.Count == 1);
-            //Assert.True(timeout.Attributes["value"].Type.Tag == ArgumentTypeTag.Time);
-            //Assert.True((Time)timeout.Attributes["value"].Value == 30*seconds);
-
-            //Assert.True(session.Name == "session-timeout");
-            //Assert.True(session.Attributes.Count == 1);
-            //Assert.True(session.Attributes["value"].Type.Tag == ArgumentTypeTag.Time);
-            //Assert.True((Time)session.Attributes["value"].Value == 60 * seconds);
-
-            //Assert.True(mailbox.Name == "mailbox-size");
-            //Assert.True(mailbox.Attributes.Count == 1);
-            //Assert.True(mailbox.Attributes["value"].Type.Tag == ArgumentTypeTag.Int);
-            //Assert.True((int)mailbox.Attributes["value"].Value == 10000);
-
-            //Assert.True(strats.Count == 2);
-            //Assert.True(processes.Count == 2);
-
+                //Assert.True(strats.Count == 2);
+                //Assert.True(processes.Count == 2);
+            }
         }
     }
 }

@@ -209,7 +209,6 @@ namespace LanguageExt
         /// <returns>A set which contains all items from both sets</returns>
         public Set<T> Union(IEnumerable<T> other)
         {
-            // TODO: Perf
             var self = this;
             foreach (var item in other)
             {

@@ -317,6 +317,14 @@ namespace LanguageExt
             map.Find(key);
 
         /// <summary>
+        /// Retrieve a value from the map by key as an enumerable
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found value</returns>
+        public static IEnumerable<V> findSeq<K, V>(Map<K, V> map, K key) =>
+            map.FindSeq(key);
+
+        /// <summary>
         /// Retrieve a value from the map by key and pattern match the
         /// result.
         /// </summary>
@@ -900,7 +908,6 @@ public static class __MapExt
 
     public static Map<A, Map<B, Map<C, Map<D, T>>>> Remove<A, B, C, D, T>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, A aKey, B bKey, C cKey, D dKey)
     {
-        // TODO: Ugly and inefficient
         var res = self.Find(aKey, bKey, cKey);
         if (res.IsSome && res.CountT() > 1)
         {

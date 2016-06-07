@@ -4,10 +4,14 @@ using static LanguageExt.Prelude;
 namespace LanguageExt
 {
     /// <summary>
+    /// <para>
     /// Application profile
+    /// </para>
+    /// <para>
     /// It provides the core settings used when initialising the Process
     /// system.  You don't create it yourself, it is passed to you once
     /// the config system has successfully parsed the config files.
+    /// </para>
     /// </summary>
     public class AppProfile
     {
@@ -38,7 +42,7 @@ namespace LanguageExt
         /// <summary>
         /// The environment name (this comes from the cluster variable 
         /// name in the config file).  Use this to build staging 
-        /// environments.
+        /// environments or to run multiple systems.
         /// 
         ///     i.e  cluster dev:
         ///             node-name:     ms-1
@@ -52,7 +56,7 @@ namespace LanguageExt
         ///             string sql-db: "live.example.com"
         ///             
         /// </summary>
-        public readonly Option<string> Env;
+        public readonly Option<SystemName> Env;
 
         /// <summary>
         /// A user environment 
@@ -67,7 +71,7 @@ namespace LanguageExt
             string role,
             string clusterConn,
             string clusterDb,
-            Option<string> env,
+            Option<SystemName> env,
             Option<string> userEnv)
         {
             NodeName = nodeName;

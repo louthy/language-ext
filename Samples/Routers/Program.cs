@@ -17,13 +17,14 @@ namespace Routers
         {
             ProcessConfig.initialiseFileSystem();
 
-            //Test1();
-            //Test2();
-            //Test3();
+            Test1();
+            Test2();
+            Test3();
 
             ConfigTest1();
             ConfigTest2();
             ConfigTest3();
+            ConfigTest4();
         }
 
         static void Test1()
@@ -101,6 +102,15 @@ namespace Routers
             var test = Router.fromConfig<string>("least");//, new[] { one, two, thr });
 
             Range(0, 100).Iter(x => tell(test, "testing " + x));
+
+            Console.WriteLine("Press any key");
+            Console.ReadKey();
+        }
+
+        static void ConfigTest4()
+        {
+            var test = Router.fromConfig("hash1", (string msg) => Console.WriteLine(msg));
+            tell(test, "Hello");
 
             Console.WriteLine("Press any key");
             Console.ReadKey();

@@ -6,33 +6,33 @@ namespace LanguageExt.Config
 {
     public class ParserState
     {
-        public readonly Option<ClusterToken> Cluster;
+        public readonly Map<string, ClusterToken> Clusters;
         public readonly Map<string, ValueToken> Locals;
 
         public ParserState(
-            Option<ClusterToken> cluster,
+            Map<string, ClusterToken> clusters,
             Map<string, ValueToken> locals
             )
         {
-            Cluster = cluster;
+            Clusters = clusters;
             Locals = locals;
         }
 
-        public ParserState SetCluster(ClusterToken cluster) =>
-            new ParserState(cluster, Locals);
+        public ParserState AddCluster(string alias, ClusterToken cluster) =>
+            new ParserState(Map.addOrUpdate(Clusters, alias, cluster), Locals);
 
-        public ParserState SetCluster(Option<ClusterToken> cluster) =>
-            new ParserState(cluster, Locals);
+        public ParserState SetClusters(Map<string, ClusterToken> clusters) =>
+            new ParserState(clusters, Locals);
 
         public bool LocalExists(string name) =>
             Locals.ContainsKey(name);
 
         public ParserState AddLocal(string name, ValueToken value) =>
-            new ParserState(Cluster, Locals.Add(name,value));
+            new ParserState(Clusters, Locals.Add(name,value));
 
         public Option<ValueToken> Local(string name) =>
             Locals.Find(name);
 
-        public static readonly ParserState Empty = new ParserState(None, Map.empty<string, ValueToken>());
+        public static readonly ParserState Empty = new ParserState(Map.empty<string,ClusterToken>(), Map.empty<string, ValueToken>());
     }
 }

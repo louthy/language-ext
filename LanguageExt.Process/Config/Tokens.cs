@@ -67,9 +67,6 @@ namespace LanguageExt.Config
         public Option<T> GetItem<T>(string name) =>
             ToList().Filter(nv => nv.Name == name).Map(nv => (T)nv.Value.Value).HeadOrNone();
 
-        public ValueToken AddItem(string name, ValueToken val) =>
-            new ValueToken(Type, ToList().Add(new NamedValueToken(name, val)));
-
         public T Cast<T>() => (T)Value;
              
     }
@@ -77,16 +74,15 @@ namespace LanguageExt.Config
     public class NamedValueToken
     {
         public readonly string Name;
+        public readonly Option<string> Alias;
         public readonly ValueToken Value;
 
-        public NamedValueToken(string name, ValueToken value)
+        public NamedValueToken(string name, ValueToken value, Option<string> alias)
         {
             Name = name;
             Value = value;
+            Alias = alias;
         }
-
-        public NamedValueToken AddItem(string name, ValueToken val) =>
-            new NamedValueToken(Name, Value.AddItem(name,val));
     }
 
     public class ProcessToken
@@ -146,36 +142,39 @@ namespace LanguageExt.Config
         }
 
         public ProcessToken SetRegisteredName(ValueToken registeredName) =>
-        new ProcessToken(
-            ProcessId, 
-            Flags, 
-            MailboxSize, 
-            Strategy,
-            Settings.AddOrUpdate("register-as", registeredName),
-            (ProcessName)registeredName.Value, 
-            Dispatch, 
-            Route, 
-            Workers, 
-            WorkerCount, 
-            WorkerName
-        );
+            new ProcessToken(
+                ProcessId, 
+                Flags, 
+                MailboxSize, 
+                Strategy,
+                Settings.AddOrUpdate("register-as", registeredName),
+                (ProcessName)registeredName.Value, 
+                Dispatch, 
+                Route, 
+                Workers, 
+                WorkerCount, 
+                WorkerName
+            );
 
         Option<T> GetValue<T>(string name) =>
-           Settings.Find(name).Map(tok => (T)tok.Value);
+           Settings.Find(name).Map(tok => tok.Cast<T>());
     }
 
     public class ClusterToken
     {
         public readonly Map<string, ValueToken> Settings;
+        public readonly Option<string> Alias;
         public readonly Option<string> NodeName;
         public readonly Option<string> Role;
         public readonly Option<string> Connection;
         public readonly Option<string> Database;
         public readonly Option<string> Env;
         public readonly Option<string> UserEnv;
+        public readonly bool Default;
 
-        public ClusterToken(Lst<NamedValueToken> values)
+        public ClusterToken(Option<string> alias, Lst<NamedValueToken> values)
         {
+            Alias = alias;
             Settings = Map.createRange(values.Map(x => Tuple(x.Name, x.Value)));
             NodeName = GetValue<string>("node-name");
             Role = GetValue<string>("role");
@@ -183,6 +182,7 @@ namespace LanguageExt.Config
             Database = GetValue<string>("database");
             Env = GetValue<string>("env");
             UserEnv = GetValue<string>("user-env");
+            Default = GetValue<bool>("default").IfNone(false);
 
             if (NodeName.IsNone) throw new Exception("cluster requires a 'node-name' attribute");
             if (Role.IsNone) throw new Exception("cluster requires a 'role' attribute");
@@ -221,7 +221,7 @@ namespace LanguageExt.Config
             );
 
         Option<T> GetValue<T>(string name) =>
-           Settings.Find(name).Map(tok => (T)tok.Value);
+           Settings.Find(name).Map(tok => tok.Cast<T>());
 
         public readonly static ClusterToken Empty =
             new ClusterToken(Map.empty<string, ValueToken>(), None, None, None, None, None, None);

@@ -7,14 +7,15 @@ using static LanguageExt.Map;
 namespace LanguageExt
 {
     /// <summary>
-    /// 
+    /// <para>
     ///     Process:  Tell functions
-    /// 
+    /// </para>
+    /// <para>
     ///     'Tell' is used to send a message from one process to another (or from outside a process to a process).
     ///     The messages are sent to the process asynchronously and join the process' inbox.  The process will 
     ///     deal with one message from its inbox at a time.  It cannot start the next message until it's finished
     ///     with a previous message.
-    /// 
+    /// </para>
     /// </summary>
     public static partial class Process
     {
@@ -26,8 +27,8 @@ namespace LanguageExt
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         public static Unit tell<T>(ProcessId pid, T message, ProcessId sender = default(ProcessId)) =>
             message is UserControlMessage
-                ? ActorContext.TellUserControl(pid, message as UserControlMessage)
-                : ActorContext.Tell(pid, message, sender);
+                ? ActorContext.System(pid).TellUserControl(pid, message as UserControlMessage)
+                : ActorContext.System(pid).Tell(pid, message, sender);
 
         /// <summary>
         /// Send a message to a process
@@ -36,7 +37,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         internal static Unit tellSystem<T>(ProcessId pid, T message, ProcessId sender = default(ProcessId)) =>
-            ActorContext.TellSystem(pid, message as SystemMessage);
+            ActorContext.System(pid).TellSystem(pid, message as SystemMessage);
 
         /// <summary>
         /// Send a message at a specified time in the future
@@ -54,7 +55,8 @@ namespace LanguageExt
         /// Send a message at a specified time in the future
         /// </summary>
         /// <remarks>
-        /// This will fail to be accurate across a Daylight Saving Time boundary
+        /// It is advised to use the variant that takes a TimeSpan, this will fail to be accurate across a Daylight Saving 
+        /// Time boundary or if you use non-UTC dates
         /// </remarks>
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>

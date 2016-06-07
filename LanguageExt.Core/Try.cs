@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using LanguageExt;
 using LanguageExt.Trans;
@@ -717,5 +718,16 @@ public static class __TryExt
                 }
             }
         );
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static IEnumerable<V> SelectMany<T, U, V>(this Try<T> self,
+        Func<T, IEnumerable<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        var resT = self.Try();
+        if (resT.IsFaulted) return new V[0];
+        return bind(resT.Value).Map(resU => project(resT.Value, resU));
     }
 }
