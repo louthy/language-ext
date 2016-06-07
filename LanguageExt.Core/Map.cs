@@ -317,6 +317,14 @@ namespace LanguageExt
             map.Find(key);
 
         /// <summary>
+        /// Retrieve a value from the map by key as an enumerable
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found value</returns>
+        public static IEnumerable<V> findSeq<K, V>(Map<K, V> map, K key) =>
+            map.FindSeq(key);
+
+        /// <summary>
         /// Retrieve a value from the map by key and pattern match the
         /// result.
         /// </summary>

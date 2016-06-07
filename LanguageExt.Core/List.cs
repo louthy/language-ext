@@ -600,6 +600,27 @@ namespace LanguageExt
         }
 
         /// <summary>
+        /// Returns [x] for the first item in the list that matches the predicate 
+        /// provided, [] otherwise.
+        /// </summary>
+        /// <typeparam name="T">Enumerable item type</typeparam>
+        /// <param name="list">Enumerable to search</param>
+        /// <param name="pred">Predicate</param>
+        /// <returns>[x] for the first item in the list that matches the predicate 
+        /// provided, [] otherwise.</returns>
+        public static IEnumerable<T> findSeq<T>(IEnumerable<T> list, Func<T, bool> pred)
+        {
+            foreach (var item in list)
+            {
+                if (pred(item))
+                {
+                    yield return item;
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
         /// Convert any enumerable into an immutable Lst T
         /// </summary>
         /// <typeparam name="T">Enumerable item type</typeparam>
@@ -1607,6 +1628,18 @@ public static class __EnumnerableExt
         LanguageExt.List.find(list, pred);
 
     /// <summary>
+    /// Returns [x] for the first item in the list that matches the predicate 
+    /// provided, [] otherwise.
+    /// </summary>
+    /// <typeparam name="T">Enumerable item type</typeparam>
+    /// <param name="list">Enumerable to search</param>
+    /// <param name="pred">Predicate</param>
+    /// <returns>[x] for the first item in the list that matches the predicate 
+    /// provided, [] otherwise.</returns>
+    public static IEnumerable<T> FindSeq<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
+        LanguageExt.List.findSeq(list, pred);
+
+    /// <summary>
     /// Convert any enumerable into an immutable Lst T
     /// </summary>
     /// <typeparam name="T">Enumerable item type</typeparam>
@@ -1758,8 +1791,27 @@ public static class __EnumnerableExt
     /// <summary>
     /// LINQ bind implementation for Lst
     /// </summary>
-    public static Lst<V> SelectMany<T, U, V>(this Lst<T> self, Func<T, Lst<U>> bind, Func<T, U, V> project)
+    public static Lst<V> SelectMany<T, U, V>(this Lst<T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) =>
+        self.Bind(t => bind(t).Map(u => project(t,u)));
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Lst<V> SelectMany<T, U, V>(this Lst<T> self,
+        Func<T, IEnumerable<U>> bind,
+        Func<T, U, V> project
+        )
     {
-        return self.Bind(t => bind(t).Map(u => project(t,u)));
+        if (self.Count == 0) return Lst<V>.Empty;
+        return self.Bind(t => bind(t).Map(u => project(t, u))).Freeze();
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Lst<V> SelectMany<T, U, V>(this IEnumerable<T> self,
+        Func<T, Lst<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        var ta = self.Take(1).ToArray();
+        if (ta.Length == 0) return Lst<V>.Empty;
+        return self.Bind(t => bind(t).Map(u => project(t, u))).Freeze();
     }
 }

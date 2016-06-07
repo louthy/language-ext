@@ -682,4 +682,34 @@ public static class __TryOptionExt
             }
         );
     }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static IEnumerable<V> SelectMany<T, U, V>(this TryOption<T> self,
+        Func<T, IEnumerable<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        var resT = self.Try();
+        if (resT.IsFaulted || resT.Value.IsNone) return new V[0];
+        return bind(resT.Value.Value).Map(resU => project(resT.Value.Value, resU));
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static TryOption<V> SelectMany<T, U, V>(this IEnumerable<T> self,
+        Func<T, TryOption<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        return new TryOption<V>( () =>
+        {
+            var ta = self.Take(1).ToArray();
+            if (ta.Length == 0) return None;
+            var u = bind(ta[0]);
+            var resU = u.Try();
+            if (resU.IsFaulted) return new TryOptionResult<V>(resU.Exception);
+            if (resU.Value.IsNone) return new TryOptionResult<V>(None);
+            return Optional(project(ta[0], resU.Value.Value));
+        });
+    }
+
 }

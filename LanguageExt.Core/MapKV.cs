@@ -270,6 +270,14 @@ namespace LanguageExt
                 : MapModule.TryFind(Root, key, Comparer<K>.Default);
 
         /// <summary>
+        /// Retrieve a value from the map by key as an enumerable
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found value</returns>
+        public IEnumerable<V> FindSeq(K key) =>
+            Find(key).AsEnumerable();
+
+        /// <summary>
         /// Retrieve a value from the map by key and pattern match the
         /// result.
         /// </summary>

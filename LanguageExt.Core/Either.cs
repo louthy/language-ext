@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
@@ -1334,5 +1334,30 @@ public static class __EitherExt
         if (u.IsBottom) return Either<L, V>.Bottom;
         if (u.IsLeft) return Either<L, V>.Left(u.LeftValue);
         return project(self.RightValue, u.RightValue);
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static IEnumerable<V> SelectMany<L, T, U, V>(this Either<L, T> self,
+        Func<T, IEnumerable<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsBottom) return new V[0];
+        if (self.IsLeft) return new V[0];
+        return bind(self.RightValue).Map(u => project(self.RightValue, u));
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Either<L, V> SelectMany<L, T, U, V>(this IEnumerable<T> self,
+        Func<T, Either<L, U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        var ta = self.Take(1).ToArray();
+        if (ta.Length == 0) return Either<L,V>.Bottom;
+        var u = bind(ta[0]);
+        if (u.IsBottom) return Either<L, V>.Bottom;
+        if (u.IsLeft) return Either<L, V>.Left(u.LeftValue);
+        return project(ta[0], u.RightValue);
     }
 }

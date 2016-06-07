@@ -722,6 +722,29 @@ public static class __OptionExt
         return Optional(project(self.Value, resU.Value));
     }
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static IEnumerable<V> SelectMany<T, U, V>(this Option<T> self,
+        Func<T, IEnumerable<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return new V[0];
+        return bind(self.Value).Map(resU => project(self.Value, resU));
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Option<V> SelectMany<T, U, V>(this IEnumerable<T> self,
+        Func<T, Option<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        var ta = self.Take(1).ToArray();
+        if (ta.Length == 0) return None;
+        var resU = bind(ta[0]);
+        if (resU.IsNone) return None;
+        return Optional(project(ta[0], resU.Value));
+    }
+
     /// <summary>
     /// Match the two states of the Option and return a promise of a non-null R.
     /// </summary>
