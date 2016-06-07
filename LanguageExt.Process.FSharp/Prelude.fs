@@ -29,7 +29,7 @@ module ProcessFs =
     let Self = 
         new ProcessId("/__special__/self")
 
-    let Parent() = 
+    let Parent = 
         new ProcessId("/__special__/parent")
 
     let User = 
@@ -130,7 +130,7 @@ module ProcessFs =
     /// 
     ///     This should be used from within a process' message loop only
     let register name processId system = 
-        Process.register(new ProcessName(name), resolvePID(processId))
+        Process.register(new ProcessName(name), resolvePID processId)
 
     /// Deregister all Processes associated with a name. NOTE: Be very careful
     /// with usage of this function if you didn't handle the registration you
@@ -156,13 +156,13 @@ module ProcessFs =
     /// If you wish to deregister all ProcessIds registered under a name then
     /// use deregisterByName name
     let deregisterById pid = 
-        Process.deregisterById(pid |> resolvePID) |> ignore
+        Process.deregisterById(resolvePID pid) |> ignore
 
     let killSelf() = 
         Process.kill |> ignore
 
     let kill pid = 
-        Process.kill(pid |> resolvePID) |> ignore
+        Process.kill(resolvePID pid) |> ignore
 
     let shutdownAll() = 
         Process.shutdownAll() |> ignore
@@ -184,7 +184,7 @@ module ProcessFs =
         Process.replyOrTellSender msg |> ignore
 
     let ask pid (message : 'a) : 'b = 
-        Process.ask<'b>(pid |> resolvePID, message)
+        Process.ask<'b>(resolvePID pid, message)
 
     let askChildren (message : 'a) : 'b seq = 
         Process.askChildren<'b>(message,Int32.MaxValue)
@@ -205,28 +205,28 @@ module ProcessFs =
         Process.askChild(index, message)
 
     let tell pid message sender = 
-        Process.tell(pid |> resolvePID,message,sender) |> ignore
+        Process.tell(resolvePID pid,message,resolvePID sender) |> ignore
 
     let tellDelay pid message (delay:TimeSpan) sender = 
-        Process.tell(pid |> resolvePID,message,delay,sender)
+        Process.tell(resolvePID pid,message,delay,resolvePID sender)
 
     let tellChildren message sender = 
-        Process.tellChildren(message,sender) |> ignore
+        Process.tellChildren(message,resolvePID sender) |> ignore
 
     let tellChildrenDelay message (delay:TimeSpan) sender = 
-        Process.tellChildren(message,delay,sender)
+        Process.tellChildren(message,delay,resolvePID sender)
 
     let tellChild name message sender = 
-        Process.tellChild(new ProcessName(name), message, sender) |> ignore
+        Process.tellChild(new ProcessName(name), message, resolvePID sender) |> ignore
 
     let tellChildByIndex (index:int) message sender = 
-        Process.tellChild(index, message, sender) |> ignore
+        Process.tellChild(index, message, resolvePID sender) |> ignore
 
     let tellParent message sender = 
-        Process.tellParent (message, sender) |> ignore
+        Process.tellParent (message, resolvePID sender) |> ignore
     
     let tellParentDelay message (delay:TimeSpan) sender = 
-        Process.tellParent(message,delay, sender)
+        Process.tellParent(message,delay, resolvePID sender)
 
     let tellSelf message = 
         Process.tellSelf(message,Process.Self) |> ignore
@@ -238,13 +238,13 @@ module ProcessFs =
         Process.publish message |> ignore
     
     let publishDelay message (delay:TimeSpan) = 
-        Process.publish(message,delay) |> ignore
+        Process.publish(message, delay) |> ignore
     
     let subscribe pid = 
-        Process.subscribe(pid |> resolvePID) |> ignore
+        Process.subscribe(resolvePID pid) |> ignore
     
     let observe pid = 
-        Process.observe(pid |> resolvePID);
+        Process.observe(resolvePID pid);
 
     let spawn name flags setup messageHandler = 
         Process.spawn(new ProcessName(name), new Func<'state>(setup), new Func<'state, 'msg, 'state>(messageHandler), flags)
