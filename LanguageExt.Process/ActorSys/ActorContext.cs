@@ -76,12 +76,9 @@ namespace LanguageExt
         {
             lock (sync)
             {
-                while (systems.Any())
-                {
-                    var head = systems.Map(x => x.Key).FirstOrDefault();
-                    StopSystem(head);
-                }
-                return unit;
+                return systems.Freeze()
+                              .Map(x=>x.Key)
+                              .Iter(sys => StopSystem(sys));
             }
         }
 
