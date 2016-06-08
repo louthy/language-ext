@@ -72,9 +72,21 @@ namespace LanguageExt
         /// <summary>
         /// Create an immutable map
         /// </summary>
+        public static Map<K, V> Map<K, V>(IEnumerable<Tuple<K, V>> items) =>
+            LanguageExt.Map.createRange(items);
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
         public static Map<K, V> Map<K, V>(params KeyValuePair<K, V>[] items) =>
             LanguageExt.Map.createRange(from x in items
                                         select Tuple(x.Key, x.Value));
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        public static Map<K, V> Map<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
+            LanguageExt.Map.createRange(items);
 
         /// <summary>
         /// Create an immutable list

@@ -44,6 +44,12 @@ namespace LanguageExt
             empty<K, V>().AddRange(keyValues);
 
         /// <summary>
+        /// Creates a new Map seeded with the keyValues provided
+        /// </summary>
+        public static Map<K, V> createRange<K, V>(IEnumerable<KeyValuePair<K, V>> keyValues) =>
+            empty<K, V>().AddRange(keyValues);
+
+        /// <summary>
         /// Atomically adds a new item to the map
         /// </summary>
         /// <remarks>Null is not allowed for a Key or a Value</remarks>
@@ -518,6 +524,40 @@ namespace LanguageExt
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         public static bool exists<K, V>(Map<K, V> map, Func<V, bool> pred) =>
             map.Exists(pred);
+
+        /// <summary>
+        /// Convert any IDictionary into an immutable Map K V
+        /// </summary>
+        public static Map<K,V> freeze<K, V>(IDictionary<K,V> dict) =>
+            dict is Map<K, V>
+                ? (Map<K,V>)dict
+                : Map(dict.AsEnumerable());
+
+        /// <summary>
+        /// Convert any IDictionary into an immutable Map K V
+        /// </summary>
+        public static Map<K, V> Freeze<K, V>(this IDictionary<K, V> dict) =>
+            dict is Map<K, V>
+                ? (Map<K,V>)dict
+                : Map(dict.AsEnumerable());
+
+        /// <summary>
+        /// Convert any IDictionary into an immutable Map K V
+        /// </summary>
+        public static Map<K2, V> Freeze<K1, K2, V>(this IDictionary<K1, V> dict, Func<K1,K2> keymap) =>
+            Map(dict.AsEnumerable().Map((kv) => Tuple(keymap(kv.Key),kv.Value)));
+
+        /// <summary>
+        /// Convert any IDictionary into an immutable Map K V
+        /// </summary>
+        public static Map<K, V2> Freeze<K, V1, V2>(this IDictionary<K, V1> dict, Func<V1, V2> valuemap) =>
+            Map(dict.AsEnumerable().Map((kv) => Tuple(kv.Key, valuemap(kv.Value))));
+
+        /// <summary>
+        /// Convert any IDictionary into an immutable Map K V
+        /// </summary>
+        public static Map<K2, V2> Freeze<K1, K2, V1, V2>(this IDictionary<K1, V1> dict, Func<K1, K2> keymap, Func<V1, V2> valuemap) =>
+            Map(dict.AsEnumerable().Map((kv) => Tuple(keymap(kv.Key), valuemap(kv.Value))));
     }
 }
 
