@@ -1,5 +1,5 @@
 {
-  "version": "1.8.9-beta",
+  "version": "1.8.10-beta",
   "authors": [ "Paul Louth" ],
   "owners": [ "paullouth" ],
   "title": "LanguageExt.Parsec",
@@ -24,7 +24,7 @@
     }
   },
   "dependencies": {
-    "LanguageExt.Core": "1.8.9-beta"
+    "LanguageExt.Core": "1.8.10-beta"
   },
   "frameworks": {
     "net45": {

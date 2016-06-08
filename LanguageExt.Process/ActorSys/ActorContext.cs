@@ -226,16 +226,16 @@ namespace LanguageExt
 
         public static ProcessId ResolvePID(ProcessId pid)
         {
-            if (pid.Path == "/__special__/self" && Request == null) return System(context).User;
+            if (pid.Path == "/__special__/self" && Request == null) return DefaultSystem.User;
             if (pid.Path == "/__special__/self" && Request != null) return ActorContext.Self;
             if (pid.Path == "/__special__/sender" && Request == null) return ProcessId.NoSender;
             if (pid.Path == "/__special__/sender" && Request != null) return Request.Sender;
-            if (pid.Path == "/__special__/parent" && Request == null) return System(context).User;
+            if (pid.Path == "/__special__/parent" && Request == null) return DefaultSystem.User;
             if (pid.Path == "/__special__/parent" && Request != null) return Request.Parent.Actor.Id;
-            if (pid.Path == "/__special__/user") return System(context).User;
+            if (pid.Path == "/__special__/user") return DefaultSystem.User;
             if (pid.Path == "/__special__/dead-letters") return System(context).DeadLetters;
-            if (pid.Path == "/__special__/root") return System(context).Root;
-            if (pid.Path == "/__special__/errors") return System(context).Errors;
+            if (pid.Path == "/__special__/root") return DefaultSystem.Root;
+            if (pid.Path == "/__special__/errors") return DefaultSystem.Errors;
             return pid;
         }
     }
