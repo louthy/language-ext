@@ -21,7 +21,7 @@ namespace LanguageExt
     ///     Metres : NewType<double>
     ///     Hours : NewType<double>
     /// </summary>
-    public class NewType<T> : 
+    public abstract class NewType<T> : 
         IEquatable<NewType<T>>, 
         IComparable<NewType<T>>,
 #if !COREFX

@@ -76,8 +76,8 @@ namespace LanguageExt
         {
             lock (sync)
             {
-                return systems.Freeze()
-                              .Map(x=>x.Key)
+                return systems.Keys
+                              .Freeze()
                               .Iter(sys => StopSystem(sys));
             }
         }
