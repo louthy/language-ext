@@ -540,24 +540,6 @@ namespace LanguageExt
             dict is Map<K, V>
                 ? (Map<K,V>)dict
                 : Map(dict.AsEnumerable());
-
-        /// <summary>
-        /// Convert any IDictionary into an immutable Map K V
-        /// </summary>
-        public static Map<K2, V> Freeze<K1, K2, V>(this IDictionary<K1, V> dict, Func<K1,K2> keymap) =>
-            Map(dict.AsEnumerable().Map((kv) => Tuple(keymap(kv.Key),kv.Value)));
-
-        /// <summary>
-        /// Convert any IDictionary into an immutable Map K V
-        /// </summary>
-        public static Map<K, V2> Freeze<K, V1, V2>(this IDictionary<K, V1> dict, Func<V1, V2> valuemap) =>
-            Map(dict.AsEnumerable().Map((kv) => Tuple(kv.Key, valuemap(kv.Value))));
-
-        /// <summary>
-        /// Convert any IDictionary into an immutable Map K V
-        /// </summary>
-        public static Map<K2, V2> Freeze<K1, K2, V1, V2>(this IDictionary<K1, V1> dict, Func<K1, K2> keymap, Func<V1, V2> valuemap) =>
-            Map(dict.AsEnumerable().Map((kv) => Tuple(keymap(kv.Key), valuemap(kv.Value))));
     }
 }
 
