@@ -1,5 +1,5 @@
 {
-  "version": "1.8.11-beta",
+  "version": "1.8.12-beta",
   "authors": [ "Paul Louth" ],
   "owners": [ "paullouth" ],
   "title": "LanguageExt.Process.Redis",
@@ -24,8 +24,8 @@
     }
   },
   "dependencies": {
-    "LanguageExt.Core": "1.8.11-beta",
-    "LanguageExt.Process": "1.8.11-beta",
+    "LanguageExt.Core": "1.8.12-beta",
+    "LanguageExt.Process": "1.8.12-beta",
     "Newtonsoft.Json": "7.0.1",
     "Rx-Main": "2.2.5.0"
   },

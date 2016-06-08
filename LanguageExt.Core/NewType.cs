@@ -23,11 +23,13 @@ namespace LanguageExt
     /// </summary>
     public class NewType<T> : 
         IEquatable<NewType<T>>, 
-        IComparable<NewType<T>>, 
+        IComparable<NewType<T>>,
+#if !COREFX
         IAppendable<NewType<T>>,
         ISubtractable<NewType<T>>,
         IMultiplicable<NewType<T>>,
         IDivisible<NewType<T>>,
+#endif
         INewType
     {
         public readonly T Value;
@@ -90,6 +92,16 @@ namespace LanguageExt
                 ? lhs.CompareTo(rhs) <= 0
                 : failwith<bool>("Mismatched NewTypes in used with '<='");
 
+        public NewType<T> Bind(Func<T, NewType<T>> bind)
+        {
+            var ures = bind(Value);
+            if (GetType() != ures.GetType()) throw new Exception("LINQ statement with mismatched NewTypes");
+            return ures;
+        }
+#if !COREFX
+        public NewType<T> Map(Func<T, T> map) =>
+            Select(map);
+
         public static NewType<T> operator +(NewType<T> lhs, NewType<T> rhs) =>
             lhs.Append(rhs);
 
@@ -101,16 +113,6 @@ namespace LanguageExt
 
         public static NewType<T> operator *(NewType<T> lhs, NewType<T> rhs) =>
             lhs.Multiply(rhs);
-
-        public NewType<T> Map(Func<T, T> map) =>
-            Select(map);
-
-        public NewType<T> Bind(Func<T, NewType<T>> bind)
-        {
-            var ures = bind(Value);
-            if (GetType() != ures.GetType()) throw new Exception("LINQ statement with mismatched NewTypes");
-            return ures;
-        }
 
         public NewType<T> Fold<S>(S state, Func<S, T, S> folder) =>
             (NewType<T>)NewType.Construct(GetType(), folder(state, Value));
@@ -126,12 +128,6 @@ namespace LanguageExt
             var ures = bind(Value);
             if (GetType() != ures.GetType()) throw new Exception("LINQ statement with mismatched NewTypes");
             return (NewType<T>)NewType.Construct(GetType(), project(Value, ures.Value));
-        }
-
-        public Unit Iter(Action<T> f)
-        {
-            f(Value);
-            return unit;
         }
 
         public NewType<T> Append(NewType<T> rhs) =>
@@ -154,6 +150,14 @@ namespace LanguageExt
                 ? (NewType<T>)NewType.Construct(GetType(), TypeDesc.Multiply(Value, rhs.Value, TypeDesc<T>.Default))
                 : failwith<NewType<T>>("Mismatched NewTypes in multiply");
 
+#endif
+
+        public Unit Iter(Action<T> f)
+        {
+            f(Value);
+            return unit;
+        }
+
         public NT As<NT>() where NT : NewType<T> =>
             GetType() == typeof(NT)
                 ? (NT)this
@@ -163,22 +167,23 @@ namespace LanguageExt
             $"{GetType().Name}({Value})";
     }
 
-    public static class NewType
+#if !COREFX
+    internal static class NewType
     {
         static Map<string, ConstructorInfo> constructors = Map.empty<string, ConstructorInfo>();
-
         private static ConstructorInfo GetCtor(Type newType)
         {
             if (newType.Name == "NewType") throw new ArgumentException("Only use NewType.Contruct to build construct types derived from NewType<T>");
-            var ctors = (from c in newType.GetConstructors()
+            var ctors = (from c in newType.GetTypeInfo().GetConstructors()
                          where c.GetParameters().Length == 1
                          select c)
                         .ToArray();
 
+            if (ctors.Length == 0) throw new ArgumentException($"{newType.FullName} hasn't any one-argument constructors");
             if (ctors.Length > 1) throw new ArgumentException($"{newType.FullName} has more than one constructor with 1 parameter");
 
             var ctor = ctors.First();
-            constructors = constructors.AddOrUpdate(newType.FullName,ctor);
+            constructors = constructors.AddOrUpdate(newType.FullName, ctor);
             return ctor;
         }
 
@@ -188,5 +193,5 @@ namespace LanguageExt
         public static NewTypeT Construct<NewTypeT, T>(T arg) where NewTypeT : NewType<T> =>
             (NewTypeT)constructors.Find(typeof(NewTypeT).FullName).IfNone(GetCtor(typeof(NewTypeT))).Invoke(new object[] { arg });
     }
-
+#endif
 }

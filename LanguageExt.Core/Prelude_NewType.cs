@@ -8,17 +8,18 @@ namespace LanguageExt
 {
     public static partial class Prelude
     {
-        public static NewType<T> map<T>(NewType<T> value, Func<T, T> map) =>
-            value.Map(map);
-
-        public static NewType<T> fold<S, T>(NewType<T> value, S state, Func<S, T, S> folder) =>
-            value.Fold(state, folder);
-
         public static NewType<T> bind<T>(NewType<T> value, Func<T, NewType<T>> bind) =>
             value.Bind(bind);
 
         public static Unit iter<T>(NewType<T> value, Action<T> f) =>
             value.Iter(f);
+
+#if !COREFX
+        public static NewType<T> map<T>(NewType<T> value, Func<T, T> map) =>
+            value.Map(map);
+
+        public static NewType<T> fold<S, T>(NewType<T> value, S state, Func<S, T, S> folder) =>
+            value.Fold(state, folder);
 
         public static NewType<T> append<T>(NewType<T> value, NewType<T> rhs) =>
             value.Append(rhs);
@@ -31,5 +32,6 @@ namespace LanguageExt
 
         public static NewType<T> multiply<T>(NewType<T> value, NewType<T> rhs) =>
             value.Multiply(rhs);
+#endif
     }
 }

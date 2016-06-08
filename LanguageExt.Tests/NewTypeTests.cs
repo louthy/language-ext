@@ -58,6 +58,7 @@ namespace LanguageExtTests
             Assert.Throws<Exception>(() => h1 >= m2);
         }
 
+#if !COREFX
         [Fact]
         public void LinqTest()
         {
@@ -105,5 +106,6 @@ namespace LanguageExtTests
             Assert.Throws<Exception>(() => m1 / h1);
             Assert.Throws<Exception>(() => m1 * h1);
         }
+#endif
     }
 }
