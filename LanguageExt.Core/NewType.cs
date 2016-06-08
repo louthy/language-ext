@@ -105,6 +105,16 @@ namespace LanguageExt
         public NewType<T> Map(Func<T, T> map) =>
             Select(map);
 
+        public NewType<T> Bind(Func<T, NewType<T>> bind)
+        {
+            var ures = bind(Value);
+            if (GetType() != ures.GetType()) throw new Exception("LINQ statement with mismatched NewTypes");
+            return ures;
+        }
+
+        public NewType<T> Fold<S>(S state, Func<S, T, S> folder) =>
+            (NewType<T>)NewType.Construct(GetType(), folder(state, Value));
+
         public NewType<T> Select(Func<T, T> map) =>
             (NewType<T>)NewType.Construct(GetType(), map(Value));
 
@@ -130,22 +140,24 @@ namespace LanguageExt
                 : failwith<NewType<T>>("Mismatched NewTypes in append/add");
 
         public NewType<T> Subtract(NewType<T> rhs) =>
-            this.GetType() == rhs.GetType()
+            GetType() == rhs.GetType()
                 ? (NewType<T>)NewType.Construct(GetType(), TypeDesc.Subtract(Value, rhs.Value, TypeDesc<T>.Default))
                 : failwith<NewType<T>>("Mismatched NewTypes in subtract");
 
         public NewType<T> Divide(NewType<T> rhs) =>
-            this.GetType() == rhs.GetType()
+            GetType() == rhs.GetType()
                 ? (NewType<T>)NewType.Construct(GetType(), TypeDesc.Divide(Value, rhs.Value, TypeDesc<T>.Default))
                 : failwith<NewType<T>>("Mismatched NewTypes in divide");
 
         public NewType<T> Multiply(NewType<T> rhs) =>
-            this.GetType() == rhs.GetType()
+            GetType() == rhs.GetType()
                 ? (NewType<T>)NewType.Construct(GetType(), TypeDesc.Multiply(Value, rhs.Value, TypeDesc<T>.Default))
                 : failwith<NewType<T>>("Mismatched NewTypes in multiply");
 
-        public NT Cast<NT>() where NT : NewType<T> =>
-            (NT)this;
+        public NT As<NT>() where NT : NewType<T> =>
+            GetType() == typeof(NT)
+                ? (NT)this
+                : failwith<NT>("Mismatched NewTypes cast");
 
         public override string ToString() =>
             $"{GetType().Name}({Value})";
