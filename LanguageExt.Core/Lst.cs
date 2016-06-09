@@ -33,6 +33,7 @@ namespace LanguageExt
 
         internal readonly ListItem<T> Root;
         internal readonly bool Rev;
+        internal int HashCode;
 
         /// <summary>
         /// Ctor
@@ -370,6 +371,35 @@ namespace LanguageExt
             (from y in rhs.AsEnumerable()
              from x in this.AsEnumerable()
              select TypeDesc.Divide(x, y, TypeDesc<T>.Default)).Freeze();
+
+        public override bool Equals(object obj) =>
+            !ReferenceEquals(obj,null) && 
+            obj is Lst<T> && 
+            Equals((Lst<T>)obj);
+
+        /// <summary>
+        /// Get the hash code
+        /// Lazily (and once only) calculates the hash from the elements in the list
+        /// Empty list hash == 0
+        /// </summary>
+        public override int GetHashCode()
+        {
+            if (Count == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                if (HashCode == 0)
+                {
+                    unchecked
+                    {
+                        HashCode = Fold(7, (s, x) => s + x.GetHashCode() * 13);
+                    }
+                }
+                return HashCode;
+            }
+        }
 
         public bool Equals(Lst<T> other)
         {

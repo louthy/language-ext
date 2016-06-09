@@ -18,8 +18,9 @@ namespace LanguageExt
     /// https://wiki.haskell.org/Newtype
     /// Derive type from this one to get: Equatable, Comparable, Appendable, Subtractable, 
     /// Multiplicable, Divisible strongly typed values.  For example:
-    ///     Metres : NewType<double>
-    ///     Hours : NewType<double>
+    ///     class Metres : NewType<double>
+    ///     class Hours : NewType<double>
+    /// Will not accept null values
     /// </summary>
     public abstract class NewType<T> : 
         IEquatable<NewType<T>>, 
@@ -36,22 +37,23 @@ namespace LanguageExt
 
         public NewType(T value)
         {
+            if (isnull(value)) throw new ArgumentNullException(nameof(value));
             Value = value;
         }
 
         public int CompareTo(NewType<T> other) =>
-            !Object.ReferenceEquals(other, null) &&
-            this.GetType() == other.GetType()
+            !ReferenceEquals(other, null) &&
+            GetType() == other.GetType()
                 ? Comparer<T>.Default.Compare(Value, other.Value)
-                : -1;
+                : failwith<int>("Mismatched NewTypes used in comparison");
 
         public bool Equals(NewType<T> other) =>
-            !Object.ReferenceEquals(other, null) &&
-            this.GetType() == other.GetType() &&
+            !ReferenceEquals(other, null) &&
+            GetType() == other.GetType() &&
             Value.Equals(other.Value);
 
         public override bool Equals(object obj) =>
-            !Object.ReferenceEquals(obj, null) &&
+            !ReferenceEquals(obj, null) &&
             obj is NewType<T> &&
             Equals((NewType<T>)obj);
 
@@ -67,30 +69,22 @@ namespace LanguageExt
         public static bool operator >(NewType<T> lhs, NewType<T> rhs) =>
             !ReferenceEquals(lhs, null) &&
             !ReferenceEquals(rhs, null) &&
-             lhs.GetType() == rhs.GetType()
-                ? lhs.CompareTo(rhs) > 0
-                : failwith<bool>("Mismatched NewTypes used with '>'");
+            lhs.CompareTo(rhs) > 0;
 
         public static bool operator >=(NewType<T> lhs, NewType<T> rhs) =>
             !ReferenceEquals(lhs, null) &&
             !ReferenceEquals(rhs, null) &&
-            lhs.GetType() == rhs.GetType()
-                ? lhs.CompareTo(rhs) >= 0
-                : failwith<bool>("Mismatched NewTypes used with '>='");
+            lhs.CompareTo(rhs) >= 0;
 
         public static bool operator <(NewType<T> lhs, NewType<T> rhs) =>
             !ReferenceEquals(lhs, null) &&
             !ReferenceEquals(rhs, null) &&
-            lhs.GetType() == rhs.GetType()
-                ? lhs.CompareTo(rhs) < 0
-                : failwith<bool>("Mismatched NewTypes in used with '>'");
+            lhs.CompareTo(rhs) < 0;
 
         public static bool operator <=(NewType<T> lhs, NewType<T> rhs) =>
             !ReferenceEquals(lhs, null) &&
             !ReferenceEquals(rhs, null) &&
-            lhs.GetType() == rhs.GetType()
-                ? lhs.CompareTo(rhs) <= 0
-                : failwith<bool>("Mismatched NewTypes in used with '<='");
+            lhs.CompareTo(rhs) <= 0;
 
         public NewType<T> Bind(Func<T, NewType<T>> bind)
         {
@@ -98,6 +92,15 @@ namespace LanguageExt
             if (GetType() != ures.GetType()) throw new Exception("LINQ statement with mismatched NewTypes");
             return ures;
         }
+
+        public bool Exists(Func<T, bool> predicate) =>
+            predicate(Value);
+
+        public bool ForAll(Func<T, bool> predicate) =>
+            predicate(Value);
+
+        public int Count() => 1;
+
 #if !COREFX
         public NewType<T> Map(Func<T, T> map) =>
             Select(map);
@@ -114,9 +117,6 @@ namespace LanguageExt
         public static NewType<T> operator *(NewType<T> lhs, NewType<T> rhs) =>
             lhs.Multiply(rhs);
 
-        public NewType<T> Fold<S>(S state, Func<S, T, S> folder) =>
-            (NewType<T>)NewType.Construct(GetType(), folder(state, Value));
-
         public NewType<T> Select(Func<T, T> map) =>
             (NewType<T>)NewType.Construct(GetType(), map(Value));
 
@@ -131,7 +131,7 @@ namespace LanguageExt
         }
 
         public NewType<T> Append(NewType<T> rhs) =>
-            this.GetType() == rhs.GetType()
+            GetType() == rhs.GetType()
                 ? (NewType<T>)NewType.Construct(GetType(), TypeDesc.Append(Value, rhs.Value, TypeDesc<T>.Default))
                 : failwith<NewType<T>>("Mismatched NewTypes in append/add");
 
@@ -170,7 +170,7 @@ namespace LanguageExt
 #if !COREFX
     internal static class NewType
     {
-        static Map<string, ConstructorInfo> constructors = Map.empty<string, ConstructorInfo>();
+        static Map<Type, ConstructorInfo> constructors = Map.empty<Type, ConstructorInfo>();
         private static ConstructorInfo GetCtor(Type newType)
         {
             if (newType.Name == "NewType") throw new ArgumentException("Only use NewType.Contruct to build construct types derived from NewType<T>");
@@ -183,15 +183,24 @@ namespace LanguageExt
             if (ctors.Length > 1) throw new ArgumentException($"{newType.FullName} has more than one constructor with 1 parameter");
 
             var ctor = ctors.First();
-            constructors = constructors.AddOrUpdate(newType.FullName, ctor);
+            constructors = constructors.AddOrUpdate(newType, ctor);
             return ctor;
         }
 
         public static object Construct(Type newTypeT, object arg) =>
-            constructors.Find(newTypeT.FullName).IfNone(GetCtor(newTypeT)).Invoke(new object[] { arg });
+            constructors.Find(newTypeT).IfNone(() => GetCtor(newTypeT)).Invoke(new object[] { arg });
 
         public static NewTypeT Construct<NewTypeT, T>(T arg) where NewTypeT : NewType<T> =>
-            (NewTypeT)constructors.Find(typeof(NewTypeT).FullName).IfNone(GetCtor(typeof(NewTypeT))).Invoke(new object[] { arg });
+            (NewTypeT)constructors.Find(typeof(NewTypeT)).IfNone(() => GetCtor(typeof(NewTypeT))).Invoke(new object[] { arg });
     }
 #endif
+}
+
+public static class __NewTypeExts
+{
+    public static S Fold<T, S>(this NewType<T> self, S state, Func<S, T, S> folder) =>
+        folder(state, self.Value);
+
+    public static int Sum(this NewType<int> self) =>
+        self.Value;
 }

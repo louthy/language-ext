@@ -14,11 +14,23 @@ namespace LanguageExt
         public static Unit iter<T>(NewType<T> value, Action<T> f) =>
             value.Iter(f);
 
+        public static int count<T>(NewType<T> value) =>
+            1;
+
+        public static int sum(NewType<int> value) =>
+            value.Value;
+
+        public static bool exists<T>(NewType<T> value, Func<T, bool> predicate) =>
+            predicate(value.Value);
+
+        public static bool forall<T>(NewType<T> value, Func<T, bool> predicate) =>
+            predicate(value.Value);
+
 #if !COREFX
         public static NewType<T> map<T>(NewType<T> value, Func<T, T> map) =>
             value.Map(map);
 
-        public static NewType<T> fold<S, T>(NewType<T> value, S state, Func<S, T, S> folder) =>
+        public static S fold<T, S>(NewType<T> value, S state, Func<S, T, S> folder) =>
             value.Fold(state, folder);
 
         public static NewType<T> append<T>(NewType<T> value, NewType<T> rhs) =>

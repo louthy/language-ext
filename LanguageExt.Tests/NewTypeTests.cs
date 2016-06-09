@@ -55,7 +55,7 @@ namespace LanguageExtTests
             Assert.Throws<Exception>(() => h1 > m2);
             Assert.Throws<Exception>(() => h1 < m2);
             Assert.Throws<Exception>(() => h1 >= m2);
-            Assert.Throws<Exception>(() => h1 >= m2);
+            Assert.Throws<Exception>(() => h1 <= m2);
         }
 
 #if !COREFX
@@ -76,9 +76,9 @@ namespace LanguageExtTests
 
             // Mixing types
             Assert.Throws<Exception>(() =>
-                res = from x in m1
-                      from y in h1
-                      select x + y
+                from x in m1
+                from y in h1
+                select x + y
                   );
         }
 
