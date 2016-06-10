@@ -72,14 +72,14 @@ namespace LanguageExt.Session
                     var type = Type.GetType(incoming.Type);
                     if (type == null)
                     {
-                        logErr("Session-value type not found: " + type);
+                        logErr("Session-value type not found: " + incoming.Type);
                     }
                     else
                     {
                         var value = Deserialise.Object(incoming.Value, type);
                         if (value == null)
                         {
-                            logErr("Session-value is null or failed to deserialise: " + value);
+                            logErr("Session-value is null or failed to deserialise: " + incoming.Value);
                         }
                         else
                         {
