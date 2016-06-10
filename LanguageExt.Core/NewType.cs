@@ -164,7 +164,7 @@ namespace LanguageExt
 
     internal static class NewType
     {
-        static Map<Type, ConstructorInfo> constructors = Map.empty<Type, ConstructorInfo>();
+        static Map<string, ConstructorInfo> constructors = Map.empty<string, ConstructorInfo>();
         private static ConstructorInfo GetCtor(Type newType)
         {
             if (newType.Name == "NewType") throw new ArgumentException("Only use NewType.Contruct to build construct types derived from NewType<T>");
@@ -177,15 +177,15 @@ namespace LanguageExt
             if (ctors.Length > 1) throw new ArgumentException($"{newType.FullName} has more than one constructor with 1 parameter");
 
             var ctor = ctors.First();
-            constructors = constructors.AddOrUpdate(newType, ctor);
+            constructors = constructors.AddOrUpdate(newType.FullName, ctor);
             return ctor;
         }
 
         public static object Construct(Type newTypeT, object arg) =>
-            constructors.Find(newTypeT).IfNone(() => GetCtor(newTypeT)).Invoke(new object[] { arg });
+            constructors.Find(newTypeT.FullName).IfNone(() => GetCtor(newTypeT)).Invoke(new object[] { arg });
 
         public static NewTypeT Construct<NewTypeT, T>(T arg) where NewTypeT : NewType<T> =>
-            (NewTypeT)constructors.Find(typeof(NewTypeT)).IfNone(() => GetCtor(typeof(NewTypeT))).Invoke(new object[] { arg });
+            (NewTypeT)constructors.Find(typeof(NewTypeT).FullName).IfNone(() => GetCtor(typeof(NewTypeT))).Invoke(new object[] { arg });
     }
 }
 

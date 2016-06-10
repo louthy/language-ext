@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Reflection;
+using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -13,14 +14,26 @@ namespace LanguageExt
     /// </summary>
     internal static class Deserialise
     {
-        static readonly Func<Type, MethodInfo> DeserialiseFunc =
-           memo<Type, MethodInfo>(type =>
-                typeof(JsonConvert).GetTypeInfo()
+        static Map<string, MethodInfo> funcs = Map.empty<string, MethodInfo>();
+
+        static MethodInfo DeserialiseFunc(Type type)
+        {
+            // No locks because we don't really care if it's done
+            // more than once, but we do care about locking unnecessarily.
+            var name = type.FullName;
+            var result = funcs.Find(name);
+            if (result.IsSome) return result.LiftUnsafe();
+
+            var func = typeof(JsonConvert).GetTypeInfo()
                                    .GetDeclaredMethods("DeserializeObject")
                                    .Filter(m => m.IsGenericMethod)
                                    .Filter(m => m.GetParameters().Length == 1)
                                    .Head()
-                                   .MakeGenericMethod(type));
+                                   .MakeGenericMethod(type);
+
+            funcs = funcs.AddOrUpdate(name, func);
+            return func;
+        }
 
         public static object Object(string value, Type type) =>
             DeserialiseFunc(type).Invoke(null, new[] { value });
