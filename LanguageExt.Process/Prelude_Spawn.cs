@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
@@ -332,7 +331,7 @@ namespace LanguageExt
         static S ProxyMsgInbox<S>(S process, ProxyMsg msg)
         {
             var types = msg.ArgTypes.Map(Type.GetType).ToArray();
-            var args = msg.Args.Map((i, x) => JsonConvert.DeserializeObject(x, types[i])).ToArray();
+            var args = msg.Args.Map((i, x) => Deserialise.Object(x, types[i])).ToArray();
             var method = process.GetType().GetMethod(msg.Method, types);
 
             var result = method.Invoke(process, args);

@@ -12,6 +12,7 @@ using LanguageExt;
 using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using System.Threading;
+using System.Reflection;
 
 namespace LanguageExt
 {
@@ -157,7 +158,7 @@ namespace LanguageExt
                 .Select(value => {
                     try
                     {
-                        return Some(JsonConvert.DeserializeObject(value, type));
+                        return Some(Deserialise(value, type));
                     }
                     catch
                     {
@@ -417,6 +418,18 @@ namespace LanguageExt
 
         IDatabase Db => 
             redis.GetDatabase(databaseNumber);
+
+        static readonly Func<Type, MethodInfo> DeserialiseFunc =
+           memo<Type, MethodInfo>(type =>
+                typeof(JsonConvert).GetMethods()
+                                   .Filter(m => m.IsGenericMethod)
+                                   .Filter(m => m.Name == "DeserializeObject")
+                                   .Filter(m => m.GetParameters().Length == 1)
+                                   .Head()
+                                   .MakeGenericMethod(type));
+
+        public static object Deserialise(string value, Type type) =>
+            DeserialiseFunc(type).Invoke(null, new[] { value });
 
         static T Retry<T>(Func<T> f)
         {

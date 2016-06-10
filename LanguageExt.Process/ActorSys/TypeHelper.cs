@@ -84,7 +84,7 @@ namespace LanguageExt
                 {
                     foreach (var type in inboxDeclaredType)
                     {
-                        var value = JsonConvert.DeserializeObject((string)message, type);
+                        var value = Deserialise.Object((string)message, type);
                         if( value != null)
                         {
                             return Right<string,object>(value);

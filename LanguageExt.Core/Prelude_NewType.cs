@@ -26,7 +26,6 @@ namespace LanguageExt
         public static bool forall<T>(NewType<T> value, Func<T, bool> predicate) =>
             predicate(value.Value);
 
-#if !COREFX
         public static NewType<T> map<T>(NewType<T> value, Func<T, T> map) =>
             value.Map(map);
 
@@ -44,6 +43,5 @@ namespace LanguageExt
 
         public static NewType<T> multiply<T>(NewType<T> value, NewType<T> rhs) =>
             value.Multiply(rhs);
-#endif
     }
 }

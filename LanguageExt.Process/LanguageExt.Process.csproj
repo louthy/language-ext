@@ -64,6 +64,7 @@
     <Compile Include="ActorSys\ActorInboxRemote.cs" />
     <Compile Include="ActorSys\ActorItem.cs" />
     <Compile Include="ActorSys\ActorRequestContext.cs" />
+    <Compile Include="ActorSys\Deserialise.cs" />
     <Compile Include="ActorSys\IActorSystem.cs" />
     <Compile Include="AppProfile.cs" />
     <Compile Include="ActorSys\CancelShutdown.cs" />

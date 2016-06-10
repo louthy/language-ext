@@ -15,6 +15,7 @@ namespace LanguageExt.Tests
         Return<int> NoReply(string msg);
         Return<int> NoReply2(string msg);
         Return<int> MsgLength(string msg);
+        Option<int> TestOption(Option<int> msg);
     }
 
     public class MyProcess : IMyProcess
@@ -49,6 +50,9 @@ namespace LanguageExt.Tests
             else
                 return msg.Length;
         }
+
+        public Option<int> TestOption(Option<int> value) =>
+            value;
     }
 
     public class ProcessProxies
@@ -58,12 +62,12 @@ namespace LanguageExt.Tests
         {
             lock (ProcessTests.sync)
             {
-                Process.shutdownAll();
+                shutdownAll();
                 ProcessConfig.initialise();
 
-                var pid = Process.spawn<MyProcess>("proxy-test1");
+                var pid = spawn<MyProcess>("proxy-test1");
 
-                var proxy = Process.proxy<IMyProcess>(pid);
+                var proxy = proxy<IMyProcess>(pid);
 
                 proxy.Hello("Hello");
                 int res = proxy.World("World");
@@ -77,10 +81,10 @@ namespace LanguageExt.Tests
         {
             lock (ProcessTests.sync)
             {
-                Process.shutdownAll();
+                shutdownAll();
                 ProcessConfig.initialise();
 
-                var proxy = Process.spawn<IMyProcess>("proxy-test2", () => new MyProcess());
+                var proxy = spawn<IMyProcess>("proxy-test2", () => new MyProcess());
 
                 proxy.Hello("Hello");
                 int res = proxy.World("World");
@@ -94,12 +98,26 @@ namespace LanguageExt.Tests
         {
             lock (ProcessTests.sync)
             {
-                Process.shutdownAll();
+                shutdownAll();
                 ProcessConfig.initialise();
 
-                var proxy = Process.spawn<IMyProcess>("proxy-test3", () => new MyProcess());
+                var proxy = spawn<IMyProcess>("proxy-test3", () => new MyProcess());
 
                 Assert.True(proxy.MsgLength("Hello") == 5);
+            }
+        }
+
+        [Fact]
+        public void ProxyOptionTest1()
+        {
+            lock (ProcessTests.sync)
+            {
+                shutdownAll();
+                ProcessConfig.initialise();
+
+                var proxy = spawn<IMyProcess>("proxy-test4", () => new MyProcess());
+
+                Assert.True(proxy.TestOption(123) == 123);
             }
         }
     }

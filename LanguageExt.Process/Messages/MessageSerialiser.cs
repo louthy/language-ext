@@ -73,7 +73,7 @@ namespace LanguageExt
                     throw new Exception($"Can't resolve type: {msg.ContentType}");
                 }
 
-                content = JsonConvert.DeserializeObject(msg.Content, contentType);
+                content = Deserialise.Object(msg.Content, contentType);
             }
 
             return content;

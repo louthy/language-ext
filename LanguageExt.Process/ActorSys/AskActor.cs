@@ -52,11 +52,11 @@ namespace LanguageExt
                                 {
                                     if (res.Message is string)
                                     {
-                                        ex = (Exception)JsonConvert.DeserializeObject(res.Message.ToString(), msgtype);
+                                        ex = (Exception)Deserialise.Object(res.Message.ToString(), msgtype);
                                     }
                                     else
                                     {
-                                        ex = (Exception)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(res.Message), msgtype);
+                                        ex = (Exception)Deserialise.Object(JsonConvert.SerializeObject(res.Message), msgtype);
                                     }
                                 }
                             }

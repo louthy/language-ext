@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Runtime.Serialization.Formatters;
+using System.Reflection;
 
 namespace LanguageExt
 {
@@ -22,7 +23,8 @@ namespace LanguageExt
             new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.All,
-                TypeNameAssemblyFormat = FormatterAssemblyStyle.Full
+                TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
+                MissingMemberHandling = MissingMemberHandling.Ignore
             };
 
         public readonly static ActorSystemConfig Default =

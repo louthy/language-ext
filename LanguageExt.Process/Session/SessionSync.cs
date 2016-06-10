@@ -69,7 +69,23 @@ namespace LanguageExt.Session
                     Stop(incoming.SessionId);
                     break;
                 case SessionActionTag.SetData:
-                    SetData(incoming.SessionId, incoming.Key, JsonConvert.DeserializeObject(incoming.Value), incoming.Time);
+                    var type = Type.GetType(incoming.Type);
+                    if (type == null)
+                    {
+                        logErr("Session-value type not found: " + type);
+                    }
+                    else
+                    {
+                        var value = Deserialise.Object(incoming.Value, type);
+                        if (value == null)
+                        {
+                            logErr("Session-value is null or failed to deserialise: " + value);
+                        }
+                        else
+                        {
+                            SetData(incoming.SessionId, incoming.Key, value, incoming.Time);
+                        }
+                    }
                     break;
                 case SessionActionTag.ClearData:
                     ClearData(incoming.SessionId, incoming.Key, incoming.Time);

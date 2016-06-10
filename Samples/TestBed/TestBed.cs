@@ -11,6 +11,8 @@ using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.Runtime.Serialization.Formatters;
 
 // ************************************************************************************
 // 
@@ -32,6 +34,35 @@ namespace TestBed
             StopStartImpl();
             StopStartImpl();
             StopStartImpl();
+        }
+
+        public static readonly JsonSerializerSettings JsonSerializerSettings =
+            new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.All,
+                TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+        class Hours : NewType<int> { public Hours(int value) : base(value) { } }
+
+        internal static void SerialiseDeserialiseCoreTypes()
+        {
+            var h1 = JsonConvert.SerializeObject(new Hours(2), JsonSerializerSettings);
+
+            var method = typeof(JsonConvert).GetMethods()
+                                            .Filter(m => m.IsGenericMethod)
+                                            .Filter(m => m.Name == "DeserializeObject")
+                                            .Filter(m => m.GetParameters().Length == 1)
+                                            .Head();
+
+            var h2 = method.MakeGenericMethod(typeof(Hours)).Invoke(null, new[] { h1 });
+
+            var x = Some(123);
+            var y = Option<int>.None;
+
+            var str = JsonConvert.SerializeObject(x, JsonSerializerSettings);
+            var z = method.MakeGenericMethod(typeof(Option<int>)).Invoke(null, new[] { str });
         }
 
         public static void StopStartImpl()

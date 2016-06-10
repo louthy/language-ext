@@ -25,12 +25,10 @@ namespace LanguageExt
     public abstract class NewType<T> : 
         IEquatable<NewType<T>>, 
         IComparable<NewType<T>>,
-#if !COREFX
         IAppendable<NewType<T>>,
         ISubtractable<NewType<T>>,
         IMultiplicable<NewType<T>>,
         IDivisible<NewType<T>>,
-#endif
         INewType
     {
         public readonly T Value;
@@ -101,7 +99,6 @@ namespace LanguageExt
 
         public int Count() => 1;
 
-#if !COREFX
         public NewType<T> Map(Func<T, T> map) =>
             Select(map);
 
@@ -150,8 +147,6 @@ namespace LanguageExt
                 ? (NewType<T>)NewType.Construct(GetType(), TypeDesc.Multiply(Value, rhs.Value, TypeDesc<T>.Default))
                 : failwith<NewType<T>>("Mismatched NewTypes in multiply");
 
-#endif
-
         public Unit Iter(Action<T> f)
         {
             f(Value);
@@ -167,14 +162,13 @@ namespace LanguageExt
             $"{GetType().Name}({Value})";
     }
 
-#if !COREFX
     internal static class NewType
     {
         static Map<Type, ConstructorInfo> constructors = Map.empty<Type, ConstructorInfo>();
         private static ConstructorInfo GetCtor(Type newType)
         {
             if (newType.Name == "NewType") throw new ArgumentException("Only use NewType.Contruct to build construct types derived from NewType<T>");
-            var ctors = (from c in newType.GetTypeInfo().GetConstructors()
+            var ctors = (from c in newType.GetTypeInfo().DeclaredConstructors
                          where c.GetParameters().Length == 1
                          select c)
                         .ToArray();
@@ -193,7 +187,6 @@ namespace LanguageExt
         public static NewTypeT Construct<NewTypeT, T>(T arg) where NewTypeT : NewType<T> =>
             (NewTypeT)constructors.Find(typeof(NewTypeT)).IfNone(() => GetCtor(typeof(NewTypeT))).Invoke(new object[] { arg });
     }
-#endif
 }
 
 public static class __NewTypeExts
