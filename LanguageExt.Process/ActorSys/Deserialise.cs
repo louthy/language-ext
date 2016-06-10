@@ -18,8 +18,6 @@ namespace LanguageExt
 
         static MethodInfo DeserialiseFunc(Type type)
         {
-            // No locks because we don't really care if it's done
-            // more than once, but we do care about locking unnecessarily.
             var name = type.FullName;
             var result = funcs.Find(name);
             if (result.IsSome) return result.LiftUnsafe();
@@ -31,6 +29,8 @@ namespace LanguageExt
                                    .Head()
                                    .MakeGenericMethod(type);
 
+            // No locks because we don't really care if it's done
+            // more than once, but we do care about locking unnecessarily.
             funcs = funcs.AddOrUpdate(name, func);
             return func;
         }

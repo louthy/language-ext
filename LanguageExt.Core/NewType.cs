@@ -177,6 +177,8 @@ namespace LanguageExt
             if (ctors.Length > 1) throw new ArgumentException($"{newType.FullName} has more than one constructor with 1 parameter");
 
             var ctor = ctors.First();
+            // No locks because we don't really care if it's done
+            // more than once, but we do care about locking unnecessarily.
             constructors = constructors.AddOrUpdate(newType.FullName, ctor);
             return ctor;
         }
