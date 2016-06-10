@@ -111,7 +111,7 @@ Location | Feature | Description
 `Core` | `State<S,T>` | State monad
 `Core` | `Rws<E,O,S,T>` | Reader/Writer/State monad
 `Parsec` | `Parser<T>` | Parser monad and full parser combinators library: LanguageExt.Parsec
-`Core` | `NewType<T>` | Haskell `newtype` equivalent i.e: `class Hours : NewType<double> { public class Hours(double value) : base(value) }`.  The resulting type is: equatable, comparable, foldable, a functor, monadic, appendable, subtractable, divisible, multiplicable, and iterable
+`Core` | `NewType<T>` | Haskell `newtype` equivalent i.e: `class Hours : NewType<double> { public Hours(double value) : base(value) { } }`.  The resulting type is: equatable, comparable, foldable, a functor, monadic, appendable, subtractable, divisible, multiplicable, and iterable
 `Core` | `Nullable<T>` extensions | Extension methods for `Nullable<T>` that make it into a functor, applicative, foldable, iterable and a monad
 `Core` | `Task<T>` extensions | Extension methods for `Task<T>` that make it into a functor, applicative, foldable, iterable and a monad
 `Core` | Monad transformers | A higher kinded type (ish)
