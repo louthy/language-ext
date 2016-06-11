@@ -12,7 +12,7 @@
           "lib/net40/FSharp.Core.dll": {}
         }
       },
-      "LanguageExt.Core/1.8.13-beta": {
+      "LanguageExt.Core/1.8.17-beta": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
@@ -22,11 +22,11 @@
           "System.Core"
         ]
       },
-      "LanguageExt.Parsec/1.8.13-beta": {
+      "LanguageExt.Parsec/1.8.17-beta": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
-          "LanguageExt.Core": "1.8.13-beta"
+          "LanguageExt.Core": "1.8.17-beta"
         },
         "frameworkAssemblies": [
           "System.Core"
@@ -108,7 +108,7 @@
           "lib/net40/FSharp.Core.dll": {}
         }
       },
-      "LanguageExt.Core/1.8.13-beta": {
+      "LanguageExt.Core/1.8.17-beta": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.6",
         "dependencies": {
@@ -118,11 +118,11 @@
           "System.Core"
         ]
       },
-      "LanguageExt.Parsec/1.8.13-beta": {
+      "LanguageExt.Parsec/1.8.17-beta": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.6",
         "dependencies": {
-          "LanguageExt.Core": "1.8.13-beta"
+          "LanguageExt.Core": "1.8.17-beta"
         },
         "frameworkAssemblies": [
           "System.Core"
@@ -204,18 +204,18 @@
           "lib/net40/FSharp.Core.dll": {}
         }
       },
-      "LanguageExt.Core/1.8.13-beta": {
+      "LanguageExt.Core/1.8.17-beta": {
         "type": "project",
         "framework": "DNX,Version=v4.5.1",
         "dependencies": {
           "Rx-Main": "2.2.5"
         }
       },
-      "LanguageExt.Parsec/1.8.13-beta": {
+      "LanguageExt.Parsec/1.8.17-beta": {
         "type": "project",
         "framework": "DNX,Version=v4.5.1",
         "dependencies": {
-          "LanguageExt.Core": "1.8.13-beta"
+          "LanguageExt.Core": "1.8.17-beta"
         }
       },
       "Newtonsoft.Json/7.0.1": {
@@ -294,18 +294,18 @@
           "lib/net40/FSharp.Core.dll": {}
         }
       },
-      "LanguageExt.Core/1.8.13-beta": {
+      "LanguageExt.Core/1.8.17-beta": {
         "type": "project",
         "framework": "DNX,Version=v4.6.1",
         "dependencies": {
           "Rx-Main": "2.2.5"
         }
       },
-      "LanguageExt.Parsec/1.8.13-beta": {
+      "LanguageExt.Parsec/1.8.17-beta": {
         "type": "project",
         "framework": "DNX,Version=v4.6.1",
         "dependencies": {
-          "LanguageExt.Core": "1.8.13-beta"
+          "LanguageExt.Core": "1.8.17-beta"
         }
       },
       "Newtonsoft.Json/7.0.1": {
@@ -384,13 +384,14 @@
           "lib/portable-net45+netcore45/FSharp.Core.dll": {}
         }
       },
-      "LanguageExt.Core/1.8.13-beta": {
+      "LanguageExt.Core/1.8.17-beta": {
         "type": "project",
         "framework": "DNXCore,Version=v5.0",
         "dependencies": {
           "Rx-Main": "2.2.5",
           "System.Collections": "4.0.10",
           "System.Collections.Concurrent": "4.0.10",
+          "System.Diagnostics.Contracts": "4.0.0",
           "System.Linq": "4.0.0",
           "System.Linq.Expressions": "4.0.0",
           "System.Linq.Queryable": "4.0.0",
@@ -400,11 +401,11 @@
           "System.Threading": "4.0.10"
         }
       },
-      "LanguageExt.Parsec/1.8.13-beta": {
+      "LanguageExt.Parsec/1.8.17-beta": {
         "type": "project",
         "framework": "DNXCore,Version=v5.0",
         "dependencies": {
-          "LanguageExt.Core": "1.8.13-beta",
+          "LanguageExt.Core": "1.8.17-beta",
           "System.Collections": "4.0.10",
           "System.ComponentModel": "4.0.0",
           "System.Linq": "4.0.0",
@@ -525,6 +526,18 @@
         },
         "runtime": {
           "lib/dotnet/System.ComponentModel.dll": {}
+        }
+      },
+      "System.Diagnostics.Contracts/4.0.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Runtime": "4.0.0"
+        },
+        "compile": {
+          "ref/dotnet/System.Diagnostics.Contracts.dll": {}
+        },
+        "runtime": {
+          "lib/DNXCore50/System.Diagnostics.Contracts.dll": {}
         }
       },
       "System.Diagnostics.Debug/4.0.10": {
@@ -841,7 +854,7 @@
           "lib/net40/FSharp.Core.dll": {}
         }
       },
-      "LanguageExt.Core/1.8.13-beta": {
+      "LanguageExt.Core/1.8.17-beta": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
@@ -851,11 +864,11 @@
           "System.Core"
         ]
       },
-      "LanguageExt.Parsec/1.8.13-beta": {
+      "LanguageExt.Parsec/1.8.17-beta": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
-          "LanguageExt.Core": "1.8.13-beta"
+          "LanguageExt.Core": "1.8.17-beta"
         },
         "frameworkAssemblies": [
           "System.Core"
@@ -937,7 +950,7 @@
           "lib/net40/FSharp.Core.dll": {}
         }
       },
-      "LanguageExt.Core/1.8.13-beta": {
+      "LanguageExt.Core/1.8.17-beta": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
@@ -947,11 +960,11 @@
           "System.Core"
         ]
       },
-      "LanguageExt.Parsec/1.8.13-beta": {
+      "LanguageExt.Parsec/1.8.17-beta": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
-          "LanguageExt.Core": "1.8.13-beta"
+          "LanguageExt.Core": "1.8.17-beta"
         },
         "frameworkAssemblies": [
           "System.Core"
@@ -1033,7 +1046,7 @@
           "lib/net40/FSharp.Core.dll": {}
         }
       },
-      "LanguageExt.Core/1.8.13-beta": {
+      "LanguageExt.Core/1.8.17-beta": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.6",
         "dependencies": {
@@ -1043,11 +1056,11 @@
           "System.Core"
         ]
       },
-      "LanguageExt.Parsec/1.8.13-beta": {
+      "LanguageExt.Parsec/1.8.17-beta": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.6",
         "dependencies": {
-          "LanguageExt.Core": "1.8.13-beta"
+          "LanguageExt.Core": "1.8.17-beta"
         },
         "frameworkAssemblies": [
           "System.Core"
@@ -1129,7 +1142,7 @@
           "lib/net40/FSharp.Core.dll": {}
         }
       },
-      "LanguageExt.Core/1.8.13-beta": {
+      "LanguageExt.Core/1.8.17-beta": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.6",
         "dependencies": {
@@ -1139,11 +1152,11 @@
           "System.Core"
         ]
       },
-      "LanguageExt.Parsec/1.8.13-beta": {
+      "LanguageExt.Parsec/1.8.17-beta": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.6",
         "dependencies": {
-          "LanguageExt.Core": "1.8.13-beta"
+          "LanguageExt.Core": "1.8.17-beta"
         },
         "frameworkAssemblies": [
           "System.Core"
@@ -1225,18 +1238,18 @@
           "lib/net40/FSharp.Core.dll": {}
         }
       },
-      "LanguageExt.Core/1.8.13-beta": {
+      "LanguageExt.Core/1.8.17-beta": {
         "type": "project",
         "framework": "DNX,Version=v4.5.1",
         "dependencies": {
           "Rx-Main": "2.2.5"
         }
       },
-      "LanguageExt.Parsec/1.8.13-beta": {
+      "LanguageExt.Parsec/1.8.17-beta": {
         "type": "project",
         "framework": "DNX,Version=v4.5.1",
         "dependencies": {
-          "LanguageExt.Core": "1.8.13-beta"
+          "LanguageExt.Core": "1.8.17-beta"
         }
       },
       "Newtonsoft.Json/7.0.1": {
@@ -1315,18 +1328,18 @@
           "lib/net40/FSharp.Core.dll": {}
         }
       },
-      "LanguageExt.Core/1.8.13-beta": {
+      "LanguageExt.Core/1.8.17-beta": {
         "type": "project",
         "framework": "DNX,Version=v4.5.1",
         "dependencies": {
           "Rx-Main": "2.2.5"
         }
       },
-      "LanguageExt.Parsec/1.8.13-beta": {
+      "LanguageExt.Parsec/1.8.17-beta": {
         "type": "project",
         "framework": "DNX,Version=v4.5.1",
         "dependencies": {
-          "LanguageExt.Core": "1.8.13-beta"
+          "LanguageExt.Core": "1.8.17-beta"
         }
       },
       "Newtonsoft.Json/7.0.1": {
@@ -1405,18 +1418,18 @@
           "lib/net40/FSharp.Core.dll": {}
         }
       },
-      "LanguageExt.Core/1.8.13-beta": {
+      "LanguageExt.Core/1.8.17-beta": {
         "type": "project",
         "framework": "DNX,Version=v4.6.1",
         "dependencies": {
           "Rx-Main": "2.2.5"
         }
       },
-      "LanguageExt.Parsec/1.8.13-beta": {
+      "LanguageExt.Parsec/1.8.17-beta": {
         "type": "project",
         "framework": "DNX,Version=v4.6.1",
         "dependencies": {
-          "LanguageExt.Core": "1.8.13-beta"
+          "LanguageExt.Core": "1.8.17-beta"
         }
       },
       "Newtonsoft.Json/7.0.1": {
@@ -1495,18 +1508,18 @@
           "lib/net40/FSharp.Core.dll": {}
         }
       },
-      "LanguageExt.Core/1.8.13-beta": {
+      "LanguageExt.Core/1.8.17-beta": {
         "type": "project",
         "framework": "DNX,Version=v4.6.1",
         "dependencies": {
           "Rx-Main": "2.2.5"
         }
       },
-      "LanguageExt.Parsec/1.8.13-beta": {
+      "LanguageExt.Parsec/1.8.17-beta": {
         "type": "project",
         "framework": "DNX,Version=v4.6.1",
         "dependencies": {
-          "LanguageExt.Core": "1.8.13-beta"
+          "LanguageExt.Core": "1.8.17-beta"
         }
       },
       "Newtonsoft.Json/7.0.1": {
@@ -1585,13 +1598,14 @@
           "lib/portable-net45+netcore45/FSharp.Core.dll": {}
         }
       },
-      "LanguageExt.Core/1.8.13-beta": {
+      "LanguageExt.Core/1.8.17-beta": {
         "type": "project",
         "framework": "DNXCore,Version=v5.0",
         "dependencies": {
           "Rx-Main": "2.2.5",
           "System.Collections": "4.0.10",
           "System.Collections.Concurrent": "4.0.10",
+          "System.Diagnostics.Contracts": "4.0.0",
           "System.Linq": "4.0.0",
           "System.Linq.Expressions": "4.0.0",
           "System.Linq.Queryable": "4.0.0",
@@ -1601,11 +1615,11 @@
           "System.Threading": "4.0.10"
         }
       },
-      "LanguageExt.Parsec/1.8.13-beta": {
+      "LanguageExt.Parsec/1.8.17-beta": {
         "type": "project",
         "framework": "DNXCore,Version=v5.0",
         "dependencies": {
-          "LanguageExt.Core": "1.8.13-beta",
+          "LanguageExt.Core": "1.8.17-beta",
           "System.Collections": "4.0.10",
           "System.ComponentModel": "4.0.0",
           "System.Linq": "4.0.0",
@@ -1726,6 +1740,18 @@
         },
         "runtime": {
           "lib/dotnet/System.ComponentModel.dll": {}
+        }
+      },
+      "System.Diagnostics.Contracts/4.0.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Runtime": "4.0.0"
+        },
+        "compile": {
+          "ref/dotnet/System.Diagnostics.Contracts.dll": {}
+        },
+        "runtime": {
+          "lib/DNXCore50/System.Diagnostics.Contracts.dll": {}
         }
       },
       "System.Diagnostics.Debug/4.0.10": {
@@ -2042,13 +2068,14 @@
           "lib/portable-net45+netcore45/FSharp.Core.dll": {}
         }
       },
-      "LanguageExt.Core/1.8.13-beta": {
+      "LanguageExt.Core/1.8.17-beta": {
         "type": "project",
         "framework": "DNXCore,Version=v5.0",
         "dependencies": {
           "Rx-Main": "2.2.5",
           "System.Collections": "4.0.10",
           "System.Collections.Concurrent": "4.0.10",
+          "System.Diagnostics.Contracts": "4.0.0",
           "System.Linq": "4.0.0",
           "System.Linq.Expressions": "4.0.0",
           "System.Linq.Queryable": "4.0.0",
@@ -2058,11 +2085,11 @@
           "System.Threading": "4.0.10"
         }
       },
-      "LanguageExt.Parsec/1.8.13-beta": {
+      "LanguageExt.Parsec/1.8.17-beta": {
         "type": "project",
         "framework": "DNXCore,Version=v5.0",
         "dependencies": {
-          "LanguageExt.Core": "1.8.13-beta",
+          "LanguageExt.Core": "1.8.17-beta",
           "System.Collections": "4.0.10",
           "System.ComponentModel": "4.0.0",
           "System.Linq": "4.0.0",
@@ -2183,6 +2210,18 @@
         },
         "runtime": {
           "lib/dotnet/System.ComponentModel.dll": {}
+        }
+      },
+      "System.Diagnostics.Contracts/4.0.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Runtime": "4.0.0"
+        },
+        "compile": {
+          "ref/dotnet/System.Diagnostics.Contracts.dll": {}
+        },
+        "runtime": {
+          "lib/DNXCore50/System.Diagnostics.Contracts.dll": {}
         }
       },
       "System.Diagnostics.Debug/4.0.10": {
@@ -2491,11 +2530,11 @@
     }
   },
   "libraries": {
-    "LanguageExt.Core/1.8.13-beta": {
+    "LanguageExt.Core/1.8.17-beta": {
       "type": "project",
       "path": "../LanguageExt.Core/project.json"
     },
-    "LanguageExt.Parsec/1.8.13-beta": {
+    "LanguageExt.Parsec/1.8.17-beta": {
       "type": "project",
       "path": "../LanguageExt.Parsec/project.json"
     },
@@ -2780,6 +2819,39 @@
         "System.ComponentModel.4.0.0.nupkg",
         "System.ComponentModel.4.0.0.nupkg.sha512",
         "System.ComponentModel.nuspec"
+      ]
+    },
+    "System.Diagnostics.Contracts/4.0.0": {
+      "type": "package",
+      "sha512": "lMc7HNmyIsu0pKTdA4wf+FMq5jvouUd+oUpV4BdtyqoV0Pkbg9u/7lTKFGqpjZRQosWHq1+B32Lch2wf4AmloA==",
+      "files": [
+        "lib/DNXCore50/System.Diagnostics.Contracts.dll",
+        "lib/net45/_._",
+        "lib/netcore50/System.Diagnostics.Contracts.dll",
+        "lib/win8/_._",
+        "lib/wp80/_._",
+        "lib/wpa81/_._",
+        "ref/dotnet/de/System.Diagnostics.Contracts.xml",
+        "ref/dotnet/es/System.Diagnostics.Contracts.xml",
+        "ref/dotnet/fr/System.Diagnostics.Contracts.xml",
+        "ref/dotnet/it/System.Diagnostics.Contracts.xml",
+        "ref/dotnet/ja/System.Diagnostics.Contracts.xml",
+        "ref/dotnet/ko/System.Diagnostics.Contracts.xml",
+        "ref/dotnet/ru/System.Diagnostics.Contracts.xml",
+        "ref/dotnet/System.Diagnostics.Contracts.dll",
+        "ref/dotnet/System.Diagnostics.Contracts.xml",
+        "ref/dotnet/zh-hans/System.Diagnostics.Contracts.xml",
+        "ref/dotnet/zh-hant/System.Diagnostics.Contracts.xml",
+        "ref/net45/_._",
+        "ref/netcore50/System.Diagnostics.Contracts.dll",
+        "ref/netcore50/System.Diagnostics.Contracts.xml",
+        "ref/win8/_._",
+        "ref/wp80/_._",
+        "ref/wpa81/_._",
+        "runtimes/win8-aot/lib/netcore50/System.Diagnostics.Contracts.dll",
+        "System.Diagnostics.Contracts.4.0.0.nupkg",
+        "System.Diagnostics.Contracts.4.0.0.nupkg.sha512",
+        "System.Diagnostics.Contracts.nuspec"
       ]
     },
     "System.Diagnostics.Debug/4.0.10": {
@@ -3536,8 +3608,8 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "LanguageExt.Core >= 1.8.13-beta",
-      "LanguageExt.Parsec >= 1.8.13-beta",
+      "LanguageExt.Core >= 1.8.17-beta",
+      "LanguageExt.Parsec >= 1.8.17-beta",
       "Newtonsoft.Json >= 7.0.1",
       "Rx-Main >= 2.2.5",
       "FSharp.Core >= 4.0.0.1"

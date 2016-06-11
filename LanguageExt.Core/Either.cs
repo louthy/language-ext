@@ -4,6 +4,7 @@ using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -78,6 +79,7 @@ namespace LanguageExt
         /// Is the Either in a Right state?
         /// </summary>
         /// <exception cref="BottomException">EitherT state is Bottom</exception>
+        [Pure]
         public bool IsRight =>
             CheckInitialised(State == EitherState.IsRight);
 
@@ -85,6 +87,7 @@ namespace LanguageExt
         /// Is the Either in a Left state?
         /// </summary>
         /// <exception cref="BottomException">EitherT state is Bottom</exception>
+        [Pure]
         public bool IsLeft =>
             CheckInitialised(State == EitherState.IsLeft);
 
@@ -101,6 +104,7 @@ namespace LanguageExt
         /// results or return another Either in the Bottom state and not throw.  This is so a filtered Either 
         /// doesn't needlessly break expressions. 
         /// </summary>
+        [Pure]
         public bool IsBottom =>
             State == EitherState.IsBottom;
 
@@ -109,6 +113,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="value">Value, must not be null.</param>
         /// <exception cref="ValueIsNullException">Value is null</exception>
+        [Pure]
         public static implicit operator Either<L, R>(R value) =>
             isnull(value)
                 ? raise<Either<L, R>>(new ValueIsNullException())
@@ -119,6 +124,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="value">Value, must not be null.</param>
         /// <exception cref="ValueIsNullException">Value is null</exception>
+        [Pure]
         public static implicit operator Either<L, R>(L value) =>
             isnull(value)
                 ? raise<Either<L, R>>(new ValueIsNullException())
@@ -131,6 +137,7 @@ namespace LanguageExt
         /// <param name="Right">Function to invoke if in a Right state</param>
         /// <param name="Left">Function to invoke if in a Left state</param>
         /// <returns>The return value of the invoked function</returns>
+        [Pure]
         public Ret Match<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
             IsRight
                 ? CheckNullReturn(Right(RightValue), nameof(Right))
@@ -167,6 +174,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Left">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
+        [Pure]
         public R IfLeft(Func<R> Left) =>
             Match(identity, _ => CheckNullReturn(Left(), nameof(Left)));
 
@@ -176,6 +184,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="leftMap">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
+        [Pure]
         public R IfLeft(Func<L, R> leftMap) =>
             Match(identity, l => CheckNullReturn(leftMap(l), nameof(leftMap)));
 
@@ -185,6 +194,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="rightValue">Value to return if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
+        [Pure]
         public R IfLeft(R rightValue) =>
             Match(identity, _ => rightValue);
 
@@ -222,6 +232,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="leftValue">Value to return if in the Left state</param>
         /// <returns>Returns an unwrapped Left value</returns>
+        [Pure]
         public L IfRight(L leftValue) =>
             Match(_ => leftValue, identity);
 
@@ -231,6 +242,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Right">Function to generate a Left value if in the Right state</param>
         /// <returns>Returns an unwrapped Left value</returns>
+        [Pure]
         public L IfRight(Func<L> Right) =>
             Match(_ => CheckNullReturn(Right(), nameof(Right)), identity);
 
@@ -240,6 +252,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="rightMap">Function to generate a Left value if in the Right state</param>
         /// <returns>Returns an unwrapped Left value</returns>
+        [Pure]
         public L IfRight(Func<R, L> rightMap) =>
             Match(r => CheckNullReturn(rightMap(r), nameof(rightMap)), identity);
 
@@ -248,6 +261,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="right">Action to invoke if the Either is in a Right state</param>
         /// <returns>Context that must have Left() called upon it.</returns>
+        [Pure]
         public EitherUnitContext<L, R> Right(Action<R> right) =>
             new EitherUnitContext<L, R>(this, right);
 
@@ -256,6 +270,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="right">Action to invoke if the Either is in a Right state</param>
         /// <returns>Context that must have Left() called upon it.</returns>
+        [Pure]
         public EitherContext<L, R, Ret> Right<Ret>(Func<R, Ret> right) =>
             new EitherContext<L, R, Ret>(this, right);
 
@@ -263,6 +278,7 @@ namespace LanguageExt
         /// Return a string representation of the Either
         /// </summary>
         /// <returns>String representation of the Either</returns>
+        [Pure]
         public override string ToString() =>
             IsBottom
                 ? "Bottom"
@@ -278,6 +294,7 @@ namespace LanguageExt
         /// Returns a hash code of the wrapped value of the Either
         /// </summary>
         /// <returns>Hash code</returns>
+        [Pure]
         public override int GetHashCode() =>
             IsBottom
                 ? -1
@@ -294,6 +311,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="obj">Object to test for equality</param>
         /// <returns>True if equal</returns>
+        [Pure]
         public override bool Equals(object obj) =>
             obj is Either<L, R>
                 ? map(this, (Either<L, R>)obj, (lhs, rhs) =>
@@ -326,6 +344,7 @@ namespace LanguageExt
         /// Project the Either into a Lst R
         /// </summary>
         /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
+        [Pure]
         public Lst<R> RightToList() =>
             toList(RightAsEnumerable());
 
@@ -333,6 +352,7 @@ namespace LanguageExt
         /// Project the Either into an ImmutableArray R
         /// </summary>
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
+        [Pure]
         public R[] RightToArray() =>
             toArray(RightAsEnumerable());
 
@@ -340,6 +360,7 @@ namespace LanguageExt
         /// Project the Either into a Lst R
         /// </summary>
         /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
+        [Pure]
         public Lst<L> LeftToList() =>
             toList(LeftAsEnumerable());
 
@@ -347,6 +368,7 @@ namespace LanguageExt
         /// Project the Either into an ImmutableArray R
         /// </summary>
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
+        [Pure]
         public L[] LeftToArray() =>
             toArray(LeftAsEnumerable());
 
@@ -354,6 +376,7 @@ namespace LanguageExt
         /// Project the Either into a IEnumerable R
         /// </summary>
         /// <returns>If the Either is in a Right state, a IEnumerable of R with one item.  A zero length IEnumerable R otherwise</returns>
+        [Pure]
         public IEnumerable<R> RightAsEnumerable()
         {
             if (IsRight)
@@ -366,6 +389,7 @@ namespace LanguageExt
         /// Project the Either into a IEnumerable L
         /// </summary>
         /// <returns>If the Either is in a Left state, a IEnumerable of L with one item.  A zero length IEnumerable L otherwise</returns>
+        [Pure]
         public IEnumerable<L> LeftAsEnumerable()
         {
             if (IsLeft)
@@ -391,6 +415,7 @@ namespace LanguageExt
         /// Convert the Either to an Option
         /// </summary>
         /// <returns>Some(Right) or None</returns>
+        [Pure]
         public Option<R> ToOption() =>
             IsRight
                 ? Some(RightValue)
@@ -400,6 +425,7 @@ namespace LanguageExt
         /// Convert the Either to an EitherUnsafe
         /// </summary>
         /// <returns>EitherUnsafe</returns>
+        [Pure]
         public EitherUnsafe<L, R> ToEitherUnsafe() =>
             IsRight
                 ? RightUnsafe<L, R>(RightValue)
@@ -409,6 +435,7 @@ namespace LanguageExt
         /// Convert the Either to an TryOption
         /// </summary>
         /// <returns>Some(Right) or None</returns>
+        [Pure]
         public TryOption<R> ToTryOption()
         {
             var self = this;
@@ -421,18 +448,21 @@ namespace LanguageExt
         /// <summary>
         /// Equality operator override
         /// </summary>
+        [Pure]
         public static bool operator ==(Either<L, R> lhs, Either<L, R> rhs) =>
             lhs.Equals(rhs);
 
         /// <summary>
         /// Non-equality operator override
         /// </summary>
+        [Pure]
         public static bool operator !=(Either<L, R> lhs, Either<L, R> rhs) =>
             !lhs.Equals(rhs);
 
         /// <summary>
         /// Override of the Or operator to be a Left coalescing operator
         /// </summary>
+        [Pure]
         public static Either<L, R> operator |(Either<L, R> lhs, Either<L, R> rhs) =>
             lhs.IsBottom || rhs.IsBottom
                 ? lhs
@@ -443,6 +473,7 @@ namespace LanguageExt
         /// <summary>
         /// Override of the True operator to return True if the Either is Right
         /// </summary>
+        [Pure]
         public static bool operator true(Either<L, R> value) =>
             value.IsBottom
                 ? false
@@ -451,6 +482,7 @@ namespace LanguageExt
         /// <summary>
         /// Override of the False operator to return True if the Either is Left
         /// </summary>
+        [Pure]
         public static bool operator false(Either<L, R> value) =>
             value.IsBottom
                 ? false
@@ -459,6 +491,7 @@ namespace LanguageExt
         /// <summary>
         /// CompareTo override
         /// </summary>
+        [Pure]
         public int CompareTo(Either<L, R> other) =>
             IsLeft && other.IsLeft
                 ? Comparer<L>.Default.Compare(LeftValue, other.LeftValue)
@@ -471,6 +504,7 @@ namespace LanguageExt
         /// <summary>
         /// CompareTo override
         /// </summary>
+        [Pure]
         public int CompareTo(R other) =>
             IsRight
                 ? Comparer<R>.Default.Compare(RightValue, other)
@@ -479,6 +513,7 @@ namespace LanguageExt
         /// <summary>
         /// CompareTo override
         /// </summary>
+        [Pure]
         public int CompareTo(L other) =>
             IsRight
                 ? -1
@@ -487,6 +522,7 @@ namespace LanguageExt
         /// <summary>
         /// Equality override
         /// </summary>
+        [Pure]
         public bool Equals(R other) =>
             IsBottom
                 ? false
@@ -497,6 +533,7 @@ namespace LanguageExt
         /// <summary>
         /// Equality override
         /// </summary>
+        [Pure]
         public bool Equals(L other) =>
             IsBottom
                 ? false
@@ -507,6 +544,7 @@ namespace LanguageExt
         /// <summary>
         /// Equality override
         /// </summary>
+        [Pure]
         public bool Equals(Either<L, R> other) =>
             IsBottom && other.IsBottom
                 ? true
@@ -519,6 +557,7 @@ namespace LanguageExt
         /// <summary>
         /// Match the Right and Left values but as objects.  This can be useful to avoid reflection.
         /// </summary>
+        [Pure]
         public TResult MatchUntyped<TResult>(Func<object, TResult> Right, Func<object, TResult> Left) =>
             IsRight
                 ? Right(RightValue)
@@ -527,27 +566,32 @@ namespace LanguageExt
         /// <summary>
         /// Find out the underlying Right type
         /// </summary>
+        [Pure]
         public Type GetUnderlyingRightType() =>
             typeof(R);
 
         /// <summary>
         /// Find out the underlying Left type
         /// </summary>
+        [Pure]
         public Type GetUnderlyingLeftType() =>
             typeof(L);
 
-
+        [Pure]
         private U CheckInitialised<U>(U value) =>
             State == EitherState.IsBottom
                 ? raise<U>(new BottomException("Either"))
                 : value;
 
+        [Pure]
         internal static Either<L, R> Right(R value) =>
             new Either<L, R>(value);
 
+        [Pure]
         internal static Either<L, R> Left(L value) =>
             new Either<L, R>(value);
 
+        [Pure]
         internal R RightValue =>
             CheckInitialised(
                 IsRight
@@ -555,6 +599,7 @@ namespace LanguageExt
                     : raise<R>(new EitherIsNotRightException())
             );
 
+        [Pure]
         internal L LeftValue =>
             CheckInitialised(
                 IsLeft
@@ -562,6 +607,7 @@ namespace LanguageExt
                     : raise<L>(new EitherIsNotLeftException())
             );
 
+        [Pure]
         private static T CheckNullReturn<T>(T value, string location) =>
             isnull(value)
                 ? raise<T>(new ResultIsNullException($"'{location}' result is null.  Not allowed."))
@@ -581,6 +627,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
+        [Pure]
         public static Either<L,R> operator +(Either<L, R> lhs, Either<L, R> rhs) =>
             lhs.Append(rhs);
 
@@ -598,6 +645,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
+        [Pure]
         public Either<L, R> Append(Either<L, R> rhs)
         {
             if (IsLeft) return this;    // The rules here are different to Option because
@@ -618,6 +666,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
+        [Pure]
         public static Either<L, R> operator -(Either<L, R> lhs, Either<L, R> rhs) =>
             lhs.Subtract(rhs);
 
@@ -634,6 +683,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
+        [Pure]
         public Either<L, R> Subtract(Either<L, R> rhs)
         {
             if (IsLeft) return this;    // The rules here are different to Option because
@@ -654,6 +704,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
+        [Pure]
         public static Either<L, R> operator *(Either<L, R> lhs, Either<L, R> rhs) =>
             lhs.Multiply(rhs);
 
@@ -670,6 +721,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
+        [Pure]
         public Either<L, R> Multiply(Either<L, R> rhs)
         {
             if (IsLeft) return this;    // The rules here are different to Option because
@@ -690,6 +742,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
+        [Pure]
         public static Either<L, R> operator /(Either<L, R> lhs, Either<L, R> rhs) =>
             lhs.Divide(rhs);
 
@@ -706,6 +759,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
+        [Pure]
         public Either<L, R> Divide(Either<L, R> rhs)
         {
             if (IsLeft) return this;    // The rules here are different to Option because
@@ -749,6 +803,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="left"></param>
         /// <returns>Result of the match</returns>
+        [Pure]
         public Ret Left(Func<L, Ret> left)
         {
             return match(either, rightHandler, left);
@@ -787,6 +842,7 @@ public static class __EitherExt
     /// <param name="self">Either function</param>
     /// <param name="arg">Either argument</param>
     /// <returns>Returns the result of applying the Either argument to the Either function</returns>
+    [Pure]
     public static Either<L, Res> Apply<L, R, Res>(this Either<L, Func<R, Res>> self, Either<L, R> arg) =>
         arg.IsBottom || self.IsBottom
             ? Either<L, Res>.Bottom
@@ -803,6 +859,7 @@ public static class __EitherExt
     /// <param name="arg">Either argument</param>
     /// <returns>Returns the result of applying the Either argument to the Either function:
     /// an Either function of arity 1</returns>
+    [Pure]
     public static Either<L, Func<T2, R>> Apply<L, T1, T2, R>(this Either<L, Func<T1, T2, R>> self, Either<L, T1> arg) =>
         arg.IsBottom || self.IsBottom
             ? Either<L, Func<T2, R>>.Bottom
@@ -819,6 +876,7 @@ public static class __EitherExt
     /// <param name="arg1">Either argument</param>
     /// <param name="arg2">Either argument</param>
     /// <returns>Returns the result of applying the optional arguments to the optional function</returns>
+    [Pure]
     public static Either<L, R> Apply<L, T1, T2, R>(this Either<L, Func<T1, T2, R>> self, Either<L, T1> arg1, Either<L, T2> arg2) =>
         arg1.IsBottom || arg2.IsBottom || self.IsBottom
             ? Either<L, R>.Bottom
@@ -838,6 +896,7 @@ public static class __EitherExt
     /// <typeparam name="R">Right</typeparam>
     /// <param name="self">Either list</param>
     /// <returns>An enumerable of L</returns>
+    [Pure]
     public static IEnumerable<L> Lefts<L, R>(this IEnumerable<Either<L, R>> self)
     {
         foreach (var item in self)
@@ -857,6 +916,7 @@ public static class __EitherExt
     /// <typeparam name="R">Right</typeparam>
     /// <param name="self">Either list</param>
     /// <returns>An enumerable of L</returns>
+    [Pure]
     public static IEnumerable<R> Rights<L, R>(this IEnumerable<Either<L, R>> self)
     {
         foreach (var item in self)
@@ -878,6 +938,7 @@ public static class __EitherExt
     /// <typeparam name="R">Right</typeparam>
     /// <param name="self">Either list</param>
     /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
+    [Pure]
     public static Tuple<IEnumerable<L>, IEnumerable<R>> Partition<L, R>(this IEnumerable<Either<L, R>> self) =>
         Tuple(lefts(self), rights(self));
 
@@ -888,6 +949,7 @@ public static class __EitherExt
     /// <typeparam name="R">Right</typeparam>
     /// <param name="self">Either to count</param>
     /// <returns>1 if the Either is in a Right state, 0 otherwise.</returns>
+    [Pure]
     public static int Count<L, R>(this Either<L, R> self) =>
         self.IsBottom || self.IsLeft
             ? 0
@@ -899,6 +961,7 @@ public static class __EitherExt
     /// <typeparam name="L">Left</typeparam>
     /// <param name="self">Either to count</param>
     /// <returns>0 if Left, or value of Right</returns>
+    [Pure]
     public static int Sum<L>(this Either<L, int> self) =>
         self.IsBottom || self.IsLeft
             ? 0
@@ -959,6 +1022,7 @@ public static class __EitherExt
     /// <returns>True if the Either is in a Left state.  
     /// True if the Either is in a Right state and the predicate returns True.  
     /// False otherwise.</returns>
+    [Pure]
     public static bool ForAll<L, R>(this Either<L, R> self, Func<R, bool> pred) =>
         self.IsBottom
             ? true
@@ -976,6 +1040,7 @@ public static class __EitherExt
     /// <returns>True if the Either is in a Right state.  
     /// True if the Either is in a Left state and the predicate returns True.  
     /// False otherwise.</returns>
+    [Pure]
     public static bool ForAll<L, R>(this Either<L, R> self, Func<L, bool> pred) =>
         self.IsBottom
             ? true
@@ -992,6 +1057,7 @@ public static class __EitherExt
     /// <param name="Right">Right predicate</param>
     /// <param name="Left">Left predicate</param>
     /// <returns>True if the predicate returns True.  True if the Either is in a bottom state.</returns>
+    [Pure]
     public static bool ForAll<L, R>(this Either<L, R> self, Func<R, bool> Right, Func<L, bool> Left) =>
         self.ForAll(Right) && self.ForAll(Left);
 
@@ -1006,6 +1072,7 @@ public static class __EitherExt
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
+    [Pure]
     public static S Fold<L, R, S>(this Either<L, R> self, S state, Func<S, R, S> folder) =>
         self.IsBottom
             ? state
@@ -1024,6 +1091,7 @@ public static class __EitherExt
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
+    [Pure]
     public static S Fold<L, R, S>(this Either<L, R> self, S state, Func<S, L, S> folder) =>
         self.IsBottom
             ? state
@@ -1043,6 +1111,7 @@ public static class __EitherExt
     /// <param name="Right">Right fold function</param>
     /// <param name="Left">Left fold function</param>
     /// <returns>Folded state</returns>
+    [Pure]
     public static S Fold<L, R, S>(this Either<L, R> self, S state, Func<S, R, S> Right, Func<S, L, S> Left) =>
         self.IsBottom
             ? state
@@ -1058,6 +1127,7 @@ public static class __EitherExt
     /// <param name="self">Either to check existence of</param>
     /// <param name="pred">Predicate</param>
     /// <returns>True if the Either is in a Right state and the predicate returns True.  False otherwise.</returns>
+    [Pure]
     public static bool Exists<L, R>(this Either<L, R> self, Func<R, bool> pred) =>
         self.IsBottom
             ? false
@@ -1073,6 +1143,7 @@ public static class __EitherExt
     /// <param name="self">Either to check existence of</param>
     /// <param name="pred">Predicate</param>
     /// <returns>True if the Either is in a Left state and the predicate returns True.  False otherwise.</returns>
+    [Pure]
     public static bool Exists<L, R>(this Either<L, R> self, Func<L, bool> pred) =>
         self.IsBottom
             ? false
@@ -1089,6 +1160,7 @@ public static class __EitherExt
     /// <param name="Right">Right predicate</param>
     /// <param name="Left">Left predicate</param>
     /// <returns>True if the predicate returns True.  False otherwise or if the Either is in a bottom state.</returns>
+    [Pure]
     public static bool Exists<L, R>(this Either<L, R> self, Func<R, bool> Right, Func<L, bool> Left) =>
         self.IsBottom
             ? false
@@ -1105,6 +1177,7 @@ public static class __EitherExt
     /// <param name="self">Either to map</param>
     /// <param name="mapper">Map function</param>
     /// <returns>Mapped Either</returns>
+    [Pure]
     public static Either<L, Ret> Map<L, R, Ret>(this Either<L, R> self, Func<R, Ret> mapper) =>
         self.IsBottom
             ? Either<L, Ret>.Bottom
@@ -1121,6 +1194,7 @@ public static class __EitherExt
     /// <param name="self">Either to map</param>
     /// <param name="mapper">Map function</param>
     /// <returns>Mapped Either</returns>
+    [Pure]
     public static Either<Ret, R> MapLeft<L, R, Ret>(this Either<L, R> self, Func<L, Ret> mapper) =>
         self.IsBottom
             ? Either<Ret, R>.Bottom
@@ -1139,6 +1213,7 @@ public static class __EitherExt
     /// <param name="Right">Right map function</param>
     /// <param name="Left">Left map function</param>
     /// <returns>Mapped Either</returns>
+    [Pure]
     public static Either<LRet, RRet> BiMap<L, R, LRet, RRet>(this Either<L, R> self, Func<R, RRet> Right, Func<L, LRet> Left) =>
         self.IsBottom
             ? Either<LRet, RRet>.Bottom
@@ -1150,6 +1225,7 @@ public static class __EitherExt
     /// Partial application map
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
+    [Pure]
     public static Either<L, Func<T2, R>> Map<L, T1, T2, R>(this Either<L, T1> self, Func<T1, T2, R> func) =>
         self.Map(curry(func));
 
@@ -1157,6 +1233,7 @@ public static class __EitherExt
     /// Partial application map
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
+    [Pure]
     public static Either<L, Func<T2, Func<T3, R>>> Map<L, T1, T2, T3, R>(this Either<L, T1> self, Func<T1, T2, T3, R> func) =>
         self.Map(curry(func));
 
@@ -1170,6 +1247,7 @@ public static class __EitherExt
     /// <param name="self"></param>
     /// <param name="binder"></param>
     /// <returns>Bound Either</returns>
+    [Pure]
     public static Either<L, Ret> Bind<L, R, Ret>(this Either<L, R> self, Func<R, Either<L, Ret>> binder) =>
         self.IsBottom
             ? Either<L, Ret>.Bottom
@@ -1187,6 +1265,7 @@ public static class __EitherExt
     /// <param name="self"></param>
     /// <param name="binder"></param>
     /// <returns>Bound Either</returns>
+    [Pure]
     public static Either<Ret, R> Bind<L, R, Ret>(this Either<L, R> self, Func<L, Either<Ret, R>> binder) =>
         self.IsBottom
             ? Either<Ret, R>.Bottom
@@ -1205,6 +1284,7 @@ public static class __EitherExt
     /// <param name="Right">Right bind function</param>
     /// <param name="Left">Left bind function</param>
     /// <returns>Bound Either</returns>
+    [Pure]
     public static Either<LRet, RRet> Bind<L, R, LRet, RRet>(this Either<L, R> self, Func<R, Either<LRet, RRet>> Right, Func<L, Either<LRet, RRet>> Left) =>
         self.IsBottom
             ? Either<LRet, RRet>.Bottom
@@ -1228,6 +1308,7 @@ public static class __EitherExt
     /// If in the Right state the predicate is applied to the Right value.
     /// If the predicate returns True the Either is returned as-is.
     /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
+    [Pure]
     public static Either<L, R> Filter<L, R>(this Either<L, R> self, Func<R, bool> pred) =>
         self.IsBottom
             ? self
@@ -1251,6 +1332,7 @@ public static class __EitherExt
     /// If in the Left state the predicate is applied to the Left value.
     /// If the predicate returns True the Either is returned as-is.
     /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
+    [Pure]
     public static Either<L, R> Filter<L, R>(this Either<L, R> self, Func<L, bool> pred) =>
         self.IsBottom
             ? self
@@ -1274,6 +1356,7 @@ public static class __EitherExt
     /// If the Either is in the Left state then the Left predicate is run against it.
     /// If the Either is in the Right state then the Right predicate is run against it.
     /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
+    [Pure]
     public static Either<L, R> Filter<L, R>(this Either<L, R> self, Func<R, bool> Right, Func<L, bool> Left) =>
         self.IsBottom
             ? self
@@ -1298,6 +1381,7 @@ public static class __EitherExt
     /// If the predicate returns True the Either is returned as-is.
     /// If the predicate returns False the Either is returned in a 'Bottom' state.  IsLeft will return True, but the value 
     /// of Left = default(L)</returns>
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Either<L, R> Where<L, R>(this Either<L, R> self, Func<R, bool> pred) =>
         Filter(self, pred);
@@ -1311,6 +1395,7 @@ public static class __EitherExt
     /// <param name="self">Either to map</param>
     /// <param name="map">Map function</param>
     /// <returns>Mapped Either</returns>
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Either<L, UR> Select<L, TR, UR>(this Either<L, TR> self, Func<TR, UR> map) =>
         self.IsBottom
@@ -1325,6 +1410,7 @@ public static class __EitherExt
     /// https://en.wikipedia.org/wiki/Monad_(functional_programming)
     /// </summary>
     /// <returns>Bound Either</returns>
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Either<L, V> SelectMany<L, T, U, V>(this Either<L, T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project)
     {
@@ -1336,6 +1422,7 @@ public static class __EitherExt
         return project(self.RightValue, u.RightValue);
     }
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static IEnumerable<V> SelectMany<L, T, U, V>(this Either<L, T> self,
         Func<T, IEnumerable<U>> bind,
@@ -1347,6 +1434,7 @@ public static class __EitherExt
         return bind(self.RightValue).Map(u => project(self.RightValue, u));
     }
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Either<L, V> SelectMany<L, T, U, V>(this IEnumerable<T> self,
         Func<T, Either<L, U>> bind,

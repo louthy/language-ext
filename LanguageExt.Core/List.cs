@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -12,6 +13,7 @@ namespace LanguageExt
         /// <summary>
         /// Create an empty IEnumerable T
         /// </summary>
+        [Pure]
         public static Lst<T> empty<T>() =>
             new Lst<T>();
 
@@ -19,6 +21,7 @@ namespace LanguageExt
         /// Create a new empty list
         /// </summary>
         /// <returns>Lst T</returns>
+        [Pure]
         public static Lst<T> create<T>() =>
             new Lst<T>();
 
@@ -27,6 +30,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="items">Items</param>
         /// <returns>Lst T</returns>
+        [Pure]
         public static Lst<T> create<T>(params T[] items) =>
             new Lst<T>(items);
 
@@ -35,6 +39,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="items">Items</param>
         /// <returns>Lst T</returns>
+        [Pure]
         public static Lst<T> createRange<T>(IEnumerable<T> items) =>
             new Lst<T>(items);
 
@@ -42,6 +47,7 @@ namespace LanguageExt
         /// Generates a sequence of T using the provided delegate to initialise
         /// each item.
         /// </summary>
+        [Pure]
         public static IEnumerable<T> init<T>(int count, Func<int, T> generator) =>
             from i in Range(0, count)
             select generator(i);
@@ -53,6 +59,7 @@ namespace LanguageExt
         ///   Remarks: Not truly infinite, will end at Int32.MaxValue
         /// 
         /// </summary>
+        [Pure]
         public static IEnumerable<T> initInfinite<T>(Func<int, T> generator) =>
             from i in Range(0, Int32.MaxValue)
             select generator(i);
@@ -60,6 +67,7 @@ namespace LanguageExt
         /// <summary>
         /// Generates a sequence that contains one repeated value.
         /// </summary>
+        [Pure]
         public static IEnumerable<T> repeat<T>(T item, int count) =>
             from _ in Range(0, count)
             select item;
@@ -70,6 +78,7 @@ namespace LanguageExt
         /// <param name="list">List</param>
         /// <param name="value">Item to add</param>
         /// <returns>A new Lst T</returns>
+        [Pure]
         public static Lst<T> add<T>(Lst<T> list, T value) =>
             list.Add(value);
 
@@ -79,6 +88,7 @@ namespace LanguageExt
         /// <param name="list">List</param>
         /// <param name="value">Items to add</param>
         /// <returns>A new Lst T</returns>
+        [Pure]
         public static Lst<T> addRange<T>(Lst<T> list, IEnumerable<T> value) =>
             list.AddRange(value);
 
@@ -88,6 +98,7 @@ namespace LanguageExt
         /// <param name="list">List</param>
         /// <param name="value">value to remove</param>
         /// <returns>A new Lst T</returns>
+        [Pure]
         public static Lst<T> remove<T>(Lst<T> list, T value) =>
             list.Remove(value);
 
@@ -97,6 +108,7 @@ namespace LanguageExt
         /// <param name="list">List</param>
         /// <param name="index">Index of item to remove</param>
         /// <returns>A new Lst T</returns>
+        [Pure]
         public static Lst<T> removeAt<T>(Lst<T> list, int index) =>
             list.RemoveAt(index);
 
@@ -105,6 +117,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="list">List</param>
         /// <returns>Head item</returns>
+        [Pure]
         public static T head<T>(IEnumerable<T> list) => list.First();
 
         /// <summary>
@@ -112,6 +125,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="list">List</param>
         /// <returns>Optional head item</returns>
+        [Pure]
         public static Option<T> headOrNone<T>(IEnumerable<T> list) =>
             (from x in list
              select Some(x))
@@ -123,6 +137,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="list">List</param>
         /// <returns>Enumerable of T</returns>
+        [Pure]
         public static IEnumerable<T> tail<T>(IEnumerable<T> list) =>
             list.Skip(1);
 
@@ -134,6 +149,7 @@ namespace LanguageExt
         /// <param name="list">Enumerable to map</param>
         /// <param name="map">Map function</param>
         /// <returns>Mapped enumerable</returns>
+        [Pure]
         public static IEnumerable<R> map<T, R>(IEnumerable<T> list, Func<T, R> map) =>
             list.Select(map);
 
@@ -141,14 +157,16 @@ namespace LanguageExt
         /// Partial application map
         /// </summary>
         /// <remarks>TODO: Better documentation of this function</remarks>
-        public static IEnumerable<Func<T2, R>> map<T1, T2, R>(IEnumerable<T1> list, Func<T1, T2, R> func) =>
+        [Pure]
+        public static IEnumerable<Func<T2, R>> parmap<T1, T2, R>(IEnumerable<T1> list, Func<T1, T2, R> func) =>
             list.Map(curry(func));
 
         /// <summary>
         /// Partial application map
         /// </summary>
         /// <remarks>TODO: Better documentation of this function</remarks>
-        public static IEnumerable<Func<T2, Func<T3, R>>> map<T1, T2, T3, R>(IEnumerable<T1> list, Func<T1, T2, T3, R> func) =>
+        [Pure]
+        public static IEnumerable<Func<T2, Func<T3, R>>> parmap<T1, T2, T3, R>(IEnumerable<T1> list, Func<T1, T2, T3, R> func) =>
             list.Map(curry(func));
 
         /// <summary>
@@ -160,6 +178,7 @@ namespace LanguageExt
         /// <param name="list">Enumerable to map</param>
         /// <param name="map">Map function</param>
         /// <returns>Mapped enumerable</returns>
+        [Pure]
         public static IEnumerable<R> map<T, R>(IEnumerable<T> list, Func<int, T, R> map) =>
             zip(list, Range(0, Int32.MaxValue), (t, i) => map(i, t));
 
@@ -170,6 +189,7 @@ namespace LanguageExt
         /// <param name="list">Enumerable to filter</param>
         /// <param name="predicate">Predicate function</param>
         /// <returns>Filtered enumerable</returns>
+        [Pure]
         public static IEnumerable<T> filter<T>(IEnumerable<T> list, Func<T, bool> predicate) =>
             list.Where(predicate);
 
@@ -181,6 +201,7 @@ namespace LanguageExt
         /// <param name="list">Enumerable</param>
         /// <param name="selector">Selector function</param>
         /// <returns>Mapped and filtered enumerable</returns>
+        [Pure]
         public static IEnumerable<T> choose<T>(IEnumerable<T> list, Func<T, Option<T>> selector) =>
             map(filter(map(list, selector), t => t.IsSome), t => t.Value);
 
@@ -193,6 +214,7 @@ namespace LanguageExt
         /// <param name="list">Enumerable</param>
         /// <param name="selector">Selector function</param>
         /// <returns>Mapped and filtered enumerable</returns>
+        [Pure]
         public static IEnumerable<T> choose<T>(IEnumerable<T> list, Func<int, T, Option<T>> selector) =>
             map(filter(map(list, selector), t => t.IsSome), t => t.Value);
 
@@ -205,6 +227,7 @@ namespace LanguageExt
         /// <param name="list">Enumerable to map</param>
         /// <param name="map">Map function</param>
         /// <returns>Mapped enumerable</returns>
+        [Pure]
         public static IEnumerable<R> collect<T, R>(IEnumerable<T> list, Func<T, IEnumerable<R>> map) =>
             from t in list
             from r in map(t)
@@ -215,6 +238,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="list">List to sum</param>
         /// <returns>Sum total</returns>
+        [Pure]
         public static int sum(IEnumerable<int> list) => 
             fold(list, 0, (s, x) => s + x);
 
@@ -223,6 +247,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="list">List to sum</param>
         /// <returns>Sum total</returns>
+        [Pure]
         public static float sum(IEnumerable<float> list) => 
             fold(list, 0.0f, (s, x) => s + x);
 
@@ -231,6 +256,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="list">List to sum</param>
         /// <returns>Sum total</returns>
+        [Pure]
         public static double sum(IEnumerable<double> list) => 
             fold(list, 0.0, (s, x) => s + x);
 
@@ -239,6 +265,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="list">List to sum</param>
         /// <returns>Sum total</returns>
+        [Pure]
         public static decimal sum(IEnumerable<decimal> list) => 
             fold(list, (decimal)0, (s, x) => s + x);
 
@@ -248,6 +275,7 @@ namespace LanguageExt
         /// <typeparam name="T">Enumerable item type</typeparam>
         /// <param name="list">Enumerable to reverse</param>
         /// <returns>Reversed enumerable</returns>
+        [Pure]
         public static IEnumerable<T> rev<T>(IEnumerable<T> list) =>
             list.Reverse();
 
@@ -257,6 +285,7 @@ namespace LanguageExt
         /// <typeparam name="T">List item type</typeparam>
         /// <param name="list">List to reverse</param>
         /// <returns>Reversed list</returns>
+        [Pure]
         public static Lst<T> rev<T>(Lst<T> list) =>
             list.Reverse();
 
@@ -267,6 +296,7 @@ namespace LanguageExt
         /// <param name="lhs">First enumerable</param>
         /// <param name="rhs">Second enumerable</param>
         /// <returns>Concatenated enumerable</returns>
+        [Pure]
         public static IEnumerable<T> append<T>(IEnumerable<T> lhs, IEnumerable<T> rhs) =>
             lhs.Concat(rhs);
 
@@ -277,6 +307,7 @@ namespace LanguageExt
         /// <param name="lhs">First list</param>
         /// <param name="rhs">Second list</param>
         /// <returns>Concatenated list</returns>
+        [Pure]
         public static IEnumerable<T> append<T>(IEnumerable<T> x, IEnumerable<IEnumerable<T>> xs) =>
             headOrNone(xs).IsNone
                 ? x
@@ -288,6 +319,7 @@ namespace LanguageExt
         /// <typeparam name="T">Enumerable type</typeparam>
         /// <param name="lists">Enumerables to concatenate</param>
         /// <returns>A single enumerable with all of the items concatenated</returns>
+        [Pure]
         public static IEnumerable<T> append<T>(params IEnumerable<T>[] lists) =>
             lists.Length == 0 
                 ? new T[0]
@@ -308,6 +340,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Aggregate value</returns>
+        [Pure]
         public static S fold<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder)
         {
             foreach (var item in list)
@@ -330,6 +363,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Aggregate value</returns>
+        [Pure]
         public static S foldBack<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder) =>
             fold(rev(list), state, folder);
 
@@ -347,6 +381,7 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <param name="pred">Predicate function</param>
         /// <returns>Aggregate value</returns>
+        [Pure]
         public static S foldWhile<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred)
         {
             foreach (var item in list)
@@ -374,6 +409,7 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <param name="pred">Predicate function</param>
         /// <returns>Aggregate value</returns>
+        [Pure]
         public static S foldWhile<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred)
         {
             foreach (var item in list)
@@ -402,6 +438,7 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <param name="pred">Predicate function</param>
         /// <returns>Aggregate value</returns>
+        [Pure]
         public static S foldBackWhile<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
             foldWhile(rev(list), state, folder, pred);
 
@@ -420,6 +457,7 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <param name="pred">Predicate function</param>
         /// <returns>Aggregate value</returns>
+        [Pure]
         public static S foldBackWhile<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
             foldWhile(rev(list), state, folder, pred);
 
@@ -437,6 +475,7 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <param name="pred">Predicate function</param>
         /// <returns>Aggregate value</returns>
+        [Pure]
         public static S foldUntil<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred)
         {
             foreach (var item in list)
@@ -464,6 +503,7 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <param name="pred">Predicate function</param>
         /// <returns>Aggregate value</returns>
+        [Pure]
         public static S foldUntil<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred)
         {
             foreach (var item in list)
@@ -492,6 +532,7 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <param name="pred">Predicate function</param>
         /// <returns>Aggregate value</returns>
+        [Pure]
         public static S foldBackUntil<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
             foldWhile(rev(list), state, folder, pred);
 
@@ -510,6 +551,7 @@ namespace LanguageExt
         /// <param name="folder">Fold function</param>
         /// <param name="pred">Predicate function</param>
         /// <returns>Aggregate value</returns>
+        [Pure]
         public static S foldBackUntil<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
             foldWhile(rev(list), state, folder, pred);
 
@@ -523,6 +565,7 @@ namespace LanguageExt
         /// <param name="list">Enumerable to reduce</param>
         /// <param name="reducer">Reduce function</param>
         /// <returns>Aggregate value</returns>
+        [Pure]
         public static T reduce<T>(IEnumerable<T> list, Func<T, T, T> reducer) =>
             match(headOrNone(list),
                 Some: x => fold(tail(list), x, reducer),
@@ -539,6 +582,7 @@ namespace LanguageExt
         /// <param name="list">Enumerable to reduce</param>
         /// <param name="reducer">Reduce function</param>
         /// <returns>Aggregate value</returns>
+        [Pure]
         public static T reduceBack<T>(IEnumerable<T> list, Func<T, T, T> reducer) =>
             reduce(rev(list), reducer);
 
@@ -555,6 +599,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Folding function</param>
         /// <returns>Aggregate state</returns>
+        [Pure]
         public static IEnumerable<S> scan<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder)
         {
             yield return state;
@@ -578,6 +623,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Folding function</param>
         /// <returns>Aggregate state</returns>
+        [Pure]
         public static IEnumerable<S> scanBack<S, T>(IEnumerable<T> list, S state, Func<S, T, S> folder) =>
             scan(rev(list), state, folder);
 
@@ -590,6 +636,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>Some(x) for the first item in the list that matches the predicate 
         /// provided, None otherwise.</returns>
+        [Pure]
         public static Option<T> find<T>(IEnumerable<T> list, Func<T, bool> pred)
         {
             foreach (var item in list)
@@ -608,6 +655,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>[x] for the first item in the list that matches the predicate 
         /// provided, [] otherwise.</returns>
+        [Pure]
         public static IEnumerable<T> findSeq<T>(IEnumerable<T> list, Func<T, bool> pred)
         {
             foreach (var item in list)
@@ -626,6 +674,7 @@ namespace LanguageExt
         /// <typeparam name="T">Enumerable item type</typeparam>
         /// <param name="list">Enumerable to convert</param>
         /// <returns>Lst of T</returns>
+        [Pure]
         public static Lst<T> freeze<T>(IEnumerable<T> list) =>
             toList(list);
 
@@ -637,6 +686,7 @@ namespace LanguageExt
         /// <param name="other">Second list to join</param>
         /// <param name="zipper">Join function</param>
         /// <returns>Joined enumerable</returns>
+        [Pure]
         public static IEnumerable<V> zip<T, U, V>(IEnumerable<T> list, IEnumerable<U> other, Func<T, U, V> zipper) =>
             list.Zip(other, zipper);
 
@@ -647,6 +697,7 @@ namespace LanguageExt
         /// <param name="other">Second list to join</param>
         /// <param name="zipper">Join function</param>
         /// <returns>Joined enumerable of tuples</returns>
+        [Pure]
         public static IEnumerable<Tuple<T,U>> zip<T, U>(IEnumerable<T> list, IEnumerable<U> other) =>
             list.Zip(other, (t,u) => Tuple(t,u) );
 
@@ -656,6 +707,7 @@ namespace LanguageExt
         /// <typeparam name="T">Enumerable item type</typeparam>
         /// <param name="list">Enumerable to count</param>
         /// <returns>The number of items in the enumerable</returns>
+        [Pure]
         public static int length<T>(IEnumerable<T> list) =>
            list.Count();
 
@@ -700,6 +752,7 @@ namespace LanguageExt
         /// <param name="list">Enumerable to test</param>
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the enumerable match the predicate</returns>
+        [Pure]
         public static bool forall<T>(IEnumerable<T> list, Func<T, bool> pred) =>
             list.All(pred);
 
@@ -709,6 +762,7 @@ namespace LanguageExt
         /// <typeparam name="T">Enumerable item type</typeparam>
         /// <param name="list">Enumerable</param>
         /// <returns>A new enumerable with all duplicate values removed</returns>
+        [Pure]
         public static IEnumerable<T> distinct<T>(IEnumerable<T> list) =>
             list.Distinct();
 
@@ -718,6 +772,7 @@ namespace LanguageExt
         /// <typeparam name="T">Enumerable item type</typeparam>
         /// <param name="list">Enumerable</param>
         /// <returns>A new enumerable with all duplicate values removed</returns>
+        [Pure]
         public static IEnumerable<T> distinct<T>(IEnumerable<T> list, Func<T, T, bool> compare) =>
             list.Distinct(new EqCompare<T>(compare));
 
@@ -728,6 +783,7 @@ namespace LanguageExt
         /// <param name="list">Enumerable</param>
         /// <param name="count">Number of items to take</param>
         /// <returns>A new enumerable with the first 'count' items from the enumerable provided</returns>
+        [Pure]
         public static IEnumerable<T> take<T>(IEnumerable<T> list, int count) =>
             list.Take(count);
 
@@ -739,6 +795,7 @@ namespace LanguageExt
         /// <param name="list">Enumerable</param>
         /// <param name="count">Number of items to take</param>
         /// <returns>A new enumerable with the first items that match the predicate</returns>
+        [Pure]
         public static IEnumerable<T> takeWhile<T>(IEnumerable<T> list, Func<T,bool> pred) =>
             list.TakeWhile(pred);
 
@@ -750,6 +807,7 @@ namespace LanguageExt
         /// <param name="list">Enumerable</param>
         /// <param name="count">Number of items to take</param>
         /// <returns>A new enumerable with the first items that match the predicate</returns>
+        [Pure]
         public static IEnumerable<T> takeWhile<T>(IEnumerable<T> list, Func<T, int, bool> pred) =>
             list.TakeWhile(pred);
 
@@ -761,6 +819,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="unfolder">Unfold function</param>
         /// <returns>Unfolded enumerable</returns>
+        [Pure]
         public static IEnumerable<S> unfold<S>(S state, Func<S, Option<S>> unfolder)
         {
             while (true)
@@ -788,6 +847,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="unfolder">Unfold function</param>
         /// <returns>Unfolded enumerable</returns>
+        [Pure]
         public static IEnumerable<T> unfold<S, T>(S state, Func<S, Option<Tuple<T, S>>> unfolder)
         {
             while (true)
@@ -814,6 +874,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="unfolder">Unfold function</param>
         /// <returns>Unfolded enumerable</returns>
+        [Pure]
         public static IEnumerable<T> unfold<S1, S2, T>(Tuple<S1,S2> state, Func<S1, S2, Option<Tuple<T, S1, S2>>> unfolder)
         {
             while (true)
@@ -840,6 +901,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="unfolder">Unfold function</param>
         /// <returns>Unfolded enumerable</returns>
+        [Pure]
         public static IEnumerable<T> unfold<S1, S2, S3, T>(Tuple<S1, S2, S3> state, Func<S1, S2, S3, Option<Tuple<T, S1, S2, S3>>> unfolder)
         {
             while (true)
@@ -866,6 +928,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="unfolder">Unfold function</param>
         /// <returns>Unfolded enumerable</returns>
+        [Pure]
         public static IEnumerable<T> unfold<S1, S2, S3, S4, T>(Tuple<S1, S2, S3, S4> state, Func<S1, S2, S3, S4, Option<Tuple<T, S1, S2, S3, S4>>> unfolder)
         {
             while (true)
@@ -890,6 +953,7 @@ namespace LanguageExt
         /// <param name="list">Enumerable to test</param>
         /// <param name="pred">Predicate</param>
         /// <returns>True if any item in the enumerable matches the predicate provided</returns>
+        [Pure]
         public static bool exists<T>(IEnumerable<T> list, Func<T, bool> pred)
         {
             foreach (var item in list)
@@ -914,6 +978,7 @@ namespace LanguageExt
         /// <param name="opt">IEnumerable of functions</param>
         /// <param name="arg">IEnumerable of argument values</param>
         /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
+        [Pure]
         public static IEnumerable<R> apply<T, R>(IEnumerable<Func<T, R>> self, IEnumerable<T> arg) =>
             from f in self
             from x in arg
@@ -926,6 +991,7 @@ namespace LanguageExt
         /// <param name="arg">IEnumerable argument values</param>
         /// <returns>Returns the result of applying the IEnumerable of argument values to the 
         /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
+        [Pure]
         public static IEnumerable<Func<T2, R>> apply<T1, T2, R>(IEnumerable<Func<T1, T2, R>> self, IEnumerable<T1> arg) =>
             from f in self
             let c = curry(f)
@@ -939,6 +1005,7 @@ namespace LanguageExt
         /// <param name="arg1">IEnumerable of arguments</param>
         /// <param name="arg2">IEnumerable of arguments</param>
         /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
+        [Pure]
         public static IEnumerable<R> apply<T1, T2, R>(IEnumerable<Func<T1, T2, R>> self, IEnumerable<T1> arg1, IEnumerable<T2> arg2) =>
             self.Apply(arg1).Apply(arg2);
 
@@ -949,6 +1016,7 @@ namespace LanguageExt
         /// <typeparam name="T">List item type</typeparam>
         /// <param name="self">List</param>
         /// <returns>Enumerable of Enumerables of T</returns>
+        [Pure]
         public static IEnumerable<IEnumerable<T>> tails<T>(IEnumerable<T> self)
         {
             var lst = new List<T>(self);
@@ -977,6 +1045,7 @@ namespace LanguageExt
         /// <param name="self">List</param>
         /// <param name="pred">Predicate</param>
         /// <returns>Split list</returns>
+        [Pure]
         public static Tuple<IEnumerable<T>, IEnumerable<T>> span<T>(IEnumerable<T> self, Func<T, bool> pred)
         {
             int index = 0;
@@ -1001,6 +1070,7 @@ namespace LanguageExt
             this.compare = compare;
         }
 
+        [Pure]
         public bool Equals(T x, T y) =>
             isnull(x) && isnull(y)
                 ? true
@@ -1008,6 +1078,7 @@ namespace LanguageExt
                     ? false
                     : compare(x, y);
 
+        [Pure]
         public int GetHashCode(T obj) =>
             isnull(obj)
                 ? 0
@@ -1020,6 +1091,7 @@ public static class __EnumnerableExt
     /// <summary>
     /// List pattern matching
     /// </summary>
+    [Pure]
     public static R Match<T, R>(this IEnumerable<T> list,
         Func<R> Empty,
         Func<T, IEnumerable<T>, R> More
@@ -1045,6 +1117,7 @@ public static class __EnumnerableExt
     /// <summary>
     /// List pattern matching
     /// </summary>
+    [Pure]
     public static R Match<T, R>(this IEnumerable<T> list,
         Func<R> Empty,
         Func<T, R> One,
@@ -1077,6 +1150,7 @@ public static class __EnumnerableExt
     /// <summary>
     /// List pattern matching
     /// </summary>
+    [Pure]
     public static R Match<T, R>(this IEnumerable<T> list,
         Func<R> Empty,
         Func<T, R> One,
@@ -1099,6 +1173,7 @@ public static class __EnumnerableExt
     /// <summary>
     /// List pattern matching
     /// </summary>
+    [Pure]
     public static R Match<T, R>(this IEnumerable<T> list,
         Func<R> Empty,
         Func<T, R> One,
@@ -1123,6 +1198,7 @@ public static class __EnumnerableExt
     /// <summary>
     /// List matching
     /// </summary>
+    [Pure]
     public static R Match<T, R>(this IEnumerable<T> list,
         Func<R> Empty,
         Func<T, R> One,
@@ -1149,6 +1225,7 @@ public static class __EnumnerableExt
     /// <summary>
     /// List matching
     /// </summary>
+    [Pure]
     public static R Match<T, R>(this IEnumerable<T> list,
         Func<R> Empty,
         Func<T, R> One,
@@ -1177,6 +1254,7 @@ public static class __EnumnerableExt
     /// <summary>
     /// List matching
     /// </summary>
+    [Pure]
     public static R Match<T, R>(this IEnumerable<T> list,
         Func<R> Empty,
         Func<T, R> One,
@@ -1209,11 +1287,13 @@ public static class __EnumnerableExt
     /// </summary>
     /// <param name="list">List</param>
     /// <returns>Head item</returns>
+    [Pure]
     public static T Head<T>(this IEnumerable<T> list) =>
         LanguageExt.List.head(list);
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     [Obsolete("HeadSafe has been deprecated, please use HeadOrNone")]
+    [Pure]
     public static Option<T> HeadSafe<T>(this IEnumerable<T> list) =>
         LanguageExt.List.headOrNone(list);
 
@@ -1222,6 +1302,7 @@ public static class __EnumnerableExt
     /// </summary>
     /// <param name="list">List</param>
     /// <returns>Optional head item</returns>
+    [Pure]
     public static Option<T> HeadOrNone<T>(this IEnumerable<T> list) =>
         LanguageExt.List.headOrNone(list);
 
@@ -1230,6 +1311,7 @@ public static class __EnumnerableExt
     /// </summary>
     /// <param name="list">List</param>
     /// <returns>Enumerable of T</returns>
+    [Pure]
     public static IEnumerable<T> Tail<T>(this IEnumerable<T> list) =>
         LanguageExt.List.tail(list);
 
@@ -1239,6 +1321,7 @@ public static class __EnumnerableExt
     /// <param name="opt">IEnumerable of functions</param>
     /// <param name="arg">IEnumerable of argument values</param>
     /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
+    [Pure]
     public static IEnumerable<R> Apply<T, R>(this IEnumerable<Func<T, R>> self, IEnumerable<T> arg) =>
         from f in self
         from x in arg
@@ -1251,6 +1334,7 @@ public static class __EnumnerableExt
     /// <param name="arg">IEnumerable argument values</param>
     /// <returns>Returns the result of applying the IEnumerable of argument values to the 
     /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
+    [Pure]
     public static IEnumerable<Func<T2, R>> Apply<T1, T2, R>(this IEnumerable<Func<T1, T2, R>> self, IEnumerable<T1> arg) =>
         from f in self
         let c = curry(f)
@@ -1264,6 +1348,7 @@ public static class __EnumnerableExt
     /// <param name="arg1">IEnumerable of arguments</param>
     /// <param name="arg2">IEnumerable of arguments</param>
     /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
+    [Pure]
     public static IEnumerable<R> Apply<T1, T2, R>(this IEnumerable<Func<T1, T2, R>> self, IEnumerable<T1> arg1, IEnumerable<T2> arg2) =>
         self.Apply(arg1).Apply(arg2);
 
@@ -1275,6 +1360,7 @@ public static class __EnumnerableExt
     /// <param name="list">Enumerable to map</param>
     /// <param name="map">Map function</param>
     /// <returns>Mapped enumerable</returns>
+    [Pure]
     public static IEnumerable<R> Map<T, R>(this IEnumerable<T> list, Func<T, R> map) =>
         LanguageExt.List.map(list, map);
 
@@ -1286,6 +1372,7 @@ public static class __EnumnerableExt
     /// <param name="list">Enumerable to map</param>
     /// <param name="map">Map function</param>
     /// <returns>Mapped enumerable</returns>
+    [Pure]
     public static IEnumerable<R> Map<T, R>(this IEnumerable<T> list, Func<int, T, R> map) =>
         LanguageExt.List.map(list, map);
 
@@ -1293,14 +1380,16 @@ public static class __EnumnerableExt
     /// Partial application map
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
-    public static IEnumerable<Func<T2, R>> Map<T1, T2, R>(this IEnumerable<T1> list, Func<T1, T2, R> func) =>
+    [Pure]
+    public static IEnumerable<Func<T2, R>> ParMap<T1, T2, R>(this IEnumerable<T1> list, Func<T1, T2, R> func) =>
         list.Map(curry(func));
 
     /// <summary>
     /// Partial application map
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
-    public static IEnumerable<Func<T2, Func<T3, R>>> Map<T1, T2, T3, R>(this IEnumerable<T1> list, Func<T1, T2, T3, R> func) =>
+    [Pure]
+    public static IEnumerable<Func<T2, Func<T3, R>>> ParMap<T1, T2, T3, R>(this IEnumerable<T1> list, Func<T1, T2, T3, R> func) =>
         list.Map(curry(func));
 
     /// <summary>
@@ -1310,6 +1399,7 @@ public static class __EnumnerableExt
     /// <param name="list">Enumerable to filter</param>
     /// <param name="predicate">Predicate function</param>
     /// <returns>Filtered enumerable</returns>
+    [Pure]
     public static IEnumerable<T> Filter<T>(this IEnumerable<T> list, Func<T, bool> predicate) =>
         LanguageExt.List.filter(list, predicate);
 
@@ -1321,6 +1411,7 @@ public static class __EnumnerableExt
     /// <param name="list">Enumerable</param>
     /// <param name="selector">Selector function</param>
     /// <returns>Mapped and filtered enumerable</returns>
+    [Pure]
     public static IEnumerable<T> Choose<T>(this IEnumerable<T> list, Func<T, Option<T>> selector) =>
         LanguageExt.List.choose(list, selector);
 
@@ -1332,6 +1423,7 @@ public static class __EnumnerableExt
     /// <param name="list">Enumerable</param>
     /// <param name="selector">Selector function</param>
     /// <returns>Mapped and filtered enumerable</returns>
+    [Pure]
     public static IEnumerable<T> Choose<T>(this IEnumerable<T> list, Func<int, T, Option<T>> selector) =>
         LanguageExt.List.choose(list, selector);
 
@@ -1344,6 +1436,7 @@ public static class __EnumnerableExt
     /// <param name="list">Enumerable to map</param>
     /// <param name="map">Map function</param>
     /// <returns>Mapped enumerable</returns>
+    [Pure]
     public static IEnumerable<R> Collect<T, R>(this IEnumerable<T> list, Func<T, IEnumerable<R>> map) =>
         LanguageExt.List.collect(list, map);
 
@@ -1353,6 +1446,7 @@ public static class __EnumnerableExt
     /// <typeparam name="T">Enumerable item type</typeparam>
     /// <param name="list">Enumerable to reverse</param>
     /// <returns>Reversed enumerable</returns>
+    [Pure]
     public static IEnumerable<T> Rev<T>(this IEnumerable<T> list) =>
         LanguageExt.List.rev(list);
 
@@ -1362,6 +1456,7 @@ public static class __EnumnerableExt
     /// <typeparam name="T">List item type</typeparam>
     /// <param name="list">Listto reverse</param>
     /// <returns>Reversed list</returns>
+    [Pure]
     public static Lst<T> Rev<T>(this Lst<T> list) =>
         LanguageExt.List.rev(list);
 
@@ -1372,6 +1467,7 @@ public static class __EnumnerableExt
     /// <param name="lhs">First enumerable</param>
     /// <param name="rhs">Second enumerable</param>
     /// <returns>Concatenated enumerable</returns>
+    [Pure]
     public static IEnumerable<T> Append<T>(this IEnumerable<T> lhs, IEnumerable<T> rhs) =>
         LanguageExt.List.append(lhs, rhs);
 
@@ -1388,6 +1484,7 @@ public static class __EnumnerableExt
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
     /// <returns>Aggregate value</returns>
+    [Pure]
     public static S Fold<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
         LanguageExt.List.fold(list, state, folder);
 
@@ -1404,6 +1501,7 @@ public static class __EnumnerableExt
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
     /// <returns>Aggregate value</returns>
+    [Pure]
     public static S FoldBack<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
         LanguageExt.List.foldBack(list, state, folder);
 
@@ -1421,6 +1519,7 @@ public static class __EnumnerableExt
     /// <param name="folder">Fold function</param>
     /// <param name="pred">Predicate function</param>
     /// <returns>Aggregate value</returns>
+    [Pure]
     public static S FoldWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
         LanguageExt.List.foldWhile(list, state, folder, pred);
 
@@ -1438,6 +1537,7 @@ public static class __EnumnerableExt
     /// <param name="folder">Fold function</param>
     /// <param name="pred">Predicate function</param>
     /// <returns>Aggregate value</returns>
+    [Pure]
     public static S FoldWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
         LanguageExt.List.foldWhile(list, state, folder, pred);
 
@@ -1456,6 +1556,7 @@ public static class __EnumnerableExt
     /// <param name="folder">Fold function</param>
     /// <param name="pred">Predicate function</param>
     /// <returns>Aggregate value</returns>
+    [Pure]
     public static S FoldBackWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
         LanguageExt.List.foldBackWhile(list, state, folder, pred);
 
@@ -1474,6 +1575,7 @@ public static class __EnumnerableExt
     /// <param name="folder">Fold function</param>
     /// <param name="pred">Predicate function</param>
     /// <returns>Aggregate value</returns>
+    [Pure]
     public static S FoldBackWhile<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
         LanguageExt.List.foldBackWhile(list, state, folder, pred);
 
@@ -1491,6 +1593,7 @@ public static class __EnumnerableExt
     /// <param name="folder">Fold function</param>
     /// <param name="pred">Predicate function</param>
     /// <returns>Aggregate value</returns>
+    [Pure]
     public static S FoldUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
         LanguageExt.List.foldUntil<S, T>(list, state, folder, pred);
 
@@ -1508,6 +1611,7 @@ public static class __EnumnerableExt
     /// <param name="folder">Fold function</param>
     /// <param name="pred">Predicate function</param>
     /// <returns>Aggregate value</returns>
+    [Pure]
     public static S FoldUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
         LanguageExt.List.foldUntil(list, state, folder, pred);
 
@@ -1526,6 +1630,7 @@ public static class __EnumnerableExt
     /// <param name="folder">Fold function</param>
     /// <param name="pred">Predicate function</param>
     /// <returns>Aggregate value</returns>
+    [Pure]
     public static S FoldBackUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<T, bool> pred) =>
         LanguageExt.List.foldBackUntil(list, state, folder, pred);
 
@@ -1544,6 +1649,7 @@ public static class __EnumnerableExt
     /// <param name="folder">Fold function</param>
     /// <param name="pred">Predicate function</param>
     /// <returns>Aggregate value</returns>
+    [Pure]
     public static S FoldBackUntil<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder, Func<S, bool> pred) =>
         LanguageExt.List.foldBackUntil(list, state, folder, pred);
 
@@ -1557,6 +1663,7 @@ public static class __EnumnerableExt
     /// <param name="list">Enumerable to reduce</param>
     /// <param name="reducer">Reduce function</param>
     /// <returns>Aggregate value</returns>
+    [Pure]
     public static T Reduce<T>(this IEnumerable<T> list, Func<T, T, T> reducer) =>
         LanguageExt.List.reduce(list, reducer);
 
@@ -1570,6 +1677,7 @@ public static class __EnumnerableExt
     /// <param name="list">Enumerable to reduce</param>
     /// <param name="reducer">Reduce function</param>
     /// <returns>Aggregate value</returns>
+    [Pure]
     public static T ReduceBack<T>(this IEnumerable<T> list, Func<T, T, T> reducer) =>
         LanguageExt.List.reduceBack(list, reducer);
 
@@ -1586,6 +1694,7 @@ public static class __EnumnerableExt
     /// <param name="state">Initial state</param>
     /// <param name="folder">Folding function</param>
     /// <returns>Aggregate state</returns>
+    [Pure]
     public static IEnumerable<S> Scan<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
         LanguageExt.List.scan(list, state, folder);
 
@@ -1602,6 +1711,7 @@ public static class __EnumnerableExt
     /// <param name="state">Initial state</param>
     /// <param name="folder">Folding function</param>
     /// <returns>Aggregate state</returns>
+    [Pure]
     public static IEnumerable<S> ScanBack<S, T>(this IEnumerable<T> list, S state, Func<S, T, S> folder) =>
         LanguageExt.List.scanBack(list, state, folder);
 
@@ -1612,6 +1722,7 @@ public static class __EnumnerableExt
     /// <param name="other">Second list to join</param>
     /// <param name="zipper">Join function</param>
     /// <returns>Joined enumerable</returns>
+    [Pure]
     public static IEnumerable<Tuple<T, U>> Zip<T, U>(this IEnumerable<T> list, IEnumerable<U> other) =>
         list.Zip(other, (t, u) => Tuple(t, u));
 
@@ -1624,6 +1735,7 @@ public static class __EnumnerableExt
     /// <param name="pred">Predicate</param>
     /// <returns>Some(x) for the first item in the list that matches the predicate 
     /// provided, None otherwise.</returns>
+    [Pure]
     public static Option<T> Find<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
         LanguageExt.List.find(list, pred);
 
@@ -1636,6 +1748,7 @@ public static class __EnumnerableExt
     /// <param name="pred">Predicate</param>
     /// <returns>[x] for the first item in the list that matches the predicate 
     /// provided, [] otherwise.</returns>
+    [Pure]
     public static IEnumerable<T> FindSeq<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
         LanguageExt.List.findSeq(list, pred);
 
@@ -1645,6 +1758,7 @@ public static class __EnumnerableExt
     /// <typeparam name="T">Enumerable item type</typeparam>
     /// <param name="list">Enumerable to convert</param>
     /// <returns>Lst of T</returns>
+    [Pure]
     public static Lst<T> Freeze<T>(this IEnumerable<T> list) =>
         LanguageExt.List.freeze(list);
 
@@ -1654,6 +1768,7 @@ public static class __EnumnerableExt
     /// <typeparam name="T">Item type</typeparam>
     /// <param name="list">List to count</param>
     /// <returns>The number of items in the list</returns>
+    [Pure]
     public static int Length<T>(this IEnumerable<T> list) =>
         LanguageExt.List.length(list);
 
@@ -1684,6 +1799,7 @@ public static class __EnumnerableExt
     /// <param name="list">Enumerable to test</param>
     /// <param name="pred">Predicate</param>
     /// <returns>True if all items in the enumerable match the predicate</returns>
+    [Pure]
     public static bool ForAll<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
         LanguageExt.List.forall(list, pred);
 
@@ -1693,6 +1809,7 @@ public static class __EnumnerableExt
     /// <typeparam name="T">Enumerable item type</typeparam>
     /// <param name="list">Enumerable</param>
     /// <returns>A new enumerable with all duplicate values removed</returns>
+    [Pure]
     public static IEnumerable<T> Distinct<T>(this IEnumerable<T> list, Func<T, T, bool> compare) =>
         LanguageExt.List.distinct(list, compare);
 
@@ -1703,6 +1820,7 @@ public static class __EnumnerableExt
     /// <param name="list">Enumerable to test</param>
     /// <param name="pred">Predicate</param>
     /// <returns>True if any item in the enumerable matches the predicate provided</returns>
+    [Pure]
     public static bool Exists<T>(this IEnumerable<T> list, Func<T, bool> pred) =>
         LanguageExt.List.exists(list, pred);
 
@@ -1713,6 +1831,7 @@ public static class __EnumnerableExt
     /// <typeparam name="T">List item type</typeparam>
     /// <param name="self">List</param>
     /// <returns>Enumerable of Enumerables of T</returns>
+    [Pure]
     public static IEnumerable<IEnumerable<T>> Tails<T>(this IEnumerable<T> self) =>
         LanguageExt.List.tails(self);
 
@@ -1734,12 +1853,14 @@ public static class __EnumnerableExt
     /// <param name="self">List</param>
     /// <param name="pred">Predicate</param>
     /// <returns>Split list</returns>
+    [Pure]
     public static Tuple<IEnumerable<T>, IEnumerable<T>> Span<T>(this IEnumerable<T> self, Func<T, bool> pred) =>
         LanguageExt.List.span(self, pred);
 
     /// <summary>
     /// Monadic bind function for IEnumerable
     /// </summary>
+    [Pure]
     public static IEnumerable<R> Bind<T, R>(this IEnumerable<T> self, Func<T, IEnumerable<R>> binder)
     {
         foreach (var t in self)
@@ -1754,14 +1875,14 @@ public static class __EnumnerableExt
     /// <summary>
     /// LINQ Select implementation for Lst
     /// </summary>
-    public static Lst<U> Select<T, U>(this Lst<T> self, Func<T, U> map)
-    {
-        return new Lst<U>(self.AsEnumerable().Select(map));
-    }
+    [Pure]
+    public static Lst<U> Select<T, U>(this Lst<T> self, Func<T, U> map) =>
+        new Lst<U>(self.AsEnumerable().Select(map));
 
     /// <summary>
     /// Monadic bind function for Lst that returns an IEnumerable
     /// </summary>
+    [Pure]
     public static IEnumerable<R> BindEnumerable<T, R>(this Lst<T> self, Func<T, Lst<R>> binder)
     {
         foreach (var t in self)
@@ -1776,6 +1897,7 @@ public static class __EnumnerableExt
     /// <summary>
     /// Monadic bind function
     /// </summary>
+    [Pure]
     public static Lst<R> Bind<T, R>(this Lst<T> self, Func<T, Lst<R>> binder) =>
         new Lst<R>(self.BindEnumerable(binder));
 
@@ -1785,15 +1907,18 @@ public static class __EnumnerableExt
     /// <typeparam name="T">Item type</typeparam>
     /// <param name="list">List to count</param>
     /// <returns>The number of items in the list</returns>
+    [Pure]
     public static int Count<T>(this Lst<T> self) =>
         self.Count;
 
     /// <summary>
     /// LINQ bind implementation for Lst
     /// </summary>
+    [Pure]
     public static Lst<V> SelectMany<T, U, V>(this Lst<T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) =>
         self.Bind(t => bind(t).Map(u => project(t,u)));
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Lst<V> SelectMany<T, U, V>(this Lst<T> self,
         Func<T, IEnumerable<U>> bind,
@@ -1804,6 +1929,7 @@ public static class __EnumnerableExt
         return self.Bind(t => bind(t).Map(u => project(t, u))).Freeze();
     }
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Lst<V> SelectMany<T, U, V>(this IEnumerable<T> self,
         Func<T, Lst<U>> bind,

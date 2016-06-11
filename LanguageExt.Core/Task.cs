@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -133,9 +134,7 @@ namespace LanguageExt
         public static Unit Iter<T>(this Task<T> self, Action<T> f)
         {
             if (self.IsFaulted || self.IsCanceled) return unit;
-            self.Wait();
-            if (self.IsFaulted || self.IsCanceled) return unit;
-            f(self.Result);
+            self.ContinueWith(t => f(t.Result)).Start();
             return unit;
         }
 

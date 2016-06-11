@@ -1,5 +1,5 @@
 {
-  "version": "1.8.16-beta",
+  "version": "1.8.17-beta",
   "authors": [ "Paul Louth" ],
   "owners": [ "paullouth" ],
   "title": "LanguageExt.Core",
@@ -57,7 +57,8 @@
         "System.Collections.Concurrent": "4.0.10",
         "System.Linq.Queryable": "4.0.0",
         "System.Threading": "4.0.10",
-        "System.Security.Cryptography.RandomNumberGenerator": "4.0.0-beta-23225"
+        "System.Security.Cryptography.RandomNumberGenerator": "4.0.0-beta-23225",
+        "System.Diagnostics.Contracts": "4.0.0"
       }
     }
   },

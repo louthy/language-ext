@@ -7,6 +7,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
+using System.Diagnostics.Contracts;
 
 public static class __NullableExt
 {
@@ -16,6 +17,7 @@ public static class __NullableExt
     /// <typeparam name="T"></typeparam>
     /// <param name="self">Value to convert</param>
     /// <returns>OptionT with Some or None, depending on HasValue</returns>
+    [Pure]
     public static Option<T> ToOption<T>(this T? self) where T : struct =>
         self.HasValue
             ? Some(self.Value)
@@ -27,6 +29,7 @@ public static class __NullableExt
     /// <typeparam name="T"></typeparam>
     /// <param name="self">Value to convert</param>
     /// <returns>Zero or One enumerable values, depending on HasValue</returns>
+    [Pure]
     public static IEnumerable<T> AsEnumerable<T>(this T? self) where T : struct
     {
         if (self.HasValue)
@@ -42,6 +45,7 @@ public static class __NullableExt
     /// <param name="Some">Some handler</param>
     /// <param name="None">None handler</param>
     /// <returns>A non-null R</returns>
+    [Pure]
     public static R Match<T, R>(this T? self, Func<T, R> Some, Func<R> None) where T : struct =>
         self.HasValue
             ? Some(self.Value)
@@ -78,6 +82,7 @@ public static class __NullableExt
     /// <param name="Some">Some handler</param>
     /// <param name="None">None handler</param>
     /// <returns>A stream of Rs</returns>
+    [Pure]
     public static IObservable<R> MatchObservable<T, R>(this T? self, Func<T, IObservable<R>> Some, Func<R> None) where T : struct =>
         self.HasValue
             ? Some(self.Value)
@@ -90,6 +95,7 @@ public static class __NullableExt
     /// <param name="Some">Some handler</param>
     /// <param name="None">None handler</param>
     /// <returns>A stream of Rs</returns>
+    [Pure]
     public static IObservable<R> MatchObservable<T, R>(this T? self, Func<T, IObservable<R>> Some, Func<IObservable<R>> None) where T : struct =>
         self.HasValue
             ? Some(self.Value)
@@ -139,40 +145,49 @@ public static class __NullableExt
         return unit;
     }
 
+    [Pure]
     public static T IfNone<T>(this T? self, Func<T> None) where T : struct =>
         self.Match(identity, None);
 
+    [Pure]
     public static T IfNone<T>(this T? self, T noneValue) where T : struct =>
         self.Match(identity, () => noneValue);
 
+    [Pure]
     public static Lst<T> ToList<T>(this T? self) where T : struct =>
         toList(self.AsEnumerable());
 
+    [Pure]
     public static T[] ToArray<T>(this T? self) where T : struct =>
         toArray(self.AsEnumerable());
 
+    [Pure]
     public static Either<L, T> ToEither<L, T>(this T? self, L defaultLeftValue) where T : struct =>
         self.HasValue
             ? Right<L, T>(self.Value)
             : Left<L, T>(defaultLeftValue);
 
+    [Pure]
     public static Either<L, T> ToEither<L, T>(this T? self, Func<L> Left) where T : struct =>
         self.HasValue
             ? Right<L, T>(self.Value)
             : Left<L, T>(Left());
 
+    [Pure]
     public static EitherUnsafe<L, T> ToEitherUnsafe<L, T>(this T? self, L defaultLeftValue) where T : struct =>
         self.HasValue
             ? RightUnsafe<L, T>(self.Value)
             : LeftUnsafe<L, T>(defaultLeftValue);
 
+    [Pure]
     public static EitherUnsafe<L, T> ToEitherUnsafe<L, T>(this T? self, Func<L> Left) where T : struct =>
         self.HasValue
             ? RightUnsafe<L, T>(self.Value)
             : LeftUnsafe<L, T>(Left());
 
+    [Pure]
     public static TryOption<T> ToTryOption<L, T>(this T? self, L defaultLeftValue) where T : struct =>
-        () => Optional<T>(self);
+        () => Optional(self);
 
     /// <summary>
     /// Append the Some(x) of one option to the Some(y) of another.
@@ -186,6 +201,7 @@ public static class __NullableExt
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
+    [Pure]
     public static T? Append<T>(this T? lhs, T? rhs) where T : struct
     {
         if (!lhs.HasValue && !rhs.HasValue) return lhs;  // None  + None  = None
@@ -205,6 +221,7 @@ public static class __NullableExt
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs - rhs</returns>
+    [Pure]
     public static T? Subtract<T>(this T? lhs, T? rhs) where T : struct
     {
         if (!lhs.HasValue) return rhs;
@@ -223,6 +240,7 @@ public static class __NullableExt
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs * rhs</returns>
+    [Pure]
     public static T? Multiply<T>(this T? lhs, T? rhs) where T : struct
     {
         if (!lhs.HasValue) return lhs;  // zero * rhs = zero
@@ -241,6 +259,7 @@ public static class __NullableExt
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs / rhs</returns>
+    [Pure]
     public static T? Divide<T>(this T? lhs, T? rhs) where T : struct
     {
         if (!lhs.HasValue) return lhs;  // zero / rhs  = zero
@@ -252,6 +271,7 @@ public static class __NullableExt
     /// Extracts from a list of nullables all the HasValue elements.
     /// All the 'Some' elements are extracted in order.
     /// </summary>
+    [Pure]
     public static IEnumerable<T> Somes<T>(this IEnumerable<T?> self) where T : struct
     {
         foreach (var item in self)
@@ -275,6 +295,7 @@ public static class __NullableExt
     /// Returns 1 if there is a value, 0 otherwise
     /// </summary>
     /// <returns>1 if there is a value, 0 otherwise</returns>
+    [Pure]
     public static int Count<T>(this T? self) where T : struct =>
         self.HasValue
             ? 1
@@ -287,6 +308,7 @@ public static class __NullableExt
     /// items).
     /// </summary>
     /// <param name="pred">Predicate</param>
+    [Pure]
     public static bool ForAll<T>(this T? self, Func<T, bool> pred) where T : struct =>
         self.HasValue
             ? pred(self.Value)
@@ -300,6 +322,7 @@ public static class __NullableExt
     /// </summary>
     /// <param name="Some">Some predicate</param>
     /// <param name="None">None predicate</param>
+    [Pure]
     public static bool ForAll<T>(this T? self, Func<T, bool> Some, Func<bool> None) where T : struct =>
         self.HasValue
             ? Some(self.Value)
@@ -311,6 +334,7 @@ public static class __NullableExt
     /// if it exists, returns false if it doesn't.
     /// </summary>
     /// <param name="pred">Predicate</param>
+    [Pure]
     public static bool Exists<T>(this T? self, Func<T, bool> pred) where T : struct =>
         self.HasValue
             ? pred(self.Value)
@@ -323,6 +347,7 @@ public static class __NullableExt
     /// </summary>
     /// <param name="Some">Some predicate</param>
     /// <param name="None">None predicate</param>
+    [Pure]
     public static bool Exists<T>(this T? self, Func<T, bool> Some, Func<bool> None) where T : struct =>
         self.HasValue
             ? Some(self.Value)
@@ -336,6 +361,7 @@ public static class __NullableExt
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
+    [Pure]
     public static S Fold<S, T>(this T? self, S state, Func<S, T, S> folder) where T : struct =>
         self.HasValue
             ? folder(state, self.Value)
@@ -350,11 +376,13 @@ public static class __NullableExt
     /// <param name="Some">Fold function for Some</param>
     /// <param name="None">Fold function for None</param>
     /// <returns>Folded state</returns>
+    [Pure]
     public static S Fold<S, T>(this T? self, S state, Func<S, T, S> Some, Func<S, S> None) where T : struct =>
         self.HasValue
             ? Some(state, self.Value)
             : None(state);
 
+    [Pure]
     public static R? Map<T, R>(this T? self, Func<T, R> mapper)
         where T : struct
         where R : struct =>
@@ -362,6 +390,7 @@ public static class __NullableExt
             ? mapper(self.Value)
             : default(R?);
 
+    [Pure]
     public static R? Map<T, R>(this T? self, Func<T, R> Some, Func<R> None) 
         where T : struct
         where R : struct =>
@@ -369,6 +398,7 @@ public static class __NullableExt
             ? Some(self.Value)
             : default(R?);
 
+    [Pure]
     public static T? Filter<T>(this T? self, Func<T, bool> pred) where T : struct =>
         self.HasValue
             ? pred(self.Value)
@@ -376,6 +406,7 @@ public static class __NullableExt
                 : default(T?)
             : self;
 
+    [Pure]
     public static T? Filter<T>(this T? self, Func<T, bool> Some, Func<bool> None) where T : struct =>
         self.HasValue
             ? Some(self.Value)
@@ -385,6 +416,7 @@ public static class __NullableExt
                 ? self
                 : default(T?);
 
+    [Pure]
     public static R? Bind<T, R>(this T? self, Func<T, R?> binder)
         where T : struct
         where R : struct =>
@@ -392,6 +424,7 @@ public static class __NullableExt
             ? binder(self.Value)
             : default(R?);
 
+    [Pure]
     public static R? Bind<T, R>(this T? self, Func<T, R?> Some, Func<R?> None)
         where T : struct
         where R : struct =>
@@ -399,21 +432,25 @@ public static class __NullableExt
             ? Some(self.Value)
             : None();
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static U? Select<T, U>(this T? self, Func<T, U> map)
         where T : struct
         where U : struct =>
         self.Map(map);
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static T? Where<T>(this T? self, Func<T, bool> pred) where T : struct =>
         self.Filter(pred);
 
+    [Pure]
     public static int Sum(this int? self) =>
         self.HasValue
             ? self.Value
             : 0;
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static V? SelectMany<T, U, V>(this T? self,
         Func<T, U?> bind,
@@ -431,6 +468,7 @@ public static class __NullableExt
         return default(V?);
     }
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static IEnumerable<V> SelectMany<T, U, V>(this T? self,
         Func<T, IEnumerable<U>> bind,
@@ -444,6 +482,7 @@ public static class __NullableExt
         return bind(self.Value).Map(resU => project(self.Value, resU));
     }
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static V? SelectMany<T, U, V>(this IEnumerable<T> self,
         Func<T, U?> bind,
@@ -467,6 +506,7 @@ public static class __NullableExt
     /// <param name="Some">Some handler</param>
     /// <param name="None">None handler</param>
     /// <returns>A stream of Rs</returns>
+    [Pure]
     public static IObservable<R> MatchObservable<T, R>(this IObservable<T?> self, Func<T, R> Some, Func<R> None) where T : struct =>
         self.Select(nullable => nullable.Match(Some, None));
 }

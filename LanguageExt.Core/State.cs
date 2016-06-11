@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using LanguageExt;
 using LanguageExt.Trans;
 using static LanguageExt.Prelude;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -33,33 +34,40 @@ namespace LanguageExt
             IsBottom = isBottom;
         }
 
+        [Pure]
         public T Value =>
             IsBottom
                 ? default(T)
                 : value;
 
+        [Pure]
         public static implicit operator StateResult<S, T>(T value) =>
            new StateResult<S, T>(default(S), value);        // TODO:  Not a good idea
 
+        [Pure]
         public static implicit operator T(StateResult<S, T> value) =>
            value.Value;
     }
 
     public static class StateResult
     {
+        [Pure]
         public static StateResult<S, T> Bottom<S, T>(S state) =>
             new StateResult<S, T>(state, default(T), true);
 
+        [Pure]
         public static StateResult<S, T> Return<S, T>(S state, T value) =>
             new StateResult<S, T>(state, value, false);
     }
 
     public static class StateExt
     {
+        [Pure]
         public static State<S, IEnumerable<T>> AsEnumerable<S, T>(this State<S, T> self) =>
             from x in self
             select (new T[1] { x }).AsEnumerable();
 
+        [Pure]
         public static IEnumerable<T> AsEnumerable<S, T>(this State<S, T> self, S state)
         {
             var res = self(state);
@@ -72,6 +80,7 @@ namespace LanguageExt
         public static State<S, Unit> Iter<S, T>(this State<S, T> self, Action<T> action) =>
             s => bmap(self(s), action);
 
+        [Pure]
         public static State<S, int> Count<S, T>(this State<S, T> self) =>
             s =>
             {
@@ -81,23 +90,29 @@ namespace LanguageExt
                   : StateResult.Return(res.State, 1);
             };
 
+        [Pure]
         public static State<S, bool> ForAll<S, T>(this State<S, T> self, Func<T, bool> pred) =>
             from x in self
             select pred(x);
 
+        [Pure]
         public static State<S, bool> Exists<S, T>(this State<S, T> self, Func<T, bool> pred) =>
             from x in self
             select pred(x);
 
+        [Pure]
         public static State<S, FState> Fold<S, T, FState>(this State<S, T> self, FState state, Func<FState, T, FState> folder) =>
             s => bmap(self(s), x => folder(state, x));
 
+        [Pure]
         public static State<S, S> Fold<S, T>(this State<S, T> self, Func<S, T, S> folder) =>
             s => bmap(self(s), x => folder(s, x));
 
+        [Pure]
         public static State<S, R> Map<S, T, R>(this State<S, T> self, Func<T, R> mapper) =>
             self.Select(mapper);
 
+        [Pure]
         public static State<S, T> Modify<S, T>(this State<S, T> self, Func<S, S> f)
         {
             if (f == null) throw new ArgumentNullException(nameof(map));
@@ -110,6 +125,7 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         public static State<S, R> Bind<S, T, R>(this State<S, T> self, Func<T, State<S, R>> binder)
         {
             return state =>
@@ -123,6 +139,7 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static State<S, U> Select<S, T, U>(this State<S, T> self, Func<T, U> map)
         {
@@ -136,6 +153,7 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static State<S, V> SelectMany<S, T, U, V>(
             this State<S, T> self,
@@ -157,11 +175,13 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         public static State<S, T> Filter<S, T>(this State<S, T> self, Func<T, bool> pred) =>
             from x in self
             where pred(x)
             select x;
 
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static State<S, T> Where<S, T>(this State<S, T> self, Func<T, bool> pred)
         {
@@ -174,14 +194,17 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         public static State<S, int> Sum<S>(this State<S, int> self) =>
             state => bmap(self(state), x => x);
 
+        [Pure]
         static StateResult<S, R> bmap<S, T, R>(StateResult<S, T> r, Func<T, R> f) =>
             r.IsBottom
                 ? StateResult.Bottom<S, R>(r.State)
                 : StateResult.Return(r.State, f(r.Value));
 
+        [Pure]
         static StateResult<S, Unit> bmap<S, T>(StateResult<S, T> r, Action<T> f)
         {
             if (r.IsBottom)
@@ -195,13 +218,15 @@ namespace LanguageExt
             }
         }
 
-
+        [Pure]
         public static State<S, Reader<Env, V>> foldT<S, Env, T, V>(State<S, Reader<Env, T>> self, V state, Func<V, T, V> fold) =>
             self.FoldT(state, fold);
 
+        [Pure]
         public static State<S, Writer<Out, V>> foldT<S, Out, T, V>(State<S, Writer<Out, T>> self, V state, Func<V, T, V> fold) =>
             self.FoldT(state, fold);
 
+        [Pure]
         public static State<S, Reader<Env, V>> FoldT<S, Env, T, V>(this State<S, Reader<Env, T>> self, V state, Func<V, T, V> fold)
         {
             return (S s) =>
@@ -212,6 +237,7 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         public static State<S, Writer<Out, V>> FoldT<S, Out, T, V>(this State<S, Writer<Out, T>> self, V state, Func<V, T, V> fold)
         {
             return (S s) =>
@@ -225,6 +251,7 @@ namespace LanguageExt
         /// <summary>
         /// Select Many
         /// </summary>
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static State<S, Reader<E, V>> SelectMany<S, E, T, U, V>(
             this State<S, T> self,
@@ -250,6 +277,7 @@ namespace LanguageExt
         /// <summary>
         /// Select Many
         /// </summary>
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static State<S, Writer<Out, V>> SelectMany<S, Out, T, U, V>(
             this State<S, T> self,

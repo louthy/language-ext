@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using static LanguageExt.Prelude;
 
@@ -27,9 +28,11 @@ namespace LanguageExt
             IsBottom = isBottom;
         }
 
+        [Pure]
         public static implicit operator WriterResult<Out, T>(T value) =>
            new WriterResult<Out, T>(value, new Out[0]);        // TODO:  Not a good idea
 
+        [Pure]
         public static implicit operator T(WriterResult<Out, T> value) =>
            value.Value;
 
@@ -37,21 +40,27 @@ namespace LanguageExt
 
     internal static class WriterResult
     {
+        [Pure]
         internal static WriterResult<Out, T> Bottom<Out, T>(IEnumerable<Out> output) =>
             new WriterResult<Out, T>(default(T), output, true);
 
+        [Pure]
         internal static WriterResult<Out, T> Bottom<Out, T>(Out output) =>
             new WriterResult<Out, T>(default(T), new Out[1] { output }, true);
 
+        [Pure]
         internal static WriterResult<Out, T> Bottom<Out, T>(params Out[] output) =>
             new WriterResult<Out, T>(default(T), output, true);
 
+        [Pure]
         internal static WriterResult<Out, T> Return<Out, T>(T value, IEnumerable<Out> output) =>
             new WriterResult<Out, T>(value, output, false);
 
+        [Pure]
         internal static WriterResult<Out, T> Return<Out, T>(T value, Out output) =>
             new WriterResult<Out, T>(value, new Out[1] { output }, false);
 
+        [Pure]
         internal static WriterResult<Out, T> Return<Out, T>(T value, params Out[] output) =>
             new WriterResult<Out, T>(value, output, false);
     }
@@ -61,6 +70,7 @@ namespace LanguageExt
     /// </summary>
     public static class WriterExt
     {
+        [Pure]
         public static IEnumerable<T> AsEnumerable<Out, T>(this Writer<Out, T> self)
         {
             var res = self();
@@ -83,21 +93,27 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         public static Writer<Out,int> Count<Out, T>(this Writer<Out, T> self) => () =>
             bmap(self(), x => 1);
 
+        [Pure]
         public static Writer<Out, bool> ForAll<Out, T>(this Writer<Out, T> self, Func<T, bool> pred) => () =>
             bmap(self(), x => pred(x));
 
+        [Pure]
         public static Writer<Out,bool> Exists<Out, T>(this Writer<Out, T> self, Func<T, bool> pred) => () =>
             bmap(self(), x => pred(x));
 
+        [Pure]
         public static Writer<Out, S> Fold<Out, S, T>(this Writer<Out, T> self, S state, Func<S, T, S> folder) => () =>
             bmap(self(), x => folder(state, x));
 
+        [Pure]
         public static Writer<Out, R> Map<Out, T, R>(this Writer<Out, T> self, Func<T, R> mapper) =>
             self.Select(mapper);
 
+        [Pure]
         public static Writer<Out, R> Bind<Out, T, R>(this Writer<Out, T> self, Func<T, Writer<Out, R>> binder)
         {
             return () =>
@@ -112,6 +128,7 @@ namespace LanguageExt
         /// <summary>
         /// Select
         /// </summary>
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static Writer<W, U> Select<W, T, U>(this Writer<W, T> self, Func<T, U> select)
         {
@@ -128,6 +145,7 @@ namespace LanguageExt
         /// <summary>
         /// Select Many
         /// </summary>
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static Writer<W, V> SelectMany<W, T, U, V>(
             this Writer<W, T> self,
@@ -149,9 +167,11 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         public static Writer<W, T> Filter<W, T>(this Writer<W, T> self, Func<T, bool> pred) =>
             self.Where(pred);
 
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static Writer<W, T> Where<W, T>(this Writer<W, T> self, Func<T, bool> pred)
         {
@@ -164,14 +184,17 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         public static Writer<W, int> Sum<W>(this Writer<W, int> self) =>
             () => bmap(self(), x => x);
 
+        [Pure]
         private static WriterResult<W, R> bmap<W, T, R>(WriterResult<W, T> r, Func<T, R> f) =>
             r.IsBottom
                 ? WriterResult.Bottom<W, R>(r.Output)
                 : WriterResult.Return(f(r.Value), r.Output);
 
+        [Pure]
         private static WriterResult<W, Unit> bmap<W, T>(WriterResult<W, T> r, Action<T> f)
         {
             if (r.IsBottom)
@@ -185,15 +208,19 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         public static Writer<Out, Reader<Env, V>> foldT<Out, Env, T, V>(Writer<Out, Reader<Env, T>> self, V state, Func<V, T, V> fold) =>
             self.FoldT(state, fold);
 
+        [Pure]
         public static Writer<Out, V> foldT<Out, T, V>(Writer<Out, Writer<Out, T>> self, V state, Func<V, T, V> fold) =>
             self.FoldT(state, fold);
 
+        [Pure]
         public static Writer<Out, State<S, V>> foldT<Out, S, T, V>(Writer<Out, State<S, T>> self, V state, Func<V, T, V> fold) =>
             self.FoldT(state, fold);
 
+        [Pure]
         public static Writer<Out, Reader<Env,V>> FoldT<Out, Env, T, V>(this Writer<Out, Reader<Env, T>> self, V state, Func<V, T, V> fold)
         {
             return () =>
@@ -208,6 +235,7 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         public static Writer<Out, V> FoldT<Out, T, V>(this Writer<Out, Writer<Out, T>> self, V state, Func<V, T, V> fold)
         {
             return () =>
@@ -219,6 +247,7 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         public static Writer<Out, State<S, V>> FoldT<Out, S, T, V>(this Writer<Out, State<S, T>> self, V state, Func<V, T, V> fold)
         {
             return () =>
@@ -236,6 +265,7 @@ namespace LanguageExt
         /// <summary>
         /// Select Many
         /// </summary>
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static Writer<Out, Reader<E, V>> SelectMany<Out, E, T, U, V>(
             this Writer<Out, T> self,
@@ -261,6 +291,7 @@ namespace LanguageExt
         /// <summary>
         /// Select Many
         /// </summary>
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static Writer<Out, State<S, V>> SelectMany<Out, S, T, U, V>(
             this Writer<Out, T> self,

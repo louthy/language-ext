@@ -7,6 +7,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -18,6 +19,7 @@ namespace LanguageExt
         /// <typeparam name="T"></typeparam>
         /// <param name="self">Value to convert</param>
         /// <returns>OptionT with Some or None, depending on HasValue</returns>
+        [Pure]
         public static Option<T> toOption<T>(T? self) where T : struct =>
             self.HasValue
                 ? Some(self.Value)
@@ -30,6 +32,7 @@ namespace LanguageExt
         /// <param name="Some">Some handler</param>
         /// <param name="None">None handler</param>
         /// <returns>A non-null R</returns>
+        [Pure]
         public static R match<T, R>(T? self, Func<T, R> Some, Func<R> None) where T : struct =>
             self.HasValue
                 ? Some(self.Value)
@@ -66,6 +69,7 @@ namespace LanguageExt
         /// <param name="Some">Some handler</param>
         /// <param name="None">None handler</param>
         /// <returns>A stream of Rs</returns>
+        [Pure]
         public static IObservable<R> matchObservable<T, R>(T? self, Func<T, IObservable<R>> Some, Func<R> None) where T : struct =>
             self.HasValue
                 ? Some(self.Value)
@@ -78,6 +82,7 @@ namespace LanguageExt
         /// <param name="Some">Some handler</param>
         /// <param name="None">None handler</param>
         /// <returns>A stream of Rs</returns>
+        [Pure]
         public static IObservable<R> matchObservable<T, R>(T? self, Func<T, IObservable<R>> Some, Func<IObservable<R>> None) where T : struct =>
             self.HasValue
                 ? Some(self.Value)
@@ -127,32 +132,39 @@ namespace LanguageExt
             return unit;
         }
 
+        [Pure]
         public static T ifNone<T>(T? self, Func<T> None) where T : struct =>
             self.Match(identity, None);
 
+        [Pure]
         public static T ifNone<T>(T? self, T noneValue) where T : struct =>
             self.Match(identity, () => noneValue);
 
+        [Pure]
         public static Either<L, T> toEither<L, T>(T? self, L defaultLeftValue) where T : struct =>
             self.HasValue
                 ? Right<L, T>(self.Value)
                 : Left<L, T>(defaultLeftValue);
 
+        [Pure]
         public static Either<L, T> toEither<L, T>(T? self, Func<L> Left) where T : struct =>
             self.HasValue
                 ? Right<L, T>(self.Value)
                 : Left<L, T>(Left());
 
+        [Pure]
         public static EitherUnsafe<L, T> toEitherUnsafe<L, T>(T? self, L defaultLeftValue) where T : struct =>
             self.HasValue
                 ? RightUnsafe<L, T>(self.Value)
                 : LeftUnsafe<L, T>(defaultLeftValue);
 
+        [Pure]
         public static EitherUnsafe<L, T> toEitherUnsafe<L, T>(T? self, Func<L> Left) where T : struct =>
             self.HasValue
                 ? RightUnsafe<L, T>(self.Value)
                 : LeftUnsafe<L, T>(Left());
 
+        [Pure]
         public static TryOption<T> toTryOption<L, T>(T? self, L defaultLeftValue) where T : struct =>
             () => Optional<T>(self);
 
@@ -168,6 +180,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
+        [Pure]
         public static T? append<T>(T? lhs, T? rhs) where T : struct
         {
             if (!lhs.HasValue && !rhs.HasValue) return lhs;  // None  + None  = None
@@ -187,6 +200,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
+        [Pure]
         public static T? subtract<T>(T? lhs, T? rhs) where T : struct
         {
             if (!lhs.HasValue) return rhs;
@@ -205,6 +219,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
+        [Pure]
         public static T? multiply<T>(T? lhs, T? rhs) where T : struct
         {
             if (!lhs.HasValue) return lhs;  // zero * rhs = zero
@@ -223,6 +238,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
+        [Pure]
         public static T? divide<T>(T? lhs, T? rhs) where T : struct
         {
             if (!lhs.HasValue) return lhs;  // zero / rhs  = zero
@@ -234,6 +250,7 @@ namespace LanguageExt
         /// Extracts from a list of 'Option' all the 'Some' elements.
         /// All the 'Some' elements are extracted in order.
         /// </summary>
+        [Pure]
         public static IEnumerable<T> somes<T>(IEnumerable<T?> self) where T : struct
         {
             foreach (var item in self)
@@ -257,6 +274,7 @@ namespace LanguageExt
         /// Returns 1 if there is a value, 0 otherwise
         /// </summary>
         /// <returns>1 if there is a value, 0 otherwise</returns>
+        [Pure]
         public static int count<T>(T? self) where T : struct =>
             self.HasValue
                 ? 1
@@ -269,6 +287,7 @@ namespace LanguageExt
         /// items).
         /// </summary>
         /// <param name="pred">Predicate</param>
+        [Pure]
         public static bool forall<T>(T? self, Func<T, bool> pred) where T : struct =>
             self.HasValue
                 ? pred(self.Value)
@@ -282,6 +301,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Some">Some predicate</param>
         /// <param name="None">None predicate</param>
+        [Pure]
         public static bool forall<T>(T? self, Func<T, bool> Some, Func<bool> None) where T : struct =>
             self.HasValue
                 ? Some(self.Value)
@@ -293,6 +313,7 @@ namespace LanguageExt
         /// if it exists, returns false if it doesn't.
         /// </summary>
         /// <param name="pred">Predicate</param>
+        [Pure]
         public static bool exists<T>(T? self, Func<T, bool> pred) where T : struct =>
             self.HasValue
                 ? pred(self.Value)
@@ -305,6 +326,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Some">Some predicate</param>
         /// <param name="None">None predicate</param>
+        [Pure]
         public static bool exists<T>(T? self, Func<T, bool> Some, Func<bool> None) where T : struct =>
             self.HasValue
                 ? Some(self.Value)
@@ -318,6 +340,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Folded state</returns>
+        [Pure]
         public static S fold<S, T>(T? self, S state, Func<S, T, S> folder) where T : struct =>
             self.HasValue
                 ? folder(state, self.Value)
@@ -332,11 +355,13 @@ namespace LanguageExt
         /// <param name="Some">Fold function for Some</param>
         /// <param name="None">Fold function for None</param>
         /// <returns>Folded state</returns>
+        [Pure]
         public static S fold<S, T>(T? self, S state, Func<S, T, S> Some, Func<S, S> None) where T : struct =>
             self.HasValue
                 ? Some(state, self.Value)
                 : None(state);
 
+        [Pure]
         public static R? map<T, R>(T? self, Func<T, R> mapper)
             where T : struct
             where R : struct =>
@@ -344,6 +369,7 @@ namespace LanguageExt
                 ? mapper(self.Value)
                 : default(R?);
 
+        [Pure]
         public static R? map<T, R>(T? self, Func<T, R> Some, Func<R> None)
             where T : struct
             where R : struct =>
@@ -351,6 +377,7 @@ namespace LanguageExt
                 ? Some(self.Value)
                 : default(R?);
 
+        [Pure]
         public static T? filter<T>(T? self, Func<T, bool> pred) where T : struct =>
             self.HasValue
                 ? pred(self.Value)
@@ -358,6 +385,7 @@ namespace LanguageExt
                     : default(T?)
                 : self;
 
+        [Pure]
         public static T? filter<T>(T? self, Func<T, bool> Some, Func<bool> None) where T : struct =>
             self.HasValue
                 ? Some(self.Value)
@@ -367,6 +395,7 @@ namespace LanguageExt
                     ? self
                     : default(T?);
 
+        [Pure]
         public static R? bind<T, R>(T? self, Func<T, R?> binder)
             where T : struct
             where R : struct =>
@@ -374,6 +403,7 @@ namespace LanguageExt
                 ? binder(self.Value)
                 : default(R?);
 
+        [Pure]
         public static R? bind<T, R>(T? self, Func<T, R?> Some, Func<R?> None)
             where T : struct
             where R : struct =>
@@ -381,6 +411,7 @@ namespace LanguageExt
                 ? Some(self.Value)
                 : None();
 
+        [Pure]
         public static int sum(int? self) =>
             self.HasValue
                 ? self.Value

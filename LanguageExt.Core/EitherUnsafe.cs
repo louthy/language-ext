@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -77,12 +78,14 @@ namespace LanguageExt
         /// <summary>
         /// Is the Either in a Right state?
         /// </summary>
+        [Pure]
         public bool IsRight =>
             CheckInitialised(State == EitherState.IsRight);
 
         /// <summary>
         /// Is the Either in a Left state?
         /// </summary>
+        [Pure]
         public bool IsLeft =>
             CheckInitialised(State == EitherState.IsLeft);
 
@@ -99,6 +102,7 @@ namespace LanguageExt
         /// results or return another Either in the Bottom state and not throw.  This is so a filtered Either 
         /// doesn't needlessly break expressions. 
         /// </summary>
+        [Pure]
         public bool IsBottom =>
             State == EitherState.IsBottom;
 
@@ -106,6 +110,7 @@ namespace LanguageExt
         /// Implicit conversion operator from R to Either R L
         /// </summary>
         /// <param name="value">Value</param>
+        [Pure]
         public static implicit operator EitherUnsafe<L, R>(R value) =>
             Right(value);
 
@@ -113,6 +118,7 @@ namespace LanguageExt
         /// Implicit conversion operator from L to Either R L
         /// </summary>
         /// <param name="value">Value</param>
+        [Pure]
         public static implicit operator EitherUnsafe<L, R>(L value) =>
             Left(value);
 
@@ -123,6 +129,7 @@ namespace LanguageExt
         /// <param name="Right">Function to invoke if in a Right state</param>
         /// <param name="Left">Function to invoke if in a Left state</param>
         /// <returns>The return value of the invoked function</returns>
+        [Pure]
         public Ret MatchUnsafe<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
             IsRight
                 ? Right(RightValue)
@@ -153,6 +160,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Left">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
+        [Pure]
         public R IfLeftUnsafe(Func<R> Left) =>
             MatchUnsafe(identity, _ => Left());
 
@@ -162,6 +170,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="leftMap">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
+        [Pure]
         public R IfLeftUnsafe(Func<L, R> leftMap) =>
             MatchUnsafe(identity, leftMap);
 
@@ -171,6 +180,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="rightValue">Value to return if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
+        [Pure]
         public R IfLeftUnsafe(R rightValue) =>
             MatchUnsafe(identity, _ => rightValue);
 
@@ -208,6 +218,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="leftValue">Value to return if in the Left state</param>
         /// <returns>Returns an unwrapped Left value</returns>
+        [Pure]
         public L IfRightUnsafe(L leftValue) =>
             MatchUnsafe(_ => leftValue, identity);
 
@@ -217,6 +228,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="Left">Function to generate a Left value if in the Right state</param>
         /// <returns>Returns an unwrapped Left value</returns>
+        [Pure]
         public L IfRightUnsafe(Func<L> Left) =>
             MatchUnsafe(_ => Left(), identity);
 
@@ -226,6 +238,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="leftMap">Function to generate a Left value if in the Right state</param>
         /// <returns>Returns an unwrapped Left value</returns>
+        [Pure]
         public L IfRightUnsafe(Func<R, L> leftMap) =>
             MatchUnsafe(leftMap, identity);
 
@@ -234,6 +247,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="rightHandler">Action to invoke if the Either is in a Right state</param>
         /// <returns>Context that must have Left() called upon it.</returns>
+        [Pure]
         public EitherUnsafeUnitContext<L, R> Right(Action<R> rightHandler) =>
             new EitherUnsafeUnitContext<L, R>(this, rightHandler);
 
@@ -242,6 +256,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="rightHandler">Action to invoke if the Either is in a Right state</param>
         /// <returns>Context that must have Left() called upon it.</returns>
+        [Pure]
         public EitherUnsafeContext<L, R, Ret> Right<Ret>(Func<R, Ret> rightHandler) =>
             new EitherUnsafeContext<L, R, Ret>(this, rightHandler);
 
@@ -249,6 +264,7 @@ namespace LanguageExt
         /// Return a string representation of the Either
         /// </summary>
         /// <returns>String representation of the Either</returns>
+        [Pure]
         public override string ToString() =>
             IsBottom
                 ? "Bottom"
@@ -264,6 +280,7 @@ namespace LanguageExt
         /// Returns a hash code of the wrapped value of the Either
         /// </summary>
         /// <returns>Hash code</returns>
+        [Pure]
         public override int GetHashCode() =>
             IsBottom
                 ? -1
@@ -281,6 +298,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="obj">Object to test for equality</param>
         /// <returns>True if equal</returns>
+        [Pure]
         public override bool Equals(object obj) =>
             obj is EitherUnsafe<L, R>
                 ? map(this, (EitherUnsafe<L, R>)obj, (lhs, rhs) =>
@@ -317,6 +335,7 @@ namespace LanguageExt
         /// Project the Either into a Lst R
         /// </summary>
         /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
+        [Pure]
         public Lst<R> RightToList() =>
             toList(RightAsEnumerable());
 
@@ -324,6 +343,7 @@ namespace LanguageExt
         /// Project the Either into an ImmutableArray R
         /// </summary>
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
+        [Pure]
         public R[] RightToArray() =>
             toArray(RightAsEnumerable());
 
@@ -331,6 +351,7 @@ namespace LanguageExt
         /// Project the Either into a Lst R
         /// </summary>
         /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
+        [Pure]
         public Lst<L> LeftToList() =>
             toList(LeftAsEnumerable());
 
@@ -338,24 +359,28 @@ namespace LanguageExt
         /// Project the Either into an ImmutableArray R
         /// </summary>
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
+        [Pure]
         public L[] LeftToArray() =>
             toArray(LeftAsEnumerable());
 
         /// <summary>
         /// Equality operator override
         /// </summary>
+        [Pure]
         public static bool operator ==(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
             lhs.Equals(rhs);
 
         /// <summary>
         /// Non-equality operator override
         /// </summary>
+        [Pure]
         public static bool operator !=(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
             !lhs.Equals(rhs);
 
         /// <summary>
         /// Override of the Or operator to be a Left coalescing operator
         /// </summary>
+        [Pure]
         public static EitherUnsafe<L, R> operator |(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
             lhs.IsBottom || rhs.IsBottom
                 ? lhs
@@ -366,6 +391,7 @@ namespace LanguageExt
         /// <summary>
         /// Override of the True operator to return True if the Either is Right
         /// </summary>
+        [Pure]
         public static bool operator true(EitherUnsafe<L, R> value) =>
             value.IsBottom
                 ? false
@@ -374,6 +400,7 @@ namespace LanguageExt
         /// <summary>
         /// Override of the False operator to return True if the Either is Left
         /// </summary>
+        [Pure]
         public static bool operator false(EitherUnsafe<L, R> value) =>
             value.IsBottom
                 ? false
@@ -383,6 +410,7 @@ namespace LanguageExt
         /// Project the Either into a IEnumerable R
         /// </summary>
         /// <returns>If the Either is in a Right state, an IEnumerable of R with one item.  A zero length IEnumerable R otherwise</returns>
+        [Pure]
         public IEnumerable<R> RightAsEnumerable()
         {
             if (IsRight)
@@ -395,6 +423,7 @@ namespace LanguageExt
         /// Project the Either into a IEnumerable L
         /// </summary>
         /// <returns>If the Either is in a Left state, an IEnumerable of L with one item.  A zero length IEnumerable L otherwise</returns>
+        [Pure]
         public IEnumerable<L> LeftAsEnumerable()
         {
             if (IsLeft)
@@ -417,6 +446,7 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         public int CompareTo(EitherUnsafe<L, R> other) =>
             IsLeft && other.IsLeft
                 ? Comparer<L>.Default.Compare(LeftValue, other.LeftValue)
@@ -429,6 +459,7 @@ namespace LanguageExt
         /// <summary>
         /// CompareTo override
         /// </summary>
+        [Pure]
         public int CompareTo(R other) =>
             IsRight
                 ? Comparer<R>.Default.Compare(RightValue, other)
@@ -437,6 +468,7 @@ namespace LanguageExt
         /// <summary>
         /// CompareTo override
         /// </summary>
+        [Pure]
         public int CompareTo(L other) =>
             IsRight
                 ? -1
@@ -445,6 +477,7 @@ namespace LanguageExt
         /// <summary>
         /// CompareTo override
         /// </summary>
+        [Pure]
         public bool Equals(R other) =>
             IsBottom
             ? false
@@ -455,6 +488,7 @@ namespace LanguageExt
         /// <summary>
         /// Equality override
         /// </summary>
+        [Pure]
         public bool Equals(L other) =>
             IsBottom
                 ? false
@@ -465,6 +499,7 @@ namespace LanguageExt
         /// <summary>
         /// Equality override
         /// </summary>
+        [Pure]
         public bool Equals(EitherUnsafe<L, R> other) =>
             IsBottom && other.IsBottom
                 ? true
@@ -477,6 +512,7 @@ namespace LanguageExt
         /// <summary>
         /// Match the Right and Left values but as objects.  This can be useful to avoid reflection.
         /// </summary>
+        [Pure]
         public TResult MatchUntyped<TResult>(Func<object, TResult> Right, Func<object, TResult> Left) =>
             IsRight
                 ? Right(RightValue)
@@ -485,31 +521,38 @@ namespace LanguageExt
         /// <summary>
         /// Find out the underlying Right type
         /// </summary>
+        [Pure]
         public Type GetUnderlyingRightType() =>
             typeof(R);
 
         /// <summary>
         /// Find out the underlying Left type
         /// </summary>
+        [Pure]
         public Type GetUnderlyingLeftType() =>
             typeof(L);
 
+        [Pure]
         private U CheckInitialised<U>(U value) =>
             State == EitherState.IsBottom
                 ? raise<U>(new BottomException("Either"))
                 : value;
 
+        [Pure]
         public EitherUnsafe<L, Ret> BindUnsafe<Ret>(Func<R, EitherUnsafe<L, Ret>> binder) =>
             IsRight
                 ? binder(RightValue)
                 : EitherUnsafe<L, Ret>.Left(LeftValue);
 
+        [Pure]
         internal static EitherUnsafe<L, R> Right(R value) =>
             new EitherUnsafe<L, R>(value);
 
+        [Pure]
         internal static EitherUnsafe<L, R> Left(L value) =>
             new EitherUnsafe<L, R>(value);
 
+        [Pure]
         internal R RightValue =>
             CheckInitialised(
                 IsRight
@@ -517,6 +560,7 @@ namespace LanguageExt
                     : raise<R>(new EitherIsNotRightException())
             );
 
+        [Pure]
         internal L LeftValue =>
             CheckInitialised(
                 IsLeft
@@ -538,6 +582,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
+        [Pure]
         public static EitherUnsafe<L, R> operator +(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
             lhs.Append(rhs);
 
@@ -555,6 +600,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
+        [Pure]
         public EitherUnsafe<L, R> Append(EitherUnsafe<L, R> rhs)
         {
             if (IsLeft) return this;
@@ -575,6 +621,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
+        [Pure]
         public static EitherUnsafe<L, R> operator -(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
             lhs.Subtract(rhs);
 
@@ -591,6 +638,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
+        [Pure]
         public EitherUnsafe<L, R> Subtract(EitherUnsafe<L, R> rhs)
         {
             if (IsLeft) return this;
@@ -611,6 +659,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
+        [Pure]
         public static EitherUnsafe<L, R> operator *(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
             lhs.Multiply(rhs);
 
@@ -627,6 +676,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
+        [Pure]
         public EitherUnsafe<L, R> Multiply(EitherUnsafe<L, R> rhs)
         {
             if (IsLeft) return this;
@@ -647,6 +697,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
+        [Pure]
         public static EitherUnsafe<L, R> operator /(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
             lhs.Divide(rhs);
 
@@ -663,6 +714,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
+        [Pure]
         public EitherUnsafe<L, R> Divide(EitherUnsafe<L, R> rhs)
         {
             if (IsLeft) return this;
@@ -701,6 +753,7 @@ namespace LanguageExt
             this.rightHandler = rightHandler;
         }
 
+        [Pure]
         public Ret Left(Func<L, Ret> Left)
         {
             return matchUnsafe(either, rightHandler, Left);
@@ -741,6 +794,7 @@ public static class __EitherUnsafeExt
     /// <param name="self">Either function</param>
     /// <param name="arg">Either argument</param>
     /// <returns>Returns the result of applying the Either argument to the Either function</returns>
+    [Pure]
     public static EitherUnsafe<L, Res> Apply<L, R, Res>(this EitherUnsafe<L, Func<R, Res>> self, EitherUnsafe<L, R> arg) =>
         arg.IsBottom || self.IsBottom
             ? new EitherUnsafe<L, Res>(true)
@@ -757,6 +811,7 @@ public static class __EitherUnsafeExt
     /// <param name="arg">Either argument</param>
     /// <returns>Returns the result of applying the Either argument to the Either function:
     /// an Either function of arity 1</returns>
+    [Pure]
     public static EitherUnsafe<L, Func<T2, R>> Apply<L, T1, T2, R>(this EitherUnsafe<L, Func<T1, T2, R>> self, EitherUnsafe<L, T1> arg) =>
         arg.IsBottom || self.IsBottom
             ? new EitherUnsafe<L, Func<T2, R>>(true)
@@ -773,6 +828,7 @@ public static class __EitherUnsafeExt
     /// <param name="arg1">Either argument</param>
     /// <param name="arg2">Either argument</param>
     /// <returns>Returns the result of applying the optional arguments to the optional function</returns>
+    [Pure]
     public static EitherUnsafe<L, R> Apply<L, T1, T2, R>(this EitherUnsafe<L, Func<T1, T2, R>> self, EitherUnsafe<L, T1> arg1, EitherUnsafe<L, T2> arg2) =>
         arg1.IsBottom || arg2.IsBottom || self.IsBottom
             ? new EitherUnsafe<L, R>(true)
@@ -793,6 +849,7 @@ public static class __EitherUnsafeExt
     /// <typeparam name="R">Right</typeparam>
     /// <param name="self">Either list</param>
     /// <returns>An enumerable of L</returns>
+    [Pure]
     public static IEnumerable<L> Lefts<L, R>(this IEnumerable<EitherUnsafe<L, R>> self)
     {
         foreach (var item in self)
@@ -812,6 +869,7 @@ public static class __EitherUnsafeExt
     /// <typeparam name="R">Right</typeparam>
     /// <param name="self">Either list</param>
     /// <returns>An enumerable of L</returns>
+    [Pure]
     public static IEnumerable<R> Rights<L, R>(this IEnumerable<EitherUnsafe<L, R>> self)
     {
         foreach (var item in self)
@@ -833,12 +891,14 @@ public static class __EitherUnsafeExt
     /// <typeparam name="R">Right</typeparam>
     /// <param name="self">Either list</param>
     /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
+    [Pure]
     public static Tuple<IEnumerable<L>, IEnumerable<R>> Partition<L, R>(this IEnumerable<EitherUnsafe<L, R>> self) =>
         Tuple(lefts(self), rights(self));
 
     /// <summary>
     /// Maps the value in the Either if it's in a Right state
     /// </summary>
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static EitherUnsafe<L, UR> Select<L, TR, UR>(this EitherUnsafe<L, TR> self, Func<TR, UR> map) =>
         self.Map(map);
@@ -846,6 +906,7 @@ public static class __EitherUnsafeExt
     /// <summary>
     /// Sum of the Either
     /// </summary>
+    [Pure]
     public static int Sum<L>(this EitherUnsafe<L, int> self) =>
         self.IsBottom || self.IsLeft
             ? 0
@@ -858,6 +919,7 @@ public static class __EitherUnsafeExt
     /// <typeparam name="R">Right</typeparam>
     /// <param name="self">Either to count</param>
     /// <returns>1 if the Either is in a Right state, 0 otherwise.</returns>
+    [Pure]
     public static int Count<L, R>(this EitherUnsafe<L, R> self) =>
         self.IsBottom || self.IsLeft
             ? 0
@@ -918,6 +980,7 @@ public static class __EitherUnsafeExt
     /// <returns>True if the Either is in a Left state.  
     /// True if the Either is in a Right state and the predicate returns True.  
     /// False otherwise.</returns>
+    [Pure]
     public static bool ForAll<L, R>(this EitherUnsafe<L, R> self, Func<R, bool> pred) =>
         self.IsBottom
             ? true
@@ -935,6 +998,7 @@ public static class __EitherUnsafeExt
     /// <returns>True if the Either is in a Right state.  
     /// True if the Either is in a Left state and the predicate returns True.  
     /// False otherwise.</returns>
+    [Pure]
     public static bool ForAll<L, R>(this EitherUnsafe<L, R> self, Func<L, bool> pred) =>
         self.IsBottom
             ? true
@@ -951,6 +1015,7 @@ public static class __EitherUnsafeExt
     /// <param name="Right">Right predicate</param>
     /// <param name="Left">Left predicate</param>
     /// <returns>True if the predicate returns True.  True if the Either is in a bottom state.</returns>
+    [Pure]
     public static bool ForAll<L, R>(this EitherUnsafe<L, R> self, Func<R, bool> Right, Func<L, bool> Left) =>
         self.ForAll(Right) && self.ForAll(Left);
 
@@ -965,6 +1030,7 @@ public static class __EitherUnsafeExt
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
+    [Pure]
     public static S Fold<L, R, S>(this EitherUnsafe<L, R> self, S state, Func<S, R, S> folder) =>
         self.IsBottom
             ? state
@@ -983,6 +1049,7 @@ public static class __EitherUnsafeExt
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
+    [Pure]
     public static S Fold<L, R, S>(this EitherUnsafe<L, R> self, S state, Func<S, L, S> folder) =>
         self.IsBottom
             ? state
@@ -1002,6 +1069,7 @@ public static class __EitherUnsafeExt
     /// <param name="Right">Right fold function</param>
     /// <param name="Left">Left fold function</param>
     /// <returns>Folded state</returns>
+    [Pure]
     public static S Fold<L, R, S>(this EitherUnsafe<L, R> self, S state, Func<S, R, S> Right, Func<S, L, S> Left) =>
         self.IsBottom
             ? state
@@ -1017,6 +1085,7 @@ public static class __EitherUnsafeExt
     /// <param name="self">Either to check existence of</param>
     /// <param name="pred">Predicate</param>
     /// <returns>True if the Either is in a Right state and the predicate returns True.  False otherwise.</returns>
+    [Pure]
     public static bool Exists<L, R>(this EitherUnsafe<L, R> self, Func<R, bool> pred) =>
         self.IsBottom
             ? false
@@ -1032,6 +1101,7 @@ public static class __EitherUnsafeExt
     /// <param name="self">Either to check existence of</param>
     /// <param name="pred">Predicate</param>
     /// <returns>True if the Either is in a Left state and the predicate returns True.  False otherwise.</returns>
+    [Pure]
     public static bool Exists<L, R>(this EitherUnsafe<L, R> self, Func<L, bool> pred) =>
         self.IsBottom
             ? false
@@ -1048,6 +1118,7 @@ public static class __EitherUnsafeExt
     /// <param name="Right">Right predicate</param>
     /// <param name="Left">Left predicate</param>
     /// <returns>True if the predicate returns True.  False otherwise or if the Either is in a bottom state.</returns>
+    [Pure]
     public static bool Exists<L, R>(this EitherUnsafe<L, R> self, Func<R, bool> Right, Func<L, bool> Left) =>
         self.IsBottom
             ? false
@@ -1064,6 +1135,7 @@ public static class __EitherUnsafeExt
     /// <param name="self">Either to map</param>
     /// <param name="mapper">Map function</param>
     /// <returns>Mapped Either</returns>
+    [Pure]
     public static EitherUnsafe<L, Ret> Map<L, R, Ret>(this EitherUnsafe<L, R> self, Func<R, Ret> mapper) =>
         self.IsBottom
             ? new EitherUnsafe<L, Ret>(true)
@@ -1080,6 +1152,7 @@ public static class __EitherUnsafeExt
     /// <param name="self">Either to map</param>
     /// <param name="mapper">Map function</param>
     /// <returns>Mapped Either</returns>
+    [Pure]
     public static EitherUnsafe<Ret, R> MapLeft<L, R, Ret>(this EitherUnsafe<L, R> self, Func<L, Ret> mapper) =>
         self.IsBottom
             ? new EitherUnsafe<Ret, R>(true)
@@ -1098,6 +1171,7 @@ public static class __EitherUnsafeExt
     /// <param name="Right">Right map function</param>
     /// <param name="Left">Left map function</param>
     /// <returns>Mapped Either</returns>
+    [Pure]
     public static EitherUnsafe<LRet, RRet> BiMap<L, R, LRet, RRet>(this EitherUnsafe<L, R> self, Func<R, RRet> Right, Func<L, LRet> Left) =>
         self.IsBottom
             ? new EitherUnsafe<LRet, RRet>(true)
@@ -1109,6 +1183,7 @@ public static class __EitherUnsafeExt
     /// Partial application map
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
+    [Pure]
     public static EitherUnsafe<L, Func<T2, R>> Map<L, T1, T2, R>(this EitherUnsafe<L, T1> self, Func<T1, T2, R> func) =>
         self.Map(curry(func));
 
@@ -1116,6 +1191,7 @@ public static class __EitherUnsafeExt
     /// Partial application map
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
+    [Pure]
     public static EitherUnsafe<L, Func<T2, Func<T3, R>>> Map<L, T1, T2, T3, R>(this EitherUnsafe<L, T1> self, Func<T1, T2, T3, R> func) =>
         self.Map(curry(func));
 
@@ -1129,6 +1205,7 @@ public static class __EitherUnsafeExt
     /// <param name="self"></param>
     /// <param name="binder"></param>
     /// <returns>Bound Either</returns>
+    [Pure]
     public static EitherUnsafe<L, Ret> Bind<L, R, Ret>(this EitherUnsafe<L, R> self, Func<R, EitherUnsafe<L, Ret>> binder) =>
         self.IsBottom
             ? new EitherUnsafe<L, Ret>(true)
@@ -1146,6 +1223,7 @@ public static class __EitherUnsafeExt
     /// <param name="self"></param>
     /// <param name="binder"></param>
     /// <returns>Bound Either</returns>
+    [Pure]
     public static EitherUnsafe<Ret, R> Bind<L, R, Ret>(this EitherUnsafe<L, R> self, Func<L, EitherUnsafe<Ret, R>> binder) =>
         self.IsBottom
             ? new EitherUnsafe<Ret, R>(true)
@@ -1164,6 +1242,7 @@ public static class __EitherUnsafeExt
     /// <param name="Right">Right bind function</param>
     /// <param name="Left">Left bind function</param>
     /// <returns>Bound Either</returns>
+    [Pure]
     public static EitherUnsafe<LRet, RRet> Bind<L, R, LRet, RRet>(this EitherUnsafe<L, R> self, Func<R, EitherUnsafe<LRet, RRet>> Right, Func<L, EitherUnsafe<LRet, RRet>> Left) =>
         self.IsBottom
             ? new EitherUnsafe<LRet, RRet>(true)
@@ -1186,6 +1265,7 @@ public static class __EitherUnsafeExt
     /// If the predicate returns True the Either is returned as-is.
     /// If the predicate returns False the Either is returned in a 'Bottom' state.  IsLeft will return True, but the value 
     /// of Left = default(L)</returns>
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static EitherUnsafe<L, R> Where<L, R>(this EitherUnsafe<L, R> self, Func<R, bool> pred) =>
         Filter(self, pred);
@@ -1205,6 +1285,7 @@ public static class __EitherUnsafeExt
     /// If the predicate returns True the Either is returned as-is.
     /// If the predicate returns False the Either is returned in a 'Bottom' state.  IsLeft will return True, but the value 
     /// of Left = default(L)</returns>
+    [Pure]
     public static EitherUnsafe<L, R> Filter<L, R>(this EitherUnsafe<L, R> self, Func<R, bool> pred) =>
         self.IsBottom
             ? self
@@ -1226,6 +1307,7 @@ public static class __EitherUnsafeExt
     /// If in the Left state the predicate is applied to the Left value.
     /// If the predicate returns True the Either is returned as-is.
     /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
+    [Pure]
     public static EitherUnsafe<L, R> Filter<L, R>(this EitherUnsafe<L, R> self, Func<L, bool> pred) =>
         self.IsBottom
             ? self
@@ -1252,6 +1334,7 @@ public static class __EitherUnsafeExt
     /// If the Either is in the Left state then the Left predicate is run against it.
     /// If the Either is in the Right state then the Right predicate is run against it.
     /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
+    [Pure]
     public static EitherUnsafe<L, R> Filter<L, R>(this EitherUnsafe<L, R> self, Func<R, bool> Right, Func<L, bool> Left) =>
         self.IsBottom
             ? self
@@ -1264,6 +1347,7 @@ public static class __EitherUnsafeExt
     /// https://en.wikipedia.org/wiki/Monad_(functional_programming)
     /// </summary>
     /// <returns>Bound Either</returns>
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static EitherUnsafe<L, V> SelectMany<L, T, U, V>(this EitherUnsafe<L, T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project)
     {
@@ -1275,6 +1359,7 @@ public static class __EitherUnsafeExt
         return project(self.RightValue, u.RightValue);
     }
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static IEnumerable<V> SelectMany<L, T, U, V>(this EitherUnsafe<L, T> self,
         Func<T, IEnumerable<U>> bind,
@@ -1286,6 +1371,7 @@ public static class __EitherUnsafeExt
         return bind(self.RightValue).Map(u => project(self.RightValue, u));
     }
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static EitherUnsafe<L, V> SelectMany<L, T, U, V>(this IEnumerable<T> self,
         Func<T, EitherUnsafe<L, U>> bind,

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -19,6 +20,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
+        [Pure]
         public static OptionUnsafe<T> append<T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
             lhs.Append(rhs);
 
@@ -34,6 +36,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
+        [Pure]
         public static OptionUnsafe<T> subtract<T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
             lhs.Subtract(rhs);
 
@@ -48,6 +51,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
+        [Pure]
         public static OptionUnsafe<T> multiply<T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
             lhs.Multiply(rhs);
 
@@ -62,12 +66,15 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
+        [Pure]
         public static OptionUnsafe<T> divide<T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
             lhs.Divide(rhs);
 
+        [Pure]
         public static bool isSome<T>(OptionUnsafe<T> value) =>
             value.IsSome;
 
+        [Pure]
         public static bool isNone<T>(OptionUnsafe<T> value) =>
             value.IsNone;
 
@@ -78,18 +85,22 @@ namespace LanguageExt
         /// <typeparam name="T">T</typeparam>
         /// <param name="value">Value to make optional</param>
         /// <returns>Option<T> in a Some state</returns>
+        [Pure]
         public static OptionUnsafe<T> SomeUnsafe<T>(T value) =>
             OptionUnsafe<T>.Some(value);
 
         public static Unit ifSomeUnsafe<T>(OptionUnsafe<T> option, Action<T> Some) =>
             option.IfSomeUnsafe(Some);
 
+        [Pure]
         public static T ifNoneUnsafe<T>(OptionUnsafe<T> option, Func<T> None) =>
             option.IfNoneUnsafe(None);
 
+        [Pure]
         public static T ifNoneUnsafe<T>(OptionUnsafe<T> option, T noneValue) =>
             option.IfNoneUnsafe(noneValue);
 
+        [Pure]
         public static R matchUnsafe<T, R>(OptionUnsafe<T> option, Func<T, R> Some, Func<R> None) =>
             option.MatchUnsafe(Some, None);
 
@@ -104,18 +115,23 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Folded state</returns>
+        [Pure]
         public static S fold<S, T>(OptionUnsafe<T> option, S state, Func<S, T, S> folder) =>
             option.Fold(state, folder);
 
+        [Pure]
         public static bool forall<T>(OptionUnsafe<T> option, Func<T, bool> pred) =>
             option.ForAll(pred);
 
+        [Pure]
         public static int count<T>(OptionUnsafe<T> option) =>
             option.Count();
 
+        [Pure]
         public static bool exists<T>(OptionUnsafe<T> option, Func<T, bool> pred) =>
             option.Exists(pred);
 
+        [Pure]
         public static OptionUnsafe<R> map<T, R>(OptionUnsafe<T> option, Func<T, R> mapper) =>
             option.Map(mapper);
 
@@ -123,6 +139,7 @@ namespace LanguageExt
         /// Partial application map
         /// </summary>
         /// <remarks>TODO: Better documentation of this function</remarks>
+        [Pure]
         public static OptionUnsafe<Func<T2, R>> map<T1, T2, R>(OptionUnsafe<T1> option, Func<T1, T2, R> mapper) =>
             option.Map(mapper);
 
@@ -130,15 +147,19 @@ namespace LanguageExt
         /// Partial application map
         /// </summary>
         /// <remarks>TODO: Better documentation of this function</remarks>
+        [Pure]
         public static OptionUnsafe<Func<T2, Func<T3, R>>> map<T1, T2, T3, R>(OptionUnsafe<T1> option, Func<T1, T2, T3, R> mapper) =>
             option.Map(mapper);
 
+        [Pure]
         public static OptionUnsafe<T> filter<T>(OptionUnsafe<T> option, Func<T, bool> pred) =>
             option.Filter(pred);
 
+        [Pure]
         public static OptionUnsafe<R> bind<T, R>(OptionUnsafe<T> option, Func<T, OptionUnsafe<R>> binder) =>
             option.Bind(binder);
 
+        [Pure]
         public static IEnumerable<R> matchUnsafe<T, R>(IEnumerable<OptionUnsafe<T>> list,
             Func<T, IEnumerable<R>> Some,
             Func<IEnumerable<R>> None
@@ -149,6 +170,7 @@ namespace LanguageExt
                 (x, xs) => x.SomeUnsafe(v => Some(v)).None(None).Concat(matchUnsafe(xs, Some, None)) // TODO: Flatten recursion
             );
 
+        [Pure]
         public static IEnumerable<R> matchUnsafe<T, R>(IEnumerable<OptionUnsafe<T>> list,
             Func<T, IEnumerable<R>> Some,
             IEnumerable<R> None
@@ -161,6 +183,7 @@ namespace LanguageExt
         /// <param name="option">Optional function</param>
         /// <param name="arg">Optional argument</param>
         /// <returns>Returns the result of applying the optional argument to the optional function</returns>
+        [Pure]
         public static OptionUnsafe<R> apply<T, R>(OptionUnsafe<Func<T, R>> option, OptionUnsafe<T> arg) =>
             option.Apply(arg);
 
@@ -171,6 +194,7 @@ namespace LanguageExt
         /// <param name="arg">Optional argument</param>
         /// <returns>Returns the result of applying the optional argument to the optional function:
         /// an optonal function of arity 1</returns>
+        [Pure]
         public static OptionUnsafe<Func<T2, R>> apply<T1, T2, R>(OptionUnsafe<Func<T1, T2, R>> option, OptionUnsafe<T1> arg) =>
             option.Apply(arg);
 
@@ -181,27 +205,33 @@ namespace LanguageExt
         /// <param name="arg1">Optional argument</param>
         /// <param name="arg2">Optional argument</param>
         /// <returns>Returns the result of applying the optional arguments to the optional function</returns>
+        [Pure]
         public static OptionUnsafe<R> apply<T1, T2, R>(OptionUnsafe<Func<T1, T2, R>> option, OptionUnsafe<T1> arg1, OptionUnsafe<T2> arg2) =>
             option.Apply(arg1, arg2);
 
+        [Pure]
         public static IEnumerable<R> MatchUnsafe<T, R>(this IEnumerable<OptionUnsafe<T>> list,
             Func<T, IEnumerable<R>> Some,
             Func<IEnumerable<R>> None
             ) =>
             matchUnsafe(list, Some, None);
 
+        [Pure]
         public static IEnumerable<R> MatchUnsafe<T, R>(this IEnumerable<OptionUnsafe<T>> list,
             Func<T, IEnumerable<R>> Some,
             IEnumerable<R> None
             ) =>
             matchUnsafe(list, Some, () => None);
 
+        [Pure]
         public static Lst<T> toList<T>(OptionUnsafe<T> option) =>
             option.ToList();
 
+        [Pure]
         public static T[] toArray<T>(OptionUnsafe<T> option) =>
             option.ToArray();
 
+        [Pure]
         public static IQueryable<T> toQuery<T>(OptionUnsafe<T> option) =>
             option.AsEnumerable().AsQueryable();
 
@@ -209,6 +239,7 @@ namespace LanguageExt
         /// Extracts from a list of 'Option' all the 'Some' elements.
         /// All the 'Some' elements are extracted in order.
         /// </summary>
+        [Pure]
         public static IEnumerable<T> somesUnsafe<T>(IEnumerable<OptionUnsafe<T>> list) =>
             list.Somes();
     }

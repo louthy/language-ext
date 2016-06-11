@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using LanguageExt;
 using LanguageExt.Trans;
 using static LanguageExt.Prelude;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -32,12 +33,15 @@ namespace LanguageExt
             IsBottom = isBottom; 
         }
 
+        [Pure]
         public static implicit operator ReaderResult<T>(T value) =>
            new ReaderResult<T>(value);
 
+        [Pure]
         public static implicit operator T(ReaderResult<T> value) =>
            value.Value;
 
+        [Pure]
         public T Value =>
             IsBottom
                 ? default(T)
@@ -46,7 +50,10 @@ namespace LanguageExt
 
     internal static class ReaderResult
     {
+        [Pure]
         public static ReaderResult<T> Bottom<T>() => new ReaderResult<T>(default(T), true);
+
+        [Pure]
         public static ReaderResult<T> Return<T>(T value) => new ReaderResult<T>(value, false);
     }
 
@@ -55,10 +62,12 @@ namespace LanguageExt
     /// </summary>
     public static class ReaderExt
     {
+        [Pure]
         public static Reader<Env, IEnumerable<T>> AsEnumerable<Env, T>(this Reader<Env, T> self) =>
             from x in self
             select (new T[1] { x }).AsEnumerable();
 
+        [Pure]
         public static IEnumerable<T> AsEnumerable<Env, T>(this Reader<Env, T> self, Env env)
         {
             var res = self(env);
@@ -71,38 +80,49 @@ namespace LanguageExt
         public static Reader<Env, Unit> Iter<Env, T>(this Reader<Env, T> self, Action<T> action) =>
             env => bmap(self(env), x => action(x));
 
+        [Pure]
         public static Reader<Env, int> Count<Env, T>(this Reader<Env, T> self) =>
             env => bmap(self(env), x => 1);
 
+        [Pure]
         public static Reader<Env, int> Sum<Env>(this Reader<Env, int> self) =>
             env => bmap(self(env), x => x);
 
+        [Pure]
         public static Reader<Env, bool> ForAll<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
             env => bmap(self(env), x => pred(x));
 
+        [Pure]
         public static Reader<Env, bool> Exists<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
             env => bmap(self(env), x => pred(x));
 
+        [Pure]
         public static Reader<Env, S> Fold<Env, S, T>(this Reader<Env, T> self, S state, Func<S, T, S> folder) =>
             env => bmap(self(env), x => folder(state, x));
 
+        [Pure]
         public static Reader<Env, R> Map<Env, T, R>(this Reader<Env, T> self, Func<T, R> mapper) =>
             env => bmap(self(env), mapper);
 
+        [Pure]
         public static Reader<Env, T> Filter<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
             self.Where(pred);
 
+        [Pure]
         private static ReaderResult<R> bmap<T, R>(ReaderResult<T> r, Func<T, R> f) =>
             r.IsBottom
                 ? Bottom<R>()
                 : Return(f(r.Value));
 
+        [Pure]
         private static ReaderResult<T> Return<T>(T value) =>
             ReaderResult.Return(value);
 
+        [Pure]
         private static ReaderResult<T> Bottom<T>() =>
             ReaderResult.Bottom<T>();
 
+        [Pure]
         private static ReaderResult<Unit> bmap<T>(ReaderResult<T> r, Action<T> f)
         {
             if (r.IsBottom)
@@ -116,6 +136,7 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static Reader<Env, T> Where<Env, T>(this Reader<Env, T> self, Func<T, bool> pred)
         {
@@ -130,6 +151,7 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         public static Reader<Env, R> Bind<Env, T, R>(this Reader<Env, T> self, Func<T, Reader<Env, R>> binder) =>
             env =>
             {
@@ -141,6 +163,7 @@ namespace LanguageExt
         /// <summary>
         /// Select
         /// </summary>
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static Reader<E, U> Select<E, T, U>(this Reader<E, T> self, Func<T, U> select)
         {
@@ -157,6 +180,7 @@ namespace LanguageExt
         /// <summary>
         /// Select Many
         /// </summary>
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static Reader<E, V> SelectMany<E, T, U, V>(
             this Reader<E, T> self,
@@ -176,24 +200,31 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         public static Reader<Env, Writer<Out, V>> foldT<Env, Out, T, V>(Reader<Env, Writer<Out, T>> self, V state, Func<V, T, V> fold) =>
             self.FoldT(state, fold);
 
+        [Pure]
         public static Reader<Env, State<S, V>> foldT<Env, S, T, V>(Reader<Env, State<S, T>> self, V state, Func<V, T, V> fold) =>
             self.FoldT(state, fold);
 
+        [Pure]
         public static State<S, T> liftT<Env, S, T>(Reader<Env, State<S, T>> self, Env env) where T : struct =>
             self.LiftT(env);
 
+        [Pure]
         public static Writer<Out, T> liftT<Env, Out, T>(Reader<Env, Writer<Out, T>> self, Env env) where T : struct =>
             self.LiftT(env);
 
+        [Pure]
         public static State<S, T> liftUnsafeT<Env, S, T>(Reader<Env, State<S, T>> self, Env env) where T : class =>
             self.LiftUnsafeT(env);
 
+        [Pure]
         public static Writer<Out, T> liftUnsafeT<Env, Out, T>(Reader<Env, Writer<Out, T>> self, Env env) where T : class =>
             self.LiftUnsafeT(env);
 
+        [Pure]
         public static Reader<Env, Writer<Out, V>> FoldT<Env, Out, T, V>(this Reader<Env, Writer<Out, T>> self, V state, Func<V, T, V> fold)
         {
             return (Env env) =>
@@ -204,6 +235,7 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         public static Reader<Env, State<S, V>> FoldT<Env, S, T, V>(this Reader<Env, State<S, T>> self, V state, Func<V, T, V> fold)
         {
             return (Env env) =>
@@ -214,6 +246,7 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         public static State<S, T> LiftT<Env, S, T>(this Reader<Env, State<S, T>> self, Env env) where T : struct
         {
             return state =>
@@ -226,6 +259,7 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         public static Writer<Out, T> LiftT<Env, Out, T>(this Reader<Env, Writer<Out, T>> self, Env env) where T : struct
         {
             return () =>
@@ -238,6 +272,7 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         public static State<S, T> LiftUnsafeT<Env, S, T>(this Reader<Env, State<S, T>> self, Env env) where T : class
         {
             return state =>
@@ -250,6 +285,7 @@ namespace LanguageExt
             };
         }
 
+        [Pure]
         public static Writer<Out, T> LiftUnsafeT<Env, Out, T>(this Reader<Env, Writer<Out, T>> self, Env env) where T : class
         {
             return () =>
@@ -265,6 +301,7 @@ namespace LanguageExt
         /// <summary>
         /// Select Many
         /// </summary>
+        [Pure]
         public static Reader<E, Writer<Out, V>> SelectMany<E, Out, T, U, V>(
             this Reader<E, T> self,
             Func<T, Writer<Out, U>> bind,
@@ -289,6 +326,7 @@ namespace LanguageExt
         /// <summary>
         /// Select Many
         /// </summary>
+        [Pure]
         public static Reader<E, State<S, V>> SelectMany<E, S, T, U, V>(
             this Reader<E, T> self,
             Func<T, State<S, U>> bind,

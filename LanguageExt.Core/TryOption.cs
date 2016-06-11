@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -33,17 +34,22 @@ namespace LanguageExt
             Value = default(T);
         }
 
+        [Pure]
         public static implicit operator TryOptionResult<T>(Option<T> value) =>
             new TryOptionResult<T>(value);
 
+        [Pure]
         public static implicit operator TryOptionResult<T>(T value) =>
             new TryOptionResult<T>(Optional(value));
 
+        [Pure]
         public static implicit operator TryOptionResult<T>(OptionNone value) =>
             new TryOptionResult<T>(Option<T>.None);
 
+        [Pure]
         internal bool IsFaulted => Exception != null;
 
+        [Pure]
         public override string ToString() =>
             IsFaulted
                 ? Exception.ToString()
@@ -62,9 +68,11 @@ namespace LanguageExt
             this.someHandler = someHandler;
         }
 
+        [Pure]
         public TryOptionNoneContext<T, R> None(Func<R> noneHandler) =>
             new TryOptionNoneContext<T, R>(option, someHandler, noneHandler);
 
+        [Pure]
         public TryOptionNoneContext<T, R> None(R noneValue) =>
             new TryOptionNoneContext<T, R>(option, someHandler, () => noneValue);
     }
@@ -80,6 +88,7 @@ namespace LanguageExt
             this.someHandler = someHandler;
         }
 
+        [Pure]
         public TryOptionNoneUnitContext<T> None(Action noneHandler) =>
             new TryOptionNoneUnitContext<T>(option, someHandler, noneHandler);
     }
@@ -97,9 +106,11 @@ namespace LanguageExt
             this.noneHandler = noneHandler;
         }
 
+        [Pure]
         public R Fail(Func<Exception, R> failHandler) =>
             option.Match(someHandler, noneHandler, failHandler);
 
+        [Pure]
         public R Fail(R failValue) =>
             option.Match(someHandler, noneHandler, _ => failValue);
     }
@@ -141,6 +152,7 @@ public static class __TryOptionExt
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
+    [Pure]
     public static TryOption<T> Append<T>(this TryOption<T> lhs, TryOption<T> rhs) => () =>
     {
         var lhsRes = lhs.Try();
@@ -163,6 +175,7 @@ public static class __TryOptionExt
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs - rhs</returns>
+    [Pure]
     public static TryOption<T> Subtract<T>(this TryOption<T> lhs, TryOption<T> rhs) => () =>
     {
         var lhsRes = lhs.Try();
@@ -185,6 +198,7 @@ public static class __TryOptionExt
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs * rhs</returns>
+    [Pure]
     public static TryOption<T> Multiply<T>(this TryOption<T> lhs, TryOption<T> rhs) => () =>
     {
         var lhsRes = lhs.Try();
@@ -207,6 +221,7 @@ public static class __TryOptionExt
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs / rhs</returns>
+    [Pure]
     public static TryOption<T> Divide<T>(this TryOption<T> lhs, TryOption<T> rhs) => () =>
     {
         var lhsRes = lhs.Try();
@@ -222,6 +237,7 @@ public static class __TryOptionExt
     /// <param name="self">TryOption function</param>
     /// <param name="arg">TryOption argument</param>
     /// <returns>Returns the result of applying the TryOption argument to the TryOption function</returns>
+    [Pure]
     public static TryOption<R> Apply<T, R>(this TryOption<Func<T, R>> self, TryOption<T> arg) => () =>
     {
         var res = self.Try();
@@ -240,6 +256,7 @@ public static class __TryOptionExt
     /// <param name="arg">TryOption argument</param>
     /// <returns>Returns the result of applying the TryOption argument to the TryOption function:
     /// a TryOption function of arity 1</returns>
+    [Pure]
     public static TryOption<Func<T2, R>> Apply<T1, T2, R>(this TryOption<Func<T1, T2, R>> self, TryOption<T1> arg) => () =>
     {
         var res = self.Try();
@@ -258,6 +275,7 @@ public static class __TryOptionExt
     /// <param name="arg1">TryOption argument</param>
     /// <param name="arg2">TryOption argument</param>
     /// <returns>Returns the result of applying the TryOption arguments to TryOption Try function</returns>
+    [Pure]
     public static TryOption<R> Apply<T1, T2, R>(this TryOption<Func<T1, T2, R>> self, TryOption<T1> arg1, TryOption<T2> arg2) => () =>
     {
         var res = self.Try();
@@ -303,6 +321,7 @@ public static class __TryOptionExt
     /// <summary>
     /// Returns the Some(value) of the TryOption or a default if it's None or Fail
     /// </summary>
+    [Pure]
     public static T IfNone<T>(this TryOption<T> self, T defaultValue)
     {
         if (isnull(defaultValue)) throw new ArgumentNullException(nameof(defaultValue));
@@ -317,6 +336,7 @@ public static class __TryOptionExt
     /// <summary>
     /// Returns the Some(value) of the TryOption or a default if it's None or Fail
     /// </summary>
+    [Pure]
     public static T IfNone<T>(this TryOption<T> self, Func<T> defaultAction)
     {
         var res = self.Try();
@@ -326,6 +346,7 @@ public static class __TryOptionExt
             return res.Value.Value;
     }
 
+    [Pure]
     public static T IfNoneOrFail<T>(
         this TryOption<T> self,
         Func<T> None,
@@ -340,6 +361,7 @@ public static class __TryOptionExt
             return res.Value.Value;
     }
 
+    [Pure]
     public static R Match<T, R>(this TryOption<T> self, Func<T, R> Some, Func<R> None, Func<Exception, R> Fail)
     {
         var res = self.Try();
@@ -348,6 +370,7 @@ public static class __TryOptionExt
             : match(res.Value, Some, None);
     }
 
+    [Pure]
     public static R Match<T, R>(this TryOption<T> self, Func<T, R> Some, R None, Func<Exception, R> Fail)
     {
         var res = self.Try();
@@ -356,6 +379,7 @@ public static class __TryOptionExt
             : match(res.Value, Some, () => None);
     }
 
+    [Pure]
     public static R Match<T, R>(this TryOption<T> self, Func<T, R> Some, Func<R> None, R Fail)
     {
         if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
@@ -366,6 +390,7 @@ public static class __TryOptionExt
             : match(res.Value, Some, None);
     }
 
+    [Pure]
     public static R Match<T, R>(this TryOption<T> self, Func<T, R> Some, R None, R Fail)
     {
         if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
@@ -376,6 +401,7 @@ public static class __TryOptionExt
             : match(res.Value, Some, () => None);
     }
 
+    [Pure]
     public static Unit Match<T>(this TryOption<T> self, Action<T> Some, Action None, Action<Exception> Fail)
     {
         var res = self.Try();
@@ -388,9 +414,11 @@ public static class __TryOptionExt
         return Unit.Default;
     }
 
+    [Pure]
     public static Option<T> ToOption<T>(this TryOption<T> self) =>
         self.Try().Value;
 
+    [Pure]
     public static TryOptionResult<T> Try<T>(this TryOption<T> self)
     {
         try
@@ -404,7 +432,7 @@ public static class __TryOptionExt
         }
     }
 
-
+    [Pure]
     public static Option<T> IfFailThrow<T>(this TryOption<T> self)
     {
         try
@@ -423,6 +451,7 @@ public static class __TryOptionExt
         }
     }
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static TryOption<U> Select<T, U>(this TryOption<T> self, Func<T, U> select)
     {
@@ -470,6 +499,7 @@ public static class __TryOptionExt
         return unit;
     }
 
+    [Pure]
     public static int Count<T>(this TryOption<T> self)
     {
         var res = self.Try();
@@ -478,6 +508,7 @@ public static class __TryOptionExt
             : res.Value.Count();
     }
 
+    [Pure]
     public static bool ForAll<T>(this TryOption<T> self, Func<T, bool> pred)
     {
         var res = self.Try();
@@ -486,6 +517,7 @@ public static class __TryOptionExt
             : res.Value.ForAll(pred);
     }
 
+    [Pure]
     public static bool ForAll<T>(this TryOption<T> self, Func<T, bool> Some, Func<bool> None, Func<Exception, bool> Fail)
     {
         var res = self.Try();
@@ -502,6 +534,7 @@ public static class __TryOptionExt
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
+    [Pure]
     public static S Fold<S, T>(this TryOption<T> self, S state, Func<S, T, S> folder)
     {
         var res = self.Try();
@@ -520,6 +553,7 @@ public static class __TryOptionExt
     /// <param name="None">Fold function for None</param>
     /// <param name="Fail">Fold function for Failure</param>
     /// <returns>Folded state</returns>
+    [Pure]
     public static S Fold<S, T>(this TryOption<T> self, S state, Func<S, T, S> Some, Func<S, S> None, Func<S, Exception, S> Fail)
     {
         var res = self.Try();
@@ -528,6 +562,7 @@ public static class __TryOptionExt
             : res.Value.Fold(state, Some, None);
     }
 
+    [Pure]
     public static bool Exists<T>(this TryOption<T> self, Func<T, bool> pred)
     {
         var res = self.Try();
@@ -536,6 +571,7 @@ public static class __TryOptionExt
             : res.Value.Exists(pred);
     }
 
+    [Pure]
     public static bool Exists<T>(this TryOption<T> self, Func<T, bool> Some, Func<bool> None, Func<Exception, bool> Fail)
     {
         var res = self.Try();
@@ -544,6 +580,7 @@ public static class __TryOptionExt
             : res.Value.Exists(Some, None);
     }
 
+    [Pure]
     public static TryOption<T> Filter<T>(this TryOption<T> self, Func<T, bool> pred)
     {
         var res = self.Try();
@@ -554,9 +591,11 @@ public static class __TryOptionExt
                 : () => None;
     }
 
+    [Pure]
     public static TryOption<R> Map<T, R>(this TryOption<T> self, Func<T, R> mapper) =>
         self.Select(mapper);
 
+    [Pure]
     public static TryOption<R> Map<T, R>(this TryOption<T> self, Func<T, R> Some, Func<R> None, Func<Exception, R> Fail) => () =>
     {
         var res = self.Try();
@@ -569,6 +608,7 @@ public static class __TryOptionExt
     /// Partial application map
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
+    [Pure]
     public static TryOption<Func<T2, R>> Map<T1, T2, R>(this TryOption<T1> self, Func<T1, T2, R> func) =>
         self.Map(curry(func));
 
@@ -576,9 +616,11 @@ public static class __TryOptionExt
     /// Partial application map
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
+    [Pure]
     public static TryOption<Func<T2, Func<T3, R>>> Map<T1, T2, T3, R>(this TryOption<T1> self, Func<T1, T2, T3, R> func) =>
         self.Map(curry(func));
 
+    [Pure]
     public static TryOption<R> Bind<T, R>(this TryOption<T> self, Func<T, TryOption<R>> binder) => () =>
     {
         var res = self.Try();
@@ -589,6 +631,7 @@ public static class __TryOptionExt
                 : binder(res.Value.Value).Try();
     };
 
+    [Pure]
     public static TryOption<R> Bind<T, R>(this TryOption<T> self, Func<T, TryOption<R>> Some, Func<TryOption<R>> None, Func<Exception, TryOption<R>> Fail) => () =>
     {
         var res = self.Try();
@@ -599,6 +642,7 @@ public static class __TryOptionExt
                 : Some(res.Value.Value).Try();
     };
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static TryOption<T> Where<T>(this TryOption<T> self, Func<T, bool> pred) =>
         self.Filter(pred);
@@ -617,18 +661,23 @@ public static class __TryOptionExt
         }
     }
 
+    [Pure]
     public static Lst<Either<Exception, T>> ToList<T>(this TryOption<T> self) =>
         toList(self.AsEnumerable());
 
+    [Pure]
     public static Either<Exception, T>[] ToArray<T>(this TryOption<T> self) =>
         toArray(self.AsEnumerable());
 
+    [Pure]
     public static TryOptionSomeContext<T, R> Some<T, R>(this TryOption<T> self, Func<T, R> someHandler) =>
         new TryOptionSomeContext<T, R>(self, someHandler);
 
+    [Pure]
     public static TryOptionSomeUnitContext<T> Some<T>(this TryOption<T> self, Action<T> someHandler) =>
         new TryOptionSomeUnitContext<T>(self, someHandler);
 
+    [Pure]
     public static int Sum(this TryOption<int> self)
     {
         var res = self.Try();
@@ -636,6 +685,7 @@ public static class __TryOptionExt
         return res.Value.Sum();
     }
 
+    [Pure]
     public static string AsString<T>(this TryOption<T> self) =>
         match(self,
             Some: v => isnull(v)
@@ -645,7 +695,7 @@ public static class __TryOptionExt
             Fail: ex => $"Fail({ex.Message})"
         );
 
-
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static TryOption<V> SelectMany<T, U, V>(
           this TryOption<T> self,
@@ -683,6 +733,7 @@ public static class __TryOptionExt
         );
     }
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static IEnumerable<V> SelectMany<T, U, V>(this TryOption<T> self,
         Func<T, IEnumerable<U>> bind,
@@ -694,6 +745,7 @@ public static class __TryOptionExt
         return bind(resT.Value.Value).Map(resU => project(resT.Value.Value, resU));
     }
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static TryOption<V> SelectMany<T, U, V>(this IEnumerable<T> self,
         Func<T, TryOption<U>> bind,

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -26,18 +27,22 @@ namespace LanguageExt
         /// <summary>
         /// First integer in the range
         /// </summary>
+        [Pure]
         public int From { get; }
 
         /// <summary>
         /// Count of integers in the range
         /// </summary>
+        [Pure]
         public int Count { get; }
 
         /// <summary>
         /// Step size between integers
         /// </summary>
+        [Pure]
         public int Step { get; }
 
+        [Pure]
         public IEnumerable<int> AsEnumerable()
         {
             if (Count == 0) yield break;
@@ -68,9 +73,11 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         public IEnumerator<int> GetEnumerator() => 
             AsEnumerable().GetEnumerator();
 
+        [Pure]
         IEnumerator IEnumerable.GetEnumerator() => 
             AsEnumerable().GetEnumerator();
     }
@@ -92,17 +99,18 @@ namespace LanguageExt
         /// <summary>
         /// First char in the range
         /// </summary>
+        [Pure]
         public char From { get; }
 
         /// <summary>
         /// Last (and inclusive) in the range
         /// </summary>
+        [Pure]
         public char To { get; }
 
+        [Pure]
         public IEnumerable<char> AsEnumerable()
         {
-            if(To==From) yield break;
-
             if (To > From)
             {
                 for (var i = From; i <= To; i++)
@@ -119,9 +127,11 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         public IEnumerator<char> GetEnumerator() => 
             AsEnumerable().GetEnumerator();
 
+        [Pure]
         IEnumerator IEnumerable.GetEnumerator() => 
             AsEnumerable().GetEnumerator();
     }

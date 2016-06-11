@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using System.Diagnostics.Contracts;
 
 public static class __TryOutExt
 {
@@ -12,6 +13,7 @@ public static class __TryOutExt
     /// <param name="self">Dictionary</param>
     /// <param name="key">Key</param>
     /// <returns>OptionT filled Some(value) or None</returns>
+    [Pure]
     public static Option<V> TryGetValue<K, V>(this IDictionary<K, V> self, K key)
     {
         V value;
@@ -28,6 +30,7 @@ public static class __TryOutExt
     /// <param name="self">Dictionary</param>
     /// <param name="key">Key</param>
     /// <returns>OptionT filled Some(value) or None</returns>
+    [Pure]
     public static Option<V> TryGetValue<K, V>(this IReadOnlyDictionary<K, V> self, K key)
     {
         V value;

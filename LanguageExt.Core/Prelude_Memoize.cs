@@ -102,9 +102,9 @@ namespace LanguageExt
         /// The OnFinalise type is a private class within WeakDict and does nothing but hold
         /// the value and an Action to call when its finalised.  So when the WeakReference is
         /// collected by the GC, it forces the finaliser to be called on the OnFinalise object,
-        /// which in turn executes the action which renmoves it from the ConcurrentDictionary.  
+        /// which in turn executes the action which removes it from the ConcurrentDictionary.  
         /// That means that both the key and value are collected when the GC fires rather than 
-        /// just the value.  That should mitigate a memory leak of keys.
+        /// just the value.  Mitigates memory leak of keys.
         /// </summary>
         private class WeakDict<T, R>
         {
