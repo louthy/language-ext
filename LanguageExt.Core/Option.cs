@@ -768,6 +768,11 @@ public static class __OptionExt
             ? Some(self.Value)
             : None();
 
+    public static async Task<Option<R>> BindAsync<T, R>(this Option<T> self, Func<T, Task<Option<R>>> binder) =>
+        self.IsSome
+            ? await binder(self.Value)
+            : None;
+
     [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Option<U> Select<T, U>(this Option<T> self, Func<T, U> map) =>
