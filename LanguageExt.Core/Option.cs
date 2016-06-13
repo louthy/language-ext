@@ -716,6 +716,11 @@ public static class __OptionExt
             ? Optional(mapper(self.Value))
             : None;
 
+    public static async Task<Option<R>> MapAsync<T, R>(this Option<T> self, Func<T, Task<R>> mapper) =>
+        self.IsSome
+            ? Optional(await mapper(self.Value))
+            : None;
+
     [Pure]
     public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> Some, Func<R> None) =>
         self.IsSome
