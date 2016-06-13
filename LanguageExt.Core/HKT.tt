@@ -52,58 +52,58 @@
         // Sum
         //
         Tuple.Create(
-            sumComments+"TABS2 internal static RETURN_ONE_INT SumT<ARGS_INT>(this TYPE_INT self) => self.Sum();",
+            sumComments+"TABS2 [Pure] internal static RETURN_ONE_INT SumT<ARGS_INT>(this TYPE_INT self) => self.Sum();",
             "",
-            sumComments+"TABS2 public static RETURN_ONE_INT SumT<ARGS_INT>(this TYPE_INT self) => self.MapT(x => x.SumT()).SumT();",
-            sumComments+"TABS2 public static RETURN_ONE_INT sumT<ARGS_INT>(TYPE_INT self) => self.MapT(x => x.SumT()).SumT();"),
+            sumComments+"TABS2 [Pure] public static RETURN_ONE_INT SumT<ARGS_INT>(this TYPE_INT self) => self.MapT(x => x.SumT()).SumT();",
+            sumComments+"TABS2 [Pure] public static RETURN_ONE_INT sumT<ARGS_INT>(TYPE_INT self) => self.MapT(x => x.SumT()).SumT();"),
         //
         // Count
         //
         Tuple.Create(
-            countComments+"TABS2 internal static RETURN_ONE_INT CountT<ARGS_T>(this TYPE self) => self.Count();",
+            countComments+"TABS2 [Pure] internal static RETURN_ONE_INT CountT<ARGS_T>(this TYPE self) => self.Count();",
             "",
-            countComments+"TABS2 public static RETURN_ONE_INT CountT<ARGS_T>(this TYPE self) => self.MapT(x => x.CountT()).SumT();",
-            countComments+"TABS2 public static RETURN_ONE_INT countT<ARGS_T>(TYPE self) => self.MapT(x => x.CountT()).SumT();"),
+            countComments+"TABS2 [Pure] public static RETURN_ONE_INT CountT<ARGS_T>(this TYPE self) => self.MapT(x => x.CountT()).SumT();",
+            countComments+"TABS2 [Pure] public static RETURN_ONE_INT countT<ARGS_T>(TYPE self) => self.MapT(x => x.CountT()).SumT();"),
         //
         // Bind
         //
         Tuple.Create(
-            bindComments+"TABS2 internal static RETURN_U BindT<ARGS_TU>(this TYPE self, Func<T, RETURN_U> binder) => self.Bind(binder);",
+            bindComments+"TABS2 [Pure] internal static RETURN_U BindT<ARGS_TU>(this TYPE self, Func<T, RETURN_U> binder) => self.Bind(binder);",
             "",
-            bindComments+"TABS2 public static RETURN_U BindT<ARGS_TU>(this TYPE self, Func<T, INNER_U> binder) => self.MapT(x => x.BindT(binder));",
-            bindComments+"TABS2 public static RETURN_U bindT<ARGS_TU>(TYPE self, Func<T, INNER_U> binder) => self.MapT(x => x.BindT(binder));"),
+            bindComments+"TABS2 [Pure] public static RETURN_U BindT<ARGS_TU>(this TYPE self, Func<T, INNER_U> binder) => self.MapT(x => x.BindT(binder));",
+            bindComments+"TABS2 [Pure] public static RETURN_U bindT<ARGS_TU>(TYPE self, Func<T, INNER_U> binder) => self.MapT(x => x.BindT(binder));"),
         //
         // Exists
         //
         Tuple.Create(
-            existsComments+"TABS2 internal static RETURN_ONE_BOOL ExistsT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.Exists(pred);",
+            existsComments+"TABS2 [Pure] internal static RETURN_ONE_BOOL ExistsT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.Exists(pred);",
             "",
-            existsComments+"TABS2 public static RETURN_ONE_BOOL ExistsT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);",
-            existsComments+"TABS2 public static RETURN_ONE_BOOL existsT<ARGS_T>(TYPE self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);"),
+            existsComments+"TABS2 [Pure] public static RETURN_ONE_BOOL ExistsT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);",
+            existsComments+"TABS2 [Pure] public static RETURN_ONE_BOOL existsT<ARGS_T>(TYPE self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);"),
         //
         // Filter
         //
         Tuple.Create(
-            filterComments+"TABS2 internal static RETURN_T FilterT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.Filter(pred);",
+            filterComments+"TABS2 [Pure] internal static RETURN_T FilterT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.Filter(pred);",
             "",
-            filterComments+"TABS2 public static RETURN_T FilterT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));",
-            filterComments+"TABS2 public static RETURN_T filterT<ARGS_T>(TYPE self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));"),
+            filterComments+"TABS2 [Pure] public static RETURN_T FilterT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));",
+            filterComments+"TABS2 [Pure] public static RETURN_T filterT<ARGS_T>(TYPE self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));"),
         //
         // Fold
         //
         Tuple.Create(
-            foldComments+"TABS2 internal static RETURN_ONE_V FoldT<ARGS_T, V>(this TYPE self, V state, Func<V, T, V> fold) => self.Fold(state,fold);",
+            foldComments+"TABS2 [Pure] internal static RETURN_ONE_V FoldT<ARGS_T, V>(this TYPE self, V state, Func<V, T, V> fold) => self.Fold(state,fold);",
             "",
-            foldComments+"TABS2 public static RETURN_ONE_V FoldT<ARGS_T, V>(this TYPE self, V state, Func<V, T, V> fold) =>DEL_ARGS self.FoldT(state,(s,x) => x.FoldT(s, fold)DEL_INVOKE_ONE);",
-            foldComments+"TABS2 public static RETURN_ONE_V foldT<ARGS_T, V>(TYPE self, V state, Func<V, T, V> fold) =>DEL_ARGS self.FoldT(state,(s,x) => x.FoldT(s, fold)DEL_INVOKE_ONE);"),
+            foldComments+"TABS2 [Pure] public static RETURN_ONE_V FoldT<ARGS_T, V>(this TYPE self, V state, Func<V, T, V> fold) =>DEL_ARGS self.FoldT(state,(s,x) => x.FoldT(s, fold)DEL_INVOKE_ONE);",
+            foldComments+"TABS2 [Pure] public static RETURN_ONE_V foldT<ARGS_T, V>(TYPE self, V state, Func<V, T, V> fold) =>DEL_ARGS self.FoldT(state,(s,x) => x.FoldT(s, fold)DEL_INVOKE_ONE);"),
         //
         // ForAll
         //
         Tuple.Create(
-            forallComments+"TABS2 internal static RETURN_ONE_BOOL ForAllT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.ForAll(pred);",
+            forallComments+"TABS2 [Pure] internal static RETURN_ONE_BOOL ForAllT<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.ForAll(pred);",
             "",
-            forallComments+"TABS2 public static RETURN_ONE_BOOL ForAllT<ARGS_T>(this TYPE self, Func<T, bool> pred) =>DEL_ARGS self.ForAllT(pred)DEL_INVOKE;",
-            forallComments+"TABS2 public static RETURN_ONE_BOOL forallT<ARGS_T>(TYPE self, Func<T, bool> pred) =>DEL_ARGS self.ForAllT(pred)DEL_INVOKE;"),
+            forallComments+"TABS2 [Pure] public static RETURN_ONE_BOOL ForAllT<ARGS_T>(this TYPE self, Func<T, bool> pred) =>DEL_ARGS self.ForAllT(pred)DEL_INVOKE;",
+            forallComments+"TABS2 [Pure] public static RETURN_ONE_BOOL forallT<ARGS_T>(TYPE self, Func<T, bool> pred) =>DEL_ARGS self.ForAllT(pred)DEL_INVOKE;"),
         //
         // Iter
         //
@@ -116,34 +116,34 @@
         // Map
         //
         Tuple.Create(
-            mapComments+"TABS2 internal static RETURN_U MapT<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.Map(mapper);",
+            mapComments+"TABS2 [Pure] internal static RETURN_U MapT<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.Map(mapper);",
             "",
-            mapComments+"TABS2 public static RETURN_U MapT<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));",
-            mapComments+"TABS2 public static RETURN_U mapT<ARGS_TU>(TYPE self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));"),
+            mapComments+"TABS2 [Pure] public static RETURN_U MapT<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));",
+            mapComments+"TABS2 [Pure] public static RETURN_U mapT<ARGS_TU>(TYPE self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));"),
         //
         // Lift
         //
         Tuple.Create(
-            liftComments+"TABS2 public static T Lift<ARGS_T>(this TYPE self LIFT_ARGS) where T : struct => self.InnerValue()LIFT_INVOKE_ONE;",
+            liftComments+"TABS2 [Pure] public static T Lift<ARGS_T>(this TYPE self LIFT_ARGS) where T : struct => self.InnerValue()LIFT_INVOKE_ONE;",
             "",
-            liftComments+"TABS2 public static LIFT_RETURN_T LiftT<ARGS_T>(this TYPE self LIFT_ARGS) where T : struct => self.ValueT()LIFT_INVOKE_ONE;",
-            liftComments+"TABS2 public static LIFT_RETURN_T liftT<ARGS_T>(TYPE self LIFT_ARGS)  where T : struct => self.ValueT()LIFT_INVOKE_ONE;"),
+            liftComments+"TABS2 [Pure] public static LIFT_RETURN_T LiftT<ARGS_T>(this TYPE self LIFT_ARGS) where T : struct => self.ValueT()LIFT_INVOKE_ONE;",
+            liftComments+"TABS2 [Pure] public static LIFT_RETURN_T liftT<ARGS_T>(TYPE self LIFT_ARGS)  where T : struct => self.ValueT()LIFT_INVOKE_ONE;"),
         //
         // LiftUnsafe
         //
         Tuple.Create(
-            liftUnsafeComments+"TABS2 public static T LiftUnsafe<ARGS_T>(this TYPE self LIFT_ARGS) where T : class => self.InnerValue()LIFT_INVOKE_ONE;",
+            liftUnsafeComments+"TABS2 [Pure] public static T LiftUnsafe<ARGS_T>(this TYPE self LIFT_ARGS) where T : class => self.InnerValue()LIFT_INVOKE_ONE;",
             "",
-            liftUnsafeComments+"TABS2 public static LIFT_RETURN_T LiftUnsafeT<ARGS_T>(this TYPE self LIFT_ARGS) where T : class => self.ValueT()LIFT_INVOKE_ONE;",
-            liftUnsafeComments+"TABS2 public static LIFT_RETURN_T LiftUnsafeT<ARGS_T>(TYPE self LIFT_ARGS)  where T : class => self.ValueT()LIFT_INVOKE_ONE;"),
+            liftUnsafeComments+"TABS2 [Pure] public static LIFT_RETURN_T LiftUnsafeT<ARGS_T>(this TYPE self LIFT_ARGS) where T : class => self.ValueT()LIFT_INVOKE_ONE;",
+            liftUnsafeComments+"TABS2 [Pure] public static LIFT_RETURN_T LiftUnsafeT<ARGS_T>(TYPE self LIFT_ARGS)  where T : class => self.ValueT()LIFT_INVOKE_ONE;"),
         //
         // SelectMany
         //
         Tuple.Create(
             "",
-            selectManyComments+"TABS2 [EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_V SelectMany<ARGS_TUV>(this OUTER_T self, Func<T, INNER_U> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));",
+            selectManyComments+"TABS2 [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_V SelectMany<ARGS_TUV>(this OUTER_T self, Func<T, INNER_U> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));",
             "",
-            selectManyComments+"TABS2 [EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, INNER_U> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));"
+            selectManyComments+"TABS2 [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, INNER_U> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));"
             ),
    };
 
@@ -152,20 +152,20 @@
         // Select
         //
         Tuple.Create(
-            selectComments+"TABS2 [EditorBrowsable(EditorBrowsableState.Never)] internal static RETURN_U Select<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.Map(mapper);",
-            selectComments+"TABS2 [EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_U Select<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));"),
+            selectComments+"TABS2 [Pure] [EditorBrowsable(EditorBrowsableState.Never)] internal static RETURN_U Select<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.Map(mapper);",
+            selectComments+"TABS2 [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_U Select<ARGS_TU>(this TYPE self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));"),
         //
         // Where
         //
         Tuple.Create(
-            whereComments+"TABS2 [EditorBrowsable(EditorBrowsableState.Never)] internal static RETURN_T Where<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.Filter(pred);",
-            whereComments+"TABS2 [EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_T Where<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));"),
+            whereComments+"TABS2 [Pure] [EditorBrowsable(EditorBrowsableState.Never)] internal static RETURN_T Where<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.Filter(pred);",
+            whereComments+"TABS2 [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_T Where<ARGS_T>(this TYPE self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));"),
         //
         // SelectMany
         //
         Tuple.Create(
-            selectManyComments+"TABS2 [EditorBrowsable(EditorBrowsableState.Never)] internal static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));",
-            selectManyComments+"TABS2 [EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));"
+            selectManyComments+"TABS2 [Pure] [EditorBrowsable(EditorBrowsableState.Never)] internal static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));",
+            selectManyComments+"TABS2 [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));"
             ),
    };
 #>

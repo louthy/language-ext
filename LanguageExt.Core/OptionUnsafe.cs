@@ -738,4 +738,116 @@ public static class __OptionUnsafeExt
     [Pure]
     public static IObservable<R> MatchObservable<T, R>(this IObservable<OptionUnsafe<T>> self, Func<T, R> Some, Func<R> None) =>
         self.Select(opt => matchUnsafe(opt, Some, None));
+
+
+    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this OptionUnsafe<T> self, Func<T, Task<R>> map) =>
+        self.IsSome
+            ? SomeUnsafe(await map(self.Value))
+            : None;
+
+    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this Task<OptionUnsafe<T>> self, Func<T, Task<R>> map)
+    {
+        var val = await self;
+        return val.IsSome
+            ? SomeUnsafe(await map(val.Value))
+            : None;
+    }
+
+    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this Task<OptionUnsafe<T>> self, Func<T, R> map)
+    {
+        var val = await self;
+        return val.IsSome
+            ? SomeUnsafe(map(val.Value))
+            : None;
+    }
+
+    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this OptionUnsafe<Task<T>> self, Func<T, R> map) =>
+        self.IsSome
+            ? SomeUnsafe(map(await self.Value))
+            : None;
+
+    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this OptionUnsafe<Task<T>> self, Func<T, Task<R>> map) =>
+        self.IsSome
+            ? SomeUnsafe(await map(await self.Value))
+            : None;
+
+
+    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this OptionUnsafe<T> self, Func<T, Task<OptionUnsafe<R>>> bind) =>
+        self.IsSome
+            ? await bind(self.Value)
+            : None;
+
+    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this Task<OptionUnsafe<T>> self, Func<T, Task<OptionUnsafe<R>>> bind)
+    {
+        var val = await self;
+        return val.IsSome
+            ? await bind(val.Value)
+            : None;
+    }
+
+    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this Task<OptionUnsafe<T>> self, Func<T, OptionUnsafe<R>> bind)
+    {
+        var val = await self;
+        return val.IsSome
+            ? bind(val.Value)
+            : None;
+    }
+
+    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this OptionUnsafe<Task<T>> self, Func<T, OptionUnsafe<R>> bind) =>
+        self.IsSome
+            ? bind(await self.Value)
+            : None;
+
+    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this OptionUnsafe<Task<T>> self, Func<T, Task<OptionUnsafe<R>>> bind) =>
+        self.IsSome
+            ? await bind(await self.Value)
+            : None;
+
+    public static async Task<Unit> IterAsync<T>(this Task<OptionUnsafe<T>> self, Action<T> action)
+    {
+        var val = await self;
+        if (val.IsSome) action(val.Value);
+        return unit;
+    }
+
+    public static async Task<Unit> IterAsync<T>(this OptionUnsafe<Task<T>> self, Action<T> action)
+    {
+        if (self.IsSome) action(await self.Value);
+        return unit;
+    }
+
+    public static async Task<int> CountAsync<T>(this Task<OptionUnsafe<T>> self) =>
+        (await self).Count();
+
+    public static async Task<int> SumAsync(this Task<OptionUnsafe<int>> self) =>
+        (await self).Sum();
+
+    public static async Task<int> SumAsync(this OptionUnsafe<Task<int>> self) =>
+        self.IsSome
+            ? await self.Value
+            : 0;
+
+    public static async Task<S> FoldAsync<T, S>(this Task<OptionUnsafe<T>> self, S state, Func<S, T, S> folder) =>
+        (await self).Fold(state, folder);
+
+    public static async Task<S> FoldAsync<T, S>(this OptionUnsafe<Task<T>> self, S state, Func<S, T, S> folder) =>
+        self.IsSome
+            ? folder(state, await self.Value)
+            : state;
+
+    public static async Task<bool> ForAllAsync<T>(this Task<OptionUnsafe<T>> self, Func<T, bool> pred) =>
+        (await self).ForAll(pred);
+
+    public static async Task<bool> ForAllAsync<T>(this OptionUnsafe<Task<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? pred(await self.Value)
+            : true;
+
+    public static async Task<bool> ExistsAsync<T>(this Task<OptionUnsafe<T>> self, Func<T, bool> pred) =>
+        (await self).Exists(pred);
+
+    public static async Task<bool> ExistsAsync<T>(this OptionUnsafe<Task<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? pred(await self.Value)
+            : false;
 }

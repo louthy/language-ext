@@ -857,4 +857,115 @@ public static class __OptionExt
     [Pure]
     public static IObservable<R> MatchObservable<T, R>(this IObservable<Option<T>> self, Func<T, R> Some, Func<R> None) =>
         self.Select(opt => match(opt, Some, None));
+
+    public static async Task<Option<R>> MapAsync<T, R>(this Option<T> self, Func<T, Task<R>> map) =>
+        self.IsSome
+            ? Some(await map(self.Value))
+            : None;
+
+    public static async Task<Option<R>> MapAsync<T, R>(this Task<Option<T>> self, Func<T, Task<R>> map)
+    {
+        var val = await self;
+        return val.IsSome
+            ? Some(await map(val.Value))
+            : None;
+    }
+
+    public static async Task<Option<R>> MapAsync<T, R>(this Task<Option<T>> self, Func<T, R> map)
+    {
+        var val = await self;
+        return val.IsSome
+            ? Some(map(val.Value))
+            : None;
+    }
+
+    public static async Task<Option<R>> MapAsync<T, R>(this Option<Task<T>> self, Func<T, R> map) =>
+        self.IsSome
+            ? Some(map(await self.Value))
+            : None;
+
+    public static async Task<Option<R>> MapAsync<T, R>(this Option<Task<T>> self, Func<T, Task<R>> map) =>
+        self.IsSome
+            ? Some(await map(await self.Value))
+            : None;
+
+
+    public static async Task<Option<R>> BindAsync<T, R>(this Option<T> self, Func<T, Task<Option<R>>> bind) =>
+        self.IsSome
+            ? await bind(self.Value)
+            : None;
+
+    public static async Task<Option<R>> BindAsync<T, R>(this Task<Option<T>> self, Func<T, Task<Option<R>>> bind)
+    {
+        var val = await self;
+        return val.IsSome
+            ? await bind(val.Value)
+            : None;
+    }
+
+    public static async Task<Option<R>> BindAsync<T, R>(this Task<Option<T>> self, Func<T, Option<R>> bind)
+    {
+        var val = await self;
+        return val.IsSome
+            ? bind(val.Value)
+            : None;
+    }
+
+    public static async Task<Option<R>> BindAsync<T, R>(this Option<Task<T>> self, Func<T, Option<R>> bind) =>
+        self.IsSome
+            ? bind(await self.Value)
+            : None;
+
+    public static async Task<Option<R>> BindAsync<T, R>(this Option<Task<T>> self, Func<T, Task<Option<R>>> bind) =>
+        self.IsSome
+            ? await bind(await self.Value)
+            : None;
+
+    public static async Task<Unit> IterAsync<T>(this Task<Option<T>> self, Action<T> action)
+    {
+        var val = await self;
+        if (val.IsSome) action(val.Value);
+        return unit;
+    }
+
+    public static async Task<Unit> IterAsync<T>(this Option<Task<T>> self, Action<T> action)
+    {
+        if (self.IsSome) action(await self.Value);
+        return unit;
+    }
+
+    public static async Task<int> CountAsync<T>(this Task<Option<T>> self) =>
+        (await self).Count();
+
+    public static async Task<int> SumAsync(this Task<Option<int>> self) =>
+        (await self).Sum();
+
+    public static async Task<int> SumAsync(this Option<Task<int>> self) =>
+        self.IsSome
+            ? await self.Value
+            : 0;
+
+    public static async Task<S> FoldAsync<T, S>(this Task<Option<T>> self, S state, Func<S, T, S> folder) =>
+        (await self).Fold(state, folder);
+
+    public static async Task<S> FoldAsync<T, S>(this Option<Task<T>> self, S state, Func<S, T, S> folder) =>
+        self.IsSome
+            ? folder(state, await self.Value)
+            : state;
+
+    public static async Task<bool> ForAllAsync<T>(this Task<Option<T>> self, Func<T, bool> pred) =>
+        (await self).ForAll(pred);
+
+    public static async Task<bool> ForAllAsync<T>(this Option<Task<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? pred(await self.Value)
+            : true;
+
+    public static async Task<bool> ExistsAsync<T>(this Task<Option<T>> self, Func<T, bool> pred) =>
+        (await self).Exists(pred);
+
+    public static async Task<bool> ExistsAsync<T>(this Option<Task<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? pred(await self.Value)
+            : false;
 }

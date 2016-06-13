@@ -1448,4 +1448,115 @@ public static class __EitherUnsafeExt
     public static IObservable<R2> MatchObservable<L, R, R2>(this IObservable<EitherUnsafe<L, R>> self, Func<R, R2> Right, Func<L, R2> Left) =>
         self.Select(either => matchUnsafe(either, Right, Left));
 
+
+    public static async Task<EitherUnsafe<L, R2>> MapAsync<L, R, R2>(this EitherUnsafe<L, R> self, Func<R, Task<R2>> map) =>
+        self.IsRight
+            ? await map(self.RightValue)
+            : LeftUnsafe<L, R2>(self.LeftValue);
+
+    public static async Task<EitherUnsafe<L, R2>> MapAsync<L, R, R2>(this Task<EitherUnsafe<L, R>> self, Func<R, Task<R2>> map)
+    {
+        var val = await self;
+        return val.IsRight
+            ? await map(val.RightValue)
+            : LeftUnsafe<L, R2>(val.LeftValue);
+    }
+
+    public static async Task<EitherUnsafe<L, R2>> MapAsync<L, R, R2>(this Task<EitherUnsafe<L, R>> self, Func<R, R2> map)
+    {
+        var val = await self;
+        return val.IsRight
+            ? map(val.RightValue)
+            : LeftUnsafe<L, R2>(val.LeftValue);
+    }
+
+    public static async Task<EitherUnsafe<L, R2>> MapAsync<L, R, R2>(this EitherUnsafe<L, Task<R>> self, Func<R, R2> map) =>
+        self.IsRight
+            ? map(await self.RightValue)
+            : LeftUnsafe<L, R2>(self.LeftValue);
+
+    public static async Task<EitherUnsafe<L, R2>> MapAsync<L, R, R2>(this EitherUnsafe<L, Task<R>> self, Func<R, Task<R2>> map) =>
+        self.IsRight
+            ? await map(await self.RightValue)
+            : LeftUnsafe<L, R2>(self.LeftValue);
+
+
+    public static async Task<EitherUnsafe<L, R2>> BindAsync<L, R, R2>(this EitherUnsafe<L, R> self, Func<R, Task<EitherUnsafe<L, R2>>> bind) =>
+        self.IsRight
+            ? await bind(self.RightValue)
+            : LeftUnsafe<L, R2>(self.LeftValue);
+
+    public static async Task<EitherUnsafe<L, R2>> BindAsync<L, R, R2>(this Task<EitherUnsafe<L, R>> self, Func<R, Task<EitherUnsafe<L, R2>>> bind)
+    {
+        var val = await self;
+        return val.IsRight
+            ? await bind(val.RightValue)
+            : LeftUnsafe<L, R2>(val.LeftValue);
+    }
+
+    public static async Task<EitherUnsafe<L, R2>> BindAsync<L, R, R2>(this Task<EitherUnsafe<L, R>> self, Func<R, EitherUnsafe<L, R2>> bind)
+    {
+        var val = await self;
+        return val.IsRight
+            ? bind(val.RightValue)
+            : LeftUnsafe<L, R2>(val.LeftValue);
+    }
+
+    public static async Task<EitherUnsafe<L, R2>> BindAsync<L, R, R2>(this EitherUnsafe<L, Task<R>> self, Func<R, EitherUnsafe<L, R2>> bind) =>
+        self.IsRight
+            ? bind(await self.RightValue)
+            : LeftUnsafe<L, R2>(self.LeftValue);
+
+    public static async Task<EitherUnsafe<L, R2>> BindAsync<L, R, R2>(this EitherUnsafe<L, Task<R>> self, Func<R, Task<EitherUnsafe<L, R2>>> bind) =>
+        self.IsRight
+            ? await bind(await self.RightValue)
+            : LeftUnsafe<L, R2>(self.LeftValue);
+
+    public static async Task<Unit> IterAsync<L, R>(this Task<EitherUnsafe<L, R>> self, Action<R> action)
+    {
+        var val = await self;
+        if (val.IsRight) action(val.RightValue);
+        return unit;
+    }
+
+    public static async Task<Unit> IterAsync<L, R>(this EitherUnsafe<L, Task<R>> self, Action<R> action)
+    {
+        if (self.IsRight) action(await self.RightValue);
+        return unit;
+    }
+
+    public static async Task<int> CountAsync<L, R>(this Task<EitherUnsafe<L, R>> self) =>
+        (await self).Count();
+
+    public static async Task<int> SumAsync<L>(this Task<EitherUnsafe<L, int>> self) =>
+        (await self).Sum();
+
+    public static async Task<int> SumAsync<L>(this EitherUnsafe<L, Task<int>> self) =>
+        self.IsRight
+            ? await self.RightValue
+            : 0;
+
+    public static async Task<S> FoldAsync<L, R, S>(this Task<EitherUnsafe<L, R>> self, S state, Func<S, R, S> folder) =>
+        (await self).Fold(state, folder);
+
+    public static async Task<S> FoldAsync<L, R, S>(this EitherUnsafe<L, Task<R>> self, S state, Func<S, R, S> folder) =>
+        self.IsRight
+            ? folder(state, await self.RightValue)
+            : state;
+
+    public static async Task<bool> ForAllAsync<L, R>(this Task<EitherUnsafe<L, R>> self, Func<R, bool> pred) =>
+        (await self).ForAll(pred);
+
+    public static async Task<bool> ForAllAsync<L, R>(this EitherUnsafe<L, Task<R>> self, Func<R, bool> pred) =>
+        self.IsRight
+            ? pred(await self.RightValue)
+            : true;
+
+    public static async Task<bool> ExistsAsync<L, R>(this Task<EitherUnsafe<L, R>> self, Func<R, bool> pred) =>
+        (await self).Exists(pred);
+
+    public static async Task<bool> ExistsAsync<L, R>(this EitherUnsafe<L, Task<R>> self, Func<R, bool> pred) =>
+        self.IsRight
+            ? pred(await self.RightValue)
+            : false;
 }

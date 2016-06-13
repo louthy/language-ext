@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt
 {
@@ -708,5 +709,70 @@ namespace LanguageExt
         [Pure]
         public static Tuple<IEnumerable<L>, IEnumerable<R>> partition<L, R>(IEnumerable<EitherUnsafe<L, R>> self) =>
             Tuple(lefts(self), rights(self));
+
+
+        public static async Task<EitherUnsafe<L, R2>> mapAsync<L, R, R2>(EitherUnsafe<L, R> self, Func<R, Task<R2>> map) =>
+            await self.MapAsync(map);
+
+        public static async Task<EitherUnsafe<L, R2>> mapAsync<L, R, R2>(Task<EitherUnsafe<L, R>> self, Func<R, Task<R2>> map) =>
+            await self.MapAsync(map);
+
+        public static async Task<EitherUnsafe<L, R2>> mapAsync<L, R, R2>(Task<EitherUnsafe<L, R>> self, Func<R, R2> map) =>
+            await self.MapAsync(map);
+
+        public static async Task<EitherUnsafe<L, R2>> mapAsync<L, R, R2>(EitherUnsafe<L, Task<R>> self, Func<R, R2> map) =>
+            await self.MapAsync(map);
+
+        public static async Task<EitherUnsafe<L, R2>> mapAsync<L, R, R2>(EitherUnsafe<L, Task<R>> self, Func<R, Task<R2>> map) =>
+            await self.MapAsync(map);
+
+        public static async Task<EitherUnsafe<L, R2>> bindAsync<L, R, R2>(EitherUnsafe<L, R> self, Func<R, Task<EitherUnsafe<L, R2>>> bind) =>
+            await self.BindAsync(bind);
+
+        public static async Task<EitherUnsafe<L, R2>> bindAsync<L, R, R2>(Task<EitherUnsafe<L, R>> self, Func<R, Task<EitherUnsafe<L, R2>>> bind) =>
+            await self.BindAsync(bind);
+
+        public static async Task<EitherUnsafe<L, R2>> bindAsync<L, R, R2>(Task<EitherUnsafe<L, R>> self, Func<R, EitherUnsafe<L, R2>> bind) =>
+            await self.BindAsync(bind);
+
+        public static async Task<EitherUnsafe<L, R2>> bindAsync<L, R, R2>(EitherUnsafe<L, Task<R>> self, Func<R, EitherUnsafe<L, R2>> bind) =>
+            await self.BindAsync(bind);
+
+        public static async Task<EitherUnsafe<L, R2>> bindAsync<L, R, R2>(EitherUnsafe<L, Task<R>> self, Func<R, Task<EitherUnsafe<L, R2>>> bind) =>
+            await self.BindAsync(bind);
+
+        public static async Task<Unit> iterAsync<L, R>(Task<EitherUnsafe<L, R>> self, Action<R> action) =>
+            await self.IterAsync(action);
+
+        public static async Task<Unit> iterAsync<L, R>(this EitherUnsafe<L, Task<R>> self, Action<R> action) =>
+            await self.IterAsync(action);
+
+        public static async Task<int> countAsync<L, R>(Task<EitherUnsafe<L, R>> self) =>
+            await self.CountAsync();
+
+        public static async Task<int> sumAsync<L>(Task<EitherUnsafe<L, int>> self) =>
+            await self.SumAsync();
+
+        public static async Task<int> sumAsync<L>(EitherUnsafe<L, Task<int>> self) =>
+            await self.SumAsync();
+
+        public static async Task<S> foldAsync<L, R, S>(Task<EitherUnsafe<L, R>> self, S state, Func<S, R, S> folder) =>
+            await self.FoldAsync(state, folder);
+
+        public static async Task<S> foldAsync<L, R, S>(EitherUnsafe<L, Task<R>> self, S state, Func<S, R, S> folder) =>
+            await self.FoldAsync(state, folder);
+
+        public static async Task<bool> forallAsync<L, R>(Task<EitherUnsafe<L, R>> self, Func<R, bool> pred) =>
+            await self.ForAllAsync(pred);
+
+        public static async Task<bool> forallAsync<L, R>(EitherUnsafe<L, Task<R>> self, Func<R, bool> pred) =>
+            await self.ForAllAsync(pred);
+
+        public static async Task<bool> existsAsync<L, R>(Task<EitherUnsafe<L, R>> self, Func<R, bool> pred) =>
+            await self.ExistsAsync(pred);
+
+        public static async Task<bool> existsAsync<L, R>(EitherUnsafe<L, Task<R>> self, Func<R, bool> pred) =>
+            await self.ExistsAsync(pred);
+
     }
 }

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt
 {
@@ -242,5 +243,69 @@ namespace LanguageExt
         [Pure]
         public static IEnumerable<T> somesUnsafe<T>(IEnumerable<OptionUnsafe<T>> list) =>
             list.Somes();
+
+        public static async Task<OptionUnsafe<R>> mapAsync<T, R>(OptionUnsafe<T> self, Func<T, Task<R>> map) =>
+            await self.MapAsync(map);
+
+        public static async Task<OptionUnsafe<R>> mapAsync<T, R>(Task<OptionUnsafe<T>> self, Func<T, Task<R>> map) =>
+            await self.MapAsync(map);
+
+        public static async Task<OptionUnsafe<R>> mapAsync<T, R>(Task<OptionUnsafe<T>> self, Func<T, R> map) =>
+            await self.MapAsync(map);
+
+        public static async Task<OptionUnsafe<R>> mapAsync<T, R>(OptionUnsafe<Task<T>> self, Func<T, R> map) =>
+            await self.MapAsync(map);
+
+        public static async Task<OptionUnsafe<R>> mapAsync<T, R>(OptionUnsafe<Task<T>> self, Func<T, Task<R>> map) =>
+            await self.MapAsync(map);
+
+        public static async Task<OptionUnsafe<R>> bindAsync<T, R>(OptionUnsafe<T> self, Func<T, Task<OptionUnsafe<R>>> bind) =>
+            await self.BindAsync(bind);
+
+        public static async Task<OptionUnsafe<R>> bindAsync<T, R>(Task<OptionUnsafe<T>> self, Func<T, Task<OptionUnsafe<R>>> bind) =>
+            await self.BindAsync(bind);
+
+        public static async Task<OptionUnsafe<R>> bindAsync<T, R>(Task<OptionUnsafe<T>> self, Func<T, OptionUnsafe<R>> bind) =>
+            await self.BindAsync(bind);
+
+        public static async Task<OptionUnsafe<R>> bindAsync<T, R>(OptionUnsafe<Task<T>> self, Func<T, OptionUnsafe<R>> bind) =>
+            await self.BindAsync(bind);
+
+        public static async Task<OptionUnsafe<R>> bindAsync<T, R>(OptionUnsafe<Task<T>> self, Func<T, Task<OptionUnsafe<R>>> bind) =>
+            await self.BindAsync(bind);
+
+        public static async Task<Unit> iterAsync<T>(Task<OptionUnsafe<T>> self, Action<T> action) =>
+            await self.IterAsync(action);
+
+        public static async Task<Unit> iterAsync<T>(OptionUnsafe<Task<T>> self, Action<T> action) =>
+            await self.IterAsync(action);
+
+        public static async Task<int> countAsync<T>(Task<OptionUnsafe<T>> self) =>
+            await self.CountAsync();
+
+        public static async Task<int> sumAsync(Task<OptionUnsafe<int>> self) =>
+            await self.SumAsync();
+
+        public static async Task<int> sumAsync(OptionUnsafe<Task<int>> self) =>
+            await self.SumAsync();
+
+        public static async Task<S> foldAsync<T, S>(Task<OptionUnsafe<T>> self, S state, Func<S, T, S> folder) =>
+            await self.FoldAsync(state, folder);
+
+        public static async Task<S> foldAsync<T, S>(OptionUnsafe<Task<T>> self, S state, Func<S, T, S> folder) =>
+            await self.FoldAsync(state, folder);
+
+        public static async Task<bool> forallAsync<T>(Task<OptionUnsafe<T>> self, Func<T, bool> pred) =>
+            await self.ForAllAsync(pred);
+
+        public static async Task<bool> forallAsync<T>(OptionUnsafe<Task<T>> self, Func<T, bool> pred) =>
+            await self.ForAllAsync(pred);
+
+        public static async Task<bool> existsAsync<T>(Task<OptionUnsafe<T>> self, Func<T, bool> pred) =>
+            await self.ExistsAsync(pred);
+
+        public static async Task<bool> existsAsync<T>(OptionUnsafe<Task<T>> self, Func<T, bool> pred) =>
+            await self.ExistsAsync(pred);
+
     }
 }

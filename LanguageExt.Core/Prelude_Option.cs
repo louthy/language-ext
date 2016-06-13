@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LanguageExt
 {
@@ -338,5 +339,69 @@ namespace LanguageExt
         [Pure]
         public static IQueryable<T> toQuery<T>(Option<T> option) =>
             option.AsEnumerable().AsQueryable();
+
+        public static async Task<Option<R>> mapAsync<T, R>(Option<T> self, Func<T, Task<R>> map) =>
+            await self.MapAsync(map);
+
+        public static async Task<Option<R>> mapAsync<T, R>(Task<Option<T>> self, Func<T, Task<R>> map) =>
+            await self.MapAsync(map);
+
+        public static async Task<Option<R>> mapAsync<T, R>(Task<Option<T>> self, Func<T, R> map) =>
+            await self.MapAsync(map);
+
+        public static async Task<Option<R>> mapAsync<T, R>(Option<Task<T>> self, Func<T, R> map) =>
+            await self.MapAsync(map);
+
+        public static async Task<Option<R>> mapAsync<T, R>(Option<Task<T>> self, Func<T, Task<R>> map) =>
+            await self.MapAsync(map);
+
+        public static async Task<Option<R>> bindAsync<T, R>(Option<T> self, Func<T, Task<Option<R>>> bind) =>
+            await self.BindAsync(bind);
+
+        public static async Task<Option<R>> bindAsync<T, R>(Task<Option<T>> self, Func<T, Task<Option<R>>> bind) =>
+            await self.BindAsync(bind);
+
+        public static async Task<Option<R>> bindAsync<T, R>(Task<Option<T>> self, Func<T, Option<R>> bind) =>
+            await self.BindAsync(bind);
+
+        public static async Task<Option<R>> bindAsync<T, R>(Option<Task<T>> self, Func<T, Option<R>> bind) =>
+            await self.BindAsync(bind);
+
+        public static async Task<Option<R>> bindAsync<T, R>(Option<Task<T>> self, Func<T, Task<Option<R>>> bind) =>
+            await self.BindAsync(bind);
+
+        public static async Task<Unit> iterAsync<T>(Task<Option<T>> self, Action<T> action) =>
+            await self.IterAsync(action);
+
+        public static async Task<Unit> iterAsync<T>(Option<Task<T>> self, Action<T> action) =>
+            await self.IterAsync(action);
+
+        public static async Task<int> countAsync<T>(Task<Option<T>> self) =>
+            await self.CountAsync();
+
+        public static async Task<int> sumAsync(Task<Option<int>> self) =>
+            await self.SumAsync();
+
+        public static async Task<int> sumAsync(Option<Task<int>> self) =>
+            await self.SumAsync();
+
+        public static async Task<S> foldAsync<T, S>(Task<Option<T>> self, S state, Func<S, T, S> folder) =>
+            await self.FoldAsync(state, folder);
+
+        public static async Task<S> foldAsync<T, S>(Option<Task<T>> self, S state, Func<S, T, S> folder) =>
+            await self.FoldAsync(state, folder);
+
+        public static async Task<bool> forallAsync<T>(Task<Option<T>> self, Func<T, bool> pred) =>
+            await self.ForAllAsync(pred);
+
+        public static async Task<bool> forallAsync<T>(Option<Task<T>> self, Func<T, bool> pred) =>
+            await self.ForAllAsync(pred);
+
+        public static async Task<bool> existsAsync<T>(Task<Option<T>> self, Func<T, bool> pred) =>
+            await self.ExistsAsync(pred);
+
+        public static async Task<bool> existsAsync<T>(Option<Task<T>> self, Func<T, bool> pred) =>
+            await self.ExistsAsync(pred);
+
     }
 }
