@@ -1226,7 +1226,7 @@ public static class __EitherExt
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
-    public static Either<L, Func<T2, R>> Map<L, T1, T2, R>(this Either<L, T1> self, Func<T1, T2, R> func) =>
+    public static Either<L, Func<T2, R>> ParMap<L, T1, T2, R>(this Either<L, T1> self, Func<T1, T2, R> func) =>
         self.Map(curry(func));
 
     /// <summary>
@@ -1234,7 +1234,7 @@ public static class __EitherExt
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
-    public static Either<L, Func<T2, Func<T3, R>>> Map<L, T1, T2, T3, R>(this Either<L, T1> self, Func<T1, T2, T3, R> func) =>
+    public static Either<L, Func<T2, Func<T3, R>>> ParMap<L, T1, T2, T3, R>(this Either<L, T1> self, Func<T1, T2, T3, R> func) =>
         self.Map(curry(func));
 
     /// <summary>

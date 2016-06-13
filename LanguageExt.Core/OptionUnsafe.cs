@@ -623,7 +623,7 @@ public static class __OptionUnsafeExt
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
-    public static OptionUnsafe<Func<T2, R>> Map<T1, T2, R>(this OptionUnsafe<T1> opt, Func<T1, T2, R> func) =>
+    public static OptionUnsafe<Func<T2, R>> ParMap<T1, T2, R>(this OptionUnsafe<T1> opt, Func<T1, T2, R> func) =>
         opt.Map(curry(func));
 
     /// <summary>
@@ -631,7 +631,7 @@ public static class __OptionUnsafeExt
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
-    public static OptionUnsafe<Func<T2, Func<T3, R>>> Map<T1, T2, T3, R>(this OptionUnsafe<T1> opt, Func<T1, T2, T3, R> func) =>
+    public static OptionUnsafe<Func<T2, Func<T3, R>>> ParMap<T1, T2, T3, R>(this OptionUnsafe<T1> opt, Func<T1, T2, T3, R> func) =>
         opt.Map(curry(func));
 
     [Pure]

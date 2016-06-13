@@ -212,16 +212,16 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
-        public static TryOption<Func<T2, R>> map<T1, T2, R>(TryOption<T1> self, Func<T1, T2, R> func) =>
-            self.Map(func);
+        public static TryOption<Func<T2, R>> parmap<T1, T2, R>(TryOption<T1> self, Func<T1, T2, R> func) =>
+            self.ParMap(func);
 
         /// <summary>
         /// Partial application map
         /// </summary>
         /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
-        public static TryOption<Func<T2, Func<T3, R>>> map<T1, T2, T3, R>(TryOption<T1> self, Func<T1, T2, T3, R> func) =>
-            self.Map(func);
+        public static TryOption<Func<T2, Func<T3, R>>> parmap<T1, T2, T3, R>(TryOption<T1> self, Func<T1, T2, T3, R> func) =>
+            self.ParMap(func);
 
         [Pure]
         public static TryOption<R> bind<T, R>(TryOption<T> tryDel, Func<T, TryOption<R>> binder) =>

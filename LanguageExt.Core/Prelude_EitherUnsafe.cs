@@ -438,16 +438,16 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
-        public static EitherUnsafe<L, Func<T2, R>> map<L, T1, T2, R>(EitherUnsafe<L, T1> either, Func<T1, T2, R> func) =>
-            either.Map(func);
+        public static EitherUnsafe<L, Func<T2, R>> parmap<L, T1, T2, R>(EitherUnsafe<L, T1> either, Func<T1, T2, R> func) =>
+            either.ParMap(func);
 
         /// <summary>
         /// Partial application map
         /// </summary>
         /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
-        public static EitherUnsafe<L, Func<T2, Func<T3, R>>> map<L, T1, T2, T3, R>(EitherUnsafe<L, T1> either, Func<T1, T2, T3, R> func) =>
-            either.Map(func);
+        public static EitherUnsafe<L, Func<T2, Func<T3, R>>> parmap<L, T1, T2, T3, R>(EitherUnsafe<L, T1> either, Func<T1, T2, T3, R> func) =>
+            either.ParMap(func);
 
         /// <summary>
         /// Filter the Either

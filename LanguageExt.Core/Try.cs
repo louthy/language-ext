@@ -640,7 +640,7 @@ public static class __TryExt
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
-    public static Try<Func<T2, R>> Map<T1, T2, R>(this Try<T1> self, Func<T1, T2, R> func) =>
+    public static Try<Func<T2, R>> ParMap<T1, T2, R>(this Try<T1> self, Func<T1, T2, R> func) =>
         self.Map(curry(func));
 
     /// <summary>
@@ -648,7 +648,7 @@ public static class __TryExt
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
-    public static Try<Func<T2, Func<T3, R>>> Map<T1, T2, T3, R>(this Try<T1> self, Func<T1, T2, T3, R> func) =>
+    public static Try<Func<T2, Func<T3, R>>> ParMap<T1, T2, T3, R>(this Try<T1> self, Func<T1, T2, T3, R> func) =>
         self.Map(curry(func));
 
     [Pure]

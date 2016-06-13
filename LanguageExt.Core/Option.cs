@@ -727,7 +727,7 @@ public static class __OptionExt
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
-    public static Option<Func<T2, R>> Map<T1, T2, R>(this Option<T1> opt, Func<T1, T2, R> func) =>
+    public static Option<Func<T2, R>> ParMap<T1, T2, R>(this Option<T1> opt, Func<T1, T2, R> func) =>
         opt.Map(curry(func));
 
     /// <summary>
@@ -735,7 +735,7 @@ public static class __OptionExt
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
-    public static Option<Func<T2, Func<T3, R>>> Map<T1, T2, T3, R>(this Option<T1> opt, Func<T1, T2, T3, R> func) =>
+    public static Option<Func<T2, Func<T3, R>>> ParMap<T1, T2, T3, R>(this Option<T1> opt, Func<T1, T2, T3, R> func) =>
         opt.Map(curry(func));
 
     [Pure]

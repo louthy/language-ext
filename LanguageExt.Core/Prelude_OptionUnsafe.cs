@@ -140,16 +140,16 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
-        public static OptionUnsafe<Func<T2, R>> map<T1, T2, R>(OptionUnsafe<T1> option, Func<T1, T2, R> mapper) =>
-            option.Map(mapper);
+        public static OptionUnsafe<Func<T2, R>> parmap<T1, T2, R>(OptionUnsafe<T1> option, Func<T1, T2, R> mapper) =>
+            option.ParMap(mapper);
 
         /// <summary>
         /// Partial application map
         /// </summary>
         /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
-        public static OptionUnsafe<Func<T2, Func<T3, R>>> map<T1, T2, T3, R>(OptionUnsafe<T1> option, Func<T1, T2, T3, R> mapper) =>
-            option.Map(mapper);
+        public static OptionUnsafe<Func<T2, Func<T3, R>>> parmap<T1, T2, T3, R>(OptionUnsafe<T1> option, Func<T1, T2, T3, R> mapper) =>
+            option.ParMap(mapper);
 
         [Pure]
         public static OptionUnsafe<T> filter<T>(OptionUnsafe<T> option, Func<T, bool> pred) =>

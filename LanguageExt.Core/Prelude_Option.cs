@@ -260,16 +260,16 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
-        public static Option<Func<T2, R>> map<T1, T2, R>(Option<T1> option, Func<T1, T2, R> mapper) =>
-            option.Map(mapper);
+        public static Option<Func<T2, R>> parmap<T1, T2, R>(Option<T1> option, Func<T1, T2, R> mapper) =>
+            option.ParMap(mapper);
 
         /// <summary>
         /// Partial application map
         /// </summary>
         /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
-        public static Option<Func<T2, Func<T3, R>>> map<T1, T2, T3, R>(Option<T1> option, Func<T1, T2, T3, R> mapper) =>
-            option.Map(mapper);
+        public static Option<Func<T2, Func<T3, R>>> parmap<T1, T2, T3, R>(Option<T1> option, Func<T1, T2, T3, R> mapper) =>
+            option.ParMap(mapper);
 
         [Pure]
         public static Option<T> filter<T>(Option<T> option, Func<T, bool> pred) =>
