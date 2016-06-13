@@ -5,6 +5,8 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
+using System.Reactive.Linq;
 
 namespace LanguageExt
 {
@@ -413,6 +415,304 @@ public static class __TryOptionExt
 
         return Unit.Default;
     }
+
+    public static async Task<R> MatchAsync<T, R>(this TryOption<T> self, Func<T, Task<R>> Succ, Func<R> None, Func<Exception, R> Fail)
+    {
+        var res = self.Try();
+        return await (res.IsFaulted
+            ? Task.FromResult(Fail(res.Exception))
+            : res.Value.IsSome
+                ? Succ(res.Value.Value)
+                : Task.FromResult(None()));
+    }
+
+    public static async Task<R> MatchAsync<T, R>(this TryOption<T> self, Func<T, Task<R>> Succ, Func<R> None, Func<Exception, Task<R>> Fail)
+    {
+        var res = self.Try();
+        return await (res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.IsSome
+                ? Succ(res.Value.Value)
+                : Task.FromResult(None()));
+    }
+
+    public static async Task<R> MatchAsync<T, R>(this TryOption<T> self, Func<T, R> Succ, Func<R> None, Func<Exception, Task<R>> Fail)
+    {
+        var res = self.Try();
+        return await (res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.IsSome
+                ? Task.FromResult(Succ(res.Value.Value))
+                : Task.FromResult(None()));
+    }
+
+    public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, R> Succ, Func<R> None, Func<Exception, R> Fail) =>
+        await self.ContinueWith(trySelf =>
+        {
+            TryOptionResult<T> res = trySelf.Result.Try();
+            return res.IsFaulted
+                ? Fail(res.Exception)
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
+                    : None();
+        });
+
+    public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, Task<R>> Succ, Func<R> None, Func<Exception, R> Fail) =>
+        await from tt in self.ContinueWith(trySelf =>
+        {
+            var res = trySelf.Result.Try();
+            return res.IsFaulted
+                ? Task.FromResult(Fail(res.Exception))
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
+                    : Task.FromResult(None());
+        })
+        from t in tt
+        select t;
+
+    public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, Task<R>> Succ, Func<R> None, Func<Exception, Task<R>> Fail) =>
+        await from tt in self.ContinueWith(trySelf =>
+        {
+            var res = trySelf.Result.Try();
+            return res.IsFaulted
+                ? Fail(res.Exception)
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
+                    : Task.FromResult(None());
+        })
+        from t in tt
+        select t;
+
+    public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, R> Succ, Func<R> None, Func<Exception, Task<R>> Fail) =>
+        await from tt in self.ContinueWith(trySelf =>
+        {
+            var res = trySelf.Result.Try();
+            return res.IsFaulted
+                ? Fail(res.Exception)
+                : res.Value.IsSome
+                    ? Task.FromResult(Succ(res.Value.Value))
+                    : Task.FromResult(None());
+        })
+        from t in tt
+        select t;
+
+    public static async Task<R> MatchAsync<T, R>(this TryOption<T> self, Func<T, Task<R>> Succ, Func<Task<R>> None, Func<Exception, R> Fail)
+    {
+        var res = self.Try();
+        return await (res.IsFaulted
+            ? Task.FromResult(Fail(res.Exception))
+            : res.Value.IsSome
+                ? Succ(res.Value.Value)
+                : None());
+    }
+
+    public static async Task<R> MatchAsync<T, R>(this TryOption<T> self, Func<T, Task<R>> Succ, Func<Task<R>> None, Func<Exception, Task<R>> Fail)
+    {
+        var res = self.Try();
+        return await (res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.IsSome
+                ? Succ(res.Value.Value)
+                : None());
+    }
+
+    public static async Task<R> MatchAsync<T, R>(this TryOption<T> self, Func<T, R> Succ, Func<Task<R>> None, Func<Exception, Task<R>> Fail)
+    {
+        var res = self.Try();
+        return await (res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.IsSome
+                ? Task.FromResult(Succ(res.Value.Value))
+                : None());
+    }
+
+    public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, Task<R>> Succ, Func<Task<R>> None, Func<Exception, R> Fail) =>
+        await from tt in self.ContinueWith(trySelf =>
+        {
+            var res = trySelf.Result.Try();
+            return res.IsFaulted
+                ? Task.FromResult(Fail(res.Exception))
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
+                    : None();
+        })
+        from t in tt
+        select t;
+
+    public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, Task<R>> Succ, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
+        await from tt in self.ContinueWith(trySelf =>
+        {
+            var res = trySelf.Result.Try();
+            return res.IsFaulted
+                ? Fail(res.Exception)
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
+                    : None();
+        })
+        from t in tt
+        select t;
+
+    public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, R> Succ, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
+        await from tt in self.ContinueWith(trySelf =>
+        {
+            var res = trySelf.Result.Try();
+            return res.IsFaulted
+                ? Fail(res.Exception)
+                : res.Value.IsSome
+                    ? Task.FromResult(Succ(res.Value.Value))
+                    : None();
+        })
+        from t in tt
+        select t;
+
+    public static IObservable<R> MatchObservable<T, R>(this TryOption<T> self, Func<T, IObservable<R>> Succ, Func<R> None, Func<Exception, R> Fail)
+    {
+        var res = self.Try();
+        return (res.IsFaulted
+            ? Observable.Return(Fail(res.Exception))
+            : res.Value.IsSome
+                ? Succ(res.Value.Value)
+                : Observable.Return(None()));
+    }
+
+    public static IObservable<R> MatchObservable<T, R>(this TryOption<T> self, Func<T, IObservable<R>> Succ, Func<R> None, Func<Exception, IObservable<R>> Fail)
+    {
+        var res = self.Try();
+        return (res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.IsSome
+                ? Succ(res.Value.Value)
+                : Observable.Return(None()));
+    }
+
+    public static IObservable<R> MatchObservable<T, R>(this TryOption<T> self, Func<T, R> Succ, Func<R> None, Func<Exception, IObservable<R>> Fail)
+    {
+        var res = self.Try();
+        return (res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.IsSome
+                ? Observable.Return(Succ(res.Value.Value))
+                : Observable.Return(None()));
+    }
+
+    public static IObservable<R> MatchObservable<T, R>(this IObservable<TryOption<T>> self, Func<T, R> Succ, Func<R> None, Func<Exception, R> Fail) =>
+        self.Select(trySelf =>
+        {
+            TryOptionResult<T> res = trySelf.Try();
+            return res.IsFaulted
+                ? Fail(res.Exception)
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
+                    : None();
+        });
+
+    public static IObservable<R> MatchObservable<T, R>(this IObservable<TryOption<T>> self, Func<T, IObservable<R>> Succ, Func<R> None, Func<Exception, R> Fail) =>
+        from tt in self.Select(trySelf =>
+        {
+            var res = trySelf.Try();
+            return res.IsFaulted
+                ? Observable.Return(Fail(res.Exception))
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
+                    : Observable.Return(None());
+        })
+        from t in tt
+        select t;
+
+    public static IObservable<R> MatchObservable<T, R>(this IObservable<TryOption<T>> self, Func<T, IObservable<R>> Succ, Func<R> None, Func<Exception, IObservable<R>> Fail) =>
+        from tt in self.Select(trySelf =>
+        {
+            var res = trySelf.Try();
+            return res.IsFaulted
+                ? Fail(res.Exception)
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
+                    : Observable.Return(None());
+        })
+        from t in tt
+        select t;
+
+    public static IObservable<R> MatchObservable<T, R>(this IObservable<TryOption<T>> self, Func<T, R> Succ, Func<R> None, Func<Exception, IObservable<R>> Fail) =>
+        from tt in self.Select(trySelf =>
+        {
+            var res = trySelf.Try();
+            return res.IsFaulted
+                ? Fail(res.Exception)
+                : res.Value.IsSome
+                    ? Observable.Return(Succ(res.Value.Value))
+                    : Observable.Return(None());
+        })
+        from t in tt
+        select t;
+
+    public static IObservable<R> MatchObservable<T, R>(this TryOption<T> self, Func<T, IObservable<R>> Succ, Func<IObservable<R>> None, Func<Exception, R> Fail)
+    {
+        var res = self.Try();
+        return (res.IsFaulted
+            ? Observable.Return(Fail(res.Exception))
+            : res.Value.IsSome
+                ? Succ(res.Value.Value)
+                : None());
+    }
+
+    public static IObservable<R> MatchObservable<T, R>(this TryOption<T> self, Func<T, IObservable<R>> Succ, Func<IObservable<R>> None, Func<Exception, IObservable<R>> Fail)
+    {
+        var res = self.Try();
+        return (res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.IsSome
+                ? Succ(res.Value.Value)
+                : None());
+    }
+
+    public static IObservable<R> MatchObservable<T, R>(this TryOption<T> self, Func<T, R> Succ, Func<IObservable<R>> None, Func<Exception, IObservable<R>> Fail)
+    {
+        var res = self.Try();
+        return (res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.IsSome
+                ? Observable.Return(Succ(res.Value.Value))
+                : None());
+    }
+
+    public static IObservable<R> MatchObservable<T, R>(this IObservable<TryOption<T>> self, Func<T, IObservable<R>> Succ, Func<IObservable<R>> None, Func<Exception, R> Fail) =>
+        from tt in self.Select(trySelf =>
+        {
+            var res = trySelf.Try();
+            return res.IsFaulted
+                ? Observable.Return(Fail(res.Exception))
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
+                    : None();
+        })
+        from t in tt
+        select t;
+
+    public static IObservable<R> MatchObservable<T, R>(this IObservable<TryOption<T>> self, Func<T, IObservable<R>> Succ, Func<IObservable<R>> None, Func<Exception, IObservable<R>> Fail) =>
+        from tt in self.Select(trySelf =>
+        {
+            var res = trySelf.Try();
+            return res.IsFaulted
+                ? Fail(res.Exception)
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
+                    : None();
+        })
+        from t in tt
+        select t;
+
+    public static IObservable<R> MatchObservable<T, R>(this IObservable<TryOption<T>> self, Func<T, R> Succ, Func<IObservable<R>> None, Func<Exception, IObservable<R>> Fail) =>
+        from tt in self.Select(trySelf =>
+        {
+            var res = trySelf.Try();
+            return res.IsFaulted
+                ? Fail(res.Exception)
+                : res.Value.IsSome
+                    ? Observable.Return(Succ(res.Value.Value))
+                    : None();
+        })
+        from t in tt
+        select t;
 
     [Pure]
     public static Option<T> ToOption<T>(this TryOption<T> self) =>

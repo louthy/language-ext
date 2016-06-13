@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using System.Reactive.Linq;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace LanguageExt
 {
@@ -140,9 +142,9 @@ namespace LanguageExt
         [Pure]
         public Ret Match<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
             IsRight
-                ? CheckNullReturn(Right(RightValue), nameof(Right))
+                ? CheckNullRightReturn(Right(RightValue))
                 : IsLeft
-                    ? CheckNullReturn(Left(LeftValue), nameof(Left))
+                    ? CheckNullLeftReturn(Left(LeftValue))
                     : raise<Ret>(new BottomException("Either"));
 
         /// <summary>
@@ -167,6 +169,42 @@ namespace LanguageExt
             }
             return unit;
         }
+
+        /// <summary>
+        /// Match the two states of the Either and return a promise for a non-null R2.
+        /// </summary>
+        /// <returns>A promise to return a non-null R2</returns>
+        public async Task<R2> MatchAsync<R2>(Func<R, Task<R2>> Right, Func<L, R2> Left) =>
+            IsRight
+                ? CheckNullRightReturn(await Right(RightValue))
+                : CheckNullLeftReturn(Left(LeftValue));
+
+        /// <summary>
+        /// Match the two states of the Either and return a promise for a non-null R2.
+        /// </summary>
+        /// <returns>A promise to return a non-null R2</returns>
+        public async Task<R2> MatchAsync<R2>(Func<R, Task<R2>> Right, Func<L, Task<R2>> Left) =>
+            IsRight
+                ? CheckNullRightReturn(await Right(RightValue))
+                : CheckNullLeftReturn(await Left(LeftValue));
+
+        /// <summary>
+        /// Match the two states of the Either and return an observable stream of non-null R2s.
+        /// </summary>
+        [Pure]
+        public IObservable<R2> MatchObservable<R2>(Func<R, IObservable<R2>> Right, Func<L, R2> Left) =>
+            IsRight
+                ? Right(RightValue).Select(CheckNullRightReturn)
+                : Observable.Return(CheckNullLeftReturn(Left(LeftValue)));
+
+        /// <summary>
+        /// Match the two states of the Either and return an observable stream of non-null R2s.
+        /// </summary>
+        [Pure]
+        public IObservable<R2> MatchObservable<R2>(Func<R, IObservable<R2>> Right, Func<L, IObservable<R2>> Left) =>
+            IsRight
+                ? Right(RightValue).Select(CheckNullRightReturn)
+                : Left(LeftValue).Select(CheckNullLeftReturn);
 
         /// <summary>
         /// Executes the Left function if the Either is in a Left state.
@@ -608,10 +646,17 @@ namespace LanguageExt
             );
 
         [Pure]
-        private static T CheckNullReturn<T>(T value, string location) =>
+        internal static T CheckNullReturn<T>(T value, string location) =>
             isnull(value)
                 ? raise<T>(new ResultIsNullException($"'{location}' result is null.  Not allowed."))
                 : value;
+
+        internal static T CheckNullRightReturn<T>(T value) =>
+            CheckNullReturn(value, "Right");
+
+        internal static T CheckNullLeftReturn<T>(T value) =>
+            CheckNullReturn(value, "Left");
+
 
         /// <summary>
         /// Append the Right of one either to the Right of another
@@ -1448,4 +1493,28 @@ public static class __EitherExt
         if (u.IsLeft) return Either<L, V>.Left(u.LeftValue);
         return project(ta[0], u.RightValue);
     }
+
+    /// <summary>
+    /// Match the two states of the Either and return a promise of a non-null R2.
+    /// </summary>
+    public static async Task<R2> MatchAsync<L, R, R2>(this Either<L, Task<R>> self, Func<R, R2> Right, Func<L, R2> Left) =>
+        self.IsRight
+            ? Either<L, R>.CheckNullRightReturn(Right(await self.RightValue))
+            : Either<L, R>.CheckNullLeftReturn(Left(self.LeftValue));
+
+    /// <summary>
+    /// Match the two states of the Either and return a stream of non-null R2s.
+    /// </summary>
+    [Pure]
+    public static IObservable<R2> MatchObservable<L, R, R2>(this Either<L, IObservable<R>> self, Func<R, R2> Right, Func<L, R2> Left) =>
+        self.IsRight
+            ? self.RightValue.Select(Right).Select(Either<L, R>.CheckNullRightReturn)
+            : Observable.Return(Either<L, R>.CheckNullLeftReturn(Left(self.LeftValue)));
+
+    /// <summary>
+    /// Match the two states of the IObservable Either and return a stream of non-null R2s.
+    /// </summary>
+    [Pure]
+    public static IObservable<R2> MatchObservable<L, R, R2>(this IObservable<Either<L, R>> self, Func<R, R2> Right, Func<L, R2> Left) =>
+        self.Select(either => match(either, Right, Left));
 }

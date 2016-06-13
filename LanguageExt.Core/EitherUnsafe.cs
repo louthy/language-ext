@@ -5,6 +5,8 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
+using System.Reactive.Linq;
 
 namespace LanguageExt
 {
@@ -153,6 +155,42 @@ namespace LanguageExt
             }
             return unit;
         }
+
+        /// <summary>
+        /// Match the two states of the Either and return a promise for a non-null R2.
+        /// </summary>
+        /// <returns>A promise to return a non-null R2</returns>
+        public async Task<R2> MatchAsyncUnsafe<R2>(Func<R, Task<R2>> Right, Func<L, R2> Left) =>
+            IsRight
+                ? await Right(RightValue)
+                : Left(LeftValue);
+
+        /// <summary>
+        /// Match the two states of the Either and return a promise for a non-null R2.
+        /// </summary>
+        /// <returns>A promise to return a non-null R2</returns>
+        public async Task<R2> MatchAsyncUnsafe<R2>(Func<R, Task<R2>> Right, Func<L, Task<R2>> Left) =>
+            IsRight
+                ? await Right(RightValue)
+                : await Left(LeftValue);
+
+        /// <summary>
+        /// Match the two states of the Either and return an observable stream of non-null R2s.
+        /// </summary>
+        [Pure]
+        public IObservable<R2> MatchObservableUnsafe<R2>(Func<R, IObservable<R2>> Right, Func<L, R2> Left) =>
+            IsRight
+                ? Right(RightValue)
+                : Observable.Return(Left(LeftValue));
+
+        /// <summary>
+        /// Match the two states of the Either and return an observable stream of non-null R2s.
+        /// </summary>
+        [Pure]
+        public IObservable<R2> MatchObservableUnsafe<R2>(Func<R, IObservable<R2>> Right, Func<L, IObservable<R2>> Left) =>
+            IsRight
+                ? Right(RightValue)
+                : Left(LeftValue);
 
         /// <summary>
         /// Executes the Left function if the Either is in a Left state.
@@ -1385,4 +1423,29 @@ public static class __EitherUnsafeExt
         if (u.IsLeft) return EitherUnsafe<L, V>.Left(u.LeftValue);
         return project(ta[0], u.RightValue);
     }
+
+    /// <summary>
+    /// Match the two states of the Either and return a promise of a non-null R2.
+    /// </summary>
+    public static async Task<R2> MatchAsync<L, R, R2>(this EitherUnsafe<L, Task<R>> self, Func<R, R2> Right, Func<L, R2> Left) =>
+        self.IsRight
+            ? Right(await self.RightValue)
+            : Left(self.LeftValue);
+
+    /// <summary>
+    /// Match the two states of the Either and return a stream of non-null R2s.
+    /// </summary>
+    [Pure]
+    public static IObservable<R2> MatchObservable<L, R, R2>(this EitherUnsafe<L, IObservable<R>> self, Func<R, R2> Right, Func<L, R2> Left) =>
+        self.IsRight
+            ? self.RightValue.Select(Right)
+            : Observable.Return(Left(self.LeftValue));
+
+    /// <summary>
+    /// Match the two states of the IObservable Either and return a stream of non-null R2s.
+    /// </summary>
+    [Pure]
+    public static IObservable<R2> MatchObservable<L, R, R2>(this IObservable<EitherUnsafe<L, R>> self, Func<R, R2> Right, Func<L, R2> Left) =>
+        self.Select(either => matchUnsafe(either, Right, Left));
+
 }
