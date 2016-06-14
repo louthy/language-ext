@@ -10,18 +10,19 @@ using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
-    public interface INewType
-    {
-    }
-
     /// <summary>
     /// NewType - inspired by Haskell's 'newtype' keyword.
     /// https://wiki.haskell.org/Newtype
     /// Derive type from this one to get: Equatable, Comparable, Appendable, Subtractable, 
-    /// Multiplicable, Divisible strongly typed values.  For example:
-    ///     class Metres : NewType<double>
-    ///     class Hours : NewType<double>
+    /// Multiplicable, Divisible, Foldable, Monadic, Functor, Interable: strongly typed values.  
+    ///
+    /// For example:
+    ///
+    ///     class Metres : NewType<double> { public class Metres(int x) : base(x) {} }
+    ///     class Hours : NewType<double> { public class Hours(int x) : base(x) {} }
+    ///
     /// Will not accept null values
+    ///
     /// </summary>
 #if !COREFX
     [Serializable]
@@ -32,8 +33,7 @@ namespace LanguageExt
         IAppendable<NewType<T>>,
         ISubtractable<NewType<T>>,
         IMultiplicable<NewType<T>>,
-        IDivisible<NewType<T>>,
-        INewType
+        IDivisible<NewType<T>>
     {
         public readonly T Value;
 
