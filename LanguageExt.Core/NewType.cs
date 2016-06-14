@@ -15,10 +15,14 @@ namespace LanguageExt
     /// https://wiki.haskell.org/Newtype
     /// Derive type from this one to get: Equatable, Comparable, Appendable, Subtractable, 
     /// Multiplicable, Divisible, Foldable, Monadic, Functor, Interable: strongly typed values.  
+    ///
     /// For example:
-    ///     class Metres : NewType<double>
-    ///     class Hours : NewType<double>
+    ///
+    ///     class Metres : NewType<double> { public class Metres(int x) : base(x) {} }
+    ///     class Hours : NewType<double> { public class Hours(int x) : base(x) {} }
+    ///
     /// Will not accept null values
+    ///
     /// </summary>
 #if !COREFX
     [Serializable]
