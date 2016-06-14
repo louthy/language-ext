@@ -10,10 +10,6 @@ using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
-    public interface INewType
-    {
-    }
-
     /// <summary>
     /// NewType - inspired by Haskell's 'newtype' keyword.
     /// https://wiki.haskell.org/Newtype
@@ -32,8 +28,7 @@ namespace LanguageExt
         IAppendable<NewType<T>>,
         ISubtractable<NewType<T>>,
         IMultiplicable<NewType<T>>,
-        IDivisible<NewType<T>>,
-        INewType
+        IDivisible<NewType<T>>
     {
         public readonly T Value;
 
