@@ -14,7 +14,8 @@ namespace LanguageExt
     /// NewType - inspired by Haskell's 'newtype' keyword.
     /// https://wiki.haskell.org/Newtype
     /// Derive type from this one to get: Equatable, Comparable, Appendable, Subtractable, 
-    /// Multiplicable, Divisible strongly typed values.  For example:
+    /// Multiplicable, Divisible, Foldable, Monadic, Functor, Interable: strongly typed values.  
+    /// For example:
     ///     class Metres : NewType<double>
     ///     class Hours : NewType<double>
     /// Will not accept null values
