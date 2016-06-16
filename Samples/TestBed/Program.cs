@@ -24,9 +24,10 @@ namespace TestBed
     {
         static void Main(string[] args)
         {
-            Tests.SerialiseDeserialiseCoreTypes();
+            Tests.VersionTest();
             return;
 
+            Tests.SerialiseDeserialiseCoreTypes();
             //Tests.StopStart();
 
             //Tests.QueueCollectionFunctions();

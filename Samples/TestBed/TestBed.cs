@@ -13,6 +13,10 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Runtime.Serialization.Formatters;
+using LanguageExt.Parsec;
+using static LanguageExt.Parsec.Char;
+using static LanguageExt.Parsec.Prim;
+using static LanguageExt.Parsec.Token;
 
 // ************************************************************************************
 // 
@@ -24,6 +28,94 @@ namespace TestBed
 {
     class Tests
     {
+        public class Version : IComparable<Version>
+        {
+            public int Major { get; private set; }
+            public int Minor { get; private set; }
+            public int Build { get; private set; }
+            public string Name { get; private set; }
+
+            public Version(Option<string> name, int major, int minor, int build)
+            {
+                Major = major;
+                Minor = minor;
+                Build = build;
+                Name = name.IfNone("");
+            }
+
+            public Version(IEnumerable<int> numbers, Option<string> name)
+            {
+                match(
+                    numbers,
+                    ()                       => failwith<Version>("No numbers specified in the version string"),
+                    major                    => New(name, major),
+                    (major, minor)           => New(name, major, minor),
+                    (major, minor, build)    => New(name, major, minor, build),
+                    (major, minor, build, _) => failwith<Version>("More than 3 numbers in the version string")
+                );
+            }
+
+            public static Version New(Option<string> name, int major, int minor = 0, int build = 0) =>
+                new Version(name, major, minor, build);
+
+            public int CompareTo(Version other)
+            {
+                var res = Major.CompareTo(other.Major);
+                if (res != 0) return res;
+                res = Minor.CompareTo(other.Minor);
+                if (res != 0) return res;
+                res = Build.CompareTo(other.Build);
+                if (res != 0) return res;
+                return Name.CompareTo(other.Name);
+            }
+
+            public override string ToString() =>
+                Name.Length == 0
+                    ? $"{Major}.{Minor}.{Build}"
+                    : $"{Major}.{Minor}.{Build}-{Name}";
+
+            static readonly Parser<int> Integer =
+                Token(
+                    from x in many1(digit)
+                    let v = parseInt(new string(x.ToArray()))
+                    from n in v.Match(
+                        Some: d => result(d),
+                        None: () => failure<int>("Not a valid decimal value"))
+                    select n);
+
+            static readonly Parser<char> Dot =
+                Token(ch('.'));
+
+            static readonly Parser<char> Dash =
+                Token(ch('-'));
+
+            static Parser<T> Token<T>(Parser<T> p) =>
+                from v in p
+                from _ in skipMany(space)
+                select v;
+
+            static readonly Parser<string> Word =
+                Token(asString(many1(alphaNum)));
+
+            static readonly Parser<Version> Parser =
+                from numbers in sepBy1(Integer, Dot)
+                from _ in optional(Dash)
+                from name in optional(Word)
+                select new Version(numbers, name);
+
+            public static Option<Version> Parse(string version) =>
+                Parser(version.ToPString()).Reply.Result;
+        }
+
+        public static void VersionTest()
+        {
+            var versions = new[] { "xdsd.efrer", "3 .  67.  6 - bler", "9.0", "4.5-beta", "4.5-alpha", "1.0", "1.2.3", "1.20.300", "1.200.3sometext"};
+
+            var results = from v in versions
+                          from pv in Version.Parse(v).AsEnumerable()
+                          orderby pv
+                          select pv;
+        }
 
         public static void StopStart()
         {
