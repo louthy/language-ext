@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reactive.Linq;
@@ -31,7 +32,7 @@ namespace LanguageExt
             var res = pred(resT);
             if(!res)
             {
-                throw new BottomException();
+                throw new OperationCanceledException();
             }
             return resT;
         }
@@ -164,6 +165,38 @@ namespace LanguageExt
             if (self.IsFaulted || self.IsCanceled) return self.Result;
             self.Wait();
             return self.Result;
+        }
+
+        public static async Task<V> Join<T, U, K, V>(
+            this Task<T> source, 
+            Task<U> inner,
+            Func<T, K> outerKeyMap, 
+            Func<U, K> innerKeyMap,
+            Func<T, U, V> project)
+        {
+            await Task.WhenAll(source, inner);
+            if (!EqualityComparer<K>.Default.Equals(outerKeyMap(source.Result), innerKeyMap(inner.Result)))
+            {
+                throw new OperationCanceledException();
+            }
+            return project(source.Result, inner.Result);
+        }
+
+        public static async Task<V> GroupJoin<T, U, K, V>(
+            this Task<T> source, 
+            Task<U> inner,
+            Func<T, K> outerKeyMap, 
+            Func<U, K> innerKeyMap,
+            Func<T, Task<U>, V> project)
+        {
+            T t = await source;
+            return project(t,inner.Where(u => EqualityComparer<K>.Default.Equals(outerKeyMap(t), innerKeyMap(u))));
+        }
+
+        public static async Task<T> Cast<T>(this Task source)
+        {
+            await source;
+            return (T)((dynamic)source).Result;
         }
     }
 }
