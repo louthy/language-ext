@@ -458,7 +458,7 @@ public static class __TryOptionExt
         });
 
     public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, Task<R>> Succ, Func<R> None, Func<Exception, R> Fail) =>
-        await from tt in self.ContinueWith(trySelf =>
+        await (from tt in self.ContinueWith(trySelf =>
         {
             var res = trySelf.Result.Try();
             return res.IsFaulted
@@ -468,10 +468,10 @@ public static class __TryOptionExt
                     : Task.FromResult(None());
         })
         from t in tt
-        select t;
+        select t);
 
     public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, Task<R>> Succ, Func<R> None, Func<Exception, Task<R>> Fail) =>
-        await from tt in self.ContinueWith(trySelf =>
+        await (from tt in self.ContinueWith(trySelf =>
         {
             var res = trySelf.Result.Try();
             return res.IsFaulted
@@ -481,10 +481,10 @@ public static class __TryOptionExt
                     : Task.FromResult(None());
         })
         from t in tt
-        select t;
+        select t);
 
     public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, R> Succ, Func<R> None, Func<Exception, Task<R>> Fail) =>
-        await from tt in self.ContinueWith(trySelf =>
+        await (from tt in self.ContinueWith(trySelf =>
         {
             var res = trySelf.Result.Try();
             return res.IsFaulted
@@ -494,7 +494,7 @@ public static class __TryOptionExt
                     : Task.FromResult(None());
         })
         from t in tt
-        select t;
+        select t);
 
     public static async Task<R> MatchAsync<T, R>(this TryOption<T> self, Func<T, Task<R>> Succ, Func<Task<R>> None, Func<Exception, R> Fail)
     {
@@ -527,7 +527,7 @@ public static class __TryOptionExt
     }
 
     public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, Task<R>> Succ, Func<Task<R>> None, Func<Exception, R> Fail) =>
-        await from tt in self.ContinueWith(trySelf =>
+        await (from tt in self.ContinueWith(trySelf =>
         {
             var res = trySelf.Result.Try();
             return res.IsFaulted
@@ -537,10 +537,10 @@ public static class __TryOptionExt
                     : None();
         })
         from t in tt
-        select t;
+        select t);
 
     public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, Task<R>> Succ, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
-        await from tt in self.ContinueWith(trySelf =>
+        await (from tt in self.ContinueWith(trySelf =>
         {
             var res = trySelf.Result.Try();
             return res.IsFaulted
@@ -550,10 +550,10 @@ public static class __TryOptionExt
                     : None();
         })
         from t in tt
-        select t;
+        select t);
 
     public static async Task<R> MatchAsync<T, R>(this Task<TryOption<T>> self, Func<T, R> Succ, Func<Task<R>> None, Func<Exception, Task<R>> Fail) =>
-        await from tt in self.ContinueWith(trySelf =>
+        await (from tt in self.ContinueWith(trySelf =>
         {
             var res = trySelf.Result.Try();
             return res.IsFaulted
@@ -563,7 +563,7 @@ public static class __TryOptionExt
                     : None();
         })
         from t in tt
-        select t;
+        select t);
 
     public static IObservable<R> MatchObservable<T, R>(this TryOption<T> self, Func<T, IObservable<R>> Succ, Func<R> None, Func<Exception, R> Fail)
     {
