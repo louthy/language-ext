@@ -376,7 +376,7 @@ public static class __TryExt
         });
 
     public static async Task<R> MatchAsync<T, R>(this Task<Try<T>> self, Func<T, Task<R>> Succ, Func<Exception, R> Fail) =>
-        await from tt in self.ContinueWith(trySelf =>
+        await (from tt in self.ContinueWith(trySelf =>
         {
             var res = trySelf.Result.Try();
             return res.IsFaulted
@@ -384,10 +384,10 @@ public static class __TryExt
                 : Succ(res.Value);
         })
         from t in tt
-        select t;
+        select t);
 
     public static async Task<R> MatchAsync<T, R>(this Task<Try<T>> self, Func<T, Task<R>> Succ, Func<Exception, Task<R>> Fail) =>
-        await from tt in self.ContinueWith(trySelf =>
+        await (from tt in self.ContinueWith(trySelf =>
         {
             var res = trySelf.Result.Try();
             return res.IsFaulted
@@ -395,10 +395,10 @@ public static class __TryExt
                 : Succ(res.Value);
         })
         from t in tt
-        select t;
+        select t);
 
     public static async Task<R> MatchAsync<T, R>(this Task<Try<T>> self, Func<T, R> Succ, Func<Exception, Task<R>> Fail) =>
-        await from tt in self.ContinueWith(trySelf =>
+        await (from tt in self.ContinueWith(trySelf =>
         {
             var res = trySelf.Result.Try();
             return res.IsFaulted
@@ -406,7 +406,7 @@ public static class __TryExt
                 : Task.FromResult(Succ(res.Value));
         })
         from t in tt
-        select t;
+        select t);
 
     public static IObservable<R> MatchObservable<T, R>(this Try<T> self, Func<T, IObservable<R>> Succ, Func<Exception, R> Fail)
     {
