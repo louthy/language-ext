@@ -50,10 +50,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common.cs" />
+    <Compile Include="GenLanguageDefT.cs" />
     <Compile Include="GenLanguageDef.cs" />
+    <Compile Include="GenTokenParserT.cs" />
     <Compile Include="GenTokenParser.cs" />
+    <Compile Include="LanguageT.cs" />
+    <Compile Include="OperatorTs.cs" />
     <Compile Include="ParsecT.Internal.cs" />
     <Compile Include="Parsec.Internal.cs" />
+    <Compile Include="ParserTs\Char.cs" />
+    <Compile Include="ParserTs\Expr.cs" />
     <Compile Include="ParserTs\Item.cs" />
     <Compile Include="ParserTs\Prim.cs" />
     <Compile Include="ParserT.cs" />
@@ -63,6 +69,7 @@
     <Compile Include="ParserResultT.cs" />
     <Compile Include="ParserResult.cs" />
     <Compile Include="Parsers\Indent.cs" />
+    <Compile Include="ParserTs\Token.cs" />
     <Compile Include="Pos.cs" />
     <Compile Include="Parsers\Char.cs" />
     <Compile Include="Parsers\Expr.cs" />

@@ -192,11 +192,12 @@ namespace LanguageExt
             T t = await source;
             return project(t,inner.Where(u => EqualityComparer<K>.Default.Equals(outerKeyMap(t), innerKeyMap(u))));
         }
-
+#if !COREFX
         public static async Task<T> Cast<T>(this Task source)
         {
             await source;
             return (T)((dynamic)source).Result;
         }
+#endif
     }
 }
