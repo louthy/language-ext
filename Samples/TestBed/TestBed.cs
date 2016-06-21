@@ -28,7 +28,7 @@ namespace TestBed
 {
     class Tests
     {
-        public class Version : IComparable<Version>
+        public class Version : IComparable<Version>, IEquatable<Version>
         {
             public int Major { get; private set; }
             public int Minor { get; private set; }
@@ -68,6 +68,40 @@ namespace TestBed
                 if (res != 0) return res;
                 return Name.CompareTo(other.Name);
             }
+
+            public bool Equals(Version other) =>
+                !ReferenceEquals(other, null) &&
+                 Major == other.Major &&
+                 Minor == other.Minor &&
+                 Build == other.Build &&
+                 Name == other.Name;
+
+            public override bool Equals(object obj) =>
+                obj is Version && Equals((Version)obj);
+
+            public override int GetHashCode() =>
+                (Major.GetHashCode() * 13) +
+                (Minor.GetHashCode() * 13) +
+                (Build.GetHashCode() * 13) +
+                Name.GetHashCode();
+
+            public static bool operator ==(Version lhs, Version rhs) =>
+                lhs.Equals(rhs);
+
+            public static bool operator !=(Version lhs, Version rhs) =>
+                !lhs.Equals(rhs);
+
+            public static bool operator >(Version lhs, Version rhs) =>
+                lhs.CompareTo(rhs) > 0;
+
+            public static bool operator >=(Version lhs, Version rhs) =>
+                lhs.CompareTo(rhs) >= 0;
+
+            public static bool operator <(Version lhs, Version rhs) =>
+                lhs.CompareTo(rhs) < 0;
+
+            public static bool operator <=(Version lhs, Version rhs) =>
+                lhs.CompareTo(rhs) <= 0;
 
             public override string ToString() =>
                 Name.Length == 0

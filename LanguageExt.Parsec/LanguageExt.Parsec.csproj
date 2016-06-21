@@ -49,12 +49,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common.cs" />
     <Compile Include="GenLanguageDef.cs" />
     <Compile Include="GenTokenParser.cs" />
+    <Compile Include="ParsecT.Internal.cs" />
     <Compile Include="Parsec.Internal.cs" />
+    <Compile Include="ParserTs\Item.cs" />
+    <Compile Include="ParserTs\Prim.cs" />
+    <Compile Include="ParserT.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="ParserError.cs" />
     <Compile Include="Exceptions.cs" />
+    <Compile Include="ParserResultT.cs" />
     <Compile Include="ParserResult.cs" />
     <Compile Include="Parsers\Indent.cs" />
     <Compile Include="Pos.cs" />
@@ -64,10 +70,12 @@
     <Compile Include="Operators.cs" />
     <Compile Include="Parsers\Prim.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PStringT.cs" />
     <Compile Include="PString.cs" />
+    <Compile Include="ReplyT.cs" />
     <Compile Include="Reply.cs" />
     <Compile Include="Sidedness.cs" />
-    <Compile Include="StringExt.cs" />
+    <Compile Include="StringAndCollectionExt.cs" />
     <Compile Include="Parsers\Token.cs" />
   </ItemGroup>
   <ItemGroup>

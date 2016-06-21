@@ -218,5 +218,12 @@ namespace LanguageExt
         [Pure]
         public static bool notnull<T>(T value) =>
             !Object.ReferenceEquals(value, null);
-    }
+
+        /// <summary>
+        /// Convert a value to string
+        /// </summary>
+        [Pure]
+        public static string toString<T>(T value) =>
+            value?.ToString();
+   }
 }

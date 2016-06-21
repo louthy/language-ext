@@ -4,33 +4,33 @@ using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.Parsec.Common;
-using static LanguageExt.Parsec.Internal;
-using static LanguageExt.Parsec.Char;
-using static LanguageExt.Parsec.ParserResult;
+using static LanguageExt.Parsec.InternalT;
+using static LanguageExt.Parsec.ItemT;
+using static LanguageExt.Parsec.ParserResultT;
 
 namespace LanguageExt.Parsec
 {
     /// <summary>
     /// The primitive parser combinators
     /// </summary>
-    public static class Prim
+    public static class PrimT
     {
         /// <summary>
         /// Run the parser p with the input provided
         /// </summary>
-        public static ParserResult<T> parse<T>(Parser<T> p, PString input) =>
+        public static ParserResult<I, O> parse<I, O>(Parser<I, O> p, PString<I> input) =>
             p.Parse(input);
 
         /// <summary>
         /// Run the parser p with the input provided
         /// </summary>
-        public static ParserResult<T> parse<T>(Parser<T> p, string input) =>
+        public static ParserResult<I, O> parse<I, O>(Parser<I, O> p, IEnumerable<I> input) =>
             p.Parse(input);
 
         /// <summary>
         /// Lazy parser - useful in recursive scenarios.
         /// </summary>
-        public static Parser<T> lazyp<T>(Func<Parser<T>> fn) =>
+        public static Parser<I, O> lazyp<I, O>(Func<Parser<I, O>> fn) =>
             inp => fn()(inp);
 
         /// <summary>
@@ -38,40 +38,40 @@ namespace LanguageExt.Parsec
         /// makes it easier to put breakpoints on the actual first parser
         /// in an expression.  It returns unit
         /// </summary>
-        public static Parser<Unit> unitp =>
+        public static Parser<I, Unit> unitp<I>() =>
             inp => EmptyOK(unit, inp);
 
         /// <summary>
         /// Special parser for setting user-state that propagates 
         /// through the computation.
         /// </summary>
-        public static Parser<Unit> setState<T>(T state) =>
+        public static Parser<I, Unit> setState<I, S>(S state) =>
             inp => ConsumedOK(unit, inp.SetUserState(state));
 
         /// <summary>
         /// Special parser for getting user-state that was previously
         /// set with setState
         /// </summary>
-        public static Parser<T> getState<T>() =>
+        public static Parser<I, S> getState<I, S>() =>
             inp =>
                 match(inp.UserState,
-                    Some: x => x is T
-                        ? ConsumedOK((T)x, inp)
-                        : EmptyError<T>(ParserError.Message(inp.Pos, "User state type-mismatch")),
-                    None: () => EmptyError<T>(ParserError.Message(inp.Pos, "No user state set")));
+                    Some: x => x is S
+                        ? ConsumedOK((S)x, inp)
+                        : EmptyError<I, S>(ParserError.Message(inp.Pos, "User state type-mismatch")),
+                    None: () => EmptyError<I, S>(ParserError.Message(inp.Pos, "No user state set")));
 
         /// <summary>
         /// Get the current position of the parser in the source as a line
         /// and column index (starting at 1 for both)
         /// </summary>
-        public static readonly Parser<Pos> getPos =
-            (PString inp) => ConsumedOK(inp.Pos, inp);
+        public static Parser<I, Pos> getPos<I>() =>
+            (PString<I> inp) => ConsumedOK(inp.Pos, inp);
 
         /// <summary>
         /// Get the current index into the source
         /// </summary>
-        public static readonly Parser<int> getIndex =
-            (PString inp) => ConsumedOK(inp.Index, inp);
+        public static Parser<I, int> getIndex<I>() =>
+            (PString<I> inp) => ConsumedOK(inp.Index, inp);
 
         /// <summary>
         /// The parser unexpected(msg) always fails with an Unexpect error
@@ -84,8 +84,8 @@ namespace LanguageExt.Parsec
         /// of 'Text.Parsec.Combinator.notFollowedBy'.
         /// </remarks>
         /// <param name="msg">Error message to use when parsed</param>
-        public static Parser<T> unexpected<T>(string msg) =>
-            inp => EmptyError<T>(ParserError.Unexpect(inp.Pos, msg));
+        public static Parser<I, O> unexpected<I, O>(string msg) =>
+            inp => EmptyError<I, O>(ParserError.Unexpect(inp.Pos, msg));
 
         /// <summary>
         /// The parser failure(msg) always fails with a Message error
@@ -97,21 +97,21 @@ namespace LanguageExt.Parsec
         /// of 'Text.Parsec.Combinator.notFollowedBy'.
         /// </summary>
         /// <param name="msg">Error message to use when parsed</param>
-        public static Parser<T> failure<T>(string msg) =>
-            inp => EmptyError<T>(ParserError.Message(inp.Pos, msg));
+        public static Parser<I, O> failure<I, O>(string msg) =>
+            inp => EmptyError<I, O>(ParserError.Message(inp.Pos, msg));
 
         /// <summary>
         /// Always success parser.  Returns the value provided.  
         /// This is monad return for the Parser monad
         /// </summary>
-        public static Parser<T> result<T>(T value) =>
+        public static Parser<I, O> result<I, O>(O value) =>
             inp => EmptyOK(value, inp);
 
         /// <summary>
         /// Always fails (with an Unknown error) without consuming any input
         /// </summary>
-        public static Parser<T> zero<T>() =>
-            inp => EmptyError<T>(ParserError.Unknown(inp.Pos));
+        public static Parser<I, O> zero<I, O>() =>
+            inp => EmptyError<I, O>(ParserError.Unknown(inp.Pos));
 
         /// <summary>
         /// This combinator implements choice. The parser either(p,q) first
@@ -128,7 +128,7 @@ namespace LanguageExt.Parsec
         /// implementation of the parser combinators and the generation of good
         /// error messages.
         /// </remarks>
-        public static Parser<T> either<T>(Parser<T> p, Parser<T> q) =>
+        public static Parser<I, O> either<I, O>(Parser<I, O> p, Parser<I, O> q) =>
             inp =>
             {
                 var m = p(inp);
@@ -147,7 +147,7 @@ namespace LanguageExt.Parsec
                     // nerr
                     if (n.Tag == ResultTag.Empty && n.Reply.Tag == ReplyTag.Error)
                     {
-                        return EmptyError<T>(mergeError(m.Reply.Error, n.Reply.Error));
+                        return EmptyError<I, O>(mergeError(m.Reply.Error, n.Reply.Error));
                     }
 
                     // cerr, cok
@@ -165,7 +165,7 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// The value of the succeeding parser.
         /// </returns>
-        public static Parser<T> choice<T>(params Parser<T>[] ps) =>
+        public static Parser<I, O> choice<I, O>(params Parser<I, O>[] ps) =>
             choicei(ps);
 
         /// <summary>
@@ -175,7 +175,7 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// The value of the succeeding parser.
         /// </returns>
-        public static Parser<T> choice<T>(IEnumerable<Parser<T>> ps) =>
+        public static Parser<I, O> choice<I, O>(IEnumerable<Parser<I, O>> ps) =>
             choicei(ps.ToArray());
 
         /// <summary>
@@ -185,7 +185,7 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// The result of each parser as an enumerable.
         /// </returns>
-        public static Parser<IEnumerable<T>> chain<T>(params Parser<T>[] ps) =>
+        public static Parser<I, IEnumerable<O>> chain<I, O>(params Parser<I, O>[] ps) =>
             chaini(ps).Map(x => x.Freeze().AsEnumerable());
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// The result of each parser as an enumerable.
         /// </returns>
-        public static Parser<IEnumerable<T>> chain<T>(IEnumerable<Parser<T>> ps) =>
+        public static Parser<I, IEnumerable<O>> chain<I, O>(IEnumerable<Parser<I, O>> ps) =>
             chaini(ps.ToArray()).Map(x => x.Freeze().AsEnumerable());
 
         /// <summary>
@@ -240,13 +240,13 @@ namespace LanguageExt.Parsec
         ///    var identifier  = many1(letter);
         ///  
         ///  </remarks>
-        public static Parser<T> attempt<T>(Parser<T> p) =>
+        public static Parser<I, O> attempt<I, O>(Parser<I, O> p) =>
             inp =>
             {
                 var res = p(inp);
                 if (res.Tag == ResultTag.Consumed && res.Reply.Tag == ReplyTag.Error)
                 {
-                    return EmptyError<T>(res.Reply.Error);
+                    return EmptyError<I, O>(res.Reply.Error);
                 }
                 else
                 {
@@ -260,7 +260,7 @@ namespace LanguageExt.Parsec
         /// If p fails and consumes some input, so does lookAhead(p). Combine with 
         /// 'attempt' if this is undesirable.
         /// </summary>
-        public static Parser<T> lookAhead<T>(Parser<T> p) =>
+        public static Parser<I, O> lookAhead<I, O>(Parser<I, O> p) =>
             inp =>
             {
                 var res = p(inp);
@@ -285,11 +285,11 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// Enumerable of the returned values of p.
         /// </returns>
-        public static Parser<IEnumerable<T>> many<T>(Parser<T> p) =>
+        public static Parser<I, IEnumerable<O>> many<I, O>(Parser<I, O> p) =>
             inp =>
             {
                 var current = inp;
-                List<T> results = new List<T>();
+                var results = new List<O>();
                 ParserError error = null;
 
                 while(true)
@@ -309,17 +309,17 @@ namespace LanguageExt.Parsec
                     if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
                     {
                         // eok, eerr
-                        return EmptyError<IEnumerable<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'many' is applied to a parser that accepts an empty string.", List.empty<string>()));
+                        return EmptyError<I, IEnumerable<O>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'many' is applied to a parser that accepts an empty string.", List.empty<string>()));
                     }
 
                     // cerr
                     if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
                     {
-                        return ConsumedError<IEnumerable<T>>(mergeError(error, t.Reply.Error));
+                        return ConsumedError<I, IEnumerable<O>>(mergeError(error, t.Reply.Error));
                     }
 
                     // eerr
-                    return EmptyOK<IEnumerable<T>>(results, current, mergeError(error, t.Reply.Error));
+                    return EmptyOK<I, IEnumerable<O>>(results, current, mergeError(error, t.Reply.Error));
                 }
             };
 
@@ -329,7 +329,7 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// Enumerable of the returned values of p.
         /// </returns>
-        public static Parser<IEnumerable<T>> many1<T>(Parser<T> p) =>
+        public static Parser<I, IEnumerable<O>> many1<I, O>(Parser<I, O> p) =>
             from x in p
             from xs in many(p)
             select x.Cons(xs);
@@ -338,14 +338,14 @@ namespace LanguageExt.Parsec
         /// skipMany(p) applies the parser p zero or more times, skipping
         /// its result.
         /// </summary>
-        public static Parser<Unit> skipMany<T>(Parser<T> p) =>
-            either(skipMany1(p), result(unit));
+        public static Parser<I, Unit> skipMany<I, O>(Parser<I, O> p) =>
+            either(skipMany1(p), result<I,Unit>(unit));
 
         /// <summary>
         /// skipMany(p) applies the parser p one or more times, skipping
         /// its result.
         /// </summary>
-        public static Parser<Unit> skipMany1<T>(Parser<T> p) =>
+        public static Parser<I, Unit> skipMany1<I, O>(Parser<I, O> p) =>
             from x  in p
             from xs in many(p)
             select unit;
@@ -355,21 +355,21 @@ namespace LanguageExt.Parsec
         /// consuming input, it returns the value x, otherwise the value
         /// returned by p.
         /// </summary>
-        public static Parser<T> optionOrElse<T>(T x, Parser<T> p) =>
-            either(p, result(x));
+        public static Parser<I, O> optionOrElse<I, O>(O x, Parser<I, O> p) =>
+            either(p, result<I, O>(x));
 
         /// <summary>
         /// optional(p) tries to apply parser p.  If p fails without
         /// consuming input, it return 'None', otherwise it returns
         /// 'Some' the value returned by p.
         /// </summary>
-        public static Parser<Option<T>> optional<T>(Parser<T> p) =>
+        public static Parser<I, Option<O>> optional<I, O>(Parser<I, O> p) =>
             inp =>
             {
-                var r = p.Map(x => Option<T>.Some(x))(inp);
+                var r = p.Map(x => Option<O>.Some(x))(inp);
                 return r.Reply.Tag == ReplyTag.OK
                     ? r
-                    : EmptyOK(Option<T>.None, inp);
+                    : EmptyOK(Option<O>.None, inp);
             };
 
         /// <summary>
@@ -378,13 +378,13 @@ namespace LanguageExt.Parsec
         /// item Lst with the result of p.
         /// </summary>
         /// <returns>A list of 0 or 1 parsed items</returns>
-        public static Parser<Lst<T>> optionalList<T>(Parser<T> p) =>
+        public static Parser<I, Lst<O>> optionalList<I, O>(Parser<I, O> p) =>
             inp =>
             {
                 var r = p.Map(x => List.create(x))(inp);
                 return r.Reply.Tag == ReplyTag.OK
                     ? r
-                    : EmptyOK(List.empty<T>(), inp);
+                    : EmptyOK(List.empty<O>(), inp);
             };
 
         /// <summary>
@@ -393,13 +393,13 @@ namespace LanguageExt.Parsec
         /// item array with the result of p.
         /// </summary>
         /// <returns>A list of 0 or 1 parsed items</returns>
-        public static Parser<T[]> optionalArray<T>(Parser<T> p) =>
+        public static Parser<I, O[]> optionalArray<I, O>(Parser<I, O> p) =>
             inp =>
             {
                 var r = p.Map(x => new[] { x })(inp);
                 return r.Reply.Tag == ReplyTag.OK
                     ? r
-                    : EmptyOK(new T [0], inp);
+                    : EmptyOK(new O [0], inp);
             };
 
         /// <summary>
@@ -408,7 +408,7 @@ namespace LanguageExt.Parsec
         /// a one item IEnumerable with the result of p.
         /// </summary>
         /// <returns>A list of 0 or 1 parsed items</returns>
-        public static Parser<IEnumerable<T>> optionalSeq<T>(Parser<T> p) =>
+        public static Parser<I, IEnumerable<O>> optionalSeq<I, O>(Parser<I, O> p) =>
             optionalList(p).Map(x => x.AsEnumerable());
 
         /// <summary>
@@ -417,7 +417,7 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// The value returned by p.
         /// </returns>
-        public static Parser<T> between<L, R, T>(Parser<L> open, Parser<R> close, Parser<T> inner) =>
+        public static Parser<I, O> between<L, R, I, O>(Parser<I, L> open, Parser<I, R> close, Parser<I, O> inner) =>
             from l in open
             from v in inner
             from r in close
@@ -430,7 +430,7 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// A list of values returned by p.
         /// </returns>
-        public static Parser<IEnumerable<T>> sepBy1<S, T>(Parser<T> p, Parser<S> sep) =>
+        public static Parser<I, IEnumerable<O>> sepBy1<S, I, O>(Parser<I, O> p, Parser<I, S> sep) =>
             from x in p
             from xs in many(from _ in sep
                             from y in p
@@ -444,8 +444,8 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// A list of values returned by p.
         /// </returns>
-        public static Parser<IEnumerable<T>> sepBy<S, T>(Parser<T> p, Parser<S> sep) =>
-            either(sepBy1(p, sep), result(new T[0].AsEnumerable()));
+        public static Parser<I, IEnumerable<O>> sepBy<S, I, O>(Parser<I, O> p, Parser<I, S> sep) =>
+            either(sepBy1(p, sep), result<I, IEnumerable<O>>(new O[0].AsEnumerable()));
 
         /// <summary>
         /// sepEndBy1(p,sep) parses one or more occurrences of p,
@@ -454,12 +454,12 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// A list of values returned by p.
         /// </returns>
-        public static Parser<IEnumerable<T>> sepEndBy1<S, T>(Parser<T> p, Parser<S> sep) =>
+        public static Parser<I, IEnumerable<O>> sepEndBy1<S, I, O>(Parser<I, O> p, Parser<I, S> sep) =>
             from x in p
             from xs in either(from _ in sep
                               from ys in sepEndBy(p, sep)
                               select ys,
-                              result(new[] { x }.AsEnumerable()))
+                              result<I, IEnumerable<O>>(new[] { x }.AsEnumerable()))
             select x.Cons(xs);
 
         /// <summary>
@@ -469,8 +469,8 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// A list of values returned by p.
         /// </returns>
-        public static Parser<IEnumerable<T>> sepEndBy<S, T>(Parser<T> p, Parser<S> sep) =>
-            either(sepEndBy1(p, sep), result(new T[0].AsEnumerable()));
+        public static Parser<I, IEnumerable<O>> sepEndBy<S, I, O>(Parser<I, O> p, Parser<I, S> sep) =>
+            either(sepEndBy1(p, sep), result<I,IEnumerable<O>>(new O[0].AsEnumerable()));
 
         /// <summary>
         /// endBy1(p,sep) parses one or more occurrences of p, separated
@@ -479,7 +479,7 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// A list of values returned by p.
         /// </returns>
-        public static Parser<IEnumerable<T>> endBy1<S, T>(Parser<T> p, Parser<S> sep) =>
+        public static Parser<I, IEnumerable<O>> endBy1<S, I, O>(Parser<I, O> p, Parser<I, S> sep) =>
             many1(from x in p
                   from _ in sep
                   select x);
@@ -491,7 +491,7 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// A list of values returned by p.
         /// </returns>
-        public static Parser<IEnumerable<T>> endBy<S, T>(Parser<T> p, Parser<S> sep) =>
+        public static Parser<I, IEnumerable<O>> endBy<S, I, O>(Parser<I, O> p, Parser<I, S> sep) =>
             many(from x in p
                  from _ in sep
                  select x);
@@ -503,7 +503,7 @@ namespace LanguageExt.Parsec
         /// <returns>
         /// A list of values returned by p.
         /// </returns>
-        public static Parser<IEnumerable<T>> count<S, T>(int n, Parser<T> p) =>
+        public static Parser<I, IEnumerable<O>> count<S, I, O>(int n, Parser<I, O> p) =>
             counti(n, p);
 
         /// <summary>
@@ -513,8 +513,8 @@ namespace LanguageExt.Parsec
         /// a value obtained by a right associative application of all functions 
         /// returned by op to the values returned by p. If there are no occurrences 
         /// of p, the value x is returned.</returns>
-        public static Parser<T> chainr<T>(Parser<T> p, Parser<Func<T, T, T>> op, T x) =>
-            either(chainr1(p, op), result(x));
+        public static Parser<I, O> chainr<I, O>(Parser<I, O> p, Parser<I, Func<O, O, O>> op, O x) =>
+            either(chainr1(p, op), result<I, O>(x));
 
         /// <summary>
         /// chainl(p,op,x) parses zero or more occurrences of p, separated by op 
@@ -523,8 +523,8 @@ namespace LanguageExt.Parsec
         /// a value obtained by a left associative application of all functions 
         /// returned by op to the values returned by p. If there are no occurrences 
         /// of p, the value x is returned.</returns>
-        public static Parser<T> chainl<T>(Parser<T> p, Parser<Func<T, T, T>> op, T x) =>
-            either(chainr1(p, op), result(x));
+        public static Parser<I, O> chainl<I, O>(Parser<I, O> p, Parser<I, Func<O, O, O>> op, O x) =>
+            either(chainr1(p, op), result<I, O>(x));
 
         /// <summary>
         /// chainr1(p,op) parses one or more occurrences of p, separated by op. 
@@ -533,14 +533,14 @@ namespace LanguageExt.Parsec
         /// A value obtained by a right associative application of all functions 
         /// returned by op to the values returned by p
         /// </returns>
-        public static Parser<T> chainr1<T>(Parser<T> p, Parser<Func<T, T, T>> op)
+        public static Parser<I, O> chainr1<I, O>(Parser<I, O> p, Parser<I, Func<O, O, O>> op)
         {
-            Parser<T> scan = null;
+            Parser<I, O> scan = null;
 
-            var rest = fun((T x) => either(from f in op
+            var rest = fun((O x) => either(from f in op
                                            from y in scan
                                            select f(x, y),
-                                           result(x)));
+                                           result<I, O>(x)));
 
             scan = from x in p
                    from y in rest(x)
@@ -556,15 +556,15 @@ namespace LanguageExt.Parsec
         /// A value obtained by a left associative application of all functions 
         /// returned by op to the values returned by p
         /// </returns>
-        public static Parser<T> chainl1<T>(Parser<T> p, Parser<Func<T, T, T>> op)
+        public static Parser<I, O> chainl1<I, O>(Parser<I, O> p, Parser<I, Func<O, O, O>> op)
         {
-            Func<T, Parser<T>> rest = null;
+            Func<O, Parser<I, O>> rest = null;
 
-            rest = fun((T x) => either(from f in op
+            rest = fun((O x) => either(from f in op
                                        from y in p
                                        from r in rest(f(x, y))
                                        select r,
-                                       result(x)));
+                                       result<I, O>(x)));
 
             return from x in p
                    from y in rest(x)
@@ -575,8 +575,8 @@ namespace LanguageExt.Parsec
         /// This parser only succeeds at the end of the input. This is not a
         /// primitive parser but it is defined using 'notFollowedBy'.
         /// </summary>
-        public readonly static Parser<Unit> eof =
-            notFollowedBy(anyChar).label("end of input");
+        public static Parser<I, Unit> eof<I>() =>
+            notFollowedBy<I, I>(anyItem<I>()).label("end of input");
 
         /// <summary>
         /// notFollowedBy(p) only succeeds when parser p fails. This parser
@@ -594,50 +594,62 @@ namespace LanguageExt.Parsec
         ///                                select x);
         ///                                
         /// </example>
-        public static Parser<Unit> notFollowedBy<T>(Parser<T> p) =>
+        public static Parser<I, Unit> notFollowedBy<I, O>(Parser<I, O> p) =>
             attempt(
                 either(from c in attempt(p)
-                       from u in unexpected<Unit>(c.ToString())
+                       from u in unexpected<I, Unit>(c.ToString())
                        select u,
-                       result(unit)));
+                       result<I, Unit>(unit)));
 
         /// <summary>
         /// Parse a char list and convert into a string
         /// </summary>
-        public static Parser<string> asString(Parser<IEnumerable<char>> p) =>
+        public static Parser<I, string> asString<I>(Parser<I, IEnumerable<char>> p) =>
             p.Select(x => new string(x.ToArray()));
+
+        /// <summary>
+        /// Parse a T list and convert into a string
+        /// </summary>
+        public static Parser<I, string> asString<I, O>(Parser<I, IEnumerable<O>> p) =>
+            p.Select(x => String.Join("",x.Select(o =>o.ToString())));
+
+        /// <summary>
+        /// Parse a T list and convert into a string
+        /// </summary>
+        public static Parser<I, string> asString<I, O>(Parser<I, O> p) =>
+            p.Select(toString);
 
         /// <summary>
         /// Parse a char list and convert into an integer
         /// </summary>
-        public static Parser<Option<int>> asInteger(Parser<IEnumerable<char>> p) =>
+        public static Parser<I, Option<int>> asInteger<I>(Parser<I, IEnumerable<char>> p) =>
             p.Select(x => parseInt(new string(x.ToArray())));
 
         /// <summary>
         /// Parse a char list and convert into an integer
         /// </summary>
-        public static Parser<Option<int>> asInteger(Parser<IEnumerable<char>> p, int fromBase) =>
+        public static Parser<I, Option<int>> asInteger<I>(Parser<I, IEnumerable<char>> p, int fromBase) =>
             p.Select(x => parseInt(new string(x.ToArray()), fromBase));
 
         /// <summary>
         /// Parse a char list and convert into an double precision floating point value
         /// </summary>
-        public static Parser<Option<double>> asDouble(Parser<IEnumerable<char>> p) =>
+        public static Parser<I, Option<double>> asDouble<I>(Parser<I, IEnumerable<char>> p) =>
             p.Select(x => parseDouble(new string(x.ToArray())));
 
         /// <summary>
         /// Parse a char list and convert into an double precision floating point value
         /// </summary>
-        public static Parser<Option<float>> asFloat(Parser<IEnumerable<char>> p) =>
+        public static Parser<I, Option<float>> asFloat<I>(Parser<I, IEnumerable<char>> p) =>
             p.Select(x => parseFloat(new string(x.ToArray())));
 
-        public static Parser<IEnumerable<T>> manyUntil<T, U>(Parser<T> p, Parser<U> end)
+        public static Parser<I, IEnumerable<O>> manyUntil<I, O, U>(Parser<I, O> p, Parser<I, U> end)
         {
-            Parser<IEnumerable<T>> scan = null;
+            Parser<I, IEnumerable<O>> scan = null;
 
             scan = either(
                 from _ in end
-                select new T[0].AsEnumerable(),
+                select new O[0].AsEnumerable(),
                 from x  in p
                 from xs in scan
                 select x.Cons(xs));

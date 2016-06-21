@@ -53,7 +53,7 @@ namespace LanguageExt.Parsec
             Error = error;
         }
 
-        Reply(ReplyTag tag, T result, PString state, ParserError error)
+        internal Reply(ReplyTag tag, T result, PString state, ParserError error)
         {
             Tag = tag;
             Result = result;

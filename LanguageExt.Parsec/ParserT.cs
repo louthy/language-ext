@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+using LanguageExt;
 using LanguageExt.Parsec;
 using static LanguageExt.Prelude;
 using static LanguageExt.Parsec.Prim;
 using static LanguageExt.Parsec.Common;
-using static LanguageExt.Parsec.ParserResult;
 using static LanguageExt.Parsec.ParserResultT;
 using System.Diagnostics;
 
@@ -12,23 +14,24 @@ namespace LanguageExt.Parsec
     /// <summary>
     /// Parser delegate type - Parses an input PString and returns a ParserResult
     /// </summary>
-    /// <typeparam name="T">Parsed value result type</typeparam>
+    /// <typeparam name="I">Input stream element type</typeparam>
+    /// <typeparam name="O">Parsed value result type</typeparam>
     /// <param name="input">Input string</param>
     /// <returns>Parsed value or error report</returns>
-    public delegate ParserResult<T> Parser<T>(PString input);
+    public delegate ParserResult<I, O> Parser<I, O>(PString<I> input);
 }
 
-public static class ___ParserExt
+public static class ___ParserTExt
 {
-    public static Parser<char, T> ToParserT<T>(this Parser<T> self) =>
+    public static Parser<T> ToParser<T>(this Parser<char, T> self) =>
         inp =>
         {
-            var res = self(new PString(new string(inp.Value), inp.Index, inp.EndIndex, inp.Pos, inp.DefPos, inp.Side, inp.UserState));
+            var res = self(new PString<char>(inp.Value.ToCharArray(), inp.Index, inp.EndIndex, inp.Pos, inp.DefPos, inp.Side, inp.UserState));
 
             var state = res.Reply.State;
 
-            var pstr = new PString<char>(
-                        state.Value.ToCharArray(),
+            var pstr = new PString(
+                        new string(state.Value),
                         state.Index,
                         state.EndIndex,
                         state.Pos,
@@ -38,21 +41,20 @@ public static class ___ParserExt
 
             var reply = res.Reply;
 
-            return new ParserResult<char, T>(
+            return new ParserResult<T>(
                 res.Tag,
-                new Reply<char, T>(
+                new Reply<T>(
                     reply.Tag,
                     reply.Result,
                     pstr,
                     reply.Error));
         };
 
-
     /// <summary>
     /// A label for the parser
     /// </summary>
     /// <param name="expected">What was expected</param>
-    public static Parser<T> label<T>(this Parser<T> p, string expected) =>
+    public static Parser<I, O> label<I, O>(this Parser<I, O> p, string expected) =>
         inp =>
         {
             var res = p(inp);
@@ -62,7 +64,7 @@ public static class ___ParserExt
             }
             if (res.Reply.Tag == ReplyTag.Error)
             {
-                return EmptyError<T>(ParserError.Expect(inp.Pos, res.Reply.Error.Msg, expected));
+                return EmptyError<I, O>(ParserError.Expect(inp.Pos, res.Reply.Error.Msg, expected));
             }
             if (res.Reply.Error == null || res.Reply.Error.Tag == ParserErrorTag.Unknown)
             {
@@ -74,33 +76,33 @@ public static class ___ParserExt
             }
         };
 
-    public static ParserResult<T> Parse<T>(this Parser<T> self, PString input) =>
+    public static ParserResult<I, O> Parse<I, O>(this Parser<I, O> self, PString<I> input) =>
         self(input);
 
-    public static ParserResult<T> Parse<T>(this Parser<T> self, string input) =>
-        self(PString.Zero.SetValue(input));
+    public static ParserResult<I, O> Parse<I, O>(this Parser<I, O> self, IEnumerable<I> input) =>
+        self(PString<I>.Zero.SetValue(input.ToArray()));
 
-    public static Parser<T> Filter<T>(this Parser<T> self, Func<T, bool> pred) =>
+    public static Parser<I, O> Filter<I, O>(this Parser<I, O> self, Func<O, bool> pred) =>
         self.Where(pred);
 
-    public static Parser<T> Where<T>(this Parser<T> self, Func<T, bool> pred) =>
+    public static Parser<I, O> Where<I, O>(this Parser<I, O> self, Func<O, bool> pred) =>
         inp =>
             self(inp).Match(
-                EmptyOK: (x, rem, msg) => pred(x) ? EmptyOK(x, rem, msg) : EmptyError<T>(ParserError.SysUnexpect(inp.Pos, $"\"{x}\"")),
-                EmptyError: msg => EmptyError<T>(msg),
-                ConsumedOK: (x, rem, msg) => pred(x) ? ConsumedOK(x, rem, msg) : EmptyError<T>(ParserError.SysUnexpect(inp.Pos, $"\"{x}\"")),
-                ConsumedError: msg => ConsumedError<T>(msg));
+                EmptyOK: (x, rem, msg) => pred(x) ? EmptyOK(x, rem, msg) : EmptyError<I, O>(ParserError.SysUnexpect(inp.Pos, $"\"{x}\"")),
+                EmptyError: msg => EmptyError<I, O>(msg),
+                ConsumedOK: (x, rem, msg) => pred(x) ? ConsumedOK(x, rem, msg) : EmptyError<I, O>(ParserError.SysUnexpect(inp.Pos, $"\"{x}\"")),
+                ConsumedError: msg => ConsumedError<I, O>(msg));
 
-    public static Parser<U> Map<T, U>(this Parser<T> self, Func<T, U> map) =>
+    public static Parser<I, U> Map<I, O, U>(this Parser<I, O> self, Func<O, U> map) =>
         self.Select(map);
 
-    public static Parser<U> Select<T, U>(this Parser<T> self, Func<T, U> map) =>
+    public static Parser<I, U> Select<I, O, U>(this Parser<I, O> self, Func<O, U> map) =>
         inp => self(inp).Select(map);
 
-    public static Parser<V> SelectMany<T, U, V>(
-        this Parser<T> self,
-        Func<T, Parser<U>> bind,
-        Func<T, U, V> project) =>
+    public static Parser<I, V> SelectMany<I, O, U, V>(
+        this Parser<I, O> self,
+        Func<O, Parser<I, U>> bind,
+        Func<O, U, V> project) =>
             inp =>
             {
                 Debug.Assert(inp != null);
@@ -122,7 +124,7 @@ public static class ___ParserExt
                     if (u.Tag == ResultTag.Consumed && u.Reply.Tag == ReplyTag.Error)
                     {
                         // cok, cerr -> cerr
-                        return ConsumedError<V>(u.Reply.Error);
+                        return ConsumedError<I, V>(u.Reply.Error);
                     }
 
                     if (u.Tag == ResultTag.Empty && u.Reply.Tag == ReplyTag.OK)
@@ -133,7 +135,7 @@ public static class ___ParserExt
                     }
 
                     // cok, eerr
-                    return ConsumedError<V>(mergeError(t.Reply.Error, u.Reply.Error));
+                    return ConsumedError<I, V>(mergeError(t.Reply.Error, u.Reply.Error));
                 }
 
                 // eok
@@ -158,20 +160,20 @@ public static class ___ParserExt
                     if (u.Tag == ResultTag.Consumed && u.Reply.Tag == ReplyTag.Error)
                     {
                         // eok, cerr -> cerr
-                        return ConsumedError<V>(u.Reply.Error);
+                        return ConsumedError<I, V>(u.Reply.Error);
                     }
 
                     // eok, eerr
-                    return EmptyError<V>(mergeError(t.Reply.Error, u.Reply.Error));
+                    return EmptyError<I, V>(mergeError(t.Reply.Error, u.Reply.Error));
                 }
 
                 // cerr
                 if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
                 {
-                    return ConsumedError<V>(t.Reply.Error);
+                    return ConsumedError<I, V>(t.Reply.Error);
                 }
 
                 // eerr
-                return EmptyError<V>(t.Reply.Error);
+                return EmptyError<I, V>(t.Reply.Error);
             };
 }

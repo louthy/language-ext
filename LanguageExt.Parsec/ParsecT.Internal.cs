@@ -2,32 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using static LanguageExt.Parsec.Common;
-using static LanguageExt.Parsec.Prim;
-using static LanguageExt.Parsec.ParserResult;
+using static LanguageExt.Parsec.PrimT;
+using static LanguageExt.Parsec.ParserResultT;
 
 namespace LanguageExt.Parsec
 {
-    static class Internal
+    static class InternalT
     {
-        public static string concat(IEnumerable<char> chs) =>
-            new string(chs.ToArray());
-
-        public static readonly Parser<Pos> getDefPos =
-            (PString inp) => ConsumedOK(inp.DefPos, inp);
-
-        public static Parser<T> setDefPos<T>(Pos defpos, Parser<T> p) =>
-            (PString inp) => p(inp.SetDefPos(defpos));
-
-        public static ParserResult<char> newstate(PString inp)
+        public static ParserResult<I,I> newstate<I>(PString<I> inp)
         {
             var x = inp.Value[inp.Index];
 
-            var newpos = x == '\n' ? new Pos(inp.Pos.Line + 1, 0)
-                       : x == '\t' ? new Pos(inp.Pos.Line, ((inp.Pos.Column / 4) + 1) * 4)
-                       : new Pos(inp.Pos.Line, inp.Pos.Column + 1);
+            var newpos = new Pos(inp.Pos.Line, inp.Pos.Column + 1);
 
             return ConsumedOK(x,
-                new PString(
+                new PString<I>(
                     inp.Value,
                     inp.Index + 1,
                     inp.EndIndex,
@@ -46,12 +35,12 @@ namespace LanguageExt.Parsec
         ///     either(ps[index], choicei(ps, index + 1))
         /// 
         /// </summary>
-        public static Parser<T> choicei<T>(Parser<T>[] ps) =>
+        public static Parser<I,O> choicei<I, O>(Parser<I, O>[] ps) =>
             ps.Length == 0
-                ? unexpected<T>("choice parser with no choices")
+                ? unexpected<I, O>("choice parser with no choices")
                 : inp =>
             {
-                List<T> results = new List<T>();
+                var results = new List<O>();
                 ParserError error = null;
 
                 foreach (var p in ps)
@@ -67,19 +56,19 @@ namespace LanguageExt.Parsec
                     // eok
                     if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
                     {
-                        return EmptyOK(t.Reply.Result, t.Reply.State, mergeError(error, t.Reply.Error));
+                        return EmptyOK<I, O>(t.Reply.Result, t.Reply.State, mergeError(error, t.Reply.Error));
                     }
 
                     // cerr
                     if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
                     {
-                        return ConsumedError<T>(mergeError(error, t.Reply.Error));
+                        return ConsumedError<I, O>(mergeError(error, t.Reply.Error));
                     }
 
                     error = mergeError(error, t.Reply.Error);
                 }
 
-                return EmptyError<T>(error);
+                return EmptyError<I, O>(error);
             };
 
         /// <summary>
@@ -91,9 +80,9 @@ namespace LanguageExt.Parsec
         ///     select x.Cons(y);
         /// 
         /// </summary>
-        public static Parser<IEnumerable<T>> chaini<T>(Parser<T>[] ps) =>
+        public static Parser<I, IEnumerable<O>> chaini<I, O>(Parser<I, O>[] ps) =>
             ps.Length == 0
-                ? unexpected<IEnumerable<T>>("chain parser with 0 items")
+                ? unexpected<I, IEnumerable<O>>("chain parser with 0 items")
                 : inp =>
             {
                 if( ps.Length == 1)
@@ -102,9 +91,9 @@ namespace LanguageExt.Parsec
                 }
 
                 var current = inp;
-                List<T> results = new List<T>();
+                var results = new List<O>();
                 ParserError error = null;
-                ParserResult<T> last = null;
+                ParserResult<I,O> last = null;
                 int count = ps.Length;
 
                 foreach (var p in ps)
@@ -117,12 +106,12 @@ namespace LanguageExt.Parsec
                         // cerr
                         if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
                         {
-                            return ConsumedError<IEnumerable<T>>(t.Reply.Error);
+                            return ConsumedError<I, IEnumerable<O>>(t.Reply.Error);
                         }
                         // eerr
                         else if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.Error)
                         {
-                            return EmptyError<IEnumerable<T>>(t.Reply.Error);
+                            return EmptyError<I, IEnumerable<O>>(t.Reply.Error);
                         }
                         // cok
                         else if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
@@ -147,12 +136,12 @@ namespace LanguageExt.Parsec
                             // cok, cerr
                             if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
                             {
-                                return ConsumedError<IEnumerable<T>>(t.Reply.Error);
+                                return ConsumedError<I, IEnumerable<O>>(t.Reply.Error);
                             }
                             // cok, eerr
                             else if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.Error)
                             {
-                                return ConsumedError<IEnumerable<T>>(mergeError(error, t.Reply.Error));
+                                return ConsumedError<I, IEnumerable<O>>(mergeError(error, t.Reply.Error));
                             }
                             // cok, cok
                             else if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
@@ -160,7 +149,7 @@ namespace LanguageExt.Parsec
                                 if (count == 0)
                                 {
                                     results.Add(t.Reply.Result);
-                                    return ConsumedOK<IEnumerable<T>>(results, t.Reply.State, t.Reply.Error);
+                                    return ConsumedOK<I, IEnumerable<O>>(results, t.Reply.State, t.Reply.Error);
                                 }
                                 else
                                 {
@@ -177,7 +166,7 @@ namespace LanguageExt.Parsec
                                 {
                                     // cok, eok -> cok  (not a typo, this should be -> cok)
                                     results.Add(t.Reply.Result);
-                                    return ConsumedOK<IEnumerable<T>>(results, t.Reply.State, mergeError(error, t.Reply.Error));
+                                    return ConsumedOK<I, IEnumerable<O>>(results, t.Reply.State, mergeError(error, t.Reply.Error));
                                 }
                                 else
                                 {
@@ -192,12 +181,12 @@ namespace LanguageExt.Parsec
                             // eok, cerr
                             if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
                             {
-                                return ConsumedError<IEnumerable<T>>(t.Reply.Error);
+                                return ConsumedError<I, IEnumerable<O>>(t.Reply.Error);
                             }
                             // eok, eerr
                             else if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.Error)
                             {
-                                return EmptyError<IEnumerable<T>>(mergeError(error, t.Reply.Error));
+                                return EmptyError<I, IEnumerable<O>>(mergeError(error, t.Reply.Error));
                             }
                             // eok, cok
                             else if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
@@ -205,7 +194,7 @@ namespace LanguageExt.Parsec
                                 if (count == 0)
                                 {
                                     results.Add(t.Reply.Result);
-                                    return ConsumedOK<IEnumerable<T>>(results, t.Reply.State, t.Reply.Error);
+                                    return ConsumedOK<I, IEnumerable<O>>(results, t.Reply.State, t.Reply.Error);
                                 }
                                 else
                                 {
@@ -221,7 +210,7 @@ namespace LanguageExt.Parsec
                                 if (count == 0)
                                 {
                                     results.Add(t.Reply.Result);
-                                    return EmptyOK<IEnumerable<T>>(results, t.Reply.State, mergeError(error, t.Reply.Error));
+                                    return EmptyOK<I, IEnumerable<O>>(results, t.Reply.State, mergeError(error, t.Reply.Error));
                                 }
                                 else
                                 {
@@ -233,13 +222,13 @@ namespace LanguageExt.Parsec
                         }
                     }
                 }
-                return ConsumedOK<IEnumerable<T>>(results, current, error);
+                return ConsumedOK<I, IEnumerable<O>>(results, current, error);
             };
 
 
-        public static Parser<IEnumerable<T>> counti<T>(int n, Parser<T> p) =>
+        public static Parser<I, IEnumerable<O>> counti<I, O>(int n, Parser<I, O> p) =>
            n <= 0
-                ? result(new T [0].AsEnumerable())
+                ? result<I, IEnumerable<O>>(new O [0].AsEnumerable())
                 : from x in p
                   from y in counti(n-1, p)
                   select x.Cons(y);
