@@ -985,5 +985,13 @@ namespace TestBed
             Console.WriteLine(pid);
             children(pid).Iter(ShowChildren);
         }
+
+        public static void PStringCasting()
+        {
+            string str = "Hello";
+            var pstr = str.ToCharArray().ToPString();
+            var ostr = pstr.Cast<object>();
+            pstr = ostr.Cast<char>();
+        }
     }
 }

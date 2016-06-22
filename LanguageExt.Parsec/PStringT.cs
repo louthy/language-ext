@@ -1,4 +1,4 @@
-﻿
+﻿using System.Linq;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.Parsec
@@ -54,5 +54,8 @@ namespace LanguageExt.Parsec
 
         public static readonly PString<T> Zero =
             new PString<T>(new T[0], 0, 0, Pos.Zero, Pos.Zero, Sidedness.Onside, None);
+
+        public PString<U> Cast<U>() =>
+            new PString<U>(Value.Cast<U>().ToArray(), Index, EndIndex, Pos, DefPos, Side, UserState);
     }
 }

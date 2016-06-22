@@ -24,9 +24,10 @@ namespace TestBed
     {
         static void Main(string[] args)
         {
-            Tests.VersionTest();
+            Tests.PStringCasting();
             return;
 
+            Tests.VersionTest();
             Tests.SerialiseDeserialiseCoreTypes();
             //Tests.StopStart();
 

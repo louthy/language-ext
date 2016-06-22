@@ -53,11 +53,13 @@ namespace LanguageExt.Parsec
                     : $"expecting {String.Join(", ", expects.Take(expects.Count - 1))} or {expects.Last()}";
 
         public override string ToString() =>
-            $"error at {Pos}: " +
-              ( Tag == ParserErrorTag.Unexpect    ? $"unexpected {Msg}"
+            $"error at {Pos}: {ToStringNoPosition()}";
+
+        public string ToStringNoPosition() =>
+            (Tag == ParserErrorTag.Unexpect ? $"unexpected {Msg}"
               : Tag == ParserErrorTag.SysUnexpect ? $"unexpected {Msg}"
-              : Tag == ParserErrorTag.Message     ? Msg
-              : Tag == ParserErrorTag.Expect      ? $"unexpected {Msg}, {FormatExpects(Expected.Filter(x => !String.IsNullOrEmpty(x)).Distinct().Freeze())}"
+              : Tag == ParserErrorTag.Message ? Msg
+              : Tag == ParserErrorTag.Expect ? $"unexpected {Msg}, {FormatExpects(Expected.Filter(x => !String.IsNullOrEmpty(x)).Distinct().Freeze())}"
               : "unknown error");
 
         public bool Equals(ParserError other) =>
