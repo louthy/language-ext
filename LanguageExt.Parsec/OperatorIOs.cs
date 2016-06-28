@@ -4,23 +4,23 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt.Parsec
 {
-    public static class OperatorT
+    public static class OperatorIO
     {
-        public static OperatorT<T> Infix<T>(Assoc assoc, Parser<char, Func<T, T, T>> p) =>
-            new InfixOpT<T>(assoc, p);
+        public static OperatorIO<T> Infix<T>(Assoc assoc, Parser<char, Func<T, T, T>> p) =>
+            new InfixOpIO<T>(assoc, p);
 
-        public static OperatorT<T> Prefix<T>(Parser<char, Func<T, T>> p) =>
-            new PrefixOpT<T>(p);
+        public static OperatorIO<T> Prefix<T>(Parser<char, Func<T, T>> p) =>
+            new PrefixOpIO<T>(p);
 
-        public static OperatorT<T> Postfix<T>(Parser<char, Func<T, T>> p) =>
-            new PostfixOpT<T>(p);
+        public static OperatorIO<T> Postfix<T>(Parser<char, Func<T, T>> p) =>
+            new PostfixOpIO<T>(p);
     }
 
-    public abstract class OperatorT<T>
+    public abstract class OperatorIO<T>
     {
         public readonly OperatorTag Tag;
 
-        public OperatorT(OperatorTag tag)
+        public OperatorIO(OperatorTag tag)
         {
             Tag = tag;
         }
@@ -29,12 +29,12 @@ namespace LanguageExt.Parsec
             Tuple<Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T, T>>>, Lst<Parser<char, Func<T, T>>>, Lst<Parser<char, Func<T, T>>>> state);
     }
 
-    public class InfixOpT<T> : OperatorT<T>
+    public class InfixOpIO<T> : OperatorIO<T>
     {
         public readonly Assoc Assoc;
         public readonly Parser<char, Func<T, T, T>> Op;
 
-        internal InfixOpT(Assoc assoc, Parser<char, Func<T, T, T>> p)
+        internal InfixOpIO(Assoc assoc, Parser<char, Func<T, T, T>> p)
             :
             base(OperatorTag.Infix)
         {
@@ -51,11 +51,11 @@ namespace LanguageExt.Parsec
                   : Tuple(Op.Cons(rassoc), lassoc, nassoc, prefix, postfix));
     }
 
-    public class PrefixOpT<T> : OperatorT<T>
+    public class PrefixOpIO<T> : OperatorIO<T>
     {
         public readonly Parser<char, Func<T, T>> Op;
 
-        internal PrefixOpT(Parser<char, Func<T, T>> p)
+        internal PrefixOpIO(Parser<char, Func<T, T>> p)
             :
             base(OperatorTag.Prefix)
         {
@@ -70,11 +70,11 @@ namespace LanguageExt.Parsec
 
     }
 
-    public class PostfixOpT<T> : OperatorT<T>
+    public class PostfixOpIO<T> : OperatorIO<T>
     {
         public readonly Parser<char, Func<T, T>> Op;
 
-        internal PostfixOpT(Parser<char, Func<T, T>> p)
+        internal PostfixOpIO(Parser<char, Func<T, T>> p)
             :
             base(OperatorTag.Postfix)
         {

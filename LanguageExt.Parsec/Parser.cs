@@ -4,7 +4,7 @@ using static LanguageExt.Prelude;
 using static LanguageExt.Parsec.Prim;
 using static LanguageExt.Parsec.Common;
 using static LanguageExt.Parsec.ParserResult;
-using static LanguageExt.Parsec.ParserResultT;
+using static LanguageExt.Parsec.ParserResultIO;
 using System.Diagnostics;
 
 namespace LanguageExt.Parsec
@@ -20,7 +20,7 @@ namespace LanguageExt.Parsec
 
 public static class ___ParserExt
 {
-    public static Parser<char, T> ToParserT<T>(this Parser<T> self) =>
+    public static Parser<char, T> ToParserIO<T>(this Parser<T> self) =>
         inp =>
         {
             var res = self(new PString(new string(inp.Value), inp.Index, inp.EndIndex, inp.Pos, inp.DefPos, inp.Side, inp.UserState));

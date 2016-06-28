@@ -4,7 +4,7 @@ using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.Parsec.Common;
-using static LanguageExt.Parsec.InternalT;
+using static LanguageExt.Parsec.InternalIO;
 using static LanguageExt.Parsec.ItemT;
 using static LanguageExt.Parsec.ParserResultT;
 

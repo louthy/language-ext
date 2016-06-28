@@ -9,15 +9,15 @@ using static LanguageExt.Parsec.TokenT;
 
 namespace LanguageExt.Parsec
 {
-    public static class LanguageT
+    public static class LanguageIO
     {
         /// <summary>
         /// This is a minimal token definition for Haskell style languages. It
         /// defines the style of comments, valid identifiers and case
         /// sensitivity.  It does not define any reserved words or operators.
         /// </summary>
-        public readonly static GenLanguageDefT HaskellStyle =
-            GenLanguageDefT.Empty.With(
+        public readonly static GenLanguageDefIO HaskellStyle =
+            GenLanguageDefIO.Empty.With(
                 CommentStart: "{-",
                 CommentEnd: "-}",
                 CommentLine: "--",
@@ -36,8 +36,8 @@ namespace LanguageExt.Parsec
         /// defines the style of comments, valid identifiers and case
         /// sensitivity.  It does not define any reserved words.
         /// </summary>
-        public readonly static GenLanguageDefT JavaStyle =
-            GenLanguageDefT.Empty.With(
+        public readonly static GenLanguageDefIO JavaStyle =
+            GenLanguageDefIO.Empty.With(
                 CommentStart: "/*",
                 CommentEnd: "*/",
                 CommentLine: "//",
@@ -54,7 +54,7 @@ namespace LanguageExt.Parsec
         /// <summary>
         /// The language definition for the language Haskell98.
         /// </summary>
-        public readonly static GenLanguageDefT Haskell98Def =
+        public readonly static GenLanguageDefIO Haskell98Def =
             HaskellStyle.With(
                 ReservedOpNames: List.create("::", "..", "=", "\\", "|", "<-", "->", "@", "~", "=>"),
                 ReservedNames: List.create(

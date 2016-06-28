@@ -7,7 +7,7 @@ using static LanguageExt.Parsec.ParserResultT;
 
 namespace LanguageExt.Parsec
 {
-    static class InternalT
+    static class InternalIO
     {
         public static ParserResult<I,I> newstate<I>(PString<I> inp)
         {

@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace LanguageExt.Parsec
 {
-    public static class ReplyT
+    public static class ReplyIO
     {
         public static Reply<I, O> OK<I, O>(O result, PString<I> remaining, ParserError error = null) =>
             new Reply<I, O>(result, remaining, error);
@@ -57,13 +57,13 @@ namespace LanguageExt.Parsec
 
         public Reply<I, U> Project<S, U>(S s, Func<S, O, U> project) =>
             Tag == ReplyTag.Error
-                ? ReplyT.Error<I, U>(Error)
-                : ReplyT.OK(project(s, Result), State, Error);
+                ? ReplyIO.Error<I, U>(Error)
+                : ReplyIO.OK(project(s, Result), State, Error);
 
         public Reply<I, U> Select<U>(Func<O, U> map) =>
             Tag == ReplyTag.Error
-                ? ReplyT.Error<I, U>(Error)
-                : ReplyT.OK(map(Result), State, Error);
+                ? ReplyIO.Error<I, U>(Error)
+                : ReplyIO.OK(map(Result), State, Error);
 
         internal Reply<I, O> SetEndIndex(int endIndex) =>
             new Reply<I, O>(Tag, Result, State.SetEndIndex(endIndex), Error);

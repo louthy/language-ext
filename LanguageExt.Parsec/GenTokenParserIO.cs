@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using static LanguageExt.Prelude;
-using static LanguageExt.Parsec.ParserResultT;
-using static LanguageExt.Parsec.InternalT;
+using static LanguageExt.Parsec.ParserResultIO;
+using static LanguageExt.Parsec.InternalIO;
 using static LanguageExt.Parsec.PrimT;
 using static LanguageExt.Parsec.CharT;
 
 namespace LanguageExt.Parsec
 {
-    public class GenTokenParserT
+    public class GenTokenParserIO
     {
         /// <summary>
         /// This lexeme parser parses a legal identifier. Returns the identifier
@@ -295,7 +295,7 @@ namespace LanguageExt.Parsec
         public Parser<char, Lst<T>> BracesSemiSep<T>(Parser<char, T> p) =>
             Braces(sepBy(p, Semi).Map(x => List.createRange(x)));
 
-        internal GenTokenParserT(
+        internal GenTokenParserIO(
             Parser<char, string> indentifier,
             Func<string, Parser<char, string>> reserved,
             Parser<char, string> op,

@@ -41,7 +41,7 @@ namespace LanguageExt.Parsec
         ///    var reserved    = lexer.Reserved;
         ///    ...        
         /// </summary>
-        public static GenTokenParserT makeTokenParser(GenLanguageDefT def)
+        public static GenTokenParserIO makeTokenParser(GenLanguageDefIO def)
         {
             var simpleSpace = skipMany1(satisfy(System.Char.IsWhiteSpace));
 
@@ -370,7 +370,7 @@ namespace LanguageExt.Parsec
                         from _ in notFollowedBy(def.IdentLetter).label("end of " + name)
                         select x)));
 
-            return new GenTokenParserT(
+            return new GenTokenParserIO(
                 identifier,
                 reserved,
                 operator_,

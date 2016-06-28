@@ -14,7 +14,7 @@ namespace LanguageExt.Parsec
     /// features of the "Parsec.Text.Token" module.  The module "Parsec.Text.Language"
     /// contains some default definitions.
     /// </summary>
-    public class GenLanguageDefT
+    public class GenLanguageDefIO
     {
         /// <summary>
         /// Describes the start of a block comment. Use the empty string if the
@@ -83,10 +83,10 @@ namespace LanguageExt.Parsec
         /// <summary>
         /// Empty definition, use With to build
         /// </summary>
-        public static readonly GenLanguageDefT Empty =
-            new GenLanguageDefT("", "", "", true, zero<char, char>(), zero<char, char>(), zero<char, char>(), zero<char, char>(), List.empty<string>(), List.empty<string>(), true);
+        public static readonly GenLanguageDefIO Empty =
+            new GenLanguageDefIO("", "", "", true, zero<char, char>(), zero<char, char>(), zero<char, char>(), zero<char, char>(), List.empty<string>(), List.empty<string>(), true);
 
-        private GenLanguageDefT(
+        private GenLanguageDefIO(
             string commentStart,
             string commentEnd,
             string commentLine,
@@ -113,7 +113,7 @@ namespace LanguageExt.Parsec
             CaseSensitive = caseSensitive;
         }
 
-        public GenLanguageDefT With(
+        public GenLanguageDefIO With(
             string CommentStart = null,
             string CommentEnd = null,
             string CommentLine = null,
@@ -126,7 +126,7 @@ namespace LanguageExt.Parsec
             Lst<string> ReservedOpNames = null,
             bool? CaseSensitive = null
             ) =>
-            new GenLanguageDefT(
+            new GenLanguageDefIO(
                 CommentStart == null ? this.CommentStart : CommentStart,
                 CommentEnd == null ? this.CommentEnd : CommentEnd,
                 CommentLine == null ? this.CommentLine : CommentLine,

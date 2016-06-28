@@ -55,7 +55,7 @@ namespace LanguageExt.Parsec
         ///    var res = parse(expr, "(50 + 20) / 2");
         /// </example>
         public static Parser<char, T> buildExpressionParser<T>(
-            OperatorT<T>[][] operators,
+            OperatorIO<T>[][] operators,
             Parser<char, T> simpleExpr
             )
         {
@@ -66,7 +66,7 @@ namespace LanguageExt.Parsec
         }
 
         static Parser<char, T> makeParser<T>(
-            OperatorT<T>[] ops,
+            OperatorIO<T>[] ops,
             Parser<char, T> term
             )
         {
