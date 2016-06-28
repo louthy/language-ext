@@ -1629,4 +1629,18 @@ public static class __EitherExt
             ? pred(await self.RightValue)
             : false;
 
+    public static Either<L, V> Join<L, T, U, K, V>(
+        this Either<L, T> self,
+        Either<L, U> inner,
+        Func<T, K> outerKeyMap,
+        Func<U, K> innerKeyMap,
+        Func<T, U, V> project)
+    {
+        if (self.IsLeft) return Left<L, V>(self.LeftValue);
+        if (inner.IsLeft) return Left<L, V>(inner.LeftValue);
+        if (self.IsBottom || inner.IsBottom) return Either<L, V>.Bottom;
+        return EqualityComparer<K>.Default.Equals(outerKeyMap(self.RightValue), innerKeyMap(inner.RightValue))
+            ? Right<L,V>(project(self.RightValue, inner.RightValue))
+            : Either<L, V>.Bottom;
+    }
 }

@@ -968,4 +968,18 @@ public static class __OptionExt
         self.IsSome
             ? pred(await self.Value)
             : false;
+
+    public static Option<V> Join<L, T, U, K, V>(
+        this Option<T> self,
+        Option<U> inner,
+        Func<T, K> outerKeyMap,
+        Func<U, K> innerKeyMap,
+        Func<T, U, V> project)
+    {
+        if (self.IsNone) return None;
+        if (inner.IsNone) return None;
+        return EqualityComparer<K>.Default.Equals(outerKeyMap(self.Value), innerKeyMap(inner.Value))
+            ? Some(project(self.Value, inner.Value))
+            : None;
+    }
 }

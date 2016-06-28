@@ -1064,4 +1064,23 @@ public static class __TryOptionExt
         });
     }
 
+    public static TryOption<V> Join<L, T, U, K, V>(
+        this TryOption<T> self,
+        TryOption<U> inner,
+        Func<T, K> outerKeyMap,
+        Func<U, K> innerKeyMap,
+        Func<T, U, V> project) => () =>
+        {
+            var selfRes = self.Try();
+            if (selfRes.IsFaulted) return new TryOptionResult<V>(selfRes.Exception);
+            if (selfRes.Value.IsNone) return new TryOptionResult<V>(None);
+
+            var innerRes = inner.Try();
+            if (innerRes.IsFaulted) return new TryOptionResult<V>(innerRes.Exception);
+            if (innerRes.Value.IsNone) return new TryOptionResult<V>(None);
+
+            return EqualityComparer<K>.Default.Equals(outerKeyMap(selfRes.Value.Value), innerKeyMap(innerRes.Value.Value))
+                ? new TryOptionResult<V>(project(selfRes.Value.Value, innerRes.Value.Value))
+                : None;
+        };
 }

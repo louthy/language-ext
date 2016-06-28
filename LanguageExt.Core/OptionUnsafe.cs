@@ -850,4 +850,18 @@ public static class __OptionUnsafeExt
         self.IsSome
             ? pred(await self.Value)
             : false;
+
+    public static OptionUnsafe<V> Join<L, T, U, K, V>(
+        this OptionUnsafe<T> self,
+        OptionUnsafe<U> inner,
+        Func<T, K> outerKeyMap,
+        Func<U, K> innerKeyMap,
+        Func<T, U, V> project)
+    {
+        if (self.IsNone) return None;
+        if (inner.IsNone) return None;
+        return EqualityComparer<K>.Default.Equals(outerKeyMap(self.Value), innerKeyMap(inner.Value))
+            ? SomeUnsafe(project(self.Value, inner.Value))
+            : None;
+    }
 }

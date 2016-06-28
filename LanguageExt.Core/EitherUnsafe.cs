@@ -68,6 +68,8 @@ namespace LanguageExt
             left = default(L);
         }
 
+        internal static EitherUnsafe<L, R> Bottom = new EitherUnsafe<L, R>(true);
+
         /// <summary>
         /// State of the Either
         /// You can also use:
@@ -835,7 +837,7 @@ public static class __EitherUnsafeExt
     [Pure]
     public static EitherUnsafe<L, Res> Apply<L, R, Res>(this EitherUnsafe<L, Func<R, Res>> self, EitherUnsafe<L, R> arg) =>
         arg.IsBottom || self.IsBottom
-            ? new EitherUnsafe<L, Res>(true)
+            ? EitherUnsafe<L, Res>.Bottom
             : self.IsLeft
                 ? EitherUnsafe<L, Res>.Left(self.LeftValue)
                 : arg.IsLeft
@@ -852,7 +854,7 @@ public static class __EitherUnsafeExt
     [Pure]
     public static EitherUnsafe<L, Func<T2, R>> Apply<L, T1, T2, R>(this EitherUnsafe<L, Func<T1, T2, R>> self, EitherUnsafe<L, T1> arg) =>
         arg.IsBottom || self.IsBottom
-            ? new EitherUnsafe<L, Func<T2, R>>(true)
+            ? EitherUnsafe<L, Func<T2, R>>.Bottom
             : self.IsLeft
                 ? EitherUnsafe<L, Func<T2, R>>.Left(self.LeftValue)
                 : arg.IsLeft
@@ -869,7 +871,7 @@ public static class __EitherUnsafeExt
     [Pure]
     public static EitherUnsafe<L, R> Apply<L, T1, T2, R>(this EitherUnsafe<L, Func<T1, T2, R>> self, EitherUnsafe<L, T1> arg1, EitherUnsafe<L, T2> arg2) =>
         arg1.IsBottom || arg2.IsBottom || self.IsBottom
-            ? new EitherUnsafe<L, R>(true)
+            ? EitherUnsafe<L, R>.Bottom
             : self.IsLeft
                 ? EitherUnsafe<L, R>.Left(self.LeftValue)
                 : arg1.IsLeft
@@ -1176,7 +1178,7 @@ public static class __EitherUnsafeExt
     [Pure]
     public static EitherUnsafe<L, Ret> Map<L, R, Ret>(this EitherUnsafe<L, R> self, Func<R, Ret> mapper) =>
         self.IsBottom
-            ? new EitherUnsafe<L, Ret>(true)
+            ? EitherUnsafe<L, Ret>.Bottom
             : self.IsRight
                 ? RightUnsafe<L, Ret>(mapper(self.RightValue))
                 : LeftUnsafe<L, Ret>(self.LeftValue);
@@ -1193,7 +1195,7 @@ public static class __EitherUnsafeExt
     [Pure]
     public static EitherUnsafe<Ret, R> MapLeft<L, R, Ret>(this EitherUnsafe<L, R> self, Func<L, Ret> mapper) =>
         self.IsBottom
-            ? new EitherUnsafe<Ret, R>(true)
+            ? EitherUnsafe<Ret, R>.Bottom
             : self.IsLeft
                 ? LeftUnsafe<Ret, R>(mapper(self.LeftValue))
                 : RightUnsafe<Ret, R>(self.RightValue);
@@ -1212,7 +1214,7 @@ public static class __EitherUnsafeExt
     [Pure]
     public static EitherUnsafe<LRet, RRet> BiMap<L, R, LRet, RRet>(this EitherUnsafe<L, R> self, Func<R, RRet> Right, Func<L, LRet> Left) =>
         self.IsBottom
-            ? new EitherUnsafe<LRet, RRet>(true)
+            ? EitherUnsafe<LRet, RRet>.Bottom
             : self.IsRight
                 ? RightUnsafe<LRet, RRet>(Right(self.RightValue))
                 : LeftUnsafe<LRet, RRet>(Left(self.LeftValue));
@@ -1246,7 +1248,7 @@ public static class __EitherUnsafeExt
     [Pure]
     public static EitherUnsafe<L, Ret> Bind<L, R, Ret>(this EitherUnsafe<L, R> self, Func<R, EitherUnsafe<L, Ret>> binder) =>
         self.IsBottom
-            ? new EitherUnsafe<L, Ret>(true)
+            ? EitherUnsafe<L, Ret>.Bottom
             : self.IsRight
                 ? binder(self.RightValue)
                 : EitherUnsafe<L, Ret>.Left(self.LeftValue);
@@ -1264,7 +1266,7 @@ public static class __EitherUnsafeExt
     [Pure]
     public static EitherUnsafe<Ret, R> Bind<L, R, Ret>(this EitherUnsafe<L, R> self, Func<L, EitherUnsafe<Ret, R>> binder) =>
         self.IsBottom
-            ? new EitherUnsafe<Ret, R>(true)
+            ? EitherUnsafe<Ret, R>.Bottom
             : self.IsLeft
                 ? binder(self.LeftValue)
                 : EitherUnsafe<Ret, R>.Right(self.RightValue);
@@ -1283,7 +1285,7 @@ public static class __EitherUnsafeExt
     [Pure]
     public static EitherUnsafe<LRet, RRet> Bind<L, R, LRet, RRet>(this EitherUnsafe<L, R> self, Func<R, EitherUnsafe<LRet, RRet>> Right, Func<L, EitherUnsafe<LRet, RRet>> Left) =>
         self.IsBottom
-            ? new EitherUnsafe<LRet, RRet>(true)
+            ? EitherUnsafe<LRet, RRet>.Bottom
             : self.IsLeft
                 ? Left(self.LeftValue)
                 : Right(self.RightValue);
@@ -1328,7 +1330,7 @@ public static class __EitherUnsafeExt
         self.IsBottom
             ? self
             : matchUnsafe(self,
-                Right: t => pred(t) ? EitherUnsafe<L, R>.Right(t) : new EitherUnsafe<L, R>(true),
+                Right: t => pred(t) ? EitherUnsafe<L, R>.Right(t) : EitherUnsafe<L, R>.Bottom,
                 Left: l => EitherUnsafe<L, R>.Left(l));
 
     /// <summary>
@@ -1353,7 +1355,7 @@ public static class __EitherUnsafeExt
                 Right: (R r) => EitherUnsafe<L, R>.Right(r),
                 Left:  (L t) => pred(t) 
                                     ? EitherUnsafe<L, R>.Left(t) 
-                                    : new EitherUnsafe<L, R>(true)
+                                    : EitherUnsafe<L, R>.Bottom
                 );
 
     /// <summary>
@@ -1377,8 +1379,8 @@ public static class __EitherUnsafeExt
         self.IsBottom
             ? self
             : matchUnsafe(self,
-                Right: r => Right(r) ? EitherUnsafe<L, R>.Right(r) : new EitherUnsafe<L, R>(true),
-                Left: l => Left(l) ? EitherUnsafe<L, R>.Left(l) : new EitherUnsafe<L, R>(true));
+                Right: r => Right(r) ? EitherUnsafe<L, R>.Right(r) : EitherUnsafe<L, R>.Bottom,
+                Left: l => Left(l) ? EitherUnsafe<L, R>.Left(l) : EitherUnsafe<L, R>.Bottom);
 
     /// <summary>
     /// Monadic bind function
@@ -1389,10 +1391,10 @@ public static class __EitherUnsafeExt
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static EitherUnsafe<L, V> SelectMany<L, T, U, V>(this EitherUnsafe<L, T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project)
     {
-        if (self.IsBottom) return new EitherUnsafe<L, V>(true);
+        if (self.IsBottom) return EitherUnsafe<L, V>.Bottom;
         if (self.IsLeft) return EitherUnsafe<L, V>.Left(self.LeftValue);
         var u = bind(self.RightValue);
-        if (u.IsBottom) return new EitherUnsafe<L, V>(true);
+        if (u.IsBottom) return EitherUnsafe<L, V>.Bottom;
         if (u.IsLeft) return EitherUnsafe<L, V>.Left(u.LeftValue);
         return project(self.RightValue, u.RightValue);
     }
@@ -1417,9 +1419,9 @@ public static class __EitherUnsafeExt
         )
     {
         var ta = self.Take(1).ToArray();
-        if (ta.Length == 0) return new EitherUnsafe<L, V>(true);
+        if (ta.Length == 0) return EitherUnsafe<L, V>.Bottom;
         var u = bind(ta[0]);
-        if (u.IsBottom) return new EitherUnsafe< L, V > (true);
+        if (u.IsBottom) return EitherUnsafe<L, V>.Bottom;
         if (u.IsLeft) return EitherUnsafe<L, V>.Left(u.LeftValue);
         return project(ta[0], u.RightValue);
     }
@@ -1559,4 +1561,19 @@ public static class __EitherUnsafeExt
         self.IsRight
             ? pred(await self.RightValue)
             : false;
+
+    public static EitherUnsafe<L, V> Join<L, T, U, K, V>(
+        this EitherUnsafe<L, T> self,
+        EitherUnsafe<L, U> inner,
+        Func<T, K> outerKeyMap,
+        Func<U, K> innerKeyMap,
+        Func<T, U, V> project)
+    {
+        if (self.IsLeft) return LeftUnsafe<L, V>(self.LeftValue);
+        if (inner.IsLeft) return LeftUnsafe<L, V>(inner.LeftValue);
+        if (self.IsBottom || inner.IsBottom) return EitherUnsafe<L, V>.Bottom;
+        return EqualityComparer<K>.Default.Equals(outerKeyMap(self.RightValue), innerKeyMap(inner.RightValue))
+            ? RightUnsafe<L, V>(project(self.RightValue, inner.RightValue))
+            : EitherUnsafe<L, V>.Bottom;
+    }
 }
