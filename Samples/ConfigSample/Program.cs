@@ -53,7 +53,7 @@ namespace ConfigSample
     static class Config
     {
         /// <summary>
-        /// Reads the configuration setting fro App.config
+        /// Reads the configuration setting from App.config
         /// If the setting is 'null' then the result will be None otherwise it
         /// will be Some(the config value).  
         /// </summary>
