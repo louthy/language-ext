@@ -70,10 +70,13 @@ namespace LanguageExt
     /// </summary>
     public static class WriterExt
     {
+        internal static Writer<Out, T> Valid<Out, T>(this Writer<Out, T> self) =>
+            self ?? (() => WriterResult.Bottom<Out, T>(new Out[0]));
+
         [Pure]
         public static IEnumerable<T> AsEnumerable<Out, T>(this Writer<Out, T> self)
         {
-            var res = self();
+            var res = self.Valid()();
             if (!res.IsBottom)
             {
                 yield return self().Value;
@@ -84,7 +87,7 @@ namespace LanguageExt
         {
             return () =>
             {
-                var res = self();
+                var res = self.Valid()();
                 if (!res.IsBottom)
                 {
                     action(res.Value);
@@ -95,19 +98,19 @@ namespace LanguageExt
 
         [Pure]
         public static Writer<Out,int> Count<Out, T>(this Writer<Out, T> self) => () =>
-            bmap(self(), x => 1);
+            bmap(self.Valid()(), x => 1);
 
         [Pure]
         public static Writer<Out, bool> ForAll<Out, T>(this Writer<Out, T> self, Func<T, bool> pred) => () =>
-            bmap(self(), x => pred(x));
+            bmap(self.Valid()(), x => pred(x));
 
         [Pure]
         public static Writer<Out,bool> Exists<Out, T>(this Writer<Out, T> self, Func<T, bool> pred) => () =>
-            bmap(self(), x => pred(x));
+            bmap(self.Valid()(), x => pred(x));
 
         [Pure]
         public static Writer<Out, S> Fold<Out, S, T>(this Writer<Out, T> self, S state, Func<S, T, S> folder) => () =>
-            bmap(self(), x => folder(state, x));
+            bmap(self.Valid()(), x => folder(state, x));
 
         [Pure]
         public static Writer<Out, R> Map<Out, T, R>(this Writer<Out, T> self, Func<T, R> mapper) =>
@@ -118,9 +121,9 @@ namespace LanguageExt
         {
             return () =>
             {
-                var t = self();
+                var t = self.Valid()();
                 if (t.IsBottom) return WriterResult.Bottom<Out, R>(t.Output);
-                var u = binder(t.Value)();
+                var u = binder(t.Value).Valid()();
                 return WriterResult.Return(u.Value, t.Output.Concat(u.Output));
             };
         }
@@ -135,7 +138,7 @@ namespace LanguageExt
             if (select == null) throw new ArgumentNullException(nameof(select));
             return () =>
             {
-                var resT = self();
+                var resT = self.Valid()();
                 if (resT.IsBottom) return WriterResult.Bottom<W, U>(resT.Output);
                 var resU = select(resT.Value);
                 return WriterResult.Return(resU, resT.Output);
@@ -158,9 +161,9 @@ namespace LanguageExt
 
             return () =>
             {
-                var resT = self();
+                var resT = self.Valid()();
                 if (resT.IsBottom) return WriterResult.Bottom<W, V>(resT.Output);
-                var resU = bind(resT.Value).Invoke();
+                var resU = bind(resT.Value).Valid().Invoke();
                 if (resT.IsBottom) return WriterResult.Bottom<W, V>(resU.Output);
                 var resV = project(resT.Value, resU.Value);
                 return WriterResult.Return(resV, resT.Output.Concat(resU.Output));
@@ -177,7 +180,7 @@ namespace LanguageExt
         {
             return () =>
             {
-                var res = self();
+                var res = self.Valid()();
                 return pred(res.Value)
                     ? WriterResult.Return(res.Value, res.Output)
                     : WriterResult.Bottom<W, T>(res.Output);
@@ -186,7 +189,7 @@ namespace LanguageExt
 
         [Pure]
         public static Writer<W, int> Sum<W>(this Writer<W, int> self) =>
-            () => bmap(self(), x => x);
+            () => bmap(self.Valid()(), x => x);
 
         [Pure]
         private static WriterResult<W, R> bmap<W, T, R>(WriterResult<W, T> r, Func<T, R> f) =>
@@ -204,7 +207,7 @@ namespace LanguageExt
             else
             {
                 f(r.Value);
-                return WriterResult.Return<W, Unit>(unit, r.Output);
+                return WriterResult.Return(unit, r.Output);
             }
         }
 
@@ -225,7 +228,7 @@ namespace LanguageExt
         {
             return () =>
             {
-                var inner = self();
+                var inner = self.Valid()();
                 if (inner.IsBottom) return WriterResult.Bottom<Out, Reader<Env, V>>(inner.Output);
 
                 return WriterResult.Return<Out, Reader<Env, V>>(env =>
@@ -240,7 +243,7 @@ namespace LanguageExt
         {
             return () =>
             {
-                var inner = self();
+                var inner = self.Valid()();
                 if (inner.IsBottom) return WriterResult.Bottom<Out, V>(inner.Output);
                 var res = inner.Value.Fold(state, fold)();
                 return WriterResult.Return<Out, V>(res.Value, inner.Output.Concat(res.Output));
@@ -252,7 +255,7 @@ namespace LanguageExt
         {
             return () =>
             {
-                var inner = self();
+                var inner = self.Valid()();
                 if (inner.IsBottom) return WriterResult.Bottom<Out, State<S, V>>(inner.Output);
 
                 return WriterResult.Return<Out, State<S, V>>(s =>
@@ -277,11 +280,11 @@ namespace LanguageExt
             if (project == null) throw new ArgumentNullException(nameof(project));
             return () =>
             {
-                var resT = self();
+                var resT = self.Valid()();
                 if (resT.IsBottom) return WriterResult.Bottom<Out, Reader<E, V>>(resT.Output);
                 return WriterResult.Return<Out, Reader<E, V>>(env =>
                 {
-                    var resU = bind(resT.Value)(env);
+                    var resU = bind(resT.Value).Valid()(env);
                     if (resU.IsBottom) return ReaderResult.Bottom<V>();
                     return ReaderResult.Return(project(resT.Value, resU.Value));
                 },resT.Output);
@@ -303,11 +306,11 @@ namespace LanguageExt
             if (project == null) throw new ArgumentNullException(nameof(project));
             return () =>
             {
-                var resT = self();
+                var resT = self.Valid()();
                 if (resT.IsBottom) return WriterResult.Bottom<Out, State<S, V>>(resT.Output);
                 return WriterResult.Return<Out, State<S, V>>(state =>
                 {
-                    var resU = bind(resT.Value)(state);
+                    var resU = bind(resT.Value).Valid()(state);
                     if (resU.IsBottom) return StateResult.Bottom<S, V>(state);
                     return StateResult.Return(resU.State, project(resT.Value, resU.Value));
                 },resT.Output);

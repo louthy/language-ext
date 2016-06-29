@@ -135,7 +135,7 @@ namespace LanguageExt
         public static Unit Iter<T>(this Task<T> self, Action<T> f)
         {
             if (self.IsFaulted || self.IsCanceled) return unit;
-            self.ContinueWith(t => f(t.Result)).Start();
+            self.ContinueWith(t => f(t.Result));
             return unit;
         }
 

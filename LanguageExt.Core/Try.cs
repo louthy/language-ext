@@ -49,6 +49,9 @@ namespace LanguageExt
             IsFaulted
                 ? Exception.ToString()
                 : Value.ToString();
+
+        public readonly static TryResult<T> Bottom = 
+            new TryResult<T>(new BottomException());
     }
 
     public static class TryResult
@@ -497,6 +500,7 @@ public static class __TryExt
     {
         try
         {
+            if (self == null) return TryResult<T>.Bottom;
             return self();
         }
         catch (Exception e)
@@ -511,6 +515,7 @@ public static class __TryExt
     {
         try
         {
+            if (self == null) throw new BottomException();
             var res = self();
             if (res.IsFaulted)
             {
@@ -532,17 +537,8 @@ public static class __TryExt
         return new Try<U>(() =>
         {
             TryResult<T> resT;
-            try
-            {
-                resT = self();
-                if (resT.IsFaulted)
-                    return new TryResult<U>(resT.Exception);
-            }
-            catch (Exception e)
-            {
-                TryConfig.ErrorLogger(e);
-                return new TryResult<U>(e);
-            }
+            resT = self.Try();
+            if (resT.IsFaulted) return new TryResult<U>(resT.Exception);
 
             U resU;
             try
@@ -935,6 +931,6 @@ public static class __TryExt
 
         return EqualityComparer<K>.Default.Equals(outerKeyMap(selfRes.Value), innerKeyMap(innerRes.Value))
             ? new TryResult<V>(project(selfRes.Value, innerRes.Value))
-            : new TryResult<V>(new BottomException());
+            : TryResult<V>.Bottom;
     };
 }

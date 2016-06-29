@@ -723,6 +723,7 @@ public static class __TryOptionExt
     {
         try
         {
+            if (self == null) return None;
             return self();
         }
         catch (Exception e)
@@ -737,6 +738,7 @@ public static class __TryOptionExt
     {
         try
         {
+            if (self == null) return None;
             var res = self();
             if (res.IsFaulted)
             {
@@ -758,19 +760,9 @@ public static class __TryOptionExt
         return new TryOption<U>(() =>
         {
             TryOptionResult<T> resT;
-            try
-            {
-                resT = self();
-                if (resT.IsFaulted)
-                    return new TryOptionResult<U>(resT.Exception);
-                if (resT.Value.IsNone)
-                    return new TryOptionResult<U>(None);
-            }
-            catch (Exception e)
-            {
-                TryConfig.ErrorLogger(e);
-                return new TryOptionResult<U>(e);
-            }
+            resT = self.Try();
+            if (resT.IsFaulted) return new TryOptionResult<U>(resT.Exception);
+            if (resT.Value.IsNone) return new TryOptionResult<U>(None);
 
             Option<U> resU;
             try

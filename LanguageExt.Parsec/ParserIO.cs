@@ -6,7 +6,7 @@ using LanguageExt.Parsec;
 using static LanguageExt.Prelude;
 using static LanguageExt.Parsec.Prim;
 using static LanguageExt.Parsec.Common;
-using static LanguageExt.Parsec.ParserResultT;
+using static LanguageExt.Parsec.ParserResultIO;
 using System.Diagnostics;
 
 namespace LanguageExt.Parsec

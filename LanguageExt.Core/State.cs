@@ -62,15 +62,17 @@ namespace LanguageExt
 
     public static class StateExt
     {
+        internal static State<S, T> Valid<S, T>(this State<S, T> self) =>
+            self ?? (s => StateResult.Bottom<S, T>(s));
+
         [Pure]
         public static State<S, IEnumerable<T>> AsEnumerable<S, T>(this State<S, T> self) =>
-            from x in self
-            select (new T[1] { x }).AsEnumerable();
+            self.Select(x => (new T[1] { x }).AsEnumerable());
 
         [Pure]
         public static IEnumerable<T> AsEnumerable<S, T>(this State<S, T> self, S state)
         {
-            var res = self(state);
+            var res = self.Valid()(state);
             if (!res.IsBottom)
             {
                 yield return self(state).Value;
@@ -78,13 +80,13 @@ namespace LanguageExt
         }
 
         public static State<S, Unit> Iter<S, T>(this State<S, T> self, Action<T> action) =>
-            s => bmap(self(s), action);
+            s => bmap(self.Valid()(s), action);
 
         [Pure]
         public static State<S, int> Count<S, T>(this State<S, T> self) =>
             s =>
             {
-                var res = self(s);
+                var res = self.Valid()(s);
                 return res.IsBottom
                   ? StateResult.Bottom<S, int>(s)
                   : StateResult.Return(res.State, 1);
@@ -92,21 +94,19 @@ namespace LanguageExt
 
         [Pure]
         public static State<S, bool> ForAll<S, T>(this State<S, T> self, Func<T, bool> pred) =>
-            from x in self
-            select pred(x);
+            self.Select(pred);
 
         [Pure]
         public static State<S, bool> Exists<S, T>(this State<S, T> self, Func<T, bool> pred) =>
-            from x in self
-            select pred(x);
+            self.Select(pred);
 
         [Pure]
         public static State<S, FState> Fold<S, T, FState>(this State<S, T> self, FState state, Func<FState, T, FState> folder) =>
-            s => bmap(self(s), x => folder(state, x));
+            s => bmap(self.Valid()(s), x => folder(state, x));
 
         [Pure]
         public static State<S, S> Fold<S, T>(this State<S, T> self, Func<S, T, S> folder) =>
-            s => bmap(self(s), x => folder(s, x));
+            s => bmap(self.Valid()(s), x => folder(s, x));
 
         [Pure]
         public static State<S, R> Map<S, T, R>(this State<S, T> self, Func<T, R> mapper) =>
@@ -118,7 +118,7 @@ namespace LanguageExt
             if (f == null) throw new ArgumentNullException(nameof(map));
             return (S state) =>
             {
-                var resT = self(state);
+                var resT = self.Valid()(state);
                 return resT.IsBottom
                     ? StateResult.Bottom<S, T>(state)
                     : StateResult.Return(f(resT.State), resT.Value);
@@ -130,12 +130,12 @@ namespace LanguageExt
         {
             return state =>
             {
-                var resT = self(state);
+                var resT = self.Valid()(state);
                 if( resT.IsBottom )
                 {
                     return StateResult.Bottom<S, R>(state);
                 }
-                return binder(resT.Value)(resT.State);
+                return binder(resT.Value).Valid()(resT.State);
             };
         }
 
@@ -146,7 +146,7 @@ namespace LanguageExt
             if (map == null) throw new ArgumentNullException(nameof(map));
             return (S state) =>
             {
-                var resT = self(state);
+                var resT = self.Valid()(state);
                 return resT.IsBottom
                     ? StateResult.Bottom<S, U>(state)
                     : StateResult.Return(resT.State, map(resT.Value));
@@ -166,9 +166,9 @@ namespace LanguageExt
 
             return (S state) =>
             {
-                var resT = self(state);
+                var resT = self.Valid()(state);
                 if (resT.IsBottom) return StateResult.Bottom<S, V>(state);
-                var resU = bind(resT.Value)(resT.State);
+                var resU = bind(resT.Value).Valid()(resT.State);
                 if (resU.IsBottom) return StateResult.Bottom<S, V>(resT.State);
                 var resV = project(resT.Value, resU.Value);
                 return StateResult.Return(resU.State, resV);
@@ -177,9 +177,7 @@ namespace LanguageExt
 
         [Pure]
         public static State<S, T> Filter<S, T>(this State<S, T> self, Func<T, bool> pred) =>
-            from x in self
-            where pred(x)
-            select x;
+            self.Where(pred);
 
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -187,7 +185,8 @@ namespace LanguageExt
         {
             return state =>
             {
-                var res = self(state);
+                var res = self.Valid()(state);
+                if (res.IsBottom) return StateResult.Bottom<S, T>(state);
                 return pred(res.Value)
                     ? StateResult.Return(res.State, res.Value)
                     : StateResult.Bottom<S, T>(state);
@@ -196,7 +195,7 @@ namespace LanguageExt
 
         [Pure]
         public static State<S, int> Sum<S>(this State<S, int> self) =>
-            state => bmap(self(state), x => x);
+            state => bmap(self.Valid()(state), x => x);
 
         [Pure]
         static StateResult<S, R> bmap<S, T, R>(StateResult<S, T> r, Func<T, R> f) =>
@@ -231,7 +230,7 @@ namespace LanguageExt
         {
             return (S s) =>
             {
-                var inner = self(s);
+                var inner = self.Valid()(s);
                 if (inner.IsBottom) return StateResult.Bottom<S, Reader<Env, V>>(s);
                 return StateResult.Return(inner.State, inner.Value.Fold(state, fold));
             };
@@ -242,7 +241,7 @@ namespace LanguageExt
         {
             return (S s) =>
             {
-                var inner = self(s);
+                var inner = self.Valid()(s);
                 if (inner.IsBottom) return StateResult.Bottom<S, Writer<Out, V>>(s);
                 return StateResult.Return(inner.State, inner.Value.Fold(state, fold));
             };
@@ -263,11 +262,11 @@ namespace LanguageExt
             if (project == null) throw new ArgumentNullException(nameof(project));
             return (S s) =>
             {
-                var resT = self(s);
+                var resT = self.Valid()(s);
                 if (resT.IsBottom) return StateResult.Bottom<S, Reader<E, V>>(s);
                 return StateResult.Return<S, Reader<E, V>>(resT.State, envInner =>
                 {
-                    var resU = bind(resT.Value)(envInner);
+                    var resU = bind(resT.Value).Valid()(envInner);
                     if (resU.IsBottom) return new ReaderResult<V>(default(V), true);
                     return ReaderResult.Return(project(resT.Value, resU.Value));
                 });
@@ -289,11 +288,11 @@ namespace LanguageExt
             if (project == null) throw new ArgumentNullException(nameof(project));
             return (S s) =>
             {
-                var resT = self(s);
+                var resT = self.Valid()(s);
                 if (resT.IsBottom) return StateResult.Bottom<S, Writer<Out, V>>(s);
                 return StateResult.Return<S, Writer<Out, V>>(resT.State, () =>
                 {
-                    var resU = bind(resT.Value)();
+                    var resU = bind(resT.Value).Valid()();
                     if (resU.IsBottom) return new WriterResult<Out, V>(default(V), resU.Output, true);
                     return WriterResult.Return(project(resT.Value, resU.Value),resU.Output);
                 });

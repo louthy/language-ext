@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
-using static LanguageExt.Parsec.ParserResultT;
+using static LanguageExt.Parsec.ParserResultIO;
 using static LanguageExt.Parsec.InternalIO;
 using static LanguageExt.Parsec.PrimT;
 

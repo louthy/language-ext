@@ -62,15 +62,17 @@ namespace LanguageExt
     /// </summary>
     public static class ReaderExt
     {
+        internal static Reader<Env, T> Valid<Env, T>(this Reader<Env, T> self) =>
+            self ?? (_ => ReaderResult.Bottom<T>());
+
         [Pure]
         public static Reader<Env, IEnumerable<T>> AsEnumerable<Env, T>(this Reader<Env, T> self) =>
-            from x in self
-            select (new T[1] { x }).AsEnumerable();
+            self.Map(x => (new T[1] { x }).AsEnumerable());
 
         [Pure]
         public static IEnumerable<T> AsEnumerable<Env, T>(this Reader<Env, T> self, Env env)
         {
-            var res = self(env);
+            var res = self.Valid()(env);
             if (!res.IsBottom)
             {
                 yield return res.Value;
@@ -78,31 +80,31 @@ namespace LanguageExt
         }
 
         public static Reader<Env, Unit> Iter<Env, T>(this Reader<Env, T> self, Action<T> action) =>
-            env => bmap(self(env), x => action(x));
+            env => bmap(self.Valid()(env), x => action(x));
 
         [Pure]
         public static Reader<Env, int> Count<Env, T>(this Reader<Env, T> self) =>
-            env => bmap(self(env), x => 1);
+            env => bmap(self.Valid()(env), x => 1);
 
         [Pure]
         public static Reader<Env, int> Sum<Env>(this Reader<Env, int> self) =>
-            env => bmap(self(env), x => x);
+            env => bmap(self.Valid()(env), x => x);
 
         [Pure]
         public static Reader<Env, bool> ForAll<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
-            env => bmap(self(env), x => pred(x));
+            env => bmap(self.Valid()(env), x => pred(x));
 
         [Pure]
         public static Reader<Env, bool> Exists<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
-            env => bmap(self(env), x => pred(x));
+            env => bmap(self.Valid()(env), x => pred(x));
 
         [Pure]
         public static Reader<Env, S> Fold<Env, S, T>(this Reader<Env, T> self, S state, Func<S, T, S> folder) =>
-            env => bmap(self(env), x => folder(state, x));
+            env => bmap(self.Valid()(env), x => folder(state, x));
 
         [Pure]
         public static Reader<Env, R> Map<Env, T, R>(this Reader<Env, T> self, Func<T, R> mapper) =>
-            env => bmap(self(env), mapper);
+            env => bmap(self.Valid()(env), mapper);
 
         [Pure]
         public static Reader<Env, T> Filter<Env, T>(this Reader<Env, T> self, Func<T, bool> pred) =>
@@ -142,7 +144,7 @@ namespace LanguageExt
         {
             return env =>
             {
-                var val = self(env);
+                var val = self.Valid()(env);
                 return val.IsBottom
                     ? Bottom<T>()
                     : pred(val.Value) 
@@ -155,9 +157,9 @@ namespace LanguageExt
         public static Reader<Env, R> Bind<Env, T, R>(this Reader<Env, T> self, Func<T, Reader<Env, R>> binder) =>
             env =>
             {
-                var t = self(env);
+                var t = self.Valid()(env);
                 if (t.IsBottom) return Bottom<R>();
-                return binder(t.Value)(env);
+                return binder(t.Value).Valid()(env);
             };
 
         /// <summary>
@@ -170,7 +172,7 @@ namespace LanguageExt
             if (select == null) throw new ArgumentNullException(nameof(select));
             return (E env) =>
             {
-                var resT = self(env);
+                var resT = self.Valid()(env);
                 return resT.IsBottom
                     ? Bottom<U>()
                     : Return<U>(select(resT.Value));
@@ -192,9 +194,9 @@ namespace LanguageExt
             if (project == null) throw new ArgumentNullException(nameof(project));
             return (E env) =>
             {
-                var resT = self(env);
+                var resT = self.Valid()(env);
                 if (resT.IsBottom) return Bottom<V>();
-                var resU = bind(resT.Value)(env);
+                var resU = bind(resT.Value).Valid()(env);
                 if (resU.IsBottom) return Bottom<V>();
                 return Return(project(resT.Value, resU.Value));
             };
@@ -229,7 +231,7 @@ namespace LanguageExt
         {
             return (Env env) =>
             {
-                var inner = self(env);
+                var inner = self.Valid()(env);
                 if (inner.IsBottom) return Bottom<Writer<Out, V>>();
                 return Return(inner.Value.Fold(state, fold));
             };
@@ -240,7 +242,7 @@ namespace LanguageExt
         {
             return (Env env) =>
             {
-                var inner = self(env);
+                var inner = self.Valid()(env);
                 if (inner.IsBottom) return Bottom<State<S, V>>();
                 return Return(inner.Value.Fold(state, fold));
             };
@@ -251,7 +253,7 @@ namespace LanguageExt
         {
             return state =>
             {
-                var inner = self(env);
+                var inner = self.Valid()(env);
                 if (inner.IsBottom) return StateResult.Bottom<S, T>(state);
                 var res = inner.Value(state);
                 if (res.IsBottom) return StateResult.Bottom<S, T>(state);
@@ -264,7 +266,7 @@ namespace LanguageExt
         {
             return () =>
             {
-                var inner = self(env);
+                var inner = self.Valid()(env);
                 if (inner.IsBottom) return WriterResult.Bottom<Out, T>();
                 var res = inner.Value();
                 if (res.IsBottom) return WriterResult.Bottom<Out, T>();
@@ -277,7 +279,7 @@ namespace LanguageExt
         {
             return state =>
             {
-                var inner = self(env);
+                var inner = self.Valid()(env);
                 if (inner.IsBottom) return StateResult.Bottom<S, T>(state);
                 var res = inner.Value(state);
                 if (res.IsBottom) return StateResult.Bottom<S, T>(state);
@@ -290,7 +292,7 @@ namespace LanguageExt
         {
             return () =>
             {
-                var inner = self(env);
+                var inner = self.Valid()(env);
                 if (inner.IsBottom) return WriterResult.Bottom<Out, T>();
                 var res = inner.Value();
                 if (res.IsBottom) return WriterResult.Bottom<Out, T>();
@@ -312,11 +314,11 @@ namespace LanguageExt
             if (project == null) throw new ArgumentNullException(nameof(project));
             return (E env) =>
             {
-                var resT = self(env);
+                var resT = self.Valid()(env);
                 if (resT.IsBottom) return Bottom<Writer<Out, V>>();
                 return Return<Writer<Out, V>>(() =>
                 {
-                    var resU = bind(resT.Value)();
+                    var resU = bind(resT.Value).Valid()();
                     if (resU.IsBottom) return WriterResult.Bottom<Out, V>(resU.Output);
                     return WriterResult.Return(project(resT.Value, resU.Value), resU.Output);
                 });
@@ -337,11 +339,11 @@ namespace LanguageExt
             if (project == null) throw new ArgumentNullException(nameof(project));
             return (E env) =>
             {
-                var resT = self(env);
+                var resT = self.Valid()(env);
                 if (resT.IsBottom) return Bottom<State<S, V>>();
                 return Return<State<S, V>>(state =>
                 {
-                    var resU = bind(resT.Value)(state);
+                    var resU = bind(resT.Value).Valid()(state);
                     if (resU.IsBottom) return StateResult.Bottom<S, V>(state);
                     return StateResult.Return(resU.State, project(resT.Value, resU.Value));
                 });
