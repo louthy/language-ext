@@ -46,18 +46,6 @@
         "System.Core": "4.0.0.0"
       }
     },
-    "netcoreapp10": {
-      "buildOptions": { "define": [ "COREFX" ] },
-      "dependencies": {
-        "StackExchange.Redis": "1.1.604-alpha",
-        "Microsoft.FSharp.Core.netcore": "1.0.0-*",
-        "System.Diagnostics.Contracts": "4.0.1",
-        "System.Security.Cryptography.Algorithms": "4.2.0",
-        "System.Collections": "4.0.11",
-        "System.Linq.Queryable": "4.0.1",
-        "System.Linq.Parallel": "4.0.1"
-      }
-    },
     "netstandard16": {
       "dependencies": {
         "StackExchange.Redis": "1.1.604-alpha",

@@ -16,13 +16,7 @@
 
   "tools": {
     "dotnet-compile-fsc": {
-      "version": "1.0.0-preview2-*",
-      "imports": [
-        "net45",
-        "net46",
-        "netcoreapp1.0",
-        "netstandard1.6"
-      ]
+      "version": "1.0.0-preview2-*"
     }
   },
 
@@ -55,21 +49,10 @@
         "FSharp.Core": "4.0.0.1"
       }
     },
-    "netcoreapp10": {
-      "dependencies": {
-        "Microsoft.FSharp.Core.netcore": "1.0.0-*"
-      },
-      "imports": [
-        "netcoreapp1.0"
-      ]
-    },
     "netstandard16": {
       "dependencies": {
         "Microsoft.FSharp.Core.netcore": "1.0.0-*"
-      },
-      "imports": [
-        "netcoreapp1.6"
-      ]
+      }
     }
   }
 }

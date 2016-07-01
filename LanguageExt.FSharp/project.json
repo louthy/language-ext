@@ -50,12 +50,6 @@
         "System.Core": "4.0.0.0"
       }
     },
-    "netcoreapp10": {
-      "dependencies": {
-        "Microsoft.FSharp.Core.netcore": "1.0.0-*",
-        "System.Collections": "4.0.11"
-      }
-    },
     "netstandard16": {
       "dependencies": {
         "Microsoft.FSharp.Core.netcore": "1.0.0-*",
