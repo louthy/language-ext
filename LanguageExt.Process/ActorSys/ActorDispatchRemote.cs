@@ -11,11 +11,13 @@ namespace LanguageExt
     {
         public readonly ProcessId ProcessId;
         public readonly ICluster Cluster;
+        public readonly Option<SessionId> SessionId;
 
-        public ActorDispatchRemote(ProcessId pid, ICluster cluster)
+        public ActorDispatchRemote(ProcessId pid, ICluster cluster, Option<SessionId> sessionId)
         {
             ProcessId = pid;
             Cluster = cluster;
+            SessionId = sessionId;
         }
 
         public Map<string, ProcessId> GetChildren() =>
@@ -86,7 +88,7 @@ namespace LanguageExt
         public Unit TellSystem(SystemMessage message, ProcessId sender) =>
             ProcessOp.IO(() =>
             {
-                var dto = RemoteMessageDTO.Create(message, ProcessId, sender, Message.Type.System, message.Tag);
+                var dto = RemoteMessageDTO.Create(message, ProcessId, sender, Message.Type.System, message.Tag, SessionId);
                 var clientsReached = Cluster.PublishToChannel(ActorInboxCommon.ClusterSystemInboxNotifyKey(ProcessId), dto);
             });
 
@@ -96,7 +98,7 @@ namespace LanguageExt
         Unit TellNoIO(object message, ProcessId sender, string inbox, Message.Type type, Message.TagSpec tag)
         {
             ValidateMessageType(message, sender);
-            var dto = RemoteMessageDTO.Create(message, ProcessId, sender, type, tag);
+            var dto = RemoteMessageDTO.Create(message, ProcessId, sender, type, tag, SessionId);
             var inboxKey = ActorInboxCommon.ClusterInboxKey(ProcessId, inbox);
             var inboxNotifyKey = ActorInboxCommon.ClusterInboxNotifyKey(ProcessId, inbox);
             Cluster.Enqueue(inboxKey, dto);

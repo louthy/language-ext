@@ -1,54 +1,52 @@
 {
-  "version": "1.8.22-beta",
+  "version": "1.9.0",
   "authors": [ "Paul Louth" ],
-  "owners": [ "paullouth" ],
   "title": "LanguageExt Unit Tests",
   "description": "Lang Ext Unit Tests",
-  "projectUrl": "https://github.com/louthy/language-ext",
-  "licenseUrl": "https://github.com/louthy/language-ext/blob/master/LICENSE.md",
   "copyright": "Copyright (c) Paul Louth",
   "configurations": {
     "Debug": {
-      "compilationOptions": {
-        "define": [ "DEBUG", "TRACE" ]
+      "buildOptions": {
+        "define": [ "DEBUG", "TRACE" ],
+        "compile": "*.cs"
       }
     },
     "Release": {
-      "compilationOptions": {
+      "buildOptions": {
         "define": [ "RELEASE", "TRACE" ],
-        "optimize": true
+        "optimize": true,
+        "compile": "*.cs"
       }
     }
   },
   "dependencies": {
-    "LanguageExt.Core": "1.8.22-beta",
-    "LanguageExt.Parsec": "1.8.22-beta",
-    "LanguageExt.Process": "1.8.22-beta",
-    "LanguageExt.Process.FSharp": "1.8.22-beta",
-    "LanguageExt.Process.Redis": "1.8.22-beta",
-    "LanguageExt.FSharp": "1.8.22-beta",
-    "LanguageExt.ProcessJS": "1.8.22-beta",
-    "Newtonsoft.Json": "7.0.1",
-    "Rx-Main": "2.2.5.0",
-    "StackExchange.Redis": "1.0.488",
+    "LanguageExt.Core": "1.9.0",
+    "LanguageExt.Parsec": "1.9.0",
+    "LanguageExt.Process": "1.9.0",
+    "LanguageExt.Process.FSharp": "1.9.0",
+    "LanguageExt.Process.Redis": "1.9.0",
+    "LanguageExt.FSharp": "1.9.0",
+    "LanguageExt.ProcessJS": "1.9.0",
+    "Newtonsoft.Json": "9.0.1",
+    "System.Reactive.Core": "3.0.1-*",
+    "System.Reactive.Interfaces": "3.0.1-*",
+    "System.Reactive.PlatformServices": "3.0.1-*",
+    "System.Reactive.Linq": "3.0.1-*",
+    "StackExchange.Redis": "1.1.604-alpha",
     "FSharp.Core": "4.0.0.1",
-    "xunit.assert": "2.1.0-*",
-    "xunit.extensibility.execution": "2.1.0-*"
+    "xunit.assert": "2.2.0-*",
+    "xunit.extensibility.execution": "2.2.0-*"
   },
   "commands": {
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "dnx451": {
+    "net45": {
       "dependencies": {
-        "Microsoft.Dnx.Compilation.CSharp": "1.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
       },
       "frameworkAssemblies": {
-        "System.Runtime": "4.0.10.0",
-        "System.Threading.Tasks": "4.0.0.0"
+        "System.Core": "4.0.0.0"
       }
     }
-  },
-  "compile": "*.cs"
+  }
 }

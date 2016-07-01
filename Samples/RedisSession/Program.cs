@@ -23,7 +23,7 @@ namespace RedisSession
             var pong = ProcessId.None;
 
             // Start a process which simply writes the messages it receives to std-out
-            var logger = spawn<string>("logger", x => Console.WriteLine(x));
+            var logger = spawn<string>("logger", x => Console.WriteLine(x), ProcessFlags.PersistInbox);
 
             sessionStart("xyz", 20 * seconds, "live");
 
@@ -40,7 +40,7 @@ namespace RedisSession
                 sessionSetData("test", val.FirstOrDefault() + 1);
                 
                 tell(pong, $"ping-{txt}-{val.FirstOrDefault()}", TimeSpan.FromMilliseconds(1000));
-            });
+            }, ProcessFlags.PersistInbox);
 
             // Pong process
             pong = spawn<string>("pong", msg =>
@@ -55,7 +55,7 @@ namespace RedisSession
                 sessionSetData("test", val.FirstOrDefault() + 1);
 
                 tell(ping, $"pong-{txt}-{val.FirstOrDefault()}", TimeSpan.FromMilliseconds(1000));
-            });
+            }, ProcessFlags.PersistInbox);
 
             // Trigger
             tell(pong, "start");

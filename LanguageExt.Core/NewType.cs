@@ -193,7 +193,7 @@ namespace LanguageExt
             $"{GetType().Name}({Value})";
     }
 
-    internal static class NewType
+    public static class NewType
     {
         static Map<string, ConstructorInfo> constructors = Map.empty<string, ConstructorInfo>();
         private static ConstructorInfo GetCtor(Type newType)

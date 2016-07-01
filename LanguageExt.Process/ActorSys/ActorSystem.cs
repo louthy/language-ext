@@ -765,7 +765,7 @@ by name then use Process.deregisterByName(name).");
 
                 // /root/js/{connection id}/js-root/..  --> back to JS
                 default:
-                    return new ActorDispatchJS(pid, pid.Take(3), rootItem.Actor.Children["js"]);
+                    return new ActorDispatchJS(pid, pid.Take(3), rootItem.Actor.Children["js"], ActorContext.SessionId);
             }
         }
 
@@ -776,7 +776,7 @@ by name then use Process.deregisterByName(name).");
 
         internal IActorDispatch GetRemoteDispatcher(ProcessId pid) =>
             cluster.Match<IActorDispatch>(
-                Some: c => new ActorDispatchRemote(pid, c),
+                Some: c => new ActorDispatchRemote(pid, c, ActorContext.SessionId),
                 None: () => new ActorDispatchNotExist(pid));
 
         internal Option<Func<ProcessId, IEnumerable<ProcessId>>> GetProcessSelector(ProcessId pid)
@@ -824,7 +824,7 @@ by name then use Process.deregisterByName(name).");
                 else
                 {
                     return cluster.Match<IActorDispatch>(
-                            Some: c => new ActorDispatchRemote(orig, c),
+                            Some: c => new ActorDispatchRemote(orig, c, ActorContext.SessionId),
                             None: () => new ActorDispatchNotExist(orig));
                 }
             }

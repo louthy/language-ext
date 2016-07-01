@@ -248,6 +248,7 @@ namespace LanguageExt
             try
             {
                 msg = MessageSerialiser.DeserialiseMsg(dto, self);
+                msg.SessionId = dto.SessionId;
             }
             catch (Exception e)
             {

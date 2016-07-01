@@ -184,6 +184,20 @@ namespace LanguageExt
             throw new Exception(message);
         }
 
+#if !COREFX
+        /// <summary>
+        /// Raises an ApplicationException wigth the messge provided
+        /// </summary>
+        /// <typeparam name="R">The return type of the expression this function is being used in.
+        /// This allows exceptions to be thrown in ternary operators, or LINQ expressions for
+        /// example</typeparam>
+        /// <param name="message">ApplicationException message</param>
+        /// <returns>Throws an ApplicationException</returns>
+        public static R raiseapp<R>(string message)
+        {
+            throw new ApplicationException(message);
+        }
+#endif
         /// <summary>
         /// Raise an exception
         /// </summary>

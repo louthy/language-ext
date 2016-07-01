@@ -77,17 +77,18 @@ namespace LanguageExt
         public string ContentType;
         public string Content;
         public Guid MessageId;
+        public string SessionId;
 
-        internal static RemoteMessageDTO Create(object message, ProcessId to, ProcessId sender, Message.Type type, Message.TagSpec tag) =>
+        internal static RemoteMessageDTO Create(object message, ProcessId to, ProcessId sender, Message.Type type, Message.TagSpec tag, Option<SessionId> sessionId) =>
             map(message as ActorRequest, req =>
                 req == null
                     ? map(message as ActorResponse, res =>
                         res == null
-                            ? CreateMessage(message, to, sender, type, tag)
-                            : CreateResponse(res, to, sender))
-                    : CreateRequest(req, to, sender));
+                            ? CreateMessage(message, to, sender, type, tag, sessionId)
+                            : CreateResponse(res, to, sender, sessionId))
+                    : CreateRequest(req, to, sender, sessionId));
 
-        internal static RemoteMessageDTO CreateMessage(object message, ProcessId to, ProcessId sender, Message.Type type, Message.TagSpec tag) =>
+        internal static RemoteMessageDTO CreateMessage(object message, ProcessId to, ProcessId sender, Message.Type type, Message.TagSpec tag, Option<SessionId> sessionId) =>
             new RemoteMessageDTO
             {
                 Type        = (int)type,
@@ -102,10 +103,11 @@ namespace LanguageExt
                                 : message.GetType().AssemblyQualifiedName,
                 Content     = message == null
                                 ? null
-                                : JsonConvert.SerializeObject(message, ActorSystemConfig.Default.JsonSerializerSettings)
+                                : JsonConvert.SerializeObject(message, ActorSystemConfig.Default.JsonSerializerSettings),
+                SessionId   = sessionId.Map(s => s.Value).IfNoneUnsafe(() => null)
             };
 
-        internal static RemoteMessageDTO CreateRequest(ActorRequest req, ProcessId to, ProcessId sender) =>
+        internal static RemoteMessageDTO CreateRequest(ActorRequest req, ProcessId to, ProcessId sender, Option<SessionId> sessionId) =>
             new RemoteMessageDTO
             {
                 Type        = (int)Message.Type.User,
@@ -118,10 +120,11 @@ namespace LanguageExt
                 Sender      = sender.ToString(),
                 ReplyTo     = req.ReplyTo.ToString(),
                 ContentType = req.Message.GetType().AssemblyQualifiedName,
-                Content     = JsonConvert.SerializeObject(req.Message, ActorSystemConfig.Default.JsonSerializerSettings)
+                Content     = JsonConvert.SerializeObject(req.Message, ActorSystemConfig.Default.JsonSerializerSettings),
+                SessionId  = sessionId.Map(s => s.Value).IfNoneUnsafe(() => null)
             };
 
-        internal static RemoteMessageDTO CreateResponse(ActorResponse res, ProcessId to, ProcessId sender) =>
+        internal static RemoteMessageDTO CreateResponse(ActorResponse res, ProcessId to, ProcessId sender, Option<SessionId> sessionId) =>
             new RemoteMessageDTO
             {
                 Type        = (int)Message.Type.User,
@@ -136,7 +139,8 @@ namespace LanguageExt
                 Sender      = res.ReplyFrom.ToString(),
                 ReplyTo     = res.ReplyTo.ToString(),
                 ContentType = res.Message.GetType().AssemblyQualifiedName,
-                Content     = JsonConvert.SerializeObject(res.Message, ActorSystemConfig.Default.JsonSerializerSettings)
+                Content     = JsonConvert.SerializeObject(res.Message, ActorSystemConfig.Default.JsonSerializerSettings),
+                SessionId   = sessionId.Map(s => s.Value).IfNoneUnsafe(() => null)
             };
     }
 }

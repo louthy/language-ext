@@ -1,33 +1,41 @@
 {
-  "version": "1.8.22-beta",
+  "version": "1.9.0",
   "authors": [ "Paul Louth" ],
-  "owners": [ "paullouth" ],
-  "title": "LanguageExt.Process.Redis",
   "description": "Actor library component that works with LanguageExt.Core and LanguageExt.Process: A library that uses and abuses the features of C# 6 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself. It also includes an 'Erlang like' process system (actors) that can optionally persist messages and state to Redis (note you can use it without Redis for in-app messaging). The process system additionally supports Rx streams of messages and state allowing for a complete system of reactive events and message dispatch.",
-  "tags": [ "C#", "Functional", "Language Extension", "Monad", "Option", "Either", "Reader", "Writer", "State", "List", "Set", "Map", "Queue", "Memo", "Memoization", "Immutable", "Lambda", "Pattern Matching", "Tuple", "Actor", "Process", "Akka", "Redis" ],
-  "releaseNotes": "",
-  "iconUrl": "https://camo.githubusercontent.com/08525ae465a9061150679d871731e77b399c2a94/687474703a2f2f7777772e34666f75722e6f72672f696d616765732f6c616e672d6578742d6c6f676f2e706e67",
-  "projectUrl": "https://github.com/louthy/language-ext",
-  "licenseUrl": "https://github.com/louthy/language-ext/blob/master/LICENSE.md",
   "copyright": "Copyright (c) Paul Louth",
+
+  "packOptions": {
+    "title": "LanguageExt.Process.Redis",
+    "owners": [ "paullouth" ],
+    "tags": [ "C#", "Functional", "Language Extension", "Monad", "Option", "Either", "Reader", "Writer", "State", "List", "Set", "Map", "Queue", "Memo", "Memoization", "Immutable", "Lambda", "Pattern Matching", "Tuple", "Actor", "Process", "Akka", "Redis" ],
+    "iconUrl": "https://camo.githubusercontent.com/08525ae465a9061150679d871731e77b399c2a94/687474703a2f2f7777772e34666f75722e6f72672f696d616765732f6c616e672d6578742d6c6f676f2e706e67",
+    "releaseNotes": "",
+    "projectUrl": "https://github.com/louthy/language-ext",
+    "licenseUrl": "https://github.com/louthy/language-ext/blob/master/LICENSE.md"
+  },
+
   "configurations": {
     "Debug": {
-      "compilationOptions": {
-        "define": [ "DEBUG", "TRACE" ]
+      "buildOptions": {
+        "define": [ "DEBUG", "TRACE" ],
+        "compile": "*.cs"
       }
     },
     "Release": {
-      "compilationOptions": {
+      "buildOptions": {
         "define": [ "RELEASE", "TRACE" ],
-        "optimize": true
+        "optimize": true,
+        "compile": "*.cs"
       }
     }
   },
   "dependencies": {
-    "LanguageExt.Core": "1.8.22-beta",
-    "LanguageExt.Process": "1.8.22-beta",
-    "Newtonsoft.Json": "7.0.1",
-    "Rx-Main": "2.2.5.0"
+    "LanguageExt.Core": "1.9.0",
+    "LanguageExt.Process": "1.9.0",
+    "System.Reactive.Core": "3.0.1-*",
+    "System.Reactive.Interfaces": "3.0.1-*",
+    "System.Reactive.PlatformServices": "3.0.1-*",
+    "System.Reactive.Linq": "3.0.1-*"
   },
   "frameworks": {
     "net45": {
@@ -38,19 +46,28 @@
         "System.Core": "4.0.0.0"
       }
     },
-    "net46": {
+    "netcoreapp10": {
+      "buildOptions": { "define": [ "COREFX" ] },
       "dependencies": {
-        "StackExchange.Redis": "1.0.488"
-      },
-      "frameworkAssemblies": {
-        "System.Core": "4.0.0.0"
+        "StackExchange.Redis": "1.1.604-alpha",
+        "Microsoft.FSharp.Core.netcore": "1.0.0-*",
+        "System.Diagnostics.Contracts": "4.0.1",
+        "System.Security.Cryptography.Algorithms": "4.2.0",
+        "System.Collections": "4.0.11",
+        "System.Linq.Queryable": "4.0.1",
+        "System.Linq.Parallel": "4.0.1"
       }
     },
-    "dnx451": {
+    "netstandard16": {
       "dependencies": {
-        "StackExchange.Redis": "1.0.488"
+        "StackExchange.Redis": "1.1.604-alpha",
+        "Microsoft.FSharp.Core.netcore": "1.0.0-*",
+        "System.Diagnostics.Contracts": "4.0.1",
+        "System.Security.Cryptography.Algorithms": "4.2.0",
+        "System.Collections": "4.0.11",
+        "System.Linq.Queryable": "4.0.1",
+        "System.Linq.Parallel": "4.0.1"
       }
     }
-  },
-  "compile": "*.cs"
+  }
 }

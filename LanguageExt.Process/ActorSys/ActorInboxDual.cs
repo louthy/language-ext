@@ -133,7 +133,7 @@ namespace LanguageExt
                                 {
                                     if (IsPaused)
                                     {
-                                        new ActorDispatchRemote(actor.Id, cluster).Ask(message, sender);
+                                        new ActorDispatchRemote(actor.Id, cluster, ActorContext.SessionId).Ask(message, sender);
                                     }
                                     else
                                     {
@@ -158,7 +158,7 @@ namespace LanguageExt
                                 {
                                     if (IsPaused)
                                     {
-                                        new ActorDispatchRemote(actor.Id, cluster).Tell(message, sender, Message.TagSpec.User);
+                                        new ActorDispatchRemote(actor.Id, cluster, ActorContext.SessionId).Tell(message, sender, Message.TagSpec.User);
                                     }
                                     else
                                     {
@@ -197,7 +197,7 @@ namespace LanguageExt
 
                 if (IsPaused)
                 {
-                    new ActorDispatchRemote(actor.Id, cluster).TellUserControl(msg, ProcessId.None);
+                    new ActorDispatchRemote(actor.Id, cluster, ActorContext.SessionId).TellUserControl(msg, ProcessId.None);
                 }
                 else
                 {

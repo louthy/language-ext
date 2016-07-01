@@ -8,11 +8,13 @@ namespace LanguageExt
         public readonly ProcessId ProcessId;
         public readonly ProcessId RelayId;
         public readonly ActorItem Js;
+        public readonly Option<SessionId> SessionId;
 
-        public ActorDispatchJS(ProcessId pid, ProcessId relay, ActorItem js)
+        public ActorDispatchJS(ProcessId pid, ProcessId relay, ActorItem js, Option<SessionId> sessionId)
         {
             ProcessId = pid;
             RelayId = relay;
+            SessionId = sessionId;
             Js = js;
         }
 
@@ -44,7 +46,7 @@ namespace LanguageExt
 
         Unit Tell(object message, ProcessId sender, string inbox, Message.Type type, Message.TagSpec tag)
         {
-            var dto = RemoteMessageDTO.Create(message, ProcessId, sender, type, tag);
+            var dto = RemoteMessageDTO.Create(message, ProcessId, sender, type, tag, SessionId);
             // The standard structure for remote js relay paths are  "/root/js/{connection-id}/..."
             var connectionId = ProcessId.Skip(2).Take(1).Name.Value;
             dto.To = ProcessId.Skip(3).Path;

@@ -80,11 +80,24 @@ namespace LanguageExt
         /// Touch a session
         /// Time-stamps the session so that its time-to-expiry is reset
         /// </summary>
-        /// <param name="sid">Session ID</SessionId>
         public static Unit sessionTouch() =>
             InMessageLoop
                 ? ActorContext.SessionId.Iter(sid => ActorContext.Request.System.Sessions.Touch(sid))
                 : raiseUseInMsgLoopOnlyException<Unit>(nameof(sessionTouch));
+
+        /// <summary>
+        /// Touch a session
+        /// Time-stamps the session so that its time-to-expiry is reset and also
+        /// sets the current session ID. This should be used from outside of the 
+        /// Process system to 'acquire' an existing session.  This is useful for
+        /// web-requests for example to set the current session ID and to indicate
+        /// activity.
+        /// </summary>
+        /// <param name="sid">Session ID</SessionId>
+        public static Unit sessionTouch(SessionId sid) =>
+            InMessageLoop
+                ? raiseDontUseInMessageLoopException<Unit>(nameof(sessionTouch))
+                : ignore((ActorContext.SessionId = sid).Map(ActorContext.Request.System.Sessions.Touch));
 
         /// <summary>
         /// Gets the current session ID

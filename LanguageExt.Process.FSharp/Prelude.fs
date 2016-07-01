@@ -253,17 +253,6 @@ module ProcessFs =
         Process.spawnMany(count, new ProcessName(name), new Func<'state>(setup), new Func<'state, 'msg, 'state>(messageHandler), flags)
         |> Seq.map(fun pid -> pid)
 
-    // Connects to a cluster.  At the moment we only support Redis, so open
-    // LanguageExt.Process.Redis and call:
-    //
-    //      RedisCluster.register()
-    //      clusterConnect "redis" "unique-name-for-this-service" "localhost" "0"
-//    let clusterConnect clusterProvider nodeName connectionString catalogueString role = 
-//        Cluster.connect(clusterProvider,new ProcessName(nodeName),connectionString,catalogueString,role)
-//
-//    let clusterDisconnect cluster =
-//        Cluster.disconnect cluster
-
     /// Starts a new session in the Process system
     let sessionStart (timeoutSeconds:float<second>) : SessionId =
         Process.sessionStart((timeoutSeconds/1.0<second>) * LanguageExt.Prelude.seconds)
@@ -273,10 +262,15 @@ module ProcessFs =
     let sessionStop () =
         Process.sessionStop() |> ignore
 
-    /// Touch a session
+    /// Touch the current session
     /// Time-stamps the session so that its time-to-expiry is reset
-    let sessionTouch (sid:SessionId) =
+    let sessionTouch () =
         Process.sessionTouch() |> ignore
+
+    /// Touch a provided session
+    /// Time-stamps the session so that its time-to-expiry is reset
+    let sessionUser (sid:SessionId) =
+        Process.sessionTouch(sid) |> ignore
 
     /// Gets the current session ID
     /// Also touches the session so that its time-to-expiry 
@@ -287,9 +281,6 @@ module ProcessFs =
 
     /// Set the meta-data to store with the session, this is typically
     /// user credentials when they've logged in.  But can be anything.
-
-    // TODO: Restore once the functionality is back in the main library
-
     let sessionSetData (key:string) (value:obj) =
         Process.sessionSetData(key, value) |> ignore
 

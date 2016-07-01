@@ -96,6 +96,5 @@ namespace LanguageExtTests
                                 .MapT(x => x.Length)
                                 .SumT();
         }
-
     }
 }

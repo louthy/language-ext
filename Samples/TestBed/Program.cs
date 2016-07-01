@@ -10,6 +10,7 @@ using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.FSharp.Core;
 
 // ************************************************************************************
 // 
@@ -22,8 +23,53 @@ namespace TestBed
 {
     class Program
     {
+        public class JenkinsBuild
+        {
+            public int number;
+        }
+
+        public class JenkinsJob
+        {
+            public JenkinsBuild lastBuild;
+        }
+
+        public static Uri GetJobURIStem() => new Uri("http://www.google.com");
+
+        public static Task<Either<Exception, JenkinsJob>> FetchJSON(Uri url) =>
+            Task.FromResult(Right<Exception, JenkinsJob>(new JenkinsJob { lastBuild = new JenkinsBuild { number = 1 } }));
+
+
+        //var r = (await jk)
+        //    .Right(j => j.lastBuild == null ? Left<Exception, JenkinsJob>(new ArgumentException("No build completed")) : Right<Exception, JenkinsJob>(j))
+        //    .Left(e => Left<Exception, JenkinsJob>(e))
+        //    .Map(j => j.lastBuild.number);
+
+        public static async Task<Either<Exception, JenkinsBuildId>> GetCurrentJobNumber() =>
+            (await FetchJSON(GetJobURIStem()))
+                .Bind(EnsureCompletedBuild);
+
+        public static Either<Exception, JenkinsBuildId> EnsureCompletedBuild(this JenkinsJob self) =>
+            self.lastBuild == null
+                ? AppError("No build completed")
+                : Success(new JenkinsBuildId(self.lastBuild.number));
+
+        public static Either<Exception, JenkinsBuildId> Success(JenkinsBuildId value) =>
+            Right<Exception, JenkinsBuildId>(value);
+
+        public static Either<Exception, JenkinsBuildId> AppError(string msg) =>
+            Left<Exception, JenkinsBuildId>(new ApplicationException(msg));
+
+        public class JenkinsBuildId : NewType<int> { public JenkinsBuildId(int id) : base(id) { } }
+
         static void Main(string[] args)
         {
+            var someValue = FSharpOption<string>.Some("Hello");
+            var noneValue = FSharpOption<string>.None;
+
+            Console.WriteLine(someValue.Value);
+            Console.WriteLine(noneValue.Value);
+
+
             Tests.PStringCasting();
             return;
 
