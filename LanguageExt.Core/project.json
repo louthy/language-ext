@@ -32,8 +32,8 @@
   },
   "dependencies": {
     "System.Reactive.Core": "3.0.1-*",
-    "System.Reactive.Interfaces": "3.0.1-rc1-*",
-    "System.Reactive.PlatformServices": "3.0.1-rc1-*",
+    "System.Reactive.Interfaces": "3.0.1-*",
+    "System.Reactive.PlatformServices": "3.0.1-*",
     "System.Reactive.Linq": "3.0.1-*"
   },
   "frameworks": {
