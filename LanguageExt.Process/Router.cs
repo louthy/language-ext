@@ -43,7 +43,6 @@ namespace LanguageExt
         ///         workers:		[one, two, three]
         /// </para>
         /// </example>
-        /// <typeparam name="T"></typeparam>
         /// <param name="name">Name of the child process that will be the router</param>
         /// <returns>ProcessId of the router</returns>
         public static ProcessId fromConfig<T>(ProcessName name)

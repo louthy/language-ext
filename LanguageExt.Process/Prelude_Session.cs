@@ -93,7 +93,7 @@ namespace LanguageExt
         /// web-requests for example to set the current session ID and to indicate
         /// activity.
         /// </summary>
-        /// <param name="sid">Session ID</SessionId>
+        /// <param name="sid">Session ID</param>
         public static Unit sessionTouch(SessionId sid) =>
             InMessageLoop
                 ? raiseDontUseInMessageLoopException<Unit>(nameof(sessionTouch))

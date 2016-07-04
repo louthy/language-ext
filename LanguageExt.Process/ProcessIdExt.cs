@@ -11,12 +11,8 @@ using static LanguageExt.Process;
 /// <summary>
 /// Extensions methods for ProcessId
 /// </summary>
-public static class __ProcessIdExt
+public static class ProcessIdExtensions
 {
-    //
-    // Prelude
-    //
-
     /// <summary>
     /// Get the child processes of this process
     /// </summary>
@@ -116,10 +112,6 @@ public static class __ProcessIdExt
     public static Unit Shutdown(this ProcessId self) =>
         self.Tell(SystemMessage.ShutdownProcess(true), Self);
 
-    //
-    // Ask
-    //
-
     /// <summary>
     /// Ask a process for a reply
     /// </summary>
@@ -128,10 +120,6 @@ public static class __ProcessIdExt
     /// <returns>The response to the request</returns>
     public static T Ask<T>(this ProcessId pid, object message) =>
         ask<T>(pid, message);
-
-    //
-    // Pub Sub
-    //
 
     /// <summary>
     /// Subscribes our inbox to another process publish stream.  When it calls 'publish' it will
@@ -265,11 +253,6 @@ public static class __ProcessIdExt
     /// <returns>IObservable T</returns>
     public static Unit SubscribeState<T>(this ProcessId pid) =>
         subscribeState<T>(pid);
-
-
-    //
-    // Tell
-    //
 
     /// <summary>
     /// Send a message to a process

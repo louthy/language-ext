@@ -21,9 +21,20 @@ namespace LanguageExt
         /// </summary>
         public enum Occured
         {
+            /// <summary>
+            /// Event occurred before
+            /// </summary>
             Before = -1,
+
+            /// <summary>
+            /// Event occurred after
+            /// </summary>
             After = 1,
-            Concurrently = 0,
+
+            /// <summary>
+            /// Event occurred independantly
+            /// </summary>
+            Concurrently = 0
         }
         private const int MaxVersions = Int16.MaxValue;
         public readonly Lst<ClockEntry> Versions;

@@ -362,16 +362,6 @@ namespace LanguageExt
             select c;
 
         /// <summary>
-        /// Projects a value into a lambda
-        /// Useful when one needs to declare a local variable which breaks your
-        /// expression.  This allows you to keep the expression going.
-        /// </summary>
-        //[Obsolete("'with' has been renamed to 'map', please use that instead")]
-        //[EditorBrowsable(EditorBrowsableState.Never)]
-        //public static R with<T, R>(T value, Func<T, R> project) =>
-        //    project(value);
-
-        /// <summary>
         /// Projects values into a lambda
         /// Useful when one needs to declare a local variable which breaks your
         /// expression.  This allows you to keep the expression going.

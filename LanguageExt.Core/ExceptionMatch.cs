@@ -98,29 +98,28 @@ namespace LanguageExt
         /// <param name="otherwiseMap">Default value</param>
         /// <returns>Result of the expression</returns>
         [Pure]
-        public R Otherwise(Func<Exception,R> otherwiseMap) =>
+        public R Otherwise(Func<Exception, R> otherwiseMap) =>
             valueSet
                 ? value
                 : otherwiseMap(exception);
     }
-}
 
-/// <summary>
-/// Exception extensions
-/// </summary>
-public static class ExceptionExt
-{
     /// <summary>
-    /// Pattern matching for exceptions.  This is to aid expression based error handling.
+    /// Exception extensions
     /// </summary>
-    /// <example>
-    ///     ex.Match&lt;string&gt;()
-    ///       .With&lt;SystemException&gt;(e =&gt; "It's a system exception")
-    ///       .With&lt;ArgumentNullException&gt;(e =&gt; "Arg null")
-    ///       .Otherwise("Not handled")
-    /// </example>
-    [Pure]
-    public static LanguageExt.ExceptionMatch<R> Match<R>(this Exception self) =>
-        new LanguageExt.ExceptionMatch<R>(self);
+    public static class ExceptionExtensions
+    {
+        /// <summary>
+        /// Pattern matching for exceptions.  This is to aid expression based error handling.
+        /// </summary>
+        /// <example>
+        ///     ex.Match&lt;string&gt;()
+        ///       .With&lt;SystemException&gt;(e =&gt; "It's a system exception")
+        ///       .With&lt;ArgumentNullException&gt;(e =&gt; "Arg null")
+        ///       .Otherwise("Not handled")
+        /// </example>
+        [Pure]
+        public static LanguageExt.ExceptionMatch<R> Match<R>(this Exception self) =>
+            new LanguageExt.ExceptionMatch<R>(self);
+    }
 }
-

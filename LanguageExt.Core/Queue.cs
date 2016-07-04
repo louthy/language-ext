@@ -170,105 +170,105 @@ namespace LanguageExt
         public static bool exists<T>(Que<T> queue, Func<T, bool> pred) =>
             List.exists(queue, pred);
     }
-}
 
-public static class __QueueExt
-{
-    [Pure]
-    public static Tuple<Que<T>, T> PopUnsafe<T>(this Que<T> queue) =>
-        LanguageExt.Queue.deqUnsafe(queue);
+    public static class QueueExtensions
+    {
+        [Pure]
+        public static Tuple<Que<T>, T> PopUnsafe<T>(this Que<T> queue) =>
+            LanguageExt.Queue.deqUnsafe(queue);
 
-    [Pure]
-    public static Tuple<Que<T>, Option<T>> Pop<T>(this Que<T> queue) =>
-        LanguageExt.Queue.deq(queue);
+        [Pure]
+        public static Tuple<Que<T>, Option<T>> Pop<T>(this Que<T> queue) =>
+            LanguageExt.Queue.deq(queue);
 
-    [Pure]
-    public static T PeekUnsafe<T>(this Que<T> queue) =>
-        LanguageExt.Queue.peekUnsafe(queue);
+        [Pure]
+        public static T PeekUnsafe<T>(this Que<T> queue) =>
+            LanguageExt.Queue.peekUnsafe(queue);
 
-    [Pure]
-    public static Option<T> Peek<T>(this Que<T> queue) =>
-        LanguageExt.Queue.peek(queue);
+        [Pure]
+        public static Option<T> Peek<T>(this Que<T> queue) =>
+            LanguageExt.Queue.peek(queue);
 
-    [Pure]
-    public static IEnumerable<R> Map<T, R>(this Que<T> queue, Func<T, R> map) =>
-        LanguageExt.List.map(queue, map);
+        [Pure]
+        public static IEnumerable<R> Map<T, R>(this Que<T> queue, Func<T, R> map) =>
+            LanguageExt.List.map(queue, map);
 
-    [Pure]
-    public static IEnumerable<R> Map<T, R>(this Que<T> queue, Func<int, T, R> map) =>
-        LanguageExt.List.map(queue, map);
+        [Pure]
+        public static IEnumerable<R> Map<T, R>(this Que<T> queue, Func<int, T, R> map) =>
+            LanguageExt.List.map(queue, map);
 
-    [Pure]
-    public static IEnumerable<T> Filter<T>(this Que<T> queue, Func<T, bool> predicate) =>
-        LanguageExt.List.filter(queue, predicate);
+        [Pure]
+        public static IEnumerable<T> Filter<T>(this Que<T> queue, Func<T, bool> predicate) =>
+            LanguageExt.List.filter(queue, predicate);
 
-    [Pure]
-    public static IEnumerable<T> Choose<T>(this Que<T> queue, Func<T, Option<T>> selector) =>
-        LanguageExt.List.choose(queue, selector);
+        [Pure]
+        public static IEnumerable<T> Choose<T>(this Que<T> queue, Func<T, Option<T>> selector) =>
+            LanguageExt.List.choose(queue, selector);
 
-    [Pure]
-    public static IEnumerable<T> Choose<T>(this Que<T> queue, Func<int, T, Option<T>> selector) =>
-        LanguageExt.List.choose(queue, selector);
+        [Pure]
+        public static IEnumerable<T> Choose<T>(this Que<T> queue, Func<int, T, Option<T>> selector) =>
+            LanguageExt.List.choose(queue, selector);
 
-    [Pure]
-    public static IEnumerable<R> Collect<T, R>(this Que<T> queue, Func<T, IEnumerable<R>> map) =>
-        LanguageExt.List.collect(queue, map);
+        [Pure]
+        public static IEnumerable<R> Collect<T, R>(this Que<T> queue, Func<T, IEnumerable<R>> map) =>
+            LanguageExt.List.collect(queue, map);
 
-    [Pure]
-    public static IEnumerable<T> Rev<T>(this Que<T> queue) =>
-        LanguageExt.List.rev(queue);
+        [Pure]
+        public static IEnumerable<T> Rev<T>(this Que<T> queue) =>
+            LanguageExt.List.rev(queue);
 
-    [Pure]
-    public static IEnumerable<T> Append<T>(this Que<T> lhs, IEnumerable<T> rhs) =>
-        LanguageExt.List.append(lhs, rhs);
+        [Pure]
+        public static IEnumerable<T> Append<T>(this Que<T> lhs, IEnumerable<T> rhs) =>
+            LanguageExt.List.append(lhs, rhs);
 
-    [Pure]
-    public static S Fold<S, T>(this Que<T> queue, S state, Func<S, T, S> folder) =>
-        LanguageExt.List.fold(queue, state, folder);
+        [Pure]
+        public static S Fold<S, T>(this Que<T> queue, S state, Func<S, T, S> folder) =>
+            LanguageExt.List.fold(queue, state, folder);
 
-    [Pure]
-    public static S FoldBack<S, T>(this Que<T> queue, S state, Func<S, T, S> folder) =>
-        LanguageExt.List.foldBack(queue, state, folder);
+        [Pure]
+        public static S FoldBack<S, T>(this Que<T> queue, S state, Func<S, T, S> folder) =>
+            LanguageExt.List.foldBack(queue, state, folder);
 
-    [Pure]
-    public static T ReduceBack<T>(this Que<T> queue, Func<T, T, T> reducer) =>
-        LanguageExt.List.reduceBack(queue, reducer);
+        [Pure]
+        public static T ReduceBack<T>(this Que<T> queue, Func<T, T, T> reducer) =>
+            LanguageExt.List.reduceBack(queue, reducer);
 
-    [Pure]
-    public static T Reduce<T>(this Que<T> queue, Func<T, T, T> reducer) =>
-        LanguageExt.List.reduce(queue, reducer);
+        [Pure]
+        public static T Reduce<T>(this Que<T> queue, Func<T, T, T> reducer) =>
+            LanguageExt.List.reduce(queue, reducer);
 
-    [Pure]
-    public static IEnumerable<S> Scan<S, T>(this Que<T> queue, S state, Func<S, T, S> folder) =>
-        LanguageExt.List.scan(queue, state, folder);
+        [Pure]
+        public static IEnumerable<S> Scan<S, T>(this Que<T> queue, S state, Func<S, T, S> folder) =>
+            LanguageExt.List.scan(queue, state, folder);
 
-    [Pure]
-    public static IEnumerable<S> ScanBack<S, T>(this Que<T> queue, S state, Func<S, T, S> folder) =>
-        LanguageExt.List.scanBack(queue, state, folder);
+        [Pure]
+        public static IEnumerable<S> ScanBack<S, T>(this Que<T> queue, S state, Func<S, T, S> folder) =>
+            LanguageExt.List.scanBack(queue, state, folder);
 
-    [Pure]
-    public static Option<T> Find<T>(this Que<T> queue, Func<T, bool> pred) =>
-        LanguageExt.List.find(queue, pred);
+        [Pure]
+        public static Option<T> Find<T>(this Que<T> queue, Func<T, bool> pred) =>
+            LanguageExt.List.find(queue, pred);
 
-    [Pure]
-    public static int Length<T>(this Que<T> queue) =>
-        LanguageExt.List.length(queue);
+        [Pure]
+        public static int Length<T>(this Que<T> queue) =>
+            LanguageExt.List.length(queue);
 
-    public static Unit Iter<T>(this Que<T> queue, Action<T> action) =>
-        LanguageExt.List.iter(queue, action);
+        public static Unit Iter<T>(this Que<T> queue, Action<T> action) =>
+            LanguageExt.List.iter(queue, action);
 
-    public static Unit Iter<T>(this Que<T> queue, Action<int, T> action) =>
-        LanguageExt.List.iter(queue, action);
+        public static Unit Iter<T>(this Que<T> queue, Action<int, T> action) =>
+            LanguageExt.List.iter(queue, action);
 
-    [Pure]
-    public static bool ForAll<T>(this Que<T> queue, Func<T, bool> pred) =>
-        LanguageExt.List.forall(queue, pred);
+        [Pure]
+        public static bool ForAll<T>(this Que<T> queue, Func<T, bool> pred) =>
+            LanguageExt.List.forall(queue, pred);
 
-    [Pure]
-    public static IEnumerable<T> Distinct<T>(Que<T> queue, Func<T, T, bool> compare) =>
-        LanguageExt.List.distinct(queue, compare);
+        [Pure]
+        public static IEnumerable<T> Distinct<T>(Que<T> queue, Func<T, T, bool> compare) =>
+            LanguageExt.List.distinct(queue, compare);
 
-    [Pure]
-    public static bool Exists<T>(Que<T> queue, Func<T, bool> pred) =>
-        LanguageExt.List.exists(queue, pred);
+        [Pure]
+        public static bool Exists<T>(Que<T> queue, Func<T, bool> pred) =>
+            LanguageExt.List.exists(queue, pred);
+    }
 }

@@ -11,9 +11,6 @@ namespace LanguageExt
 {
     /// <summary>
     /// <para>
-    ///     Process
-    /// </para>
-    /// <para>
     ///     The Language Ext process system uses the actor model as seen in Erlang 
     ///     processes.  Actors are famed for their ability to support massive concurrency
     ///     through messaging and no shared memory.

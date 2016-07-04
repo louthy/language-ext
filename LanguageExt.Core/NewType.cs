@@ -27,8 +27,8 @@ namespace LanguageExt
 #if !COREFX
     [Serializable]
 #endif
-    public abstract class NewType<T> : 
-        IEquatable<NewType<T>>, 
+    public abstract class NewType<T> :
+        IEquatable<NewType<T>>,
         IComparable<NewType<T>>,
         IAppendable<NewType<T>>,
         ISubtractable<NewType<T>>,
@@ -220,13 +220,13 @@ namespace LanguageExt
         public static NewTypeT Construct<NewTypeT, T>(T arg) where NewTypeT : NewType<T> =>
             (NewTypeT)constructors.Find(typeof(NewTypeT).FullName).IfNone(() => GetCtor(typeof(NewTypeT))).Invoke(new object[] { arg });
     }
-}
 
-public static class __NewTypeExts
-{
-    public static S Fold<T, S>(this NewType<T> self, S state, Func<S, T, S> folder) =>
-        folder(state, self.Value);
+    public static class NewTypeExtensions
+    {
+        public static S Fold<T, S>(this NewType<T> self, S state, Func<S, T, S> folder) =>
+            folder(state, self.Value);
 
-    public static int Sum(this NewType<int> self) =>
-        self.Value;
+        public static int Sum(this NewType<int> self) =>
+            self.Value;
+    }
 }

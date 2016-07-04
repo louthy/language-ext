@@ -72,8 +72,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="message">Message to send</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
-        /// <returns></returns>
-        public static Unit tellChildren<T>(T message, ProcessId sender = new ProcessId()) =>
+        public static Unit tellChildren<T>(T message, ProcessId sender = default(ProcessId)) =>
             iter(Children, child => tell(child, message, sender));
 
         /// <summary>
@@ -81,8 +80,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="message">Message to send</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
-        /// <returns></returns>
-        internal static Unit tellSystemChildren<T>(T message, ProcessId sender = new ProcessId()) =>
+        internal static Unit tellSystemChildren<T>(T message, ProcessId sender = default(ProcessId)) =>
             iter(Children, child => tellSystem(child, message, sender));
 
         /// <summary>
@@ -93,7 +91,7 @@ namespace LanguageExt
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
-        public static IDisposable tellChildren<T>(T message, TimeSpan delayFor, ProcessId sender = new ProcessId()) =>
+        public static IDisposable tellChildren<T>(T message, TimeSpan delayFor, ProcessId sender = default(ProcessId)) =>
             safedelay(() => tellChildren(message, sender), delayFor);
 
         /// <summary>
@@ -107,7 +105,7 @@ namespace LanguageExt
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
-        public static IDisposable tellChildren<T>(T message, DateTime delayUntil, ProcessId sender = new ProcessId()) =>
+        public static IDisposable tellChildren<T>(T message, DateTime delayUntil, ProcessId sender = default(ProcessId)) =>
             safedelay(() => tellChildren(message, sender), delayUntil);
 
         /// <summary>
@@ -117,7 +115,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <param name="predicate">The list of children to send to are filtered by the predicate provided</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
-        public static Unit tellChildren<T>(T message, Func<ProcessId, bool> predicate, ProcessId sender = new ProcessId()) =>
+        public static Unit tellChildren<T>(T message, Func<ProcessId, bool> predicate, ProcessId sender = default(ProcessId)) =>
             iter(filter(Children, predicate), child => tell(child, message, sender));
 
         /// <summary>
@@ -130,7 +128,7 @@ namespace LanguageExt
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
-        public static IDisposable tellChildren<T>(T message, TimeSpan delayFor, Func<ProcessId, bool> predicate, ProcessId sender = new ProcessId()) =>
+        public static IDisposable tellChildren<T>(T message, TimeSpan delayFor, Func<ProcessId, bool> predicate, ProcessId sender = default(ProcessId)) =>
             safedelay(() => tellChildren(message, predicate, sender), delayFor);
 
         /// <summary>
@@ -146,7 +144,7 @@ namespace LanguageExt
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
         /// <returns>IDisposable that you can use to cancel the operation if necessary.  You do not need to call Dispose 
         /// for any other reason.</returns>
-        public static IDisposable tellChildren<T>(T message, DateTime delayUntil, Func<ProcessId, bool> predicate, ProcessId sender = new ProcessId()) =>
+        public static IDisposable tellChildren<T>(T message, DateTime delayUntil, Func<ProcessId, bool> predicate, ProcessId sender = default(ProcessId)) =>
             safedelay(() => tellChildren(message, predicate, sender), delayUntil);
 
         /// <summary>
@@ -154,7 +152,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="message">Message to send</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
-        public static Unit tellParent<T>(T message, ProcessId sender = new ProcessId()) =>
+        public static Unit tellParent<T>(T message, ProcessId sender = default(ProcessId)) =>
             tell(Parent, message, sender);
 
         /// <summary>
@@ -165,7 +163,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <param name="delayFor">How long to delay sending for</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
-        public static IDisposable tellParent<T>(T message, TimeSpan delayFor, ProcessId sender = new ProcessId()) =>
+        public static IDisposable tellParent<T>(T message, TimeSpan delayFor, ProcessId sender = default(ProcessId)) =>
             tell(Parent, message, delayFor, sender);
 
         /// <summary>
@@ -179,7 +177,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <param name="delayUntil">Date and time to send</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
-        public static IDisposable tellParent<T>(T message, DateTime delayUntil, ProcessId sender = new ProcessId()) =>
+        public static IDisposable tellParent<T>(T message, DateTime delayUntil, ProcessId sender = default(ProcessId)) =>
             tell(Parent, message, delayUntil, sender);
 
 
@@ -188,7 +186,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="message">Message to send</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
-        public static Unit tellSelf<T>(T message, ProcessId sender = new ProcessId()) =>
+        public static Unit tellSelf<T>(T message, ProcessId sender = default(ProcessId)) =>
             tell(Self, message, sender);
 
         /// <summary>
@@ -199,7 +197,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <param name="delayFor">How long to delay sending for</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
-        public static IDisposable tellSelf<T>(T message, TimeSpan delayFor, ProcessId sender = new ProcessId()) =>
+        public static IDisposable tellSelf<T>(T message, TimeSpan delayFor, ProcessId sender = default(ProcessId)) =>
             tell(Self, message, delayFor, sender);
 
         /// <summary>
@@ -213,7 +211,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <param name="delayUntil">Date and time to send</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
-        public static IDisposable tellSelf<T>(T message, DateTime delayUntil, ProcessId sender = new ProcessId()) =>
+        public static IDisposable tellSelf<T>(T message, DateTime delayUntil, ProcessId sender = default(ProcessId)) =>
             tell(Self, message, delayUntil, sender);
 
         /// <summary>
@@ -222,7 +220,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <param name="name">Name of the child process</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
-        public static Unit tellChild<T>(ProcessName name, T message, ProcessId sender = new ProcessId()) =>
+        public static Unit tellChild<T>(ProcessName name, T message, ProcessId sender = default(ProcessId)) =>
             tell(Self.Child(name), message, sender);
 
         /// <summary>
@@ -237,7 +235,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <param name="index">Index of the child process (see remarks)</param>
         /// <param name="sender">Optional sender override.  The sender is handled automatically if you do not provide one.</param>
-        public static Unit tellChild<T>(int index, T message, ProcessId sender = new ProcessId()) =>
+        public static Unit tellChild<T>(int index, T message, ProcessId sender = default(ProcessId)) =>
             tell(child(index), message, sender);
     }
 }

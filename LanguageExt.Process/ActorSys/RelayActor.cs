@@ -110,7 +110,7 @@ namespace LanguageExt
             Connected,
             Disconnected,
             Subscribe,
-            Unsubscribe,
+            Unsubscribe
         }
 
         public readonly ProcessId To;

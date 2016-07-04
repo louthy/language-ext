@@ -31,7 +31,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="sizeInBytes">Size in bytes.  This is not the final string length, the final length depends
         /// on the Base64 encoding of a byte-array sizeInBytes long.  As a guide a 64 byte session ID turns into
-        /// an 88 character string.</returns>
+        /// an 88 character string.</param>
         public static SessionId Generate(int sizeInBytes = DefaultSessionIdSizeInBytes) =>
             new SessionId(randomBase64(sizeInBytes));
 
