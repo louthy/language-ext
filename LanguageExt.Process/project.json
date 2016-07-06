@@ -30,8 +30,14 @@
     }
   },
   "dependencies": {
-    "LanguageExt.Core": "1.9.0",
-    "LanguageExt.Parsec": "1.9.0",
+    "LanguageExt.Core": {
+      "version": "1.9.0",
+      "target": "project"
+    },
+    "LanguageExt.Parsec": {
+      "version": "1.9.0",
+      "target": "project"
+    },
     "System.Reactive.Core": "3.0.1-*",
     "System.Reactive.Interfaces": "3.0.1-*",
     "System.Reactive.PlatformServices": "3.0.1-*",
@@ -41,7 +47,6 @@
   "frameworks": {
     "net45": {
       "frameworkAssemblies": {
-        "System.Core": "4.0.0.0",
         "System.Web": "4.0.0.0"
       },
       "dependencies": {
@@ -50,7 +55,6 @@
     },
     "net46": {
       "frameworkAssemblies": {
-        "System.Core": "4.0.0.0",
         "System.Web": "4.0.0.0"
       },
       "dependencies": {

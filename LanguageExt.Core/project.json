@@ -38,16 +38,10 @@
   },
   "frameworks": {
     "net45": {
-      "frameworkAssemblies": {
-        "System.Core": "4.0.0.0"
-      },
       "dependencies": {
       }
     },
     "net46": {
-      "frameworkAssemblies": {
-        "System.Core": "4.0.0.0"
-      },
       "dependencies": {
       }
     },

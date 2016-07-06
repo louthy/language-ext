@@ -31,23 +31,20 @@
     }
   },
   "dependencies": {
-    "LanguageExt.Core": "1.9.0"
+    "LanguageExt.Core": {
+      "version": "1.9.0",
+      "target": "project"
+    }
   },
   "frameworks": {
     "net45": {
       "dependencies": {
         "FSharp.Core": "4.0.0.1"
-      },
-      "frameworkAssemblies": {
-        "System.Core": "4.0.0.0"
       }
     },
     "net46": {
       "dependencies": {
         "FSharp.Core": "4.0.0.1"
-      },
-      "frameworkAssemblies": {
-        "System.Core": "4.0.0.0"
       }
     },
     "netstandard16": {
