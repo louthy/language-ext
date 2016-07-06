@@ -7,6 +7,8 @@ C# Functional Language Extensions
 
 This library uses and abuses the features of C# 6 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself.  It also includes an 'Erlang like' process system (actors) that can optionally persist messages and state to Redis (note you can use it without Redis for in-app messaging).  The process system additionally supports Rx streams of messages and state allowing for a complete system of reactive events and message dispatch.
 
+#### [API Reference](https://louthy.github.io)
+
 Nu-get package | Description
 ---------------|-------------
 [LanguageExt.Core](https://www.nuget.org/packages/LanguageExt.Core) | All of the core types and functional 'prelude'.  This is all that's needed to get started.
@@ -44,7 +46,7 @@ There is however a naming guide that will stand you in good stead whilst reading
 ```C#
     Option<int> x = Some(123);
     Option<int> y = None;
-    Lst<int> items = List(1,2,3,4,5);
+    List<int> items = List(1,2,3,4,5);
     Map<int,string> dict = Map(Tuple(1, "Hello"), Tuple(2, "World"));
 ```
 * Any (non-type constructor) static functions that can be used on their own by `using static LanguageExt.Prelude` are camelCase.
