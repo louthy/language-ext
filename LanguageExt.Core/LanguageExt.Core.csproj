@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionObservable.cs" />
+    <Compile Include="Lift.cs" />
     <Compile Include="NewType.cs" />
     <Compile Include="Prelude_NewType.cs" />
     <Compile Include="Prelude_Nullable.cs" />

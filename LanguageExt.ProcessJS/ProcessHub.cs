@@ -7,8 +7,11 @@ using Microsoft.AspNet.SignalR;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 
-namespace LanguageExt
+namespace LanguageExt.ProcessJS
 {
+    /// <summary>
+    /// Manages process system messaging between the client and the server
+    /// </summary>
     public class ProcessHub : Hub
     {
         static object sync = new object();

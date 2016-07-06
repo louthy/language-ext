@@ -584,402 +584,402 @@ namespace LanguageExt
     {
         public static OptionNone Default = new OptionNone();
     }
+}
 
-    public static class OptionExtensions
+public static class OptionExtensions
+{
+    /// <summary>
+    /// Extracts from a list of 'Option' all the 'Some' elements.
+    /// All the 'Some' elements are extracted in order.
+    /// </summary>
+    [Pure]
+    public static IEnumerable<T> Somes<T>(this IEnumerable<Option<T>> self)
     {
-        /// <summary>
-        /// Extracts from a list of 'Option' all the 'Some' elements.
-        /// All the 'Some' elements are extracted in order.
-        /// </summary>
-        [Pure]
-        public static IEnumerable<T> Somes<T>(this IEnumerable<Option<T>> self)
+        foreach (var item in self)
         {
-            foreach (var item in self)
+            if (item.IsSome)
             {
-                if (item.IsSome)
-                {
-                    yield return item.Value;
-                }
+                yield return item.Value;
             }
         }
+    }
 
-        [Pure]
-        public static T? ToNullable<T>(this Option<T> self) where T : struct =>
-            self.IsNone
-                ? (T?)null
-                : new T?(self.Value);
+    [Pure]
+    public static T? ToNullable<T>(this Option<T> self) where T : struct =>
+        self.IsNone
+            ? (T?)null
+            : new T?(self.Value);
 
-        /// <summary>
-        /// Apply an Optional value to an Optional function
-        /// </summary>
-        /// <param name="opt">Optional function</param>
-        /// <param name="arg">Optional argument</param>
-        /// <returns>Returns the result of applying the optional argument to the optional function</returns>
-        [Pure]
-        public static Option<R> Apply<T, R>(this Option<Func<T, R>> opt, Option<T> arg) =>
-            opt.IsSome && arg.IsSome
-                ? Optional(opt.Value(arg.Value))
-                : None;
+    /// <summary>
+    /// Apply an Optional value to an Optional function
+    /// </summary>
+    /// <param name="opt">Optional function</param>
+    /// <param name="arg">Optional argument</param>
+    /// <returns>Returns the result of applying the optional argument to the optional function</returns>
+    [Pure]
+    public static Option<R> Apply<T, R>(this Option<Func<T, R>> opt, Option<T> arg) =>
+        opt.IsSome && arg.IsSome
+            ? Optional(opt.Value(arg.Value))
+            : None;
 
-        /// <summary>
-        /// Apply an Optional value to an Optional function of arity 2
-        /// </summary>
-        /// <param name="opt">Optional function</param>
-        /// <param name="arg">Optional argument</param>
-        /// <returns>Returns the result of applying the optional argument to the optional function:
-        /// an optonal function of arity 1</returns>
-        [Pure]
-        public static Option<Func<T2, R>> Apply<T1, T2, R>(this Option<Func<T1, T2, R>> opt, Option<T1> arg) =>
-            opt.IsSome && arg.IsSome
-                ? Optional(par(opt.Value, arg.Value))
-                : None;
+    /// <summary>
+    /// Apply an Optional value to an Optional function of arity 2
+    /// </summary>
+    /// <param name="opt">Optional function</param>
+    /// <param name="arg">Optional argument</param>
+    /// <returns>Returns the result of applying the optional argument to the optional function:
+    /// an optonal function of arity 1</returns>
+    [Pure]
+    public static Option<Func<T2, R>> Apply<T1, T2, R>(this Option<Func<T1, T2, R>> opt, Option<T1> arg) =>
+        opt.IsSome && arg.IsSome
+            ? Optional(par(opt.Value, arg.Value))
+            : None;
 
-        /// <summary>
-        /// Apply Optional values to an Optional function of arity 2
-        /// </summary>
-        /// <param name="opt">Optional function</param>
-        /// <param name="arg1">Optional argument</param>
-        /// <param name="arg2">Optional argument</param>
-        /// <returns>Returns the result of applying the optional arguments to the optional function</returns>
-        [Pure]
-        public static Option<R> Apply<T1, T2, R>(this Option<Func<T1, T2, R>> opt, Option<T1> arg1, Option<T2> arg2) =>
-            opt.IsSome && arg1.IsSome && arg2.IsSome
-                ? Optional(opt.Value(arg1.Value, arg2.Value))
-                : None;
+    /// <summary>
+    /// Apply Optional values to an Optional function of arity 2
+    /// </summary>
+    /// <param name="opt">Optional function</param>
+    /// <param name="arg1">Optional argument</param>
+    /// <param name="arg2">Optional argument</param>
+    /// <returns>Returns the result of applying the optional arguments to the optional function</returns>
+    [Pure]
+    public static Option<R> Apply<T1, T2, R>(this Option<Func<T1, T2, R>> opt, Option<T1> arg1, Option<T2> arg2) =>
+        opt.IsSome && arg1.IsSome && arg2.IsSome
+            ? Optional(opt.Value(arg1.Value, arg2.Value))
+            : None;
 
-        public static Unit Iter<T>(this Option<T> self, Action<T> action) =>
-            self.IfSome(action);
+    public static Unit Iter<T>(this Option<T> self, Action<T> action) =>
+        self.IfSome(action);
 
-        [Pure]
-        public static int Count<T>(this Option<T> self) =>
-            self.IsSome
-                ? 1
-                : 0;
+    [Pure]
+    public static int Count<T>(this Option<T> self) =>
+        self.IsSome
+            ? 1
+            : 0;
 
-        [Pure]
-        public static bool ForAll<T>(this Option<T> self, Func<T, bool> pred) =>
-            self.IsSome
-                ? pred(self.Value)
-                : true;
+    [Pure]
+    public static bool ForAll<T>(this Option<T> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? pred(self.Value)
+            : true;
 
-        [Pure]
-        public static bool ForAll<T>(this Option<T> self, Func<T, bool> Some, Func<bool> None) =>
-            self.IsSome
-                ? Some(self.Value)
-                : None();
+    [Pure]
+    public static bool ForAll<T>(this Option<T> self, Func<T, bool> Some, Func<bool> None) =>
+        self.IsSome
+            ? Some(self.Value)
+            : None();
 
-        [Pure]
-        public static bool Exists<T>(this Option<T> self, Func<T, bool> pred) =>
-            self.IsSome
-                ? pred(self.Value)
-                : false;
+    [Pure]
+    public static bool Exists<T>(this Option<T> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? pred(self.Value)
+            : false;
 
-        [Pure]
-        public static bool Exists<T>(this Option<T> self, Func<T, bool> Some, Func<bool> None) =>
-            self.IsSome
-                ? Some(self.Value)
-                : None();
+    [Pure]
+    public static bool Exists<T>(this Option<T> self, Func<T, bool> Some, Func<bool> None) =>
+        self.IsSome
+            ? Some(self.Value)
+            : None();
 
-        /// <summary>
-        /// Folds Option into an S.
-        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
-        /// </summary>
-        /// <param name="tryDel">Try to fold</param>
-        /// <param name="state">Initial state</param>
-        /// <param name="folder">Fold function</param>
-        /// <returns>Folded state</returns>
-        [Pure]
-        public static S Fold<S, T>(this Option<T> self, S state, Func<S, T, S> folder) =>
-            self.IsSome
-                ? folder(state, self.Value)
-                : state;
+    /// <summary>
+    /// Folds Option into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="tryDel">Try to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="folder">Fold function</param>
+    /// <returns>Folded state</returns>
+    [Pure]
+    public static S Fold<S, T>(this Option<T> self, S state, Func<S, T, S> folder) =>
+        self.IsSome
+            ? folder(state, self.Value)
+            : state;
 
-        /// <summary>
-        /// Folds Option into an S.
-        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
-        /// </summary>
-        /// <param name="tryDel">Try to fold</param>
-        /// <param name="state">Initial state</param>
-        /// <param name="Some">Fold function for Some</param>
-        /// <param name="None">Fold function for None</param>
-        /// <returns>Folded state</returns>
-        [Pure]
-        public static S Fold<S, T>(this Option<T> self, S state, Func<S, T, S> Some, Func<S, S> None) =>
-            self.IsSome
-                ? Some(state, self.Value)
-                : None(state);
+    /// <summary>
+    /// Folds Option into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="tryDel">Try to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="Some">Fold function for Some</param>
+    /// <param name="None">Fold function for None</param>
+    /// <returns>Folded state</returns>
+    [Pure]
+    public static S Fold<S, T>(this Option<T> self, S state, Func<S, T, S> Some, Func<S, S> None) =>
+        self.IsSome
+            ? Some(state, self.Value)
+            : None(state);
 
-        [Pure]
-        public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> mapper) =>
-            self.IsSome
-                ? Optional(mapper(self.Value))
-                : None;
+    [Pure]
+    public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> mapper) =>
+        self.IsSome
+            ? Optional(mapper(self.Value))
+            : None;
 
-        [Pure]
-        public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> Some, Func<R> None) =>
-            self.IsSome
-                ? Optional(Some(self.Value))
-                : None();
+    [Pure]
+    public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> Some, Func<R> None) =>
+        self.IsSome
+            ? Optional(Some(self.Value))
+            : None();
 
-        /// <summary>
-        /// Partial application map
-        /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
-        [Pure]
-        public static Option<Func<T2, R>> ParMap<T1, T2, R>(this Option<T1> opt, Func<T1, T2, R> func) =>
-            opt.Map(curry(func));
+    /// <summary>
+    /// Partial application map
+    /// </summary>
+    /// <remarks>TODO: Better documentation of this function</remarks>
+    [Pure]
+    public static Option<Func<T2, R>> ParMap<T1, T2, R>(this Option<T1> opt, Func<T1, T2, R> func) =>
+        opt.Map(curry(func));
 
-        /// <summary>
-        /// Partial application map
-        /// </summary>
-        /// <remarks>TODO: Better documentation of this function</remarks>
-        [Pure]
-        public static Option<Func<T2, Func<T3, R>>> ParMap<T1, T2, T3, R>(this Option<T1> opt, Func<T1, T2, T3, R> func) =>
-            opt.Map(curry(func));
+    /// <summary>
+    /// Partial application map
+    /// </summary>
+    /// <remarks>TODO: Better documentation of this function</remarks>
+    [Pure]
+    public static Option<Func<T2, Func<T3, R>>> ParMap<T1, T2, T3, R>(this Option<T1> opt, Func<T1, T2, T3, R> func) =>
+        opt.Map(curry(func));
 
-        [Pure]
-        public static Option<T> Filter<T>(this Option<T> self, Func<T, bool> pred) =>
-            self.IsSome
-                ? pred(self.Value)
-                    ? self
-                    : None
-                : self;
+    [Pure]
+    public static Option<T> Filter<T>(this Option<T> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? pred(self.Value)
+                ? self
+                : None
+            : self;
 
-        [Pure]
-        public static Option<T> Filter<T>(this Option<T> self, Func<T, bool> Some, Func<bool> None) =>
-            self.IsSome
-                ? Some(self.Value)
-                    ? self
-                    : Option<T>.None
-                : None()
-                    ? self
-                    : Option<T>.None;
+    [Pure]
+    public static Option<T> Filter<T>(this Option<T> self, Func<T, bool> Some, Func<bool> None) =>
+        self.IsSome
+            ? Some(self.Value)
+                ? self
+                : Option<T>.None
+            : None()
+                ? self
+                : Option<T>.None;
 
-        [Pure]
-        public static Option<R> Bind<T, R>(this Option<T> self, Func<T, Option<R>> binder) =>
-            self.IsSome
-                ? binder(self.Value)
-                : None;
+    [Pure]
+    public static Option<R> Bind<T, R>(this Option<T> self, Func<T, Option<R>> binder) =>
+        self.IsSome
+            ? binder(self.Value)
+            : None;
 
-        [Pure]
-        public static Option<R> Bind<T, R>(this Option<T> self, Func<T, Option<R>> Some, Func<Option<R>> None) =>
-            self.IsSome
-                ? Some(self.Value)
-                : None();
+    [Pure]
+    public static Option<R> Bind<T, R>(this Option<T> self, Func<T, Option<R>> Some, Func<Option<R>> None) =>
+        self.IsSome
+            ? Some(self.Value)
+            : None();
 
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Option<U> Select<T, U>(this Option<T> self, Func<T, U> map) =>
-            self.Map(map);
+    [Pure]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Option<U> Select<T, U>(this Option<T> self, Func<T, U> map) =>
+        self.Map(map);
 
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Option<T> Where<T>(this Option<T> self, Func<T, bool> pred) =>
-            self.Filter(pred);
+    [Pure]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Option<T> Where<T>(this Option<T> self, Func<T, bool> pred) =>
+        self.Filter(pred);
 
-        [Pure]
-        public static int Sum(this Option<int> self) =>
-            self.IsSome
-                ? self.Value
-                : 0;
+    [Pure]
+    public static int Sum(this Option<int> self) =>
+        self.IsSome
+            ? self.Value
+            : 0;
 
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Option<V> SelectMany<T, U, V>(this Option<T> self,
-            Func<T, Option<U>> bind,
-            Func<T, U, V> project
-            )
-        {
-            if (self.IsNone) return None;
-            var resU = bind(self.Value);
-            if (resU.IsNone) return None;
+    [Pure]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Option<V> SelectMany<T, U, V>(this Option<T> self,
+        Func<T, Option<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return None;
+        var resU = bind(self.Value);
+        if (resU.IsNone) return None;
 
-            return Optional(project(self.Value, resU.Value));
-        }
+        return Optional(project(self.Value, resU.Value));
+    }
 
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IEnumerable<V> SelectMany<T, U, V>(this Option<T> self,
-            Func<T, IEnumerable<U>> bind,
-            Func<T, U, V> project
-            )
-        {
-            if (self.IsNone) return new V[0];
-            return bind(self.Value).Map(resU => project(self.Value, resU));
-        }
+    [Pure]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static IEnumerable<V> SelectMany<T, U, V>(this Option<T> self,
+        Func<T, IEnumerable<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return new V[0];
+        return bind(self.Value).Map(resU => project(self.Value, resU));
+    }
 
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Option<V> SelectMany<T, U, V>(this IEnumerable<T> self,
-            Func<T, Option<U>> bind,
-            Func<T, U, V> project
-            )
-        {
-            var ta = self.Take(1).ToArray();
-            if (ta.Length == 0) return None;
-            var resU = bind(ta[0]);
-            if (resU.IsNone) return None;
-            return Optional(project(ta[0], resU.Value));
-        }
+    [Pure]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static Option<V> SelectMany<T, U, V>(this IEnumerable<T> self,
+        Func<T, Option<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        var ta = self.Take(1).ToArray();
+        if (ta.Length == 0) return None;
+        var resU = bind(ta[0]);
+        if (resU.IsNone) return None;
+        return Optional(project(ta[0], resU.Value));
+    }
 
-        /// <summary>
-        /// Match the two states of the Option and return a promise of a non-null R.
-        /// </summary>
-        /// <typeparam name="R">Return type</typeparam>
-        /// <param name="Some">Some handler.  Cannot return null.</param>
-        /// <param name="None">None handler.  Cannot return null.</param>
-        /// <returns>A promise to return a non-null R</returns>
-        public static async Task<R> MatchAsync<T, R>(this Option<Task<T>> self, Func<T, R> Some, Func<R> None) =>
-            self.IsSome
-                ? Option<Task<T>>.CheckNullSomeReturn(Some(await self.Value))
-                : Option<Task<T>>.CheckNullNoneReturn(None());
+    /// <summary>
+    /// Match the two states of the Option and return a promise of a non-null R.
+    /// </summary>
+    /// <typeparam name="R">Return type</typeparam>
+    /// <param name="Some">Some handler.  Cannot return null.</param>
+    /// <param name="None">None handler.  Cannot return null.</param>
+    /// <returns>A promise to return a non-null R</returns>
+    public static async Task<R> MatchAsync<T, R>(this Option<Task<T>> self, Func<T, R> Some, Func<R> None) =>
+        self.IsSome
+            ? Option<Task<T>>.CheckNullSomeReturn(Some(await self.Value))
+            : Option<Task<T>>.CheckNullNoneReturn(None());
 
-        /// <summary>
-        /// Match the two states of the Option and return a stream of non-null Rs.
-        /// </summary>
-        /// <param name="Some">Some handler.  Cannot return null.</param>
-        /// <param name="None">None handler.  Cannot return null.</param>
-        /// <returns>A stream of non-null Rs</returns>
-        [Pure]
-        public static IObservable<R> MatchObservable<T, R>(this Option<IObservable<T>> self, Func<T, R> Some, Func<R> None) =>
-            self.IsSome
-                ? self.Value.Select(Some).Select(Option<R>.CheckNullSomeReturn)
-                : Observable.Return(Option<R>.CheckNullNoneReturn(None()));
+    /// <summary>
+    /// Match the two states of the Option and return a stream of non-null Rs.
+    /// </summary>
+    /// <param name="Some">Some handler.  Cannot return null.</param>
+    /// <param name="None">None handler.  Cannot return null.</param>
+    /// <returns>A stream of non-null Rs</returns>
+    [Pure]
+    public static IObservable<R> MatchObservable<T, R>(this Option<IObservable<T>> self, Func<T, R> Some, Func<R> None) =>
+        self.IsSome
+            ? self.Value.Select(Some).Select(Option<R>.CheckNullSomeReturn)
+            : Observable.Return(Option<R>.CheckNullNoneReturn(None()));
 
-        /// <summary>
-        /// Match the two states of the IObservable&lt;Option&lt;T&gt;&gt; and return a stream of non-null Rs.
-        /// </summary>
-        /// <typeparam name="R">Return type</typeparam>
-        /// <param name="Some">Some handler.  Cannot return null.</param>
-        /// <param name="None">None handler.  Cannot return null.</param>
-        /// <returns>A stream of non-null Rs</returns>
-        [Pure]
-        public static IObservable<R> MatchObservable<T, R>(this IObservable<Option<T>> self, Func<T, R> Some, Func<R> None) =>
-            self.Select(opt => match(opt, Some, None));
+    /// <summary>
+    /// Match the two states of the IObservable&lt;Option&lt;T&gt;&gt; and return a stream of non-null Rs.
+    /// </summary>
+    /// <typeparam name="R">Return type</typeparam>
+    /// <param name="Some">Some handler.  Cannot return null.</param>
+    /// <param name="None">None handler.  Cannot return null.</param>
+    /// <returns>A stream of non-null Rs</returns>
+    [Pure]
+    public static IObservable<R> MatchObservable<T, R>(this IObservable<Option<T>> self, Func<T, R> Some, Func<R> None) =>
+        self.Select(opt => match(opt, Some, None));
 
-        public static async Task<Option<R>> MapAsync<T, R>(this Option<T> self, Func<T, Task<R>> map) =>
-            self.IsSome
-                ? Some(await map(self.Value))
-                : None;
+    public static async Task<Option<R>> MapAsync<T, R>(this Option<T> self, Func<T, Task<R>> map) =>
+        self.IsSome
+            ? Some(await map(self.Value))
+            : None;
 
-        public static async Task<Option<R>> MapAsync<T, R>(this Task<Option<T>> self, Func<T, Task<R>> map)
-        {
-            var val = await self;
-            return val.IsSome
-                ? Some(await map(val.Value))
-                : None;
-        }
+    public static async Task<Option<R>> MapAsync<T, R>(this Task<Option<T>> self, Func<T, Task<R>> map)
+    {
+        var val = await self;
+        return val.IsSome
+            ? Some(await map(val.Value))
+            : None;
+    }
 
-        public static async Task<Option<R>> MapAsync<T, R>(this Task<Option<T>> self, Func<T, R> map)
-        {
-            var val = await self;
-            return val.IsSome
-                ? Some(map(val.Value))
-                : None;
-        }
+    public static async Task<Option<R>> MapAsync<T, R>(this Task<Option<T>> self, Func<T, R> map)
+    {
+        var val = await self;
+        return val.IsSome
+            ? Some(map(val.Value))
+            : None;
+    }
 
-        public static async Task<Option<R>> MapAsync<T, R>(this Option<Task<T>> self, Func<T, R> map) =>
-            self.IsSome
-                ? Some(map(await self.Value))
-                : None;
+    public static async Task<Option<R>> MapAsync<T, R>(this Option<Task<T>> self, Func<T, R> map) =>
+        self.IsSome
+            ? Some(map(await self.Value))
+            : None;
 
-        public static async Task<Option<R>> MapAsync<T, R>(this Option<Task<T>> self, Func<T, Task<R>> map) =>
-            self.IsSome
-                ? Some(await map(await self.Value))
-                : None;
+    public static async Task<Option<R>> MapAsync<T, R>(this Option<Task<T>> self, Func<T, Task<R>> map) =>
+        self.IsSome
+            ? Some(await map(await self.Value))
+            : None;
 
 
-        public static async Task<Option<R>> BindAsync<T, R>(this Option<T> self, Func<T, Task<Option<R>>> bind) =>
-            self.IsSome
-                ? await bind(self.Value)
-                : None;
+    public static async Task<Option<R>> BindAsync<T, R>(this Option<T> self, Func<T, Task<Option<R>>> bind) =>
+        self.IsSome
+            ? await bind(self.Value)
+            : None;
 
-        public static async Task<Option<R>> BindAsync<T, R>(this Task<Option<T>> self, Func<T, Task<Option<R>>> bind)
-        {
-            var val = await self;
-            return val.IsSome
-                ? await bind(val.Value)
-                : None;
-        }
+    public static async Task<Option<R>> BindAsync<T, R>(this Task<Option<T>> self, Func<T, Task<Option<R>>> bind)
+    {
+        var val = await self;
+        return val.IsSome
+            ? await bind(val.Value)
+            : None;
+    }
 
-        public static async Task<Option<R>> BindAsync<T, R>(this Task<Option<T>> self, Func<T, Option<R>> bind)
-        {
-            var val = await self;
-            return val.IsSome
-                ? bind(val.Value)
-                : None;
-        }
+    public static async Task<Option<R>> BindAsync<T, R>(this Task<Option<T>> self, Func<T, Option<R>> bind)
+    {
+        var val = await self;
+        return val.IsSome
+            ? bind(val.Value)
+            : None;
+    }
 
-        public static async Task<Option<R>> BindAsync<T, R>(this Option<Task<T>> self, Func<T, Option<R>> bind) =>
-            self.IsSome
-                ? bind(await self.Value)
-                : None;
+    public static async Task<Option<R>> BindAsync<T, R>(this Option<Task<T>> self, Func<T, Option<R>> bind) =>
+        self.IsSome
+            ? bind(await self.Value)
+            : None;
 
-        public static async Task<Option<R>> BindAsync<T, R>(this Option<Task<T>> self, Func<T, Task<Option<R>>> bind) =>
-            self.IsSome
-                ? await bind(await self.Value)
-                : None;
+    public static async Task<Option<R>> BindAsync<T, R>(this Option<Task<T>> self, Func<T, Task<Option<R>>> bind) =>
+        self.IsSome
+            ? await bind(await self.Value)
+            : None;
 
-        public static async Task<Unit> IterAsync<T>(this Task<Option<T>> self, Action<T> action)
-        {
-            var val = await self;
-            if (val.IsSome) action(val.Value);
-            return unit;
-        }
+    public static async Task<Unit> IterAsync<T>(this Task<Option<T>> self, Action<T> action)
+    {
+        var val = await self;
+        if (val.IsSome) action(val.Value);
+        return unit;
+    }
 
-        public static async Task<Unit> IterAsync<T>(this Option<Task<T>> self, Action<T> action)
-        {
-            if (self.IsSome) action(await self.Value);
-            return unit;
-        }
+    public static async Task<Unit> IterAsync<T>(this Option<Task<T>> self, Action<T> action)
+    {
+        if (self.IsSome) action(await self.Value);
+        return unit;
+    }
 
-        public static async Task<int> CountAsync<T>(this Task<Option<T>> self) =>
-            (await self).Count();
+    public static async Task<int> CountAsync<T>(this Task<Option<T>> self) =>
+        (await self).Count();
 
-        public static async Task<int> SumAsync(this Task<Option<int>> self) =>
-            (await self).Sum();
+    public static async Task<int> SumAsync(this Task<Option<int>> self) =>
+        (await self).Sum();
 
-        public static async Task<int> SumAsync(this Option<Task<int>> self) =>
-            self.IsSome
-                ? await self.Value
-                : 0;
+    public static async Task<int> SumAsync(this Option<Task<int>> self) =>
+        self.IsSome
+            ? await self.Value
+            : 0;
 
-        public static async Task<S> FoldAsync<T, S>(this Task<Option<T>> self, S state, Func<S, T, S> folder) =>
-            (await self).Fold(state, folder);
+    public static async Task<S> FoldAsync<T, S>(this Task<Option<T>> self, S state, Func<S, T, S> folder) =>
+        (await self).Fold(state, folder);
 
-        public static async Task<S> FoldAsync<T, S>(this Option<Task<T>> self, S state, Func<S, T, S> folder) =>
-            self.IsSome
-                ? folder(state, await self.Value)
-                : state;
+    public static async Task<S> FoldAsync<T, S>(this Option<Task<T>> self, S state, Func<S, T, S> folder) =>
+        self.IsSome
+            ? folder(state, await self.Value)
+            : state;
 
-        public static async Task<bool> ForAllAsync<T>(this Task<Option<T>> self, Func<T, bool> pred) =>
-            (await self).ForAll(pred);
+    public static async Task<bool> ForAllAsync<T>(this Task<Option<T>> self, Func<T, bool> pred) =>
+        (await self).ForAll(pred);
 
-        public static async Task<bool> ForAllAsync<T>(this Option<Task<T>> self, Func<T, bool> pred) =>
-            self.IsSome
-                ? pred(await self.Value)
-                : true;
+    public static async Task<bool> ForAllAsync<T>(this Option<Task<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? pred(await self.Value)
+            : true;
 
-        public static async Task<bool> ExistsAsync<T>(this Task<Option<T>> self, Func<T, bool> pred) =>
-            (await self).Exists(pred);
+    public static async Task<bool> ExistsAsync<T>(this Task<Option<T>> self, Func<T, bool> pred) =>
+        (await self).Exists(pred);
 
-        public static async Task<bool> ExistsAsync<T>(this Option<Task<T>> self, Func<T, bool> pred) =>
-            self.IsSome
-                ? pred(await self.Value)
-                : false;
+    public static async Task<bool> ExistsAsync<T>(this Option<Task<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? pred(await self.Value)
+            : false;
 
-        public static Option<V> Join<L, T, U, K, V>(
-            this Option<T> self,
-            Option<U> inner,
-            Func<T, K> outerKeyMap,
-            Func<U, K> innerKeyMap,
-            Func<T, U, V> project)
-        {
-            if (self.IsNone) return None;
-            if (inner.IsNone) return None;
-            return EqualityComparer<K>.Default.Equals(outerKeyMap(self.Value), innerKeyMap(inner.Value))
-                ? Some(project(self.Value, inner.Value))
-                : None;
-        }
+    public static Option<V> Join<L, T, U, K, V>(
+        this Option<T> self,
+        Option<U> inner,
+        Func<T, K> outerKeyMap,
+        Func<U, K> innerKeyMap,
+        Func<T, U, V> project)
+    {
+        if (self.IsNone) return None;
+        if (inner.IsNone) return None;
+        return EqualityComparer<K>.Default.Equals(outerKeyMap(self.Value), innerKeyMap(inner.Value))
+            ? Some(project(self.Value, inner.Value))
+            : None;
     }
 }

@@ -338,7 +338,7 @@ namespace LanguageExt
         /// </summary>
         [Obsolete("Use 'Range'.  All constructor functions are renamed to have their first letter as a capital.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static CharRange range(char from, char to) =>
+        public static IEnumerable<char> range(char from, char to) =>
             new CharRange(from, to);
 
         /// <summary>
@@ -346,7 +346,7 @@ namespace LanguageExt
         /// </summary>
         [Obsolete("Use 'Range'.  All constructor functions are renamed to have their first letter as a capital.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IEnumerable<int> range(params IntegerRange[] ranges) =>
+        public static IEnumerable<int> range(params IEnumerable<int>[] ranges) =>
             from range in ranges
             from i in range
             select i;
@@ -356,7 +356,7 @@ namespace LanguageExt
         /// </summary>
         [Obsolete("Use 'Range'.  All constructor functions are renamed to have their first letter as a capital.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IEnumerable<char> range(params CharRange[] ranges) =>
+        public static IEnumerable<char> range(params IEnumerable<char>[] ranges) =>
             from range in ranges
             from c in range
             select c;

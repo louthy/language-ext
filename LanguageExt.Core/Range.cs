@@ -11,7 +11,7 @@ namespace LanguageExt
 #if !COREFX
     [Serializable]
 #endif
-    public class IntegerRange : IEnumerable<int>
+    internal class IntegerRange : IEnumerable<int>
     {
         public IntegerRange(int from, int count, int step = 1)
         {
@@ -88,7 +88,7 @@ namespace LanguageExt
 #if !COREFX
     [Serializable]
 #endif
-    public class CharRange : IEnumerable<char>
+    internal class CharRange : IEnumerable<char>
     {
         public CharRange(char from, char to)
         {

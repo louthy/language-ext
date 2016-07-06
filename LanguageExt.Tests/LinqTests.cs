@@ -3,7 +3,6 @@ using System.Linq;
 using Xunit;
 using LanguageExt;
 using static LanguageExt.Prelude;
-
 using LanguageExt.Trans;
 
 namespace LanguageExtTests

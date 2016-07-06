@@ -30,12 +30,18 @@
     }
   },
   "dependencies": {
-    "LanguageExt.Core": "1.9.0",
-    "LanguageExt.Process": "1.9.0",
-    "System.Reactive.Core": "3.0.1-*",
-    "System.Reactive.Interfaces": "3.0.1-*",
-    "System.Reactive.PlatformServices": "3.0.1-*",
-    "System.Reactive.Linq": "3.0.1-*"
+    "LanguageExt.Core": {
+      "version": "1.9.0",
+      "target": "project"
+    },
+    "LanguageExt.Process": {
+      "version": "1.9.0",
+      "target": "project"
+    },
+    "System.Reactive.Core": "3.0.0-*",
+    "System.Reactive.Interfaces": "3.0.0-*",
+    "System.Reactive.PlatformServices": "3.0.0-*",
+    "System.Reactive.Linq": "3.0.0-*"
   },
   "frameworks": {
     "net45": {

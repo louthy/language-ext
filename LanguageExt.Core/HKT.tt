@@ -143,9 +143,9 @@
             "",
             selectManyComments+"TABS2 [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_V SelectMany<ARGS_TUV>(this OUTER_T self, Func<T, INNER_U> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));",
             "",
-            selectManyComments+"TABS2 [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, INNER_U> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));"
+            ""//selectManyComments+"TABS2 [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static RETURN_V SelectMany<ARGS_TUV>(this TYPE self, Func<T, INNER_U> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));"
             ),
-   };
+};
 
    var linqFuncs = new [] {
         //
@@ -456,6 +456,14 @@ namespace LanguageExt.Trans
         TypeDesc innerType
         )
     {
+		//bool sm = func.Contains("SelectMany") || func.Contains("Select");
+		//if(func=="Filter" && outerType.Name == "Map" && innerType.Name == "Map") return "";
+		//if(sm && innerType.Name == outerType.Name) return "";
+		//if(sm && innerType.Name == "IEnumerable" && outerType.Name != "IEnumerable") return "";
+		//if(sm && innerType.Name != "IEnumerable" && outerType.Name == "IEnumerable") return "";
+		//if(sm && innerType.Name == "Lst" && outerType.Name != "Lst") return "";
+		//if(sm && innerType.Name != "Lst" && outerType.Name == "Lst") return "";
+
         var args = String.Join(", ", (outerType.Args + "," + innerType.Args).Split(',').Select(x => x.Trim()).Distinct());
 
         var innerTypeT     = TypeGen(innerType,"T");

@@ -1590,10 +1590,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(IEnumerable<IEnumerable<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<IEnumerable<V>> SelectMany<T, U, V>(this IEnumerable<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -1643,10 +1639,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(IEnumerable<Option<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<Option<V>> SelectMany<T, U, V>(this IEnumerable<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -1696,10 +1688,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(IEnumerable<OptionUnsafe<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<OptionUnsafe<V>> SelectMany<T, U, V>(this IEnumerable<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -1749,10 +1737,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(IEnumerable<Lst<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<Lst<V>> SelectMany<T, U, V>(this IEnumerable<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -1802,10 +1786,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, K>(IEnumerable<Map<K, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<Map<K, V>> SelectMany<T, K, U, V>(this IEnumerable<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -1855,10 +1835,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(IEnumerable<TryOption<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<TryOption<V>> SelectMany<T, U, V>(this IEnumerable<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -1908,10 +1884,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(IEnumerable<Try<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<Try<V>> SelectMany<T, U, V>(this IEnumerable<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -1961,10 +1933,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, L>(IEnumerable<Either<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<Either<L, V>> SelectMany<T, L, U, V>(this IEnumerable<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2014,10 +1982,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, L>(IEnumerable<EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this IEnumerable<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2067,10 +2031,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Reader<Env, T> LiftUnsafeT<T, Env>(IEnumerable<Reader<Env, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<Reader<Env, V>> SelectMany<T, Env, U, V>(this IEnumerable<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2120,10 +2080,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Writer<Out, T> LiftUnsafeT<T, Out>(IEnumerable<Writer<Out, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<Writer<Out, V>> SelectMany<T, Out, U, V>(this IEnumerable<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2173,10 +2129,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static State<State, T> LiftUnsafeT<T, State>(IEnumerable<State<State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<State<State, V>> SelectMany<T, State, U, V>(this IEnumerable<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2226,10 +2178,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(IEnumerable<Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this IEnumerable<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2279,10 +2227,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(IEnumerable<Task<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<Task<V>> SelectMany<T, U, V>(this IEnumerable<Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2332,10 +2276,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Option<IEnumerable<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<IEnumerable<V>> SelectMany<T, U, V>(this Option<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2385,10 +2325,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Option<Option<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<Option<V>> SelectMany<T, U, V>(this Option<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2438,10 +2374,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Option<OptionUnsafe<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<OptionUnsafe<V>> SelectMany<T, U, V>(this Option<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2491,10 +2423,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Option<Lst<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<Lst<V>> SelectMany<T, U, V>(this Option<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2544,10 +2472,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, K>(Option<Map<K, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<Map<K, V>> SelectMany<T, K, U, V>(this Option<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2597,10 +2521,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Option<TryOption<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<TryOption<V>> SelectMany<T, U, V>(this Option<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2650,10 +2570,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Option<Try<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<Try<V>> SelectMany<T, U, V>(this Option<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2703,10 +2619,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, L>(Option<Either<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<Either<L, V>> SelectMany<T, L, U, V>(this Option<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2756,10 +2668,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, L>(Option<EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Option<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2809,10 +2717,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Reader<Env, T> LiftUnsafeT<T, Env>(Option<Reader<Env, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<Reader<Env, V>> SelectMany<T, Env, U, V>(this Option<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2862,10 +2766,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Writer<Out, T> LiftUnsafeT<T, Out>(Option<Writer<Out, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<Writer<Out, V>> SelectMany<T, Out, U, V>(this Option<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2915,10 +2815,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static State<State, T> LiftUnsafeT<T, State>(Option<State<State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<State<State, V>> SelectMany<T, State, U, V>(this Option<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -2968,10 +2864,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(Option<Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this Option<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3021,10 +2913,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Option<Task<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<Task<V>> SelectMany<T, U, V>(this Option<Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3074,10 +2962,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(OptionUnsafe<IEnumerable<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<IEnumerable<V>> SelectMany<T, U, V>(this OptionUnsafe<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3127,10 +3011,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(OptionUnsafe<Option<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<Option<V>> SelectMany<T, U, V>(this OptionUnsafe<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3180,10 +3060,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(OptionUnsafe<OptionUnsafe<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<OptionUnsafe<V>> SelectMany<T, U, V>(this OptionUnsafe<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3233,10 +3109,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(OptionUnsafe<Lst<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<Lst<V>> SelectMany<T, U, V>(this OptionUnsafe<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3286,10 +3158,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, K>(OptionUnsafe<Map<K, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<Map<K, V>> SelectMany<T, K, U, V>(this OptionUnsafe<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3339,10 +3207,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(OptionUnsafe<TryOption<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<TryOption<V>> SelectMany<T, U, V>(this OptionUnsafe<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3392,10 +3256,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(OptionUnsafe<Try<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<Try<V>> SelectMany<T, U, V>(this OptionUnsafe<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3445,10 +3305,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, L>(OptionUnsafe<Either<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<Either<L, V>> SelectMany<T, L, U, V>(this OptionUnsafe<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3498,10 +3354,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, L>(OptionUnsafe<EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this OptionUnsafe<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3551,10 +3403,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Reader<Env, T> LiftUnsafeT<T, Env>(OptionUnsafe<Reader<Env, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<Reader<Env, V>> SelectMany<T, Env, U, V>(this OptionUnsafe<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3604,10 +3452,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Writer<Out, T> LiftUnsafeT<T, Out>(OptionUnsafe<Writer<Out, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<Writer<Out, V>> SelectMany<T, Out, U, V>(this OptionUnsafe<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3657,10 +3501,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static State<State, T> LiftUnsafeT<T, State>(OptionUnsafe<State<State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<State<State, V>> SelectMany<T, State, U, V>(this OptionUnsafe<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3710,10 +3550,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(OptionUnsafe<Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this OptionUnsafe<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3763,10 +3599,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(OptionUnsafe<Task<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<Task<V>> SelectMany<T, U, V>(this OptionUnsafe<Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3816,10 +3648,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Lst<IEnumerable<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<IEnumerable<V>> SelectMany<T, U, V>(this Lst<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3869,10 +3697,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Lst<Option<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<Option<V>> SelectMany<T, U, V>(this Lst<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3922,10 +3746,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Lst<OptionUnsafe<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<OptionUnsafe<V>> SelectMany<T, U, V>(this Lst<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -3975,10 +3795,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Lst<Lst<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<Lst<V>> SelectMany<T, U, V>(this Lst<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4028,10 +3844,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, K>(Lst<Map<K, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<Map<K, V>> SelectMany<T, K, U, V>(this Lst<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4081,10 +3893,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Lst<TryOption<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<TryOption<V>> SelectMany<T, U, V>(this Lst<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4134,10 +3942,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Lst<Try<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<Try<V>> SelectMany<T, U, V>(this Lst<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4187,10 +3991,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, L>(Lst<Either<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<Either<L, V>> SelectMany<T, L, U, V>(this Lst<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4240,10 +4040,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, L>(Lst<EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Lst<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4293,10 +4089,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Reader<Env, T> LiftUnsafeT<T, Env>(Lst<Reader<Env, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<Reader<Env, V>> SelectMany<T, Env, U, V>(this Lst<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4346,10 +4138,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Writer<Out, T> LiftUnsafeT<T, Out>(Lst<Writer<Out, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<Writer<Out, V>> SelectMany<T, Out, U, V>(this Lst<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4399,10 +4187,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static State<State, T> LiftUnsafeT<T, State>(Lst<State<State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<State<State, V>> SelectMany<T, State, U, V>(this Lst<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4452,10 +4236,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(Lst<Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this Lst<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4505,10 +4285,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Lst<Task<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<Task<V>> SelectMany<T, U, V>(this Lst<Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4558,10 +4334,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<K, T>(Map<K, IEnumerable<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, IEnumerable<V>> SelectMany<K, T, U, V>(this Map<K, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4611,10 +4383,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<K, T>(Map<K, Option<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, Option<V>> SelectMany<K, T, U, V>(this Map<K, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4664,10 +4432,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<K, T>(Map<K, OptionUnsafe<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, OptionUnsafe<V>> SelectMany<K, T, U, V>(this Map<K, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4717,10 +4481,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<K, T>(Map<K, Lst<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, Lst<V>> SelectMany<K, T, U, V>(this Map<K, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4770,10 +4530,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<K, T>(Map<K, Map<K, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, Map<K, V>> SelectMany<K, T, U, V>(this Map<K, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4823,10 +4579,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<K, T>(Map<K, TryOption<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, TryOption<V>> SelectMany<K, T, U, V>(this Map<K, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4876,10 +4628,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<K, T>(Map<K, Try<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, Try<V>> SelectMany<K, T, U, V>(this Map<K, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4929,10 +4677,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<K, T, L>(Map<K, Either<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, Either<L, V>> SelectMany<K, T, L, U, V>(this Map<K, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -4982,10 +4726,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<K, T, L>(Map<K, EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, EitherUnsafe<L, V>> SelectMany<K, T, L, U, V>(this Map<K, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5035,10 +4775,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Reader<Env, T> LiftUnsafeT<K, T, Env>(Map<K, Reader<Env, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, Reader<Env, V>> SelectMany<K, T, Env, U, V>(this Map<K, Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5088,10 +4824,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Writer<Out, T> LiftUnsafeT<K, T, Out>(Map<K, Writer<Out, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, Writer<Out, V>> SelectMany<K, T, Out, U, V>(this Map<K, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5141,10 +4873,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static State<State, T> LiftUnsafeT<K, T, State>(Map<K, State<State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, State<State, V>> SelectMany<K, T, State, U, V>(this Map<K, State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5194,10 +4922,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Rws<Env, Out, State, T> LiftUnsafeT<K, T, Env, Out, State>(Map<K, Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, Rws<Env, Out, State, V>> SelectMany<K, T, Env, Out, State, U, V>(this Map<K, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5247,10 +4971,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<K, T>(Map<K, Task<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, Task<V>> SelectMany<K, T, U, V>(this Map<K, Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5300,10 +5020,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(TryOption<IEnumerable<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<IEnumerable<V>> SelectMany<T, U, V>(this TryOption<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5353,10 +5069,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(TryOption<Option<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<Option<V>> SelectMany<T, U, V>(this TryOption<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5406,10 +5118,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(TryOption<OptionUnsafe<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<OptionUnsafe<V>> SelectMany<T, U, V>(this TryOption<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5459,10 +5167,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(TryOption<Lst<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<Lst<V>> SelectMany<T, U, V>(this TryOption<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5512,10 +5216,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, K>(TryOption<Map<K, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<Map<K, V>> SelectMany<T, K, U, V>(this TryOption<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5565,10 +5265,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(TryOption<TryOption<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<TryOption<V>> SelectMany<T, U, V>(this TryOption<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5618,10 +5314,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(TryOption<Try<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<Try<V>> SelectMany<T, U, V>(this TryOption<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5671,10 +5363,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, L>(TryOption<Either<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<Either<L, V>> SelectMany<T, L, U, V>(this TryOption<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5724,10 +5412,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, L>(TryOption<EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this TryOption<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5777,10 +5461,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Reader<Env, T> LiftUnsafeT<T, Env>(TryOption<Reader<Env, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<Reader<Env, V>> SelectMany<T, Env, U, V>(this TryOption<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5830,10 +5510,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Writer<Out, T> LiftUnsafeT<T, Out>(TryOption<Writer<Out, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<Writer<Out, V>> SelectMany<T, Out, U, V>(this TryOption<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5883,10 +5559,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static State<State, T> LiftUnsafeT<T, State>(TryOption<State<State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<State<State, V>> SelectMany<T, State, U, V>(this TryOption<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5936,10 +5608,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(TryOption<Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this TryOption<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -5989,10 +5657,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(TryOption<Task<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<Task<V>> SelectMany<T, U, V>(this TryOption<Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6042,10 +5706,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Try<IEnumerable<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<IEnumerable<V>> SelectMany<T, U, V>(this Try<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6095,10 +5755,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Try<Option<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<Option<V>> SelectMany<T, U, V>(this Try<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6148,10 +5804,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Try<OptionUnsafe<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<OptionUnsafe<V>> SelectMany<T, U, V>(this Try<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6201,10 +5853,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Try<Lst<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<Lst<V>> SelectMany<T, U, V>(this Try<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6254,10 +5902,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, K>(Try<Map<K, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<Map<K, V>> SelectMany<T, K, U, V>(this Try<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6307,10 +5951,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Try<TryOption<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<TryOption<V>> SelectMany<T, U, V>(this Try<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6360,10 +6000,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Try<Try<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<Try<V>> SelectMany<T, U, V>(this Try<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6413,10 +6049,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, L>(Try<Either<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<Either<L, V>> SelectMany<T, L, U, V>(this Try<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6466,10 +6098,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, L>(Try<EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Try<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6519,10 +6147,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Reader<Env, T> LiftUnsafeT<T, Env>(Try<Reader<Env, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<Reader<Env, V>> SelectMany<T, Env, U, V>(this Try<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6572,10 +6196,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Writer<Out, T> LiftUnsafeT<T, Out>(Try<Writer<Out, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<Writer<Out, V>> SelectMany<T, Out, U, V>(this Try<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6625,10 +6245,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static State<State, T> LiftUnsafeT<T, State>(Try<State<State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<State<State, V>> SelectMany<T, State, U, V>(this Try<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6678,10 +6294,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(Try<Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this Try<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6731,10 +6343,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Try<Task<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<Task<V>> SelectMany<T, U, V>(this Try<Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6784,10 +6392,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(Either<L, IEnumerable<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, IEnumerable<V>> SelectMany<L, T, U, V>(this Either<L, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6837,10 +6441,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(Either<L, Option<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, Option<V>> SelectMany<L, T, U, V>(this Either<L, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6890,10 +6490,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(Either<L, OptionUnsafe<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, OptionUnsafe<V>> SelectMany<L, T, U, V>(this Either<L, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6943,10 +6539,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(Either<L, Lst<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, Lst<V>> SelectMany<L, T, U, V>(this Either<L, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -6996,10 +6588,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T, K>(Either<L, Map<K, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, Map<K, V>> SelectMany<L, T, K, U, V>(this Either<L, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7049,10 +6637,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(Either<L, TryOption<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, TryOption<V>> SelectMany<L, T, U, V>(this Either<L, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7102,10 +6686,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(Either<L, Try<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, Try<V>> SelectMany<L, T, U, V>(this Either<L, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7155,10 +6735,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(Either<L, Either<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, Either<L, V>> SelectMany<L, T, U, V>(this Either<L, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7208,10 +6784,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(Either<L, EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, EitherUnsafe<L, V>> SelectMany<L, T, U, V>(this Either<L, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7261,10 +6833,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Reader<Env, T> LiftUnsafeT<L, T, Env>(Either<L, Reader<Env, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, Reader<Env, V>> SelectMany<L, T, Env, U, V>(this Either<L, Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7314,10 +6882,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Writer<Out, T> LiftUnsafeT<L, T, Out>(Either<L, Writer<Out, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, Writer<Out, V>> SelectMany<L, T, Out, U, V>(this Either<L, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7367,10 +6931,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static State<State, T> LiftUnsafeT<L, T, State>(Either<L, State<State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, State<State, V>> SelectMany<L, T, State, U, V>(this Either<L, State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7420,10 +6980,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Rws<Env, Out, State, T> LiftUnsafeT<L, T, Env, Out, State>(Either<L, Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, Rws<Env, Out, State, V>> SelectMany<L, T, Env, Out, State, U, V>(this Either<L, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7473,10 +7029,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(Either<L, Task<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, Task<V>> SelectMany<L, T, U, V>(this Either<L, Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7526,10 +7078,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(EitherUnsafe<L, IEnumerable<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, IEnumerable<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7579,10 +7127,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(EitherUnsafe<L, Option<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, Option<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7632,10 +7176,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(EitherUnsafe<L, OptionUnsafe<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, OptionUnsafe<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7685,10 +7225,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(EitherUnsafe<L, Lst<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, Lst<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7738,10 +7274,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T, K>(EitherUnsafe<L, Map<K, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, Map<K, V>> SelectMany<L, T, K, U, V>(this EitherUnsafe<L, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7791,10 +7323,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(EitherUnsafe<L, TryOption<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, TryOption<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7844,10 +7372,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(EitherUnsafe<L, Try<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, Try<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7897,10 +7421,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(EitherUnsafe<L, Either<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, Either<L, V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -7950,10 +7470,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(EitherUnsafe<L, EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, EitherUnsafe<L, V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8003,10 +7519,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Reader<Env, T> LiftUnsafeT<L, T, Env>(EitherUnsafe<L, Reader<Env, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, Reader<Env, V>> SelectMany<L, T, Env, U, V>(this EitherUnsafe<L, Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8056,10 +7568,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Writer<Out, T> LiftUnsafeT<L, T, Out>(EitherUnsafe<L, Writer<Out, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, Writer<Out, V>> SelectMany<L, T, Out, U, V>(this EitherUnsafe<L, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8109,10 +7617,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static State<State, T> LiftUnsafeT<L, T, State>(EitherUnsafe<L, State<State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, State<State, V>> SelectMany<L, T, State, U, V>(this EitherUnsafe<L, State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8162,10 +7666,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Rws<Env, Out, State, T> LiftUnsafeT<L, T, Env, Out, State>(EitherUnsafe<L, Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, Rws<Env, Out, State, V>> SelectMany<L, T, Env, Out, State, U, V>(this EitherUnsafe<L, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8215,10 +7715,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<L, T>(EitherUnsafe<L, Task<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, Task<V>> SelectMany<L, T, U, V>(this EitherUnsafe<L, Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8268,10 +7764,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, T>(Reader<Env, IEnumerable<T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, IEnumerable<V>> SelectMany<Env, T, U, V>(this Reader<Env, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8321,10 +7813,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, T>(Reader<Env, Option<T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, Option<V>> SelectMany<Env, T, U, V>(this Reader<Env, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8374,10 +7862,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, T>(Reader<Env, OptionUnsafe<T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, OptionUnsafe<V>> SelectMany<Env, T, U, V>(this Reader<Env, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8427,10 +7911,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, T>(Reader<Env, Lst<T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, Lst<V>> SelectMany<Env, T, U, V>(this Reader<Env, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8480,10 +7960,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, T, K>(Reader<Env, Map<K, T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, Map<K, V>> SelectMany<Env, T, K, U, V>(this Reader<Env, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8533,10 +8009,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, T>(Reader<Env, TryOption<T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, TryOption<V>> SelectMany<Env, T, U, V>(this Reader<Env, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8586,10 +8058,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, T>(Reader<Env, Try<T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, Try<V>> SelectMany<Env, T, U, V>(this Reader<Env, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8639,10 +8107,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, T, L>(Reader<Env, Either<L, T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, Either<L, V>> SelectMany<Env, T, L, U, V>(this Reader<Env, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8692,10 +8156,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, T, L>(Reader<Env, EitherUnsafe<L, T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, EitherUnsafe<L, V>> SelectMany<Env, T, L, U, V>(this Reader<Env, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8745,10 +8205,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Reader<Env, T> LiftUnsafeT<Env, T>(Reader<Env, Reader<Env, T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, Reader<Env, V>> SelectMany<Env, T, U, V>(this Reader<Env, Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8798,10 +8254,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, T>(Reader<Env, Task<T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, Task<V>> SelectMany<Env, T, U, V>(this Reader<Env, Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8851,10 +8303,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Out, T>(Writer<Out, IEnumerable<T>> self )  where T : class => self.ValueT()().Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, IEnumerable<V>> SelectMany<Out, T, U, V>(this Writer<Out, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8904,10 +8352,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Out, T>(Writer<Out, Option<T>> self )  where T : class => self.ValueT()().Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, Option<V>> SelectMany<Out, T, U, V>(this Writer<Out, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -8957,10 +8401,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Out, T>(Writer<Out, OptionUnsafe<T>> self )  where T : class => self.ValueT()().Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, OptionUnsafe<V>> SelectMany<Out, T, U, V>(this Writer<Out, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9010,10 +8450,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Out, T>(Writer<Out, Lst<T>> self )  where T : class => self.ValueT()().Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, Lst<V>> SelectMany<Out, T, U, V>(this Writer<Out, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9063,10 +8499,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Out, T, K>(Writer<Out, Map<K, T>> self )  where T : class => self.ValueT()().Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, Map<K, V>> SelectMany<Out, T, K, U, V>(this Writer<Out, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9116,10 +8548,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Out, T>(Writer<Out, TryOption<T>> self )  where T : class => self.ValueT()().Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, TryOption<V>> SelectMany<Out, T, U, V>(this Writer<Out, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9169,10 +8597,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Out, T>(Writer<Out, Try<T>> self )  where T : class => self.ValueT()().Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, Try<V>> SelectMany<Out, T, U, V>(this Writer<Out, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9222,10 +8646,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Out, T, L>(Writer<Out, Either<L, T>> self )  where T : class => self.ValueT()().Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, Either<L, V>> SelectMany<Out, T, L, U, V>(this Writer<Out, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9275,10 +8695,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Out, T, L>(Writer<Out, EitherUnsafe<L, T>> self )  where T : class => self.ValueT()().Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, EitherUnsafe<L, V>> SelectMany<Out, T, L, U, V>(this Writer<Out, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9328,10 +8744,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Writer<Out, T> LiftUnsafeT<Out, T>(Writer<Out, Writer<Out, T>> self )  where T : class => self.ValueT()().Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, Writer<Out, V>> SelectMany<Out, T, U, V>(this Writer<Out, Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9381,10 +8793,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Out, T>(Writer<Out, Task<T>> self )  where T : class => self.ValueT()().Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, Task<V>> SelectMany<Out, T, U, V>(this Writer<Out, Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9434,10 +8842,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<State, T>(State<State, IEnumerable<T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, IEnumerable<V>> SelectMany<State, T, U, V>(this State<State, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9487,10 +8891,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<State, T>(State<State, Option<T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, Option<V>> SelectMany<State, T, U, V>(this State<State, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9540,10 +8940,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<State, T>(State<State, OptionUnsafe<T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, OptionUnsafe<V>> SelectMany<State, T, U, V>(this State<State, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9593,10 +8989,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<State, T>(State<State, Lst<T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, Lst<V>> SelectMany<State, T, U, V>(this State<State, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9646,10 +9038,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<State, T, K>(State<State, Map<K, T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, Map<K, V>> SelectMany<State, T, K, U, V>(this State<State, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9699,10 +9087,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<State, T>(State<State, TryOption<T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, TryOption<V>> SelectMany<State, T, U, V>(this State<State, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9752,10 +9136,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<State, T>(State<State, Try<T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, Try<V>> SelectMany<State, T, U, V>(this State<State, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9805,10 +9185,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<State, T, L>(State<State, Either<L, T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, Either<L, V>> SelectMany<State, T, L, U, V>(this State<State, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9858,10 +9234,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<State, T, L>(State<State, EitherUnsafe<L, T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, EitherUnsafe<L, V>> SelectMany<State, T, L, U, V>(this State<State, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9911,10 +9283,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static State<State, T> LiftUnsafeT<State, T>(State<State, State<State, T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, State<State, V>> SelectMany<State, T, U, V>(this State<State, State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -9964,10 +9332,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<State, T>(State<State, Task<T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, Task<V>> SelectMany<State, T, U, V>(this State<State, Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10017,10 +9381,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, Out, State, T>(Rws<Env, Out, State, IEnumerable<T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, IEnumerable<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10070,10 +9430,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, Out, State, T>(Rws<Env, Out, State, Option<T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, Option<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10123,10 +9479,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, Out, State, T>(Rws<Env, Out, State, OptionUnsafe<T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, OptionUnsafe<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10176,10 +9528,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, Out, State, T>(Rws<Env, Out, State, Lst<T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, Lst<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10229,10 +9577,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, Out, State, T, K>(Rws<Env, Out, State, Map<K, T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, Map<K, V>> SelectMany<Env, Out, State, T, K, U, V>(this Rws<Env, Out, State, Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10282,10 +9626,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, Out, State, T>(Rws<Env, Out, State, TryOption<T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, TryOption<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10335,10 +9675,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, Out, State, T>(Rws<Env, Out, State, Try<T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, Try<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10388,10 +9724,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, Out, State, T, L>(Rws<Env, Out, State, Either<L, T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, Either<L, V>> SelectMany<Env, Out, State, T, L, U, V>(this Rws<Env, Out, State, Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10441,10 +9773,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, Out, State, T, L>(Rws<Env, Out, State, EitherUnsafe<L, T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, EitherUnsafe<L, V>> SelectMany<Env, Out, State, T, L, U, V>(this Rws<Env, Out, State, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10494,10 +9822,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Rws<Env, Out, State, T> LiftUnsafeT<Env, Out, State, T>(Rws<Env, Out, State, Rws<Env, Out, State, T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, Rws<Env, Out, State, V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10547,10 +9871,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<Env, Out, State, T>(Rws<Env, Out, State, Task<T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, Task<V>> SelectMany<Env, Out, State, T, U, V>(this Rws<Env, Out, State, Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10600,10 +9920,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Task<IEnumerable<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<IEnumerable<V>> SelectMany<T, U, V>(this Task<IEnumerable<T>> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10653,10 +9969,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Task<Option<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Option<V>> SelectMany<T, U, V>(this Task<Option<T>> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10706,10 +10018,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Task<OptionUnsafe<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<OptionUnsafe<V>> SelectMany<T, U, V>(this Task<OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10759,10 +10067,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Task<Lst<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Lst<V>> SelectMany<T, U, V>(this Task<Lst<T>> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10812,10 +10116,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, K>(Task<Map<K, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Map<K, V>> SelectMany<T, K, U, V>(this Task<Map<K, T>> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10865,10 +10165,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Task<TryOption<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<TryOption<V>> SelectMany<T, U, V>(this Task<TryOption<T>> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10918,10 +10214,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Task<Try<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Try<V>> SelectMany<T, U, V>(this Task<Try<T>> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -10971,10 +10263,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, L>(Task<Either<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Either<L, V>> SelectMany<T, L, U, V>(this Task<Either<L, T>> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -11024,10 +10312,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T, L>(Task<EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<EitherUnsafe<L, V>> SelectMany<T, L, U, V>(this Task<EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -11077,10 +10361,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Reader<Env, T> LiftUnsafeT<T, Env>(Task<Reader<Env, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Reader<Env, V>> SelectMany<T, Env, U, V>(this Task<Reader<Env, T>> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -11130,10 +10410,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Writer<Out, T> LiftUnsafeT<T, Out>(Task<Writer<Out, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Writer<Out, V>> SelectMany<T, Out, U, V>(this Task<Writer<Out, T>> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -11183,10 +10459,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static State<State, T> LiftUnsafeT<T, State>(Task<State<State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<State<State, V>> SelectMany<T, State, U, V>(this Task<State<State, T>> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -11236,10 +10508,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static Rws<Env, Out, State, T> LiftUnsafeT<T, Env, Out, State>(Task<Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Rws<Env, Out, State, V>> SelectMany<T, Env, Out, State, U, V>(this Task<Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
     /// <summary>
     /// 
@@ -11289,10 +10557,6 @@ namespace LanguageExt
         /// LiftUnsafe
         /// </summary>
         [Pure] public static T LiftUnsafeT<T>(Task<Task<T>> self )  where T : class => self.ValueT();
-        /// <summary>
-        /// SelectMany
-        /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<Task<V>> SelectMany<T, U, V>(this Task<Task<T>> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.MapT(wt => wt.Bind(t => bind(t).Map(u => project(t, u))));
     }
 }
 

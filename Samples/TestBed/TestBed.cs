@@ -722,7 +722,7 @@ namespace TestBed
                     Debug.Assert(x[3] == 8);
                     Debug.Assert(x[4] == 10);
                 },
-                None: () => Debug.Assert(false)
+                None: () => { Debug.Assert(false); }
             );
         }
 
@@ -731,17 +731,17 @@ namespace TestBed
                 ? Some(10)
                 : None;
 
-        public static void LinqTest()
-        {
-            var res = (from v in match(
-                                     GetTryOptionValue(true).AsEnumerable(),
-                                     Right: r => List(r),
-                                     Left: l => List<int>()
-                                 )
-                       from r in Range(1, 10)
-                       select v * r)
-                      .ToList();
-        }
+        //public static void LinqTest()
+        //{
+        //    var res = (from v in GetTryOptionValue(true).Match(
+        //                             Some: r  => List(r),
+        //                             None: () => List<int>(),
+        //                             Fail: e  => List<int>()
+        //                         )
+        //               from r in Range(1, 10)
+        //               select v * r)
+        //              .ToList();
+        //}
 
         public static void ExTest4()
         {

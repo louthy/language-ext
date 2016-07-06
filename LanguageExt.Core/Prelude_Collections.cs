@@ -33,7 +33,7 @@ namespace LanguageExt
         /// Lazily generate a range of integers.  
         /// </summary>
         [Pure]
-        public static IntegerRange Range(int from, int count, int step = 1) =>
+        public static IEnumerable<int> Range(int from, int count, int step = 1) =>
             new IntegerRange(from, count, step);
 
         /// <summary>
@@ -43,14 +43,14 @@ namespace LanguageExt
         ///     Can go in a positive direction ('a'..'z') as well as negative ('z'..'a')
         /// </summary>
         [Pure]
-        public static CharRange Range(char from, char to) =>
+        public static IEnumerable<char> Range(char from, char to) =>
             new CharRange(from, to);
 
         /// <summary>
         /// Lazily generate integers from any number of provided ranges
         /// </summary>
         [Pure]
-        public static IEnumerable<int> Range(params IntegerRange[] ranges) =>
+        public static IEnumerable<int> Range(params IEnumerable<int>[] ranges) =>
             from range in ranges
             from i in range
             select i;
@@ -59,7 +59,7 @@ namespace LanguageExt
         /// Lazily generate chars from any number of provided ranges
         /// </summary>
         [Pure]
-        public static IEnumerable<char> Range(params CharRange[] ranges) =>
+        public static IEnumerable<char> Range(params IEnumerable<char>[] ranges) =>
             from range in ranges
             from c in range
             select c;
