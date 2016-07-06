@@ -46,7 +46,7 @@ There is however a naming guide that will stand you in good stead whilst reading
 ```C#
     Option<int> x = Some(123);
     Option<int> y = None;
-    Lst<int> items = List(1,2,3,4,5);
+    List<int> items = List(1,2,3,4,5);
     Map<int,string> dict = Map(Tuple(1, "Hello"), Tuple(2, "World"));
 ```
 * Any (non-type constructor) static functions that can be used on their own by `using static LanguageExt.Prelude` are camelCase.
