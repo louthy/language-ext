@@ -42,7 +42,7 @@
     "System.Reactive.Core": "3.0.0-*",
     "System.Reactive.Interfaces": "3.0.0-*",
     "System.Reactive.PlatformServices": "3.0.0-*",
-    "System.Reactive.Linq": "3.0.1-*"
+    "System.Reactive.Linq": "3.0.0-*"
   },
   "frameworks": {
     "net45": {
