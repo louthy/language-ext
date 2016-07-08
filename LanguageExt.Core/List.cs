@@ -290,6 +290,18 @@ namespace LanguageExt
             list.Reverse();
 
         /// <summary>
+        /// Append two Lsts together
+        /// </summary>
+        public static Lst<T> append<T>(Lst<T> x, Lst<T> y) =>
+            default(TLst<T>).Append(x, y);
+
+        /// <summary>
+        /// Append two Lsts together
+        /// </summary>
+        public static Lst<T> difference<T>(Lst<T> x, Lst<T> y) =>
+            default(TLst<T>).Difference(x, y);
+
+        /// <summary>
         /// Concatenate two enumerables (Concat in LINQ)
         /// </summary>
         /// <typeparam name="T">Enumerable item type</typeparam>

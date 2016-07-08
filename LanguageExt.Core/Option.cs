@@ -8,6 +8,8 @@ using static LanguageExt.Prelude;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
 using System.Diagnostics.Contracts;
+using LanguageExt.TypeClass;
+using static LanguageExt.TypeClass.Prelude;
 
 namespace LanguageExt
 {
@@ -27,10 +29,7 @@ namespace LanguageExt
         IComparable<T>,
         IEquatable<Option<T>>,
         IEquatable<T>,
-        IAppendable<Option<T>>,
-        ISubtractable<Option<T>>,
-        IMultiplicable<Option<T>>,
-        IDivisible<Option<T>>
+        Monad<T>
     {
         readonly T value;
 
@@ -399,150 +398,60 @@ namespace LanguageExt
                     ? EqualityComparer<T>.Default.Equals(Value, other.Value)
                     : false;
 
-        /// <summary>
-        /// Append the Some(x) of one option to the Some(y) of another.
-        /// For numeric values the behaviour is to sum the Somes (lhs + rhs)
-        /// For string values the behaviour is to concatenate the strings
-        /// For Lst/Stck/Que values the behaviour is to concatenate the lists
-        /// For Map or Set values the behaviour is to merge the sets
-        /// Otherwise if the T type derives from IAppendable then the behaviour
-        /// is to call lhs.Append(rhs);
-        /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs + rhs</returns>
-        [Pure]
-        public static Option<T> operator +(Option<T> lhs, Option<T> rhs) =>
-            lhs.Append(rhs);
-
-        /// <summary>
-        /// Append the Some(x) of one option to the Some(y) of another.
-        /// For numeric values the behaviour is to sum the Somes (lhs + rhs)
-        /// For string values the behaviour is to concatenate the strings
-        /// For Lst/Stck/Que values the behaviour is to concatenate the lists
-        /// For Map or Set values the behaviour is to merge the sets
-        /// Otherwise if the T type derives from IAppendable then the behaviour
-        /// is to call lhs.Append(rhs);
-        /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs + rhs</returns>
-        [Pure]
-        public Option<T> Append(Option<T> rhs)
+        public Monad<U> Bind<U>(Monad<T> ma, Func<T,Monad<U>> bind)
         {
-            if (IsNone && rhs.IsNone) return this;  // None  + None  = None
-            if (rhs.IsNone) return this;            // Value + None  = Value
-            if (this.IsNone) return rhs;            // None  + Value = Value
-            return Optional(TypeDesc.Append(Value, rhs.Value, TypeDesc<T>.Default));
+            if (isnull(ma)) return Option<U>.None;
+            var opt = (Option<T>)ma;
+            return opt.IsSome
+                ? bind(opt.Value)
+                : Option<U>.None;
         }
 
         /// <summary>
-        /// Subtract the Some(x) of one option from the Some(y) of another.  If either of the
-        /// options are None then the result is None
-        /// For numeric values the behaviour is to find the difference between the Somes (lhs - rhs)
-        /// For Lst values the behaviour is to remove items in the rhs from the lhs
-        /// For Map or Set values the behaviour is to remove items in the rhs from the lhs
-        /// Otherwise if the T type derives from ISubtractable then the behaviour
-        /// is to call lhs.Subtract(rhs);
+        /// Produce a failure value
         /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs - rhs</returns>
-        [Pure]
-        public static Option<T> operator -(Option<T> lhs, Option<T> rhs) =>
-            lhs.Subtract(rhs);
+        public Monad<T> Fail() =>
+            None;
 
-        /// <summary>
-        /// Subtract the Some(x) of one option from the Some(y) of another.
-        /// For numeric values the behaviour is to find the difference between the Somes (lhs - rhs)
-        /// For Lst values the behaviour is to remove items in the rhs from the lhs
-        /// For Map or Set values the behaviour is to remove items in the rhs from the lhs
-        /// Otherwise if the T type derives from ISubtractable then the behaviour
-        /// is to call lhs.Subtract(rhs);
-        /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs - rhs</returns>
-        [Pure]
-        public Option<T> Subtract(Option<T> rhs)
+        public Monad<T> Return(T value) =>
+            Optional(value);
+
+        public Functor<U> Map<U>(Functor<T> x, Func<T, U> f)
         {
-            var self = IsNone
-                ? TypeDesc<T>.Default.HasZero
-                    ? Some(TypeDesc<T>.Default.Zero<T>())
-                    : this
-                : this;
-            if (self.IsNone) return this;  // zero - rhs = undefined (when HasZero == false)
-            if (rhs.IsNone) return this;   // lhs - zero = lhs
-            return Optional(TypeDesc.Subtract(self.Value, rhs.Value, TypeDesc<T>.Default));
+            if (isnull(x)) return Option<U>.None;
+            var opt = (Option<T>)x;
+            return opt.IsSome
+                ? Optional(f(opt.Value))
+                : Option<U>.None;
         }
 
-        /// <summary>
-        /// Find the product of the Somes.
-        /// For numeric values the behaviour is to multiply the Somes (lhs * rhs)
-        /// For Lst values the behaviour is to multiply all combinations of values in both lists 
-        /// to produce a new list
-        /// Otherwise if the T type derives from IMultiplicable then the behaviour
-        /// is to call lhs.Multiply(rhs);
-        /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs * rhs</returns>
-        [Pure]
-        public static Option<T> operator *(Option<T> lhs, Option<T> rhs) =>
-            lhs.Multiply(rhs);
+        public Applicative<T> Pure(T a) =>
+            Optional(a);
+
+        public Applicative<U> Apply<U>(Applicative<Func<T, U>> x, Applicative<T> y) =>
+            from a in (Option<Func<T, U>>)x
+            from b in (Option<T>)y
+            select a(b);
+
+        public Applicative<V> Apply<U, V>(Applicative<Func<T, U, V>> x, Applicative<T> y, Applicative<U> z) =>
+            from a in (Option<Func<T, U, V>>)x
+            from b in (Option<T>)y
+            from c in (Option<U>)z
+            select a(b, c);
+
+        public Applicative<Func<U, V>> Apply<U, V>(Applicative<Func<T, Func<U, V>>> x, Applicative<T> y) =>
+            from a in (Option<Func<T, Func<U, V>>>)x
+            from b in (Option<T>)y
+            select a(b);
 
         /// <summary>
-        /// Find the product of the Somes.
-        /// For numeric values the behaviour is to multiply the Somes (lhs * rhs)
-        /// For Lst values the behaviour is to multiply all combinations of values in both lists 
-        /// to produce a new list
-        /// Otherwise if the T type derives from IMultiplicable then the behaviour
-        /// is to call lhs.Multiply(rhs);
+        /// Sequential actions
+        ///  f a -> f b -> f b
         /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs * rhs</returns>
-        [Pure]
-        public Option<T> Multiply(Option<T> rhs)
-        {
-            if (IsNone) return this;     // zero * rhs = zero
-            if (rhs.IsNone) return rhs;  // lhs * zero = zero
-            return Optional(TypeDesc.Multiply(Value, rhs.Value, TypeDesc<T>.Default));
-        }
-
-        /// <summary>
-        /// Divide the Somes.
-        /// For numeric values the behaviour is to divide the Somes (lhs / rhs)
-        /// For Lst values the behaviour is to divide all combinations of values in both lists 
-        /// to produce a new list
-        /// Otherwise if the T type derives from IDivisible then the behaviour
-        /// is to call lhs.Divide(rhs);
-        /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs / rhs</returns>
-        [Pure]
-        public static Option<T> operator /(Option<T> lhs, Option<T> rhs) =>
-            lhs.Divide(rhs);
-
-        /// <summary>
-        /// Divide the Somes.
-        /// For numeric values the behaviour is to divide the Somes (lhs / rhs)
-        /// For Lst values the behaviour is to divide all combinations of values in both lists 
-        /// to produce a new list
-        /// Otherwise if the T type derives from IDivisible then the behaviour
-        /// is to call lhs.Divide(rhs);
-        /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs / rhs</returns>
-        [Pure]
-        public Option<T> Divide(Option<T> rhs)
-        {
-            if (IsNone) return this;     // zero / rhs  = zero
-            if (rhs.IsNone) return rhs;  // lhs  / zero = undefined: zero
-            return TypeDesc.Divide(Value, rhs.Value, TypeDesc<T>.Default);
-        }
+        public Applicative<U> Action<U>(Applicative<T> x, Applicative<U> y) =>
+            from a in (Option<T>)x
+            from b in (Option<U>)y
+            select b;
     }
 
     public struct SomeContext<T, R>
@@ -588,6 +497,36 @@ namespace LanguageExt
 
 public static class OptionExtensions
 {
+    [Pure]
+    public static Option<T> Append<SEMI, T>(this Option<T> x, Option<T> y) where SEMI : struct, Semigroup<T> =>
+        from a in x
+        from b in y
+        select append<SEMI, T>(a, b);
+
+    [Pure]
+    public static Option<T> Add<ADD, T>(this Option<T> x, Option<T> y) where ADD : struct, Add<T> =>
+        from a in x
+        from b in y
+        select add<ADD, T>(a, b);
+
+    [Pure]
+    public static Option<T> Difference<DIFF, T>(this Option<T> x, Option<T> y) where DIFF : struct, Difference<T> =>
+        from a in x
+        from b in y
+        select difference<DIFF, T>(a, b);
+
+    [Pure]
+    public static Option<T> Product<PROD, T>(this Option<T> x, Option<T> y) where PROD : struct, Product<T> =>
+        from a in x
+        from b in y
+        select product<PROD, T>(a, b);
+
+    [Pure]
+    public static Option<T> Divide<DIV, T>(this Option<T> x, Option<T> y) where DIV : struct, Divide<T> =>
+        from a in x
+        from b in y
+        select divide<DIV, T>(a, b);
+
     /// <summary>
     /// Extracts from a list of 'Option' all the 'Some' elements.
     /// All the 'Some' elements are extracted in order.
@@ -609,44 +548,6 @@ public static class OptionExtensions
         self.IsNone
             ? (T?)null
             : new T?(self.Value);
-
-    /// <summary>
-    /// Apply an Optional value to an Optional function
-    /// </summary>
-    /// <param name="opt">Optional function</param>
-    /// <param name="arg">Optional argument</param>
-    /// <returns>Returns the result of applying the optional argument to the optional function</returns>
-    [Pure]
-    public static Option<R> Apply<T, R>(this Option<Func<T, R>> opt, Option<T> arg) =>
-        opt.IsSome && arg.IsSome
-            ? Optional(opt.Value(arg.Value))
-            : None;
-
-    /// <summary>
-    /// Apply an Optional value to an Optional function of arity 2
-    /// </summary>
-    /// <param name="opt">Optional function</param>
-    /// <param name="arg">Optional argument</param>
-    /// <returns>Returns the result of applying the optional argument to the optional function:
-    /// an optonal function of arity 1</returns>
-    [Pure]
-    public static Option<Func<T2, R>> Apply<T1, T2, R>(this Option<Func<T1, T2, R>> opt, Option<T1> arg) =>
-        opt.IsSome && arg.IsSome
-            ? Optional(par(opt.Value, arg.Value))
-            : None;
-
-    /// <summary>
-    /// Apply Optional values to an Optional function of arity 2
-    /// </summary>
-    /// <param name="opt">Optional function</param>
-    /// <param name="arg1">Optional argument</param>
-    /// <param name="arg2">Optional argument</param>
-    /// <returns>Returns the result of applying the optional arguments to the optional function</returns>
-    [Pure]
-    public static Option<R> Apply<T1, T2, R>(this Option<Func<T1, T2, R>> opt, Option<T1> arg1, Option<T2> arg2) =>
-        opt.IsSome && arg1.IsSome && arg2.IsSome
-            ? Optional(opt.Value(arg1.Value, arg2.Value))
-            : None;
 
     public static Unit Iter<T>(this Option<T> self, Action<T> action) =>
         self.IfSome(action);
@@ -712,9 +613,9 @@ public static class OptionExtensions
 
     [Pure]
     public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> mapper) =>
-        self.IsSome
-            ? Optional(mapper(self.Value))
-            : None;
+        isnull(self)
+            ? Option<R>.None
+            : (Option<R>)LanguageExt.TypeClass.Prelude.map<Option<T>, T, R>(self, mapper);
 
     [Pure]
     public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> Some, Func<R> None) =>

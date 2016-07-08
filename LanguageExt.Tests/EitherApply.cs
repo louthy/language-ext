@@ -1,6 +1,9 @@
-﻿using System;
+﻿using LanguageExt;
+using LanguageExt.TypeClass;
+using System;
 using Xunit;
 using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass.Prelude;
 
 namespace LanguageExtTests
 {
@@ -42,14 +45,20 @@ namespace LanguageExtTests
             Assert.Equal(Right<string, int>(7), either);
         }
 
+        private APPL GeneralApply<APPL>(Applicative<Func<int, int, int>> f, Applicative<int> a, Applicative<int> b)
+            where APPL : struct, Applicative<int> =>
+                (APPL)apply<APPL, int, int, int>(f, a, b);
+
         [Fact]
         public void ApplyLeftArgs()
         {
-            var opt = Some(add)
-                .Apply(None)
-                .Apply(Some(4));
+            var opt  = Some(add);
+            var none = Option<int>.None;
+            var four = Pure<Option<int>,int>(4);  // Some(4);
 
-            Assert.Equal(None, opt);
+            var res = GeneralApply<Option<int>>(opt, none, four);
+
+            Assert.Equal(None, res);
 
             var either = Right<string, Func<int, int, int>>(add)
                 .Apply(Left<string, int>("left"))

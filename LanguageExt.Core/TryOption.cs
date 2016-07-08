@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
+using LanguageExt.TypeClass;
 
 namespace LanguageExt
 {
@@ -164,13 +165,13 @@ public static class TryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOption<T> Append<T>(this TryOption<T> lhs, TryOption<T> rhs) => () =>
+    public static TryOption<T> Append<SEMI, T>(this TryOption<T> lhs, TryOption<T> rhs) where SEMI : struct, Semigroup<T> => () =>
     {
         var lhsRes = lhs.Try();
         if (lhsRes.IsFaulted) return lhsRes;
         var rhsRes = rhs.Try();
         if (rhsRes.IsFaulted) return rhsRes;
-        return lhsRes.Value.Append(rhsRes.Value);
+        return mappend<SEMI, T>(lhsRes.Value, rhsRes.Value);
     };
 
     /// <summary>
@@ -187,13 +188,13 @@ public static class TryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs - rhs</returns>
     [Pure]
-    public static TryOption<T> Subtract<T>(this TryOption<T> lhs, TryOption<T> rhs) => () =>
+    public static TryOption<T> Difference<DIFF, T>(this TryOption<T> lhs, TryOption<T> rhs) where DIFF : struct, Difference<T> => () =>
     {
         var lhsRes = lhs.Try();
         if (lhsRes.IsFaulted) return lhsRes;
         var rhsRes = rhs.Try();
         if (rhsRes.IsFaulted) return rhsRes;
-        return lhsRes.Value.Subtract(rhsRes.Value);
+        return lhsRes.Value.Difference<DIFF, T>(rhsRes.Value);
     };
 
     /// <summary>
@@ -210,13 +211,13 @@ public static class TryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs * rhs</returns>
     [Pure]
-    public static TryOption<T> Multiply<T>(this TryOption<T> lhs, TryOption<T> rhs) => () =>
+    public static TryOption<T> Product<PROD, T>(this TryOption<T> lhs, TryOption<T> rhs) where PROD : struct, Product<T> => () =>
     {
         var lhsRes = lhs.Try();
         if (lhsRes.IsFaulted) return lhsRes;
         var rhsRes = rhs.Try();
         if (rhsRes.IsFaulted) return rhsRes;
-        return lhsRes.Value.Multiply(rhsRes.Value);
+        return lhsRes.Value.Product<PROD, T>(rhsRes.Value);
     };
 
     /// <summary>
@@ -233,13 +234,13 @@ public static class TryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs / rhs</returns>
     [Pure]
-    public static TryOption<T> Divide<T>(this TryOption<T> lhs, TryOption<T> rhs) => () =>
+    public static TryOption<T> Divide<DIV, T>(this TryOption<T> lhs, TryOption<T> rhs) where DIV : struct, Divide<T> => () =>
     {
         var lhsRes = lhs.Try();
         if (lhsRes.IsFaulted) return lhsRes;
         var rhsRes = rhs.Try();
         if (rhsRes.IsFaulted) return rhsRes;
-        return lhsRes.Value.Divide(rhsRes.Value);
+        return lhsRes.Value.Divide<DIV, T>(rhsRes.Value);
     };
 
     /// <summary>

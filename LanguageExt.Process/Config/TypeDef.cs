@@ -384,7 +384,6 @@ namespace LanguageExt.Config
                     .label("array"),
                     LanguageExt.Map.create(
                         Types.OpT("+", () => maps[t()], (lhs, rhs) => (Lst<object>)lhs + (Lst<object>)lhs),
-                        Types.OpT("*", () => maps[t()], (lhs, rhs) => (Lst<object>)lhs * (Lst<object>)lhs),
                         Types.OpT("-", () => maps[t()], (lhs, rhs) => (Lst<object>)lhs - (Lst<object>)lhs)
                     ),
                 null, 

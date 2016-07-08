@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LanguageExt.TypeClass;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -22,54 +23,82 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
         [Pure]
-        public static Option<T> append<T>(Option<T> lhs, Option<T> rhs) =>
-            lhs.Append(rhs);
+        public static Option<T> mappend<SEMI, T>(Option<T> lhs, Option<T> rhs) where SEMI : struct, Semigroup<T> =>
+            from x in lhs
+            from y in rhs
+            select LanguageExt.TypeClass.Prelude.append<SEMI, T>(x, y);
 
         /// <summary>
-        /// Subtract the Some(x) of one option from the Some(y) of another.  If either of the
-        /// options are None then the result is None
-        /// For numeric values the behaviour is to find the difference between the Somes (lhs - rhs)
-        /// For Lst values the behaviour is to remove items in the rhs from the lhs
-        /// For Map or Set values the behaviour is to remove items in the rhs from the lhs
-        /// Otherwise if the R type derives from ISubtractable then the behaviour
-        /// is to call lhs.Subtract(rhs);
+        /// Folds the provided list of options
+        /// </summary>
+        /// <typeparam name="SEMI">Semigroup that represents T</typeparam>
+        /// <typeparam name="T">Monadic value</typeparam>
+        /// <param name="xs">List of Options to concat</param>
+        /// <returns>Folded options</returns>
+        [Pure]
+        public static Option<T> mconcat<SEMI, T>(params Option<T>[] xs) where SEMI : struct, Semigroup<T> =>
+            xs == null || xs.Length == 0
+                ? Option<T>.None
+                : xs.Reduce((s, x) =>
+                    s.IsNone
+                        ? s
+                        : x.IsNone
+                            ? x
+                            : mappend<SEMI, T>(s, x));
+
+        /// <summary>
+        /// Folds the provided list of options
+        /// </summary>
+        /// <typeparam name="SEMI">Semigroup that represents T</typeparam>
+        /// <typeparam name="T">Monadic value</typeparam>
+        /// <param name="xs">List of Options to concat</param>
+        /// <returns>Folded options</returns>
+        [Pure]
+        public static Option<T> mconcat<SEMI, T>(IEnumerable<Option<T>> xs) where SEMI : struct, Semigroup<T> =>
+            xs == null || !xs.Any()
+                ? Option<T>.None
+                : xs.Reduce((s, x) =>
+                    s.IsNone
+                        ? s
+                        : x.IsNone
+                            ? x
+                            : mappend<SEMI, T>(s, x));
+
+        /// <summary>
+        /// Difference the Ts
         /// </summary>
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
         [Pure]
-        public static Option<T> subtract<T>(Option<T> lhs, Option<T> rhs) =>
-            lhs.Subtract(rhs);
+        public static Option<T> difference<DIFF, T>(Option<T> lhs, Option<T> rhs) where DIFF : struct, Difference<T> =>
+            lhs.Difference<DIFF, T>(rhs);
 
         /// <summary>
-        /// Find the product of the Somes.  If either of the options are None then the result is None
-        /// For numeric values the behaviour is to multiply the Somes (lhs * rhs)
-        /// For Lst values the behaviour is to multiply all combinations of values in both lists 
-        /// to produce a new list
-        /// Otherwise if the R type derives from IMultiplicable then the behaviour
-        /// is to call lhs.Multiply(rhs);
-        /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs * rhs</returns>
+        /// Find the product of the Ts
         [Pure]
-        public static Option<T> multiply<T>(Option<T> lhs, Option<T> rhs) =>
-            lhs.Multiply(rhs);
+        public static Option<T> product<PROD, T>(Option<T> lhs, Option<T> rhs) where PROD : struct, Product<T> =>
+            lhs.Product<PROD, T>(rhs);
 
         /// <summary>
-        /// Divide the Somes.  If either of the options are None then the result is None
-        /// For numeric values the behaviour is to divide the Somes (lhs / rhs)
-        /// For Lst values the behaviour is to divide all combinations of values in both lists 
-        /// to produce a new list
-        /// Otherwise if the R type derives from IDivisible then the behaviour
-        /// is to call lhs.Divide(rhs);
+        /// Divide the Ts
         /// </summary>
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static Option<T> divide<T>(Option<T> lhs, Option<T> rhs) =>
-            lhs.Divide(rhs);
+        public static Option<T> divide<DIV, T>(Option<T> lhs, Option<T> rhs) where DIV : struct, Divide<T> =>
+            lhs.Divide<DIV, T>(rhs);
+
+        /// <summary>
+        /// Add the Ts
+        /// </summary>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs / rhs</returns>
+        [Pure]
+        public static Option<T> add<ADD, T>(Option<T> lhs, Option<T> rhs) where ADD : struct, Add<T> =>
+            lhs.Add<ADD, T>(rhs);
 
         /// <summary>
         /// Check if Option is in a Some state
@@ -179,29 +208,16 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the optional argument to the optional function</returns>
         [Pure]
         public static Option<R> apply<T, R>(Option<Func<T, R>> option, Option<T> arg) =>
-            option.Apply(arg);
+            (Option<R>)TypeClass.Prelude.apply<Option<T>, T, R>(option, arg);
 
-        /// <summary>
-        /// Apply an Optional value to an Optional function of arity 2
-        /// </summary>
-        /// <param name="option">Optional function</param>
-        /// <param name="arg">Optional argument</param>
-        /// <returns>Returns the result of applying the optional argument to the optional function:
-        /// an optonal function of arity 1</returns>
         [Pure]
-        public static Option<Func<T2, R>> apply<T1, T2, R>(Option<Func<T1, T2, R>> option, Option<T1> arg) =>
-            option.Apply(arg);
+        public static Option<R> apply<T, U, R>(Option<Func<T, U, R>> option, Option<T> arg1, Option<U> arg2) =>
+            (Option<R>)TypeClass.Prelude.apply<Option<T>, T, U, R>(option, arg1, arg2);
 
-        /// <summary>
-        /// Apply Optional values to an Optional function of arity 2
-        /// </summary>
-        /// <param name="option">Optional function</param>
-        /// <param name="arg1">Optional argument</param>
-        /// <param name="arg2">Optional argument</param>
-        /// <returns>Returns the result of applying the optional arguments to the optional function</returns>
         [Pure]
-        public static Option<R> apply<T1, T2, R>(Option<Func<T1, T2, R>> option, Option<T1> arg1, Option<T2> arg2) =>
-            option.Apply(arg1, arg2);
+        public static Option<Func<U, R>> apply<T, U, R>(Option<Func<T, Func<U, R>>> option, Option<T> arg) =>
+            (Option<Func<U, R>>)TypeClass.Prelude.apply<Option<T>, T, U, R>(option, arg);
+
 
         /// <summary>
         /// Folds the option into an S.

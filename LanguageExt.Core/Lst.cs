@@ -6,9 +6,23 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Threading;
 using System.Diagnostics.Contracts;
+using LanguageExt.TypeClass;
+using System.ComponentModel;
 
 namespace LanguageExt
 {
+    public struct TLst<A> : Semigroup<Lst<A>>, Difference<Lst<A>>, Functor<A>
+    {
+        public Lst<A> Append(Lst<A> x, Lst<A> y) =>
+            x.Append(y);
+
+        public Lst<A> Difference(Lst<A> x, Lst<A> y) =>
+            x.Difference(y);
+
+        public Functor<B> Map<B>(Functor<A> x, Func<A, B> f) =>
+            x.Map((Lst<A>)x, f);
+    }
+
     /// <summary>
     /// Immutable list
     /// </summary>
@@ -20,12 +34,10 @@ namespace LanguageExt
         IEnumerable<T>, 
         IEnumerable, 
         IReadOnlyList<T>, 
-        IReadOnlyCollection<T>, 
-        IAppendable<Lst<T>>, 
-        ISubtractable<Lst<T>>,
-        IMultiplicable<Lst<T>>,
-        IDivisible<Lst<T>>,
-        IEquatable<Lst<T>>
+        IReadOnlyCollection<T>,
+        Semigroup<Lst<T>>,
+        Difference<Lst<T>>,
+        Functor<T>
     {
         /// <summary>
         /// Empty list
@@ -339,6 +351,14 @@ namespace LanguageExt
             new Lst<U>(ListModule.Map(Root,map),Rev);
 
         /// <summary>
+        /// Map
+        /// </summary>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Functor<U> Map<U>(Functor<T> self, Func<T, U> map) =>
+            new Lst<U>(ListModule.Map(((Lst<T>)self).Root, map), ((Lst<T>)self).Rev);
+
+        /// <summary>
         /// Filter
         /// </summary>
         [Pure]
@@ -373,11 +393,16 @@ namespace LanguageExt
             AddRange(rhs);
 
         [Pure]
-        public static Lst<T> operator -(Lst<T> lhs, Lst<T> rhs) =>
-            lhs.Subtract(rhs);
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Lst<T> Append(Lst<T> lhs, Lst<T> rhs) =>
+            lhs.AddRange(rhs);
 
         [Pure]
-        public Lst<T> Subtract(Lst<T> rhs)
+        public static Lst<T> operator -(Lst<T> lhs, Lst<T> rhs) =>
+            lhs.Difference(rhs);
+
+        [Pure]
+        public Lst<T> Difference(Lst<T> rhs)
         {
             var self = this;
             foreach (var item in rhs)
@@ -388,24 +413,15 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static Lst<T> operator *(Lst<T> lhs, Lst<T> rhs) =>
-            lhs.Multiply(rhs);
-
-        [Pure]
-        public Lst<T> Multiply(Lst<T> rhs) =>
-            (from x in this.AsEnumerable()
-             from y in rhs.AsEnumerable()
-             select TypeDesc.Multiply(x, y, TypeDesc<T>.Default)).Freeze();
-
-        [Pure]
-        public static Lst<T> operator /(Lst<T> lhs, Lst<T> rhs) =>
-            lhs.Divide(rhs);
-
-        [Pure]
-        public Lst<T> Divide(Lst<T> rhs) =>
-            (from y in rhs.AsEnumerable()
-             from x in this.AsEnumerable()
-             select TypeDesc.Divide(x, y, TypeDesc<T>.Default)).Freeze();
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Lst<T> Difference(Lst<T> lhs, Lst<T> rhs)
+        {
+            foreach (var item in rhs)
+            {
+                lhs = lhs.Remove(item);
+            }
+            return lhs;
+        }
 
         [Pure]
         public override bool Equals(object obj) =>

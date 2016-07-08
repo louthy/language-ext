@@ -85,7 +85,6 @@ namespace TestBed
             Tests.ReaderAskTest();
             Tests.LiftTest();
             Tests.BindingTest();
-            Tests.WrappedOptionOptionLinqTest();
             Tests.WrappedListLinqTest();
             Tests.WrappedListTest();
             Tests.ExTest4();

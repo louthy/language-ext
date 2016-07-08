@@ -87,6 +87,7 @@
     <Compile Include="TryOutTests.cs" />
     <Compile Include="TupleTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeClassEQ.cs" />
     <Compile Include="UnitsOfMeasureTests.cs" />
     <Compile Include="UnsafeTests.cs" />
     <Compile Include="MonadTests.cs" />

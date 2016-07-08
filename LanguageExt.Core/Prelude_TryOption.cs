@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Diagnostics.Contracts;
+using LanguageExt.TypeClass;
 
 namespace LanguageExt
 {
@@ -23,8 +24,8 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
         [Pure]
-        public static TryOption<T> append<T>(TryOption<T> lhs, TryOption<T> rhs) =>
-            lhs.Append(rhs);
+        public static TryOption<T> append<SEMI, T>(TryOption<T> lhs, TryOption<T> rhs) where SEMI : struct, Semigroup<T> =>
+            lhs.Append<SEMI, T>(rhs);
 
         /// <summary>
         /// Subtract the TryOption(x) from TryOption(y).
@@ -40,8 +41,8 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
         [Pure]
-        public static TryOption<T> subtract<T>(TryOption<T> lhs, TryOption<T> rhs) =>
-            lhs.Subtract(rhs);
+        public static TryOption<T> difference<DIFF, T>(TryOption<T> lhs, TryOption<T> rhs) where DIFF : struct, Difference<T> =>
+            lhs.Difference<DIFF, T>(rhs);
 
         /// <summary>
         /// Find the product of TryOption(x) and TryOption(y).
@@ -57,8 +58,8 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
         [Pure]
-        public static TryOption<T> multiply<T>(TryOption<T> lhs, TryOption<T> rhs) =>
-            lhs.Multiply(rhs);
+        public static TryOption<T> product<PROD, T>(TryOption<T> lhs, TryOption<T> rhs) where PROD : struct, Product<T> =>
+            lhs.Product<PROD, T>(rhs);
 
         /// <summary>
         /// Divide TryOption(x) by TryOption(y).  
@@ -74,8 +75,8 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static TryOption<T> divide<T>(TryOption<T> lhs, TryOption<T> rhs) =>
-            lhs.Divide(rhs);
+        public static TryOption<T> divide<DIV, T>(TryOption<T> lhs, TryOption<T> rhs) where DIV : struct, Divide<T> =>
+            lhs.Divide<DIV, T>(rhs);
 
         [Pure]
         public static bool isSome<T>(TryOption<T> value) =>
