@@ -1,9 +1,10 @@
-﻿using LanguageExt.TypeClass;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading.Tasks;
+using LanguageExt.TypeClass;
+using static LanguageExt.TypeClass.Prelude;
 
 namespace LanguageExt
 {
@@ -40,9 +41,9 @@ namespace LanguageExt
             xs == null || xs.Length == 0
                 ? Option<T>.None
                 : xs.Reduce((s, x) =>
-                    s.IsNone
+                    s.IsNone()
                         ? s
-                        : x.IsNone
+                        : x.IsNone()
                             ? x
                             : mappend<SEMI, T>(s, x));
 
@@ -58,9 +59,9 @@ namespace LanguageExt
             xs == null || !xs.Any()
                 ? Option<T>.None
                 : xs.Reduce((s, x) =>
-                    s.IsNone
+                    s.IsNone()
                         ? s
-                        : x.IsNone
+                        : x.IsNone()
                             ? x
                             : mappend<SEMI, T>(s, x));
 
@@ -108,7 +109,7 @@ namespace LanguageExt
         /// <returns>True if value is in a Some state</returns>
         [Pure]
         public static bool isSome<T>(Option<T> value) =>
-            value.IsSome;
+            value.IsSome();
 
         /// <summary>
         /// Check if Option is in a None state
@@ -118,7 +119,7 @@ namespace LanguageExt
         /// <returns>True if value is in a None state</returns>
         [Pure]
         public static bool isNone<T>(Option<T> value) =>
-            value.IsNone;
+            value.IsNone();
 
         /// <summary>
         /// Create a Some of T (Option<T>)
@@ -207,17 +208,16 @@ namespace LanguageExt
         /// <param name="arg">Optional argument</param>
         /// <returns>Returns the result of applying the optional argument to the optional function</returns>
         [Pure]
-        public static Option<R> apply<T, R>(Option<Func<T, R>> option, Option<T> arg) =>
-            (Option<R>)TypeClass.Prelude.apply<Option<T>, T, R>(option, arg);
+        public static AP<R> apply<T, R>(Option<Func<T, R>> option, Option<T> arg) =>
+            M(option).Apply(M(arg));
 
         [Pure]
-        public static Option<R> apply<T, U, R>(Option<Func<T, U, R>> option, Option<T> arg1, Option<U> arg2) =>
-            (Option<R>)TypeClass.Prelude.apply<Option<T>, T, U, R>(option, arg1, arg2);
+        public static AP<R> apply<T, U, R>(Option<Func<T, U, R>> option, Option<T> arg1, Option<U> arg2) =>
+            M(option).Apply(M(arg1), M(arg2));
 
         [Pure]
-        public static Option<Func<U, R>> apply<T, U, R>(Option<Func<T, Func<U, R>>> option, Option<T> arg) =>
-            (Option<Func<U, R>>)TypeClass.Prelude.apply<Option<T>, T, U, R>(option, arg);
-
+        public static AP<Func<U, R>> apply<T, U, R>(Option<Func<T, Func<U, R>>> option, Option<T> arg) =>
+            M(option).Apply(M(arg));
 
         /// <summary>
         /// Folds the option into an S.
@@ -241,16 +241,13 @@ namespace LanguageExt
         /// <param name="None">Fold function for None</param>
         /// <returns>Folded state</returns>
         [Pure]
-        public static S fold<S, T>(Option<T> option, S state, Func<S, T, S> Some, Func<S, S> None) =>
-            option.Fold(state, Some, None);
+        public static S bifold<S, T>(Option<T> option, S state, Func<S, T, S> Some, Func<S, S> None) =>
+            option.BiFold(state, Some, None);
 
         [Pure]
         public static bool forall<T>(Option<T> option, Func<T, bool> pred) =>
             option.ForAll(pred);
 
-        [Pure]
-        public static bool forall<T>(Option<T> option, Func<T, bool> Some, Func<bool> None) =>
-            option.ForAll(Some, None);
 
         [Pure]
         public static int count<T>(Option<T> option) =>
@@ -261,16 +258,12 @@ namespace LanguageExt
             option.Exists(pred);
 
         [Pure]
-        public static bool exists<T>(Option<T> option, Func<T, bool> Some, Func<bool> None) =>
-            option.Exists(Some, None);
-
-        [Pure]
         public static Option<R> map<T, R>(Option<T> option, Func<T, R> mapper) =>
             option.Map(mapper);
 
         [Pure]
-        public static Option<R> map<T, R>(Option<T> option, Func<T, R> Some, Func<R> None) =>
-            option.Map(Some, None);
+        public static Option<R> bimap<T, R>(Option<T> option, Func<T, R> Some, Func<R> None) =>
+            option.BiMap(Some, None);
 
         /// <summary>
         /// Partial application map
@@ -293,16 +286,12 @@ namespace LanguageExt
             option.Filter(pred);
 
         [Pure]
-        public static Option<T> filter<T>(Option<T> option, Func<T, bool> Some, Func<bool> None) =>
-            option.Filter(Some, None);
-
-        [Pure]
         public static Option<R> bind<T, R>(Option<T> option, Func<T, Option<R>> binder) =>
             option.Bind(binder);
 
         [Pure]
-        public static Option<R> bind<T, R>(Option<T> option, Func<T, Option<R>> Some, Func<Option<R>> None) =>
-            option.Bind(Some, None);
+        public static Option<R> bibind<T, R>(Option<T> option, Func<T, Option<R>> Some, Func<Option<R>> None) =>
+            option.BiBind(Some, None);
 
         [Pure]
         public static IEnumerable<R> match<T, R>(IEnumerable<Option<T>> list,
@@ -311,8 +300,8 @@ namespace LanguageExt
             ) =>
             list.Match(
                 None,
-                opt => opt.Some(v => Some(v)).None(None),
-                (x, xs) => x.Some(v => Some(v)).None(None).Concat(match(xs, Some, None)) // TODO: Flatten recursion
+                opt     => match(opt, v => Some(v), None),
+                (x, xs) => match(x,   v => Some(v), None).Concat(match(xs, Some, None)) // TODO: Flatten recursion
             );
 
         [Pure]
@@ -394,12 +383,6 @@ namespace LanguageExt
 
         public static Task<int> countAsync<T>(Task<Option<T>> self) =>
             self.CountAsync();
-
-        public static Task<int> sumAsync(Task<Option<int>> self) =>
-            self.SumAsync();
-
-        public static Task<int> sumAsync(Option<Task<int>> self) =>
-            self.SumAsync();
 
         public static Task<S> foldAsync<T, S>(Task<Option<T>> self, S state, Func<S, T, S> folder) =>
             self.FoldAsync(state, folder);

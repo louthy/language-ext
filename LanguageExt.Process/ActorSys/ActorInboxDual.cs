@@ -9,7 +9,6 @@ using System.Reactive.Linq;
 using System.Reactive.Concurrency;
 using static LanguageExt.Process;
 using static LanguageExt.Prelude;
-using LanguageExt.Trans;
 using Newtonsoft.Json;
 
 namespace LanguageExt
@@ -38,7 +37,7 @@ namespace LanguageExt
             this.tokenSource = new CancellationTokenSource();
             this.actor = (Actor<S, T>)process;
             this.parent = parent;
-            this.cluster = cluster.LiftUnsafe();
+            this.cluster = cluster.IfNoneUnsafe(() => null);
 
             this.maxMailboxSize = maxMailboxSize;
 
@@ -352,7 +351,7 @@ namespace LanguageExt
             {
                 throw new ProcessException($"{err} for Process ({actor.Id}).", actor.Id.Path, sender.Path, null);
             });
-            return res.LiftUnsafe();
+            return res.IfLeft(() => null);
         }
     }
 }

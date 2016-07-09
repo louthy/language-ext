@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if false
+using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
@@ -29,7 +30,8 @@ namespace LanguageExt
         IComparable<T>,
         IEquatable<Option<T>>,
         IEquatable<T>,
-        Monad<T>
+        Monad<T>,
+        Foldable<T>
     {
         readonly T value;
 
@@ -249,16 +251,6 @@ namespace LanguageExt
         public T IfNoneUnsafe(T noneValue) =>
             MatchUnsafe(identity, () => noneValue);
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("'Failure' has been deprecated.  Please use 'IfNone' instead")]
-        public T Failure(Func<T> None) =>
-            Match(identity, None);
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("'Failure' has been deprecated.  Please use 'IfNone' instead")]
-        public T Failure(T noneValue) =>
-            Match(identity, () => noneValue);
-
         [Pure]
         public SomeUnitContext<T> Some(Action<T> someHandler) =>
             new SomeUnitContext<T>(this, someHandler);
@@ -398,9 +390,35 @@ namespace LanguageExt
                     ? EqualityComparer<T>.Default.Equals(Value, other.Value)
                     : false;
 
-        public Monad<U> Bind<U>(Monad<T> ma, Func<T,Monad<U>> bind)
+        /// <summary>
+        /// Produce a failure value
+        /// </summary>
+        [Pure]
+        public Monad<T> Fail(string err = "") =>
+            None;
+
+        /// <summary>
+        /// Monad return
+        /// </summary>
+        /// <typeparam name="A">Type of the bound monad value</typeparam>
+        /// <param name="value">The bound monad value</param>
+        /// <returns>Monad of A</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Monad<T> Return(T value) =>
+            Optional(value);
+
+        /// <summary>
+        /// Monadic bind
+        /// </summary>
+        /// <typeparam name="B">Type of the bound return value</typeparam>
+        /// <param name="ma">Monad to bind</param>
+        /// <param name="bind">Bind function</param>
+        /// <returns>Monad of B</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Monad<U> Bind<U>(Monad<T> ma, Func<T, Monad<U>> bind)
         {
-            if (isnull(ma)) return Option<U>.None;
             var opt = (Option<T>)ma;
             return opt.IsSome
                 ? bind(opt.Value)
@@ -408,50 +426,301 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Produce a failure value
+        /// Monadic bind
         /// </summary>
-        public Monad<T> Fail() =>
-            None;
+        /// <typeparam name="B">Type of the bound return value</typeparam>
+        /// <param name="ma">Monad to bind</param>
+        /// <param name="bind">Bind function</param>
+        /// <returns>Monad of B</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Applicative<U> Bind<U>(Applicative<T> ma, Func<T, Applicative<U>> bind)
+        {
+            var opt = (Option<T>)ma;
+            return opt.IsSome
+                ? bind(opt.Value)
+                : Option<U>.None;
+        }
 
-        public Monad<T> Return(T value) =>
-            Optional(value);
-
+        /// <summary>
+        /// Projection from one value to another using f
+        /// </summary>
+        /// <typeparam name="B">Resulting functor value type</typeparam>
+        /// <param name="x">Functor value to map from </param>
+        /// <param name="f">Projection function</param>
+        /// <returns>Mapped functor</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public Functor<U> Map<U>(Functor<T> x, Func<T, U> f)
         {
-            if (isnull(x)) return Option<U>.None;
             var opt = (Option<T>)x;
             return opt.IsSome
                 ? Optional(f(opt.Value))
                 : Option<U>.None;
         }
 
+        /// <summary>
+        /// Applicative construction
+        /// 
+        ///     a -> f a
+        /// </summary>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public Applicative<T> Pure(T a) =>
             Optional(a);
 
+        /// <summary>
+        /// Sequential application
+        /// 
+        ///     f(a -> b) -> f a -> f b
+        /// </summary>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public Applicative<U> Apply<U>(Applicative<Func<T, U>> x, Applicative<T> y) =>
-            from a in (Option<Func<T, U>>)x
-            from b in (Option<T>)y
+            from a in x
+            from b in y
             select a(b);
 
+        /// <summary>
+        /// Sequential application
+        /// 
+        ///     f(a -> b -> c) -> f a -> f b -> f c
+        /// </summary>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public Applicative<V> Apply<U, V>(Applicative<Func<T, U, V>> x, Applicative<T> y, Applicative<U> z) =>
-            from a in (Option<Func<T, U, V>>)x
-            from b in (Option<T>)y
-            from c in (Option<U>)z
+            from a in x
+            from b in y
+            from c in z
             select a(b, c);
 
+        /// <summary>
+        /// Sequential application
+        /// 
+        ///     f(a -> b -> c) -> f a -> f(b -> c)
+        /// </summary>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public Applicative<Func<U, V>> Apply<U, V>(Applicative<Func<T, Func<U, V>>> x, Applicative<T> y) =>
-            from a in (Option<Func<T, Func<U, V>>>)x
-            from b in (Option<T>)y
+            from a in x
+            from b in y
             select a(b);
 
         /// <summary>
         /// Sequential actions
-        ///  f a -> f b -> f b
+        /// 
+        ///     f a -> f b -> f b
         /// </summary>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public Applicative<U> Action<U>(Applicative<T> x, Applicative<U> y) =>
-            from a in (Option<T>)x
-            from b in (Option<U>)y
+            from a in x
+            from b in y
             select b;
+
+        /// <summary>
+        /// Iterate the bound value (or not if the option is in a Some state)
+        /// </summary>
+        /// <param name="action">Action to perform</param>
+        public Unit Iter(Action<T> action) =>
+            IfSome(action);
+
+        /// <summary>
+        /// Returns 0 if the option is in a None state, 1 otherwise
+        /// </summary>
+        /// <returns>0 or 1</returns>
+        [Pure]
+        public int Count() =>
+            IsSome
+                ? 1
+                : 0;
+
+        /// <summary>
+        /// Runs a predicate against the bound value.  If the option is in a 
+        /// None state then 'true' is returned (because the predicate holds 
+        /// for-all values).
+        /// </summary>
+        /// <param name="pred">Predicate to apply</param>
+        /// <returns>True if the predicate holds for all values</returns>
+        [Pure]
+        public bool ForAll(Func<T, bool> pred) =>
+            IsSome
+                ? pred(Value)
+                : true;
+
+        /// <summary>
+        /// Runs a predicate against the bound value.  If the option is in a 
+        /// None state then 'false' is returned (because the predicate doesn't
+        /// hold for any value).
+        /// </summary>
+        /// <param name="pred">Predicate to apply</param>
+        /// <returns>False if the predicate holds for any value</returns>
+        [Pure]
+        public bool Exists(Func<T, bool> pred) =>
+            IsSome
+                ? pred(Value)
+                : false;
+
+        /// <summary>
+        /// Folds Option into an S.
+        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// </summary>
+        /// <param name="tryDel">Try to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Folded state</returns>
+        [Pure]
+        public S Fold<S>(S state, Func<S, T, S> folder) =>
+            IsSome
+                ? folder(state, Value)
+                : state;
+
+        /// <summary>
+        /// Folds Option into an S.
+        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// </summary>
+        /// <param name="tryDel">Try to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="Some">Fold function for Some</param>
+        /// <param name="None">Fold function for None</param>
+        /// <returns>Folded state</returns>
+        [Pure]
+        public S Fold<S>(S state, Func<S, T, S> Some, Func<S, S> None) =>
+            IsSome
+                ? Some(state, Value)
+                : None(state);
+
+        [Pure]
+        public Option<R> Map<R>(Func<T, R> mapper) =>
+            IsSome
+                ? Optional(mapper(Value))
+                : Option<R>.None;
+
+        [Pure]
+        public Option<R> BiMap<R>(Func<T, R> Some, Func<R> None) =>
+            IsSome
+                ? Optional(Some(Value))
+                : None();
+
+        [Pure]
+        public Option<T> Filter(Func<T, bool> pred) =>
+            IsSome
+                ? pred(Value)
+                    ? this
+                    : None
+                : this;
+
+
+        [Pure]
+        public Option<T> BiFilter(Func<T, bool> Some, Func<bool> None) =>
+            IsSome
+                ? Some(Value)
+                    ? this
+                    : Option<T>.None
+                : None()
+                    ? this
+                    : Option<T>.None;
+
+        [Pure]
+        public Option<R> Bind<R>(Func<T, Option<R>> binder) =>
+            IsSome
+                ? binder(Value)
+                : Option<R>.None;
+
+        [Pure]
+        public Option<R> BiBind<R>(Func<T, Option<R>> Some, Func<Option<R>> None) =>
+            IsSome
+                ? Some(Value)
+                : None();
+
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Option<V> SelectMany<U, V>(
+            Func<T, Option<U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (IsNone) return Option<V>.None;
+            var resU = bind(Value);
+            if (resU.IsNone) return Option<V>.None;
+
+            return Optional(project(Value, resU.Value));
+        }
+
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Option<U> Select<U>(Func<T, U> map) =>
+            Map(map);
+
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Option<T> Where(Func<T, bool> pred) =>
+            Filter(pred);
+
+        public Option<V> Join<U, K, V>(
+            Option<U> inner,
+            Func<T, K> outerKeyMap,
+            Func<U, K> innerKeyMap,
+            Func<T, U, V> project)
+        {
+            if (IsNone) return Option<V>.None;
+            if (inner.IsNone) return Option<V>.None;
+            return EqualityComparer<K>.Default.Equals(outerKeyMap(Value), innerKeyMap(inner.Value))
+                ? Option<V>.Some(project(Value, inner.Value))
+                : Option<V>.None;
+        }
+
+        /// <summary>
+        /// In the case of lists, 'Fold', when applied to a binary
+        /// operator, a starting value(typically the left-identity of the operator),
+        /// and a list, reduces the list using the binary operator, from left to
+        /// right:
+        /// 
+        /// Fold([x1, x2, ..., xn] == x1 `f` (x2 `f` ... (xn `f` z)...)
+        /// 
+        /// Note that, since the head of the resulting expression is produced by
+        /// an application of the operator to the first element of the list,
+        /// 'Fold' can produce a terminating expression from an infinite list.
+        /// </summary>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="state">Initial state</param>
+        /// <param name="f">Folder function, applied for each item in fa</param>
+        /// <returns>The aggregate state</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public S Fold<S>(Foldable<T> ma, S state, Func<S, T, S> f)
+        {
+            var opt = (Option<T>)ma;
+            return opt.IsSome
+                ? f(state, opt.Value)
+                : state;
+        }
+
+        /// <summary>
+        /// In the case of lists, 'FoldBack', when applied to a binary
+        /// operator, a starting value(typically the left-identity of the operator),
+        /// and a list, reduces the list using the binary operator, from left to
+        /// right:
+        /// 
+        /// FoldBack( [x1, x2, ..., xn]) == (...((z `f` x1) `f` x2) `f`...) `f` xn
+        /// 
+        /// Note that to produce the outermost application of the operator the
+        /// entire input list must be traversed. 
+        /// </summary>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="state">Initial state</param>
+        /// <param name="f">Folder function, applied for each item in fa</param>
+        /// <returns>The aggregate state</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public S FoldBack<S>(Foldable<T> ma, S state, Func<S, T, S> f) =>
+            Fold(ma, state, f);
+
+        /// <summary>
+        /// Iterate the value(s) within the structure
+        /// </summary>
+        /// <param name="f">Operation to perform on the value(s)</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Unit Iter(Iterable<T> ia, Action<T> f) =>
+            ((Option<T>)ia).Iter(f);
     }
 
     public struct SomeContext<T, R>
@@ -527,101 +796,11 @@ public static class OptionExtensions
         from b in y
         select divide<DIV, T>(a, b);
 
-    /// <summary>
-    /// Extracts from a list of 'Option' all the 'Some' elements.
-    /// All the 'Some' elements are extracted in order.
-    /// </summary>
-    [Pure]
-    public static IEnumerable<T> Somes<T>(this IEnumerable<Option<T>> self)
-    {
-        foreach (var item in self)
-        {
-            if (item.IsSome)
-            {
-                yield return item.Value;
-            }
-        }
-    }
-
     [Pure]
     public static T? ToNullable<T>(this Option<T> self) where T : struct =>
         self.IsNone
             ? (T?)null
             : new T?(self.Value);
-
-    public static Unit Iter<T>(this Option<T> self, Action<T> action) =>
-        self.IfSome(action);
-
-    [Pure]
-    public static int Count<T>(this Option<T> self) =>
-        self.IsSome
-            ? 1
-            : 0;
-
-    [Pure]
-    public static bool ForAll<T>(this Option<T> self, Func<T, bool> pred) =>
-        self.IsSome
-            ? pred(self.Value)
-            : true;
-
-    [Pure]
-    public static bool ForAll<T>(this Option<T> self, Func<T, bool> Some, Func<bool> None) =>
-        self.IsSome
-            ? Some(self.Value)
-            : None();
-
-    [Pure]
-    public static bool Exists<T>(this Option<T> self, Func<T, bool> pred) =>
-        self.IsSome
-            ? pred(self.Value)
-            : false;
-
-    [Pure]
-    public static bool Exists<T>(this Option<T> self, Func<T, bool> Some, Func<bool> None) =>
-        self.IsSome
-            ? Some(self.Value)
-            : None();
-
-    /// <summary>
-    /// Folds Option into an S.
-    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
-    /// </summary>
-    /// <param name="tryDel">Try to fold</param>
-    /// <param name="state">Initial state</param>
-    /// <param name="folder">Fold function</param>
-    /// <returns>Folded state</returns>
-    [Pure]
-    public static S Fold<S, T>(this Option<T> self, S state, Func<S, T, S> folder) =>
-        self.IsSome
-            ? folder(state, self.Value)
-            : state;
-
-    /// <summary>
-    /// Folds Option into an S.
-    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
-    /// </summary>
-    /// <param name="tryDel">Try to fold</param>
-    /// <param name="state">Initial state</param>
-    /// <param name="Some">Fold function for Some</param>
-    /// <param name="None">Fold function for None</param>
-    /// <returns>Folded state</returns>
-    [Pure]
-    public static S Fold<S, T>(this Option<T> self, S state, Func<S, T, S> Some, Func<S, S> None) =>
-        self.IsSome
-            ? Some(state, self.Value)
-            : None(state);
-
-    [Pure]
-    public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> mapper) =>
-        isnull(self)
-            ? Option<R>.None
-            : (Option<R>)LanguageExt.TypeClass.Prelude.map<Option<T>, T, R>(self, mapper);
-
-    [Pure]
-    public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> Some, Func<R> None) =>
-        self.IsSome
-            ? Optional(Some(self.Value))
-            : None();
 
     /// <summary>
     /// Partial application map
@@ -639,65 +818,41 @@ public static class OptionExtensions
     public static Option<Func<T2, Func<T3, R>>> ParMap<T1, T2, T3, R>(this Option<T1> opt, Func<T1, T2, T3, R> func) =>
         opt.Map(curry(func));
 
+    /// <summary>
+    /// Extracts from a list of 'Option' all the 'Some' elements.
+    /// All the 'Some' elements are extracted in order.
+    /// </summary>
     [Pure]
-    public static Option<T> Filter<T>(this Option<T> self, Func<T, bool> pred) =>
-        self.IsSome
-            ? pred(self.Value)
-                ? self
-                : None
-            : self;
+    public static IEnumerable<T> Somes<T>(this IEnumerable<Option<T>> self)
+    {
+        foreach (var item in self)
+        {
+            if (item.IsSome)
+            {
+                yield return item.Value;
+            }
+        }
+    }
 
     [Pure]
-    public static Option<T> Filter<T>(this Option<T> self, Func<T, bool> Some, Func<bool> None) =>
-        self.IsSome
-            ? Some(self.Value)
-                ? self
-                : Option<T>.None
-            : None()
-                ? self
-                : Option<T>.None;
+    public static long Sum(this Option<long> self) =>
+        Sum<TLong, long>(self);
 
     [Pure]
-    public static Option<R> Bind<T, R>(this Option<T> self, Func<T, Option<R>> binder) =>
-        self.IsSome
-            ? binder(self.Value)
-            : None;
+    public static decimal Sum(this Option<decimal> self) =>
+        Sum<TDecimal, decimal>(self);
 
     [Pure]
-    public static Option<R> Bind<T, R>(this Option<T> self, Func<T, Option<R>> Some, Func<Option<R>> None) =>
-        self.IsSome
-            ? Some(self.Value)
-            : None();
-
-    [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Option<U> Select<T, U>(this Option<T> self, Func<T, U> map) =>
-        self.Map(map);
-
-    [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Option<T> Where<T>(this Option<T> self, Func<T, bool> pred) =>
-        self.Filter(pred);
+    public static double Sum(this Option<double> self) =>
+        Sum<TDouble, double>(self);
 
     [Pure]
     public static int Sum(this Option<int> self) =>
-        self.IsSome
-            ? self.Value
-            : 0;
+        Sum<TInteger, int>(self);
 
     [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Option<V> SelectMany<T, U, V>(this Option<T> self,
-        Func<T, Option<U>> bind,
-        Func<T, U, V> project
-        )
-    {
-        if (self.IsNone) return None;
-        var resU = bind(self.Value);
-        if (resU.IsNone) return None;
-
-        return Optional(project(self.Value, resU.Value));
-    }
+    public static A Sum<NUM, A>(this Option<A> self) where NUM : struct, Num<A> =>
+        self.Fold(self, fromInteger<NUM, A>(0), (s, x) => x);
 
     [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -869,18 +1024,5 @@ public static class OptionExtensions
         self.IsSome
             ? pred(await self.Value)
             : false;
-
-    public static Option<V> Join<L, T, U, K, V>(
-        this Option<T> self,
-        Option<U> inner,
-        Func<T, K> outerKeyMap,
-        Func<U, K> innerKeyMap,
-        Func<T, U, V> project)
-    {
-        if (self.IsNone) return None;
-        if (inner.IsNone) return None;
-        return EqualityComparer<K>.Default.Equals(outerKeyMap(self.Value), innerKeyMap(inner.Value))
-            ? Some(project(self.Value, inner.Value))
-            : None;
-    }
 }
+#endif

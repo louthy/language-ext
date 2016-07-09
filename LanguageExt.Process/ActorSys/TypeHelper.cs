@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 using System.Reflection;
 using static LanguageExt.Prelude;
-using LanguageExt.Trans;
 using Newtonsoft.Json;
 
 namespace LanguageExt
@@ -26,7 +25,7 @@ namespace LanguageExt
                         ? true
                         : type.IsAssignableFrom(stateTypeInfo)));
 
-            if(res.IsRight && res.Lift())
+            if(res.IsRight && res.IfLeft(() => false))
             {
                 return res;
             }
@@ -74,7 +73,7 @@ namespace LanguageExt
             }
             var result = IsMessageValidForProcess(message.GetType(), inboxDeclaredType);
 
-            if( result.IsRight && result.Lift() )
+            if( result.IsRight && result.IfLeft(false) )
             {
                 return result.Map(_ => message);
             }

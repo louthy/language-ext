@@ -2,8 +2,6 @@
 using System.Linq;
 using System.Threading;
 using LanguageExt;
-using LanguageExt.Trans;
-using LanguageExt.Trans.Linq;
 using System.Reactive.Linq;
 using static LanguageExt.List;
 using static LanguageExt.Prelude;

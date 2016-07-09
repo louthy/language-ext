@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using LanguageExt;
+using LanguageExt.TypeClass;
 using static LanguageExt.TypeClass.Prelude;
 
 namespace LanguageExt.TypeClass
@@ -141,7 +137,7 @@ namespace LanguageExt.TypeClass
             if (x.Length != y.Length) return false;
             for (int i = 0; i < x.Length; i++)
             {
-                if (!eq<EQ, A>(x[i], y[i])) return false;
+                if (!equals<EQ, A>(x[i], y[i])) return false;
             }
             return true;
         }
@@ -228,7 +224,7 @@ namespace LanguageExt.TypeClass
     }
 
     /// <summary>
-    /// Option<A> equality
+    /// Bound monadic value equality
     /// </summary>
     public struct EqOption<EQ, A> : Eq<Option<A>> where EQ : struct, Eq<A>
     {
@@ -239,25 +235,13 @@ namespace LanguageExt.TypeClass
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         public bool Equals(Option<A> x, Option<A> y) =>
-            (from a in x
-             from b in y
-             select eq<EQ, A>(a, b)).IfNone(false);
-    }
-
-    /// <summary>
-    /// Option<A> equality
-    /// </summary>
-    public struct EqOptionUnsafe<EQ, A> : Eq<OptionUnsafe<A>> where EQ : struct, Eq<A>
-    {
-        /// <summary>
-        /// Equality test
-        /// </summary>
-        /// <param name="x">The left hand side of the equality operation</param>
-        /// <param name="y">The right hand side of the equality operation</param>
-        /// <returns>True if x and y are equal</returns>
-        public bool Equals(OptionUnsafe<A> x, OptionUnsafe<A> y) =>
-            (from a in x
-             from b in y
-             select eq<EQ, A>(a, b)).IfNoneUnsafe(false);
+            x.IsNone() && y.IsNone()
+                ? true
+                : x.IsNone() || y.IsNone()
+                    ? false
+                    : (from a in x
+                       from b in y
+                       select @equals<EQ, A>(a, b))
+                      .IfNone(false);
     }
 }

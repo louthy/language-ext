@@ -17,11 +17,17 @@ namespace LanguageExt.TypeClass
         /// <summary>
         /// The numerator of the ratio, in non-reduced form.
         /// </summary>
-        public A num;
+        public A Numerator;
 
         /// <summary>
         /// The denominator of the ratio, in non-reduced form.
         /// </summary>
-        public A den;
+        public A Denominator;
+
+        public Ratio(A num, A den)
+        {
+            Numerator = num;
+            Denominator = den;
+        }
     }
 }

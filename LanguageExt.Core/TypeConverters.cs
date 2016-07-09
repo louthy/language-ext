@@ -1,4 +1,6 @@
-﻿#if !COREFX
+﻿#if false
+
+#if !COREFX
 using System;
 using System.Linq;
 using System.ComponentModel;
@@ -6,6 +8,7 @@ using System.Globalization;
 using System.Reflection;
 using System.ComponentModel.Design.Serialization;
 using static LanguageExt.Prelude;
+using LanguageExt;
 
 namespace LanguageExt
 {
@@ -172,4 +175,5 @@ namespace LanguageExt
                 None: () => ConvertToValueNull(context, culture, destinationType, baseConvertTo));
     }
 }
+#endif
 #endif

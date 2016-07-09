@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using LanguageExt;
-using LanguageExt.Trans;
-using LanguageExt.Trans.Linq;
 using System.Reactive.Linq;
 using static LanguageExt.List;
 using static LanguageExt.Prelude;
@@ -641,23 +639,24 @@ namespace TestBed
             Debug.Assert(res);
         }
 
-        public static void LiftTest()
-        {
-            var x = List(None, Some(1), Some(2), Some(3), Some(4));
+        // TODO: Drop for a better test
+        //public static void LiftTest()
+        //{
+        //    var x = List(None, Some(1), Some(2), Some(3), Some(4));
 
-            Debug.Assert(x.Lift() == None);
-            Debug.Assert(x.LiftT() == 0);
+        //    Debug.Assert(x.Lift() == None);
+        //    Debug.Assert(x.LiftT() == 0);
 
-            var y = List(Some(1), Some(2), Some(3), Some(4));
+        //    var y = List(Some(1), Some(2), Some(3), Some(4));
 
-            Debug.Assert(y.Lift() == Some(1));
-            Debug.Assert(y.LiftT() == 1);
+        //    Debug.Assert(y.Lift() == Some(1));
+        //    Debug.Assert(y.LiftT() == 1);
 
-            var z = Some(Some(Some(Some(1))));
+        //    var z = Some(Some(Some(Some(1))));
 
-            Debug.Assert(z.LiftT().Lift() == Some(1));
-            Debug.Assert(z.LiftT().LiftT() == 1);
-        }
+        //    Debug.Assert(z.LiftT().Lift() == Some(1));
+        //    Debug.Assert(z.LiftT().LiftT() == 1);
+        //}
 
         public static void BindingTest()
         {

@@ -3,7 +3,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Reflection;
-using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 using Newtonsoft.Json;
@@ -237,7 +236,7 @@ namespace LanguageExt
             {
                 throw new ProcessException($"{err } for Process ({actor.Id}).", actor.Id.Path, sender.Path, null);
             });
-            return res.LiftUnsafe();
+            return res.IfLeft(() => null);
         }
     }
 }

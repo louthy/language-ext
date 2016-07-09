@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Reflection;
-using LanguageExt.Trans;
 using static LanguageExt.Process;
 using static LanguageExt.Prelude;
 using Microsoft.FSharp.Control;
@@ -26,7 +25,7 @@ namespace LanguageExt
             if (cluster.IsNone) throw new Exception("Remote inboxes not supported when there's no cluster");
             this.tokenSource = new CancellationTokenSource();
             this.actor = (Actor<S, T>)process;
-            this.cluster = cluster.LiftUnsafe();
+            this.cluster = cluster.IfNoneUnsafe(() => null);
 
             this.maxMailboxSize = maxMailboxSize;
             this.parent = parent;

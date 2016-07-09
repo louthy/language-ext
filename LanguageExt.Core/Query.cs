@@ -49,10 +49,10 @@ namespace LanguageExt
             list.Where(predicate);
 
         public static IQueryable<T> choose<T>(IQueryable<T> list, Expression<Func<T, Option<T>>> selector) =>
-            map(filter(map(list, selector), t => t.IsSome), t => t.Value);
+            map(map(filter(map(list, selector), t => t.IsSome()), t => t as Some<T>), t => t.Value);
 
         public static IQueryable<T> choose<T>(IQueryable<T> list, Expression<Func<int, T, Option<T>>> selector) =>
-            map(filter(map(list, selector), t => t.IsSome), t => t.Value);
+            map(map(filter(map(list, selector), t => t.IsSome()), t => t as Some<T>), t => t.Value);
 
         public static IQueryable<R> collect<T, R>(IQueryable<T> list, Expression<Func<T, IEnumerable<R>>> map)
         {

@@ -9,7 +9,7 @@ namespace LanguageExt.TypeClass
     /// <summary>
     /// Functor type-class
     /// </summary>
-    public interface Functor<A>
+    public interface Functor<A> : Iterable<A>
     {
         /// <summary>
         /// Projection from one value to another using f
@@ -18,6 +18,6 @@ namespace LanguageExt.TypeClass
         /// <param name="x">Functor value to map from </param>
         /// <param name="f">Projection function</param>
         /// <returns>Mapped functor</returns>
-        Functor<B> Map<B>(Functor<A> x, Func<A, B> f);
+        Functor<B> Map<B>(Functor<A> fa, Func<A, B> fab);
     }
 }

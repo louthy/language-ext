@@ -483,9 +483,7 @@ namespace LanguageExt
         public bool ContainsKey(K key) =>
             isnull(key)
                 ? false
-                : Find(key)
-                    ? true
-                    : false;
+                : Find(key).IsSome();
 
         /// <summary>
         /// Checks for existence of a key in the map
@@ -858,10 +856,10 @@ namespace LanguageExt
         }
 
         public static MapItem<K, V> Choose<K, V>(MapItem<K, V> node, Func<K, V, Option<V>> selector) =>
-            Map(Filter(Map(node, selector), n => n.IsSome), n => n.Value);
+            Map(Map(Filter(Map(node, selector), n => n.IsSome()), n => n as Some<V>), n => n.Value);
 
         public static MapItem<K, V> Choose<K, V>(MapItem<K, V> node, Func<V, Option<V>> selector) =>
-            Map(Filter(Map(node, selector), n => n.IsSome), n => n.Value);
+            Map(Map(Filter(Map(node, selector), n => n.IsSome()), n => n as Some<V>), n => n.Value);
 
         public static bool ForAll<K, V>(MapItem<K, V> node, Func<K, V, bool> pred) =>
             node.IsEmpty

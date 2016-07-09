@@ -33,7 +33,7 @@ namespace LanguageExt.TypeClass
         public float FromFloat(float x) => (float)x;
         public float FromDouble(double x) => (float)x;
         public float Div(float x, float y) => x / y;
-        public float FromRational(Ratio<int> x) => x.num / x.den;
+        public float FromRational(Ratio<int> x) => x.Numerator / x.Denominator;
         public float Pi() => (float)Math.PI;
         public float Exp(float x) => (float)Math.Exp(x);
         public float Sqrt(float x) => (float)Math.Sqrt(x);

@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using LanguageExt;
-using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -153,7 +152,7 @@ namespace LanguageExt
 
         private static object AppendNumeric(object lhs, object rhs, TypeDesc desc)
         {
-            var vt = desc.ValueType.Lift();
+            var vt = desc.ValueType.IfNone(() => default(ValueTypeDesc));
             switch (vt)
             {
                 case ValueTypeDesc.Int: return (int)lhs + (int)rhs;
@@ -174,7 +173,7 @@ namespace LanguageExt
 
         private static object SubtractNumeric(object lhs, object rhs, TypeDesc desc)
         {
-            var vt = desc.ValueType.Lift();
+            var vt = desc.ValueType.IfNone(() => default(ValueTypeDesc));
             switch (vt)
             {
                 case ValueTypeDesc.Int: return (int)lhs - (int)rhs;
@@ -195,7 +194,7 @@ namespace LanguageExt
 
         private static object MultiplyNumeric(object lhs, object rhs, TypeDesc desc)
         {
-            var vt = desc.ValueType.Lift();
+            var vt = desc.ValueType.IfNone(() => default(ValueTypeDesc));
             switch (vt)
             {
                 case ValueTypeDesc.Int: return (int)lhs * (int)rhs;
@@ -216,7 +215,7 @@ namespace LanguageExt
 
         private static object DivideNumeric(object lhs, object rhs, TypeDesc desc)
         {
-            var vt = desc.ValueType.Lift();
+            var vt = desc.ValueType.IfNone(() => default(ValueTypeDesc));
             switch (vt)
             {
                 case ValueTypeDesc.Int: return (int)lhs / (int)rhs;

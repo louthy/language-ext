@@ -120,70 +120,6 @@ namespace LanguageExt
         public static Tuple<T1, T2, T3, T4, T5, T6, T7> tuple<T1, T2, T3, T4, T5, T6, T7>(T1 item1, T2 item2, T3 item3, T4 item4, T5 item5, T6 item6, T7 item7) =>
             System.Tuple.Create(item1, item2, item3, item4, item5, item6, item7);
 
-        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifNoneUnsafe' instead")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IEnumerable<T> failureUnsafe<T>(IEnumerable<OptionUnsafe<T>> list,
-            Func<IEnumerable<T>> None
-            ) =>
-            matchUnsafe(list, v => new T[1] { v }, None);
-
-        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifNoneUnsafe' instead")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IEnumerable<T> failureUnsafe<T>(IEnumerable<OptionUnsafe<T>> list,
-            IEnumerable<T> None
-            ) =>
-            matchUnsafe(list, v => new T[1] { v }, () => None);
-
-        [Obsolete("'failure' has been deprecated.  Please use 'ifNone|ifNoneOrFail' instead")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static T failure<T>(TryOption<T> tryDel, Func<T> Fail) =>
-            tryDel.Failure(Fail);
-
-        [Obsolete("'failure' has been deprecated.  Please use 'ifNone|ifNoneOrFail' instead")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static T failure<T>(TryOption<T> tryDel, T failValue) =>
-            tryDel.Failure(failValue);
-
-        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifNoneUnsafe' instead")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static T failureUnsafe<T>(OptionUnsafe<T> option, Func<T> None) =>
-            option.FailureUnsafe(None);
-
-        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifNoneUnsafe' instead")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static T failureUnsafe<T>(OptionUnsafe<T> option, T noneValue) =>
-            option.FailureUnsafe(noneValue);
-
-        [Obsolete("'failure' has been deprecated.  Please use 'ifNone' instead")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static T failure<T>(Option<T> option, Func<T> None) =>
-            option.Failure(None);
-
-        [Obsolete("'failure' has been deprecated.  Please use 'ifNone' instead")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static T failure<T>(Option<T> option, T noneValue) =>
-            option.Failure(noneValue);
-
-        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifLeftUnsafe' instead")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static R failureUnsafe<L, R>(EitherUnsafe<L, R> either, Func<R> None) =>
-            either.FailureUnsafe(None);
-
-        [Obsolete("'failureUnsafe' has been deprecated.  Please use 'ifLeftUnsafe' instead")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static R failureUnsafe<L, R>(EitherUnsafe<L, R> either, R noneValue) =>
-            either.FailureUnsafe(noneValue);
-
-        [Obsolete("'failure' has been deprecated.  Please use 'ifLeft' instead")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static R failure<L, R>(Either<L, R> either, Func<R> None) =>
-            either.Failure(None);
-
-        [Obsolete("'failure' has been deprecated.  Please use 'ifLeft' instead")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static R failure<L, R>(Either<L, R> either, R noneValue) =>
-            either.Failure(noneValue);
-
         /// <summary>
         /// Create a queryable
         /// </summary>
@@ -428,37 +364,6 @@ namespace LanguageExt
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static R[] toArray<L, R>(Either<L, R> either) =>
             either.ToArray();
-
-        /// <summary>
-        /// Returns the Some(value) of the TryOption or a default if it's None or Fail
-        /// </summary>
-        [Obsolete("'Failure' has been deprecated.  Please use 'IfNone|IfNoneOrFail' instead")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static T Failure<T>(this TryOption<T> self, T defaultValue)
-        {
-            if (isnull(defaultValue)) throw new ArgumentNullException(nameof(defaultValue));
-
-            var res = self.Try();
-            if (res.IsFaulted || res.Value.IsNone)
-                return defaultValue;
-            else
-                return res.Value.Value;
-        }
-
-        /// <summary>
-        /// Returns the Some(value) of the TryOption or a default if it's None or Fail
-        /// </summary>
-        [Obsolete("'Failure' has been deprecated.  Please use 'IfNone|IfNoneOrFail' instead")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static T Failure<T>(this TryOption<T> self, Func<T> defaultAction)
-        {
-            var res = self.Try();
-            if (res.IsFaulted || res.Value.IsNone)
-                return defaultAction();
-            else
-                return res.Value.Value;
-        }
-
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("'With' has been renamed to 'Map', please use that instead")]

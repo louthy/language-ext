@@ -122,8 +122,8 @@ namespace LanguageExt.Parsec
             Parser<char, char> IdentLetter = null,
             Parser<char, char> OpStart = null,
             Parser<char, char> OpLetter = null,
-            Lst<string> ReservedNames = null,
-            Lst<string> ReservedOpNames = null,
+            Lst<string> ReservedNames = default(Lst<string>),
+            Lst<string> ReservedOpNames = default(Lst<string>),
             bool? CaseSensitive = null
             ) =>
             new GenLanguageDefIO(

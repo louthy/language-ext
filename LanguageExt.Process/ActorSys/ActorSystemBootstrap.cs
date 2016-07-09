@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Reactive.Subjects;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
-using LanguageExt.Trans;
 using System.Threading;
 using LanguageExt.Config;
 using LanguageExt.Session;

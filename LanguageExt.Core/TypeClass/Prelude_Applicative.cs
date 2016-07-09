@@ -16,7 +16,7 @@ namespace LanguageExt.TypeClass
         /// <param name="a">Applicative value</param>
         /// <returns>Applicative of A</returns>
         public static APPL Pure<APPL, A>(A a)
-            where APPL : struct, Applicative<A> =>
+            where APPL : struct, AP<A> =>
                 (APPL)default(APPL).Pure(a);
 
         /// <summary>
@@ -28,8 +28,8 @@ namespace LanguageExt.TypeClass
         /// <param name="f">Applicative functor</param>
         /// <param name="a">Value to apply</param>
         /// <returns>Mapped applicative</returns>
-        public static Applicative<B> apply<APPL, A, B>(Applicative<Func<A, B>> f, Applicative<A> a) 
-            where APPL : struct, Applicative<A> =>
+        public static AP<B> apply<APPL, A, B>(AP<Func<A, B>> f, AP<A> a) 
+            where APPL : struct, AP<A> =>
                 default(APPL).Apply(f, a);
 
         /// <summary>
@@ -41,8 +41,8 @@ namespace LanguageExt.TypeClass
         /// <param name="f">Applicative functor</param>
         /// <param name="a">Value to apply</param>
         /// <returns>Mapped applicative</returns>
-        public static Applicative<C> apply<APPL, A, B, C>(Applicative<Func<A, B, C>> f, Applicative<A> a, Applicative<B> b)
-            where APPL : struct, Applicative<A> =>
+        public static AP<C> apply<APPL, A, B, C>(AP<Func<A, B, C>> f, AP<A> a, AP<B> b)
+            where APPL : struct, AP<A> =>
                 default(APPL).Apply(f, a, b);
 
         /// <summary>
@@ -54,8 +54,8 @@ namespace LanguageExt.TypeClass
         /// <param name="f">Applicative functor</param>
         /// <param name="a">Value to apply</param>
         /// <returns>Mapped applicative</returns>
-        public static Applicative<Func<B, C>> apply<APPL, A, B, C>(Applicative<Func<A, Func<B, C>>> f, Applicative<A> a)
-            where APPL : struct, Applicative<A> =>
+        public static AP<Func<B, C>> apply<APPL, A, B, C>(AP<Func<A, Func<B, C>>> f, AP<A> a)
+            where APPL : struct, AP<A> =>
                 default(APPL).Apply(f, a);
 
         /// <summary>
@@ -67,8 +67,8 @@ namespace LanguageExt.TypeClass
         /// <param name="a">First applicative</param>
         /// <param name="b">Second applicative</param>
         /// <returns>Applicative of B</returns>
-        public static Applicative<B> action<APPL, A, B>(Applicative<A> a, Applicative<B> b)
-            where APPL : struct, Applicative<A> =>
+        public static AP<B> action<APPL, A, B>(AP<A> a, AP<B> b)
+            where APPL : struct, AP<A> =>
                 default(APPL).Action(a, b);
 
     }

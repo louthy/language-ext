@@ -1,5 +1,4 @@
 ﻿using LanguageExt;
-using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using Xunit;
 
@@ -11,6 +10,7 @@ namespace LanguageExtTests
         public void WrappedListTest()
         {
             var lst = List(List(1, 2, 3, 4, 5), List(1, 2, 3, 4, 5), List(1, 2, 3, 4, 5));
+
             var res = lst.FoldT(0, (s, v) => s + v);
             var mlst = lst.MapT(x => x * 2);
             var mres = mlst.FoldT(0, (s, v) => s + v);

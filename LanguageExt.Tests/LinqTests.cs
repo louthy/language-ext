@@ -3,7 +3,6 @@ using System.Linq;
 using Xunit;
 using LanguageExt;
 using static LanguageExt.Prelude;
-using LanguageExt.Trans;
 
 namespace LanguageExtTests
 {
@@ -244,6 +243,17 @@ namespace LanguageExtTests
 
         private TryOption<int> GetTryOptionError() => () =>
             failwith<TryOptionResult<int>>("failed!");
+
+        [Fact]
+        public void OptionLst1()
+        {
+            var list = List(1, 2, 3, 4);
+            var opt = Some(5);
+
+            var res = from y in opt
+                      from x in list
+                      select x + y;
+        }
 
     }
 }

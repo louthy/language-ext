@@ -80,11 +80,11 @@ namespace LanguageExt
 
         [Pure]
         public static bool isSome<T>(TryOption<T> value) =>
-            value.Try().Value.IsSome;
+            value.Try().Value.IsSome();
 
         [Pure]
         public static bool isNone<T>(TryOption<T> value) =>
-            value.Try().Value.IsNone;
+            value.Try().Value.IsNone();
 
         public static Unit ifSome<T>(TryOption<T> tryDel, Action<T> Some) =>
             tryDel.IfSome(Some);
@@ -166,27 +166,9 @@ namespace LanguageExt
         public static S fold<S, T>(TryOption<T> tryDel, S state, Func<S, T, S> folder) =>
             tryDel.Fold(state, folder);
 
-        /// <summary>
-        /// Folds the result of TryOption into an S.
-        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
-        /// </summary>
-        /// <param name="tryDel">Try to fold</param>
-        /// <param name="state">Initial state</param>
-        /// <param name="Some">Fold function for Some</param>
-        /// <param name="None">Fold function for None</param>
-        /// <param name="Fail">Fold function for Failure</param>
-        /// <returns>Folded state</returns>
-        [Pure]
-        public static S fold<S, T>(TryOption<T> tryDel, S state, Func<S, T, S> Some, Func<S, S> None, Func<S, Exception, S> Fail) =>
-            tryDel.Fold(state, Some, None, Fail);
-
         [Pure]
         public static bool forall<T>(TryOption<T> tryDel, Func<T, bool> pred) =>
             tryDel.ForAll(pred);
-
-        [Pure]
-        public static bool forall<T>(TryOption<T> tryDel, Func<T, bool> Some, Func<bool> None, Func<Exception, bool> Fail) =>
-            tryDel.ForAll(Some, None, Fail);
 
         [Pure]
         public static int count<T>(TryOption<T> tryDel) =>
@@ -195,10 +177,6 @@ namespace LanguageExt
         [Pure]
         public static bool exists<T>(TryOption<T> tryDel, Func<T, bool> pred) =>
             tryDel.Exists(pred);
-
-        [Pure]
-        public static bool exists<T>(TryOption<T> tryDel, Func<T, bool> Some, Func<bool> None, Func<Exception, bool> Fail) =>
-            tryDel.Exists(Some, None, Fail);
 
         [Pure]
         public static TryOption<R> map<T, R>(TryOption<T> tryDel, Func<T, R> mapper) =>

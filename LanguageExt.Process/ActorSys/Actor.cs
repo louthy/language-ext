@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Reflection;
-using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 using LanguageExt.UnitsOfMeasure;
@@ -238,8 +237,8 @@ namespace LanguageExt
                     {
                         logInfo($"Restoring state: {StateKey}");
 
-                        state = cluster.LiftUnsafe().Exists(StateKey)
-                            ? cluster.LiftUnsafe().GetValue<S>(StateKey)
+                        state = cluster.IfNoneUnsafe(() => null).Exists(StateKey)
+                            ? cluster.IfNoneUnsafe(() => null).GetValue<S>(StateKey)
                             : setupFn(this);
 
                     }

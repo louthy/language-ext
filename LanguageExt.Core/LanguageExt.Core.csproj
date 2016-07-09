@@ -53,8 +53,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionObservable.cs" />
-    <Compile Include="Lift.cs" />
     <Compile Include="NewType.cs" />
+    <Compile Include="Option\IOption.cs" />
+    <Compile Include="Option\NoneA.cs" />
+    <Compile Include="Option\OptionA.cs" />
+    <Compile Include="Option\OptionMExtensions.cs" />
+    <Compile Include="Option\OptionExtensions.cs" />
+    <Compile Include="Option\OptionM.cs" />
+    <Compile Include="Option\OptionNone.cs" />
+    <Compile Include="Option\SomeA.cs" />
     <Compile Include="Prelude_NewType.cs" />
     <Compile Include="Prelude_Nullable.cs" />
     <Compile Include="DVV.cs" />
@@ -132,12 +139,17 @@
     <Compile Include="Tuple2.cs" />
     <Compile Include="TupleExt.cs" />
     <Compile Include="TypeClass\Applicative.cs" />
+    <Compile Include="TypeClass\Extensions.cs" />
+    <Compile Include="TypeClass\Foldable.cs" />
     <Compile Include="TypeClass\Functor.cs" />
+    <Compile Include="TypeClass\Iterable.cs" />
     <Compile Include="TypeClass\Monad.cs" />
     <Compile Include="TypeClass\Monoid.cs" />
     <Compile Include="TypeClass\Prelude_Applicative.cs" />
     <Compile Include="TypeClass\Prelude_Floating.cs" />
+    <Compile Include="TypeClass\Prelude_Foldable.cs" />
     <Compile Include="TypeClass\Prelude_Functor.cs" />
+    <Compile Include="TypeClass\Prelude_Monad.cs" />
     <Compile Include="TypeClass\Prelude_Monoid.cs" />
     <Compile Include="TypeClass\Prelude_Num.cs" />
     <Compile Include="TypeClass\Prelude_Fractional.cs" />
@@ -150,12 +162,15 @@
     <Compile Include="TypeClass\TDecimal.cs" />
     <Compile Include="TypeClass\TFloat.cs" />
     <Compile Include="TypeClass\TDouble.cs" />
+    <Compile Include="TypeClass\TShort.cs" />
+    <Compile Include="TypeClass\TLong.cs" />
     <Compile Include="TypeClass\TInteger.cs" />
     <Compile Include="TypeClass\Num.cs" />
     <Compile Include="TypeClass\Ord.cs" />
     <Compile Include="TypeClass\Prelude_EQ.cs" />
     <Compile Include="TypeClass\Ratio.cs" />
     <Compile Include="TypeClass\Semigroup.cs" />
+    <Compile Include="TypeClass\TLst.cs" />
     <Compile Include="TypeClass\TString.cs" />
     <Compile Include="TypeConverters.cs" />
     <Compile Include="TypeDesc.cs" />

@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Reflection;
-using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -20,7 +19,7 @@ namespace LanguageExt
         {
             var name = type.FullName;
             var result = funcs.Find(name);
-            if (result.IsSome) return result.LiftUnsafe();
+            if (result.IsSome) return result.IfNoneUnsafe(() => null);
 
             var func = typeof(JsonConvert).GetTypeInfo()
                                    .GetDeclaredMethods("DeserializeObject")

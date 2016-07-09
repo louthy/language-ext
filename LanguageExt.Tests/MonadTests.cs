@@ -1,9 +1,8 @@
 ﻿using Xunit;
 using LanguageExt;
-using LanguageExt.Trans;
-using LanguageExt.Trans.Linq;
 using static LanguageExt.List;
 using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass.Prelude;
 using System;
 using System.Linq;
 

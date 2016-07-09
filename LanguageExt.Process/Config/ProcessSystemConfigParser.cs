@@ -341,7 +341,7 @@ namespace LanguageExt.Config
                     typeName.Map(Option<TypeDef>.Some)
                 )
                 from arr in optional(symbol("[]"))
-                from _ in arr.IsSome && typ.IsNone
+                from _ in arr.IsSome() && typ.IsNone()
                     ? failure<Unit>("when declaring an array you must specify the type, you can't use 'let'")
                     : result<Unit>(unit)
                 from id in identifier.label("identifier")

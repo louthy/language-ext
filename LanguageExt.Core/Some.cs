@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if false
+
+using System;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
@@ -106,3 +108,4 @@ namespace LanguageExt
             new Some<T>(x);
     }
 }
+#endif

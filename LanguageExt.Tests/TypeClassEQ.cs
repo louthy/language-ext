@@ -19,7 +19,7 @@ namespace LanguageExtTests
         }
 
         public bool IsEqualGeneral<EQ, A>(A x, A y) where EQ : struct, Eq<A> => 
-            eq<EQ, A>(x, y);
+            equals<EQ, A>(x, y);
 
     }
 }

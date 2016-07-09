@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace LanguageExt.TypeClass
         /// <param name="x">left hand side of the addition operation</param>
         /// <param name="y">right hand side of the addition operation</param>
         /// <returns>The sum of x and y</returns>
+        [Pure]
         public static A add<ADD, A>(A x, A y) where ADD : struct, Add<A> =>
             default(ADD).Add(x, y);
 
@@ -23,6 +25,7 @@ namespace LanguageExt.TypeClass
         /// <param name="x">left hand side of the subtraction operation</param>
         /// <param name="y">right hand side of the subtraction operation</param>
         /// <returns>The sum difference between x and y</returns>
+        [Pure]
         public static A difference<DIFF, A>(A x, A y) where DIFF : struct, Difference<A> =>
             default(DIFF).Difference(x, y);
 
@@ -32,6 +35,7 @@ namespace LanguageExt.TypeClass
         /// <param name="x">left hand side of the product operation</param>
         /// <param name="y">right hand side of the product operation</param>
         /// <returns>The product of x and y</returns>
+        [Pure]
         public static A product<PROD, A>(A x, A y) where PROD : struct, Product<A> =>
             default(PROD).Product(x, y);
 
@@ -41,6 +45,7 @@ namespace LanguageExt.TypeClass
         /// <param name="x">left hand side of the division operation</param>
         /// <param name="y">right hand side of the division operation</param>
         /// <returns>x / y</returns>
+        [Pure]
         public static A divide<DIV, A>(A x, A y) where DIV : struct, Divide<A> =>
             default(DIV).Divide(x, y);
 
@@ -49,6 +54,7 @@ namespace LanguageExt.TypeClass
         /// </summary>
         /// <param name="x">The value to find the absolute value of</param>
         /// <returns>The non-negative absolute value of x</returns>
+        [Pure]
         public static A abs<NUM, A>(A x) where NUM : struct, Num<A> =>
             default(NUM).Abs(x);
 
@@ -57,6 +63,7 @@ namespace LanguageExt.TypeClass
         /// </summary>
         /// <param name="x">The value to find the sign of</param>
         /// <returns>-1, 0, or +1</returns>
+        [Pure]
         public static A signum<NUM, A>(A x) where NUM : struct, Num<A> =>
             default(NUM).Signum(x);
 
@@ -65,6 +72,7 @@ namespace LanguageExt.TypeClass
         /// </summary>
         /// <param name="x">The integer to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
+        [Pure]
         public static A fromInteger<NUM, A>(int x) where NUM : struct, Num<A> =>
             default(NUM).FromInteger(x);
 
@@ -73,6 +81,7 @@ namespace LanguageExt.TypeClass
         /// </summary>
         /// <param name="x">The float to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
+        [Pure]
         public static A fromDecimal<NUM, A>(decimal x) where NUM : struct, Num<A> =>
             default(NUM).FromDecimal(x);
 
@@ -81,6 +90,7 @@ namespace LanguageExt.TypeClass
         /// </summary>
         /// <param name="x">The double to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
+        [Pure]
         public static A fromFloat<NUM, A>(float x) where NUM : struct, Num<A> =>
             default(NUM).FromFloat(x);
 
@@ -89,6 +99,7 @@ namespace LanguageExt.TypeClass
         /// </summary>
         /// <param name="x">The decimal to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
+        [Pure]
         public static A fromDouble<NUM, A>(double x) where NUM : struct, Num<A> =>
             default(NUM).FromDouble(x);
     }

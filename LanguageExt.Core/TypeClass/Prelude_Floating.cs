@@ -9,6 +9,16 @@ namespace LanguageExt.TypeClass
     public static partial class Prelude
     {
         /// <summary>
+        /// Ratio constructor
+        /// </summary>
+        /// <typeparam name="A">Value type</typeparam>
+        /// <param name="num">Numerator</param>
+        /// <param name="den">Denominator</param>
+        /// <returns>Ratio struct</returns>
+        public static Ratio<A> Ratio<A>(A num, A den) =>
+            new Ratio<A>(num, den);
+
+        /// <summary>
         /// Returns an approximation of pi.
         /// </summary>
         /// <returns>A reasonable approximation of pi in this type</returns>

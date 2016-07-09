@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using LanguageExt.Trans;
-
 namespace LanguageExt
 {
     public static partial class Prelude

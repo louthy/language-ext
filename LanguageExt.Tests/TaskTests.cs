@@ -6,7 +6,6 @@ using Xunit;
 
 using static LanguageExt.Prelude;
 using LanguageExt;
-using LanguageExt.Trans;
 using System.Net;
 using System.Collections.Generic;
 

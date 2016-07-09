@@ -11,18 +11,6 @@ using System.ComponentModel;
 
 namespace LanguageExt
 {
-    public struct TLst<A> : Semigroup<Lst<A>>, Difference<Lst<A>>, Functor<A>
-    {
-        public Lst<A> Append(Lst<A> x, Lst<A> y) =>
-            x.Append(y);
-
-        public Lst<A> Difference(Lst<A> x, Lst<A> y) =>
-            x.Difference(y);
-
-        public Functor<B> Map<B>(Functor<A> x, Func<A, B> f) =>
-            x.Map((Lst<A>)x, f);
-    }
-
     /// <summary>
     /// Immutable list
     /// </summary>
@@ -30,47 +18,39 @@ namespace LanguageExt
 #if !COREFX
     [Serializable]
 #endif
-    public class Lst<T> : 
-        IEnumerable<T>, 
-        IEnumerable, 
+    public struct Lst<T> : 
         IReadOnlyList<T>, 
         IReadOnlyCollection<T>,
         Semigroup<Lst<T>>,
         Difference<Lst<T>>,
-        Functor<T>
+        M<T>
     {
         /// <summary>
         /// Empty list
         /// </summary>
         public static readonly Lst<T> Empty = new Lst<T>();
 
-        internal readonly ListItem<T> Root;
-        internal readonly bool Rev;
+        ListItem<T> root;
+        internal bool Rev;
         internal int HashCode;
-
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        internal Lst()
-        {
-            Root = ListItem<T>.Empty;
-        }
 
         /// <summary>
         /// Ctor
         /// </summary>
         internal Lst(IEnumerable<T> initial)
         {
+            HashCode = 0;
+            this.root = ListItem<T>.Empty;
             if (initial is Lst<T>)
             {
                 var lst = (Lst<T>)initial;
-                Root = lst.Root;
+                this.root = lst.Root;
                 Rev = lst.Rev;
             }
             else
             {
                 var lst = new List<T>(initial);
-                Root = ListModule.FromList(lst, 0, lst.Count());
+                this.root = ListModule.FromList(lst, 0, lst.Count());
                 Rev = false;
             }
         }
@@ -80,8 +60,21 @@ namespace LanguageExt
         /// </summary>
         internal Lst(ListItem<T> root, bool rev)
         {
-            Root = root;
+            HashCode = 0;
+            this.root = root;
             Rev = rev;
+        }
+
+        private ListItem<T> Root
+        {
+            get
+            {
+                return root ?? ListItem<T>.Empty;
+            }
+            set
+            {
+                root = Root;
+            }
         }
 
         /// <summary>
@@ -101,22 +94,12 @@ namespace LanguageExt
         /// Number of items in the list
         /// </summary>
         [Pure]
-        public int Count
-        {
-            get
-            {
-                return Root.Count;
-            }
-        }
+        public int Count =>
+            Root.Count;
 
         [Pure]
-        int IReadOnlyCollection<T>.Count
-        {
-            get
-            {
-                return Count;
-            }
-        }
+        int IReadOnlyCollection<T>.Count =>
+            Count;
 
         [Pure]
         T IReadOnlyList<T>.this[int index]
@@ -461,6 +444,85 @@ namespace LanguageExt
             if (ReferenceEquals(other, null)) return false;
             var comparer = EqualityComparer<T>.Default;
             return Count == other.Count && this.Zip(other, (x, y) => comparer.Equals(x, y)).ForAll(x => x);
+        }
+
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public M<T> Return(T a) =>
+            List.create(a);
+
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public M<B> Bind<B>(M<T> ma, Func<T, M<B>> f)
+        {
+            var bs = List.empty<B>();
+            foreach(var item in (Lst<T>)ma)
+            {
+                var mb = f(item);
+                mb.Iter(mb, b => bs = bs.Add(b));
+            }
+            return bs;
+        }
+
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public AP<B> Bind<B>(AP<T> ma, Func<T, AP<B>> f)
+        {
+            var bs = List.empty<B>();
+            foreach (var item in (Lst<T>)ma)
+            {
+                var mb = f(item);
+                mb.Iter(mb, b => bs = bs.Add(b));
+            }
+            return bs;
+        }
+
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public M<T> Fail(string err = "") =>
+            List.empty<T>();
+
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public AP<T> Pure(T a) =>
+            List.create(a);
+
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public AP<B> Apply<B>(AP<Func<T, B>> x, AP<T> y) =>
+            from a in x
+            from b in y
+            select a(b);
+
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public AP<C> Apply<B, C>(AP<Func<T, B, C>> x, AP<T> y, AP<B> z) =>
+            from a in x
+            from b in y
+            from c in z
+            select a(b, c);
+
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public AP<Func<B, C>> Apply<B, C>(AP<Func<T, Func<B, C>>> x, AP<T> y) =>
+            from a in x
+            from b in y
+            select a(b);
+
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public AP<B> Action<B>(AP<T> x, AP<B> y) =>
+            from a in x
+            from b in y
+            select b;
+
+        public Unit Iter(Iterable<T> ia, Action<T> f)
+        {
+            foreach(var item in (Lst<T>)ia)
+            {
+                f(item);
+            }
+            return unit;
         }
 
         [Pure]
