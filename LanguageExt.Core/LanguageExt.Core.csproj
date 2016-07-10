@@ -68,12 +68,11 @@
     <Compile Include="Instances\EqInt.cs" />
     <Compile Include="Seq\SeqM.cs" />
     <Compile Include="NewType.cs" />
-    <Compile Include="Option\IOption.cs" />
     <Compile Include="Option\None.cs" />
-    <Compile Include="Option\Option.cs" />
-    <Compile Include="Option\OptionMExtensions.cs" />
+    <Compile Include="Option\OptionV.cs" />
     <Compile Include="Option\OptionExtensions.cs" />
-    <Compile Include="Option\OptionM.cs" />
+    <Compile Include="Option\OptionVExtensions.cs" />
+    <Compile Include="Option\Option.cs" />
     <Compile Include="Option\OptionNone.cs" />
     <Compile Include="Option\SomeValue.cs" />
     <Compile Include="Option\SomeContext.cs" />
@@ -191,7 +190,7 @@
     <Compile Include="Instances\TDouble.cs" />
     <Compile Include="Instances\TShort.cs" />
     <Compile Include="Instances\TLong.cs" />
-    <Compile Include="Instances\TInteger.cs" />
+    <Compile Include="Instances\TInt.cs" />
     <Compile Include="TypeClasses\Num\Num.cs" />
     <Compile Include="TypeClasses\Ord\Ord.cs" />
     <Compile Include="TypeClasses\Eq\EQ_Prelude.cs" />

@@ -22,7 +22,7 @@ namespace LanguageExt
 
         public Unit Startup(IActor process, ActorItem parent, Option<ICluster> cluster, int maxMailboxSize)
         {
-            if (cluster.IsNone()) throw new Exception("Remote inboxes not supported when there's no cluster");
+            if (cluster.IsNone) throw new Exception("Remote inboxes not supported when there's no cluster");
             this.tokenSource = new CancellationTokenSource();
             this.actor = (Actor<S, T>)process;
             this.cluster = cluster.IfNoneUnsafe(() => null);

@@ -55,7 +55,7 @@ namespace LanguageExtTests
             Some<string> some = "Hello";
             Option<string> opt = some;
 
-            Assert.True(opt.IsSome() && opt.IfNone("") == "Hello");
+            Assert.True(opt.IsSome && opt.IfNone("") == "Hello");
         }
 
 

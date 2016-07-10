@@ -182,10 +182,10 @@ namespace LanguageExt.Config
             UserEnv = GetValue<string>("user-env");
             Default = GetValue<bool>("default").IfNone(false);
 
-            if (NodeName.IsNone()) throw new Exception("cluster requires a 'node-name' attribute");
-            if (Role.IsNone()) throw new Exception("cluster requires a 'role' attribute");
-            if (Connection.IsNone()) throw new Exception("cluster requires a 'connection' attribute");
-            if (Database.IsNone()) throw new Exception("cluster requires a 'database' attribute");
+            if (NodeName.IsNone) throw new Exception("cluster requires a 'node-name' attribute");
+            if (Role.IsNone) throw new Exception("cluster requires a 'role' attribute");
+            if (Connection.IsNone) throw new Exception("cluster requires a 'connection' attribute");
+            if (Database.IsNone) throw new Exception("cluster requires a 'database' attribute");
         }
 
         ClusterToken(

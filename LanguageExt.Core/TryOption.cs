@@ -44,7 +44,7 @@ namespace LanguageExt
         public TryOptionResult(Exception e)
         {
             Exception = e;
-            Value = default(T);
+            Value = default(Option<T>);
         }
 
         [Pure]
@@ -255,11 +255,11 @@ public static class TryOptionExtensions
     {
         var res = self.Try();
         if (res.IsFaulted) return new TryOptionResult<R>(res.Exception);
-        if (res.Value.IsNone()) return new TryOptionResult<R>(None);
+        if (res.Value.IsNone) return new TryOptionResult<R>(None);
         var val = arg.Try();
         if (val.IsFaulted) return new TryOptionResult<R>(val.Exception);
-        if (val.Value.IsNone()) return new TryOptionResult<R>(None);
-        return new TryOptionResult<R>(res.Value.Value()(val.Value.Value()));
+        if (val.Value.IsNone) return new TryOptionResult<R>(None);
+        return new TryOptionResult<R>(Optional(res.Value.Value(val.Value.Value)));
     };
 
     /// <summary>
@@ -274,11 +274,11 @@ public static class TryOptionExtensions
     {
         var res = self.Try();
         if (res.IsFaulted) return new TryOptionResult<Func<T2, R>>(res.Exception);
-        if (res.Value.IsNone()) return new TryOptionResult<Func<T2, R>>(None);
+        if (res.Value.IsNone) return new TryOptionResult<Func<T2, R>>(None);
         var val = arg.Try();
         if (val.IsFaulted) return new TryOptionResult<Func<T2, R>>(val.Exception);
-        if (val.Value.IsNone()) return new TryOptionResult<Func<T2, R>>(None);
-        return new TryOptionResult<Func<T2, R>>(par(res.Value.Value(), val.Value.Value()));
+        if (val.Value.IsNone) return new TryOptionResult<Func<T2, R>>(None);
+        return new TryOptionResult<Func<T2, R>>(Optional(par(res.Value.Value, val.Value.Value)));
     };
 
     /// <summary>
@@ -293,14 +293,14 @@ public static class TryOptionExtensions
     {
         var res = self.Try();
         if (res.IsFaulted) return new TryOptionResult<R>(res.Exception);
-        if (res.Value.IsNone()) return new TryOptionResult<R>(None);
+        if (res.Value.IsNone) return new TryOptionResult<R>(None);
         var val1 = arg1.Try();
         if (val1.IsFaulted) return new TryOptionResult<R>(val1.Exception);
-        if (val1.Value.IsNone()) return new TryOptionResult<R>(None);
+        if (val1.Value.IsNone) return new TryOptionResult<R>(None);
         var val2 = arg2.Try();
         if (val2.IsFaulted) return new TryOptionResult<R>(val2.Exception);
-        if (val2.Value.IsNone()) return new TryOptionResult<R>(None);
-        return new TryOptionResult<R>(res.Value.Value()(val1.Value.Value(), val2.Value.Value()));
+        if (val2.Value.IsNone) return new TryOptionResult<R>(None);
+        return new TryOptionResult<R>(Optional(res.Value.Value(val1.Value.Value, val2.Value.Value)));
     };
 
     /// <summary>
@@ -310,9 +310,9 @@ public static class TryOptionExtensions
     public static Unit IfSome<T>(this TryOption<T> self, Func<T, Unit> someHandler)
     {
         var res = self.Try();
-        if (res.Value.IsSome())
+        if (res.Value.IsSome)
         {
-            someHandler(res.Value.Value());
+            someHandler(res.Value.Value);
         }
         return unit;
     }
@@ -324,9 +324,9 @@ public static class TryOptionExtensions
     public static Unit IfSome<T>(this TryOption<T> self, Action<T> someHandler)
     {
         var res = self.Try();
-        if (res.Value.IsSome())
+        if (res.Value.IsSome)
         {
-            someHandler(res.Value.Value());
+            someHandler(res.Value.Value);
         }
         return unit;
     }
@@ -340,10 +340,10 @@ public static class TryOptionExtensions
         if (isnull(defaultValue)) throw new ArgumentNullException(nameof(defaultValue));
 
         var res = self.Try();
-        if (res.IsFaulted || res.Value.IsNone())
+        if (res.IsFaulted || res.Value.IsNone)
             return defaultValue;
         else
-            return res.Value.Value();
+            return res.Value.Value;
     }
 
     /// <summary>
@@ -353,10 +353,10 @@ public static class TryOptionExtensions
     public static T IfNone<T>(this TryOption<T> self, Func<T> defaultAction)
     {
         var res = self.Try();
-        if (res.IsFaulted || res.Value.IsNone())
+        if (res.IsFaulted || res.Value.IsNone)
             return defaultAction();
         else
-            return res.Value.Value();
+            return res.Value.Value;
     }
 
     [Pure]
@@ -366,12 +366,12 @@ public static class TryOptionExtensions
         Func<Exception, T> Fail)
     {
         var res = self.Try();
-        if (res.Value.IsNone())
+        if (res.Value.IsNone)
             return None();
         else if (res.IsFaulted)
             return Fail(res.Exception);
         else
-            return res.Value.Value();
+            return res.Value.Value;
     }
 
     [Pure]
@@ -432,8 +432,8 @@ public static class TryOptionExtensions
         var res = self.Try();
         return await (res.IsFaulted
             ? Task.FromResult(Fail(res.Exception))
-            : res.Value.IsSome()
-                ? Succ(res.Value.Value())
+            : res.Value.IsSome
+                ? Succ(res.Value.Value)
                 : Task.FromResult(None()));
     }
 
@@ -442,8 +442,8 @@ public static class TryOptionExtensions
         var res = self.Try();
         return await (res.IsFaulted
             ? Fail(res.Exception)
-            : res.Value.IsSome()
-                ? Succ(res.Value.Value())
+            : res.Value.IsSome
+                ? Succ(res.Value.Value)
                 : Task.FromResult(None()));
     }
 
@@ -452,8 +452,8 @@ public static class TryOptionExtensions
         var res = self.Try();
         return await (res.IsFaulted
             ? Fail(res.Exception)
-            : res.Value.IsSome()
-                ? Task.FromResult(Succ(res.Value.Value()))
+            : res.Value.IsSome
+                ? Task.FromResult(Succ(res.Value.Value))
                 : Task.FromResult(None()));
     }
 
@@ -463,8 +463,8 @@ public static class TryOptionExtensions
             TryOptionResult<T> res = trySelf.Result.Try();
             return res.IsFaulted
                 ? Fail(res.Exception)
-                : res.Value.IsSome()
-                    ? Succ(res.Value.Value())
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
                     : None();
         });
 
@@ -474,8 +474,8 @@ public static class TryOptionExtensions
             var res = trySelf.Result.Try();
             return res.IsFaulted
                 ? Task.FromResult(Fail(res.Exception))
-                : res.Value.IsSome()
-                    ? Succ(res.Value.Value())
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
                     : Task.FromResult(None());
         })
                from t in tt
@@ -487,8 +487,8 @@ public static class TryOptionExtensions
             var res = trySelf.Result.Try();
             return res.IsFaulted
                 ? Fail(res.Exception)
-                : res.Value.IsSome()
-                    ? Succ(res.Value.Value())
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
                     : Task.FromResult(None());
         })
                from t in tt
@@ -500,8 +500,8 @@ public static class TryOptionExtensions
             var res = trySelf.Result.Try();
             return res.IsFaulted
                 ? Fail(res.Exception)
-                : res.Value.IsSome()
-                    ? Task.FromResult(Succ(res.Value.Value()))
+                : res.Value.IsSome
+                    ? Task.FromResult(Succ(res.Value.Value))
                     : Task.FromResult(None());
         })
                from t in tt
@@ -512,8 +512,8 @@ public static class TryOptionExtensions
         var res = self.Try();
         return await (res.IsFaulted
             ? Task.FromResult(Fail(res.Exception))
-            : res.Value.IsSome()
-                ? Succ(res.Value.Value())
+            : res.Value.IsSome
+                ? Succ(res.Value.Value)
                 : None());
     }
 
@@ -522,8 +522,8 @@ public static class TryOptionExtensions
         var res = self.Try();
         return await (res.IsFaulted
             ? Fail(res.Exception)
-            : res.Value.IsSome()
-                ? Succ(res.Value.Value())
+            : res.Value.IsSome
+                ? Succ(res.Value.Value)
                 : None());
     }
 
@@ -532,8 +532,8 @@ public static class TryOptionExtensions
         var res = self.Try();
         return await (res.IsFaulted
             ? Fail(res.Exception)
-            : res.Value.IsSome()
-                ? Task.FromResult(Succ(res.Value.Value()))
+            : res.Value.IsSome
+                ? Task.FromResult(Succ(res.Value.Value))
                 : None());
     }
 
@@ -543,8 +543,8 @@ public static class TryOptionExtensions
             var res = trySelf.Result.Try();
             return res.IsFaulted
                 ? Task.FromResult(Fail(res.Exception))
-                : res.Value.IsSome()
-                    ? Succ(res.Value.Value())
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
                     : None();
         })
                from t in tt
@@ -556,8 +556,8 @@ public static class TryOptionExtensions
             var res = trySelf.Result.Try();
             return res.IsFaulted
                 ? Fail(res.Exception)
-                : res.Value.IsSome()
-                    ? Succ(res.Value.Value())
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
                     : None();
         })
                from t in tt
@@ -569,8 +569,8 @@ public static class TryOptionExtensions
             var res = trySelf.Result.Try();
             return res.IsFaulted
                 ? Fail(res.Exception)
-                : res.Value.IsSome()
-                    ? Task.FromResult(Succ(res.Value.Value()))
+                : res.Value.IsSome
+                    ? Task.FromResult(Succ(res.Value.Value))
                     : None();
         })
                from t in tt
@@ -581,8 +581,8 @@ public static class TryOptionExtensions
         var res = self.Try();
         return (res.IsFaulted
             ? Observable.Return(Fail(res.Exception))
-            : res.Value.IsSome()
-                ? Succ(res.Value.Value())
+            : res.Value.IsSome
+                ? Succ(res.Value.Value)
                 : Observable.Return(None()));
     }
 
@@ -591,8 +591,8 @@ public static class TryOptionExtensions
         var res = self.Try();
         return (res.IsFaulted
             ? Fail(res.Exception)
-            : res.Value.IsSome()
-                ? Succ(res.Value.Value())
+            : res.Value.IsSome
+                ? Succ(res.Value.Value)
                 : Observable.Return(None()));
     }
 
@@ -601,8 +601,8 @@ public static class TryOptionExtensions
         var res = self.Try();
         return (res.IsFaulted
             ? Fail(res.Exception)
-            : res.Value.IsSome()
-                ? Observable.Return(Succ(res.Value.Value()))
+            : res.Value.IsSome
+                ? Observable.Return(Succ(res.Value.Value))
                 : Observable.Return(None()));
     }
 
@@ -612,8 +612,8 @@ public static class TryOptionExtensions
             TryOptionResult<T> res = trySelf.Try();
             return res.IsFaulted
                 ? Fail(res.Exception)
-                : res.Value.IsSome()
-                    ? Succ(res.Value.Value())
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
                     : None();
         });
 
@@ -623,8 +623,8 @@ public static class TryOptionExtensions
             var res = trySelf.Try();
             return res.IsFaulted
                 ? Observable.Return(Fail(res.Exception))
-                : res.Value.IsSome()
-                    ? Succ(res.Value.Value())
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
                     : Observable.Return(None());
         })
         from t in tt
@@ -636,8 +636,8 @@ public static class TryOptionExtensions
             var res = trySelf.Try();
             return res.IsFaulted
                 ? Fail(res.Exception)
-                : res.Value.IsSome()
-                    ? Succ(res.Value.Value())
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
                     : Observable.Return(None());
         })
         from t in tt
@@ -649,8 +649,8 @@ public static class TryOptionExtensions
             var res = trySelf.Try();
             return res.IsFaulted
                 ? Fail(res.Exception)
-                : res.Value.IsSome()
-                    ? Observable.Return(Succ(res.Value.Value()))
+                : res.Value.IsSome
+                    ? Observable.Return(Succ(res.Value.Value))
                     : Observable.Return(None());
         })
         from t in tt
@@ -661,8 +661,8 @@ public static class TryOptionExtensions
         var res = self.Try();
         return (res.IsFaulted
             ? Observable.Return(Fail(res.Exception))
-            : res.Value.IsSome()
-                ? Succ(res.Value.Value())
+            : res.Value.IsSome
+                ? Succ(res.Value.Value)
                 : None());
     }
 
@@ -671,8 +671,8 @@ public static class TryOptionExtensions
         var res = self.Try();
         return (res.IsFaulted
             ? Fail(res.Exception)
-            : res.Value.IsSome()
-                ? Succ(res.Value.Value())
+            : res.Value.IsSome
+                ? Succ(res.Value.Value)
                 : None());
     }
 
@@ -681,8 +681,8 @@ public static class TryOptionExtensions
         var res = self.Try();
         return (res.IsFaulted
             ? Fail(res.Exception)
-            : res.Value.IsSome()
-                ? Observable.Return(Succ(res.Value.Value()))
+            : res.Value.IsSome
+                ? Observable.Return(Succ(res.Value.Value))
                 : None());
     }
 
@@ -692,8 +692,8 @@ public static class TryOptionExtensions
             var res = trySelf.Try();
             return res.IsFaulted
                 ? Observable.Return(Fail(res.Exception))
-                : res.Value.IsSome()
-                    ? Succ(res.Value.Value())
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
                     : None();
         })
         from t in tt
@@ -705,8 +705,8 @@ public static class TryOptionExtensions
             var res = trySelf.Try();
             return res.IsFaulted
                 ? Fail(res.Exception)
-                : res.Value.IsSome()
-                    ? Succ(res.Value.Value())
+                : res.Value.IsSome
+                    ? Succ(res.Value.Value)
                     : None();
         })
         from t in tt
@@ -718,8 +718,8 @@ public static class TryOptionExtensions
             var res = trySelf.Try();
             return res.IsFaulted
                 ? Fail(res.Exception)
-                : res.Value.IsSome()
-                    ? Observable.Return(Succ(res.Value.Value()))
+                : res.Value.IsSome
+                    ? Observable.Return(Succ(res.Value.Value))
                     : None();
         })
         from t in tt
@@ -773,12 +773,12 @@ public static class TryOptionExtensions
             TryOptionResult<T> resT;
             resT = self.Try();
             if (resT.IsFaulted) return new TryOptionResult<U>(resT.Exception);
-            if (resT.Value.IsNone()) return new TryOptionResult<U>(None);
+            if (resT.Value.IsNone) return new TryOptionResult<U>(None);
 
             Option<U> resU;
             try
             {
-                resU = select(resT.Value.Value());
+                resU = select(resT.Value.Value);
             }
             catch (Exception e)
             {
@@ -797,8 +797,8 @@ public static class TryOptionExtensions
     {
         var res = self.Try();
         if (res.IsFaulted) Fail(res.Exception);
-        else if (res.Value.IsNone()) None();
-        else if (res.Value.IsNone()) Some(res.Value.Value());
+        else if (res.Value.IsNone) None();
+        else if (res.Value.IsNone) Some(res.Value.Value);
         return unit;
     }
 
@@ -868,9 +868,9 @@ public static class TryOptionExtensions
     public static TryOption<T> Filter<T>(this TryOption<T> self, Func<T, bool> pred)
     {
         var res = self.Try();
-        return res.IsFaulted || res.Value.IsNone()
+        return res.IsFaulted || res.Value.IsNone
             ? () => res
-            : pred(res.Value.Value())
+            : pred(res.Value.Value)
                 ? self
                 : () => None;
     }
@@ -884,8 +884,8 @@ public static class TryOptionExtensions
     {
         var res = self.Try();
         if (res.IsFaulted) return Fail(res.Exception);
-        if (res.Value.IsNone()) return None();
-        return Some(res.Value.Value());
+        if (res.Value.IsNone) return None();
+        return Some(res.Value.Value);
     };
 
     /// <summary>
@@ -910,9 +910,9 @@ public static class TryOptionExtensions
         var res = self.Try();
         return res.IsFaulted
             ? new TryOptionResult<R>(res.Exception)
-            : res.Value.IsNone()
+            : res.Value.IsNone
                 ? new TryOptionResult<R>(None)
-                : binder(res.Value.Value()).Try();
+                : binder(res.Value.Value).Try();
     };
 
     [Pure]
@@ -921,9 +921,9 @@ public static class TryOptionExtensions
         var res = self.Try();
         return res.IsFaulted
             ? Fail(res.Exception).Try()
-            : res.Value.IsNone()
+            : res.Value.IsNone
                 ? None().Try()
-                : Some(res.Value.Value()).Try();
+                : Some(res.Value.Value).Try();
     };
 
     [Pure]
@@ -939,9 +939,9 @@ public static class TryOptionExtensions
         {
             yield return res.Exception;
         }
-        else if (res.Value.IsSome())
+        else if (res.Value.IsSome)
         {
-            yield return res.Value.Value();
+            yield return res.Value.Value;
         }
     }
 
@@ -984,20 +984,20 @@ public static class TryOptionExtensions
             {
                 var resT = self.Try();
                 if (resT.IsFaulted) return new TryOptionResult<V>(resT.Exception);
-                if (resT.Value.IsNone()) return new TryOptionResult<V>(None);
-                var resU = bind(resT.Value.Value()).Try();
+                if (resT.Value.IsNone) return new TryOptionResult<V>(None);
+                var resU = bind(resT.Value.Value).Try();
                 if (resU.IsFaulted)
                 {
                     return new TryOptionResult<V>(resU.Exception);
                 }
-                if (resU.Value.IsNone())
+                if (resU.Value.IsNone)
                 {
                     return new TryOptionResult<V>(None);
                 }
 
                 try
                 {
-                    var res = new TryOptionResult<V>(project(resT.Value.Value(), resU.Value.Value()));
+                    var res = new TryOptionResult<V>(project(resT.Value.Value, resU.Value.Value));
                     return res;
                 }
                 catch (Exception e)
@@ -1017,8 +1017,8 @@ public static class TryOptionExtensions
         )
     {
         var resT = self.Try();
-        if (resT.IsFaulted || resT.Value.IsNone()) return new V[0];
-        return bind(resT.Value.Value()).Map(resU => project(resT.Value.Value(), resU));
+        if (resT.IsFaulted || resT.Value.IsNone) return new V[0];
+        return bind(resT.Value.Value).Map(resU => project(resT.Value.Value, resU));
     }
 
     [Pure]
@@ -1035,8 +1035,8 @@ public static class TryOptionExtensions
            var u = bind(ta[0]);
            var resU = u.Try();
            if (resU.IsFaulted) return new TryOptionResult<V>(resU.Exception);
-           if (resU.Value.IsNone()) return new TryOptionResult<V>(None);
-           return Optional(project(ta[0], resU.Value.Value()));
+           if (resU.Value.IsNone) return new TryOptionResult<V>(None);
+           return Optional(project(ta[0], resU.Value.Value));
        });
     }
 
@@ -1049,14 +1049,14 @@ public static class TryOptionExtensions
         {
             var selfRes = self.Try();
             if (selfRes.IsFaulted) return new TryOptionResult<V>(selfRes.Exception);
-            if (selfRes.Value.IsNone()) return new TryOptionResult<V>(None);
+            if (selfRes.Value.IsNone) return new TryOptionResult<V>(None);
 
             var innerRes = inner.Try();
             if (innerRes.IsFaulted) return new TryOptionResult<V>(innerRes.Exception);
-            if (innerRes.Value.IsNone()) return new TryOptionResult<V>(None);
+            if (innerRes.Value.IsNone) return new TryOptionResult<V>(None);
 
-            return EqualityComparer<K>.Default.Equals(outerKeyMap(selfRes.Value.Value()), innerKeyMap(innerRes.Value.Value()))
-                ? new TryOptionResult<V>(project(selfRes.Value.Value(), innerRes.Value.Value()))
+            return EqualityComparer<K>.Default.Equals(outerKeyMap(selfRes.Value.Value), innerKeyMap(innerRes.Value.Value))
+                ? new TryOptionResult<V>(project(selfRes.Value.Value, innerRes.Value.Value))
                 : None;
         };
 }

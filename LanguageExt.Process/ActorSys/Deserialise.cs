@@ -19,7 +19,7 @@ namespace LanguageExt
         {
             var name = type.FullName;
             var result = funcs.Find(name);
-            if (result.IsSome()) return result.IfNoneUnsafe(() => null);
+            if (result.IsSome) return result.IfNoneUnsafe(() => null);
 
             var func = typeof(JsonConvert).GetTypeInfo()
                                    .GetDeclaredMethods("DeserializeObject")

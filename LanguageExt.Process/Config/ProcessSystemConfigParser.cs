@@ -341,7 +341,7 @@ namespace LanguageExt.Config
                     typeName.Map(Option<TypeDef>.Some)
                 )
                 from arr in optional(symbol("[]"))
-                from _ in arr.IsSome() && typ.IsNone()
+                from _ in arr.IsSome && typ.IsNone
                     ? failure<Unit>("when declaring an array you must specify the type, you can't use 'let'")
                     : result<Unit>(unit)
                 from id in identifier.label("identifier")
@@ -350,7 +350,7 @@ namespace LanguageExt.Config
                         from nm in identifier
                         select nm)
                 from __ in symbol(":")
-                from v in arr.IsSome()
+                from v in arr.IsSome
                     ? either(
                         attempt(valueInst(alias, TypeDef.Map(() => typ.IfNone(TypeDef.Unknown)))),
                         valueInst(alias, TypeDef.Array(() => typ.IfNone(TypeDef.Unknown))))
@@ -492,7 +492,7 @@ namespace LanguageExt.Config
                 where nv.Value.Type == processType || nv.Value.Type == routerType
                 let process = nv.Value.Cast<ProcessToken>()
                 let pid = process.ProcessId
-                where pid.IsSome()
+                where pid.IsSome
                 let reg = process.RegisteredName
                 let final = process.SetRegisteredName(new ValueToken(types.ProcessName, reg.IfNone(new ProcessName(nv.Name))))
                 select Tuple(pid.IfNone(ProcessId.None), final),

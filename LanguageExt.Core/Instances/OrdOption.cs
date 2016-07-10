@@ -15,11 +15,11 @@ namespace LanguageExt.Instances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         public bool Equals(Option<A> x, Option<A> y) =>
-            x.IsNone() && y.IsNone()
+            x.IsNone && y.IsNone
                 ? true
-                : x.IsNone() || y.IsNone()
+                : x.IsNone || y.IsNone
                     ? false
-                    : equals<ORD, A>(x.Value(), y.Value());
+                    : equals<ORD, A>(x.Value, y.Value);
 
         /// <summary>
         /// Compare two values
@@ -35,10 +35,10 @@ namespace LanguageExt.Instances
         /// </returns>
         public int Compare(Option<A> x, Option<A> y)
         {
-            if (x.IsNone() && y.IsNone()) return 0;
-            if (x.IsSome() && y.IsNone()) return 1;
-            if (x.IsNone() && y.IsSome()) return -1;
-            return default(ORD).Compare(x.Value(), y.Value());
+            if (x.IsNone && y.IsNone) return 0;
+            if (x.IsSome && y.IsNone) return 1;
+            if (x.IsNone && y.IsSome) return -1;
+            return default(ORD).Compare(x.Value, y.Value);
         }
     }
 }

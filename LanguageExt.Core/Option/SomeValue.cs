@@ -6,7 +6,7 @@ namespace LanguageExt
     /// Option Some state type
     /// </summary>
     /// <typeparam name="A">Type of the bound value</typeparam>
-    public class SomeValue<A> : Option<A>
+    internal class SomeValue<A> : OptionV<A>
     {
         /// <summary>
         /// The bound value of the option

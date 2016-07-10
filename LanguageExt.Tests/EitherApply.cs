@@ -54,11 +54,11 @@ namespace LanguageExtTests
         {
             var opt  = Some(add);
             var none = Option<int>.None;
-            var four = Pure<OptionM<int>,int>(4);  // Some(4);
+            var four = Pure<Option<int>,int>(4);  // Some(4);
 
-            var res = GeneralApply<OptionM<int>>(M(opt), M(none), four);
+            var res = GeneralApply<Option<int>>(opt, none, four);
 
-            Assert.Equal(M<int>(None), res);
+            Assert.Equal(None, res);
 
             var either = Right<string, Func<int, int, int>>(add)
                 .Apply(Left<string, int>("left"))

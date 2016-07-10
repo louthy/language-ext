@@ -97,10 +97,10 @@ namespace LanguageExt
                 // concrete value.  That means the State strategy expression that runs 
                 // has the equivalent of an 'early out'.  The whole expression is still
                 // processed, but you can't override the earlier value.
-                this.Directive.IsSome()
+                this.Directive.IsSome
                     ? this.Directive
                     : Directive,
-                this.MessageDirective.IsSome()
+                this.MessageDirective.IsSome
                     ? this.MessageDirective
                     : MessageDirective
             );

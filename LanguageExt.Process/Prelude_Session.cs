@@ -135,7 +135,7 @@ namespace LanguageExt
                               from ses in ActorContext.Request.System.Sessions.GetSession(sid)
                               select ses;
 
-                if (session.IsNone())
+                if (session.IsNone)
                 {
                     throw new Exception("Session not started");
                 }
@@ -230,7 +230,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns></returns>
         public static bool hasSession() =>
-            ActorContext.SessionId.IsSome();
+            ActorContext.SessionId.IsSome;
 
         /// <summary>
         /// Acquires a session for the duration of invocation of the 

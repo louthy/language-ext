@@ -74,7 +74,7 @@ namespace LanguageExt
         {
             lock(sync)
             {
-                if (state.IsSome()) return unit;
+                if (state.IsSome) return unit;
 
                 var savedReq = ActorContext.Request.CurrentRequest;
                 var savedFlags = ActorContext.Request.ProcessFlags;
@@ -232,7 +232,7 @@ namespace LanguageExt
             {
                 SetupRemoteSubscriptions(cluster, flags);
 
-                if (cluster.IsSome() && ((flags & ProcessFlags.PersistState) == ProcessFlags.PersistState))
+                if (cluster.IsSome && ((flags & ProcessFlags.PersistState) == ProcessFlags.PersistState))
                 {
                     try
                     {

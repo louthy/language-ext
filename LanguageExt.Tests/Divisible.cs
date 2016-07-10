@@ -13,7 +13,7 @@ namespace LanguageExtTests
         {
             var x = Some(20);
             var y = Some(10);
-            var z = divide<TInteger, int>(x, y);
+            var z = divide<TInt, int>(x, y);
 
             Assert.True(z == 2);
         }

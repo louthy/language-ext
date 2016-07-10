@@ -67,7 +67,7 @@ namespace LanguageExt
         /// Convert a LanguageExt Option into an F# Option 
         /// </summary>
         public static FSharpOption<T> ToFSharp<T>(this Option<T> option) =>
-            option.IsNone()
+            option.IsNone
                 ? FSharpOption<T>.None
                 : match(option,
                      Some: v => FSharpOption<T>.Some(v),

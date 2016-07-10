@@ -15,10 +15,10 @@ namespace LanguageExt.Instances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         public bool Equals(Option<A> x, Option<A> y) =>
-            x.IsNone() && y.IsNone()
+            x.IsNone && y.IsNone
                 ? true
-                : x.IsNone() || y.IsNone()
+                : x.IsNone || y.IsNone
                     ? false
-                    : equals<EQ, A>(x.Value(), y.Value());
+                    : equals<EQ, A>(x.Value, y.Value);
     }
 }

@@ -58,7 +58,7 @@ namespace LanguageExt
 
         [Pure]
         public static implicit operator Option<T>(Some<T> value) =>
-            Option<T>.Some(value.Value);
+            TypeClass.Return<Option<T>,T>(value.Value);
 
         [Pure]
         public static implicit operator Some<T>(T value) => 

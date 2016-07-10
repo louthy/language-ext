@@ -13,7 +13,7 @@ namespace LanguageExtTests
         [Fact]
         public void IntMonoid()
         {
-            var res = mconcat<TInteger, int>(1, 2, 3, 4, 5);
+            var res = mconcat<TInt, int>(1, 2, 3, 4, 5);
 
             Assert.True(res == 15);
         }

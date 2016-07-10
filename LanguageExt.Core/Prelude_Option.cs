@@ -30,42 +30,6 @@ namespace LanguageExt
             select TypeClass.append<SEMI, T>(x, y);
 
         /// <summary>
-        /// Folds the provided list of options
-        /// </summary>
-        /// <typeparam name="SEMI">Semigroup that represents T</typeparam>
-        /// <typeparam name="T">Monadic value</typeparam>
-        /// <param name="xs">List of Options to concat</param>
-        /// <returns>Folded options</returns>
-        [Pure]
-        public static Option<T> mconcat<SEMI, T>(params Option<T>[] xs) where SEMI : struct, Semigroup<T> =>
-            xs == null || xs.Length == 0
-                ? Option<T>.None
-                : xs.Reduce((s, x) =>
-                    s.IsNone()
-                        ? s
-                        : x.IsNone()
-                            ? x
-                            : mappend<SEMI, T>(s, x));
-
-        /// <summary>
-        /// Folds the provided list of options
-        /// </summary>
-        /// <typeparam name="SEMI">Semigroup that represents T</typeparam>
-        /// <typeparam name="T">Monadic value</typeparam>
-        /// <param name="xs">List of Options to concat</param>
-        /// <returns>Folded options</returns>
-        [Pure]
-        public static Option<T> mconcat<SEMI, T>(IEnumerable<Option<T>> xs) where SEMI : struct, Semigroup<T> =>
-            xs == null || !xs.Any()
-                ? Option<T>.None
-                : xs.Reduce((s, x) =>
-                    s.IsNone()
-                        ? s
-                        : x.IsNone()
-                            ? x
-                            : mappend<SEMI, T>(s, x));
-
-        /// <summary>
         /// Difference the Ts
         /// </summary>
         /// <param name="lhs">Left-hand side of the operation</param>
@@ -109,7 +73,7 @@ namespace LanguageExt
         /// <returns>True if value is in a Some state</returns>
         [Pure]
         public static bool isSome<T>(Option<T> value) =>
-            value.IsSome();
+            value.IsSome;
 
         /// <summary>
         /// Check if Option is in a None state
@@ -119,7 +83,7 @@ namespace LanguageExt
         /// <returns>True if value is in a None state</returns>
         [Pure]
         public static bool isNone<T>(Option<T> value) =>
-            value.IsNone();
+            value.IsNone;
 
         /// <summary>
         /// Create a Some of T (Option<T>)
@@ -132,7 +96,7 @@ namespace LanguageExt
         public static Option<T> Some<T>(T value) =>
             isnull(value)
                 ? raise<Option<T>>(new ValueIsNullException())
-                : Option<T>.Some(value);
+                : TypeClass.Return<Option<T>,T>(value);
 
         /// <summary>
         /// Create a Some of T from a Nullable<T> (Option<T>)
@@ -144,7 +108,7 @@ namespace LanguageExt
         [Pure]
         public static Option<T> Some<T>(T? value) where T : struct =>
             value.HasValue
-                ? Option<T>.Some(value.Value)
+                ? TypeClass.Return<Option<T>, T>(value.Value)
                 : raise<Option<T>>(new ValueIsNullException());
 
         /// <summary>
@@ -155,9 +119,7 @@ namespace LanguageExt
         /// <returns>If the value is null it will be None else Some(value)</returns>
         [Pure]
         public static Option<T> Optional<T>(T value) =>
-            isnull(value)
-                ? Option<T>.None
-                : Option<T>.Some(value);
+            TypeClass.Return<Option<T>, T>(value);
 
         /// <summary>
         /// Create an Option
@@ -168,7 +130,7 @@ namespace LanguageExt
         [Pure]
         public static Option<T> Optional<T>(T? value) where T : struct =>
             value.HasValue
-                ? Option<T>.Some(value.Value)
+                ? TypeClass.Return<Option<T>, T>(value.Value)
                 : Option<T>.None;
 
         public static Unit ifSome<T>(Option<T> option, Action<T> Some) => 
@@ -208,16 +170,16 @@ namespace LanguageExt
         /// <param name="arg">Optional argument</param>
         /// <returns>Returns the result of applying the optional argument to the optional function</returns>
         [Pure]
-        public static Applicative<R> apply<T, R>(Option<Func<T, R>> option, Option<T> arg) =>
-            M(option).Apply(M(arg));
+        public static Option<R> apply<T, R>(Option<Func<T, R>> option, Option<T> arg) =>
+            (Option<R>)option.Apply(arg);
 
         [Pure]
-        public static Applicative<R> apply<T, U, R>(Option<Func<T, U, R>> option, Option<T> arg1, Option<U> arg2) =>
-            M(option).Apply(M(arg1), M(arg2));
+        public static Option<R> apply<T, U, R>(Option<Func<T, U, R>> option, Option<T> arg1, Option<U> arg2) =>
+            (Option<R>)option.Apply(arg1, arg2);
 
         [Pure]
-        public static Applicative<Func<U, R>> apply<T, U, R>(Option<Func<T, Func<U, R>>> option, Option<T> arg) =>
-            M(option).Apply(M(arg));
+        public static Option<Func<U, R>> apply<T, U, R>(Option<Func<T, Func<U, R>>> option, Option<T> arg) =>
+            (Option<Func<U,R>>)option.Apply(arg);
 
         /// <summary>
         /// Folds the option into an S.

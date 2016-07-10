@@ -78,11 +78,11 @@ namespace LanguageExt
 
         [Pure]
         public static bool isSome<T>(TryOption<T> value) =>
-            value.Try().Value.IsSome();
+            value.Try().Value.IsSome;
 
         [Pure]
         public static bool isNone<T>(TryOption<T> value) =>
-            value.Try().Value.IsNone();
+            value.Try().Value.IsNone;
 
         public static Unit ifSome<T>(TryOption<T> tryDel, Action<T> Some) =>
             tryDel.IfSome(Some);

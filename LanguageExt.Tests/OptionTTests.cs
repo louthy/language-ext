@@ -100,9 +100,9 @@ namespace LanguageExtTests
 
             opt = Some(Some<Option<int>>(None));
 
-            var res2 = from x in M(opt)
-                       from y in M(x)
-                       from z in M(y)
+            var res2 = from x in opt
+                       from y in x
+                       from z in y
                        select z * 2;
 
             Assert.False(equals<EqInt, int>(res, 0));
@@ -201,18 +201,18 @@ namespace LanguageExtTests
             opt = opt.FilterT(x => x > 2);
 
             Assert.True(opt.Count() == 5, "Count should be 5, is: " + opt.Count());
-            Assert.True(equals<TInteger, int>(opt[0], None), "opt[0] != None. Is: " + opt[0]);
-            Assert.True(equals<TInteger, int>(opt[1], None), "opt[1] != None. Is: " + opt[1]);
-            Assert.True(equals<TInteger, int>(opt[2], Some(3)), "opt[2] != Some(3), Is: " + opt[2]);
-            Assert.True(equals<TInteger, int>(opt[3], Some(4)), "opt[3] != Some(4), Is: " + opt[3]);
-            Assert.True(equals<TInteger, int>(opt[4], Some(5)), "opt[4] != Some(5), Is: " + opt[4]);
+            Assert.True(equals<TInt, int>(opt[0], None), "opt[0] != None. Is: " + opt[0]);
+            Assert.True(equals<TInt, int>(opt[1], None), "opt[1] != None. Is: " + opt[1]);
+            Assert.True(equals<TInt, int>(opt[2], Some(3)), "opt[2] != Some(3), Is: " + opt[2]);
+            Assert.True(equals<TInt, int>(opt[3], Some(4)), "opt[3] != Some(4), Is: " + opt[3]);
+            Assert.True(equals<TInt, int>(opt[4], Some(5)), "opt[4] != Some(5), Is: " + opt[4]);
 
             opt = opt.Filter(isSome);
 
             Assert.True(opt.Count() == 3, "Count should be 3, is: " + opt.Count());
-            Assert.True(equals<TInteger, int>(opt[0], Some(3)), "opt[0] != Some(3)");
-            Assert.True(equals<TInteger, int>(opt[1], Some(4)), "opt[1] != Some(4)");
-            Assert.True(equals<TInteger, int>(opt[2], Some(5)), "opt[2] != Some(5)");
+            Assert.True(equals<TInt, int>(opt[0], Some(3)), "opt[0] != Some(3)");
+            Assert.True(equals<TInt, int>(opt[1], Some(4)), "opt[1] != Some(4)");
+            Assert.True(equals<TInt, int>(opt[2], Some(5)), "opt[2] != Some(5)");
 
         }
    }

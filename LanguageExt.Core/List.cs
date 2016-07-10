@@ -5,7 +5,6 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
-using LanguageExt.Instances;
 
 namespace LanguageExt
 {
@@ -204,7 +203,7 @@ namespace LanguageExt
         /// <returns>Mapped and filtered enumerable</returns>
         [Pure]
         public static IEnumerable<T> choose<T>(IEnumerable<T> list, Func<T, Option<T>> selector) =>
-            map(map(filter(map(list, selector), t => t.IsSome()), t => t as SomeValue<T>), t => t.Value);
+            map(filter(map(list, selector), t => t.IsSome), t => t.Value);
 
         /// <summary>
         /// Applies the given function 'selector' to each element of the list. Returns the list comprised of 
@@ -217,7 +216,7 @@ namespace LanguageExt
         /// <returns>Mapped and filtered enumerable</returns>
         [Pure]
         public static IEnumerable<T> choose<T>(IEnumerable<T> list, Func<int, T, Option<T>> selector) =>
-            map(map(filter(map(list, selector), t => t.IsSome()), t => t as SomeValue<T>), t => t.Value);
+            map(filter(map(list, selector), t => t.IsSome), t => t.Value);
 
         /// <summary>
         /// For each element of the list, applies the given function. Concatenates all the results and 
@@ -291,18 +290,6 @@ namespace LanguageExt
             list.Reverse();
 
         /// <summary>
-        /// Append two Lsts together
-        /// </summary>
-        public static Lst<T> append<T>(Lst<T> x, Lst<T> y) =>
-            default(TLst<T>).Append(x, y);
-
-        /// <summary>
-        /// Append two Lsts together
-        /// </summary>
-        public static Lst<T> difference<T>(Lst<T> x, Lst<T> y) =>
-            default(TLst<T>).Difference(x, y);
-
-        /// <summary>
         /// Concatenate two enumerables (Concat in LINQ)
         /// </summary>
         /// <typeparam name="T">Enumerable item type</typeparam>
@@ -322,7 +309,7 @@ namespace LanguageExt
         /// <returns>Concatenated list</returns>
         [Pure]
         public static IEnumerable<T> append<T>(IEnumerable<T> x, IEnumerable<IEnumerable<T>> xs) =>
-            headOrNone(xs).IsNone()
+            headOrNone(xs).IsNone
                 ? x
                 : append(x, append(xs.First(), xs.Skip(1)));
 
@@ -839,14 +826,14 @@ namespace LanguageExt
             {
                 yield return state;
                 var res = unfolder(state);
-                if (res.IsNone())
+                if (res.IsNone)
                 {
                     yield break;
                 }
                 else
                 {
-                    state = (res as SomeValue<S>).Value;
-                    yield return state;
+                    state = res.Value;
+                    yield return res.Value;
                 }
             }
         }
@@ -866,15 +853,14 @@ namespace LanguageExt
             while (true)
             {
                 var res = unfolder(state);
-                if (res.IsNone())
+                if (res.IsNone)
                 {
                     yield break;
                 }
                 else
                 {
-                    var tup = (res as SomeValue<Tuple<T, S>>).Value;
-                    state = tup.Item2;
-                    yield return tup.Item1;
+                    state = res.Value.Item2;
+                    yield return res.Value.Item1;
                 }
             }
         }
@@ -894,15 +880,14 @@ namespace LanguageExt
             while (true)
             {
                 var res = unfolder(state.Item1, state.Item2);
-                if (res.IsNone())
+                if (res.IsNone)
                 {
                     yield break;
                 }
                 else
                 {
-                    var tup = (res as SomeValue<Tuple<T, S1, S2>>).Value;
-                    state = System.Tuple.Create(tup.Item2, tup.Item3);
-                    yield return tup.Item1;
+                    state = System.Tuple.Create(res.Value.Item2, res.Value.Item3);
+                    yield return res.Value.Item1;
                 }
             }
         }
@@ -922,15 +907,14 @@ namespace LanguageExt
             while (true)
             {
                 var res = unfolder(state.Item1, state.Item2, state.Item3);
-                if (res.IsNone())
+                if (res.IsNone)
                 {
                     yield break;
                 }
                 else
                 {
-                    var tup = (res as SomeValue<Tuple<T, S1, S2, S3>>).Value;
-                    state = System.Tuple.Create(tup.Item2, tup.Item3, tup.Item4);
-                    yield return tup.Item1;
+                    state = System.Tuple.Create(res.Value.Item2, res.Value.Item3, res.Value.Item4);
+                    yield return res.Value.Item1;
                 }
             }
         }
@@ -950,15 +934,14 @@ namespace LanguageExt
             while (true)
             {
                 var res = unfolder(state.Item1, state.Item2, state.Item3, state.Item4);
-                if (res.IsNone())
+                if (res.IsNone)
                 {
                     yield break;
                 }
                 else
                 {
-                    var tup = (res as SomeValue<Tuple<T, S1, S2, S3, S4>>).Value;
-                    state = System.Tuple.Create(tup.Item2, tup.Item3, tup.Item4, tup.Item5);
-                    yield return tup.Item1;
+                    state = System.Tuple.Create(res.Value.Item2, res.Value.Item3, res.Value.Item4, res.Value.Item5);
+                    yield return res.Value.Item1;
                 }
             }
         }
@@ -1123,9 +1106,9 @@ namespace LanguageExt
                 var head = list.HeadOrNone();
                 var tail = list.Skip(1);
 
-                return head.IsNone()
+                return head.IsNone
                     ? Empty()
-                    : More((head as SomeValue<T>).Value, tail);
+                    : More(head.Value, tail);
             }
         }
 
@@ -1149,16 +1132,16 @@ namespace LanguageExt
                 list = list.Memo();
                 var head = list.HeadOrNone();
                 var tail = list.Skip(1);
-                if (head.IsNone())
+                if (head.IsNone)
                 {
                     return Empty();
                 }
                 else
                 {
                     var second = tail.HeadOrNone();
-                    return second.IsNone()
-                        ? One((head as SomeValue<T>).Value)
-                        : More((head as SomeValue<T>).Value, tail);
+                    return second.IsNone
+                        ? One(head.Value)
+                        : More(head.Value, tail);
                 }
             }
         }
@@ -1947,7 +1930,7 @@ namespace LanguageExt
 
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IEnumerable<V> SelectMany<T, U, V>(this IEnumerable<T> self,
+        public static Lst<V> SelectMany<T, U, V>(this IEnumerable<T> self,
             Func<T, Lst<U>> bind,
             Func<T, U, V> project
             )

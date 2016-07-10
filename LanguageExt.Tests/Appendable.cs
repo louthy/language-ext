@@ -12,19 +12,9 @@ namespace LanguageExtTests
         {
             var x = Some(10);
             var y = Some(20);
-            var z = mappend<TInteger, int>(x, y);
+            var z = mappend<TInt, int>(x, y);
 
             Assert.True(z == 30);
-        }
-
-        [Fact]
-        public void OptionalStringAppend()
-        {
-            var x = Some("Hello");
-            var s = Some(" ");
-            var y = Some("World");
-            var z = mconcat<TString, string>(x, s, y);
-            Assert.True(z == "Hello World");
         }
 
         //[Fact]

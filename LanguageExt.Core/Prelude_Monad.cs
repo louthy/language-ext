@@ -7,16 +7,6 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
-        /// Option monad constructor
-        /// </summary>
-        /// <typeparam name="A"></typeparam>
-        /// <param name="a"></param>
-        /// <returns></returns>
-        public static OptionM<A> M<A>(Option<A> a) =>
-            new OptionM<A>(a);
-
-
-        /// <summary>
         /// Reader Writer State monad constructor
         /// </summary>
         /// <returns>Rws monad</returns>
@@ -205,7 +195,7 @@ namespace LanguageExt
                 foreach (var monad in monads)
                 {
                     var res = monad(state);
-                    if (!res.IsBottom && res.Value.IsSome())
+                    if (!res.IsBottom && res.Value.IsSome)
                     {
                         return res;
                     }

@@ -39,8 +39,8 @@ namespace LanguageExt
         public ActorSystem(SystemName systemName, Option<ICluster> cluster, AppProfile appProfile, ProcessSystemConfig settings)
         {
             var name = GetRootProcessName(cluster);
-            if (name.Value == "root" && cluster.IsSome()) throw new ArgumentException("Cluster node name cannot be 'root', it's reserved for local use only.");
-            if (name.Value == "disp" && cluster.IsSome()) throw new ArgumentException("Cluster node name cannot be 'disp', it's reserved for internal use.");
+            if (name.Value == "root" && cluster.IsSome) throw new ArgumentException("Cluster node name cannot be 'root', it's reserved for local use only.");
+            if (name.Value == "disp" && cluster.IsSome) throw new ArgumentException("Cluster node name cannot be 'disp', it's reserved for internal use.");
             if (name.Value == "js") throw new ArgumentException("Node name cannot be 'js', it's reserved for ProcessJS.");
 
             SystemName = systemName;
@@ -424,11 +424,11 @@ namespace LanguageExt
             var actor = new Actor<S, T>(cluster, parent, name, actorFn, setupFn, termFn, strategy, flags, ActorContext.System(parent.Actor.Id).Settings, this);
 
             IActorInbox inbox = null;
-            if ((actor.Flags & ProcessFlags.ListenRemoteAndLocal) == ProcessFlags.ListenRemoteAndLocal && cluster.IsSome())
+            if ((actor.Flags & ProcessFlags.ListenRemoteAndLocal) == ProcessFlags.ListenRemoteAndLocal && cluster.IsSome)
             {
                 inbox = new ActorInboxDual<S, T>();
             }
-            else if ((actor.Flags & ProcessFlags.PersistInbox) == ProcessFlags.PersistInbox && cluster.IsSome())
+            else if ((actor.Flags & ProcessFlags.PersistInbox) == ProcessFlags.PersistInbox && cluster.IsSome)
             {
                 inbox = new ActorInboxRemote<S, T>();
             }

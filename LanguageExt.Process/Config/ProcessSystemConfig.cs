@@ -230,7 +230,7 @@ namespace LanguageExt.Config
         {
             var res = GetSettingGeneral<T>(settingsMaps, key, name, prop, flags);
 
-            if (res.IsNone())
+            if (res.IsNone)
             {
                 // No config, no override; so cache the default value so we don't
                 // go through all of this again.
@@ -246,7 +246,7 @@ namespace LanguageExt.Config
 
             // First see if we have the value cached
             var over = settingOverrides.Find(key, propKey);
-            if (over.IsSome()) return over.Map(x => (T)x);
+            if (over.IsSome) return over.Map(x => (T)x);
 
             // Next check the cluster data store (Redis usually)
             Option<T> tover = None;
@@ -256,7 +256,7 @@ namespace LanguageExt.Config
                         from y in x
                         select y;
 
-                if (tover.IsSome())
+                if (tover.IsSome)
                 {
                     // It's in the data-store, so cache it locally and return
                     AddOrUpdateProcessOverride(key, propKey, tover);
@@ -274,7 +274,7 @@ namespace LanguageExt.Config
                         from opt2 in opt1
                         select opt2;
 
-                if (tover.IsSome())
+                if (tover.IsSome)
                 {
                     // There is a config setting, so cache it and return
                     AddOrUpdateProcessOverride(key, propKey, tover);

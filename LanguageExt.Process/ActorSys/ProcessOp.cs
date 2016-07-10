@@ -80,7 +80,7 @@ namespace LanguageExt
         public T Read<T>(string name, string prop, ProcessFlags flags, T defaultValue)
         {
             var val = Settings.IfNone(Map<string, object>.Empty).Find($"{name}@{prop}");
-            if (val.IsSome()) return val.Map(x => (T)x).IfNone(defaultValue);
+            if (val.IsSome) return val.Map(x => (T)x).IfNone(defaultValue);
             return ActorContext.System(ProcessId).Settings.GetProcessSetting<T>(ProcessId, name, prop, flags).IfNone(defaultValue);
         }
 

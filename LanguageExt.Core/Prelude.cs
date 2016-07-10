@@ -133,7 +133,7 @@ namespace LanguageExt
             foreach (var clause in clauses)
             {
                 var res = clause(value);
-                if (res.IsSome()) return res.IfNone(default(R));
+                if (res.IsSome) return res.IfNone(default(R));
             }
             throw new Exception("Match not exhaustive");
         }
@@ -152,7 +152,7 @@ namespace LanguageExt
              foreach (var clause in clauses)
              {
                  var res = clause(value);
-                 if (res.IsSome()) return res.IfNone(default(R));
+                 if (res.IsSome) return res.IfNone(default(R));
              }
              throw new Exception("Match not exhaustive");
          };

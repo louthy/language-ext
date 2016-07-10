@@ -10,15 +10,15 @@ namespace RedisSession
     {
         static void Main(string[] args)
         {
-            Option<int> opt = null;
+            Option<int> opt = default(Option<int>);
 
             var y = opt.Sum();
 
-            Option<int> rhs = None;
+            Option<int> rhs = 123;
 
             var b = opt == rhs;
 
-            var h = opt.GetHashCode();
+            var h = rhs.GetHashCode();
 
             // Remove this to get on-screen logging
             ProcessSystemLog.Subscribe(Console.WriteLine);

@@ -22,10 +22,10 @@ namespace LanguageExt
 #if !COREFX
     [Serializable]
 #endif
-    public class Map<K, V> : 
-        IEnumerable<IMapItem<K, V>>, 
-        IReadOnlyDictionary<K,V>, 
-        IAppendable<Map<K, V>>, 
+    public class Map<K, V> :
+        IEnumerable<IMapItem<K, V>>,
+        IReadOnlyDictionary<K, V>,
+        IAppendable<Map<K, V>>,
         ISubtractable<Map<K, V>>
     {
         public static readonly Map<K, V> Empty = new Map<K, V>();
@@ -38,13 +38,13 @@ namespace LanguageExt
         /// </summary>
         internal Map()
         {
-            Root = MapItem<K,V>.Empty;
+            Root = MapItem<K, V>.Empty;
         }
 
         /// <summary>
         /// Ctor
         /// </summary>
-        internal Map(MapItem<K,V> root, bool rev)
+        internal Map(MapItem<K, V> root, bool rev)
         {
             Root = root;
             Rev = rev;
@@ -75,7 +75,7 @@ namespace LanguageExt
         /// Number of items in the map
         /// </summary>
         [Pure]
-        public int Count => 
+        public int Count =>
             Root.Count;
 
         /// <summary>
@@ -418,7 +418,7 @@ namespace LanguageExt
             isnull(key)
                 ? this
                 : match(MapModule.TryFind(Root, key, Comparer<K>.Default),
-                        Some: x  => SetItem(key, Some(x)),
+                        Some: x => SetItem(key, Some(x)),
                         None: () => Add(key, None()));
 
         /// <summary>
@@ -483,7 +483,9 @@ namespace LanguageExt
         public bool ContainsKey(K key) =>
             isnull(key)
                 ? false
-                : Find(key).IsSome();
+                : Find(key)
+                    ? true
+                    : false;
 
         /// <summary>
         /// Checks for existence of a key in the map
@@ -736,7 +738,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static Map<K,V> operator +(Map<K, V> lhs, Map<K, V> rhs) =>
+        public static Map<K, V> operator +(Map<K, V> lhs, Map<K, V> rhs) =>
             lhs.Append(rhs);
 
         [Pure]
@@ -809,7 +811,7 @@ namespace LanguageExt
         }
 
         internal int BalanceFactor =>
-            Count == 0 
+            Count == 0
                 ? 0
                 : ((int)Left.Height) - ((int)Right.Height);
 
@@ -856,10 +858,10 @@ namespace LanguageExt
         }
 
         public static MapItem<K, V> Choose<K, V>(MapItem<K, V> node, Func<K, V, Option<V>> selector) =>
-            Map(Map(Filter(Map(node, selector), n => n.IsSome()), n => n as SomeValue<V>), n => n.Value);
+            Map(Filter(Map(node, selector), n => n.IsSome), n => n.Value);
 
         public static MapItem<K, V> Choose<K, V>(MapItem<K, V> node, Func<V, Option<V>> selector) =>
-            Map(Map(Filter(Map(node, selector), n => n.IsSome()), n => n as SomeValue<V>), n => n.Value);
+            Map(Filter(Map(node, selector), n => n.IsSome), n => n.Value);
 
         public static bool ForAll<K, V>(MapItem<K, V> node, Func<K, V, bool> pred) =>
             node.IsEmpty
@@ -896,7 +898,7 @@ namespace LanguageExt
 
         public static MapItem<K, U> Map<K, V, U>(MapItem<K, V> node, Func<K, V, U> mapper) =>
             node.IsEmpty
-                ? MapItem<K,U>.Empty
+                ? MapItem<K, U>.Empty
                 : new MapItem<K, U>(node.Height, node.Count, node.Key, mapper(node.Key, node.Value), Map(node.Left, mapper), Map(node.Right, mapper));
 
         public static MapItem<K, V> Add<K, V>(MapItem<K, V> node, K key, V value, Comparer<K> comparer)
@@ -905,7 +907,7 @@ namespace LanguageExt
             {
                 return new MapItem<K, V>(1, 1, key, value, MapItem<K, V>.Empty, MapItem<K, V>.Empty);
             }
-            var cmp = comparer.Compare(key,node.Key);
+            var cmp = comparer.Compare(key, node.Key);
             if (cmp < 0)
             {
                 return Balance(Make(node.Key, node.Value, Add(node.Left, key, value, comparer), node.Right));
@@ -941,13 +943,13 @@ namespace LanguageExt
             }
         }
 
-        public static MapItem<K, V> TrySetItem<K, V>(MapItem<K, V> node, K key, V value, Comparer<K> comparer) 
+        public static MapItem<K, V> TrySetItem<K, V>(MapItem<K, V> node, K key, V value, Comparer<K> comparer)
         {
             if (node.IsEmpty)
             {
                 return node;
             }
-            var cmp = comparer.Compare(key,node.Key);
+            var cmp = comparer.Compare(key, node.Key);
             if (cmp < 0)
             {
                 return Balance(Make(node.Key, node.Value, TrySetItem(node.Left, key, value, comparer), node.Right));
@@ -983,13 +985,13 @@ namespace LanguageExt
             }
         }
 
-        public static MapItem<K, V> AddOrUpdate<K, V>(MapItem<K, V> node, K key, V value, Comparer<K> comparer) 
+        public static MapItem<K, V> AddOrUpdate<K, V>(MapItem<K, V> node, K key, V value, Comparer<K> comparer)
         {
             if (node.IsEmpty)
             {
                 return new MapItem<K, V>(1, 1, key, value, MapItem<K, V>.Empty, MapItem<K, V>.Empty);
             }
-            var cmp = comparer.Compare(key,node.Key);
+            var cmp = comparer.Compare(key, node.Key);
             if (cmp < 0)
             {
                 return Balance(Make(node.Key, node.Value, AddOrUpdate(node.Left, key, value, comparer), node.Right));
@@ -1036,7 +1038,7 @@ namespace LanguageExt
             {
                 throw new ArgumentException("Key not found in Map");
             }
-            var cmp = comparer.Compare(key,node.Key);
+            var cmp = comparer.Compare(key, node.Key);
             if (cmp < 0)
             {
                 return Find(node.Left, key, comparer);
@@ -1066,7 +1068,7 @@ namespace LanguageExt
             {
                 yield break;
             }
-            if (comparer.Compare(node.Key,a) < 0)
+            if (comparer.Compare(node.Key, a) < 0)
             {
                 foreach (var item in FindRange(node.Right, a, b, comparer))
                 {
@@ -1100,7 +1102,7 @@ namespace LanguageExt
             {
                 return None;
             }
-            var cmp = comparer.Compare(key,node.Key);
+            var cmp = comparer.Compare(key, node.Key);
             if (cmp < 0)
             {
                 return TryFind(node.Left, key, comparer);

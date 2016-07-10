@@ -15,7 +15,7 @@ namespace LanguageExtTests
             var test = Stack<int>();
             var res = trypeek(test);
 
-            Assert.True(res.IsNone());
+            Assert.True(res.IsNone);
         }
 
         [Fact]
@@ -24,7 +24,7 @@ namespace LanguageExtTests
             var test = Stack<int>();
             var res = map(trypop(test), (stack, value) => value);
 
-            Assert.True(res.IsNone());
+            Assert.True(res.IsNone);
         }
 
         [Fact]
@@ -50,10 +50,10 @@ namespace LanguageExtTests
 
         public void Popping5(Stck<int> test)
         {
-            test = map(trypop(test), (stack, value) => { Assert.True(value.IsSome()); return stack; });
-            test = map(trypop(test), (stack, value) => { Assert.True(value.IsSome()); return stack; });
-            test = map(trypop(test), (stack, value) => { Assert.True(value.IsSome()); return stack; });
-            test = map(trypop(test), (stack, value) => { Assert.True(value.IsSome()); return stack; });
+            test = map(trypop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });
+            test = map(trypop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });
+            test = map(trypop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });
+            test = map(trypop(test), (stack, value) => { Assert.True(value.IsSome); return stack; });
             peek(test,
                 Some: v => Assert.True(v == 1),
                 None: () => Assert.False(true)

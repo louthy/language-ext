@@ -111,7 +111,7 @@ namespace LanguageExtTests
         [Fact]
         public void NullIsNoneTest()
         {
-            Assert.True(GetStringNone2().IsNone());
+            Assert.True(GetStringNone2().IsNone);
         }
 
         [Fact]

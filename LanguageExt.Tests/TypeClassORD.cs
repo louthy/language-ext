@@ -10,21 +10,21 @@ namespace LanguageExtTests
         [Fact]
         public void IntOrd()
         {
-            Assert.True(lessThan<TInteger, int>(10, 20));
-            Assert.False(lessThan<TInteger, int>(20, 10));
-            Assert.False(lessThan<TInteger, int>(10, 10));
+            Assert.True(lessThan<TInt, int>(10, 20));
+            Assert.False(lessThan<TInt, int>(20, 10));
+            Assert.False(lessThan<TInt, int>(10, 10));
 
-            Assert.True(greaterThan<TInteger, int>(20, 10));
-            Assert.False(greaterThan<TInteger, int>(10, 20));
-            Assert.False(greaterThan<TInteger, int>(10, 10));
+            Assert.True(greaterThan<TInt, int>(20, 10));
+            Assert.False(greaterThan<TInt, int>(10, 20));
+            Assert.False(greaterThan<TInt, int>(10, 10));
 
-            Assert.True(lessOrEq<TInteger, int>(10, 20));
-            Assert.False(lessOrEq<TInteger, int>(20, 10));
-            Assert.True(lessOrEq<TInteger, int>(10, 10));
+            Assert.True(lessOrEq<TInt, int>(10, 20));
+            Assert.False(lessOrEq<TInt, int>(20, 10));
+            Assert.True(lessOrEq<TInt, int>(10, 10));
 
-            Assert.True(greaterOrEq<TInteger, int>(20, 10));
-            Assert.False(greaterOrEq<TInteger, int>(10, 20));
-            Assert.True(greaterOrEq<TInteger, int>(10, 10));
+            Assert.True(greaterOrEq<TInt, int>(20, 10));
+            Assert.False(greaterOrEq<TInt, int>(10, 20));
+            Assert.True(greaterOrEq<TInt, int>(10, 10));
         }
 
         [Fact]
