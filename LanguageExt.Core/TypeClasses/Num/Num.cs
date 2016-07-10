@@ -55,7 +55,7 @@ namespace LanguageExt.TypeClasses
     /// Division operation type-class
     /// </summary>
     /// <typeparam name="A">The type for which the operation is defined.</typeparam>
-    public interface Division<A>
+    public interface Divisible<A>
     {
         /// <summary>
         /// Divide two numbers
@@ -71,7 +71,7 @@ namespace LanguageExt.TypeClasses
     /// </summary>
     /// <typeparam name="A">The type for which the number operations are
     /// defined.</typeparam>
-    public interface Num<A> : Addition<A>, Difference<A>, Product<A>, Division<A>
+    public interface Num<A> : Addition<A>, Difference<A>, Product<A>, Divisible<A>
     {
         /// <summary>
         /// Find the absolute value of a number

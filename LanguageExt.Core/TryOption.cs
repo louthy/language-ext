@@ -235,7 +235,7 @@ public static class TryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs / rhs</returns>
     [Pure]
-    public static TryOption<T> Divide<DIV, T>(this TryOption<T> lhs, TryOption<T> rhs) where DIV : struct, Division<T> => () =>
+    public static TryOption<T> Divide<DIV, T>(this TryOption<T> lhs, TryOption<T> rhs) where DIV : struct, Divisible<T> => () =>
     {
         var lhsRes = lhs.Try();
         if (lhsRes.IsFaulted) return lhsRes;

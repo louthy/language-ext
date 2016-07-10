@@ -14,9 +14,6 @@ namespace LanguageExt
     ///     
     ///     None
     ///     
-    /// All instance methods are provided as extension methods.  This is to defend
-    /// against null references, and to equate null with None.  Therefore you do not
-    /// need to check for null when using Option
     /// </summary>
     /// <typeparam name="A">The type of the bound value</typeparam>
     internal abstract class OptionV<A>

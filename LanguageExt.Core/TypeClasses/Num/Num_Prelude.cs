@@ -42,7 +42,7 @@ namespace LanguageExt
         /// <param name="y">right hand side of the division operation</param>
         /// <returns>x / y</returns>
         [Pure]
-        public static A divide<DIV, A>(A x, A y) where DIV : struct, Division<A> =>
+        public static A divide<DIV, A>(A x, A y) where DIV : struct, Divisible<A> =>
             default(DIV).Divide(x, y);
 
         /// <summary>

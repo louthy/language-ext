@@ -11,10 +11,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 
 /// <summary>
-/// Extension methods for Option
+/// Extension methods for OptionUnsafe
 /// By using extension methods we can check for null references in 'this'
 /// </summary>
-public static class OptionExtensions
+public static class OptionUnsafeExtensions
 {
     /// <summary>
     /// Append the Some(x) of one option to the Some(y) of another.  If either of the
@@ -30,17 +30,17 @@ public static class OptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static Option<T> Mappend<SEMI, T>(this Option<T> lhs, Option<T> rhs) where SEMI : struct, Semigroup<T> =>
+    public static OptionUnsafe<T> Mappend<SEMI, T>(this OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where SEMI : struct, Semigroup<T> =>
         from x in lhs
         from y in rhs
         select append<SEMI, T>(x, y);
 
     /// <summary>
-    /// Extracts from a list of 'Option' all the 'Some' elements.
+    /// Extracts from a list of 'OptionUnsafe' all the 'Some' elements.
     /// All the 'Some' elements are extracted in order.
     /// </summary>
     [Pure]
-    public static IEnumerable<T> Somes<T>(this IEnumerable<Option<T>> self)
+    public static IEnumerable<T> Somes<T>(this IEnumerable<OptionUnsafe<T>> self)
     {
         foreach (var item in self)
         {
@@ -59,7 +59,7 @@ public static class OptionExtensions
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>True if the bound values are equal</returns>
-    public static bool Equals<EQ, A>(this Option<A> x, Option<A> y) where EQ : struct, Eq<A> =>
+    public static bool Equals<EQ, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where EQ : struct, Eq<A> =>
         x.IsNone && y.IsNone
             ? true
             : x.IsNone || y.IsNone
@@ -74,9 +74,9 @@ public static class OptionExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An option with y appended to x</returns>
+    /// <returns>An OptionUnsafe with y appended to x</returns>
     [Pure]
-    public static Option<A> Append<SEMI, A>(this Option<A> x, Option<A> y) where SEMI : struct, Semigroup<A> =>
+    public static OptionUnsafe<A> Append<SEMI, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where SEMI : struct, Semigroup<A> =>
        from a in x
        from b in y
        select append<SEMI, A>(a, b);
@@ -89,9 +89,9 @@ public static class OptionExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An option with y added to x</returns>
+    /// <returns>An OptionUnsafe with y added to x</returns>
     [Pure]
-    public static Option<A> Add<ADD, A>(this Option<A> x, Option<A> y) where ADD : struct, Addition<A> =>
+    public static OptionUnsafe<A> Add<ADD, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where ADD : struct, Addition<A> =>
         from a in x
         from b in y
         select add<ADD, A>(a, b);
@@ -104,9 +104,9 @@ public static class OptionExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An option with the difference between x and y</returns>
+    /// <returns>An OptionUnsafe with the difference between x and y</returns>
     [Pure]
-    public static Option<A> Difference<DIFF, A>(this Option<A> x, Option<A> y) where DIFF : struct, Difference<A> =>
+    public static OptionUnsafe<A> Difference<DIFF, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where DIFF : struct, Difference<A> =>
         from a in x
         from b in y
         select difference<DIFF, A>(a, b);
@@ -119,9 +119,9 @@ public static class OptionExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An option with the product of x and y</returns>
+    /// <returns>An OptionUnsafe with the product of x and y</returns>
     [Pure]
-    public static Option<A> Product<PROD, A>(this Option<A> x, Option<A> y) where PROD : struct, Product<A> =>
+    public static OptionUnsafe<A> Product<PROD, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where PROD : struct, Product<A> =>
         from a in x
         from b in y
         select product<PROD, A>(a, b);
@@ -134,9 +134,9 @@ public static class OptionExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An option x / y</returns>
+    /// <returns>An OptionUnsafe x / y</returns>
     [Pure]
-    public static Option<A> Divide<DIV, A>(this Option<A> x, Option<A> y) where DIV : struct, Divisible<A> =>
+    public static OptionUnsafe<A> Divide<DIV, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where DIV : struct, Divisible<A> =>
         from a in x
         from b in y
         select divide<DIV, A>(a, b);
@@ -144,7 +144,7 @@ public static class OptionExtensions
     /// Apply y to x
     /// </summary>
     [Pure]
-    public static Option<B> Apply<A, B>(this Option<Func<A, B>> x, Option<A> y) =>
+    public static OptionUnsafe<B> Apply<A, B>(this OptionUnsafe<Func<A, B>> x, OptionUnsafe<A> y) =>
         from a in x
         from b in y
         select a(b);
@@ -153,8 +153,8 @@ public static class OptionExtensions
     /// Apply y and z to x
     /// </summary>
     [Pure]
-    public static Option<C> Apply<A, B, C>(this Option<Func<A, B, C>> x, Option<A> y, Option<B> z) =>
-        (Option<C>)(from a in x
+    public static OptionUnsafe<C> Apply<A, B, C>(this OptionUnsafe<Func<A, B, C>> x, OptionUnsafe<A> y, OptionUnsafe<B> z) =>
+        (OptionUnsafe<C>)(from a in x
                     from b in y
                     from c in z
                     select a(b, c));
@@ -163,8 +163,8 @@ public static class OptionExtensions
     /// Apply y to x
     /// </summary>
     [Pure]
-    public static Option<Func<B, C>> Apply<A, B, C>(this Option<Func<A, Func<B, C>>> x, Option<A> y) =>
-        (Option<Func<B,C>>)(from a in x
+    public static OptionUnsafe<Func<B, C>> Apply<A, B, C>(this OptionUnsafe<Func<A, Func<B, C>>> x, OptionUnsafe<A> y) =>
+        (OptionUnsafe<Func<B,C>>)(from a in x
                             from b in y
                             select a(b));
                     
@@ -172,8 +172,8 @@ public static class OptionExtensions
     /// Apply x, then y, ignoring the result of x
     /// </summary>
     [Pure]
-    public static Option<B> Action<A, B>(this Option<A> x, Option<B> y) =>
-        (Option<B>)(from a in x
+    public static OptionUnsafe<B> Action<A, B>(this OptionUnsafe<A> x, OptionUnsafe<B> y) =>
+        (OptionUnsafe<B>)(from a in x
                     from b in y
                     select b);
 
@@ -184,7 +184,7 @@ public static class OptionExtensions
     /// <param name="ma">Option to convert</param>
     /// <returns>Nullable of A</returns>
     [Pure]
-    public static A? ToNullable<A>(this Option<A> ma) where A : struct =>
+    public static A? ToNullable<A>(this OptionUnsafe<A> ma) where A : struct =>
         ma.IsNone
             ? (A?)null
             : ma.Value;
@@ -196,7 +196,7 @@ public static class OptionExtensions
     /// <param name="Some">Some handler.  Must not return null.</param>
     /// <param name="None">None handler.  Must not return null.</param>
     /// <returns>A promise to return a non-null R</returns>
-    public static async Task<B> MatchAsync<A, B>(this Option<A> ma, Func<A, Task<B>> Some, Func<B> None) =>
+    public static async Task<B> MatchAsync<A, B>(this OptionUnsafe<A> ma, Func<A, Task<B>> Some, Func<B> None) =>
         ma.IsSome
             ? CheckNullSomeReturn(await Some(ma.Value))
             : CheckNullNoneReturn(None());
@@ -208,7 +208,7 @@ public static class OptionExtensions
     /// <param name="Some">Some handler.  Must not return null.</param>
     /// <param name="None">None handler.  Must not return null.</param>
     /// <returns>A promise to return a non-null R</returns>
-    public static async Task<B> MatchAsync<A, B>(this Option<A> ma, Func<A, Task<B>> Some, Func<Task<B>> None) =>
+    public static async Task<B> MatchAsync<A, B>(this OptionUnsafe<A> ma, Func<A, Task<B>> Some, Func<Task<B>> None) =>
         ma.IsSome
             ? CheckNullSomeReturn(await Some(ma.Value))
             : CheckNullNoneReturn(await None());
@@ -221,7 +221,7 @@ public static class OptionExtensions
     /// <param name="None">None handler.  Must not return null.</param>
     /// <returns>A stream of non-null Rs</returns>
     [Pure]
-    public static IObservable<B> MatchObservable<A, B>(this Option<A> ma, Func<A, IObservable<B>> Some, Func<B> None) =>
+    public static IObservable<B> MatchObservable<A, B>(this OptionUnsafe<A> ma, Func<A, IObservable<B>> Some, Func<B> None) =>
         ma.IsSome
             ? Some(ma.Value).Select(CheckNullSomeReturn)
             : Observable.Return(CheckNullNoneReturn(None()));
@@ -234,7 +234,7 @@ public static class OptionExtensions
     /// <param name="None">None handler.  Must not return null.</param>
     /// <returns>A stream of non-null Rs</returns>
     [Pure]
-    public static IObservable<B> MatchObservable<A, B>(this Option<A> ma, Func<A, IObservable<B>> Some, Func<IObservable<B>> None) =>
+    public static IObservable<B> MatchObservable<A, B>(this OptionUnsafe<A> ma, Func<A, IObservable<B>> Some, Func<IObservable<B>> None) =>
         ma.IsSome
             ? Some(ma.Value).Select(CheckNullSomeReturn)
             : None().Select(CheckNullNoneReturn);
@@ -260,8 +260,8 @@ public static class OptionExtensions
     /// <remarks>This is a legacy method for backwards compatibility</remarks>
     /// <param name="a">Option of int</param>
     /// <returns>The bound value or 0 if None</returns>
-    public static int Sum(this Option<int> a) =>
-        a.IfNone(0);
+    public static int Sum(this OptionUnsafe<int> a) =>
+        a.IfNoneUnsafe(0);
 
     /// <summary>
     /// Generic sum operation
@@ -273,8 +273,8 @@ public static class OptionExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="a">Option of A</param>
     /// <returns>The bound value</returns>
-    public static A Sum<NUM, A>(this Option<A> a) where NUM : struct, Num<A> =>
-        a.IfNone(default(NUM).FromInteger(0));
+    public static A Sum<NUM, A>(this OptionUnsafe<A> a) where NUM : struct, Num<A> =>
+        a.IfNoneUnsafe(default(NUM).FromInteger(0));
 
     /// <summary>
     /// Fold the bound value
@@ -284,7 +284,7 @@ public static class OptionExtensions
     /// <param name="state">Initial state</param>
     /// <param name="f">Fold operation</param>
     /// <returns>Aggregated state</returns>
-    public static S Fold<A, S>(this Option<A> ma, S state, Func<S, A, S> f) =>
+    public static S Fold<A, S>(this OptionUnsafe<A> ma, S state, Func<S, A, S> f) =>
         ma.IsSome
             ? f(state, ma.Value)
             : state;
@@ -297,7 +297,7 @@ public static class OptionExtensions
     /// <param name="state">Initial state</param>
     /// <param name="f">Fold operation</param>
     /// <returns>Aggregated state</returns>
-    public static S FoldBack<A, S>(this Option<A> ma, S state, Func<S, A, S> f) =>
+    public static S FoldBack<A, S>(this OptionUnsafe<A> ma, S state, Func<S, A, S> f) =>
         ma.IsSome
             ? f(state, ma.Value)
             : state;
@@ -306,15 +306,15 @@ public static class OptionExtensions
     /// Iterate the bound value (or not if the option is in a Some state)
     /// </summary>
     /// <param name="action">Action to perform</param>
-    public static Unit Iter<A>(this Option<A> ma, Action<A> action) =>
-        ma.IfSome(action);
+    public static Unit Iter<A>(this OptionUnsafe<A> ma, Action<A> action) =>
+        ma.IfSomeUnsafe(action);
 
     /// <summary>
     /// Returns 0 if the option is in a None state, 1 otherwise
     /// </summary>
     /// <returns>0 or 1</returns>
     [Pure]
-    public static int Count<A>(this Option<A> ma) =>
+    public static int Count<A>(this OptionUnsafe<A> ma) =>
         ma.IsSome
             ? 1
             : 0;
@@ -327,7 +327,7 @@ public static class OptionExtensions
     /// <param name="pred">Predicate to apply</param>
     /// <returns>True if the predicate holds for all values</returns>
     [Pure]
-    public static bool ForAll<A>(this Option<A> ma, Func<A, bool> pred) =>
+    public static bool ForAll<A>(this OptionUnsafe<A> ma, Func<A, bool> pred) =>
         ma.IsSome
             ? pred(ma.Value)
             : true;
@@ -340,7 +340,7 @@ public static class OptionExtensions
     /// <param name="pred">Predicate to apply</param>
     /// <returns>False if the predicate holds for any value</returns>
     [Pure]
-    public static bool Exists<A>(this Option<A> ma, Func<A, bool> pred) =>
+    public static bool Exists<A>(this OptionUnsafe<A> ma, Func<A, bool> pred) =>
         ma.IsSome
             ? pred(ma.Value)
             : false;
@@ -349,68 +349,68 @@ public static class OptionExtensions
     /// Bi-fold
     /// </summary>
     [Pure]
-    public static S BiFold<A, S>(this Option<A> ma, S state, Func<S, A, S> Some, Func<S, S> None) =>
+    public static S BiFold<A, S>(this OptionUnsafe<A> ma, S state, Func<S, A, S> Some, Func<S, S> None) =>
         ma.IsSome
             ? Some(state, ma.Value)
             : None(state);
 
     [Pure]
-    public static Option<B> Map<A, B>(this Option<A> ma, Func<A, B> mapper) =>
+    public static OptionUnsafe<B> Map<A, B>(this OptionUnsafe<A> ma, Func<A, B> mapper) =>
         ma.IsSome
-            ? Optional(mapper(ma.Value))
+            ? SomeUnsafe(mapper(ma.Value))
             : None;
 
     [Pure]
-    public static Option<B> BiMap<A, B>(this Option<A> ma, Func<A, B> Some, Func<B> None) =>
+    public static OptionUnsafe<B> BiMap<A, B>(this OptionUnsafe<A> ma, Func<A, B> Some, Func<B> None) =>
         ma.IsSome
-            ? Optional(Some(ma.Value))
-            : Optional(None());
+            ? SomeUnsafe(Some(ma.Value))
+            : SomeUnsafe(None());
 
     [Pure]
-    public static Option<A> Filter<A>(this Option<A> ma, Func<A, bool> pred) =>
+    public static OptionUnsafe<A> Filter<A>(this OptionUnsafe<A> ma, Func<A, bool> pred) =>
         ma.IsSome
             ? pred(ma.Value)
                 ? ma
-                : Option<A>.None
+                : OptionUnsafe<A>.None
             : ma;
 
     [Pure]
-    public static Option<A> BiFilter<A>(this Option<A> ma, Func<A, bool> Some, Func<bool> None) =>
+    public static OptionUnsafe<A> BiFilter<A>(this OptionUnsafe<A> ma, Func<A, bool> Some, Func<bool> None) =>
         ma.IsSome
             ? Some(ma.Value)
                 ? ma
-                : Option<A>.None
+                : OptionUnsafe<A>.None
             : None()
                 ? ma
-                : Option<A>.None;
+                : OptionUnsafe<A>.None;
 
     [Pure]
-    public static Option<B> Bind<A, B>(this Option<A> ma, Func<A, Option<B>> binder) =>
+    public static OptionUnsafe<B> Bind<A, B>(this OptionUnsafe<A> ma, Func<A, OptionUnsafe<B>> binder) =>
         ma.IsSome
             ? binder(ma.Value)
-            : Option<B>.None;
+            : OptionUnsafe<B>.None;
 
     [Pure]
-    public static Option<B> BiBind<A, B>(this Option<A> ma, Func<A, Option<B>> Some, Func<Option<B>> None) =>
+    public static OptionUnsafe<B> BiBind<A, B>(this OptionUnsafe<A> ma, Func<A, OptionUnsafe<B>> Some, Func<OptionUnsafe<B>> None) =>
         ma.IsSome
             ? Some(ma.Value)
             : None();
 
     [Pure]
-    public static Option<A> Where<A>(this Option<A> ma, Func<A, bool> pred) =>
+    public static OptionUnsafe<A> Where<A>(this OptionUnsafe<A> ma, Func<A, bool> pred) =>
         ma.Filter(pred);
 
-    public static Option<V> Join<T, U, K, V>(
-        this Option<T> ma,
-        Option<U> inner,
+    public static OptionUnsafe<V> Join<T, U, K, V>(
+        this OptionUnsafe<T> ma,
+        OptionUnsafe<U> inner,
         Func<T, K> outerKeyMap,
         Func<U, K> innerKeyMap,
         Func<T, U, V> project)
     {
-        if (ma.IsNone) return Option<V>.None;
-        if (inner.IsNone) return Option<V>.None;
+        if (ma.IsNone) return OptionUnsafe<V>.None;
+        if (inner.IsNone) return OptionUnsafe<V>.None;
         return EqualityComparer<K>.Default.Equals(outerKeyMap(ma.Value), innerKeyMap(inner.Value))
-            ? Optional(project(ma.Value, inner.Value))
+            ? SomeUnsafe(project(ma.Value, inner.Value))
             : None;
     }
 
@@ -419,7 +419,7 @@ public static class OptionExtensions
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
-    public static Option<Func<T2, R>> ParMap<T1, T2, R>(this Option<T1> opt, Func<T1, T2, R> func) =>
+    public static OptionUnsafe<Func<T2, R>> ParMap<T1, T2, R>(this OptionUnsafe<T1> opt, Func<T1, T2, R> func) =>
         opt.Map(curry(func));
 
     /// <summary>
@@ -427,47 +427,47 @@ public static class OptionExtensions
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
-    public static Option<Func<T2, Func<T3, R>>> ParMap<T1, T2, T3, R>(this Option<T1> opt, Func<T1, T2, T3, R> func) =>
+    public static OptionUnsafe<Func<T2, Func<T3, R>>> ParMap<T1, T2, T3, R>(this OptionUnsafe<T1> opt, Func<T1, T2, T3, R> func) =>
         opt.Map(curry(func));
 
-    public static async Task<Option<R>> MapAsync<T, R>(this Option<T> self, Func<T, Task<R>> map) =>
+    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this OptionUnsafe<T> self, Func<T, Task<R>> map) =>
         self.IsSome
-            ? Optional(await map(self.Value))
+            ? SomeUnsafe(await map(self.Value))
             : None;
 
-    public static async Task<Option<R>> MapAsync<T, R>(this Task<Option<T>> self, Func<T, Task<R>> map)
+    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this Task<OptionUnsafe<T>> self, Func<T, Task<R>> map)
     {
         var val = await self;
         return val.IsSome
-            ? Optional(await map(val.Value))
+            ? SomeUnsafe(await map(val.Value))
             : None;
     }
 
-    public static async Task<Option<R>> MapAsync<T, R>(this Task<Option<T>> self, Func<T, R> map)
+    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this Task<OptionUnsafe<T>> self, Func<T, R> map)
     {
         var val = await self;
         return val.IsSome
-            ? Optional(map(val.Value))
+            ? SomeUnsafe(map(val.Value))
             : None;
     }
 
-    public static async Task<Option<R>> MapAsync<T, R>(this Option<Task<T>> self, Func<T, R> map) =>
+    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this OptionUnsafe<Task<T>> self, Func<T, R> map) =>
         self.IsSome
-            ? Optional(map(await self.Value))
+            ? SomeUnsafe(map(await self.Value))
             : None;
 
-    public static async Task<Option<R>> MapAsync<T, R>(this Option<Task<T>> self, Func<T, Task<R>> map) =>
+    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this OptionUnsafe<Task<T>> self, Func<T, Task<R>> map) =>
         self.IsSome
-            ? Optional(await map(await self.Value))
+            ? SomeUnsafe(await map(await self.Value))
             : None;
 
 
-    public static async Task<Option<R>> BindAsync<T, R>(this Option<T> self, Func<T, Task<Option<R>>> bind) =>
+    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this OptionUnsafe<T> self, Func<T, Task<OptionUnsafe<R>>> bind) =>
         self.IsSome
             ? await bind(self.Value)
             : None;
 
-    public static async Task<Option<R>> BindAsync<T, R>(this Task<Option<T>> self, Func<T, Task<Option<R>>> bind)
+    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this Task<OptionUnsafe<T>> self, Func<T, Task<OptionUnsafe<R>>> bind)
     {
         var val = await self;
         return val.IsSome
@@ -475,60 +475,60 @@ public static class OptionExtensions
             : None;
     }
 
-    public static async Task<Option<R>> BindAsync<T, R>(this Task<Option<T>> self, Func<T, Option<R>> bind)
+    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this Task<OptionUnsafe<T>> self, Func<T, OptionUnsafe<R>> bind)
     {
         var val = await self;
         return val.IsSome
             ? bind(val.Value)
-            : Option<R>.None;
+            : OptionUnsafe<R>.None;
     }
 
-    public static async Task<Option<R>> BindAsync<T, R>(this Option<Task<T>> self, Func<T, Option<R>> bind) =>
+    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this OptionUnsafe<Task<T>> self, Func<T, OptionUnsafe<R>> bind) =>
         self.IsSome
             ? bind(await self.Value)
-            : Option<R>.None;
+            : OptionUnsafe<R>.None;
 
-    public static async Task<Option<R>> BindAsync<T, R>(this Option<Task<T>> self, Func<T, Task<Option<R>>> bind) =>
+    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this OptionUnsafe<Task<T>> self, Func<T, Task<OptionUnsafe<R>>> bind) =>
         self.IsSome
             ? await bind(await self.Value)
-            : Option<R>.None;
+            : OptionUnsafe<R>.None;
 
-    public static async Task<Unit> IterAsync<T>(this Task<Option<T>> self, Action<T> action)
+    public static async Task<Unit> IterAsync<T>(this Task<OptionUnsafe<T>> self, Action<T> action)
     {
         var val = await self;
         if (val.IsSome) action(val.Value);
         return unit;
     }
 
-    public static async Task<Unit> IterAsync<T>(this Option<Task<T>> self, Action<T> action)
+    public static async Task<Unit> IterAsync<T>(this OptionUnsafe<Task<T>> self, Action<T> action)
     {
         if (self.IsSome) action(await self.Value);
         return unit;
     }
 
-    public static async Task<int> CountAsync<T>(this Task<Option<T>> self) =>
+    public static async Task<int> CountAsync<T>(this Task<OptionUnsafe<T>> self) =>
         (await self).Count();
 
-    public static async Task<S> FoldAsync<T, S>(this Task<Option<T>> self, S state, Func<S, T, S> folder) =>
+    public static async Task<S> FoldAsync<T, S>(this Task<OptionUnsafe<T>> self, S state, Func<S, T, S> folder) =>
         (await self).Fold(state, folder);
 
-    public static async Task<S> FoldAsync<T, S>(this Option<Task<T>> self, S state, Func<S, T, S> folder) =>
+    public static async Task<S> FoldAsync<T, S>(this OptionUnsafe<Task<T>> self, S state, Func<S, T, S> folder) =>
         self.IsSome
             ? folder(state, await self.Value)
             : state;
 
-    public static async Task<bool> ForAllAsync<T>(this Task<Option<T>> self, Func<T, bool> pred) =>
+    public static async Task<bool> ForAllAsync<T>(this Task<OptionUnsafe<T>> self, Func<T, bool> pred) =>
         (await self).ForAll(pred);
 
-    public static async Task<bool> ForAllAsync<T>(this Option<Task<T>> self, Func<T, bool> pred) =>
+    public static async Task<bool> ForAllAsync<T>(this OptionUnsafe<Task<T>> self, Func<T, bool> pred) =>
         self.IsSome
             ? pred(await self.Value)
             : true;
 
-    public static async Task<bool> ExistsAsync<T>(this Task<Option<T>> self, Func<T, bool> pred) =>
+    public static async Task<bool> ExistsAsync<T>(this Task<OptionUnsafe<T>> self, Func<T, bool> pred) =>
         (await self).Exists(pred);
 
-    public static async Task<bool> ExistsAsync<T>(this Option<Task<T>> self, Func<T, bool> pred) =>
+    public static async Task<bool> ExistsAsync<T>(this OptionUnsafe<Task<T>> self, Func<T, bool> pred) =>
         self.IsSome
             ? pred(await self.Value)
             : false;
@@ -538,7 +538,7 @@ public static class OptionExtensions
     /// </summary>
     [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static IEnumerable<V> SelectMany<T, U, V>(this Option<T> self,
+    public static IEnumerable<V> SelectMany<T, U, V>(this OptionUnsafe<T> self,
         Func<T, IEnumerable<U>> bind,
         Func<T, U, V> project
         )
@@ -553,8 +553,8 @@ public static class OptionExtensions
     /// </summary>
     [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static IEnumerable<Option<V>> SelectMany<T, U, V>(this IEnumerable<T> self,
-        Func<T, Option<U>> bind,
+    public static IEnumerable<OptionUnsafe<V>> SelectMany<T, U, V>(this IEnumerable<T> self,
+        Func<T, OptionUnsafe<U>> bind,
         Func<T, U, V> project
         )
     {

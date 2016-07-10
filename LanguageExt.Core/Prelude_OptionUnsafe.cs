@@ -3,6 +3,9 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
+using LanguageExt;
+using LanguageExt.TypeClasses;
+using static LanguageExt.TypeClass;
 
 namespace LanguageExt
 {
@@ -22,8 +25,8 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
         [Pure]
-        public static OptionUnsafe<T> append<T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
-            lhs.Append(rhs);
+        public static OptionUnsafe<T> append<SEMI, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where SEMI : struct, Semigroup<T> =>
+            lhs.Append<SEMI, T>(rhs);
 
         /// <summary>
         /// Subtract the Some(x) of one option from the Some(y) of another.  If either of the
@@ -38,8 +41,8 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
         [Pure]
-        public static OptionUnsafe<T> subtract<T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
-            lhs.Subtract(rhs);
+        public static OptionUnsafe<T> difference<DIFF, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where DIFF : struct, Difference<T> =>
+            lhs.Difference<DIFF,T>(rhs);
 
         /// <summary>
         /// Find the product of the Somes.  If either of the options are None then the result is None
@@ -53,8 +56,8 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
         [Pure]
-        public static OptionUnsafe<T> multiply<T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
-            lhs.Multiply(rhs);
+        public static OptionUnsafe<T> product<PROD, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where PROD : struct, Product<T> =>
+            lhs.Product<PROD,T>(rhs);
 
         /// <summary>
         /// Divide the Somes.  If either of the options are None then the result is None
@@ -68,8 +71,8 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static OptionUnsafe<T> divide<T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
-            lhs.Divide(rhs);
+        public static OptionUnsafe<T> divide<DIV, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where DIV : struct, Divisible<T> =>
+            lhs.Divide<DIV,T>(rhs);
 
         [Pure]
         public static bool isSome<T>(OptionUnsafe<T> value) =>
@@ -88,7 +91,7 @@ namespace LanguageExt
         /// <returns>Option<T> in a Some state</returns>
         [Pure]
         public static OptionUnsafe<T> SomeUnsafe<T>(T value) =>
-            OptionUnsafe<T>.Some(value);
+            Return<OptionUnsafe<T>, T>(value);
 
         public static Unit ifSomeUnsafe<T>(OptionUnsafe<T> option, Action<T> Some) =>
             option.IfSomeUnsafe(Some);
@@ -186,29 +189,15 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the optional argument to the optional function</returns>
         [Pure]
         public static OptionUnsafe<R> apply<T, R>(OptionUnsafe<Func<T, R>> option, OptionUnsafe<T> arg) =>
-            option.Apply(arg);
+            (OptionUnsafe<R>)option.Apply(arg);
 
-        /// <summary>
-        /// Apply an Optional value to an Optional function of arity 2
-        /// </summary>
-        /// <param name="option">Optional function</param>
-        /// <param name="arg">Optional argument</param>
-        /// <returns>Returns the result of applying the optional argument to the optional function:
-        /// an optonal function of arity 1</returns>
         [Pure]
-        public static OptionUnsafe<Func<T2, R>> apply<T1, T2, R>(OptionUnsafe<Func<T1, T2, R>> option, OptionUnsafe<T1> arg) =>
-            option.Apply(arg);
+        public static OptionUnsafe<R> apply<T, U, R>(OptionUnsafe<Func<T, U, R>> option, OptionUnsafe<T> arg1, OptionUnsafe<U> arg2) =>
+            (OptionUnsafe<R>)option.Apply(arg1, arg2);
 
-        /// <summary>
-        /// Apply Optional values to an Optional function of arity 2
-        /// </summary>
-        /// <param name="option">Optional function</param>
-        /// <param name="arg1">Optional argument</param>
-        /// <param name="arg2">Optional argument</param>
-        /// <returns>Returns the result of applying the optional arguments to the optional function</returns>
         [Pure]
-        public static OptionUnsafe<R> apply<T1, T2, R>(OptionUnsafe<Func<T1, T2, R>> option, OptionUnsafe<T1> arg1, OptionUnsafe<T2> arg2) =>
-            option.Apply(arg1, arg2);
+        public static OptionUnsafe<Func<U, R>> apply<T, U, R>(OptionUnsafe<Func<T, Func<U, R>>> option, OptionUnsafe<T> arg) =>
+            (OptionUnsafe<Func<U, R>>)option.Apply(arg);
 
         [Pure]
         public static IEnumerable<R> MatchUnsafe<T, R>(this IEnumerable<OptionUnsafe<T>> list,
@@ -282,12 +271,6 @@ namespace LanguageExt
 
         public static Task<int> countAsync<T>(Task<OptionUnsafe<T>> self) =>
             self.CountAsync();
-
-        public static Task<int> sumAsync(Task<OptionUnsafe<int>> self) =>
-            self.SumAsync();
-
-        public static Task<int> sumAsync(OptionUnsafe<Task<int>> self) =>
-            self.SumAsync();
 
         public static Task<S> foldAsync<T, S>(Task<OptionUnsafe<T>> self, S state, Func<S, T, S> folder) =>
             self.FoldAsync(state, folder);

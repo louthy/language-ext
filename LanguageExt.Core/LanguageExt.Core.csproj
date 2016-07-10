@@ -53,7 +53,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionObservable.cs" />
-    <Compile Include="Instances\EqOption.cs" />
+    <Compile Include="Instances\OrdDefault.cs" />
+    <Compile Include="Instances\EqOpt.cs" />
     <Compile Include="Instances\EqQueue.cs" />
     <Compile Include="Instances\EqMap.cs" />
     <Compile Include="Instances\EqSet.cs" />
@@ -66,17 +67,20 @@
     <Compile Include="Instances\EqLong.cs" />
     <Compile Include="Instances\EqShort.cs" />
     <Compile Include="Instances\EqInt.cs" />
+    <Compile Include="IOptional.cs" />
+    <Compile Include="OptionUnsafe\OptionUnsafe.cs" />
+    <Compile Include="OptionUnsafe\OptionUnsafeExtensions.cs" />
     <Compile Include="Seq\SeqM.cs" />
     <Compile Include="NewType.cs" />
-    <Compile Include="Option\None.cs" />
-    <Compile Include="Option\OptionV.cs" />
+    <Compile Include="Option-Shared\None.cs" />
+    <Compile Include="Option-Shared\OptionV.cs" />
     <Compile Include="Option\OptionExtensions.cs" />
-    <Compile Include="Option\OptionVExtensions.cs" />
+    <Compile Include="Option-Shared\OptionVExtensions.cs" />
     <Compile Include="Option\Option.cs" />
-    <Compile Include="Option\OptionNone.cs" />
-    <Compile Include="Option\SomeValue.cs" />
-    <Compile Include="Option\SomeContext.cs" />
-    <Compile Include="Option\SomeUnitContext.cs" />
+    <Compile Include="Option-Shared\OptionNone.cs" />
+    <Compile Include="Option-Shared\SomeValue.cs" />
+    <Compile Include="Option-Shared\SomeContext.cs" />
+    <Compile Include="Option-Shared\SomeUnitContext.cs" />
     <Compile Include="Prelude_NewType.cs" />
     <Compile Include="Prelude_Nullable.cs" />
     <Compile Include="DVV.cs" />
@@ -106,7 +110,6 @@
       <DependentUpon>HKT.tt</DependentUpon>
     </Compile>
     <Compile Include="IEither.cs" />
-    <Compile Include="IOptional.cs" />
     <Compile Include="MapKV.cs" />
     <Compile Include="Prelude_Monad.cs" />
     <Compile Include="Prelude_Obsolete.cs" />
@@ -161,7 +164,9 @@
     <Compile Include="TypeClasses\Fraction\Fraction_Extensions.cs" />
     <Compile Include="TypeClasses\Monad\Monad_Extensions.cs" />
     <Compile Include="TypeClasses\Functor\Functor_Extensions.cs" />
-    <Compile Include="Instances\OrdOption.cs" />
+    <Compile Include="Instances\OrdOpt.cs" />
+    <Compile Include="TypeClasses\Optional\Optional.cs" />
+    <Compile Include="TypeClasses\Optional\Optional_Extensions.cs" />
     <Compile Include="TypeClasses\Ord\Ord_Extensions.cs" />
     <Compile Include="TypeClasses\Semigroup\Semigroup_Extensions.cs" />
     <Compile Include="TypeClasses\Seq\Seq_Prelude.cs" />

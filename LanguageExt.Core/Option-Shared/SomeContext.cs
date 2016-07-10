@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LanguageExt.TypeClasses;
+using System;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 
@@ -6,38 +7,39 @@ namespace LanguageExt
 {
     /// <summary>
     /// Provides a fluent context when calling the Some(Func) method from
-    /// Option<A>.  Must call None(Func) or None(Value) on this context
-    /// to complete the matching operation.
+    /// a member of the Optional<A> type-class.  Must call None(Func) or 
+    /// None(Value) on this context to complete the matching operation.
     /// </summary>
     /// <typeparam name="A">Bound optional value type</typeparam>
     /// <typeparam name="B">The operation return value type</typeparam>
-    public struct SomeContext<A, B>
+    public class SomeContext<OPT, A, B> where OPT : struct, Optional<A>
     {
-        readonly Option<A> option;
+        readonly Optional<A> option;
         readonly Func<A, B> someHandler;
+        readonly bool unsafeOpt;
 
-        internal SomeContext(Option<A> option, Func<A, B> someHandler)
+        internal SomeContext(Optional<A> option, Func<A, B> someHandler, bool unsafeOpt)
         {
-            this.option = option || Option<A>.None;
+            this.option = option;
             this.someHandler = someHandler;
+            this.unsafeOpt = unsafeOpt;
         }
 
         /// <summary>
         /// The None branch of the matching operation
         /// </summary>
         /// <param name="noneHandler">None branch operation</param>
-        /// <returns>The result of the operation</returns>
-        [Pure]
         public B None(Func<B> noneHandler) =>
-            match(option, someHandler, noneHandler);
+            unsafeOpt
+                ? default(OPT).MatchUnsafe(option, someHandler, noneHandler)
+                : default(OPT).Match(option, someHandler, noneHandler);
 
         /// <summary>
         /// The None branch of the matching operation
         /// </summary>
-        /// <param name="noneValue">None branch operation return value</param>
-        /// <returns>The result of the operation</returns>
-        [Pure]
+        /// <param name="noneHandler">None branch operation</param>
         public B None(B noneValue) =>
-            match(option, someHandler, () => noneValue);
+            None(() => noneValue);
+
     }
 }

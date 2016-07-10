@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
+using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
@@ -1021,35 +1022,33 @@ public static class MapExtensions
         }
     }
 
-    // TODO: Restore when the type-class work is complete
-
-    //[Pure]
-    //public static Map<A, Map<B, Map<C, Map<D, T>>>> Remove<A, B, C, D, T>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, A aKey, B bKey, C cKey, D dKey)
-    //{
-    //    var res = self.Find(aKey, bKey, cKey);
-    //    if (res.IsSome && res.CountT() > 1)
-    //    {
-    //        return self.SetItemT(aKey, bKey, cKey, res.LiftUnsafe().Remove(dKey));
-    //    }
-    //    else
-    //    {
-    //        if (res.IsSome)
-    //        {
-    //            if (res.MapT(d => d.ContainsKey(dKey)).Lift())
-    //            {
-    //                return Remove(self, aKey, bKey, cKey);
-    //            }
-    //            else
-    //            {
-    //                return self;
-    //            }
-    //        }
-    //        else
-    //        {
-    //            return Remove(self, aKey, bKey, cKey);
-    //        }
-    //    }
-    //}
+    [Pure]
+    public static Map<A, Map<B, Map<C, Map<D, T>>>> Remove<A, B, C, D, T>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, A aKey, B bKey, C cKey, D dKey)
+    {
+        var res = self.Find(aKey, bKey, cKey);
+        if (res.IsSome && res.CountT() > 1)
+        {
+            return self.SetItemT(aKey, bKey, cKey, res.LiftUnsafe().Remove(dKey));
+        }
+        else
+        {
+            if (res.IsSome)
+            {
+                if (res.MapT(d => d.ContainsKey(dKey)).Lift())
+                {
+                    return Remove(self, aKey, bKey, cKey);
+                }
+                else
+                {
+                    return self;
+                }
+            }
+            else
+            {
+                return Remove(self, aKey, bKey, cKey);
+            }
+        }
+    }
 
     [Pure]
     public static Map<A, Map<B, V>> MapRemoveT<A, B, T, V>(this Map<A, Map<B, T>> self, Func<Map<B, T>, Map<B, V>> map)

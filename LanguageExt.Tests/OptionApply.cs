@@ -35,7 +35,7 @@ namespace LanguageExtTests
         {
             var opt = Some(add).Apply(Some(3), Some(4));
 
-            Assert.True(equals<EqOption<EqInt, int>, Option<int>>(Some(7), opt));
+            Assert.True(equals<EqInt, int>(Some(7), opt));
         }
 
         // TODO: Restore when type-class work complete
@@ -62,7 +62,7 @@ namespace LanguageExtTests
         {
             var opt = Some(add).Apply(Option<int>.None, Some(4));
 
-            Assert.True(equals<EqOption<EqInt, int>, Option<int>>(None, opt));
+            Assert.True(equals<EqInt, int>(Option<int>.None, opt));
         }
 
         // TODO: Restore when type-class work complete
@@ -97,7 +97,7 @@ namespace LanguageExtTests
 
             var second = parmap(Some(3), add).Apply(Some(4));
 
-            Assert.True(equals<EqOption<EqInt, int>, Option<int>>(first, second));
+            Assert.True(equals<EqInt, int>(first, second));
         }
     }
 }

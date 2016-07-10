@@ -1,4 +1,5 @@
-﻿using LanguageExt.TypeClasses;
+﻿using LanguageExt.Instances;
+using LanguageExt.TypeClasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,15 @@ namespace LanguageExt
         /// <returns>True if x is greater than y
         public static int compare<ORD, A>(A x, A y) where ORD : struct, Ord<A> =>
             default(ORD).Compare(x, y);
+
+        /// <summary>
+        /// Returns true if x is greater than y
+        /// </summary>
+        /// <param name="x">The first item to compare</param>
+        /// <param name="y">The second item to compare</param>
+        /// <returns>True if x is greater than y
+        public static int compare<ORD, A>(Optional<A> x, Optional<A> y) where ORD : struct, Ord<A> =>
+            default(OrdOpt<ORD,A>).Compare(x, y);
 
         /// <summary>
         /// Returns true if x is greater than y

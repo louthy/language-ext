@@ -73,7 +73,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static TryOption<T> divide<DIV, T>(TryOption<T> lhs, TryOption<T> rhs) where DIV : struct, Division<T> =>
+        public static TryOption<T> divide<DIV, T>(TryOption<T> lhs, TryOption<T> rhs) where DIV : struct, Divisible<T> =>
             lhs.Divide<DIV, T>(rhs);
 
         [Pure]

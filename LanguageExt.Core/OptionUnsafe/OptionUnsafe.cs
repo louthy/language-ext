@@ -17,35 +17,35 @@ namespace LanguageExt
     ///     
     ///     None
     ///     
-    /// The type is part of the Optional, Monad, Applicative, Functor, 
-    /// Foldable, and Seq, type-classes.
+    /// The type is part of the Monad, Applicative, Functor, Foldable, and
+    /// Seq, type-classes.
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
-    public struct Option<A> : 
+    public struct OptionUnsafe<A> : 
         Optional<A>, 
-        IOptional, 
-        IEquatable<Option<A>>, 
-        IComparable<Option<A>>
+        IOptional,
+        IEquatable<OptionUnsafe<A>>,
+        IComparable<OptionUnsafe<A>>
     {
         internal readonly OptionV<A> value;
 
         /// <summary>
         /// Cached None of A
         /// </summary>
-        public static readonly Option<A> None = new Option<A>(OptionV<A>.None);
+        public static readonly OptionUnsafe<A> None = new OptionUnsafe<A>(OptionV<A>.None);
 
         /// <summary>
         /// Construct an Option of A in a Some state
         /// </summary>
         /// <param name="value">Value to bind, must be non-null</param>
         /// <returns>Option of A</returns>
-        public static Option<A> Some(A value) => 
+        public static OptionUnsafe<A> Some(A value) => 
             value;
 
         /// <summary>
         /// Takes the value-type OptionV<A>
         /// </summary>
-        internal Option(OptionV<A> value)
+        internal OptionUnsafe(OptionV<A> value)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
             this.value = value;
@@ -75,8 +75,8 @@ namespace LanguageExt
         {
             var maybe = Optional(ma);
             return maybe.IsSome()
-                ? new Option<B>(OptionV<B>.Optional(f(maybe.Value())))
-                : Option<B>.None;
+                ? new OptionUnsafe<B>(OptionV<B>.Optional(f(maybe.Value())))
+                : OptionUnsafe<B>.None;
         }
 
         /// <summary>
@@ -84,21 +84,21 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         private static OptionV<A> Optional(Seq<A> a) =>
-            ((Option<A>)a).value ?? OptionV<A>.None;
+            ((OptionUnsafe<A>)a).value ?? OptionV<A>.None;
 
         /// <summary>
         /// Option cast from Functor
         /// </summary>
         [Pure]
         private static OptionV<A> Optional(Functor<A> a) =>
-            ((Option<A>)a).value ?? OptionV<A>.None;
+            ((OptionUnsafe<A>)a).value ?? OptionV<A>.None;
 
         /// <summary>
         /// Option cast from Foldable
         /// </summary>
         [Pure]
         private static OptionV<A> Optional(Foldable<A> a) =>
-            ((Option<A>)a).value ?? OptionV<A>.None;
+            ((OptionUnsafe<A>)a).value ?? OptionV<A>.None;
 
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace LanguageExt
         /// <returns>Monad of A</returns>
         [Pure]
         public Monad<A> Return(A a) =>
-            new Option<A>(OptionV<A>.Optional(a));
+            new OptionUnsafe<A>(OptionV<A>.Optional(a));
 
         /// <summary>
         /// Monad bind
@@ -125,7 +125,7 @@ namespace LanguageExt
             var maybe = Optional(ma);
             return maybe.IsSome()
                 ? f(maybe.Value())
-                : Option<B>.None;
+                : OptionUnsafe<B>.None;
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace LanguageExt
         /// <returns>Applicative of A</returns>
         [Pure]
         public Applicative<A> Pure(A a) =>
-            new Option<A>(OptionV<A>.Optional(a));
+            new OptionUnsafe<A>(OptionV<A>.Optional(a));
 
         /// <summary>
         /// Apply y to x
@@ -198,7 +198,7 @@ namespace LanguageExt
             var maybe = Optional(ma);
             return maybe.IsSome()
                 ? f(maybe.Value())
-                : Option<B>.None;
+                : OptionUnsafe<B>.None;
         }
 
         /// <summary>
@@ -238,36 +238,36 @@ namespace LanguageExt
         /// </summary>
         /// <param name="a">Unit value</param>
         [Pure]
-        public static implicit operator Option<A>(A a) =>
-            Prelude.Optional(a);
+        public static implicit operator OptionUnsafe<A>(A a) =>
+            Prelude.SomeUnsafe(a);
 
         /// Implicit conversion operator from Unit to Option<A>
         /// </summary>
         /// <param name="a">Unit value</param>
         [Pure]
-        public static implicit operator Option<A>(OptionNone a) =>
+        public static implicit operator OptionUnsafe<A>(OptionNone a) =>
             None;
 
         [Pure]
-        public static bool operator ==(Option<A> lhs, Option<A> rhs) =>
+        public static bool operator ==(OptionUnsafe<A> lhs, OptionUnsafe<A> rhs) =>
             equals<EqDefault<A>, A>(lhs, rhs);
 
         [Pure]
-        public static bool operator !=(Option<A> lhs, Option<A> rhs) =>
+        public static bool operator !=(OptionUnsafe<A> lhs, OptionUnsafe<A> rhs) =>
             !(lhs == rhs);
 
         [Pure]
-        public static Option<A> operator |(Option<A> lhs, Option<A> rhs) =>
+        public static OptionUnsafe<A> operator |(OptionUnsafe<A> lhs, OptionUnsafe<A> rhs) =>
             lhs.IsSome
                 ? lhs
                 : rhs;
 
         [Pure]
-        public static bool operator true(Option<A> value) =>
+        public static bool operator true(OptionUnsafe<A> value) =>
             value.IsSome;
 
         [Pure]
-        public static bool operator false(Option<A> value) =>
+        public static bool operator false(OptionUnsafe<A> value) =>
             value.IsNone;
 
         /// <summary>
@@ -275,7 +275,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public override bool Equals(object obj) =>
-            equals<EqDefault<A>, A>(this, (ReferenceEquals(obj,null) ? None : (Option<A>)obj));
+            equals<EqDefault<A>, A>(this, (ReferenceEquals(obj, null) ? None : (OptionUnsafe<A>)obj));
 
         /// <summary>
         /// Get hash code
@@ -316,9 +316,9 @@ namespace LanguageExt
         /// Functor map operation
         /// </summary>
         [Pure]
-        public Option<B> Select<B>(Func<A, B> f)
+        public OptionUnsafe<B> Select<B>(Func<A, B> f)
         {
-            if (Prelude.isnull(f) || IsNone) return Option<B>.None;
+            if (Prelude.isnull(f) || IsNone) return OptionUnsafe<B>.None;
             return f(Value);
         }
 
@@ -326,9 +326,9 @@ namespace LanguageExt
         /// Functor map operation
         /// </summary>
         [Pure]
-        public Option<B> Map<B>(Func<A, B> f)
+        public OptionUnsafe<B> Map<B>(Func<A, B> f)
         {
-            if (Prelude.isnull(f) || IsNone) return Option<B>.None;
+            if (Prelude.isnull(f) || IsNone) return OptionUnsafe<B>.None;
             return f(Value);
         }
 
@@ -336,9 +336,9 @@ namespace LanguageExt
         /// Monad bind operation
         /// </summary>
         [Pure]
-        public Option<B> Bind<B>(Func<A, Option<B>> f)
+        public OptionUnsafe<B> Bind<B>(Func<A, OptionUnsafe<B>> f)
         {
-            if (Prelude.isnull(f) || IsNone) return Option<B>.None;
+            if (Prelude.isnull(f) || IsNone) return OptionUnsafe<B>.None;
             return f(Value);
         }
 
@@ -346,19 +346,19 @@ namespace LanguageExt
         /// Monad bind operation for Option
         /// </summary>
         [Pure]
-        public Option<C> SelectMany<B, C>(
-            Func<A, Option<B>> bind,
+        public OptionUnsafe<C> SelectMany<B, C>(
+            Func<A, OptionUnsafe<B>> bind,
             Func<A, B, C> project
             )
         {
-            if (Prelude.isnull(bind) || Prelude.isnull(project) || IsNone) return Option<C>.None;
+            if (Prelude.isnull(bind) || Prelude.isnull(project) || IsNone) return OptionUnsafe<C>.None;
             var mb = bind(Value);
-            if (mb.IsNone) return Option<C>.None;
+            if (mb.IsNone) return OptionUnsafe<C>.None;
             return project(Value, mb.Value);
         }
 
         public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
-            this.Match(
+            MatchUnsafe(
                 Some: x => Some(x),
                 None: () => None()
             );
@@ -412,8 +412,8 @@ namespace LanguageExt
         /// <param name="ma">Option to match</param>
         /// <param name="f">The Some(x) match operation</param>
         [Pure]
-        public SomeUnitContext<Option<A>, A> Some(Action<A> f) =>
-            new SomeUnitContext<Option<A>, A>(this, f, false);
+        public SomeUnitContext<OptionUnsafe<A>, A> Some(Action<A> f) =>
+            new SomeUnitContext<OptionUnsafe<A>, A>(this, f, true);
 
         /// <summary>
         /// Fluent pattern matching.  Provide a Some handler and then follow
@@ -427,8 +427,8 @@ namespace LanguageExt
         /// <param name="f">The Some(x) match operation</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public SomeContext<Option<A>, A, B> Some<B>(Func<A, B> someHandler) =>
-            new SomeContext<Option<A>, A, B>(this, someHandler, false);
+        public SomeContext<OptionUnsafe<A>, A, B> SomeUnsafe<B>(Func<A, B> someHandler) =>
+            new SomeContext<OptionUnsafe<A>, A, B>(this, someHandler, true);
 
         /// <summary>
         /// Match the two states of the Option and return a non-null R.
@@ -436,19 +436,6 @@ namespace LanguageExt
         /// <typeparam name="B">Return type</typeparam>
         /// <param name="None">None handler.  Must not return null.</param>
         /// <returns>A non-null R</returns>
-        [Pure]
-        public B Match<B>(Func<A, B> Some, Func<B> None) =>
-            IsNone
-                ? OptionExtensions.CheckNullNoneReturn(None())
-                : OptionExtensions.CheckNullSomeReturn(Some(Value));
-
-        /// <summary>
-        /// Match the two states of the Option and return a B, which can be null.
-        /// </summary>
-        /// <typeparam name="B">Return type</typeparam>
-        /// <param name="Some">Some handler.  May return null.</param>
-        /// <param name="None">None handler.  May return null.</param>
-        /// <returns>R, or null</returns>
         [Pure]
         public B MatchUnsafe<B>(Func<A, B> Some, Func<B> None) =>
             IsNone
@@ -461,7 +448,7 @@ namespace LanguageExt
         /// <param name="Some">Some match</param>
         /// <param name="None">None match</param>
         /// <returns></returns>
-        public Unit Match(Action<A> Some, Action None)
+        public Unit MatchUnsafe(Action<A> Some, Action None)
         {
             if (IsSome)
             {
@@ -478,7 +465,7 @@ namespace LanguageExt
         /// Invokes the someHandler if Option is in the Some state, otherwise nothing
         /// happens.
         /// </summary>
-        public Unit IfSome(Action<A> someHandler)
+        public Unit IfSomeUnsafe(Action<A> someHandler)
         {
             if (IsSome)
             {
@@ -491,7 +478,7 @@ namespace LanguageExt
         /// Invokes the someHandler if Option is in the Some state, otherwise nothing
         /// happens.
         /// </summary>
-        public Unit IfSome(Func<A, Unit> someHandler)
+        public Unit IfSomeUnsafe(Func<A, Unit> someHandler)
         {
             if (IsSome)
             {
@@ -499,14 +486,6 @@ namespace LanguageExt
             }
             return unit;
         }
-
-        [Pure]
-        public A IfNone(Func<A> None) =>
-            Match(identity, None);
-
-        [Pure]
-        public A IfNone(A noneValue) =>
-            Match(identity, () => noneValue);
 
         [Pure]
         public A IfNoneUnsafe(Func<A> None) =>
@@ -518,30 +497,30 @@ namespace LanguageExt
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool IsSomeA(Optional<A> a) =>
-            ((Option<A>)a).IsSome;
+            ((OptionUnsafe<A>)a).IsSome;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool IsNoneA(Optional<A> a) =>
-            ((Option<A>)a).IsNone;
+            ((OptionUnsafe<A>)a).IsNone;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public B Match<B>(Optional<A> a, Func<A, B> Some, Func<B> None) =>
-            ((Option<A>)a).Match(Some, None);
+            ((OptionUnsafe<A>)a).MatchUnsafe(Some, None);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public B MatchUnsafe<B>(Optional<A> a, Func<A, B> Some, Func<B> None) =>
-            ((Option<A>)a).MatchUnsafe(Some, None);
+            ((OptionUnsafe<A>)a).MatchUnsafe(Some, None);
 
         /// <summary>
         /// True if the optional type allows nulls
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool IsUnsafe(Optional<A> a) => false;
+        public bool IsUnsafe(Optional<A> a) => true;
 
-        public bool Equals(Option<A> other) =>
+        public bool Equals(OptionUnsafe<A> other) =>
             equals<EqDefault<A>, A>(this, other);
 
-        public int CompareTo(Option<A> other) =>
+        public int CompareTo(OptionUnsafe<A> other) =>
             compare<OrdDefault<A>, A>(this, other);
     }
 }

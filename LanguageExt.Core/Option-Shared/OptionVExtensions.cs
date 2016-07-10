@@ -11,7 +11,7 @@ namespace LanguageExt
     /// Extension methods for Option
     /// By using extension methods we can check for null references in 'this'
     /// </summary>
-    internal static class OptionExtensions
+    internal static class OptionVExtensions
     {
         /// <summary>
         /// Test the option state
