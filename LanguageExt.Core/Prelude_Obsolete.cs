@@ -159,7 +159,7 @@ namespace LanguageExt
         [Obsolete("Use 'List'.  All constructor functions are renamed to have their first letter as a capital.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static Lst<T> list<T>() =>
-            new Lst<T>();
+            Lst<T>.Empty;
 
         /// <summary>
         /// Create an immutable list
@@ -240,7 +240,7 @@ namespace LanguageExt
         [Obsolete("Use List.empty")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static Lst<T> empty<T>() =>
-            new Lst<T>();
+            Lst<T>.Empty;
 
         /// <summary>
         /// Construct a list from head and tail

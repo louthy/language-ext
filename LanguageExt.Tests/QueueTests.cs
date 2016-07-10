@@ -15,7 +15,7 @@ namespace LanguageExtTests
             var test = Queue<int>();
             var res = peek(test);
 
-            Assert.True(res.IsNone);
+            Assert.True(res.IsNone());
         }
 
         [Fact]
@@ -24,7 +24,7 @@ namespace LanguageExtTests
             var test = Queue<int>();
             var res = map(deq(test), (stack, value) => value);
 
-            Assert.True(res.IsNone);
+            Assert.True(res.IsNone());
         }
 
         [Fact]
@@ -50,10 +50,10 @@ namespace LanguageExtTests
 
         public void Deq5(Que<int> test)
         {
-            test = map(deq(test), (queue, value) => { Assert.True(value.IsSome); return queue; });
-            test = map(deq(test), (queue, value) => { Assert.True(value.IsSome); return queue; });
-            test = map(deq(test), (queue, value) => { Assert.True(value.IsSome); return queue; });
-            test = map(deq(test), (queue, value) => { Assert.True(value.IsSome); return queue; });
+            test = map(deq(test), (queue, value) => { Assert.True(value.IsSome()); return queue; });
+            test = map(deq(test), (queue, value) => { Assert.True(value.IsSome()); return queue; });
+            test = map(deq(test), (queue, value) => { Assert.True(value.IsSome()); return queue; });
+            test = map(deq(test), (queue, value) => { Assert.True(value.IsSome()); return queue; });
 
             match(peek(test),
                 Some: v => Assert.True(v == 5, "Actually equals "+v),

@@ -1,5 +1,6 @@
 ﻿using Xunit;
 using LanguageExt;
+using LanguageExt.Trans;
 using System.IO;
 using System.Collections.Generic;
 using static LanguageExt.Prelude;

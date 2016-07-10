@@ -58,7 +58,7 @@ namespace LanguageExtTests
             var msg = new SubMsg { Test = "Hello", SubTest = "World" };
             string json = JsonConvert.SerializeObject(msg);
 
-            var res = TypeHelper.IsMessageValidForProcess(json, new[] { typeof(BaseMsg) }).LiftUnsafe();
+            var res = TypeHelper.IsMessageValidForProcess(json, new[] { typeof(BaseMsg) }).IfLeft(() => null);
 
             Assert.True(res is BaseMsg);
             Assert.False(res is SubMsg);

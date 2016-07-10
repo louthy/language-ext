@@ -81,7 +81,6 @@ namespace TestBed
             Tests.MassiveSpawnAndKillHierarchy2();
 
             Tests.ReaderAskTest();
-            Tests.LiftTest();
             Tests.BindingTest();
             Tests.WrappedListLinqTest();
             Tests.WrappedListTest();

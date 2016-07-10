@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Reactive.Linq;
 using LanguageExt;
-using LanguageExt.TypeClass;
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass.Prelude;
+using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -103,7 +103,7 @@ public static class OptionMExtensions
             ? true
             : x.IsNone() || y.IsNone()
                 ? false
-                : equals<EQ, A>(Option<A>.Some(x.Value).Value, Option<A>.Some(y.Value).Value);
+                : equals<EQ, A>(x.Value.Value(), y.Value.Value());
 
     /// <summary>
     /// Convert the Option to an enumerable of zero or one items
@@ -114,7 +114,7 @@ public static class OptionMExtensions
     public static A[] ToArray<A>(this OptionM<A> ma) =>
         ma.IsNone()
             ? new A[0]
-            : new A[1] { Option<A>.Some(ma.Value).Value };
+            : new A[1] { ma.Value.Value() };
 
     /// <summary>
     /// Convert the Option to an immutable list of zero or one items
@@ -168,7 +168,7 @@ public static class OptionMExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with y added to x</returns>
     [Pure]
-    public static OptionM<A> Add<ADD, A>(this OptionM<A> x, OptionM<A> y) where ADD : struct, Add<A> =>
+    public static OptionM<A> Add<ADD, A>(this OptionM<A> x, OptionM<A> y) where ADD : struct, Addition<A> =>
         (OptionM<A>)(from a in x
                      from b in y
                      select add<ADD, A>(a, b));
@@ -213,10 +213,46 @@ public static class OptionMExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option x / y</returns>
     [Pure]
-    public static OptionM<A> Divide<DIV, A>(this OptionM<A> x, OptionM<A> y) where DIV : struct, Divide<A> =>
+    public static OptionM<A> Divide<DIV, A>(this OptionM<A> x, OptionM<A> y) where DIV : struct, Division<A> =>
         (OptionM<A>)(from a in x
                      from b in y
                      select divide<DIV, A>(a, b));
+
+    /// Apply y to x
+    /// </summary>
+    [Pure]
+    public static Option<B> Apply<A, B>(this Option<Func<A, B>> x, Option<A> y) =>
+        from a in x
+        from b in y
+        select a(b);
+
+    /// <summary>
+    /// Apply y and z to x
+    /// </summary>
+    [Pure]
+    public static Option<C> Apply<A, B, C>(this Option<Func<A, B, C>> x, Option<A> y, Option<B> z) =>
+        from a in x
+        from b in y
+        from c in z
+        select a(b, c);
+
+    /// <summary>
+    /// Apply y to x
+    /// </summary>
+    [Pure]
+    public static Option<Func<B, C>> Apply<A, B, C>(this Option<Func<A, Func<B, C>>> x, Option<A> y) =>
+        from a in x
+        from b in y
+        select a(b);
+
+    /// <summary>
+    /// Apply x, then y, ignoring the result of x
+    /// </summary>
+    [Pure]
+    public static Option<B> Action<A, B>(this Option<A> x, Option<B> y) =>
+        from a in x
+        from b in y
+        select b;
 
     /// <summary>
     /// Convert the Option type to a Nullable of A
@@ -228,7 +264,7 @@ public static class OptionMExtensions
     public static A? ToNullable<A>(this OptionM<A> ma) where A : struct =>
         ma.IsNone()
             ? (A?)null
-            : Option<A>.Some(ma.Value).Value;
+            : ma.Value.Value();
 
     /// <summary>
     /// Match the two states of the Option and return a non-null R.
@@ -240,7 +276,7 @@ public static class OptionMExtensions
     public static B Match<A, B>(this OptionM<A> ma, Func<A, B> Some, Func<B> None) =>
         ma.IsNone()
             ? CheckNullNoneReturn(None())
-            : CheckNullSomeReturn(Some(Option<A>.Some(ma.Value).Value));
+            : CheckNullSomeReturn(Some(ma.Value.Value()));
 
 
     /// <summary>
@@ -254,7 +290,7 @@ public static class OptionMExtensions
     public static B MatchUnsafe<A, B>(this OptionM<A> ma, Func<A, B> Some, Func<B> None) =>
         ma.IsNone()
             ? None()
-            : Some(Option<A>.Some(ma.Value).Value);
+            : Some(ma.Value.Value());
 
     /// <summary>
     /// Match the two states of the Option and return a promise for a non-null R.
@@ -265,7 +301,7 @@ public static class OptionMExtensions
     /// <returns>A promise to return a non-null R</returns>
     public static async Task<B> MatchAsync<A, B>(this OptionM<A> ma, Func<A, Task<B>> Some, Func<B> None) =>
         ma.IsSome()
-            ? CheckNullSomeReturn(await Some(Option<A>.Some(ma.Value).Value))
+            ? CheckNullSomeReturn(await Some(ma.Value.Value()))
             : CheckNullNoneReturn(None());
 
     /// <summary>
@@ -277,7 +313,7 @@ public static class OptionMExtensions
     /// <returns>A promise to return a non-null R</returns>
     public static async Task<B> MatchAsync<A, B>(this OptionM<A> ma, Func<A, Task<B>> Some, Func<Task<B>> None) =>
         ma.IsSome()
-            ? CheckNullSomeReturn(await Some(Option<A>.Some(ma.Value).Value))
+            ? CheckNullSomeReturn(await Some(ma.Value.Value()))
             : CheckNullNoneReturn(await None());
 
     /// <summary>
@@ -290,7 +326,7 @@ public static class OptionMExtensions
     [Pure]
     public static IObservable<B> MatchObservable<A, B>(this OptionM<A> ma, Func<A, IObservable<B>> Some, Func<B> None) =>
         ma.IsSome()
-            ? Some(Option<A>.Some(ma.Value).Value).Select(CheckNullSomeReturn)
+            ? Some(ma.Value.Value()).Select(CheckNullSomeReturn)
             : Observable.Return(CheckNullNoneReturn(None()));
 
     /// <summary>
@@ -303,7 +339,7 @@ public static class OptionMExtensions
     [Pure]
     public static IObservable<B> MatchObservable<A, B>(this OptionM<A> ma, Func<A, IObservable<B>> Some, Func<IObservable<B>> None) =>
         ma.IsSome()
-            ? Some(Option<A>.Some(ma.Value).Value).Select(CheckNullSomeReturn)
+            ? Some(ma.Value.Value()).Select(CheckNullSomeReturn)
             : None().Select(CheckNullNoneReturn);
 
     /// <summary>
@@ -315,7 +351,7 @@ public static class OptionMExtensions
     [Pure]
     public static B MatchUntyped<B>(this OptionM<object> ma, Func<object, B> Some, Func<B> None) =>
         ma.IsSome()
-            ? Some(Option<object>.Some(ma.Value).Value)
+            ? Some(ma.Value.Value())
             : None();
 
     /// <summary>
@@ -328,7 +364,7 @@ public static class OptionMExtensions
     {
         if (ma.IsSome())
         {
-            Some(Option<A>.Some(ma.Value).Value);
+            Some(ma.Value.Value());
         }
         else
         {
@@ -345,7 +381,7 @@ public static class OptionMExtensions
     {
         if (ma.IsSome())
         {
-            someHandler(Option<A>.Some(ma.Value).Value);
+            someHandler(ma.Value.Value());
         }
         return unit;
     }
@@ -358,7 +394,7 @@ public static class OptionMExtensions
     {
         if (ma.IsSome())
         {
-            someHandler(Option<A>.Some(ma.Value).Value);
+            someHandler(ma.Value.Value());
         }
         return unit;
     }

@@ -7,7 +7,8 @@ using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
-using LanguageExt.TypeClass;
+using LanguageExt.TypeClasses;
+using static LanguageExt.TypeClass;
 
 namespace LanguageExt
 {
@@ -234,7 +235,7 @@ public static class TryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs / rhs</returns>
     [Pure]
-    public static TryOption<T> Divide<DIV, T>(this TryOption<T> lhs, TryOption<T> rhs) where DIV : struct, Divide<T> => () =>
+    public static TryOption<T> Divide<DIV, T>(this TryOption<T> lhs, TryOption<T> rhs) where DIV : struct, Division<T> => () =>
     {
         var lhsRes = lhs.Try();
         if (lhsRes.IsFaulted) return lhsRes;
@@ -808,6 +809,24 @@ public static class TryOptionExtensions
         return res.IsFaulted
             ? 0
             : res.Value.Count();
+    }
+
+    [Pure]
+    public static int Sum(this TryOption<int> tryDel)
+    {
+        var res = tryDel.Try();
+        return res.IsFaulted
+            ? 0
+            : res.Value.Sum();
+    }
+
+    [Pure]
+    public static A Sum<NUM,A>(this TryOption<A> tryDel) where NUM : struct, Num<A>
+    {
+        var res = tryDel.Try();
+        return res.IsFaulted
+            ? default(NUM).FromInteger(0)
+            : res.Value.Sum<NUM,A>();
     }
 
     [Pure]

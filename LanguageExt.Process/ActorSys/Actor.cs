@@ -8,6 +8,7 @@ using System.Reactive.Subjects;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using LanguageExt.Config;
+using LanguageExt.Instances;
 
 namespace LanguageExt
 {
@@ -73,7 +74,7 @@ namespace LanguageExt
         {
             lock(sync)
             {
-                if (state.IsSome) return unit;
+                if (state.IsSome()) return unit;
 
                 var savedReq = ActorContext.Request.CurrentRequest;
                 var savedFlags = ActorContext.Request.ProcessFlags;
@@ -231,7 +232,7 @@ namespace LanguageExt
             {
                 SetupRemoteSubscriptions(cluster, flags);
 
-                if (cluster.IsSome && ((flags & ProcessFlags.PersistState) == ProcessFlags.PersistState))
+                if (cluster.IsSome() && ((flags & ProcessFlags.PersistState) == ProcessFlags.PersistState))
                 {
                     try
                     {
@@ -652,7 +653,7 @@ namespace LanguageExt
 
                     try
                     {
-                        if (notnull(stateOut) && !state.Equals(stateIn))
+                        if (notnull(stateOut) && !state.Equals<EqDefault<S>,S>(stateIn))
                         {
                             stateSubject.OnNext(stateOut);
                         }

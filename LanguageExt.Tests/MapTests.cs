@@ -1,4 +1,5 @@
 ﻿using LanguageExt;
+using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using static LanguageExt.Map;
 using Xunit;
@@ -151,7 +152,7 @@ namespace LanguageExtTests
 
             m = remove(m,4);
             Assert.True(m.Count == 4);
-            Assert.True(m.Find(4).IsNone);
+            Assert.True(m.Find(4).IsNone());
             m.Find(1).IfNone(() => failwith<string>("Broken 1"));
             m.Find(2).IfNone(() => failwith<string>("Broken 2"));
             m.Find(3).IfNone(() => failwith<string>("Broken 3"));
@@ -159,25 +160,25 @@ namespace LanguageExtTests
 
             m = remove(m, 1);
             Assert.True(m.Count == 3);
-            Assert.True(m.Find(1).IsNone);
+            Assert.True(m.Find(1).IsNone());
             m.Find(2).IfNone(() => failwith<string>("Broken 2"));
             m.Find(3).IfNone(() => failwith<string>("Broken 3"));
             m.Find(5).IfNone(() => failwith<string>("Broken 5"));
 
             m = remove(m, 2);
             Assert.True(m.Count == 2);
-            Assert.True(m.Find(2).IsNone);
+            Assert.True(m.Find(2).IsNone());
             m.Find(3).IfNone(() => failwith<string>("Broken 3"));
             m.Find(5).IfNone(() => failwith<string>("Broken 5"));
 
             m = remove(m, 3);
             Assert.True(m.Count == 1);
-            Assert.True(m.Find(3).IsNone);
+            Assert.True(m.Find(3).IsNone());
             m.Find(5).IfNone(() => failwith<string>("Broken 5"));
 
             m = remove(m, 5);
             Assert.True(m.Count == 0);
-            Assert.True(m.Find(5).IsNone);
+            Assert.True(m.Find(5).IsNone());
         }
 
         [Fact]

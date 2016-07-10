@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Linq.Expressions;
-using System.Collections.Concurrent;
 using System.Linq;
 using System.Diagnostics.Contracts;
-using LanguageExt.TypeClass;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -75,7 +73,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static TryOption<T> divide<DIV, T>(TryOption<T> lhs, TryOption<T> rhs) where DIV : struct, Divide<T> =>
+        public static TryOption<T> divide<DIV, T>(TryOption<T> lhs, TryOption<T> rhs) where DIV : struct, Division<T> =>
             lhs.Divide<DIV, T>(rhs);
 
         [Pure]
@@ -173,6 +171,10 @@ namespace LanguageExt
         [Pure]
         public static int count<T>(TryOption<T> tryDel) =>
             tryDel.Count();
+
+        [Pure]
+        public static int sum(TryOption<int> tryDel) =>
+            tryDel.Sum();
 
         [Pure]
         public static bool exists<T>(TryOption<T> tryDel, Func<T, bool> pred) =>

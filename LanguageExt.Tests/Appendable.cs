@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
+﻿using Xunit;
 using static LanguageExt.Prelude;
-using LanguageExt;
-using LanguageExt.TypeClass;
-using static LanguageExt.TypeClass.Prelude;
+using LanguageExt.Instances;
+using static LanguageExt.TypeClass;
 
 namespace LanguageExtTests
 {

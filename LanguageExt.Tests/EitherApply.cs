@@ -1,9 +1,9 @@
-﻿using LanguageExt;
-using LanguageExt.TypeClass;
-using System;
+﻿using System;
 using Xunit;
+using LanguageExt;
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass.Prelude;
+using static LanguageExt.TypeClass;
 
 namespace LanguageExtTests
 {
@@ -45,8 +45,8 @@ namespace LanguageExtTests
             Assert.Equal(Right<string, int>(7), either);
         }
 
-        private APPL GeneralApply<APPL>(AP<Func<int, int, int>> f, AP<int> a, AP<int> b)
-            where APPL : struct, AP<int> =>
+        private APPL GeneralApply<APPL>(Applicative<Func<int, int, int>> f, Applicative<int> a, Applicative<int> b)
+            where APPL : struct, Applicative<int> =>
                 (APPL)apply<APPL, int, int, int>(f, a, b);
 
         [Fact]

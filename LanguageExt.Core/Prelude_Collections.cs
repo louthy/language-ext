@@ -105,14 +105,16 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Lst<T> List<T>() =>
-            new Lst<T>();
+            Lst<T>.Empty;
 
         /// <summary>
         /// Create an immutable list
         /// </summary>
         [Pure]
         public static Lst<T> List<T>(params T[] items) =>
-            new Lst<T>(items);
+            items.Length == 0
+                ? Lst<T>.Empty
+                : new Lst<T>(items);
 
         /// <summary>
         /// Create an immutable list

@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Reactive.Linq;
 using LanguageExt;
-using LanguageExt.TypeClass;
+using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass.Prelude;
+using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -17,23 +17,21 @@ using System.ComponentModel;
 public static class OptionExtensions
 {
     /// <summary>
-    /// Append the Some(x) of one option to the Some(y) of another.  If either of the
-    /// options are None then the result is None
-    /// For numeric values the behaviour is to sum the Somes (lhs + rhs)
-    /// For string values the behaviour is to concatenate the strings
-    /// For Lst/Stck/Que values the behaviour is to concatenate the lists
-    /// For Map or Set values the behaviour is to merge the sets
-    /// Otherwise if the R type derives from IAppendable then the behaviour
-    /// is to call lhs.Append(rhs);
+    /// Appends the bound values of x and y, uses a semigroup type-class to provide 
+    /// the append operation for type A.  For example x.Append<TString,string>(y)
     /// </summary>
-    /// <param name="lhs">Left-hand side of the operation</param>
-    /// <param name="rhs">Right-hand side of the operation</param>
-    /// <returns>lhs + rhs</returns>
+    /// <typeparam name="SEMI">Semigroup of A</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="x">Left hand side of the operation</param>
+    /// <param name="y">Right hand side of the operation</param>
+    /// <returns>An option with y appended to x</returns>
     [Pure]
-    public static Option<T> Mappend<SEMI, T>(this Option<T> lhs, Option<T> rhs) where SEMI : struct, Semigroup<T> =>
-        from x in lhs
-        from y in rhs
-        select append<SEMI, T>(x, y);
+    public static Option<A> Append<SEMI, A>(this Option<A> x, Option<A> y) where SEMI : struct, Semigroup<A> =>
+        x.IsNone() || y.IsNone()
+            ? Option<A>.None
+            : from a in x
+              from b in y
+              select append<SEMI, A>(a, b);
 
     /// <summary>
     /// Folds the provided list of options
@@ -43,8 +41,8 @@ public static class OptionExtensions
     /// <param name="xs">List of Options to concat</param>
     /// <returns>Folded options</returns>
     [Pure]
-    public static Option<T> Mconcat<SEMI, T>(this Option<T>[] xs) where SEMI : struct, Semigroup<T> =>
-        xs == null || xs.Length == 0
+    public static Option<T> Concat<SEMI, T>(this Option<T>[] xs) where SEMI : struct, Semigroup<T> =>
+        isnull(xs) || xs.Length == 0
             ? Option<T>.None
             : xs.Reduce((s, x) =>
                 s.IsNone()
@@ -61,8 +59,8 @@ public static class OptionExtensions
     /// <param name="xs">List of Options to concat</param>
     /// <returns>Folded options</returns>
     [Pure]
-    public static Option<T> Mconcat<SEMI, T>(this IEnumerable<Option<T>> xs) where SEMI : struct, Semigroup<T> =>
-        xs == null || !xs.Any()
+    public static Option<T> Concat<SEMI, T>(this IEnumerable<Option<T>> xs) where SEMI : struct, Semigroup<T> =>
+        isnull(xs) || !xs.Any()
             ? Option<T>.None
             : xs.Reduce((s, x) =>
                 s.IsNone()
@@ -79,7 +77,7 @@ public static class OptionExtensions
     /// <returns>True if the Option is in a None state</returns>
     [Pure]
     public static bool IsNone<A>(this Option<A> ma) =>
-        ma == null || ma is None<A>;
+        isnull(ma) || ma is None<A>;
 
     /// <summary>
     /// Test the option state
@@ -92,13 +90,41 @@ public static class OptionExtensions
         !IsNone(ma);
 
     /// <summary>
+    /// Fluent pattern matching.  Provide a Some handler and then follow
+    /// on fluently with .None(...) to complete the matching operation.
+    /// This is for dispatching actions, use Some<A,B>(...) to return a value
+    /// from the match operation.
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="ma">Option to match</param>
+    /// <param name="f">The Some(x) match operation</param>
+    [Pure]
+    public static SomeUnitContext<A> Some<A>(this Option<A> ma, Action<A> f) =>
+        new SomeUnitContext<A>(ma, f);
+
+    /// <summary>
+    /// Fluent pattern matching.  Provide a Some handler and then follow
+    /// on fluently with .None(...) to complete the matching operation.
+    /// This is for returning a value from the match operation, to dispatch
+    /// an action instead, use Some<A>(...)
+    /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <typeparam name="B">Match operation return value type</typeparam>
+    /// <param name="ma">Option to match</param>
+    /// <param name="f">The Some(x) match operation</param>
+    /// <returns>The result of the match operation</returns>
+    [Pure]
+    public static SomeContext<A, B> Some<A, B>(this Option<A> ma, Func<A, B> someHandler) =>
+        new SomeContext<A, B>(ma, someHandler);
+
+    /// <summary>
     /// Functor map operation for Option
     /// </summary>
     [Pure]
     public static Option<B> Select<A, B>(this Option<A> ma, Func<A, B> f) =>
-        ma == null || f == null || ma is None<A>
+        isnull(ma) || isnull(f) || ma is None<A>
             ? Option<B>.None
-            : Option<B>.Optional(f(Option<A>.Some(ma).Value));
+            : Option<B>.Optional(f(ma.Value()));
 
     /// <summary>
     /// Monad bind operation for Option
@@ -110,12 +136,44 @@ public static class OptionExtensions
         Func<A, B, C> project
         )
     {
-        if (ma == null || bind == null || project == null || ma is None<A>) return Option<C>.None;
-        var a = Option<A>.Some(ma).Value;
+        if (isnull(ma) || isnull(bind) || isnull(project) || ma is None<A>) return Option<C>.None;
+        var a = ma.Value();
         var mb = bind(a);
-        if (mb == null || mb is None<B>) return Option<C>.None;
-        var b = Option<B>.Some(mb).Value;
+        if (isnull(mb) || mb is None<B>) return Option<C>.None;
+        var b = mb.Value();
         return Option<C>.Optional(project(a, b));
+    }
+
+    /// <summary>
+    /// Bind Option -> IEnumerable
+    /// </summary>
+    [Pure]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static IEnumerable<V> SelectMany<T, U, V>(this Option<T> self,
+        Func<T, IEnumerable<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone()) return new V[0];
+        var v = self.Value();
+        return bind(v).Map(resU => project(v, resU));
+    }
+
+    /// <summary>
+    /// Bind IEnumerable -> Option
+    /// </summary>
+    [Pure]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static IEnumerable<Option<V>> SelectMany<T, U, V>(this IEnumerable<T> self,
+        Func<T, Option<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        foreach(var a in self)
+        {
+            var mb = bind(a);
+            yield return mb.Map(b => project(a, b));
+        }
     }
 
     /// <summary>
@@ -127,15 +185,11 @@ public static class OptionExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>True if the bound values are equal</returns>
     public static bool Equals<EQ, A>(this Option<A> x, Option<A> y) where EQ : struct, Eq<A> =>
-        x == null && y == null
+        x.IsNone() && y.IsNone()
             ? true
-            : x == null || y == null
+            : x.IsNone() || y.IsNone()
                 ? false
-                : x.IsNone() && y.IsNone()
-                    ? true
-                    : x.IsNone() || y.IsNone()
-                        ? false
-                        : equals<EQ, A>(Option<A>.Some(x).Value, Option<A>.Some(y).Value);
+                : equals<EQ, A>(x.Value(), y.Value());
 
     /// <summary>
     /// Convert the Option to an enumerable of zero or one items
@@ -144,9 +198,9 @@ public static class OptionExtensions
     /// <param name="ma">Option</param>
     /// <returns>An enumerable of zero or one items</returns>
     public static A[] ToArray<A>(this Option<A> ma) =>
-        ma == null || ma.IsNone()
+        ma.IsNone()
             ? new A[0]
-            : new A[1] { Option<A>.Some(ma).Value };
+            : new A[1] { ma.Value() };
 
     /// <summary>
     /// Convert the Option to an immutable list of zero or one items
@@ -176,23 +230,6 @@ public static class OptionExtensions
         ToArray(ma).AsEnumerable();
 
     /// <summary>
-    /// Appends the bound values of x and y, uses a semigroup type-class to provide 
-    /// the append operation for type A.  For example x.Append<TString,string>(y)
-    /// </summary>
-    /// <typeparam name="SEMI">Semigroup of A</typeparam>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="x">Left hand side of the operation</param>
-    /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An option with y appended to x</returns>
-    [Pure]
-    public static Option<A> Append<SEMI, A>(this Option<A> x, Option<A> y) where SEMI : struct, Semigroup<A> =>
-        x == null || y == null
-            ? Option<A>.None
-            : from a in x
-                from b in y
-                select append<SEMI, A>(a, b);
-
-    /// <summary>
     /// Add the bound values of x and y, uses an Add type-class to provide the add
     /// operation for type A.  For example x.Add<TInteger,int>(y)
     /// </summary>
@@ -202,8 +239,8 @@ public static class OptionExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with y added to x</returns>
     [Pure]
-    public static Option<A> Add<ADD, A>(this Option<A> x, Option<A> y) where ADD : struct, Add<A> =>
-        x == null || y == null
+    public static Option<A> Add<ADD, A>(this Option<A> x, Option<A> y) where ADD : struct, Addition<A> =>
+        x.IsNone() || y.IsNone()
             ? Option<A>.None
             : from a in x
                 from b in y
@@ -220,7 +257,7 @@ public static class OptionExtensions
     /// <returns>An option with the difference between x and y</returns>
     [Pure]
     public static Option<A> Difference<DIFF, A>(this Option<A> x, Option<A> y) where DIFF : struct, Difference<A> =>
-        x == null || y == null
+        x.IsNone() || y.IsNone()
             ? Option<A>.None
             : from a in x
                 from b in y
@@ -237,7 +274,7 @@ public static class OptionExtensions
     /// <returns>An option with the product of x and y</returns>
     [Pure]
     public static Option<A> Product<PROD, A>(this Option<A> x, Option<A> y) where PROD : struct, Product<A> =>
-        x == null || y == null
+        x.IsNone() || y.IsNone()
             ? Option<A>.None
             : from a in x
                 from b in y
@@ -253,12 +290,34 @@ public static class OptionExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option x / y</returns>
     [Pure]
-    public static Option<A> Divide<DIV, A>(this Option<A> x, Option<A> y) where DIV : struct, Divide<A> =>
-        x == null || y == null
+    public static Option<A> Divide<DIV, A>(this Option<A> x, Option<A> y) where DIV : struct, Division<A> =>
+        x.IsNone() || y.IsNone()
             ? Option<A>.None
             : from a in x
                 from b in y
                 select divide<DIV, A>(a, b);
+
+    /// <summary>
+    /// Sum the bound value
+    /// </summary>
+    /// <remarks>This is a legacy method for backwards compatibility</remarks>
+    /// <param name="a">Option of int</param>
+    /// <returns>The bound value or 0 if None</returns>
+    public static int Sum(this Option<int> a) =>
+        a.IfNone(0);
+
+    /// <summary>
+    /// Generic sum operation
+    /// 
+    /// Call option.Sum<TInt,int>() with an Option<int>, option.Sum<TDouble,double>() with a
+    /// System.Double, etc.
+    /// </summary>
+    /// <typeparam name="NUM">Num<A> typeclass</typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="a">Option of A</param>
+    /// <returns>The bound value</returns>
+    public static A Sum<NUM, A>(this Option<A> a) where NUM : struct, Num<A> =>
+        a.IfNone(default(NUM).FromInteger(0));
 
     /// <summary>
     /// Convert the Option type to a Nullable of A
@@ -270,7 +329,7 @@ public static class OptionExtensions
     public static A? ToNullable<A>(this Option<A> ma) where A : struct =>
         ma.IsNone()
             ? (A?)null
-            : Option<A>.Some(ma).Value;
+            : ma.Value();
 
     /// <summary>
     /// Match the two states of the Option and return a non-null R.
@@ -282,8 +341,7 @@ public static class OptionExtensions
     public static B Match<A, B>(this Option<A> ma, Func<A, B> Some, Func<B> None) =>
         ma.IsNone()
             ? CheckNullNoneReturn(None())
-            : CheckNullSomeReturn(Some(Option<A>.Some(ma).Value));
-
+            : CheckNullSomeReturn(Some(ma.Value()));
 
     /// <summary>
     /// Match the two states of the Option and return an R, which can be null.
@@ -296,7 +354,7 @@ public static class OptionExtensions
     public static B MatchUnsafe<A, B>(this Option<A> ma, Func<A, B> Some, Func<B> None) =>
         ma.IsNone()
             ? None()
-            : Some(Option<A>.Some(ma).Value);
+            : Some(ma.Value());
 
     /// <summary>
     /// Match the two states of the Option and return a promise for a non-null R.
@@ -307,7 +365,7 @@ public static class OptionExtensions
     /// <returns>A promise to return a non-null R</returns>
     public static async Task<B> MatchAsync<A, B>(this Option<A> ma, Func<A, Task<B>> Some, Func<B> None) =>
         ma.IsSome()
-            ? CheckNullSomeReturn(await Some(Option<A>.Some(ma).Value))
+            ? CheckNullSomeReturn(await Some(ma.Value()))
             : CheckNullNoneReturn(None());
 
     /// <summary>
@@ -319,7 +377,7 @@ public static class OptionExtensions
     /// <returns>A promise to return a non-null R</returns>
     public static async Task<B> MatchAsync<A, B>(this Option<A> ma, Func<A, Task<B>> Some, Func<Task<B>> None) =>
         ma.IsSome()
-            ? CheckNullSomeReturn(await Some(Option<A>.Some(ma).Value))
+            ? CheckNullSomeReturn(await Some(ma.Value()))
             : CheckNullNoneReturn(await None());
 
     /// <summary>
@@ -332,7 +390,7 @@ public static class OptionExtensions
     [Pure]
     public static IObservable<B> MatchObservable<A, B>(this Option<A> ma, Func<A, IObservable<B>> Some, Func<B> None) =>
         ma.IsSome()
-            ? Some(Option<A>.Some(ma).Value).Select(CheckNullSomeReturn)
+            ? Some(ma.Value()).Select(CheckNullSomeReturn)
             : Observable.Return(CheckNullNoneReturn(None()));
 
     /// <summary>
@@ -345,7 +403,7 @@ public static class OptionExtensions
     [Pure]
     public static IObservable<B> MatchObservable<A, B>(this Option<A> ma, Func<A, IObservable<B>> Some, Func<IObservable<B>> None) =>
         ma.IsSome()
-            ? Some(Option<A>.Some(ma).Value).Select(CheckNullSomeReturn)
+            ? Some(ma.Value()).Select(CheckNullSomeReturn)
             : None().Select(CheckNullNoneReturn);
 
     /// <summary>
@@ -357,7 +415,7 @@ public static class OptionExtensions
     [Pure]
     public static B MatchUntyped<B>(this Option<object> ma, Func<object, B> Some, Func<B> None) =>
         ma.IsSome()
-            ? Some(Option<object>.Some(ma).Value)
+            ? Some(ma.Value())
             : None();
 
     /// <summary>
@@ -370,7 +428,7 @@ public static class OptionExtensions
     {
         if (ma.IsSome())
         {
-            Some(Option<A>.Some(ma).Value);
+            Some(ma.Value());
         }
         else
         {
@@ -387,7 +445,7 @@ public static class OptionExtensions
     {
         if (ma.IsSome())
         {
-            someHandler(Option<A>.Some(ma).Value);
+            someHandler(ma.Value());
         }
         return unit;
     }
@@ -400,7 +458,7 @@ public static class OptionExtensions
     {
         if (ma.IsSome())
         {
-            someHandler(Option<A>.Some(ma).Value);
+            someHandler(ma.Value());
         }
         return unit;
     }
@@ -431,7 +489,7 @@ public static class OptionExtensions
     /// <returns>Aggregated state</returns>
     public static S Fold<A, S>(this Option<A> ma, S state, Func<S, A, S> f) =>
         ma.IsSome()
-            ? f(state, Option<A>.Some(ma).Value)
+            ? f(state, ma.Value())
             : state;
 
     /// <summary>
@@ -444,7 +502,7 @@ public static class OptionExtensions
     /// <returns>Aggregated state</returns>
     public static S FoldBack<A, S>(this Option<A> ma, S state, Func<S, A, S> f) =>
         ma.IsSome()
-            ? f(state, Option<A>.Some(ma).Value)
+            ? f(state, ma.Value())
             : state;
 
     /// <summary>
@@ -474,7 +532,7 @@ public static class OptionExtensions
     [Pure]
     public static bool ForAll<A>(this Option<A> ma, Func<A, bool> pred) =>
         ma.IsSome()
-            ? pred(Option<A>.Some(ma).Value)
+            ? pred(ma.Value())
             : true;
 
     /// <summary>
@@ -487,7 +545,7 @@ public static class OptionExtensions
     [Pure]
     public static bool Exists<A>(this Option<A> ma, Func<A, bool> pred) =>
         ma.IsSome()
-            ? pred(Option<A>.Some(ma).Value)
+            ? pred(ma.Value())
             : false;
 
     /// <summary>
@@ -496,25 +554,25 @@ public static class OptionExtensions
     [Pure]
     public static S BiFold<A, S>(this Option<A> ma, S state, Func<S, A, S> Some, Func<S, S> None) =>
         ma.IsSome()
-            ? Some(state, Option<A>.Some(ma).Value)
+            ? Some(state, ma.Value())
             : None(state);
 
     [Pure]
     public static Option<B> Map<A, B>(this Option<A> ma, Func<A, B> mapper) =>
         ma.IsSome()
-            ? Optional(mapper(Option<A>.Some(ma).Value))
+            ? Optional(mapper(ma.Value()))
             : Option<B>.None;
 
     [Pure]
     public static Option<B> BiMap<A,B>(this Option<A> ma, Func<A, B> Some, Func<B> None) =>
         ma.IsSome()
-            ? Optional(Some(Option<A>.Some(ma).Value))
+            ? Optional(Some(ma.Value()))
             : Option<B>.None;
 
     [Pure]
     public static Option<A> Filter<A>(this Option<A> ma, Func<A, bool> pred) =>
         ma.IsSome()
-            ? pred(Option<A>.Some(ma).Value)
+            ? pred(ma.Value())
                 ? ma
                 : Option<A>.None
             : ma;
@@ -522,7 +580,7 @@ public static class OptionExtensions
     [Pure]
     public static Option<A> BiFilter<A>(this Option<A> ma, Func<A, bool> Some, Func<bool> None) =>
         ma.IsSome()
-            ? Some(Option<A>.Some(ma).Value)
+            ? Some(ma.Value())
                 ? ma
                 : Option<A>.None
             : None()
@@ -532,13 +590,13 @@ public static class OptionExtensions
     [Pure]
     public static Option<B> Bind<A, B>(this Option<A> ma, Func<A, Option<B>> binder) =>
         ma.IsSome()
-            ? binder(Option<A>.Some(ma).Value)
+            ? binder(ma.Value())
             : Option<B>.None;
 
     [Pure]
     public static Option<B> BiBind<A,B>(this Option<A> ma, Func<A, Option<B>> Some, Func<Option<B>> None) =>
         ma.IsSome()
-            ? Some(Option<A>.Some(ma).Value)
+            ? Some(ma.Value())
             : None();
 
     [Pure]
@@ -555,8 +613,8 @@ public static class OptionExtensions
     {
         if (ma.IsNone()) return Option<V>.None;
         if (inner.IsNone()) return Option<V>.None;
-        return EqualityComparer<K>.Default.Equals(outerKeyMap(Option<T>.Some(ma).Value), innerKeyMap(Option<U>.Some(inner).Value))
-            ? Option<V>.Some(project(Option<T>.Some(ma).Value, Option<U>.Some(inner).Value))
+        return EqualityComparer<K>.Default.Equals(outerKeyMap(ma.Value()), innerKeyMap(inner.Value()))
+            ? Option<V>.Some(project(ma.Value(), inner.Value()))
             : Option<V>.None;
     }
 
@@ -587,21 +645,21 @@ public static class OptionExtensions
         {
             if (item.IsSome())
             {
-                yield return Option<T>.Some(item).Value;
+                yield return item.Value();
             }
         }
     }
 
     public static async Task<Option<R>> MapAsync<T, R>(this Option<T> self, Func<T, Task<R>> map) =>
         self.IsSome()
-            ? Some(await map(Option<T>.Some(self).Value))
+            ? LanguageExt.Prelude.Some(await map(self.Value()))
             : Option<R>.None;
 
     public static async Task<Option<R>> MapAsync<T, R>(this Task<Option<T>> self, Func<T, Task<R>> map)
     {
         var val = await self;
         return val.IsSome()
-            ? Some(await map(Option<T>.Some(val).Value))
+            ? LanguageExt.Prelude.Some(await map(val.Value()))
             : Option<R>.None;
     }
 
@@ -609,31 +667,31 @@ public static class OptionExtensions
     {
         var val = await self;
         return val.IsSome()
-            ? Some(map(Option<T>.Some(val).Value))
+            ? LanguageExt.Prelude.Some(map(val.Value()))
             : Option<R>.None;
     }
 
     public static async Task<Option<R>> MapAsync<T, R>(this Option<Task<T>> self, Func<T, R> map) =>
         self.IsSome()
-            ? Some(map(await Option<Task<T>>.Some(self).Value))
+            ? LanguageExt.Prelude.Some(map(await self.Value()))
             : Option<R>.None;
 
     public static async Task<Option<R>> MapAsync<T, R>(this Option<Task<T>> self, Func<T, Task<R>> map) =>
         self.IsSome()
-            ? Some(await map(await Option<Task<T>>.Some(self).Value))
+            ? LanguageExt.Prelude.Some(await map(await self.Value()))
             : Option<R>.None;
 
 
     public static async Task<Option<R>> BindAsync<T, R>(this Option<T> self, Func<T, Task<Option<R>>> bind) =>
         self.IsSome()
-            ? await bind(Option<T>.Some(self).Value)
+            ? await bind(self.Value())
             : Option<R>.None;
 
     public static async Task<Option<R>> BindAsync<T, R>(this Task<Option<T>> self, Func<T, Task<Option<R>>> bind)
     {
         var val = await self;
         return val.IsSome()
-            ? await bind(Option<T>.Some(val).Value)
+            ? await bind(val.Value())
             : Option<R>.None;
     }
 
@@ -641,30 +699,30 @@ public static class OptionExtensions
     {
         var val = await self;
         return val.IsSome()
-            ? bind(Option<T>.Some(val).Value)
+            ? bind(val.Value())
             : Option<R>.None;
     }
 
     public static async Task<Option<R>> BindAsync<T, R>(this Option<Task<T>> self, Func<T, Option<R>> bind) =>
         self.IsSome()
-            ? bind(await Option<Task<T>>.Some(self).Value)
+            ? bind(await self.Value())
             : Option<R>.None;
 
     public static async Task<Option<R>> BindAsync<T, R>(this Option<Task<T>> self, Func<T, Task<Option<R>>> bind) =>
         self.IsSome()
-            ? await bind(await Option<Task<T>>.Some(self).Value)
+            ? await bind(await self.Value())
             : Option<R>.None;
 
     public static async Task<Unit> IterAsync<T>(this Task<Option<T>> self, Action<T> action)
     {
         var val = await self;
-        if (val.IsSome()) action(Option<T>.Some(val).Value);
+        if (val.IsSome()) action(val.Value());
         return unit;
     }
 
     public static async Task<Unit> IterAsync<T>(this Option<Task<T>> self, Action<T> action)
     {
-        if (self.IsSome()) action(await Option<Task<T>>.Some(self).Value);
+        if (self.IsSome()) action(await self.Value());
         return unit;
     }
 
@@ -676,7 +734,7 @@ public static class OptionExtensions
 
     public static async Task<S> FoldAsync<T, S>(this Option<Task<T>> self, S state, Func<S, T, S> folder) =>
         self.IsSome()
-            ? folder(state, await Option<Task<T>>.Some(self).Value)
+            ? folder(state, await self.Value())
             : state;
 
     public static async Task<bool> ForAllAsync<T>(this Task<Option<T>> self, Func<T, bool> pred) =>
@@ -684,7 +742,7 @@ public static class OptionExtensions
 
     public static async Task<bool> ForAllAsync<T>(this Option<Task<T>> self, Func<T, bool> pred) =>
         self.IsSome()
-            ? pred(await Option<Task<T>>.Some(self).Value)
+            ? pred(await self.Value())
             : true;
 
     public static async Task<bool> ExistsAsync<T>(this Task<Option<T>> self, Func<T, bool> pred) =>
@@ -692,7 +750,7 @@ public static class OptionExtensions
 
     public static async Task<bool> ExistsAsync<T>(this Option<Task<T>> self, Func<T, bool> pred) =>
         self.IsSome()
-            ? pred(await Option<Task<T>>.Some(self).Value)
+            ? pred(await self.Value())
             : false;
 
 
@@ -712,5 +770,5 @@ public static class OptionExtensions
 
     [Pure]
     internal static A Value<A>(this Option<A> self) =>
-        (self as Some<A>).Value;
+        (self as SomeValue<A>).Value;
 }

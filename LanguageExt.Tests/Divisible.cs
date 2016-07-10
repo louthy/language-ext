@@ -1,8 +1,8 @@
 ﻿using Xunit;
+using LanguageExt.Instances;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass.Prelude;
-using LanguageExt;
-using LanguageExt.TypeClass;
+using static LanguageExt.TypeClass;
+
 
 namespace LanguageExtTests
 {

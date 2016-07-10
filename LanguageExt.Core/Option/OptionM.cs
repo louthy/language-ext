@@ -1,15 +1,16 @@
 ﻿using System;
-using LanguageExt.TypeClass;
-using static LanguageExt.Prelude;
+using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
+using System.Collections.Generic;
 
 namespace LanguageExt
 {
     /// <summary>
-    /// Option monad
+    /// This struct wraps the discriminated union type Option<A> to make a type 
+    /// that sits in the Monad, Applicative, Functor and Foldable type-classes.
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
-    public struct OptionM<A> : M<A>, Foldable<A>
+    public struct OptionM<A> : Monad<A>, Foldable<A>
     {
         internal readonly Option<A> Value;
 
@@ -27,21 +28,15 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Iterates the bound value and passes it to f
+        /// To sequence operation
         /// </summary>
-        /// <param name="ia">Iterable</param>
-        /// <param name="f">Operation to perform on a</param>
-        [Pure]
-        public Unit Iter(Iterable<A> ia, Action<A> f)
+        public IEnumerable<A> ToSeq(Seq<A> seq)
         {
-            if (ia == null) return unit;
-            var maybe = Optional(ia);
-
-            if (maybe is Some<A>)
+            var maybe = Optional(seq);
+            if(maybe.IsSome())
             {
-                f(((Some<A>)maybe).Value);
+                yield return maybe.Value();
             }
-            return unit;
         }
 
         /// <summary>
@@ -54,19 +49,24 @@ namespace LanguageExt
         [Pure]
         public Functor<B> Map<B>(Functor<A> ma, Func<A, B> f)
         {
-            if (ma == null) return OptionM<B>.None;
             var maybe = Optional(ma);
-
-            return maybe is Some<A>
-                ? new OptionM<B>(Option<B>.Optional(f(((Some<A>)maybe).Value)))
+            return maybe.IsSome()
+                ? new OptionM<B>(Option<B>.Optional(f(maybe.Value())))
                 : OptionM<B>.None;
         }
 
         /// <summary>
-        /// Option cast from Iterable
+        /// Option cast from Seq
         /// </summary>
         [Pure]
-        private static Option<A> Optional(Iterable<A> a) =>
+        private static Option<A> Optional(Seq<A> a) =>
+            ((OptionM<A>)a).Value ?? Option<A>.None;
+
+        /// <summary>
+        /// Option cast from Functor
+        /// </summary>
+        [Pure]
+        private static Option<A> Optional(Functor<A> a) =>
             ((OptionM<A>)a).Value ?? Option<A>.None;
 
         /// <summary>
@@ -80,8 +80,8 @@ namespace LanguageExt
         /// Cast an Option to a Some
         /// </summary>
         [Pure]
-        private static Some<A> Some(Option<A> a) =>
-            (Some<A>)a;
+        private static SomeValue<A> Some(Option<A> a) =>
+            (SomeValue<A>)a;
 
         /// <summary>
         /// Cast an option to Some and return its bound value
@@ -100,7 +100,7 @@ namespace LanguageExt
         /// <param name="a">Value to bind</param>
         /// <returns>Monad of A</returns>
         [Pure]
-        public M<A> Return(A a) =>
+        public Monad<A> Return(A a) =>
             new OptionM<A>(Option<A>.Optional(a));
 
         /// <summary>
@@ -111,11 +111,10 @@ namespace LanguageExt
         /// <param name="f">Bind operation</param>
         /// <returns>Monad of B</returns>
         [Pure]
-        public M<B> Bind<B>(M<A> ma, Func<A, M<B>> f)
+        public Monad<B> Bind<B>(Monad<A> ma, Func<A, Monad<B>> f)
         {
-            if (ma == null) return OptionM<B>.None;
             var maybe = Optional(ma);
-            return maybe is Some<A>
+            return maybe is SomeValue<A>
                 ? f(SomeA(maybe))
                 : OptionM<B>.None;
         }
@@ -126,7 +125,7 @@ namespace LanguageExt
         /// <param name="err">Optional error message - not supported for Option</param>
         /// <returns>Monad of A (for Option this returns a None state)</returns>
         [Pure]
-        public M<A> Fail(string err = "") =>
+        public Monad<A> Fail(string err = "") =>
             None;
 
         /// <summary>
@@ -137,14 +136,14 @@ namespace LanguageExt
         /// <param name="a">Value to bind</param>
         /// <returns>Applicative of A</returns>
         [Pure]
-        public AP<A> Pure(A a) =>
-            Return(a);
+        public Applicative<A> Pure(A a) =>
+            new OptionM<A>(Option<A>.Optional(a));
 
         /// <summary>
         /// Apply y to x
         /// </summary>
         [Pure]
-        public AP<B> Apply<B>(AP<Func<A, B>> x, AP<A> y) =>
+        public Applicative<B> Apply<B>(Applicative<Func<A, B>> x, Applicative<A> y) =>
             from a in x
             from b in y
             select a(b);
@@ -153,7 +152,7 @@ namespace LanguageExt
         /// Apply y and z to x
         /// </summary>
         [Pure]
-        public AP<C> Apply<B, C>(AP<Func<A, B, C>> x, AP<A> y, AP<B> z) =>
+        public Applicative<C> Apply<B, C>(Applicative<Func<A, B, C>> x, Applicative<A> y, Applicative<B> z) =>
             from a in x
             from b in y
             from c in z
@@ -163,7 +162,7 @@ namespace LanguageExt
         /// Apply y to x
         /// </summary>
         [Pure]
-        public AP<Func<B, C>> Apply<B, C>(AP<Func<A, Func<B, C>>> x, AP<A> y) =>
+        public Applicative<Func<B, C>> Apply<B, C>(Applicative<Func<A, Func<B, C>>> x, Applicative<A> y) =>
             from a in x
             from b in y
             select a(b);
@@ -172,7 +171,7 @@ namespace LanguageExt
         /// Apply x, then y, ignoring the result of x
         /// </summary>
         [Pure]
-        public AP<B> Action<B>(AP<A> x, AP<B> y) =>
+        public Applicative<B> Action<B>(Applicative<A> x, Applicative<B> y) =>
             from a in x
             from b in y
             select b;
@@ -185,10 +184,10 @@ namespace LanguageExt
         /// <param name="f">Bind operation to perform</param>
         /// <returns>Applicative of B</returns>
         [Pure]
-        public AP<B> Bind<B>(AP<A> ma, Func<A, AP<B>> f)
+        public Applicative<B> Bind<B>(Applicative<A> ma, Func<A, Applicative<B>> f)
         {
             var maybe = Optional(ma);
-            return maybe is Some<A>
+            return maybe is SomeValue<A>
                 ? f(SomeA(maybe))
                 : OptionM<B>.None;
         }
@@ -204,7 +203,7 @@ namespace LanguageExt
         public S Fold<S>(Foldable<A> ma, S state, Func<S, A, S> f)
         {
             var maybe = Optional(ma);
-            return maybe is Some<A>
+            return maybe is SomeValue<A>
                 ? f(state, SomeA(maybe))
                 : state;
         }
@@ -220,7 +219,7 @@ namespace LanguageExt
         public S FoldBack<S>(Foldable<A> ma, S state, Func<S, A, S> f)
         {
             var maybe = Optional(ma);
-            return maybe is Some<A>
+            return maybe is SomeValue<A>
                 ? f(state, SomeA(maybe))
                 : state;
         }

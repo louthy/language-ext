@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Xunit;
 
 using static LanguageExt.Prelude;
+using LanguageExt.Trans;
 using LanguageExt;
 using System.Net;
 using System.Collections.Generic;

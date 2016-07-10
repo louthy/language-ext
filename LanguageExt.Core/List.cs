@@ -5,7 +5,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
-using LanguageExt.TypeClass;
+using LanguageExt.Instances;
 
 namespace LanguageExt
 {
@@ -204,7 +204,7 @@ namespace LanguageExt
         /// <returns>Mapped and filtered enumerable</returns>
         [Pure]
         public static IEnumerable<T> choose<T>(IEnumerable<T> list, Func<T, Option<T>> selector) =>
-            map(map(filter(map(list, selector), t => t.IsSome()), t => t as Some<T>), t => t.Value);
+            map(map(filter(map(list, selector), t => t.IsSome()), t => t as SomeValue<T>), t => t.Value);
 
         /// <summary>
         /// Applies the given function 'selector' to each element of the list. Returns the list comprised of 
@@ -217,7 +217,7 @@ namespace LanguageExt
         /// <returns>Mapped and filtered enumerable</returns>
         [Pure]
         public static IEnumerable<T> choose<T>(IEnumerable<T> list, Func<int, T, Option<T>> selector) =>
-            map(map(filter(map(list, selector), t => t.IsSome()), t => t as Some<T>), t => t.Value);
+            map(map(filter(map(list, selector), t => t.IsSome()), t => t as SomeValue<T>), t => t.Value);
 
         /// <summary>
         /// For each element of the list, applies the given function. Concatenates all the results and 
@@ -845,7 +845,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    state = (res as Some<S>).Value;
+                    state = (res as SomeValue<S>).Value;
                     yield return state;
                 }
             }
@@ -872,7 +872,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    var tup = (res as Some<Tuple<T, S>>).Value;
+                    var tup = (res as SomeValue<Tuple<T, S>>).Value;
                     state = tup.Item2;
                     yield return tup.Item1;
                 }
@@ -900,7 +900,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    var tup = (res as Some<Tuple<T, S1, S2>>).Value;
+                    var tup = (res as SomeValue<Tuple<T, S1, S2>>).Value;
                     state = System.Tuple.Create(tup.Item2, tup.Item3);
                     yield return tup.Item1;
                 }
@@ -928,7 +928,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    var tup = (res as Some<Tuple<T, S1, S2, S3>>).Value;
+                    var tup = (res as SomeValue<Tuple<T, S1, S2, S3>>).Value;
                     state = System.Tuple.Create(tup.Item2, tup.Item3, tup.Item4);
                     yield return tup.Item1;
                 }
@@ -956,7 +956,7 @@ namespace LanguageExt
                 }
                 else
                 {
-                    var tup = (res as Some<Tuple<T, S1, S2, S3, S4>>).Value;
+                    var tup = (res as SomeValue<Tuple<T, S1, S2, S3, S4>>).Value;
                     state = System.Tuple.Create(tup.Item2, tup.Item3, tup.Item4, tup.Item5);
                     yield return tup.Item1;
                 }
@@ -1125,7 +1125,7 @@ namespace LanguageExt
 
                 return head.IsNone()
                     ? Empty()
-                    : More((head as Some<T>).Value, tail);
+                    : More((head as SomeValue<T>).Value, tail);
             }
         }
 
@@ -1157,8 +1157,8 @@ namespace LanguageExt
                 {
                     var second = tail.HeadOrNone();
                     return second.IsNone()
-                        ? One((head as Some<T>).Value)
-                        : More((head as Some<T>).Value, tail);
+                        ? One((head as SomeValue<T>).Value)
+                        : More((head as SomeValue<T>).Value, tail);
                 }
             }
         }
@@ -1934,27 +1934,27 @@ namespace LanguageExt
         public static Lst<V> SelectMany<T, U, V>(this Lst<T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) =>
             self.Bind(t => bind(t).Map(u => project(t, u)));
 
-        //[Pure]
-        //[EditorBrowsable(EditorBrowsableState.Never)]
-        //public static Lst<V> SelectMany<T, U, V>(this Lst<T> self,
-        //    Func<T, IEnumerable<U>> bind,
-        //    Func<T, U, V> project
-        //    )
-        //{
-        //    if (self.Count == 0) return Lst<V>.Empty;
-        //    return self.Bind(t => bind(t).Map(u => project(t, u))).Freeze();
-        //}
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static Lst<V> SelectMany<T, U, V>(this Lst<T> self,
+            Func<T, IEnumerable<U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            if (self.Count == 0) return Lst<V>.Empty;
+            return self.Bind(t => bind(t).Map(u => project(t, u))).Freeze();
+        }
 
-        //[Pure]
-        //[EditorBrowsable(EditorBrowsableState.Never)]
-        //public static Lst<V> SelectMany<T, U, V>(this IEnumerable<T> self,
-        //    Func<T, Lst<U>> bind,
-        //    Func<T, U, V> project
-        //    )
-        //{
-        //    var ta = self.Take(1).ToArray();
-        //    if (ta.Length == 0) return Lst<V>.Empty;
-        //    return self.Bind(t => bind(t).Map(u => project(t, u))).Freeze();
-        //}
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static IEnumerable<V> SelectMany<T, U, V>(this IEnumerable<T> self,
+            Func<T, Lst<U>> bind,
+            Func<T, U, V> project
+            )
+        {
+            var ta = self.Take(1).ToArray();
+            if (ta.Length == 0) return Lst<V>.Empty;
+            return self.Bind(t => bind(t).Map(u => project(t, u))).Freeze();
+        }
     }
 }

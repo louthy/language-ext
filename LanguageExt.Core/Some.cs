@@ -1,6 +1,4 @@
-﻿#if false
-
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
@@ -30,7 +28,7 @@ namespace LanguageExt
     }
 
 #if !COREFX
-    [TypeConverter(typeof(OptionalTypeConverter))]
+    // TODO: Restore when the type-class work is complete [TypeConverter(typeof(OptionalTypeConverter))]
     [Serializable]
 #endif
     public struct Some<T> : IOptional
@@ -108,4 +106,3 @@ namespace LanguageExt
             new Some<T>(x);
     }
 }
-#endif

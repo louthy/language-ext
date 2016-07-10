@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using LanguageExt;
 using System.Reactive.Linq;
+using LanguageExt;
+using LanguageExt.Trans;
 using static LanguageExt.List;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
@@ -711,18 +712,26 @@ namespace TestBed
             var opt = Some(List(1, 2, 3, 4, 5));
 
             var res = from x in opt
-                      select x * 2;
+                      from y in x
+                      select y * 2;
 
             match(res,
-                Some: x =>
+                () =>
                 {
-                    Debug.Assert(x[0] == 2);
-                    Debug.Assert(x[1] == 4);
-                    Debug.Assert(x[2] == 6);
-                    Debug.Assert(x[3] == 8);
-                    Debug.Assert(x[4] == 10);
+                    Debug.Assert(false);
+                    return false;
                 },
-                None: () => { Debug.Assert(false); }
+                (x,xs) =>
+                {
+                    var vs = x.Cons(xs).ToArray();
+
+                    Debug.Assert(vs[0] == 2);
+                    Debug.Assert(vs[1] == 4);
+                    Debug.Assert(vs[2] == 6);
+                    Debug.Assert(vs[3] == 8);
+                    Debug.Assert(vs[4] == 10);
+                    return true;
+                }
             );
         }
 

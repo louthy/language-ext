@@ -227,11 +227,11 @@ namespace LanguageExt
 
         [Pure]
         public static bool isnull<T>(T value) =>
-            Object.ReferenceEquals(value, null);
+            ReferenceEquals(value, null);
 
         [Pure]
         public static bool notnull<T>(T value) =>
-            !Object.ReferenceEquals(value, null);
+            !ReferenceEquals(value, null);
 
         /// <summary>
         /// Convert a value to string

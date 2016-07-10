@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading.Tasks;
-using LanguageExt.TypeClass;
-using static LanguageExt.TypeClass.Prelude;
+using LanguageExt;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -27,7 +27,7 @@ namespace LanguageExt
         public static Option<T> mappend<SEMI, T>(Option<T> lhs, Option<T> rhs) where SEMI : struct, Semigroup<T> =>
             from x in lhs
             from y in rhs
-            select LanguageExt.TypeClass.Prelude.append<SEMI, T>(x, y);
+            select TypeClass.append<SEMI, T>(x, y);
 
         /// <summary>
         /// Folds the provided list of options
@@ -88,7 +88,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static Option<T> divide<DIV, T>(Option<T> lhs, Option<T> rhs) where DIV : struct, Divide<T> =>
+        public static Option<T> divide<DIV, T>(Option<T> lhs, Option<T> rhs) where DIV : struct, Division<T> =>
             lhs.Divide<DIV, T>(rhs);
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static Option<T> add<ADD, T>(Option<T> lhs, Option<T> rhs) where ADD : struct, Add<T> =>
+        public static Option<T> add<ADD, T>(Option<T> lhs, Option<T> rhs) where ADD : struct, Addition<T> =>
             lhs.Add<ADD, T>(rhs);
 
         /// <summary>
@@ -208,15 +208,15 @@ namespace LanguageExt
         /// <param name="arg">Optional argument</param>
         /// <returns>Returns the result of applying the optional argument to the optional function</returns>
         [Pure]
-        public static AP<R> apply<T, R>(Option<Func<T, R>> option, Option<T> arg) =>
+        public static Applicative<R> apply<T, R>(Option<Func<T, R>> option, Option<T> arg) =>
             M(option).Apply(M(arg));
 
         [Pure]
-        public static AP<R> apply<T, U, R>(Option<Func<T, U, R>> option, Option<T> arg1, Option<U> arg2) =>
+        public static Applicative<R> apply<T, U, R>(Option<Func<T, U, R>> option, Option<T> arg1, Option<U> arg2) =>
             M(option).Apply(M(arg1), M(arg2));
 
         [Pure]
-        public static AP<Func<U, R>> apply<T, U, R>(Option<Func<T, Func<U, R>>> option, Option<T> arg) =>
+        public static Applicative<Func<U, R>> apply<T, U, R>(Option<Func<T, Func<U, R>>> option, Option<T> arg) =>
             M(option).Apply(M(arg));
 
         /// <summary>

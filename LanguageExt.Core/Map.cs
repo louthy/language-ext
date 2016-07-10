@@ -967,7 +967,7 @@ public static class MapExtensions
         var b = self.Find(outerKey);
         if (b.IsSome())
         {
-            var bv = (b as Some<Map<B,T>>).Value.Remove(innerKey);
+            var bv = (b as SomeValue<Map<B,T>>).Value.Remove(innerKey);
             if (bv.Count() == 0)
             {
                 return self.Remove(outerKey);
@@ -989,14 +989,14 @@ public static class MapExtensions
         var b = self.Find(aKey);
         if (b.IsSome())
         {
-            var c = (b as Some<Map<B,Map<C,T>>>).Value.Find(bKey);
+            var c = (b as SomeValue<Map<B,Map<C,T>>>).Value.Find(bKey);
             if (c.IsSome())
             {
-                var cv = (b as Some<Map<C, T>>).Value.Remove(cKey);
+                var cv = (b as SomeValue<Map<C, T>>).Value.Remove(cKey);
                 if (cv.Count() == 0)
                 {
-                    var bv = (b as Some<Map<B, Map<C, T>>>).Value.Remove(bKey);
-                    if ((b as Some<Map<B, Map<C, T>>>).Value.Count() == 0)
+                    var bv = (b as SomeValue<Map<B, Map<C, T>>>).Value.Remove(bKey);
+                    if ((b as SomeValue<Map<B, Map<C, T>>>).Value.Count() == 0)
                     {
                         return self.Remove(aKey);
                     }
@@ -1007,7 +1007,7 @@ public static class MapExtensions
                 }
                 else
                 {
-                    return self.SetItem(aKey, (b as Some<Map<B, Map<C, T>>>).Value.SetItem(bKey, cv));
+                    return self.SetItem(aKey, (b as SomeValue<Map<B, Map<C, T>>>).Value.SetItem(bKey, cv));
                 }
             }
             else
@@ -1170,7 +1170,7 @@ public static class MapExtensions
     {
         var a = map.Find(aKey);
         if (a.IsNone()) throw new ArgumentException("Key not found in Map");
-        var av = (a as Some<Map<B, V>>).Value;
+        var av = (a as SomeValue<Map<B, V>>).Value;
         return map.SetItem(aKey, av.SetItem(bKey, value));
     }
 
@@ -1179,7 +1179,7 @@ public static class MapExtensions
     {
         var a = map.Find(aKey);
         if (a.IsNone()) throw new ArgumentException("Key not found in Map");
-        var av = (a as Some<Map<B, Map<C, V>>>).Value;
+        var av = (a as SomeValue<Map<B, Map<C, V>>>).Value;
 
         return map.SetItem(aKey, av.SetItemT(bKey, cKey, value));
     }
@@ -1189,7 +1189,7 @@ public static class MapExtensions
     {
         var a = map.Find(aKey);
         if (a.IsNone()) throw new ArgumentException("Key not found in Map");
-        var av = (a as Some<Map<B, Map<C, Map<D, V>>>>).Value;
+        var av = (a as SomeValue<Map<B, Map<C, Map<D, V>>>>).Value;
 
         return map.SetItem(aKey, av.SetItemT(bKey, cKey, dKey, value));
     }
@@ -1199,7 +1199,7 @@ public static class MapExtensions
     {
         var a = map.Find(aKey);
         if (a.IsNone()) throw new ArgumentException("Key not found in Map");
-        var av = (a as Some<Map<B, V>>).Value;
+        var av = (a as SomeValue<Map<B, V>>).Value;
         return map.SetItem(aKey, av.SetItem(bKey, Some));
     }
 
@@ -1208,7 +1208,7 @@ public static class MapExtensions
     {
         var a = map.Find(aKey);
         if (a.IsNone()) throw new ArgumentException("Key not found in Map");
-        var av = (a as Some<Map<B, Map<C, V>>>).Value;
+        var av = (a as SomeValue<Map<B, Map<C, V>>>).Value;
 
         return map.SetItem(aKey, av.SetItemT(bKey, cKey, Some));
     }
@@ -1218,7 +1218,7 @@ public static class MapExtensions
     {
         var a = map.Find(aKey);
         if (a.IsNone()) throw new ArgumentException("Key not found in Map");
-        var av = (a as Some<Map<B, Map<C, Map<D,V>>>>).Value;
+        var av = (a as SomeValue<Map<B, Map<C, Map<D,V>>>>).Value;
 
         return map.SetItem(aKey, av.SetItemT(bKey, cKey, dKey, Some));
     }
@@ -1228,7 +1228,7 @@ public static class MapExtensions
     {
         var a = map.Find(aKey);
         if (a.IsNone()) return map;
-        var av = (a as Some<Map<B, V>>).Value;
+        var av = (a as SomeValue<Map<B, V>>).Value;
         return map.SetItem(aKey, av.TrySetItem(bKey, value));
     }
 
@@ -1237,7 +1237,7 @@ public static class MapExtensions
     {
         var a = map.Find(aKey);
         if (a.IsNone()) return map;
-        var av = (a as Some<Map<B, Map<C, V>>>).Value;
+        var av = (a as SomeValue<Map<B, Map<C, V>>>).Value;
 
         return map.SetItem(aKey, av.TrySetItemT(bKey, cKey, value));
     }
@@ -1247,7 +1247,7 @@ public static class MapExtensions
     {
         var a = map.Find(aKey);
         if (a.IsNone()) return map;
-        var av = (a as Some<Map<B, Map<C, Map<D, V>>>>).Value;
+        var av = (a as SomeValue<Map<B, Map<C, Map<D, V>>>>).Value;
 
         return map.SetItem(aKey, av.TrySetItemT(bKey, cKey, dKey, value));
     }
@@ -1257,7 +1257,7 @@ public static class MapExtensions
     {
         var a = map.Find(aKey);
         if (a.IsNone()) return map;
-        var av = (a as Some<Map<B, V>>).Value;
+        var av = (a as SomeValue<Map<B, V>>).Value;
         return map.SetItem(aKey, av.TrySetItem(bKey, Some));
     }
 
@@ -1266,7 +1266,7 @@ public static class MapExtensions
     {
         var a = map.Find(aKey);
         if (a.IsNone()) return map;
-        var av = (a as Some<Map<B, Map<C, V>>>).Value;
+        var av = (a as SomeValue<Map<B, Map<C, V>>>).Value;
 
         return map.SetItem(aKey, av.TrySetItemT(bKey, cKey, Some));
     }
@@ -1276,7 +1276,7 @@ public static class MapExtensions
     {
         var a = map.Find(aKey);
         if (a.IsNone()) return map;
-        var av = (a as Some<Map<B, Map<C, Map<D,V>>>>).Value;
+        var av = (a as SomeValue<Map<B, Map<C, Map<D,V>>>>).Value;
 
         return map.SetItem(aKey, av.TrySetItemT(bKey, cKey, dKey, Some));
     }

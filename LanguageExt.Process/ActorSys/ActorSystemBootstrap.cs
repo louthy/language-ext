@@ -161,11 +161,11 @@ namespace LanguageExt
             var actor = new Actor<S, T>(Cluster, parent, name, actorFn, _ => setupFn(), termFn, Process.DefaultStrategy, flags, Settings, System);
 
             IActorInbox inbox = null;
-            if ((actor.Flags & ProcessFlags.ListenRemoteAndLocal) == ProcessFlags.ListenRemoteAndLocal && Cluster.IsSome)
+            if ((actor.Flags & ProcessFlags.ListenRemoteAndLocal) == ProcessFlags.ListenRemoteAndLocal && Cluster.IsSome())
             {
                 inbox = new ActorInboxDual<S, T>();
             }
-            else if ((actor.Flags & ProcessFlags.PersistInbox) == ProcessFlags.PersistInbox && Cluster.IsSome)
+            else if ((actor.Flags & ProcessFlags.PersistInbox) == ProcessFlags.PersistInbox && Cluster.IsSome())
             {
                 inbox = new ActorInboxRemote<S, T>();
             }

@@ -1,6 +1,4 @@
-﻿#if false
-
-using System; 
+﻿using System; 
 using System.Collections.Generic;
 using System.Collections;
 using System.Threading.Tasks;
@@ -10618,7 +10616,7 @@ namespace LanguageExt.Trans
     /// 
     /// </summary>
     public static partial class OptionMonad {
-        internal static T InnerValue<T>(this Option<T> self) => self.IsSome ? self.Value : default(T);
+        internal static T InnerValue<T>(this Option<T> self) => self.IsSome() ? self.Value() : default(T);
         /// <summary>
         /// Sum
         /// </summary>
@@ -23836,4 +23834,3 @@ namespace LanguageExt.Trans
     }
 }
 
-#endif

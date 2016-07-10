@@ -7,7 +7,7 @@
 <# 
     var types = new [] {
         T("IEnumerable", "!T",                  "self.FirstOrDefault()",                          DelType.Not, "List"),
-        T("Option",      "!T",                  "self.IsSome ? self.Value : default(T)",          DelType.Not),
+        T("Option",      "!T",                  "self.IsSome() ? self.Value() : default(T)",      DelType.Not),
         T("OptionUnsafe","!T",                  "self.IsSome ? self.Value : default(T)",          DelType.Not),
         T("Lst",         "!T",                  "self.FirstOrDefault()",                          DelType.Not, "List"),
         T("Map",         "K, !T",               "self.Values.FirstOrDefault()",                   DelType.Not),

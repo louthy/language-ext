@@ -161,7 +161,7 @@ namespace LanguageExt
                         return None;
                     }
                  })
-                .Where(x => x.IsSome)
+                .Where(x => x.IsSome())
                 .Select(x => x.IfNoneUnsafe(null));
  
         public IObservable<T> SubscribeToChannel<T>(string channelName) =>
@@ -176,7 +176,7 @@ namespace LanguageExt
                         return None;
                     }
                  })
-                .Where(x => x.IsSome)
+                .Where(x => x.IsSome())
                 .Select(x => x.IfNoneUnsafe(null));
 
         public void UnsubscribeChannel(string channelName)
