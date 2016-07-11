@@ -21,6 +21,9 @@ namespace LanguageExt
     /// Seq, type-classes.
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
+#if !COREFX
+    [Serializable]
+#endif
     public struct OptionUnsafe<A> : 
         Optional<A>, 
         IOptional,
@@ -52,18 +55,6 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// To sequence operation
-        /// </summary>
-        public IEnumerable<A> ToSeq(Seq<A> seq)
-        {
-            var maybe = Optional(seq);
-            if(maybe.IsSome())
-            {
-                yield return maybe.Value();
-            }
-        }
-
-        /// <summary>
         /// Functor map operation
         /// </summary>
         /// <typeparam name="B">The type that f maps to</typeparam>
@@ -78,13 +69,6 @@ namespace LanguageExt
                 ? new OptionUnsafe<B>(OptionV<B>.Optional(f(maybe.Value())))
                 : OptionUnsafe<B>.None;
         }
-
-        /// <summary>
-        /// Option cast from Seq
-        /// </summary>
-        [Pure]
-        private static OptionV<A> Optional(Seq<A> a) =>
-            ((OptionUnsafe<A>)a).value ?? OptionV<A>.None;
 
         /// <summary>
         /// Option cast from Functor
@@ -147,43 +131,6 @@ namespace LanguageExt
         [Pure]
         public Applicative<A> Pure(A a) =>
             new OptionUnsafe<A>(OptionV<A>.Optional(a));
-
-        /// <summary>
-        /// Apply y to x
-        /// </summary>
-        [Pure]
-        public Applicative<B> Apply<B>(Applicative<Func<A, B>> x, Applicative<A> y) =>
-            from a in x
-            from b in y
-            select a(b);
-
-        /// <summary>
-        /// Apply y and z to x
-        /// </summary>
-        [Pure]
-        public Applicative<C> Apply<B, C>(Applicative<Func<A, B, C>> x, Applicative<A> y, Applicative<B> z) =>
-            from a in x
-            from b in y
-            from c in z
-            select a(b, c);
-
-        /// <summary>
-        /// Apply y to x
-        /// </summary>
-        [Pure]
-        public Applicative<Func<B, C>> Apply<B, C>(Applicative<Func<A, Func<B, C>>> x, Applicative<A> y) =>
-            from a in x
-            from b in y
-            select a(b);
-
-        /// <summary>
-        /// Apply x, then y, ignoring the result of x
-        /// </summary>
-        [Pure]
-        public Applicative<B> Action<B>(Applicative<A> x, Applicative<B> y) =>
-            from a in x
-            from b in y
-            select b;
 
         /// <summary>
         /// Applicative bind

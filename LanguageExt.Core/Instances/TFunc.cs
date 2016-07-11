@@ -45,11 +45,6 @@ namespace LanguageExt.Instances
         public Functor<B> Map<B>(Functor<Func<A>> fa, Func<Func<A>, B> fab) =>
             Pure<TApplVal<B>, B>(fab(((TFunc<A>)fa).Value));
 
-        public IEnumerable<Func<A>> ToSeq(Seq<Func<A>> fa)
-        {
-            yield return ((TFunc<A>)fa).Value;
-        }
-
         public Applicative<Func<A>> Pure(Func<A> a) =>
             new TFunc<A>(a);
     }
@@ -89,11 +84,6 @@ namespace LanguageExt.Instances
 
         public Functor<B1> Map<B1>(Functor<Func<A, B>> fa, Func<Func<A, B>, B1> f) =>
             Pure<TApplVal<B1>, B1>(f(((TFunc<A, B>)fa).Value));
-
-        public IEnumerable<Func<A, B>> ToSeq(Seq<Func<A, B>> fa)
-        {
-            yield return ((TFunc<A, B>)fa).Value;
-        }
 
         public Applicative<Func<A, B>> Pure(Func<A, B> a) =>
             new TFunc<A, B>(a);

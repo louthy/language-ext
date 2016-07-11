@@ -53,10 +53,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionObservable.cs" />
+    <Compile Include="Identity.cs" />
     <Compile Include="Instances\OrdDefault.cs" />
     <Compile Include="Instances\EqOpt.cs" />
     <Compile Include="Instances\EqQueue.cs" />
-    <Compile Include="Instances\EqMap.cs" />
     <Compile Include="Instances\EqSet.cs" />
     <Compile Include="Instances\EqLst.cs" />
     <Compile Include="Instances\EqArray.cs" />
@@ -68,6 +68,7 @@
     <Compile Include="Instances\EqShort.cs" />
     <Compile Include="Instances\EqInt.cs" />
     <Compile Include="IOptional.cs" />
+    <Compile Include="Map\Map.cs" />
     <Compile Include="OptionUnsafe\OptionUnsafe.cs" />
     <Compile Include="OptionUnsafe\OptionUnsafeExtensions.cs" />
     <Compile Include="Seq\SeqM.cs" />
@@ -110,7 +111,7 @@
       <DependentUpon>HKT.tt</DependentUpon>
     </Compile>
     <Compile Include="IEither.cs" />
-    <Compile Include="MapKV.cs" />
+    <Compile Include="Map\MapKV.cs" />
     <Compile Include="Prelude_Monad.cs" />
     <Compile Include="Prelude_Obsolete.cs" />
     <Compile Include="Prelude_PartialApplication.cs" />
@@ -122,7 +123,7 @@
     <Compile Include="Que.cs" />
     <Compile Include="Query.cs" />
     <Compile Include="Prelude_Try.cs" />
-    <Compile Include="Map.cs" />
+    <Compile Include="Map\MapModule.cs" />
     <Compile Include="OptionUnsafe.cs" />
     <Compile Include="Prelude_Collections.cs" />
     <Compile Include="Prelude_Either.cs" />
@@ -161,6 +162,7 @@
     <Compile Include="Instances\TFunc.cs" />
     <Compile Include="Instances\TApplVal.cs" />
     <Compile Include="Instances\EqDefault.cs" />
+    <Compile Include="TypeClasses\Foldable\Foldable_Extensions.cs" />
     <Compile Include="TypeClasses\Fraction\Fraction_Extensions.cs" />
     <Compile Include="TypeClasses\Monad\Monad_Extensions.cs" />
     <Compile Include="TypeClasses\Functor\Functor_Extensions.cs" />
@@ -169,8 +171,6 @@
     <Compile Include="TypeClasses\Optional\Optional_Extensions.cs" />
     <Compile Include="TypeClasses\Ord\Ord_Extensions.cs" />
     <Compile Include="TypeClasses\Semigroup\Semigroup_Extensions.cs" />
-    <Compile Include="TypeClasses\Seq\Seq_Prelude.cs" />
-    <Compile Include="TypeClasses\Seq\Seq_Extensions.cs" />
     <Compile Include="TypeClasses\Foldable\Foldable.cs" />
     <Compile Include="TypeClasses\Functor\Functor.cs" />
     <Compile Include="TypeClasses\Monad\Monad.cs" />
@@ -185,7 +185,6 @@
     <Compile Include="TypeClasses\Fraction\Fraction_Prelude.cs" />
     <Compile Include="TypeClasses\Ord\Ord_Prelude.cs" />
     <Compile Include="TypeClasses\Semigroup\Semigroup_Prelude.cs" />
-    <Compile Include="TypeClasses\Seq\Seq.cs" />
     <Compile Include="Instances\OrdBool.cs" />
     <Compile Include="TypeClasses\Eq\Eq.cs" />
     <Compile Include="TypeClasses\Floating\Floating.cs" />
@@ -203,6 +202,8 @@
     <Compile Include="TypeClasses\Semigroup\Semigroup.cs" />
     <Compile Include="Instances\TLst.cs" />
     <Compile Include="Instances\TString.cs" />
+    <Compile Include="TypeClasses\Traversable\Traversable.cs" />
+    <Compile Include="TypeClasses\Traversable\Traversable_Extensions.cs" />
     <Compile Include="TypeConverters.cs" />
     <Compile Include="TypeDesc.cs" />
     <Compile Include="Unit.cs" />

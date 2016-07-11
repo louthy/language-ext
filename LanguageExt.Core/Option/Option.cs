@@ -21,6 +21,9 @@ namespace LanguageExt
     /// Foldable, and Seq, type-classes.
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
+#if !COREFX
+    [Serializable]
+#endif
     public struct Option<A> : 
         Optional<A>, 
         IOptional, 
@@ -52,18 +55,6 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// To sequence operation
-        /// </summary>
-        public IEnumerable<A> ToSeq(Seq<A> seq)
-        {
-            var maybe = Optional(seq);
-            if(maybe.IsSome())
-            {
-                yield return maybe.Value();
-            }
-        }
-
-        /// <summary>
         /// Functor map operation
         /// </summary>
         /// <typeparam name="B">The type that f maps to</typeparam>
@@ -78,13 +69,6 @@ namespace LanguageExt
                 ? new Option<B>(OptionV<B>.Optional(f(maybe.Value())))
                 : Option<B>.None;
         }
-
-        /// <summary>
-        /// Option cast from Seq
-        /// </summary>
-        [Pure]
-        private static OptionV<A> Optional(Seq<A> a) =>
-            ((Option<A>)a).value ?? OptionV<A>.None;
 
         /// <summary>
         /// Option cast from Functor
@@ -149,43 +133,6 @@ namespace LanguageExt
             new Option<A>(OptionV<A>.Optional(a));
 
         /// <summary>
-        /// Apply y to x
-        /// </summary>
-        [Pure]
-        public Applicative<B> Apply<B>(Applicative<Func<A, B>> x, Applicative<A> y) =>
-            from a in x
-            from b in y
-            select a(b);
-
-        /// <summary>
-        /// Apply y and z to x
-        /// </summary>
-        [Pure]
-        public Applicative<C> Apply<B, C>(Applicative<Func<A, B, C>> x, Applicative<A> y, Applicative<B> z) =>
-            from a in x
-            from b in y
-            from c in z
-            select a(b, c);
-
-        /// <summary>
-        /// Apply y to x
-        /// </summary>
-        [Pure]
-        public Applicative<Func<B, C>> Apply<B, C>(Applicative<Func<A, Func<B, C>>> x, Applicative<A> y) =>
-            from a in x
-            from b in y
-            select a(b);
-
-        /// <summary>
-        /// Apply x, then y, ignoring the result of x
-        /// </summary>
-        [Pure]
-        public Applicative<B> Action<B>(Applicative<A> x, Applicative<B> y) =>
-            from a in x
-            from b in y
-            select b;
-
-        /// <summary>
         /// Applicative bind
         /// </summary>
         /// <typeparam name="B">The type of the bind result</typeparam>
@@ -248,10 +195,48 @@ namespace LanguageExt
         public static implicit operator Option<A>(OptionNone a) =>
             None;
 
+        /// <summary>
+        /// Equality operator
+        /// </summary>
+        /// <remarks>
+        /// This uses the EqDefault type-class for comparison of the A value.  The EqDefault
+        /// type-class wraps up the .NET EqualityComparer.Default behaviour.  For more control
+        /// over equality you can call:
+        /// 
+        ///     equals<EQ, A>(lhs, rhs);
+        ///     
+        /// Where EQ is a struct derived from Eq<A>.  For example: 
+        /// 
+        ///     equals<EqString, string>(lhs, rhs);
+        ///     equals<EqArray<int>, int>(lhs, rhs);
+        ///     
+        /// </remarks>
+        /// <param name="lhs">Left hand side of the operation</param>
+        /// <param name="rhs">RIght hand side of the operation</param>
+        /// <returns>True if the values are equal</returns>
         [Pure]
         public static bool operator ==(Option<A> lhs, Option<A> rhs) =>
             equals<EqDefault<A>, A>(lhs, rhs);
 
+        /// <summary>
+        /// Non-equality operator
+        /// </summary>
+        /// <remarks>
+        /// This uses the EqDefault type-class for comparison of the A value.  The EqDefault
+        /// type-class wraps up the .NET EqualityComparer.Default behaviour.  For more control
+        /// over equality you can call:
+        /// 
+        ///     !equals<EQ, A>(lhs, rhs);
+        ///     
+        /// Where EQ is a struct derived from Eq<A>.  For example: 
+        /// 
+        ///     !equals<EqString, string>(lhs, rhs);
+        ///     !equals<EqArray<int>, int>(lhs, rhs);
+        ///     
+        /// </remarks>
+        /// <param name="lhs">Left hand side of the operation</param>
+        /// <param name="rhs">RIght hand side of the operation</param>
+        /// <returns>True if the values are equal</returns>
         [Pure]
         public static bool operator !=(Option<A> lhs, Option<A> rhs) =>
             !(lhs == rhs);
@@ -307,6 +292,9 @@ namespace LanguageExt
         public bool IsNone =>
             (value ?? OptionV<A>.None).IsNone();
 
+        /// <summary>
+        /// Helper accessor for the bound value
+        /// </summary>
         internal A Value =>
             IsSome
                 ? value.Value()
@@ -357,6 +345,14 @@ namespace LanguageExt
             return project(Value, mb.Value);
         }
 
+        /// <summary>
+        /// Match operation with an untyped value for Some. This can be
+        /// useful for serialisation and dealing with the IOptional interface
+        /// </summary>
+        /// <typeparam name="R">The return type</typeparam>
+        /// <param name="Some">Operation to perform if the option is in a Some state</param>
+        /// <param name="None">Operation to perform if the option is in a None state</param>
+        /// <returns>The result of the match operation</returns>
         public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
             this.Match(
                 Some: x => Some(x),
@@ -421,20 +417,19 @@ namespace LanguageExt
         /// This is for returning a value from the match operation, to dispatch
         /// an action instead, use Some<A>(...)
         /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
         /// <typeparam name="B">Match operation return value type</typeparam>
-        /// <param name="ma">Option to match</param>
         /// <param name="f">The Some(x) match operation</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public SomeContext<Option<A>, A, B> Some<B>(Func<A, B> someHandler) =>
-            new SomeContext<Option<A>, A, B>(this, someHandler, false);
+        public SomeContext<Option<A>, A, B> Some<B>(Func<A, B> f) =>
+            new SomeContext<Option<A>, A, B>(this, f, false);
 
         /// <summary>
         /// Match the two states of the Option and return a non-null R.
         /// </summary>
         /// <typeparam name="B">Return type</typeparam>
-        /// <param name="None">None handler.  Must not return null.</param>
+        /// <param name="Some">Some match operation. Must not return null.</param>
+        /// <param name="None">None match operation. Must not return null.</param>
         /// <returns>A non-null R</returns>
         [Pure]
         public B Match<B>(Func<A, B> Some, Func<B> None) =>
@@ -446,8 +441,8 @@ namespace LanguageExt
         /// Match the two states of the Option and return a B, which can be null.
         /// </summary>
         /// <typeparam name="B">Return type</typeparam>
-        /// <param name="Some">Some handler.  May return null.</param>
-        /// <param name="None">None handler.  May return null.</param>
+        /// <param name="Some">Some match operation. May return null.</param>
+        /// <param name="None">None match operation. May return null.</param>
         /// <returns>R, or null</returns>
         [Pure]
         public B MatchUnsafe<B>(Func<A, B> Some, Func<B> None) =>
@@ -458,9 +453,8 @@ namespace LanguageExt
         /// <summary>
         /// Match the two states of the Option A
         /// </summary>
-        /// <param name="Some">Some match</param>
-        /// <param name="None">None match</param>
-        /// <returns></returns>
+        /// <param name="Some">Some match operation</param>
+        /// <param name="None">None match operation</param>
         public Unit Match(Action<A> Some, Action None)
         {
             if (IsSome)
@@ -475,43 +469,74 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Invokes the someHandler if Option is in the Some state, otherwise nothing
-        /// happens.
+        /// Invokes the f action if Option is in the Some state, otherwise nothing happens.
         /// </summary>
-        public Unit IfSome(Action<A> someHandler)
+        public Unit IfSome(Action<A> f)
         {
             if (IsSome)
             {
-                someHandler(Value);
+                f(Value);
             }
             return unit;
         }
 
         /// <summary>
-        /// Invokes the someHandler if Option is in the Some state, otherwise nothing
+        /// Invokes the f function if Option is in the Some state, otherwise nothing
         /// happens.
         /// </summary>
-        public Unit IfSome(Func<A, Unit> someHandler)
+        public Unit IfSome(Func<A, Unit> f)
         {
             if (IsSome)
             {
-                someHandler(Value);
+                f(Value);
             }
             return unit;
         }
 
+        /// <summary>
+        /// Returns the result of invoking the None() operation if the optional 
+        /// is in a None state, otherwise the bound Some(x) value is returned.
+        /// </summary>
+        /// <remarks>Will not accept a null return value from the None operation</remarks>
+        /// <param name="None">Operation to invoke if the structure is in a None state</param>
+        /// <returns>Tesult of invoking the None() operation if the optional 
+        /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
         public A IfNone(Func<A> None) =>
             Match(identity, None);
 
+        /// <summary>
+        /// Returns the noneValue if the optional is in a None state, otherwise
+        /// the bound Some(x) value is returned.
+        /// </summary>
+        /// <remarks>Will not accept a null noneValue</remarks>
+        /// <param name="noneValue">Value to return if in a None state</param>
+        /// <returns>noneValue if the optional is in a None state, otherwise
+        /// the bound Some(x) value is returned</returns>
         [Pure]
         public A IfNone(A noneValue) =>
             Match(identity, () => noneValue);
 
+        /// <summary>
+        /// Returns the result of invoking the None() operation if the optional 
+        /// is in a None state, otherwise the bound Some(x) value is returned.
+        /// </summary>
+        /// <remarks>Will allow null the be returned from the None operation</remarks>
+        /// <param name="None">Operation to invoke if the structure is in a None state</param>
+        /// <returns>Tesult of invoking the None() operation if the optional 
+        /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
         public A IfNoneUnsafe(Func<A> None) =>
             MatchUnsafe(identity, None);
 
+        /// <summary>
+        /// Returns the noneValue if the optional is in a None state, otherwise
+        /// the bound Some(x) value is returned.
+        /// </summary>
+        /// <remarks>Will allow noneValue to be null</remarks>
+        /// <param name="noneValue">Value to return if in a None state</param>
+        /// <returns>noneValue if the optional is in a None state, otherwise
+        /// the bound Some(x) value is returned</returns>
         [Pure]
         public A IfNoneUnsafe(A noneValue) =>
             MatchUnsafe(identity, () => noneValue);

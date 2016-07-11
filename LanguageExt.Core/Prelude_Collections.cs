@@ -365,15 +365,6 @@ namespace LanguageExt
                    None);
 
         /// <summary>
-        /// Convert value to [value] or [] if value == null
-        /// </summary>
-        [Pure]
-        public static IEnumerable<T> seq<T>(T value) =>
-            isnull(value)
-                ? new T[0]
-                : new T[] { value };
-
-        /// <summary>
         /// Convert a nullable to an enumerable
         /// HasValue : true = [x]
         /// HasValue : false = []

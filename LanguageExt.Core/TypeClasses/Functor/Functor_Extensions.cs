@@ -100,5 +100,41 @@ namespace LanguageExt
             Func<T, U> map
             ) =>
             (Monad<U>)self.Map(self, map);
+
+        /// <summary>
+        /// Projection from one value to another using f
+        /// </summary>
+        /// <typeparam name="T">Functor value type</typeparam>
+        /// <typeparam name="U">Resulting functor value type</typeparam>
+        /// <param name="x">Functor value to map from </param>
+        /// <param name="f">Projection function</param>
+        /// <returns>Mapped functor</returns>
+        [Pure]
+        public static Applicative<C> MapT<A, B, C>(
+            this Applicative<A> self,
+            Func<B, C> map
+            )
+            where A : Applicative<B> =>
+            from a in self
+            from b in a
+            select map(b);
+
+        /// <summary>
+        /// Projection from one value to another using f
+        /// </summary>
+        /// <typeparam name="T">Functor value type</typeparam>
+        /// <typeparam name="U">Resulting functor value type</typeparam>
+        /// <param name="x">Functor value to map from </param>
+        /// <param name="f">Projection function</param>
+        /// <returns>Mapped functor</returns>
+        [Pure]
+        public static Monad<C> MapT<A, B, C>(
+            this Monad<A> self,
+            Func<B, C> map)
+            where A : Monad<B> =>
+            from a in self
+            from b in a
+            select map(b);
+
     }
 }

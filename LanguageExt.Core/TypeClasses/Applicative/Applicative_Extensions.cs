@@ -13,7 +13,9 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Applicative<U> Apply<T, U>(this Applicative<Func<T, U>> x, Applicative<T> y) =>
-            y.Apply(x, y);
+            from a in x
+            from b in y
+            select a(b);
 
         /// <summary>
         /// Sequential application
@@ -22,7 +24,10 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Applicative<V> Apply<T, U, V>(this Applicative<Func<T, U, V>> x, Applicative<T> y, Applicative<U> z) =>
-            y.Apply(x, y, z);
+            from a in x
+            from b in y
+            from c in z
+            select a(b, c);
 
         /// <summary>
         /// Sequential application
@@ -31,7 +36,9 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Applicative<Func<U, V>> Apply<T, U, V>(this Applicative<Func<T, Func<U, V>>> x, Applicative<T> y) =>
-            y.Apply(x, y);
+            from a in x
+            from b in y
+            select a(b);
 
         /// <summary>
         /// Sequential actions
@@ -40,6 +47,8 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Applicative<U> Action<T, U>(this Applicative<T> x, Applicative<U> y) =>
-            x.Action(x, y);
+            from a in x
+            from b in y
+            select b;
     }
 }

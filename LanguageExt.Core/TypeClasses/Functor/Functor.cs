@@ -5,7 +5,7 @@ namespace LanguageExt.TypeClasses
     /// <summary>
     /// Functor type-class
     /// </summary>
-    public interface Functor<A> : Seq<A>
+    public interface Functor<A>
     {
         /// <summary>
         /// Projection from one value to another using f

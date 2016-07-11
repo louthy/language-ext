@@ -2,7 +2,7 @@
 
 namespace LanguageExt.TypeClasses
 {
-    public interface Foldable<A> : Seq<A>
+    public interface Foldable<A>
     {
         /// <summary>
         /// In the case of lists, 'Fold', when applied to a binary

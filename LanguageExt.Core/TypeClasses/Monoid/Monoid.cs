@@ -13,7 +13,7 @@ namespace LanguageExt.TypeClasses
     public interface Monoid<A> : Semigroup<A>
     {
         /// <summary>
-        /// The identity of Append
+        /// Identity
         /// <summary>
         A Empty();
 

@@ -22,7 +22,7 @@ namespace LanguageExt
 #if !COREFX
     [Serializable]
 #endif
-    public class Map<K, V> :
+    internal class MapInt<K, V> :
         IEnumerable<IMapItem<K, V>>,
         IReadOnlyDictionary<K, V>,
         IAppendable<Map<K, V>>,
@@ -36,7 +36,7 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
-        internal Map()
+        internal MapInt()
         {
             Root = MapItem<K, V>.Empty;
         }
@@ -44,11 +44,14 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
-        internal Map(MapItem<K, V> root, bool rev)
+        internal MapInt(MapItem<K, V> root, bool rev)
         {
             Root = root;
             Rev = rev;
         }
+
+        internal static Map<K, V> Wrap(MapInt<K, V> map) =>
+            new Map<K, V>(map);
 
         /// <summary>
         /// 'this' accessor
@@ -134,7 +137,7 @@ namespace LanguageExt
         public Map<K, V> TryAdd(K key, V value, Func<Map<K, V>, V, Map<K, V>> Fail)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
-            return Find(key, v => Fail(this, v), () => Add(key, value));
+            return Find(key, v => Fail(Wrap(this), v), () => Add(key, value));
         }
 
         /// <summary>
@@ -150,7 +153,7 @@ namespace LanguageExt
         {
             if (range == null)
             {
-                return this;
+                return Wrap(this);
             }
             var self = Root;
             foreach (var item in range)
@@ -174,7 +177,7 @@ namespace LanguageExt
         {
             if (range == null)
             {
-                return this;
+                return Wrap(this);
             }
 
             var self = Root;
@@ -199,7 +202,7 @@ namespace LanguageExt
         {
             if (range == null)
             {
-                return this;
+                return Wrap(this);
             }
 
             var self = Root;
@@ -224,7 +227,7 @@ namespace LanguageExt
         {
             if (range == null)
             {
-                return this;
+                return Wrap(this);
             }
 
             var self = Root;
@@ -249,7 +252,7 @@ namespace LanguageExt
         {
             if (range == null)
             {
-                return this;
+                return Wrap(this);
             }
 
             var self = Root;
@@ -270,7 +273,7 @@ namespace LanguageExt
         [Pure]
         public Map<K, V> Remove(K key) =>
             isnull(key)
-                ? this
+                ? Wrap(this)
                 : SetRoot(MapModule.Remove(Root, key, Comparer<K>.Default));
 
         /// <summary>
@@ -331,7 +334,7 @@ namespace LanguageExt
         [Pure]
         public Map<K, V> SetItem(K key, Func<V, V> Some) =>
             isnull(key)
-                ? this
+                ? Wrap(this)
                 : match(MapModule.TryFind(Root, key, Comparer<K>.Default),
                         Some: x => SetItem(key, Some(x)),
                         None: () => raise<Map<K, V>>(new ArgumentException("Key not found in Map")));
@@ -348,7 +351,7 @@ namespace LanguageExt
         [Pure]
         public Map<K, V> TrySetItem(K key, V value)
         {
-            if (isnull(key)) return this;
+            if (isnull(key)) return Wrap(this);
             return SetRoot(MapModule.TrySetItem(Root, key, value, Comparer<K>.Default));
         }
 
@@ -364,10 +367,10 @@ namespace LanguageExt
         [Pure]
         public Map<K, V> TrySetItem(K key, Func<V, V> Some) =>
             isnull(key)
-                ? this
+                ? Wrap(this)
                 : match(MapModule.TryFind(Root, key, Comparer<K>.Default),
                         Some: x => SetItem(key, Some(x)),
-                        None: () => this);
+                        None: () => Wrap(this));
 
         /// <summary>
         /// Atomically sets an item by first retrieving it, applying a map, and then putting it back.
@@ -383,10 +386,10 @@ namespace LanguageExt
         [Pure]
         public Map<K, V> TrySetItem(K key, Func<V, V> Some, Func<Map<K, V>, Map<K, V>> None) =>
             isnull(key)
-                ? this
+                ? Wrap(this)
                 : match(MapModule.TryFind(Root, key, Comparer<K>.Default),
                         Some: x => SetItem(key, Some(x)),
-                        None: () => None(this));
+                        None: () => None(Wrap(this)));
 
         /// <summary>
         /// Atomically adds a new item to the map.
@@ -416,7 +419,7 @@ namespace LanguageExt
         [Pure]
         public Map<K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None) =>
             isnull(key)
-                ? this
+                ? Wrap(this)
                 : match(MapModule.TryFind(Root, key, Comparer<K>.Default),
                         Some: x => SetItem(key, Some(x)),
                         None: () => Add(key, None()));
@@ -435,7 +438,7 @@ namespace LanguageExt
             if (isnull(None)) throw new ArgumentNullException(nameof(None));
 
             return isnull(key)
-                ? this
+                ? Wrap(this)
                 : match(MapModule.TryFind(Root, key, Comparer<K>.Default),
                         Some: x => SetItem(key, Some(x)),
                         None: () => Add(key, None));
@@ -528,7 +531,7 @@ namespace LanguageExt
         [Pure]
         public Map<K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items)
         {
-            if (items == null) return this;
+            if (items == null) return Wrap(this);
             var self = Root;
             foreach (var item in items)
             {
@@ -547,7 +550,7 @@ namespace LanguageExt
         [Pure]
         public Map<K, V> SetItems(IEnumerable<Tuple<K, V>> items)
         {
-            if (items == null) return this;
+            if (items == null) return Wrap(this);
             var self = Root;
             foreach (var item in items)
             {
@@ -604,13 +607,13 @@ namespace LanguageExt
         [Pure]
         public Map<K, V> TrySetItems(IEnumerable<K> keys, Func<V, V> Some)
         {
-            var self = this;
+            var self = Wrap(this);
             foreach (var key in keys)
             {
                 if (isnull(key)) continue;
                 self = TrySetItem(key, Some);
             }
-            return self;
+            return Wrap(this);
         }
 
         /// <summary>
@@ -729,7 +732,7 @@ namespace LanguageExt
 
 
         internal Map<K, V> SetRoot(MapItem<K, V> root) =>
-            new Map<K, V>(root, Rev);
+            Wrap(new MapInt<K, V>(root, Rev));
 
         public bool TryGetKey(K equalKey, out K actualKey)
         {
@@ -738,34 +741,34 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static Map<K, V> operator +(Map<K, V> lhs, Map<K, V> rhs) =>
-            lhs.Append(rhs);
+        public static MapInt<K, V> operator +(MapInt<K, V> lhs, MapInt<K, V> rhs) =>
+            lhs.Append(Wrap(rhs)).Value;
 
         [Pure]
         public Map<K, V> Append(Map<K, V> rhs)
         {
-            var self = this;
-            foreach (var item in rhs)
+            var self = Wrap(this);
+            foreach (var item in rhs.Value)
             {
-                if (!self.ContainsKey(item.Key))
+                if (!self.Value.ContainsKey(item.Key))
                 {
-                    self = self.Add(item.Key, item.Value);
+                    self = self.Value.Add(item.Key, item.Value);
                 }
             }
             return self;
         }
 
         [Pure]
-        public static Map<K, V> operator -(Map<K, V> lhs, Map<K, V> rhs) =>
-            lhs.Subtract(rhs);
+        public static MapInt<K, V> operator -(MapInt<K, V> lhs, MapInt<K, V> rhs) =>
+            lhs.Subtract(Wrap(rhs)).Value;
 
         [Pure]
         public Map<K, V> Subtract(Map<K, V> rhs)
         {
-            var self = this;
-            foreach (var item in rhs)
+            var self = Wrap(this);
+            foreach (var item in rhs.Value)
             {
-                self = self.Remove(item.Key);
+                self = self.Value.Remove(item.Key);
             }
             return self;
         }
@@ -1053,7 +1056,7 @@ namespace LanguageExt
             }
         }
 
-        public static IEnumerable<IMapItem<K, V>> AsEnumerable<K, V>(Map<K, V> node)
+        public static IEnumerable<IMapItem<K, V>> AsEnumerable<K, V>(MapInt<K, V> node)
         {
             return node;
         }

@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
-using System.Collections.Generic;
 
 namespace LanguageExt
 {
@@ -12,7 +11,7 @@ namespace LanguageExt
     /// Sequence monad
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
-    public struct SeqM<A> : Monad<A>, Foldable<A>
+    public struct SeqM<A> : Monad<A>, Foldable<A>, Traversable<A>
     {
         internal readonly IEnumerable<A> Value;
         static readonly SeqM<A> failNoMessage = new SeqM<A>(new A[0]);
@@ -26,12 +25,6 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// To sequence operation
-        /// </summary>
-        public IEnumerable<A> ToSeq(Seq<A> seq) =>
-            ((SeqM<A>)seq).Value;
-
-        /// <summary>
         /// Functor map operation
         /// </summary>
         /// <typeparam name="B">The type that f maps to</typeparam>
@@ -43,21 +36,21 @@ namespace LanguageExt
             new SeqM<B>(AsList(ma).Map(f));
 
         /// <summary>
-        /// Option cast from Seq
+        /// Seq cast from Seq
         /// </summary>
         [Pure]
-        private static IEnumerable<A> AsList(Seq<A> a) =>
+        private static IEnumerable<A> AsList(Traversable<A> a) =>
             ((SeqM<A>)a).Value ?? new A[0].AsEnumerable();
 
         /// <summary>
-        /// Option cast from Functor
+        /// Seq cast from Functor
         /// </summary>
         [Pure]
         private static IEnumerable<A> AsList(Functor<A> a) =>
             ((SeqM<A>)a).Value ?? new A[0].AsEnumerable();
 
         /// <summary>
-        /// Option cast from Foldable
+        /// Seq cast from Foldable
         /// </summary>
         [Pure]
         private static IEnumerable<A> AsList(Foldable<A> a) =>
@@ -128,43 +121,6 @@ namespace LanguageExt
             new SeqM<A>(List(a));
 
         /// <summary>
-        /// Apply y to x
-        /// </summary>
-        [Pure]
-        public Applicative<B> Apply<B>(Applicative<Func<A, B>> x, Applicative<A> y) =>
-            from a in x
-            from b in y
-            select a(b);
-
-        /// <summary>
-        /// Apply y and z to x
-        /// </summary>
-        [Pure]
-        public Applicative<C> Apply<B, C>(Applicative<Func<A, B, C>> x, Applicative<A> y, Applicative<B> z) =>
-            from a in x
-            from b in y
-            from c in z
-            select a(b, c);
-
-        /// <summary>
-        /// Apply y to x
-        /// </summary>
-        [Pure]
-        public Applicative<Func<B, C>> Apply<B, C>(Applicative<Func<A, Func<B, C>>> x, Applicative<A> y) =>
-            from a in x
-            from b in y
-            select a(b);
-
-        /// <summary>
-        /// Apply x, then y, ignoring the result of x
-        /// </summary>
-        [Pure]
-        public Applicative<B> Action<B>(Applicative<A> x, Applicative<B> y) =>
-            from a in x
-            from b in y
-            select b;
-
-        /// <summary>
         /// Applicative bind
         /// </summary>
         /// <typeparam name="B">The type of the bind result</typeparam>
@@ -197,15 +153,34 @@ namespace LanguageExt
         public S FoldBack<S>(Foldable<A> ma, S state, Func<S, A, S> f) =>
             AsList(ma).FoldBack(state, f);
 
+        public Applicative<Traversable<B>> Traverse<B>(Traversable<A> ta, Func<A, Applicative<B>> f) =>
+            new SeqM<Traversable<B>>(
+                from x in AsList(ta)
+                select (Traversable<B>)f(x));
+
+        public Applicative<Traversable<A>> SequenceA(Traversable<A> ta) =>
+            Traverse(ta, a => default(SeqM<A>).Pure(a));
+
+        public Monad<Traversable<B>> Traverse<B>(Traversable<A> ta, Func<A, Monad<B>> f) =>
+            new SeqM<Traversable<B>>(
+                from x in AsList(ta)
+                select (Traversable<B>)f(x));
+
+        public Monad<Traversable<A>> Sequence(Traversable<A> ta) =>
+            Traverse(ta, a => default(SeqM<A>).Return(a));
+
         IEnumerable<B> BindSeq<B>(Monad<A> ma, Func<A, Monad<B>> f)
         {
             var xs = AsList(ma);
             foreach (var x in xs)
             {
                 var b = f(x);
-                foreach (var y in b.ToSeq(b))
+                if (b is Foldable<B>) // TODO: Decide what to do when something isn't foldable
                 {
-                    yield return y;
+                    foreach (var y in TypeClass.toSeq(b as Foldable<B>))
+                    {
+                        yield return y;
+                    }
                 }
             }
         }
@@ -216,9 +191,12 @@ namespace LanguageExt
             foreach (var x in xs)
             {
                 var b = f(x);
-                foreach (var y in b.ToSeq(b))
+                if (b is Foldable<B>) // TODO: Decide what to do when something isn't foldable
                 {
-                    yield return y;
+                    foreach (var y in TypeClass.toSeq(b as Foldable<B>))
+                    {
+                        yield return y;
+                    }
                 }
             }
         }

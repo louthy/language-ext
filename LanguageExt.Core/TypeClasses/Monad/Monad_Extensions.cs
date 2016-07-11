@@ -27,7 +27,8 @@ namespace LanguageExt
         public static Monad<V> SelectMany<T, U, V>(
             this Monad<T> self,
             Func<T, Monad<U>> bind,
-            Func<T, U, V> project) =>
+            Func<T, U, V> project)
+            =>
             self.Bind(self,
                 t => bind(t).Select(
                     u => project(t, u)));
@@ -51,7 +52,8 @@ namespace LanguageExt
         public static Applicative<V> SelectMany<T, U, V>(
             this Applicative<T> self,
             Func<T, Applicative<U>> bind,
-            Func<T, U, V> project) =>
+            Func<T, U, V> project)
+            =>
             self.Bind(self,
                 t => bind(t).Select(
                     u => project(t, u)));
@@ -67,12 +69,12 @@ namespace LanguageExt
             Func<T, U, V> project) =>
             from w in
                 (from x in self
-                 from y in inner
-                 select EqualityComparer<K>.Default.Equals(outerKeyMap(x), innerKeyMap(y))
-                    ?  self.Select(_ => project(x, y))
-                    : (self.Select(_ => default(V))).Fail())
-            from res in w
-            select res;
+                 from y in inner.Bind(y =>
+                    EqualityComparer<K>.Default.Equals(outerKeyMap(x), innerKeyMap(y))
+                        ?  self.Select(_ => project(x, y))
+                        : (self.Select(_ => default(V))).Fail())
+                 select y)
+            select w;
 
         /// <summary>
         /// Produce a failure value

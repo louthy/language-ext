@@ -447,9 +447,6 @@ namespace LanguageExt
             return Count == other.Count && this.Zip(other, (x, y) => comparer.Equals(x, y)).ForAll(x => x);
         }
 
-        public IEnumerable<A> ToSeq(Seq<A> sa) =>
-            ((Lst<A>)sa).AsEnumerable();
-
         [Pure]
         public static bool operator ==(Lst<A> lhs, Lst<A> rhs) =>
             lhs.Equals(rhs);
