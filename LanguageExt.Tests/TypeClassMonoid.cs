@@ -21,7 +21,7 @@ namespace LanguageExtTests
         [Fact]
         public void ListMonoid()
         {
-            var res = mconcat<TLst<int>, Lst<int>>(List(1, 2, 3, 4, 5));
+            var res = mconcat<TLst<int>, Lst<int>>(List(1, 2, 3), List(4, 5));
 
             Assert.True(res.Sum() == 15 && res.Count == 5);
         }
