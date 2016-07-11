@@ -53,6 +53,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionObservable.cs" />
+    <Compile Include="HKT.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>HKT.tt</DependentUpon>
+    </Compile>
     <Compile Include="Identity.cs" />
     <Compile Include="Instances\OrdDefault.cs" />
     <Compile Include="Instances\EqOpt.cs" />
@@ -68,9 +73,13 @@
     <Compile Include="Instances\EqShort.cs" />
     <Compile Include="Instances\EqInt.cs" />
     <Compile Include="IOptional.cs" />
+    <Compile Include="List\ListExtensions.cs" />
+    <Compile Include="List\Lst.cs" />
     <Compile Include="Map\Map.cs" />
+    <Compile Include="Map\MapExtensions.cs" />
     <Compile Include="OptionUnsafe\OptionUnsafe.cs" />
     <Compile Include="OptionUnsafe\OptionUnsafeExtensions.cs" />
+    <Compile Include="Option\OptionT.cs" />
     <Compile Include="Seq\SeqM.cs" />
     <Compile Include="NewType.cs" />
     <Compile Include="Option-Shared\None.cs" />
@@ -97,7 +106,7 @@
     <Compile Include="IMultiplicable.cs" />
     <Compile Include="ISubtractable.cs" />
     <Compile Include="IAppendable.cs" />
-    <Compile Include="LstA.cs" />
+    <Compile Include="List\LstInternal.cs" />
     <Compile Include="MemoEnumerable.cs" />
     <Compile Include="ObjectPool.cs" />
     <Compile Include="ObservableExt.cs" />
@@ -105,13 +114,8 @@
     <Compile Include="Prelude_Curry.cs" />
     <Compile Include="EitherUnsafe.cs" />
     <Compile Include="ExceptionMatch.cs" />
-    <Compile Include="HKT.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>HKT.tt</DependentUpon>
-    </Compile>
     <Compile Include="IEither.cs" />
-    <Compile Include="Map\MapKV.cs" />
+    <Compile Include="Map\MapInternal.cs" />
     <Compile Include="Prelude_Monad.cs" />
     <Compile Include="Prelude_Obsolete.cs" />
     <Compile Include="Prelude_PartialApplication.cs" />
@@ -141,7 +145,7 @@
     <Compile Include="Set.cs" />
     <Compile Include="Some.cs" />
     <Compile Include="Prelude.cs" />
-    <Compile Include="List.cs" />
+    <Compile Include="List\ListModule.cs" />
     <Compile Include="NullableExt.cs" />
     <Compile Include="Either.cs" />
     <Compile Include="Option.cs" />
@@ -164,6 +168,12 @@
     <Compile Include="Instances\EqDefault.cs" />
     <Compile Include="TypeClasses\Foldable\Foldable_Extensions.cs" />
     <Compile Include="TypeClasses\Fraction\Fraction_Extensions.cs" />
+    <Compile Include="TypeClasses\MonadPlus\MonadPlus.cs" />
+    <Compile Include="TypeClasses\MonadPlus\MonadPlus_Extensions.cs" />
+    <Compile Include="TypeClasses\MonadPlus\MonadPlus_Prelude.cs" />
+    <Compile Include="TypeClasses\MonadTrans\MonadTrans.cs" />
+    <Compile Include="TypeClasses\MonadTrans\MonadTrans_Extensions.cs" />
+    <Compile Include="TypeClasses\MonadTrans\MonadTrans_Prelude.cs" />
     <Compile Include="TypeClasses\Monad\Monad_Extensions.cs" />
     <Compile Include="TypeClasses\Functor\Functor_Extensions.cs" />
     <Compile Include="Instances\OrdOpt.cs" />
@@ -219,15 +229,14 @@
     <Compile Include="Writer.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="HKT.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>HKT.cs</LastGenOutput>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -27,7 +27,7 @@ namespace LanguageExt
             BackoffAmount = backoffAmount;
             Failures = failures;
             LastFailure = lastFailure;
-            Metadata = metadata ?? Map.empty<string, object>();
+            Metadata = metadata;
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace LanguageExt
             Time? BackoffAmount = null,
             int? Failures = null,
             DateTime? LastFailure = null,
-            Map<string, object> Metadata = null
+            Map<string, object>? Metadata = null
             ) =>
             new StrategyState(
                 BackoffAmount ?? this.BackoffAmount,

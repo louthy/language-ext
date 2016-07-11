@@ -28,17 +28,20 @@ namespace LanguageExt
         Difference<Map<K, V>>,
         Eq<Map<K,V>>
     {
-        internal readonly MapInt<K, V> Value;
+        readonly MapInternal<K, V> value;
 
-        internal Map(MapInt<K, V> value)
+        internal Map(MapInternal<K, V> value)
         {
-            Value = value;
+            this.value = value;
         }
 
         internal Map(MapItem<K, V> root, bool rev)
         {
-            Value = new MapInt<K, V>(root, rev);
+            this.value = new MapInternal<K, V>(root, rev);
         }
+
+        internal MapInternal<K, V> Value =>
+            value ?? MapInternal<K, V>.Empty.Value;
 
         /// <summary>
         /// 'this' accessor
@@ -469,7 +472,7 @@ namespace LanguageExt
         public bool TryGetKey(K equalKey, out K actualKey) =>  Value.TryGetKey(equalKey, out actualKey);
 
         internal Map<K, V> SetRoot(MapItem<K, V> root) =>
-            new Map<K, V>(new MapInt<K, V>(root, Value.Rev));
+            new Map<K, V>(new MapInternal<K, V>(root, Value.Rev));
 
         [Pure]
         static Map<K, V> AsMap(Foldable<V> f) =>
@@ -505,8 +508,11 @@ namespace LanguageExt
         public Map<K, V> Difference(Map<K, V> x, Map<K, V> y) =>
             x.Value.Subtract(y);
 
-        public Map<K, V> Empty() =>
-            Map.empty<K, V>();
+        public static Map<K, V> Empty =>
+            MapInternal<K,V>.Empty;
+
+        Map<K, V> Monoid<Map<K,V>>.Empty() =>
+            MapInternal<K, V>.Empty;
 
         public bool Equals(Map<K, V> x, Map<K, V> y) =>
             x.Value == y.Value;

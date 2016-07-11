@@ -82,5 +82,15 @@ namespace LanguageExt
         [Pure]
         public static Monad<A> Fail<A>(this Monad<A> ma, string err = "") =>
             ma.Fail(err);
+
+        /// <summary>
+        /// Performs a map operation on the monad
+        /// </summary>
+        /// <typeparam name="B">The mapped type</typeparam>
+        /// <param name="ma">Monad to map</param>
+        /// <param name="f">Mapping operation</param>
+        /// <returns>Mapped monad</returns>
+        public static Monad<B> LiftM<A, B>(this Monad<A> ma, Func<A, B> f) =>
+            ma.Map<Monad<B>, A, B>(f);
     }
 }

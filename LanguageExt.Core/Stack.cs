@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -461,8 +462,8 @@ namespace LanguageExt
         /// <param name="stack">Stack</param>
         /// <returns>An enumerable with all duplicate values removed</returns>
         [Pure]
-        public static IEnumerable<T> distinct<T>(Stck<T> stack, Func<T, T, bool> compare) =>
-            List.distinct(stack, compare);
+        public static IEnumerable<T> distinct<EQ, T>(Stck<T> stack) where EQ : struct, Eq<T> =>
+            List.distinct<EQ,T>(stack);
 
         /// <summary>
         /// Returns a new enumerable with the first 'count' items from the stack
@@ -836,8 +837,8 @@ public static class StackExtensions
     /// <param name="stack">Stack</param>
     /// <returns>An enumerable with all duplicate values removed</returns>
     [Pure]
-    public static IEnumerable<T> Distinct<T>(this Stck<T> stack, Func<T, T, bool> compare) =>
-        LanguageExt.List.distinct(stack, compare);
+    public static IEnumerable<T> Distinct<EQ,T>(this Stck<T> stack) where EQ : struct, Eq<T> =>
+        LanguageExt.List.distinct<EQ,T>(stack);
 
     /// <summary>
     /// Returns a new enumerable with the first 'count' items from the stack

@@ -15,7 +15,7 @@ namespace LanguageExt.TypeClasses
         /// 
         ///     a -> f a
         /// </summary>
-        Applicative<A> Pure(A a);
+        Applicative<A> Pure(A x, params A[] xs);
 
         /// <summary>
         /// Monadic bind

@@ -64,7 +64,7 @@ namespace LanguageExt
         [Pure]
         public Functor<B> Map<B>(Functor<A> ma, Func<A, B> f)
         {
-            var maybe = Optional(ma);
+            var maybe = AsOpt(ma);
             return maybe.IsSome()
                 ? new OptionUnsafe<B>(OptionV<B>.Optional(f(maybe.Value())))
                 : OptionUnsafe<B>.None;
@@ -74,14 +74,14 @@ namespace LanguageExt
         /// Option cast from Functor
         /// </summary>
         [Pure]
-        private static OptionV<A> Optional(Functor<A> a) =>
+        private static OptionV<A> AsOpt(Functor<A> a) =>
             ((OptionUnsafe<A>)a).value ?? OptionV<A>.None;
 
         /// <summary>
         /// Option cast from Foldable
         /// </summary>
         [Pure]
-        private static OptionV<A> Optional(Foldable<A> a) =>
+        private static OptionV<A> AsOpt(Foldable<A> a) =>
             ((OptionUnsafe<A>)a).value ?? OptionV<A>.None;
 
 
@@ -93,8 +93,8 @@ namespace LanguageExt
         /// <param name="a">Value to bind</param>
         /// <returns>Monad of A</returns>
         [Pure]
-        public Monad<A> Return(A a) =>
-            new OptionUnsafe<A>(OptionV<A>.Optional(a));
+        public Monad<A> Return(A x, params A[] xs) =>
+            new OptionUnsafe<A>(OptionV<A>.Optional(x));
 
         /// <summary>
         /// Monad bind
@@ -106,7 +106,7 @@ namespace LanguageExt
         [Pure]
         public Monad<B> Bind<B>(Monad<A> ma, Func<A, Monad<B>> f)
         {
-            var maybe = Optional(ma);
+            var maybe = AsOpt((Foldable<A>)ma);
             return maybe.IsSome()
                 ? f(maybe.Value())
                 : OptionUnsafe<B>.None;
@@ -129,8 +129,8 @@ namespace LanguageExt
         /// <param name="a">Value to bind</param>
         /// <returns>Applicative of A</returns>
         [Pure]
-        public Applicative<A> Pure(A a) =>
-            new OptionUnsafe<A>(OptionV<A>.Optional(a));
+        public Applicative<A> Pure(A x, params A[] xs) =>
+            new OptionUnsafe<A>(OptionV<A>.Optional(x));
 
         /// <summary>
         /// Applicative bind
@@ -142,7 +142,7 @@ namespace LanguageExt
         [Pure]
         public Applicative<B> Bind<B>(Applicative<A> ma, Func<A, Applicative<B>> f)
         {
-            var maybe = Optional(ma);
+            var maybe = AsOpt(ma);
             return maybe.IsSome()
                 ? f(maybe.Value())
                 : OptionUnsafe<B>.None;
@@ -158,7 +158,7 @@ namespace LanguageExt
         /// <returns>Aggregated state</returns>
         public S Fold<S>(Foldable<A> ma, S state, Func<S, A, S> f)
         {
-            var maybe = Optional(ma);
+            var maybe = AsOpt(ma);
             return maybe.IsSome()
                 ? f(state, maybe.Value())
                 : state;
@@ -174,7 +174,7 @@ namespace LanguageExt
         /// <returns>Aggregated state</returns>
         public S FoldBack<S>(Foldable<A> ma, S state, Func<S, A, S> f)
         {
-            var maybe = Optional(ma);
+            var maybe = AsOpt(ma);
             return maybe.IsSome()
                 ? f(state, maybe.Value())
                 : state;
@@ -469,5 +469,20 @@ namespace LanguageExt
 
         public int CompareTo(OptionUnsafe<A> other) =>
             compare<OrdDefault<A>, A>(this, other);
+
+        public MonadPlus<A> Plus(MonadPlus<A> a, MonadPlus<A> b)
+        {
+            var ma = AsOpt((Functor<A>)a);
+            var mb = AsOpt((Functor<A>)b);
+            if (ma.IsNone() && mb.IsNone()) return None; // 0 solutions + 0 solutions = 0 solutions
+            if (ma.IsSome() && mb.IsNone()) return a;    // 1 solutions + 0 solutions = 1 solutions
+            if (ma.IsNone() && mb.IsSome()) return b;    // 0 solutions + 1 solutions = 1 solutions
+            return a;                                    // 1 solutions + 1 solutions = 2 solutions
+                                                         // but Option can only have up to one solution,
+                                                         // so we disregard the second one.
+        }
+
+        public MonadPlus<A> Zero(MonadPlus<A> a) =>
+            None;
     }
 }

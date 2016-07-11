@@ -50,5 +50,20 @@ namespace LanguageExt
             from a in x
             from b in y
             select b;
+
+        /// <summary>
+        /// Projection from one value to another using f
+        /// </summary>
+        /// <typeparam name="T">Functor value type</typeparam>
+        /// <typeparam name="U">Resulting functor value type</typeparam>
+        /// <param name="x">Functor value to map from </param>
+        /// <param name="f">Projection function</param>
+        /// <returns>Mapped functor</returns>
+        [Pure]
+        public static Applicative<U> Select<T, U>(
+            this Applicative<T> self,
+            Func<T, U> map
+            ) =>
+            (Applicative<U>)self.Map(self, map);
     }
 }

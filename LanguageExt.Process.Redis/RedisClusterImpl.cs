@@ -22,6 +22,7 @@ namespace LanguageExt
         ConnectionMultiplexer redis;
 
         Map<string, Subject<RedisValue>> subscriptions = Map.empty<string, Subject<RedisValue>>();
+        object subsync = new object();
 
         /// <summary>
         /// Ctor
@@ -121,7 +122,7 @@ namespace LanguageExt
         {
             channelName += Config.CatalogueName;
             Subject<RedisValue> subject = null;
-            lock (subscriptions)
+            lock (subsync)
             {
                 if (subscriptions.ContainsKey(channelName))
                 {
@@ -184,7 +185,7 @@ namespace LanguageExt
             channelName += Config.CatalogueName;
 
             Retry(() => redis.GetSubscriber().Unsubscribe(channelName));
-            lock (subscriptions)
+            lock (subsync)
             {
                 if (subscriptions.ContainsKey(channelName))
                 {

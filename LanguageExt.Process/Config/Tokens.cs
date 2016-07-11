@@ -47,7 +47,7 @@ namespace LanguageExt.Config
         public Lst<T> ToList<T>() =>
             ToList().Map(nv => (T)nv.Value.Value);
 
-        Map<string, ValueToken> mapCache = null;
+        Map<string, ValueToken>? mapCache = null;
         public Map<string, ValueToken> ToMap()
         {
             if (mapCache == null)
@@ -56,7 +56,7 @@ namespace LanguageExt.Config
                     ToList().Map(nv => Tuple(nv.Name, nv.Value))
                 );
             }
-            return mapCache;
+            return mapCache.Value;
         }
 
         public Option<ValueToken> GetItem(string name) =>

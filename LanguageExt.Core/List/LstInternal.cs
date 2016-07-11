@@ -17,34 +17,33 @@ namespace LanguageExt
 #if !COREFX
     [Serializable]
 #endif
-    public class Lst<A> : 
+    internal class LstInternal<A> : 
         IEnumerable<A>, 
         IReadOnlyList<A>,
         IReadOnlyCollection<A>,
-        Semigroup<Lst<A>>,
-        Difference<Lst<A>>
+        IEquatable<LstInternal<A>>
     {
         /// <summary>
         /// Empty list
         /// </summary>
-        public static readonly Lst<A> Empty = new Lst<A>();
+        public static readonly LstInternal<A> Empty = new LstInternal<A>();
 
-        ListItem<A> root;
+        internal ListItem<A> root;
         internal bool Rev;
         internal int HashCode;
 
         /// <summary>
         /// Ctor
         /// </summary>
-        internal Lst(IEnumerable<A> initial)
+        internal LstInternal(IEnumerable<A> initial)
         {
             HashCode = 0;
             this.root = ListItem<A>.Empty;
             if (initial is Lst<A>)
             {
                 var lst = (Lst<A>)initial;
-                this.root = lst.Root;
-                Rev = lst.Rev;
+                this.root = lst.Value.Root;
+                Rev = lst.Value.Rev;
             }
             else
             {
@@ -54,10 +53,14 @@ namespace LanguageExt
             }
         }
 
+        internal static Lst<A> Wrap(LstInternal<A> list) =>
+            new Lst<A>(list);
+
+
         /// <summary>
         /// Ctor
         /// </summary>
-        internal Lst()
+        internal LstInternal()
         {
             HashCode = 0;
             this.root = ListItem<A>.Empty;
@@ -67,23 +70,23 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
-        internal Lst(ListItem<A> root, bool rev)
+        internal LstInternal(ListItem<A> root, bool rev)
         {
             HashCode = 0;
             this.root = root;
             Rev = rev;
         }
 
-        private ListItem<A> Root
+        internal ListItem<A> Root
         {
             get
             {
                 return root ?? ListItem<A>.Empty;
             }
-            set
-            {
-                root = Root;
-            }
+            //set
+            //{
+            //    root = Root;
+            //}
         }
 
         /// <summary>
@@ -133,7 +136,7 @@ namespace LanguageExt
         [Pure]
         public Lst<A> AddRange(IEnumerable<A> items)
         {
-            if (items == null) return this;
+            if (items == null) return Wrap(this);
             var lst = new List<A>(Rev ? items.Reverse() : items);
             var tree = ListModule.FromList(lst, 0, lst.Count);
             return new Lst<A>(ListModule.Insert(Root, tree, Rev ? 0 : Root.Count), Rev);
@@ -144,7 +147,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public Lst<A> Clear() =>
-            Empty;
+            Lst<A>.Empty;
 
         /// <summary>
         /// Get enumerator
@@ -197,7 +200,7 @@ namespace LanguageExt
         [Pure]
         public Lst<A> InsertRange(int index, IEnumerable<A> items)
         {
-            if (items == null) return this;
+            if (items == null) return Wrap(this);
             if (index < 0 || index > Root.Count) throw new IndexOutOfRangeException();
 
             var lst = new List<A>(Rev ? items.Reverse() : items);
@@ -228,7 +231,7 @@ namespace LanguageExt
             var index = ListModule.Find(Root, value, 0, Count, equalityComparer);
             return index >= 0 && index < Count
                 ? new Lst<A>(ListModule.Remove(Root, index), Rev)
-                : this;
+                : Wrap(this);
         }
 
         /// <summary>
@@ -237,7 +240,7 @@ namespace LanguageExt
         [Pure]
         public Lst<A> RemoveAll(Predicate<A> pred)
         {
-            var self = this;
+            var self = Wrap(this);
             int index = 0;
             foreach (var item in this)
             {
@@ -274,7 +277,7 @@ namespace LanguageExt
             if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
             if (index + count >= Root.Count) throw new IndexOutOfRangeException();
 
-            var self = this;
+            var self = Wrap(this);
             for (; count > 0; count--)
             {
                 self = self.RemoveAt(index);
@@ -361,16 +364,16 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static Lst<A> operator +(Lst<A> lhs, A rhs) =>
-            lhs.Add(rhs);
+        public static LstInternal<A> operator +(LstInternal<A> lhs, A rhs) =>
+            Wrap(lhs).Add(rhs).Value;
 
         [Pure]
-        public static Lst<A> operator +(A rhs, Lst<A> lhs) =>
-            rhs.Cons(lhs);
+        public static Lst<A> operator +(A rhs, LstInternal<A> lhs) =>
+            rhs.Cons(Wrap(lhs));
 
         [Pure]
-        public static Lst<A> operator +(Lst<A> lhs, Lst<A> rhs) =>
-            lhs.Append(rhs);
+        public static Lst<A> operator +(LstInternal<A> lhs, LstInternal<A> rhs) =>
+            Wrap(lhs).Append(Wrap(rhs));
 
         [Pure]
         public Lst<A> Append(Lst<A> rhs) =>
@@ -382,13 +385,13 @@ namespace LanguageExt
             lhs.AddRange(rhs);
 
         [Pure]
-        public static Lst<A> operator -(Lst<A> lhs, Lst<A> rhs) =>
-            lhs.Difference(rhs);
+        public static LstInternal<A> operator -(LstInternal<A> lhs, LstInternal<A> rhs) =>
+            lhs.Difference(Wrap(rhs)).Value;
 
         [Pure]
         public Lst<A> Difference(Lst<A> rhs)
         {
-            var self = this;
+            var self = Wrap(this);
             foreach (var item in rhs)
             {
                 self = self.Remove(item);
@@ -410,8 +413,8 @@ namespace LanguageExt
         [Pure]
         public override bool Equals(object obj) =>
             !ReferenceEquals(obj,null) && 
-            obj is Lst<A> && 
-            Equals((Lst<A>)obj);
+            obj is LstInternal<A> && 
+            Equals((LstInternal<A>)obj);
 
         /// <summary>
         /// Get the hash code
@@ -439,7 +442,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public bool Equals(Lst<A> other)
+        public bool Equals(LstInternal<A> other)
         {
             if (ReferenceEquals(this, other)) return true;
             if (ReferenceEquals(other, null)) return false;
@@ -448,11 +451,11 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static bool operator ==(Lst<A> lhs, Lst<A> rhs) =>
+        public static bool operator ==(LstInternal<A> lhs, LstInternal<A> rhs) =>
             lhs.Equals(rhs);
 
         [Pure]
-        public static bool operator !=(Lst<A> lhs, Lst<A> rhs) =>
+        public static bool operator !=(LstInternal<A> lhs, LstInternal<A> rhs) =>
             !lhs.Equals(rhs);
     }
 

@@ -33,38 +33,6 @@ namespace LanguageExt
         /// <param name="f">Projection function</param>
         /// <returns>Mapped functor</returns>
         [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Applicative<U> Select<T, U>(
-            this Applicative<T> self,
-            Func<T, U> map
-            ) =>
-            (Applicative<U>)self.Map(self, map);
-
-        /// <summary>
-        /// Projection from one value to another using f
-        /// </summary>
-        /// <typeparam name="T">Functor value type</typeparam>
-        /// <typeparam name="U">Resulting functor value type</typeparam>
-        /// <param name="x">Functor value to map from </param>
-        /// <param name="f">Projection function</param>
-        /// <returns>Mapped functor</returns>
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Monad<U> Select<T, U>(
-            this Monad<T> self,
-            Func<T, U> map
-            ) =>
-            (Monad<U>)self.Map(self, map);
-
-        /// <summary>
-        /// Projection from one value to another using f
-        /// </summary>
-        /// <typeparam name="T">Functor value type</typeparam>
-        /// <typeparam name="U">Resulting functor value type</typeparam>
-        /// <param name="x">Functor value to map from </param>
-        /// <param name="f">Projection function</param>
-        /// <returns>Mapped functor</returns>
-        [Pure]
         public static Functor<U> Map<T, U>(
             this Functor<T> self,
             Func<T, U> map
@@ -80,61 +48,11 @@ namespace LanguageExt
         /// <param name="f">Projection function</param>
         /// <returns>Mapped functor</returns>
         [Pure]
-        public static Applicative<U> Map<T, U>(
-            this Applicative<T> self,
-            Func<T, U> map
-            ) =>
-            (Applicative<U>)self.Map(self, map);
-
-        /// <summary>
-        /// Projection from one value to another using f
-        /// </summary>
-        /// <typeparam name="T">Functor value type</typeparam>
-        /// <typeparam name="U">Resulting functor value type</typeparam>
-        /// <param name="x">Functor value to map from </param>
-        /// <param name="f">Projection function</param>
-        /// <returns>Mapped functor</returns>
-        [Pure]
-        public static Monad<U> Map<T, U>(
-            this Monad<T> self,
-            Func<T, U> map
-            ) =>
-            (Monad<U>)self.Map(self, map);
-
-        /// <summary>
-        /// Projection from one value to another using f
-        /// </summary>
-        /// <typeparam name="T">Functor value type</typeparam>
-        /// <typeparam name="U">Resulting functor value type</typeparam>
-        /// <param name="x">Functor value to map from </param>
-        /// <param name="f">Projection function</param>
-        /// <returns>Mapped functor</returns>
-        [Pure]
-        public static Applicative<C> MapT<A, B, C>(
-            this Applicative<A> self,
-            Func<B, C> map
-            )
-            where A : Applicative<B> =>
-            from a in self
-            from b in a
-            select map(b);
-
-        /// <summary>
-        /// Projection from one value to another using f
-        /// </summary>
-        /// <typeparam name="T">Functor value type</typeparam>
-        /// <typeparam name="U">Resulting functor value type</typeparam>
-        /// <param name="x">Functor value to map from </param>
-        /// <param name="f">Projection function</param>
-        /// <returns>Mapped functor</returns>
-        [Pure]
-        public static Monad<C> MapT<A, B, C>(
-            this Monad<A> self,
-            Func<B, C> map)
-            where A : Monad<B> =>
-            from a in self
-            from b in a
-            select map(b);
-
+        public static FU Map<FU, T, U>(
+            this Functor<T> self,
+            Func<T, U> map)
+            where FU : Functor<U>
+            =>
+            (FU)self.Map(self, map);
     }
 }

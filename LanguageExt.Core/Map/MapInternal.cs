@@ -22,7 +22,7 @@ namespace LanguageExt
 #if !COREFX
     [Serializable]
 #endif
-    internal class MapInt<K, V> :
+    internal class MapInternal<K, V> :
         IEnumerable<IMapItem<K, V>>,
         IReadOnlyDictionary<K, V>,
         IAppendable<Map<K, V>>,
@@ -36,7 +36,7 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
-        internal MapInt()
+        internal MapInternal()
         {
             Root = MapItem<K, V>.Empty;
         }
@@ -44,13 +44,13 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
-        internal MapInt(MapItem<K, V> root, bool rev)
+        internal MapInternal(MapItem<K, V> root, bool rev)
         {
             Root = root;
             Rev = rev;
         }
 
-        internal static Map<K, V> Wrap(MapInt<K, V> map) =>
+        internal static Map<K, V> Wrap(MapInternal<K, V> map) =>
             new Map<K, V>(map);
 
         /// <summary>
@@ -732,7 +732,7 @@ namespace LanguageExt
 
 
         internal Map<K, V> SetRoot(MapItem<K, V> root) =>
-            Wrap(new MapInt<K, V>(root, Rev));
+            Wrap(new MapInternal<K, V>(root, Rev));
 
         public bool TryGetKey(K equalKey, out K actualKey)
         {
@@ -741,7 +741,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static MapInt<K, V> operator +(MapInt<K, V> lhs, MapInt<K, V> rhs) =>
+        public static MapInternal<K, V> operator +(MapInternal<K, V> lhs, MapInternal<K, V> rhs) =>
             lhs.Append(Wrap(rhs)).Value;
 
         [Pure]
@@ -759,7 +759,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static MapInt<K, V> operator -(MapInt<K, V> lhs, MapInt<K, V> rhs) =>
+        public static MapInternal<K, V> operator -(MapInternal<K, V> lhs, MapInternal<K, V> rhs) =>
             lhs.Subtract(Wrap(rhs)).Value;
 
         [Pure]
@@ -1056,7 +1056,7 @@ namespace LanguageExt
             }
         }
 
-        public static IEnumerable<IMapItem<K, V>> AsEnumerable<K, V>(MapInt<K, V> node)
+        public static IEnumerable<IMapItem<K, V>> AsEnumerable<K, V>(MapInternal<K, V> node)
         {
             return node;
         }

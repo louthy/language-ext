@@ -142,10 +142,10 @@ namespace LanguageExt.Config
             Func<Option<string>, object, object> ctor,
             Type mapsTo,
             Func<ProcessSystemConfigParser, Parser<object>> valueParser,
-            Map<string, Func<ValueToken, ValueToken, ValueToken>> binaryOperators,
-            Map<string, Func<ValueToken, ValueToken>> prefixOperators,
-            Map<string, Func<ValueToken, ValueToken>> postfixOperators,
-            Map<string, Func<object, object>> conversionOperators,
+            Map<string, Func<ValueToken, ValueToken, ValueToken>>? binaryOperators,
+            Map<string, Func<ValueToken, ValueToken>>? prefixOperators,
+            Map<string, Func<ValueToken, ValueToken>>? postfixOperators,
+            Map<string, Func<object, object>>? conversionOperators,
             TypeDef genericType,
             int order
             )

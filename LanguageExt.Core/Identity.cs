@@ -54,10 +54,16 @@ namespace LanguageExt
         public Functor<B> Map<B>(Functor<A> fa, Func<A, B> f) =>
             new Identity<B>(f(Id(fa)));
 
-        public Applicative<A> Pure(A a) =>
-            new Identity<A>(a);
+        public Applicative<A> Pure(A x, params A[] xs) =>
+            new Identity<A>(x);
 
-        public Monad<A> Return(A a) =>
-            new Identity<A>(a);
+        public Monad<A> Return(A x, params A[] xs) =>
+            new Identity<A>(x);
+
+        public S Fold<S>(Foldable<A> fa, S state, Func<S, A, S> f) =>
+            f(state, value);
+
+        public S FoldBack<S>(Foldable<A> fa, S state, Func<S, A, S> f) =>
+            f(state, value);
     }
 }

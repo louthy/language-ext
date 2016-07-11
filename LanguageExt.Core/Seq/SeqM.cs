@@ -11,7 +11,7 @@ namespace LanguageExt
     /// Sequence monad
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
-    public struct SeqM<A> : Monad<A>, Foldable<A>, Traversable<A>
+    public struct SeqM<A> : Monad<A>, Traversable<A>
     {
         internal readonly IEnumerable<A> Value;
         static readonly SeqM<A> failNoMessage = new SeqM<A>(new A[0]);
@@ -57,15 +57,11 @@ namespace LanguageExt
             ((SeqM<A>)a).Value ?? new A[0].AsEnumerable();
 
         /// <summary>
-        /// Monad return
-        /// 
-        /// Constructs a Monad of A
+        /// Seq cast from Foldable
         /// </summary>
-        /// <param name="a">Value to bind</param>
-        /// <returns>Monad of A</returns>
         [Pure]
-        public Monad<A> Return(A a) =>
-            new SeqM<A>(List(a));
+        private static IEnumerable<A> AsList(Monad<A> a) =>
+            ((SeqM<A>)a).Value ?? new A[0].AsEnumerable();
 
         /// <summary>
         /// Monad return
@@ -75,8 +71,8 @@ namespace LanguageExt
         /// <param name="a">Value to bind</param>
         /// <returns>Monad of A</returns>
         [Pure]
-        public Monad<A> Return(IEnumerable<A> a) =>
-            new SeqM<A>(a);
+        public Monad<A> Return(A x, params A[] xs) =>
+            new SeqM<A>(List.createRange(x.Cons(xs)));
 
         /// <summary>
         /// Monad bind
@@ -106,19 +102,8 @@ namespace LanguageExt
         /// <param name="a">Value to bind</param>
         /// <returns>Applicative of A</returns>
         [Pure]
-        public Applicative<A> Pure(IEnumerable<A> a) =>
-            new SeqM<A>(a);
-
-        /// <summary>
-        /// Applicative pure
-        /// 
-        /// Constructs an Applicative of A
-        /// </summary>
-        /// <param name="a">Value to bind</param>
-        /// <returns>Applicative of A</returns>
-        [Pure]
-        public Applicative<A> Pure(A a) =>
-            new SeqM<A>(List(a));
+        public Applicative<A> Pure(A x, params A[] xs) =>
+            new SeqM<A>(List.createRange(x.Cons(xs)));
 
         /// <summary>
         /// Applicative bind

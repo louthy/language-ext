@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -151,8 +152,8 @@ namespace LanguageExt
             List.distinct(queue);
 
         [Pure]
-        public static IEnumerable<T> distinct<T>(Que<T> queue, Func<T, T, bool> compare) =>
-            List.distinct(queue, compare);
+        public static IEnumerable<T> distinct<EQ, T>(Que<T> queue) where EQ : struct, Eq<T> =>
+            List.distinct<EQ,T>(queue);
 
         [Pure]
         public static IEnumerable<T> take<T>(Que<T> queue, int count) =>
@@ -264,8 +265,8 @@ namespace LanguageExt
             LanguageExt.List.forall(queue, pred);
 
         [Pure]
-        public static IEnumerable<T> Distinct<T>(Que<T> queue, Func<T, T, bool> compare) =>
-            LanguageExt.List.distinct(queue, compare);
+        public static IEnumerable<T> Distinct<T>(Que<T> queue) =>
+            LanguageExt.List.distinct(queue);
 
         [Pure]
         public static bool Exists<T>(Que<T> queue, Func<T, bool> pred) =>

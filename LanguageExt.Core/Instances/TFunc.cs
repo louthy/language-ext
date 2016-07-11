@@ -45,8 +45,8 @@ namespace LanguageExt.Instances
         public Functor<B> Map<B>(Functor<Func<A>> fa, Func<Func<A>, B> fab) =>
             Pure<TApplVal<B>, B>(fab(((TFunc<A>)fa).Value));
 
-        public Applicative<Func<A>> Pure(Func<A> a) =>
-            new TFunc<A>(a);
+        public Applicative<Func<A>> Pure(Func<A> x, params Func<A>[] xs) =>
+            new TFunc<A>(x);
     }
 
     public struct TFunc<A, B> : Applicative<Func<A, B>>
@@ -85,7 +85,7 @@ namespace LanguageExt.Instances
         public Functor<B1> Map<B1>(Functor<Func<A, B>> fa, Func<Func<A, B>, B1> f) =>
             Pure<TApplVal<B1>, B1>(f(((TFunc<A, B>)fa).Value));
 
-        public Applicative<Func<A, B>> Pure(Func<A, B> a) =>
-            new TFunc<A, B>(a);
+        public Applicative<Func<A, B>> Pure(Func<A, B> x, params Func<A, B>[] xs) =>
+            new TFunc<A, B>(x);
     }
 }

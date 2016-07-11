@@ -38,7 +38,7 @@ namespace LanguageExt.Instances
         public Functor<B> Map<B>(Functor<A> fa, Func<A, B> f) =>
             new TApplVal<B>(f(((TApplVal<A>)fa).Value));
 
-        public Applicative<A> Pure(A a) =>
-            new TApplVal<A>(a);
+        public Applicative<A> Pure(A x, params A[] xs) =>
+            new TApplVal<A>(x);
     }
 }
