@@ -7,6 +7,56 @@ using System.Threading.Tasks;
 namespace LanguageExt.TypeClasses
 {
     /// <summary>
+    /// Numerical value type-class
+    /// </summary>
+    /// <typeparam name="A">The type for which the number operations are
+    /// defined.</typeparam>
+    public interface Num<A> : Addition<A>, Difference<A>, Product<A>, Divisible<A>
+    {
+        /// <summary>
+        /// Find the absolute value of a number
+        /// </summary>
+        /// <param name="x">The value to find the absolute value of</param>
+        /// <returns>The non-negative absolute value of x</returns>
+        A Abs(A x);
+
+        /// <summary>
+        /// Find the sign of x
+        /// </summary>
+        /// <param name="x">The value to find the sign of</param>
+        /// <returns>-1, 0, or +1</returns>
+        A Signum(A x);
+
+        /// <summary>
+        /// Generate a numeric value from an integer
+        /// </summary>
+        /// <param name="x">The integer to use</param>
+        /// <returns>The equivalent of x in the Num<A></returns>
+        A FromInteger(int x);
+
+        /// <summary>
+        /// Generate a numeric value from a float
+        /// </summary>
+        /// <param name="x">The float to use</param>
+        /// <returns>The equivalent of x in the Num<A></returns>
+        A FromDecimal(decimal x);
+
+        /// <summary>
+        /// Generate a numeric value from a double
+        /// </summary>
+        /// <param name="x">The double to use</param>
+        /// <returns>The equivalent of x in the Num<A></returns>
+        A FromFloat(float x);
+
+        /// <summary>
+        /// Generate a numeric value from a decimal
+        /// </summary>
+        /// <param name="x">The decimal to use</param>
+        /// <returns>The equivalent of x in the Num<A></returns>
+        A FromDouble(double x);
+    }
+
+    /// <summary>
     /// Addition operation type-class
     /// </summary>
     /// <typeparam name="A">The type for which the operation is defined.</typeparam>
@@ -64,55 +114,5 @@ namespace LanguageExt.TypeClasses
         /// <param name="y">right hand side of the division operation</param>
         /// <returns>x / y</returns>
         A Divide(A x, A y);
-    }
-
-    /// <summary>
-    /// Numerical value type-class
-    /// </summary>
-    /// <typeparam name="A">The type for which the number operations are
-    /// defined.</typeparam>
-    public interface Num<A> : Addition<A>, Difference<A>, Product<A>, Divisible<A>
-    {
-        /// <summary>
-        /// Find the absolute value of a number
-        /// </summary>
-        /// <param name="x">The value to find the absolute value of</param>
-        /// <returns>The non-negative absolute value of x</returns>
-        A Abs(A x);
-
-        /// <summary>
-        /// Find the sign of x
-        /// </summary>
-        /// <param name="x">The value to find the sign of</param>
-        /// <returns>-1, 0, or +1</returns>
-        A Signum(A x);
-
-        /// <summary>
-        /// Generate a numeric value from an integer
-        /// </summary>
-        /// <param name="x">The integer to use</param>
-        /// <returns>The equivalent of x in the Num<A></returns>
-        A FromInteger(int x);
-
-        /// <summary>
-        /// Generate a numeric value from a float
-        /// </summary>
-        /// <param name="x">The float to use</param>
-        /// <returns>The equivalent of x in the Num<A></returns>
-        A FromDecimal(decimal x);
-
-        /// <summary>
-        /// Generate a numeric value from a double
-        /// </summary>
-        /// <param name="x">The double to use</param>
-        /// <returns>The equivalent of x in the Num<A></returns>
-        A FromFloat(float x);
-
-        /// <summary>
-        /// Generate a numeric value from a decimal
-        /// </summary>
-        /// <param name="x">The decimal to use</param>
-        /// <returns>The equivalent of x in the Num<A></returns>
-        A FromDouble(double x);
     }
 }

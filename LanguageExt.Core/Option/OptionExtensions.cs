@@ -30,7 +30,7 @@ public static class OptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static Option<T> Mappend<SEMI, T>(this Option<T> lhs, Option<T> rhs) where SEMI : struct, Semigroup<T> =>
+    public static Option<T> Append<SEMI, T>(this Option<T> lhs, Option<T> rhs) where SEMI : struct, Semigroup<T> =>
         from x in lhs
         from y in rhs
         select append<SEMI, T>(x, y);
@@ -65,21 +65,6 @@ public static class OptionExtensions
             : x.IsNone || y.IsNone
                 ? false
                 : equals<EQ, A>(x.Value, y.Value);
-
-    /// <summary>
-    /// Appends the bound values of x and y, uses a semigroup type-class to provide 
-    /// the append operation for type A.  For example x.Append<TString,string>(y)
-    /// </summary>
-    /// <typeparam name="SEMI">Semigroup of A</typeparam>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="x">Left hand side of the operation</param>
-    /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An option with y appended to x</returns>
-    [Pure]
-    public static Option<A> Append<SEMI, A>(this Option<A> x, Option<A> y) where SEMI : struct, Semigroup<A> =>
-       from a in x
-       from b in y
-       select append<SEMI, A>(a, b);
 
     /// <summary>
     /// Add the bound values of x and y, uses an Add type-class to provide the add
@@ -154,28 +139,28 @@ public static class OptionExtensions
     /// </summary>
     [Pure]
     public static Option<C> Apply<A, B, C>(this Option<Func<A, B, C>> x, Option<A> y, Option<B> z) =>
-        (Option<C>)(from a in x
-                    from b in y
-                    from c in z
-                    select a(b, c));
+        (from a in x
+         from b in y
+         from c in z
+         select a(b, c));
 
     /// <summary>
     /// Apply y to x
     /// </summary>
     [Pure]
     public static Option<Func<B, C>> Apply<A, B, C>(this Option<Func<A, Func<B, C>>> x, Option<A> y) =>
-        (Option<Func<B,C>>)(from a in x
-                            from b in y
-                            select a(b));
+        (from a in x
+         from b in y
+         select a(b));
                     
     /// <summary>
     /// Apply x, then y, ignoring the result of x
     /// </summary>
     [Pure]
     public static Option<B> Action<A, B>(this Option<A> x, Option<B> y) =>
-        (Option<B>)(from a in x
-                    from b in y
-                    select b);
+        (from a in x
+         from b in y
+         select b);
 
     /// <summary>
     /// Convert the Option type to a Nullable of A
@@ -482,5 +467,4 @@ public static class OptionExtensions
             yield return mb.Map(b => project(a, b));
         }
     }
-
 }

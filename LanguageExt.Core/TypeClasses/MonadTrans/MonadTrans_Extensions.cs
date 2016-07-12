@@ -9,21 +9,6 @@ namespace LanguageExt
     public static partial class TypeClass
     {
         /// <summary>
-        /// Projection from one value to another using f
-        /// </summary>
-        /// <typeparam name="T">Functor value type</typeparam>
-        /// <typeparam name="U">Resulting functor value type</typeparam>
-        /// <param name="x">Functor value to map from </param>
-        /// <param name="f">Projection function</param>
-        /// <returns>Mapped functor</returns>
-        [Pure]
-        public static Monad<U> Select<T, U>(
-            this Monad<T> self,
-            Func<T, U> map
-            ) =>
-            (Monad<U>)self.Map(self, map);
-
-        /// <summary>
         /// Lifts the Option<A> into the monad transformer specified by TMA
         /// </summary>
         /// <typeparam name="TMA">Monad transformer to lift in to</typeparam>
@@ -75,12 +60,14 @@ namespace LanguageExt
             return (TMA)default(TMA).Return(ma);
         }
 
-        public static OptionT<MA, A> OptionT<MA, A>(this MA ma) where MA : Monad<A> =>
+
+
+        private static OptionT<MA, A> OptionT<MA, A>(this MA ma) where MA : Monad<A> =>
             ma;
 
-        public static void Test()
+        private static void Test()
         {
-            var x = Prelude.List(1, 2, 3);
+            var x = List(1, 2, 3);
 
             var y = x.Lift<OptionT<Lst<int>, int>, int>();
 

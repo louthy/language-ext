@@ -23,8 +23,9 @@ namespace LanguageExt
         IReadOnlyCollection<A>,
         Monoid<Lst<A>>,
         Difference<Lst<A>>,
-        Monad<A>,
-        Foldable<A>
+        MonadPlus<A>,
+        Foldable<A>,
+        Eq<Lst<A>>
     {
         /// <summary>
         /// Empty list
@@ -297,6 +298,7 @@ namespace LanguageExt
         Lst<A> AsList(Monad<A> f)       => (Lst<A>)f;
         Lst<A> AsList(Applicative<A> f) => (Lst<A>)f;
         Lst<A> AsList(Monoid<Lst<A>> f) => (Lst<A>)f;
+        Lst<A> AsList(MonadPlus<A> f)    => (Lst<A>)f;
 
         public S Fold<S>(Foldable<A> fa, S state, Func<S, A, S> f)
         {
@@ -375,5 +377,14 @@ namespace LanguageExt
                 }
             }
         }
+
+        public MonadPlus<A> Plus(MonadPlus<A> a, MonadPlus<A> b) =>
+            AsList(a) + AsList(b);
+
+        public MonadPlus<A> Zero(MonadPlus<A> a) =>
+            Empty;
+
+        public bool Equals(Lst<A> a, Lst<A> b) =>
+            a == b;
     }
 }

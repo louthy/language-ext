@@ -5,7 +5,7 @@ namespace LanguageExt.TypeClasses
     /// <summary>
     /// Functor type-class
     /// </summary>
-    public interface Functor<A>
+    public interface FunctorT<MA, A> where MA : Functor<A>
     {
         /// <summary>
         /// Projection from one value to another using f
@@ -14,6 +14,6 @@ namespace LanguageExt.TypeClasses
         /// <param name="fa">Functor value to map from </param>
         /// <param name="f">Projection function</param>
         /// <returns>Mapped functor</returns>
-        Functor<B> Map<B>(Functor<A> fa, Func<A, B> f);
+        FunctorT<MB, B> Map<MB, B>(FunctorT<MA, A> fa, Func<A, B> f) where MB : Monad<B>;
     }
 }

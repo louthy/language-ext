@@ -78,9 +78,9 @@ namespace LanguageExt.TypeClasses
     public struct Product<NUM, A> : Semigroup<A> where NUM : struct, Num<A>
     {
         public A Append(A x, A y) =>
-            add<NUM, A>(x, y);
+            product<NUM, A>(x, y);
 
         public A Empty() =>
-            fromInteger<NUM, A>(0);
+            fromInteger<NUM, A>(1);
     }
 }

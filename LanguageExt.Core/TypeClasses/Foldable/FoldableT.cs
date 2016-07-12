@@ -2,7 +2,7 @@
 
 namespace LanguageExt.TypeClasses
 {
-    public interface Foldable<A>
+    public interface FoldableT<MA, A> where MA : Foldable<A>
     {
         /// <summary>
         /// In the case of lists, 'Fold', when applied to a binary
@@ -20,7 +20,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="state">Initial state</param>
         /// <param name="f">Folder function, applied for each item in fa</param>
         /// <returns>The aggregate state</returns>
-        S Fold<S>(Foldable<A> fa, S state, Func<S, A, S> f);
+        S FoldT<S>(FoldableT<MA, A> fa, S state, Func<S, A, S> f);
 
         /// <summary>
         /// In the case of lists, 'FoldBack', when applied to a binary
@@ -37,6 +37,6 @@ namespace LanguageExt.TypeClasses
         /// <param name="state">Initial state</param>
         /// <param name="f">Folder function, applied for each item in fa</param>
         /// <returns>The aggregate state</returns>
-        S FoldBack<S>(Foldable<A> fa, S state, Func<S, A, S> f);
+        S FoldBackT<S>(FoldableT<MA, A> fa, S state, Func<S, A, S> f);
     }
 }

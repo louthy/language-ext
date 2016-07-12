@@ -25,5 +25,8 @@ namespace LanguageExt.Instances
             }
             return true;
         }
+
+        public static implicit operator EqArray<EQ,A>(EQ eq) =>
+            default(EqArray<EQ,A>);
     }
 }
