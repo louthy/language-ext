@@ -24,15 +24,14 @@ namespace LanguageExt
         ISubtractable<HSetInternal<T>>,
         IEquatable<HSetInternal<T>>
     {
-        public static readonly HSetInternal<T> Empty = new HSetInternal<T>(HashTableEmpty, 0);
-        static readonly Map<int, Lst<T>> HashTableEmpty = Map<int, Lst<T>>.Empty;
+        public static readonly HSetInternal<T> Empty = new HSetInternal<T>();
 
         readonly Map<int, Lst<T>> hashTable;
         readonly int count;
 
         internal HSetInternal()
         {
-            hashTable = HashTableEmpty;
+            hashTable = Map<int, Lst<T>>.Empty;
         }
 
         internal HSetInternal(Map<int, Lst<T>> hashTable, int count)
@@ -96,7 +95,7 @@ namespace LanguageExt
         [Pure]
         public HSetInternal<T> Filter(Func<T, bool> pred)
         {
-            var ht = HashTableEmpty;
+            var ht = Map<int, Lst<T>>.Empty;
             var count = 0;
 
             foreach(var bucket in hashTable)

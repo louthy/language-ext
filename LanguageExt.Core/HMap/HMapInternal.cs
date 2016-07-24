@@ -25,14 +25,13 @@ namespace LanguageExt
         ISubtractable<HMapInternal<K, V>>
     {
         public static readonly HMapInternal<K, V> Empty = new HMapInternal<K,V>();
-        static readonly Map<int, Lst<IMapItem<K, V>>> HashTableEmpty = Map<int, Lst<IMapItem<K, V>>>.Empty;
 
         readonly Map<int, Lst<IMapItem<K, V>>> hashTable;
         readonly int count;
 
         internal HMapInternal()
         {
-            hashTable = HashTableEmpty;
+            hashTable = Map<int, Lst<IMapItem<K, V>>>.Empty;
         }
 
         internal HMapInternal(Map<int, Lst<IMapItem<K, V>>> hashTable, int count)
@@ -103,7 +102,7 @@ namespace LanguageExt
         [Pure]
         public HMapInternal<K, V> Filter(Func<IMapItem<K, V>, bool> pred)
         {
-            var ht = HashTableEmpty;
+            var ht = Map<int, Lst<IMapItem<K, V>>>.Empty;
             var count = 0;
 
             foreach (var bucket in hashTable)

@@ -42,6 +42,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="HashMapTests.cs" />
     <Compile Include="NewTypeTests.cs" />
     <Compile Include="TaskTests.cs" />
     <Compile Include="Divisible.cs" />

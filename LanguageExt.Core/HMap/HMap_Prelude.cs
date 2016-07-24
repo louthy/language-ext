@@ -12,7 +12,7 @@ namespace LanguageExt
     /// <summary>
     /// Immutable hash-map module
     /// </summary>
-    public static partial class HMap
+    public static partial class HashMap
     {
         /// <summary>
         /// Clears all items from the map
@@ -1152,4 +1152,19 @@ public static class HMapExtensions
     {
         return map.Fold(state, (s, x) => x.FoldT(s, folder));
     }
+
+    [Pure]
+    public static HMap<K, U> Bind<K, T, U>(this HMap<K, T> self, Func<T, HMap<K, U>> binder) =>
+        failwith<HMap<K, U>>("HMap<K,V> doesn't support Bind.");
+
+    [Pure]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static HMap<K, U> SelectMany<K, T, U>(this HMap<K, T> self, Func<T, HMap<K, U>> binder) =>
+        failwith<HMap<K, U>>("HMap<K,V> doesn't support Bind or SelectMany.");
+
+    [Pure]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static HMap<K, V> SelectMany<K, T, U, V>(this HMap<K, T> self, Func<T, HMap<K, U>> binder, Func<T, U, V> project) =>
+        failwith<HMap<K, V>>("Map<K,V> doesn't support Bind or SelectMany.");
+
 }

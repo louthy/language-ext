@@ -21,10 +21,10 @@
           "lib/net45/Newtonsoft.Json.dll": {}
         }
       },
-      "System.Reactive.Core/3.0.1-rc1-00011": {
+      "System.Reactive.Core/3.0.0": {
         "type": "package",
         "dependencies": {
-          "System.Reactive.Interfaces": "3.0.1-rc1-00011"
+          "System.Reactive.Interfaces": "3.0.0"
         },
         "compile": {
           "lib/net45/System.Reactive.Core.dll": {}
@@ -33,7 +33,7 @@
           "lib/net45/System.Reactive.Core.dll": {}
         }
       },
-      "System.Reactive.Interfaces/3.0.1-rc1-00011": {
+      "System.Reactive.Interfaces/3.0.0": {
         "type": "package",
         "compile": {
           "lib/net45/System.Reactive.Interfaces.dll": {}
@@ -42,11 +42,11 @@
           "lib/net45/System.Reactive.Interfaces.dll": {}
         }
       },
-      "System.Reactive.Linq/3.0.1-rc1-00011": {
+      "System.Reactive.Linq/3.0.0": {
         "type": "package",
         "dependencies": {
-          "System.Reactive.Core": "3.0.1-rc1-00011",
-          "System.Reactive.Interfaces": "3.0.1-rc1-00011"
+          "System.Reactive.Core": "3.0.0",
+          "System.Reactive.Interfaces": "3.0.0"
         },
         "compile": {
           "lib/net45/System.Reactive.Linq.dll": {}
@@ -55,11 +55,11 @@
           "lib/net45/System.Reactive.Linq.dll": {}
         }
       },
-      "System.Reactive.PlatformServices/3.0.1-rc1-00011": {
+      "System.Reactive.PlatformServices/3.0.0": {
         "type": "package",
         "dependencies": {
-          "System.Reactive.Core": "3.0.1-rc1-00011",
-          "System.Reactive.Interfaces": "3.0.1-rc1-00011"
+          "System.Reactive.Core": "3.0.0",
+          "System.Reactive.Interfaces": "3.0.0"
         },
         "compile": {
           "lib/net45/System.Reactive.PlatformServices.dll": {}
@@ -68,18 +68,15 @@
           "lib/net45/System.Reactive.PlatformServices.dll": {}
         }
       },
-      "LanguageExt.Core/1.9.0": {
+      "LanguageExt.Core/1.9.1": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
-          "System.Reactive.Core": "3.0.1",
-          "System.Reactive.Interfaces": "3.0.1",
-          "System.Reactive.Linq": "3.0.1",
-          "System.Reactive.PlatformServices": "3.0.1"
+          "System.Reactive.Core": "3.0.0",
+          "System.Reactive.Interfaces": "3.0.0",
+          "System.Reactive.Linq": "3.0.0",
+          "System.Reactive.PlatformServices": "3.0.0"
         },
-        "frameworkAssemblies": [
-          "System.Core"
-        ],
         "compile": {
           "net45/LanguageExt.Core.dll": {}
         },
@@ -87,19 +84,16 @@
           "net45/LanguageExt.Core.dll": {}
         }
       },
-      "LanguageExt.Parsec/1.9.0": {
+      "LanguageExt.Parsec/1.9.1": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
-          "LanguageExt.Core": "1.9.0",
-          "System.Reactive.Core": "3.0.1",
-          "System.Reactive.Interfaces": "3.0.1",
-          "System.Reactive.Linq": "3.0.1",
-          "System.Reactive.PlatformServices": "3.0.1"
+          "LanguageExt.Core": "1.9.1",
+          "System.Reactive.Core": "3.0.0",
+          "System.Reactive.Interfaces": "3.0.0",
+          "System.Reactive.Linq": "3.0.0",
+          "System.Reactive.PlatformServices": "3.0.0"
         },
-        "frameworkAssemblies": [
-          "System.Core"
-        ],
         "compile": {
           "net45/LanguageExt.Parsec.dll": {}
         },
@@ -127,10 +121,10 @@
           "lib/net45/Newtonsoft.Json.dll": {}
         }
       },
-      "System.Reactive.Core/3.0.1-rc1-00011": {
+      "System.Reactive.Core/3.0.0": {
         "type": "package",
         "dependencies": {
-          "System.Reactive.Interfaces": "3.0.1-rc1-00011"
+          "System.Reactive.Interfaces": "3.0.0"
         },
         "compile": {
           "lib/net46/System.Reactive.Core.dll": {}
@@ -139,7 +133,7 @@
           "lib/net46/System.Reactive.Core.dll": {}
         }
       },
-      "System.Reactive.Interfaces/3.0.1-rc1-00011": {
+      "System.Reactive.Interfaces/3.0.0": {
         "type": "package",
         "compile": {
           "lib/net45/System.Reactive.Interfaces.dll": {}
@@ -148,11 +142,11 @@
           "lib/net45/System.Reactive.Interfaces.dll": {}
         }
       },
-      "System.Reactive.Linq/3.0.1-rc1-00011": {
+      "System.Reactive.Linq/3.0.0": {
         "type": "package",
         "dependencies": {
-          "System.Reactive.Core": "3.0.1-rc1-00011",
-          "System.Reactive.Interfaces": "3.0.1-rc1-00011"
+          "System.Reactive.Core": "3.0.0",
+          "System.Reactive.Interfaces": "3.0.0"
         },
         "compile": {
           "lib/net46/System.Reactive.Linq.dll": {}
@@ -161,11 +155,11 @@
           "lib/net46/System.Reactive.Linq.dll": {}
         }
       },
-      "System.Reactive.PlatformServices/3.0.1-rc1-00011": {
+      "System.Reactive.PlatformServices/3.0.0": {
         "type": "package",
         "dependencies": {
-          "System.Reactive.Core": "3.0.1-rc1-00011",
-          "System.Reactive.Interfaces": "3.0.1-rc1-00011"
+          "System.Reactive.Core": "3.0.0",
+          "System.Reactive.Interfaces": "3.0.0"
         },
         "compile": {
           "lib/net46/System.Reactive.PlatformServices.dll": {}
@@ -174,18 +168,15 @@
           "lib/net46/System.Reactive.PlatformServices.dll": {}
         }
       },
-      "LanguageExt.Core/1.9.0": {
+      "LanguageExt.Core/1.9.1": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.6",
         "dependencies": {
-          "System.Reactive.Core": "3.0.1",
-          "System.Reactive.Interfaces": "3.0.1",
-          "System.Reactive.Linq": "3.0.1",
-          "System.Reactive.PlatformServices": "3.0.1"
+          "System.Reactive.Core": "3.0.0",
+          "System.Reactive.Interfaces": "3.0.0",
+          "System.Reactive.Linq": "3.0.0",
+          "System.Reactive.PlatformServices": "3.0.0"
         },
-        "frameworkAssemblies": [
-          "System.Core"
-        ],
         "compile": {
           "net46/LanguageExt.Core.dll": {}
         },
@@ -193,19 +184,16 @@
           "net46/LanguageExt.Core.dll": {}
         }
       },
-      "LanguageExt.Parsec/1.9.0": {
+      "LanguageExt.Parsec/1.9.1": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.6",
         "dependencies": {
-          "LanguageExt.Core": "1.9.0",
-          "System.Reactive.Core": "3.0.1",
-          "System.Reactive.Interfaces": "3.0.1",
-          "System.Reactive.Linq": "3.0.1",
-          "System.Reactive.PlatformServices": "3.0.1"
+          "LanguageExt.Core": "1.9.1",
+          "System.Reactive.Core": "3.0.0",
+          "System.Reactive.Interfaces": "3.0.0",
+          "System.Reactive.Linq": "3.0.0",
+          "System.Reactive.PlatformServices": "3.0.0"
         },
-        "frameworkAssemblies": [
-          "System.Core"
-        ],
         "compile": {
           "net46/LanguageExt.Parsec.dll": {}
         },
@@ -965,7 +953,7 @@
           "lib/netstandard1.3/System.ObjectModel.dll": {}
         }
       },
-      "System.Reactive.Core/3.0.1-rc1-00011": {
+      "System.Reactive.Core/3.0.0": {
         "type": "package",
         "dependencies": {
           "System.Collections": "4.0.11",
@@ -975,7 +963,7 @@
           "System.Diagnostics.Tools": "4.0.1",
           "System.Globalization": "4.0.11",
           "System.Linq": "4.1.0",
-          "System.Reactive.Interfaces": "3.0.1-rc1-00011",
+          "System.Reactive.Interfaces": "3.0.0",
           "System.Reflection": "4.1.0",
           "System.Resources.ResourceManager": "4.0.1",
           "System.Runtime": "4.1.0",
@@ -990,7 +978,7 @@
           "lib/netstandard1.3/System.Reactive.Core.dll": {}
         }
       },
-      "System.Reactive.Interfaces/3.0.1-rc1-00011": {
+      "System.Reactive.Interfaces/3.0.0": {
         "type": "package",
         "dependencies": {
           "System.Linq.Expressions": "4.1.0",
@@ -1004,7 +992,7 @@
           "lib/netstandard1.0/System.Reactive.Interfaces.dll": {}
         }
       },
-      "System.Reactive.Linq/3.0.1-rc1-00011": {
+      "System.Reactive.Linq/3.0.0": {
         "type": "package",
         "dependencies": {
           "System.Collections": "4.0.11",
@@ -1014,8 +1002,8 @@
           "System.Diagnostics.Tools": "4.0.1",
           "System.Globalization": "4.0.11",
           "System.Linq": "4.1.0",
-          "System.Reactive.Core": "3.0.1-rc1-00011",
-          "System.Reactive.Interfaces": "3.0.1-rc1-00011",
+          "System.Reactive.Core": "3.0.0",
+          "System.Reactive.Interfaces": "3.0.0",
           "System.Reflection": "4.1.0",
           "System.Resources.ResourceManager": "4.0.1",
           "System.Runtime": "4.1.0",
@@ -1031,15 +1019,15 @@
           "lib/netstandard1.3/System.Reactive.Linq.dll": {}
         }
       },
-      "System.Reactive.PlatformServices/3.0.1-rc1-00011": {
+      "System.Reactive.PlatformServices/3.0.0": {
         "type": "package",
         "dependencies": {
           "System.Collections": "4.0.11",
           "System.Diagnostics.Debug": "4.0.11",
           "System.Diagnostics.Tools": "4.0.1",
           "System.Globalization": "4.0.11",
-          "System.Reactive.Core": "3.0.1-rc1-00011",
-          "System.Reactive.Interfaces": "3.0.1-rc1-00011",
+          "System.Reactive.Core": "3.0.0",
+          "System.Reactive.Interfaces": "3.0.0",
           "System.Reflection": "4.1.0",
           "System.Resources.ResourceManager": "4.0.1",
           "System.Runtime": "4.1.0",
@@ -1680,7 +1668,7 @@
           "lib/netstandard1.3/System.Xml.XDocument.dll": {}
         }
       },
-      "LanguageExt.Core/1.9.0": {
+      "LanguageExt.Core/1.9.1": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -1688,10 +1676,10 @@
           "System.Collections.Concurrent": "4.0.12",
           "System.Diagnostics.Contracts": "4.0.1",
           "System.Linq.Queryable": "4.0.1",
-          "System.Reactive.Core": "3.0.1",
-          "System.Reactive.Interfaces": "3.0.1",
-          "System.Reactive.Linq": "3.0.1",
-          "System.Reactive.PlatformServices": "3.0.1",
+          "System.Reactive.Core": "3.0.0",
+          "System.Reactive.Interfaces": "3.0.0",
+          "System.Reactive.Linq": "3.0.0",
+          "System.Reactive.PlatformServices": "3.0.0",
           "System.Security.Cryptography.Algorithms": "4.2.0"
         },
         "compile": {
@@ -1701,18 +1689,18 @@
           "netstandard1.6/LanguageExt.Core.dll": {}
         }
       },
-      "LanguageExt.Parsec/1.9.0": {
+      "LanguageExt.Parsec/1.9.1": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "LanguageExt.Core": "1.9.0",
+          "LanguageExt.Core": "1.9.1",
           "System.Collections": "4.0.11",
           "System.Collections.Concurrent": "4.0.12",
           "System.Linq.Queryable": "4.0.1",
-          "System.Reactive.Core": "3.0.1",
-          "System.Reactive.Interfaces": "3.0.1",
-          "System.Reactive.Linq": "3.0.1",
-          "System.Reactive.PlatformServices": "3.0.1",
+          "System.Reactive.Core": "3.0.0",
+          "System.Reactive.Interfaces": "3.0.0",
+          "System.Reactive.Linq": "3.0.0",
+          "System.Reactive.PlatformServices": "3.0.0",
           "System.Security.Cryptography.Algorithms": "4.2.0"
         },
         "compile": {
@@ -3669,12 +3657,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Reactive.Core/3.0.1-rc1-00011": {
-      "sha512": "8P26tWmaXFA8Cr5KTEINMyN+XlLctGf51ihWwHWyP8ViM1jYMcjqqNJFRuCt2W3kvVRpz2A9R5zIFgoLfB3nXA==",
+    "System.Reactive.Core/3.0.0": {
+      "sha512": "1mnBTTNzTDaKYu2fYA0fcbWmWspwXheV9eFR0ynWd0nFjBwgSW0ZUAxe7dfvU5imv+K9QlfhV+pEKGOlJVZ8+w==",
       "type": "package",
-      "path": "System.Reactive.Core/3.0.1-rc1-00011",
+      "path": "System.Reactive.Core/3.0.0",
       "files": [
-        "System.Reactive.Core.3.0.1-rc1-00011.nupkg.sha512",
+        "System.Reactive.Core.3.0.0.nupkg.sha512",
         "System.Reactive.Core.nuspec",
         "lib/net45/System.Reactive.Core.dll",
         "lib/net45/System.Reactive.Core.xml",
@@ -3696,12 +3684,12 @@
         "lib/wpa81/System.Reactive.Core.xml"
       ]
     },
-    "System.Reactive.Interfaces/3.0.1-rc1-00011": {
-      "sha512": "1/aDmJMooA3esS5M6YPA5vTZLnzc921vw94Jt2ReckntwGlfRiqco99ZPITPqM8V+XdqdMr8wNsE4lm7wBg/Ww==",
+    "System.Reactive.Interfaces/3.0.0": {
+      "sha512": "MuLvWYegIrhvUVe3MRMIBxFGx4kiz0FEzN3TTvhX+m3WmJCi5+OE4J7yPWtZjGGTUh5wysGyaF9thcnCzx/J3w==",
       "type": "package",
-      "path": "System.Reactive.Interfaces/3.0.1-rc1-00011",
+      "path": "System.Reactive.Interfaces/3.0.0",
       "files": [
-        "System.Reactive.Interfaces.3.0.1-rc1-00011.nupkg.sha512",
+        "System.Reactive.Interfaces.3.0.0.nupkg.sha512",
         "System.Reactive.Interfaces.nuspec",
         "lib/net45/System.Reactive.Interfaces.dll",
         "lib/net45/System.Reactive.Interfaces.xml",
@@ -3709,12 +3697,12 @@
         "lib/netstandard1.0/System.Reactive.Interfaces.xml"
       ]
     },
-    "System.Reactive.Linq/3.0.1-rc1-00011": {
-      "sha512": "lnC1btlMA4U+2LjhSAMJw6O5P4Uq7L0PXA1fMqA1aFPS3oD8vVow41nsbQTyXDgffbjrh3Y4FUAfQKD+8DOQ0w==",
+    "System.Reactive.Linq/3.0.0": {
+      "sha512": "CmQ+WpeOFzwYlDKafLQLT5McvR1TWCi3UudeBnajguvi/8ZGHDoQ2MPTo401EKkSvW48uTsJyvcKXN/C7g91Qg==",
       "type": "package",
-      "path": "System.Reactive.Linq/3.0.1-rc1-00011",
+      "path": "System.Reactive.Linq/3.0.0",
       "files": [
-        "System.Reactive.Linq.3.0.1-rc1-00011.nupkg.sha512",
+        "System.Reactive.Linq.3.0.0.nupkg.sha512",
         "System.Reactive.Linq.nuspec",
         "lib/net45/System.Reactive.Linq.dll",
         "lib/net45/System.Reactive.Linq.xml",
@@ -3728,12 +3716,12 @@
         "lib/netstandard1.3/System.Reactive.Linq.xml"
       ]
     },
-    "System.Reactive.PlatformServices/3.0.1-rc1-00011": {
-      "sha512": "VHDIHOhmA6henp7CvwdXn8BUCL/uInitP96/CLHApOAuTHNiRhmucKf7eUgTfnmf+2fQyB+QyuVFKD0k7T387w==",
+    "System.Reactive.PlatformServices/3.0.0": {
+      "sha512": "1yYsCsIqrpu228er3iC1naLcCnIpdDRuyFhD78P6C54YyiR84ElDUjWYEMVneUKxrP6PlwrZp2VEf0DHAHX8gw==",
       "type": "package",
-      "path": "System.Reactive.PlatformServices/3.0.1-rc1-00011",
+      "path": "System.Reactive.PlatformServices/3.0.0",
       "files": [
-        "System.Reactive.PlatformServices.3.0.1-rc1-00011.nupkg.sha512",
+        "System.Reactive.PlatformServices.3.0.0.nupkg.sha512",
         "System.Reactive.PlatformServices.nuspec",
         "lib/net45/System.Reactive.PlatformServices.dll",
         "lib/net45/System.Reactive.PlatformServices.xml",
@@ -5574,12 +5562,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "LanguageExt.Core/1.9.0": {
+    "LanguageExt.Core/1.9.1": {
       "type": "project",
       "path": "../LanguageExt.Core/project.json",
       "msbuildProject": "../LanguageExt.Core/LanguageExt.Core.xproj"
     },
-    "LanguageExt.Parsec/1.9.0": {
+    "LanguageExt.Parsec/1.9.1": {
       "type": "project",
       "path": "../LanguageExt.Parsec/project.json",
       "msbuildProject": "../LanguageExt.Parsec/LanguageExt.Parsec.xproj"
@@ -5587,17 +5575,16 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "LanguageExt.Core >= 1.9.0",
-      "LanguageExt.Parsec >= 1.9.0",
+      "LanguageExt.Core >= 1.9.1",
+      "LanguageExt.Parsec >= 1.9.1",
       "Newtonsoft.Json >= 9.0.1",
-      "System.Reactive.Core >= 3.0.1-*",
-      "System.Reactive.Interfaces >= 3.0.1-*",
-      "System.Reactive.Linq >= 3.0.1-*",
-      "System.Reactive.PlatformServices >= 3.0.1-*"
+      "System.Reactive.Core >= 3.0.0-*",
+      "System.Reactive.Interfaces >= 3.0.0-*",
+      "System.Reactive.Linq >= 3.0.0-*",
+      "System.Reactive.PlatformServices >= 3.0.0-*"
     ],
     ".NETFramework,Version=v4.5": [
       "FSharp.Core >= 4.0.0.1",
-      "System.Core >= 4.0.0",
       "System.Web >= 4.0.0"
     ],
     ".NETFramework,Version=v4.6": [

@@ -1,5 +1,5 @@
 {
-    "version": "1.9.0",
+    "version": "1.9.1",
     "authors": [ "Paul Louth" ],
     "title": "LanguageExt Unit Tests",
     "description": "Lang Ext Unit Tests",
@@ -21,31 +21,31 @@
     },
     "dependencies": {
         "LanguageExt.Core": {
-            "version": "1.9.0",
+            "version": "1.9.1",
             "target": "project"
         },
         "LanguageExt.Parsec": {
-            "version": "1.9.0",
+            "version": "1.9.1",
             "target": "project"
         },
         "LanguageExt.Process": {
-            "version": "1.9.0",
+            "version": "1.9.1",
             "target": "project"
         },
         "LanguageExt.Process.FSharp": {
-            "version": "1.9.0",
+            "version": "1.9.1",
             "target": "project"
         },
         "LanguageExt.Process.Redis": {
-            "version": "1.9.0",
+            "version": "1.9.1",
             "target": "project"
         },
         "LanguageExt.FSharp": {
-            "version": "1.9.0",
+            "version": "1.9.1",
             "target": "project"
         },
         "LanguageExt.ProcessJS": {
-            "version": "1.9.0",
+            "version": "1.9.1",
             "target": "project"
         },
         "Newtonsoft.Json": "9.0.1",
