@@ -37,6 +37,9 @@ namespace LanguageExt
         HMap<K, V> Wrap(HMapInternal<K, V> value) =>
             new HMap<K, V>(value);
 
+        HMap<K, U> Wrap<U>(HMapInternal<K, U> value) =>
+            new HMap<K, U>(value);
+
         /// <summary>
         /// 'this' accessor
         /// </summary>
@@ -66,6 +69,41 @@ namespace LanguageExt
         [Pure]
         public int Length =>
             Value.Count;
+
+
+        /// <summary>
+        /// Atomically filter out items that return false when a predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>New map with items filtered</returns>
+        [Pure]
+        public HMap<K, V> Filter(Func<V, bool> pred) =>
+            Wrap(Value.Filter(pred));
+
+        /// <summary>
+        /// Atomically filter out items that return false when a predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>New map with items filtered</returns>
+        [Pure]
+        public HMap<K, V> Filter(Func<K, V, bool> pred) =>
+            Wrap(Value.Filter(pred));
+
+        /// <summary>
+        /// Atomically maps the map to a new map
+        /// </summary>
+        /// <returns>Mapped items in a new map</returns>
+        [Pure]
+        public HMap<K, U> Map<U>(Func<V, U> mapper) =>
+            Wrap(Value.Map(mapper));
+
+        /// <summary>
+        /// Atomically maps the map to a new map
+        /// </summary>
+        /// <returns>Mapped items in a new map</returns>
+        [Pure]
+        public HMap<K, U> Map<U>(Func<K, V, U> mapper) =>
+            Wrap(Value.Map(mapper));
 
         /// <summary>
         /// Atomically adds a new item to the map

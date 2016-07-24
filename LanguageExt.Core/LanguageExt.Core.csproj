@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionObservable.cs" />
+    <Compile Include="HMap\HMap_Prelude.cs" />
     <Compile Include="HSet\HSet.cs" />
     <Compile Include="HSet\HSetInternal.cs" />
     <Compile Include="HMap\HMapInternal.cs" />

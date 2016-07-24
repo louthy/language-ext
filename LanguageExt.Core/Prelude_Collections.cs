@@ -100,6 +100,43 @@ namespace LanguageExt
         public static Map<K, V> Map<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
             LanguageExt.Map.createRange(items);
 
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static HMap<K, V> HashMap<K, V>() =>
+            LanguageExt.HMap.empty<K, V>();
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static HMap<K, V> HashMap<K, V>(params Tuple<K, V>[] items) =>
+            LanguageExt.HMap.createRange(items);
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static HMap<K, V> HashMap<K, V>(IEnumerable<Tuple<K, V>> items) =>
+            LanguageExt.HMap.createRange(items);
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static HMap<K, V> HashMap<K, V>(params KeyValuePair<K, V>[] items) =>
+            LanguageExt.HMap.createRange(from x in items
+                                        select Tuple(x.Key, x.Value));
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static HMap<K, V> HashMap<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
+            LanguageExt.HMap.createRange(items);
+
         /// <summary>
         /// Create an immutable list
         /// </summary>

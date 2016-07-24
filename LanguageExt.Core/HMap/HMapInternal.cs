@@ -37,6 +37,9 @@ namespace LanguageExt
         IMapItem<K, V> KV(K key, V value) => 
             new HMapKeyValue<K, V>(key, value);
 
+        IMapItem<K, U> KV<U>(K key, U value) =>
+            new HMapKeyValue<K, U>(key, value);
+
         /// <summary>
         /// 'this' accessor
         /// </summary>
@@ -66,6 +69,62 @@ namespace LanguageExt
         [Pure]
         public int Length =>
             count;
+
+        /// <summary>
+        /// Atomically filter out items that return false when a predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>New map with items filtered</returns>
+        [Pure]
+        public HMapInternal<K, V> Filter(Func<V, bool> pred)
+        {
+            // TODO: Make more efficient
+            var ht = hashTable.Map(bucket => bucket.Filter(kv => pred(kv.Value)));
+            foreach(var item in ht)
+            {
+                if(item.Value.Count == 0)
+                {
+                    ht = ht.Remove(item.Key);
+                }
+            }
+            return new HMapInternal<K, V>(ht, ht.Values.Map(x => x.Count).Sum());
+        }
+
+        /// <summary>
+        /// Atomically filter out items that return false when a predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>New map with items filtered</returns>
+        [Pure]
+        public HMapInternal<K, V> Filter(Func<K, V, bool> pred)
+        {
+            // TODO: Make more efficient
+            var ht = hashTable.Map(bucket => bucket.Filter(kv => pred(kv.Key, kv.Value)));
+            foreach (var item in ht)
+            {
+                if (item.Value.Count == 0)
+                {
+                    ht = ht.Remove(item.Key);
+                }
+            }
+            return new HMapInternal<K, V>(ht, ht.Values.Map(x => x.Count).Sum());
+        }
+
+        /// <summary>
+        /// Atomically maps the map to a new map
+        /// </summary>
+        /// <returns>Mapped items in a new map</returns>
+        [Pure]
+        public HMapInternal<K, U> Map<U>(Func<V, U> mapper) =>
+            new HMapInternal<K, U>(hashTable.Map(bucket => bucket.Map(kv => KV(kv.Key, mapper(kv.Value)))), Count);
+
+        /// <summary>
+        /// Atomically maps the map to a new map
+        /// </summary>
+        /// <returns>Mapped items in a new map</returns>
+        [Pure]
+        public HMapInternal<K, U> Map<U>(Func<K, V, U> mapper) =>
+            new HMapInternal<K, U>(hashTable.Map(bucket => bucket.Map(kv => KV(kv.Key, mapper(kv.Key, kv.Value)))), Count);
 
         /// <summary>
         /// Atomically adds a new item to the map
