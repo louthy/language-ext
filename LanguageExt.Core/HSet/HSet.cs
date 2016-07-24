@@ -37,6 +37,9 @@ namespace LanguageExt
         HSet<T> Wrap(HSetInternal<T> value) =>
             new HSet<T>(value);
 
+        static HSet<U> Wrap<U>(HSetInternal<U> value) =>
+            new HSet<U>(value);
+
         /// <summary>
         /// Ctor that takes an initial (distinct) set of items
         /// </summary>
@@ -79,6 +82,58 @@ namespace LanguageExt
         public object SyncRoot => this;
         public bool IsSynchronized => true;
         public bool IsReadOnly => true;
+
+        /// <summary>
+        /// Maps the values of this set into a new set of values using the
+        /// mapper function to tranform the source values.
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="R">Mapped element type</typeparam>
+        /// <param name="set">HSet</param>
+        /// <param name="mapper">Mapping function</param>
+        /// <returns>Mapped enumerable</returns>
+        [Pure]
+        public HSet<R> Map<R>(Func<T, R> mapper) =>
+            Wrap(Value.Map(mapper));
+
+        /// <summary>
+        /// Filters items from the set using the predicate.  If the predicate
+        /// returns True for any item then it remains in the set, otherwise
+        /// it's dropped.
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="set">HSet</param>
+        /// <param name="pred">Predicate</param>
+        /// <returns>Filtered enumerable</returns>
+        [Pure]
+        public HSet<T> Filter(Func<T, bool> pred) =>
+            Wrap(Value.Filter(pred));
+
+        /// <summary>
+        /// Maps the values of this set into a new set of values using the
+        /// mapper function to tranform the source values.
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="R">Mapped element type</typeparam>
+        /// <param name="set">HSet</param>
+        /// <param name="mapper">Mapping function</param>
+        /// <returns>Mapped enumerable</returns>
+        [Pure]
+        public HSet<R> Select<R>(Func<T, R> mapper) =>
+            Wrap(Value.Map(mapper));
+
+        /// <summary>
+        /// Filters items from the set using the predicate.  If the predicate
+        /// returns True for any item then it remains in the set, otherwise
+        /// it's dropped.
+        /// </summary>
+        /// <typeparam name="T">Element type</typeparam>
+        /// <param name="set">HSet</param>
+        /// <param name="pred">Predicate</param>
+        /// <returns>Filtered enumerable</returns>
+        [Pure]
+        public HSet<T> Where(Func<T, bool> pred) =>
+            Wrap(Value.Filter(pred));
 
         /// <summary>
         /// Add an item to the set
@@ -334,6 +389,84 @@ namespace LanguageExt
         [Pure]
         public bool Overlaps(IEnumerable<T> other) =>
             Value.Overlaps(other);
+
+        /// <summary>
+        /// Returns the elements that are in both this and other
+        /// </summary>
+        [Pure]
+        public HSet<T> Intersect(IEnumerable<T> other)
+        {
+            var res = new List<T>();
+            foreach (var item in other)
+            {
+                if (Contains(item)) res.Add(item);
+            }
+            return new HSet<T>(res);
+        }
+
+        /// <summary>
+        /// Returns this - other.  Only the items in this that are not in 
+        /// other will be returned.
+        /// </summary>
+        [Pure]
+        public HSet<T> Except(IEnumerable<T> other)
+        {
+            var self = this;
+            foreach (var item in other)
+            {
+                if (self.Contains(item))
+                {
+                    self = self.Remove(item);
+                }
+            }
+            return self;
+        }
+
+        /// <summary>
+        /// Only items that are in one set or the other will be returned.
+        /// If an item is in both, it is dropped.
+        /// </summary>
+        [Pure]
+        public HSet<T> SymmetricExcept(IEnumerable<T> other)
+        {
+            var rhs = new Set<T>(other);
+            var res = new List<T>();
+
+            foreach (var item in this)
+            {
+                if (!rhs.Contains(item))
+                {
+                    res.Add(item);
+                }
+            }
+
+            foreach (var item in other)
+            {
+                if (!Contains(item))
+                {
+                    res.Add(item);
+                }
+            }
+
+            return new HSet<T>(res);
+        }
+
+        /// <summary>
+        /// Finds the union of two sets and produces a new set with 
+        /// the results
+        /// </summary>
+        /// <param name="other">Other set to union with</param>
+        /// <returns>A set which contains all items from both sets</returns>
+        [Pure]
+        public HSet<T> Union(IEnumerable<T> other)
+        {
+            var self = this;
+            foreach (var item in other)
+            {
+                self = self.TryAdd(item);
+            }
+            return self;
+        }
 
         bool ISet<T>.Add(T item)
         {

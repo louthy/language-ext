@@ -58,6 +58,7 @@
     <Compile Include="HSet\HSetInternal.cs" />
     <Compile Include="HMap\HMapInternal.cs" />
     <Compile Include="HMap\HMap.cs" />
+    <Compile Include="HSet\HSet_Prelude.cs" />
     <Compile Include="Lift.cs" />
     <Compile Include="NewType.cs" />
     <Compile Include="Prelude_NewType.cs" />

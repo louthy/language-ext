@@ -106,28 +106,28 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static HMap<K, V> HashMap<K, V>() =>
-            LanguageExt.HMap.empty<K, V>();
+            HMap.empty<K, V>();
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
         public static HMap<K, V> HashMap<K, V>(params Tuple<K, V>[] items) =>
-            LanguageExt.HMap.createRange(items);
+            HMap.createRange(items);
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
         public static HMap<K, V> HashMap<K, V>(IEnumerable<Tuple<K, V>> items) =>
-            LanguageExt.HMap.createRange(items);
+            HMap.createRange(items);
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
         public static HMap<K, V> HashMap<K, V>(params KeyValuePair<K, V>[] items) =>
-            LanguageExt.HMap.createRange(from x in items
+            HMap.createRange(from x in items
                                         select Tuple(x.Key, x.Value));
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static HMap<K, V> HashMap<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
-            LanguageExt.HMap.createRange(items);
+            HMap.createRange(items);
 
         /// <summary>
         /// Create an immutable list
@@ -289,6 +289,34 @@ namespace LanguageExt
         [Pure]
         public static Set<T> toSet<T>(IEnumerable<T> items) =>
             LanguageExt.Set.createRange<T>(items);
+
+        /// <summary>
+        /// Create an immutable hash-set
+        /// </summary>
+        [Pure]
+        public static HSet<T> HashSet<T>() =>
+            HSet.create<T>();
+
+        /// <summary>
+        /// Create an immutable hash-set
+        /// </summary>
+        [Pure]
+        public static HSet<T> HashSet<T>(T item) =>
+            HSet.create<T>().Add(item);
+
+        /// <summary>
+        /// Create an immutable hash-set
+        /// </summary>
+        [Pure]
+        public static HSet<T> HashSet<T>(params T[] items) =>
+            HSet.createRange<T>(items);
+
+        /// <summary>
+        /// Create an immutable hash-set
+        /// </summary>
+        [Pure]
+        public static HSet<T> toHashSet<T>(IEnumerable<T> items) =>
+            HSet.createRange<T>(items);
 
         /// <summary>
         /// Create a queryable

@@ -11,6 +11,13 @@ using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
+    /// <summary>
+    /// Internal representation of a hash-map.  This allows for the HMap type to be
+    /// a non-nullable struct.
+    /// 
+    /// TODO: Some functions are not as optimal as they could be
+    /// TODO: Too much cut n paste.  Make DRY.
+    /// </summary>
     internal class HMapInternal<K, V> :
         IEnumerable<IMapItem<K, V>>,
         IReadOnlyDictionary<K, V>,
@@ -76,19 +83,8 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         [Pure]
-        public HMapInternal<K, V> Filter(Func<V, bool> pred)
-        {
-            // TODO: Make more efficient
-            var ht = hashTable.Map(bucket => bucket.Filter(kv => pred(kv.Value)));
-            foreach(var item in ht)
-            {
-                if(item.Value.Count == 0)
-                {
-                    ht = ht.Remove(item.Key);
-                }
-            }
-            return new HMapInternal<K, V>(ht, ht.Values.Map(x => x.Count).Sum());
-        }
+        public HMapInternal<K, V> Filter(Func<V, bool> pred) =>
+            Filter(kv => pred(kv.Value));
 
         /// <summary>
         /// Atomically filter out items that return false when a predicate is applied
@@ -96,18 +92,30 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         [Pure]
-        public HMapInternal<K, V> Filter(Func<K, V, bool> pred)
+        public HMapInternal<K, V> Filter(Func<K, V, bool> pred) =>
+            Filter(kv => pred(kv.Key, kv.Value));
+
+        /// <summary>
+        /// Atomically filter out items that return false when a predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>New map with items filtered</returns>
+        [Pure]
+        public HMapInternal<K, V> Filter(Func<IMapItem<K, V>, bool> pred)
         {
-            // TODO: Make more efficient
-            var ht = hashTable.Map(bucket => bucket.Filter(kv => pred(kv.Key, kv.Value)));
-            foreach (var item in ht)
+            var ht = HashTableEmpty;
+            var count = 0;
+
+            foreach (var bucket in hashTable)
             {
-                if (item.Value.Count == 0)
+                var b = bucket.Value.Filter(pred);
+                count += b.Count;
+                if (b.Count > 0)
                 {
-                    ht = ht.Remove(item.Key);
+                    ht = ht.Add(bucket.Key, b);
                 }
             }
-            return new HMapInternal<K, V>(ht, ht.Values.Map(x => x.Count).Sum());
+            return new HMapInternal<K, V>(ht, count);
         }
 
         /// <summary>
@@ -143,18 +151,19 @@ namespace LanguageExt
 
             var ht = hashTable;
             var hash = key.GetHashCode();
-            if (ht.ContainsKey(hash))
+            var bucket = ht.Find(hash);
+
+            if (bucket.IsSome)
             {
-                var bucket = ht[hash];
                 var eq = EqualityComparer<K>.Default;
-                foreach(var item in bucket)
+                foreach(var item in bucket.Value)
                 {
                     if(eq.Equals(item.Key, key))
                     {
                         throw new ArgumentException("Key already exists in HMap");
                     }
                 }
-                ht = ht.SetItem(hash, bucket.Add(KV(key, value)));
+                ht = ht.SetItem(hash, bucket.Value.Add(KV(key, value)));
             }
             else
             {
@@ -179,18 +188,19 @@ namespace LanguageExt
 
             var ht = hashTable;
             var hash = key.GetHashCode();
-            if (ht.ContainsKey(hash))
+            var bucket = ht.Find(hash);
+
+            if (bucket.IsSome)
             {
-                var bucket = ht[hash];
                 var eq = EqualityComparer<K>.Default;
-                foreach (var item in bucket)
+                foreach (var item in bucket.Value)
                 {
                     if (eq.Equals(item.Key, key))
                     {
                         return this;
                     }
                 }
-                ht = ht.SetItem(hash, bucket.Add(KV(key, value)));
+                ht = ht.SetItem(hash, bucket.Value.Add(KV(key, value)));
             }
             else
             {
@@ -209,38 +219,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public HMapInternal<K, V> AddOrUpdate(K key, V value)
-        {
-            if (isnull(key)) throw new ArgumentNullException(nameof(key));
-
-            var ht = hashTable;
-            var hash = key.GetHashCode();
-            if (ht.ContainsKey(hash))
-            {
-                var bucket = ht[hash];
-                var eq = EqualityComparer<K>.Default;
-                var contains = false;
-                foreach (var item in bucket)
-                {
-                    if (eq.Equals(item.Key, key))
-                    {
-                        contains = true;
-                        break;
-                    }
-                }
-                if (contains)
-                {
-                    bucket = bucket.Filter(x => !eq.Equals(x.Key, key));
-                }
-                ht = ht.SetItem(hash, bucket.Add(KV(key, value)));
-            }
-            else
-            {
-                ht = ht.Add(hash, List(KV(key, value)));
-            }
-            return new HMapInternal<K, V>(ht, Count + 1);
-        }
-
+        public HMapInternal<K, V> AddOrUpdate(K key, V value) =>
+            AddOrUpdate(key, _ => value, () => value);
 
         /// <summary>
         /// Retrieve a value from the map by key, map it to a new value,
@@ -257,37 +237,39 @@ namespace LanguageExt
 
             var ht = hashTable;
             var hash = key.GetHashCode();
-            if (ht.ContainsKey(hash))
+            var bucket = ht.Find(hash);
+
+            if (bucket.IsSome)
             {
-                var bucket = ht[hash];
+                var bucketValue = bucket.Value;
                 var eq = EqualityComparer<K>.Default;
                 var contains = false;
+                var index = 0;
                 V value = default(V);
-                foreach (var item in bucket)
+
+                foreach (var item in bucketValue)
                 {
                     if (eq.Equals(item.Key, key))
                     {
-                        contains = true;
                         value = item.Value;
+                        contains = true;
                         break;
                     }
+                    index++;
                 }
                 if (contains)
                 {
-                    bucket = bucket.Filter(x => !eq.Equals(x.Key, key));
-                    value = Some(value);
+                    return new HMapInternal<K, V>(ht.SetItem(hash, bucketValue.SetItem(index, KV(key, Some(value)))), Count);
                 }
                 else
                 {
-                    value = None();
+                    return new HMapInternal<K, V>(ht.SetItem(hash, bucketValue.Add(KV(key, None()))), Count + 1);
                 }
-                ht = ht.SetItem(hash, bucket.Add(KV(key, value)));
             }
             else
             {
-                ht = ht.Add(hash, List(KV(key, None())));
+                return new HMapInternal<K, V>(ht.Add(hash, List(KV(key, None()))), Count + 1);
             }
-            return new HMapInternal<K, V>(ht, Count + 1);
         }
 
         /// <summary>
@@ -429,14 +411,16 @@ namespace LanguageExt
             if (isnull(key)) return this;
             var ht = hashTable;
             var hash = key.GetHashCode();
-            if (ht.ContainsKey(hash))
+            var bucket = ht.Find(hash);
+
+            if (bucket.IsSome)
             {
+                var bucketValue = bucket.Value;
                 var eq = EqualityComparer<K>.Default;
-                var bucket = ht[hash];
-                bucket = bucket.Filter(x => !eq.Equals(x.Key, key));
-                return bucket.Count == 0
+                bucketValue = bucketValue.Filter(x => !eq.Equals(x.Key, key));
+                return bucketValue.Count == 0
                     ? new HMapInternal<K, V>(ht.Remove(hash), Count - 1)
-                    : new HMapInternal<K, V>(ht.SetItem(hash, bucket), Count - 1);
+                    : new HMapInternal<K, V>(ht.SetItem(hash, bucketValue), Count - 1);
             }
             else
             {
@@ -493,11 +477,11 @@ namespace LanguageExt
 
             var ht = hashTable;
             var hash = key.GetHashCode();
-            if (ht.ContainsKey(hash))
+            var bucket = ht.Find(hash);
+            if (bucket.IsSome)
             {
                 var eq = EqualityComparer<K>.Default;
-                var bucket = ht[hash];
-                return new HMapInternal<K, V>(ht.SetItem(hash, bucket.Map(x => eq.Equals(x.Key, key) ? KV(x.Key, value) : x)), Count);
+                return new HMapInternal<K, V>(ht.SetItem(hash, bucket.Value.Map(x => eq.Equals(x.Key, key) ? KV(x.Key, value) : x)), Count);
             }
             else
             {
@@ -520,11 +504,11 @@ namespace LanguageExt
 
             var ht = hashTable;
             var hash = key.GetHashCode();
-            if (ht.ContainsKey(hash))
+            var bucket = ht.Find(hash);
+            if (bucket.IsSome)
             {
                 var eq = EqualityComparer<K>.Default;
-                var bucket = ht[hash];
-                return new HMapInternal<K, V>(ht.SetItem(hash, bucket.Map(x => eq.Equals(x.Key, key) ? KV(x.Key, Some(x.Value)) : x)), Count);
+                return new HMapInternal<K, V>(ht.SetItem(hash, bucket.Value.Map(x => eq.Equals(x.Key, key) ? KV(x.Key, Some(x.Value)) : x)), Count);
             }
             else
             {
@@ -548,11 +532,11 @@ namespace LanguageExt
 
             var ht = hashTable;
             var hash = key.GetHashCode();
-            if (ht.ContainsKey(hash))
+            var bucket = ht.Find(hash);
+            if (bucket.IsSome)
             {
                 var eq = EqualityComparer<K>.Default;
-                var bucket = ht[hash];
-                return new HMapInternal<K, V>(ht.SetItem(hash, bucket.Map(x => eq.Equals(x.Key, key) ? KV(x.Key, value) : x)), Count);
+                return new HMapInternal<K, V>(ht.SetItem(hash, bucket.Value.Map(x => eq.Equals(x.Key, key) ? KV(x.Key, value) : x)), Count);
             }
             else
             {
@@ -576,11 +560,11 @@ namespace LanguageExt
 
             var ht = hashTable;
             var hash = key.GetHashCode();
-            if (ht.ContainsKey(hash))
+            var bucket = ht.Find(hash);
+            if (bucket.IsSome)
             {
                 var eq = EqualityComparer<K>.Default;
-                var bucket = ht[hash];
-                return new HMapInternal<K, V>(ht.SetItem(hash, bucket.Map(x => eq.Equals(x.Key, key) ? KV(x.Key, Some(x.Value)) : x)), Count);
+                return new HMapInternal<K, V>(ht.SetItem(hash, bucket.Value.Map(x => eq.Equals(x.Key, key) ? KV(x.Key, Some(x.Value)) : x)), Count);
             }
             else
             {

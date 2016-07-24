@@ -7,6 +7,14 @@ using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
+    /// <summary>
+    /// Internal representation of a hash-set.  This allows for the HSet type to be
+    /// a non-nullable struct.
+    /// 
+    /// TODO: Some functions are not as optimal as they could be
+    /// TODO: Too much cut n paste.  Make DRY.
+    /// </summary>
+    /// <typeparam name="T">Key type</typeparam>
     internal class HSetInternal<T> :
         IReadOnlyCollection<T>,
         ICollection<T>,
@@ -69,28 +77,38 @@ namespace LanguageExt
         public int Length =>
             count;
 
-        public object SyncRoot
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        [Pure]
+        public object SyncRoot => 
+            this;
 
-        public bool IsSynchronized
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        [Pure]
+        public bool IsSynchronized =>
+            true;
 
-        public bool IsReadOnly
+        [Pure]
+        public bool IsReadOnly => 
+            true;
+
+        [Pure]
+        public HSetInternal<U> Map<U>(Func<T,U> map) =>
+            new HSetInternal<U>(hashTable.Map(bucket => bucket.Map(map)), Count);
+
+        [Pure]
+        public HSetInternal<T> Filter(Func<T, bool> pred)
         {
-            get
+            var ht = HashTableEmpty;
+            var count = 0;
+
+            foreach(var bucket in hashTable)
             {
-                throw new NotImplementedException();
+                var b = bucket.Value.Filter(pred);
+                count += b.Count;
+                if (b.Count > 0)
+                {
+                    ht = ht.Add(bucket.Key, b);
+                }
             }
+            return new HSetInternal<T>(ht, count);
         }
 
         [Pure]
@@ -100,18 +118,18 @@ namespace LanguageExt
 
             var ht = hashTable;
             var hash = key.GetHashCode();
-            if (ht.ContainsKey(hash))
+            var bucket = ht.Find(hash);
+            if (bucket.IsSome)
             {
-                var bucket = ht[hash];
                 var eq = EqualityComparer<T>.Default;
-                foreach(var item in bucket)
+                foreach(var item in bucket.Value)
                 {
                     if(eq.Equals(item, key))
                     {
                         throw new ArgumentException("Key already exists in HSet");
                     }
                 }
-                ht = ht.SetItem(hash, bucket.Add(key));
+                ht = ht.SetItem(hash, bucket.Value.Add(key));
             }
             else
             {
@@ -127,18 +145,18 @@ namespace LanguageExt
 
             var ht = hashTable;
             var hash = key.GetHashCode();
-            if (ht.ContainsKey(hash))
+            var bucket = ht.Find(hash);
+            if (bucket.IsSome)
             {
-                var bucket = ht[hash];
                 var eq = EqualityComparer<T>.Default;
-                foreach (var item in bucket)
+                foreach (var item in bucket.Value)
                 {
                     if (eq.Equals(item, key))
                     {
                         return this;
                     }
                 }
-                ht = ht.SetItem(hash, bucket.Add(key));
+                ht = ht.SetItem(hash, bucket.Value.Add(key));
             }
             else
             {
@@ -154,30 +172,37 @@ namespace LanguageExt
 
             var ht = hashTable;
             var hash = key.GetHashCode();
-            if (ht.ContainsKey(hash))
+            var bucket = ht.Find(hash);
+            if (bucket.IsSome)
             {
-                var bucket = ht[hash];
+                var bucketValue = bucket.Value;
                 var eq = EqualityComparer<T>.Default;
                 var contains = false;
-                foreach (var item in bucket)
+                var index = 0;
+
+                foreach (var item in bucketValue)
                 {
                     if (eq.Equals(item, key))
                     {
                         contains = true;
                         break;
                     }
+                    index++;
                 }
+
                 if (contains)
                 {
-                    bucket = bucket.Filter(x => !eq.Equals(x, key));
+                    return new HSetInternal<T>(ht.SetItem(hash, bucketValue.SetItem(index, key)), Count);
                 }
-                ht = ht.SetItem(hash, bucket.Add(key));
+                else
+                {
+                    return new HSetInternal<T>(ht.SetItem(hash, bucketValue.Add(key)), Count + 1);
+                }
             }
             else
             {
-                ht = ht.Add(hash, List(key));
+                return new HSetInternal<T>(ht.Add(hash, List(key)), Count + 1);
             }
-            return new HSetInternal<T>(ht, Count + 1);
         }
 
         [Pure]
@@ -231,14 +256,15 @@ namespace LanguageExt
             if (isnull(key)) return this;
             var ht = hashTable;
             var hash = key.GetHashCode();
-            if (ht.ContainsKey(hash))
+            var bucket = ht.Find(hash);
+            if (bucket.IsSome)
             {
+                var bucketValue = bucket.Value;
                 var eq = EqualityComparer<T>.Default;
-                var bucket = ht[hash];
-                bucket = bucket.Filter(x => !eq.Equals(x, key));
-                return bucket.Count == 0
+                bucketValue = bucketValue.Filter(x => !eq.Equals(x, key));
+                return bucketValue.Count == 0
                     ? new HSetInternal<T>(ht.Remove(hash), Count - 1)
-                    : new HSetInternal<T>(ht.SetItem(hash, bucket), Count - 1);
+                    : new HSetInternal<T>(ht.SetItem(hash, bucketValue), Count - 1);
             }
             else
             {
@@ -270,11 +296,11 @@ namespace LanguageExt
 
             var ht = hashTable;
             var hash = key.GetHashCode();
-            if (ht.ContainsKey(hash))
+            var bucket = ht.Find(hash);
+            if (bucket.IsSome)
             {
                 var eq = EqualityComparer<T>.Default;
-                var bucket = ht[hash];
-                return new HSetInternal<T>(ht.SetItem(hash, bucket.Map(x => eq.Equals(x, key) ? key : x)), Count);
+                return new HSetInternal<T>(ht.SetItem(hash, bucket.Value.Map(x => eq.Equals(x, key) ? key : x)), Count);
             }
             else
             {
@@ -289,11 +315,11 @@ namespace LanguageExt
 
             var ht = hashTable;
             var hash = key.GetHashCode();
-            if (ht.ContainsKey(hash))
+            var bucket = ht.Find(hash);
+            if (bucket.IsSome)
             {
                 var eq = EqualityComparer<T>.Default;
-                var bucket = ht[hash];
-                return new HSetInternal<T>(ht.SetItem(hash, bucket.Map(x => eq.Equals(x, key) ? key : x)), Count);
+                return new HSetInternal<T>(ht.SetItem(hash, bucket.Value.Map(x => eq.Equals(x, key) ? key : x)), Count);
             }
             else
             {
@@ -399,7 +425,7 @@ namespace LanguageExt
             var itery = other.GetEnumerator();
 
             var eq = EqualityComparer<T>.Default;
-            for(int i = Count; i >= 0; i-- )
+            for (int i = 0; i < count; i++)
             {
                 iterx.MoveNext();
                 itery.MoveNext();
