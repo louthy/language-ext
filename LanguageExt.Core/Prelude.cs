@@ -172,7 +172,7 @@ namespace LanguageExt
             () => { throw new Exception(message); };
 
         /// <summary>
-        /// Raises an Exception wigth the messge provided
+        /// Raises an Exception with the message provided
         /// </summary>
         /// <typeparam name="R">The return type of the expression this function is being used in.
         /// This allows exceptions to be thrown in ternary operators, or LINQ expressions for
@@ -186,7 +186,7 @@ namespace LanguageExt
 
 #if !COREFX
         /// <summary>
-        /// Raises an ApplicationException wigth the messge provided
+        /// Raises an ApplicationException with the message provided
         /// </summary>
         /// <typeparam name="R">The return type of the expression this function is being used in.
         /// This allows exceptions to be thrown in ternary operators, or LINQ expressions for
