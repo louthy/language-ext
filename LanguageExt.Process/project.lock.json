@@ -68,7 +68,7 @@
           "lib/net45/System.Reactive.PlatformServices.dll": {}
         }
       },
-      "LanguageExt.Core/1.9.0": {
+      "LanguageExt.Core/1.9.1": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
@@ -84,11 +84,11 @@
           "net45/LanguageExt.Core.dll": {}
         }
       },
-      "LanguageExt.Parsec/1.9.0": {
+      "LanguageExt.Parsec/1.9.1": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
-          "LanguageExt.Core": "1.9.0",
+          "LanguageExt.Core": "1.9.1",
           "System.Reactive.Core": "3.0.0",
           "System.Reactive.Interfaces": "3.0.0",
           "System.Reactive.Linq": "3.0.0",
@@ -168,7 +168,7 @@
           "lib/net46/System.Reactive.PlatformServices.dll": {}
         }
       },
-      "LanguageExt.Core/1.9.0": {
+      "LanguageExt.Core/1.9.1": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.6",
         "dependencies": {
@@ -184,11 +184,11 @@
           "net46/LanguageExt.Core.dll": {}
         }
       },
-      "LanguageExt.Parsec/1.9.0": {
+      "LanguageExt.Parsec/1.9.1": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.6",
         "dependencies": {
-          "LanguageExt.Core": "1.9.0",
+          "LanguageExt.Core": "1.9.1",
           "System.Reactive.Core": "3.0.0",
           "System.Reactive.Interfaces": "3.0.0",
           "System.Reactive.Linq": "3.0.0",
@@ -1668,7 +1668,7 @@
           "lib/netstandard1.3/System.Xml.XDocument.dll": {}
         }
       },
-      "LanguageExt.Core/1.9.0": {
+      "LanguageExt.Core/1.9.1": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -1689,11 +1689,11 @@
           "netstandard1.6/LanguageExt.Core.dll": {}
         }
       },
-      "LanguageExt.Parsec/1.9.0": {
+      "LanguageExt.Parsec/1.9.1": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "LanguageExt.Core": "1.9.0",
+          "LanguageExt.Core": "1.9.1",
           "System.Collections": "4.0.11",
           "System.Collections.Concurrent": "4.0.12",
           "System.Linq.Queryable": "4.0.1",
@@ -5562,12 +5562,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "LanguageExt.Core/1.9.0": {
+    "LanguageExt.Core/1.9.1": {
       "type": "project",
       "path": "../LanguageExt.Core/project.json",
       "msbuildProject": "../LanguageExt.Core/LanguageExt.Core.xproj"
     },
-    "LanguageExt.Parsec/1.9.0": {
+    "LanguageExt.Parsec/1.9.1": {
       "type": "project",
       "path": "../LanguageExt.Parsec/project.json",
       "msbuildProject": "../LanguageExt.Parsec/LanguageExt.Parsec.xproj"
@@ -5575,8 +5575,8 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "LanguageExt.Core >= 1.9.0",
-      "LanguageExt.Parsec >= 1.9.0",
+      "LanguageExt.Core >= 1.9.1",
+      "LanguageExt.Parsec >= 1.9.1",
       "Newtonsoft.Json >= 9.0.1",
       "System.Reactive.Core >= 3.0.0-*",
       "System.Reactive.Interfaces >= 3.0.0-*",

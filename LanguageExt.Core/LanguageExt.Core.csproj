@@ -81,6 +81,13 @@
     <Compile Include="OptionUnsafe\OptionUnsafeExtensions.cs" />
     <Compile Include="Option\OptionT.cs" />
     <Compile Include="Seq\SeqM.cs" />
+    <Compile Include="HMap\HMap_Prelude.cs" />
+    <Compile Include="HSet\HSet.cs" />
+    <Compile Include="HSet\HSetInternal.cs" />
+    <Compile Include="HMap\HMapInternal.cs" />
+    <Compile Include="HMap\HMap.cs" />
+    <Compile Include="HSet\HSet_Prelude.cs" />
+    <Compile Include="Lift.cs" />
     <Compile Include="NewType.cs" />
     <Compile Include="Option-Shared\None.cs" />
     <Compile Include="Option-Shared\OptionV.cs" />
