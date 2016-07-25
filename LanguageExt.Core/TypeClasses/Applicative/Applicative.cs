@@ -8,6 +8,7 @@ namespace LanguageExt.TypeClasses
     /// Applicative functor type-class
     /// </summary>
     /// <typeparam name="A"></typeparam>
+    [Typeclass]
     public interface Applicative<A> : Functor<A>
     {
         /// <summary>

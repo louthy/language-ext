@@ -88,9 +88,9 @@ namespace LanguageExt
             MapModule.OfSeq(map.AsEnumerable().Map(item => Tuple(item.Key, item.Value)));
 
         /// <summary>
-        /// Convert an LanguageExt List (Lst T) into an F# List
+        /// Convert an LanguageExt List (Lst A) into an F# List
         /// </summary>
-        public static FSharpList<T> ToFSharp<T>(this Lst<T> list) =>
+        public static FSharpList<A> ToFSharp<A>(this Lst<A> list) =>
             ListModule.OfSeq(list);
     }
 }

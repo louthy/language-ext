@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.TypeClasses
 {
+    [Typeclass]
     public interface MonadTrans<MA, A> where MA : Monad<A>
     {
         TMA Lift<TMA>(MA ma) where TMA : MonadT<MA, A>;

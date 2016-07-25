@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.TypeClasses
 {
+    [Typeclass]
     public interface MonadPlus<A> : Monad<A>
     {
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿
 namespace LanguageExt.TypeClasses
 {
+    [Typeclass]
     public interface Ord<A> : Eq<A>
     {
         /// <summary>

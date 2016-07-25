@@ -17,84 +17,84 @@ namespace LanguageExt
         /// <summary>
         /// True if the set has no elements
         /// </summary>
-        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
         /// <returns>True if the set has no elements</returns>
         [Pure]
-        public static bool isEmpty<T>(Set<T> set) =>
+        public static bool isEmpty<A>(Set<A> set) =>
             set.IsEmpty;
 
         /// <summary>
         /// Create a new empty set
         /// </summary>
-        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
         /// <returns>Empty set</returns>
         [Pure]
-        public static Set<T> create<T>() =>
-            Set<T>.Empty;
+        public static Set<A> create<A>() =>
+            Set<A>.Empty;
 
         /// <summary>
         /// Create a new set pre-populated with the items in range
         /// </summary>
-        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
         /// <param name="range">Range of items</param>
         /// <returns>Set</returns>
         [Pure]
-        public static Set<T> createRange<T>(IEnumerable<T> range) =>
-            new Set<T>(range);
+        public static Set<A> createRange<A>(IEnumerable<A> range) =>
+            new Set<A>(range);
 
         /// <summary>
         /// Create a new empty set
         /// </summary>
-        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
         /// <returns>Empty set</returns>
         [Pure]
-        public static Set<T> empty<T>() =>
-            Set<T>.Empty;
+        public static Set<A> empty<A>() =>
+            Set<A>.Empty;
 
         /// <summary>
         /// Add an item to the set
         /// </summary>
-        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
         /// <param name="set">Set to add item to</param>
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item added</returns>
         [Pure]
-        public static Set<T> add<T>(Set<T> set, T value) =>
+        public static Set<A> add<A>(Set<A> set, A value) =>
             set.Add(value);
 
         /// <summary>
         /// Attempt to add an item to the set.  If an item already
         /// exists then return the Set as-is.
         /// </summary>
-        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
         /// <param name="set">Set to add item to</param>
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item maybe added</returns>
         [Pure]
-        public static Set<T> tryAdd<T>(Set<T> set, T value) =>
+        public static Set<A> tryAdd<A>(Set<A> set, A value) =>
             set.TryAdd(value);
 
         /// <summary>
         /// Add an item to the set.  If an item already
         /// exists then replace it.
         /// </summary>
-        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
         /// <param name="set">Set to add item to</param>
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item maybe added</returns>
         [Pure]
-        public static Set<T> addOrUpdate<T>(Set<T> set, T value) =>
+        public static Set<A> addOrUpdate<A>(Set<A> set, A value) =>
             set.AddOrUpdate(value);
 
         /// <summary>
         /// Attempts to find an item in the set.  
         /// </summary>
-        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
         /// <param name="set">Set</param>
         /// <param name="value">Value to find</param>
         /// <returns>Some(T) if found, None otherwise</returns>
         [Pure]
-        public static Option<T> find<T>(Set<T> set, T value) =>
+        public static Option<A> find<A>(Set<A> set, A value) =>
             set.Find(value);
 
         /// <summary>
@@ -102,29 +102,29 @@ namespace LanguageExt
         /// predicate.
         /// </summary>
         /// <remarks>Note this scans the entire set.</remarks>
-        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
         /// <param name="set">Set</param>
         /// <param name="pred">Predicate</param>
         /// <returns>True if predicate returns true for any item</returns>
         [Pure]
-        public static bool exists<T>(Set<T> set, Func<T, bool> pred) =>
+        public static bool exists<A>(Set<A> set, Func<A, bool> pred) =>
             set.Exists(pred);
 
         /// <summary>
         /// Returns true if both sets contain the same elements
         /// </summary>
         [Pure]
-        public static bool equals<T>(Set<T> setA, Set<T> setB) =>
+        public static bool equals<A>(Set<A> setA, Set<A> setB) =>
             setA.SetEquals(setB);
 
         /// <summary>
         /// Get the number of elements in the set
         /// </summary>
-        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
         /// <param name="set">Set</param>
         /// <returns>Number of elements</returns>
         [Pure]
-        public static int length<T>(Set<T> set) =>
+        public static int length<A>(Set<A> set) =>
             set.Count();
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace LanguageExt
         /// setB will be returned.
         /// </summary>
         [Pure]
-        public static Set<T> difference<T>(Set<T> setA, Set<T> setB) =>
+        public static Set<A> difference<A>(Set<A> setA, Set<A> setB) =>
             setA.Except(setB);
 
         /// <summary>
@@ -198,14 +198,14 @@ namespace LanguageExt
         /// Returns the elements that are in both setA and setB
         /// </summary>
         [Pure]
-        public static Set<T> intersect<T>(Set<T> setA, IEnumerable<T> setB) =>
+        public static Set<A> intersect<A>(Set<A> setA, IEnumerable<A> setB) =>
             setA.Intersect(setB);
 
         /// <summary>
         /// Returns the elements that are in both setA and setB
         /// </summary>
         [Pure]
-        public static Set<T> except<T>(Set<T> setA, IEnumerable<T> setB) =>
+        public static Set<A> except<A>(Set<A> setA, IEnumerable<A> setB) =>
             setA.Except(setB);
 
         /// <summary>
@@ -213,97 +213,97 @@ namespace LanguageExt
         /// If an item is in both, it is dropped.
         /// </summary>
         [Pure]
-        public static Set<T> symmetricExcept<T>(Set<T> setA, IEnumerable<T> setB) =>
+        public static Set<A> symmetricExcept<A>(Set<A> setA, IEnumerable<A> setB) =>
             setA.Except(setB);
 
         /// <summary>
         /// Maps the values of this set into a new set of values using the
         /// mapper function to tranform the source values.
         /// </summary>
-        /// <typeparam name="T">Element type</typeparam>
-        /// <typeparam name="R">Mapped element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
+        /// <typeparam name="B">Mapped element type</typeparam>
         /// <param name="set">Set</param>
         /// <param name="mapper">Mapping function</param>
         /// <returns>Mapped enumerable</returns>
         [Pure]
-        public static Set<R> map<T, R>(Set<T> set, Func<T, R> mapper) =>
+        public static Set<B> map<A, B>(Set<A> set, Func<A, B> mapper) =>
             set.Map(mapper);
 
         /// <summary>
         /// Returns True if the value is in the set
         /// </summary>
-        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
         /// <param name="set">Set</param>
         /// <param name="value">Value to check</param>
         /// <returns>True if the item 'value' is in the Set 'set'</returns>
         [Pure]
-        public static bool contains<T>(Set<T> set, T value) =>
+        public static bool contains<A>(Set<A> set, A value) =>
             set.Contains(value);
 
         /// <summary>
         /// Removes an item from the set (if it exists)
         /// </summary>
-        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
         /// <param name="set">Set</param>
         /// <param name="value">Value to check</param>
         /// <returns>New set with item removed</returns>
         [Pure]
-        public static Set<T> remove<T>(Set<T> set, T value) =>
+        public static Set<A> remove<A>(Set<A> set, A value) =>
             set.Remove(value);
 
         /// <summary>
         /// Returns True if setB is a subset of setA
         /// </summary>
-        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
         /// <param name="setA">Set A</param>
         /// <param name="setB">Set B</param>
         /// <returns>True is setB is a subset of setA</returns>
         [Pure]
-        public static bool isSubset<T>(Set<T> setA, IEnumerable<T> setB) =>
+        public static bool isSubset<A>(Set<A> setA, IEnumerable<A> setB) =>
             setA.IsSubsetOf(setB);
 
         /// <summary>
         /// Returns True if setB is a superset of setA
         /// </summary>
-        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
         /// <param name="setA">Set A</param>
         /// <param name="setB">Set B</param>
         /// <returns>True is setB is a superset of setA</returns>
         [Pure]
-        public static bool isSuperset<T>(Set<T> setA, IEnumerable<T> setB) =>
+        public static bool isSuperset<A>(Set<A> setA, IEnumerable<A> setB) =>
             setA.IsSupersetOf(setB);
 
         /// <summary>
         /// Returns True if setB is a proper subset of setA
         /// </summary>
-        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
         /// <param name="setA">Set A</param>
         /// <param name="setB">Set B</param>
         /// <returns>True is setB is a proper subset of setA</returns>
         [Pure]
-        public static bool isProperSubset<T>(Set<T> setA, IEnumerable<T> setB) =>
+        public static bool isProperSubset<A>(Set<A> setA, IEnumerable<A> setB) =>
             setA.IsProperSubsetOf(setB);
 
         /// <summary>
         /// Returns True if setB is a proper superset of setA
         /// </summary>
-        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
         /// <param name="setA">Set A</param>
         /// <param name="setB">Set B</param>
         /// <returns>True is setB is a proper subset of setA</returns>
         [Pure]
-        public static bool isProperSuperset<T>(Set<T> setA, IEnumerable<T> setB) =>
+        public static bool isProperSuperset<A>(Set<A> setA, IEnumerable<A> setB) =>
             setA.IsProperSupersetOf(setB);
 
         /// <summary>
         /// Returns True if setA overlaps setB
         /// </summary>
-        /// <typeparam name="T">Element type</typeparam>
+        /// <typeparam name="A">Element type</typeparam>
         /// <param name="setA">Set A</param>
         /// <param name="setB">Set B</param>
         /// <returns>True if setA overlaps setB</returns>
         [Pure]
-        public static bool overlaps<T>(Set<T> setA, IEnumerable<T> setB) =>
+        public static bool overlaps<A>(Set<A> setA, IEnumerable<A> setB) =>
             setA.Overlaps(setB);
     }
 }

@@ -11,63 +11,50 @@ namespace LanguageExt
         /// <summary>
         /// Projection from one value to another using f
         /// </summary>
-        /// <typeparam name="T">Functor value type</typeparam>
-        /// <typeparam name="U">Resulting functor value type</typeparam>
-        /// <param name="x">Functor value to map from </param>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="ma">Monad value to map from </param>
         /// <param name="f">Projection function</param>
-        /// <returns>Mapped functor</returns>
+        /// <returns>Mapped monad</returns>
         [Pure]
-        public static Monad<U> Select<T, U>(
-            this Monad<T> self,
-            Func<T, U> map
+        public static Monad<B> Select<A, B>(
+            this Monad<A> ma,
+            Func<A, B> f
             ) =>
-            (Monad<U>)self.Map(self, map);
+            ma.Map<Monad<B>, A, B>(f);
+
+        /// <summary>
+        /// Projection from one value to another using f
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <typeparam name="B">Resulting bound value type</typeparam>
+        /// <param name="ma">Monad value to map from </param>
+        /// <param name="f">Projection function</param>
+        /// <returns>Mapped monad</returns>
+        public static Monad<B> LiftM<A, B>(
+            this Monad<A> ma, 
+            Func<A, B> f) =>
+            ma.Map<Monad<B>, A, B>(f);
 
         /// <summary>
         /// Monadic bind
         /// </summary>
-        /// <typeparam name="T">Type of the bound value</typeparam>
-        /// <typeparam name="U">Type of the bound return value</typeparam>
+        /// <typeparam name="A">Type of the bound value</typeparam>
+        /// <typeparam name="B">Type of the bound return value</typeparam>
         /// <param name="self">Monad to bind</param>
         /// <param name="bind">Bind function</param>
         /// <returns>Monad of U</returns>
         [Pure]
-        public static Monad<U> Bind<T, U>(this Monad<T> self, Func<T, Monad<U>> bind) =>
+        public static Monad<B> Bind<A, B>(this Monad<A> self, Func<A, Monad<B>> bind) =>
             self.Bind(self, bind);
 
         /// <summary>
         /// Monadic bind and project
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Monad<V> SelectMany<T, U, V>(
-            this Monad<T> self,
-            Func<T, Monad<U>> bind,
-            Func<T, U, V> project)
-            =>
-            self.Bind(self,
-                t => bind(t).Select(
-                    u => project(t, u)));
-
-        /// <summary>
-        /// Monadic bind
-        /// </summary>
-        /// <typeparam name="T">Type of the bound value</typeparam>
-        /// <typeparam name="U">Type of the bound return value</typeparam>
-        /// <param name="self">Monad to bind</param>
-        /// <param name="bind">Bind function</param>
-        /// <returns>Monad of U</returns>
-        [Pure]
-        public static Applicative<U> Bind<T, U>(this Applicative<T> self, Func<T, Applicative<U>> bind) =>
-            self.Bind(self, bind);
-
-        /// <summary>
-        /// Applicative bind and project
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Applicative<V> SelectMany<T, U, V>(
-            this Applicative<T> self,
-            Func<T, Applicative<U>> bind,
-            Func<T, U, V> project)
+        public static Monad<C> SelectMany<A, B, C>(
+            this Monad<A> self,
+            Func<A, Monad<B>> bind,
+            Func<A, B, C> project)
             =>
             self.Bind(self,
                 t => bind(t).Select(
@@ -76,18 +63,18 @@ namespace LanguageExt
         /// <summary>
         /// Monad join
         /// </summary>
-        public static Monad<V> Join<T, U, K, V>(
-            this Monad<T> self,
-            Monad<U> inner,
-            Func<T, K> outerKeyMap,
-            Func<U, K> innerKeyMap,
-            Func<T, U, V> project) =>
+        public static Monad<D> Join<A, B, C, D>(
+            this Monad<A> self,
+            Monad<B> inner,
+            Func<A, C> outerKeyMap,
+            Func<B, C> innerKeyMap,
+            Func<A, B, D> project) =>
             from w in
                 (from x in self
                  from y in inner.Bind(y =>
-                    EqualityComparer<K>.Default.Equals(outerKeyMap(x), innerKeyMap(y))
+                    EqualityComparer<C>.Default.Equals(outerKeyMap(x), innerKeyMap(y))
                         ?  self.Select(_ => project(x, y))
-                        : (self.Select(_ => default(V))).Fail())
+                        : (self.Select(_ => default(D))).Fail())
                  select y)
             select w;
 
@@ -97,15 +84,5 @@ namespace LanguageExt
         [Pure]
         public static Monad<A> Fail<A>(this Monad<A> ma, string err = "") =>
             ma.Fail(err);
-
-        /// <summary>
-        /// Performs a map operation on the monad
-        /// </summary>
-        /// <typeparam name="B">The mapped type</typeparam>
-        /// <param name="ma">Monad to map</param>
-        /// <param name="f">Mapping operation</param>
-        /// <returns>Mapped monad</returns>
-        public static Monad<B> LiftM<A, B>(this Monad<A> ma, Func<A, B> f) =>
-            ma.Map<Monad<B>, A, B>(f);
     }
 }

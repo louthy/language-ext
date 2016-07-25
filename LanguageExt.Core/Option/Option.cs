@@ -24,8 +24,9 @@ namespace LanguageExt
 #if !COREFX
     [Serializable]
 #endif
-    public struct Option<A> : 
-        Optional<A>, 
+    public struct Option<A> :
+        Optional<A>,
+        MonadPlus<A>,
         IOptional, 
         IEquatable<Option<A>>, 
         IComparable<Option<A>>
@@ -42,6 +43,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="value">Value to bind, must be non-null</param>
         /// <returns>Option of A</returns>
+        [Pure]
         public static Option<A> Some(A value) => 
             value;
 
@@ -55,134 +57,25 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Functor map operation
+        /// Uses the EqDefault instance to do an equality check on the bound value.  
+        /// To use anything other than the default call equals<EQ<A>, A>(a, b), 
+        /// where EQ is an instance derived from Eq<A>
         /// </summary>
-        /// <typeparam name="B">The type that f maps to</typeparam>
-        /// <param name="ma">The functor</param>
-        /// <param name="f">The operation to perform on the bound value</param>
-        /// <returns>A mapped functor</returns>
-        [Pure]
-        public Functor<B> Map<B>(Functor<A> ma, Func<A, B> f)
-        {
-            var maybe = AsOpt(ma);
-            return maybe.IsSome()
-                ? new Option<B>(OptionV<B>.Optional(f(maybe.Value())))
-                : Option<B>.None;
-        }
+        /// <param name="other">The Option type to compare this type with</param>
+        /// <returns>True if this and other are equal</returns>
+        public bool Equals(Option<A> other) =>
+            equals<EqDefault<A>, A>(this, other);
 
         /// <summary>
-        /// Option cast from Functor
+        /// Uses the OrdDefault instance to do an ordering comparison on the bound 
+        /// value.  To use anything other than the default call 
+        /// compare<OrdDefault<A>, A>(this, other), where EQ is an instance derived 
+        /// from Eq<A>
         /// </summary>
-        [Pure]
-        private static OptionV<A> AsOpt(Monad<A> a) => ((Option<A>)a).value ?? OptionV<A>.None;
-
-        /// <summary>
-        /// Option cast from Functor
-        /// </summary>
-        [Pure]
-        private static OptionV<A> AsOpt(Functor<A> a) => ((Option<A>)a).value ?? OptionV<A>.None;
-
-        /// <summary>
-        /// Option cast from Foldable
-        /// </summary>
-        [Pure]
-        private static OptionV<A> AsOpt(Foldable<A> a) => ((Option<A>)a).value ?? OptionV<A>.None;
-
-
-        /// <summary>
-        /// Monad return
-        /// 
-        /// Constructs a Monad of A
-        /// </summary>
-        /// <param name="a">Value to bind</param>
-        /// <returns>Monad of A</returns>
-        [Pure]
-        public Monad<A> Return(A x, params A[] xs) =>
-            new Option<A>(OptionV<A>.Optional(x));
-
-        /// <summary>
-        /// Monad bind
-        /// </summary>
-        /// <typeparam name="B">Type the bind operation returns</typeparam>
-        /// <param name="ma">Monad of A</param>
-        /// <param name="f">Bind operation</param>
-        /// <returns>Monad of B</returns>
-        [Pure]
-        public Monad<B> Bind<B>(Monad<A> ma, Func<A, Monad<B>> f)
-        {
-            var maybe = AsOpt((Foldable<A>)ma);
-            return maybe.IsSome()
-                ? f(maybe.Value())
-                : Option<B>.None;
-        }
-
-        /// <summary>
-        /// Monad fail
-        /// </summary>
-        /// <param name="err">Optional error message - not supported for OptionV</param>
-        /// <returns>Monad of A (for Option this returns a None state)</returns>
-        [Pure]
-        public Monad<A> Fail(string err = "") =>
-            None;
-
-        /// <summary>
-        /// Applicative pure
-        /// 
-        /// Constructs an Applicative of A
-        /// </summary>
-        /// <param name="a">Value to bind</param>
-        /// <returns>Applicative of A</returns>
-        [Pure]
-        public Applicative<A> Pure(A x, params A[] xs) =>
-            new Option<A>(OptionV<A>.Optional(x));
-
-        /// <summary>
-        /// Applicative bind
-        /// </summary>
-        /// <typeparam name="B">The type of the bind result</typeparam>
-        /// <param name="ma">Applicative of A</param>
-        /// <param name="f">Bind operation to perform</param>
-        /// <returns>Applicative of B</returns>
-        [Pure]
-        public Applicative<B> Bind<B>(Applicative<A> ma, Func<A, Applicative<B>> f)
-        {
-            var maybe = AsOpt(ma);
-            return maybe.IsSome()
-                ? f(maybe.Value())
-                : Option<B>.None;
-        }
-
-        /// <summary>
-        /// Fold the bound value
-        /// </summary>
-        /// <typeparam name="S">Initial state type</typeparam>
-        /// <param name="ma">Monad to fold</param>
-        /// <param name="state">Initial state</param>
-        /// <param name="f">Fold operation</param>
-        /// <returns>Aggregated state</returns>
-        public S Fold<S>(Foldable<A> ma, S state, Func<S, A, S> f)
-        {
-            var maybe = AsOpt(ma);
-            return maybe.IsSome()
-                ? f(state, maybe.Value())
-                : state;
-        }
-
-        /// <summary>
-        /// Fold the bound value
-        /// </summary>
-        /// <typeparam name="S">Initial state type</typeparam>
-        /// <param name="ma">Monad to fold</param>
-        /// <param name="state">Initial state</param>
-        /// <param name="f">Fold operation</param>
-        /// <returns>Aggregated state</returns>
-        public S FoldBack<S>(Foldable<A> ma, S state, Func<S, A, S> f)
-        {
-            var maybe = AsOpt(ma);
-            return maybe.IsSome()
-                ? f(state, maybe.Value())
-                : state;
-        }
+        /// <param name="other">The Option type to compare this type with</param>
+        /// <returns>True if this and other are equal</returns>
+        public int CompareTo(Option<A> other) =>
+            compare<OrdDefault<A>, A>(this, other);
 
         /// <summary>
         /// Implicit conversion operator from A to Option<A>
@@ -270,6 +163,7 @@ namespace LanguageExt
         /// Get hash code
         /// </summary>
         /// <returns></returns>
+        [Pure]
         public override int GetHashCode() =>
             IsSome
                 ? Value.GetHashCode()
@@ -279,6 +173,7 @@ namespace LanguageExt
         /// Get a string representation of the Option
         /// </summary>
         /// <returns></returns>
+        [Pure]
         public override string ToString() =>
             IsSome
                 ? $"Some({Value})"
@@ -287,12 +182,14 @@ namespace LanguageExt
         /// <summary>
         /// Is the option in a Some state
         /// </summary>
+        [Pure]
         public bool IsSome =>
             (value ?? OptionV<A>.None).IsSome();
 
         /// <summary>
         /// Is the option in a None state
         /// </summary>
+        [Pure]
         public bool IsNone =>
             (value ?? OptionV<A>.None).IsNone();
 
@@ -357,12 +254,14 @@ namespace LanguageExt
         /// <param name="Some">Operation to perform if the option is in a Some state</param>
         /// <param name="None">Operation to perform if the option is in a None state</param>
         /// <returns>The result of the match operation</returns>
+        [Pure]
         public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
             this.Match(
                 Some: x => Some(x),
                 None: () => None()
             );
 
+        [Pure]
         public Type GetUnderlyingType() => 
             typeof(A);
 
@@ -371,6 +270,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="ma">Option</param>
         /// <returns>An enumerable of zero or one items</returns>
+        [Pure]
         public A[] ToArray() =>
             IsNone
                 ? new A[0]
@@ -381,6 +281,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="ma">Option</param>
         /// <returns>An immutable list of zero or one items</returns>
+        [Pure]
         public Lst<A> ToList() =>
             List(ToArray());
 
@@ -390,6 +291,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <param name="ma">Option</param>
         /// <returns>An enumerable sequence of zero or one items</returns>
+        [Pure]
         public IEnumerable<A> ToSeq() =>
             ToArray().AsEnumerable();
 
@@ -399,8 +301,64 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <param name="ma">Option</param>
         /// <returns>An enumerable of zero or one items</returns>
+        [Pure]
         public IEnumerable<A> AsEnumerable() =>
             ToArray().AsEnumerable();
+
+        /// <summary>
+        /// Convert the structure to an Either
+        /// </summary>
+        [Pure]
+        public Either<L, A> ToEither<L>(L defaultLeftValue) =>
+            IsSome
+                ? Right<L, A>(Value)
+                : Left<L, A>(defaultLeftValue);
+
+        /// <summary>
+        /// Convert the structure to an Either
+        /// </summary>
+        [Pure]
+        public Either<L, A> ToEither<L>(Func<L> Left) =>
+            IsSome
+                ? Right<L, A>(Value)
+                : Left<L, A>(Left());
+
+        /// <summary>
+        /// Convert the structure to an EitherUnsafe
+        /// </summary>
+        [Pure]
+        public EitherUnsafe<L, A> ToEitherUnsafe<L>(L defaultLeftValue) =>
+            IsSome
+                ? RightUnsafe<L, A>(Value)
+                : LeftUnsafe<L, A>(defaultLeftValue);
+
+        /// <summary>
+        /// Convert the structure to an EitherUnsafe
+        /// </summary>
+        [Pure]
+        public EitherUnsafe<L, A> ToEitherUnsafe<L>(Func<L> Left) =>
+            IsSome
+                ? RightUnsafe<L, A>(Value)
+                : LeftUnsafe<L, A>(Left());
+
+        /// <summary>
+        /// Convert the structure to a OptionUnsafe
+        /// </summary>
+        [Pure]
+        public OptionUnsafe<A> ToOptionUnsafe() =>
+            IsSome
+                ? SomeUnsafe(Value)
+                : OptionUnsafe<A>.None;
+
+        /// <summary>
+        /// Convert the structure to a TryOption
+        /// </summary>
+        [Pure]
+        public TryOption<A> ToTryOption<L>(L defaultLeftValue)
+        {
+            var self = this;
+            return () => self;
+        }
 
         /// <summary>
         /// Fluent pattern matching.  Provide a Some handler and then follow
@@ -546,46 +504,48 @@ namespace LanguageExt
             MatchUnsafe(identity, () => noneValue);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool IsSomeA(Optional<A> a) =>
-            ((Option<A>)a).IsSome;
+        public bool IsUnsafe(Optional<A> a) => default(MOption<A>).IsUnsafe(a);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool IsNoneA(Optional<A> a) =>
-            ((Option<A>)a).IsNone;
+        public bool IsSomeA(Optional<A> a) => default(MOption<A>).IsSomeA(a);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public B Match<B>(Optional<A> a, Func<A, B> Some, Func<B> None) =>
-            ((Option<A>)a).Match(Some, None);
+        public bool IsNoneA(Optional<A> a) => default(MOption<A>).IsNoneA(a);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public B MatchUnsafe<B>(Optional<A> a, Func<A, B> Some, Func<B> None) =>
-            ((Option<A>)a).MatchUnsafe(Some, None);
+        public B Match<B>(Optional<A> a, Func<A, B> Some, Func<B> None) => default(MOption<A>).Match(a,Some,None);
 
-        /// <summary>
-        /// True if the optional type allows nulls
-        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool IsUnsafe(Optional<A> a) => false;
+        public B MatchUnsafe<B>(Optional<A> a, Func<A, B> Some, Func<B> None) => default(MOption<A>).MatchUnsafe(a, Some, None);
 
-        public bool Equals(Option<A> other) =>
-            equals<EqDefault<A>, A>(this, other);
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public MonadPlus<A> Plus(MonadPlus<A> a, MonadPlus<A> b) => default(MOption<A>).Plus(a, b);
 
-        public int CompareTo(Option<A> other) =>
-            compare<OrdDefault<A>, A>(this, other);
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public MonadPlus<A> Zero(MonadPlus<A> a) => default(MOption<A>).Zero(a);
 
-        public MonadPlus<A> Plus(MonadPlus<A> a, MonadPlus<A> b)
-        {
-            var ma = AsOpt(a);
-            var mb = AsOpt(b);
-            if (ma.IsNone() && mb.IsNone()) return None; // 0 solutions + 0 solutions = 0 solutions
-            if (ma.IsSome() && mb.IsNone()) return a;    // 1 solutions + 0 solutions = 1 solutions
-            if (ma.IsNone() && mb.IsSome()) return b;    // 0 solutions + 1 solutions = 1 solutions
-            return a;                                    // 1 solutions + 1 solutions = 2 solutions
-                                                         // but Option can only have up to one solution,
-                                                         // so we disregard the second one.
-        }
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Monad<A> Return(A x, params A[] xs) => default(MOption<A>).Return(x, xs);
 
-        public MonadPlus<A> Zero(MonadPlus<A> a) =>
-            None;
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Monad<B> Bind<B>(Monad<A> ma, Func<A, Monad<B>> f) => default(MOption<A>).Bind(ma, f);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Monad<A> Fail(string _ = "") => default(MOption<A>).Fail(_);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Applicative<A> Pure(A x, params A[] xs) => default(MOption<A>).Pure(x, xs);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Applicative<B> Bind<B>(Applicative<A> ma, Func<A, Applicative<B>> f) => default(MOption<A>).Bind(ma, f);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Functor<B> Map<B>(Functor<A> fa, Func<A, B> f) => default(MOption<A>).Map(fa, f);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public S Fold<S>(Foldable<A> fa, S state, Func<S, A, S> f) => default(MOption<A>).Fold(fa, state, f);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public S FoldBack<S>(Foldable<A> fa, S state, Func<S, A, S> f) => default(MOption<A>).FoldBack(fa, state, f);
     }
 }

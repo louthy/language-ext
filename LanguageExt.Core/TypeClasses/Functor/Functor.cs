@@ -5,6 +5,7 @@ namespace LanguageExt.TypeClasses
     /// <summary>
     /// Functor type-class
     /// </summary>
+    [Typeclass]
     public interface Functor<A>
     {
         /// <summary>

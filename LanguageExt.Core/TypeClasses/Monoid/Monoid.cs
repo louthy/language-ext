@@ -10,6 +10,7 @@ namespace LanguageExt.TypeClasses
     /// </para>
     /// </summary>
     /// <typeparam name="A">The type being described as a monoid</typeparam>
+    [Typeclass]
     public interface Monoid<A> : Semigroup<A>
     {
         /// <summary>

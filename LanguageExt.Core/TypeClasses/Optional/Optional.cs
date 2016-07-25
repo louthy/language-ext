@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace LanguageExt.TypeClasses
 {
-    public interface Optional<A> : MonadPlus<A>
+    [Typeclass]
+    public interface Optional<A>
     {
         /// <summary>
         /// True if the optional type allows nulls

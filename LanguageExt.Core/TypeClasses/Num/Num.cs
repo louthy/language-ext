@@ -11,6 +11,7 @@ namespace LanguageExt.TypeClasses
     /// </summary>
     /// <typeparam name="A">The type for which the number operations are
     /// defined.</typeparam>
+    [Typeclass]
     public interface Num<A> : Addition<A>, Difference<A>, Product<A>, Divisible<A>
     {
         /// <summary>
@@ -60,6 +61,7 @@ namespace LanguageExt.TypeClasses
     /// Addition operation type-class
     /// </summary>
     /// <typeparam name="A">The type for which the operation is defined.</typeparam>
+    [Typeclass]
     public interface Addition<A>
     {
         /// <summary>
@@ -75,6 +77,7 @@ namespace LanguageExt.TypeClasses
     /// Difference operation type-class
     /// </summary>
     /// <typeparam name="A">The type for which the operation is defined.</typeparam>
+    [Typeclass]
     public interface Difference<A>
     {
         /// <summary>
@@ -90,6 +93,7 @@ namespace LanguageExt.TypeClasses
     /// Product operation type-class
     /// </summary>
     /// <typeparam name="A">The type for which the operation is defined.</typeparam>
+    [Typeclass]
     public interface Product<A>
     {
         /// <summary>
@@ -105,6 +109,7 @@ namespace LanguageExt.TypeClasses
     /// Division operation type-class
     /// </summary>
     /// <typeparam name="A">The type for which the operation is defined.</typeparam>
+    [Typeclass]
     public interface Divisible<A>
     {
         /// <summary>

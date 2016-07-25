@@ -30,17 +30,17 @@ public static class OptionUnsafeExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static OptionUnsafe<T> Mappend<SEMI, T>(this OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where SEMI : struct, Semigroup<T> =>
+    public static OptionUnsafe<A> Mappend<SEMI, A>(this OptionUnsafe<A> lhs, OptionUnsafe<A> rhs) where SEMI : struct, Semigroup<A> =>
         from x in lhs
         from y in rhs
-        select append<SEMI, T>(x, y);
+        select append<SEMI, A>(x, y);
 
     /// <summary>
     /// Extracts from a list of 'OptionUnsafe' all the 'Some' elements.
     /// All the 'Some' elements are extracted in order.
     /// </summary>
     [Pure]
-    public static IEnumerable<T> Somes<T>(this IEnumerable<OptionUnsafe<T>> self)
+    public static IEnumerable<A> Somes<A>(this IEnumerable<OptionUnsafe<A>> self)
     {
         foreach (var item in self)
         {
@@ -400,16 +400,16 @@ public static class OptionUnsafeExtensions
     public static OptionUnsafe<A> Where<A>(this OptionUnsafe<A> ma, Func<A, bool> pred) =>
         ma.Filter(pred);
 
-    public static OptionUnsafe<V> Join<T, U, K, V>(
-        this OptionUnsafe<T> ma,
-        OptionUnsafe<U> inner,
-        Func<T, K> outerKeyMap,
-        Func<U, K> innerKeyMap,
-        Func<T, U, V> project)
+    public static OptionUnsafe<D> Join<A, B, C, D>(
+        this OptionUnsafe<A> ma,
+        OptionUnsafe<B> inner,
+        Func<A, C> outerKeyMap,
+        Func<B, C> innerKeyMap,
+        Func<A, B, D> project)
     {
-        if (ma.IsNone) return OptionUnsafe<V>.None;
-        if (inner.IsNone) return OptionUnsafe<V>.None;
-        return EqualityComparer<K>.Default.Equals(outerKeyMap(ma.Value), innerKeyMap(inner.Value))
+        if (ma.IsNone) return OptionUnsafe<D>.None;
+        if (inner.IsNone) return OptionUnsafe<D>.None;
+        return EqualityComparer<C>.Default.Equals(outerKeyMap(ma.Value), innerKeyMap(inner.Value))
             ? SomeUnsafe(project(ma.Value, inner.Value))
             : None;
     }
@@ -419,7 +419,7 @@ public static class OptionUnsafeExtensions
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
-    public static OptionUnsafe<Func<T2, R>> ParMap<T1, T2, R>(this OptionUnsafe<T1> opt, Func<T1, T2, R> func) =>
+    public static OptionUnsafe<Func<B, C>> ParMap<A, B, C>(this OptionUnsafe<A> opt, Func<A, B, C> func) =>
         opt.Map(curry(func));
 
     /// <summary>
@@ -427,15 +427,15 @@ public static class OptionUnsafeExtensions
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
     [Pure]
-    public static OptionUnsafe<Func<T2, Func<T3, R>>> ParMap<T1, T2, T3, R>(this OptionUnsafe<T1> opt, Func<T1, T2, T3, R> func) =>
+    public static OptionUnsafe<Func<B, Func<C, D>>> ParMap<A, B, C, D>(this OptionUnsafe<A> opt, Func<A, B, C, D> func) =>
         opt.Map(curry(func));
 
-    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this OptionUnsafe<T> self, Func<T, Task<R>> map) =>
+    public static async Task<OptionUnsafe<B>> MapAsync<A, B>(this OptionUnsafe<A> self, Func<A, Task<B>> map) =>
         self.IsSome
             ? SomeUnsafe(await map(self.Value))
             : None;
 
-    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this Task<OptionUnsafe<T>> self, Func<T, Task<R>> map)
+    public static async Task<OptionUnsafe<B>> MapAsync<A, B>(this Task<OptionUnsafe<A>> self, Func<A, Task<B>> map)
     {
         var val = await self;
         return val.IsSome
@@ -443,7 +443,7 @@ public static class OptionUnsafeExtensions
             : None;
     }
 
-    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this Task<OptionUnsafe<T>> self, Func<T, R> map)
+    public static async Task<OptionUnsafe<B>> MapAsync<A, B>(this Task<OptionUnsafe<A>> self, Func<A, B> map)
     {
         var val = await self;
         return val.IsSome
@@ -451,23 +451,23 @@ public static class OptionUnsafeExtensions
             : None;
     }
 
-    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this OptionUnsafe<Task<T>> self, Func<T, R> map) =>
+    public static async Task<OptionUnsafe<B>> MapAsync<A, B>(this OptionUnsafe<Task<A>> self, Func<A, B> map) =>
         self.IsSome
             ? SomeUnsafe(map(await self.Value))
             : None;
 
-    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this OptionUnsafe<Task<T>> self, Func<T, Task<R>> map) =>
+    public static async Task<OptionUnsafe<B>> MapAsync<A, B>(this OptionUnsafe<Task<A>> self, Func<A, Task<B>> map) =>
         self.IsSome
             ? SomeUnsafe(await map(await self.Value))
             : None;
 
 
-    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this OptionUnsafe<T> self, Func<T, Task<OptionUnsafe<R>>> bind) =>
+    public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this OptionUnsafe<A> self, Func<A, Task<OptionUnsafe<B>>> bind) =>
         self.IsSome
             ? await bind(self.Value)
             : None;
 
-    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this Task<OptionUnsafe<T>> self, Func<T, Task<OptionUnsafe<R>>> bind)
+    public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this Task<OptionUnsafe<A>> self, Func<A, Task<OptionUnsafe<B>>> bind)
     {
         var val = await self;
         return val.IsSome
@@ -475,60 +475,60 @@ public static class OptionUnsafeExtensions
             : None;
     }
 
-    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this Task<OptionUnsafe<T>> self, Func<T, OptionUnsafe<R>> bind)
+    public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this Task<OptionUnsafe<A>> self, Func<A, OptionUnsafe<B>> bind)
     {
         var val = await self;
         return val.IsSome
             ? bind(val.Value)
-            : OptionUnsafe<R>.None;
+            : OptionUnsafe<B>.None;
     }
 
-    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this OptionUnsafe<Task<T>> self, Func<T, OptionUnsafe<R>> bind) =>
+    public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this OptionUnsafe<Task<A>> self, Func<A, OptionUnsafe<B>> bind) =>
         self.IsSome
             ? bind(await self.Value)
-            : OptionUnsafe<R>.None;
+            : OptionUnsafe<B>.None;
 
-    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this OptionUnsafe<Task<T>> self, Func<T, Task<OptionUnsafe<R>>> bind) =>
+    public static async Task<OptionUnsafe<B>> BindAsync<A, B>(this OptionUnsafe<Task<A>> self, Func<A, Task<OptionUnsafe<B>>> bind) =>
         self.IsSome
             ? await bind(await self.Value)
-            : OptionUnsafe<R>.None;
+            : OptionUnsafe<B>.None;
 
-    public static async Task<Unit> IterAsync<T>(this Task<OptionUnsafe<T>> self, Action<T> action)
+    public static async Task<Unit> IterAsync<A>(this Task<OptionUnsafe<A>> self, Action<A> action)
     {
         var val = await self;
         if (val.IsSome) action(val.Value);
         return unit;
     }
 
-    public static async Task<Unit> IterAsync<T>(this OptionUnsafe<Task<T>> self, Action<T> action)
+    public static async Task<Unit> IterAsync<A>(this OptionUnsafe<Task<A>> self, Action<A> action)
     {
         if (self.IsSome) action(await self.Value);
         return unit;
     }
 
-    public static async Task<int> CountAsync<T>(this Task<OptionUnsafe<T>> self) =>
+    public static async Task<int> CountAsync<A>(this Task<OptionUnsafe<A>> self) =>
         (await self).Count();
 
-    public static async Task<S> FoldAsync<T, S>(this Task<OptionUnsafe<T>> self, S state, Func<S, T, S> folder) =>
+    public static async Task<S> FoldAsync<A, S>(this Task<OptionUnsafe<A>> self, S state, Func<S, A, S> folder) =>
         (await self).Fold(state, folder);
 
-    public static async Task<S> FoldAsync<T, S>(this OptionUnsafe<Task<T>> self, S state, Func<S, T, S> folder) =>
+    public static async Task<S> FoldAsync<A, S>(this OptionUnsafe<Task<A>> self, S state, Func<S, A, S> folder) =>
         self.IsSome
             ? folder(state, await self.Value)
             : state;
 
-    public static async Task<bool> ForAllAsync<T>(this Task<OptionUnsafe<T>> self, Func<T, bool> pred) =>
+    public static async Task<bool> ForAllAsync<A>(this Task<OptionUnsafe<A>> self, Func<A, bool> pred) =>
         (await self).ForAll(pred);
 
-    public static async Task<bool> ForAllAsync<T>(this OptionUnsafe<Task<T>> self, Func<T, bool> pred) =>
+    public static async Task<bool> ForAllAsync<A>(this OptionUnsafe<Task<A>> self, Func<A, bool> pred) =>
         self.IsSome
             ? pred(await self.Value)
             : true;
 
-    public static async Task<bool> ExistsAsync<T>(this Task<OptionUnsafe<T>> self, Func<T, bool> pred) =>
+    public static async Task<bool> ExistsAsync<A>(this Task<OptionUnsafe<A>> self, Func<A, bool> pred) =>
         (await self).Exists(pred);
 
-    public static async Task<bool> ExistsAsync<T>(this OptionUnsafe<Task<T>> self, Func<T, bool> pred) =>
+    public static async Task<bool> ExistsAsync<A>(this OptionUnsafe<Task<A>> self, Func<A, bool> pred) =>
         self.IsSome
             ? pred(await self.Value)
             : false;
@@ -538,12 +538,12 @@ public static class OptionUnsafeExtensions
     /// </summary>
     [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static IEnumerable<V> SelectMany<T, U, V>(this OptionUnsafe<T> self,
-        Func<T, IEnumerable<U>> bind,
-        Func<T, U, V> project
+    public static IEnumerable<C> SelectMany<A, B, C>(this OptionUnsafe<A> self,
+        Func<A, IEnumerable<B>> bind,
+        Func<A, B, C> project
         )
     {
-        if (self.IsNone) return new V[0];
+        if (self.IsNone) return new C[0];
         var v = self.Value;
         return bind(v).Map(resU => project(v, resU));
     }
@@ -553,9 +553,9 @@ public static class OptionUnsafeExtensions
     /// </summary>
     [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static IEnumerable<OptionUnsafe<V>> SelectMany<T, U, V>(this IEnumerable<T> self,
-        Func<T, OptionUnsafe<U>> bind,
-        Func<T, U, V> project
+    public static IEnumerable<OptionUnsafe<C>> SelectMany<A, B, C>(this IEnumerable<A> self,
+        Func<A, OptionUnsafe<B>> bind,
+        Func<A, B, C> project
         )
     {
         foreach(var a in self)

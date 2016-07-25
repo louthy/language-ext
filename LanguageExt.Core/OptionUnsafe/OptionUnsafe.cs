@@ -26,6 +26,7 @@ namespace LanguageExt
 #endif
     public struct OptionUnsafe<A> : 
         Optional<A>, 
+        MonadPlus<A>,
         IOptional,
         IEquatable<OptionUnsafe<A>>,
         IComparable<OptionUnsafe<A>>
@@ -265,7 +266,7 @@ namespace LanguageExt
         [Pure]
         public OptionUnsafe<B> Select<B>(Func<A, B> f)
         {
-            if (Prelude.isnull(f) || IsNone) return OptionUnsafe<B>.None;
+            if (isnull(f) || IsNone) return OptionUnsafe<B>.None;
             return f(Value);
         }
 
@@ -275,7 +276,7 @@ namespace LanguageExt
         [Pure]
         public OptionUnsafe<B> Map<B>(Func<A, B> f)
         {
-            if (Prelude.isnull(f) || IsNone) return OptionUnsafe<B>.None;
+            if (isnull(f) || IsNone) return OptionUnsafe<B>.None;
             return f(Value);
         }
 
@@ -285,7 +286,7 @@ namespace LanguageExt
         [Pure]
         public OptionUnsafe<B> Bind<B>(Func<A, OptionUnsafe<B>> f)
         {
-            if (Prelude.isnull(f) || IsNone) return OptionUnsafe<B>.None;
+            if (isnull(f) || IsNone) return OptionUnsafe<B>.None;
             return f(Value);
         }
 
@@ -298,7 +299,7 @@ namespace LanguageExt
             Func<A, B, C> project
             )
         {
-            if (Prelude.isnull(bind) || Prelude.isnull(project) || IsNone) return OptionUnsafe<C>.None;
+            if (isnull(bind) || isnull(project) || IsNone) return OptionUnsafe<C>.None;
             var mb = bind(Value);
             if (mb.IsNone) return OptionUnsafe<C>.None;
             return project(Value, mb.Value);
@@ -318,6 +319,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="ma">Option</param>
         /// <returns>An enumerable of zero or one items</returns>
+        [Pure]
         public A[] ToArray() =>
             IsNone
                 ? new A[0]
@@ -328,6 +330,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="ma">Option</param>
         /// <returns>An immutable list of zero or one items</returns>
+        [Pure]
         public Lst<A> ToList() =>
             List(ToArray());
 
@@ -337,6 +340,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <param name="ma">Option</param>
         /// <returns>An enumerable sequence of zero or one items</returns>
+        [Pure]
         public IEnumerable<A> ToSeq() =>
             ToArray().AsEnumerable();
 
@@ -346,8 +350,64 @@ namespace LanguageExt
         /// <typeparam name="A">Bound value type</typeparam>
         /// <param name="ma">Option</param>
         /// <returns>An enumerable of zero or one items</returns>
+        [Pure]
         public IEnumerable<A> AsEnumerable() =>
             ToArray().AsEnumerable();
+
+        /// <summary>
+        /// Convert the structure to an Either
+        /// </summary>
+        [Pure]
+        public Either<L, A> ToEither<L>(L defaultLeftValue) =>
+            IsSome
+                ? Right<L, A>(Value)
+                : Left<L, A>(defaultLeftValue);
+
+        /// <summary>
+        /// Convert the structure to an Either
+        /// </summary>
+        [Pure]
+        public Either<L, A> ToEither<L>(Func<L> Left) =>
+            IsSome
+                ? Right<L, A>(Value)
+                : Left<L, A>(Left());
+
+        /// <summary>
+        /// Convert the structure to an EitherUnsafe
+        /// </summary>
+        [Pure]
+        public EitherUnsafe<L, A> ToEitherUnsafe<L>(L defaultLeftValue) =>
+            IsSome
+                ? RightUnsafe<L, A>(Value)
+                : LeftUnsafe<L, A>(defaultLeftValue);
+
+        /// <summary>
+        /// Convert the structure to an EitherUnsafe
+        /// </summary>
+        [Pure]
+        public EitherUnsafe<L, A> ToEitherUnsafe<L>(Func<L> Left) =>
+            IsSome
+                ? RightUnsafe<L, A>(Value)
+                : LeftUnsafe<L, A>(Left());
+
+        /// <summary>
+        /// Convert the structure to a OptionUnsafe
+        /// </summary>
+        [Pure]
+        public Option<A> ToOption() =>
+            IsSome && !isnull(Value)
+                ? Option<A>.Some(Value)
+                : Option<A>.None;
+
+        /// <summary>
+        /// Convert the structure to a TryOption
+        /// </summary>
+        [Pure]
+        public TryOption<A> ToTryOption<L>(L defaultLeftValue)
+        {
+            var self = this;
+            return () => self.ToOption();
+        }
 
         /// <summary>
         /// Fluent pattern matching.  Provide a Some handler and then follow

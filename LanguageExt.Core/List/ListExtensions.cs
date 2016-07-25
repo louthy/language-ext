@@ -13,9 +13,9 @@ public static class ListExtensions
     /// List pattern matching
     /// </summary>
     [Pure]
-    public static R Match<T, R>(this IEnumerable<T> list,
-        Func<R> Empty,
-        Func<T, IEnumerable<T>, R> More
+    public static B Match<A, B>(this IEnumerable<A> list,
+        Func<B> Empty,
+        Func<A, IEnumerable<A>, B> More
         )
     {
         if (list == null)
@@ -374,11 +374,11 @@ public static class ListExtensions
     /// <summary>
     /// Reverses the list (Reverse in LINQ)
     /// </summary>
-    /// <typeparam name="T">List item type</typeparam>
+    /// <typeparam name="A">List item type</typeparam>
     /// <param name="list">Listto reverse</param>
     /// <returns>Reversed list</returns>
     [Pure]
-    public static Lst<T> Rev<T>(this Lst<T> list) =>
+    public static Lst<A> Rev<A>(this Lst<A> list) =>
         LanguageExt.List.rev(list);
 
     /// <summary>
@@ -797,14 +797,14 @@ public static class ListExtensions
     /// LINQ Select implementation for Lst
     /// </summary>
     [Pure]
-    public static Lst<U> Select<T, U>(this Lst<T> self, Func<T, U> map) =>
-        new Lst<U>(self.AsEnumerable().Select(map));
+    public static Lst<B> Select<A, B>(this Lst<A> self, Func<A, B> map) =>
+        new Lst<B>(self.AsEnumerable().Select(map));
 
     /// <summary>
     /// Monadic bind function for Lst that returns an IEnumerable
     /// </summary>
     [Pure]
-    public static IEnumerable<R> BindEnumerable<T, R>(this Lst<T> self, Func<T, Lst<R>> binder)
+    public static IEnumerable<B> BindEnumerable<A, B>(this Lst<A> self, Func<A, Lst<B>> binder)
     {
         foreach (var t in self)
         {
@@ -819,34 +819,34 @@ public static class ListExtensions
     /// Monadic bind function
     /// </summary>
     [Pure]
-    public static Lst<R> Bind<T, R>(this Lst<T> self, Func<T, Lst<R>> binder) =>
-        new Lst<R>(self.BindEnumerable(binder));
+    public static Lst<B> Bind<A, B>(this Lst<A> self, Func<A, Lst<B>> binder) =>
+        new Lst<B>(self.BindEnumerable(binder));
 
     /// <summary>
     /// Returns the number of items in the Lst T
     /// </summary>
-    /// <typeparam name="T">Item type</typeparam>
+    /// <typeparam name="A">Item type</typeparam>
     /// <param name="list">List to count</param>
     /// <returns>The number of items in the list</returns>
     [Pure]
-    public static int Count<T>(this Lst<T> self) =>
+    public static int Count<A>(this Lst<A> self) =>
         self.Count;
 
     /// <summary>
     /// LINQ bind implementation for Lst
     /// </summary>
     [Pure]
-    public static Lst<V> SelectMany<T, U, V>(this Lst<T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) =>
+    public static Lst<C> SelectMany<A, B, C>(this Lst<A> self, Func<A, Lst<B>> bind, Func<A, B, C> project) =>
         self.Bind(t => bind(t).Map(u => project(t, u)));
 
     [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Lst<V> SelectMany<T, U, V>(this Lst<T> self,
-        Func<T, IEnumerable<U>> bind,
-        Func<T, U, V> project
+    public static Lst<C> SelectMany<A, B, C>(this Lst<A> self,
+        Func<A, IEnumerable<B>> bind,
+        Func<A, B, C> project
         )
     {
-        if (self.Count == 0) return Lst<V>.Empty;
+        if (self.Count == 0) return Lst<C>.Empty;
         return self.Bind(t => bind(t).Map(u => project(t, u))).Freeze();
     }
 

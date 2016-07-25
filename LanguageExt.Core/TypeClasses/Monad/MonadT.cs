@@ -6,6 +6,7 @@ namespace LanguageExt.TypeClasses
     /// Monad type-class
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
+    [Typeclass]
     public interface MonadT<MA, A> : FunctorT<MA, A>, FoldableT<MA, A> where MA : Monad<A>, Foldable<A>
     {
         /// <summary>

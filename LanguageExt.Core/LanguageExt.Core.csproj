@@ -59,6 +59,7 @@
       <DependentUpon>HKT.tt</DependentUpon>
     </Compile>
     <Compile Include="Identity.cs" />
+    <Compile Include="Instances\MOption.cs" />
     <Compile Include="Instances\OrdDefault.cs" />
     <Compile Include="Instances\EqOpt.cs" />
     <Compile Include="Instances\EqQueue.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="Map\MapExtensions.cs" />
     <Compile Include="OptionUnsafe\OptionUnsafe.cs" />
     <Compile Include="OptionUnsafe\OptionUnsafeExtensions.cs" />
+    <Compile Include="TypeclassAttribute.cs" />
     <Compile Include="Option\OptionT.cs" />
     <Compile Include="Seq\SeqM.cs" />
     <Compile Include="NewType.cs" />
@@ -128,7 +130,6 @@
     <Compile Include="Query.cs" />
     <Compile Include="Prelude_Try.cs" />
     <Compile Include="Map\MapModule.cs" />
-    <Compile Include="OptionUnsafe.cs" />
     <Compile Include="Prelude_Collections.cs" />
     <Compile Include="Prelude_Either.cs" />
     <Compile Include="Prelude_EitherUnsafe.cs" />
@@ -148,7 +149,6 @@
     <Compile Include="List\ListModule.cs" />
     <Compile Include="NullableExt.cs" />
     <Compile Include="Either.cs" />
-    <Compile Include="Option.cs" />
     <Compile Include="Prelude_Parse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Stack.cs" />
@@ -241,6 +241,7 @@
       <LastGenOutput>HKT.cs</LastGenOutput>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

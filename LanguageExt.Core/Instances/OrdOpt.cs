@@ -17,16 +17,7 @@ namespace LanguageExt.Instances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         public bool Equals(Optional<A> x, Optional<A> y) =>
-            x.IsNoneA(x) && y.IsNoneA(y)
-                ? true
-                : x.IsNoneA(x) || y.IsNoneA(y)
-                    ? false
-                    : x.Match(x,
-                        Some: a =>
-                            y.Match(y,
-                                Some: b => @equals<ORD, A>(a, b),
-                                None: () => false),
-                        None: () => false);
+            default(EqOpt<ORD, A>).Equals(x, y);
 
         /// <summary>
         /// Compare two values

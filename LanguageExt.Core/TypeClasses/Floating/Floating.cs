@@ -4,6 +4,7 @@
     /// Floating point number type-class
     /// </summary>
     /// <typeparam name="A">The floating point value type</typeparam>
+    [Typeclass]
     public interface Floating<A> : Fraction<A>
     {
         /// <summary>

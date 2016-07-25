@@ -5,6 +5,7 @@
     /// </summary>
     /// <typeparam name="A">The type for which fractional 
     /// operations are being defined.</typeparam>
+    [Typeclass]
     public interface Fraction<A> : Num<A>
     {
         /// <summary>

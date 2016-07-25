@@ -6,6 +6,7 @@
     /// <typeparam name="A">
     /// The type for which equality is defined
     /// </typeparam>
+    [Typeclass]
     public interface Eq<A>
     {
         /// <summary>

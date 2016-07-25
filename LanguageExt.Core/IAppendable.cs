@@ -13,14 +13,14 @@ namespace LanguageExt
     /// <summary>
     /// Provides the Append method
     /// </summary>
-    /// <typeparam name="T">T</typeparam>
-    public interface IAppendable<T> : IAppendable
+    /// <typeparam name="A">T</typeparam>
+    public interface IAppendable<A> : IAppendable
     {
         /// <summary>
         /// Append rhs to this
         /// </summary>
         /// <param name="rhs">Right hand side to append</param>
         /// <returns>this with rhs appended</returns>
-        T Append(T rhs);
+        A Append(A rhs);
     }
 }

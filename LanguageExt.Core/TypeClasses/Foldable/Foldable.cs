@@ -2,6 +2,7 @@
 
 namespace LanguageExt.TypeClasses
 {
+    [Typeclass]
     public interface Foldable<A>
     {
         /// <summary>

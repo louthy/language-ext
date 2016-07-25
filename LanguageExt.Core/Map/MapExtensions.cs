@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
-using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
@@ -289,19 +288,19 @@ namespace LanguageExt
         // 
 
         [Pure]
-        public static Option<T> Find<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey) =>
+        public static Option<C> Find<A, B, C>(this Map<A, Map<B, C>> self, A outerKey, B innerKey) =>
             self.Find(outerKey, b => b.Find(innerKey), () => None);
 
         [Pure]
-        public static Option<T> Find<A, B, C, T>(this Map<A, Map<B, Map<C, T>>> self, A aKey, B bKey, C cKey) =>
+        public static Option<D> Find<A, B, C, D>(this Map<A, Map<B, Map<C, D>>> self, A aKey, B bKey, C cKey) =>
             self.Find(aKey, b => b.Find(bKey, c => c.Find(cKey), () => None), () => None);
 
         [Pure]
-        public static R Find<A, B, T, R>(this Map<A, Map<B, T>> self, A outerKey, B innerKey, Func<T, R> Some, Func<R> None) =>
+        public static D Find<A, B, C, D>(this Map<A, Map<B, C>> self, A outerKey, B innerKey, Func<C, D> Some, Func<D> None) =>
             self.Find(outerKey, b => b.Find(innerKey, Some, None), None);
 
         [Pure]
-        public static R Find<A, B, C, T, R>(this Map<A, Map<B, Map<C, T>>> self, A aKey, B bKey, C cKey, Func<T, R> Some, Func<R> None) =>
+        public static E Find<A, B, C, D, E>(this Map<A, Map<B, Map<C, D>>> self, A aKey, B bKey, C cKey, Func<D, E> Some, Func<E> None) =>
             self.Find(aKey,
                 b => b.Find(bKey,
                     c => c.Find(cKey, Some, None),
@@ -309,7 +308,7 @@ namespace LanguageExt
                 None);
 
         [Pure]
-        public static R Find<A, B, C, D, T, R>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, A aKey, B bKey, C cKey, D dKey, Func<T, R> Some, Func<R> None) =>
+        public static F Find<A, B, C, D, E, F>(this Map<A, Map<B, Map<C, Map<D, E>>>> self, A aKey, B bKey, C cKey, D dKey, Func<E, F> Some, Func<F> None) =>
             self.Find(aKey,
                 b => b.Find(bKey,
                     c => c.Find(cKey,
@@ -319,7 +318,7 @@ namespace LanguageExt
                 None);
 
         [Pure]
-        public static Map<A, Map<B, T>> AddOrUpdate<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey, Func<T, T> Some, Func<T> None) =>
+        public static Map<A, Map<B, C>> AddOrUpdate<A, B, C>(this Map<A, Map<B, C>> self, A outerKey, B innerKey, Func<C, C> Some, Func<C> None) =>
             self.AddOrUpdate(
                 outerKey,
                 b => b.AddOrUpdate(innerKey, Some, None),
@@ -327,7 +326,7 @@ namespace LanguageExt
             );
 
         [Pure]
-        public static Map<A, Map<B, T>> AddOrUpdate<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey, T value) =>
+        public static Map<A, Map<B, C>> AddOrUpdate<A, B, C>(this Map<A, Map<B, C>> self, A outerKey, B innerKey, C value) =>
             self.AddOrUpdate(
                 outerKey,
                 b => b.AddOrUpdate(innerKey, _ => value, value),
@@ -335,7 +334,7 @@ namespace LanguageExt
             );
 
         [Pure]
-        public static Map<A, Map<B, Map<C, T>>> AddOrUpdate<A, B, C, T>(this Map<A, Map<B, Map<C, T>>> self, A aKey, B bKey, C cKey, T value) =>
+        public static Map<A, Map<B, Map<C, D>>> AddOrUpdate<A, B, C, D>(this Map<A, Map<B, Map<C, D>>> self, A aKey, B bKey, C cKey, D value) =>
             self.AddOrUpdate(
                 aKey,
                 bKey,
@@ -344,7 +343,7 @@ namespace LanguageExt
             );
 
         [Pure]
-        public static Map<A, Map<B, Map<C, T>>> AddOrUpdate<A, B, C, T>(this Map<A, Map<B, Map<C, T>>> self, A aKey, B bKey, C cKey, Func<T, T> Some, Func<T> None) =>
+        public static Map<A, Map<B, Map<C, D>>> AddOrUpdate<A, B, C, D>(this Map<A, Map<B, Map<C, D>>> self, A aKey, B bKey, C cKey, Func<D, D> Some, Func<D> None) =>
             self.AddOrUpdate(
                 aKey,
                 bKey,
@@ -353,7 +352,7 @@ namespace LanguageExt
             );
 
         [Pure]
-        public static Map<A, Map<B, Map<C, Map<D, T>>>> AddOrUpdate<A, B, C, D, T>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, A aKey, B bKey, C cKey, D dKey, T value) =>
+        public static Map<A, Map<B, Map<C, Map<D, E>>>> AddOrUpdate<A, B, C, D, E>(this Map<A, Map<B, Map<C, Map<D, E>>>> self, A aKey, B bKey, C cKey, D dKey, E value) =>
             self.AddOrUpdate(
                 aKey,
                 bKey,
@@ -363,7 +362,7 @@ namespace LanguageExt
             );
 
         [Pure]
-        public static Map<A, Map<B, Map<C, Map<D, T>>>> AddOrUpdate<A, B, C, D, T>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, A aKey, B bKey, C cKey, D dKey, Func<T, T> Some, Func<T> None) =>
+        public static Map<A, Map<B, Map<C, Map<D, E>>>> AddOrUpdate<A, B, C, D, E>(this Map<A, Map<B, Map<C, Map<D, E>>>> self, A aKey, B bKey, C cKey, D dKey, Func<E, E> Some, Func<E> None) =>
             self.AddOrUpdate(
                 aKey,
                 bKey,
@@ -373,7 +372,7 @@ namespace LanguageExt
             );
 
         [Pure]
-        public static Map<A, Map<B, T>> Remove<A, B, T>(this Map<A, Map<B, T>> self, A outerKey, B innerKey)
+        public static Map<A, Map<B, C>> Remove<A, B, C>(this Map<A, Map<B, C>> self, A outerKey, B innerKey)
         {
             var b = self.Find(outerKey);
             if (b.IsSome)
@@ -395,7 +394,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static Map<A, Map<B, Map<C, T>>> Remove<A, B, C, T>(this Map<A, Map<B, Map<C, T>>> self, A aKey, B bKey, C cKey)
+        public static Map<A, Map<B, Map<C, D>>> Remove<A, B, C, D>(this Map<A, Map<B, Map<C, D>>> self, A aKey, B bKey, C cKey)
         {
             var b = self.Find(aKey);
             if (b.IsSome)
@@ -433,7 +432,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static Map<A, Map<B, Map<C, Map<D, T>>>> Remove<A, B, C, D, T>(this Map<A, Map<B, Map<C, Map<D, T>>>> self, A aKey, B bKey, C cKey, D dKey)
+        public static Map<A, Map<B, Map<C, Map<D, E>>>> Remove<A, B, C, D, E>(this Map<A, Map<B, Map<C, Map<D, E>>>> self, A aKey, B bKey, C cKey, D dKey)
         {
             var res = self.Find(aKey, bKey, cKey);
 
