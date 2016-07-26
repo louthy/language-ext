@@ -59,6 +59,9 @@
       <DependentUpon>HKT.tt</DependentUpon>
     </Compile>
     <Compile Include="Identity.cs" />
+    <Compile Include="Instances\Any.cs" />
+    <Compile Include="Instances\All.cs" />
+    <Compile Include="Instances\MinMax.cs" />
     <Compile Include="Instances\MOption.cs" />
     <Compile Include="Instances\OrdDefault.cs" />
     <Compile Include="Instances\EqOpt.cs" />
@@ -73,6 +76,8 @@
     <Compile Include="Instances\EqLong.cs" />
     <Compile Include="Instances\EqShort.cs" />
     <Compile Include="Instances\EqInt.cs" />
+    <Compile Include="Instances\Product.cs" />
+    <Compile Include="Instances\Sum.cs" />
     <Compile Include="IOptional.cs" />
     <Compile Include="List\ListExtensions.cs" />
     <Compile Include="List\Lst.cs" />
@@ -89,7 +94,6 @@
     <Compile Include="HMap\HMapInternal.cs" />
     <Compile Include="HMap\HMap.cs" />
     <Compile Include="HSet\HSet_Prelude.cs" />
-    <Compile Include="Lift.cs" />
     <Compile Include="NewType.cs" />
     <Compile Include="Option-Shared\None.cs" />
     <Compile Include="Option-Shared\OptionV.cs" />
