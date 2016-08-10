@@ -475,9 +475,9 @@ So what's the best plan of attack to mitigate this?
 
 There's no silver bullet here unfortunately.
 
-* [Some reference](https://louthy.github.io/languageext.core/LanguageExt/Some_T.htm)
-
 _NOTE: Since writing this library I have come to the opinion that `Some<T>` isn't that useful.  It's much better to protect 'everything else' using `Option<T>` and immutable data structures.  It doesn't fix the argument null checks unfortunately.  But perhaps using a contracts library would be better._
+
+* [Some reference](https://louthy.github.io/languageext.core/LanguageExt/Some_T.htm)
 
 ## Lack of lambda and expression inference 
 
@@ -693,8 +693,6 @@ The two recursive examples above for calculating the sum and product of a sequen
 ```
 `reduce` is `fold` but instead of providing an initial state value, it uses the first item in the sequence.  Therefore you don't get an initial multiply by zero (unless the first item is zero!).  Internally `fold`, `foldBack` and `reduce` use an iterative loop rather than a recursive one; so no stack blowing problems!
 
-__Reference__
-
 * [List module reference](https://louthy.github.io/languageext.core/LanguageExt/List_.htm)
 * [Enumerable extensions reference](https://louthy.github.io/languageext.core/LanguageExt/EnumerableExtensions_.htm)
 * [`Lst<T>` immutable list type reference](https://louthy.github.io/languageext.core/LanguageExt/Lst_T.htm)
@@ -758,34 +756,9 @@ By holding onto a reference to the `Map` before and after calling `add` you esse
 
 So only store immutable items in a `Map`, or leave them alone if they're mutable.
 
-`map` functions (`using static LanguageExt.Map`):
-* `add`
-* `addOrUpdate`
-* `addOrUpdateRange`
-* `addRange`
-* `choose`
-* `clear`
-* `contains`
-* `containsKey`
-* `create`
-* `createRange`
-* `empty`
-* `exists`
-* `filter`
-* `find`
-* `findRange`
-* `fold`
-* `forall`
-* `iter`
-* `length`
-* `map`
-* `remove`
-* `setItem`
-* `setItems`
-* `skip`
-* `tryAdd`
-* `tryAddRange`
-* `trySetItem`
+* [Map module reference](https://louthy.github.io/languageext.core/LanguageExt/Map_.htm)
+* [Map extensions reference](https://louthy.github.io/languageext.core/LanguageExt/MapExtensions_.htm)
+* [`Map<K, V>` immutable type reference](https://louthy.github.io/languageext.core/LanguageExt/Map_K_V.htm)
 
 ### Map transformers
 
