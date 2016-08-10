@@ -80,9 +80,9 @@ There is also:
 * [`LanguageExt.Process`](https://louthy.github.io/LanguageExt.Process/LanguageExt/Process_.htm)
 * [`LanguageExt.Parsec`](https://louthy.github.io/LanguageExt.Parsec/LanguageExt.Parsec/index.htm)
 * [`LanguageExt.Parsec.Char`](https://louthy.github.io/LanguageExt.Parsec/LanguageExt.Parsec/Char_.htm)
-* [`LanguageExt.Parsec.Expr`](https://louthy.github.io/LanguageExt.Parsec/LanguageExt.Parsec/Expr_.htm)
+* `LanguageExt.Parsec.Expr`
 * [`LanguageExt.Parsec.Prim`](https://louthy.github.io/LanguageExt.Parsec/LanguageExt.Parsec/Prim_.htm)
-* [`LanguageExt.Parsec.Token`](https://louthy.github.io/LanguageExt.Parsec/LanguageExt.Parsec/Token_.htm)
+* `LanguageExt.Parsec.Token`
 * [`LanguageExt.Parsec.Indent`](https://louthy.github.io/LanguageExt.Parsec/LanguageExt.Parsec/Indent_.htm)
 * `LanguageExt.UnitsOfMeasure`
 
