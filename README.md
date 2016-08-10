@@ -104,7 +104,7 @@ Location | Feature | Description
 `Core` | `OptionUnsafe<T>` | [Option monad](https://louthy.github.io/languageext.core/LanguageExt/OptionUnsafe_T.htm) that can be used with `null` values
 `Core` | `Either<L,R>` | [Right/Left choice monad](https://louthy.github.io/languageext.core/LanguageExt/Either_L_R.htm) that won't accept `null` values
 `Core` | `EitherUnsafe<L,R>` | [Right/Left choice monad](https://louthy.github.io/languageext.core/LanguageExt/EitherUnsafe_L_R.htm) that can be used with `null` values
-`Core` | `Try<T>` | [https://louthy.github.io/languageext.core/LanguageExt/index.htm#Try_T)
+`Core` | `Try<T>` | [Exception handling lazy monad](https://louthy.github.io/languageext.core/LanguageExt/index.htm#Try_T)
 `Core` | `TryOption<T>` | [Option monad with third state](https://louthy.github.io/languageext.core/LanguageExt/index.htm#TryOption_T) 'Fail' that catches exceptions
 `Core` | `Reader<E,T>` | [Reader monad](https://louthy.github.io/languageext.core/LanguageExt/index.htm#Reader_Env_T)
 `Core` | `Writer<O,T>` | [Writer monad](https://louthy.github.io/languageext.core/LanguageExt/index.htm#Writer_Out_T)
