@@ -475,6 +475,8 @@ So what's the best plan of attack to mitigate this?
 
 There's no silver bullet here unfortunately.
 
+* [Some reference](https://louthy.github.io/languageext.core/LanguageExt/Some_T.htm)
+
 _NOTE: Since writing this library I have come to the opinion that `Some<T>` isn't that useful.  It's much better to protect 'everything else' using `Option<T>` and immutable data structures.  It doesn't fix the argument null checks unfortunately.  But perhaps using a contracts library would be better._
 
 ## Lack of lambda and expression inference 
@@ -509,6 +511,10 @@ Note, if you're creating a `Func` or `Action` that take parameters, you must pro
     var add = fun( (int x, int y) => x + y );
 ```
 
+* [`fun` reference](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#fun)
+* [`act` reference](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#act)
+* [`expr` reference](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#expr)
+
 ## Void isn't a real type
 
 Functional languages have a concept of a type that has one possible value, itself, called `Unit`.  As an example `bool` has two possible values: `true` and `false`.  `Unit` has one possible value, usually represented in functional languages as `()`.  You can imagine that methods that take no arguments, do in fact take one argument of `()`.  Anyway, we can't use the `()` representation in C#, so `LanguageExt` now provides `unit`.
@@ -521,6 +527,8 @@ Functional languages have a concept of a type that has one possible value, itsel
 ```
 
 `Unit` is the type and `unit` is the value.  It is used throughout the `LanguageExt` library instead of `void`.  The primary reason is that if you want to program functionally then all functions should return a value and `void` is a type with zero possible values - and that's the type-theory reason why `void` is a pain in the arse in C#.  This can help a lot with LINQ expressions.
+
+* [Unit reference](https://louthy.github.io/languageext.core/LanguageExt/Unit_.htm)
 
 ## Mutable lists and dictionaries
 
@@ -687,7 +695,9 @@ The two recursive examples above for calculating the sum and product of a sequen
 
 __Reference__
 
-[View list reference](https://github.com/louthy/language-ext/wiki/List-reference)
+* [List module reference](https://louthy.github.io/languageext.core/LanguageExt/List_.htm)
+* [Enumerable extensions reference](https://louthy.github.io/languageext.core/LanguageExt/EnumerableExtensions_.htm)
+* [`Lst<T>` immutable list type reference](https://louthy.github.io/languageext.core/LanguageExt/Lst_T.htm)
 
 ### Maps
 
