@@ -376,6 +376,10 @@ To take this much further, all of the monads in this library implement a standar
 ```
 This makes them into what would be known in Haskell as a Type Class (although more of a catch-all type-class than a set of well-defined type-classes).  
 
+
+* [Option reference](https://louthy.github.io/languageext.core/LanguageExt/Option_T.htm)
+* [Option extensions reference](https://louthy.github.io/languageext.core/LanguageExt/OptionExtensions_.htm)
+
 __Monad transformers__
 
 Now the problem with C# is it can't do higher order polymorphism  (imagine saying `Monad<Option<T>>` instead of `Option<T>`, `Either<L,R>`, `Try<T>`, `IEnumerable<T>`.  And then the resulting type having all the features of the `Option` as well as the standard interface to `Monad`).
