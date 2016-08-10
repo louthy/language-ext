@@ -95,33 +95,33 @@ This library is quickly becoming a 'Base Class Library' for functional programmi
 
 Location | Feature | Description
 ---------|---------|------------
-`Core` | `Lst<T>` | [Immutable list](https://github.com/louthy/language-ext/wiki/List-reference)
-`Core` | `Map<K,V>` | Immutable map
-`Core` | `Set<T>` | Immutable set
-`Core` | `Que<T>` | Immutable queue
-`Core` | `Stck<T>` | Immutable stack
-`Core` | `Option<T>` | Option monad that can't be used with `null` values
-`Core` | `OptionUnsafe<T>` | Option monad that can be used with `null` values
-`Core` | `Either<L,R>` | Right/Left choice monad that won't accept `null` values
-`Core` | `EitherUnsafe<L,R>` | Right/Left choice monad that can be used with `null` values
-`Core` | `Try<T>` | Exception catching monad
-`Core` | `TryOption<T>` | Option monad with third state 'Fail' that catches exceptions
-`Core` | `Reader<E,T>` | Reader monad
-`Core` | `Writer<O,T>` | Writer monad
-`Core` | `State<S,T>` | State monad
-`Core` | `Rws<E,O,S,T>` | Reader/Writer/State monad
-`Parsec` | `Parser<T>` | Parser monad and full parser combinators library: LanguageExt.Parsec
-`Core` | `NewType<T>` | Haskell `newtype` equivalent i.e: `class Hours : NewType<double> { public Hours(double value) : base(value) { } }`.  The resulting type is: equatable, comparable, foldable, a functor, monadic, appendable, subtractable, divisible, multiplicable, and iterable
-`Core` | `Nullable<T>` extensions | Extension methods for `Nullable<T>` that make it into a functor, applicative, foldable, iterable and a monad
-`Core` | `Task<T>` extensions | Extension methods for `Task<T>` that make it into a functor, applicative, foldable, iterable and a monad
+`Core` | `Lst<T>` | [Immutable list](https://louthy.github.io/languageext.core/LanguageExt/Lst_T.htm)
+`Core` | `Map<K,V>` | [Immutable map](https://louthy.github.io/languageext.core/LanguageExt/Map_K_V.htm)
+`Core` | `Set<T>` | [Immutable set](https://louthy.github.io/languageext.core/LanguageExt/Set_T.htm)
+`Core` | `Que<T>` | [Immutable queue](https://louthy.github.io/languageext.core/LanguageExt/Que_T.htm)
+`Core` | `Stck<T>` | [Immutable stack](https://louthy.github.io/languageext.core/LanguageExt/Stck_T.htm)
+`Core` | `Option<T>` | [Option monad](https://louthy.github.io/languageext.core/LanguageExt/Option_T.htm) that can't be used with `null` values
+`Core` | `OptionUnsafe<T>` | [Option monad](https://louthy.github.io/languageext.core/LanguageExt/OptionUnsafe_T.htm) that can be used with `null` values
+`Core` | `Either<L,R>` | [Right/Left choice monad](https://louthy.github.io/languageext.core/LanguageExt/Either_L_R.htm) that won't accept `null` values
+`Core` | `EitherUnsafe<L,R>` | [Right/Left choice monad](https://louthy.github.io/languageext.core/LanguageExt/EitherUnsafe_L_R.htm) that can be used with `null` values
+`Core` | `Try<T>` | [https://louthy.github.io/languageext.core/LanguageExt/index.htm#Try_T)
+`Core` | `TryOption<T>` | [Option monad with third state](https://louthy.github.io/languageext.core/LanguageExt/index.htm#TryOption_T) 'Fail' that catches exceptions
+`Core` | `Reader<E,T>` | [Reader monad](https://louthy.github.io/languageext.core/LanguageExt/index.htm#Reader_Env_T)
+`Core` | `Writer<O,T>` | [Writer monad](https://louthy.github.io/languageext.core/LanguageExt/index.htm#Writer_Out_T)
+`Core` | `State<S,T>` | [State monad](https://louthy.github.io/languageext.core/LanguageExt/index.htm#State_S_T)
+`Core` | `Rws<E,O,S,T>` | [Reader/Writer/State monad](https://louthy.github.io/languageext.core/LanguageExt/index.htm#Rws_R_W_S_T)
+`Parsec` | `Parser<T>` | [Parser monad and full parser combinators library](https://louthy.github.io/LanguageExt.Parsec/LanguageExt.Parsec/index.htm)
+`Core` | `NewType<T>` | [Haskell `newtype` equivalent](https://louthy.github.io/languageext.core/LanguageExt/NewType_T.htm) i.e: `class Hours : NewType<double> { public Hours(double value) : base(value) { } }`.  The resulting type is: equatable, comparable, foldable, a functor, monadic, appendable, subtractable, divisible, multiplicable, and iterable
+`Core` | `Nullable<T>` extensions | [Extension methods for `Nullable<T>`](https://louthy.github.io/languageext.core/LanguageExt/NullableExtensions_.htm) that make it into a functor, applicative, foldable, iterable and a monad
+`Core` | `Task<T>` extensions | [Extension methods for `Task<T>`](https://louthy.github.io/languageext.core/LanguageExt/__TaskExt_.htm) that make it into a functor, applicative, foldable, iterable and a monad
 `Core` | Monad transformers | A higher kinded type (ish)
 `Process` | `Process` library | [Actor system.  The same as Erlang processes for massive concurrency with state management.](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
 `Process.Redis` | Redis persistence | [Persistence of the `Process` system message-queues and state, for robustness and inter-app communication.](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
-`Core` | Currying | https://en.wikipedia.org/wiki/Currying
-`Core` | Partial application | https://en.wikipedia.org/wiki/Partial_application
-`Core` | Memoization | https://en.wikipedia.org/wiki/Memoization
-`Core` | Improved lambda type inference | `var add = fun( (int x, int y) => x + y)`
-`Core` | `IObservable<T>` extensions  | 
+`Core` | Currying | [Translate the evaluation of a function that takes multiple arguments into a sequence of functions, each with a single argument](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#curry<T1, T2, R>)
+`Core` | Partial application | [the process of fixing a number of arguments to a function, producing another function of smaller arity](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#par<T1, T2, R>)
+`Core` | Memoization | [An optimization technique used primarily to speed up programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#memo<T, R>)
+`Core` | [Improved lambda type inference](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#fun) | `var add = fun( (int x, int y) => x + y)`
+`Core` | `IObservable<T>` extensions  |
 
 It started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me:
 
