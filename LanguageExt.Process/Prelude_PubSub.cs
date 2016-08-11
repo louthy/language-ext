@@ -57,8 +57,6 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pid">Process to subscribe to</param>
         /// <remarks>
-        /// The process can publish any number of types, any published messages not of type T will be ignored.
-        /// 
         /// This should be used from within a process' message loop only
         /// </remarks>
         /// <returns>IDisposable, call IDispose to end the subscription</returns>

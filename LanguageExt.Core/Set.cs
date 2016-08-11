@@ -202,7 +202,8 @@ namespace LanguageExt
             setA.Intersect(setB);
 
         /// <summary>
-        /// Returns the elements that are in both setA and setB
+        /// Returns this - other.  Only the items in this that are not in 
+        /// other will be returned.
         /// </summary>
         [Pure]
         public static Set<T> except<T>(Set<T> setA, IEnumerable<T> setB) =>

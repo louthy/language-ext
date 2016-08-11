@@ -16,7 +16,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Lst<T> empty<T>() =>
-            new Lst<T>();
+            Lst<T>.Empty;
 
         /// <summary>
         /// Create a new empty list
@@ -24,7 +24,7 @@ namespace LanguageExt
         /// <returns>Lst T</returns>
         [Pure]
         public static Lst<T> create<T>() =>
-            new Lst<T>();
+            Lst<T>.Empty;
 
         /// <summary>
         /// Create a list from a initial set of items

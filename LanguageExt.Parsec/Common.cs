@@ -1,13 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static LanguageExt.Parsec.ParserResult;
 
 namespace LanguageExt.Parsec
 {
     public static class Common
     {
+        public static readonly Parser<Pos> getDefPos =
+            (PString inp) => ConsumedOK(inp.DefPos, inp);
+
+        public static Parser<T> setDefPos<T>(Pos defpos, Parser<T> p) =>
+            (PString inp) => p(inp.SetDefPos(defpos));
+
         public static bool onside(Pos pos, Pos delta) =>
             pos.Column > delta.Column || pos.Line == delta.Line;
 

@@ -9,6 +9,7 @@ using static LanguageExt.Process;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.FSharp.Core;
+using System.Collections.Generic;
 
 // ************************************************************************************
 // 
@@ -23,16 +24,6 @@ namespace TestBed
     {
         static void Main(string[] args)
         {
-            var someValue = FSharpOption<string>.Some("Hello");
-            var noneValue = FSharpOption<string>.None;
-
-            Console.WriteLine(someValue.Value);
-            Console.WriteLine(noneValue.Value);
-
-
-            Tests.PStringCasting();
-            return;
-
             Tests.VersionTest();
             Tests.SerialiseDeserialiseCoreTypes();
             //Tests.StopStart();

@@ -12,12 +12,6 @@ namespace LanguageExt.Parsec
         public static string concat(IEnumerable<char> chs) =>
             new string(chs.ToArray());
 
-        public static readonly Parser<Pos> getDefPos =
-            (PString inp) => ConsumedOK(inp.DefPos, inp);
-
-        public static Parser<T> setDefPos<T>(Pos defpos, Parser<T> p) =>
-            (PString inp) => p(inp.SetDefPos(defpos));
-
         public static ParserResult<char> newstate(PString inp)
         {
             var x = inp.Value[inp.Index];
