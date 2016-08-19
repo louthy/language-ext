@@ -1167,7 +1167,7 @@ There's also `system` process under `root` that handles stuff like dead-letters 
     /root/system/dead-letters
     etc.
 ```
-When you create a Redis cluster connection the second argument is the name of the node in the 'cluster' (i.e. the name of the app/service/website, whatever it is).  The last argument is the _role_ of the node in the cluster (see `Role.Broadcast`, `Role.LeastBusy`, `Role.Random`, `Role.RoundRobin`, `Role.First` - for cluster dispatch methods).  There is a static property `Process.ClusterNodes` that allows you to interrogate the nodes are online and what their role is.
+When you create a Redis cluster connection the second argument is the name of the node in the 'cluster' (i.e. the name of the app/service/website, whatever it is).  The third argument is the _role_ of the node in the cluster (see `Role.Broadcast`, `Role.LeastBusy`, `Role.Random`, `Role.RoundRobin`, `Role.First` - for cluster dispatch methods).  There is a static property `Process.ClusterNodes` that allows you to interrogate the nodes are online and what their role is.
 ```C#
     RedisCluster.register();
     ProcessConfig.initialise("sys", "web-front-end", "web-front-end-1", "localhost", "0");
