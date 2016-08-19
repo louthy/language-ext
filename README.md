@@ -1170,21 +1170,27 @@ There's also `system` process under `root` that handles stuff like dead-letters 
 When you create a Redis cluster connection the second argument is the name of the node in the 'cluster' (i.e. the name of the app/service/website, whatever it is).  The last argument is the _role_ of the node in the cluster (see `Role.Broadcast`, `Role.LeastBusy`, `Role.Random`, `Role.RoundRobin`, `Role.First` - for cluster dispatch methods).  There is a static property `Process.ClusterNodes` that allows you to interrogate the nodes are online and what their role is.
 ```C#
     RedisCluster.register();
-    Cluster.connect("redis", "my-stuff", "localhost", "0", "my-node-role");
+    ProcessConfig.initialise("sys", "web-front-end", "web-front-end-1", "localhost", "0");
 ```
+* `"sys"` is the 'system name', but easier to think of it as the name of the cluster as a whole.  That means you can call it with a different value and point it at another Redis db for multiple clusters.  But for now it's easier to call it `sys` and leave it.
+* `"web-front-end"` is the role, you can have multiple nodes in a role and the role based dispatchers allow you to implement high-availability and load balancing strategies.
+* `"web-front-end-1"` is the name of this node, and should be unique in the cluster
+* `"localhost"` is the Redis connection (can be comma separated for multiple Redis nodes)
+* `"0"` is the Redis catalogue to use (`"0" - "15"`)
+
 Then instead of having `root` as the top level Process in your hierarchy, you have `my-stuff`:
 ```C#
-    /my-stuff/user/...
-    /my-stuff/system/dead-letters
+    /web-front-end-1/user/...
+    /web-front-end-1/system/dead-letters
 ```
 Therefore you know where things are, and what they're called, and they're easily addressable.  You can just 'tell' the address:
 ```C#
-    tell("/my-stuff/user/hello", "Hello!");
+    tell("/web-front-end-1/user/hello", "Hello!");
 ```
 Or you can use the `ProcessId` API to build the path:
 ```C#
-   ProcessId a = "/my-stuff/user/hello";
-   ProcessId b = ProcessId.Top["my-stuff"]["user"]["hello"];
+   ProcessId a = "/web-front-end-1/user/hello";
+   ProcessId b = ProcessId.Top["web-front-end-1"]["user"]["hello"];
    // a == b
 ```
 Even that isn't great if you don't know what the name of the 'app' that is running a Process.  So processes can register by a single name, that goes into a 'shared namespace'.  It's a kind of DNS for processes:
@@ -1199,7 +1205,7 @@ This goes in:
 ```
     /disp/reg/hello-world
 ```
-Your process now has two addresses, the `/my-stuff/user/hello-world` address and the `/disp/reg/hello-world` address that anyone can find by calling `find("hello-world")`.  This makes it very simple to bootstrap processes and get messages to them even if you don't know what system is actually dealing with it:
+Your process now has two addresses, the `/web-front-end-1/user/hello-world` address and the `/disp/reg/hello-world` address that anyone can find by calling `find("hello-world")`.  This makes it very simple to bootstrap processes and get messages to them even if you don't know what system is actually dealing with it:
 ```C#
     tell(find("hello-world"), "Hi!");
 ```
