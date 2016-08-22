@@ -23,14 +23,14 @@ namespace LanguageExt
         /// <returns>Empty map</returns>
         [Pure]
         public static Map<K, V> clear<K, V>(Map<K, V> map) =>
-            MapInternal<K, V>.Empty;
+            Map<K, V>.Empty;
 
         /// <summary>
         /// Creates a new empty Map
         /// </summary>
         [Pure]
         public static Map<K, V> empty<K, V>() =>
-            MapInternal<K, V>.Empty;
+            Map<K, V>.Empty;
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided

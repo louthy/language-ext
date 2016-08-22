@@ -28,7 +28,7 @@ namespace LanguageExt
         IAppendable<Map<K, V>>,
         ISubtractable<Map<K, V>>
     {
-        public static readonly Map<K, V> Empty = new Map<K, V>();
+        public static readonly MapInternal<K, V> Empty = new MapInternal<K, V>(MapItem<K, V>.Empty, false);
 
         internal readonly MapItem<K, V> Root;
         internal readonly bool Rev;
@@ -509,7 +509,7 @@ namespace LanguageExt
         /// <returns>Empty map</returns>
         [Pure]
         public Map<K, V> Clear() =>
-            Empty;
+            Map<K,V>.Empty;
 
         /// <summary>
         /// Atomically adds a range of items to the map

@@ -41,7 +41,7 @@ namespace LanguageExt
         }
 
         internal MapInternal<K, V> Value =>
-            value ?? MapInternal<K, V>.Empty.Value;
+            value ?? MapInternal<K, V>.Empty;
 
         /// <summary>
         /// 'this' accessor
@@ -267,7 +267,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public Map<K, V> AddOrUpdate(K key, V value) => Value.TrySetItem(key,value);
+        public Map<K, V> AddOrUpdate(K key, V value) => Value.AddOrUpdate(key,value);
 
         /// <summary>
         /// Retrieve a value from the map by key, map it to a new value,
@@ -508,11 +508,11 @@ namespace LanguageExt
         public Map<K, V> Difference(Map<K, V> x, Map<K, V> y) =>
             x.Value.Subtract(y);
 
-        public static Map<K, V> Empty =>
-            MapInternal<K,V>.Empty;
+        public static Map<K, V> Empty = 
+            new Map<K, V>(MapInternal<K, V>.Empty);
 
         Map<K, V> Monoid<Map<K,V>>.Empty() =>
-            MapInternal<K, V>.Empty;
+                new Map<K, V>(MapInternal<K, V>.Empty);
 
         public bool Equals(Map<K, V> x, Map<K, V> y) =>
             x.Value == y.Value;
