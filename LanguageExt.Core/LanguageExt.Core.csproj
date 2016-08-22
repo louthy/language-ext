@@ -85,6 +85,11 @@
     <Compile Include="Map\MapExtensions.cs" />
     <Compile Include="OptionUnsafe\OptionUnsafe.cs" />
     <Compile Include="OptionUnsafe\OptionUnsafeExtensions.cs" />
+    <Compile Include="Prelude_ValueTuple.cs" />
+    <Compile Include="Prelude_ValueTuple2.cs" />
+    <Compile Include="Prelude_ValueTuple3.cs" />
+    <Compile Include="ValueTuple3.cs" />
+    <Compile Include="ValueTuple2.cs" />
     <Compile Include="TypeclassAttribute.cs" />
     <Compile Include="Option\OptionT.cs" />
     <Compile Include="Seq\SeqM.cs" />
