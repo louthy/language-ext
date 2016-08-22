@@ -6,18 +6,19 @@ using System.Reflection;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 using Newtonsoft.Json;
+using LanguageExt.ActorSys;
+using System.Threading.Tasks;
 
 namespace LanguageExt
 {
     class ActorInboxLocal<S,T> : IActorInbox, ILocalActorInbox
     {
-        CancellationTokenSource tokenSource;
-        FSharpMailboxProcessor<UserControlMessage> userInbox;
-        FSharpMailboxProcessor<SystemMessage> sysInbox;
+        BlockingQueue<UserControlMessage> userInbox;
+        BlockingQueue<SystemMessage> sysInbox;
+
         Actor<S, T> actor;
         ActorItem parent;
         Option<ICluster> cluster;
-        Que<UserControlMessage> userQueue = Que<UserControlMessage>.Empty;
         int maxMailboxSize;
 
         public Unit Startup(IActor process, ActorItem parent, Option<ICluster> cluster, int maxMailboxSize)
@@ -28,28 +29,35 @@ namespace LanguageExt
             }
             this.cluster = cluster;
             this.parent = parent;
-            this.tokenSource = new CancellationTokenSource();
             this.actor = (Actor<S, T>)process;
+            this.maxMailboxSize = maxMailboxSize == -1
+                ? ActorContext.System(actor.Id).Settings.GetProcessMailboxSize(actor.Id)
+                : maxMailboxSize;
 
-            this.maxMailboxSize = maxMailboxSize;
+            userInbox = new BlockingQueue<UserControlMessage>(this.maxMailboxSize);
+            sysInbox = new BlockingQueue<SystemMessage>(this.maxMailboxSize);
 
-            userInbox = StartMailbox<UserControlMessage>(actor, tokenSource.Token, StatefulUserInbox);
-            sysInbox = StartMailbox<SystemMessage>(actor, tokenSource.Token, ActorInboxCommon.SystemMessageInbox);
+            var obj = new ThreadObj { Actor = actor, Inbox = this, Parent = parent };
+            userInbox.ReceiveAsync(obj, (state, msg) => ActorInboxCommon.UserMessageInbox(state.Actor, state.Inbox, msg, state.Parent));
+            sysInbox.ReceiveAsync(obj, (state, msg) => ActorInboxCommon.SystemMessageInbox(state.Actor, state.Inbox, msg, state.Parent));
+
             return unit;
+        }
+
+        class ThreadObj
+        {
+            public Actor<S, T> Actor;
+            public ActorInboxLocal<S, T> Inbox;
+            public ActorItem Parent;
         }
 
         public Unit Shutdown()
         {
-            var ts = tokenSource;
-            if (ts != null)
-            {
-                ts.Cancel();
-                ts.Dispose();
+            userInbox?.Cancel();
+            sysInbox?.Cancel();
+            userInbox = null;
+            sysInbox = null;
 
-                tokenSource = null;
-                userInbox = null;
-                sysInbox = null;
-            }
             return unit;
         }
 
@@ -57,7 +65,7 @@ namespace LanguageExt
         string ClusterNotifyKey => actor.Id.Path + "-inbox-notify";
 
         public bool Active => 
-            tokenSource != null;
+            userInbox != null;
 
         ProcessId GetSender(ProcessId sender) =>
             sender = sender.IsValid
@@ -68,71 +76,94 @@ namespace LanguageExt
 
         public Unit Ask(object message, ProcessId sender)
         {
-            if (Count >= MailboxSize)
-            {
-                throw new ProcessInboxFullException(actor.Id, MailboxSize, "user");
-            }
-
+            if (message == null) throw new ArgumentNullException(nameof(message));
             if (userInbox != null)
             {
-                ActorInboxCommon.PreProcessMessage<T>(sender, actor.Id, message).IfSome(msg => userInbox.Post(msg));
+                try
+                {
+                    return ActorInboxCommon.PreProcessMessage<T>(sender, actor.Id, message).IfSome(msg => userInbox.Post(msg));
+                }
+                catch (QueueFullException)
+                {
+                    throw new ProcessInboxFullException(actor.Id, MailboxSize, "user");
+                }
             }
             return unit;
         }
 
         public Unit Tell(object message, ProcessId sender)
         {
-            if (Count >= MailboxSize)
-            {
-                throw new ProcessInboxFullException(actor.Id, MailboxSize, "user");
-            }
-
+            if (message == null) throw new ArgumentNullException(nameof(message));
             if (userInbox != null)
             {
-                ActorInboxCommon.PreProcessMessage<T>(sender, actor.Id, message).IfSome(msg => userInbox.Post(msg));
+                try
+                {
+                    return ActorInboxCommon.PreProcessMessage<T>(sender, actor.Id, message).IfSome(msg => userInbox.Post(msg));
+                }
+                catch(QueueFullException)
+                {
+                    throw new ProcessInboxFullException(actor.Id, MailboxSize, "user");
+                }
             }
             return unit;
         }
 
         public Unit TellUserControl(UserControlMessage message)
         {
-            if (Count >= MailboxSize)
-            {
-                throw new ProcessInboxFullException(actor.Id, MailboxSize, "user");
-            }
-
+            if (message == null) throw new ArgumentNullException(nameof(message));
             if (userInbox != null)
             {
-                if (message == null) throw new ArgumentNullException(nameof(message));
-                userInbox.Post(message);
+                try
+                {
+                    userInbox.Post(message);
+                }
+                catch (QueueFullException)
+                {
+                    throw new ProcessInboxFullException(actor.Id, MailboxSize, "user");
+                }
             }
             return unit;
         }
 
         public Unit TellSystem(SystemMessage message)
         {
+            if (message == null) throw new ArgumentNullException(nameof(message));
             if (sysInbox != null)
             {
-                if (sysInbox.CurrentQueueLength >= MailboxSize)
+                try
+                {
+                    sysInbox.Post(message);
+                }
+                catch (QueueFullException)
                 {
                     throw new ProcessInboxFullException(actor.Id, MailboxSize, "system");
                 }
-
-                if (message == null) throw new ArgumentNullException(nameof(message));
-                sysInbox.Post(message);
             }
             return unit;
         }
 
-        int MailboxSize =>
+        int MailboxSize => 
             maxMailboxSize < 0
                 ? ActorContext.System(actor.Id).Settings.GetProcessMailboxSize(actor.Id)
                 : maxMailboxSize;
 
         public bool IsPaused
         {
-            get;
-            private set;
+            get
+            {
+                return userInbox.IsPaused;
+            }
+            private set
+            {
+                if (value)
+                {
+                    userInbox.Pause();
+                }
+                else
+                {
+                    userInbox.UnPause();
+                }
+            }
         }
 
         public Unit Pause()
@@ -152,71 +183,19 @@ namespace LanguageExt
             return unit;
         }
 
-        InboxDirective StatefulUserInbox(Actor<S, T> actor, IActorInbox inbox, UserControlMessage msg, ActorItem parent)
-        {
-            if (IsPaused)
-            {
-                userQueue = userQueue.Enqueue(msg);
-            }
-            else
-            {
-                while (userQueue.Count > 0)
-                {
-                    // Don't process messages if we've been paused
-                    if (IsPaused) return InboxDirective.Pause;
-
-                    var qmsg = userQueue.Peek();
-                    userQueue = userQueue.Dequeue();
-                    ProcessInboxDirective(ActorInboxCommon.UserMessageInbox(actor, inbox, qmsg, parent), qmsg);
-                }
-
-                if (IsPaused)
-                {
-                    // Don't process the message if we've been paused
-                    userQueue = userQueue.Enqueue(msg);
-                    return InboxDirective.Pause;
-                }
-
-                return ProcessInboxDirective(ActorInboxCommon.UserMessageInbox(actor, inbox, msg, parent), msg);
-            }
-            return InboxDirective.Default;
-        }
-
-        InboxDirective ProcessInboxDirective(InboxDirective directive, UserControlMessage msg)
-        {
-            IsPaused = (directive & InboxDirective.Pause) != 0;
-
-            if ((directive & InboxDirective.PushToFrontOfQueue) != 0)
-            {
-                var newQueue = Que<UserControlMessage>.Empty.Enqueue(msg);
-
-                while (userQueue.Count > 0)
-                {
-                    newQueue = newQueue.Enqueue(userQueue.Peek());
-                    userQueue = userQueue.Dequeue();
-                }
-
-                userQueue = newQueue;
-            }
-            return directive;
-        }
-
-        FSharpMailboxProcessor<TMsg> StartMailbox<TMsg>(Actor<S, T> actor, CancellationToken cancelToken, Func<Actor<S, T>, IActorInbox, TMsg, ActorItem, InboxDirective> handler) where TMsg : Message =>
-            ActorInboxCommon.Mailbox<TMsg>(cancelToken, msg =>
-                  handler(actor, this, msg, parent));
-
         public void Dispose()
         {
-            tokenSource?.Cancel();
-            tokenSource?.Dispose();
-            tokenSource = null;
+            userInbox?.Cancel();
+            sysInbox?.Cancel();
+            userInbox = null;
+            sysInbox = null;
         }
 
         /// <summary>
         /// Number of unprocessed items
         /// </summary>
         public int Count =>
-            ((userInbox?.CurrentQueueLength) + (userQueue?.Count)).GetValueOrDefault();
+            userInbox?.Count ?? 0;
 
         public Either<string, bool> HasStateTypeOf<TState>() =>
             TypeHelper.HasStateTypeOf(

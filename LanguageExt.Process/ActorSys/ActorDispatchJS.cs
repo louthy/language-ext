@@ -9,12 +9,14 @@ namespace LanguageExt
         public readonly ProcessId RelayId;
         public readonly ActorItem Js;
         public readonly Option<SessionId> SessionId;
+        readonly bool transactionalIO;
 
-        public ActorDispatchJS(ProcessId pid, ProcessId relay, ActorItem js, Option<SessionId> sessionId)
+        public ActorDispatchJS(ProcessId pid, ProcessId relay, ActorItem js, Option<SessionId> sessionId, bool transactionalIO)
         {
             ProcessId = pid;
             RelayId = relay;
             SessionId = sessionId;
+            this.transactionalIO = transactionalIO;
             Js = js;
         }
 

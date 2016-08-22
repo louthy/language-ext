@@ -68,6 +68,15 @@
           "lib/net45/System.Reactive.PlatformServices.dll": {}
         }
       },
+      "System.ValueTuple/4.0.0-rc3-24212-01": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard1.1/System.ValueTuple.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.1/System.ValueTuple.dll": {}
+        }
+      },
       "LanguageExt.Core/1.9.1": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
@@ -75,7 +84,8 @@
           "System.Reactive.Core": "3.0.0",
           "System.Reactive.Interfaces": "3.0.0",
           "System.Reactive.Linq": "3.0.0",
-          "System.Reactive.PlatformServices": "3.0.0"
+          "System.Reactive.PlatformServices": "3.0.0",
+          "System.ValueTuple": "4.0.0"
         },
         "compile": {
           "net45/LanguageExt.Core.dll": {}
@@ -168,6 +178,15 @@
           "lib/net46/System.Reactive.PlatformServices.dll": {}
         }
       },
+      "System.ValueTuple/4.0.0-rc3-24212-01": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard1.1/System.ValueTuple.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.1/System.ValueTuple.dll": {}
+        }
+      },
       "LanguageExt.Core/1.9.1": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.6",
@@ -175,7 +194,8 @@
           "System.Reactive.Core": "3.0.0",
           "System.Reactive.Interfaces": "3.0.0",
           "System.Reactive.Linq": "3.0.0",
-          "System.Reactive.PlatformServices": "3.0.0"
+          "System.Reactive.PlatformServices": "3.0.0",
+          "System.ValueTuple": "4.0.0"
         },
         "compile": {
           "net46/LanguageExt.Core.dll": {}
@@ -230,7 +250,7 @@
           "lib/netstandard1.3/Microsoft.CSharp.dll": {}
         }
       },
-      "Microsoft.FSharp.Core.netcore/1.0.0-alpha-160629": {
+      "Microsoft.FSharp.Core.netcore/1.0.0-alpha-160805": {
         "type": "package",
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.0.1",
@@ -257,6 +277,10 @@
             "rid": "any"
           },
           "runtimes/any/native/FSharp.Core.sigdata": {
+            "assetType": "native",
+            "rid": "any"
+          },
+          "runtimes/any/native/FSharp.Core.xml": {
             "assetType": "native",
             "rid": "any"
           }
@@ -1619,6 +1643,20 @@
           "ref/netstandard1.2/System.Threading.Timer.dll": {}
         }
       },
+      "System.ValueTuple/4.0.0-rc3-24212-01": {
+        "type": "package",
+        "dependencies": {
+          "System.Collections": "4.0.11",
+          "System.Resources.ResourceManager": "4.0.1",
+          "System.Runtime": "4.1.0"
+        },
+        "compile": {
+          "lib/netstandard1.1/System.ValueTuple.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.1/System.ValueTuple.dll": {}
+        }
+      },
       "System.Xml.ReaderWriter/4.0.11": {
         "type": "package",
         "dependencies": {
@@ -1680,7 +1718,8 @@
           "System.Reactive.Interfaces": "3.0.0",
           "System.Reactive.Linq": "3.0.0",
           "System.Reactive.PlatformServices": "3.0.0",
-          "System.Security.Cryptography.Algorithms": "4.2.0"
+          "System.Security.Cryptography.Algorithms": "4.2.0",
+          "System.ValueTuple": "4.0.0"
         },
         "compile": {
           "netstandard1.6/LanguageExt.Core.dll": {}
@@ -1807,12 +1846,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "Microsoft.FSharp.Core.netcore/1.0.0-alpha-160629": {
-      "sha512": "T4n8//0DBC9JWuZ6HY5eErgLg16bPXo+q49UX4m+MrDIMP7LScUfS3otExI0/Un4Ibs+OjQ6PB7mnM8rHcy13w==",
+    "Microsoft.FSharp.Core.netcore/1.0.0-alpha-160805": {
+      "sha512": "K1370KtROWRMWSgaL6fk9XpKY3NESKVtRRSIyms0aMaZ5PooMXhuzpzhiGc1oujxuCvALro3xqfpX2b2OUfpYw==",
       "type": "package",
-      "path": "Microsoft.FSharp.Core.netcore/1.0.0-alpha-160629",
+      "path": "Microsoft.FSharp.Core.netcore/1.0.0-alpha-160805",
       "files": [
-        "Microsoft.FSharp.Core.netcore.1.0.0-alpha-160629.nupkg.sha512",
+        "Microsoft.FSharp.Core.netcore.1.0.0-alpha-160805.nupkg.sha512",
         "Microsoft.FSharp.Core.netcore.nuspec",
         "content/any/netstandard1.6/FSharp.Core.optdata",
         "content/any/netstandard1.6/FSharp.Core.sigdata",
@@ -1820,8 +1859,10 @@
         "lib/netstandard1.6/FSharp.Core.optdata",
         "lib/netstandard1.6/FSharp.Core.runtimeconfig.json",
         "lib/netstandard1.6/FSharp.Core.sigdata",
+        "lib/netstandard1.6/FSharp.Core.xml",
         "runtimes/any/native/FSharp.Core.optdata",
-        "runtimes/any/native/FSharp.Core.sigdata"
+        "runtimes/any/native/FSharp.Core.sigdata",
+        "runtimes/any/native/FSharp.Core.xml"
       ]
     },
     "Microsoft.NETCore.Platforms/1.0.1": {
@@ -5424,6 +5465,19 @@
         "ref/xamarinmac20/_._",
         "ref/xamarintvos10/_._",
         "ref/xamarinwatchos10/_._"
+      ]
+    },
+    "System.ValueTuple/4.0.0-rc3-24212-01": {
+      "sha512": "yooyl0u8E5kNIAtmGt8hrpeQk66GMdPiujKpKqZl25EW0Q98vubsYokQ4FTZeunX0YR8ZN67+Zes3yKH1WaW0Q==",
+      "type": "package",
+      "path": "System.ValueTuple/4.0.0-rc3-24212-01",
+      "files": [
+        "System.ValueTuple.4.0.0-rc3-24212-01.nupkg.sha512",
+        "System.ValueTuple.nuspec",
+        "ThirdPartyNotices.txt",
+        "dotnet_library_license.txt",
+        "lib/netstandard1.1/.xml",
+        "lib/netstandard1.1/System.ValueTuple.dll"
       ]
     },
     "System.Xml.ReaderWriter/4.0.11": {

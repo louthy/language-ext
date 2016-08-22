@@ -368,7 +368,7 @@ namespace LanguageExt
         /// List of system names running on this node
         /// </summary>
         public static Lst<SystemName> Systems =>
-            ActorContext.Systems;
+            ActorContext.Systems.Freeze();
 
         /// <summary>
         /// Return True if the message sent is an Ask and not a Tell

@@ -26,20 +26,22 @@ namespace LanguageExt
 
         static SystemName defaultSystem;
 
-        static ConcurrentDictionary<SystemName, ActorSystem> systems = new ConcurrentDictionary<SystemName, ActorSystem>();
+        static SystemName[] systemNames = new SystemName[0];
+        static ActorSystem[] systems = new ActorSystem[0];
         static readonly object sync = new object();
 
         public static Unit StartSystem(SystemName system, Option<ICluster> cluster, AppProfile appProfile, ProcessSystemConfig config)
         {
             lock (sync)
             {
-                if (systems.ContainsKey(system))
+                if (SystemExists(system))
                 {
                     throw new InvalidOperationException($"Process-system ({system}) already started");
                 }
 
                 var asystem = new ActorSystem(system, cluster, appProfile, config);
-                systems.AddOrUpdate(system, asystem, (_, __) => asystem);
+                AddOrUpdateSystem(asystem);
+
                 try
                 {
                     asystem.Initialise();
@@ -54,7 +56,7 @@ namespace LanguageExt
                 }
                 catch
                 {
-                    systems.TryRemove(system, out asystem);
+                    systems = systems.Filter(a => a.SystemName != system).ToArray();
                     try
                     {
                         asystem.Dispose();
@@ -69,16 +71,15 @@ namespace LanguageExt
         public static bool InMessageLoop =>
             request != null;
 
-        public static Lst<SystemName> Systems =>
-            systems.Keys.Freeze();
+        public static SystemName[] Systems =>
+            systemNames;
 
         public static Unit StopAllSystems()
         {
             lock (sync)
             {
-                return systems.Keys
-                              .Freeze()
-                              .Iter(sys => StopSystem(sys));
+                return systemNames.Freeze()
+                                  .Iter(sys => StopSystem(sys));
             }
         }
 
@@ -108,7 +109,7 @@ namespace LanguageExt
                     {
                         try
                         {
-                            systems.TryGetValue(system, out asystem);
+                            asystem = FindSystem(system);
                             if (asystem != null)
                             {
                                 asystem.Dispose();
@@ -116,7 +117,7 @@ namespace LanguageExt
                         }
                         finally
                         {
-                            systems.TryRemove(system, out asystem);
+                            RemoveSystem(system);
                             Process.OnShutdown(system);
                         }
                     }
@@ -151,7 +152,8 @@ namespace LanguageExt
             ActorSystem asys = null;
             if (system.IsValid)
             {
-                if (systems.TryGetValue(system, out asys))
+                asys = FindSystem(system);
+                if (asys != null)
                 {
                     return asys;
                 }
@@ -172,15 +174,15 @@ namespace LanguageExt
             {
                 if (!context.IsValid)
                 {
-                    switch (systems.Count)
+                    switch (systems.Length)
                     {
                         case 0:  throw new ProcessConfigException("You must call one of the  ProcessConfig.initialiseXXX functions");
                         default: context = defaultSystem; break;
                     }
                 }
 
-                ActorSystem actsys;
-                if (systems.TryGetValue(context, out actsys))
+                ActorSystem actsys = FindSystem(context);
+                if (actsys != null)
                 {
                     return actsys;
                 }
@@ -234,6 +236,44 @@ namespace LanguageExt
             if (pid.Path == "/__special__/root") return DefaultSystem.Root;
             if (pid.Path == "/__special__/errors") return DefaultSystem.Errors;
             return pid;
+        }
+
+        static bool SystemExists(SystemName system)
+        {
+            foreach (var item in systems)
+            {
+                if (item.SystemName == system) return true;
+            }
+            return false;
+        }
+
+        static ActorSystem FindSystem(SystemName system)
+        {
+            foreach (var item in systems)
+            {
+                if (item.SystemName == system) return item;
+            }
+            return null;
+        }
+
+        static Unit AddOrUpdateSystem(ActorSystem system)
+        {
+            lock (sync)
+            {
+                systems = system.Cons(systems.Filter(s => s.SystemName != system.SystemName)).ToArray();
+                systemNames = system.SystemName.Cons(systemNames.Filter(s => s != system.SystemName)).ToArray();
+            }
+            return unit;
+        }
+
+        static Unit RemoveSystem(SystemName system)
+        {
+            lock (sync)
+            {
+                systems = systems.Filter(s => s.SystemName != system).ToArray();
+                systemNames = systemNames.Filter(s => s != system).ToArray();
+            }
+            return unit;
         }
     }
 }

@@ -8,6 +8,7 @@ using static LanguageExt.Process;
 using System.Threading;
 using LanguageExt.Config;
 using LanguageExt.Session;
+using LanguageExt.ActorSys;
 
 namespace LanguageExt
 {
@@ -31,6 +32,7 @@ namespace LanguageExt
         readonly long startupTimestamp;
         readonly object regsync = new object();
         readonly SessionManager sessionManager;
+        readonly bool transactionalIO;
         public readonly SystemName SystemName;
 
         public AppProfile AppProfile => appProfile;
@@ -76,6 +78,17 @@ namespace LanguageExt
             var rootProcess = state.RootProcess;
             state.Startup();
             rootItem = new ActorItem(rootProcess, rootInbox, ProcessFlags.Default);
+
+            Root            = rootItem.Actor.Id;
+            RootJS          = Root["js"];
+            System          = Root[ActorSystemConfig.Default.SystemProcessName];
+            User            = Root[ActorSystemConfig.Default.UserProcessName];
+            Errors          = System[ActorSystemConfig.Default.ErrorsProcessName];
+            DeadLetters     = System[ActorSystemConfig.Default.DeadLettersProcessName];
+            NodeName        = cluster.Map(c => c.NodeName).IfNone("user");
+            AskId           = System[ActorSystemConfig.Default.AskProcessName];
+            Disp            = ProcessId.Top["disp"].SetSystem(SystemName);
+
             userContext = new ActorRequestContext(
                 this,
                 rootProcess.Children["user"],
@@ -84,7 +97,6 @@ namespace LanguageExt
                 null,
                 null,
                 ProcessFlags.Default,
-                null,
                 null);
             rootInbox.Startup(rootProcess, parent, cluster, settings.GetProcessMailboxSize(rootProcess.Id));
         }
@@ -471,35 +483,17 @@ namespace LanguageExt
             return item.Actor.Id;
         }
 
-        public ILocalActorInbox LocalRoot =>
-            (ILocalActorInbox)rootItem.Inbox;
-
-        public IActorInbox RootInbox =>
-            rootItem.Inbox;
-
-        public ProcessId Root =>
-            rootItem.Actor.Id;
-
-        public readonly ProcessId Disp =
-            ProcessId.Top["disp"];
-
-        public ProcessId System =>
-            Root[ActorSystemConfig.Default.SystemProcessName];
-
-        public ProcessId User =>
-            Root[ActorSystemConfig.Default.UserProcessName];
-
-        public ProcessId Errors =>
-            System[ActorSystemConfig.Default.ErrorsProcessName];
-
-        public ProcessId DeadLetters =>
-            System[ActorSystemConfig.Default.DeadLettersProcessName];
-
-        private ProcessName NodeName =>
-            cluster.Map(c => c.NodeName).IfNone("user");
-
-        internal ProcessId AskId =>
-            System[ActorSystemConfig.Default.AskProcessName];
+        public ILocalActorInbox LocalRoot => (ILocalActorInbox)rootItem.Inbox;
+        public IActorInbox RootInbox => rootItem.Inbox;
+        public ProcessId Root { get; }
+        public ProcessId User { get; }
+        public ProcessId Errors { get; }
+        public ProcessId DeadLetters { get; }
+        public ProcessId Disp { get; }
+        public readonly ProcessId RootJS;
+        public readonly ProcessId System;
+        private readonly ProcessName NodeName;
+        internal readonly ProcessId AskId;
 
         public Option<ActorItem> GetJsItem()
         {
@@ -718,12 +712,8 @@ by name then use Process.deregisterByName(name).");
                     msg,
                     request,
                     ProcessFlags.Default,
-                    ProcessOpTransaction.Start(self.Actor.Id),
-                    (from sid in sessionId
-                     from ses in ActorContext.System(self.Actor.Id).Sessions.GetSession(sid)
-                     select ses)
-                    .IfNoneUnsafe((SessionVector)null)
-                ));
+                    Settings.TransactionalIO ? ProcessOpTransaction.Start(self.Actor.Id) : null)
+                );
                 return f();
             }
             finally
@@ -765,18 +755,18 @@ by name then use Process.deregisterByName(name).");
 
                 // /root/js/{connection id}/js-root/..  --> back to JS
                 default:
-                    return new ActorDispatchJS(pid, pid.Take(3), rootItem.Actor.Children["js"], ActorContext.SessionId);
+                    return new ActorDispatchJS(pid, pid.Take(3), rootItem.Actor.Children["js"], ActorContext.SessionId, Settings.TransactionalIO);
             }
         }
 
         internal IActorDispatch GetLocalDispatcher(ProcessId pid) =>
-            pid.Take(2) == Root["js"]
+            pid.Take(2) == RootJS
                 ? GetJsDispatcher(pid)
                 : GetDispatcher(pid.Tail(), rootItem, pid);
 
         internal IActorDispatch GetRemoteDispatcher(ProcessId pid) =>
             cluster.Match(
-                Some: c  => new ActorDispatchRemote(pid, c, ActorContext.SessionId) as IActorDispatch,
+                Some: c  => new ActorDispatchRemote(pid, c, ActorContext.SessionId, Settings.TransactionalIO) as IActorDispatch,
                 None: () => new ActorDispatchNotExist(pid));
 
         internal Option<Func<ProcessId, IEnumerable<ProcessId>>> GetProcessSelector(ProcessId pid)
@@ -793,19 +783,19 @@ by name then use Process.deregisterByName(name).");
 
         internal IActorDispatch GetPluginDispatcher(ProcessId pid) =>
             GetProcessSelector(pid)
-                .Map(selector => new ActorDispatchGroup(selector(pid.Skip(2))) as IActorDispatch)
+                .Map(selector => new ActorDispatchGroup(selector(pid.Skip(2)), Settings.TransactionalIO) as IActorDispatch)
                 .IfNone(() => new ActorDispatchNotExist(pid));
 
         internal bool IsLocal(ProcessId pid) =>
-            pid.Head() == Root;
+            pid.StartsWith(Root);
 
         internal bool IsDisp(ProcessId pid) =>
-            pid.Head() == Disp;
+            pid.value.IsDisp;
 
         public IActorDispatch GetDispatcher(ProcessId pid) =>
             pid.IsValid
                 ? pid.IsSelection
-                    ? new ActorDispatchGroup(pid.GetSelection())
+                    ? new ActorDispatchGroup(pid.GetSelection(), Settings.TransactionalIO)
                     : IsDisp(pid)
                         ? GetPluginDispatcher(pid)
                         : IsLocal(pid)
@@ -819,27 +809,21 @@ by name then use Process.deregisterByName(name).");
             {
                 if (current.Inbox is ILocalActorInbox)
                 {
-                    return new ActorDispatchLocal(current);
+                    return new ActorDispatchLocal(current, Settings.TransactionalIO);
                 }
                 else
                 {
                     return cluster.Match(
-                            Some: c => new ActorDispatchRemote(orig, c, ActorContext.SessionId) as IActorDispatch,
+                            Some: c  => new ActorDispatchRemote(orig, c, ActorContext.SessionId, Settings.TransactionalIO) as IActorDispatch,
                             None: () => new ActorDispatchNotExist(orig));
                 }
             }
             else
             {
-                var child = pid.Head().Name.Value;
-                if (current.Actor.Children.ContainsKey(child))
-                {
-                    var process = current.Actor.Children[child];
-                    return GetDispatcher(pid.Tail(), process, orig);
-                }
-                else
-                {
-                    return new ActorDispatchNotExist(orig);
-                }
+                var child = pid.HeadName().Value;
+                return current.Actor.Children.Find(child,
+                    Some: process => GetDispatcher(pid.Tail(), process, orig),
+                    None: ()      => new ActorDispatchNotExist(orig));
             }
         }
 

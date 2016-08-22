@@ -24,6 +24,8 @@ namespace TestBed
     {
         static void Main(string[] args)
         {
+            Tests.BlockingQueueTest();
+
             Tests.VersionTest();
             Tests.SerialiseDeserialiseCoreTypes();
             //Tests.StopStart();
@@ -51,7 +53,6 @@ namespace TestBed
             Tests.ClassBasedProcess();
             Tests.AsyncOption();
 
-            Tests.MapOptionTest();
             Tests.MassAddRemoveTest();
 
             Tests.SpawnProcess();

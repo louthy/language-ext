@@ -418,28 +418,6 @@ namespace TestBed
         }
 
 
-
-        public static void MapOptionTest()
-        {
-            var m = Map<Option<int>, Map<Option<int>, string>>();
-
-            m = m.AddOrUpdate(Some(1), Some(1), "Some Some");
-            m = m.AddOrUpdate(None, Some(1), "None Some");
-            m = m.AddOrUpdate(Some(1), None, "Some None");
-            m = m.AddOrUpdate(None, None, "None None");
-
-            Debug.Assert(m[Some(1)][Some(1)] == "Some Some");
-            Debug.Assert(m[None][Some(1)] == "None Some");
-            Debug.Assert(m[Some(1)][None] == "Some None");
-            Debug.Assert(m[None][None] == "None None");
-
-            Debug.Assert(m.CountT() == 4);
-
-            m = m.FilterT(v => v.EndsWith("None", StringComparison.Ordinal));
-
-            Debug.Assert(m.CountT() == 2);
-        }
-
         public static void MassAddRemoveTest()
         {
             int max = 1000000;
@@ -1002,6 +980,32 @@ namespace TestBed
             var pstr = str.ToCharArray().ToPString();
             var ostr = pstr.Cast<object>();
             pstr = ostr.Cast<char>();
+        }
+
+        public static void BlockingQueueTest()
+        {
+            var queue = new BlockingQueue<int>();
+
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            long current = watch.ElapsedMilliseconds;
+            int count = 0;
+
+            Task.Run(() => queue.Receive(_ =>
+            {
+                count++;
+                if (watch.ElapsedMilliseconds - current > 1000)
+                {
+                    Console.WriteLine($"Messages per second {count}");
+                    current = watch.ElapsedMilliseconds;
+                    count = 0;
+                }
+            }));
+
+            for(int i =0; ; i++)
+            {
+                queue.Send(i);
+            }
         }
     }
 }

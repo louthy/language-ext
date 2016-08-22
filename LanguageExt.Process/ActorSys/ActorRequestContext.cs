@@ -20,7 +20,6 @@ namespace LanguageExt
         public object CurrentMsg;
         public ActorRequest CurrentRequest;
         public ProcessFlags ProcessFlags;
-        public SessionVector Session;
 
         public ActorRequestContext(
             ActorSystem system,
@@ -30,8 +29,7 @@ namespace LanguageExt
             object currentMsg,
             ActorRequest currentRequest,
             ProcessFlags processFlags,
-            ProcessOpTransaction ops,
-            SessionVector session
+            ProcessOpTransaction ops
             )
         {
             Self = self;
@@ -42,7 +40,6 @@ namespace LanguageExt
             ProcessFlags = processFlags;
             Ops = ops;
             System = system;
-            Session = session;
         }
 
         public ActorRequestContext SetProcessFlags(ProcessFlags flags) =>
@@ -54,8 +51,7 @@ namespace LanguageExt
                 CurrentMsg,
                 CurrentRequest,
                 flags,
-                Ops,
-                Session
+                Ops
             );
 
         public ActorRequestContext SetCurrentRequest(ActorRequest currentRequest) =>
@@ -67,8 +63,7 @@ namespace LanguageExt
                 CurrentMsg,
                 currentRequest,
                 ProcessFlags,
-                Ops,
-                Session
+                Ops
             );
 
         public ActorRequestContext SetCurrentMessage(object currentMsg) =>
@@ -80,8 +75,7 @@ namespace LanguageExt
                 currentMsg,
                 CurrentRequest,
                 ProcessFlags,
-                Ops,
-                Session
+                Ops
             );
 
         public void SetOps(ProcessOpTransaction ops)

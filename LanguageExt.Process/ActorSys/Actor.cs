@@ -518,102 +518,99 @@ namespace LanguageExt
 
         public InboxDirective ProcessAsk(ActorRequest request)
         {
-            lock(sync)
+            var savedMsg = ActorContext.Request.CurrentMsg;
+            var savedFlags = ActorContext.Request.ProcessFlags;
+            var savedReq = ActorContext.Request.CurrentRequest;
+
+            try
             {
-                var savedMsg = ActorContext.Request.CurrentMsg;
-                var savedFlags = ActorContext.Request.ProcessFlags;
-                var savedReq = ActorContext.Request.CurrentRequest;
+                ActorContext.Request.CurrentRequest = request;
+                ActorContext.Request.ProcessFlags   = flags;
+                ActorContext.Request.CurrentMsg     = request.Message;
 
-                try
+                //ActorContext.AssertSession();
+
+                if (typeof(T) != typeof(string) && request.Message is string)
                 {
-                    ActorContext.Request.CurrentRequest = request;
-                    ActorContext.Request.ProcessFlags   = flags;
-                    ActorContext.Request.CurrentMsg     = request.Message;
-
-                    //ActorContext.AssertSession();
-
-                    if (typeof(T) != typeof(string) && request.Message is string)
-                    {
-                        state = PreProcessMessageContent(request.Message).Match(
-                                    Some: tmsg =>
+                    state = PreProcessMessageContent(request.Message).Match(
+                                Some: tmsg =>
+                                {
+                                    var stateIn = GetState();
+                                    var stateOut = actorFn(stateIn, tmsg);
+                                    try
                                     {
-                                        var stateIn = GetState();
-                                        var stateOut = actorFn(stateIn, tmsg);
-                                        try
+                                        if (notnull(stateOut) && !stateOut.Equals(stateIn))
                                         {
-                                            if (notnull(stateOut) && !stateOut.Equals(stateIn))
-                                            {
-                                                stateSubject.OnNext(stateOut);
-                                            }
+                                            stateSubject.OnNext(stateOut);
                                         }
-                                        catch (Exception ue)
-                                        {
-                                            // Not our errors, so just log and move on
-                                            logErr(ue);
-                                        }
-                                        return stateOut;
-                                    },
-                                    None: () =>
-                                    {
-                                        replyError(new AskException($"Can't ask {Id.Path}, message is not {typeof(T).GetTypeInfo().Name} : {request.Message}"));
-                                        return state;
                                     }
-                                );
-                    }
-                    else if (request.Message is T)
-                    {
-                        var msg = (T)request.Message;
-                        var stateIn = GetState();
-                        var stateOut = actorFn(stateIn, msg);
-                        try
-                        {
-                            if (notnull(stateOut) && !stateOut.Equals(stateIn))
-                            {
-                                stateSubject.OnNext(stateOut);
-                            }
-                        }
-                        catch (Exception ue)
-                        {
-                            // Not our errors, so just log and move on
-                            logErr(ue);
-                        }
-                        state = stateOut;
-                    }
-                    else if (request.Message is Message)
-                    {
-                        ProcessSystemMessage((Message)request.Message);
-                    }
-                    else
-                    {
-                        // Failure to deserialise is not our problem, its the sender's
-                        // so we don't throw here.
-                        replyError(new AskException($"Can't ask {Id.Path}, message is not {typeof(T).GetTypeInfo().Name} : {request.Message}"));
-                        return InboxDirective.Default;
-                    }
-
-                    strategyState = strategyState.With(
-                        Failures: 0,
-                        LastFailure: DateTime.MaxValue,
-                        BackoffAmount: 0 * seconds
-                        );
-
-                    ActorContext.Request.RunOps();
+                                    catch (Exception ue)
+                                    {
+                                        // Not our errors, so just log and move on
+                                        logErr(ue);
+                                    }
+                                    return stateOut;
+                                },
+                                None: () =>
+                                {
+                                    replyError(new AskException($"Can't ask {Id.Path}, message is not {typeof(T).GetTypeInfo().Name} : {request.Message}"));
+                                    return state;
+                                }
+                            );
                 }
-                catch (Exception e)
+                else if (request.Message is T)
                 {
-                    ActorContext.Request.SetOps(ProcessOpTransaction.Start(Id));
-                    replyError(e);
-                    ActorContext.Request.RunOps();
-                    return DefaultErrorHandler(request, e);
+                    var msg = (T)request.Message;
+                    var stateIn = GetState();
+                    var stateOut = actorFn(stateIn, msg);
+                    try
+                    {
+                        if (notnull(stateOut) && !stateOut.Equals(stateIn))
+                        {
+                            stateSubject.OnNext(stateOut);
+                        }
+                    }
+                    catch (Exception ue)
+                    {
+                        // Not our errors, so just log and move on
+                        logErr(ue);
+                    }
+                    state = stateOut;
                 }
-                finally
+                else if (request.Message is Message)
                 {
-                    ActorContext.Request.CurrentMsg = savedMsg;
-                    ActorContext.Request.ProcessFlags = savedFlags;
-                    ActorContext.Request.CurrentRequest = savedReq;
+                    ProcessSystemMessage((Message)request.Message);
                 }
-                return InboxDirective.Default;
+                else
+                {
+                    // Failure to deserialise is not our problem, its the sender's
+                    // so we don't throw here.
+                    replyError(new AskException($"Can't ask {Id.Path}, message is not {typeof(T).GetTypeInfo().Name} : {request.Message}"));
+                    return InboxDirective.Default;
+                }
+
+                strategyState = strategyState.With(
+                    Failures: 0,
+                    LastFailure: DateTime.MaxValue,
+                    BackoffAmount: 0 * seconds
+                    );
+
+                ActorContext.Request.RunOps();
             }
+            catch (Exception e)
+            {
+                ActorContext.Request.SetOps(ProcessOpTransaction.Start(Id));
+                replyError(e);
+                ActorContext.Request.RunOps();
+                return DefaultErrorHandler(request, e);
+            }
+            finally
+            {
+                ActorContext.Request.CurrentMsg = savedMsg;
+                ActorContext.Request.ProcessFlags = savedFlags;
+                ActorContext.Request.CurrentRequest = savedReq;
+            }
+            return InboxDirective.Default;
         }
 
         void ProcessSystemMessage(Message message)
@@ -714,90 +711,87 @@ namespace LanguageExt
         /// <returns></returns>
         public InboxDirective ProcessMessage(object message)
         {
-            lock(sync)
+            var savedReq = ActorContext.Request.CurrentRequest;
+            var savedFlags = ActorContext.Request.ProcessFlags;
+            var savedMsg = ActorContext.Request.CurrentMsg;
+
+            try
             {
-                var savedReq = ActorContext.Request.CurrentRequest;
-                var savedFlags = ActorContext.Request.ProcessFlags;
-                var savedMsg = ActorContext.Request.CurrentMsg;
+                ActorContext.Request.CurrentRequest = null;
+                ActorContext.Request.ProcessFlags = flags;
+                ActorContext.Request.CurrentMsg = message;
 
-                try
+                if (message is T)
                 {
-                    ActorContext.Request.CurrentRequest = null;
-                    ActorContext.Request.ProcessFlags = flags;
-                    ActorContext.Request.CurrentMsg = message;
-
-                    if (typeof(T) != typeof(string) && message is string)
+                    var stateIn = GetState();
+                    var stateOut = actorFn(stateIn, (T)message);
+                    state = stateOut;
+                    try
                     {
-                        state = PreProcessMessageContent(message).Match(
-                                    Some: tmsg =>
+                        if (notnull(stateOut) && !state.Equals(stateIn))
+                        {
+                            stateSubject.OnNext(stateOut);
+                        }
+                    }
+                    catch (Exception ue)
+                    {
+                        // Not our errors, so just log and move on
+                        logErr(ue);
+                    }
+                }
+                else if (typeof(T) != typeof(string) && message is string)
+                {
+                    state = PreProcessMessageContent(message).Match(
+                                Some: tmsg =>
+                                {
+                                    var stateIn = GetState();
+                                    var stateOut = actorFn(stateIn, tmsg);
+                                    try
                                     {
-                                        var stateIn = GetState();
-                                        var stateOut = actorFn(stateIn, tmsg);
-                                        try
+                                        if (notnull(stateOut) && !stateOut.Equals(stateIn))
                                         {
-                                            if (notnull(stateOut) && !stateOut.Equals(stateIn))
-                                            {
-                                                stateSubject.OnNext(stateOut);
-                                            }
+                                            stateSubject.OnNext(stateOut);
                                         }
-                                        catch (Exception ue)
-                                        {
-                                            // Not our errors, so just log and move on
-                                            logErr(ue);
-                                        }
-                                        return stateOut;
-                                    },
-                                    None: () => state
-                                );
-                    }
-                    else if (message is T)
-                    {
-                        var stateIn = GetState();
-                        var stateOut = actorFn(GetState(), (T)message);
-                        state = stateOut;
-                        try
-                        {
-                            if (notnull(stateOut) && !state.Equals(stateIn))
-                            {
-                                stateSubject.OnNext(stateOut);
-                            }
-                        }
-                        catch (Exception ue)
-                        {
-                            // Not our errors, so just log and move on
-                            logErr(ue);
-                        }
-                    }
-                    else if (message is Message)
-                    {
-                        ProcessSystemMessage((Message)message);
-                    }
-                    else
-                    {
-                        logErr($"Can't tell {Id.Path}, message is not {typeof(T).GetTypeInfo().Name} : {message}");
-                        return InboxDirective.Default;
-                    }
-
-                    strategyState = strategyState.With(
-                        Failures: 0,
-                        LastFailure: DateTime.MaxValue,
-                        BackoffAmount: 0*seconds
-                        );
-
-                    ActorContext.Request.RunOps();
+                                    }
+                                    catch (Exception ue)
+                                    {
+                                        // Not our errors, so just log and move on
+                                        logErr(ue);
+                                    }
+                                    return stateOut;
+                                },
+                                None: () => state
+                            );
                 }
-                catch (Exception e)
+                else if (message is Message)
                 {
-                    return DefaultErrorHandler(message, e);
+                    ProcessSystemMessage((Message)message);
                 }
-                finally
+                else
                 {
-                    ActorContext.Request.CurrentRequest = savedReq;
-                    ActorContext.Request.ProcessFlags = savedFlags;
-                    ActorContext.Request.CurrentMsg = savedMsg;
+                    logErr($"Can't tell {Id.Path}, message is not {typeof(T).GetTypeInfo().Name} : {message}");
+                    return InboxDirective.Default;
                 }
-                return InboxDirective.Default;
+
+                strategyState = strategyState.With(
+                    Failures: 0,
+                    LastFailure: DateTime.MaxValue,
+                    BackoffAmount: 0*seconds
+                    );
+
+                ActorContext.Request.RunOps();
             }
+            catch (Exception e)
+            {
+                return DefaultErrorHandler(message, e);
+            }
+            finally
+            {
+                ActorContext.Request.CurrentRequest = savedReq;
+                ActorContext.Request.ProcessFlags = savedFlags;
+                ActorContext.Request.CurrentMsg = savedMsg;
+            }
+            return InboxDirective.Default;
         }
 
         public InboxDirective RunStrategy(

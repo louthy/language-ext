@@ -14,9 +14,12 @@ namespace Throughput
     {
         static void Main(string[] args)
         {
+            ThreadPool.SetMinThreads(100, 100);
+            ThreadPool.SetMaxThreads(100, 100);
+
             ProcessConfig.initialise();
 
-            int pairs = args.Count() == 0 ? 16 : Int32.Parse(args[0]);
+            int pairs = args.Count() == 0 ? 10 : Int32.Parse(args[0]);
             int msgs = args.Count() == 2 ? Int32.Parse(args[1]) : 10;
             int sleepForMax = 20;
 

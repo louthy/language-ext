@@ -17,6 +17,8 @@ namespace LanguageExt
     /// </remarks>
     public struct ProcessName : IEquatable<ProcessName>, IComparable<ProcessName>, IComparable
     {
+        internal static readonly ProcessName[] EmptyParts = new ProcessName[0];
+
         public readonly string Value;
 
         public static readonly char[] InvalidNameChars =

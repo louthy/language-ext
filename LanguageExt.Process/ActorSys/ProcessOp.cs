@@ -95,9 +95,12 @@ namespace LanguageExt
 
         Unit Run(Que<ProcessOp> ops)
         {
-            if (ops.Count == 0) return unit;
-            ops.Peek().Run(ProcessId);
-            return Run(ops.Dequeue());
+            while (ops.Count > 0)
+            {
+                ops.Peek().Run(ProcessId);
+                ops = ops.Dequeue();
+            }
+            return unit;
         }
     }
 

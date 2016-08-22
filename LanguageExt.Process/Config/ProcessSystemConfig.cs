@@ -35,7 +35,7 @@ namespace LanguageExt.Config
         Time timeout = 30 * seconds;
         Time sessionTimeoutCheck = 60 * seconds;
         int maxMailboxSize = 100000;
-        bool transactionalIO = true;
+        bool transactionalIO = false;
 
         public readonly static ProcessSystemConfig Empty =
             new ProcessSystemConfig(

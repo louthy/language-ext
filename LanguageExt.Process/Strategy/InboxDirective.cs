@@ -7,6 +7,7 @@ namespace LanguageExt
     {
         Default = 0,
         PushToFrontOfQueue = 1,
-        Pause = 2
+        Pause = 2,
+        Shutdown = 3
     }
 }

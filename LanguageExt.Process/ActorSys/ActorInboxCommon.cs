@@ -173,7 +173,7 @@ namespace LanguageExt
                     return ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, utmsg.Id, null, msg, session, () => actor.ProcessTerminated(utmsg.Id));
 
                 case Message.TagSpec.User:
-                    var umsg = ((UserMessage)msg).SetSystem(actor.Id.System); ;
+                    var umsg = ((UserMessage)msg).SetSystem(actor.Id.System);
                     return ActorContext.System(actor.Id).WithContext(new ActorItem(actor, inbox, actor.Flags), parent, umsg.Sender, null, msg, session, () => actor.ProcessMessage(umsg.Content));
 
                 case Message.TagSpec.ShutdownProcess:

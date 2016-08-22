@@ -10,9 +10,11 @@ namespace LanguageExt
     {
         public readonly ILocalActorInbox Inbox;
         public readonly IActor Actor;
+        readonly bool transactionalIO;
 
-        public ActorDispatchLocal(ActorItem actor)
+        public ActorDispatchLocal(ActorItem actor, bool transactionalIO)
         {
+            this.transactionalIO = transactionalIO;
             Inbox = actor.Inbox as ILocalActorInbox;
             if (Inbox == null) throw new ArgumentException("Invalid (not local) ActorItem passed to LocalActorDispatch.");
             Actor = actor.Actor;
@@ -35,26 +37,32 @@ namespace LanguageExt
             Inbox.CanAcceptMessageType<T>();
 
         public Unit Tell(object message, ProcessId sender, Message.TagSpec tag) =>
-            ProcessOp.IO(() =>
-            {
-                message = Inbox.ValidateMessageType(message, sender);
-                return Inbox.Tell(message, sender);
-            });
+            transactionalIO
+                ? Inbox.Tell(Inbox.ValidateMessageType(message, sender), sender)
+                : ProcessOp.IO(() => Inbox.Tell(Inbox.ValidateMessageType(message, sender), sender));
 
         public Unit TellSystem(SystemMessage message, ProcessId sender) =>
-            ProcessOp.IO(() => Inbox.TellSystem(message));
+            transactionalIO
+                ? Inbox.TellSystem(message)
+                : ProcessOp.IO(() => Inbox.TellSystem(message));
 
         public Unit TellUserControl(UserControlMessage message, ProcessId sender) =>
-            ProcessOp.IO(() => Inbox.TellUserControl(message));
+            transactionalIO
+                ? Inbox.TellUserControl(message)
+                : ProcessOp.IO(() => Inbox.TellUserControl(message));
 
         public Unit Ask(object message, ProcessId sender) =>
             Inbox.Ask(message, sender);
 
         public Unit Kill() =>
-            ProcessOp.IO(() => ShutdownProcess(false));
+            transactionalIO
+                ? ShutdownProcess(false)
+                : ProcessOp.IO(() => ShutdownProcess(false));
 
         public Unit Shutdown() =>
-            ProcessOp.IO(() => ShutdownProcess(true));
+            transactionalIO
+                ? ShutdownProcess(true)
+                : ProcessOp.IO(() => ShutdownProcess(true));
 
         Unit ShutdownProcess(bool maintainState) =>
             ActorContext.System(Actor.Id).WithContext(
@@ -75,22 +83,32 @@ namespace LanguageExt
             Actor.Children.Map(a => a.Actor.Id);
 
         public Unit Publish(object message) =>
-            ProcessOp.IO(() => Actor.Publish(message));
+            transactionalIO
+                ? Actor.Publish(message)
+                : ProcessOp.IO(() => Actor.Publish(message));
 
         public int GetInboxCount() =>
             Inbox.Count;
 
         public Unit Watch(ProcessId pid) =>
-            ProcessOp.IO(() => Actor.AddWatcher(pid));
+            transactionalIO
+                ? Actor.AddWatcher(pid)
+                : ProcessOp.IO(() => Actor.AddWatcher(pid));
 
         public Unit UnWatch(ProcessId pid) =>
-            ProcessOp.IO(() => Actor.RemoveWatcher(pid));
+            transactionalIO
+                ? Actor.RemoveWatcher(pid)
+                : ProcessOp.IO(() => Actor.RemoveWatcher(pid));
 
         public Unit DispatchWatch(ProcessId watching) =>
-            ProcessOp.IO(() => Actor.DispatchWatch(watching));
+            transactionalIO
+                ? Actor.DispatchWatch(watching)
+                : ProcessOp.IO(() => Actor.DispatchWatch(watching));
 
         public Unit DispatchUnWatch(ProcessId watching) =>
-            ProcessOp.IO(() => Actor.DispatchUnWatch(watching));
+            transactionalIO
+                ? Actor.DispatchUnWatch(watching)
+                : ProcessOp.IO(() => Actor.DispatchUnWatch(watching));
 
         public bool IsLocal => 
             true;

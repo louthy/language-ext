@@ -12,12 +12,14 @@ namespace LanguageExt
         public readonly ProcessId ProcessId;
         public readonly ICluster Cluster;
         public readonly Option<SessionId> SessionId;
+        readonly bool transactionalIO;
 
-        public ActorDispatchRemote(ProcessId pid, ICluster cluster, Option<SessionId> sessionId)
+        public ActorDispatchRemote(ProcessId pid, ICluster cluster, Option<SessionId> sessionId, bool transactionalIO)
         {
             ProcessId = pid;
             Cluster = cluster;
             SessionId = sessionId;
+            this.transactionalIO = transactionalIO;
         }
 
         public Map<string, ProcessId> GetChildren() =>
@@ -86,14 +88,22 @@ namespace LanguageExt
             Tell(message, sender, "user", Message.Type.UserControl, message.Tag);
 
         public Unit TellSystem(SystemMessage message, ProcessId sender) =>
-            ProcessOp.IO(() =>
-            {
-                var dto = RemoteMessageDTO.Create(message, ProcessId, sender, Message.Type.System, message.Tag, SessionId);
-                var clientsReached = Cluster.PublishToChannel(ActorInboxCommon.ClusterSystemInboxNotifyKey(ProcessId), dto);
-            });
+            transactionalIO
+                ? ignore(Cluster.PublishToChannel(
+                      ActorInboxCommon.ClusterSystemInboxNotifyKey(ProcessId),
+                      RemoteMessageDTO.Create(message, ProcessId, sender, Message.Type.System, message.Tag, SessionId)))
+                : ProcessOp.IO(() =>
+                  {
+                      var clientsReached = Cluster.PublishToChannel(
+                          ActorInboxCommon.ClusterSystemInboxNotifyKey(ProcessId),
+                          RemoteMessageDTO.Create(message, ProcessId, sender, Message.Type.System, message.Tag, SessionId));
+                      return unit;
+                  });
 
         public Unit Tell(object message, ProcessId sender, string inbox, Message.Type type, Message.TagSpec tag) =>
-            ProcessOp.IO(() => TellNoIO(message, sender, inbox, type, tag));
+            transactionalIO
+                ? TellNoIO(message, sender, inbox, type, tag)
+                : ProcessOp.IO(() => TellNoIO(message, sender, inbox, type, tag));
 
         Unit TellNoIO(object message, ProcessId sender, string inbox, Message.Type type, Message.TagSpec tag)
         {
@@ -110,7 +120,9 @@ namespace LanguageExt
             TellNoIO(message, sender, "user", Message.Type.User, Message.TagSpec.UserAsk);
 
         public Unit Publish(object message) =>
-            ProcessOp.IO(() => Cluster.PublishToChannel(ActorInboxCommon.ClusterPubSubKey(ProcessId), message));
+            transactionalIO
+                ? ignore(Cluster.PublishToChannel(ActorInboxCommon.ClusterPubSubKey(ProcessId), message))
+                : ProcessOp.IO(() => Cluster.PublishToChannel(ActorInboxCommon.ClusterPubSubKey(ProcessId), message));
 
         public Unit Kill() =>
             TellSystem(SystemMessage.ShutdownProcess(false), Self);
