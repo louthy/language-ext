@@ -27,7 +27,7 @@ namespace LanguageExtTests
         }
 
         [Fact]
-        public void StringMonad()
+        public void StringMonoid()
         {
             var res = mconcat<TString, string>("mary ", "had ", "a ", "little ", "lamb");
 
