@@ -354,7 +354,7 @@ namespace LanguageExt
         /// Convert the structure to a TryOption
         /// </summary>
         [Pure]
-        public TryOption<A> ToTryOption<L>(L defaultLeftValue)
+        public TryOption<A> ToTryOption()
         {
             var self = this;
             return () => self;
