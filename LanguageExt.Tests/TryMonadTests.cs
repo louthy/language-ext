@@ -132,36 +132,36 @@ namespace LanguageExtTests
         }
 
         public Try<string> GetValue(bool select) =>
-            () => select
+            Try(() => select
                 ? "Hello, World"
-                : failwith<string>("Failed!");
+                : failwith<string>("Failed!"));
 
         public Try<int> Num(int x, bool select = true) =>
-            () => select
+            Try(() => select
                 ? x
-                : failwith<int>("Failed!");
+                : failwith<int>("Failed!"));
 
-        Try<int> OddNumberCrash(int x) => () =>
+        Try<int> OddNumberCrash(int x) => Try(() =>
         {
             if (x % 2 == 0)
                 return x;
             else
                 throw new System.Exception("Any exception");
-        };
+        });
 
         // Below is just some code to test compilation and inference
 
-        Try<Uri> parseUri(string uri) => () =>
-            new Uri(uri);
+        Try<Uri> parseUri(string uri) => Try(() =>
+            new Uri(uri));
 
-        Try<WebClient> getClient() => () =>
-            new WebClient();
+        Try<WebClient> getClient() => Try(() =>
+            new WebClient());
 
-        Try<string> getContent(Uri uri, WebClient client) => () =>
-            client.DownloadString(uri);
+        Try<string> getContent(Uri uri, WebClient client) => Try(() =>
+            client.DownloadString(uri));
 
-        Try<Lst<string>> getLines(string text) => () =>
-            text.Split('\n').Freeze();
+        Try<Lst<string>> getLines(string text) => Try(() =>
+            text.Split('\n').Freeze());
 
         Try<Lst<string>> getURLContent(string uri) =>
             from address in parseUri(uri)

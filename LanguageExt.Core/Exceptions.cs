@@ -28,6 +28,8 @@ namespace LanguageExt
 #endif
     public class ValueIsNoneException : Exception
     {
+        public static readonly ValueIsNoneException Default = new ValueIsNoneException();
+
         /// <summary>
         /// Ctor
         /// </summary>
@@ -273,6 +275,17 @@ namespace LanguageExt
     {
         public NotDivisibleException(Type t)
             : base($"Type '{t.Name}' not divisible: It's neither a CLR numeric-type, nor dervied from IDivisible")
+        {
+        }
+    }
+
+#if !COREFX
+    [Serializable]
+#endif
+    public class InnerException : Exception
+    {
+        public InnerException(Exception e) :
+            base(e.Message, e)
         {
         }
     }

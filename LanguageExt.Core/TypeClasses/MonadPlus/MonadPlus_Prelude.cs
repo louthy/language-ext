@@ -13,7 +13,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound type</typeparam>
         /// <returns>Zero for the structure</returns>
         public static MA mzero<MA, A>() where MA : struct, MonadPlus<A> =>
-            (MA)default(MA).Zero(default(MA));
+            (MA)default(MA).Zero();
 
         /// <summary>
         /// Return monad x 'plus' monad y
@@ -65,7 +65,7 @@ namespace LanguageExt
         /// <param name="ma">The monads filter</param>
         /// <returns>The filtered (or not) monad</returns>
         public static MA filter<MA, A>(MA ma, Func<A, bool> pred) where MA : struct, MonadPlus<A> =>
-            (MA)ma.Bind(
+            (MA)ma.Bind(ma, 
                 x => pred(x)
                     ? Return<MA, A>(x)
                     : mzero<MA, A>());

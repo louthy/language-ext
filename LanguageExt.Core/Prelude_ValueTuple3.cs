@@ -80,7 +80,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static ValueTuple<T1, T2, R3> mapThird<T1, T2, T3, R3>(ValueTuple<T1, T2, T3> self, Func<T3, R3> thirdMap) =>
-            ValueTuple(self.Item1, self.Item2, thirdMap(self.Item3));
+            ValueTuple.Create(self.Item1, self.Item2, thirdMap(self.Item3));
 
         /// <summary>
         /// Iterate

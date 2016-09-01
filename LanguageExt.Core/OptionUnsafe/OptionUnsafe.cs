@@ -17,8 +17,8 @@ namespace LanguageExt
     ///     
     ///     None
     ///     
-    /// The type is part of the Monad, Applicative, Functor, Foldable, and
-    /// Seq, type-classes.
+    /// The type is part of the Monad, Functor, Foldable, and Seq, 
+    /// type-classes.
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
 #if !COREFX
@@ -53,132 +53,6 @@ namespace LanguageExt
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
             this.value = value;
-        }
-
-        /// <summary>
-        /// Functor map operation
-        /// </summary>
-        /// <typeparam name="B">The type that f maps to</typeparam>
-        /// <param name="ma">The functor</param>
-        /// <param name="f">The operation to perform on the bound value</param>
-        /// <returns>A mapped functor</returns>
-        [Pure]
-        public Functor<B> Map<B>(Functor<A> ma, Func<A, B> f)
-        {
-            var maybe = AsOpt(ma);
-            return maybe.IsSome()
-                ? new OptionUnsafe<B>(OptionV<B>.Optional(f(maybe.Value())))
-                : OptionUnsafe<B>.None;
-        }
-
-        /// <summary>
-        /// Option cast from Functor
-        /// </summary>
-        [Pure]
-        private static OptionV<A> AsOpt(Functor<A> a) =>
-            ((OptionUnsafe<A>)a).value ?? OptionV<A>.None;
-
-        /// <summary>
-        /// Option cast from Foldable
-        /// </summary>
-        [Pure]
-        private static OptionV<A> AsOpt(Foldable<A> a) =>
-            ((OptionUnsafe<A>)a).value ?? OptionV<A>.None;
-
-
-        /// <summary>
-        /// Monad return
-        /// 
-        /// Constructs a Monad of A
-        /// </summary>
-        /// <param name="a">Value to bind</param>
-        /// <returns>Monad of A</returns>
-        [Pure]
-        public Monad<A> Return(A x, params A[] xs) =>
-            new OptionUnsafe<A>(OptionV<A>.Optional(x));
-
-        /// <summary>
-        /// Monad bind
-        /// </summary>
-        /// <typeparam name="B">Type the bind operation returns</typeparam>
-        /// <param name="ma">Monad of A</param>
-        /// <param name="f">Bind operation</param>
-        /// <returns>Monad of B</returns>
-        [Pure]
-        public Monad<B> Bind<B>(Monad<A> ma, Func<A, Monad<B>> f)
-        {
-            var maybe = AsOpt((Foldable<A>)ma);
-            return maybe.IsSome()
-                ? f(maybe.Value())
-                : OptionUnsafe<B>.None;
-        }
-
-        /// <summary>
-        /// Monad fail
-        /// </summary>
-        /// <param name="err">Optional error message - not supported for OptionV</param>
-        /// <returns>Monad of A (for Option this returns a None state)</returns>
-        [Pure]
-        public Monad<A> Fail(string err = "") =>
-            None;
-
-        /// <summary>
-        /// Applicative pure
-        /// 
-        /// Constructs an Applicative of A
-        /// </summary>
-        /// <param name="a">Value to bind</param>
-        /// <returns>Applicative of A</returns>
-        [Pure]
-        public Applicative<A> Pure(A x, params A[] xs) =>
-            new OptionUnsafe<A>(OptionV<A>.Optional(x));
-
-        /// <summary>
-        /// Applicative bind
-        /// </summary>
-        /// <typeparam name="B">The type of the bind result</typeparam>
-        /// <param name="ma">Applicative of A</param>
-        /// <param name="f">Bind operation to perform</param>
-        /// <returns>Applicative of B</returns>
-        [Pure]
-        public Applicative<B> Bind<B>(Applicative<A> ma, Func<A, Applicative<B>> f)
-        {
-            var maybe = AsOpt(ma);
-            return maybe.IsSome()
-                ? f(maybe.Value())
-                : OptionUnsafe<B>.None;
-        }
-
-        /// <summary>
-        /// Fold the bound value
-        /// </summary>
-        /// <typeparam name="S">Initial state type</typeparam>
-        /// <param name="ma">Monad to fold</param>
-        /// <param name="state">Initial state</param>
-        /// <param name="f">Fold operation</param>
-        /// <returns>Aggregated state</returns>
-        public S Fold<S>(Foldable<A> ma, S state, Func<S, A, S> f)
-        {
-            var maybe = AsOpt(ma);
-            return maybe.IsSome()
-                ? f(state, maybe.Value())
-                : state;
-        }
-
-        /// <summary>
-        /// Fold the bound value
-        /// </summary>
-        /// <typeparam name="S">Initial state type</typeparam>
-        /// <param name="ma">Monad to fold</param>
-        /// <param name="state">Initial state</param>
-        /// <param name="f">Fold operation</param>
-        /// <returns>Aggregated state</returns>
-        public S FoldBack<S>(Foldable<A> ma, S state, Func<S, A, S> f)
-        {
-            var maybe = AsOpt(ma);
-            return maybe.IsSome()
-                ? f(state, maybe.Value())
-                : state;
         }
 
         /// <summary>
@@ -502,18 +376,185 @@ namespace LanguageExt
         public A IfNoneUnsafe(A noneValue) =>
             MatchUnsafe(identity, () => noneValue);
 
+        public bool Equals(OptionUnsafe<A> other) =>
+            equals<EqDefault<A>, A>(this, other);
+
+        public int CompareTo(OptionUnsafe<A> other) =>
+            compare<OrdDefault<A>, A>(this, other);
+
+        /// <summary>
+        /// Functor map operation
+        /// </summary>
+        /// <typeparam name="B">The type that f maps to</typeparam>
+        /// <param name="ma">The functor</param>
+        /// <param name="f">The operation to perform on the bound value</param>
+        /// <returns>A mapped functor</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Functor<B> Map<B>(Functor<A> ma, Func<A, B> f)
+        {
+            var maybe = AsOpt(ma);
+            return maybe.IsSome()
+                ? new OptionUnsafe<B>(OptionV<B>.Optional(f(maybe.Value())))
+                : OptionUnsafe<B>.None;
+        }
+
+        /// <summary>
+        /// Monad return
+        /// 
+        /// Constructs a Monad of A
+        /// </summary>
+        /// <param name="a">Value to bind</param>
+        /// <returns>Monad of A</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Monad<A> Return(A x, params A[] xs) =>
+            new OptionUnsafe<A>(OptionV<A>.Optional(x));
+
+        /// <summary>
+        /// Monad return
+        /// Constructs a Monad of A
+        /// </summary>
+        /// <param name="a">Value to bind</param>
+        /// <returns>Monad of A</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Monad<A> Return(IEnumerable<A> xs)
+        {
+            var x = xs.Take(1).ToArray();
+            return x.Length == 0
+                ? OptionUnsafe<A>.None
+                : OptionUnsafe<A>.Some(x[0]);
+        }
+
+        /// <summary>
+        /// Monad bind
+        /// </summary>
+        /// <typeparam name="B">Type the bind operation returns</typeparam>
+        /// <param name="ma">Monad of A</param>
+        /// <param name="f">Bind operation</param>
+        /// <returns>Monad of B</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Monad<B> Bind<B>(Monad<A> ma, Func<A, Monad<B>> f)
+        {
+            var maybe = AsOpt((Foldable<A>)ma);
+            return maybe.IsSome()
+                ? f(maybe.Value())
+                : Option<B>.None;
+        }
+
+        /// <summary>
+        /// Monad bind
+        /// </summary>
+        /// <typeparam name="B">Type the bind operation returns</typeparam>
+        /// <param name="ma">Monad of A</param>
+        /// <param name="f">Bind operation</param>
+        /// <returns>Monad of B</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public MB Bind<MB, B>(Monad<A> ma, Func<A, MB> f) where MB : struct, Monad<B>
+        {
+            var maybe = AsOpt((Foldable<A>)ma);
+            return maybe.IsSome()
+                ? f(maybe.Value())
+                : (MB)default(MB).Fail(ValueIsNoneException.Default);
+        }
+
+        /// <summary>
+        /// Monad fail
+        /// </summary>
+        /// <param name="_">Not supported for OptionV</param>
+        /// <returns>Monad of A (for Option this returns a None state)</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Monad<A> Fail(Exception _ = null) =>
+            None;
+
+        /// <summary>
+        /// Fold the bound value
+        /// </summary>
+        /// <typeparam name="S">Initial state type</typeparam>
+        /// <param name="ma">Monad to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="f">Fold operation</param>
+        /// <returns>Aggregated state</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public S Fold<S>(Foldable<A> ma, S state, Func<S, A, S> f)
+        {
+            var maybe = AsOpt(ma);
+            return maybe.IsSome()
+                ? f(state, maybe.Value())
+                : state;
+        }
+
+        /// <summary>
+        /// Fold the bound value
+        /// </summary>
+        /// <typeparam name="S">Initial state type</typeparam>
+        /// <param name="ma">Monad to fold</param>
+        /// <param name="state">Initial state</param>
+        /// <param name="f">Fold operation</param>
+        /// <returns>Aggregated state</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public S FoldBack<S>(Foldable<A> ma, S state, Func<S, A, S> f)
+        {
+            var maybe = AsOpt(ma);
+            return maybe.IsSome()
+                ? f(state, maybe.Value())
+                : state;
+        }
+
+        /// <summary>
+        /// Returns true if the optional is in a Some state
+        /// </summary>
+        /// <param name="a">Optional to check</param>
+        /// <returns>True if the optional is in a Some state</returns>
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool IsSomeA(Optional<A> a) =>
             ((OptionUnsafe<A>)a).IsSome;
 
+        /// <summary>
+        /// Returns true if the optional is in a None state
+        /// </summary>
+        /// <param name="a">Optional to check</param>
+        /// <returns>True if the optional is in a None state</returns>
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool IsNoneA(Optional<A> a) =>
             ((OptionUnsafe<A>)a).IsNone;
 
+        /// <summary>
+        /// Extracts the bound value an maps it, a None function is available
+        /// for when the Optional has no value to map.
+        /// 
+        /// Does not allow null values to be returned from Some or None
+        /// </summary>
+        /// <typeparam name="B">Type that the bound value is mapped to</typeparam>
+        /// <param name="a">The optional structure</param>
+        /// <param name="Some">The mapping function to call if the value is in a Some state</param>
+        /// <param name="None">The mapping function to call if the value is in a None state</param>
+        /// <returns>The bound value unwrapped and mapped to a value of type B</returns>
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public B Match<B>(Optional<A> a, Func<A, B> Some, Func<B> None) =>
             ((OptionUnsafe<A>)a).MatchUnsafe(Some, None);
 
+        /// <summary>
+        /// Extracts the bound value an maps it, a None function is available
+        /// for when the Optional has no value to map.
+        /// 
+        /// Allows null values to be returned from Some or None (hence un Unsafe suffix)
+        /// </summary>
+        /// <typeparam name="B">Type that the bound value is mapped to</typeparam>
+        /// <param name="a">The optional structure</param>
+        /// <param name="Some">The mapping function to call if the value is in a Some state</param>
+        /// <param name="None">The mapping function to call if the value is in a None state</param>
+        /// <returns>The bound value unwrapped and mapped to a value of type B</returns>
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public B MatchUnsafe<B>(Optional<A> a, Func<A, B> Some, Func<B> None) =>
             ((OptionUnsafe<A>)a).MatchUnsafe(Some, None);
@@ -521,28 +562,32 @@ namespace LanguageExt
         /// <summary>
         /// True if the optional type allows nulls
         /// </summary>
+        [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool IsUnsafe(Optional<A> a) => true;
+        public bool IsUnsafe(Optional<A> a) => false;
 
-        public bool Equals(OptionUnsafe<A> other) =>
-            equals<EqDefault<A>, A>(this, other);
-
-        public int CompareTo(OptionUnsafe<A> other) =>
-            compare<OrdDefault<A>, A>(this, other);
-
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public MonadPlus<A> Plus(MonadPlus<A> a, MonadPlus<A> b)
         {
-            var ma = AsOpt((Functor<A>)a);
-            var mb = AsOpt((Functor<A>)b);
-            if (ma.IsNone() && mb.IsNone()) return None; // 0 solutions + 0 solutions = 0 solutions
-            if (ma.IsSome() && mb.IsNone()) return a;    // 1 solutions + 0 solutions = 1 solutions
-            if (ma.IsNone() && mb.IsSome()) return b;    // 0 solutions + 1 solutions = 1 solutions
-            return a;                                    // 1 solutions + 1 solutions = 2 solutions
-                                                         // but Option can only have up to one solution,
-                                                         // so we disregard the second one.
+            var ma = AsOpt(a);
+            return ma.IsSome()
+                ? a
+                : b;
         }
 
-        public MonadPlus<A> Zero(MonadPlus<A> a) =>
-            None;
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public MonadPlus<A> Zero() =>
+            OptionUnsafe<A>.None;
+
+        [Pure]
+        static OptionV<A> AsOpt(Monad<A> a) => ((OptionUnsafe<A>)a).value ?? OptionV<A>.None;
+
+        [Pure]
+        static OptionV<A> AsOpt(Functor<A> a) => ((OptionUnsafe<A>)a).value ?? OptionV<A>.None;
+
+        [Pure]
+        static OptionV<A> AsOpt(Foldable<A> a) => ((OptionUnsafe<A>)a).value ?? OptionV<A>.None;
     }
 }

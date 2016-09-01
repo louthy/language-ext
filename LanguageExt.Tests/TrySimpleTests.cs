@@ -7,7 +7,7 @@ namespace LanguageExtTests
 {
     public class TrySimpleTests
     {
-        private Try<Uri> CreateUri(string uri) => () => new Uri(uri);
+        private Try<Uri> CreateUri(string uri) => Try(() => new Uri(uri));
 
         [Fact]
         void SuccessfulTry()

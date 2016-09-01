@@ -60,9 +60,9 @@ namespace LanguageExtTests
             Assert.True(x == "Not handled");
         }
 
-        private static Try<int> Number<T>(int x) where T : Exception, new() => () =>
+        private static Try<int> Number<T>(int x) where T : Exception, new() => Try(() =>
             x % 2 == 0
                 ? x
-                : raise<int>(new T());
+                : raise<int>(new T()));
     }
 }

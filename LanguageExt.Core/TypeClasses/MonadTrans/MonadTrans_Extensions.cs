@@ -55,15 +55,15 @@ namespace LanguageExt
         /// <typeparam name="A">Inner bound type</typeparam>
         /// <param name="ma">Monad to lift</param>
         /// <returns>Monad lifted into the transformer</returns>
-        public static TMA Lift<TMA, A>(this Monad<A> ma)
-            where TMA : struct, MonadT<Monad<A>, A>
+        public static TMA Lift<TMA, MA, A>(this MA ma)
+            where TMA : struct, MonadT<MA, A>
+            where MA  : struct, Monad<A>
         {
             return (TMA)default(TMA).Return(ma);
         }
 
-
-
-        private static OptionT<MA, A> OptionT<MA, A>(this MA ma) where MA : Monad<A> =>
+        private static OptionT<MA, A> OptionT<MA, A>(this MA ma) 
+            where MA : struct, Monad<A> =>
             ma;
 
         private static void Test()

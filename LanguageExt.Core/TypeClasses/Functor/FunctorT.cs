@@ -15,6 +15,6 @@ namespace LanguageExt.TypeClasses
         /// <param name="fa">Functor value to map from </param>
         /// <param name="f">Projection function</param>
         /// <returns>Mapped functor</returns>
-        FunctorT<MB, B> Map<MB, B>(FunctorT<MA, A> fa, Func<A, B> f) where MB : Monad<B>;
+        FunctorT<MB, B> Map<MB, B>(FunctorT<MA, A> fa, Func<A, B> f) where MB : struct, Monad<B>;
     }
 }

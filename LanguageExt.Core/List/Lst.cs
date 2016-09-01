@@ -6,6 +6,7 @@ using System.Diagnostics.Contracts;
 using System.ComponentModel;
 using LanguageExt;
 using LanguageExt.TypeClasses;
+using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -296,7 +297,6 @@ namespace LanguageExt
         Lst<A> AsList(Foldable<A> f)    => (Lst<A>)f;
         Lst<A> AsList(Functor<A> f)     => (Lst<A>)f;
         Lst<A> AsList(Monad<A> f)       => (Lst<A>)f;
-        Lst<A> AsList(Applicative<A> f) => (Lst<A>)f;
         Lst<A> AsList(Monoid<Lst<A>> f) => (Lst<A>)f;
         Lst<A> AsList(MonadPlus<A> f)    => (Lst<A>)f;
 
@@ -318,20 +318,49 @@ namespace LanguageExt
             return state;
         }
 
+        /// <summary>
+        /// Monad return
+        /// </summary>
+        /// <typeparam name="A">Type of the bound monad value</typeparam>
+        /// <param name="x">The bound monad value</param>
+        /// <returns>Monad of A</returns>
         public Monad<A> Return(A x, params A[] xs) =>
             List.createRange(x.Cons(xs));
 
+        /// <summary>
+        /// Monad return
+        /// </summary>
+        /// <typeparam name="A">Type of the bound monad value</typeparam>
+        /// <param name="x">The bound monad value(s)</param>
+        /// <returns>Monad of A</returns>
+        public Monad<A> Return(IEnumerable<A> xs) =>
+            List.createRange(xs);
+
+        /// <summary>
+        /// Monadic bind
+        /// </summary>
+        /// <typeparam name="B">Type of the bound return value</typeparam>
+        /// <param name="ma">Monad to bind</param>
+        /// <param name="f">Bind function</param>
+        /// <returns>Monad of B</returns>
         public Monad<B> Bind<B>(Monad<A> ma, Func<A, Monad<B>> f) =>
             List.createRange(BindSeq(ma, f));
 
-        public Monad<A> Fail(string err = "") =>
+        /// <summary>
+        /// Monadic bind
+        /// </summary>
+        /// <typeparam name="B">Type of the bound return value</typeparam>
+        /// <param name="ma">Monad to bind</param>
+        /// <param name="f">Bind function</param>
+        /// <returns>Monad of B</returns>
+        public MB Bind<MB, B>(Monad<A> ma, Func<A, MB> f) where MB : struct, Monad<B> =>
+            Return<MB, B>(BindSeq<MB, B>(ma, f));
+
+        /// <summary>
+        /// Produce a failure value
+        /// </summary>
+        public Monad<A> Fail(Exception err = null) =>
             List.empty<A>();
-
-        public Applicative<A> Pure(A x, params A[] xs) =>
-            List.createRange(x.Cons(xs));
-
-        public Applicative<B> Bind<B>(Applicative<A> ma, Func<A, Applicative<B>> f) =>
-            List.createRange(BindSeq(ma, f));
 
         public Functor<B> Map<B>(Functor<A> fa, Func<A, B> f) =>
             List.createRange(List.map(AsList(fa), f));
@@ -346,34 +375,28 @@ namespace LanguageExt
         public static bool operator !=(Lst<A> lhs, Lst<A> rhs) =>
             lhs.Value.Equals(rhs.Value);
 
+        IEnumerable<B> BindSeq<MB, B>(Monad<A> ma, Func<A, MB> f) where MB : struct, Monad<B>
+        {
+            var xs = AsList(ma);
+            foreach (var x in xs)
+            {
+                var b = f(x);
+                foreach (var y in TypeClass.toSeq(b as Foldable<B>))
+                {
+                    yield return y;
+                }
+            }
+        }
+
         IEnumerable<B> BindSeq<B>(Monad<A> ma, Func<A, Monad<B>> f)
         {
             var xs = AsList(ma);
             foreach (var x in xs)
             {
                 var b = f(x);
-                if (b is Foldable<B>) // TODO: Decide what to do when something isn't foldable
+                foreach (var y in TypeClass.toSeq(b as Foldable<B>))
                 {
-                    foreach (var y in TypeClass.toSeq(b as Foldable<B>))
-                    {
-                        yield return y;
-                    }
-                }
-            }
-        }
-
-        IEnumerable<B> BindSeq<B>(Applicative<A> ma, Func<A, Applicative<B>> f)
-        {
-            var xs = AsList(ma);
-            foreach (var x in xs)
-            {
-                var b = f(x);
-                if (b is Foldable<B>) // TODO: Decide what to do when something isn't foldable
-                {
-                    foreach (var y in TypeClass.toSeq(b as Foldable<B>))
-                    {
-                        yield return y;
-                    }
+                    yield return y;
                 }
             }
         }
@@ -381,7 +404,7 @@ namespace LanguageExt
         public MonadPlus<A> Plus(MonadPlus<A> a, MonadPlus<A> b) =>
             AsList(a) + AsList(b);
 
-        public MonadPlus<A> Zero(MonadPlus<A> a) =>
+        public MonadPlus<A> Zero() =>
             Empty;
 
         public bool Equals(Lst<A> a, Lst<A> b) =>

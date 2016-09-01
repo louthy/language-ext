@@ -70,7 +70,7 @@ namespace LanguageExt
         /// <summary>
         /// Iterate
         /// </summary>
-        public static Unit iter<T1, T2>(ValueTuple<T1, T2> self, ValueTuple<T1, T2> func)
+        public static Unit iter<T1, T2>(ValueTuple<T1, T2> self, Action<T1, T2> func)
         {
             func(self.Item1, self.Item2);
             return Unit.Default;

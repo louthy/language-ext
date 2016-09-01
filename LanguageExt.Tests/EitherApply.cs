@@ -45,9 +45,9 @@ namespace LanguageExtTests
             Assert.Equal(Right<string, int>(7), either);
         }
 
-        private APPL GeneralApply<APPL>(Applicative<Func<int, int, int>> f, Applicative<int> a, Applicative<int> b)
-            where APPL : struct, Applicative<int> =>
-                (APPL)apply<APPL, int, int, int>(f, a, b);
+        private APPL GeneralApply<APPL>(Monad<Func<int, int, int>> f, Monad<int> a, Monad<int> b)
+            where APPL : struct, Monad<int> =>
+                apply<APPL, int, int, int>(f, a, b);
 
         [Fact]
         public void ApplyLeftArgs()

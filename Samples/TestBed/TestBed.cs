@@ -745,10 +745,10 @@ namespace TestBed
             }
         }
 
-        public static Try<int> Number<T>(int x) where T : Exception, new() => () =>
+        public static Try<int> Number<T>(int x) where T : Exception, new() => Try(() =>
             x % 2 == 0
                 ? x
-                : raise<int>(new T());
+                : raise<int>(new T()));
 
 
         public static void MemoTest()

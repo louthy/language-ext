@@ -1,5 +1,6 @@
-﻿using LanguageExt.TypeClasses;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -9,10 +10,19 @@ namespace LanguageExt
         /// Monad return
         /// </summary>
         /// <typeparam name="A">Type of the bound monad value</typeparam>
+        /// <param name="x">The bound monad value</param>
+        /// <returns>Monad of A</returns>
+        public static M Return<M, A>(A x, params A[] xs) where M : struct, Monad<A> =>
+            (M)default(M).Return(x);
+
+        /// <summary>
+        /// Monad return
+        /// </summary>
+        /// <typeparam name="A">Type of the bound monad value</typeparam>
         /// <param name="a">The bound monad value</param>
         /// <returns>Monad of A</returns>
-        public static M Return<M, A>(A a) where M : struct, Monad<A> =>
-            (M)default(M).Return(a);
+        public static M Return<M, A>(IEnumerable<A> xs) where M : struct, Monad<A> =>
+            (M)default(M).Return(xs);
 
         /// <summary>
         /// Monadic bind
@@ -21,8 +31,18 @@ namespace LanguageExt
         /// <param name="ma">Monad to bind</param>
         /// <param name="f">Bind function</param>
         /// <returns>Monad of B</returns>
-        public static Monad<B> bind<M, A, B>(Monad<A> ma, Func<A, Monad<B>> f) where M : struct, Monad<A> =>
-            default(M).Bind(ma, f);
+        public static Monad<B> bind<A, B>(Monad<A> ma, Func<A, Monad<B>> f) =>
+            ma.Bind(ma, f);
+
+        /// <summary>
+        /// Monadic bind
+        /// </summary>
+        /// <typeparam name="B">Type of the bound return value</typeparam>
+        /// <param name="ma">Monad to bind</param>
+        /// <param name="f">Bind function</param>
+        /// <returns>Monad of B</returns>
+        public static MB bind<MB, A, B>(Monad<A> ma, Func<A, MB> f) where MB : struct, Monad<B> =>
+            ma.Bind<MB, B>(ma, f);
 
         /// <summary>
         /// Produce a failure value

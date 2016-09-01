@@ -33,13 +33,13 @@ namespace LanguageExt
             }
         }
 
-        public Applicative<B> Bind<B>(Applicative<A> ma, Func<A, Applicative<B>> f) =>
-            f(Id(ma));
-
         public Monad<B> Bind<B>(Monad<A> ma, Func<A, Monad<B>> f) =>
             f(Id(ma));
 
-        public Monad<A> Fail(string err = "") => 
+        public MB Bind<MB, B>(Monad<A> ma, Func<A, MB> f) where MB : struct, Monad<B> =>
+            f(Id(ma));
+
+        public Monad<A> Fail(Exception err = null) => 
             default(Identity<A>);
 
         private A Id(Functor<A> fa) =>
@@ -48,17 +48,14 @@ namespace LanguageExt
         private A Id(Monad<A> fa) =>
             ((Identity<A>)fa).value;
 
-        private A Id(Applicative<A> fa) =>
-            ((Identity<A>)fa).value;
-
         public Functor<B> Map<B>(Functor<A> fa, Func<A, B> f) =>
             new Identity<B>(f(Id(fa)));
 
-        public Applicative<A> Pure(A x, params A[] xs) =>
-            new Identity<A>(x);
-
         public Monad<A> Return(A x, params A[] xs) =>
             new Identity<A>(x);
+
+        public Monad<A> Return(IEnumerable<A> xs) =>
+            new Identity<A>(xs.First());
 
         public S Fold<S>(Foldable<A> fa, S state, Func<S, A, S> f) =>
             f(state, value);

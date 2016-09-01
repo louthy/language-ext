@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace LanguageExt
@@ -11,60 +8,14 @@ namespace LanguageExt
         /// <summary>
         /// Use with Try monad in LINQ expressions to auto-clean up disposable items
         /// </summary>
-        public static Try<U> use<T, U>(Try<T> computation, Func<T, U> map) where T : class, IDisposable => () =>
-        {
-            var resT = computation.Try();
-            if (resT.IsFaulted)
-            {
-                return new TryResult<U>(resT.Exception);
-            }
-            else
-            {
-                try
-                {
-                    var resU = map(resT.Value);
-                    resT.Value?.Dispose();
-                    return new TryResult<U>(resU);
-                }
-                catch(Exception e)
-                {
-                    return new TryResult<U>(e);
-                }
-                finally
-                {
-                    resT.Value?.Dispose();
-                }
-            }
-        };
+        public static Try<U> use<T, U>(Try<T> computation, Func<T, U> map) where T : class, IDisposable =>
+            computation.Use(map);
 
         /// <summary>
         /// Use with Try monad in LINQ expressions to auto-clean up disposable items
         /// </summary>
-        public static Try<U> use<T, U>(Try<T> computation, Func<T, Try<U>> bind) where T : class, IDisposable => () =>
-        {
-            var resT = computation.Try();
-            if (resT.IsFaulted)
-            {
-                return new TryResult<U>(resT.Exception);
-            }
-            else
-            {
-                try
-                {
-                    var resU = bind(resT.Value);
-                    resT.Value?.Dispose();
-                    return resU.Try();
-                }
-                catch (Exception e)
-                {
-                    return new TryResult<U>(e);
-                }
-                finally
-                {
-                    resT.Value?.Dispose();
-                }
-            }
-        };
+        public static Try<U> use<T, U>(Try<T> computation, Func<T, Try<U>> bind) where T : class, IDisposable =>
+            computation.Use(bind);
 
         /// <summary>
         /// Use with Task in LINQ expressions to auto-clean up disposable items
@@ -167,7 +118,7 @@ namespace LanguageExt
         /// <param name="f">Inner map function that uses the disposable value</param>
         /// <returns>Result of f(disposable)</returns>
         public static Try<R> tryuse<T, R>(T disposable, Func<T, R> f)
-            where T : IDisposable => () =>
+            where T : IDisposable => Try(() =>
         {
             try
             {
@@ -177,6 +128,6 @@ namespace LanguageExt
             {
                 disposable.Dispose();
             }
-        };
+        });
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    public struct OptionT<MA, A> : MonadT<MA, A> where MA : Monad<A>
+    public struct OptionT<MA, A> : MonadT<MA, A> where MA : struct, Monad<A>
     {
         readonly Option<MA> value;
 
@@ -25,17 +25,18 @@ namespace LanguageExt
         public readonly bool IsSome;
         public bool IsNone => !IsSome;
 
-        public MonadT<MB, B> Bind<MB, B>(MonadT<MA, A> ma, Func<A, Monad<B>> f) where MB : Monad<B>
+        public MonadT<MB, B> Bind<MB, B>(MonadT<MA, A> ma, Func<A, MB> f)
+            where MB : struct, Monad<B>
         {
             var opt = AsOpt(ma);
             if (opt.value.IsNone) return OptionT<MB, B>.None;
-            return new OptionT<MB, B>((MB)opt.value.Value.Bind(opt.value.Value, f));
+            return new OptionT<MB, B>(opt.value.Value.Bind<MB, B>(opt.value.Value, f));
         }
 
         public MonadT<MA, A> Fail(string _ = "") =>
             None;
 
-        public FunctorT<MB, B> Map<MB, B>(FunctorT<MA, A> fa, Func<A, B> f) where MB : Monad<B>
+        public FunctorT<MB, B> Map<MB, B>(FunctorT<MA, A> fa, Func<A, B> f) where MB : struct, Monad<B>
         {
             var opt = AsOpt(fa);
             if (opt.value.IsNone) return OptionT<MB, B>.None;

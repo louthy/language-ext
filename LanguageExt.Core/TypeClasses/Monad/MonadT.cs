@@ -7,7 +7,7 @@ namespace LanguageExt.TypeClasses
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
     [Typeclass]
-    public interface MonadT<MA, A> : FunctorT<MA, A>, FoldableT<MA, A> where MA : Monad<A>, Foldable<A>
+    public interface MonadT<MA, A> : FunctorT<MA, A>, FoldableT<MA, A> where MA : struct, Monad<A>, Foldable<A>
     {
         /// <summary>
         /// Monad return
@@ -24,7 +24,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="ma">Monad to bind</param>
         /// <param name="f">Bind function</param>
         /// <returns>Monad of B</returns>
-        MonadT<MB, B> Bind<MB, B>(MonadT<MA, A> ma, Func<A, Monad<B>> f) where MB : Monad<B>;
+        MonadT<MB, B> Bind<MB, B>(MonadT<MA, A> ma, Func<A, MB> f) where MB : struct, Monad<B>;
 
         /// <summary>
         /// Produce a failure value

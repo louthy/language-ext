@@ -2,8 +2,9 @@
   "dependencies": {
     "FSharp.Core": "4.0.0.1",
     "Newtonsoft.Json": "7.0.1",
-    "Rx-Main": "2.2.5.0",
     "StackExchange.Redis": "1.0.488",
+    "System.Reactive": "3.0.0",
+    "System.ValueTuple": "4.0.0-rc3-24212-01",
     "xunit": "2.1.0",
     "xunit.abstractions": "2.0.0",
     "xunit.assert": "2.1.0",
@@ -14,8 +15,7 @@
   },
   "frameworks": {
     "net45": {
-      "frameworkAssemblies": {
-      }
+      "frameworkAssemblies": {}
     }
   },
   "runtimes": {

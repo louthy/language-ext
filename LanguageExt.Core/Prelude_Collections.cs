@@ -503,9 +503,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static IEnumerable<T> seq<T>(Try<T> value) =>
-            value == null
-                ? new T[0]
-                : value.AsEnumerable().Where(x => x.IsRight).Map(x => x.RightValue);
+            value.AsEnumerable().Where(x => x.IsRight).Map(x => x.RightValue);
 
         /// <summary>
         /// Convert a TryOption to an enumerable

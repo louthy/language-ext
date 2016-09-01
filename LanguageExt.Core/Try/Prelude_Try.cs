@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LanguageExt.TypeClasses;
+using System;
 using System.Diagnostics.Contracts;
 using System.Linq;
 
@@ -19,9 +20,20 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
         [Pure]
-        public static Try<T> append<T>(Try<T> lhs, Try<T> rhs) =>
-            lhs.Append(rhs);
+        public static Try<T> append<SEMI, T>(Try<T> lhs, Try<T> rhs) where SEMI : struct, Semigroup<T> =>
+            lhs.Append<SEMI, T>(rhs);
 
+        /// <summary>
+        /// Add the bound value of Try(x) to Try(y).  If either of the
+        /// Trys are Fail then the result is Fail
+        /// </summary>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs + rhs</returns>
+        [Pure]
+        public static Try<A> add<ADD, A>(Try<A> lhs, Try<A> rhs) where ADD : struct, Addition<A> =>
+            lhs.Add<ADD, A>(rhs);
+    
         /// <summary>
         /// Subtract the Try(x) from Try(y).  If either of the Trys throw then the result is Fail
         /// For numeric values the behaviour is to find the difference between the Trys (lhs - rhs)
@@ -34,8 +46,8 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
         [Pure]
-        public static Try<T> subtract<T>(Try<T> lhs, Try<T> rhs) =>
-            lhs.Subtract(rhs);
+        public static Try<T> difference<SUB, T>(Try<T> lhs, Try<T> rhs) where SUB : struct, Difference<T> =>
+            lhs.Difference<SUB, T>(rhs);
 
         /// <summary>
         /// Find the product of Try(x) and Try(y).  If either of the Trys throw then the result is Fail
@@ -49,8 +61,8 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
         [Pure]
-        public static Try<T> multiply<T>(Try<T> lhs, Try<T> rhs) =>
-            lhs.Multiply(rhs);
+        public static Try<T> product<PROD, T>(Try<T> lhs, Try<T> rhs) where PROD : struct, Product<T> =>
+            lhs.Product<PROD, T>(rhs);
 
         /// <summary>
         /// Divide Try(x) by Try(y).  If either of the Trys throw then the result is Fail
@@ -64,8 +76,30 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static Try<T> divide<T>(Try<T> lhs, Try<T> rhs) =>
-            lhs.Divide(rhs);
+        public static Try<T> divide<DIV, T>(Try<T> lhs, Try<T> rhs) where DIV : struct, Divisible<T> =>
+            lhs.Divide<DIV, T>(rhs);
+
+        /// <summary>
+        /// Structural equality test
+        /// </summary>
+        /// <typeparam name="EQ">Type-class of A</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="x">Left hand side of the operation</param>
+        /// <param name="y">Right hand side of the operation</param>
+        /// <returns>True if the bound values are equal</returns>
+        [Pure]
+        public static bool equals<EQ, A>(Try<A> lhs, Try<A> rhs) where EQ : struct, Eq<A> =>
+            lhs.Equals<EQ, A>(rhs);
+
+        /// <summary>
+        /// Compare the bound value of Try(x) to Try(y).  If either of the
+        /// </summary>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>1 if lhs > rhs, 0 if lhs == rhs, -1 if lhs < rhs</returns>
+        [Pure]
+        public static int compare<ORD, A>(Try<A> lhs, Try<A> rhs) where ORD : struct, Ord<A> =>
+            lhs.Compare<ORD, A>(rhs);
 
         [Pure]
         public static bool isSucc<T>(Try<T> value) =>
@@ -92,7 +126,7 @@ namespace LanguageExt
 
         [Pure]
         public static Try<Exception> failed<T>(Try<T> tryDel) =>
-            map(tryDel, 
+            bimap(tryDel, 
                 Succ: _  => new NotSupportedException(),
                 Fail: ex => ex
                 );
@@ -128,7 +162,9 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the Try argument to the Try function</returns>
         [Pure]
         public static Try<R> apply<T, R>(Try<Func<T, R>> self, Try<T> arg) =>
-            self.Apply(arg);
+            from a in self
+            from b in arg
+            select a(b);
 
         /// <summary>
         /// Apply a Try value to a Try function of arity 2
@@ -150,7 +186,10 @@ namespace LanguageExt
         /// <returns>Returns the result of applying the Try arguments to the Try function</returns>
         [Pure]
         public static Try<R> apply<T1, T2, R>(Try<Func<T1, T2, R>> self, Try<T1> arg1, Try<T2> arg2) =>
-            self.Apply(arg1, arg2);
+            from a in self
+            from b in arg1
+            from c in arg2
+            select a(b, c);
 
         public static Unit iter<T>(Try<T> self, Action<T> action) =>
             self.Iter(action);
@@ -207,9 +246,13 @@ namespace LanguageExt
         public static Try<R> map<T, R>(Try<T> tryDel, Func<T, R> mapper) =>
             tryDel.Map(mapper);
 
-        [Pure]
+        [Obsolete]
         public static Try<R> map<T, R>(Try<T> tryDel, Func<T, R> Succ, Func<Exception, R> Fail) =>
-            tryDel.Map(Succ, Fail);
+            tryDel.BiMap(Succ, Fail);
+
+        [Pure]
+        public static Try<R> bimap<T, R>(Try<T> tryDel, Func<T, R> Succ, Func<Exception, R> Fail) =>
+            tryDel.BiMap(Succ, Fail);
 
         /// <summary>
         /// Partial application map
@@ -231,17 +274,25 @@ namespace LanguageExt
         public static Try<T> filter<T>(Try<T> self, Func<T, bool> pred) =>
             self.Filter(pred);
 
-        [Pure]
+        [Obsolete]
         public static Try<T> filter<T>(Try<T> self, Func<T, bool> Succ, Func<Exception, bool> Fail) =>
-            self.Filter(Succ, Fail);
+            self.BiFilter(Succ, Fail);
+
+        [Pure]
+        public static Try<T> bifilter<T>(Try<T> self, Func<T, bool> Succ, Func<Exception, bool> Fail) =>
+            self.BiFilter(Succ, Fail);
 
         [Pure]
         public static Try<R> bind<T, R>(Try<T> tryDel, Func<T, Try<R>> binder) =>
             tryDel.Bind(binder);
 
-        [Pure]
+        [Obsolete]
         public static Try<R> bind<T, R>(Try<T> self, Func<T, Try<R>> Succ, Func<Exception, Try<R>> Fail) =>
-            self.Bind(Succ, Fail);
+            self.BiBind(Succ, Fail);
+
+        [Pure]
+        public static Try<R> bibind<T, R>(Try<T> self, Func<T, Try<R>> Succ, Func<Exception, Try<R>> Fail) =>
+            self.BiBind(Succ, Fail);
 
         [Pure]
         public static Lst<Either<Exception, T>> toList<T>(Try<T> tryDel) =>
@@ -256,21 +307,12 @@ namespace LanguageExt
             tryDel.ToList().AsQueryable();
 
         [Pure]
-        public static Try<T> tryfun<T>(Func<Try<T>> tryDel) => () =>
-        {
-            try
-            {
-                return tryDel().Try();
-            }
-            catch (Exception e)
-            {
-                return new TryResult<T>(e);
-            }
-        };
+        public static Try<T> tryfun<T>(Func<Try<T>> tryDel) => 
+            Try(() => tryDel().Run());
 
         [Pure]
-        public static Try<T> Try<T>(Func<T> tryDel) => () =>
-            tryDel();
+        public static Try<T> Try<T>(Func<T> tryDel) => Try(() =>
+            tryDel());
 
     }
 }

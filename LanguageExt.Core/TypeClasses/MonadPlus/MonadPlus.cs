@@ -17,6 +17,6 @@ namespace LanguageExt.TypeClasses
         /// <summary>
         /// Neutral element (None in Option for example)
         /// </summary>
-        MonadPlus<A> Zero(MonadPlus<A> a);
+        MonadPlus<A> Zero();
     }
 }

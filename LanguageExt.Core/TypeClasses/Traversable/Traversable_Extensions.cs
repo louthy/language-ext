@@ -10,7 +10,7 @@ namespace LanguageExt.TypeClasses
 {
     public static partial class TypeClassExtensions
     {
-        public static Monad<Traversable<B>> Traverse<A, B>(this SeqM<A> self, Func<A, Monad<B>> bind) =>
+        public static Monad<Traversable<B>> Traverse<A, B>(this Seq<A> self, Func<A, Monad<B>> bind) =>
             self.Traverse(self, bind);
     }
 }
