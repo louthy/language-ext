@@ -582,7 +582,7 @@ namespace LanguageExt
 
     public struct OptionNone
     {
-        public static OptionNone Default = new OptionNone();
+        public static readonly OptionNone Default = new OptionNone();
     }
 }
 
