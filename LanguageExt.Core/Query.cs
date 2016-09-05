@@ -116,7 +116,7 @@ namespace LanguageExt
             list.All(pred);
 
         public static IQueryable<T> distinct<T>(IQueryable<T> list) =>
-            list.Distinct();
+            Queryable.Distinct(list);
 
         public static IQueryable<T> take<T>(IQueryable<T> list, int count) =>
             list.Take(count);
