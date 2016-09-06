@@ -449,11 +449,15 @@ namespace LanguageExt
 
         [Pure]
         public static bool operator ==(Lst<T> lhs, Lst<T> rhs) =>
-            lhs.Equals(rhs);
+              ReferenceEquals(lhs, null)  && ReferenceEquals(rhs, null) ? true
+            : ReferenceEquals(lhs, null) || ReferenceEquals(rhs, null)  ? false
+            : lhs.Equals(rhs);
 
         [Pure]
         public static bool operator !=(Lst<T> lhs, Lst<T> rhs) =>
-            !lhs.Equals(rhs);
+              ReferenceEquals(lhs, null) && ReferenceEquals(rhs, null) ? true
+            : ReferenceEquals(lhs, null) || ReferenceEquals(rhs, null) ? false
+            : !lhs.Equals(rhs);
     }
 
 #if !COREFX
