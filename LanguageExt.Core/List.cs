@@ -746,7 +746,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Returns true if all items in the enumerable match a predicate (Any in LINQ)
+        /// Returns true if all items in the enumerable match a predicate (All in LINQ)
         /// </summary>
         /// <typeparam name="T">Enumerable item type</typeparam>
         /// <param name="list">Enumerable to test</param>
@@ -1792,7 +1792,7 @@ namespace LanguageExt
             LanguageExt.List.iter(list, action);
 
         /// <summary>
-        /// Returns true if all items in the enumerable match a predicate (Any in LINQ)
+        /// Returns true if all items in the enumerable match a predicate (All in LINQ)
         /// </summary>
         /// <typeparam name="T">Enumerable item type</typeparam>
         /// <param name="list">Enumerable to test</param>
