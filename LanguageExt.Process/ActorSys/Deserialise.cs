@@ -3,6 +3,7 @@ using System;
 using System.Reflection;
 using LanguageExt.Trans;
 using static LanguageExt.Prelude;
+using System.Linq;
 
 namespace LanguageExt
 {
