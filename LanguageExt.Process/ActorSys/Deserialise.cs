@@ -25,7 +25,8 @@ namespace LanguageExt
             var func = typeof(JsonConvert).GetTypeInfo()
                                    .GetDeclaredMethods("DeserializeObject")
                                    .Filter(m => m.IsGenericMethod)
-                                   .Filter(m => m.GetParameters().Length == 1)
+                                   .Filter(m => m.GetParameters().Length == 2)
+                                   .Filter(m => m.GetParameters().ElementAt(1).ParameterType.Equals(typeof(JsonSerializerSettings)))
                                    .Head()
                                    .MakeGenericMethod(type);
 
@@ -36,6 +37,6 @@ namespace LanguageExt
         }
 
         public static object Object(string value, Type type) =>
-            DeserialiseFunc(type).Invoke(null, new[] { value });
+            DeserialiseFunc(type).Invoke(null, new object[] { value, ActorSystemConfig.Default.JsonSerializerSettings });
     }
 }
