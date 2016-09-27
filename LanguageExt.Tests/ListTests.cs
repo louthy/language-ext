@@ -234,5 +234,34 @@ namespace LanguageExtTests
             Assert.True(rev.LastIndexOf(1) == 4, "Should have been 4, actually is: " + rev.LastIndexOf(1));
             Assert.True(rev.LastIndexOf(2) == 2, "Should have been 2, actually is: " + rev.LastIndexOf(5));
         }
+
+        [Fact]
+        public void OpEqualTest()
+        {
+            var goodOnes = List(
+                Tuple(List(1, 2, 3), List(1, 2, 3)),
+                Tuple(Lst<int>.Empty, Lst<int>.Empty),
+                Tuple((Lst<int>)null, (Lst<int>)null)
+            );
+            var badOnes = List(
+                Tuple(List(1, 2, 3), List(1, 2, 4)),
+                Tuple(List(1, 2, 3), Lst<int>.Empty),
+                Tuple(List(1, 2, 3), (Lst<int>)null)
+            );
+
+            goodOnes.Iter(t => t.Map((fst, snd) =>
+            {
+                Assert.True(fst == snd, $"'{fst}' == '{snd}'");
+                Assert.False(fst != snd, $"'{fst}' != '{snd}'");
+                return Unit.Default;
+            }));
+
+            badOnes.Iter(t => t.Map((fst, snd) =>
+            {
+                Assert.True(fst != snd, $"'{fst}' != '{snd}'");
+                Assert.False(fst == snd, $"'{fst}' == '{snd}'");
+                return Unit.Default;
+            }));
+        }
     }
 }
