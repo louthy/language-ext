@@ -249,18 +249,16 @@ namespace LanguageExtTests
                 Tuple(List(1, 2, 3), (Lst<int>)null)
             );
 
-            goodOnes.Iter(t => t.Map((fst, snd) =>
+            goodOnes.Iter(t => t.Iter((fst, snd) =>
             {
                 Assert.True(fst == snd, $"'{fst}' == '{snd}'");
                 Assert.False(fst != snd, $"'{fst}' != '{snd}'");
-                return Unit.Default;
             }));
 
-            badOnes.Iter(t => t.Map((fst, snd) =>
+            badOnes.Iter(t => t.Iter((fst, snd) =>
             {
                 Assert.True(fst != snd, $"'{fst}' != '{snd}'");
                 Assert.False(fst == snd, $"'{fst}' == '{snd}'");
-                return Unit.Default;
             }));
         }
     }
