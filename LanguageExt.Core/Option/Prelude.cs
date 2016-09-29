@@ -27,7 +27,7 @@ namespace LanguageExt
         public static Option<T> mappend<SEMI, T>(Option<T> lhs, Option<T> rhs) where SEMI : struct, Semigroup<T> =>
             from x in lhs
             from y in rhs
-            select TypeClass.append<SEMI, T>(x, y);
+            select default(SEMI).Append(x, y);
 
         /// <summary>
         /// Difference the Ts
@@ -164,22 +164,31 @@ namespace LanguageExt
             option.Match(Some, None);
 
         /// <summary>
-        /// Apply an Optional value to an Optional function
+        /// Apply an Optional argument to an Optional function of arity 1
         /// </summary>
         /// <param name="option">Optional function</param>
         /// <param name="arg">Optional argument</param>
         /// <returns>Returns the result of applying the optional argument to the optional function</returns>
         [Pure]
         public static Option<R> apply<T, R>(Option<Func<T, R>> option, Option<T> arg) =>
-            (Option<R>)option.Apply(arg);
+            option.Apply<Option<R>, T, R>(arg);
 
+        /// <summary>
+        /// Apply two Optional arguments to an Optional function of arity 2
+        /// </summary>
+        /// <param name="option">Optional function</param>
+        /// <param name="arg">Optional argument</param>
+        /// <returns>Returns the result of applying the optional argument to the optional function</returns>
         [Pure]
         public static Option<R> apply<T, U, R>(Option<Func<T, U, R>> option, Option<T> arg1, Option<U> arg2) =>
-            (Option<R>)option.Apply(arg1, arg2);
+            option.Apply<Option<R>, T, U, R>(arg1, arg2);
 
+        /// <summary>
+        /// Partially apply an Optional argument to a curried Optional function
+        /// </summary>
         [Pure]
         public static Option<Func<U, R>> apply<T, U, R>(Option<Func<T, Func<U, R>>> option, Option<T> arg) =>
-            (Option<Func<U,R>>)option.Apply(arg);
+            option.Apply<Option<Func<U, R>>, T, U, R>(arg);
 
         /// <summary>
         /// Folds the option into an S.

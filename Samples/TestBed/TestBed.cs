@@ -713,10 +713,10 @@ namespace TestBed
             );
         }
 
-        public static TryOption<int> GetTryOptionValue(bool select) => () =>
+        public static TryOption<int> GetTryOptionValue(bool select) => TryOption(() =>
             select
                 ? Some(10)
-                : None;
+                : None);
 
         //public static void LinqTest()
         //{

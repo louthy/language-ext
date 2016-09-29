@@ -8,11 +8,11 @@ namespace LanguageExtTests
     public class TryOptionApply
     {
         Func<int, int, int> add = (a, b) => a + b;
-        TryOption<Func<int, int, int>> tryadd = () => fun((int a, int b) => a + b);
-        TryOption<int> three = () => 3;
-        TryOption<int> four = () => 4;
-        TryOption<int> seven = () => 7;
-        TryOption<int> fail = () => failwith<int>("fail");
+        TryOption<Func<int, int, int>> tryadd = TryOption (() => fun((int a, int b) => a + b));
+        TryOption<int> three = TryOption(() => 3);
+        TryOption<int> four = TryOption(() => 4);
+        TryOption<int> seven = TryOption(() => 7);
+        TryOption<int> fail = TryOption(() => failwith<int>("fail"));
 
         [Fact]
         public void ApplySuccArgs()
@@ -43,7 +43,7 @@ namespace LanguageExtTests
                 .Apply(fail)
                 .Apply(four);
 
-            comp.Iter(
+            comp.Match(
                 Some: x  => Assert.True(false),
                 None: () => Assert.True(false),
                 Fail: ex => Assert.True(ex.Message == "fail")
@@ -55,7 +55,7 @@ namespace LanguageExtTests
         {
             var comp = apply(apply(tryadd, fail), four);
 
-            comp.Iter(
+            comp.Match(
                 Some: x => Assert.True(false),
                 None: () => Assert.True(false),
                 Fail: ex => Assert.True(ex.Message == "fail")
@@ -67,7 +67,7 @@ namespace LanguageExtTests
         {
             var comp = apply(tryadd, fail, four);
 
-            comp.Iter(
+            comp.Match(
                 Some: x => Assert.True(false),
                 None: () => Assert.True(false),
                 Fail: ex => Assert.True(ex.Message == "fail")

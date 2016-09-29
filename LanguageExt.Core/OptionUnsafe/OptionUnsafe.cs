@@ -280,7 +280,7 @@ namespace LanguageExt
         public TryOption<A> ToTryOption<L>(L defaultLeftValue)
         {
             var self = this;
-            return () => self.ToOption();
+            return TryOption(() => self.ToOption());
         }
 
         /// <summary>

@@ -81,6 +81,18 @@ namespace LanguageExt
         /// <summary>
         /// Sequential application (specialised return)
         /// 
+        ///     f(a -> b -> c) -> f a -> f b -> f c
+        /// </summary>
+        [Pure]
+        public static MBC Apply<MBC, A, B, C>(this Monad<Func<A, B, C>> x, Monad<A> y)
+            where MBC : struct, Monad<Func<B, C>> =>
+                x.Bind<MBC, Func<B, C>>(x, a =>
+                y.Bind<MBC, Func<B, C>>(y, b =>
+                Return<MBC, Func<B, C>>(Prelude.par(a, b))));
+
+        /// <summary>
+        /// Sequential application (specialised return)
+        /// 
         ///     f(a -> b -> c) -> f a -> f(b -> c)
         /// </summary>
         [Pure]

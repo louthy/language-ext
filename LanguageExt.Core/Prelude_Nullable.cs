@@ -166,7 +166,7 @@ namespace LanguageExt
 
         [Pure]
         public static TryOption<T> toTryOption<L, T>(T? self, L defaultLeftValue) where T : struct =>
-            () => Optional<T>(self);
+            TryOption(() => Optional(self));
 
         /// <summary>
         /// Append the Some(x) of one option to the Some(y) of another.

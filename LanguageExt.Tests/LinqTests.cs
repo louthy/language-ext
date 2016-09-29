@@ -200,7 +200,7 @@ namespace LanguageExtTests
             Assert.True(res == Some(30));
         }
 
-        private TryOption<int> GetTryOptionValue(int state) => () =>
+        private TryOption<int> GetTryOptionValue(int state) => TryOption(() =>
         {
             switch (state)
             {
@@ -208,7 +208,7 @@ namespace LanguageExtTests
                 case 1: return None;
                 default: throw new Exception("eerrr");
             }
-        };
+        });
 
         private Option<int> GetOptionValue(bool select) =>
             select
@@ -236,13 +236,13 @@ namespace LanguageExtTests
                 return "left";
         }
 
-        private TryOption<int> GetTryOptionValue(bool select) => () =>
+        private TryOption<int> GetTryOptionValue(bool select) => TryOption(() =>
             select
                 ? Some(10)
-                : None;
+                : None);
 
-        private TryOption<int> GetTryOptionError() => () =>
-            failwith<TryOptionResult<int>>("failed!");
+        private TryOption<int> GetTryOptionError() => TryOption(() =>
+            failwith<int>("failed!"));
 
         [Fact]
         public void OptionLst1()

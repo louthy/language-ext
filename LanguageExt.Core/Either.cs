@@ -479,10 +479,10 @@ namespace LanguageExt
         public TryOption<R> ToTryOption()
         {
             var self = this;
-            return () =>
+            return TryOption(() =>
                 self.IsRight
                     ? Some(self.RightValue)
-                    : None;
+                    : None);
         }
 
         /// <summary>

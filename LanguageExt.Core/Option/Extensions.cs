@@ -51,21 +51,6 @@ public static class OptionExtensions
     }
 
     /// <summary>
-    /// Structural equality test
-    /// </summary>
-    /// <typeparam name="EQ">Type-class of A</typeparam>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="x">Left hand side of the operation</param>
-    /// <param name="y">Right hand side of the operation</param>
-    /// <returns>True if the bound values are equal</returns>
-    public static bool Equals<EQ, A>(this Option<A> x, Option<A> y) where EQ : struct, Eq<A> =>
-        x.IsNone && y.IsNone
-            ? true
-            : x.IsNone || y.IsNone
-                ? false
-                : equals<EQ, A>(x.Value, y.Value);
-
-    /// <summary>
     /// Add the bound values of x and y, uses an Add type-class to provide the add
     /// operation for type A.  For example x.Add<TInteger,int>(y)
     /// </summary>
@@ -129,37 +114,28 @@ public static class OptionExtensions
     /// </summary>
     [Pure]
     public static Option<B> Apply<A, B>(this Option<Func<A, B>> x, Option<A> y) =>
-        from a in x
-        from b in y
-        select a(b);
-                    
+        x.Apply<Option<B>, A, B>(y);
+
     /// <summary>
     /// Apply y and z to x
     /// </summary>
     [Pure]
     public static Option<C> Apply<A, B, C>(this Option<Func<A, B, C>> x, Option<A> y, Option<B> z) =>
-        (from a in x
-         from b in y
-         from c in z
-         select a(b, c));
+        x.Apply<Option<C>, A, B, C>(y, z);
 
     /// <summary>
     /// Apply y to x
     /// </summary>
     [Pure]
     public static Option<Func<B, C>> Apply<A, B, C>(this Option<Func<A, Func<B, C>>> x, Option<A> y) =>
-        (from a in x
-         from b in y
-         select a(b));
-                    
+        x.Apply<Option<Func<B, C>>, A, B, C>(y);
+
     /// <summary>
     /// Apply x, then y, ignoring the result of x
     /// </summary>
     [Pure]
     public static Option<B> Action<A, B>(this Option<A> x, Option<B> y) =>
-        (from a in x
-         from b in y
-         select b);
+        x.Action<Option<B>, A, B>(y);
 
     /// <summary>
     /// Convert the Option type to a Nullable of A

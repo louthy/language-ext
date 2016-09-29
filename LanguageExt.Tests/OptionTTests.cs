@@ -131,7 +131,7 @@ namespace LanguageExtTests
         [Fact]
         public void WrappedTryOptionLinqTest()
         {
-            Option<TryOption<int>> opt = Some<TryOption<int>>(() => Some(100));
+            var opt = Some(TryOption(() => Some(100)));
 
             var res = from x in opt
                       from y in x
@@ -139,7 +139,7 @@ namespace LanguageExtTests
 
             Assert.True(res.LiftT() == 200);
 
-            opt = Some<TryOption<int>>(() => None);
+            opt = Some(TryOption<int>(() => None));
 
             res = from x in opt
                   from y in x

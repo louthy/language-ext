@@ -1,5 +1,6 @@
 ﻿using Xunit;
 using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
 {
@@ -86,7 +87,7 @@ namespace LanguageExtTests
         [Fact]
         public void TryFun()
         {
-            TryOption<int> x = () => 100;
+            var x = TryOption(() => 100);
         }
     }
 }

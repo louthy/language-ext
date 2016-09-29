@@ -30,7 +30,7 @@ namespace LanguageExt
         /// Constructor a Try of A
         /// </summary>
         /// <param name="value">Delegate value</param>
-        Try(Func<A> value)
+        internal Try(Func<A> value)
         {
             this.value = value;
         }
@@ -47,116 +47,47 @@ namespace LanguageExt
             Value();
 
         /// <summary>
-        /// Append the Try(x) to Try(y).  If either of the Trys throw then the result is Fail
-        /// For numeric values the behaviour is to sum the Trys (lhs + rhs)
-        /// For string values the behaviour is to concatenate the strings
-        /// For Lst/Stck/Que values the behaviour is to concatenate the lists
-        /// For Map or Set values the behaviour is to merge the sets
-        /// Otherwise if the R type derives from IAppendable then the behaviour
-        /// is to call lhs.Append(rhs);
+        /// Invoke a delegate if the Try returns a value successfully
         /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs + rhs</returns>
-        [Pure]
-        public Try<A> Append(Try<A> rhs)
-        {
-            var self = this;
-            return Try(() => TypeDesc.Append(self.Run(), rhs.Run(), TypeDesc<A>.Default));
-        }
-
-        /// <summary>
-        /// Subtract the Try(x) from Try(y).  If either of the Trys throw then the result is Fail
-        /// For numeric values the behaviour is to find the difference between the Trys (lhs - rhs)
-        /// For Lst values the behaviour is to remove items in the rhs from the lhs
-        /// For Map or Set values the behaviour is to remove items in the rhs from the lhs
-        /// Otherwise if the R type derives from ISubtractable then the behaviour
-        /// is to call lhs.Subtract(rhs);
-        /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs - rhs</returns>
-        [Pure]
-        public Try<A> Subtract(Try<A> rhs)
-        {
-            var self = this;
-            return Try(() => TypeDesc.Subtract(self.Run(), rhs.Run(), TypeDesc<A>.Default));
-        }
-
-        /// <summary>
-        /// Find the product of Try(x) and Try(y).  If either of the Trys throw then the result is Fail
-        /// For numeric values the behaviour is to multiply the Trys (lhs * rhs)
-        /// For Lst values the behaviour is to multiply all combinations of values in both lists 
-        /// to produce a new list
-        /// Otherwise if the R type derives from IMultiplicable then the behaviour
-        /// is to call lhs.Multiply(rhs);
-        /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs * rhs</returns>
-        [Pure]
-        public Try<A> Multiply(Try<A> rhs)
-        {
-            var self = this;
-            return Try(() => TypeDesc.Multiply(self.Run(), rhs.Run(), TypeDesc<A>.Default));
-        }
-
-        /// <summary>
-        /// Divide Try(x) by Try(y).  If either of the Trys throw then the result is Fail
-        /// For numeric values the behaviour is to divide the Trys (lhs / rhs)
-        /// For Lst values the behaviour is to divide all combinations of values in both lists 
-        /// to produce a new list
-        /// Otherwise if the R type derives from IDivisible then the behaviour
-        /// is to call lhs.Divide(rhs);
-        /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs / rhs</returns>
-        [Pure]
-        public Try<A> Divide(Try<A> rhs)
-        {
-            var self = this;
-            return Try(() => TypeDesc.Divide(self.Run(), rhs.Run(), TypeDesc<A>.Default));
-        }
-
-        /// <summary>
-        /// Invokes the succHandler if Try is in the Success state, otherwise nothing
-        /// happens.
-        /// </summary>
-        public Unit IfSucc(Action<A> succHandler)
+        /// <param name="Succ">Delegate to invoke if successful</param>
+        public Unit IfSucc(Action<A> Succ)
         {
             var res = TryExtensions.Try(this);
             if (!res.IsFaulted)
             {
-                succHandler(res.Value);
+                Succ(res.Value);
             }
             return unit;
         }
 
         /// <summary>
-        /// Returns the Succ(value) of the Try or a default if it's Fail
+        /// Return a default value if the Try fails
         /// </summary>
+        /// <param name="failValue">Default value to use on failure</param>
+        /// <returns>failValue on failure, the result of the Try otherwise</returns>
         [Pure]
-        public A IfFail(A defaultValue)
+        public A IfFail(A failValue)
         {
-            if (isnull(defaultValue)) throw new ArgumentNullException(nameof(defaultValue));
+            if (isnull(failValue)) throw new ArgumentNullException(nameof(failValue));
 
             var res = TryExtensions.Try(this);
             if (res.IsFaulted)
-                return defaultValue;
+                return failValue;
             else
                 return res.Value;
         }
 
         /// <summary>
-        /// Returns the Succ(value) of the Try or a default if it's Fail
+        /// Invoke a delegate if the Try fails
         /// </summary>
+        /// <param name="Fail">Delegate to invoke on failure</param>
+        /// <returns>Result of the invocation of Fail on failure, the result of the Try otherwise</returns>
         [Pure]
-        public A IfFail(Func<A> defaultAction)
+        public A IfFail(Func<A> Fail)
         {
             var res = TryExtensions.Try(this);
             if (res.IsFaulted)
-                return defaultAction();
+                return Fail();
             else
                 return res.Value;
         }
@@ -175,9 +106,10 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Returns an exception matching context.  Call a chain of With<ExceptionType>() to handle specific
-        /// exceptions, followed by Otherwise or OtherwiseThrow()
+        /// Provides a fluent exception matching interface which is invoked
+        /// when the Try fails.
         /// </summary>
+        /// <returns>Fluent exception matcher</returns>
         [Pure]
         public ExceptionMatch<A> IfFail()
         {
@@ -188,6 +120,13 @@ namespace LanguageExt
                 return new ExceptionMatch<A>(res.Value);
         }
 
+        /// <summary>
+        /// Pattern matches the two possible states of the Try computation
+        /// </summary>
+        /// <typeparam name="R">Type of the resulting bound value</typeparam>
+        /// <param name="Succ">Delegate to invoke if the Try computation completes successfully</param>
+        /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
+        /// <returns>The result of either the Succ or Fail delegates</returns>
         [Pure]
         public R Match<R>(Func<A, R> Succ, Func<Exception, R> Fail)
         {
@@ -197,6 +136,13 @@ namespace LanguageExt
                 : Succ(res.Value);
         }
 
+        /// <summary>
+        /// Pattern matches the two possible states of the Try computation
+        /// </summary>
+        /// <typeparam name="R">Type of the resulting bound value</typeparam>
+        /// <param name="Succ">Delegate to invoke if the Try computation completes successfully</param>
+        /// <param name="Fail">Default value to use if the Try computation fails</param>
+        /// <returns>The result of either the Succ delegate or the Fail value</returns>
         [Pure]
         public R Match<R>(Func<A, R> Succ, R Fail)
         {
@@ -208,6 +154,11 @@ namespace LanguageExt
                 : Succ(res.Value);
         }
 
+        /// <summary>
+        /// Pattern matches the two possible states of the Try computation
+        /// </summary>
+        /// <param name="Succ">Delegate to invoke if the Try computation completes successfully</param>
+        /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
         public Unit Match(Action<A> Succ, Action<Exception> Fail)
         {
             var res = TryExtensions.Try(this);
@@ -294,13 +245,13 @@ namespace LanguageExt
         public TryOption<A> ToTryOption()
         {
             var self = this;
-            return () =>
+            return TryOption(() =>
             {
                var res = TryExtensions.Try(self);
                return res.IsFaulted
                    ? None
                    : Optional(res.Value);
-            };
+            });
         }
 
         [Pure]
@@ -325,25 +276,24 @@ namespace LanguageExt
             return Try(() => select(self.Run()));
         }
 
+        /// <summary>
+        /// Apply Try values to a Try function of arity 2
+        /// </summary>
+        /// <param name="self">Try function</param>
+        /// <param name="arg1">Try argument</param>
+        /// <param name="arg2">Try argument</param>
+        /// <returns>Returns the result of applying the Try arguments to the Try function</returns>
         public Unit Iter(Action<A> action) =>
             IfSucc(action);
 
-        public Unit Iter(Action<A> Succ, Action<Exception> Fail)
-        {
-            var res = TryExtensions.Try(this);
-            if (res.IsFaulted)
-            {
-                Fail(res.Exception);
-            }
-            else
-            {
-                Succ(res.Value);
-            }
-            return unit;
-        }
-
+        /// <summary>
+        /// Counts the number of bound values.  
+        /// </summary>
+        /// <typeparam name="T">Type of the bound value</typeparam>
+        /// <param name="self">TrTry computation</param>
+        /// <returns>1 if the Try computation is successful, 0 otherwise.</returns>
         [Pure]
-        public int Count<T>()
+        public int Count()
         {
             var res = TryExtensions.Try(this);
             return res.IsFaulted
@@ -351,6 +301,14 @@ namespace LanguageExt
                 : 1;
         }
 
+        /// <summary>
+        /// Tests that a predicate holds for all values of the bound value T
+        /// </summary>
+        /// <typeparam name="T">Type of the bound value</typeparam>
+        /// <param name="self">Try computation</param>
+        /// <param name="pred">Predicate to test the bound value against</param>
+        /// <returns>True if the predicate holds for the bound value, or if the Try computation
+        /// fails.  False otherwise.</returns>
         [Pure]
         public bool ForAll(Func<A, bool> pred)
         {
@@ -358,15 +316,6 @@ namespace LanguageExt
             return res.IsFaulted
                 ? false
                 : pred(res.Value);
-        }
-
-        [Pure]
-        public bool ForAll(Func<A, bool> Succ, Func<Exception, bool> Fail)
-        {
-            var res = TryExtensions.Try(this);
-            return res.IsFaulted
-                ? Fail(res.Exception)
-                : Succ(res.Value);
         }
 
         /// <summary>
@@ -396,7 +345,7 @@ namespace LanguageExt
         /// <param name="Fail">Fold function for Failure</param>
         /// <returns>Folded state</returns>
         [Pure]
-        public S Fold<S>(S state, Func<S, A, S> Succ, Func<S, Exception, S> Fail)
+        public S BiFold<S>(S state, Func<S, A, S> Succ, Func<S, Exception, S> Fail)
         {
             var res = TryExtensions.Try(this);
             return res.IsFaulted
@@ -404,6 +353,13 @@ namespace LanguageExt
                 : Succ(state, res.Value);
         }
 
+        /// <summary>
+        /// Tests that a predicate holds for any value of the bound value T
+        /// </summary>
+        /// <typeparam name="T">Type of the bound value</typeparam>
+        /// <param name="self">Try computation</param>
+        /// <param name="pred">Predicate to test the bound value against</param>
+        /// <returns>True if the predicate holds for the bound value.  False otherwise.</returns>
         [Pure]
         public bool Exists(Func<A, bool> pred)
         {
@@ -413,15 +369,14 @@ namespace LanguageExt
                 : pred(res.Value);
         }
 
-        [Pure]
-        public bool Exists(Func<A, bool> Succ, Func<Exception, bool> Fail)
-        {
-            var res = TryExtensions.Try(this);
-            return res.IsFaulted
-                ? Fail(res.Exception)
-                : Succ(res.Value);
-        }
-
+        /// <summary>
+        /// Maps the bound value
+        /// </summary>
+        /// <typeparam name="T">Type of the bound value</typeparam>
+        /// <typeparam name="R">Resulting bound value type</typeparam>
+        /// <param name="self">Try computation</param>
+        /// <param name="mapper">Delegate to map the bound value</param>
+        /// <returns>Mapped Try computation</returns>
         [Pure]
         public Try<R> Map<R>(Func<A, R> mapper)
         {
@@ -429,6 +384,15 @@ namespace LanguageExt
             return Try(() => mapper(self.Run()));
         }
 
+        /// <summary>
+        /// Maps the bound value
+        /// </summary>
+        /// <typeparam name="T">Type of the bound value</typeparam>
+        /// <typeparam name="R">Resulting bound value type</typeparam>
+        /// <param name="self">Try computation</param>
+        /// <param name="Succ">Delegate to map the bound value</param>
+        /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
+        /// <returns>Mapped Try computation</returns>
         [Pure]
         public Try<R> BiMap<R>(Func<A, R> Succ, Func<Exception, R> Fail)
         {
@@ -708,11 +672,5 @@ namespace LanguageExt
         /// <param name="value">TryDelegate to wrap</param>
         public static implicit operator Try<A>(Func<A> value) =>
             new Try<A>(value);
-    }
-
-    public static class TryTest
-    {
-        public static Try<int> Test() => 
-            Try(() => 0);
     }
 }

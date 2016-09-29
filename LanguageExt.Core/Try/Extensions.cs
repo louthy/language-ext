@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Reactive.Linq;
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
+using LanguageExt.Instances;
 
 /// <summary>
 /// Extension methods for the Try monad
@@ -171,7 +172,7 @@ public static class TryExtensions
     /// <returns>Returns the result of applying the Try argument to the Try function</returns>
     [Pure]
     public static Try<R> Apply<T, R>(this Try<Func<T, R>> self, Try<T> arg) =>
-        Prelude.Try(() => self.Run()(arg.Run()));
+        self.Apply<Try<R>, T, R>(arg);
 
     /// <summary>
     /// Apply a Try value to a Try function of arity 2
@@ -181,8 +182,8 @@ public static class TryExtensions
     /// <returns>Returns the result of applying the Try argument to the Try function:
     /// a Try function of arity 1</returns>
     [Pure]
-    public static Try<Func<T2, R>> Apply<T1, T2, R>(this Try<Func<T1, T2, R>> self, Try<T1> arg) =>
-        Prelude.Try(() => par(self.Run(), arg.Run()));
+    public static Try<Func<T2, R>> Apply<T1, T2, R>(this Try<Func<T1, Func<T2, R>>> self, Try<T1> arg) =>
+        self.Apply<Try<Func<T2, R>>, T1, T2, R>(arg);
 
     /// <summary>
     /// Apply Try values to a Try function of arity 2
@@ -193,7 +194,24 @@ public static class TryExtensions
     /// <returns>Returns the result of applying the Try arguments to the Try function</returns>
     [Pure]
     public static Try<R> Apply<T1, T2, R>(this Try<Func<T1, T2, R>> self, Try<T1> arg1, Try<T2> arg2) =>
-        Prelude.Try(() => self.Run()(arg1.Run(), arg2.Run()));
+        self.Apply<Try<R>, T1, T2, R>(arg1, arg2);
+
+    /// <summary>
+    /// Partially apply Try values to a Try function of arity 2
+    /// </summary>
+    /// <param name="self">Try function</param>
+    /// <param name="arg1">Try argument</param>
+    /// <returns>Returns the result of applying the Try arguments to the Try function</returns>
+    [Pure]
+    public static Try<Func<T2, R>> Apply<T1, T2, R>(this Try<Func<T1, T2, R>> self, Try<T1> arg1) =>
+        self.Apply<Try<Func<T2, R>>, T1, T2, R>(arg1);
+
+    /// <summary>
+    /// Apply x, then y, ignoring the result of x
+    /// </summary>
+    [Pure]
+    public static Try<B> Action<A, B>(this Try<A> x, Try<B> y) =>
+        x.Action<Try<B>, A, B>(y);
 
     /// <summary>
     /// Append the bound value of Try(x) to Try(y).  If either of the
@@ -207,24 +225,6 @@ public static class TryExtensions
         from x in lhs
         from y in rhs
         select append<SEMI, A>(x, y);
-
-    /// <summary>
-    /// Structural equality test
-    /// </summary>
-    /// <typeparam name="EQ">Type-class of A</typeparam>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="x">Left hand side of the operation</param>
-    /// <param name="y">Right hand side of the operation</param>
-    /// <returns>True if the bound values are equal</returns>
-    [Pure]
-    public static bool Equals<EQ, A>(this Try<A> lhs, Try<A> rhs) where EQ : struct, Eq<A>
-    {
-        var x = lhs.Try();
-        var y = lhs.Try();
-        if (x.IsFaulted && y.IsFaulted) return true;
-        if (x.IsFaulted || y.IsFaulted) return false;
-        return default(EQ).Equals(x.Value, y.Value);
-    }
 
     /// <summary>
     /// Compare the bound value of Try(x) to Try(y).  If either of the

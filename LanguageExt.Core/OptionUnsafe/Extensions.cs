@@ -52,21 +52,6 @@ public static class OptionUnsafeExtensions
     }
 
     /// <summary>
-    /// Structural equality test
-    /// </summary>
-    /// <typeparam name="EQ">Type-class of A</typeparam>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="x">Left hand side of the operation</param>
-    /// <param name="y">Right hand side of the operation</param>
-    /// <returns>True if the bound values are equal</returns>
-    public static bool Equals<EQ, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where EQ : struct, Eq<A> =>
-        x.IsNone && y.IsNone
-            ? true
-            : x.IsNone || y.IsNone
-                ? false
-                : equals<EQ, A>(x.Value, y.Value);
-
-    /// <summary>
     /// Appends the bound values of x and y, uses a semigroup type-class to provide 
     /// the append operation for type A.  For example x.Append<TString,string>(y)
     /// </summary>

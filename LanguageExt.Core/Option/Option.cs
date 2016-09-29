@@ -83,7 +83,7 @@ namespace LanguageExt
         /// <param name="a">Unit value</param>
         [Pure]
         public static implicit operator Option<A>(A a) =>
-            Prelude.Optional(a);
+            Optional(a);
 
         /// Implicit conversion operator from Unit to Option<A>
         /// </summary>
@@ -207,7 +207,7 @@ namespace LanguageExt
         [Pure]
         public Option<B> Select<B>(Func<A, B> f)
         {
-            if (Prelude.isnull(f) || IsNone) return Option<B>.None;
+            if (isnull(f) || IsNone) return Option<B>.None;
             return f(Value);
         }
 
@@ -217,7 +217,7 @@ namespace LanguageExt
         [Pure]
         public Option<B> Map<B>(Func<A, B> f)
         {
-            if (Prelude.isnull(f) || IsNone) return Option<B>.None;
+            if (isnull(f) || IsNone) return Option<B>.None;
             return f(Value);
         }
 
@@ -227,7 +227,7 @@ namespace LanguageExt
         [Pure]
         public Option<B> Bind<B>(Func<A, Option<B>> f)
         {
-            if (Prelude.isnull(f) || IsNone) return Option<B>.None;
+            if (isnull(f) || IsNone) return Option<B>.None;
             return f(Value);
         }
 
@@ -240,7 +240,7 @@ namespace LanguageExt
             Func<A, B, C> project
             )
         {
-            if (Prelude.isnull(bind) || Prelude.isnull(project) || IsNone) return Option<C>.None;
+            if (isnull(bind) || isnull(project) || IsNone) return Option<C>.None;
             var mb = bind(Value);
             if (mb.IsNone) return Option<C>.None;
             return project(Value, mb.Value);
@@ -256,7 +256,7 @@ namespace LanguageExt
         /// <returns>The result of the match operation</returns>
         [Pure]
         public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
-            this.Match(
+            Match(
                 Some: x => Some(x),
                 None: () => None()
             );
@@ -357,7 +357,7 @@ namespace LanguageExt
         public TryOption<A> ToTryOption()
         {
             var self = this;
-            return () => self;
+            return TryOption(() => self);
         }
 
         /// <summary>

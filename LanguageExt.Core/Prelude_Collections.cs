@@ -514,9 +514,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static IEnumerable<T> seq2<T>(TryOption<T> value) =>
-            value == null
-                ? new T[0]
-                : value.AsEnumerable().Where(x => x.IsRight).Map(x => x.RightValue);
+            value.AsEnumerable().Where(x => x.IsRight).Map(x => x.RightValue);
 
         /// <summary>
         /// Convert a TryOption to an enumerable
@@ -527,9 +525,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static IEnumerable<Either<Exception, T>> seq<T>(TryOption<T> value) =>
-            value == null
-                ? new Either<Exception,T>[0]
-                : value.AsEnumerable();
+            value.AsEnumerable();
 
         /// <summary>
         /// Convert a tuple to an enumerable
