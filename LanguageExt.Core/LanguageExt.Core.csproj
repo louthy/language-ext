@@ -53,6 +53,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionObservable.cs" />
+    <Compile Include="EitherUnsafe\EitherUnsafe.cs" />
+    <Compile Include="EitherUnsafe\EitherUnsafeTrans.cs" />
+    <Compile Include="EitherUnsafe\Extensions.cs" />
+    <Compile Include="EitherUnsafe\Prelude.cs" />
+    <Compile Include="Either\Extensions.cs" />
     <Compile Include="HKT.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -61,6 +66,7 @@
     <Compile Include="Identity.cs" />
     <Compile Include="Instances\Any.cs" />
     <Compile Include="Instances\All.cs" />
+    <Compile Include="Instances\EqChoice.cs" />
     <Compile Include="Instances\EqSeq.cs" />
     <Compile Include="Instances\EqTry.cs" />
     <Compile Include="Instances\EqTryOpt.cs" />
@@ -101,8 +107,9 @@
     <Compile Include="Try\TryConfig.cs" />
     <Compile Include="Try\TryResult.cs" />
     <Compile Include="Try\TrySuccContext.cs" />
-    <Compile Include="TypeClasses\Applicative\Applicative_Extensions.cs" />
-    <Compile Include="TypeClasses\Applicative\Applicative_Prelude.cs" />
+    <Compile Include="TypeClasses\Applicative\Extensions.cs" />
+    <Compile Include="TypeClasses\Applicative\Prelude.cs" />
+    <Compile Include="TypeClasses\Choice\Choice.cs" />
     <Compile Include="TypeClasses\Eq\Extensions.cs" />
     <Compile Include="ValueTuple3.cs" />
     <Compile Include="ValueTuple2.cs" />
@@ -131,9 +138,8 @@
     <Compile Include="Prelude_Tasks.cs" />
     <Compile Include="Task.cs" />
     <Compile Include="Compose.cs" />
-    <Compile Include="EitherState.cs" />
-    <Compile Include="EitherUnsafeTrans.cs" />
-    <Compile Include="EitherTrans.cs" />
+    <Compile Include="Either-Shared\EitherState.cs" />
+    <Compile Include="Either\EitherTrans.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="IDivisible.cs" />
     <Compile Include="INumeric.cs" />
@@ -146,7 +152,6 @@
     <Compile Include="ObservableExt.cs" />
     <Compile Include="Prelude_Random.cs" />
     <Compile Include="Prelude_Curry.cs" />
-    <Compile Include="EitherUnsafe.cs" />
     <Compile Include="ExceptionMatch.cs" />
     <Compile Include="IEither.cs" />
     <Compile Include="Map\MapInternal.cs" />
@@ -163,11 +168,9 @@
     <Compile Include="Try\Prelude.cs" />
     <Compile Include="Map\MapModule.cs" />
     <Compile Include="Prelude_Collections.cs" />
-    <Compile Include="Prelude_Either.cs" />
-    <Compile Include="Prelude_EitherUnsafe.cs" />
+    <Compile Include="Either\Prelude.cs" />
     <Compile Include="Prelude_Func.cs" />
     <Compile Include="Prelude_Memoize.cs" />
-    <Compile Include="Prelude_TryOption.cs" />
     <Compile Include="Prelude_Tuple.cs" />
     <Compile Include="Queue.cs" />
     <Compile Include="Range.cs" />
@@ -178,7 +181,7 @@
     <Compile Include="Prelude.cs" />
     <Compile Include="List\ListModule.cs" />
     <Compile Include="NullableExt.cs" />
-    <Compile Include="Either.cs" />
+    <Compile Include="Either\Either.cs" />
     <Compile Include="Prelude_Parse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Stack.cs" />
@@ -186,14 +189,13 @@
     <Compile Include="State.cs" />
     <Compile Include="Stck.cs" />
     <Compile Include="Try\Extensions.cs" />
-    <Compile Include="TryOption.cs" />
     <Compile Include="TryOutExt.cs" />
     <Compile Include="Tuple3.cs" />
     <Compile Include="Tuple2.cs" />
     <Compile Include="TupleExt.cs" />
     <Compile Include="Instances\EqDefault.cs" />
     <Compile Include="TypeClasses\Foldable\FoldableT.cs" />
-    <Compile Include="TypeClasses\Foldable\Foldable_Extensions.cs" />
+    <Compile Include="TypeClasses\Foldable\Extensions.cs" />
     <Compile Include="TypeClasses\Fraction\Fraction_Extensions.cs" />
     <Compile Include="TypeClasses\Functor\FunctorT.cs" />
     <Compile Include="TypeClasses\MonadPlus\MonadPlus.cs" />
@@ -208,19 +210,19 @@
     <Compile Include="Instances\OrdOpt.cs" />
     <Compile Include="TypeClasses\Monoid\Monoid_Extensions.cs" />
     <Compile Include="TypeClasses\Optional\Optional.cs" />
-    <Compile Include="TypeClasses\Optional\Optional_Extensions.cs" />
+    <Compile Include="TypeClasses\Optional\Extensions.cs" />
     <Compile Include="TypeClasses\Ord\Ord_Extensions.cs" />
     <Compile Include="TypeClasses\Semigroup\Semigroup_Extensions.cs" />
     <Compile Include="TypeClasses\Foldable\Foldable.cs" />
     <Compile Include="TypeClasses\Functor\Functor.cs" />
     <Compile Include="TypeClasses\Monad\Monad.cs" />
     <Compile Include="TypeClasses\Monoid\Monoid.cs" />
-    <Compile Include="TypeClasses\Floating\Floating_Prelude.cs" />
-    <Compile Include="TypeClasses\Foldable\Foldable_Prelude.cs" />
+    <Compile Include="TypeClasses\Floating\Prelude.cs" />
+    <Compile Include="TypeClasses\Foldable\Prelude.cs" />
     <Compile Include="TypeClasses\Functor\Functor_Prelude.cs" />
     <Compile Include="TypeClasses\Monad\Monad_Prelude.cs" />
     <Compile Include="TypeClasses\Monoid\Monoid_Prelude.cs" />
-    <Compile Include="TypeClasses\Num\Num_Prelude.cs" />
+    <Compile Include="TypeClasses\Num\Prelude.cs" />
     <Compile Include="TypeClasses\Fraction\Fraction_Prelude.cs" />
     <Compile Include="TypeClasses\Ord\Ord_Prelude.cs" />
     <Compile Include="TypeClasses\Semigroup\Semigroup_Prelude.cs" />

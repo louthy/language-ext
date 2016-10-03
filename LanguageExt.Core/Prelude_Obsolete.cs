@@ -326,30 +326,6 @@ namespace LanguageExt
         /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
         [Obsolete("toList has been deprecated.  Please use rightToList.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Lst<R> toList<L, R>(EitherUnsafe<L, R> either) =>
-            either.ToList();
-
-        /// <summary>
-        /// Project the Either into an ImmutableArray R
-        /// </summary>
-        /// <typeparam name="L">Left</typeparam>
-        /// <typeparam name="R">Right</typeparam>
-        /// <param name="either">Either to project</param>
-        /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
-        [Obsolete("ToArray has been deprecated.  Please use RightToArray.")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static R[] toArray<L, R>(EitherUnsafe<L, R> either) =>
-            either.ToArray();
-
-        /// <summary>
-        /// Project the Either into a Lst R
-        /// </summary>
-        /// <typeparam name="L">Left</typeparam>
-        /// <typeparam name="R">Right</typeparam>
-        /// <param name="either">Either to project</param>
-        /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
-        [Obsolete("toList has been deprecated.  Please use rightToList.")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public static Lst<R> toList<L, R>(Either<L, R> either) =>
             either.ToList();
 

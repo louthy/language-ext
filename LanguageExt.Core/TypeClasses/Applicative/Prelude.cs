@@ -105,7 +105,7 @@ namespace LanguageExt
         ///     f a -> f b -> f b
         /// </summary>
         [Pure]
-        public static MB action<MB, A, B>(Monad<A> x, Monad<B> y)
+        public static MB action<MB, A, B>(Monad<A> x, MB y)
             where MB : struct, Monad<B> =>
                 x.Bind<MB, B>(x, a =>
                 y.Bind<MB, B>(y, b =>

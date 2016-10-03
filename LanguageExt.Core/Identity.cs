@@ -42,6 +42,9 @@ namespace LanguageExt
         public Monad<A> Fail(Exception err = null) => 
             default(Identity<A>);
 
+        public Monad<A> Fail<F>(F err = default(F)) =>
+            default(Identity<A>);
+
         private A Id(Functor<A> fa) =>
             ((Identity<A>)fa).value;
 

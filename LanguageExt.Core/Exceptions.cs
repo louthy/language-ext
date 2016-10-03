@@ -216,6 +216,8 @@ namespace LanguageExt
 #endif
     public class BottomException : Exception
     {
+        public static readonly BottomException Default = new BottomException();
+
         /// <summary>
         /// Ctor
         /// </summary>

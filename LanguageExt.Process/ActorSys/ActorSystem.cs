@@ -32,7 +32,6 @@ namespace LanguageExt
         readonly long startupTimestamp;
         readonly object regsync = new object();
         readonly SessionManager sessionManager;
-        readonly bool transactionalIO;
         public readonly SystemName SystemName;
 
         public AppProfile AppProfile => appProfile;

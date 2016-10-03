@@ -98,6 +98,15 @@ namespace LanguageExt
             new Seq<A>(List.empty<A>());
 
         /// <summary>
+        /// Monad fail
+        /// </summary>
+        /// <param name="err">Optional error message - not supported for SeqM</param>
+        /// <returns>Monad of A (for SeqM this returns an empty sequence)</returns>
+        [Pure]
+        public Monad<A> Fail<F>(F err = default(F)) =>
+            new Seq<A>(List.empty<A>());
+
+        /// <summary>
         /// Fold the bound value
         /// </summary>
         /// <typeparam name="S">Initial state type</typeparam>

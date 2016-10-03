@@ -14,7 +14,7 @@ namespace LanguageExtTests
         [Fact]
         public void ApplyRightArgs()
         {
-            var either = Right<string,Func<int,int,int>>(add)
+            var either = Right<string, Func<int,int,int>>(add)
                 .Apply(Right<string, int>(3))
                 .Apply(Right<string, int>(4));
 

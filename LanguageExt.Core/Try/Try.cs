@@ -587,6 +587,11 @@ namespace LanguageExt
 
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
+        public Monad<A> Fail<F>(F err = default(F)) =>
+            Try<A>(() => { throw BottomException.Default; });
+
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public S Fold<S>(Foldable<A> fa, S state, Func<S, A, S> f)
         {
             var ta = AsTry(fa).Run();

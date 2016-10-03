@@ -589,7 +589,17 @@ namespace LanguageExt
         /// <returns>Monad of A (for Option this returns a None state)</returns>
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public Monad<A> Fail(Exception _ = null) =>
+        public Monad<A> Fail<F>(F _ = default(F)) =>
+            None;
+
+        /// <summary>
+        /// Monad fail
+        /// </summary>
+        /// <param name="_">Not supported for OptionV</param>
+        /// <returns>Monad of A (for Option this returns a None state)</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Monad<A> Fail(Exception err = null) =>
             None;
 
         /// <summary>

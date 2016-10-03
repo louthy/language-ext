@@ -49,5 +49,10 @@ namespace LanguageExt.TypeClasses
         /// Produce a failure value
         /// </summary>
         Monad<A> Fail(Exception err = null);
+
+        /// <summary>
+        /// Produce a failure value
+        /// </summary>
+        Monad<A> Fail<F>(F err = default(F));
     }
 }

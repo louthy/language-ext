@@ -30,5 +30,4 @@
         /// </summary>
         IsRight = 2
     }
-
 }

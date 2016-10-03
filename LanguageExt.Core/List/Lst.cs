@@ -294,12 +294,22 @@ namespace LanguageExt
         public bool Equals(Lst<A> other) =>
             Value.Equals(other.Value);
 
+        [Pure]
         Lst<A> AsList(Foldable<A> f)    => (Lst<A>)f;
+
+        [Pure]
         Lst<A> AsList(Functor<A> f)     => (Lst<A>)f;
+
+        [Pure]
         Lst<A> AsList(Monad<A> f)       => (Lst<A>)f;
+
+        [Pure]
         Lst<A> AsList(Monoid<Lst<A>> f) => (Lst<A>)f;
+
+        [Pure]
         Lst<A> AsList(MonadPlus<A> f)    => (Lst<A>)f;
 
+        [Pure]
         public S Fold<S>(Foldable<A> fa, S state, Func<S, A, S> f)
         {
             foreach (var item in AsList(fa).AsEnumerable())
@@ -309,6 +319,7 @@ namespace LanguageExt
             return state;
         }
 
+        [Pure]
         public S FoldBack<S>(Foldable<A> fa, S state, Func<S, A, S> f)
         {
             foreach (var item in AsList(fa).AsEnumerable().Reverse())
@@ -324,6 +335,7 @@ namespace LanguageExt
         /// <typeparam name="A">Type of the bound monad value</typeparam>
         /// <param name="x">The bound monad value</param>
         /// <returns>Monad of A</returns>
+        [Pure]
         public Monad<A> Return(A x, params A[] xs) =>
             List.createRange(x.Cons(xs));
 
@@ -333,6 +345,7 @@ namespace LanguageExt
         /// <typeparam name="A">Type of the bound monad value</typeparam>
         /// <param name="x">The bound monad value(s)</param>
         /// <returns>Monad of A</returns>
+        [Pure]
         public Monad<A> Return(IEnumerable<A> xs) =>
             List.createRange(xs);
 
@@ -343,6 +356,7 @@ namespace LanguageExt
         /// <param name="ma">Monad to bind</param>
         /// <param name="f">Bind function</param>
         /// <returns>Monad of B</returns>
+        [Pure]
         public Monad<B> Bind<B>(Monad<A> ma, Func<A, Monad<B>> f) =>
             List.createRange(BindSeq(ma, f));
 
@@ -353,13 +367,22 @@ namespace LanguageExt
         /// <param name="ma">Monad to bind</param>
         /// <param name="f">Bind function</param>
         /// <returns>Monad of B</returns>
+        [Pure]
         public MB Bind<MB, B>(Monad<A> ma, Func<A, MB> f) where MB : struct, Monad<B> =>
             Return<MB, B>(BindSeq<MB, B>(ma, f));
 
         /// <summary>
         /// Produce a failure value
         /// </summary>
+        [Pure]
         public Monad<A> Fail(Exception err = null) =>
+            List.empty<A>();
+
+        /// <summary>
+        /// Produce a failure value
+        /// </summary>
+        [Pure]
+        public Monad<A> Fail<F>(F err = default(F)) =>
             List.empty<A>();
 
         public Functor<B> Map<B>(Functor<A> fa, Func<A, B> f) =>
@@ -375,6 +398,7 @@ namespace LanguageExt
         public static bool operator !=(Lst<A> lhs, Lst<A> rhs) =>
             lhs.Value.Equals(rhs.Value);
 
+        [Pure]
         IEnumerable<B> BindSeq<MB, B>(Monad<A> ma, Func<A, MB> f) where MB : struct, Monad<B>
         {
             var xs = AsList(ma);
@@ -388,6 +412,7 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         IEnumerable<B> BindSeq<B>(Monad<A> ma, Func<A, Monad<B>> f)
         {
             var xs = AsList(ma);
@@ -401,12 +426,15 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         public MonadPlus<A> Plus(MonadPlus<A> a, MonadPlus<A> b) =>
             AsList(a) + AsList(b);
 
+        [Pure]
         public MonadPlus<A> Zero() =>
             Empty;
 
+        [Pure]
         public bool Equals(Lst<A> a, Lst<A> b) =>
             a == b;
     }

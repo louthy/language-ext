@@ -159,6 +159,21 @@ namespace LanguageExt
             self.Try().IsFaulted;
 
         /// <summary>
+        /// Invoke delegates based on None or Failed stateds
+        /// </summary>
+        /// <typeparam name="T">Bound value type</typeparam>
+        /// <param name="self">Try computation</param>
+        /// <param name="None">Delegate to invoke if the result is None</param>
+        /// <param name="Fail">Delegate to invoke if the result is Fail</param>
+        /// <returns>Success value, or the result of the None or Failed delegate</returns>
+        [Pure]
+        public static T ifNoneOrFail<T>(
+            TryOption<T> self,
+            Func<T> None,
+            Func<Exception, T> Fail) => 
+            self.IfNoneOrFail(None, Fail);
+
+        /// <summary>
         /// Invoke a delegate if the Try returns a value successfully
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>

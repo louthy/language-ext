@@ -154,14 +154,16 @@ namespace LanguageExtTests
             var opt = Some(Right<string, int>(100));
 
             var res = from x in opt
-                      select x * 2;
+                      from y in x
+                      select y * 2;
 
             Assert.True(res.LiftT() == 200);
 
             opt = Some(Left<string, int>("left"));
 
             res = from x in opt
-                  select x * 2;
+                  from y in x
+                  select y * 2;
 
             Assert.True(res.LiftT() == 0);
         }
