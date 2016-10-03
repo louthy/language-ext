@@ -500,7 +500,7 @@ namespace LanguageExt
         /// <param name="selector">Predicate</param>
         /// <returns>Filtered map</returns>
         [Pure]
-        public static Map<K, T> choose<K, T>(Map<K, T> map, Func<T, Option<T>> selector) =>
+        public static Map<K, R> choose<K, T, R>(Map<K, T> map, Func<T, Option<R>> selector) =>
             map.Choose(selector);
 
         /// <summary>
@@ -511,7 +511,7 @@ namespace LanguageExt
         /// <param name="selector">Predicate</param>
         /// <returns>Filtered map</returns>
         [Pure]
-        public static Map<K, T> choose<K, T>(Map<K, T> map, Func<K, T, Option<T>> selector) =>
+        public static Map<K, R> choose<K, T, R>(Map<K, T> map, Func<K, T, Option<R>> selector) =>
             map.Choose(selector);
 
         /// <summary>
@@ -820,8 +820,8 @@ public static class MapExtensions
     /// <param name="selector">Predicate</param>
     /// <returns>Filtered map</returns>
     [Pure]
-    public static Map<K, V> Choose<K, V>(this Map<K, V> self, Func<K, V, Option<V>> selector) =>
-        self.SetRoot(MapModule.Choose(self.Root, selector));
+    public static Map<K, R> Choose<K, V, R>(this Map<K, V> self, Func<K, V, Option<R>> selector) =>
+        new Map<K, R>(MapModule.Choose(self.Root, selector), self.Rev);
 
     /// <summary>
     /// Equivalent to map and filter but the filtering is done based on whether the returned
@@ -831,8 +831,8 @@ public static class MapExtensions
     /// <param name="selector">Predicate</param>
     /// <returns>Filtered map</returns>
     [Pure]
-    public static Map<K, V> Choose<K, V>(this Map<K, V> self, Func<V, Option<V>> selector) =>
-        self.SetRoot(MapModule.Choose(self.Root, selector));
+    public static Map<K, R> Choose<K, V, R>(this Map<K, V> self, Func<V, Option<R>> selector) =>
+        new Map<K, R>(MapModule.Choose(self.Root, selector), self.Rev);
 
     /// <summary>
     /// Atomically folds all items in the map (in order) using the folder function provided.

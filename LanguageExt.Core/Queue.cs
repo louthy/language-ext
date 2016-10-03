@@ -65,11 +65,11 @@ namespace LanguageExt
             List.filter(queue, predicate);
 
         [Pure]
-        public static IEnumerable<T> choose<T>(Que<T> queue, Func<T, Option<T>> selector) =>
+        public static IEnumerable<R> choose<T, R>(Que<T> queue, Func<T, Option<R>> selector) =>
             List.choose(queue, selector);
 
         [Pure]
-        public static IEnumerable<T> choose<T>(Que<T> queue, Func<int, T, Option<T>> selector) =>
+        public static IEnumerable<R> choose<T, R>(Que<T> queue, Func<int, T, Option<R>> selector) =>
             List.choose(queue, selector);
 
         [Pure]
@@ -202,11 +202,11 @@ namespace LanguageExt
             LanguageExt.List.filter(queue, predicate);
 
         [Pure]
-        public static IEnumerable<T> Choose<T>(this Que<T> queue, Func<T, Option<T>> selector) =>
+        public static IEnumerable<R> Choose<T, R>(this Que<T> queue, Func<T, Option<R>> selector) =>
             LanguageExt.List.choose(queue, selector);
 
         [Pure]
-        public static IEnumerable<T> Choose<T>(this Que<T> queue, Func<int, T, Option<T>> selector) =>
+        public static IEnumerable<R> Choose<T, R>(this Que<T> queue, Func<int, T, Option<R>> selector) =>
             LanguageExt.List.choose(queue, selector);
 
         [Pure]
