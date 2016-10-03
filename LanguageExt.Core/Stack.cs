@@ -165,7 +165,7 @@ namespace LanguageExt
         /// <param name="selector">Selector function</param>
         /// <returns>Mapped and filtered enumerable</returns>
         [Pure]
-        public static IEnumerable<T> choose<T>(Stck<T> stack, Func<T, Option<T>> selector) =>
+        public static IEnumerable<R> choose<T, R>(Stck<T> stack, Func<T, Option<R>> selector) =>
             List.choose(stack, selector);
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace LanguageExt
         /// <param name="selector">Selector function</param>
         /// <returns>Mapped and filtered enumerable</returns>
         [Pure]
-        public static IEnumerable<T> choose<T>(Stck<T> stack, Func<int, T, Option<T>> selector) =>
+        public static IEnumerable<R> choose<T, R>(Stck<T> stack, Func<int, T, Option<R>> selector) =>
             List.choose(stack, selector);
 
         /// <summary>
@@ -558,7 +558,7 @@ public static class StackExtensions
     /// <param name="selector">Selector function</param>
     /// <returns>Mapped and filtered enumerable</returns>
     [Pure]
-    public static IEnumerable<T> Choose<T>(this Stck<T> stack, Func<T, Option<T>> selector) =>
+    public static IEnumerable<R> Choose<T, R>(this Stck<T> stack, Func<T, Option<R>> selector) =>
         LanguageExt.List.choose(stack, selector);
 
     /// <summary>
@@ -571,7 +571,7 @@ public static class StackExtensions
     /// <param name="selector">Selector function</param>
     /// <returns>Mapped and filtered enumerable</returns>
     [Pure]
-    public static IEnumerable<T> Choose<T>(this Stck<T> stack, Func<int, T, Option<T>> selector) =>
+    public static IEnumerable<R> Choose<T, R>(this Stck<T> stack, Func<int, T, Option<R>> selector) =>
         LanguageExt.List.choose(stack, selector);
 
     /// <summary>
