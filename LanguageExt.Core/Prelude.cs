@@ -47,6 +47,12 @@ namespace LanguageExt
             unit;
 
         /// <summary>
+        /// Accepts any value but ignores it. Useful if you have enabled
+        /// compiler warnings about unused return values from functions.
+        /// </summary>
+        public static object _ { set { } }
+
+        /// <summary>
         /// Projects a value into a lambda
         /// Useful when one needs to declare a local variable which breaks your
         /// expression.  This allows you to keep the expression going.
