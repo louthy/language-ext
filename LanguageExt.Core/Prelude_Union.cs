@@ -23,17 +23,166 @@
                 ? new Option<T>()
                 : source.opt;
 
-        public static Action<Action<T1>> Match<T1>(this Union<T1> union)
+        public static TReturn Match<T1, TReturn>(this Union<T1> union, Func<T1, TReturn> f1)
         {
             var unionTuple = union.ToTuple();
-            return act((Action<T1> a) => unionTuple.Item1.IfSome(a));
+            TReturn retVal = default(TReturn);
+
+            unionTuple.Item1.IfSome(tm => retVal = f1(tm));
+
+            return retVal;
+        }
+
+        public static TReturn Match<T1, T2, TReturn>(this Union<T1, T2> union, Func<T1, TReturn> f1, Func<T2, TReturn> f2)
+        {
+            var unionTuple = union.ToTuple();
+            TReturn retVal = default(TReturn);
+
+            unionTuple.Item1.IfSome(tm => retVal = f1(tm));
+            unionTuple.Item2.IfSome(tm => retVal = f2(tm));
+
+            return retVal;
+        }
+
+        public static TReturn Match<T1, T2, T3, TReturn>(this Union<T1, T2, T3> union, Func<T1, TReturn> f1, Func<T2, TReturn> f2, Func<T3, TReturn> f3)
+        {
+            var unionTuple = union.ToTuple();
+            TReturn retVal = default(TReturn);
+
+            unionTuple.Item1.IfSome(tm => retVal = f1(tm));
+            unionTuple.Item2.IfSome(tm => retVal = f2(tm));
+            unionTuple.Item3.IfSome(tm => retVal = f3(tm));
+
+            return retVal;
+        }
+
+        public static TReturn Match<T1, T2, T3, T4, TReturn>(this Union<T1, T2, T3, T4> union, Func<T1, TReturn> f1, Func<T2, TReturn> f2, Func<T3, TReturn> f3, Func<T4, TReturn> f4)
+        {
+            var unionTuple = union.ToTuple();
+            TReturn retVal = default(TReturn);
+
+            unionTuple.Item1.IfSome(tm => retVal = f1(tm));
+            unionTuple.Item2.IfSome(tm => retVal = f2(tm));
+            unionTuple.Item3.IfSome(tm => retVal = f3(tm));
+            unionTuple.Item4.IfSome(tm => retVal = f4(tm));
+
+            return retVal;
+        }
+
+        public static TReturn Match<T1, T2, T3, T4, T5, TReturn>(this Union<T1, T2, T3, T4, T5> union, Func<T1, TReturn> f1, Func<T2, TReturn> f2, Func<T3, TReturn> f3, Func<T4, TReturn> f4, Func<T5, TReturn> f5)
+        {
+            var unionTuple = union.ToTuple();
+            TReturn retVal = default(TReturn);
+
+            unionTuple.Item1.IfSome(tm => retVal = f1(tm));
+            unionTuple.Item2.IfSome(tm => retVal = f2(tm));
+            unionTuple.Item3.IfSome(tm => retVal = f3(tm));
+            unionTuple.Item4.IfSome(tm => retVal = f4(tm));
+            unionTuple.Item5.IfSome(tm => retVal = f5(tm));
+
+            return retVal;
+        }
+
+        public static TReturn Match<T1, T2, T3, T4, T5, T6, TReturn>(this Union<T1, T2, T3, T4, T5, T6> union, Func<T1, TReturn> f1, Func<T2, TReturn> f2, Func<T3, TReturn> f3, Func<T4, TReturn> f4, Func<T5, TReturn> f5, Func<T6, TReturn> f6)
+        {
+            var unionTuple = union.ToTuple();
+            TReturn retVal = default(TReturn);
+
+            unionTuple.Item1.IfSome(tm => retVal = f1(tm));
+            unionTuple.Item2.IfSome(tm => retVal = f2(tm));
+            unionTuple.Item3.IfSome(tm => retVal = f3(tm));
+            unionTuple.Item4.IfSome(tm => retVal = f4(tm));
+            unionTuple.Item5.IfSome(tm => retVal = f5(tm));
+            unionTuple.Item6.IfSome(tm => retVal = f6(tm));
+
+            return retVal;
+        }
+
+        public static TReturn Match<T1, T2, T3, T4, T5, T6, T7, TReturn>(this Union<T1, T2, T3, T4, T5, T6, T7> union, Func<T1, TReturn> f1, Func<T2, TReturn> f2, Func<T3, TReturn> f3, Func<T4, TReturn> f4, Func<T5, TReturn> f5, Func<T6, TReturn> f6, Func<T7, TReturn> f7)
+        {
+            var unionTuple = union.ToTuple();
+            TReturn retVal = default(TReturn);
+
+            unionTuple.Item1.IfSome(tm => retVal = f1(tm));
+            unionTuple.Item2.IfSome(tm => retVal = f2(tm));
+            unionTuple.Item3.IfSome(tm => retVal = f3(tm));
+            unionTuple.Item4.IfSome(tm => retVal = f4(tm));
+            unionTuple.Item5.IfSome(tm => retVal = f5(tm));
+            unionTuple.Item6.IfSome(tm => retVal = f6(tm));
+            unionTuple.Item7.IfSome(tm => retVal = f7(tm));
+
+            return retVal;
+        }
+
+        public static TReturn Match<T1, T2, T3, T4, T5, T6, T7, T8, TReturn>(this Union<T1, T2, T3, T4, T5, T6, T7, T8> union, Func<T1, TReturn> f1, Func<T2, TReturn> f2, Func<T3, TReturn> f3, Func<T4, TReturn> f4, Func<T5, TReturn> f5, Func<T6, TReturn> f6, Func<T7, TReturn> f7, Func<T8, TReturn> f8)
+        {
+            var unionTuple = union.ToTuple();
+            TReturn retVal = default(TReturn);
+
+            unionTuple.Item1.IfSome(tm => retVal = f1(tm));
+            unionTuple.Item2.IfSome(tm => retVal = f2(tm));
+            unionTuple.Item3.IfSome(tm => retVal = f3(tm));
+            unionTuple.Item4.IfSome(tm => retVal = f4(tm));
+            unionTuple.Item5.IfSome(tm => retVal = f5(tm));
+            unionTuple.Item6.IfSome(tm => retVal = f6(tm));
+            unionTuple.Item7.IfSome(tm => retVal = f7(tm));
+            unionTuple.Rest.Item1.IfSome(tm => retVal = f8(tm));
+
+            return retVal;
         }
 
         public static Func<Func<T1, TReturn>, TReturn> Match<T1, TReturn>(this Union<T1> union)
         {
+            var curried = curry((Func<Union<T1>, Func<T1, TReturn>, TReturn>)Match);
+            return curried(union);
+        }
+
+        public static Func<Func<T1, TReturn>, Func<Func<T2, TReturn>, TReturn>> Match<T1, T2, TReturn>(this Union<T1, T2> union)
+        {
+            var curried = curry((Func<Union<T1, T2>, Func<T1, TReturn>, Func<T2, TReturn>, TReturn>)Match);
+            return curried(union);
+        }
+
+        public static Func<Func<T1, TReturn>, Func<Func<T2, TReturn>, Func<Func<T3, TReturn>, TReturn>>> Match<T1, T2, T3, TReturn>(this Union<T1, T2, T3> union)
+        {
+            var curried = curry((Func<Union<T1, T2, T3>, Func<T1, TReturn>, Func<T2, TReturn>, Func<T3, TReturn>, TReturn>)Match);
+            return curried(union);
+        }
+
+        public static Func<Func<T1, TReturn>, Func<Func<T2, TReturn>, Func<Func<T3, TReturn>, Func<Func<T4, TReturn>, TReturn>>>> Match<T1, T2, T3, T4, TReturn>(this Union<T1, T2, T3, T4> union)
+        {
+            var curried = curry((Func<Union<T1, T2, T3, T4>, Func<T1, TReturn>, Func<T2, TReturn>, Func<T3, TReturn>, Func<T4, TReturn>, TReturn>)Match);
+            return curried(union);
+        }
+
+        public static Func<Func<T1, TReturn>, Func<Func<T2, TReturn>, Func<Func<T3, TReturn>, Func<Func<T4, TReturn>, Func<Func<T5, TReturn>, TReturn>>>>> Match<T1, T2, T3, T4, T5, TReturn>(this Union<T1, T2, T3, T4, T5> union)
+        {
+            var curried = curry((Func<Union<T1, T2, T3, T4, T5>, Func<T1, TReturn>, Func<T2, TReturn>, Func<T3, TReturn>, Func<T4, TReturn>, Func<T5, TReturn>, TReturn>)Match);
+            return curried(union);
+        }
+
+        public static Func<Func<T1, TReturn>, Func<Func<T2, TReturn>, Func<Func<T3, TReturn>, Func<Func<T4, TReturn>, Func<Func<T5, TReturn>, Func<Func<T6, TReturn>, TReturn>>>>>> Match<T1, T2, T3, T4, T5, T6, TReturn>(this Union<T1, T2, T3, T4, T5, T6> union)
+        {
+            var curried = curry((Func<Union<T1, T2, T3, T4, T5, T6>, Func<T1, TReturn>, Func<T2, TReturn>, Func<T3, TReturn>, Func<T4, TReturn>, Func<T5, TReturn>, Func<T6, TReturn>, TReturn>)Match);
+            return curried(union);
+        }
+
+        public static Func<Func<T1, TReturn>, Func<Func<T2, TReturn>, Func<Func<T3, TReturn>, Func<Func<T4, TReturn>, Func<Func<T5, TReturn>, Func<Func<T6, TReturn>, Func<Func<T7, TReturn>, TReturn>>>>>>> Match<T1, T2, T3, T4, T5, T6, T7, TReturn>(this Union<T1, T2, T3, T4, T5, T6, T7> union)
+        {
+            var curried = curry((Func<Union<T1, T2, T3, T4, T5, T6, T7>, Func<T1, TReturn>, Func<T2, TReturn>, Func<T3, TReturn>, Func<T4, TReturn>, Func<T5, TReturn>, Func<T6, TReturn>, Func<T7, TReturn>, TReturn>)Match);
+            return curried(union);
+        }
+
+        public static Func<Func<T1, TReturn>, Func<Func<T2, TReturn>, Func<Func<T3, TReturn>, Func<Func<T4, TReturn>, Func<Func<T5, TReturn>, Func<Func<T6, TReturn>, Func<Func<T7, TReturn>, Func<Func<T8, TReturn>, TReturn>>>>>>>> Match<T1, T2, T3, T4, T5, T6, T7, T8, TReturn>(this Union<T1, T2, T3, T4, T5, T6, T7, T8> union)
+        {
+            var curried = curry((Func<Union<T1, T2, T3, T4, T5, T6, T7, T8>, Func<T1, TReturn>, Func<T2, TReturn>, Func<T3, TReturn>, Func<T4, TReturn>, Func<T5, TReturn>, Func<T6, TReturn>, Func<T7, TReturn>, Func<T8, TReturn>, TReturn>)Match);
+            return curried(union);
+        }
+
+        public static Action<Action<T1>> Match<T1>(this Union<T1> union)
+        {
             var unionTuple = union.ToTuple();
-            TReturn retVal = default(TReturn);
-            return fun((Func<T1, TReturn> a) => unionTuple.Item1.IfSome(tm => retVal = a(tm)).Return(retVal));
+            return act((Action<T1> a) => unionTuple.Item1.IfSome(a));
         }
 
         public static Func<Action<T1>, Action<Action<T2>>> Match<T1, T2>(this Union<T1, T2> union)
@@ -41,15 +190,6 @@
             var unionTuple = union.ToTuple();
             var bAct = act((Action<T2> b) => unionTuple.Item2.IfSome(b));
             return fun((Action<T1> a) => unionTuple.Item1.IfSome(a).Return(bAct));
-        }
-
-        public static Func<Func<T1, TReturn>, Func<Func<T2, TReturn>, TReturn>> Match<T1, T2, TReturn>(this Union<T1, T2> union)
-        {
-            var unionTuple = union.ToTuple();
-            TReturn retVal = default(TReturn);
-
-            var bAct = fun((Func<T2, TReturn> b) => unionTuple.Item2.IfSome(tm => retVal = b(tm)).Return(retVal));
-            return fun((Func<T1, TReturn> a) => unionTuple.Item1.IfSome(tm => retVal = a(tm)).Return(bAct));
         }
 
         public static Func<Action<T1>, Func<Action<T2>, Action<Action<T3>>>> Match<T1, T2, T3>(this Union<T1, T2, T3> union)
@@ -60,15 +200,6 @@
             return fun((Action<T1> a) => unionTuple.Item1.IfSome(a).Return(bAct));
         }
 
-        public static Func<Func<T1, TReturn>, Func<Func<T2, TReturn>, Func<Func<T3, TReturn>, TReturn>>> Match<T1, T2, T3, TReturn>(this Union<T1, T2, T3> union)
-        {
-            var unionTuple = union.ToTuple();
-            TReturn retVal = default(TReturn);
-            var cAct = fun((Func<T3, TReturn> c) => unionTuple.Item3.IfSome(tm => retVal = c(tm)).Return(retVal));
-            var bAct = fun((Func<T2, TReturn> b) => unionTuple.Item2.IfSome(tm => retVal = b(tm)).Return(cAct));
-            return fun((Func<T1, TReturn> a) => unionTuple.Item1.IfSome(tm => retVal = a(tm)).Return(bAct));
-        }
-
         public static Func<Action<T1>, Func<Action<T2>, Func<Action<T3>, Action<Action<T4>>>>> Match<T1, T2, T3, T4>(this Union<T1, T2, T3, T4> union)
         {
             var unionTuple = union.ToTuple();
@@ -76,17 +207,6 @@
             var cAct = fun((Action<T3> c) => unionTuple.Item3.IfSome(c).Return(dAct));
             var bAct = fun((Action<T2> b) => unionTuple.Item2.IfSome(b).Return(cAct));
             return fun((Action<T1> a) => unionTuple.Item1.IfSome(a).Return(bAct));
-        }
-
-        public static Func<Func<T1, TReturn>, Func<Func<T2, TReturn>, Func<Func<T3, TReturn>, Func<Func<T4, TReturn>, TReturn>>>> Match<T1, T2, T3, T4, TReturn>(this Union<T1, T2, T3, T4> union)
-        {
-            var unionTuple = union.ToTuple();
-            TReturn retVal = default(TReturn);
-
-            var dAct = fun((Func<T4, TReturn> d) => unionTuple.Item4.IfSome(tm => retVal = d(tm)).Return(retVal));
-            var cAct = fun((Func<T3, TReturn> c) => unionTuple.Item3.IfSome(tm => retVal = c(tm)).Return(dAct));
-            var bAct = fun((Func<T2, TReturn> b) => unionTuple.Item2.IfSome(tm => retVal = b(tm)).Return(cAct));
-            return fun((Func<T1, TReturn> a) => unionTuple.Item1.IfSome(tm => retVal = a(tm)).Return(bAct));
         }
 
         public static Func<Action<T1>, Func<Action<T2>, Func<Action<T3>, Func<Action<T4>, Action<Action<T5>>>>>> Match<T1, T2, T3, T4, T5>(this Union<T1, T2, T3, T4, T5> union)
@@ -99,18 +219,6 @@
             return fun((Action<T1> a) => unionTuple.Item1.IfSome(a).Return(bAct));
         }
 
-        public static Func<Func<T1, TReturn>, Func<Func<T2, TReturn>, Func<Func<T3, TReturn>, Func<Func<T4, TReturn>, Func<Func<T5, TReturn>, TReturn>>>>> Match<T1, T2, T3, T4, T5, TReturn>(this Union<T1, T2, T3, T4, T5> union)
-        {
-            var unionTuple = union.ToTuple();
-            TReturn retVal = default(TReturn);
-
-            var eAct = fun((Func<T5, TReturn> e) => unionTuple.Item5.IfSome(tm => retVal = e(tm)).Return(retVal));
-            var dAct = fun((Func<T4, TReturn> d) => unionTuple.Item4.IfSome(tm => retVal = d(tm)).Return(eAct));
-            var cAct = fun((Func<T3, TReturn> c) => unionTuple.Item3.IfSome(tm => retVal = c(tm)).Return(dAct));
-            var bAct = fun((Func<T2, TReturn> b) => unionTuple.Item2.IfSome(tm => retVal = b(tm)).Return(cAct));
-            return fun((Func<T1, TReturn> a) => unionTuple.Item1.IfSome(tm => retVal = a(tm)).Return(bAct));
-        }
-
         public static Func<Action<T1>, Func<Action<T2>, Func<Action<T3>, Func<Action<T4>, Func<Action<T5>, Action<Action<T6>>>>>>> Match<T1, T2, T3, T4, T5, T6>(this Union<T1, T2, T3, T4, T5, T6> union)
         {
             var unionTuple = union.ToTuple();
@@ -120,19 +228,6 @@
             var cAct = fun((Action<T3> c) => unionTuple.Item3.IfSome(c).Return(dAct));
             var bAct = fun((Action<T2> b) => unionTuple.Item2.IfSome(b).Return(cAct));
             return fun((Action<T1> a) => unionTuple.Item1.IfSome(a).Return(bAct));
-        }
-
-        public static Func<Func<T1, TReturn>, Func<Func<T2, TReturn>, Func<Func<T3, TReturn>, Func<Func<T4, TReturn>, Func<Func<T5, TReturn>, Func<Func<T6, TReturn>, TReturn>>>>>> Match<T1, T2, T3, T4, T5, T6, TReturn>(this Union<T1, T2, T3, T4, T5, T6> union)
-        {
-            var unionTuple = union.ToTuple();
-            TReturn retVal = default(TReturn);
-
-            var fAct = fun((Func<T6, TReturn> f) => unionTuple.Item6.IfSome(tm => retVal = f(tm)).Return(retVal));
-            var eAct = fun((Func<T5, TReturn> e) => unionTuple.Item5.IfSome(tm => retVal = e(tm)).Return(fAct));
-            var dAct = fun((Func<T4, TReturn> d) => unionTuple.Item4.IfSome(tm => retVal = d(tm)).Return(eAct));
-            var cAct = fun((Func<T3, TReturn> c) => unionTuple.Item3.IfSome(tm => retVal = c(tm)).Return(dAct));
-            var bAct = fun((Func<T2, TReturn> b) => unionTuple.Item2.IfSome(tm => retVal = b(tm)).Return(cAct));
-            return fun((Func<T1, TReturn> a) => unionTuple.Item1.IfSome(tm => retVal = a(tm)).Return(bAct));
         }
 
         public static Func<Action<T1>, Func<Action<T2>, Func<Action<T3>, Func<Action<T4>, Func<Action<T5>, Func<Action<T6>, Action<Action<T7>>>>>>>> Match<T1, T2, T3, T4, T5, T6, T7>(this Union<T1, T2, T3, T4, T5, T6, T7> union)
@@ -147,20 +242,6 @@
             return fun((Action<T1> a) => unionTuple.Item1.IfSome(a).Return(bAct));
         }
 
-        public static Func<Func<T1, TReturn>, Func<Func<T2, TReturn>, Func<Func<T3, TReturn>, Func<Func<T4, TReturn>, Func<Func<T5, TReturn>, Func<Func<T6, TReturn>, Func<Func<T7, TReturn>, TReturn>>>>>>> Match<T1, T2, T3, T4, T5, T6, T7, TReturn>(this Union<T1, T2, T3, T4, T5, T6, T7> union)
-        {
-            var unionTuple = union.ToTuple();
-            TReturn retVal = default(TReturn);
-
-            var gAct = fun((Func<T7, TReturn> g) => unionTuple.Item7.IfSome(tm => retVal = g(tm)).Return(retVal));
-            var fAct = fun((Func<T6, TReturn> f) => unionTuple.Item6.IfSome(tm => retVal = f(tm)).Return(gAct));
-            var eAct = fun((Func<T5, TReturn> e) => unionTuple.Item5.IfSome(tm => retVal = e(tm)).Return(fAct));
-            var dAct = fun((Func<T4, TReturn> d) => unionTuple.Item4.IfSome(tm => retVal = d(tm)).Return(eAct));
-            var cAct = fun((Func<T3, TReturn> c) => unionTuple.Item3.IfSome(tm => retVal = c(tm)).Return(dAct));
-            var bAct = fun((Func<T2, TReturn> b) => unionTuple.Item2.IfSome(tm => retVal = b(tm)).Return(cAct));
-            return fun((Func<T1, TReturn> a) => unionTuple.Item1.IfSome(tm => retVal = a(tm)).Return(bAct));
-        }
-
         public static Func<Action<T1>, Func<Action<T2>, Func<Action<T3>, Func<Action<T4>, Func<Action<T5>, Func<Action<T6>, Func<Action<T7>, Action<Action<T8>>>>>>>>> Match<T1, T2, T3, T4, T5, T6, T7, T8>(this Union<T1, T2, T3, T4, T5, T6, T7, T8> union)
         {
             var unionTuple = union.ToTuple();
@@ -172,21 +253,6 @@
             var cAct = fun((Action<T3> c) => unionTuple.Item3.IfSome(c).Return(dAct));
             var bAct = fun((Action<T2> b) => unionTuple.Item2.IfSome(b).Return(cAct));
             return fun((Action<T1> a) => unionTuple.Item1.IfSome(a).Return(bAct));
-        }
-
-        public static Func<Func<T1, TReturn>, Func<Func<T2, TReturn>, Func<Func<T3, TReturn>, Func<Func<T4, TReturn>, Func<Func<T5, TReturn>, Func<Func<T6, TReturn>, Func<Func<T7, TReturn>, Func<Func<T8, TReturn>, TReturn>>>>>>>> Match<T1, T2, T3, T4, T5, T6, T7, T8, TReturn>(this Union<T1, T2, T3, T4, T5, T6, T7, T8> union)
-        {
-            var unionTuple = union.ToTuple();
-            TReturn retVal = default(TReturn);
-
-            var hAct = fun((Func<T8, TReturn> h) => unionTuple.Rest.Item1.IfSome(tm => retVal = h(tm)).Return(retVal));
-            var gAct = fun((Func<T7, TReturn> g) => unionTuple.Item7.IfSome(tm => retVal = g(tm)).Return(hAct));
-            var fAct = fun((Func<T6, TReturn> f) => unionTuple.Item6.IfSome(tm => retVal = f(tm)).Return(gAct));
-            var eAct = fun((Func<T5, TReturn> e) => unionTuple.Item5.IfSome(tm => retVal = e(tm)).Return(fAct));
-            var dAct = fun((Func<T4, TReturn> d) => unionTuple.Item4.IfSome(tm => retVal = d(tm)).Return(eAct));
-            var cAct = fun((Func<T3, TReturn> c) => unionTuple.Item3.IfSome(tm => retVal = c(tm)).Return(dAct));
-            var bAct = fun((Func<T2, TReturn> b) => unionTuple.Item2.IfSome(tm => retVal = b(tm)).Return(cAct));
-            return fun((Func<T1, TReturn> a) => unionTuple.Item1.IfSome(tm => retVal = a(tm)).Return(bAct));
         }
 
         public static R Match<T, R>(this IUnion<T> union, Func<T, R> Some, Func<R> None) =>
