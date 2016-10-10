@@ -38,6 +38,35 @@ namespace LanguageExt
     }
 
     /// <summary>
+    /// Invalid SystemName
+    /// </summary>
+    public class InvalidSystemNameException : Exception
+    {
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public InvalidSystemNameException()
+            :
+            base("Invalid system name")
+        {
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public InvalidSystemNameException(string message) : base(message)
+        {
+        }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public InvalidSystemNameException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+    }
+
+    /// <summary>
     /// Invalid process name
     /// </summary>
     public class InvalidProcessNameException : Exception
@@ -162,6 +191,17 @@ namespace LanguageExt
             Self = self;
             Sender = sender;
         }
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        public ProcessException(string message, string self, string sender)
+            :
+            base(message)
+        {
+            Self = self;
+            Sender = sender;
+        }
     }
 
     /// <summary>
@@ -256,6 +296,21 @@ namespace LanguageExt
         public NoRouterWorkersException()
             :
             base("Router has no workers")
+        {
+        }
+    }
+
+    public class ProcessConfigException : Exception
+    {
+        public ProcessConfigException()
+        {
+        }
+
+        public ProcessConfigException(string message) : base(message)
+        {
+        }
+
+        public ProcessConfigException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }

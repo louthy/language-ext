@@ -15,9 +15,16 @@ namespace Routers
     {
         static void Main(string[] args)
         {
+            ProcessConfig.initialiseFileSystem();
+
             Test1();
             Test2();
             Test3();
+
+            ConfigTest1();
+            ConfigTest2();
+            ConfigTest3();
+            ConfigTest4();
         }
 
         static void Test1()
@@ -55,6 +62,55 @@ namespace Routers
             var test = Router.leastBusy<string>("least", new[] { one, two, thr });
 
             Range(0, 100).Iter(x => tell(test, "testing " + x));
+
+            Console.WriteLine("Press any key");
+            Console.ReadKey();
+        }
+
+        static void ConfigTest1()
+        {
+            var test = Router.fromConfig("broadcast1", (string msg) => Console.WriteLine(msg));
+            tell(test, "Hello");
+
+            Console.WriteLine("Press any key");
+            Console.ReadKey();
+        }
+
+        static void ConfigTest2()
+        {
+            var hello = spawn("hello", (string msg) => Console.WriteLine(msg + " Hello"));
+            var world = spawn("world", (string msg) => Console.WriteLine(msg + " World"));
+
+            var test = Router.fromConfig<string>(
+                "broadcast2"//,
+                //new[] { hello, world },
+                //Options: RouterOption.RemoveWorkerWhenTerminated
+                );
+
+            tell(test, "--> ");
+
+            Console.WriteLine("Press any key");
+            Console.ReadKey();
+        }
+
+        static void ConfigTest3()
+        {
+            var one = spawn("one", (string msg) => { Thread.Sleep(01); Console.WriteLine("1. " + msg); });
+            var two = spawn("two", (string msg) => { Thread.Sleep(25); Console.WriteLine("\t2. " + msg); });
+            var thr = spawn("thr", (string msg) => { Thread.Sleep(50); Console.WriteLine("\t\t3. " + msg); });
+
+            var test = Router.fromConfig<string>("least");//, new[] { one, two, thr });
+
+            Range(0, 100).Iter(x => tell(test, "testing " + x));
+
+            Console.WriteLine("Press any key");
+            Console.ReadKey();
+        }
+
+        static void ConfigTest4()
+        {
+            var test = Router.fromConfig("hash1", (string msg) => Console.WriteLine(msg));
+            tell(test, "Hello");
 
             Console.WriteLine("Press any key");
             Console.ReadKey();

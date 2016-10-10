@@ -2,6 +2,7 @@
     "projects": [ 
         "Languageext.Core", 
         "Languageext.FSharp", 
+        "Languageext.Parsec", 
         "Languageext.Process", 
         "Languageext.Process.FSharp", 
         "Languageext.Process.Redis", 

@@ -1,5 +1,6 @@
 ﻿using System;
 using Xunit;
+using LanguageExt;
 using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
@@ -92,7 +93,7 @@ namespace LanguageExtTests
                 .Apply(RightUnsafe<string, int>(4));
 
             var second = RightUnsafe<string, int>(3)
-                .Map(add)
+                .ParMap(add)
                 .Apply(RightUnsafe<string, int>(4));
 
             Assert.Equal(first, second);
@@ -108,7 +109,7 @@ namespace LanguageExtTests
                     ),
                     RightUnsafe<string, int>(4));
 
-            var second = apply(map(RightUnsafe<string, int>(3), add), RightUnsafe<string, int>(4));
+            var second = apply(parmap(RightUnsafe<string, int>(3), add), RightUnsafe<string, int>(4));
 
             Assert.Equal(first, second);
         }
@@ -122,7 +123,7 @@ namespace LanguageExtTests
                 RightUnsafe<string, int>(4)
             );
 
-            var second = apply(map(RightUnsafe<string, int>(3), add), RightUnsafe<string, int>(4));
+            var second = apply(parmap(RightUnsafe<string, int>(3), add), RightUnsafe<string, int>(4));
 
             Assert.Equal(first, second);
         }

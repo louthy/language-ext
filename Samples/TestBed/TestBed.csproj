@@ -42,6 +42,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -79,6 +80,9 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="process.conf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\LanguageExt.Core\LanguageExt.Core.csproj">
@@ -89,9 +93,9 @@
       <Project>{5d8bb155-2e39-4a63-8100-2004cbcf529e}</Project>
       <Name>LanguageExt.FSharp</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\LanguageExt.IO\LanguageExt.IO.fsproj">
-      <Project>{e4f0df2d-fa42-4213-adb6-08e6fcf5b409}</Project>
-      <Name>LanguageExt.IO</Name>
+    <ProjectReference Include="..\..\LanguageExt.Parsec\LanguageExt.Parsec.csproj">
+      <Project>{49F181C4-D5B4-4076-BE96-1B516903AD8C}</Project>
+      <Name>LanguageExt.Parsec</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\LanguageExt.Process.FSharp\LanguageExt.Process.FSharp.fsproj">
       <Project>{d208187f-adf0-4f22-bdaa-33ab92f0e88d}</Project>

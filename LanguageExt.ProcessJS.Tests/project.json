@@ -1,9 +1,9 @@
 {
-  "version": "1.7.5-*",
+  "version": "1.7.29-*",
   "authors": [ "Paul Louth" ],
   "owners": ["paullouth"],
   "title": "LanguageExt.ProcessJS.Tests",
-  "description": "Test ap for LanguageExt.ProcessJS",
+  "description": "Test app for LanguageExt.ProcessJS",
   "projectUrl": "https://github.com/louthy/language-ext",
   "licenseUrl": "https://github.com/louthy/language-ext/blob/master/LICENSE.md",
   "copyright": "Copyright (c) Paul Louth",

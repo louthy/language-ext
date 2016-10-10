@@ -7,6 +7,7 @@ using static LanguageExt.Prelude;
 using System.Threading;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -18,6 +19,9 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="K">Key type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
+#if !COREFX
+    [Serializable]
+#endif
     public class Map<K, V> : 
         IEnumerable<IMapItem<K, V>>, 
         IReadOnlyDictionary<K,V>, 
@@ -51,6 +55,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key</param>
         /// <returns>Optional value</returns>
+        [Pure]
         public V this[K key]
         {
             get
@@ -62,18 +67,21 @@ namespace LanguageExt
         /// <summary>
         /// Is the map empty
         /// </summary>
+        [Pure]
         public bool IsEmpty =>
             Count == 0;
 
         /// <summary>
         /// Number of items in the map
         /// </summary>
+        [Pure]
         public int Count => 
             Root.Count;
 
         /// <summary>
         /// Alias of Count
         /// </summary>
+        [Pure]
         public int Length =>
             Count;
 
@@ -86,6 +94,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if the key already exists</exception>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
+        [Pure]
         public Map<K, V> Add(K key, V value)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
@@ -102,6 +111,7 @@ namespace LanguageExt
         /// <param name="value">Value</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
+        [Pure]
         public Map<K, V> TryAdd(K key, V value)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
@@ -120,6 +130,7 @@ namespace LanguageExt
         /// and the value already set for the key</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
+        [Pure]
         public Map<K, V> TryAdd(K key, V value, Func<Map<K, V>, V, Map<K, V>> Fail)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
@@ -134,6 +145,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
+        [Pure]
         public Map<K, V> AddRange(IEnumerable<Tuple<K, V>> range)
         {
             if (range == null)
@@ -157,6 +169,7 @@ namespace LanguageExt
         /// <param name="range">Range of tuples to add</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
+        [Pure]
         public Map<K, V> TryAddRange(IEnumerable<Tuple<K, V>> range)
         {
             if (range == null)
@@ -181,6 +194,7 @@ namespace LanguageExt
         /// <param name="range">Range of KeyValuePairs to add</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
+        [Pure]
         public Map<K, V> TryAddRange(IEnumerable<KeyValuePair<K, V>> range)
         {
             if (range == null)
@@ -205,6 +219,7 @@ namespace LanguageExt
         /// <param name="range">Range of tuples to add</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
+        [Pure]
         public Map<K, V> AddOrUpdateRange(IEnumerable<Tuple<K, V>> range)
         {
             if (range == null)
@@ -229,6 +244,7 @@ namespace LanguageExt
         /// <param name="range">Range of KeyValuePairs to add</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
+        [Pure]
         public Map<K, V> AddOrUpdateRange(IEnumerable<KeyValuePair<K, V>> range)
         {
             if (range == null)
@@ -251,6 +267,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key</param>
         /// <returns>New map with the item removed</returns>
+        [Pure]
         public Map<K, V> Remove(K key) =>
             isnull(key)
                 ? this
@@ -261,10 +278,20 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
+        [Pure]
         public Option<V> Find(K key) =>
             isnull(key)
                 ? None
                 : MapModule.TryFind(Root, key, Comparer<K>.Default);
+
+        /// <summary>
+        /// Retrieve a value from the map by key as an enumerable
+        /// </summary>
+        /// <param name="key">Key to find</param>
+        /// <returns>Found value</returns>
+        [Pure]
+        public IEnumerable<V> FindSeq(K key) =>
+            Find(key).AsEnumerable();
 
         /// <summary>
         /// Retrieve a value from the map by key and pattern match the
@@ -272,6 +299,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
+        [Pure]
         public R Find<R>(K key, Func<V, R> Some, Func<R> None) =>
             isnull(key)
                 ? None()
@@ -285,6 +313,7 @@ namespace LanguageExt
         /// <param name="value">Value</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
+        [Pure]
         public Map<K, V> SetItem(K key, V value)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
@@ -299,6 +328,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if the item isn't found</exception>
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
+        [Pure]
         public Map<K, V> SetItem(K key, Func<V, V> Some) =>
             isnull(key)
                 ? this
@@ -315,6 +345,7 @@ namespace LanguageExt
         /// <param name="value">Value</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the value is null</exception>
         /// <returns>New Map with the item added</returns>
+        [Pure]
         public Map<K, V> TrySetItem(K key, V value)
         {
             if (isnull(key)) return this;
@@ -330,6 +361,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New map with the item set</returns>
+        [Pure]
         public Map<K, V> TrySetItem(K key, Func<V, V> Some) =>
             isnull(key)
                 ? this
@@ -348,6 +380,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <exception cref="Exception">Throws Exception if None returns null</exception>
         /// <returns>New map with the item set</returns>
+        [Pure]
         public Map<K, V> TrySetItem(K key, Func<V, V> Some, Func<Map<K, V>, Map<K, V>> None) =>
             isnull(key)
                 ? this
@@ -364,6 +397,7 @@ namespace LanguageExt
         /// <param name="value">Value</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
+        [Pure]
         public Map<K, V> AddOrUpdate(K key, V value)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
@@ -379,6 +413,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if None returns null</exception>
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
+        [Pure]
         public Map<K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None) =>
             isnull(key)
                 ? this
@@ -394,6 +429,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException if None is null</exception>
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
+        [Pure]
         public Map<K, V> AddOrUpdate(K key, Func<V, V> Some, V None)
         {
             if (isnull(None)) throw new ArgumentNullException(nameof(None));
@@ -412,6 +448,7 @@ namespace LanguageExt
         /// <param name="keyTo">Range to (inclusive)</param>
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keyFrom or keyTo are null</exception>
         /// <returns>Range of values</returns>
+        [Pure]
         public IEnumerable<V> FindRange(K keyFrom, K keyTo)
         {
             if (isnull(keyFrom)) throw new ArgumentNullException(nameof(keyFrom));
@@ -427,6 +464,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="amount">Amount to skip</param>
         /// <returns>New tree</returns>
+        [Pure]
         public IEnumerable<IMapItem<K, V>> Skip(int amount)
         {
             var enumer = new MapModule.MapEnumerator<K, V>(Root, Rev, amount);
@@ -441,6 +479,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
+        [Pure]
         public bool ContainsKey(K key) =>
             isnull(key)
                 ? false
@@ -453,6 +492,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the map</returns>
+        [Pure]
         public bool Contains(K key, V value) =>
             match(Find(key),
                 Some: v => ReferenceEquals(v, value),
@@ -464,6 +504,7 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>Functionally equivalent to calling Map.empty as the original structure is untouched</remarks>
         /// <returns>Empty map</returns>
+        [Pure]
         public Map<K, V> Clear() =>
             Empty;
 
@@ -473,6 +514,7 @@ namespace LanguageExt
         /// <param name="pairs">Range of KeyValuePairs to add</param>
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
         /// <returns>New Map with the items added</returns>
+        [Pure]
         public Map<K, V> AddRange(IEnumerable<KeyValuePair<K, V>> pairs) =>
             AddRange(from kv in pairs
                      select Tuple(kv.Key, kv.Value));
@@ -483,6 +525,7 @@ namespace LanguageExt
         /// <param name="items">Items to set</param>
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
+        [Pure]
         public Map<K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items)
         {
             if (items == null) return this;
@@ -501,6 +544,7 @@ namespace LanguageExt
         /// <param name="items">Items to set</param>
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
+        [Pure]
         public Map<K, V> SetItems(IEnumerable<Tuple<K, V>> items)
         {
             if (items == null) return this;
@@ -519,6 +563,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="items">Items to set</param>
         /// <returns>New map with the items set</returns>
+        [Pure]
         public Map<K, V> TrySetItems(IEnumerable<KeyValuePair<K, V>> items)
         {
             var self = Root;
@@ -536,6 +581,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="items">Items to set</param>
         /// <returns>New map with the items set</returns>
+        [Pure]
         public Map<K, V> TrySetItems(IEnumerable<Tuple<K, V>> items)
         {
             var self = Root;
@@ -555,6 +601,7 @@ namespace LanguageExt
         /// <param name="keys">Keys of items to set</param>
         /// <param name="Some">Function map the existing item to a new one</param>
         /// <returns>New map with the items set</returns>
+        [Pure]
         public Map<K, V> TrySetItems(IEnumerable<K> keys, Func<V, V> Some)
         {
             var self = this;
@@ -571,6 +618,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="keys">Keys to remove</param>
         /// <returns>New map with the items removed</returns>
+        [Pure]
         public Map<K, V> RemoveRange(IEnumerable<K> keys)
         {
             var self = Root;
@@ -586,6 +634,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pair">Pair to find</param>
         /// <returns>True if exists, false otherwise</returns>
+        [Pure]
         public bool Contains(KeyValuePair<K, V> pair) =>
             match(MapModule.TryFind(Root, pair.Key, Comparer<K>.Default),
                   Some: v => ReferenceEquals(v, pair.Value),
@@ -611,6 +660,7 @@ namespace LanguageExt
         /// <summary>
         /// Enumerable of map keys
         /// </summary>
+        [Pure]
         public IEnumerable<K> Keys
         {
             get
@@ -623,6 +673,7 @@ namespace LanguageExt
         /// <summary>
         /// Enumerable of map values
         /// </summary>
+        [Pure]
         public IEnumerable<V> Values
         {
             get
@@ -636,12 +687,14 @@ namespace LanguageExt
         /// Convert the map to an IDictionary
         /// </summary>
         /// <returns></returns>
+        [Pure]
         public IDictionary<K, V> ToDictionary() =>
             new Dictionary<K, V>((IDictionary<K, V>)this);
 
         /// <summary>
         /// Map the map the a dictionary
         /// </summary>
+        [Pure]
         public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<IMapItem<K, V>, KR> keySelector, Func<IMapItem<K, V>, VR> valueSelector) =>
             AsEnumerable().ToDictionary(x => keySelector(x), x => valueSelector(x));
 
@@ -649,6 +702,7 @@ namespace LanguageExt
         /// Enumerable of in-order tuples that make up the map
         /// </summary>
         /// <returns>Tuples</returns>
+        [Pure]
         public IEnumerable<Tuple<K, V>> Tuples =>
             AsEnumerable().Map(kv => Tuple(kv.Key, kv.Value));
 
@@ -683,9 +737,11 @@ namespace LanguageExt
             throw new NotImplementedException();
         }
 
+        [Pure]
         public static Map<K,V> operator +(Map<K, V> lhs, Map<K, V> rhs) =>
             lhs.Append(rhs);
 
+        [Pure]
         public Map<K, V> Append(Map<K, V> rhs)
         {
             var self = this;
@@ -699,9 +755,11 @@ namespace LanguageExt
             return self;
         }
 
+        [Pure]
         public static Map<K, V> operator -(Map<K, V> lhs, Map<K, V> rhs) =>
             lhs.Subtract(rhs);
 
+        [Pure]
         public Map<K, V> Subtract(Map<K, V> rhs)
         {
             var self = this;
@@ -711,44 +769,6 @@ namespace LanguageExt
             }
             return self;
         }
-
-        #region Internal
-        internal byte Height
-        {
-            get;
-            private set;
-        }
-
-        internal int BalanceFactor =>
-            Count == 0
-                ? 0
-                : ((int)Left.Height) - ((int)Right.Height);
-
-        public K Key
-        {
-            get;
-            private set;
-        }
-
-        public V Value
-        {
-            get;
-            private set;
-        }
-
-        internal Map<K, V> Left
-        {
-            get;
-            private set;
-        }
-
-        internal Map<K, V> Right
-        {
-            get;
-            private set;
-        }
-
-        #endregion
     }
 
     public interface IMapItem<K, V>
@@ -764,7 +784,10 @@ namespace LanguageExt
         }
     }
 
-    internal class MapItem<K, V> : IMapItem<K, V>
+#if !COREFX
+    [Serializable]
+#endif
+    class MapItem<K, V> : IMapItem<K, V>
     {
         public static readonly MapItem<K, V> Empty = new MapItem<K, V>(0, 0, default(K), default(V), null, null);
 
@@ -806,7 +829,7 @@ namespace LanguageExt
 
     }
 
-    internal static class MapModule
+    static class MapModule
     {
         public static S Fold<S, K, V>(MapItem<K, V> node, S state, Func<S, K, V, S> folder)
         {
@@ -834,10 +857,10 @@ namespace LanguageExt
             return state;
         }
 
-        public static MapItem<K, V> Choose<K, V>(MapItem<K, V> node, Func<K, V, Option<V>> selector) =>
+        public static MapItem<K, R> Choose<K, V, R>(MapItem<K, V> node, Func<K, V, Option<R>> selector) =>
             Map(Filter(Map(node, selector), n => n.IsSome), n => n.Value);
 
-        public static MapItem<K, V> Choose<K, V>(MapItem<K, V> node, Func<V, Option<V>> selector) =>
+        public static MapItem<K, R> Choose<K, V, R>(MapItem<K, V> node, Func<V, Option<R>> selector) =>
             Map(Filter(Map(node, selector), n => n.IsSome), n => n.Value);
 
         public static bool ForAll<K, V>(MapItem<K, V> node, Func<K, V, bool> pred) =>

@@ -10,6 +10,7 @@ using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.FSharp.Core;
 
 // ************************************************************************************
 // 
@@ -24,6 +25,20 @@ namespace TestBed
     {
         static void Main(string[] args)
         {
+            var someValue = FSharpOption<string>.Some("Hello");
+            var noneValue = FSharpOption<string>.None;
+
+            Console.WriteLine(someValue.Value);
+            Console.WriteLine(noneValue.Value);
+
+
+            Tests.PStringCasting();
+            return;
+
+            Tests.VersionTest();
+            Tests.SerialiseDeserialiseCoreTypes();
+            //Tests.StopStart();
+
             //Tests.QueueCollectionFunctions();
             //Tests.StackCollectionFunctions();
             //Tests.WrappedListOfOptionsTest1();
@@ -73,7 +88,6 @@ namespace TestBed
             Tests.WrappedOptionOptionLinqTest();
             Tests.WrappedListLinqTest();
             Tests.WrappedListTest();
-            Tests.LinqTest();
             Tests.ExTest4();
             Tests.MemoTest();
             Tests.UnsafeOptionTest();

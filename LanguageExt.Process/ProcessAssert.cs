@@ -11,18 +11,22 @@ namespace LanguageExt
     {
         public static void CanAccept<T>(ProcessId pid, string message = null)
         {
-            if (!ActorContext.GetDispatcher(pid).CanAccept<T>())
+            var res = ActorContext.System(pid).GetDispatcher(pid).CanAccept<T>();
+
+            res.IfLeft(err =>
             {
-                failwith<Unit>(message == null ? $"Process ({pid}) can't accept messages of type {typeof(T).FullName} " : message);
-            }
+                failwith<Unit>($"{err} for {pid}");
+            });
         }
 
         public static void HasStateTypeOf<T>(ProcessId pid, string message = null)
         {
-            if (!ActorContext.GetDispatcher(pid).HasStateTypeOf<T>())
+            var res = ActorContext.System(pid).GetDispatcher(pid).HasStateTypeOf<T>();
+
+            res.IfLeft(err =>
             {
-                failwith<Unit>(message == null ? $"Process ({pid}) doesn't have the expected state-type of {typeof(T).FullName} " : message);
-            }
+                failwith<Unit>($"{err} for {pid}");
+            });
         }
     }
 }

@@ -7,8 +7,8 @@ open Microsoft.FSharp.Data.UnitSystems.SI.UnitNames
 
 module ProcessFs = 
 
-    type SessionId = string
-    type ProcessId = LanguageExt.ProcessId
+    type SessionId   = LanguageExt.SessionId
+    type ProcessId   = LanguageExt.ProcessId
     type ProcessName = LanguageExt.ProcessName
 
     let DefaultFlags = 
@@ -29,7 +29,7 @@ module ProcessFs =
     let Self = 
         new ProcessId("/__special__/self")
 
-    let Parent() = 
+    let Parent = 
         new ProcessId("/__special__/parent")
 
     let User = 
@@ -60,15 +60,7 @@ module ProcessFs =
         Process.Self.IsValid
 
     let resolvePID (pid:ProcessId) : ProcessId = 
-        match pid.Path with
-        | "/__special__/self"         -> Process.Self
-        | "/__special__/sender"       -> Process.Sender
-        | "/__special__/parent"       -> Process.Parent
-        | "/__special__/user"         -> Process.User
-        | "/__special__/dead-letters" -> Process.DeadLetters
-        | "/__special__/root"         -> Process.Root
-        | "/__special__/errors"       -> Process.Errors
-        | _                           -> pid
+        Process.resolvePID(pid)
 
     let childrenSelf() : FSharp.Collections.Map<string,ProcessId> = 
         FSharp.fs(Process.Children)
@@ -137,8 +129,8 @@ module ProcessFs =
     ///     tell DispatchFs.RoundRobin.[regd] "Hello" Self
     /// 
     ///     This should be used from within a process' message loop only
-    let register name processId = 
-        Process.register(new ProcessName(name),processId)
+    let register name processId system = 
+        Process.register(new ProcessName(name), resolvePID processId)
 
     /// Deregister all Processes associated with a name. NOTE: Be very careful
     /// with usage of this function if you didn't handle the registration you
@@ -164,13 +156,13 @@ module ProcessFs =
     /// If you wish to deregister all ProcessIds registered under a name then
     /// use deregisterByName name
     let deregisterById pid = 
-        Process.deregisterById(pid |> resolvePID) |> ignore
+        Process.deregisterById(resolvePID pid) |> ignore
 
     let killSelf() = 
         Process.kill |> ignore
 
     let kill pid = 
-        Process.kill(pid |> resolvePID) |> ignore
+        Process.kill(resolvePID pid) |> ignore
 
     let shutdownAll() = 
         Process.shutdownAll() |> ignore
@@ -192,7 +184,7 @@ module ProcessFs =
         Process.replyOrTellSender msg |> ignore
 
     let ask pid (message : 'a) : 'b = 
-        Process.ask<'b>(pid |> resolvePID, message)
+        Process.ask<'b>(resolvePID pid, message)
 
     let askChildren (message : 'a) : 'b seq = 
         Process.askChildren<'b>(message,Int32.MaxValue)
@@ -213,28 +205,28 @@ module ProcessFs =
         Process.askChild(index, message)
 
     let tell pid message sender = 
-        Process.tell(pid |> resolvePID,message,sender) |> ignore
+        Process.tell(resolvePID pid,message,resolvePID sender) |> ignore
 
     let tellDelay pid message (delay:TimeSpan) sender = 
-        Process.tell(pid |> resolvePID,message,delay,sender)
+        Process.tell(resolvePID pid,message,delay,resolvePID sender)
 
     let tellChildren message sender = 
-        Process.tellChildren(message,sender) |> ignore
+        Process.tellChildren(message,resolvePID sender) |> ignore
 
     let tellChildrenDelay message (delay:TimeSpan) sender = 
-        Process.tellChildren(message,delay,sender)
+        Process.tellChildren(message,delay,resolvePID sender)
 
     let tellChild name message sender = 
-        Process.tellChild(new ProcessName(name), message, sender) |> ignore
+        Process.tellChild(new ProcessName(name), message, resolvePID sender) |> ignore
 
     let tellChildByIndex (index:int) message sender = 
-        Process.tellChild(index, message, sender) |> ignore
+        Process.tellChild(index, message, resolvePID sender) |> ignore
 
     let tellParent message sender = 
-        Process.tellParent (message, sender) |> ignore
+        Process.tellParent (message, resolvePID sender) |> ignore
     
     let tellParentDelay message (delay:TimeSpan) sender = 
-        Process.tellParent(message,delay, sender)
+        Process.tellParent(message,delay, resolvePID sender)
 
     let tellSelf message = 
         Process.tellSelf(message,Process.Self) |> ignore
@@ -246,13 +238,13 @@ module ProcessFs =
         Process.publish message |> ignore
     
     let publishDelay message (delay:TimeSpan) = 
-        Process.publish(message,delay) |> ignore
+        Process.publish(message, delay) |> ignore
     
     let subscribe pid = 
-        Process.subscribe(pid |> resolvePID) |> ignore
+        Process.subscribe(resolvePID pid) |> ignore
     
     let observe pid = 
-        Process.observe(pid |> resolvePID);
+        Process.observe(resolvePID pid);
 
     let spawn name flags setup messageHandler = 
         Process.spawn(new ProcessName(name), new Func<'state>(setup), new Func<'state, 'msg, 'state>(messageHandler), flags)
@@ -261,30 +253,23 @@ module ProcessFs =
         Process.spawnMany(count, new ProcessName(name), new Func<'state>(setup), new Func<'state, 'msg, 'state>(messageHandler), flags)
         |> Seq.map(fun pid -> pid)
 
-    // Connects to a cluster.  At the moment we only support Redis, so open
-    // LanguageExt.Process.Redis and call:
-    //
-    //      RedisCluster.register()
-    //      clusterConnect "redis" "unique-name-for-this-service" "localhost" "0"
-    let clusterConnect clusterProvider nodeName connectionString catalogueString role = 
-        Cluster.disconnect() |> ignore
-        Cluster.connect(clusterProvider,new ProcessName(nodeName),connectionString,catalogueString,role) |> ignore
-
-    let clusterDisconnect () =
-        Cluster.disconnect() |> ignore
-
     /// Starts a new session in the Process system
     let sessionStart (timeoutSeconds:float<second>) : SessionId =
         Process.sessionStart((timeoutSeconds/1.0<second>) * LanguageExt.Prelude.seconds)
 
     /// Ends a session in the Process system with the specified
     /// session ID
-    let sessionStop (sid:SessionId) =
-        Process.sessionStop(sid) |> ignore
+    let sessionStop () =
+        Process.sessionStop() |> ignore
 
-    /// Touch a session
+    /// Touch the current session
     /// Time-stamps the session so that its time-to-expiry is reset
-    let sessionTouch (sid:SessionId) =
+    let sessionTouch () =
+        Process.sessionTouch() |> ignore
+
+    /// Touch a provided session
+    /// Time-stamps the session so that its time-to-expiry is reset
+    let sessionUser (sid:SessionId) =
         Process.sessionTouch(sid) |> ignore
 
     /// Gets the current session ID
@@ -296,17 +281,17 @@ module ProcessFs =
 
     /// Set the meta-data to store with the session, this is typically
     /// user credentials when they've logged in.  But can be anything.
-    let sessionSetData (sid:SessionId) (data:obj) =
-        Process.sessionSetData(sid,data) |> ignore
+    let sessionSetData (key:string) (value:obj) =
+        Process.sessionSetData(key, value) |> ignore
 
     /// Clear the meta-data stored with the session
-    let sessionClearData (sid:SessionId) =
-        Process.sessionClearData(sid) |> ignore
+    let sessionClearData (key:string) =
+        Process.sessionClearData(key) |> ignore
 
     /// Get the meta-data stored with the session, this is typically
     /// user credentials when they've logged in.  But can be anything.
-    let sessionGetData (sid:SessionId) =
-        Process.sessionGetData(sid) |> LanguageExt.FSharp.fs
+    let sessionGetData (key:string) =
+        Process.sessionGetData(key) |> LanguageExt.FSharp.fs
 
     /// Returns True if there is an active session
     let hasSession() =

@@ -8,7 +8,6 @@ using System.Linq;
 
 namespace LanguageExtTests
 {
-    
     public class MapTests
     {
         [Fact]
@@ -16,23 +15,17 @@ namespace LanguageExtTests
         {
             var m1 = Map<int, string>();
             m1 = add(m1, 100, "hello");
-            Assert.True(m1.Count == 1 && containsKey(m1,100));
+            Assert.True(m1.Count == 1 && containsKey(m1, 100));
         }
 
         [Fact]
         public void MapGeneratorAndMatchTest()
         {
-            var m2 = Map( Tuple(1, "a"),
-                          Tuple(2, "b"),
-                          Tuple(3, "c") );
+            var m2 = Map(Tuple(1, "a"), Tuple(2, "b"), Tuple(3, "c"));
 
             m2 = add(m2, 100, "world");
 
-            var res = match(
-                m2, 100,
-                v  => v,
-                () => "failed"
-            );
+            var res = match(m2, 100, v => v, () => "failed");
 
             Assert.True(res == "world");
         }
@@ -40,23 +33,13 @@ namespace LanguageExtTests
         [Fact]
         public void MapSetTest()
         {
-            var m1 = Map( Tuple(1, "a"),
-                          Tuple(2, "b"),
-                          Tuple(3, "c") );
+            var m1 = Map(Tuple(1, "a"), Tuple(2, "b"), Tuple(3, "c"));
 
             var m2 = setItem(m1, 1, "x");
 
-            match( 
-                m1, 1, 
-                Some: v => Assert.True(v == "a"), 
-                None: () => Assert.False(true) 
-                );
+            match(m1, 1, Some: v => Assert.True(v == "a"), None: () => Assert.False(true));
 
-            match(
-                find(m2, 1),
-                Some: v => Assert.True(v == "x"),
-                None: () => Assert.False(true)
-                );
+            match(find(m2, 1), Some: v => Assert.True(v == "x"), None: () => Assert.False(true));
         }
 
         [Fact]
@@ -132,15 +115,10 @@ namespace LanguageExtTests
             m.Find(5).IfNone(() => failwith<int>("Broken"));
         }
 
-
         [Fact]
         public void MapRemoveTest()
         {
-            var m = Map(Tuple(1, "a"),
-                        Tuple(2, "b"),
-                        Tuple(3, "c"),
-                        Tuple(4, "d"),
-                        Tuple(5, "e"));
+            var m = Map(Tuple(1, "a"), Tuple(2, "b"), Tuple(3, "c"), Tuple(4, "d"), Tuple(5, "e"));
 
             m.Find(1).IfNone(() => failwith<string>("Broken 1"));
             m.Find(2).IfNone(() => failwith<string>("Broken 2"));
@@ -150,7 +128,7 @@ namespace LanguageExtTests
 
             Assert.True(m.Count == 5);
 
-            m = remove(m,4);
+            m = remove(m, 4);
             Assert.True(m.Count == 4);
             Assert.True(m.Find(4).IsNone);
             m.Find(1).IfNone(() => failwith<string>("Broken 1"));
@@ -186,8 +164,9 @@ namespace LanguageExtTests
         {
             int max = 100000;
 
-            var items = LanguageExt.List.map(Range(1, max), _ => Tuple(Guid.NewGuid(), Guid.NewGuid()))
-                                        .ToDictionary(kv => kv.Item1, kv => kv.Item2);
+            var items =
+                LanguageExt.List.map(Range(1, max), _ => Tuple(Guid.NewGuid(), Guid.NewGuid()))
+                    .ToDictionary(kv => kv.Item1, kv => kv.Item2);
 
             var m = Map<Guid, Guid>().AddRange(items);
             Assert.True(m.Count == max);
@@ -222,6 +201,40 @@ namespace LanguageExtTests
             m = m.FilterT(v => v.EndsWith("None", StringComparison.Ordinal));
 
             Assert.True(m.CountT() == 2);
+        }
+
+        [Fact]
+        public void ChooseTest()
+        {
+            var m = Map<int, string>();
+
+            m = m.AddOrUpdate(1, "One");
+            m = m.AddOrUpdate(2, "Two");
+            m = m.AddOrUpdate(3, "Three");
+            m = m.AddOrUpdate(4, "Four");
+
+            var actual = m.Choose((v) => v.StartsWith("T") ? Some(v.ToUpper()) : None);
+
+            Assert.True(actual.Count == 2);
+            Assert.Equal(actual[2], "TWO");
+            Assert.Equal(actual[3], "THREE");
+        }
+
+        [Fact]
+        public void ChooseTestWithKey()
+        {
+            var m = Map<int, string>();
+
+            m = m.AddOrUpdate(1, "One");
+            m = m.AddOrUpdate(2, "Two");
+            m = m.AddOrUpdate(3, "Three");
+            m = m.AddOrUpdate(4, "Four");
+
+            var actual = m.Choose((k, v) => v.StartsWith("T") ? Some($"{k} => {v.ToUpper()}") : None);
+
+            Assert.True(actual.Count == 2);
+            Assert.Equal(actual[2], "2 => TWO");
+            Assert.Equal(actual[3], "3 => THREE");
         }
     }
 }

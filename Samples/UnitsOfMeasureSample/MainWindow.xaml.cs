@@ -36,6 +36,9 @@ namespace UnitsOfMeasureSample
         public MainWindow()
         {
             InitializeComponent();
+
+            ProcessConfig.initialise();
+
             SpawnUpdate();
             SpawnResolver();
         }
@@ -66,7 +69,7 @@ namespace UnitsOfMeasureSample
                          );
 
             // Spawn the ball process
-            kill(User["ball-" + id]);
+            kill(User()["ball-" + id]);
             var pid = spawn<BallState, BallMsg>("ball-" + id, setup, BallProcess.Inbox);
 
             // Subscribe the ball process to the update process's state

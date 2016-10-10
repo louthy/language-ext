@@ -50,7 +50,7 @@ namespace LanguageExtTests
                 .Apply(SomeUnsafe(4));
 
             var second = SomeUnsafe(3)
-                .Map(add)
+                .ParMap(add)
                 .Apply(SomeUnsafe(4));
 
             Assert.Equal(first, second);
@@ -60,7 +60,7 @@ namespace LanguageExtTests
         public void ApplicativeLawHoldsF()
         {
             var first = apply(apply(SomeUnsafe(add), SomeUnsafe(3)), SomeUnsafe(4));
-            var second = apply(map(SomeUnsafe(3), add), SomeUnsafe(4));
+            var second = apply(parmap(SomeUnsafe(3), add), SomeUnsafe(4));
 
             Assert.Equal(first, second);
         }

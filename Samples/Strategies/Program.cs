@@ -16,10 +16,13 @@ namespace Strategies
     {
         static void Main(string[] args)
         {
+            ProcessConfig.initialiseFileSystem();
+
             try
             {
-                Test2();
+
                 Test1();
+                Test2();
             }
             catch (Exception e)
             {
@@ -43,12 +46,7 @@ namespace Strategies
             var supervisor = spawn<ProcessId, Unit>(
                 Name:     "test1-supervisor",
                 Setup:    setup,
-                Inbox:    (pid, _) => pid,
-                Strategy: OneForOne(
-                              Retries(5),
-                              Always(Directive.Restart),
-                              Redirect(
-                                  When<Restart>(MessageDirective.ForwardToSelf)))
+                Inbox:    (pid, _) => pid
                 );
 
             Console.WriteLine("Test 1: Press enter when messages stop");
@@ -84,18 +82,10 @@ namespace Strategies
                 Inbox: (pid, _) => {
                     fwd(pid);
                     return pid;
-                },
-                Strategy: AllForOne(
-                              Retries(5),
-                              Match(
-                                  With<ProcessSetupException>(Directive.Restart)),
-                              Redirect(
-                                  When<Restart>(MessageDirective.ForwardToSelf)))
-                );
+                });
 
             tell(supervisor, "Hello");
 
-            Console.WriteLine("Test 2: Press enter when messages stop");
             Console.ReadKey();
         }
     }

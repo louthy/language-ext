@@ -27,10 +27,10 @@ namespace LanguageExt
             .FirstOrDefault();
 
         public static IQueryable<T> tail<T>(IQueryable<T> list) =>
-            list.Skip(1);
+            Queryable.Skip(list, 1);
 
         public static IQueryable<R> map<T, R>(IQueryable<T> list, Expression<Func<T, R>> map) =>
-            list.Select(map);
+            Queryable.Select(list, map);
 
         public static IQueryable<R> map<T, R>(IQueryable<T> list, Expression<Func<int, T, R>> map)
         {
@@ -48,10 +48,10 @@ namespace LanguageExt
         public static IQueryable<T> filter<T>(IQueryable<T> list, Expression<Func<T, bool>> predicate) =>
             list.Where(predicate);
 
-        public static IQueryable<T> choose<T>(IQueryable<T> list, Expression<Func<T, Option<T>>> selector) =>
+        public static IQueryable<R> choose<T, R>(IQueryable<T> list, Expression<Func<T, Option<R>>> selector) =>
             map(filter(map(list, selector), t => t.IsSome), t => t.Value);
 
-        public static IQueryable<T> choose<T>(IQueryable<T> list, Expression<Func<int, T, Option<T>>> selector) =>
+        public static IQueryable<R> choose<T, R>(IQueryable<T> list, Expression<Func<int, T, Option<R>>> selector) =>
             map(filter(map(list, selector), t => t.IsSome), t => t.Value);
 
         public static IQueryable<R> collect<T, R>(IQueryable<T> list, Expression<Func<T, IEnumerable<R>>> map)
@@ -65,27 +65,27 @@ namespace LanguageExt
                     ));
         }
 
-        public static int sum(IQueryable<int> list) => 
+        public static int sum(IQueryable<int> list) =>
             fold(list, 0, (x, s) => s + x);
 
-        public static float sum(IQueryable<float> list) => 
+        public static float sum(IQueryable<float> list) =>
             fold(list, 0.0f, (x, s) => s + x);
 
-        public static double sum(IQueryable<double> list) => 
+        public static double sum(IQueryable<double> list) =>
             fold(list, 0.0, (x, s) => s + x);
 
-        public static decimal sum(IQueryable<decimal> list) => 
+        public static decimal sum(IQueryable<decimal> list) =>
             fold(list, (decimal)0, (x, s) => s + x);
 
         public static IQueryable<T> rev<T>(IQueryable<T> list) =>
-            list.Reverse();
+            Queryable.Reverse(list);
 
         public static IQueryable<T> append<T>(IQueryable<T> lhs, IQueryable<T> rhs) =>
-            lhs.Concat(rhs);
+            Queryable.Concat(lhs, rhs);
 
         public static S fold<S, T>(IQueryable<T> list, S state, Expression<Func<S, T, S>> folder)
         {
-            return list.Aggregate(state, folder);
+            return Queryable.Aggregate(list, state, folder);
         }
 
         public static S foldBack<S, T>(IQueryable<T> list, S state, Expression<Func<S, T, S>> folder) =>
@@ -93,7 +93,7 @@ namespace LanguageExt
 
         public static T reduce<T>(IQueryable<T> list, Expression<Func<T, T, T>> reducer) =>
             match(headOrNone(list),
-                Some: x  => fold(tail(list), x, reducer),
+                Some: x => fold(tail(list), x, reducer),
                 None: () => failwith<T>("Input list was empty")
             );
 
@@ -110,29 +110,29 @@ namespace LanguageExt
             Queryable.Zip(list, other, zipper);
 
         public static int length<T>(IQueryable<T> list) =>
-            list.Count();
+            Queryable.Count(list);
 
         public static bool forall<T>(IQueryable<T> list, Expression<Func<T, bool>> pred) =>
-            list.All(pred);
+            Queryable.All(list, pred);
 
         public static IQueryable<T> distinct<T>(IQueryable<T> list) =>
-            list.Distinct();
+            Queryable.Distinct(list);
 
         public static IQueryable<T> take<T>(IQueryable<T> list, int count) =>
-            list.Take(count);
+            Queryable.Take(list, count);
 
-        public static IQueryable<T> takeWhile<T>(IQueryable<T> list, Expression<Func<T,bool>> pred) =>
-            list.TakeWhile(pred);
+        public static IQueryable<T> takeWhile<T>(IQueryable<T> list, Expression<Func<T, bool>> pred) =>
+            Queryable.TakeWhile(list, pred);
 
         public static IQueryable<T> takeWhile<T>(IQueryable<T> list, Expression<Func<T, int, bool>> pred) =>
-            list.TakeWhile(pred);
+            Queryable.TakeWhile(list, pred);
 
         public static bool exists<T>(IQueryable<T> list, Expression<Func<T, bool>> pred) =>
-            list.Any(pred);
+            Queryable.Any(list, pred);
     }
 }
 
-public static class __QueryExt
+public static class QueryExtensions
 {
     public static T Head<T>(this IQueryable<T> list) =>
         LanguageExt.Query.head(list);
@@ -157,10 +157,10 @@ public static class __QueryExt
     public static IQueryable<T> Filter<T>(this IQueryable<T> list, Expression<Func<T, bool>> predicate) =>
         LanguageExt.Query.filter(list, predicate);
 
-    public static IQueryable<T> Choose<T>(this IQueryable<T> list, Expression<Func<T, Option<T>>> selector) =>
+    public static IQueryable<R> Choose<T, R>(this IQueryable<T> list, Expression<Func<T, Option<R>>> selector) =>
         LanguageExt.Query.choose(list, selector);
 
-    public static IQueryable<T> Choose<T>(this IQueryable<T> list, Expression<Func<int, T, Option<T>>> selector) =>
+    public static IQueryable<R> Choose<T, R>(this IQueryable<T> list, Expression<Func<int, T, Option<R>>> selector) =>
         LanguageExt.Query.choose(list, selector);
 
     public static IQueryable<R> Collect<T, R>(this IQueryable<T> list, Expression<Func<T, IEnumerable<R>>> map) =>
@@ -196,9 +196,9 @@ public static class __QueryExt
     public static bool ForAll<T>(this IQueryable<T> list, Expression<Func<T, bool>> pred) =>
         LanguageExt.Query.forall(list, pred);
 
-    public static IQueryable<T> Distinct<T>(IQueryable<T> list) =>
+    public static IQueryable<T> Distinct<T>(this IQueryable<T> list) =>
         LanguageExt.Query.distinct(list);
 
-    public static bool Exists<T>(IQueryable<T> list, Expression<Func<T, bool>> pred) =>
+    public static bool Exists<T>(this IQueryable<T> list, Expression<Func<T, bool>> pred) =>
         LanguageExt.Query.exists(list, pred);
 }

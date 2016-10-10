@@ -191,3 +191,6 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+/SettingsParser.playlist
+/Parsec Tests.playlist
+/LanguageExt.Tests/LanguageExt.Tests.nuget.props

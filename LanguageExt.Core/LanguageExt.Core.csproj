@@ -53,9 +53,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionObservable.cs" />
+    <Compile Include="HMap\HMap_Prelude.cs" />
+    <Compile Include="HSet\HSet.cs" />
+    <Compile Include="HSet\HSetInternal.cs" />
+    <Compile Include="HMap\HMapInternal.cs" />
+    <Compile Include="HMap\HMap.cs" />
+    <Compile Include="HSet\HSet_Prelude.cs" />
+    <Compile Include="Lift.cs" />
+    <Compile Include="NewType.cs" />
+    <Compile Include="Prelude_NewType.cs" />
+    <Compile Include="Prelude_Nullable.cs" />
+    <Compile Include="DVV.cs" />
+    <Compile Include="Prelude_Tasks.cs" />
+    <Compile Include="Task.cs" />
     <Compile Include="Compose.cs" />
-    <Compile Include="ILinqDisposable.cs" />
-    <Compile Include="LinqDisposable.cs" />
     <Compile Include="EitherState.cs" />
     <Compile Include="EitherUnsafeTrans.cs" />
     <Compile Include="EitherTrans.cs" />
@@ -66,6 +77,7 @@
     <Compile Include="ISubtractable.cs" />
     <Compile Include="IAppendable.cs" />
     <Compile Include="Lst.cs" />
+    <Compile Include="MemoEnumerable.cs" />
     <Compile Include="ObjectPool.cs" />
     <Compile Include="ObservableExt.cs" />
     <Compile Include="Prelude_Random.cs" />
@@ -135,6 +147,8 @@
     <Compile Include="UnitsOfMeasure\Area.cs" />
     <Compile Include="UnitsOfMeasure\Length.cs" />
     <Compile Include="UnitsOfMeasure\Time.cs" />
+    <Compile Include="VectorClock.cs" />
+    <Compile Include="Versioned.cs" />
     <Compile Include="Writer.cs" />
   </ItemGroup>
   <ItemGroup>

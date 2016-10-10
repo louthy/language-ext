@@ -201,22 +201,5 @@ namespace LanguageExtTests
             Assert.True(opt[2] == Some(5), "opt[2] != Some(5)");
 
         }
-
-        /*
-        [Fact]
-        public void WrappedEitherLinqTest()
-        {
-            var x = list(1, 2, 3);
-            var y = Some(100);
-            var z = Some(100);
-
-            var r = from a in x
-                    from b in y
-                    select a * b;
-
-            var o = from a in y
-                    from b in z
-                    select a * b;
-        }*/
-    }
+   }
 }

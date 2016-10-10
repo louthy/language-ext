@@ -27,14 +27,20 @@ namespace LanguageExt
         /// persistent store if it exists.  
         /// </summary>
         /// <remarks>
+        /// <para>
         /// Messages are only dequeued from the inbox once they have been
         /// processed.  'Processed' means either:
-        /// 
+        /// </para>
+        /// <para>
         ///     * the user process received the message and handled it successfully
+        /// </para>
+        /// <para>
         ///     * The user process received the message, and threw an error which
         ///       resulted in the message being redirected to DeadLettters.
-        /// 
+        /// </para>
+        /// <para>
         /// Note: Use the Strategy system for more complex failure behaviours.
+        /// </para>
         /// </remarks>
         PersistInbox = 2,
 

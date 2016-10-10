@@ -130,6 +130,23 @@ namespace LanguageExtTests
         }
 
         [Fact]
+        public void StateBottomTest2()
+        {
+            var v1 = State<int, int>(10);
+            var v2 = State<int, int>(10);
+
+            var rdr = from x in v1
+                      from c in get<int>()
+                      where x * c > 50 
+                      from y in v2
+                      select (x + y) * c;
+
+            Assert.True(rdr(10).Value == 200);
+            Assert.True(rdr(2).Value == 0);
+            Assert.True(rdr(2).IsBottom);
+        }
+
+        [Fact]
         public void ReaderListSumFoldTest()
         {
             var v1 = Reader<int, Lst<int>>(List(1, 2, 3, 4, 5));

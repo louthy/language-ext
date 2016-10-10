@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -11,6 +13,9 @@ namespace LanguageExt
     ///       .With&lt;ArgumentNullException&gt;(e =&gt; "Arg null")
     ///       .Otherwise("Not handled")
     /// </example>
+#if !COREFX
+    [Serializable]
+#endif
     public class ExceptionMatch<R>
     {
         readonly Exception exception;
@@ -42,6 +47,7 @@ namespace LanguageExt
         /// <typeparam name="TException"></typeparam>
         /// <param name="map">Function to map the exception to a result value</param>
         /// <returns>Matching context - you must use 'Otherwise()' to invoke</returns>
+        [Pure]
         public ExceptionMatch<R> With<TException>(Func<TException, R> map) where TException : Exception
         {
             if (exception is TException)
@@ -56,23 +62,18 @@ namespace LanguageExt
         /// Invokes the match expression and provides a default value if nothing matches
         /// </summary>
         /// <returns>Result of the expression</returns>
-        public R OtherwiseReThrow()
-        {
-            if (valueSet)
-            {
-                return value;
-            }
-            else
-            {
-                throw exception;
-            }
-        }
+        [Pure]
+        public R OtherwiseReThrow() =>
+            valueSet
+                ? value
+                : raise<R>(exception);
 
         /// <summary>
         /// Invokes the match expression and provides a default value if nothing matches
         /// </summary>
         /// <param name="otherwiseValue">Default value</param>
         /// <returns>Result of the expression</returns>
+        [Pure]
         public R Otherwise(R otherwiseValue) =>
             valueSet
                 ? value
@@ -84,6 +85,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="otherwise">Default value</param>
         /// <returns>Result of the expression</returns>
+        [Pure]
         public R Otherwise(Func<R> otherwise) =>
             valueSet
                 ? value
@@ -95,30 +97,29 @@ namespace LanguageExt
         /// </summary>
         /// <param name="otherwiseMap">Default value</param>
         /// <returns>Result of the expression</returns>
-        public R Otherwise(Func<Exception,R> otherwiseMap) =>
+        [Pure]
+        public R Otherwise(Func<Exception, R> otherwiseMap) =>
             valueSet
                 ? value
                 : otherwiseMap(exception);
     }
-}
 
-/// <summary>
-/// Exception extensions
-/// </summary>
-public static class ExceptionExt
-{
     /// <summary>
-    /// Pattern matching for exceptions.  This is to aid expression based error handling.
+    /// Exception extensions
     /// </summary>
-    /// <example>
-    ///     ex.Match&lt;string&gt;()
-    ///       .With&lt;SystemException&gt;(e =&gt; "It's a system exception")
-    ///       .With&lt;ArgumentNullException&gt;(e =&gt; "Arg null")
-    ///       .Otherwise("Not handled")
-    /// </example>
-    public static LanguageExt.ExceptionMatch<R> Match<R>(this Exception self)
+    public static class ExceptionExtensions
     {
-        return new LanguageExt.ExceptionMatch<R>(self);
+        /// <summary>
+        /// Pattern matching for exceptions.  This is to aid expression based error handling.
+        /// </summary>
+        /// <example>
+        ///     ex.Match&lt;string&gt;()
+        ///       .With&lt;SystemException&gt;(e =&gt; "It's a system exception")
+        ///       .With&lt;ArgumentNullException&gt;(e =&gt; "Arg null")
+        ///       .Otherwise("Not handled")
+        /// </example>
+        [Pure]
+        public static LanguageExt.ExceptionMatch<R> Match<R>(this Exception self) =>
+            new LanguageExt.ExceptionMatch<R>(self);
     }
 }
-

@@ -22,7 +22,7 @@ namespace RedisStateSample
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-test", "localhost", "0", "global");
+            ProcessConfig.initialise("sys", "global", "redis-test", "localhost", "0");
 
             // Spawn the process
             var pid = spawn<int, int>("redis-state-sample", Setup, Inbox, ProcessFlags.PersistState);

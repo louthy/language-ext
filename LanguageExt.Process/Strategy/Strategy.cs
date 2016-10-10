@@ -165,6 +165,16 @@ namespace LanguageExt
             select y;
 
         /// <summary>
+        /// Applies a strategy that causes the Process to 'back off' for a fixed amount of 
+        /// time.  That is it will be paused for an amount of time before it can continue 
+        /// doing other operations.  This strategy never causes a Process to be stopped.
+        /// </summary>
+        /// <param name="Duration">Back-off time period</param>
+        /// <returns>Strategy computation as a State monad</returns>
+        public static State<StrategyContext, Unit> Backoff(Time Duration) =>
+            Backoff(Duration, Double.MaxValue*seconds, 0*seconds);
+
+        /// <summary>
         /// Increase the failure count state
         /// </summary>
         public static readonly State<StrategyContext, Unit> IncFailureCount =
@@ -218,6 +228,15 @@ namespace LanguageExt
             );
 
         /// <summary>
+        /// Provides a message redirection strategy that always uses the same MessageDirective
+        /// regardless of the Directive provided.
+        /// </summary>
+        /// <param name="defaultDirective">Default message directive</param>
+        /// <returns>Strategy computation as a State monad</returns>
+        public static State<StrategyContext, Unit> Redirect(MessageDirective defaultDirective) =>
+            Redirect(Otherwise(defaultDirective));
+
+        /// <summary>
         /// Used within the Strategy.Match function to match an Exception to a Directive.  
         /// Use the function's generic type to specify the type of Exception to match.
         /// </summary>
@@ -230,6 +249,30 @@ namespace LanguageExt
             select typeMatch
                 ? Some(map((TException)ex))
                 : None;
+
+        /// <summary>
+        /// Used within the Strategy.Match function to match an Exception to a Directive.  
+        /// Use the function's generic type to specify the type of Exception to match.
+        /// </summary>
+        /// <typeparam name="TException">Type of Exception to match</typeparam>
+        /// <param name="map">Map from the TException to a Directive</param>
+        /// <returns>Strategy computation as a State monad</returns>
+        internal static State<Exception, Option<Directive>> With(Func<Exception, Directive> map, Type exceptionType) =>
+            from ex in get<Exception>()
+            let typeMatch = exceptionType.GetTypeInfo().IsAssignableFrom(ex.GetType().GetTypeInfo())
+            select typeMatch
+                ? Some(map(ex))
+                : None;
+
+        /// <summary>
+        /// Used within the Strategy.Match function to match an Exception to a Directive.  
+        /// Use the function's generic type to specify the type of Exception to match.
+        /// </summary>
+        /// <typeparam name="TException">Type of Exception to match</typeparam>
+        /// <param name="directive">Directive to use if the Exception matches TException</param>
+        /// <returns>Strategy computation as a State monad</returns>
+        internal static State<Exception, Option<Directive>> With(Directive directive, Type exceptionType) =>
+            With(_ => directive, exceptionType);
 
         /// <summary>
         /// Used within the Strategy.Match function to match an Exception to a Directive.  
@@ -249,7 +292,10 @@ namespace LanguageExt
         /// <returns>Strategy computation as a State monad</returns>
         public static State<Exception, Option<Directive>> Otherwise(Func<Exception, Directive> map) =>
             from ex in get<Exception>()
-            select Some(map(ex));
+            select 
+                (ex is ProcessKillException) || (ex is ProcessSetupException)
+                    ? None
+                    : Some(map(ex));
 
         /// <summary>
         /// Used within the Strategy.Match function to provide a default Directive if the
@@ -267,8 +313,18 @@ namespace LanguageExt
                 ? Some(map((TDirective)directive))
                 : None;
 
+        internal static State<Directive, Option<MessageDirective>> When(Func<Directive, MessageDirective> map, Directive dir) =>
+            from directive in get<Directive>()
+            let typeMatch = dir.GetType().GetTypeInfo().IsAssignableFrom(directive.GetType().GetTypeInfo())
+            select typeMatch
+                ? Some(map(directive))
+                : None;
+
         public static State<Directive, Option<MessageDirective>> When<TDirective>(MessageDirective directive) where TDirective : Directive =>
             When<TDirective>(_ => directive);
+
+        internal static State<Directive, Option<MessageDirective>> When(MessageDirective directive, Directive dir) =>
+            When(_ => directive, dir);
 
         public static State<Directive, Option<MessageDirective>> Otherwise(Func<Directive, MessageDirective> map) =>
             from directive in get<Directive>()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -8,6 +9,9 @@ namespace LanguageExt
     /// Immutable stack
     /// </summary>
     /// <typeparam name="T">Stack element type</typeparam>
+#if !COREFX
+    [Serializable]
+#endif
     public class Stck<T> : IEnumerable<T>, IEnumerable, IAppendable<Stck<T>>
     {
         public readonly static Stck<T> Empty = new Stck<T>();
@@ -67,12 +71,14 @@ namespace LanguageExt
         /// <summary>
         /// Number of items in the stack
         /// </summary>
+        [Pure]
         public int Count { get; }
 
         /// <summary>
         /// Reverses the order of the items in the stack
         /// </summary>
         /// <returns></returns>
+        [Pure]
         public Stck<T> Reverse()
         {
             var s = new Stck<T>();
@@ -86,6 +92,7 @@ namespace LanguageExt
         /// <summary>
         /// True if the stack is empty
         /// </summary>
+        [Pure]
         public bool IsEmpty => 
             Count == 0;
 
@@ -93,6 +100,7 @@ namespace LanguageExt
         /// Clear the stack (returns Empty)
         /// </summary>
         /// <returns>Stck.Empty of T</returns>
+        [Pure]
         public Stck<T> Clear() =>
             Empty;
 
@@ -100,6 +108,7 @@ namespace LanguageExt
         /// Get enumerator
         /// </summary>
         /// <returns>IEnumerator of T</returns>
+        [Pure]
         public IEnumerator<T> GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 
@@ -108,6 +117,7 @@ namespace LanguageExt
         /// will be the item at the top of the stack.
         /// </summary>
         /// <returns>IEnumerable of T</returns>
+        [Pure]
         public IEnumerable<T> AsEnumerable()
         {
             var self = this;
@@ -124,6 +134,7 @@ namespace LanguageExt
         /// </summary>
         /// <exception cref="InvalidOperationException">Stack is empty</exception>
         /// <returns>Top item value</returns>
+        [Pure]
         public T Peek()
         {
             if (Count > 0)
@@ -142,6 +153,7 @@ namespace LanguageExt
         /// <param name="Some">Handler if there is a value on the top of the stack</param>
         /// <param name="None">Handler if the stack is empty</param>
         /// <returns>Untouched stack (this)</returns>
+        [Pure]
         public Stck<T> Peek(Action<T> Some, Action None)
         {
             if (Count > 0)
@@ -162,6 +174,7 @@ namespace LanguageExt
         /// <param name="Some">Handler if there is a value on the top of the stack</param>
         /// <param name="None">Handler if the stack is empty</param>
         /// <returns>Return value from Some or None</returns>
+        [Pure]
         public R Peek<R>(Func<T, R> Some, Func<R> None) =>
             Count > 0
                 ? Some(value)
@@ -171,6 +184,7 @@ namespace LanguageExt
         /// Safely return the item on the top of the stack without affecting the stack itself
         /// </summary>
         /// <returns>Returns the top item value, or None</returns>
+        [Pure]
         public Option<T> TryPeek() =>
             Count > 0
                 ? Prelude.Some(value)
@@ -182,6 +196,7 @@ namespace LanguageExt
         /// </summary>
         /// <exception cref="InvalidOperationException">Stack is empty</exception>
         /// <returns>Stack with the top item popped</returns>
+        [Pure]
         public Stck<T> Pop()
         {
             if (Count > 0)
@@ -198,6 +213,7 @@ namespace LanguageExt
         /// Safe pop
         /// </summary>
         /// <returns>Tuple of popped stack and optional top-of-stack value</returns>
+        [Pure]
         public Tuple<Stck<T>, Option<T>> TryPop() =>
             Count > 0
                 ? Tuple.Create(tail, Prelude.Some(value))
@@ -209,6 +225,7 @@ namespace LanguageExt
         /// <param name="Some">Handler if there is a value on the top of the stack</param>
         /// <param name="None">Handler if the stack is empty</param>
         /// <returns>Popped stack</returns>
+        [Pure]
         public Stck<T> Pop(Action<T> Some, Action None)
         {
             if (Count > 0)
@@ -230,6 +247,7 @@ namespace LanguageExt
         /// <param name="Some">Handler if there is a value on the top of the stack</param>
         /// <param name="None">Handler if the stack is empty</param>
         /// <returns>Return value from Some or None</returns>
+        [Pure]
         public R Pop<R>(Func<Stck<T>, T, R> Some, Func<R> None) =>
             Count > 0
                 ? Some(tail, value)
@@ -240,6 +258,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="value">Item to push</param>
         /// <returns>New stack with the pushed item on top</returns>
+        [Pure]
         public Stck<T> Push(T value) =>
             new Stck<T>(value, this);
 
@@ -247,6 +266,7 @@ namespace LanguageExt
         /// Get enumerator
         /// </summary>
         /// <returns>IEnumerator of T</returns>
+        [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 
@@ -257,6 +277,7 @@ namespace LanguageExt
         /// of 'rhs' will be the top of the newly created stack.  'this' stack
         /// will be under the 'rhs' stack.
         /// </summary>
+        [Pure]
         public static Stck<T> operator +(Stck<T> lhs, Stck<T> rhs) =>
             lhs.Append(rhs);
 
@@ -269,6 +290,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="rhs">Stack to append</param>
         /// <returns>Appended stacks</returns>
+        [Pure]
         public Stck<T> Append(Stck<T> rhs)
         {
             var self = this;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -27,7 +28,8 @@ namespace LanguageExt
     }
 
 #if !COREFX
-    [TypeConverter(typeof(OptionalTypeConverter))] 
+    [TypeConverter(typeof(OptionalTypeConverter))]
+    [Serializable]
 #endif
     public struct Some<T> : IOptional
     {
@@ -44,49 +46,62 @@ namespace LanguageExt
             initialised = true;
         }
 
+        [Pure]
         public T Value => 
             CheckInitialised(value);
 
+        [Pure]
         private U CheckInitialised<U>(U value) =>
             initialised
                 ? value
                 : raise<U>( new SomeNotInitialisedException(typeof(T)) );
 
+        [Pure]
         public static implicit operator Option<T>(Some<T> value) =>
             Option<T>.Some(value.Value);
 
+        [Pure]
         public static implicit operator Some<T>(T value) => 
             new Some<T>(value);
 
+        [Pure]
         public static implicit operator T(Some<T> value) => 
             value.Value;
 
+        [Pure]
         public override string ToString() =>
             Value.ToString();
 
+        [Pure]
         public override int GetHashCode() =>
             Value.GetHashCode();
 
+        [Pure]
         public override bool Equals(object obj) =>
             Value.Equals(obj);
 
+        [Pure]
         public bool IsSome =>
             initialised;
 
+        [Pure]
         public bool IsNone =>
             !initialised;
 
+        [Pure]
         public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
             IsSome
                 ? Some(value)
                 : None();
 
+        [Pure]
         public Type GetUnderlyingType() =>
             typeof(T);
     }
 
     public static class Some
     {
+        [Pure]
         public static Some<T> Create<T>(T x) =>
             new Some<T>(x);
     }

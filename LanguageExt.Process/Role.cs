@@ -6,23 +6,29 @@ using static LanguageExt.Process;
 namespace LanguageExt
 {
     /// <summary>
+    /// <para>
     /// Each node in the cluster has a role name and at all times the cluster-nodes
     /// have a list of the alive nodes and their roles (Process.ClusterNodes).  Nodes 
     /// are removed from Process.ClusterNodes if they don't phone in. Process.ClusterNodes 
     /// is at most 3 seconds out-of-date and can therefore be used to reliably find
     /// out which nodes are available and what roles they do.  
-    /// 
+    /// </para>
+    /// <para>
     /// By using Role.First, Role.Broadcast, Role.LeastBusy, Role.Random and Role.RoundRobin
     /// you can build a ProcessId that is resolved at the time of doing a 'tell', 'ask',
     /// 'subscribe', etc.  This can allow reliable messaging to Processes in the cluster.
+    /// </para>
     /// </summary>
     public static class Role
     {
         /// <summary>
-        /// Find out the role that this node is a part of
+        /// The role that this node is a part of
         /// </summary>
-        public static ProcessName Current =>
-            Root.Take(1).GetName();
+        public static ProcessName Current
+        {
+            get;
+            private set;
+        }
 
         /// <summary>
         /// A ProcessId that represents a set of nodes in a cluster.  When used for
@@ -158,8 +164,8 @@ namespace LanguageExt
         /// <example>
         ///     tell( Role.Next["user"]["message-log"], "Hello" );
         /// </example>
-        public static ProcessId Next =>
-            nextRoot[Root.GetName()];
+        public static ProcessId Next(SystemName system = default(SystemName)) =>
+            nextRoot[Root(system).Name];
 
         /// <summary>
         /// Builds a ProcessId that represents the previous node in the role that this 
@@ -175,21 +181,21 @@ namespace LanguageExt
         /// <example>
         ///     tell( Role.Prev["user"]["message-log"], "Hello" );
         /// </example>
-        public static ProcessId Prev =>
-            prevRoot[Root.GetName()];
+        public static ProcessId Prev(SystemName system = default(SystemName)) =>
+            prevRoot[Root(system).Name];
 
         public static IEnumerable<ProcessId> NodeIds(ProcessId leaf) =>
             Nodes(leaf).Values.Map(node => ProcessId.Top[node.NodeName].Append(leaf.Skip(1)));
 
-        public static Map<ProcessName, ClusterNode> Nodes(ProcessId leaf) =>
-            ClusterNodes.Filter(node => node.Role == leaf.Take(1).GetName());
+        public static Map<ProcessName, ClusterNode> Nodes(ProcessId leaf, SystemName system = default(SystemName)) =>
+            ClusterNodes(system).Filter(node => node.Role == leaf.Take(1).Name);
 
         static readonly ProcessId nextRoot;
         static readonly ProcessId prevRoot;
 
-        internal static Unit init()
+        internal static Unit init(ProcessName name)
         {
-            // Triggers static ctor
+            Current = name;
             return unit;
         }
 
@@ -212,7 +218,7 @@ namespace LanguageExt
 
             var nextNode = fun((bool fwd) => fun((ProcessId leaf) =>
             {
-                var self = leaf.Take(1).GetName();
+                var self = leaf.Take(1).Name;
                 var isNext = false;
                 var nodeMap = Nodes(leaf);
 

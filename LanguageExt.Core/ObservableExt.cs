@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -11,6 +12,7 @@ namespace LanguageExt
         /// Executes an action post-subscription.  This is useful when the action is 
         /// going to publish to the observable.  A kind of request/response.
         /// </summary>
+        [Pure]
         public static IObservable<T> PostSubscribe<T>(
             this IObservable<T> self,
             Action action
@@ -23,6 +25,7 @@ namespace LanguageExt
         /// Executes an action post-subscription.  This is useful when the action is 
         /// going to publish to the observable.  A kind of request/response.
         /// </summary>
+        [Pure]
         public static IObservable<T> PostSubscribe<T>(
             this IObservable<T> self,
             Func<Unit> action

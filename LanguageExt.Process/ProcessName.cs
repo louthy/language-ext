@@ -13,7 +13,7 @@ namespace LanguageExt
     /// </summary>
     /// <remarks>
     /// It enforces the rules for process names.  Process have the same rules
-    /// as file-names Wn windows.  
+    /// as file-names in windows.  
     /// </remarks>
     public struct ProcessName : IEquatable<ProcessName>, IComparable<ProcessName>, IComparable
     {
@@ -29,36 +29,59 @@ namespace LanguageExt
         [JsonConstructor]
         public ProcessName(string value)
         {
+            var res = TryParse(value).IfLeft(ex => Prelude.raise<ProcessName>(ex));
+            Value = res.Value;
+        }
+
+        private ProcessName(string value, bool _)
+        {
+            Value = value;
+        }
+
+        public bool IsValid =>
+            !String.IsNullOrEmpty(Value);
+
+        private ProcessName(IEnumerable<ProcessId> values)
+        {
+            if(values == null) throw new InvalidProcessNameException();
+            Value = $"[{String.Join(",", values)}]";
+        }
+
+        public static Either<Exception, ProcessName> TryParse(string value)
+        {
             if (value == null || value.Length == 0)
             {
-                throw new InvalidProcessNameException();
+                return new InvalidProcessNameException();
             }
 
             if (value.Length == 0)
             {
-                throw new InvalidProcessNameException();
+                return new InvalidProcessNameException();
             }
 
             value = value.ToLower();
             if (value[0] == '[' && value[value.Length - 1] == ']')
             {
                 // Validate the inner ProcessIds
-                value.Substring(1, value.Length - 2).Split(',').Map(x => new ProcessId(x)).ToList();
+
+                var exs = value.Substring(1, value.Length - 2)
+                        .Split(',')
+                        .Map(ProcessId.TryParse)
+                        .Lefts();
+
+                if ( exs.Any() )
+                {
+                    return exs.First();
+                }
             }
             else
             {
                 if ((from c in value where InvalidNameChars.Contains(c) select c).Any())
                 {
-                    throw new InvalidProcessNameException();
+                    return new InvalidProcessNameException();
                 }
             }
-            Value = value;
-        }
-
-        private ProcessName(IEnumerable<ProcessId> values)
-        {
-            if(values == null) throw new InvalidProcessNameException();
-            Value = $"[{String.Join(",", values)}]";
+            return new ProcessName(value, true);
         }
 
         public static ProcessName FromSelection(IEnumerable<ProcessId> pids) =>

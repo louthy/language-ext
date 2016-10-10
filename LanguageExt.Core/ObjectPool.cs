@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LanguageExt
 {
-    public class ObjectPool<T>
+    class ObjectPool<T>
     {
         readonly int initialSize;
         readonly object sync = new object();

@@ -1,15 +1,24 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using LanguageExt;
 using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
+using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
+using System.Reactive.Linq;
 
 namespace LanguageExt
 {
     /// <summary>
-    /// Try delegate
+    /// The Try monad captures exceptions and uses them to cancel the
+    /// computation.  Primarily useful for expression based processing
+    /// of errors.
     /// </summary>
+    /// <remarks>To invoke directly, call x.Try()</remarks>
+    /// <returns>A value that represents the outcome of the computation, either
+    /// Success or Failure</returns>
     public delegate TryResult<T> Try<T>();
 
     /// <summary>
@@ -33,19 +42,26 @@ namespace LanguageExt
             Value = default(T);
         }
 
+        [Pure]
         public static implicit operator TryResult<T>(T value) =>
             new TryResult<T>(value);
 
+        [Pure]
         internal bool IsFaulted => Exception != null;
 
+        [Pure]
         public override string ToString() =>
             IsFaulted
                 ? Exception.ToString()
                 : Value.ToString();
+
+        public readonly static TryResult<T> Bottom =
+            new TryResult<T>(new BottomException());
     }
 
     public static class TryResult
     {
+        [Pure]
         public static TryResult<T> Cast<T>(T value) =>
             new TryResult<T>(value);
     }
@@ -61,9 +77,11 @@ namespace LanguageExt
             this.succHandler = succHandler;
         }
 
+        [Pure]
         public R Fail(Func<Exception, R> failHandler) =>
             value.Match(succHandler, failHandler);
 
+        [Pure]
         public R Fail(R failValue) =>
             value.Match(succHandler, _ => failValue);
     }
@@ -85,14 +103,14 @@ namespace LanguageExt
 
     public static class TryConfig
     {
-        public static Action<Exception> ErrorLogger = ex => {};
+        public static Action<Exception> ErrorLogger = ex => { };
     }
 }
 
 /// <summary>
 /// Extension methods for the Try monad
 /// </summary>
-public static class __TryExt
+public static class TryExtensions
 {
     /// <summary>
     /// Append the Try(x) to Try(y).  If either of the Trys throw then the result is Fail
@@ -106,6 +124,7 @@ public static class __TryExt
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
+    [Pure]
     public static Try<T> Append<T>(this Try<T> lhs, Try<T> rhs) => () =>
     {
         var lhsRes = lhs.Try();
@@ -126,6 +145,7 @@ public static class __TryExt
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs - rhs</returns>
+    [Pure]
     public static Try<T> Subtract<T>(this Try<T> lhs, Try<T> rhs) => () =>
     {
         var lhsRes = lhs.Try();
@@ -146,6 +166,7 @@ public static class __TryExt
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs * rhs</returns>
+    [Pure]
     public static Try<T> Multiply<T>(this Try<T> lhs, Try<T> rhs) => () =>
     {
         var lhsRes = lhs.Try();
@@ -166,6 +187,7 @@ public static class __TryExt
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs / rhs</returns>
+    [Pure]
     public static Try<T> Divide<T>(this Try<T> lhs, Try<T> rhs) => () =>
     {
         var lhsRes = lhs.Try();
@@ -181,6 +203,7 @@ public static class __TryExt
     /// <param name="self">Try function</param>
     /// <param name="arg">Try argument</param>
     /// <returns>Returns the result of applying the Try argument to the Try function</returns>
+    [Pure]
     public static Try<R> Apply<T, R>(this Try<Func<T, R>> self, Try<T> arg) => () =>
     {
         var res = self.Try();
@@ -197,13 +220,14 @@ public static class __TryExt
     /// <param name="arg">Try argument</param>
     /// <returns>Returns the result of applying the Try argument to the Try function:
     /// a Try function of arity 1</returns>
+    [Pure]
     public static Try<Func<T2, R>> Apply<T1, T2, R>(this Try<Func<T1, T2, R>> self, Try<T1> arg) => () =>
     {
         var res = self.Try();
         if (res.IsFaulted) return new TryResult<Func<T2, R>>(res.Exception);
         var val = arg.Try();
         if (val.IsFaulted) return new TryResult<Func<T2, R>>(val.Exception);
-        return new TryResult<Func<T2, R>>(par(res.Value,val.Value));
+        return new TryResult<Func<T2, R>>(par(res.Value, val.Value));
     };
 
     /// <summary>
@@ -213,6 +237,7 @@ public static class __TryExt
     /// <param name="arg1">Try argument</param>
     /// <param name="arg2">Try argument</param>
     /// <returns>Returns the result of applying the Try arguments to the Try function</returns>
+    [Pure]
     public static Try<R> Apply<T1, T2, R>(this Try<Func<T1, T2, R>> self, Try<T1> arg1, Try<T2> arg2) => () =>
     {
         var res = self.Try();
@@ -241,6 +266,7 @@ public static class __TryExt
     /// <summary>
     /// Returns the Succ(value) of the Try or a default if it's Fail
     /// </summary>
+    [Pure]
     public static T IfFail<T>(this Try<T> self, T defaultValue)
     {
         if (isnull(defaultValue)) throw new ArgumentNullException(nameof(defaultValue));
@@ -255,6 +281,7 @@ public static class __TryExt
     /// <summary>
     /// Returns the Succ(value) of the Try or a default if it's Fail
     /// </summary>
+    [Pure]
     public static T IfFail<T>(this Try<T> self, Func<T> defaultAction)
     {
         var res = self.Try();
@@ -267,6 +294,7 @@ public static class __TryExt
     /// <summary>
     /// Returns the Succ(value) of the Try or a default if it's Fail
     /// </summary>
+    [Pure]
     public static T IfFail<T>(this Try<T> self, Func<Exception, T> defaultAction)
     {
         var res = self.Try();
@@ -280,6 +308,7 @@ public static class __TryExt
     /// Returns an exception matching context.  Call a chain of With<ExceptionType>() to handle specific
     /// exceptions, followed by Otherwise or OtherwiseThrow()
     /// </summary>
+    [Pure]
     public static ExceptionMatch<T> IfFail<T>(this Try<T> self)
     {
         var res = self.Try();
@@ -289,6 +318,7 @@ public static class __TryExt
             return new ExceptionMatch<T>(res.Value);
     }
 
+    [Pure]
     public static R Match<T, R>(this Try<T> self, Func<T, R> Succ, Func<Exception, R> Fail)
     {
         var res = self.Try();
@@ -297,6 +327,7 @@ public static class __TryExt
             : Succ(res.Value);
     }
 
+    [Pure]
     public static R Match<T, R>(this Try<T> self, Func<T, R> Succ, R Fail)
     {
         if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
@@ -319,6 +350,139 @@ public static class __TryExt
         return Unit.Default;
     }
 
+    public static async Task<R> MatchAsync<T, R>(this Try<T> self, Func<T, Task<R>> Succ, Func<Exception, R> Fail)
+    {
+        var res = self.Try();
+        return await (res.IsFaulted
+            ? Task.FromResult(Fail(res.Exception))
+            : Succ(res.Value));
+    }
+
+    public static async Task<R> MatchAsync<T, R>(this Try<T> self, Func<T, Task<R>> Succ, Func<Exception, Task<R>> Fail)
+    {
+        var res = self.Try();
+        return await (res.IsFaulted
+            ? Fail(res.Exception)
+            : Succ(res.Value));
+    }
+
+    public static async Task<R> MatchAsync<T, R>(this Try<T> self, Func<T, R> Succ, Func<Exception, Task<R>> Fail)
+    {
+        var res = self.Try();
+        return await (res.IsFaulted
+            ? Fail(res.Exception)
+            : Task.FromResult(Succ(res.Value)));
+    }
+
+    public static async Task<R> MatchAsync<T, R>(this Task<Try<T>> self, Func<T, R> Succ, Func<Exception, R> Fail) =>
+        await self.ContinueWith(trySelf =>
+        {
+            var res = trySelf.Result.Try();
+            return res.IsFaulted
+            ? Fail(res.Exception)
+            : Succ(res.Value);
+        });
+
+    public static async Task<R> MatchAsync<T, R>(this Task<Try<T>> self, Func<T, Task<R>> Succ, Func<Exception, R> Fail) =>
+        await (from tt in self.ContinueWith(trySelf =>
+        {
+            var res = trySelf.Result.Try();
+            return res.IsFaulted
+                ? Task.FromResult(Fail(res.Exception))
+                : Succ(res.Value);
+        })
+               from t in tt
+               select t);
+
+    public static async Task<R> MatchAsync<T, R>(this Task<Try<T>> self, Func<T, Task<R>> Succ, Func<Exception, Task<R>> Fail) =>
+        await (from tt in self.ContinueWith(trySelf =>
+        {
+            var res = trySelf.Result.Try();
+            return res.IsFaulted
+                ? Fail(res.Exception)
+                : Succ(res.Value);
+        })
+               from t in tt
+               select t);
+
+    public static async Task<R> MatchAsync<T, R>(this Task<Try<T>> self, Func<T, R> Succ, Func<Exception, Task<R>> Fail) =>
+        await (from tt in self.ContinueWith(trySelf =>
+        {
+            var res = trySelf.Result.Try();
+            return res.IsFaulted
+                ? Fail(res.Exception)
+                : Task.FromResult(Succ(res.Value));
+        })
+               from t in tt
+               select t);
+
+    public static IObservable<R> MatchObservable<T, R>(this Try<T> self, Func<T, IObservable<R>> Succ, Func<Exception, R> Fail)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Observable.Return(Fail(res.Exception))
+            : Succ(res.Value);
+    }
+
+    public static IObservable<R> MatchObservable<T, R>(this Try<T> self, Func<T, IObservable<R>> Succ, Func<Exception, IObservable<R>> Fail)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Fail(res.Exception)
+            : Succ(res.Value);
+    }
+
+    public static IObservable<R> MatchObservable<T, R>(this Try<T> self, Func<T, R> Succ, Func<Exception, IObservable<R>> Fail)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Fail(res.Exception)
+            : Observable.Return(Succ(res.Value));
+    }
+
+    public static IObservable<R> MatchObservable<T, R>(this IObservable<Try<T>> self, Func<T, R> Succ, Func<Exception, R> Fail) =>
+        self.Select(trySelf =>
+        {
+            var res = trySelf.Try();
+            return res.IsFaulted
+                ? Fail(res.Exception)
+                : Succ(res.Value);
+        });
+
+    public static IObservable<R> MatchObservable<T, R>(this IObservable<Try<T>> self, Func<T, IObservable<R>> Succ, Func<Exception, R> Fail) =>
+        from tt in self.Select(trySelf =>
+        {
+            var res = trySelf.Try();
+            return res.IsFaulted
+                ? Observable.Return(Fail(res.Exception))
+                : Succ(res.Value);
+        })
+        from t in tt
+        select t;
+
+    public static IObservable<R> MatchObservable<T, R>(this IObservable<Try<T>> self, Func<T, IObservable<R>> Succ, Func<Exception, IObservable<R>> Fail) =>
+        from tt in self.Select(trySelf =>
+        {
+            var res = trySelf.Try();
+            return res.IsFaulted
+                ? Fail(res.Exception)
+                : Succ(res.Value);
+        })
+        from t in tt
+        select t;
+
+    public static IObservable<R> MatchObservable<T, R>(this IObservable<Try<T>> self, Func<T, R> Succ, Func<Exception, IObservable<R>> Fail) =>
+        from tt in self.Select(trySelf =>
+        {
+            var res = trySelf.Try();
+            return res.IsFaulted
+                ? Fail(res.Exception)
+                : Observable.Return(Succ(res.Value));
+        })
+        from t in tt
+        select t;
+
+    [Pure]
     public static Option<T> ToOption<T>(this Try<T> self)
     {
         var res = self.Try();
@@ -327,6 +491,7 @@ public static class __TryExt
             : Optional(res.Value);
     }
 
+    [Pure]
     public static TryOption<T> ToTryOption<T>(this Try<T> self) => () =>
     {
         var res = self.Try();
@@ -335,10 +500,12 @@ public static class __TryExt
             : Optional(res.Value);
     };
 
+    [Pure]
     public static TryResult<T> Try<T>(this Try<T> self)
     {
         try
         {
+            if (self == null) return TryResult<T>.Bottom;
             return self();
         }
         catch (Exception e)
@@ -348,10 +515,12 @@ public static class __TryExt
         }
     }
 
+    [Pure]
     public static T IfFailThrow<T>(this Try<T> self)
     {
         try
         {
+            if (self == null) throw new BottomException();
             var res = self();
             if (res.IsFaulted)
             {
@@ -366,33 +535,23 @@ public static class __TryExt
         }
     }
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Try<U> Select<T, U>(this Try<T> self, Func<T, U> select)
     {
         return new Try<U>(() =>
         {
             TryResult<T> resT;
-            try
-            {
-                resT = self();
-                if (resT.IsFaulted)
-                    return new TryResult<U>(resT.Exception);
-            }
-            catch (Exception e)
-            {
-                TryConfig.ErrorLogger(e);
-                return new TryResult<U>(e);
-            }
+            resT = self.Try();
+            if (resT.IsFaulted) return new TryResult<U>(resT.Exception);
 
             U resU;
             try
             {
                 resU = select(resT.Value);
-                if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
             }
             catch (Exception e)
             {
-                if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                 TryConfig.ErrorLogger(e);
                 return new TryResult<U>(e);
             }
@@ -401,7 +560,8 @@ public static class __TryExt
         });
     }
 
-    public static Try<U> Use<T,U>(this Try<T> self, Func<T, U> select)
+    [Pure]
+    public static Try<U> Use<T, U>(this Try<T> self, Func<T, U> select)
         where T : IDisposable
     {
         return () =>
@@ -423,6 +583,7 @@ public static class __TryExt
     }
 
 
+    [Pure]
     public static Try<T> Flatten<T>(this Try<Try<T>> self) => () =>
     {
         var res1 = self.Try();
@@ -444,6 +605,7 @@ public static class __TryExt
         }
     };
 
+    [Pure]
     public static Try<T> Flatten<T>(this Try<Try<Try<T>>> self)
     {
         var res = self.Try();
@@ -457,6 +619,7 @@ public static class __TryExt
         }
     }
 
+    [Pure]
     public static Try<T> Flatten<T>(this Try<Try<Try<Try<T>>>> self)
     {
         var res = self.Try();
@@ -470,6 +633,7 @@ public static class __TryExt
         }
     }
 
+    [Pure]
     public static Try<U> Use<T, U>(this Try<T> self, Func<T, Try<U>> select)
         where T : IDisposable
     {
@@ -508,6 +672,7 @@ public static class __TryExt
         return unit;
     }
 
+    [Pure]
     public static int Count<T>(this Try<T> self)
     {
         var res = self.Try();
@@ -516,6 +681,7 @@ public static class __TryExt
             : 1;
     }
 
+    [Pure]
     public static bool ForAll<T>(this Try<T> self, Func<T, bool> pred)
     {
         var res = self.Try();
@@ -524,6 +690,7 @@ public static class __TryExt
             : pred(res.Value);
     }
 
+    [Pure]
     public static bool ForAll<T>(this Try<T> self, Func<T, bool> Succ, Func<Exception, bool> Fail)
     {
         var res = self.Try();
@@ -540,6 +707,7 @@ public static class __TryExt
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
+    [Pure]
     public static S Fold<S, T>(this Try<T> self, S state, Func<S, T, S> folder)
     {
         var res = self.Try();
@@ -557,6 +725,7 @@ public static class __TryExt
     /// <param name="Succ">Fold function for Success</param>
     /// <param name="Fail">Fold function for Failure</param>
     /// <returns>Folded state</returns>
+    [Pure]
     public static S Fold<S, T>(this Try<T> self, S state, Func<S, T, S> Succ, Func<S, Exception, S> Fail)
     {
         var res = self.Try();
@@ -565,6 +734,7 @@ public static class __TryExt
             : Succ(state, res.Value);
     }
 
+    [Pure]
     public static bool Exists<T>(this Try<T> self, Func<T, bool> pred)
     {
         var res = self.Try();
@@ -573,6 +743,7 @@ public static class __TryExt
             : pred(res.Value);
     }
 
+    [Pure]
     public static bool Exists<T>(this Try<T> self, Func<T, bool> Succ, Func<Exception, bool> Fail)
     {
         var res = self.Try();
@@ -581,6 +752,7 @@ public static class __TryExt
             : Succ(res.Value);
     }
 
+    [Pure]
     public static Try<R> Map<T, R>(this Try<T> self, Func<T, R> mapper) => () =>
     {
         var res = self.Try();
@@ -589,6 +761,7 @@ public static class __TryExt
             : mapper(res.Value);
     };
 
+    [Pure]
     public static Try<R> Map<T, R>(this Try<T> self, Func<T, R> Succ, Func<Exception, R> Fail) => () =>
     {
         var res = self.Try();
@@ -601,16 +774,19 @@ public static class __TryExt
     /// Partial application map
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
-    public static Try<Func<T2, R>> Map<T1, T2, R>(this Try<T1> self, Func<T1, T2, R> func) =>
+    [Pure]
+    public static Try<Func<T2, R>> ParMap<T1, T2, R>(this Try<T1> self, Func<T1, T2, R> func) =>
         self.Map(curry(func));
 
     /// <summary>
     /// Partial application map
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
-    public static Try<Func<T2, Func<T3, R>>> Map<T1, T2, T3, R>(this Try<T1> self, Func<T1, T2, T3, R> func) =>
+    [Pure]
+    public static Try<Func<T2, Func<T3, R>>> ParMap<T1, T2, T3, R>(this Try<T1> self, Func<T1, T2, T3, R> func) =>
         self.Map(curry(func));
 
+    [Pure]
     public static Try<T> Filter<T>(this Try<T> self, Func<T, bool> pred)
     {
         var res = self.Try();
@@ -621,6 +797,7 @@ public static class __TryExt
                 : () => new TryResult<T>(new BottomException());
     }
 
+    [Pure]
     public static Try<T> Filter<T>(this Try<T> self, Func<T, bool> Succ, Func<Exception, bool> Fail)
     {
         var res = self.Try();
@@ -633,10 +810,12 @@ public static class __TryExt
                 : () => new TryResult<T>(new BottomException());
     }
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Try<T> Where<T>(this Try<T> self, Func<T, bool> pred) =>
         self.Filter(pred);
 
+    [Pure]
     public static Try<R> Bind<T, R>(this Try<T> self, Func<T, Try<R>> binder) => () =>
     {
         var res = self.Try();
@@ -645,6 +824,7 @@ public static class __TryExt
             : binder(res.Value).Try();
     };
 
+    [Pure]
     public static Try<R> Bind<T, R>(this Try<T> self, Func<T, Try<R>> Succ, Func<Exception, Try<R>> Fail) => () =>
     {
         var res = self.Try();
@@ -653,6 +833,7 @@ public static class __TryExt
             : Succ(res.Value).Try();
     };
 
+    [Pure]
     public static IEnumerable<Either<Exception, T>> AsEnumerable<T>(this Try<T> self)
     {
         var res = self.Try();
@@ -667,21 +848,27 @@ public static class __TryExt
         }
     }
 
+    [Pure]
     public static Lst<Either<Exception, T>> ToList<T>(this Try<T> self) =>
         toList(self.AsEnumerable());
 
+    [Pure]
     public static Either<Exception, T>[] ToArray<T>(this Try<T> self) =>
         toArray(self.AsEnumerable());
 
+    [Pure]
     public static TrySuccContext<T, R> Succ<T, R>(this Try<T> self, Func<T, R> succHandler) =>
         new TrySuccContext<T, R>(self, succHandler);
 
+    [Pure]
     public static TrySuccUnitContext<T> Succ<T>(this Try<T> self, Action<T> succHandler) =>
         new TrySuccUnitContext<T>(self, succHandler);
 
+    [Pure]
     public static int Sum(this Try<int> self) =>
         self.Try().Value;
 
+    [Pure]
     public static string AsString<T>(this Try<T> self) =>
         match(self,
             Succ: v => isnull(v)
@@ -690,6 +877,7 @@ public static class __TryExt
             Fail: ex => $"Fail({ex.Message})"
         );
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static Try<V> SelectMany<T, U, V>(
           this Try<T> self,
@@ -706,24 +894,48 @@ public static class __TryExt
                 var resU = bind(resT.Value).Try();
                 if (resU.IsFaulted)
                 {
-                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                     return new TryResult<V>(resT.Exception);
                 }
                 try
                 {
-                    var res = new TryResult<V>(project(resT.Value, resU.Value));
-                    if (resU.Value is ILinqDisposable) (resU.Value as ILinqDisposable).Dispose();
-                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
-                    return res;
+                    return new TryResult<V>(project(resT.Value, resU.Value));
                 }
                 catch (Exception e)
                 {
-                    if (resU.Value is ILinqDisposable) (resU.Value as ILinqDisposable).Dispose();
-                    if (resT.Value is ILinqDisposable) (resT.Value as ILinqDisposable).Dispose();
                     TryConfig.ErrorLogger(e);
                     return new TryResult<V>(e);
                 }
             }
         );
     }
+
+    [Pure]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static IEnumerable<V> SelectMany<T, U, V>(this Try<T> self,
+        Func<T, IEnumerable<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        var resT = self.Try();
+        if (resT.IsFaulted) return new V[0];
+        return bind(resT.Value).Map(resU => project(resT.Value, resU));
+    }
+
+    public static Try<V> Join<L, T, U, K, V>(
+        this Try<T> self,
+        Try<U> inner,
+        Func<T, K> outerKeyMap,
+        Func<U, K> innerKeyMap,
+        Func<T, U, V> project) => () =>
+    {
+        var selfRes = self.Try();
+        if (selfRes.IsFaulted) return new TryResult<V>(selfRes.Exception);
+
+        var innerRes = inner.Try();
+        if (innerRes.IsFaulted) return new TryResult<V>(innerRes.Exception);
+
+        return EqualityComparer<K>.Default.Equals(outerKeyMap(selfRes.Value), innerKeyMap(innerRes.Value))
+            ? new TryResult<V>(project(selfRes.Value, innerRes.Value))
+            : TryResult<V>.Bottom;
+    };
 }
