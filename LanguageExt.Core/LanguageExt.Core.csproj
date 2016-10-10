@@ -65,6 +65,7 @@
     <Compile Include="Prelude_Nullable.cs" />
     <Compile Include="DVV.cs" />
     <Compile Include="Prelude_Tasks.cs" />
+    <Compile Include="Prelude_Union.cs" />
     <Compile Include="Task.cs" />
     <Compile Include="Compose.cs" />
     <Compile Include="EitherState.cs" />
@@ -139,6 +140,7 @@
     <Compile Include="TupleExt.cs" />
     <Compile Include="TypeConverters.cs" />
     <Compile Include="TypeDesc.cs" />
+    <Compile Include="Union.cs" />
     <Compile Include="Unit.cs" />
     <Compile Include="UnitsOfMeasure\Accel.cs" />
     <Compile Include="UnitsOfMeasure\TimeSq.cs" />
