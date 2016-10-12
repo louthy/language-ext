@@ -48,10 +48,10 @@ namespace LanguageExt
         public static IQueryable<T> filter<T>(IQueryable<T> list, Expression<Func<T, bool>> predicate) =>
             list.Where(predicate);
 
-        public static IQueryable<T> choose<T>(IQueryable<T> list, Expression<Func<T, Option<T>>> selector) =>
+        public static IQueryable<U> choose<T, U>(IQueryable<T> list, Expression<Func<T, Option<U>>> selector) =>
             map(filter(map(list, selector), t => t.IsSome), t => t.Value);
 
-        public static IQueryable<T> choose<T>(IQueryable<T> list, Expression<Func<int, T, Option<T>>> selector) =>
+        public static IQueryable<U> choose<T, U>(IQueryable<T> list, Expression<Func<int, T, Option<U>>> selector) =>
             map(filter(map(list, selector), t => t.IsSome), t => t.Value);
 
         public static IQueryable<R> collect<T, R>(IQueryable<T> list, Expression<Func<T, IEnumerable<R>>> map)
@@ -157,10 +157,10 @@ public static class QueryExtensions
     public static IQueryable<T> Filter<T>(this IQueryable<T> list, Expression<Func<T, bool>> predicate) =>
         LanguageExt.Query.filter(list, predicate);
 
-    public static IQueryable<T> Choose<T>(this IQueryable<T> list, Expression<Func<T, Option<T>>> selector) =>
+    public static IQueryable<U> Choose<T, U>(this IQueryable<T> list, Expression<Func<T, Option<U>>> selector) =>
         LanguageExt.Query.choose(list, selector);
 
-    public static IQueryable<T> Choose<T>(this IQueryable<T> list, Expression<Func<int, T, Option<T>>> selector) =>
+    public static IQueryable<U> Choose<T, U>(this IQueryable<T> list, Expression<Func<int, T, Option<U>>> selector) =>
         LanguageExt.Query.choose(list, selector);
 
     public static IQueryable<R> Collect<T, R>(this IQueryable<T> list, Expression<Func<T, IEnumerable<R>>> map) =>

@@ -860,10 +860,10 @@ namespace LanguageExt
             return state;
         }
 
-        public static MapItem<K, V> Choose<K, V>(MapItem<K, V> node, Func<K, V, Option<V>> selector) =>
+        public static MapItem<K, U> Choose<K, V, U>(MapItem<K, V> node, Func<K, V, Option<U>> selector) =>
             Map(Filter(Map(node, selector), n => n.IsSome), n => n.Value);
 
-        public static MapItem<K, V> Choose<K, V>(MapItem<K, V> node, Func<V, Option<V>> selector) =>
+        public static MapItem<K, U> Choose<K, V, U>(MapItem<K, V> node, Func<V, Option<U>> selector) =>
             Map(Filter(Map(node, selector), n => n.IsSome), n => n.Value);
 
         public static bool ForAll<K, V>(MapItem<K, V> node, Func<K, V, bool> pred) =>

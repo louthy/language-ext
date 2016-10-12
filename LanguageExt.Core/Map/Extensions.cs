@@ -230,8 +230,8 @@ namespace LanguageExt
         /// <param name="selector">Predicate</param>
         /// <returns>Filtered map</returns>
         [Pure]
-        public static Map<K, V> Choose<K, V>(this Map<K, V> self, Func<K, V, Option<V>> selector) =>
-            self.SetRoot(MapModule.Choose(self.Value.Root, selector));
+        public static Map<K, U> Choose<K, V, U>(this Map<K, V> self, Func<K, V, Option<U>> selector) =>
+            new Map<K, U>(MapModule.Choose(self.Value.Root, selector), self.Value.Rev);
 
         /// <summary>
         /// Equivalent to map and filter but the filtering is done based on whether the returned
@@ -241,8 +241,8 @@ namespace LanguageExt
         /// <param name="selector">Predicate</param>
         /// <returns>Filtered map</returns>
         [Pure]
-        public static Map<K, V> Choose<K, V>(this Map<K, V> self, Func<V, Option<V>> selector) =>
-            self.SetRoot(MapModule.Choose(self.Value.Root, selector));
+        public static Map<K, U> Choose<K, V, U>(this Map<K, V> self, Func<V, Option<U>> selector) =>
+            new Map<K, U>(MapModule.Choose(self.Value.Root, selector), self.Value.Rev);
 
         /// <summary>
         /// Atomically folds all items in the map (in order) using the folder function provided.

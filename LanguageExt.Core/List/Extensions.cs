@@ -333,7 +333,7 @@ public static class ListExtensions
     /// <param name="selector">Selector function</param>
     /// <returns>Mapped and filtered enumerable</returns>
     [Pure]
-    public static IEnumerable<T> Choose<T>(this IEnumerable<T> list, Func<T, Option<T>> selector) =>
+    public static IEnumerable<R> Choose<T, R>(this IEnumerable<T> list, Func<T, Option<R>> selector) =>
         LanguageExt.List.choose(list, selector);
 
     /// <summary>
@@ -345,7 +345,7 @@ public static class ListExtensions
     /// <param name="selector">Selector function</param>
     /// <returns>Mapped and filtered enumerable</returns>
     [Pure]
-    public static IEnumerable<T> Choose<T>(this IEnumerable<T> list, Func<int, T, Option<T>> selector) =>
+    public static IEnumerable<R> Choose<T, R>(this IEnumerable<T> list, Func<int, T, Option<R>> selector) =>
         LanguageExt.List.choose(list, selector);
 
     /// <summary>

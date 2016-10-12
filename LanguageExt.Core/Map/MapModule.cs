@@ -498,7 +498,7 @@ namespace LanguageExt
         /// <param name="selector">Predicate</param>
         /// <returns>Filtered map</returns>
         [Pure]
-        public static Map<K, T> choose<K, T>(Map<K, T> map, Func<T, Option<T>> selector) =>
+        public static Map<K, R> choose<K, T, R>(Map<K, T> map, Func<T, Option<R>> selector) =>
             map.Choose(selector);
 
         /// <summary>
@@ -509,7 +509,7 @@ namespace LanguageExt
         /// <param name="selector">Predicate</param>
         /// <returns>Filtered map</returns>
         [Pure]
-        public static Map<K, T> choose<K, T>(Map<K, T> map, Func<K, T, Option<T>> selector) =>
+        public static Map<K, R> choose<K, T, R>(Map<K, T> map, Func<K, T, Option<R>> selector) =>
             map.Choose(selector);
 
         /// <summary>
