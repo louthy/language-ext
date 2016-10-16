@@ -796,7 +796,7 @@ public static class TryOptionExtensions
         var res = self.Try();
         if (res.IsFaulted) Fail(res.Exception);
         else if (res.Value.IsNone) None();
-        else if (res.Value.IsNone) Some(res.Value.Value);
+        else if (res.Value.IsSome) Some(res.Value.Value);
         return unit;
     }
 
