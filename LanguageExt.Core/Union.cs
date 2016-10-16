@@ -1,30 +1,64 @@
 ﻿using System;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-	public interface IUnion { }
-
-	public interface IUnion<T>
+	public interface IUnion
 	{
-		Option<T> opt { get; }
+	}
+
+	public interface IUnion<T1>
+	{
+		Tuple<Option<T1>> InternalValue();
+	}
+
+	public interface IUnion<T1, T2> : IUnion
+	{
+		Tuple<Option<T1>, Option<T2>> InternalValue();
+	}
+
+	public interface IUnion<T1, T2, T3> : IUnion
+	{
+		Tuple<Option<T1>, Option<T2>, Option<T3>> InternalValue();
+	}
+
+	public interface IUnion<T1, T2, T3, T4> : IUnion
+	{
+		Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>> InternalValue();
+	}
+
+	public interface IUnion<T1, T2, T3, T4, T5> : IUnion
+	{
+		Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>> InternalValue();
+	}
+
+	public interface IUnion<T1, T2, T3, T4, T5, T6> : IUnion
+	{
+		Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>> InternalValue();
+	}
+
+	public interface IUnion<T1, T2, T3, T4, T5, T6, T7> : IUnion
+	{
+		Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>> InternalValue();
+	}
+
+	public interface IUnion<T1, T2, T3, T4, T5, T6, T7, T8> : IUnion
+	{
+		Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>, Tuple<Option<T8>>> InternalValue();
 	}
 
 	public class Union<T1> : IUnion, IUnion<T1>
 	{
-		private readonly Option<T1> internalValue;
-
-		public Union()
-		{
-		}
+		private readonly Tuple<Option<T1>> internalValue;
 
 		public Union(T1 value)
 		{
-			this.internalValue = value;
+			this.internalValue = System.Tuple.Create(Some(value));
 		}
 
-		Option<T1> IUnion<T1>.opt
+		Tuple<Option<T1>> IUnion<T1>.InternalValue()
 		{
-			get { return internalValue; }
+			return internalValue ?? System.Tuple.Create(Option<T1>.None);
 		}
 
 		public static implicit operator Union<T1>(T1 item)
@@ -33,25 +67,23 @@ namespace LanguageExt
 		}
 	}
 
-	public class Union<T1, T2> : Union<T1>, IUnion, IUnion<T2>
+	public class Union<T1, T2> : IUnion, IUnion<T1, T2>
 	{
-		private readonly Option<T2> internalValue;
+		private readonly Tuple<Option<T1>, Option<T2>> internalValue;
 
-		protected Union()
-		{ }
-
-		public Union(T1 a) : base(a)
+		public Union(T1 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>>(value, Option<T2>.None);
 		}
 
 		public Union(T2 value)
 		{
-			this.internalValue = value;
+			this.internalValue = Tuple<Option<T1>, Option<T2>>(Option<T1>.None, value);
 		}
 
-		Option<T2> IUnion<T2>.opt
+		Tuple<Option<T1>, Option<T2>> IUnion<T1, T2>.InternalValue()
 		{
-			get { return internalValue; }
+			return internalValue ?? System.Tuple.Create(Option<T1>.None, Option<T2>.None);
 		}
 
 		public static implicit operator Union<T1, T2>(T1 item)
@@ -65,29 +97,28 @@ namespace LanguageExt
 		}
 	}
 
-	public class Union<T1, T2, T3> : Union<T1, T2>, IUnion, IUnion<T3>
+	public class Union<T1, T2, T3> : IUnion, IUnion<T1, T2, T3>
 	{
-		private readonly Option<T3> internalValue;
+		private readonly Tuple<Option<T1>, Option<T2>, Option<T3>> internalValue;
 
-		protected Union()
-		{ }
-
-		public Union(T1 value) : base(value)
+		public Union(T1 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>>(value, Option<T2>.None, Option<T3>.None);
 		}
 
-		public Union(T2 value) : base(value)
+		public Union(T2 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>>(Option<T1>.None, value, Option<T3>.None);
 		}
 
 		public Union(T3 value)
 		{
-			this.internalValue = value;
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>>(Option<T1>.None, Option<T2>.None, value);
 		}
 
-		Option<T3> IUnion<T3>.opt
+		Tuple<Option<T1>, Option<T2>, Option<T3>> IUnion<T1, T2, T3>.InternalValue()
 		{
-			get { return internalValue; }
+			return internalValue ?? System.Tuple.Create(Option<T1>.None, Option<T2>.None, Option<T3>.None);
 		}
 
 		public static implicit operator Union<T1, T2, T3>(T1 item)
@@ -106,33 +137,33 @@ namespace LanguageExt
 		}
 	}
 
-	public class Union<T1, T2, T3, T4> : Union<T1, T2, T3>, IUnion, IUnion<T4>
+	public class Union<T1, T2, T3, T4> : IUnion, IUnion<T1, T2, T3, T4>
 	{
-		private readonly Option<T4> internalValue;
+		private readonly Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>> internalValue;
 
-		protected Union()
-		{ }
-
-		public Union(T1 value) : base(value)
+		public Union(T1 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>>(value, Option<T2>.None, Option<T3>.None, Option<T4>.None);
 		}
 
-		public Union(T2 value) : base(value)
+		public Union(T2 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>>(Option<T1>.None, value, Option<T3>.None, Option<T4>.None);
 		}
 
-		public Union(T3 value) : base(value)
+		public Union(T3 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>>(Option<T1>.None, Option<T2>.None, value, Option<T4>.None);
 		}
 
 		public Union(T4 value)
 		{
-			this.internalValue = value;
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>>(Option<T1>.None, Option<T2>.None, Option<T3>.None, value);
 		}
 
-		Option<T4> IUnion<T4>.opt
+		Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>> IUnion<T1, T2, T3, T4>.InternalValue()
 		{
-			get { return internalValue; }
+			return internalValue ?? System.Tuple.Create(Option<T1>.None, Option<T2>.None, Option<T3>.None, Option<T4>.None);
 		}
 
 		public static implicit operator Union<T1, T2, T3, T4>(T1 item)
@@ -156,37 +187,38 @@ namespace LanguageExt
 		}
 	}
 
-	public class Union<T1, T2, T3, T4, T5> : Union<T1, T2, T3, T4>, IUnion, IUnion<T5>
+	public class Union<T1, T2, T3, T4, T5> : IUnion, IUnion<T1, T2, T3, T4, T5>
 	{
-		private readonly Option<T5> internalValue;
+		private readonly Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>> internalValue;
 
-		protected Union()
-		{ }
-
-		public Union(T1 value) : base(value)
+		public Union(T1 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>>(value, Option<T2>.None, Option<T3>.None, Option<T4>.None, Option<T5>.None);
 		}
 
-		public Union(T2 value) : base(value)
+		public Union(T2 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>>(Option<T1>.None, value, Option<T3>.None, Option<T4>.None, Option<T5>.None);
 		}
 
-		public Union(T3 value) : base(value)
+		public Union(T3 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>>(Option<T1>.None, Option<T2>.None, value, Option<T4>.None, Option<T5>.None);
 		}
 
-		public Union(T4 value) : base(value)
+		public Union(T4 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>>(Option<T1>.None, Option<T2>.None, Option<T3>.None, value, Option<T5>.None);
 		}
 
 		public Union(T5 value)
 		{
-			this.internalValue = value;
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>>(Option<T1>.None, Option<T2>.None, Option<T3>.None, Option<T4>.None, value);
 		}
 
-		Option<T5> IUnion<T5>.opt
+		Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>> IUnion<T1, T2, T3, T4, T5>.InternalValue()
 		{
-			get { return internalValue; }
+			return internalValue ?? System.Tuple.Create(Option<T1>.None, Option<T2>.None, Option<T3>.None, Option<T4>.None, Option<T5>.None);
 		}
 
 		public static implicit operator Union<T1, T2, T3, T4, T5>(T1 item)
@@ -215,41 +247,43 @@ namespace LanguageExt
 		}
 	}
 
-	public class Union<T1, T2, T3, T4, T5, T6> : Union<T1, T2, T3, T4, T5>, IUnion, IUnion<T6>
+	public class Union<T1, T2, T3, T4, T5, T6> : IUnion, IUnion<T1, T2, T3, T4, T5, T6>
 	{
-		private readonly Option<T6> internalValue;
+		private readonly Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>> internalValue;
 
-		protected Union()
-		{ }
-
-		public Union(T1 value) : base(value)
+		public Union(T1 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>>(value, Option<T2>.None, Option<T3>.None, Option<T4>.None, Option<T5>.None, Option<T6>.None);
 		}
 
-		public Union(T2 value) : base(value)
+		public Union(T2 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>>(Option<T1>.None, value, Option<T3>.None, Option<T4>.None, Option<T5>.None, Option<T6>.None);
 		}
 
-		public Union(T3 value) : base(value)
+		public Union(T3 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>>(Option<T1>.None, Option<T2>.None, value, Option<T4>.None, Option<T5>.None, Option<T6>.None);
 		}
 
-		public Union(T4 value) : base(value)
+		public Union(T4 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>>(Option<T1>.None, Option<T2>.None, Option<T3>.None, value, Option<T5>.None, Option<T6>.None);
 		}
 
-		public Union(T5 value) : base(value)
+		public Union(T5 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>>(Option<T1>.None, Option<T2>.None, Option<T3>.None, Option<T4>.None, value, Option<T6>.None);
 		}
 
 		public Union(T6 value)
 		{
-			this.internalValue = value;
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>>(Option<T1>.None, Option<T2>.None, Option<T3>.None, Option<T4>.None, Option<T5>.None, value);
 		}
 
-		Option<T6> IUnion<T6>.opt
+		Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>> IUnion<T1, T2, T3, T4, T5, T6>.InternalValue()
 		{
-			get { return internalValue; }
+			return internalValue ?? System.Tuple.Create(Option<T1>.None, Option<T2>.None, Option<T3>.None, Option<T4>.None, Option<T5>.None, Option<T6>.None);
 		}
 
 		public static implicit operator Union<T1, T2, T3, T4, T5, T6>(T1 item)
@@ -283,45 +317,48 @@ namespace LanguageExt
 		}
 	}
 
-	public class Union<T1, T2, T3, T4, T5, T6, T7> : Union<T1, T2, T3, T4, T5, T6>, IUnion, IUnion<T7>
+	public class Union<T1, T2, T3, T4, T5, T6, T7> : IUnion, IUnion<T1, T2, T3, T4, T5, T6, T7>
 	{
-		private readonly Option<T7> internalValue;
+		private readonly Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>> internalValue;
 
-		protected Union()
-		{ }
-
-		public Union(T1 value) : base(value)
+		public Union(T1 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>>(value, Option<T2>.None, Option<T3>.None, Option<T4>.None, Option<T5>.None, Option<T6>.None, Option<T7>.None);
 		}
 
-		public Union(T2 value) : base(value)
+		public Union(T2 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>>(Option<T1>.None, value, Option<T3>.None, Option<T4>.None, Option<T5>.None, Option<T6>.None, Option<T7>.None);
 		}
 
-		public Union(T3 value) : base(value)
+		public Union(T3 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>>(Option<T1>.None, Option<T2>.None, value, Option<T4>.None, Option<T5>.None, Option<T6>.None, Option<T7>.None);
 		}
 
-		public Union(T4 value) : base(value)
+		public Union(T4 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>>(Option<T1>.None, Option<T2>.None, Option<T3>.None, value, Option<T5>.None, Option<T6>.None, Option<T7>.None);
 		}
 
-		public Union(T5 value) : base(value)
+		public Union(T5 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>>(Option<T1>.None, Option<T2>.None, Option<T3>.None, Option<T4>.None, value, Option<T6>.None, Option<T7>.None);
 		}
 
-		public Union(T6 value) : base(value)
+		public Union(T6 value)
 		{
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>>(Option<T1>.None, Option<T2>.None, Option<T3>.None, Option<T4>.None, Option<T5>.None, value, Option<T7>.None);
 		}
 
 		public Union(T7 value)
 		{
-			this.internalValue = value;
+			this.internalValue = Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>>(Option<T1>.None, Option<T2>.None, Option<T3>.None, Option<T4>.None, Option<T5>.None, Option<T6>.None, value);
 		}
 
-		Option<T7> IUnion<T7>.opt
+		Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>> IUnion<T1, T2, T3, T4, T5, T6, T7>.InternalValue()
 		{
-			get { return internalValue; }
+			return internalValue ?? System.Tuple.Create(Option<T1>.None, Option<T2>.None, Option<T3>.None, Option<T4>.None, Option<T5>.None, Option<T6>.None, Option<T7>.None);
 		}
 
 		public static implicit operator Union<T1, T2, T3, T4, T5, T6, T7>(T1 item)
@@ -360,49 +397,53 @@ namespace LanguageExt
 		}
 	}
 
-	public class Union<T1, T2, T3, T4, T5, T6, T7, T8> : Union<T1, T2, T3, T4, T5, T6, T7>, IUnion, IUnion<T8>
+	public class Union<T1, T2, T3, T4, T5, T6, T7, T8> : IUnion, IUnion<T1, T2, T3, T4, T5, T6, T7, T8>
 	{
-		private readonly Option<T8> internalValue;
+		private readonly Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>, Tuple<Option<T8>>> internalValue;
 
-		protected Union()
-		{ }
-
-		public Union(T1 value) : base(value)
+		public Union(T1 value)
 		{
+			this.internalValue = System.Tuple.Create<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>, Option<T8>>(value, Option<T2>.None, Option<T3>.None, Option<T4>.None, Option<T5>.None, Option<T6>.None, Option<T7>.None, Option<T8>.None);
 		}
 
-		public Union(T2 value) : base(value)
+		public Union(T2 value)
 		{
+			this.internalValue = System.Tuple.Create<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>, Option<T8>>(Option<T1>.None, value, Option<T3>.None, Option<T4>.None, Option<T5>.None, Option<T6>.None, Option<T7>.None, Option<T8>.None);
 		}
 
-		public Union(T3 value) : base(value)
+		public Union(T3 value)
 		{
+			this.internalValue = System.Tuple.Create<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>, Option<T8>>(Option<T1>.None, Option<T2>.None, value, Option<T4>.None, Option<T5>.None, Option<T6>.None, Option<T7>.None, Option<T8>.None);
 		}
 
-		public Union(T4 value) : base(value)
+		public Union(T4 value)
 		{
+			this.internalValue = System.Tuple.Create<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>, Option<T8>>(Option<T1>.None, Option<T2>.None, Option<T3>.None, value, Option<T5>.None, Option<T6>.None, Option<T7>.None, Option<T8>.None);
 		}
 
-		public Union(T5 value) : base(value)
+		public Union(T5 value)
 		{
+			this.internalValue = System.Tuple.Create<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>, Option<T8>>(Option<T1>.None, Option<T2>.None, Option<T3>.None, Option<T4>.None, value, Option<T6>.None, Option<T7>.None, Option<T8>.None);
 		}
 
-		public Union(T6 value) : base(value)
+		public Union(T6 value)
 		{
+			this.internalValue = System.Tuple.Create<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>, Option<T8>>(Option<T1>.None, Option<T2>.None, Option<T3>.None, Option<T4>.None, Option<T5>.None, value, Option<T7>.None, Option<T8>.None);
 		}
 
-		public Union(T7 value) : base(value)
+		public Union(T7 value)
 		{
+			this.internalValue = System.Tuple.Create<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>, Option<T8>>(Option<T1>.None, Option<T2>.None, Option<T3>.None, Option<T4>.None, Option<T5>.None, Option<T6>.None, value, Option<T8>.None);
 		}
 
 		public Union(T8 value)
 		{
-			this.internalValue = value;
+			this.internalValue = System.Tuple.Create<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>, Option<T8>>(Option<T1>.None, Option<T2>.None, Option<T3>.None, Option<T4>.None, Option<T5>.None, Option<T6>.None, Option<T7>.None, value);
 		}
 
-		Option<T8> IUnion<T8>.opt
+		Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>, Tuple<Option<T8>>> IUnion<T1, T2, T3, T4, T5, T6, T7, T8>.InternalValue()
 		{
-			get { return internalValue; }
+			return internalValue ?? System.Tuple.Create(Option<T1>.None, Option<T2>.None, Option<T3>.None, Option<T4>.None, Option<T5>.None, Option<T6>.None, Option<T7>.None, Option<T8>.None);
 		}
 
 		public static implicit operator Union<T1, T2, T3, T4, T5, T6, T7, T8>(T1 item)

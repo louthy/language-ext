@@ -128,5 +128,152 @@ namespace LanguageExtTests
 				throw new System.UnauthorizedAccessException();
 			}
 		}
+
+		[Fact]
+		public void UnionTest3_1()
+		{
+			Union<ItemType1, ItemType2, ItemType3> x = new ItemType3();
+
+			Assert.Equal("value3", x.Match<ItemType1, ItemType2, ItemType3, string>()
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value));
+		}
+
+		[Fact]
+		public void UnionTest4_1()
+		{
+			Union<ItemType1, ItemType2, ItemType3, ItemType4> x = new ItemType4();
+
+			Assert.Equal("value4", x.Match<ItemType1, ItemType2, ItemType3, ItemType4, string>()
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value));
+		}
+
+		[Fact]
+		public void UnionTest5_1()
+		{
+			Union<ItemType1, ItemType2, ItemType3, ItemType4, ItemType5> x = new ItemType5();
+
+			Assert.Equal("value5", x.Match<ItemType1, ItemType2, ItemType3, ItemType4, ItemType5, string>()
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value));
+		}
+
+		[Fact]
+		public void UnionTest6_1()
+		{
+			Union<ItemType1, ItemType2, ItemType3, ItemType4, ItemType5, ItemType6> x = new ItemType6();
+
+			Assert.Equal("value6", x.Match<ItemType1, ItemType2, ItemType3, ItemType4, ItemType5, ItemType6, string>()
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value));
+		}
+
+		[Fact]
+		public void UnionTest7_1()
+		{
+			Union<ItemType1, ItemType2, ItemType3, ItemType4, ItemType5, ItemType6, ItemType7> x = new ItemType7();
+
+			Assert.Equal("value7", x.Match<ItemType1, ItemType2, ItemType3, ItemType4, ItemType5, ItemType6, ItemType7, string>()
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value));
+		}
+
+		[Fact]
+		public void UnionTest8_1()
+		{
+			Union<ItemType1, ItemType2, ItemType3, ItemType4, ItemType5, ItemType6, ItemType7, ItemType8> x = new ItemType8();
+
+			Assert.Equal("value8", x.Match<ItemType1, ItemType2, ItemType3, ItemType4, ItemType5, ItemType6, ItemType7, ItemType8, string>()
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value)
+				(item => item.Value));
+		}
+
+		public class TestTypeBase
+		{
+			public string Value { get; }
+
+			public TestTypeBase(string value)
+			{
+				this.Value = value;
+			}
+		}
+
+		public class ItemType1 : TestTypeBase
+		{
+			public ItemType1() : base("value1")
+			{
+			}
+		}
+
+		public class ItemType2 : TestTypeBase
+		{
+			public ItemType2() : base("value2")
+			{
+			}
+		}
+
+		public class ItemType3 : TestTypeBase
+		{
+			public ItemType3() : base("value3")
+			{
+			}
+		}
+
+		public class ItemType4 : TestTypeBase
+		{
+			public ItemType4() : base("value4")
+			{
+			}
+		}
+
+		public class ItemType5 : TestTypeBase
+		{
+			public ItemType5() : base("value5")
+			{
+			}
+		}
+
+		public class ItemType6 : TestTypeBase
+		{
+			public ItemType6() : base("value6")
+			{
+			}
+		}
+
+		public class ItemType7 : TestTypeBase
+		{
+			public ItemType7() : base("value7")
+			{
+			}
+		}
+
+		public class ItemType8 : TestTypeBase
+		{
+			public ItemType8() : base("value8")
+			{
+			}
+		}
 	}
 }

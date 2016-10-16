@@ -4,24 +4,34 @@
 
 	public static partial class Prelude
 	{
-		public static IUnion<B> Bind<A, B>(this IUnion<A> a, Func<A, IUnion<B>> func) =>
-			a.Optional()
-				.Match(
-					(aVal) => func(aVal),
-					() => new Union<B>());
+		public static Union<T1> Bind<A, T1>(this A a, Func<A, Union<T1>> func) => func(a);
 
-		public static Option<B> Select<A, B>(this IUnion<A> a, Func<A, B> select) =>
-			a.Bind(aval => new Union<B>(select(aval))).opt;
+		public static Union<T1, T2> Bind<A, T1, T2>(this A a, Func<A, Union<T1, T2>> func) => func(a);
 
-		public static IUnion<TSource> Where<TSource>(this IUnion<TSource> source, Func<TSource, bool> predicate) =>
-			source.Optional().Match(
-					(s) => predicate(s) ? source : new Union<TSource>(),
-					() => new Union<TSource>());
+		public static Union<T1, T2, T3> Bind<A, T1, T2, T3>(this A a, Func<A, Union<T1, T2, T3>> func) => func(a);
 
-		public static Option<T> Optional<T>(this IUnion<T> source) =>
-			source == null
-				? new Option<T>()
-				: source.opt;
+		public static Union<T1, T2, T3, T4> Bind<A, T1, T2, T3, T4>(this A a, Func<A, Union<T1, T2, T3, T4>> func) => func(a);
+
+		public static Union<T1, T2, T3, T4, T5> Bind<A, T1, T2, T3, T4, T5>(this A a, Func<A, Union<T1, T2, T3, T4, T5>> func) => func(a);
+
+		public static Union<T1, T2, T3, T4, T5, T6> Bind<A, T1, T2, T3, T4, T5, T6>(this A a, Func<A, Union<T1, T2, T3, T4, T5, T6>> func) => func(a);
+
+		public static Union<T1, T2, T3, T4, T5, T6, T7> Bind<A, T1, T2, T3, T4, T5, T6, T7>(this A a, Func<A, Union<T1, T2, T3, T4, T5, T6, T7>> func) => func(a);
+
+		public static Union<T1, T2, T3, T4, T5, T6, T7, T8> Bind<A, T1, T2, T3, T4, T5, T6, T7, T8>(this A a, Func<A, Union<T1, T2, T3, T4, T5, T6, T7, T8>> func) => func(a);
+
+		public static Union<B> Select<A, B>(this Union<A> source, Func<Union<A>, B> predicate) =>
+			source.Bind(aval => new Union<B>(predicate(aval)));
+
+		//public static IUnion<TSource> Where<TSource>(this IUnion<TSource> source, Func<TSource, bool> predicate) =>
+		//	source.Match(
+		//			(s) => predicate(s) ? source : new Union<TSource>(),
+		//			() => new Union<TSource>());
+
+		//public static Option<T> Optional<T>(this Union source) =>
+		//	source == null
+		//		? new Option<T>()
+		//		: source.opt;
 
 		public static TReturn Match<T1, TReturn>(this Union<T1> union, Func<T1, TReturn> f1)
 		{
@@ -255,70 +265,67 @@
 			return fun((Action<T1> a) => unionTuple.Item1.IfSome(a).Return(bAct));
 		}
 
-		public static R Match<T, R>(this IUnion<T> union, Func<T, R> Some, Func<R> None) =>
-			 union.Optional().Match(Some, None);
-
 		public static Tuple<Option<T1>> ToTuple<T1>(this Union<T1> union) =>
-			System.Tuple.Create(((IUnion<T1>)union).Optional());
+			((IUnion<T1>)union).InternalValue() ?? System.Tuple.Create(Option<T1>.None);
 
 		public static Tuple<Option<T1>, Option<T2>> ToTuple<T1, T2>(this Union<T1, T2> union) =>
-			Tuple(
-				((IUnion<T1>)union).Optional(),
-				((IUnion<T2>)union).Optional());
+			((IUnion<T1, T2>)union).InternalValue() ?? Tuple(
+				Option<T1>.None,
+				Option<T2>.None);
 
 		public static Tuple<Option<T1>, Option<T2>, Option<T3>> ToTuple<T1, T2, T3>(this Union<T1, T2, T3> union) =>
-			Tuple(
-				((IUnion<T1>)union).Optional(),
-				((IUnion<T2>)union).Optional(),
-				((IUnion<T3>)union).Optional());
+			((IUnion<T1, T2, T3>)union).InternalValue() ?? Tuple(
+				Option<T1>.None,
+				Option<T2>.None,
+				Option<T3>.None);
 
 		public static Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>> ToTuple<T1, T2, T3, T4>(this Union<T1, T2, T3, T4> union) =>
-			Tuple(
-				((IUnion<T1>)union).Optional(),
-				((IUnion<T2>)union).Optional(),
-				((IUnion<T3>)union).Optional(),
-				((IUnion<T4>)union).Optional());
+			((IUnion<T1, T2, T3, T4>)union).InternalValue() ?? Tuple(
+				Option<T1>.None,
+				Option<T2>.None,
+				Option<T3>.None,
+				Option<T4>.None);
 
 		public static Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>> ToTuple<T1, T2, T3, T4, T5>(this Union<T1, T2, T3, T4, T5> union) =>
-			Tuple(
-				((IUnion<T1>)union).Optional(),
-				((IUnion<T2>)union).Optional(),
-				((IUnion<T3>)union).Optional(),
-				((IUnion<T4>)union).Optional(),
-				((IUnion<T5>)union).Optional());
+			((IUnion<T1, T2, T3, T4, T5>)union).InternalValue() ?? Tuple(
+				Option<T1>.None,
+				Option<T2>.None,
+				Option<T3>.None,
+				Option<T4>.None,
+				Option<T5>.None);
 
 		public static Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>>
 			ToTuple<T1, T2, T3, T4, T5, T6>(this Union<T1, T2, T3, T4, T5, T6> union) =>
-			Tuple(
-				((IUnion<T1>)union).Optional(),
-				((IUnion<T2>)union).Optional(),
-				((IUnion<T3>)union).Optional(),
-				((IUnion<T4>)union).Optional(),
-				((IUnion<T5>)union).Optional(),
-				((IUnion<T6>)union).Optional());
+			((IUnion<T1, T2, T3, T4, T5, T6>)union).InternalValue() ?? Tuple(
+				Option<T1>.None,
+				Option<T2>.None,
+				Option<T3>.None,
+				Option<T4>.None,
+				Option<T5>.None,
+				Option<T6>.None);
 
 		public static Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>>
 			ToTuple<T1, T2, T3, T4, T5, T6, T7>(this Union<T1, T2, T3, T4, T5, T6, T7> union) =>
-			Tuple(
-				((IUnion<T1>)union).Optional(),
-				((IUnion<T2>)union).Optional(),
-				((IUnion<T3>)union).Optional(),
-				((IUnion<T4>)union).Optional(),
-				((IUnion<T5>)union).Optional(),
-				((IUnion<T6>)union).Optional(),
-				((IUnion<T7>)union).Optional());
+			((IUnion<T1, T2, T3, T4, T5, T6, T7>)union).InternalValue() ?? Tuple(
+				Option<T1>.None,
+				Option<T2>.None,
+				Option<T3>.None,
+				Option<T4>.None,
+				Option<T5>.None,
+				Option<T6>.None,
+				Option<T7>.None);
 
 		public static Tuple<Option<T1>, Option<T2>, Option<T3>, Option<T4>, Option<T5>, Option<T6>, Option<T7>, Tuple<Option<T8>>>
 			ToTuple<T1, T2, T3, T4, T5, T6, T7, T8>(this Union<T1, T2, T3, T4, T5, T6, T7, T8> union) =>
-			  System.Tuple.Create(
-				((IUnion<T1>)union).Optional(),
-				((IUnion<T2>)union).Optional(),
-				((IUnion<T3>)union).Optional(),
-				((IUnion<T4>)union).Optional(),
-				((IUnion<T5>)union).Optional(),
-				((IUnion<T6>)union).Optional(),
-				((IUnion<T7>)union).Optional(),
-				((IUnion<T8>)union).Optional());
+			  ((IUnion<T1, T2, T3, T4, T5, T6, T7, T8>)union).InternalValue() ?? System.Tuple.Create(
+				Option<T1>.None,
+				Option<T2>.None,
+				Option<T3>.None,
+				Option<T4>.None,
+				Option<T5>.None,
+				Option<T6>.None,
+				Option<T7>.None,
+				Option<T8>.None);
 
 		public static Union<T, Err> ToErrorUnion<T, Err>(this Func<T> factory)
 			where Err : SystemException
