@@ -174,7 +174,7 @@ public static class WriterExtensions
             var resT = self.Valid()();
             if (resT.IsBottom) return WriterResult.Bottom<W, V>(resT.Output);
             var resU = bind(resT.Value).Valid().Invoke();
-            if (resT.IsBottom) return WriterResult.Bottom<W, V>(resU.Output);
+            if (resU.IsBottom) return WriterResult.Bottom<W, V>(resU.Output);
             var resV = project(resT.Value, resU.Value);
             return WriterResult.Return(resV, resT.Output.Concat(resU.Output));
         };
