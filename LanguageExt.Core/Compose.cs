@@ -26,7 +26,7 @@ namespace LanguageExt
             () => b(a());
 
         /// <summary>
-        /// Function composition
+        /// Action composition
         /// </summary>
         /// <returns>v => b(a(v))</returns>
         [Pure]
@@ -34,7 +34,7 @@ namespace LanguageExt
             => v => { b(a(v)); return Unit.Default; };
 
         /// <summary>
-        /// Function composition
+        /// Action composition
         /// </summary>
         /// <returns>() => b(a())</returns>
         [Pure]
@@ -44,7 +44,7 @@ namespace LanguageExt
         /// <summary>
         /// Function back composition
         /// </summary>
-        /// <returns>b(a(v))</returns>
+        /// <returns>v => b(a(v))</returns>
         [Pure]
         public static Func<T1, T3> BackCompose<T1, T2, T3>(this Func<T1, T2> a, Func<T2, T3> b) =>
             v => b(a(v));
@@ -52,13 +52,13 @@ namespace LanguageExt
         /// <summary>
         /// Function back composition
         /// </summary>
-        /// <returns>b(a())</returns>
+        /// <returns>() => b(a())</returns>
         [Pure]
         public static Func<T2> BackCompose<T1, T2>(this Func<T1> a, Func<T1, T2> b) =>
             () => b(a());
 
         /// <summary>
-        /// Function back composition
+        /// Action back composition
         /// </summary>
         /// <returns>v => b(a(v))</returns>
         [Pure]
@@ -66,7 +66,7 @@ namespace LanguageExt
             => v => { b(a(v)); return Unit.Default; };
 
         /// <summary>
-        /// Function back composition
+        /// Action back composition
         /// </summary>
         /// <returns>() => b(a())</returns>
         [Pure]
