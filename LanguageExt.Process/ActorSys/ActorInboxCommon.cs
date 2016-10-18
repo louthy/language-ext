@@ -1,6 +1,7 @@
 ﻿using Microsoft.FSharp.Control;
 using Microsoft.FSharp.Core;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
@@ -14,7 +15,12 @@ namespace LanguageExt
         static FSharpFunc<A,B> ToFSharpFunc<A, B>(Func<A, B> f)
         {
 #if COREFX
-            return (FSharpFunc<A, B>)typeof(FSharpFunc<A, B>).GetTypeInfo().GetDeclaredMethod("op_Implicit").Invoke(null, new[] { f });
+            return (FSharpFunc<A, B>)typeof(FSharpFunc<A, B>)
+                        .GetTypeInfo()
+                        .GetDeclaredMethods("op_Implicit")
+                        .Where(m => m.ReturnType == typeof(FSharpFunc<A, B>))
+                        .Single()
+                        .Invoke(null, new[] { f });
 #else
             return FuncConvert.ToFSharpFunc<A,B>(new Converter<A, B>(f));
 #endif
