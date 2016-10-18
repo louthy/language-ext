@@ -240,13 +240,11 @@ namespace LanguageExtTests
         {
             var goodOnes = List(
                 Tuple(List(1, 2, 3), List(1, 2, 3)),
-                Tuple(Lst<int>.Empty, Lst<int>.Empty),
-                Tuple((Lst<int>)null, (Lst<int>)null)
+                Tuple(Lst<int>.Empty, Lst<int>.Empty)
             );
             var badOnes = List(
                 Tuple(List(1, 2, 3), List(1, 2, 4)),
-                Tuple(List(1, 2, 3), Lst<int>.Empty),
-                Tuple(List(1, 2, 3), (Lst<int>)null)
+                Tuple(List(1, 2, 3), Lst<int>.Empty)
             );
 
             goodOnes.Iter(t => t.Iter((fst, snd) =>

@@ -1,10 +1,7 @@
-﻿using LanguageExt;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Xunit;
+using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace LanguageExtTests
 {
@@ -30,6 +27,6 @@ namespace LanguageExtTests
         }
     
         public TryOption<string> GetLastPathObj(string text) =>
-            () => text.Split('/').Last();
+            TryOption(() => text.Split('/').Last());
     }
 }
