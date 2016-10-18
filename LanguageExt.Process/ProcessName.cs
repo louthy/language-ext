@@ -51,12 +51,7 @@ namespace LanguageExt
 
         public static Either<Exception, ProcessName> TryParse(string value)
         {
-            if (value == null || value.Length == 0)
-            {
-                return new InvalidProcessNameException();
-            }
-
-            if (value.Length == 0)
+            if (string.IsNullOrEmpty(value))
             {
                 return new InvalidProcessNameException();
             }

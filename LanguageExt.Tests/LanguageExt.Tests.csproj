@@ -63,6 +63,7 @@
     <Compile Include="LinqTests.cs" />
     <Compile Include="ListMatchingTests.cs" />
     <Compile Include="EitherApply.cs" />
+    <Compile Include="TryOption.cs" />
     <Compile Include="TryOptionApply.cs" />
     <Compile Include="TryApply.cs" />
     <Compile Include="OptionUnsafeApply.cs" />

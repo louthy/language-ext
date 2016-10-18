@@ -36,19 +36,13 @@ If you want to use it with Redis, include `LanguageExt.Process.Redis.dll`.  To c
 ```C#
     // C#
     RedisCluster.register();
-    Cluster.connect("redis", "my-redis-node", "localhost", "0", "my-redis-role");
+    ProcessConfig.initialise("sys", "web-front-end", "web-front-end-1", "localhost", "0");
 ```
-```F#
-    // F#
-    RedisCluster.register()
-    connect "redis" "my-redis-test" "localhost" "0" "my-redis-role"
-```
-
-* Argument 1 is fixed for Redis
-* Argument 2 is your app's node name to make it uniquely addressable in the cluster
-* Argument 3 is a comma separated list of Redis nodes to connect to
-* Argument 4 is the Redis database number to connect to
-* Argument 5 is the role for the node in the cluster - it's just a name that allows grouping of nodes for message dispatch
+* `"sys"` is the 'system name', but easier to think of it as the name of the cluster as a whole.  That means you can call it with a different value and point it at another Redis db for multiple clusters.  But for now it's easier to call it `sys` and leave it.
+* `"web-front-end"` is the role, you can have multiple nodes in a role and the role based dispatchers allow you to implement high-availability and load balancing strategies.
+* `"web-front-end-1"` is the name of this node, and should be unique in the cluster
+* `"localhost"` is the Redis connection (can be comma separated for multiple Redis nodes)
+* `"0"` is the Redis catalogue to use (`"0" - "15"`)
 
 Note, neither of those lines are needed if you're doing in-app messaging only.
 

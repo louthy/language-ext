@@ -27,10 +27,10 @@ namespace LanguageExt
             .FirstOrDefault();
 
         public static IQueryable<T> tail<T>(IQueryable<T> list) =>
-            list.Skip(1);
+            Queryable.Skip(list, 1);
 
         public static IQueryable<R> map<T, R>(IQueryable<T> list, Expression<Func<T, R>> map) =>
-            list.Select(map);
+            Queryable.Select(list, map);
 
         public static IQueryable<R> map<T, R>(IQueryable<T> list, Expression<Func<int, T, R>> map)
         {
@@ -78,14 +78,14 @@ namespace LanguageExt
             fold(list, (decimal)0, (x, s) => s + x);
 
         public static IQueryable<T> rev<T>(IQueryable<T> list) =>
-            list.Reverse();
+            Queryable.Reverse(list);
 
         public static IQueryable<T> append<T>(IQueryable<T> lhs, IQueryable<T> rhs) =>
-            lhs.Concat(rhs);
+            Queryable.Concat(lhs, rhs);
 
         public static S fold<S, T>(IQueryable<T> list, S state, Expression<Func<S, T, S>> folder)
         {
-            return list.Aggregate(state, folder);
+            return Queryable.Aggregate(list, state, folder);
         }
 
         public static S foldBack<S, T>(IQueryable<T> list, S state, Expression<Func<S, T, S>> folder) =>
@@ -110,25 +110,25 @@ namespace LanguageExt
             Queryable.Zip(list, other, zipper);
 
         public static int length<T>(IQueryable<T> list) =>
-            list.Count();
+            Queryable.Count(list);
 
         public static bool forall<T>(IQueryable<T> list, Expression<Func<T, bool>> pred) =>
-            list.All(pred);
+            Queryable.All(list, pred);
 
         public static IQueryable<T> distinct<T>(IQueryable<T> list) =>
-            list.Distinct();
+            Queryable.Distinct(list);
 
         public static IQueryable<T> take<T>(IQueryable<T> list, int count) =>
-            list.Take(count);
+            Queryable.Take(list, count);
 
         public static IQueryable<T> takeWhile<T>(IQueryable<T> list, Expression<Func<T, bool>> pred) =>
-            list.TakeWhile(pred);
+            Queryable.TakeWhile(list, pred);
 
         public static IQueryable<T> takeWhile<T>(IQueryable<T> list, Expression<Func<T, int, bool>> pred) =>
-            list.TakeWhile(pred);
+            Queryable.TakeWhile(list, pred);
 
         public static bool exists<T>(IQueryable<T> list, Expression<Func<T, bool>> pred) =>
-            list.Any(pred);
+            Queryable.Any(list, pred);
     }
 }
 
