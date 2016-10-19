@@ -50,7 +50,7 @@ namespace LanguageExtTests
             var g = act((string name) => { result = _g(name); });
 
             result = null;
-            Assert.Equal(g.Compose(_f)(), Unit.Default);
+            g.Compose(_f)();
             Assert.Equal(result, _g(_f()));
         }
 
@@ -61,7 +61,7 @@ namespace LanguageExtTests
             var g = act((string name) => { result = _g(name); });
 
             result = null;
-            Assert.Equal(_f.BackCompose(g)(), Unit.Default);
+            _f.BackCompose(g)();
             Assert.Equal(result, _g(_f()));
         }
 
@@ -84,7 +84,7 @@ namespace LanguageExtTests
             var h = act((string s) => { result = _h(s); });
 
             result = null;
-            Assert.Equal(h.Compose(_g)(_f()), Unit.Default);
+            h.Compose(_g)(_f());
             Assert.Equal(result, _h(_g(_f())));
         }
 
@@ -95,7 +95,7 @@ namespace LanguageExtTests
             var h = act((string s) => { result = _h(s); });
 
             result = null;
-            Assert.Equal(_g.BackCompose(h)(_f()), Unit.Default);
+            _g.BackCompose(h)(_f());
             Assert.Equal(result, _h(_g(_f())));
         }
     }
