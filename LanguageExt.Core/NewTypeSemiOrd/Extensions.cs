@@ -52,7 +52,7 @@ public static class NewTypeSemiOrdExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An option with the product of x and y</returns>
+    /// <returns>Product of x and y</returns>
     [Pure]
     public static NEWTYPE Product<NEWTYPE, SEMI, ORD, PROD, A>(this NewType<NEWTYPE, SEMI, ORD, A> x, NewType<NEWTYPE, SEMI, ORD, A> y)
         where SEMI : struct, Semigroup<A>
@@ -71,7 +71,7 @@ public static class NewTypeSemiOrdExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An option x / y</returns>
+    /// <returns>x / y</returns>
     [Pure]
     public static NEWTYPE Divide<NEWTYPE, SEMI, ORD, DIV, A>(this NewType<NEWTYPE, SEMI, ORD, A> x, NewType<NEWTYPE, SEMI, ORD, A> y)
         where SEMI : struct, Semigroup<A>

@@ -95,6 +95,8 @@
     <Compile Include="List\Lst.cs" />
     <Compile Include="Map\Map.cs" />
     <Compile Include="Map\Extensions.cs" />
+    <Compile Include="NewTypeNum\Extensions.cs" />
+    <Compile Include="NewTypeNum\Prelude.cs" />
     <Compile Include="NewTypeSemiOrd\Extensions.cs" />
     <Compile Include="NewTypeSemiOrd\Prelude.cs" />
     <Compile Include="NewType\Extensions.cs" />

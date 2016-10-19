@@ -46,7 +46,7 @@ public static class NewTypeExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An NewType with the difference between x and y</returns>
+    /// <returns>NewType with the difference between x and y</returns>
     [Pure]
     public static NEWTYPE Difference<NEWTYPE, DIFF, A>(this NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) 
         where DIFF : struct, Difference<A>
@@ -63,7 +63,7 @@ public static class NewTypeExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An option with the product of x and y</returns>
+    /// <returns>Product of x and y</returns>
     [Pure]
     public static NEWTYPE Product<NEWTYPE, PROD, A>(this NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) 
         where PROD : struct, Product<A>
@@ -80,7 +80,7 @@ public static class NewTypeExtensions
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An option x / y</returns>
+    /// <returns>x / y</returns>
     [Pure]
     public static NEWTYPE Divide<NEWTYPE, DIV, A>(this NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) 
         where DIV     : struct, Divisible<A>
