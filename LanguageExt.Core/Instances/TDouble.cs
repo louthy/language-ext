@@ -61,5 +61,6 @@ namespace LanguageExt.Instances
         public double Asinh(double x) => Math.Log(x + Math.Sqrt((x * x) + 1.0));
         public double Acosh(double x) => Math.Log(x + Math.Sqrt((x * x) - 1.0));
         public double Atanh(double x) => 0.5 * Math.Log((1.0 + x) / (1.0 - x));
+        public double Append(double x, double y) => x + y;
     }
 }

@@ -6,7 +6,7 @@ namespace LanguageExt.Instances
     /// <summary>
     /// Short integer number
     /// </summary>
-    public struct TShort : Ord<short>, Num<short>
+    public struct TShort : Num<short>
     {
         /// <summary>
         /// Equality test
@@ -115,5 +115,11 @@ namespace LanguageExt.Instances
         /// <returns>The equivalent of x in the Num<A></returns>
         public short FromDouble(double x) =>
             (short)x;
+
+        /// <summary>
+        /// x + y
+        /// </summary>
+        public short Append(short x, short y) =>
+            (short)(x + y);
     }
 }

@@ -12,7 +12,7 @@ namespace LanguageExt.TypeClasses
     /// <typeparam name="A">The type for which the number operations are
     /// defined.</typeparam>
     [Typeclass]
-    public interface Num<A> : Addition<A>, Difference<A>, Product<A>, Divisible<A>
+    public interface Num<A> : Addition<A>, Difference<A>, Product<A>, Divisible<A>, Ord<A>, Eq<A>, Semigroup<A>
     {
         /// <summary>
         /// Find the absolute value of a number

@@ -61,5 +61,6 @@ namespace LanguageExt.Instances
         public decimal Asinh(decimal x) => Log(x + Sqrt((x * x) + 1m));
         public decimal Acosh(decimal x) => Log(x + Sqrt((x * x) - 1m));
         public decimal Atanh(decimal x) => 0.5m * Log((1m + x) / (1m - x));
+        public decimal Append(decimal x, decimal y) => x + y;
     }
 }

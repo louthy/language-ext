@@ -61,5 +61,6 @@ namespace LanguageExt.Instances
         public float Asinh(float x) => (float)Math.Log(x + Math.Sqrt((x * x) + 1.0));
         public float Acosh(float x) => (float)Math.Log(x + Math.Sqrt((x * x) - 1.0));
         public float Atanh(float x) => 0.5f * (float)Math.Log((1.0 + x) / (1.0 - x));
+        public float Append(float x, float y) => x + y;
     }
 }

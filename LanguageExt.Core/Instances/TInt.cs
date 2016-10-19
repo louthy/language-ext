@@ -6,7 +6,7 @@ namespace LanguageExt.Instances
     /// <summary>
     /// Integer number 
     /// </summary>
-    public struct TInt : Ord<int>, Num<int>, Monoid<int>
+    public struct TInt : Num<int>, Monoid<int>
     {
         /// <summary>
         /// Equality test

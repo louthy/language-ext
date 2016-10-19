@@ -24,6 +24,8 @@ namespace TestBed
     {
         static void Main(string[] args)
         {
+            Testing.Test();
+
             Tests.BlockingQueueTest();
 
             Tests.VersionTest();

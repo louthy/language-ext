@@ -67,6 +67,7 @@
     <Compile Include="Instances\Any.cs" />
     <Compile Include="Instances\All.cs" />
     <Compile Include="Instances\EqChoice.cs" />
+    <Compile Include="Instances\EqNewType.cs" />
     <Compile Include="Instances\EqSeq.cs" />
     <Compile Include="Instances\EqTry.cs" />
     <Compile Include="Instances\EqTryOpt.cs" />
@@ -84,13 +85,21 @@
     <Compile Include="Instances\EqLong.cs" />
     <Compile Include="Instances\EqShort.cs" />
     <Compile Include="Instances\EqInt.cs" />
+    <Compile Include="Instances\OrdNewType.cs" />
+    <Compile Include="Instances\OrdArray.cs" />
     <Compile Include="Instances\Product.cs" />
     <Compile Include="Instances\Sum.cs" />
+    <Compile Include="Instances\TArray.cs" />
     <Compile Include="IOptional.cs" />
     <Compile Include="List\Extensions.cs" />
     <Compile Include="List\Lst.cs" />
     <Compile Include="Map\Map.cs" />
     <Compile Include="Map\Extensions.cs" />
+    <Compile Include="NewTypeSemiOrd\Extensions.cs" />
+    <Compile Include="NewTypeSemiOrd\Prelude.cs" />
+    <Compile Include="NewType\Extensions.cs" />
+    <Compile Include="NewTypeNum\NewTypeNum.cs" />
+    <Compile Include="NewTypeSemiOrd\NewType.cs" />
     <Compile Include="OptionUnsafe\OptionUnsafe.cs" />
     <Compile Include="OptionUnsafe\Extensions.cs" />
     <Compile Include="Option\Prelude.cs" />
@@ -98,6 +107,7 @@
     <Compile Include="Prelude_ValueTuple.cs" />
     <Compile Include="Prelude_ValueTuple2.cs" />
     <Compile Include="Prelude_ValueTuple3.cs" />
+    <Compile Include="Reflect\Util.cs" />
     <Compile Include="TryOption\Prelude.cs" />
     <Compile Include="TryOption\TryOption.cs" />
     <Compile Include="TryOption\Extensions.cs" />
@@ -111,6 +121,7 @@
     <Compile Include="TypeClasses\Applicative\Prelude.cs" />
     <Compile Include="TypeClasses\Choice\Choice.cs" />
     <Compile Include="TypeClasses\Eq\Extensions.cs" />
+    <Compile Include="TypeClasses\Liftable\Liftable.cs" />
     <Compile Include="ValueTuple3.cs" />
     <Compile Include="ValueTuple2.cs" />
     <Compile Include="TypeclassAttribute.cs" />
@@ -122,7 +133,7 @@
     <Compile Include="HMap\HMapInternal.cs" />
     <Compile Include="HMap\HMap.cs" />
     <Compile Include="HSet\Prelude.cs" />
-    <Compile Include="NewType.cs" />
+    <Compile Include="NewType\NewType.cs" />
     <Compile Include="Option-Shared\None.cs" />
     <Compile Include="Option-Shared\OptionV.cs" />
     <Compile Include="Option\Extensions.cs" />
@@ -132,7 +143,7 @@
     <Compile Include="Option-Shared\SomeValue.cs" />
     <Compile Include="Option-Shared\SomeContext.cs" />
     <Compile Include="Option-Shared\SomeUnitContext.cs" />
-    <Compile Include="Prelude_NewType.cs" />
+    <Compile Include="NewType\Prelude.cs" />
     <Compile Include="Prelude_Nullable.cs" />
     <Compile Include="DVV.cs" />
     <Compile Include="Prelude_Tasks.cs" />
@@ -142,7 +153,6 @@
     <Compile Include="Either\EitherTrans.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="IDivisible.cs" />
-    <Compile Include="INumeric.cs" />
     <Compile Include="IMultiplicable.cs" />
     <Compile Include="ISubtractable.cs" />
     <Compile Include="IAppendable.cs" />

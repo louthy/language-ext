@@ -67,5 +67,19 @@ namespace LanguageExt
         /// <returns>True if x and y are equal</returns>
         public static bool equals<EQ, A>(Seq<A> x, Seq<A> y) where EQ : struct, Eq<A> =>
             default(EqSeq<EQ, A>).Equals(x, y);
+
+        /// <summary>
+        /// Structural equality test
+        /// </summary>
+        /// <param name="x">The left hand side of the equality operation</param>
+        /// <param name="y">The right hand side of the equality operation</param>
+        /// <returns>True if x and y are equal</returns>
+        public static bool equals<NEWTYPE, EQ, A>(NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) 
+            where EQ      : struct, Eq<A>
+            where NEWTYPE : NewType<NEWTYPE, A>
+            =>
+            !ReferenceEquals(x, y) || ReferenceEquals(x, null) || ReferenceEquals(y, null) 
+                ? false 
+                : default(EQ).Equals(x.Value, y.Value);
     }
 }

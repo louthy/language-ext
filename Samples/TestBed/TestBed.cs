@@ -16,6 +16,7 @@ using LanguageExt.Parsec;
 using static LanguageExt.Parsec.Char;
 using static LanguageExt.Parsec.Prim;
 using static LanguageExt.Parsec.Token;
+using LanguageExt.Instances;
 
 // ************************************************************************************
 // 
@@ -25,6 +26,26 @@ using static LanguageExt.Parsec.Token;
 
 namespace TestBed
 {
+    public class Metres : NewType<Metres, double> { public Metres(double x) : base(x) { } }
+    public class Hours : NewType<Hours, int> { public Hours(int x) : base(x) { } }
+    public class Days : NewType<Hours, int> { public Days(int x) : base(x) { } }
+
+    public static class Testing
+    {
+        public static void Test()
+        {
+            var ms = new Metres(100);
+            ms = ms.Select(x => x * 2);
+
+            var hs = new Hours(24);
+
+            var a = new Hours(2);
+            var b = new Hours(2);
+
+            var c = a.Append<Hours, TInt, int>(b);
+        }
+    }
+
     class Tests
     {
         public class Version : IComparable<Version>, IEquatable<Version>
@@ -169,7 +190,7 @@ namespace TestBed
                 MissingMemberHandling = MissingMemberHandling.Ignore
             };
 
-        class Hours : NewType<int> { public Hours(int value) : base(value) { } }
+        class Hours : NewType<Hours, int> { public Hours(int value) : base(value) { } }
 
         internal static void SerialiseDeserialiseCoreTypes()
         {

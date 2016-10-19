@@ -6,7 +6,7 @@ namespace LanguageExt.Instances
     /// <summary>
     /// Long integer number
     /// </summary>
-    public struct TLong : Ord<long>, Num<long>
+    public struct TLong : Num<long>
     {
         /// <summary>
         /// Equality test
@@ -116,5 +116,11 @@ namespace LanguageExt.Instances
         /// <returns>The equivalent of x in the Num<A></returns>
         public long FromDouble(double x) =>
             (long)x;
+
+        /// <summary>
+        /// x + y
+        /// </summary>
+        public long Append(long x, long y) => 
+            x + y;
     }
 }
