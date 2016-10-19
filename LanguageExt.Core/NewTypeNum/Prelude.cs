@@ -9,12 +9,6 @@ namespace LanguageExt
     public static partial class Prelude
     {
         [Pure]
-        public static int compare<NEWTYPE, NUM, T>(NEWTYPE x, NewType<NEWTYPE, NUM, T> y) 
-            where NUM     : struct, Num<T>
-            where NEWTYPE : NewType<NEWTYPE, NUM, T> =>
-            default(NUM).Compare(x.Value, y.Value);
-
-        [Pure]
         public static NEWTYPE bind<NEWTYPE, NUM, T>(NewType<NEWTYPE, NUM, T> value, Func<T, NEWTYPE> bind)
             where NUM     : struct, Num<T>
             where NEWTYPE : NewType<NEWTYPE, NUM, T> =>

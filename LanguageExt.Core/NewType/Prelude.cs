@@ -9,12 +9,6 @@ namespace LanguageExt
     public static partial class Prelude
     {
         [Pure]
-        public static int compare<NEWTYPE, ORD, T>(NEWTYPE x, NEWTYPE y) 
-            where ORD : struct, Ord<T>
-            where NEWTYPE : NewType<NEWTYPE, T> =>
-            default(OrdNewType<NEWTYPE, ORD, T>).Compare(x, y);
-
-        [Pure]
         public static NEWTYPE bind<NEWTYPE, T>(NewType<NEWTYPE, T> value, Func<T, NEWTYPE> bind)
             where NEWTYPE : NewType<NEWTYPE, T> =>
             value.Bind(bind);

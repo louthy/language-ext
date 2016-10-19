@@ -26,9 +26,7 @@ namespace LanguageExt.Instances
         /// <param name="y">Right hand side of the compare operation</param>
         /// <returns>
         /// if x greater than y : 1
-        /// 
         /// if x less than y    : -1
-        /// 
         /// if x equals y       : 0
         /// </returns>
         public int Compare(A[] mx, A[] my)
@@ -36,7 +34,21 @@ namespace LanguageExt.Instances
             if (ReferenceEquals(mx, my)) return 0;
             if (ReferenceEquals(mx, null)) return -1;
             if (ReferenceEquals(my, null)) return 1;
-            return mx.Length.CompareTo(my.Length);
+
+            var cmp = mx.Length.CompareTo(my.Length);
+            if (cmp == 0)
+            {
+                for(var i = 0; i < mx.Length; i++)
+                {
+                    cmp = default(ORD).Compare(mx[i], my[i]);
+                    if (cmp != 0) return cmp;
+                }
+                return 0;
+            }
+            else
+            {
+                return cmp;
+            }
         }
     }
 }

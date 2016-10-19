@@ -8,7 +8,7 @@ namespace LanguageExt.Reflect
     internal static class Util
     {
         /// <summary>
-        /// Emits the IL to instantiate a NewType
+        /// Emits the IL to instantiate a NewType of A
         /// </summary>
         /// <returns></returns>
         public static Func<A, NEWTYPE> CreateDynamicConstructor<A, NEWTYPE>()

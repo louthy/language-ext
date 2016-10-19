@@ -19,6 +19,7 @@ namespace LanguageExt.Instances
             if (x == null) return y == null;
             if (y == null) return false;
             if (x.Length != y.Length) return false;
+
             for (var i = 0; i < x.Length; i++)
             {
                 if (!equals<EQ, A>(x[i], y[i])) return false;

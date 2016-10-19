@@ -12,14 +12,16 @@ namespace LanguageExt.Instances
     {
         public bool Equals(Lst<A> x, Lst<A> y)
         {
-            if (x == null) return y == null;
-            if (y == null) return false;
+            if (ReferenceEquals(x, null)) return ReferenceEquals(y, null);
+            if (ReferenceEquals(y, null)) return false;
             if (ReferenceEquals(x, y)) return true;
             if (x.Count != y.Count) return false;
 
             var enumx = x.GetEnumerator();
             var enumy = y.GetEnumerator();
-            for (int i = 0; i < x.Count; i++)
+            var count = x.Count;
+
+            for (int i = 0; i < count; i++)
             {
                 enumx.MoveNext();
                 enumy.MoveNext();
