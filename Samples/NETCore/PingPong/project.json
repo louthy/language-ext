@@ -6,10 +6,10 @@
     },
 
   "dependencies": {
-    "LanguageExt.Core": "1.9.3",
-    "LanguageExt.Parsec": "1.9.3",
-    "LanguageExt.Process": "1.9.3",
-    "LanguageExt.Process.Redis": "1.9.3",
+    "LanguageExt.Core": "1.9.4",
+    "LanguageExt.Parsec": "1.9.4",
+    "LanguageExt.Process": "1.9.4",
+    "LanguageExt.Process.Redis": "1.9.4",
     "Microsoft.NETCore.App": {
         "type": "platform",
         "version": "1.0.0"
