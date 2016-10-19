@@ -18,8 +18,8 @@ namespace LanguageExtTests
 
         public CompositionTests()
         {
-            _f = fun(() => "Bob");
-            _g = fun((string name) => $"Hello, {name}");
+            _f = () => "Bob";
+            _g = (string name) => $"Hello, {name}";
             _h = (string s) => s.Length;
         }
 
