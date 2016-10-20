@@ -214,19 +214,6 @@ public static class TryExtensions
         x.Action<Try<B>, A, B>(y);
 
     /// <summary>
-    /// Append the bound value of Try(x) to Try(y).  If either of the
-    /// Trys are Fail then the result is Fail
-    /// </summary>
-    /// <param name="lhs">Left-hand side of the operation</param>
-    /// <param name="rhs">Right-hand side of the operation</param>
-    /// <returns>lhs + rhs</returns>
-    [Pure]
-    public static Try<A> Append<SEMI, A>(this Try<A> lhs, Try<A> rhs) where SEMI : struct, Semigroup<A> =>
-        from x in lhs
-        from y in rhs
-        select append<SEMI, A>(x, y);
-
-    /// <summary>
     /// Compare the bound value of Try(x) to Try(y).  If either of the
     /// </summary>
     /// <param name="lhs">Left-hand side of the operation</param>

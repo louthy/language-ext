@@ -12,7 +12,7 @@ namespace LanguageExtTests
         {
             var x = Some(10);
             var y = Some(20);
-            var z = mappend<TInt, int>(x, y);
+            var z = append<TInt, int>(x, y);
 
             Assert.True(z == 30);
         }

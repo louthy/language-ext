@@ -3,7 +3,7 @@
 namespace LanguageExt.Instances
 {
     /// <summary>
-    /// Boolean definition
+    /// Equality and ordering
     /// </summary>
     public struct OrdBool : Ord<bool>
     {

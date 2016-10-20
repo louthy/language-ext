@@ -5,8 +5,7 @@ using static LanguageExt.TypeClass;
 namespace LanguageExt.Instances
 {
     /// <summary>
-    /// Compare the equality and ordering of any type in the Optional
-    /// type-class
+    /// Equality and ordering
     /// </summary>
     public struct OrdLst<ORD, A> : Ord<Lst<A>>
         where ORD : struct, Ord<A>

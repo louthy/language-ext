@@ -16,25 +16,6 @@ using System.ComponentModel;
 public static class OptionExtensions
 {
     /// <summary>
-    /// Append the Some(x) of one option to the Some(y) of another.  If either of the
-    /// options are None then the result is None
-    /// For numeric values the behaviour is to sum the Somes (lhs + rhs)
-    /// For string values the behaviour is to concatenate the strings
-    /// For Lst/Stck/Que values the behaviour is to concatenate the lists
-    /// For Map or Set values the behaviour is to merge the sets
-    /// Otherwise if the R type derives from IAppendable then the behaviour
-    /// is to call lhs.Append(rhs);
-    /// </summary>
-    /// <param name="lhs">Left-hand side of the operation</param>
-    /// <param name="rhs">Right-hand side of the operation</param>
-    /// <returns>lhs + rhs</returns>
-    [Pure]
-    public static Option<A> Append<SEMI, A>(this Option<A> lhs, Option<A> rhs) where SEMI : struct, Semigroup<A> =>
-        from x in lhs
-        from y in rhs
-        select append<SEMI, A>(x, y);
-
-    /// <summary>
     /// Extracts from a list of 'Option' all the 'Some' elements.
     /// All the 'Some' elements are extracted in order.
     /// </summary>

@@ -190,5 +190,24 @@ namespace LanguageExt
         private static IEnumerable<A> AsList(Monad<A> a) =>
             ((Seq<A>)a).Value;
 
+        [Pure]
+        public Seq<B> Select<B>(Func<A, B> map) =>
+            new Seq<B>(AsEnumerable().Map(map));
+
+        [Pure]
+        public Seq<C> SelectMany<B, C>(Func<A, Seq<B>> bind, Func<A, B, C> project) =>
+            new Seq<C>(YieldBind(bind, project));
+
+        [Pure]
+        IEnumerable<C> YieldBind<B, C>(Func<A, Seq<B>> bind, Func<A, B, C> project)
+        {
+            foreach (var a in AsEnumerable())
+            {
+                foreach (var b in bind(a).AsEnumerable())
+                {
+                    yield return project(a, b);
+                }
+            }
+        }
     }
 }

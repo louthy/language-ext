@@ -409,7 +409,7 @@ namespace LanguageExt
         /// <returns>Mapped items in a new map</returns>
         [Pure]
         public static HMap<K, U> map<K, T, U>(HMap<K, T> map, Func<T, U> f) =>
-            map.Select(f);
+            (HMap<K, U>)map.Select(f);
 
         /// <summary>
         /// Atomically maps the map to a new map

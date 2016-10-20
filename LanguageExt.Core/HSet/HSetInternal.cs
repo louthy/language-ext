@@ -28,6 +28,7 @@ namespace LanguageExt
 
         readonly Map<int, Lst<T>> hashTable;
         readonly int count;
+        int hashCode;
 
         internal HSetInternal()
         {
@@ -629,6 +630,12 @@ namespace LanguageExt
         bool ICollection<T>.Remove(T item)
         {
             throw new NotSupportedException();
+        }
+
+        public override int GetHashCode()
+        {
+            if (hashCode != 0) return hashCode;
+            return hashCode = hash(AsEnumerable());
         }
     }
 }

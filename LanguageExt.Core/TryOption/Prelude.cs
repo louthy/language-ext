@@ -8,24 +8,6 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
-        /// Append the Try(x) to Try(y).  If either of the Trys throw then the result is Fail
-        /// For numeric values the behaviour is to sum the Trys (lhs + rhs)
-        /// For string values the behaviour is to concatenate the strings
-        /// For Lst/Stck/Que values the behaviour is to concatenate the lists
-        /// For Map or Set values the behaviour is to merge the sets
-        /// Otherwise if the R type derives from IAppendable then the behaviour
-        /// is to call lhs.Append(rhs);
-        /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs + rhs</returns>
-        [Pure]
-        public static TryOption<T> mappend<SEMI, T>(TryOption<T> lhs, TryOption<T> rhs) where SEMI : struct, Semigroup<T> =>
-            from x in lhs
-            from y in rhs
-            select default(SEMI).Append(x, y);
-
-        /// <summary>
         /// Add the bound value of Try(x) to Try(y).  If either of the
         /// Trys are Fail then the result is Fail
         /// </summary>
@@ -80,16 +62,6 @@ namespace LanguageExt
         [Pure]
         public static TryOption<T> divide<DIV, T>(TryOption<T> lhs, TryOption<T> rhs) where DIV : struct, Divisible<T> =>
             lhs.Divide<DIV, T>(rhs);
-
-        /// <summary>
-        /// Compare the bound value of Try(x) to Try(y).  If either of the
-        /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>1 if lhs > rhs, 0 if lhs == rhs, -1 if lhs < rhs</returns>
-        [Pure]
-        public static int compare<ORD, A>(TryOption<A> lhs, TryOption<A> rhs) where ORD : struct, Ord<A> =>
-            lhs.Compare<ORD, A>(rhs);
 
         /// <summary>
         /// Apply a Try argument to a Try function of arity 1

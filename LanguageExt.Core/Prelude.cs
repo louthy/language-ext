@@ -225,6 +225,24 @@ namespace LanguageExt
             return exceptionIs<E>(e.InnerException);
         }
 
+        /// <summary>
+        /// Calculate a hash-code for an enumerable
+        /// </summary>
+        public static int hash<T>(IEnumerable<T> xs)
+        {
+            unchecked
+            {
+                int hash = 1;
+                foreach(var x in xs)
+                {
+                    hash = ReferenceEquals(x, null)
+                        ? hash * 31
+                        : hash * 31 + x.GetHashCode();
+                }
+                return hash;
+            }
+        }
+
         [Pure]
         public static bool isnull<T>(T value) =>
             ReferenceEquals(value, null);

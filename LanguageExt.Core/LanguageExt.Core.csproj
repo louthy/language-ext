@@ -226,8 +226,8 @@
     <Compile Include="TypeClasses\Monoid\Monoid_Extensions.cs" />
     <Compile Include="TypeClasses\Optional\Optional.cs" />
     <Compile Include="TypeClasses\Optional\Extensions.cs" />
-    <Compile Include="TypeClasses\Ord\Ord_Extensions.cs" />
-    <Compile Include="TypeClasses\Semigroup\Semigroup_Extensions.cs" />
+    <Compile Include="TypeClasses\Ord\Extensions.cs" />
+    <Compile Include="TypeClasses\Semigroup\Extensions.cs" />
     <Compile Include="TypeClasses\Foldable\Foldable.cs" />
     <Compile Include="TypeClasses\Functor\Functor.cs" />
     <Compile Include="TypeClasses\Monad\Monad.cs" />
@@ -239,8 +239,8 @@
     <Compile Include="TypeClasses\Monoid\Monoid_Prelude.cs" />
     <Compile Include="TypeClasses\Num\Prelude.cs" />
     <Compile Include="TypeClasses\Fraction\Fraction_Prelude.cs" />
-    <Compile Include="TypeClasses\Ord\Ord_Prelude.cs" />
-    <Compile Include="TypeClasses\Semigroup\Semigroup_Prelude.cs" />
+    <Compile Include="TypeClasses\Ord\Prelude.cs" />
+    <Compile Include="TypeClasses\Semigroup\Prelude.cs" />
     <Compile Include="Instances\Ord\OrdBool.cs" />
     <Compile Include="TypeClasses\Eq\Eq.cs" />
     <Compile Include="TypeClasses\Floating\Floating.cs" />

@@ -295,19 +295,19 @@ namespace LanguageExt
             Value.Equals(other.Value);
 
         [Pure]
-        Lst<A> AsList(Foldable<A> f)    => (Lst<A>)f;
+        Lst<A> AsList(Foldable<A> f) => (Lst<A>)f;
 
         [Pure]
-        Lst<A> AsList(Functor<A> f)     => (Lst<A>)f;
+        Lst<A> AsList(Functor<A> f) => (Lst<A>)f;
 
         [Pure]
-        Lst<A> AsList(Monad<A> f)       => (Lst<A>)f;
+        Lst<A> AsList(Monad<A> f) => (Lst<A>)f;
 
         [Pure]
         Lst<A> AsList(Monoid<Lst<A>> f) => (Lst<A>)f;
 
         [Pure]
-        Lst<A> AsList(MonadPlus<A> f)    => (Lst<A>)f;
+        Lst<A> AsList(MonadPlus<A> f) => (Lst<A>)f;
 
         [Pure]
         public S Fold<S>(Foldable<A> fa, S state, Func<S, A, S> f)

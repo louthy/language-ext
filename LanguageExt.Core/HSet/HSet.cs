@@ -8,34 +8,37 @@ using System.Threading;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
     /// <summary>
     /// Unsorted immutable hash-set
     /// </summary>
-    /// <typeparam name="T">Key type</typeparam>
-    public struct HSet<T> :
-        IReadOnlyCollection<T>,
-        ICollection<T>,
-        ISet<T>,
-        ICollection,
-        IAppendable<HSet<T>>,
-        ISubtractable<HSet<T>>,
-        IEquatable<HSet<T>>
+    /// <typeparam name="A">Key type</typeparam>
+    public struct HSet<A> :
+        Monoid<HSet<A>>,
+        MonadPlus<A>,
+        Difference<HSet<A>>,
+        Eq<HSet<A>>,
+        IReadOnlyCollection<A>,
+        IEquatable<HSet<A>>,
+        ICollection<A>,
+        ISet<A>,
+        ICollection
     {
-        public static readonly HSet<T> Empty = new HSet<T>(HSetInternal<T>.Empty);
+        public static readonly HSet<A> Empty = new HSet<A>(HSetInternal<A>.Empty);
 
-        readonly HSetInternal<T> value;
-        HSetInternal<T> Value => value ?? HSetInternal<T>.Empty;
+        readonly HSetInternal<A> value;
+        HSetInternal<A> Value => value ?? HSetInternal<A>.Empty;
 
-        internal HSet(HSetInternal<T> value)
+        internal HSet(HSetInternal<A> value)
         {
             this.value = value;
         }
 
-        HSet<T> Wrap(HSetInternal<T> value) =>
-            new HSet<T>(value);
+        HSet<A> Wrap(HSetInternal<A> value) =>
+            new HSet<A>(value);
 
         static HSet<U> Wrap<U>(HSetInternal<U> value) =>
             new HSet<U>(value);
@@ -44,9 +47,9 @@ namespace LanguageExt
         /// Ctor that takes an initial (distinct) set of items
         /// </summary>
         /// <param name="items"></param>
-        internal HSet(IEnumerable<T> items, bool checkUniqueness = false)
+        internal HSet(IEnumerable<A> items, bool checkUniqueness = false)
         {
-            value = new HSetInternal<T>(items, checkUniqueness);
+            value = new HSetInternal<A>(items, checkUniqueness);
         }
 
         /// <summary>
@@ -55,7 +58,7 @@ namespace LanguageExt
         /// <param name="key">Key</param>
         /// <returns>Optional value</returns>
         [Pure]
-        public T this[T key] =>
+        public A this[A key] =>
             Value[key];
 
         /// <summary>
@@ -93,7 +96,7 @@ namespace LanguageExt
         /// <param name="mapper">Mapping function</param>
         /// <returns>Mapped enumerable</returns>
         [Pure]
-        public HSet<R> Map<R>(Func<T, R> mapper) =>
+        public HSet<R> Map<R>(Func<A, R> mapper) =>
             Wrap(Value.Map(mapper));
 
         /// <summary>
@@ -106,7 +109,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>Filtered enumerable</returns>
         [Pure]
-        public HSet<T> Filter(Func<T, bool> pred) =>
+        public HSet<A> Filter(Func<A, bool> pred) =>
             Wrap(Value.Filter(pred));
 
         /// <summary>
@@ -119,7 +122,7 @@ namespace LanguageExt
         /// <param name="mapper">Mapping function</param>
         /// <returns>Mapped enumerable</returns>
         [Pure]
-        public HSet<R> Select<R>(Func<T, R> mapper) =>
+        public HSet<R> Select<R>(Func<A, R> mapper) =>
             Wrap(Value.Map(mapper));
 
         /// <summary>
@@ -132,7 +135,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>Filtered enumerable</returns>
         [Pure]
-        public HSet<T> Where(Func<T, bool> pred) =>
+        public HSet<A> Where(Func<A, bool> pred) =>
             Wrap(Value.Filter(pred));
 
         /// <summary>
@@ -141,7 +144,7 @@ namespace LanguageExt
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item added</returns>
         [Pure]
-        public HSet<T> Add(T key) =>
+        public HSet<A> Add(A key) =>
             Wrap(Value.Add(key));
 
         /// <summary>
@@ -151,7 +154,7 @@ namespace LanguageExt
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item maybe added</returns>
         [Pure]
-        public HSet<T> TryAdd(T key) =>
+        public HSet<A> TryAdd(A key) =>
             Wrap(Value.TryAdd(key));
 
         /// <summary>
@@ -161,7 +164,7 @@ namespace LanguageExt
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item maybe added</returns>
         [Pure]
-        public HSet<T> AddOrUpdate(T key) =>
+        public HSet<A> AddOrUpdate(A key) =>
             Wrap(Value.AddOrUpdate(key));
 
         /// <summary>
@@ -173,7 +176,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException if any of the keys are null</exception>
         /// <returns>New HSet with the items added</returns>
         [Pure]
-        public HSet<T> AddRange(IEnumerable<T> range) =>
+        public HSet<A> AddRange(IEnumerable<A> range) =>
             Wrap(Value.AddRange(range));
 
         /// <summary>
@@ -185,7 +188,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException if any of the keys are null</exception>
         /// <returns>New HSet with the items added</returns>
         [Pure]
-        public HSet<T> TryAddRange(IEnumerable<T> range) =>
+        public HSet<A> TryAddRange(IEnumerable<A> range) =>
             Wrap(Value.TryAddRange(range));
 
         /// <summary>
@@ -197,7 +200,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException if any of the keys are null</exception>
         /// <returns>New HSet with the items added</returns>
         [Pure]
-        public HSet<T> AddOrUpdateRange(IEnumerable<T> range) =>
+        public HSet<A> AddOrUpdateRange(IEnumerable<A> range) =>
             Wrap(Value.AddOrUpdateRange(range));
 
         /// <summary>
@@ -207,7 +210,7 @@ namespace LanguageExt
         /// <param name="key">Key</param>
         /// <returns>New map with the item removed</returns>
         [Pure]
-        public HSet<T> Remove(T key) =>
+        public HSet<A> Remove(A key) =>
             Wrap(Value.Remove(key));
 
         /// <summary>
@@ -216,7 +219,7 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
         [Pure]
-        public Option<T> Find(T key) =>
+        public Option<A> Find(A key) =>
             Value.Find(key);
 
         /// <summary>
@@ -225,7 +228,7 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
         [Pure]
-        public IEnumerable<T> FindSeq(T key) =>
+        public IEnumerable<A> FindSeq(A key) =>
             Value.FindSeq(key);
 
         /// <summary>
@@ -235,7 +238,7 @@ namespace LanguageExt
         /// <param name="key">Key to find</param>
         /// <returns>Found value</returns>
         [Pure]
-        public R Find<R>(T key, Func<T, R> Some, Func<R> None) =>
+        public R Find<R>(A key, Func<A, R> Some, Func<R> None) =>
             Value.Find(key, Some, None);
 
         /// <summary>
@@ -246,7 +249,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException if the key is null</exception>
         /// <returns>New HSet with the item added</returns>
         [Pure]
-        public HSet<T> SetItem(T key) =>
+        public HSet<A> SetItem(A key) =>
             Wrap(Value.SetItem(key));
 
         /// <summary>
@@ -259,7 +262,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException if the key is null</exception>
         /// <returns>New HSet with the item added</returns>
         [Pure]
-        public HSet<T> TrySetItem(T key) =>
+        public HSet<A> TrySetItem(A key) =>
             Wrap(Value.TrySetItem(key));
 
         /// <summary>
@@ -268,7 +271,7 @@ namespace LanguageExt
         /// <param name="key">Key to check</param>
         /// <returns>True if an item with the key supplied is in the set</returns>
         [Pure]
-        public bool Contains(T key) =>
+        public bool Contains(A key) =>
             Value.Contains(key);
 
         /// <summary>
@@ -277,7 +280,7 @@ namespace LanguageExt
         /// <remarks>Functionally equivalent to calling HSet.empty as the original structure is untouched</remarks>
         /// <returns>Empty HSet</returns>
         [Pure]
-        public HSet<T> Clear() =>
+        public HSet<A> Clear() =>
             Empty;
 
         /// <summary>
@@ -287,7 +290,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New HSet with the items set</returns>
         [Pure]
-        public HSet<T> SetItems(IEnumerable<T> items) =>
+        public HSet<A> SetItems(IEnumerable<A> items) =>
             Wrap(Value.SetItems(items));
 
         /// <summary>
@@ -296,7 +299,7 @@ namespace LanguageExt
         /// <param name="items">Items to set</param>
         /// <returns>New HSet with the items set</returns>
         [Pure]
-        public HSet<T> TrySetItems(IEnumerable<T> items) =>
+        public HSet<A> TrySetItems(IEnumerable<A> items) =>
             Wrap(Value.TrySetItems(items));
 
         /// <summary>
@@ -305,7 +308,7 @@ namespace LanguageExt
         /// <param name="keys">Keys to remove</param>
         /// <returns>New HSet with the items removed</returns>
         [Pure]
-        public HSet<T> RemoveRange(IEnumerable<T> keys) =>
+        public HSet<A> RemoveRange(IEnumerable<A> keys) =>
             Wrap(Value.RemoveRange(keys));
 
         #region IEnumerable interface
@@ -313,7 +316,7 @@ namespace LanguageExt
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
-        public IEnumerator<T> GetEnumerator() =>
+        public IEnumerator<A> GetEnumerator() =>
             Value.GetEnumerator();
 
         /// <summary>
@@ -322,37 +325,45 @@ namespace LanguageExt
         IEnumerator IEnumerable.GetEnumerator() =>
             Value.GetEnumerator();
 
-        public IEnumerable<T> AsEnumerable() =>
+        public IEnumerable<A> AsEnumerable() =>
             Value.AsEnumerable();
 
         #endregion
 
         [Pure]
-        public static HSet<T> operator +(HSet<T> lhs, HSet<T> rhs) =>
+        public static HSet<A> operator +(HSet<A> lhs, HSet<A> rhs) =>
             lhs.Append(rhs);
 
         [Pure]
-        public HSet<T> Append(HSet<T> rhs) =>
+        public HSet<A> Append(HSet<A> rhs) =>
             Wrap(Value.Append(rhs.Value));
 
         [Pure]
-        public static HSet<T> operator -(HSet<T> lhs, HSet<T> rhs) =>
+        public static HSet<A> operator -(HSet<A> lhs, HSet<A> rhs) =>
             lhs.Subtract(rhs);
 
         [Pure]
-        public HSet<T> Subtract(HSet<T> rhs) =>
+        public HSet<A> Subtract(HSet<A> rhs) =>
             Wrap(Value.Subtract(rhs.Value));
 
-        public bool Equals(HSet<T> other) =>
-            Value.Equals(other.Value);
+        [Pure]
+        public static bool operator ==(HSet<A> lhs, HSet<A> rhs) =>
+            lhs.Equals(rhs);
 
+        [Pure]
+        public static bool operator !=(HSet<A> lhs, HSet<A> rhs) =>
+            !(lhs == rhs);
+
+        [Pure]
+        public bool Equals(HSet<A> other) =>
+            Value.Equals(other.Value);
 
         /// <summary>
         /// Returns True if 'other' is a proper subset of this set
         /// </summary>
         /// <returns>True if 'other' is a proper subset of this set</returns>
         [Pure]
-        public bool IsProperSubsetOf(IEnumerable<T> other) =>
+        public bool IsProperSubsetOf(IEnumerable<A> other) =>
             Value.IsProperSubsetOf(other);
 
         /// <summary>
@@ -360,7 +371,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>True if 'other' is a proper superset of this set</returns>
         [Pure]
-        public bool IsProperSupersetOf(IEnumerable<T> other) =>
+        public bool IsProperSupersetOf(IEnumerable<A> other) =>
             Value.IsProperSupersetOf(other);
 
         /// <summary>
@@ -368,7 +379,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>True if 'other' is a superset of this set</returns>
         [Pure]
-        public bool IsSubsetOf(IEnumerable<T> other) =>
+        public bool IsSubsetOf(IEnumerable<A> other) =>
             Value.IsSubsetOf(other);
 
         /// <summary>
@@ -376,7 +387,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>True if 'other' is a superset of this set</returns>
         [Pure]
-        public bool IsSupersetOf(IEnumerable<T> other) =>
+        public bool IsSupersetOf(IEnumerable<A> other) =>
             Value.IsSupersetOf(other);
 
         /// <summary>
@@ -387,21 +398,21 @@ namespace LanguageExt
         /// <param name="setB">Set B</param>
         /// <returns>True if other overlaps this set</returns>
         [Pure]
-        public bool Overlaps(IEnumerable<T> other) =>
+        public bool Overlaps(IEnumerable<A> other) =>
             Value.Overlaps(other);
 
         /// <summary>
         /// Returns the elements that are in both this and other
         /// </summary>
         [Pure]
-        public HSet<T> Intersect(IEnumerable<T> other)
+        public HSet<A> Intersect(IEnumerable<A> other)
         {
-            var res = new List<T>();
+            var res = new List<A>();
             foreach (var item in other)
             {
                 if (Contains(item)) res.Add(item);
             }
-            return new HSet<T>(res);
+            return new HSet<A>(res);
         }
 
         /// <summary>
@@ -409,7 +420,7 @@ namespace LanguageExt
         /// other will be returned.
         /// </summary>
         [Pure]
-        public HSet<T> Except(IEnumerable<T> other)
+        public HSet<A> Except(IEnumerable<A> other)
         {
             var self = this;
             foreach (var item in other)
@@ -427,10 +438,10 @@ namespace LanguageExt
         /// If an item is in both, it is dropped.
         /// </summary>
         [Pure]
-        public HSet<T> SymmetricExcept(IEnumerable<T> other)
+        public HSet<A> SymmetricExcept(IEnumerable<A> other)
         {
-            var rhs = new Set<T>(other);
-            var res = new List<T>();
+            var rhs = new Set<A>(other);
+            var res = new List<A>();
 
             foreach (var item in this)
             {
@@ -448,7 +459,7 @@ namespace LanguageExt
                 }
             }
 
-            return new HSet<T>(res);
+            return new HSet<A>(res);
         }
 
         /// <summary>
@@ -458,7 +469,7 @@ namespace LanguageExt
         /// <param name="other">Other set to union with</param>
         /// <returns>A set which contains all items from both sets</returns>
         [Pure]
-        public HSet<T> Union(IEnumerable<T> other)
+        public HSet<A> Union(IEnumerable<A> other)
         {
             var self = this;
             foreach (var item in other)
@@ -468,40 +479,54 @@ namespace LanguageExt
             return self;
         }
 
-        bool ISet<T>.Add(T item)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void UnionWith(IEnumerable<T> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void IntersectWith(IEnumerable<T> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void ExceptWith(IEnumerable<T> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void SymmetricExceptWith(IEnumerable<T> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        public bool SetEquals(IEnumerable<T> other) =>
+        public bool SetEquals(IEnumerable<A> other) =>
             Value.SetEquals(other);
 
-        void ICollection<T>.Add(T item)
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        bool ISet<A>.Add(A item)
         {
             throw new NotSupportedException();
         }
 
-        void ICollection<T>.Clear()
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void UnionWith(IEnumerable<A> other)
+        {
+            throw new NotSupportedException();
+        }
+
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void IntersectWith(IEnumerable<A> other)
+        {
+            throw new NotSupportedException();
+        }
+
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void ExceptWith(IEnumerable<A> other)
+        {
+            throw new NotSupportedException();
+        }
+
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void SymmetricExceptWith(IEnumerable<A> other)
+        {
+            throw new NotSupportedException();
+        }
+
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        void ICollection<A>.Add(A item)
+        {
+            throw new NotSupportedException();
+        }
+
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        void ICollection<A>.Clear()
         {
             throw new NotSupportedException();
         }
@@ -511,7 +536,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="array">Array to copy to</param>
         /// <param name="index">Index into the array to start</param>
-        public void CopyTo(T[] array, int index) => 
+        public void CopyTo(A[] array, int index) => 
             Value.CopyTo(array, index);
 
         /// <summary>
@@ -522,9 +547,110 @@ namespace LanguageExt
         public void CopyTo(Array array, int index) =>
             Value.CopyTo(array, index);
 
-        bool ICollection<T>.Remove(T item)
+        bool ICollection<A>.Remove(A item)
         {
             throw new NotSupportedException();
         }
+
+        HSet<A> As(Monad<A> ma) => (HSet<A>)ma;
+        HSet<A> As(MonadPlus<A> ma) => (HSet<A>)ma;
+        HSet<A> As(Foldable<A> ma) => (HSet<A>)ma;
+        HSet<A> As(Functor<A> ma) => (HSet<A>)ma;
+
+        [Pure]
+        HSet<A> Monoid<HSet<A>>.Empty() =>
+            HSet<A>.Empty;
+
+        [Pure]
+        public HSet<A> Append(HSet<A> x, HSet<A> y) =>
+            x.Append(y);
+
+        [Pure]
+        public MonadPlus<A> Plus(MonadPlus<A> a, MonadPlus<A> b) =>
+            As(a).Append(As(b));
+
+        [Pure]
+        public MonadPlus<A> Zero() =>
+            HSet<A>.Empty;
+
+        [Pure]
+        public Monad<A> Return(A x, params A[] xs) =>
+            new HSet<A>(x.Cons(xs));
+
+        [Pure]
+        public Monad<A> Return(IEnumerable<A> xs) =>
+            new HSet<A>(xs);
+
+        [Pure]
+        public MB Bind<MB, B>(Monad<A> ma, Func<A, MB> f) where MB : struct, Monad<B> =>
+            TypeClass.Return<MB, B>(BindSeq<MB, B>(ma, f));
+
+        [Pure]
+        public Monad<B> Bind<B>(Monad<A> ma, Func<A, Monad<B>> f) =>
+            new HSet<B>(BindSeq(ma, f));
+
+        [Pure]
+        IEnumerable<B> BindSeq<MB, B>(Monad<A> ma, Func<A, MB> f) where MB : struct, Monad<B>
+        {
+            var xs = As(ma);
+            foreach (var x in xs)
+            {
+                var b = f(x);
+                foreach (var y in TypeClass.toSeq(b as Foldable<B>))
+                {
+                    yield return y;
+                }
+            }
+        }
+
+        [Pure]
+        IEnumerable<B> BindSeq<B>(Monad<A> ma, Func<A, Monad<B>> f)
+        {
+            var xs = As(ma);
+            foreach (var x in xs)
+            {
+                var b = f(x);
+                foreach (var y in TypeClass.toSeq(b as Foldable<B>))
+                {
+                    yield return y;
+                }
+            }
+        }
+
+        [Pure]
+        public Monad<A> Fail(Exception err = null) =>
+            HSet<A>.Empty;
+
+        [Pure]
+        public Monad<A> Fail<F>(F err = default(F)) =>
+            HSet<A>.Empty;
+
+        [Pure]
+        public Functor<B> Map<B>(Functor<A> fa, Func<A, B> f) =>
+            As(fa).Map(f);
+
+        [Pure]
+        public S Fold<S>(Foldable<A> fa, S state, Func<S, A, S> f) =>
+            As(fa).Fold(state, f);
+
+        [Pure]
+        public S FoldBack<S>(Foldable<A> fa, S state, Func<S, A, S> f) =>
+            As(fa).Reverse().Fold(state, f);
+
+        [Pure]
+        public HSet<A> Difference(HSet<A> x, HSet<A> y) =>
+            As(x) - As(y);
+
+        [Pure]
+        public bool Equals(HSet<A> x, HSet<A> y) =>
+            As(x) == As(y);
+
+        [Pure]
+        public override bool Equals(object obj) =>
+            !ReferenceEquals(obj, null) && obj is HSet<A> && Equals(this, (HSet<A>)obj);
+
+        [Pure]
+        public override int GetHashCode() =>
+            Value.GetHashCode();
     }
 }

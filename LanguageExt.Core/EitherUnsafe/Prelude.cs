@@ -15,19 +15,6 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
-        /// Append the Right(x) of one option to the Right(y) of another.  If either of the
-        /// options are Left then the result is Left
-        /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs + rhs</returns>
-        [Pure]
-        public static EitherUnsafe<L, R> append<SEMI, L, R>(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) where SEMI : struct, Semigroup<R> =>
-            from x in lhs
-            from y in rhs
-            select TypeClass.append<SEMI, R>(x, y);
-
-        /// <summary>
         /// Add the bound values of x and y, uses an Add type-class to provide the add
         /// operation for type A.  For example x.Add<TInteger,int>(y)
         /// </summary>

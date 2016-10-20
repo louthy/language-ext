@@ -8,6 +8,7 @@ using System.Threading;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -19,8 +20,11 @@ namespace LanguageExt
     public struct HMap<K, V> :
         IEnumerable<IMapItem<K, V>>,
         IReadOnlyDictionary<K, V>,
-        IAppendable<HMap<K, V>>,
-        ISubtractable<HMap<K, V>>
+        Functor<V>,
+        Foldable<V>,
+        Monoid<HMap<K, V>>,
+        Difference<HMap<K, V>>,
+        Eq<HMap<K, V>>
     {
         public static readonly HMap<K, V> Empty = new HMap<K,V>(HMapInternal<K, V>.Empty);
 
@@ -499,6 +503,14 @@ namespace LanguageExt
         }
 
         [Pure]
+        public static bool operator ==(HMap<K, V> lhs, HMap<K, V> rhs) =>
+            lhs.Value == rhs.Value;
+
+        [Pure]
+        public static bool operator !=(HMap<K, V> lhs, HMap<K, V> rhs) =>
+            !(lhs == rhs);
+
+        [Pure]
         public static HMap<K, V> operator +(HMap<K, V> lhs, HMap<K, V> rhs) =>
             lhs.Append(rhs);
 
@@ -513,5 +525,45 @@ namespace LanguageExt
         [Pure]
         public HMap<K, V> Subtract(HMap<K, V> rhs) =>
             Wrap(Value.Subtract(rhs.Value));
+
+        HMap<K, V> As(Functor<V> m) => (HMap<K, V>)m;
+        HMap<K, V> As(Foldable<V> m) => (HMap<K, V>)m;
+
+        [Pure]
+        public Functor<B> Map<B>(Functor<V> fa, Func<V, B> f) =>
+            As(fa).Map(f);
+
+        [Pure]
+        public S Fold<S>(Foldable<V> fa, S state, Func<S, V, S> f) =>
+            As(fa).Fold(state, f);
+
+        [Pure]
+        public S FoldBack<S>(Foldable<V> fa, S state, Func<S, V, S> f) =>
+            As(fa).FoldBack(state, f);
+
+        [Pure]
+        HMap<K, V> Monoid<HMap<K, V>>.Empty() => 
+            HMap<K, V>.Empty;
+
+        [Pure]
+        public HMap<K, V> Append(HMap<K, V> x, HMap<K, V> y) =>
+            x + y;
+
+        [Pure]
+        public HMap<K, V> Difference(HMap<K, V> x, HMap<K, V> y) =>
+            x - y;
+
+        [Pure]
+        public bool Equals(HMap<K, V> x, HMap<K, V> y) =>
+            x == y;
+
+        [Pure]
+        public override bool Equals(object obj) =>
+            !ReferenceEquals(obj, null) && obj is HMap<K, V> && Equals(this, (HMap<K, V>)obj);
+
+        [Pure]
+        public override int GetHashCode() =>
+            Value.GetHashCode();
+
     }
 }

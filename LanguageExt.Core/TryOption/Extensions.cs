@@ -314,36 +314,6 @@ public static class TryOptionExtensions
         x.Action<TryOption<B>, A, B>(y);
 
     /// <summary>
-    /// Append the bound value of Try(x) to Try(y).  If either of the
-    /// Trys are Fail then the result is Fail
-    /// </summary>
-    /// <param name="lhs">Left-hand side of the operation</param>
-    /// <param name="rhs">Right-hand side of the operation</param>
-    /// <returns>lhs + rhs</returns>
-    [Pure]
-    public static TryOption<A> Append<SEMI, A>(this TryOption<A> lhs, TryOption<A> rhs) where SEMI : struct, Semigroup<A> =>
-        from x in lhs
-        from y in rhs
-        select append<SEMI, A>(x, y);
-
-    /// <summary>
-    /// Compare the bound value of Try(x) to Try(y).  If either of the
-    /// </summary>
-    /// <param name="lhs">Left-hand side of the operation</param>
-    /// <param name="rhs">Right-hand side of the operation</param>
-    /// <returns>1 if lhs > rhs, 0 if lhs == rhs, -1 if lhs < rhs</returns>
-    [Pure]
-    public static int Compare<ORD, A>(this TryOption<A> lhs, TryOption<A> rhs) where ORD : struct, Ord<A>
-    {
-        var x = lhs.Try();
-        var y = lhs.Try();
-        if (x.IsFaulted && y.IsFaulted) return 0;
-        if (x.IsFaulted && !y.IsFaulted) return -1;
-        if (!x.IsFaulted && y.IsFaulted) return 1;
-        return compare<ORD, A>(x.Value, y.Value);
-    }
-
-    /// <summary>
     /// Add the bound value of Try(x) to Try(y).  If either of the
     /// Trys are Fail then the result is Fail
     /// </summary>

@@ -11,25 +11,6 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
-        /// Append the Some(x) of one option to the Some(y) of another.  If either of the
-        /// options are None then the result is None
-        /// For numeric values the behaviour is to sum the Somes (lhs + rhs)
-        /// For string values the behaviour is to concatenate the strings
-        /// For Lst/Stck/Que values the behaviour is to concatenate the lists
-        /// For Map or Set values the behaviour is to merge the sets
-        /// Otherwise if the R type derives from IAppendable then the behaviour
-        /// is to call lhs.Append(rhs);
-        /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs + rhs</returns>
-        [Pure]
-        public static Option<T> mappend<SEMI, T>(Option<T> lhs, Option<T> rhs) where SEMI : struct, Semigroup<T> =>
-            from x in lhs
-            from y in rhs
-            select default(SEMI).Append(x, y);
-
-        /// <summary>
         /// Difference the Ts
         /// </summary>
         /// <param name="lhs">Left-hand side of the operation</param>

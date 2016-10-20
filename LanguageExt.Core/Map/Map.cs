@@ -499,23 +499,36 @@ namespace LanguageExt
         public S FoldBack<S>(Foldable<V> fa, S state, Func<S, V, S> f) =>
             FoldableValues(fa).FoldBack(state, f);
 
+        [Pure]
         Functor<B> Functor<V>.Map<B>(Functor<V> fa, Func<V, B> f) =>
             Map.map(AsMap(fa), f);
 
+        [Pure]
         public Map<K, V> Append(Map<K, V> x, Map<K, V> y) =>
             x.Value.Append(y);
 
+        [Pure]
         public Map<K, V> Difference(Map<K, V> x, Map<K, V> y) =>
             x.Value.Subtract(y);
 
         public static Map<K, V> Empty = 
             new Map<K, V>(MapInternal<K, V>.Empty);
 
+        [Pure]
         Map<K, V> Monoid<Map<K,V>>.Empty() =>
                 new Map<K, V>(MapInternal<K, V>.Empty);
 
+        [Pure]
         public bool Equals(Map<K, V> x, Map<K, V> y) =>
             x.Value == y.Value;
+
+        [Pure]
+        public static bool operator ==(Map<K, V> lhs, Map<K, V> rhs) =>
+            lhs.Value == rhs.Value;
+
+        [Pure]
+        public static bool operator !=(Map<K, V> lhs, Map<K, V> rhs) =>
+            !(lhs == rhs);
 
         [Pure]
         public static Map<K, V> operator +(Map<K, V> lhs, Map<K, V> rhs) =>
@@ -524,5 +537,13 @@ namespace LanguageExt
         [Pure]
         public static Map<K, V> operator -(Map<K, V> lhs, Map<K, V> rhs) =>
             new Map<K, V>(lhs.Value - rhs.Value);
+
+        [Pure]
+        public override bool Equals(object obj) =>
+            !ReferenceEquals(obj, null) && obj is Map<K, V> && Equals(this, (Map<K, V>)obj);
+
+        [Pure]
+        public override int GetHashCode() =>
+            Value.GetHashCode();
     }
 }

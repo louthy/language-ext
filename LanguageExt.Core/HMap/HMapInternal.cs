@@ -28,6 +28,7 @@ namespace LanguageExt
 
         readonly Map<int, Lst<IMapItem<K, V>>> hashTable;
         readonly int count;
+        int hashCode;
 
         internal HMapInternal()
         {
@@ -54,6 +55,15 @@ namespace LanguageExt
         [Pure]
         public V this[K key] =>
             Find(key).IfNone(() => failwith<V>("Key doesn't exist in map"));
+
+        /// <summary>
+        /// Get the hash code of all items in the map
+        /// </summary>
+        public override int GetHashCode()
+        {
+            if (hashCode != 0) return hashCode;
+            return hashCode = hash(AsEnumerable());
+        }
 
         /// <summary>
         /// Is the map empty

@@ -32,6 +32,7 @@ namespace LanguageExt
 
         internal readonly MapItem<K, V> Root;
         internal readonly bool Rev;
+        int hashCode;
 
         /// <summary>
         /// Ctor
@@ -87,6 +88,15 @@ namespace LanguageExt
         [Pure]
         public int Length =>
             Count;
+
+        /// <summary>
+        /// Get the hash code of all items in the map
+        /// </summary>
+        public override int GetHashCode()
+        {
+            if (hashCode != 0) return hashCode;
+            return hashCode = hash(AsEnumerable());
+        }
 
         /// <summary>
         /// Atomically adds a new item to the map

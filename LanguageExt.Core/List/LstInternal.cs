@@ -30,14 +30,14 @@ namespace LanguageExt
 
         internal ListItem<A> root;
         internal bool Rev;
-        internal int HashCode;
+        internal int hashCode;
 
         /// <summary>
         /// Ctor
         /// </summary>
         internal LstInternal(IEnumerable<A> initial)
         {
-            HashCode = 0;
+            hashCode = 0;
             this.root = ListItem<A>.Empty;
             if (initial is Lst<A>)
             {
@@ -62,7 +62,7 @@ namespace LanguageExt
         /// </summary>
         internal LstInternal()
         {
-            HashCode = 0;
+            hashCode = 0;
             this.root = ListItem<A>.Empty;
             Rev = false;
         }
@@ -72,7 +72,7 @@ namespace LanguageExt
         /// </summary>
         internal LstInternal(ListItem<A> root, bool rev)
         {
-            HashCode = 0;
+            hashCode = 0;
             this.root = root;
             Rev = rev;
         }
@@ -424,21 +424,8 @@ namespace LanguageExt
         [Pure]
         public override int GetHashCode()
         {
-            if (Count == 0)
-            {
-                return 0;
-            }
-            else
-            {
-                if (HashCode == 0)
-                {
-                    unchecked
-                    {
-                        HashCode = Fold(7, (s, x) => s + x.GetHashCode() * 13);
-                    }
-                }
-                return HashCode;
-            }
+            if (hashCode != 0) return hashCode;
+            return hashCode = hash(this.AsEnumerable());
         }
 
         [Pure]
