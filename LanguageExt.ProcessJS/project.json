@@ -1,5 +1,5 @@
 {
-  "version": "1.9.3",
+  "version": "1.9.4",
   "authors": [ "Paul Louth" ],
   "description": "Javascript actor library component that works with LanguageExt.Process: A library that uses and abuses the features of C# 6 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself. It also includes an 'Erlang like' process system (actors) that can optionally persist messages and state to Redis (note you can use it without Redis for in-app messaging). The process system additionally supports Rx streams of messages and state allowing for a complete system of reactive events and message dispatch.",
   "copyright": "Copyright (c) Paul Louth",
@@ -31,11 +31,11 @@
   },
   "dependencies": {
     "LanguageExt.Core": {
-      "version": "1.9.3",
+      "version": "1.9.4",
       "target": "project"
     },
     "LanguageExt.Process": {
-      "version": "1.9.3",
+      "version": "1.9.4",
       "target": "project"
     },
     "Newtonsoft.Json": "9.0.1",
