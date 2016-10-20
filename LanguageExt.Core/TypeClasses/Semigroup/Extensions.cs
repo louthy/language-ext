@@ -1,6 +1,7 @@
 ﻿using LanguageExt.TypeClasses;
 using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
+using System.Collections.Generic;
 
 namespace LanguageExt
 {
@@ -182,5 +183,16 @@ namespace LanguageExt
             from a in x
             from b in y
             select default(SEMI).Append(a, b);
+
+        /// <summary>
+        /// Concatenate two enumerables (Concat in LINQ)
+        /// </summary>
+        /// <typeparam name="A">Enumerable item type</typeparam>
+        /// <param name="lhs">First enumerable</param>
+        /// <param name="rhs">Second enumerable</param>
+        /// <returns>Concatenated enumerable</returns>
+        [Pure]
+        public static IEnumerable<A> Append<A>(this IEnumerable<A> lhs, IEnumerable<A> rhs) =>
+            List.append(lhs, rhs);
     }
 }

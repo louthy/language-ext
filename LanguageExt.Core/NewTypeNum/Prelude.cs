@@ -49,12 +49,6 @@ namespace LanguageExt
             where NEWTYPE : NewType<NEWTYPE, NUM, T> =>
             value.Fold(state, folder);
 
-        [Pure]
-        public static NEWTYPE append<NEWTYPE, NUM, T>(NEWTYPE lhs, NewType<NEWTYPE, NUM, T> rhs)
-            where NUM     : struct, Num<T>
-            where NEWTYPE : NewType<NEWTYPE, NUM, T> =>
-            add(lhs, rhs);
-
         /// <summary>
         /// Add the bound values of x and y, uses an Add type-class to provide the add
         /// operation for type A.  For example x.Add<Metres, TInt, int>(y)

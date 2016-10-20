@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
+﻿using Xunit;
 using LanguageExt;
-using static LanguageExt.Prelude;
 using LanguageExt.Instances;
+using static LanguageExt.TypeClass;
 
 namespace LanguageExtTests
 {
@@ -141,10 +136,10 @@ namespace LanguageExtTests
         [Fact]
         public void AppendTest()
         {
-            var a1 = Arr<int>.New(new[] { 1, 2, 3, 4, 5 });
-            var a2 = Arr<int>.New(new[] { 10, 2 });
+            var a1 = new Arr<int>(new[] { 1, 2, 3, 4, 5 });
+            var a2 = new Arr<int>(new[] { 10, 2 });
 
-            var a3 = append<Arr<int>, TArray<int>, OrdArray<OrdDefault<int>, int>, int[]>(a1, a2); // bluergh!
+            var a3 = append(a1, a2);
 
             var a4 = a1 + a2;
 

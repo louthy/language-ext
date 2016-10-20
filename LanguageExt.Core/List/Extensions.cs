@@ -382,17 +382,6 @@ public static class ListExtensions
         LanguageExt.List.rev(list);
 
     /// <summary>
-    /// Concatenate two enumerables (Concat in LINQ)
-    /// </summary>
-    /// <typeparam name="T">Enumerable item type</typeparam>
-    /// <param name="lhs">First enumerable</param>
-    /// <param name="rhs">Second enumerable</param>
-    /// <returns>Concatenated enumerable</returns>
-    [Pure]
-    public static IEnumerable<T> Append<T>(this IEnumerable<T> lhs, IEnumerable<T> rhs) =>
-        LanguageExt.List.append(lhs, rhs);
-
-    /// <summary>
     /// Applies a function 'folder' to each element of the collection, threading an accumulator 
     /// argument through the computation. The fold function takes the state argument, and 
     /// applies the function 'folder' to it and the first element of the list. Then, it feeds this 

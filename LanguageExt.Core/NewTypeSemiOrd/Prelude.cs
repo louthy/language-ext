@@ -64,15 +64,6 @@ namespace LanguageExt
             value.Fold(state, folder);
 
         [Pure]
-        public static NEWTYPE append<NEWTYPE, SEMI, ORD, T>(NEWTYPE lhs, NEWTYPE rhs)
-            where ORD     : struct, Ord<T>
-            where SEMI    : struct, Semigroup<T>
-            where NEWTYPE : NewType<NEWTYPE, SEMI, ORD, T> =>
-            from x in lhs
-            from y in rhs
-            select default(SEMI).Append(x, y);
-
-        [Pure]
         public static NEWTYPE add<NEWTYPE, SEMI, ORD, ADD, T>(NEWTYPE lhs, NEWTYPE rhs)
             where ORD  : struct, Ord<T>
             where SEMI : struct, Semigroup<T>

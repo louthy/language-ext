@@ -47,18 +47,6 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Append the NewType(x) to NewType(y)
-        /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs + rhs</returns>
-        [Pure]
-        public NEWTYPE Append(NEWTYPE rhs) =>
-            from x in this
-            from y in rhs
-            select append<NUM, A>(x, y);
-
-        /// <summary>
         /// Sum of NewType(x) and NewType(y)
         /// </summary>
         /// <param name="rhs">Right-hand side of the operation</param>
@@ -102,6 +90,22 @@ namespace LanguageExt
             from y in rhs
             select difference<NUM, A>(x, y);
 
+        /// <summary>
+        /// Find the absolute value of a number
+        /// </summary>
+        /// <param name="x">The value to find the absolute value of</param>
+        /// <returns>The non-negative absolute value of x</returns>
+        public A Abs() =>
+            default(NUM).Abs(Value);
+
+        /// <summary>
+        /// Find the sign of x
+        /// </summary>
+        /// <param name="x">The value to find the sign of</param>
+        /// <returns>-1, 0, or +1</returns>
+        public A Signum() =>
+            default(NUM).Signum(Value);
+
         [Pure]
         public int CompareTo(NEWTYPE other) =>
             default(NUM).Compare(Value, other.Value);
@@ -117,6 +121,10 @@ namespace LanguageExt
         [Pure]
         public override int GetHashCode() =>
             Value == null ? 0 : Value.GetHashCode();
+
+        [Pure]
+        public static NEWTYPE operator -(NewType<NEWTYPE, NUM, A> x) =>
+             New(default(NUM).Difference(default(NUM).FromInteger(0), x.Value));
 
         [Pure]
         public static NEWTYPE operator +(NewType<NEWTYPE, NUM, A> lhs, NewType<NEWTYPE, NUM, A> rhs) =>

@@ -77,14 +77,6 @@ namespace LanguageExt
             select default(ADD).Add(x, y);
 
         [Pure]
-        public static NEWTYPE append<NEWTYPE, SEMI, T>(NEWTYPE lhs, NEWTYPE rhs)
-            where SEMI    : struct, Semigroup<T>
-            where NEWTYPE : NewType<NEWTYPE, T> =>
-            from x in lhs
-            from y in rhs
-            select default(SEMI).Append(x, y);
-
-        [Pure]
         public static NEWTYPE difference<NEWTYPE, DIFF, T>(NEWTYPE lhs, NEWTYPE rhs)
             where DIFF    : struct, Difference<T>
             where NEWTYPE : NewType<NEWTYPE, T> =>

@@ -47,18 +47,6 @@ namespace LanguageExt
             Value = value;
         }
 
-        /// <summary>
-        /// Append the NewType(x) to NewType(y)
-        /// </summary>
-        /// <param name="lhs">Left-hand side of the operation</param>
-        /// <param name="rhs">Right-hand side of the operation</param>
-        /// <returns>lhs + rhs</returns>
-        [Pure]
-        public NEWTYPE Append(NEWTYPE rhs) =>
-            from x in this
-            from y in rhs
-            select append<SEMI, A>(x, y);
-
         [Pure]
         public int CompareTo(NEWTYPE other) =>
             default(ORD).Compare(Value, other.Value);

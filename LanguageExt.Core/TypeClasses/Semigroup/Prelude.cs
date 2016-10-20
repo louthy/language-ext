@@ -1,4 +1,5 @@
 ﻿using LanguageExt.TypeClasses;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
 namespace LanguageExt

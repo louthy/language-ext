@@ -8,20 +8,6 @@ using LanguageExt.TypeClasses;
 public static class NewTypeExtensions
 {
     /// <summary>
-    /// Append the NewType(x) to NewType(y)
-    /// </summary>
-    /// <param name="lhs">Left-hand side of the operation</param>
-    /// <param name="rhs">Right-hand side of the operation</param>
-    /// <returns>lhs + rhs</returns>
-    [Pure]
-    public static NEWTYPE Append<NEWTYPE, SEMI, A>(this NewType<NEWTYPE, A> lhs, NewType<NEWTYPE, A> rhs) 
-        where SEMI    : struct, Semigroup<A>
-        where NEWTYPE : NewType<NEWTYPE, A> =>
-        from x in lhs
-        from y in rhs
-        select append<SEMI, A>(x, y);
-
-    /// <summary>
     /// Add the bound values of x and y, uses an Add type-class to provide the add
     /// operation for type A.  For example x.Add<Metres, TInt, int>(y)
     /// </summary>

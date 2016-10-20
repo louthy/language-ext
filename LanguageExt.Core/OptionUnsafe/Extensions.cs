@@ -34,21 +34,6 @@ public static class OptionUnsafeExtensions
     }
 
     /// <summary>
-    /// Appends the bound values of x and y, uses a semigroup type-class to provide 
-    /// the append operation for type A.  For example x.Append<TString,string>(y)
-    /// </summary>
-    /// <typeparam name="SEMI">Semigroup of A</typeparam>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <param name="x">Left hand side of the operation</param>
-    /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An OptionUnsafe with y appended to x</returns>
-    [Pure]
-    public static OptionUnsafe<A> Append<SEMI, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where SEMI : struct, Semigroup<A> =>
-       from a in x
-       from b in y
-       select append<SEMI, A>(a, b);
-
-    /// <summary>
     /// Add the bound values of x and y, uses an Add type-class to provide the add
     /// operation for type A.  For example x.Add<TInteger,int>(y)
     /// </summary>
