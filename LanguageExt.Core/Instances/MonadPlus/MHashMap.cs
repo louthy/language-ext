@@ -10,7 +10,6 @@ namespace LanguageExt.Instances
     public struct MHashMap<K, V> :
         Foldable<HashMap<K, V>, V>,
         Monoid<HashMap<K, V>>,
-        Difference<HashMap<K, V>>,
         Eq<HashMap<K, V>>
     {
         public HashMap<K, V> Append(HashMap<K, V> x, HashMap<K, V> y) =>
@@ -19,7 +18,7 @@ namespace LanguageExt.Instances
         public int Count(HashMap<K, V> fa) =>
             fa.Count;
 
-        public HashMap<K, V> Difference(HashMap<K, V> x, HashMap<K, V> y) =>
+        public HashMap<K, V> Subtract(HashMap<K, V> x, HashMap<K, V> y) =>
             x - y;
 
         public HashMap<K, V> Empty() =>

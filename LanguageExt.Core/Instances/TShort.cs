@@ -42,12 +42,12 @@ namespace LanguageExt.Instances
             (short)(x + y);
 
         /// <summary>
-        /// Find the difference between two numbers
+        /// Find the subtract between two numbers
         /// </summary>
         /// <param name="x">left hand side of the subtraction operation</param>
         /// <param name="y">right hand side of the subtraction operation</param>
-        /// <returns>The sum difference between x and y</returns>
-        public short Difference(short x, short y) =>
+        /// <returns>The sum subtract between x and y</returns>
+        public short Subtract(short x, short y) =>
             (short)(x - y);
 
         /// <summary>

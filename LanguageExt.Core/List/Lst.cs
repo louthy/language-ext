@@ -255,16 +255,16 @@ namespace LanguageExt
 
         [Pure]
         public static Lst<A> operator -(Lst<A> lhs, Lst<A> rhs) =>
-            lhs.Difference(rhs);
+            lhs.Subtract(rhs);
 
         [Pure]
-        public Lst<A> Difference(Lst<A> rhs) =>
-            Value.Difference(rhs);
+        public Lst<A> Subtract(Lst<A> rhs) =>
+            Value.Subtract(rhs);
 
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public Lst<A> Difference(Lst<A> lhs, Lst<A> rhs) =>
-            lhs.Difference(rhs);
+        public Lst<A> Subtract(Lst<A> lhs, Lst<A> rhs) =>
+            lhs.Subtract(rhs);
 
         [Pure]
         public override bool Equals(object obj) =>

@@ -231,23 +231,23 @@ public static class TryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static Try<A> Add<ADD, A>(this Try<A> lhs, Try<A> rhs) where ADD : struct, Addition<A> =>
+    public static Try<A> Add<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
         from x in lhs
         from y in rhs
-        select add<ADD, A>(x, y);
+        select add<NUM, A>(x, y);
 
     /// <summary>
-    /// Find the difference of the bound value of Try(x) and Try(y).  If either of 
+    /// Find the subtract of the bound value of Try(x) and Try(y).  If either of 
     /// the Trys are Fail then the result is Fail
     /// </summary>
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static Try<A> Difference<DIFF, A>(this Try<A> lhs, Try<A> rhs) where DIFF : struct, Difference<A> =>
+    public static Try<A> Subtract<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
         from x in lhs
         from y in rhs
-        select difference<DIFF, A>(x, y);
+        select subtract<NUM, A>(x, y);
 
     /// <summary>
     /// Multiply the bound value of Try(x) and Try(y).  If either of the
@@ -257,10 +257,10 @@ public static class TryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static Try<A> Product<PROD, A>(this Try<A> lhs, Try<A> rhs) where PROD : struct, Product<A> =>
+    public static Try<A> Product<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
         from x in lhs
         from y in rhs
-        select product<PROD, A>(x, y);
+        select product<NUM, A>(x, y);
 
     /// <summary>
     /// Multiply the bound value of Try(x) and Try(y).  If either of the
@@ -270,10 +270,10 @@ public static class TryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static Try<A> Divide<DIV, A>(this Try<A> lhs, Try<A> rhs) where DIV : struct, Divisible<A> =>
+    public static Try<A> Divide<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
         from x in lhs
         from y in rhs
-        select divide<DIV, A>(x, y);
+        select divide<NUM, A>(x, y);
 
     /// <summary>
     /// Convert the Try type to a Nullable of A

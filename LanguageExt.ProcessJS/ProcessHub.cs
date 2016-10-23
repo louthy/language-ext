@@ -90,7 +90,7 @@ namespace LanguageExt.ProcessJS
         {
             if (processBlacklist != null)
             {
-                processBlacklist = Set.difference(processBlacklist, Set.createRange(processes.Map(p => p.Path).Distinct()));
+                processBlacklist = Set.subtract(processBlacklist, Set.createRange(processes.Map(p => p.Path).Distinct()));
             }
         }
 
@@ -112,7 +112,7 @@ namespace LanguageExt.ProcessJS
         {
             if (processWhitelist != null)
             {
-                processWhitelist = Set.difference(processWhitelist, Set.createRange(processes.Map(p => p.Path).Distinct()));
+                processWhitelist = Set.subtract(processWhitelist, Set.createRange(processes.Map(p => p.Path).Distinct()));
             }
         }
 

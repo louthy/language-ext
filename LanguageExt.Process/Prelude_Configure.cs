@@ -222,7 +222,7 @@ namespace LanguageExt
                 nodeName.Map(_ => configs.Filter(c => c.NodeName == nodeName).Iter(StartFromConfig))
                         .IfNone(() => configs.Filter(c => c.NodeName == "root").Iter(StartFromConfig));
 
-                if(setup != null) setup();
+                setup?.Invoke();
                 return unit;
             }
         }

@@ -136,14 +136,6 @@ namespace LanguageExt
             Count;
 
         /// <summary>
-        /// Returns this - setB.  Only the items in this that are not in 
-        /// setB will be returned.
-        /// </summary>
-        [Pure]
-        public Set<T> Difference(Set<T> setB) =>
-            Except(setB);
-
-        /// <summary>
         /// Attempts to find an item in the set.  
         /// </summary>
         /// <param name="value">Value to find</param>
@@ -580,20 +572,20 @@ namespace LanguageExt
             Union(rhs);
 
         /// <summary>
-        /// Subtract operator - performs a difference of the two sets
+        /// Subtract operator - performs a subtract of the two sets
         /// </summary>
         /// <param name="lhs">Left hand side set</param>
         /// <param name="rhs">Right hand side set</param>
-        /// <returns>Differenced set</returns>
+        /// <returns>Subtractd set</returns>
         [Pure]
         public static Set<T> operator -(Set<T> lhs, Set<T> rhs) =>
             lhs.Subtract(rhs);
 
         /// <summary>
-        /// Subtract operator - performs a difference of the two sets
+        /// Subtract operator - performs a subtract of the two sets
         /// </summary>
         /// <param name="rhs">Right hand side set</param>
-        /// <returns>Differenced set</returns>
+        /// <returns>Subtractd set</returns>
         [Pure]
         public Set<T> Subtract(Set<T> rhs)
         {

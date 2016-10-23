@@ -129,7 +129,7 @@ namespace LanguageExt
         /// setB will be returned.
         /// </summary>
         [Pure]
-        public static HashSet<T> difference<T>(HashSet<T> setA, HashSet<T> setB) =>
+        public static HashSet<T> subtract<T>(HashSet<T> setA, HashSet<T> setB) =>
             setA.Except(setB);
 
         /// <summary>

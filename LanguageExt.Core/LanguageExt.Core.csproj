@@ -87,6 +87,7 @@
     <Compile Include="Instances\MonadPlus\MSeq.cs" />
     <Compile Include="Instances\Monoid\Any.cs" />
     <Compile Include="Instances\Monoid\All.cs" />
+    <Compile Include="Instances\Monoid\Product.cs" />
     <Compile Include="Instances\Ord\OrdSeq.cs" />
     <Compile Include="Instances\Ord\OrdLst.cs" />
     <Compile Include="Instances\Ord\OrdChoice.cs" />
@@ -111,7 +112,6 @@
     <Compile Include="Instances\Eq\EqInt.cs" />
     <Compile Include="Instances\Ord\OrdNewType.cs" />
     <Compile Include="Instances\Ord\OrdArray.cs" />
-    <Compile Include="Instances\Semigroup\Product.cs" />
     <Compile Include="Instances\Monoid\Sum.cs" />
     <Compile Include="Instances\TArray.cs" />
     <Compile Include="IOptional.cs" />

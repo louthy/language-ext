@@ -17,12 +17,12 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
         [Pure]
-        public static Try<A> add<ADD, A>(Try<A> lhs, Try<A> rhs) where ADD : struct, Addition<A> =>
-            lhs.Add<ADD, A>(rhs);
+        public static Try<A> add<NUM, A>(Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
+            lhs.Add<NUM, A>(rhs);
     
         /// <summary>
         /// Subtract the Try(x) from Try(y).  If either of the Trys throw then the result is Fail
-        /// For numeric values the behaviour is to find the difference between the Trys (lhs - rhs)
+        /// For numeric values the behaviour is to find the subtract between the Trys (lhs - rhs)
         /// For Lst values the behaviour is to remove items in the rhs from the lhs
         /// For Map or Set values the behaviour is to remove items in the rhs from the lhs
         /// Otherwise if the R type derives from ISubtractable then the behaviour
@@ -32,8 +32,8 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
         [Pure]
-        public static Try<T> difference<SUB, T>(Try<T> lhs, Try<T> rhs) where SUB : struct, Difference<T> =>
-            lhs.Difference<SUB, T>(rhs);
+        public static Try<T> subtract<NUM, T>(Try<T> lhs, Try<T> rhs) where NUM : struct, Num<T> =>
+            lhs.Subtract<NUM, T>(rhs);
 
         /// <summary>
         /// Find the product of Try(x) and Try(y).  If either of the Trys throw then the result is Fail
@@ -47,8 +47,8 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
         [Pure]
-        public static Try<T> product<PROD, T>(Try<T> lhs, Try<T> rhs) where PROD : struct, Product<T> =>
-            lhs.Product<PROD, T>(rhs);
+        public static Try<T> product<NUM, T>(Try<T> lhs, Try<T> rhs) where NUM : struct, Num<T> =>
+            lhs.Product<NUM, T>(rhs);
 
         /// <summary>
         /// Divide Try(x) by Try(y).  If either of the Trys throw then the result is Fail
@@ -62,8 +62,8 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static Try<T> divide<DIV, T>(Try<T> lhs, Try<T> rhs) where DIV : struct, Divisible<T> =>
-            lhs.Divide<DIV, T>(rhs);
+        public static Try<T> divide<NUM, T>(Try<T> lhs, Try<T> rhs) where NUM : struct, Num<T> =>
+            lhs.Divide<NUM, T>(rhs);
 
         /// <summary>
         /// Apply

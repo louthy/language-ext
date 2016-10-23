@@ -43,35 +43,35 @@ namespace LanguageExt
             value.Fold(state, folder);
 
         [Pure]
-        public static NEWTYPE add<NEWTYPE, ADD, T>(NEWTYPE lhs, NEWTYPE rhs)
-            where ADD     : struct, Addition<T>
+        public static NEWTYPE add<NEWTYPE, NUM, T>(NEWTYPE lhs, NEWTYPE rhs)
+            where NUM     : struct, Num<T>
             where NEWTYPE : NewType<NEWTYPE, T> =>
             from x in lhs
             from y in rhs
-            select default(ADD).Add(x, y);
+            select default(NUM).Add(x, y);
 
         [Pure]
-        public static NEWTYPE difference<NEWTYPE, DIFF, T>(NEWTYPE lhs, NEWTYPE rhs)
-            where DIFF    : struct, Difference<T>
+        public static NEWTYPE subtract<NEWTYPE, NUM, T>(NEWTYPE lhs, NEWTYPE rhs)
+            where NUM    : struct, Num<T>
             where NEWTYPE : NewType<NEWTYPE, T> =>
             from x in lhs
             from y in rhs
-            select default(DIFF).Difference(x, y);
+            select default(NUM).Subtract(x, y);
 
         [Pure]
-        public static NEWTYPE divide<NEWTYPE, DIV, T>(NEWTYPE lhs, NEWTYPE rhs)
-            where DIV     : struct, Divisible<T>
+        public static NEWTYPE divide<NEWTYPE, NUM, T>(NEWTYPE lhs, NEWTYPE rhs)
+            where NUM     : struct, Num<T>
             where NEWTYPE : NewType<NEWTYPE, T> =>
             from x in lhs
             from y in rhs
-            select default(DIV).Divide(x, y);
+            select default(NUM).Divide(x, y);
 
         [Pure]
-        public static NEWTYPE product<NEWTYPE, PROD, T>(NEWTYPE lhs, NEWTYPE rhs)
-            where PROD    : struct, Product<T>
+        public static NEWTYPE product<NEWTYPE, NUM, T>(NEWTYPE lhs, NEWTYPE rhs)
+            where NUM    : struct, Num<T>
             where NEWTYPE : NewType<NEWTYPE, T> =>
             from x in lhs
             from y in rhs
-            select default(PROD).Product(x, y);
+            select default(NUM).Product(x, y);
     }
 }

@@ -10,7 +10,6 @@ namespace LanguageExt.Instances
     public struct MMap<K, V> :
         Foldable<Map<K, V>, V>,
         Monoid<Map<K, V>>,
-        Difference<Map<K, V>>,
         Eq<Map<K, V>>
     {
         public Map<K, V> Append(Map<K, V> x, Map<K, V> y) =>
@@ -19,7 +18,7 @@ namespace LanguageExt.Instances
         public int Count(Map<K, V> fa) =>
             fa.Count;
 
-        public Map<K, V> Difference(Map<K, V> x, Map<K, V> y) =>
+        public Map<K, V> Subtract(Map<K, V> x, Map<K, V> y) =>
             x - y;
 
         public Map<K, V> Empty() =>

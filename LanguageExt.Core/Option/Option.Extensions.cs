@@ -42,25 +42,25 @@ public static class OptionExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with y added to x</returns>
     [Pure]
-    public static Option<A> Add<ADD, A>(this Option<A> x, Option<A> y) where ADD : struct, Addition<A> =>
+    public static Option<A> Add<NUM, A>(this Option<A> x, Option<A> y) where NUM : struct, Num<A> =>
         from a in x
         from b in y
-        select add<ADD, A>(a, b);
+        select add<NUM, A>(a, b);
 
     /// <summary>
-    /// Find the difference between the two bound values of x and y, uses a Difference type-class 
-    /// to provide the difference operation for type A.  For example x.Difference<TInteger,int>(y)
+    /// Find the subtract between the two bound values of x and y, uses a Subtract type-class 
+    /// to provide the subtract operation for type A.  For example x.Subtract<TInteger,int>(y)
     /// </summary>
-    /// <typeparam name="DIFF">Difference of A</typeparam>
+    /// <typeparam name="DIFF">Subtract of A</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An option with the difference between x and y</returns>
+    /// <returns>An option with the subtract between x and y</returns>
     [Pure]
-    public static Option<A> Difference<DIFF, A>(this Option<A> x, Option<A> y) where DIFF : struct, Difference<A> =>
+    public static Option<A> Subtract<NUM, A>(this Option<A> x, Option<A> y) where NUM : struct, Num<A> =>
         from a in x
         from b in y
-        select difference<DIFF, A>(a, b);
+        select subtract<NUM, A>(a, b);
 
     /// <summary>
     /// Find the product between the two bound values of x and y, uses a Product type-class 
@@ -72,10 +72,10 @@ public static class OptionExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with the product of x and y</returns>
     [Pure]
-    public static Option<A> Product<PROD, A>(this Option<A> x, Option<A> y) where PROD : struct, Product<A> =>
+    public static Option<A> Product<NUM, A>(this Option<A> x, Option<A> y) where NUM : struct, Num<A> =>
         from a in x
         from b in y
-        select product<PROD, A>(a, b);
+        select product<NUM, A>(a, b);
 
     /// <summary>
     /// Divide the two bound values of x and y, uses a Divide type-class to provide the divide
@@ -87,10 +87,10 @@ public static class OptionExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option x / y</returns>
     [Pure]
-    public static Option<A> Divide<DIV, A>(this Option<A> x, Option<A> y) where DIV : struct, Divisible<A> =>
+    public static Option<A> Divide<NUM, A>(this Option<A> x, Option<A> y) where NUM : struct, Num<A> =>
         from a in x
         from b in y
-        select divide<DIV, A>(a, b);
+        select divide<NUM, A>(a, b);
 
     /// <summary>
     /// Apply y to x

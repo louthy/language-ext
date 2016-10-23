@@ -13,20 +13,20 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
-        /// Difference the Ts
+        /// Subtract the Ts
         /// </summary>
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
         [Pure]
-        public static Option<T> difference<DIFF, T>(Option<T> lhs, Option<T> rhs) where DIFF : struct, Difference<T> =>
-            lhs.Difference<DIFF, T>(rhs);
+        public static Option<T> subtract<NUM, T>(Option<T> lhs, Option<T> rhs) where NUM : struct, Num<T> =>
+            lhs.Subtract<NUM, T>(rhs);
 
         /// <summary>
         /// Find the product of the Ts
         [Pure]
-        public static Option<T> product<PROD, T>(Option<T> lhs, Option<T> rhs) where PROD : struct, Product<T> =>
-            lhs.Product<PROD, T>(rhs);
+        public static Option<T> product<NUM, T>(Option<T> lhs, Option<T> rhs) where NUM : struct, Num<T> =>
+            lhs.Product<NUM, T>(rhs);
 
         /// <summary>
         /// Divide the Ts
@@ -35,8 +35,8 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static Option<T> divide<DIV, T>(Option<T> lhs, Option<T> rhs) where DIV : struct, Divisible<T> =>
-            lhs.Divide<DIV, T>(rhs);
+        public static Option<T> divide<NUM, T>(Option<T> lhs, Option<T> rhs) where NUM : struct, Num<T> =>
+            lhs.Divide<NUM, T>(rhs);
 
         /// <summary>
         /// Add the Ts
@@ -45,8 +45,8 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static Option<T> add<ADD, T>(Option<T> lhs, Option<T> rhs) where ADD : struct, Addition<T> =>
-            lhs.Add<ADD, T>(rhs);
+        public static Option<T> add<NUM, T>(Option<T> lhs, Option<T> rhs) where NUM : struct, Num<T> =>
+            lhs.Add<NUM, T>(rhs);
 
         /// <summary>
         /// Check if Option is in a Some state

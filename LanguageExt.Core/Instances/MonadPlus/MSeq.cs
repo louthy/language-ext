@@ -16,7 +16,6 @@ namespace LanguageExt.Instances
         MonadPlus<IEnumerable<A>, A>,
         Foldable<IEnumerable<A>, A>,
         Eq<IEnumerable<A>>,
-        Difference<IEnumerable<A>>,
         Monoid<IEnumerable<A>>
     {
         public IEnumerable<A> Append(IEnumerable<A> x, IEnumerable<A> y) =>
@@ -35,7 +34,7 @@ namespace LanguageExt.Instances
         public int Count(IEnumerable<A> fa) =>
             fa.Count();
 
-        public IEnumerable<A> Difference(IEnumerable<A> x, IEnumerable<A> y) =>
+        public IEnumerable<A> Subtract(IEnumerable<A> x, IEnumerable<A> y) =>
             Enumerable.Except(x, y);
 
         public IEnumerable<A> Empty() =>

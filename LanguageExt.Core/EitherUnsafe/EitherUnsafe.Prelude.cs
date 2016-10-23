@@ -25,25 +25,25 @@ namespace LanguageExt
         /// <param name="y">Right hand side of the operation</param>
         /// <returns>An option with y added to x</returns>
         [Pure]
-        public static EitherUnsafe<L, R> add<ADD, L, R>(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) where ADD : struct, Addition<R> =>
+        public static EitherUnsafe<L, R> add<NUM, L, R>(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) where NUM : struct, Num<R> =>
             from a in x
             from b in y
-            select default(ADD).Add(a, b);
+            select default(NUM).Add(a, b);
 
         /// <summary>
-        /// Find the difference between the two bound values of x and y, uses a Difference type-class 
-        /// to provide the difference operation for type A.  For example x.Difference<TInteger,int>(y)
+        /// Find the subtract between the two bound values of x and y, uses a Subtract type-class 
+        /// to provide the subtract operation for type A.  For example x.Subtract<TInteger,int>(y)
         /// </summary>
-        /// <typeparam name="DIFF">Difference of A</typeparam>
+        /// <typeparam name="DIFF">Subtract of A</typeparam>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <param name="x">Left hand side of the operation</param>
         /// <param name="y">Right hand side of the operation</param>
-        /// <returns>An option with the difference between x and y</returns>
+        /// <returns>An option with the subtract between x and y</returns>
         [Pure]
-        public static EitherUnsafe<L, R> difference<DIFF, L, R>(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) where DIFF : struct, Difference<R> =>
+        public static EitherUnsafe<L, R> subtract<NUM, L, R>(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) where NUM : struct, Num<R> =>
             from a in x
             from b in y
-            select default(DIFF).Difference(a, b);
+            select default(NUM).Subtract(a, b);
 
         /// <summary>
         /// Find the product between the two bound values of x and y, uses a Product type-class 
@@ -55,10 +55,10 @@ namespace LanguageExt
         /// <param name="y">Right hand side of the operation</param>
         /// <returns>An option with the product of x and y</returns>
         [Pure]
-        public static EitherUnsafe<L, R> product<PROD, L, R>(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) where PROD : struct, Product<R> =>
+        public static EitherUnsafe<L, R> product<NUM, L, R>(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) where NUM : struct, Num<R> =>
             from a in x
             from b in y
-            select default(PROD).Product(a, b);
+            select default(NUM).Product(a, b);
 
         /// <summary>
         /// Divide the two bound values of x and y, uses a Divide type-class to provide the divide
@@ -70,10 +70,10 @@ namespace LanguageExt
         /// <param name="y">Right hand side of the operation</param>
         /// <returns>An option x / y</returns>
         [Pure]
-        public static EitherUnsafe<L, R> divide<DIV, L, R>(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) where DIV : struct, Divisible<R> =>
+        public static EitherUnsafe<L, R> divide<NUM, L, R>(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) where NUM : struct, Num<R> =>
             from a in x
             from b in y
-            select default(DIV).Divide(a, b);
+            select default(NUM).Divide(a, b);
 
         /// <summary>
         /// Apply y to x

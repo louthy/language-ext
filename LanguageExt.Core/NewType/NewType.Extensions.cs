@@ -17,29 +17,29 @@ public static class NewTypeExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An NewType with y added to x</returns>
     [Pure]
-    public static NEWTYPE Add<NEWTYPE, ADD, A>(this NewType<NEWTYPE, A> lhs, NewType<NEWTYPE, A> rhs)
-        where ADD     : struct, Addition<A>
+    public static NEWTYPE Add<NEWTYPE, NUM, A>(this NewType<NEWTYPE, A> lhs, NewType<NEWTYPE, A> rhs)
+        where NUM     : struct, Num<A>
         where NEWTYPE : NewType<NEWTYPE, A> =>
         from x in lhs
         from y in rhs
-        select add<ADD, A>(x, y);
+        select add<NUM, A>(x, y);
 
     /// <summary>
-    /// Find the difference between the two bound values of x and y, uses a Difference type-class 
-    /// to provide the difference operation for type A.  For example x.Difference<TInteger,int>(y)
+    /// Find the subtract between the two bound values of x and y, uses a Subtract type-class 
+    /// to provide the subtract operation for type A.  For example x.Subtract<TInteger,int>(y)
     /// </summary>
-    /// <typeparam name="DIFF">Difference of A</typeparam>
+    /// <typeparam name="DIFF">Subtract of A</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
-    /// <returns>NewType with the difference between x and y</returns>
+    /// <returns>NewType with the subtract between x and y</returns>
     [Pure]
-    public static NEWTYPE Difference<NEWTYPE, DIFF, A>(this NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) 
-        where DIFF : struct, Difference<A>
+    public static NEWTYPE Subtract<NEWTYPE, NUM, A>(this NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) 
+        where NUM     : struct, Num<A>
         where NEWTYPE : NewType<NEWTYPE, A> =>
         from a in x
         from b in y
-        select difference<DIFF, A>(a, b);
+        select subtract<NUM, A>(a, b);
 
     /// <summary>
     /// Find the product between the two bound values of x and y, uses a Product type-class 
@@ -51,12 +51,12 @@ public static class NewTypeExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>Product of x and y</returns>
     [Pure]
-    public static NEWTYPE Product<NEWTYPE, PROD, A>(this NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) 
-        where PROD : struct, Product<A>
+    public static NEWTYPE Product<NEWTYPE, NUM, A>(this NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) 
+        where NUM     : struct, Num<A>
         where NEWTYPE : NewType<NEWTYPE, A> =>
         from a in x
         from b in y
-        select product<PROD, A>(a, b);
+        select product<NUM, A>(a, b);
 
     /// <summary>
     /// Divide the two bound values of x and y, uses a Divide type-class to provide the divide
@@ -68,10 +68,10 @@ public static class NewTypeExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>x / y</returns>
     [Pure]
-    public static NEWTYPE Divide<NEWTYPE, DIV, A>(this NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) 
-        where DIV     : struct, Divisible<A>
+    public static NEWTYPE Divide<NEWTYPE, NUM, A>(this NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) 
+        where NUM     : struct, Num<A>
         where NEWTYPE : NewType<NEWTYPE, A> =>
         from a in x
         from b in y
-        select divide<DIV, A>(a, b);
+        select divide<NUM, A>(a, b);
 }

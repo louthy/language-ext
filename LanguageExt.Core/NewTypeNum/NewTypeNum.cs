@@ -58,15 +58,15 @@ namespace LanguageExt
             select add<NUM, A>(x, y);
 
         /// <summary>
-        /// Difference of NewType(x) and NewType(y)
+        /// Subtract of NewType(x) and NewType(y)
         /// </summary>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
         [Pure]
-        public NEWTYPE Difference(NEWTYPE rhs) =>
+        public NEWTYPE Subtract(NEWTYPE rhs) =>
             from x in this
             from y in rhs
-            select difference<NUM, A>(x, y);
+            select subtract<NUM, A>(x, y);
 
         /// <summary>
         /// Divide NewType(x) and NewType(y)
@@ -77,7 +77,7 @@ namespace LanguageExt
         public NEWTYPE Divide(NEWTYPE rhs) =>
             from x in this
             from y in rhs
-            select difference<NUM, A>(x, y);
+            select subtract<NUM, A>(x, y);
 
         /// <summary>
         /// Multiply NewType(x) and NewType(y)
@@ -88,7 +88,7 @@ namespace LanguageExt
         public NEWTYPE Product(NEWTYPE rhs) =>
             from x in this
             from y in rhs
-            select difference<NUM, A>(x, y);
+            select subtract<NUM, A>(x, y);
 
         /// <summary>
         /// Find the absolute value of a number
@@ -124,7 +124,7 @@ namespace LanguageExt
 
         [Pure]
         public static NEWTYPE operator -(NewType<NEWTYPE, NUM, A> x) =>
-             New(default(NUM).Difference(default(NUM).FromInteger(0), x.Value));
+             New(default(NUM).Subtract(default(NUM).FromInteger(0), x.Value));
 
         [Pure]
         public static NEWTYPE operator +(NewType<NEWTYPE, NUM, A> lhs, NewType<NEWTYPE, NUM, A> rhs) =>
@@ -132,7 +132,7 @@ namespace LanguageExt
 
         [Pure]
         public static NEWTYPE operator -(NewType<NEWTYPE, NUM, A> lhs, NewType<NEWTYPE, NUM, A> rhs) =>
-             New(default(NUM).Difference(lhs.Value, rhs.Value));
+             New(default(NUM).Subtract(lhs.Value, rhs.Value));
 
         [Pure]
         public static NEWTYPE operator *(NewType<NEWTYPE, NUM, A> lhs, NewType<NEWTYPE, NUM, A> rhs) =>

@@ -16,7 +16,6 @@ namespace LanguageExt.Instances
         MonadPlus<HashSet<A>, A>,
         Foldable<HashSet<A>, A>,
         Eq<HashSet<A>>,
-        Difference<HashSet<A>>,
         Monoid<HashSet<A>>
    {
         public HashSet<A> Append(HashSet<A> x, HashSet<A> y) =>
@@ -36,7 +35,7 @@ namespace LanguageExt.Instances
         public int Count(HashSet<A> fa) =>
             fa.Count();
 
-        public HashSet<A> Difference(HashSet<A> x, HashSet<A> y) =>
+        public HashSet<A> Subtract(HashSet<A> x, HashSet<A> y) =>
             HashSet.createRange(Enumerable.Except(x, y));
 
         public HashSet<A> Empty() =>

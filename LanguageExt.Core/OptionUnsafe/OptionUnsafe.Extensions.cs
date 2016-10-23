@@ -42,25 +42,25 @@ public static class OptionUnsafeExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with y added to x</returns>
     [Pure]
-    public static OptionUnsafe<A> Add<ADD, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where ADD : struct, Addition<A> =>
+    public static OptionUnsafe<A> Add<NUM, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where NUM : struct, Num<A> =>
         from a in x
         from b in y
-        select add<ADD, A>(a, b);
+        select add<NUM, A>(a, b);
 
     /// <summary>
-    /// Find the difference between the two bound values of x and y, uses a Difference type-class 
-    /// to provide the difference operation for type A.  For example x.Difference<TInteger,int>(y)
+    /// Find the subtract between the two bound values of x and y, uses a Subtract type-class 
+    /// to provide the subtract operation for type A.  For example x.Subtract<TInteger,int>(y)
     /// </summary>
-    /// <typeparam name="DIFF">Difference of A</typeparam>
+    /// <typeparam name="DIFF">Subtract of A</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An OptionUnsafe with the difference between x and y</returns>
+    /// <returns>An OptionUnsafe with the subtract between x and y</returns>
     [Pure]
-    public static OptionUnsafe<A> Difference<DIFF, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where DIFF : struct, Difference<A> =>
+    public static OptionUnsafe<A> Subtract<NUM, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where NUM : struct, Num<A> =>
         from a in x
         from b in y
-        select difference<DIFF, A>(a, b);
+        select subtract<NUM, A>(a, b);
 
     /// <summary>
     /// Find the product between the two bound values of x and y, uses a Product type-class 
@@ -72,10 +72,10 @@ public static class OptionUnsafeExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An OptionUnsafe with the product of x and y</returns>
     [Pure]
-    public static OptionUnsafe<A> Product<PROD, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where PROD : struct, Product<A> =>
+    public static OptionUnsafe<A> Product<NUM, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where NUM : struct, Num<A> =>
         from a in x
         from b in y
-        select product<PROD, A>(a, b);
+        select product<NUM, A>(a, b);
 
     /// <summary>
     /// Divide the two bound values of x and y, uses a Divide type-class to provide the divide
@@ -87,10 +87,10 @@ public static class OptionUnsafeExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An OptionUnsafe x / y</returns>
     [Pure]
-    public static OptionUnsafe<A> Divide<DIV, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where DIV : struct, Divisible<A> =>
+    public static OptionUnsafe<A> Divide<NUM, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where NUM : struct, Num<A> =>
         from a in x
         from b in y
-        select divide<DIV, A>(a, b);
+        select divide<NUM, A>(a, b);
 
     /// Apply y to x
     /// </summary>

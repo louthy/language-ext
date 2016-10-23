@@ -386,10 +386,10 @@ namespace LanguageExt
 
         [Pure]
         public static LstInternal<A> operator -(LstInternal<A> lhs, LstInternal<A> rhs) =>
-            lhs.Difference(Wrap(rhs)).Value;
+            lhs.Subtract(Wrap(rhs)).Value;
 
         [Pure]
-        public Lst<A> Difference(Lst<A> rhs)
+        public Lst<A> Subtract(Lst<A> rhs)
         {
             var self = Wrap(this);
             foreach (var item in rhs)
@@ -401,7 +401,7 @@ namespace LanguageExt
 
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public Lst<A> Difference(Lst<A> lhs, Lst<A> rhs)
+        public Lst<A> Subtract(Lst<A> lhs, Lst<A> rhs)
         {
             foreach (var item in rhs)
             {

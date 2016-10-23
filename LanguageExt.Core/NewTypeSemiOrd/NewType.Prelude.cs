@@ -64,43 +64,43 @@ namespace LanguageExt
             value.Fold(state, folder);
 
         [Pure]
-        public static NEWTYPE add<NEWTYPE, SEMI, ORD, ADD, T>(NEWTYPE lhs, NEWTYPE rhs)
+        public static NEWTYPE add<NEWTYPE, SEMI, ORD, NUM, T>(NEWTYPE lhs, NEWTYPE rhs)
             where ORD  : struct, Ord<T>
             where SEMI : struct, Semigroup<T>
-            where ADD  : struct, Addition<T>
+            where NUM  : struct, Num<T>
             where NEWTYPE : NewType<NEWTYPE, SEMI, ORD, T> =>
             from x in lhs
             from y in rhs
-            select default(ADD).Add(x, y);
+            select default(NUM).Add(x, y);
 
         [Pure]
-        public static NEWTYPE difference<NEWTYPE, SEMI, ORD, DIFF, T>(NEWTYPE lhs, NEWTYPE rhs)
+        public static NEWTYPE subtract<NEWTYPE, SEMI, ORD, NUM, T>(NEWTYPE lhs, NEWTYPE rhs)
             where ORD     : struct, Ord<T>
             where SEMI    : struct, Semigroup<T>
-            where DIFF    : struct, Difference<T>
+            where NUM     : struct, Num<T>
             where NEWTYPE : NewType<NEWTYPE, SEMI, ORD, T> =>
             from x in lhs
             from y in rhs
-            select default(DIFF).Difference(x, y);
+            select default(NUM).Subtract(x, y);
 
         [Pure]
-        public static NEWTYPE divide<NEWTYPE, SEMI, ORD, DIV, T>(NEWTYPE lhs, NEWTYPE rhs)
+        public static NEWTYPE divide<NEWTYPE, SEMI, ORD, NUM, T>(NEWTYPE lhs, NEWTYPE rhs)
             where ORD     : struct, Ord<T>
             where SEMI    : struct, Semigroup<T>
-            where DIV     : struct, Divisible<T>
+            where NUM     : struct, Num<T>
             where NEWTYPE : NewType<NEWTYPE, SEMI, ORD, T> =>
             from x in lhs
             from y in rhs
-            select default(DIV).Divide(x, y);
+            select default(NUM).Divide(x, y);
 
         [Pure]
-        public static NEWTYPE product<NEWTYPE, SEMI, ORD, PROD, T>(NEWTYPE lhs, NEWTYPE rhs)
+        public static NEWTYPE product<NEWTYPE, SEMI, ORD, NUM, T>(NEWTYPE lhs, NEWTYPE rhs)
             where ORD     : struct, Ord<T>
             where SEMI    : struct, Semigroup<T>
-            where PROD    : struct, Product<T>
+            where NUM     : struct, Num<T>
             where NEWTYPE : NewType<NEWTYPE, SEMI, ORD, T> =>
             from x in lhs
             from y in rhs
-            select default(PROD).Product(x, y);
+            select default(NUM).Product(x, y);
     }
 }

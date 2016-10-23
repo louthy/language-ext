@@ -12,18 +12,18 @@ namespace LanguageExt
         /// <param name="y">right hand side of the addition operation</param>
         /// <returns>The sum of x and y</returns>
         [Pure]
-        public static A add<ADD, A>(A x, A y) where ADD : struct, Addition<A> =>
-            default(ADD).Add(x, y);
+        public static A add<NUM, A>(A x, A y) where NUM : struct, Num<A> =>
+            default(NUM).Add(x, y);
 
         /// <summary>
-        /// Find the difference between two numbers
+        /// Find the subtract between two numbers
         /// </summary>
         /// <param name="x">left hand side of the subtraction operation</param>
         /// <param name="y">right hand side of the subtraction operation</param>
-        /// <returns>The sum difference between x and y</returns>
+        /// <returns>The sum subtract between x and y</returns>
         [Pure]
-        public static A difference<DIFF, A>(A x, A y) where DIFF : struct, Difference<A> =>
-            default(DIFF).Difference(x, y);
+        public static A subtract<NUM, A>(A x, A y) where NUM : struct, Num<A> =>
+            default(NUM).Subtract(x, y);
 
         /// <summary>
         /// Find the product of two numbers
@@ -32,8 +32,8 @@ namespace LanguageExt
         /// <param name="y">right hand side of the product operation</param>
         /// <returns>The product of x and y</returns>
         [Pure]
-        public static A product<PROD, A>(A x, A y) where PROD : struct, Product<A> =>
-            default(PROD).Product(x, y);
+        public static A product<NUM, A>(A x, A y) where NUM : struct, Num<A> =>
+            default(NUM).Product(x, y);
 
         /// <summary>
         /// Divide two numbers
@@ -42,8 +42,8 @@ namespace LanguageExt
         /// <param name="y">right hand side of the division operation</param>
         /// <returns>x / y</returns>
         [Pure]
-        public static A divide<DIV, A>(A x, A y) where DIV : struct, Divisible<A> =>
-            default(DIV).Divide(x, y);
+        public static A divide<NUM, A>(A x, A y) where NUM : struct, Num<A> =>
+            default(NUM).Divide(x, y);
 
         /// <summary>
         /// Find the absolute value of a number

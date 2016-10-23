@@ -66,20 +66,20 @@ namespace LanguageExt
             select default(NUM).Add(a, b);
 
         /// <summary>
-        /// Find the difference between the two bound values of x and y, uses a Difference type-class 
-        /// to provide the difference operation for type A.  For example x.Difference<TInteger,int>(y)
+        /// Find the subtract between the two bound values of x and y, uses a Subtract type-class 
+        /// to provide the subtract operation for type A.  For example x.Subtract<TInteger,int>(y)
         /// </summary>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <param name="x">Left hand side of the operation</param>
         /// <param name="y">Right hand side of the operation</param>
-        /// <returns>An NewType with the difference between x and y</returns>
+        /// <returns>An NewType with the subtract between x and y</returns>
         [Pure]
-        public static NEWTYPE difference<NEWTYPE, NUM, A>(this NEWTYPE x, NewType<NEWTYPE, NUM, A> y)
+        public static NEWTYPE subtract<NEWTYPE, NUM, A>(this NEWTYPE x, NewType<NEWTYPE, NUM, A> y)
             where NUM : struct, Num<A>
             where NEWTYPE : NewType<NEWTYPE, NUM, A> =>
             from a in x
             from b in y
-            select default(NUM).Difference(a, b);
+            select default(NUM).Subtract(a, b);
 
         /// <summary>
         /// Find the product between the two bound values of x and y, uses a Product type-class 

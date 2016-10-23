@@ -132,7 +132,7 @@ namespace LanguageExt
         /// setB will be returned.
         /// </summary>
         [Pure]
-        public static Set<T> difference<T>(Set<T> setA, Set<T> setB) =>
+        public static Set<T> subtract<T>(Set<T> setA, Set<T> setB) =>
             setA.Except(setB);
 
         /// <summary>

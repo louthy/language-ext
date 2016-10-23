@@ -191,7 +191,7 @@ namespace LanguageExt
 
         /// <summary>
         /// Subtract the Some(x) of one option from the Some(y) of another.
-        /// For numeric values the behaviour is to find the difference between the Somes (lhs - rhs)
+        /// For numeric values the behaviour is to find the subtract between the Somes (lhs - rhs)
         /// For Lst values the behaviour is to remove items in the rhs from the lhs
         /// For Map or Set values the behaviour is to remove items in the rhs from the lhs
         /// Otherwise if the T type derives from ISubtractable then the behaviour

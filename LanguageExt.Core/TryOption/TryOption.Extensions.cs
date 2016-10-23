@@ -318,23 +318,23 @@ public static class TryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOption<A> Add<ADD, A>(this TryOption<A> lhs, TryOption<A> rhs) where ADD : struct, Addition<A> =>
+    public static TryOption<A> Add<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : struct, Num<A> =>
         from x in lhs
         from y in rhs
-        select add<ADD, A>(x, y);
+        select add<NUM, A>(x, y);
 
     /// <summary>
-    /// Find the difference of the bound value of Try(x) and Try(y).  If either of 
+    /// Find the subtract of the bound value of Try(x) and Try(y).  If either of 
     /// the Trys are Fail then the result is Fail
     /// </summary>
     /// <param name="lhs">Left-hand side of the operation</param>
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOption<A> Difference<DIFF, A>(this TryOption<A> lhs, TryOption<A> rhs) where DIFF : struct, Difference<A> =>
+    public static TryOption<A> Subtract<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : struct, Num<A> =>
         from x in lhs
         from y in rhs
-        select difference<DIFF, A>(x, y);
+        select subtract<NUM, A>(x, y);
 
     /// <summary>
     /// Multiply the bound value of Try(x) and Try(y).  If either of the
@@ -344,10 +344,10 @@ public static class TryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOption<A> Product<PROD, A>(this TryOption<A> lhs, TryOption<A> rhs) where PROD : struct, Product<A> =>
+    public static TryOption<A> Product<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : struct, Num<A> =>
         from x in lhs
         from y in rhs
-        select product<PROD, A>(x, y);
+        select product<NUM, A>(x, y);
 
     /// <summary>
     /// Multiply the bound value of Try(x) and Try(y).  If either of the
@@ -357,10 +357,10 @@ public static class TryOptionExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryOption<A> Divide<DIV, A>(this TryOption<A> lhs, TryOption<A> rhs) where DIV : struct, Divisible<A> =>
+    public static TryOption<A> Divide<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : struct, Num<A> =>
         from x in lhs
         from y in rhs
-        select divide<DIV, A>(x, y);
+        select divide<NUM, A>(x, y);
 
     /// <summary>
     /// Convert the Try type to a Nullable of A

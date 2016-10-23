@@ -20,61 +20,61 @@ public static class EitherExtensions
     /// Add the bound values of x and y, uses an Add type-class to provide the add
     /// operation for type A.  For example x.Add<TInteger,int>(y)
     /// </summary>
-    /// <typeparam name="ADD">Add of A</typeparam>
+    /// <typeparam name="NUM">Num of A</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with y added to x</returns>
     [Pure]
-    public static Either<L, R> Add<ADD, L, R>(this Either<L, R> x, Either<L, R> y) where ADD : struct, Addition<R> =>
+    public static Either<L, R> Add<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : struct, Num<R> =>
         from a in x
         from b in y
-        select default(ADD).Add(a, b);
+        select default(NUM).Add(a, b);
 
     /// <summary>
-    /// Find the difference between the two bound values of x and y, uses a Difference type-class 
-    /// to provide the difference operation for type A.  For example x.Difference<TInteger,int>(y)
+    /// Find the subtract between the two bound values of x and y, uses a Subtract type-class 
+    /// to provide the subtract operation for type A.  For example x.Subtract<TInteger,int>(y)
     /// </summary>
-    /// <typeparam name="DIFF">Difference of A</typeparam>
+    /// <typeparam name="NUM">Num of A</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
-    /// <returns>An option with the difference between x and y</returns>
+    /// <returns>An option with the subtract between x and y</returns>
     [Pure]
-    public static Either<L, R> Difference<DIFF, L, R>(this Either<L, R> x, Either<L, R> y) where DIFF : struct, Difference<R> =>
+    public static Either<L, R> Subtract<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : struct, Num<R> =>
         from a in x
         from b in y
-        select default(DIFF).Difference(a, b);
+        select default(NUM).Subtract(a, b);
 
     /// <summary>
     /// Find the product between the two bound values of x and y, uses a Product type-class 
     /// to provide the product operation for type A.  For example x.Product<TInteger,int>(y)
     /// </summary>
-    /// <typeparam name="PROD">Product of A</typeparam>
+    /// <typeparam name="NUM">Num of A</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with the product of x and y</returns>
     [Pure]
-    public static Either<L, R> Product<PROD, L, R>(this Either<L, R> x, Either<L, R> y) where PROD : struct, Product<R> =>
+    public static Either<L, R> Product<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : struct, Num<R> =>
         from a in x
         from b in y
-        select default(PROD).Product(a, b);
+        select default(NUM).Product(a, b);
 
     /// <summary>
     /// Divide the two bound values of x and y, uses a Divide type-class to provide the divide
     /// operation for type A.  For example x.Divide<TDouble,double>(y)
     /// </summary>
-    /// <typeparam name="DIV">Divide of A</typeparam>
+    /// <typeparam name="NUM">Num of A</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option x / y</returns>
     [Pure]
-    public static Either<L, R> Divide<DIV, L, R>(this Either<L, R> x, Either<L, R> y) where DIV : struct, Divisible<R> =>
+    public static Either<L, R> Divide<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : struct, Num<R> =>
         from a in x
         from b in y
-        select default(DIV).Divide(a, b);
+        select default(NUM).Divide(a, b);
 
     /// <summary>
     /// Apply y to x

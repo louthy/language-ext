@@ -13,20 +13,20 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
-        /// Difference the Ts
+        /// Subtract the Ts
         /// </summary>
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
         [Pure]
-        public static OptionUnsafe<T> difference<DIFF, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where DIFF : struct, Difference<T> =>
-            lhs.Difference<DIFF, T>(rhs);
+        public static OptionUnsafe<T> subtract<NUM, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where NUM : struct, Num<T> =>
+            lhs.Subtract<NUM, T>(rhs);
 
         /// <summary>
         /// Find the product of the Ts
         [Pure]
-        public static OptionUnsafe<T> product<PROD, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where PROD : struct, Product<T> =>
-            lhs.Product<PROD, T>(rhs);
+        public static OptionUnsafe<T> product<NUM, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where NUM : struct, Num<T> =>
+            lhs.Product<NUM, T>(rhs);
 
         /// <summary>
         /// Divide the Ts
@@ -35,8 +35,8 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static OptionUnsafe<T> divide<DIV, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where DIV : struct, Divisible<T> =>
-            lhs.Divide<DIV, T>(rhs);
+        public static OptionUnsafe<T> divide<NUM, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where NUM : struct, Num<T> =>
+            lhs.Divide<NUM, T>(rhs);
 
         /// <summary>
         /// Add the Ts
@@ -45,8 +45,8 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static OptionUnsafe<T> add<ADD, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where ADD : struct, Addition<T> =>
-            lhs.Add<ADD, T>(rhs);
+        public static OptionUnsafe<T> add<NUM, T>(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) where NUM : struct, Num<T> =>
+            lhs.Add<NUM, T>(rhs);
 
         /// <summary>
         /// Check if OptionUnsafe is in a Some state

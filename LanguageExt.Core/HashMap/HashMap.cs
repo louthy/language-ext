@@ -15,7 +15,7 @@ namespace LanguageExt
         IEnumerable<IMapItem<K, V>>,
         IReadOnlyDictionary<K, V>
         //Monoid<HMap<K, V>>,
-        //Difference<HMap<K, V>>,
+        //Subtract<HMap<K, V>>,
         //Eq<HMap<K, V>>
     {
         public static readonly HashMap<K, V> Empty = new HashMap<K,V>(HashMapInternal<K, V>.Empty);
