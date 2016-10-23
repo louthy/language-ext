@@ -63,7 +63,7 @@ namespace LanguageExt
             where NEWTYPE : NewType<NEWTYPE, NUM, A> =>
             from a in x
             from b in y
-            select default(NUM).Add(a, b);
+            select default(NUM).Plus(a, b);
 
         /// <summary>
         /// Find the subtract between the two bound values of x and y, uses a Subtract type-class 

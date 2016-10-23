@@ -321,7 +321,7 @@ public static class TryOptionExtensions
     public static TryOption<A> Add<NUM, A>(this TryOption<A> lhs, TryOption<A> rhs) where NUM : struct, Num<A> =>
         from x in lhs
         from y in rhs
-        select add<NUM, A>(x, y);
+        select plus<NUM, A>(x, y);
 
     /// <summary>
     /// Find the subtract of the bound value of Try(x) and Try(y).  If either of 

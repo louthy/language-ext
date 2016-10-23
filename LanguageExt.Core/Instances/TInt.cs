@@ -38,7 +38,7 @@ namespace LanguageExt.Instances
         /// <param name="x">left hand side of the addition operation</param>
         /// <param name="y">right hand side of the addition operation</param>
         /// <returns>The sum of x and y</returns>
-        public int Add(int x, int y) =>
+        public int Plus(int x, int y) =>
             x + y;
 
         /// <summary>

@@ -43,12 +43,12 @@ namespace LanguageExt
             value.Fold(state, folder);
 
         [Pure]
-        public static NEWTYPE add<NEWTYPE, NUM, T>(NEWTYPE lhs, NEWTYPE rhs)
+        public static NEWTYPE plus<NEWTYPE, NUM, T>(NEWTYPE lhs, NEWTYPE rhs)
             where NUM     : struct, Num<T>
             where NEWTYPE : NewType<NEWTYPE, T> =>
             from x in lhs
             from y in rhs
-            select default(NUM).Add(x, y);
+            select default(NUM).Plus(x, y);
 
         [Pure]
         public static NEWTYPE subtract<NEWTYPE, NUM, T>(NEWTYPE lhs, NEWTYPE rhs)

@@ -12,8 +12,8 @@ namespace LanguageExt
         /// <param name="y">right hand side of the addition operation</param>
         /// <returns>The sum of x and y</returns>
         [Pure]
-        public static A add<NUM, A>(A x, A y) where NUM : struct, Num<A> =>
-            default(NUM).Add(x, y);
+        public static A plus<NUM, A>(A x, A y) where NUM : struct, Num<A> =>
+            default(NUM).Plus(x, y);
 
         /// <summary>
         /// Find the subtract between two numbers

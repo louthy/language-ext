@@ -20,16 +20,16 @@ public static class EitherUnsafeExtensions
     /// Add the bound values of x and y, uses an Add type-class to provide the add
     /// operation for type A.  For example x.Add<TInteger,int>(y)
     /// </summary>
-    /// <typeparam name="ADD">Add of A</typeparam>
+    /// <typeparam name="NUM">Num of A</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
     /// <param name="x">Left hand side of the operation</param>
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with y added to x</returns>
     [Pure]
-    public static EitherUnsafe<L, R> Add<NUM, L, R>(this EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) where NUM : struct, Num<R> =>
+    public static EitherUnsafe<L, R> Plus<NUM, L, R>(this EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) where NUM : struct, Num<R> =>
         from a in x
         from b in y
-        select default(NUM).Add(a, b);
+        select default(NUM).Plus(a, b);
 
     /// <summary>
     /// Find the subtract between the two bound values of x and y, uses a Subtract type-class 

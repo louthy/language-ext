@@ -22,7 +22,7 @@ namespace LanguageExt.Instances
         public int Compare(double x, double y) =>
             x.CompareTo(y);
 
-        public double Add(double x, double y) => x + y;
+        public double Plus(double x, double y) => x + y;
         public double Subtract(double x, double y) => x - y;
         public double Product(double x, double y) => x * y;
 

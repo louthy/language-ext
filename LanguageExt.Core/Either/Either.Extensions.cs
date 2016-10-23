@@ -26,10 +26,10 @@ public static class EitherExtensions
     /// <param name="y">Right hand side of the operation</param>
     /// <returns>An option with y added to x</returns>
     [Pure]
-    public static Either<L, R> Add<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : struct, Num<R> =>
+    public static Either<L, R> Plus<NUM, L, R>(this Either<L, R> x, Either<L, R> y) where NUM : struct, Num<R> =>
         from a in x
         from b in y
-        select default(NUM).Add(a, b);
+        select default(NUM).Plus(a, b);
 
     /// <summary>
     /// Find the subtract between the two bound values of x and y, uses a Subtract type-class 

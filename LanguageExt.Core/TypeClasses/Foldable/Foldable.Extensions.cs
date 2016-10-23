@@ -166,7 +166,7 @@ namespace LanguageExt
         public static A Sum<NUM, FOLD, F, A>(this F fa)
             where FOLD : struct, Foldable<F, A>
             where NUM  : struct, Num<A> =>
-                default(FOLD).Fold(fa, fromInteger<NUM, A>(0), (s, x) => add<NUM, A>(s, x));
+                default(FOLD).Fold(fa, fromInteger<NUM, A>(0), (s, x) => plus<NUM, A>(s, x));
 
         /// <summary>
         /// The 'product' function computes the product of the numbers of a structure.

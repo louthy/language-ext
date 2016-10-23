@@ -71,7 +71,7 @@ namespace LanguageExt
             where NEWTYPE : NewType<NEWTYPE, SEMI, ORD, T> =>
             from x in lhs
             from y in rhs
-            select default(NUM).Add(x, y);
+            select default(NUM).Plus(x, y);
 
         [Pure]
         public static NEWTYPE subtract<NEWTYPE, SEMI, ORD, NUM, T>(NEWTYPE lhs, NEWTYPE rhs)

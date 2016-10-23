@@ -22,7 +22,7 @@ namespace LanguageExt.Instances
         public int Compare(float x, float y) =>
             x.CompareTo(y);
 
-        public float Add(float x, float y) => x + y;
+        public float Plus(float x, float y) => x + y;
         public float Subtract(float x, float y) => x - y;
         public float Product(float x, float y) => x * y;
 

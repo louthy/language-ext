@@ -39,7 +39,7 @@ namespace LanguageExt.Instances
         /// <param name="x">left hand side of the addition operation</param>
         /// <param name="y">right hand side of the addition operation</param>
         /// <returns>The sum of x and y</returns>
-        public long Add(long x, long y) =>
+        public long Plus(long x, long y) =>
             x + y;
 
         /// <summary>

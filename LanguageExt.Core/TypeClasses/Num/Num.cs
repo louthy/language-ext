@@ -62,7 +62,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="x">left hand side of the addition operation</param>
         /// <param name="y">right hand side of the addition operation</param>
         /// <returns>The sum of x and y</returns>
-        A Add(A x, A y);
+        A Plus(A x, A y);
 
         /// <summary>
         /// Find the subtract between two values

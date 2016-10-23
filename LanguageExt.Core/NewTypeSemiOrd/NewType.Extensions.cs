@@ -23,7 +23,7 @@ public static class NewTypeSemiOrdExtensions
         where NEWTYPE : NewType<NEWTYPE, SEMI, ORD, A> =>
         from x in lhs
         from y in rhs
-        select add<NUM, A>(x, y);
+        select plus<NUM, A>(x, y);
 
     /// <summary>
     /// Find the subtract between the two bound values of x and y, uses a Subtract type-class 

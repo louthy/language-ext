@@ -234,7 +234,7 @@ public static class TryExtensions
     public static Try<A> Add<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
         from x in lhs
         from y in rhs
-        select add<NUM, A>(x, y);
+        select plus<NUM, A>(x, y);
 
     /// <summary>
     /// Find the subtract of the bound value of Try(x) and Try(y).  If either of 

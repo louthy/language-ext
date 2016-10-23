@@ -45,7 +45,7 @@ public static class OptionExtensions
     public static Option<A> Add<NUM, A>(this Option<A> x, Option<A> y) where NUM : struct, Num<A> =>
         from a in x
         from b in y
-        select add<NUM, A>(a, b);
+        select plus<NUM, A>(a, b);
 
     /// <summary>
     /// Find the subtract between the two bound values of x and y, uses a Subtract type-class 

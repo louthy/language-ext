@@ -10,7 +10,7 @@ namespace LanguageExt.Instances
     public struct Sum<NUM, A> : Monoid<A> where NUM : struct, Num<A>
     {
         public A Append(A x, A y) =>
-            add<NUM, A>(x, y);
+            plus<NUM, A>(x, y);
 
         public A Empty() =>
             fromInteger<NUM, A>(0);

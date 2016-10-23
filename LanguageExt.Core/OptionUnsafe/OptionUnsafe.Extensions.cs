@@ -45,7 +45,7 @@ public static class OptionUnsafeExtensions
     public static OptionUnsafe<A> Add<NUM, A>(this OptionUnsafe<A> x, OptionUnsafe<A> y) where NUM : struct, Num<A> =>
         from a in x
         from b in y
-        select add<NUM, A>(a, b);
+        select plus<NUM, A>(a, b);
 
     /// <summary>
     /// Find the subtract between the two bound values of x and y, uses a Subtract type-class 

@@ -55,7 +55,7 @@ namespace LanguageExt
         public NEWTYPE Add(NEWTYPE rhs) =>
             from x in this
             from y in rhs
-            select add<NUM, A>(x, y);
+            select plus<NUM, A>(x, y);
 
         /// <summary>
         /// Subtract of NewType(x) and NewType(y)
@@ -128,7 +128,7 @@ namespace LanguageExt
 
         [Pure]
         public static NEWTYPE operator +(NewType<NEWTYPE, NUM, A> lhs, NewType<NEWTYPE, NUM, A> rhs) =>
-             New(default(NUM).Add(lhs.Value, rhs.Value));
+             New(default(NUM).Plus(lhs.Value, rhs.Value));
 
         [Pure]
         public static NEWTYPE operator -(NewType<NEWTYPE, NUM, A> lhs, NewType<NEWTYPE, NUM, A> rhs) =>

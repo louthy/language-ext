@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
+using LanguageExt.Instances;
 
 namespace LanguageExt
 {
@@ -51,21 +53,14 @@ namespace LanguageExt
                 default(MONADB).Bind<MONADC, MC, C>( bind(t), u => 
                 default(MONADC).Return(project(t, u))));
 
-        //// TODO: Need a MSeq monad for IEnumerables
-        //[Pure]
-        //public static IEnumerable<C> SelectMany<MONADA, MA, A, B, C>(
-        //    this MA self,
-        //    Func<A, IEnumerable<B>> bind,
-        //    Func<A, B, C> project)
-        //    where MONADA : struct, Monad<MA, A>
-        //{
-        //    default(MONADA).Bind<>()
-
-        //    //if (IsBottom) return new V[0];
-        //    //if (IsLeft) return new V[0];
-        //    //var r = RightValue;
-        //    //return bind(r).Map(u => project(r, u));
-        //}
+        [Pure]
+        public static IEnumerable<C> SelectMany<MONADA, MA, A, B, C>(
+            this MA self,
+            Func<A, IEnumerable<B>> bind,
+            Func<A, B, C> project)
+            where MONADA : struct, Monad<MA, A> =>
+            default(MONADA).Bind<MSeq<C>, IEnumerable<C>, C>(self, a =>
+                bind(a).Select(b => project(a, b)));
 
         /// <summary>
         /// Monad join
