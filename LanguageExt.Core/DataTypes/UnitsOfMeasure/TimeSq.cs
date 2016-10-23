@@ -7,8 +7,6 @@ namespace LanguageExt.UnitsOfMeasure
     /// Numeric time-span squared value
     /// </summary>
     public struct TimeSq :
-        IAppendable<TimeSq>,
-        ISubtractable<TimeSq>,
         IComparable<TimeSq>,
         IEquatable<TimeSq>
     {

@@ -13,8 +13,6 @@ namespace LanguageExt.UnitsOfMeasure
     /// accessors (MetresPerSecond, etc.) or divide by 1.MetrePerSecond()
     /// </summary>
     public struct Velocity :
-        IAppendable<Velocity>,
-        ISubtractable<Velocity>,
         IComparable<Velocity>,
         IEquatable<Velocity>
     {

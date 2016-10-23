@@ -10,7 +10,7 @@ namespace LanguageExt
 #if !COREFX
     [Serializable]
 #endif
-    public class Que<T> : IEnumerable<T>, IEnumerable, IAppendable<Que<T>>
+    public class Que<T> : IEnumerable<T>, IEnumerable
     {
         public readonly static Que<T> Empty = new Que<T>();
 

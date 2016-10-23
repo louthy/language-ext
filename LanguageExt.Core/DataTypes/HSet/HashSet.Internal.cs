@@ -20,8 +20,6 @@ namespace LanguageExt
         ICollection<T>,
         ISet<T>,
         ICollection,
-        IAppendable<HashSetInternal<T>>,
-        ISubtractable<HashSetInternal<T>>,
         IEquatable<HashSetInternal<T>>
     {
         public static readonly HashSetInternal<T> Empty = new HashSetInternal<T>();

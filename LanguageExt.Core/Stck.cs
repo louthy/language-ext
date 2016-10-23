@@ -12,7 +12,7 @@ namespace LanguageExt
 #if !COREFX
     [Serializable]
 #endif
-    public class Stck<T> : IEnumerable<T>, IEnumerable, IAppendable<Stck<T>>
+    public class Stck<T> : IEnumerable<T>, IEnumerable
     {
         public readonly static Stck<T> Empty = new Stck<T>();
 

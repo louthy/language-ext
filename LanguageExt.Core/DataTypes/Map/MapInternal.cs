@@ -24,9 +24,7 @@ namespace LanguageExt
 #endif
     internal class MapInternal<K, V> :
         IEnumerable<IMapItem<K, V>>,
-        IReadOnlyDictionary<K, V>,
-        IAppendable<Map<K, V>>,
-        ISubtractable<Map<K, V>>
+        IReadOnlyDictionary<K, V>
     {
         public static readonly MapInternal<K, V> Empty = new MapInternal<K, V>(MapItem<K, V>.Empty, false);
 

@@ -13,8 +13,6 @@ namespace LanguageExt.UnitsOfMeasure
     /// accessors (SqMetres, SqCentimetres, etc.) or divide by 1.SqMetre()
     /// </summary>
     public struct Area :
-        IAppendable<Area>,
-        ISubtractable<Area>,
         IComparable<Area>,
         IEquatable<Area>
     {

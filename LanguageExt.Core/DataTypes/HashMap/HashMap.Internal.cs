@@ -20,9 +20,7 @@ namespace LanguageExt
     /// </summary>
     internal class HashMapInternal<K, V> :
         IEnumerable<IMapItem<K, V>>,
-        IReadOnlyDictionary<K, V>,
-        IAppendable<HashMapInternal<K, V>>,
-        ISubtractable<HashMapInternal<K, V>>
+        IReadOnlyDictionary<K, V>
     {
         public static readonly HashMapInternal<K, V> Empty = new HashMapInternal<K,V>();
 

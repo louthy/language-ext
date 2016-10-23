@@ -13,8 +13,6 @@ namespace LanguageExt.UnitsOfMeasure
     /// accessors (Metres, Centimetres, etc.) or divide by 1.Metre()
     /// </summary>
     public struct Length :
-        IAppendable<Length>,
-        ISubtractable<Length>,
         IComparable<Length>,
         IEquatable<Length>
     {

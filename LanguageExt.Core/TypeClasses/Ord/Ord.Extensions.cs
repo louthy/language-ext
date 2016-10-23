@@ -87,6 +87,21 @@ namespace LanguageExt
         /// -1 if x greater than y
         ///  1 if x less than y
         /// </returns>
+        public static int Compare<ORD, A>(A? x, A? y)
+            where ORD : struct, Ord<A>
+            where A   : struct =>
+            default(OrdOpt<ORD, MNullable<A>, A?, A>).Compare(x, y);
+
+        /// <summary>
+        /// Compare one item to another to ascertain ordering
+        /// </summary>
+        /// <param name="x">The first item to compare</param>
+        /// <param name="y">The second item to compare</param>
+        /// <returns>
+        ///  0 if x is equal to y
+        /// -1 if x greater than y
+        ///  1 if x less than y
+        /// </returns>
         [Pure]
         public static int Compare<ORDA, ORDB, A, B>(this Either<A, B> x, Either<A, B> y)
             where ORDA : struct, Ord<A>

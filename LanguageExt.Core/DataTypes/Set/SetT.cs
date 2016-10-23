@@ -7,6 +7,7 @@ using static LanguageExt.Prelude;
 using System.Threading;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -27,10 +28,6 @@ namespace LanguageExt
         ICollection<T>, 
         ISet<T>, 
         ICollection, 
-        IAppendable<Set<T>>,
-        ISubtractable<Set<T>>,
-        IMultiplicable<Set<T>>,
-        IDivisible<Set<T>>,
         IEquatable<Set<T>>
     {
         public static readonly Set<T> Empty = new Set<T>();
@@ -596,56 +593,6 @@ namespace LanguageExt
             }
             return self;
         }
-
-        /// <summary>
-        /// Multiply operator - runs through every combination of
-        /// items in the two sets and performs a multiply operation on
-        /// them; and then puts the result in a new distinct set.
-        /// </summary>
-        /// <param name="lhs">Left hand side set</param>
-        /// <param name="rhs">Right hand side set</param>
-        /// <returns>Product of the two sets</returns>
-        [Pure]
-        public static Set<T> operator *(Set<T> lhs, Set<T> rhs) =>
-            lhs.Multiply(rhs);
-
-        /// <summary>
-        /// Multiply operator - runs through every combination of
-        /// items in the two sets and performs a multiply operation on
-        /// them; and then puts the result in a new distinct set.
-        /// </summary>
-        /// <param name="rhs">Right hand side set</param>
-        /// <returns>Product of the two sets</returns>
-        [Pure]
-        public Set<T> Multiply(Set<T> rhs) =>
-            new Set<T>((from x in this.AsEnumerable()
-                        from y in rhs.AsEnumerable()
-                        select TypeDesc.Multiply(x, y, TypeDesc<T>.Default)), true);
-
-        /// <summary>
-        /// Divide operator - runs through every combination of
-        /// items in the two sets and performs a divide operation on
-        /// them; and then puts the result in a new distinct set.
-        /// </summary>
-        /// <param name="lhs">Left hand side set</param>
-        /// <param name="rhs">Right hand side set</param>
-        /// <returns>Result of the division of the two sets</returns>
-        [Pure]
-        public static Set<T> operator /(Set<T> lhs, Set<T> rhs) =>
-            lhs.Divide(rhs);
-
-        /// <summary>
-        /// Divide operator - runs through every combination of
-        /// items in the two sets and performs a divide operation on
-        /// them; and then puts the result in a new distinct set.
-        /// </summary>
-        /// <param name="rhs">Right hand side set</param>
-        /// <returns>Result of the division of the two sets</returns>
-        [Pure]
-        public Set<T> Divide(Set<T> rhs) =>
-            new Set<T>((from y in rhs.AsEnumerable()
-                        from x in this.AsEnumerable()
-                        select TypeDesc.Divide(x, y, TypeDesc<T>.Default)), true);
 
         /// <summary>
         /// Equality test

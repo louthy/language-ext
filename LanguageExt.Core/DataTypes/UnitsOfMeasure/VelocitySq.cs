@@ -8,8 +8,6 @@ namespace LanguageExt.UnitsOfMeasure
     /// Handles unit conversions automatically
     /// </summary>
     public struct VelocitySq :
-        IAppendable<VelocitySq>,
-        ISubtractable<VelocitySq>,
         IComparable<VelocitySq>,
         IEquatable<VelocitySq>
     {

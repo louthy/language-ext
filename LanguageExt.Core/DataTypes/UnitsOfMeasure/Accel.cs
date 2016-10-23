@@ -13,8 +13,6 @@ namespace LanguageExt.UnitsOfMeasure
     /// accessors (MetresPerSecond2, etc.) or divide by 1.MetresPerSecond2()
     /// </summary>
     public struct Accel :
-        IAppendable<Accel>,
-        ISubtractable<Accel>,
         IComparable<Accel>,
         IEquatable<Accel>
     {

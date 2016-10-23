@@ -13,8 +13,6 @@ namespace LanguageExt.UnitsOfMeasure
     /// Implicitly convertible to TimeSpan
     /// </summary>
     public struct Time :
-        IAppendable<Time>,
-        ISubtractable<Time>,
         IComparable<Time>,
         IEquatable<Time>
     {
