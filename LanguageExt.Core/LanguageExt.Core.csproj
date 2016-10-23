@@ -67,6 +67,7 @@
       <DependentUpon>HKT.tt</DependentUpon>
     </Compile>
     <Compile Include="Identity.cs" />
+    <Compile Include="Instances\Foldable\FoldTuple.cs" />
     <Compile Include="Instances\Functor\FEitherUnsafe.cs" />
     <Compile Include="Instances\Functor\FEither.cs" />
     <Compile Include="Instances\Functor\FHashMap.cs" />

@@ -13,7 +13,7 @@ namespace LanguageExt.Instances
     /// <typeparam name="A">First item type</typeparam>
     /// <typeparam name="B">Second item type</typeparam>
     /// <typeparam name="C">Third item type</typeparam>
-    /// <typeparam name="R">Target type</typeparam>
+    /// <typeparam name="R">Target type</typeparam> 
     public struct FTupleThrd<A, B, C, R> :
         Functor<Tuple<A, B, C>, Tuple<A, B, R>, C, R>
     {

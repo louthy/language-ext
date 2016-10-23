@@ -31,7 +31,7 @@ namespace LanguageExt.Instances
     /// <typeparam name="R">Target type</typeparam>
     public struct FTupleSnd<A, B, C, R> :
         Functor<Tuple<A, B, C>, Tuple<A, R, C>, B, R>
-    {
+    { 
         /// <summary>
         /// Maps the third item in a tuple 3
         /// </summary>
