@@ -90,6 +90,7 @@
     <Compile Include="TryOutTests.cs" />
     <Compile Include="TupleTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeClassFunctor.cs" />
     <Compile Include="TypeClassMonad.cs" />
     <Compile Include="TypeClassMonoid.cs" />
     <Compile Include="TypeClassORD.cs" />

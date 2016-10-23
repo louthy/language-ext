@@ -59,6 +59,8 @@
     <Compile Include="DataTypes\EitherUnsafe\EitherUnsafe.Extensions.cs" />
     <Compile Include="DataTypes\EitherUnsafe\EitherUnsafe.Prelude.cs" />
     <Compile Include="DataTypes\Either\Either.Extensions.cs" />
+    <Compile Include="DataTypes\ValueTuple\Tuple2\ValueTuple2.Prelude.cs" />
+    <Compile Include="DataTypes\ValueTuple\Tuple2\ValueTuple2.cs" />
     <Compile Include="HKT.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -77,6 +79,9 @@
     <Compile Include="Instances\Functor\FSeq.cs" />
     <Compile Include="Instances\Functor\FOptionUnsafe.cs" />
     <Compile Include="Instances\Functor\FOption.cs" />
+    <Compile Include="Instances\Functor\FTupleFst.cs" />
+    <Compile Include="Instances\Functor\FTupleThrd.cs" />
+    <Compile Include="Instances\Functor\FTupleSnd.cs" />
     <Compile Include="Instances\MonadPlus\MEitherUnsafe.cs" />
     <Compile Include="Instances\MonadPlus\MEither.cs" />
     <Compile Include="Instances\MonadPlus\MHashMap.cs" />
@@ -137,9 +142,8 @@
     <Compile Include="DataTypes\OptionUnsafe\OptionUnsafe.Extensions.cs" />
     <Compile Include="DataTypes\Option\Option.Prelude.cs" />
     <Compile Include="DataTypes\OptionUnsafe\OptionUnsafe.Prelude.cs" />
-    <Compile Include="Prelude_ValueTuple.cs" />
-    <Compile Include="Prelude_ValueTuple2.cs" />
-    <Compile Include="Prelude_ValueTuple3.cs" />
+    <Compile Include="DataTypes\ValueTuple\ValueTuple.Prelude.cs" />
+    <Compile Include="DataTypes\ValueTuple\Tuple3\ValueTuple3.Prelude.cs" />
     <Compile Include="Reflect\Util.cs" />
     <Compile Include="DataTypes\TryOption\TryOption.Prelude.cs" />
     <Compile Include="DataTypes\TryOption\TryOption.cs" />
@@ -161,8 +165,7 @@
     <Compile Include="TypeClasses\BiFoldable\BiFoldable.cs" />
     <Compile Include="TypeClasses\BiFoldable\BiFoldable.Prelude.cs" />
     <Compile Include="TypeClasses\Liftable\Liftable.cs" />
-    <Compile Include="ValueTuple3.cs" />
-    <Compile Include="ValueTuple2.cs" />
+    <Compile Include="DataTypes\ValueTuple\Tuple3\ValueTuple3.cs" />
     <Compile Include="TypeclassAttribute.cs" />
     <Compile Include="DataTypes\HashMap\HashMap.Prelude.cs" />
     <Compile Include="DataTypes\HashSet\HashSet.cs" />
@@ -201,8 +204,8 @@
     <Compile Include="Prelude_Obsolete.cs" />
     <Compile Include="Prelude_PartialApplication.cs" />
     <Compile Include="Prelude_Timer.cs" />
-    <Compile Include="Prelude_Tuple3.cs" />
-    <Compile Include="Prelude_Tuple2.cs" />
+    <Compile Include="DataTypes\Tuple\Tuple3\Tuple3.Prelude.cs" />
+    <Compile Include="DataTypes\Tuple\Tuple2\Tuple2.Prelude.cs" />
     <Compile Include="Prelude_UnitsOfMeasure.cs" />
     <Compile Include="Prelude_Use.cs" />
     <Compile Include="Que.cs" />
@@ -232,9 +235,9 @@
     <Compile Include="Stck.cs" />
     <Compile Include="DataTypes\Try\Try.Extensions.cs" />
     <Compile Include="TryOutExt.cs" />
-    <Compile Include="Tuple3.cs" />
-    <Compile Include="Tuple2.cs" />
-    <Compile Include="TupleExt.cs" />
+    <Compile Include="DataTypes\Tuple\Tuple3\Tuple3.cs" />
+    <Compile Include="DataTypes\Tuple\Tuple2\Tuple2.cs" />
+    <Compile Include="DataTypes\Tuple\TupleExt.cs" />
     <Compile Include="Instances\Eq\EqDefault.cs" />
     <Compile Include="TypeClasses\Foldable\Foldable.Extensions.cs" />
     <Compile Include="TypeClasses\Fraction\Fraction.Extensions.cs" />
