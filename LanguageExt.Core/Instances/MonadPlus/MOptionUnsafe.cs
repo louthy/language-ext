@@ -38,12 +38,12 @@ namespace LanguageExt.Instances
             var x = xs.Take(1).ToArray();
             return x.Length == 0
                 ? OptionUnsafe<A>.None
-                : OptionUnsafe<A>.Some(x[0]);
+                : Return(x[0]);
         }
 
         [Pure]
         public OptionUnsafe<A> Return(A x, params A[] xs) =>
-            SomeUnsafe(x);
+            new OptionUnsafe<A>(new SomeValue<A>(x));
 
         [Pure]
         public OptionUnsafe<A> Zero() =>

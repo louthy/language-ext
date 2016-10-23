@@ -18,8 +18,8 @@ namespace LanguageExt.Instances
         public MB Bind<MONADB, MB, B>(TryOption<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
         {
             var mr = ma.Try();
-            if (mr.IsFaulted) default(MONADB).Fail(mr.Exception);
-            if (mr.Value.IsNone) default(MONADB).Fail(default(A));
+            if (mr.IsFaulted) return default(MONADB).Fail(mr.Exception);
+            if (mr.Value.IsNone) return default(MONADB).Fail(default(A));
             return f(mr.Value.Value);
         }
 
@@ -29,7 +29,7 @@ namespace LanguageExt.Instances
 
         [Pure]
         public TryOption<A> Fail(Exception err = null) => 
-            none;
+            TryOption<A>(() => { throw err; });
 
         [Pure]
         public TryOption<A> Plus(TryOption<A> ma, TryOption<A> mb) => TryOption(() =>

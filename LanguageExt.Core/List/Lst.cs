@@ -291,7 +291,7 @@ namespace LanguageExt
 
         [Pure]
         public static bool operator !=(Lst<A> lhs, Lst<A> rhs) =>
-            lhs.Value.Equals(rhs.Value);
+            !(lhs == rhs);
 
         [Pure]
         public bool Equals(Lst<A> a, Lst<A> b) =>

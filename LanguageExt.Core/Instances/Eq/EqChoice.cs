@@ -25,7 +25,8 @@ namespace LanguageExt.Instances
                                              Choice2: _ => false),
                 Choice2: a =>
                     default(CHOICE).Match(y, Choice1: _ => false,
-                                             Choice2: b => equals<EQB, B>(a, b)));
+                                             Choice2: b => equals<EQB, B>(a, b)),
+                Bottom: () => default(CHOICE).IsBottom(y));
     }
 
     /// <summary>
@@ -48,6 +49,7 @@ namespace LanguageExt.Instances
                                              Choice2: _ => false),
                 Choice2: a =>
                     default(CHOICE).Match(y, Choice1: _ => false,
-                                             Choice2: b => equals<EQB, B>(a, b)));
+                                             Choice2: b => equals<EQB, B>(a, b)),
+                Bottom: () => default(CHOICE).IsBottom(y));
     }
 }

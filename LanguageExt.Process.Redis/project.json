@@ -41,7 +41,8 @@
     "System.Reactive.Core": "3.0.0-*",
     "System.Reactive.Interfaces": "3.0.0-*",
     "System.Reactive.PlatformServices": "3.0.0-*",
-    "System.Reactive.Linq": "3.0.0-*"
+    "System.Reactive.Linq": "3.0.0-*",
+    "StackExchange.Redis": "1.1.608"
   },
   "frameworks": {
     "net45": {

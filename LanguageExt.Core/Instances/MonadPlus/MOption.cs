@@ -37,13 +37,15 @@ namespace LanguageExt.Instances
         {
             var x = xs.Take(1).ToArray();
             return x.Length == 0 
-                ? None 
-                : Optional(x[0]);
+                ? Option<A>.None
+                : Return(x[0]);
         }
 
         [Pure]
         public Option<A> Return(A x, params A[] xs) =>
-            Optional(x);
+            isnull(x)
+                ? Option<A>.None
+                : new Option<A>(new SomeValue<A>(x));
 
         [Pure]
         public Option<A> Zero() =>
