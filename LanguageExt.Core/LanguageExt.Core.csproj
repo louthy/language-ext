@@ -165,11 +165,11 @@
     <Compile Include="ValueTuple2.cs" />
     <Compile Include="TypeclassAttribute.cs" />
     <Compile Include="DataTypes\HashMap\HashMap.Prelude.cs" />
-    <Compile Include="DataTypes\HSet\HashSet.cs" />
-    <Compile Include="DataTypes\HSet\HashSet.Internal.cs" />
+    <Compile Include="DataTypes\HashSet\HashSet.cs" />
+    <Compile Include="DataTypes\HashSet\HashSet.Internal.cs" />
     <Compile Include="DataTypes\HashMap\HashMap.Internal.cs" />
     <Compile Include="DataTypes\HashMap\HashMap.cs" />
-    <Compile Include="DataTypes\HSet\HashSet.Prelude.cs" />
+    <Compile Include="DataTypes\HashSet\HashSet.Prelude.cs" />
     <Compile Include="DataTypes\NewType\NewType.cs" />
     <Compile Include="DataTypes\Option-Shared\None.cs" />
     <Compile Include="DataTypes\Option-Shared\OptionV.cs" />
