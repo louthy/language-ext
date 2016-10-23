@@ -71,6 +71,7 @@
     <Compile Include="Instances\Functor\FHashSet.cs" />
     <Compile Include="Instances\Functor\FMap.cs" />
     <Compile Include="Instances\Functor\FLst.cs" />
+    <Compile Include="Instances\Functor\FArray.cs" />
     <Compile Include="Instances\Functor\FSeq.cs" />
     <Compile Include="Instances\Functor\FOptionUnsafe.cs" />
     <Compile Include="Instances\Functor\FOption.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="Instances\MonadPlus\MEither.cs" />
     <Compile Include="Instances\MonadPlus\MHashMap.cs" />
     <Compile Include="Instances\MonadPlus\MHashSet.cs" />
+    <Compile Include="Instances\MonadPlus\MArray.cs" />
     <Compile Include="Instances\MonadPlus\MMap.cs" />
     <Compile Include="Instances\MonadPlus\MTry.cs" />
     <Compile Include="Instances\MonadPlus\MTryOption.cs" />
