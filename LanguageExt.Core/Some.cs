@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LanguageExt.Instances;
+using System;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
@@ -58,7 +59,7 @@ namespace LanguageExt
 
         [Pure]
         public static implicit operator Option<T>(Some<T> value) =>
-            TypeClass.Return<Option<T>,T>(value.Value);
+            default(MOption<T>).Return(value.Value);
 
         [Pure]
         public static implicit operator Some<T>(T value) => 

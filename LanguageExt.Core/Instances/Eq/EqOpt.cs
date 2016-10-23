@@ -7,8 +7,9 @@ namespace LanguageExt.Instances
     /// <summary>
     /// Compare the equality of any type in the Optional type-class
     /// </summary>
-    public struct EqOpt<EQ, A> : Eq<Optional<A>>
-        where EQ : struct, Eq<A>
+    public struct EqOpt<EQ, OPTION, OA, A> : Eq<OA>
+        where EQ     : struct, Eq<A>
+        where OPTION : struct, Optional<OA, A>
     {
         /// <summary>
         /// Equality test
@@ -16,16 +17,23 @@ namespace LanguageExt.Instances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
-        public bool Equals(Optional<A> x, Optional<A> y) =>
-            x.IsNoneA(x) && y.IsNoneA(y)
+        public bool Equals(OA x, OA y)
+        {
+            var xIsSome = default(OPTION).IsSome(x);
+            var yIsSome = default(OPTION).IsSome(y);
+            var xIsNone = !xIsSome;
+            var yIsNone = !yIsSome;
+
+            return xIsNone && yIsNone
                 ? true
-                : x.IsNoneA(x) || y.IsNoneA(y)
+                : xIsNone || yIsNone
                     ? false
-                    : x.Match(x,
+                    : default(OPTION).Match(x,
                         Some: a =>
-                            y.Match(y,
+                            default(OPTION).Match(y,
                                 Some: b => @equals<EQ, A>(a, b),
                                 None: () => false),
                         None: () => false);
+        }
     }
 }

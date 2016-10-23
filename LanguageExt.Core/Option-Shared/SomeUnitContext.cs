@@ -11,13 +11,14 @@ namespace LanguageExt
     /// context to complete the matching operation.
     /// </summary>
     /// <typeparam name="A">Bound optional value type</typeparam>
-    public class SomeUnitContext<OPT, A> where OPT : struct, Optional<A>
+    public class SomeUnitContext<OPT, OA, A> 
+        where OPT  : struct, Optional<OA, A>
     {
-        readonly OPT option;
+        readonly OA option;
         readonly Action<A> someHandler;
         readonly bool unsafeOpt;
 
-        internal SomeUnitContext(OPT option, Action<A> someHandler, bool unsafeOpt)
+        internal SomeUnitContext(OA option, Action<A> someHandler, bool unsafeOpt)
         {
             this.option = option;
             this.someHandler = someHandler;

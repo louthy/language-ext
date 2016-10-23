@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
+using LanguageExt.Instances;
 
 namespace LanguageExt
 {
@@ -35,10 +36,6 @@ namespace LanguageExt
 #endif
     public struct EitherUnsafe<L, R> :
         IEither,
-        Optional<R>,
-        Choice<L, R>, 
-        MonadPlus<R>,
-        IOptional,
         IComparable<EitherUnsafe<L, R>>,
         IComparable<R>,
         IEquatable<EitherUnsafe<L, R>>,
@@ -70,7 +67,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// State of the Either
+        /// State of the EitherUnsafe
         /// You can also use:
         ///     IsRight
         ///     IsLeft
@@ -79,32 +76,32 @@ namespace LanguageExt
         public readonly EitherState State;
 
         /// <summary>
-        /// Is the Either in a Right state?
+        /// Is the EitherUnsafe in a Right state?
         /// </summary>
-        /// <exception cref="BottomException">EitherT state is Bottom</exception>
+        /// <exception cref="BottomException">EitherUnsafeT state is Bottom</exception>
         [Pure]
         public bool IsRight =>
             CheckInitialised(State == EitherState.IsRight);
 
         /// <summary>
-        /// Is the Either in a Left state?
+        /// Is the EitherUnsafe in a Left state?
         /// </summary>
-        /// <exception cref="BottomException">EitherT state is Bottom</exception>
+        /// <exception cref="BottomException">EitherUnsafeT state is Bottom</exception>
         [Pure]
         public bool IsLeft =>
             CheckInitialised(State == EitherState.IsLeft);
 
         /// <summary>
-        /// Is the Either in a Bottom state?
-        /// When the Either is filtered, both Right and Left are meaningless.
+        /// Is the EitherUnsafe in a Bottom state?
+        /// When the EitherUnsafe is filtered, both Right and Left are meaningless.
         /// 
-        /// If you use Filter or Where (or 'where' in a LINQ expression) with Either, then the Either 
+        /// If you use Filter or Where (or 'where' in a LINQ expression) with EitherUnsafe, then the EitherUnsafe 
         /// will be put into a 'Bottom' state if the predicate returns false.  When it's in this state it is 
         /// neither Right nor Left.  And any usage could trigger a BottomException.  So be aware of the issue
         /// of filtering Either.
         /// 
-        /// Also note, when the Either is in a Bottom state, some operations on it will continue to give valid
-        /// results or return another Either in the Bottom state and not throw.  This is so a filtered Either 
+        /// Also note, when the EitherUnsafe is in a Bottom state, some operations on it will continue to give valid
+        /// results or return another EitherUnsafe in the Bottom state and not throw.  This is so a filtered EitherUnsafe 
         /// doesn't needlessly break expressions. 
         /// </summary>
         [Pure]
@@ -112,7 +109,7 @@ namespace LanguageExt
             State == EitherState.IsBottom;
 
         /// <summary>
-        /// Implicit conversion operator from R to Either R L
+        /// Implicit conversion operator from R to EitherUnsafe R L
         /// </summary>
         /// <param name="value">Value, must not be null.</param>
         /// <exception cref="ValueIsNullException">Value is null</exception>
@@ -123,7 +120,7 @@ namespace LanguageExt
                 : EitherUnsafe<L, R>.Right(value);
 
         /// <summary>
-        /// Implicit conversion operator from L to Either R L
+        /// Implicit conversion operator from L to EitherUnsafe R L
         /// </summary>
         /// <param name="value">Value, must not be null.</param>
         /// <exception cref="ValueIsNullException">Value is null</exception>
@@ -134,173 +131,135 @@ namespace LanguageExt
                 : EitherUnsafe<L, R>.Left(value);
 
         /// <summary>
-        /// Invokes the Right or Left function depending on the state of the Either
+        /// Invokes the Right or Left function depending on the state of the EitherUnsafe
         /// </summary>
         /// <typeparam name="Ret">Return type</typeparam>
         /// <param name="Right">Function to invoke if in a Right state</param>
         /// <param name="Left">Function to invoke if in a Left state</param>
-        /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
+        /// <exception cref="BottomException">Thrown if matching on an EitherUnsafe in a bottom state</exception>
         /// <returns>The return value of the invoked function</returns>
         [Pure]
-        public Ret MatchUnsafe<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
-            IsRight
-                ? Right(RightValue)
-                : IsLeft
-                    ? Left(LeftValue)
-                    : raise<Ret>(new BottomException("Either"));
+        public Ret MatchUnsafe<Ret>(Func<R, Ret> Right, Func<L, Ret> Left, Func<Ret> Bottom = null) =>
+            default(MEitherUnsafe<L, R>).Match(this, Left, Right, Bottom);
 
         /// <summary>
-        /// Invokes the Right or Left action depending on the state of the Either
+        /// Invokes the Right or Left action depending on the state of the EitherUnsafe
         /// </summary>
         /// <param name="Right">Action to invoke if in a Right state</param>
         /// <param name="Left">Action to invoke if in a Left state</param>
         /// <returns>Unit</returns>
-        /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
-        public Unit MatchUnsafe(Action<R> Right, Action<L> Left)
-        {
-            if (IsRight)
-            {
-                Right(RightValue);
-            }
-            else if (IsLeft)
-            {
-                Left(LeftValue);
-            }
-            else
-            {
-                raise<Unit>(new BottomException("Either"));
-            }
-            return unit;
-        }
+        /// <exception cref="BottomException">Thrown if matching on an EitherUnsafe in a bottom state</exception>
+        public Unit MatchUnsafe(Action<R> Right, Action<L> Left, Action Bottom = null) =>
+            default(MEitherUnsafe<L, R>).Match(this, Left, Right, Bottom);
 
         /// <summary>
-        /// Match the two states of the Either and return a promise for a non-null R2.
+        /// Match the two states of the EitherUnsafe and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
-        public async Task<R2> MatchAsyncUnsafe<R2>(Func<R, Task<R2>> Right, Func<L, R2> Left) =>
-            IsRight
-                ? await Right(RightValue)
-                : Left(LeftValue);
+        public Task<R2> MatchAsyncUnsafe<R2>(Func<R, Task<R2>> Right, Func<L, R2> Left) =>
+            this.MatchAsync<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(Left, Right);
 
         /// <summary>
-        /// Match the two states of the Either and return a promise for a non-null R2.
+        /// Match the two states of the EitherUnsafe and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
-        public async Task<R2> MatchAsyncUnsafe<R2>(Func<R, Task<R2>> Right, Func<L, Task<R2>> Left) =>
-            IsRight
-                ? await Right(RightValue)
-                : await Left(LeftValue);
+        public Task<R2> MatchAsyncUnsafe<R2>(Func<R, Task<R2>> Right, Func<L, Task<R2>> Left) =>
+            this.MatchAsync<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(Left, Right);
 
         /// <summary>
-        /// Match the two states of the Either and return an observable stream of non-null R2s.
+        /// Match the two states of the EitherUnsafe and return an observable stream of non-null R2s.
         /// </summary>
         [Pure]
         public IObservable<R2> MatchObservableUnsafe<R2>(Func<R, IObservable<R2>> Right, Func<L, R2> Left) =>
-            IsRight
-                ? Right(RightValue)
-                : Observable.Return(Left(LeftValue));
+            this.MatchObservable<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(Left, Right);
 
         /// <summary>
-        /// Match the two states of the Either and return an observable stream of non-null R2s.
+        /// Match the two states of the EitherUnsafe and return an observable stream of non-null R2s.
         /// </summary>
         [Pure]
         public IObservable<R2> MatchObservableUnsafe<R2>(Func<R, IObservable<R2>> Right, Func<L, IObservable<R2>> Left) =>
-            IsRight
-                ? Right(RightValue)
-                : Left(LeftValue);
+            this.MatchObservable<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(Left, Right);
 
         /// <summary>
-        /// Executes the Left function if the Either is in a Left state.
-        /// Returns the Right value if the Either is in a Right state.
+        /// Executes the Left function if the EitherUnsafe is in a Left state.
+        /// Returns the Right value if the EitherUnsafe is in a Right state.
         /// </summary>
         /// <param name="Left">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
         public R IfLeftUnsafe(Func<R> Left) =>
-            MatchUnsafe(identity, _ => Left());
+            this.IfChoice1<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(Left);
 
         /// <summary>
-        /// Executes the leftMap function if the Either is in a Left state.
-        /// Returns the Right value if the Either is in a Right state.
+        /// Executes the leftMap function if the EitherUnsafe is in a Left state.
+        /// Returns the Right value if the EitherUnsafe is in a Right state.
         /// </summary>
         /// <param name="leftMap">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
         public R IfLeftUnsafe(Func<L, R> leftMap) =>
-            MatchUnsafe(identity, leftMap);
+            this.IfChoice1<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(leftMap);
 
         /// <summary>
-        /// Returns the rightValue if the Either is in a Left state.
-        /// Returns the Right value if the Either is in a Right state.
+        /// Returns the rightValue if the EitherUnsafe is in a Left state.
+        /// Returns the Right value if the EitherUnsafe is in a Right state.
         /// </summary>
         /// <param name="rightValue">Value to return if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
         public R IfLeftUnsafe(R rightValue) =>
-            MatchUnsafe(identity, _ => rightValue);
+            this.IfChoice1<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(rightValue);
 
         /// <summary>
-        /// Executes the Left action if the Either is in a Left state.
+        /// Executes the Left action if the EitherUnsafe is in a Left state.
         /// </summary>
         /// <param name="Left">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
-        public Unit IfLeftUnsafe(Action<L> Left)
-        {
-            if (!IsBottom && IsLeft)
-            {
-                Left(LeftValue);
-            }
-            return unit;
-        }
+        public Unit IfLeftUnsafe(Action<L> Left) =>
+            this.IfChoice1<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(Left);
 
         /// <summary>
-        /// Invokes the Right action if the Either is in a Right state, otherwise does nothing
+        /// Invokes the Right action if the EitherUnsafe is in a Right state, otherwise does nothing
         /// </summary>
         /// <param name="Right">Action to invoke</param>
         /// <returns>Unit</returns>
-        public Unit IfRightUnsafe(Action<R> Right)
-        {
-            if (!IsBottom && IsRight)
-            {
-                Right(right);
-            }
-            return unit;
-        }
+        public Unit IfRightUnsafe(Action<R> Right) =>
+            this.IfChoice2<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(Right);
 
         /// <summary>
-        /// Returns the leftValue if the Either is in a Right state.
-        /// Returns the Left value if the Either is in a Left state.
+        /// Returns the leftValue if the EitherUnsafe is in a Right state.
+        /// Returns the Left value if the EitherUnsafe is in a Left state.
         /// </summary>
         /// <param name="leftValue">Value to return if in the Left state</param>
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
         public L IfRightUnsafe(L leftValue) =>
-            MatchUnsafe(_ => leftValue, identity);
+            this.IfChoice2<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(leftValue);
 
         /// <summary>
-        /// Returns the result of Right() if the Either is in a Right state.
-        /// Returns the Left value if the Either is in a Left state.
+        /// Returns the result of Right() if the EitherUnsafe is in a Right state.
+        /// Returns the Left value if the EitherUnsafe is in a Left state.
         /// </summary>
         /// <param name="Right">Function to generate a Left value if in the Right state</param>
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
         public L IfRightUnsafe(Func<L> Right) =>
-            MatchUnsafe(_ => Right(), identity);
+            this.IfChoice2<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(Right);
 
         /// <summary>
-        /// Returns the result of rightMap if the Either is in a Right state.
-        /// Returns the Left value if the Either is in a Left state.
+        /// Returns the result of rightMap if the EitherUnsafe is in a Right state.
+        /// Returns the Left value if the EitherUnsafe is in a Left state.
         /// </summary>
         /// <param name="rightMap">Function to generate a Left value if in the Right state</param>
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
         public L IfRightUnsafe(Func<R, L> rightMap) =>
-            MatchUnsafe(r => rightMap(r), identity);
+            this.IfChoice2<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(rightMap);
 
         /// <summary>
         /// Match Right and return a context.  You must follow this with .Left(...) to complete the match
         /// </summary>
-        /// <param name="right">Action to invoke if the Either is in a Right state</param>
+        /// <param name="right">Action to invoke if the EitherUnsafe is in a Right state</param>
         /// <returns>Context that must have Left() called upon it.</returns>
         [Pure]
         public EitherUnsafeUnitContext<L, R> Right(Action<R> right) =>
@@ -309,16 +268,16 @@ namespace LanguageExt
         /// <summary>
         /// Match Right and return a context.  You must follow this with .Left(...) to complete the match
         /// </summary>
-        /// <param name="right">Action to invoke if the Either is in a Right state</param>
+        /// <param name="right">Action to invoke if the EitherUnsafe is in a Right state</param>
         /// <returns>Context that must have Left() called upon it.</returns>
         [Pure]
         public EitherUnsafeContext<L, R, Ret> Right<Ret>(Func<R, Ret> right) =>
             new EitherUnsafeContext<L, R, Ret>(this, right);
 
         /// <summary>
-        /// Return a string representation of the Either
+        /// Return a string representation of the EitherUnsafe
         /// </summary>
-        /// <returns>String representation of the Either</returns>
+        /// <returns>String representation of the EitherUnsafe</returns>
         [Pure]
         public override string ToString() =>
             IsBottom
@@ -332,20 +291,12 @@ namespace LanguageExt
                         : $"Left({LeftValue})";
 
         /// <summary>
-        /// Returns a hash code of the wrapped value of the Either
+        /// Returns a hash code of the wrapped value of the EitherUnsafe
         /// </summary>
         /// <returns>Hash code</returns>
         [Pure]
         public override int GetHashCode() =>
-            IsBottom
-                ? -1
-                : IsRight
-                    ? isnull(RightValue)
-                        ? 0
-                        : RightValue.GetHashCode()
-                    : isnull(LeftValue)
-                        ? 0
-                        : LeftValue.GetHashCode();
+            this.GetHashCode<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
 
         /// <summary>
         /// Equality check
@@ -354,119 +305,99 @@ namespace LanguageExt
         /// <returns>True if equal</returns>
         [Pure]
         public override bool Equals(object obj) =>
-            obj is Either<L, R>
-                ? map(this, (Either<L, R>)obj, (lhs, rhs) =>
-                    lhs.IsLeft && rhs.IsLeft
-                        ? lhs.LeftValue.Equals(rhs.LeftValue)
-                        : lhs.IsLeft || rhs.IsLeft
-                            ? false
-                            : lhs.RightValue.Equals(rhs.RightValue))
-                : false;
+            !ReferenceEquals(obj, null) &&
+            obj is EitherUnsafe<L, R> &&
+            default(EqChoice<EqDefault<L>, EqDefault<R>, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>).Equals(this, (EitherUnsafe<L, R>)obj);
 
         /// <summary>
-        /// Project the Either into a Lst R
+        /// Project the EitherUnsafe into a Lst R
         /// </summary>
-        /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
+        /// <returns>If the EitherUnsafe is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("ToList has been deprecated.  Please use RightToList.")]
+        public Lst<R> ToList() =>
+            this.ToList<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
+
+        /// <summary>
+        /// Project the EitherUnsafe into an ImmutableArray R
+        /// </summary>
+        /// <returns>If the EitherUnsafe is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("ToArray has been deprecated.  Please use RightToArray.")]
+        public R[] ToArray() =>
+            this.ToArray<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
+
+        /// <summary>
+        /// Project the EitherUnsafe into a Lst R
+        /// </summary>
+        /// <returns>If the EitherUnsafe is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
         [Pure]
         public Lst<R> RightToList() =>
-            toList(RightAsEnumerable());
+            this.Choice2ToList<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
 
         /// <summary>
-        /// Project the Either into an ImmutableArray R
+        /// Project the EitherUnsafe into an ImmutableArray R
         /// </summary>
-        /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
+        /// <returns>If the EitherUnsafe is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [Pure]
         public R[] RightToArray() =>
-            toArray(RightAsEnumerable());
+            this.Choice2ToArray<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
 
         /// <summary>
-        /// Project the Either into a Lst R
+        /// Project the EitherUnsafe into a Lst R
         /// </summary>
-        /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
+        /// <returns>If the EitherUnsafe is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
         [Pure]
         public Lst<L> LeftToList() =>
-            toList(LeftAsEnumerable());
+            this.Choice1ToList<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
 
         /// <summary>
-        /// Project the Either into an ImmutableArray R
+        /// Project the EitherUnsafe into an ImmutableArray R
         /// </summary>
-        /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
+        /// <returns>If the EitherUnsafe is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [Pure]
         public L[] LeftToArray() =>
-            toArray(LeftAsEnumerable());
+            this.Choice1ToArray<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
 
         /// <summary>
-        /// Project the Either into a IEnumerable R
+        /// Project the EitherUnsafe into a IEnumerable R
         /// </summary>
-        /// <returns>If the Either is in a Right state, a IEnumerable of R with one item.  A zero length IEnumerable R otherwise</returns>
+        /// <returns>If the EitherUnsafe is in a Right state, a IEnumerable of R with one item.  A zero length IEnumerable R otherwise</returns>
         [Pure]
-        public IEnumerable<R> RightAsEnumerable()
-        {
-            if (IsRight)
-            {
-                yield return RightValue;
-            }
-        }
+        public IEnumerable<R> RightAsEnumerable() =>
+            this.Choice2AsEnumerable<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
 
         /// <summary>
-        /// Project the Either into a IEnumerable L
+        /// Project the EitherUnsafe into a IEnumerable L
         /// </summary>
-        /// <returns>If the Either is in a Left state, a IEnumerable of L with one item.  A zero length IEnumerable L otherwise</returns>
+        /// <returns>If the EitherUnsafe is in a Left state, a IEnumerable of L with one item.  A zero length IEnumerable L otherwise</returns>
         [Pure]
-        public IEnumerable<L> LeftAsEnumerable()
-        {
-            if (IsLeft)
-            {
-                yield return LeftValue;
-            }
-        }
+        public IEnumerable<L> LeftAsEnumerable() =>
+            this.Choice1AsEnumerable<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
 
         /// <summary>
-        /// Project the Either into a IEnumerable R
-        /// </summary>
-        /// <returns>If the Either is in a Right state, a IEnumerable of R with one item.  A zero length IEnumerable R otherwise</returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("AsEnumerable has been deprecated.  Please use RightAsEnumerable.")]
-        public IEnumerable<R> AsEnumerable()
-        {
-            if (IsRight)
-            {
-                yield return RightValue;
-            }
-        }
-        /// <summary>
-        /// Convert the Either to an Option
+        /// Convert the EitherUnsafe to an Option
         /// </summary>
         /// <returns>Some(Right) or None</returns>
         [Pure]
         public Option<R> ToOption() =>
-            IsRight
-                ? Some(RightValue)
-                : None;
+            this.ToOption<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
 
         /// <summary>
-        /// Convert the EitherUnsafe to an Either
+        /// Convert the EitherUnsafe to an EitherUnsafeUnsafe
         /// </summary>
-        /// <returns>EitherUnsafe</returns>
+        /// <returns>EitherUnsafeUnsafe</returns>
         [Pure]
         public Either<L, R> ToEither() =>
-            IsRight
-                ? Either<L, R>.Right(RightValue)
-                : Either<L, R>.Left(LeftValue);
+            this.ToEither<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
 
         /// <summary>
-        /// Convert the Either to an TryOption
+        /// Convert the EitherUnsafe to an TryOption
         /// </summary>
         /// <returns>Some(Right) or None</returns>
         [Pure]
-        public TryOption<R> ToTryOption()
-        {
-            var self = this;
-            return TryOption(() =>
-                self.IsRight
-                    ? Some(self.RightValue)
-                    : None);
-        }
+        public TryOption<R> ToTryOption() =>
+            this.ToTryOption<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
 
         /// <summary>
         /// Equality operator override
@@ -480,21 +411,17 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static bool operator !=(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
-            !lhs.Equals(rhs);
+            !(lhs == rhs);
 
         /// <summary>
         /// Override of the Or operator to be a Left coalescing operator
         /// </summary>
         [Pure]
         public static EitherUnsafe<L, R> operator |(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
-            lhs.IsBottom || rhs.IsBottom
-                ? lhs
-                : lhs.IsRight
-                    ? lhs
-                    : rhs;
+            default(MEitherUnsafe<L, R>).Plus(lhs, rhs);
 
         /// <summary>
-        /// Override of the True operator to return True if the Either is Right
+        /// Override of the True operator to return True if the EitherUnsafe is Right
         /// </summary>
         [Pure]
         public static bool operator true(EitherUnsafe<L, R> value) =>
@@ -503,7 +430,7 @@ namespace LanguageExt
                 : value.IsRight;
 
         /// <summary>
-        /// Override of the False operator to return True if the Either is Left
+        /// Override of the False operator to return True if the EitherUnsafe is Left
         /// </summary>
         [Pure]
         public static bool operator false(EitherUnsafe<L, R> value) =>
@@ -516,75 +443,49 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public int CompareTo(EitherUnsafe<L, R> other) =>
-            IsLeft && other.IsLeft
-                ? Comparer<L>.Default.Compare(LeftValue, other.LeftValue)
-                : IsRight && other.IsRight
-                    ? Comparer<R>.Default.Compare(RightValue, other.RightValue)
-                    : IsLeft
-                        ? -1
-                        : 1;
+            default(OrdChoice<OrdDefault<L>, OrdDefault<R>, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>).Compare(this, other);
 
         /// <summary>
         /// CompareTo override
         /// </summary>
         [Pure]
         public int CompareTo(R other) =>
-            IsRight
-                ? Comparer<R>.Default.Compare(RightValue, other)
-                : -1;
+            CompareTo(RightUnsafe<L, R>(other));
 
         /// <summary>
         /// CompareTo override
         /// </summary>
         [Pure]
         public int CompareTo(L other) =>
-            IsRight
-                ? -1
-                : Comparer<L>.Default.Compare(LeftValue, other);
+            CompareTo(LeftUnsafe<L, R>(other));
 
         /// <summary>
         /// Equality override
         /// </summary>
         [Pure]
         public bool Equals(R other) =>
-            IsBottom
-                ? false
-                : IsRight
-                    ? EqualityComparer<R>.Default.Equals(RightValue, other)
-                    : false;
+            Equals(Right<L, R>(other));
 
         /// <summary>
         /// Equality override
         /// </summary>
         [Pure]
         public bool Equals(L other) =>
-            IsBottom
-                ? false
-                : IsLeft
-                    ? EqualityComparer<L>.Default.Equals(LeftValue, other)
-                    : false;
+            Equals(Left<L, R>(other));
 
         /// <summary>
         /// Equality override
         /// </summary>
         [Pure]
         public bool Equals(EitherUnsafe<L, R> other) =>
-            IsBottom && other.IsBottom
-                ? true
-                : IsBottom || other.IsBottom
-                    ? false
-                    : IsRight
-                        ? other.Equals(RightValue)
-                        : other.Equals(LeftValue);
+            default(EqChoice<EqDefault<L>, EqDefault<R>, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>).Equals(this, other);
 
         /// <summary>
         /// Match the Right and Left values but as objects.  This can be useful to avoid reflection.
         /// </summary>
         [Pure]
         public TResult MatchUntyped<TResult>(Func<object, TResult> Right, Func<object, TResult> Left) =>
-            IsRight
-                ? Right(RightValue)
-                : Left(LeftValue);
+            this.MatchUntyped<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, TResult>(Choice1: Left, Choice2: Right);
 
         /// <summary>
         /// Find out the underlying Right type
@@ -603,7 +504,7 @@ namespace LanguageExt
         [Pure]
         private U CheckInitialised<U>(U value) =>
             State == EitherState.IsBottom
-                ? raise<U>(new BottomException("Either"))
+                ? raise<U>(new BottomException("EitherUnsafe"))
                 : value;
 
         [Pure]
@@ -630,121 +531,21 @@ namespace LanguageExt
                     : raise<L>(new EitherIsNotLeftException())
             );
 
-        public bool IsSome => 
-            IsRight;
-
-        public bool IsNone =>
-            IsLeft;
-
-        [Pure]
-        public bool IsUnsafe(Optional<R> a) => 
-            true;
-
-        [Pure]
-        public bool IsSomeA(Optional<R> a) =>
-            AsEither(a).IsRight;
-
-        [Pure]
-        public bool IsNoneA(Optional<R> a) =>
-            AsEither(a).IsLeft;
-
-        [Pure]
-        public B Match<B>(Optional<R> a, Func<R, B> Some, Func<B> None)
-        {
-            var ma = AsEither(a);
-            return ma.IsRight
-                ? Some(ma.right)
-                : None();
-        }
-
-        [Pure]
-        public B MatchUnsafe<B>(Optional<R> a, Func<R, B> Some, Func<B> None)
-        {
-            var ma = AsEither(a);
-            return ma.IsRight
-                ? Some(ma.right)
-                : None();
-        }
-
-        [Pure]
-        public MonadPlus<R> Plus(MonadPlus<R> a, MonadPlus<R> b)
-        {
-            var ma = AsEither(a);
-            return ma.IsRight
-                ? a
-                : b;
-        }
-
-        [Pure]
-        public MonadPlus<R> Zero() => 
-            Bottom;
-
-        [Pure]
-        public Monad<R> Return(R x, params R[] xs) =>
-            Right(x);
-
-        [Pure]
-        public Monad<R> Return(IEnumerable<R> vs) =>
-            vs.Match(
-                ()      => Bottom,
-                x       => Right(x),
-                (x, xs) => Right(x));
-
-        [Pure]
-        public MB Bind<MB, B>(Monad<R> ma, Func<R, MB> f) where MB : struct, Monad<B>
-        {
-            var either = AsEither(ma);
-            return either.IsRight
-                ? f(either.right)
-                : (MB)default(MB).Fail(either.left);
-        }
-
-        [Pure]
-        public Monad<B> Bind<B>(Monad<R> ma, Func<R, Monad<B>> f)
-        {
-            var either = AsEither(ma);
-            return either.IsRight
-                ? f(either.right)
-                : either.Map(_ => default(B));
-        }
-
-        [Pure]
-        public Monad<R> Fail(Exception err = null) =>
-            Bottom;
-
-        [Pure]
-        public Monad<R> Fail<F>(F err = default(F)) =>
-            new EitherUnsafe<F, R>(err);
-
-        [Pure]
-        public Functor<B> Map<B>(Functor<R> fa, Func<R, B> f) =>
-            AsEither(fa).Map(f);
-
-        [Pure]
-        public S Fold<S>(Foldable<R> fa, S state, Func<S, R, S> f) =>
-            AsEither(fa).Fold(state, f);
-
-        [Pure]
-        public S FoldBack<S>(Foldable<R> fa, S state, Func<S, R, S> f) =>
-            AsEither(fa).Fold(state, f);
-
         [Pure]
         public R1 MatchUntyped<R1>(Func<object, R1> Some, Func<R1> None) =>
-            IsRight
-                ? Some(right)
-                : None();
+            this.MatchUntyped<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R, R1>(Some, None);
 
         [Pure]
-        public Type GetUnderlyingType() => 
+        public Type GetUnderlyingType() =>
             typeof(R);
 
         /// <summary>
-        /// Counts the Either
+        /// Counts the EitherUnsafe
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
-        /// <param name="self">Either to count</param>
-        /// <returns>1 if the Either is in a Right state, 0 otherwise.</returns>
+        /// <param name="self">EitherUnsafe to count</param>
+        /// <returns>1 if the EitherUnsafe is in a Right state, 0 otherwise.</returns>
         [Pure]
         public int Count() =>
             IsBottom || IsLeft
@@ -752,326 +553,247 @@ namespace LanguageExt
                 : 1;
 
         /// <summary>
-        /// Iterate the Either
+        /// Iterate the EitherUnsafe
         /// action is invoked if in the Right state
         /// </summary>
-        public Unit Iter(Action<R> action)
-        {
-            if (IsBottom)
-            {
-                return unit;
-            }
-            if (IsRight)
-            {
-                action(RightValue);
-            }
-            return unit;
-        }
+        public Unit Iter(Action<R> Right) =>
+            this.Iter<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R>(Right);
 
         /// <summary>
-        /// Invokes a predicate on the value of the Either if it's in the Right state
+        /// Iterate the EitherUnsafe
+        /// action is invoked if in the Right state
+        /// </summary>
+        public Unit BiIter(Action<R> Right, Action<L> Left) =>
+            this.BiIter<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(Left, Right);
+
+        /// <summary>
+        /// Invokes a predicate on the value of the EitherUnsafe if it's in the Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
-        /// <param name="self">Either to forall</param>
-        /// <param name="pred">Predicate</param>
-        /// <returns>True if the Either is in a Left state.  
-        /// True if the Either is in a Right state and the predicate returns True.  
+        /// <param name="self">EitherUnsafe to forall</param>
+        /// <param name="Right">Predicate</param>
+        /// <returns>True if the EitherUnsafe is in a Left state.  
+        /// True if the EitherUnsafe is in a Right state and the predicate returns True.  
         /// False otherwise.</returns>
         [Pure]
-        public bool ForAll(Func<R, bool> pred) =>
-            IsBottom
-                ? true
-                : IsRight
-                    ? pred(RightValue)
-                    : true;
+        public bool ForAll(Func<R, bool> Right) =>
+            this.ForAll<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R>(Right);
 
         /// <summary>
-        /// Invokes a predicate on the value of the Either if it's in the Right state
+        /// Invokes a predicate on the value of the EitherUnsafe if it's in the Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
-        /// <param name="self">Either to forall</param>
-        /// <param name="Right">Right predicate</param>
-        /// <param name="Left">Left predicate</param>
+        /// <param name="self">EitherUnsafe to forall</param>
+        /// <param name="Right">Predicate</param>
+        /// <param name="Left">Predicate</param>
+        /// <returns>True if EitherUnsafe Predicate returns true</returns>
         [Pure]
         public bool BiForAll(Func<R, bool> Right, Func<L, bool> Left) =>
-            IsBottom
-                ? true
-                : IsRight
-                    ? Right(RightValue)
-                    : Left(LeftValue);
+            this.BiForAll<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(Left, Right);
 
         /// <summary>
-        /// Folds the either into an S
-        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// <para>
+        /// EitherUnsafe types are like lists of 0 or 1 items, and therefore follow the 
+        /// same rules when folding.
+        /// </para><para>
+        /// In the case of lists, 'Fold', when applied to a binary
+        /// operator, a starting value(typically the left-identity of the operator),
+        /// and a list, reduces the list using the binary operator, from left to
+        /// right:
+        /// </para><para>
+        /// Fold([x1, x2, ..., xn] == x1 `f` (x2 `f` ... (xn `f` z)...)
+        /// </para>
         /// </summary>
-        /// <typeparam name="S">State</typeparam>
-        /// <typeparam name="L">Left</typeparam>
-        /// <typeparam name="R">Right</typeparam>
-        /// <param name="self">Either to fold</param>
+        /// <typeparam name="S">Aggregate state type</typeparam>
         /// <param name="state">Initial state</param>
-        /// <param name="folder">Fold function</param>
-        /// <returns>Folded state</returns>
+        /// <param name="Right">Folder function, applied if structure is in a Right state</param>
+        /// <returns>The aggregate state</returns>
         [Pure]
-        public S Fold<S>(S state, Func<S, R, S> folder) =>
-            IsBottom
-                ? state
-                : IsRight
-                    ? folder(state, RightValue)
-                    : state;
+        public S Fold<S>(S state, Func<S, R, S> Right) =>
+            default(MEitherUnsafe<L, R>).Fold(this, state, Right);
 
         /// <summary>
-        /// Folds the either into an S
-        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// <para>
+        /// EitherUnsafe types are like lists of 0 or 1 items, and therefore follow the 
+        /// same rules when folding.
+        /// </para><para>
+        /// In the case of lists, 'Fold', when applied to a binary
+        /// operator, a starting value(typically the left-identity of the operator),
+        /// and a list, reduces the list using the binary operator, from left to
+        /// right:
+        /// </para><para>
+        /// Fold([x1, x2, ..., xn] == x1 `f` (x2 `f` ... (xn `f` z)...)
+        /// </para>
         /// </summary>
-        /// <typeparam name="S">State</typeparam>
-        /// <typeparam name="L">Left</typeparam>
-        /// <typeparam name="R">Right</typeparam>
-        /// <param name="self">Either to fold</param>
+        /// <typeparam name="S">Aggregate state type</typeparam>
         /// <param name="state">Initial state</param>
-        /// <param name="Right">Right fold function</param>
-        /// <param name="Left">Left fold function</param>
-        /// <returns>Folded state</returns>
+        /// <param name="Right">Folder function, applied if EitherUnsafe is in a Right state</param>
+        /// <param name="Left">Folder function, applied if EitherUnsafe is in a Left state</param>
+        /// <returns>The aggregate state</returns>
         [Pure]
         public S BiFold<S>(S state, Func<S, R, S> Right, Func<S, L, S> Left) =>
-            IsBottom
-                ? state
-                : IsRight
-                    ? Right(state, RightValue)
-                    : Left(state, LeftValue);
+            default(MEitherUnsafe<L, R>).BiFold(this, state, Left, Right);
 
         /// <summary>
-        /// Invokes a predicate on the value of the Either if it's in the Right state
+        /// Invokes a predicate on the value of the EitherUnsafe if it's in the Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
-        /// <param name="self">Either to check existence of</param>
+        /// <param name="self">EitherUnsafe to check existence of</param>
         /// <param name="pred">Predicate</param>
-        /// <returns>True if the Either is in a Right state and the predicate returns True.  False otherwise.</returns>
+        /// <returns>True if the EitherUnsafe is in a Right state and the predicate returns True.  False otherwise.</returns>
         [Pure]
         public bool Exists(Func<R, bool> pred) =>
-            IsBottom
-                ? false
-                : IsRight
-                    ? pred(RightValue)
-                    : false;
+            this.Exists<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R>(pred);
 
         /// <summary>
-        /// Invokes a predicate on the value of the Either
+        /// Invokes a predicate on the value of the EitherUnsafe
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
-        /// <param name="self">Either to check existence of</param>
+        /// <param name="self">EitherUnsafe to check existence of</param>
         /// <param name="Right">Right predicate</param>
         /// <param name="Left">Left predicate</param>
-        /// <returns>True if the predicate returns True.  False otherwise or if the Either is in a bottom state.</returns>
+        /// <returns>True if the predicate returns True.  False otherwise or if the EitherUnsafe is in a bottom state.</returns>
         [Pure]
         public bool BiExists(Func<R, bool> Right, Func<L, bool> Left) =>
-            IsBottom
-                ? false
-                : IsLeft
-                    ? Left(LeftValue)
-                    : Right(RightValue);
+            this.BiExists<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(Left, Right);
 
         /// <summary>
-        /// Maps the value in the Either if it's in a Right state
+        /// Maps the value in the EitherUnsafe if it's in a Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
-        /// <typeparam name="Ret">Mapped Either type</typeparam>
-        /// <param name="self">Either to map</param>
+        /// <typeparam name="Ret">Mapped EitherUnsafe type</typeparam>
+        /// <param name="self">EitherUnsafe to map</param>
         /// <param name="mapper">Map function</param>
-        /// <returns>Mapped Either</returns>
+        /// <returns>Mapped EitherUnsafe</returns>
         [Pure]
         public EitherUnsafe<L, Ret> Map<Ret>(Func<R, Ret> mapper) =>
-            IsBottom
-                ? EitherUnsafe<L, Ret>.Bottom
-                : IsRight
-                    ? EitherUnsafe<L, Ret>.Right(mapper(RightValue))
-                    : EitherUnsafe<L, Ret>.Left(LeftValue);
+            default(FEitherUnsafe<L, R, Ret>).Map(this, mapper);
 
         /// <summary>
-        /// Maps the value in the Either if it's in a Left state
+        /// Maps the value in the EitherUnsafe if it's in a Left state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
-        /// <typeparam name="Ret">Mapped Either type</typeparam>
-        /// <param name="self">Either to map</param>
+        /// <typeparam name="Ret">Mapped EitherUnsafe type</typeparam>
+        /// <param name="self">EitherUnsafe to map</param>
         /// <param name="mapper">Map function</param>
-        /// <returns>Mapped Either</returns>
+        /// <returns>Mapped EitherUnsafe</returns>
         [Pure]
         public EitherUnsafe<Ret, R> MapLeft<Ret>(Func<L, Ret> mapper) =>
-            IsBottom
-                ? EitherUnsafe<Ret, R>.Bottom
-                : IsLeft
-                    ? EitherUnsafe<Ret, R>.Left(mapper(LeftValue))
-                    : EitherUnsafe<Ret, R>.Right(RightValue);
+            default(FEitherUnsafe<L, R, Ret, R>).BiMap(this, mapper, identity);
 
         /// <summary>
-        /// Bi-maps the value in the Either if it's in a Right state
+        /// Bi-maps the value in the EitherUnsafe if it's in a Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
         /// <typeparam name="LRet">Left return</typeparam>
         /// <typeparam name="RRet">Right return</typeparam>
-        /// <param name="self">Either to map</param>
+        /// <param name="self">EitherUnsafe to map</param>
         /// <param name="Right">Right map function</param>
         /// <param name="Left">Left map function</param>
-        /// <returns>Mapped Either</returns>
+        /// <returns>Mapped EitherUnsafe</returns>
         [Pure]
-        public EitherUnsafe<LRet, RRet> BiMap<LRet, RRet>(Func<R, RRet> Right, Func<L, LRet> Left) =>
-            IsBottom
-                ? EitherUnsafe<LRet, RRet>.Bottom
-                : IsRight
-                    ? EitherUnsafe<LRet, RRet>.Right(Right(RightValue))
-                    : EitherUnsafe<LRet, RRet>.Left(Left(LeftValue));
+        public EitherUnsafe<L, Ret> BiMap<LRet, Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
+            default(FEitherUnsafe<L, R, Ret>).BiMap(this, Left, Right);
 
         /// <summary>
-        /// Monadic bind function
-        /// https://en.wikipedia.org/wiki/Monad_(functional_programming)
+        /// Bi-maps the value in the EitherUnsafe if it's in a Right state
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <typeparam name="LRet">Left return</typeparam>
+        /// <typeparam name="RRet">Right return</typeparam>
+        /// <param name="self">EitherUnsafe to map</param>
+        /// <param name="Right">Right map function</param>
+        /// <param name="Left">Left map function</param>
+        /// <returns>Mapped EitherUnsafe</returns>
+        [Pure]
+        public EitherUnsafe<L2, R2> BiMap<L2, R2>(Func<R, R2> Right, Func<L, L2> Left) =>
+            default(FEitherUnsafe<L, R, L2, R2>).BiMap(this, Left, Right);
+
+        /// <summary>
+        /// Monadic bind
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
         /// <typeparam name="Ret"></typeparam>
         /// <param name="self"></param>
         /// <param name="binder"></param>
-        /// <returns>Bound Either</returns>
+        /// <returns>Bound EitherUnsafe</returns>
         [Pure]
         public EitherUnsafe<L, Ret> Bind<Ret>(Func<R, EitherUnsafe<L, Ret>> binder) =>
-            IsBottom
-                ? EitherUnsafe<L, Ret>.Bottom
-                : IsRight
-                    ? binder(RightValue)
-                    : EitherUnsafe<L, Ret>.Left(LeftValue);
+            default(MEitherUnsafe<L, R>).Bind<MEitherUnsafe<L, Ret>, EitherUnsafe<L, Ret>, Ret>(this, binder);
 
         /// <summary>
-        /// Monadic bind function
-        /// https://en.wikipedia.org/wiki/Monad_(functional_programming)
-        /// </summary>
-        /// <typeparam name="L">Left</typeparam>
-        /// <typeparam name="R">Right</typeparam>
-        /// <typeparam name="Ret"></typeparam>
-        /// <param name="self">this</param>
-        /// <param name="Right">Right bind function</param>
-        /// <param name="Left">Left bind function</param>
-        /// <returns>Bound Either</returns>
-        [Pure]
-        public EitherUnsafe<LRet, RRet> BiBind<LRet, RRet>(Func<R, EitherUnsafe<LRet, RRet>> Right, Func<L, EitherUnsafe<LRet, RRet>> Left) =>
-            IsBottom
-                ? EitherUnsafe<LRet, RRet>.Bottom
-                : IsLeft
-                    ? Left(LeftValue)
-                    : Right(RightValue);
-
-        /// <summary>
-        /// Filter the Either
+        /// Filter the EitherUnsafe
         /// </summary>
         /// <remarks>
-        /// This may give unpredictable results for a filtered value.  The Either won't
+        /// This may give unpredictable results for a filtered value.  The EitherUnsafe won't
         /// return true for IsLeft or IsRight.  IsBottom is True if the value is filtered and that
         /// should be checked for.
         /// </remarks>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
-        /// <param name="self">Either to filter</param>
+        /// <param name="self">EitherUnsafe to filter</param>
         /// <param name="pred">Predicate function</param>
-        /// <returns>If the Either is in the Left state it is returned as-is.  
+        /// <returns>If the EitherUnsafe is in the Left state it is returned as-is.  
         /// If in the Right state the predicate is applied to the Right value.
-        /// If the predicate returns True the Either is returned as-is.
-        /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
+        /// If the predicate returns True the EitherUnsafe is returned as-is.
+        /// If the predicate returns False the EitherUnsafe is returned in a 'Bottom' state.</returns>
         [Pure]
         public EitherUnsafe<L, R> Filter(Func<R, bool> pred) =>
-            IsBottom
-                ? this
-                : MatchUnsafe(
-                    Right: t => pred(t) ? Right(t) : Bottom,
-                    Left:  l => Left(l));
+            this.Filter<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R>(pred);
 
         /// <summary>
-        /// Bi-filter the Either
+        /// Filter the EitherUnsafe
         /// </summary>
         /// <remarks>
-        /// This may give unpredictable results for a filtered value.  The Either won't
+        /// This may give unpredictable results for a filtered value.  The EitherUnsafe won't
         /// return true for IsLeft or IsRight.  IsBottom is True if the value is filtered and that
         /// should be checked for.
         /// </remarks>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
-        /// <param name="self">Either to filter</param>
+        /// <param name="self">EitherUnsafe to filter</param>
         /// <param name="pred">Predicate function</param>
-        /// <returns>
-        /// If the Either is in the Left state then the Left predicate is run against it.
-        /// If the Either is in the Right state then the Right predicate is run against it.
-        /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
-        [Pure]
-        public EitherUnsafe<L, R> BiFilter(Func<R, bool> Right, Func<L, bool> Left) =>
-            IsBottom
-                ? this
-                : MatchUnsafe(
-                    Right: r => Right(r) ? EitherUnsafe<L, R>.Right(r) : Bottom,
-                    Left: l => Left(l)   ? EitherUnsafe<L, R>.Left(l) : Bottom);
-
-
-        /// <summary>
-        /// Filter the Either
-        /// </summary>
-        /// <remarks>
-        /// This may give unpredictable results for a filtered value.  The Either won't
-        /// return true for IsLeft or IsRight.  IsBottom is True if the value is filtered and that
-        /// should be checked for.
-        /// </remarks>
-        /// <typeparam name="L">Left</typeparam>
-        /// <typeparam name="R">Right</typeparam>
-        /// <param name="self">Either to filter</param>
-        /// <param name="pred">Predicate function</param>
-        /// <returns>If the Either is in the Left state it is returned as-is.  
+        /// <returns>If the EitherUnsafe is in the Left state it is returned as-is.  
         /// If in the Right state the predicate is applied to the Right value.
-        /// If the predicate returns True the Either is returned as-is.
-        /// If the predicate returns False the Either is returned in a 'Bottom' state.  IsLeft will return True, but the value 
+        /// If the predicate returns True the EitherUnsafe is returned as-is.
+        /// If the predicate returns False the EitherUnsafe is returned in a 'Bottom' state.  IsLeft will return True, but the value 
         /// of Left = default(L)</returns>
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public EitherUnsafe<L, R> Where(Func<R, bool> pred) =>
-            Filter(pred);
+            this.Filter<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R>(pred);
 
         /// <summary>
-        /// Maps the value in the Either if it's in a Right state
+        /// Maps the value in the EitherUnsafe if it's in a Right state
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="TR">Right</typeparam>
-        /// <typeparam name="UR">Mapped Either type</typeparam>
-        /// <param name="self">Either to map</param>
+        /// <typeparam name="UR">Mapped EitherUnsafe type</typeparam>
+        /// <param name="self">EitherUnsafe to map</param>
         /// <param name="map">Map function</param>
-        /// <returns>Mapped Either</returns>
+        /// <returns>Mapped EitherUnsafe</returns>
         [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public EitherUnsafe<L, U> Select<U>(Func<R, U> map) =>
-            IsBottom
-                ? EitherUnsafe<L, U>.Bottom
-                : MatchUnsafe(
-                    Right: t => EitherUnsafe<L, U>.Right(map(t)),
-                    Left: l  => EitherUnsafe<L, U>.Left(l));
+            default(FEitherUnsafe<L, R, U>).Map(this, map);
 
         /// <summary>
         /// Monadic bind function
-        /// https://en.wikipedia.org/wiki/Monad_(functional_programming)
         /// </summary>
-        /// <returns>Bound Either</returns>
+        /// <returns>Bound EitherUnsafe</returns>
         [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public EitherUnsafe<L, V> SelectMany<U, V>(Func<R, EitherUnsafe<L, U>> bind, Func<R, U, V> project)
-        {
-            if (IsBottom) return EitherUnsafe<L, V>.Bottom;
-            if (IsLeft) return EitherUnsafe<L, V>.Left(LeftValue);
-            var u = bind(RightValue);
-            if (u.IsBottom) return EitherUnsafe<L, V>.Bottom;
-            if (u.IsLeft) return EitherUnsafe<L, V>.Left(u.LeftValue);
-            return project(RightValue, u.RightValue);
-        }
+        public EitherUnsafe<L, V> SelectMany<U, V>(Func<R, EitherUnsafe<L, U>> bind, Func<R, U, V> project) =>
+            this.SelectMany<MEitherUnsafe<L, R>, MEitherUnsafe<L, U>, MEitherUnsafe<L, V>, EitherUnsafe<L, R>, EitherUnsafe<L, U>, EitherUnsafe<L, V>, R, U, V>(bind, project);
 
         [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public IEnumerable<V> SelectMany<U, V>(
             Func<R, IEnumerable<U>> bind,
             Func<R, U, V> project
@@ -1084,46 +806,17 @@ namespace LanguageExt
         }
 
         [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public EitherUnsafe<L, V> Join<U, K, V>(
             EitherUnsafe<L, U> inner,
             Func<R, K> outerKeyMap,
             Func<U, K> innerKeyMap,
-            Func<R, U, V> project)
-        {
-            if (IsLeft) return EitherUnsafe<L, V>.Left(LeftValue);
-            if (inner.IsLeft) return EitherUnsafe<L, V>.Left(inner.LeftValue);
-            if (IsBottom || inner.IsBottom) return EitherUnsafe<L, V>.Bottom;
-            return EqualityComparer<K>.Default.Equals(outerKeyMap(RightValue), innerKeyMap(inner.RightValue))
-                ? EitherUnsafe<L, V>.Right(project(RightValue, inner.RightValue))
-                : EitherUnsafe<L, V>.Bottom;
-        }
-
-        EitherUnsafe<L, R> AsEither(Optional<R> x) => (EitherUnsafe<L, R>)x;
-        EitherUnsafe<L, R> AsEither(Foldable<R> x) => (EitherUnsafe<L, R>)x;
-        EitherUnsafe<L, R> AsEither(Functor<R> x) => (EitherUnsafe<L, R>)x;
-        EitherUnsafe<L, R> AsEither(Monad<R> x) => (EitherUnsafe<L, R>)x;
-        EitherUnsafe<L, R> AsEither(MonadPlus<R> x) => (EitherUnsafe<L, R>)x;
-        EitherUnsafe<L, R> AsEither(Choice<L, R> x) => (EitherUnsafe<L, R>)x;
-
-        public bool IsUnsafe(Choice<L, R> a) => 
-            false;
-
-        public bool IsChoice1(Choice<L, R> a) =>
-            AsEither(a).IsLeft;
-
-        public bool IsChoice2(Choice<L, R> a) =>
-            AsEither(a).IsRight;
-
-        public C Match<C>(Choice<L, R> a, Func<L, C> Choice1, Func<R, C> Choice2) =>
-            AsEither(a).MatchUnsafe(Choice2, Choice1);
-
-        public C MatchUnsafe<C>(Choice<L, R> a, Func<L, C> Choice1, Func<R, C> Choice2) =>
-            AsEither(a).MatchUnsafe(Choice2, Choice1);
+            Func<R, U, V> project) =>
+            this.Join<EqDefault<K>, MEitherUnsafe<L, R>, MEitherUnsafe<L, U>, MEitherUnsafe<L, V>, EitherUnsafe<L, R>, EitherUnsafe<L, U>, EitherUnsafe<L, V>, R, U, K, V>(
+                inner, outerKeyMap, innerKeyMap, project
+                );
     }
-
     /// <summary>
-    /// Context for the fluent Either matching
+    /// Context for the fluent EitherUnsafe matching
     /// </summary>
     public struct EitherUnsafeContext<L, R, Ret>
     {

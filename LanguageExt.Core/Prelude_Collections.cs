@@ -105,28 +105,28 @@ namespace LanguageExt
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HMap<K, V> HashMap<K, V>() =>
+        public static HashMap<K, V> HashMap<K, V>() =>
             LanguageExt.HashMap.empty<K, V>();
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HMap<K, V> HashMap<K, V>(params Tuple<K, V>[] items) =>
+        public static HashMap<K, V> HashMap<K, V>(params Tuple<K, V>[] items) =>
             LanguageExt.HashMap.createRange(items);
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HMap<K, V> HashMap<K, V>(IEnumerable<Tuple<K, V>> items) =>
+        public static HashMap<K, V> HashMap<K, V>(IEnumerable<Tuple<K, V>> items) =>
             LanguageExt.HashMap.createRange(items);
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HMap<K, V> HashMap<K, V>(params KeyValuePair<K, V>[] items) =>
+        public static HashMap<K, V> HashMap<K, V>(params KeyValuePair<K, V>[] items) =>
             LanguageExt.HashMap.createRange(from x in items
                                             select Tuple(x.Key, x.Value));
 
@@ -134,7 +134,7 @@ namespace LanguageExt
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HMap<K, V> HashMap<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
+        public static HashMap<K, V> HashMap<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
             LanguageExt.HashMap.createRange(items);
 
         /// <summary>
@@ -296,28 +296,28 @@ namespace LanguageExt
         /// Create an immutable hash-set
         /// </summary>
         [Pure]
-        public static HSet<T> HashSet<T>() =>
+        public static HashSet<T> HashSet<T>() =>
             LanguageExt.HashSet.create<T>();
 
         /// <summary>
         /// Create an immutable hash-set
         /// </summary>
         [Pure]
-        public static HSet<T> HashSet<T>(T item) =>
+        public static HashSet<T> HashSet<T>(T item) =>
             LanguageExt.HashSet.create<T>().Add(item);
 
         /// <summary>
         /// Create an immutable hash-set
         /// </summary>
         [Pure]
-        public static HSet<T> HashSet<T>(params T[] items) =>
+        public static HashSet<T> HashSet<T>(params T[] items) =>
             LanguageExt.HashSet.createRange<T>(items);
 
         /// <summary>
         /// Create an immutable hash-set
         /// </summary>
         [Pure]
-        public static HSet<T> toHashSet<T>(IEnumerable<T> items) =>
+        public static HashSet<T> toHashSet<T>(IEnumerable<T> items) =>
             LanguageExt.HashSet.createRange<T>(items);
 
         /// <summary>
@@ -430,12 +430,12 @@ namespace LanguageExt
                    None);
 
         [Pure]
-        public static R match<K, V, R>(HMap<K, V> map, K key, Func<V, R> Some, Func<R> None) =>
+        public static R match<K, V, R>(HashMap<K, V> map, K key, Func<V, R> Some, Func<R> None) =>
             match(LanguageExt.HashMap.find(map, key),
                    Some,
                    None);
 
-        public static Unit match<K, V>(HMap<K, V> map, K key, Action<V> Some, Action None) =>
+        public static Unit match<K, V>(HashMap<K, V> map, K key, Action<V> Some, Action None) =>
             match(LanguageExt.HashMap.find(map, key),
                    Some,
                    None);

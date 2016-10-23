@@ -7,6 +7,7 @@ using System.Diagnostics.Contracts;
 using System.Collections.Generic;
 using LanguageExt.Instances;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace LanguageExt
 {
@@ -14,19 +15,23 @@ namespace LanguageExt
     /// Discriminated union type.  Can be in one of two states:
     /// 
     ///     Some(a)
-    ///     
     ///     None
     ///     
-    /// The type is part of the Optional, Monad, Functor, Foldable, and 
-    /// Seq, type-classes.
+    /// Typeclass instances available for this type:
+    /// 
+    ///     BiFoldable  : MOption
+    ///     Eq          : EqOpt
+    ///     Foldable    : MOption
+    ///     Functor     : FOption
+    ///     MonadPlus   : MOption
+    ///     Optional    : MOption
+    ///     Ord         : OrdOpt
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
 #if !COREFX
     [Serializable]
 #endif
     public struct Option<A> :
-        Optional<A>,
-        MonadPlus<A>,
         IOptional, 
         IEquatable<Option<A>>, 
         IComparable<Option<A>>
@@ -58,9 +63,22 @@ namespace LanguageExt
 
         /// <summary>
         /// Uses the EqDefault instance to do an equality check on the bound value.  
-        /// To use anything other than the default call equals<EQ<A>, A>(a, b), 
+        /// To use anything other than the default call equals<EQ, A>(a, b), 
         /// where EQ is an instance derived from Eq<A>
         /// </summary>
+        /// <remarks>
+        /// This uses the EqDefault instance for comparison of the bound A values.  
+        /// The EqDefault instance wraps up the .NET EqualityComparer.Default 
+        /// behaviour.  For more control over equality you can call:
+        /// 
+        ///     equals<EQ, A>(lhs, rhs);
+        ///     
+        /// Where EQ is a struct derived from Eq<A>.  For example: 
+        /// 
+        ///     equals<EqString, string>(lhs, rhs);
+        ///     equals<EqArray<int>, int[]>(lhs, rhs);
+        ///     
+        /// </remarks>
         /// <param name="other">The Option type to compare this type with</param>
         /// <returns>True if this and other are equal</returns>
         public bool Equals(Option<A> other) =>
@@ -85,9 +103,9 @@ namespace LanguageExt
         public static implicit operator Option<A>(A a) =>
             Optional(a);
 
-        /// Implicit conversion operator from Unit to Option<A>
+        /// Implicit conversion operator from None to Option<A>
         /// </summary>
-        /// <param name="a">Unit value</param>
+        /// <param name="a">None value</param>
         [Pure]
         public static implicit operator Option<A>(OptionNone a) =>
             None;
@@ -96,20 +114,20 @@ namespace LanguageExt
         /// Equality operator
         /// </summary>
         /// <remarks>
-        /// This uses the EqDefault type-class for comparison of the A value.  The EqDefault
-        /// type-class wraps up the .NET EqualityComparer.Default behaviour.  For more control
-        /// over equality you can call:
+        /// This uses the EqDefault instance for comparison of the bound A values.  
+        /// The EqDefault instance wraps up the .NET EqualityComparer.Default 
+        /// behaviour.  For more control over equality you can call:
         /// 
         ///     equals<EQ, A>(lhs, rhs);
         ///     
         /// Where EQ is a struct derived from Eq<A>.  For example: 
         /// 
         ///     equals<EqString, string>(lhs, rhs);
-        ///     equals<EqArray<int>, int>(lhs, rhs);
+        ///     equals<EqArray<int>, int[]>(lhs, rhs);
         ///     
         /// </remarks>
         /// <param name="lhs">Left hand side of the operation</param>
-        /// <param name="rhs">RIght hand side of the operation</param>
+        /// <param name="rhs">Right hand side of the operation</param>
         /// <returns>True if the values are equal</returns>
         [Pure]
         public static bool operator ==(Option<A> lhs, Option<A> rhs) =>
@@ -119,35 +137,45 @@ namespace LanguageExt
         /// Non-equality operator
         /// </summary>
         /// <remarks>
-        /// This uses the EqDefault type-class for comparison of the A value.  The EqDefault
-        /// type-class wraps up the .NET EqualityComparer.Default behaviour.  For more control
-        /// over equality you can call:
+        /// This uses the EqDefault instance for comparison of the A value.  
+        /// The EqDefault type-class wraps up the .NET EqualityComparer.Default 
+        /// behaviour.  For more control over equality you can call:
         /// 
         ///     !equals<EQ, A>(lhs, rhs);
         ///     
         /// Where EQ is a struct derived from Eq<A>.  For example: 
         /// 
         ///     !equals<EqString, string>(lhs, rhs);
-        ///     !equals<EqArray<int>, int>(lhs, rhs);
+        ///     !equals<EqArray<int>, int[]>(lhs, rhs);
         ///     
         /// </remarks>
         /// <param name="lhs">Left hand side of the operation</param>
-        /// <param name="rhs">RIght hand side of the operation</param>
+        /// <param name="rhs">Right hand side of the operation</param>
         /// <returns>True if the values are equal</returns>
         [Pure]
         public static bool operator !=(Option<A> lhs, Option<A> rhs) =>
             !(lhs == rhs);
 
+        /// <summary>
+        /// Coalescing operator
+        /// </summary>
+        /// <param name="lhs">Left hand side of the operation</param>
+        /// <param name="rhs">Right hand side of the operation</param>
+        /// <returns>if lhs is Some then lhs, else rhs</returns>
         [Pure]
         public static Option<A> operator |(Option<A> lhs, Option<A> rhs) =>
-            lhs.IsSome
-                ? lhs
-                : rhs;
+            default(MOption<A>).Plus(lhs, rhs);
 
+        /// <summary>
+        /// Truth operator
+        /// </summary>
         [Pure]
         public static bool operator true(Option<A> value) =>
             value.IsSome;
 
+        /// <summary>
+        /// Falsity operator
+        /// </summary>
         [Pure]
         public static bool operator false(Option<A> value) =>
             value.IsNone;
@@ -160,9 +188,11 @@ namespace LanguageExt
             equals<EqDefault<A>, A>(this, (ReferenceEquals(obj,null) ? None : (Option<A>)obj));
 
         /// <summary>
-        /// Get hash code
+        /// Calculate the hash-code from the bound value, unless the Option is in a None
+        /// state, in which case the hash-code will be 0
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Hash-code from the bound value, unless the Option is in a None
+        /// state, in which case the hash-code will be 0</returns>
         [Pure]
         public override int GetHashCode() =>
             IsSome
@@ -172,7 +202,7 @@ namespace LanguageExt
         /// <summary>
         /// Get a string representation of the Option
         /// </summary>
-        /// <returns></returns>
+        /// <returns>String representation of the Option</returns>
         [Pure]
         public override string ToString() =>
             IsSome
@@ -184,67 +214,58 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public bool IsSome =>
-            (value ?? OptionV<A>.None).IsSome();
+            value?.IsSome ?? false;
 
         /// <summary>
         /// Is the option in a None state
         /// </summary>
         [Pure]
         public bool IsNone =>
-            (value ?? OptionV<A>.None).IsNone();
+            value?.IsNone ?? true;
 
         /// <summary>
         /// Helper accessor for the bound value
         /// </summary>
         internal A Value =>
             IsSome
-                ? value.Value()
+                ? value.Value
                 : default(A);
 
         /// <summary>
-        /// Functor map operation
+        /// Projection from one value to another 
         /// </summary>
+        /// <typeparam name="B">Resulting functor value type</typeparam>
+        /// <param name="f">Projection function</param>
+        /// <returns>Mapped functor</returns>
         [Pure]
-        public Option<B> Select<B>(Func<A, B> f)
-        {
-            if (isnull(f) || IsNone) return Option<B>.None;
-            return f(Value);
-        }
+        public Option<B> Select<B>(Func<A, B> f) =>
+            default(FOption<A, B>).Map(this, f);
 
         /// <summary>
-        /// Functor map operation
+        /// Projection from one value to another 
         /// </summary>
+        /// <typeparam name="B">Resulting functor value type</typeparam>
+        /// <param name="f">Projection function</param>
+        /// <returns>Mapped functor</returns>
         [Pure]
-        public Option<B> Map<B>(Func<A, B> f)
-        {
-            if (isnull(f) || IsNone) return Option<B>.None;
-            return f(Value);
-        }
+        public Option<B> Map<B>(Func<A, B> f) =>
+            default(FOption<A, B>).Map(this, f);
 
         /// <summary>
         /// Monad bind operation
         /// </summary>
         [Pure]
-        public Option<B> Bind<B>(Func<A, Option<B>> f)
-        {
-            if (isnull(f) || IsNone) return Option<B>.None;
-            return f(Value);
-        }
+        public Option<B> Bind<B>(Func<A, Option<B>> f) =>
+            default(MOption<A>).Bind<MOption<B>, Option<B>, B>(this, f);
 
         /// <summary>
-        /// Monad bind operation for Option
+        /// Monad bind operation
         /// </summary>
         [Pure]
         public Option<C> SelectMany<B, C>(
             Func<A, Option<B>> bind,
-            Func<A, B, C> project
-            )
-        {
-            if (isnull(bind) || isnull(project) || IsNone) return Option<C>.None;
-            var mb = bind(Value);
-            if (mb.IsNone) return Option<C>.None;
-            return project(Value, mb.Value);
-        }
+            Func<A, B, C> project) =>
+            this.SelectMany<MOption<A>, MOption<B>, MOption<C>, Option<A>, Option<B>, Option<C>, A, B, C>(bind, project);
 
         /// <summary>
         /// Match operation with an untyped value for Some. This can be
@@ -256,11 +277,12 @@ namespace LanguageExt
         /// <returns>The result of the match operation</returns>
         [Pure]
         public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
-            Match(
-                Some: x => Some(x),
-                None: () => None()
-            );
+            this.MatchUntyped<MOption<A>, Option<A>, A, R>(Some, None);
 
+        /// <summary>
+        /// Get the Type of the bound value
+        /// </summary>
+        /// <returns>Type of the bound value</returns>
         [Pure]
         public Type GetUnderlyingType() => 
             typeof(A);
@@ -268,97 +290,88 @@ namespace LanguageExt
         /// <summary>
         /// Convert the Option to an enumerable of zero or one items
         /// </summary>
-        /// <param name="ma">Option</param>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
         public A[] ToArray() =>
-            IsNone
-                ? new A[0]
-                : new A[1] { Value };
+            this.ToArray<MOption<A>, Option<A>, A>();
 
         /// <summary>
         /// Convert the Option to an immutable list of zero or one items
         /// </summary>
-        /// <param name="ma">Option</param>
         /// <returns>An immutable list of zero or one items</returns>
         [Pure]
         public Lst<A> ToList() =>
-            List(ToArray());
+            this.ToList<MOption<A>, Option<A>, A>();
 
         /// <summary>
         /// Convert the Option to an enumerable sequence of zero or one items
         /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ma">Option</param>
         /// <returns>An enumerable sequence of zero or one items</returns>
         [Pure]
         public IEnumerable<A> ToSeq() =>
-            ToArray().AsEnumerable();
+            this.ToSeq<MOption<A>, Option<A>, A>();
 
         /// <summary>
         /// Convert the Option to an enumerable of zero or one items
         /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ma">Option</param>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
         public IEnumerable<A> AsEnumerable() =>
-            ToArray().AsEnumerable();
+            this.AsEnumerable<MOption<A>, Option<A>, A>();
 
         /// <summary>
         /// Convert the structure to an Either
         /// </summary>
+        /// <param name="defaultLeftValue">Default value if the structure is in a None state</param>
+        /// <returns>An Either representation of the structure</returns>
         [Pure]
         public Either<L, A> ToEither<L>(L defaultLeftValue) =>
-            IsSome
-                ? Right<L, A>(Value)
-                : Left<L, A>(defaultLeftValue);
+            this.ToEither<MOption<A>, Option<A>, L, A>(defaultLeftValue);
 
         /// <summary>
         /// Convert the structure to an Either
         /// </summary>
+        /// <param name="defaultLeftValue">Function to invoke to get a default value if the 
+        /// structure is in a None state</param>
+        /// <returns>An Either representation of the structure</returns>
         [Pure]
         public Either<L, A> ToEither<L>(Func<L> Left) =>
-            IsSome
-                ? Right<L, A>(Value)
-                : Left<L, A>(Left());
+            this.ToEither<MOption<A>, Option<A>, L, A>(Left);
 
         /// <summary>
         /// Convert the structure to an EitherUnsafe
         /// </summary>
+        /// <param name="defaultLeftValue">Default value if the structure is in a None state</param>
+        /// <returns>An EitherUnsafe representation of the structure</returns>
         [Pure]
         public EitherUnsafe<L, A> ToEitherUnsafe<L>(L defaultLeftValue) =>
-            IsSome
-                ? RightUnsafe<L, A>(Value)
-                : LeftUnsafe<L, A>(defaultLeftValue);
+            this.ToEitherUnsafe<MOption<A>, Option<A>, L, A>(defaultLeftValue);
 
         /// <summary>
         /// Convert the structure to an EitherUnsafe
         /// </summary>
+        /// <param name="defaultLeftValue">Function to invoke to get a default value if the 
+        /// structure is in a None state</param>
+        /// <returns>An EitherUnsafe representation of the structure</returns>
         [Pure]
         public EitherUnsafe<L, A> ToEitherUnsafe<L>(Func<L> Left) =>
-            IsSome
-                ? RightUnsafe<L, A>(Value)
-                : LeftUnsafe<L, A>(Left());
+            this.ToEitherUnsafe<MOption<A>, Option<A>, L, A>(Left);
 
         /// <summary>
         /// Convert the structure to a OptionUnsafe
         /// </summary>
+        /// <returns>An OptionUnsafe representation of the structure</returns>
         [Pure]
         public OptionUnsafe<A> ToOptionUnsafe() =>
-            IsSome
-                ? SomeUnsafe(Value)
-                : OptionUnsafe<A>.None;
+            this.ToOptionUnsafe<MOption<A>, Option<A>, A>();
 
         /// <summary>
         /// Convert the structure to a TryOption
         /// </summary>
+        /// <returns>A TryOption representation of the structure</returns>
         [Pure]
-        public TryOption<A> ToTryOption()
-        {
-            var self = this;
-            return TryOption(() => self);
-        }
+        public TryOption<A> ToTryOption() =>
+            this.ToTryOption<MOption<A>, Option<A>, A>();
 
         /// <summary>
         /// Fluent pattern matching.  Provide a Some handler and then follow
@@ -366,12 +379,10 @@ namespace LanguageExt
         /// This is for dispatching actions, use Some<A,B>(...) to return a value
         /// from the match operation.
         /// </summary>
-        /// <typeparam name="A">Bound value type</typeparam>
-        /// <param name="ma">Option to match</param>
         /// <param name="f">The Some(x) match operation</param>
         [Pure]
-        public SomeUnitContext<Option<A>, A> Some(Action<A> f) =>
-            new SomeUnitContext<Option<A>, A>(this, f, false);
+        public SomeUnitContext<MOption<A>, Option<A>, A> Some(Action<A> f) =>
+            new SomeUnitContext<MOption<A>, Option<A>, A>(this, f, false);
 
         /// <summary>
         /// Fluent pattern matching.  Provide a Some handler and then follow
@@ -383,8 +394,8 @@ namespace LanguageExt
         /// <param name="f">The Some(x) match operation</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public SomeContext<Option<A>, A, B> Some<B>(Func<A, B> f) =>
-            new SomeContext<Option<A>, A, B>(this, f, false);
+        public SomeContext<MOption<A>, Option<A>, A, B> Some<B>(Func<A, B> f) =>
+            new SomeContext<MOption<A>, Option<A>, A, B>(this, f, false);
 
         /// <summary>
         /// Match the two states of the Option and return a non-null R.
@@ -392,12 +403,10 @@ namespace LanguageExt
         /// <typeparam name="B">Return type</typeparam>
         /// <param name="Some">Some match operation. Must not return null.</param>
         /// <param name="None">None match operation. Must not return null.</param>
-        /// <returns>A non-null R</returns>
+        /// <returns>A non-null B</returns>
         [Pure]
         public B Match<B>(Func<A, B> Some, Func<B> None) =>
-            IsNone
-                ? OptionExtensions.CheckNullNoneReturn(None())
-                : OptionExtensions.CheckNullSomeReturn(Some(Value));
+            default(MOption<A>).Match(this, Some, None);
 
         /// <summary>
         /// Match the two states of the Option and return a B, which can be null.
@@ -405,55 +414,33 @@ namespace LanguageExt
         /// <typeparam name="B">Return type</typeparam>
         /// <param name="Some">Some match operation. May return null.</param>
         /// <param name="None">None match operation. May return null.</param>
-        /// <returns>R, or null</returns>
+        /// <returns>B, or null</returns>
         [Pure]
         public B MatchUnsafe<B>(Func<A, B> Some, Func<B> None) =>
-            IsNone
-                ? None()
-                : Some(Value);
+            default(MOption<A>).MatchUnsafe(this, Some, None);
 
         /// <summary>
-        /// Match the two states of the Option A
+        /// Match the two states of the Option
         /// </summary>
         /// <param name="Some">Some match operation</param>
         /// <param name="None">None match operation</param>
-        public Unit Match(Action<A> Some, Action None)
-        {
-            if (IsSome)
-            {
-                Some(Value);
-            }
-            else
-            {
-                None();
-            }
-            return unit;
-        }
+        public Unit Match(Action<A> Some, Action None) =>
+            default(MOption<A>).Match(this, Some, None);
 
         /// <summary>
-        /// Invokes the f action if Option is in the Some state, otherwise nothing happens.
+        /// Invokes the action if Option is in the Some state, otherwise nothing happens.
         /// </summary>
-        public Unit IfSome(Action<A> f)
-        {
-            if (IsSome)
-            {
-                f(Value);
-            }
-            return unit;
-        }
+        /// <param name="f">Action to invoke if Option is in the Some state</param>
+        public Unit IfSome(Action<A> f) =>
+            this.IfSome<MOption<A>, Option<A>, A>(f);
 
         /// <summary>
         /// Invokes the f function if Option is in the Some state, otherwise nothing
         /// happens.
         /// </summary>
-        public Unit IfSome(Func<A, Unit> f)
-        {
-            if (IsSome)
-            {
-                f(Value);
-            }
-            return unit;
-        }
+        /// <param name="f">Function to invoke if Option is in the Some state</param>
+        public Unit IfSome(Func<A, Unit> f) =>
+            this.IfSome<MOption<A>, Option<A>, A>(f);
 
         /// <summary>
         /// Returns the result of invoking the None() operation if the optional 
@@ -465,7 +452,7 @@ namespace LanguageExt
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
         public A IfNone(Func<A> None) =>
-            Match(identity, None);
+            this.IfNone<MOption<A>, Option<A>, A>(None);
 
         /// <summary>
         /// Returns the noneValue if the optional is in a None state, otherwise
@@ -477,7 +464,7 @@ namespace LanguageExt
         /// the bound Some(x) value is returned</returns>
         [Pure]
         public A IfNone(A noneValue) =>
-            Match(identity, () => noneValue);
+            this.IfNone<MOption<A>, Option<A>, A>(noneValue);
 
         /// <summary>
         /// Returns the result of invoking the None() operation if the optional 
@@ -489,7 +476,7 @@ namespace LanguageExt
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
         public A IfNoneUnsafe(Func<A> None) =>
-            MatchUnsafe(identity, None);
+            this.IfNoneUnsafe<MOption<A>, Option<A>, A>(None);
 
         /// <summary>
         /// Returns the noneValue if the optional is in a None state, otherwise
@@ -501,225 +488,339 @@ namespace LanguageExt
         /// the bound Some(x) value is returned</returns>
         [Pure]
         public A IfNoneUnsafe(A noneValue) =>
-            MatchUnsafe(identity, () => noneValue);
+            this.IfNoneUnsafe<MOption<A>, Option<A>, A>(noneValue);
 
         /// <summary>
-        /// Functor map operation
+        /// <para>
+        /// Option types are like lists of 0 or 1 items, and therefore follow the 
+        /// same rules when folding.
+        /// </para><para>
+        /// In the case of lists, 'Fold', when applied to a binary
+        /// operator, a starting value(typically the left-identity of the operator),
+        /// and a list, reduces the list using the binary operator, from left to
+        /// right:
+        /// </para><para>
+        /// Fold([x1, x2, ..., xn] == x1 `f` (x2 `f` ... (xn `f` z)...)
+        /// </para><para>
+        /// Note that, since the head of the resulting expression is produced by
+        /// an application of the operator to the first element of the list,
+        /// 'Fold' can produce a terminating expression from an infinite list.
+        /// </para>
         /// </summary>
-        /// <typeparam name="B">The type that f maps to</typeparam>
-        /// <param name="ma">The functor</param>
-        /// <param name="f">The operation to perform on the bound value</param>
-        /// <returns>A mapped functor</returns>
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Functor<B> Map<B>(Functor<A> ma, Func<A, B> f)
-        {
-            var maybe = AsOpt(ma);
-            return maybe.IsSome()
-                ? new Option<B>(OptionV<B>.Optional(f(maybe.Value())))
-                : Option<B>.None;
-        }
-
-        /// <summary>
-        /// Monad return
-        /// Constructs a Monad of A
-        /// </summary>
-        /// <param name="x">Value to bind</param>
-        /// <param name="xs">Ignored</param>
-        /// <returns>Monad of A</returns>
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Monad<A> Return(A x, params A[] xs) =>
-            new Option<A>(OptionV<A>.Optional(x));
-
-        /// <summary>
-        /// Monad return
-        /// Constructs a Monad of A
-        /// </summary>
-        /// <param name="a">Value to bind</param>
-        /// <returns>Monad of A</returns>
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Monad<A> Return(IEnumerable<A> xs)
-        {
-            var x = xs.Take(1).ToArray();
-            return x.Length == 0
-                ? Option<A>.None
-                : Option<A>.Some(x[0]);
-        }
-
-        /// <summary>
-        /// Monad bind
-        /// </summary>
-        /// <typeparam name="B">Type the bind operation returns</typeparam>
-        /// <param name="ma">Monad of A</param>
-        /// <param name="f">Bind operation</param>
-        /// <returns>Monad of B</returns>
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Monad<B> Bind<B>(Monad<A> ma, Func<A, Monad<B>> f)
-        {
-            var maybe = AsOpt(ma);
-            return maybe.IsSome()
-                ? f(maybe.Value())
-                : Option<B>.None;
-        }
-
-        /// <summary>
-        /// Monad bind
-        /// </summary>
-        /// <typeparam name="B">Type the bind operation returns</typeparam>
-        /// <param name="ma">Monad of A</param>
-        /// <param name="f">Bind operation</param>
-        /// <returns>Monad of B</returns>
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public MB Bind<MB, B>(Monad<A> ma, Func<A, MB> f) where MB : struct, Monad<B>
-        {
-            var maybe = AsOpt(ma);
-            return maybe.IsSome()
-                ? f(maybe.Value())
-                : (MB)default(MB).Fail(ValueIsNoneException.Default);
-        }
-
-        /// <summary>
-        /// Monad fail
-        /// </summary>
-        /// <param name="_">Not supported for OptionV</param>
-        /// <returns>Monad of A (for Option this returns a None state)</returns>
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Monad<A> Fail<F>(F _ = default(F)) =>
-            None;
-
-        /// <summary>
-        /// Monad fail
-        /// </summary>
-        /// <param name="_">Not supported for OptionV</param>
-        /// <returns>Monad of A (for Option this returns a None state)</returns>
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Monad<A> Fail(Exception err = null) =>
-            None;
-
-        /// <summary>
-        /// Fold the bound value
-        /// </summary>
-        /// <typeparam name="S">Initial state type</typeparam>
-        /// <param name="ma">Monad to fold</param>
+        /// <typeparam name="S">Aggregate state type</typeparam>
         /// <param name="state">Initial state</param>
-        /// <param name="f">Fold operation</param>
-        /// <returns>Aggregated state</returns>
+        /// <param name="folder">Folder function, applied if Option is in a Some state</param>
+        /// <returns>The aggregate state</returns>
         [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public S Fold<S>(Foldable<A> ma, S state, Func<S, A, S> f)
-        {
-            var maybe = AsOpt(ma);
-            return maybe.IsSome()
-                ? f(state, maybe.Value())
-                : state;
-        }
+        public S Fold<S>(S state, Func<S, A, S> folder) =>
+            default(MOption<A>).Fold(this, state, folder);
 
         /// <summary>
-        /// Fold the bound value
+        /// <para>
+        /// Option types are like lists of 0 or 1 items, and therefore follow the 
+        /// same rules when folding.
+        /// </para><para>
+        /// In the case of lists, 'Fold', when applied to a binary
+        /// operator, a starting value(typically the left-identity of the operator),
+        /// and a list, reduces the list using the binary operator, from left to
+        /// right:
+        /// </para><para>
+        /// Fold([x1, x2, ..., xn] == x1 `f` (x2 `f` ... (xn `f` z)...)
+        /// </para><para>
+        /// Note that, since the head of the resulting expression is produced by
+        /// an application of the operator to the first element of the list,
+        /// 'Fold' can produce a terminating expression from an infinite list.
+        /// </para>
         /// </summary>
-        /// <typeparam name="S">Initial state type</typeparam>
-        /// <param name="ma">Monad to fold</param>
+        /// <typeparam name="S">Aggregate state type</typeparam>
         /// <param name="state">Initial state</param>
-        /// <param name="f">Fold operation</param>
-        /// <returns>Aggregated state</returns>
+        /// <param name="folder">Folder function, applied if Option is in a Some state</param>
+        /// <returns>The aggregate state</returns>
+        [Pure]
+        public S FoldBack<S>(S state, Func<S, A, S> folder) =>
+            default(MOption<A>).FoldBack(this, state, folder);
+
+        /// <summary>
+        /// <para>
+        /// Option types are like lists of 0 or 1 items, and therefore follow the 
+        /// same rules when folding.
+        /// </para><para>
+        /// In the case of lists, 'Fold', when applied to a binary
+        /// operator, a starting value(typically the left-identity of the operator),
+        /// and a list, reduces the list using the binary operator, from left to
+        /// right:
+        /// </para><para>
+        /// Fold([x1, x2, ..., xn] == x1 `f` (x2 `f` ... (xn `f` z)...)
+        /// </para><para>
+        /// Note that, since the head of the resulting expression is produced by
+        /// an application of the operator to the first element of the list,
+        /// 'Fold' can produce a terminating expression from an infinite list.
+        /// </para>
+        /// </summary>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="state">Initial state</param>
+        /// <param name="Some">Folder function, applied if Option is in a Some state</param>
+        /// <param name="None">Folder function, applied if Option is in a None state</param>
+        /// <returns>The aggregate state</returns>
+        [Pure]
+        public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, Unit, S> None) =>
+            default(MOption<A>).BiFold(this, state, None, Some);
+
+        /// <summary>
+        /// <para>
+        /// Option types are like lists of 0 or 1 items, and therefore follow the 
+        /// same rules when folding.
+        /// </para><para>
+        /// In the case of lists, 'Fold', when applied to a binary
+        /// operator, a starting value(typically the left-identity of the operator),
+        /// and a list, reduces the list using the binary operator, from left to
+        /// right:
+        /// </para><para>
+        /// Fold([x1, x2, ..., xn] == x1 `f` (x2 `f` ... (xn `f` z)...)
+        /// </para><para>
+        /// Note that, since the head of the resulting expression is produced by
+        /// an application of the operator to the first element of the list,
+        /// 'Fold' can produce a terminating expression from an infinite list.
+        /// </para>
+        /// </summary>
+        /// <typeparam name="S">Aggregate state type</typeparam>
+        /// <param name="state">Initial state</param>
+        /// <param name="Some">Folder function, applied if Option is in a Some state</param>
+        /// <param name="None">Folder function, applied if Option is in a None state</param>
+        /// <returns>The aggregate state</returns>
+        [Pure]
+        public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, S> None) =>
+            default(MOption<A>).BiFold(this, state, (s, _) => None(s), Some);
+
+        /// <summary>
+        /// Projection from one value to another
+        /// </summary>
+        /// <typeparam name="B">Resulting functor value type</typeparam>
+        /// <param name="Some">Projection function</param>
+        /// <param name="None">Projection function</param>
+        /// <returns>Mapped functor</returns>
+        [Pure]
+        public Option<B> BiMap<B>(Func<A, B> Some, Func<Unit, B> None) =>
+            default(FOption<A, B>).BiMap(this, None, Some);
+
+        /// <summary>
+        /// Projection from one value to another
+        /// </summary>
+        /// <typeparam name="B">Resulting functor value type</typeparam>
+        /// <param name="Some">Projection function</param>
+        /// <param name="None">Projection function</param>
+        /// <returns>Mapped functor</returns>
+        [Pure]
+        public Option<B> BiMap<B>(Func<A, B> Some, Func<B> None) =>
+            default(FOption<A, B>).BiMap(this, _ => None(), Some);
+
+        /// <summary>
+        /// <para>
+        /// Return the number of bound values in this structure:
+        /// </para>
+        /// <para>
+        ///     None = 0
+        /// </para>
+        /// <para>
+        ///     Some = 1
+        /// </para>
+        /// </summary>
+        /// <returns></returns>
+        [Pure]
+        public int Count() =>
+            default(MOption<A>).Count(this);
+
+        /// <summary>
+        /// Apply a predicate to the bound value.  If the Option is in a None state
+        /// then True is returned (because the predicate applies for-all values).
+        /// If the Option is in a Some state the value is the result of running 
+        /// applying the bound value to the predicate supplied.        
+        /// </summary>
+        /// <param name="pred"></param>
+        /// <returns>If the Option is in a None state then True is returned (because 
+        /// the predicate applies for-all values).  If the Option is in a Some state
+        /// the value is the result of running applying the bound value to the 
+        /// predicate supplied.</returns>
+        [Pure]
+        public bool ForAll(Func<A, bool> pred) =>
+            this.ForAll<MOption<A>, Option<A>, A>(pred);
+
+        /// <summary>
+        /// Apply a predicate to the bound value.  If the Option is in a None state
+        /// then True is returned if invoking None returns True.
+        /// If the Option is in a Some state the value is the result of running 
+        /// applying the bound value to the Some predicate supplied.        
+        /// </summary>
+        /// <param name="Some">Predicate to apply if in a Some state</param>
+        /// <param name="None">Predicate to apply if in a None state</param>
+        /// <returns>If the Option is in a None state then True is returned if 
+        /// invoking None returns True. If the Option is in a Some state the value 
+        /// is the result of running applying the bound value to the Some predicate 
+        /// supplied.</returns>
+        [Pure]
+        public bool BiForAll(Func<A, bool> Some, Func<Unit, bool> None) =>
+            this.BiForAll<MOption<A>, Option<A>, Unit, A>(None, Some);
+
+        /// <summary>
+        /// Apply a predicate to the bound value.  If the Option is in a None state
+        /// then True is returned if invoking None returns True.
+        /// If the Option is in a Some state the value is the result of running 
+        /// applying the bound value to the Some predicate supplied.        
+        /// </summary>
+        /// <param name="Some">Predicate to apply if in a Some state</param>
+        /// <param name="None">Predicate to apply if in a None state</param>
+        /// <returns>If the Option is in a None state then True is returned if 
+        /// invoking None returns True. If the Option is in a Some state the value 
+        /// is the result of running applying the bound value to the Some predicate 
+        /// supplied.</returns>
+        [Pure]
+        public bool BiForAll(Func<A, bool> Some, Func<bool> None) =>
+            this.BiForAll<MOption<A>, Option<A>, Unit, A>(_ => None(), Some);
+
+        /// <summary>
+        /// Apply a predicate to the bound value.  If the Option is in a None state
+        /// then True is returned if invoking None returns True.
+        /// If the Option is in a Some state the value is the result of running 
+        /// applying the bound value to the Some predicate supplied.        
+        /// </summary>
+        /// <param name="pred"></param>
+        /// <returns>If the Option is in a None state then True is returned if 
+        /// invoking None returns True. If the Option is in a Some state the value 
+        /// is the result of running applying the bound value to the Some predicate 
+        /// supplied.</returns>
+        [Pure]
+        public bool Exists(Func<A, bool> pred) =>
+            this.Exists<MOption<A>, Option<A>, A>(pred);
+
+        /// <summary>
+        /// Apply a predicate to the bound value.  If the Option is in a None state
+        /// then True is returned if invoking None returns True.
+        /// If the Option is in a Some state the value is the result of running 
+        /// applying the bound value to the Some predicate supplied.        
+        /// </summary>
+        /// <param name="pred"></param>
+        /// <returns>If the Option is in a None state then True is returned if 
+        /// invoking None returns True. If the Option is in a Some state the value 
+        /// is the result of running applying the bound value to the Some predicate 
+        /// supplied.</returns>
+        [Pure]
+        public bool BiExists(Func<A, bool> Some, Func<Unit, bool> None) =>
+            this.BiExists<MOption<A>, Option<A>, Unit, A>(None, Some);
+
+        /// <summary>
+        /// Apply a predicate to the bound value.  If the Option is in a None state
+        /// then True is returned if invoking None returns True.
+        /// If the Option is in a Some state the value is the result of running 
+        /// applying the bound value to the Some predicate supplied.        
+        /// </summary>
+        /// <param name="pred"></param>
+        /// <returns>If the Option is in a None state then True is returned if 
+        /// invoking None returns True. If the Option is in a Some state the value 
+        /// is the result of running applying the bound value to the Some predicate 
+        /// supplied.</returns>
+        [Pure]
+        public bool BiExists(Func<A, bool> Some, Func<bool> None) =>
+            this.BiExists<MOption<A>, Option<A>, Unit, A>(_ => None(), Some);
+
+        /// <summary>
+        /// Invoke an action for the bound value (if in a Some state)
+        /// </summary>
+        /// <param name="Some">Action to invoke</param>
+        [Pure]
+        public Unit Iter(Action<A> Some) =>
+            this.Iter<MOption<A>, Option<A>, A>(Some);
+
+        /// <summary>
+        /// Invoke an action depending on the state of the Option
+        /// </summary>
+        /// <param name="Some">Action to invoke if in a Some state</param>
+        /// <param name="None">Action to invoke if in a None state</param>
+        [Pure]
+        public Unit BiIter(Action<A> Some, Action<Unit> None) =>
+            this.BiIter<MOption<A>, Option<A>, Unit, A>(None, Some);
+
+        /// <summary>
+        /// Invoke an action depending on the state of the Option
+        /// </summary>
+        /// <param name="Some">Action to invoke if in a Some state</param>
+        /// <param name="None">Action to invoke if in a None state</param>
+        [Pure]
+        public Unit BiIter(Action<A> Some, Action None) =>
+            this.BiIter<MOption<A>, Option<A>, Unit, A>(_ => None(), Some);
+
+        /// <summary>
+        /// Apply a predicate to the bound value (if in a Some state)
+        /// </summary>
+        /// <param name="pred">Predicate to apply</param>
+        /// <returns>Some(x) if the Option is in a Some state and the predicate
+        /// returns True.  None otherwise.</returns>
+        [Pure]
+        public Option<A> Filter(Func<A, bool> pred) =>
+            this.Filter<MOption<A>, Option<A>, A>(pred);
+
+        /// <summary>
+        /// Apply a predicate to the bound value (if in a Some state)
+        /// </summary>
+        /// <param name="pred">Predicate to apply</param>
+        /// <returns>Some(x) if the Option is in a Some state and the predicate
+        /// returns True.  None otherwise.</returns>
+        [Pure]
+        public Option<A> Where(Func<A, bool> pred) =>
+            this.Filter<MOption<A>, Option<A>, A>(pred);
+
+        /// <summary>
+        /// Monadic join
+        /// </summary>
+        [Pure]
+        public Option<D> Join<B, C, D>(
+            Option<B> inner,
+            Func<A, C> outerKeyMap,
+            Func<B, C> innerKeyMap,
+            Func<A, B, D> project) =>
+            this.Join<EqDefault<C>, MOption<A>, MOption<B>, MOption<D>, Option<A>, Option<B>, Option<D>, A, B, C, D>(
+                inner, outerKeyMap, innerKeyMap, project
+                );
+
+        /// <summary>
+        /// Partial application map
+        /// </summary>
+        /// <remarks>TODO: Better documentation of this function</remarks>
+        [Pure]
+        public Option<Func<B, C>> ParMap<B, C>(Func<A, B, C> func) =>
+            Map(curry(func));
+
+        /// <summary>
+        /// Partial application map
+        /// </summary>
+        /// <remarks>TODO: Better documentation of this function</remarks>
+        [Pure]
+        public Option<Func<B, Func<C, D>>> ParMap<B, C, D>(Func<A, B, C, D> func) =>
+            Map(curry(func));
+
+        /// <summary>
+        /// Apply a map operation that returns a Task result
+        /// </summary>
+        /// <typeparam name="B">Type of the bound result value</typeparam>
+        /// <param name="map">Mapping function to apply</param>
+        /// <returns>A task</returns>
+        public async Task<Option<B>> MapAsync<B>(Func<A, Task<B>> map) =>
+            IsSome
+                ? Optional(await map(Value))
+                : Option<B>.None;
+
+        /// <summary>
+        /// Monadic bind operation
+        /// </summary>
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public S FoldBack<S>(Foldable<A> ma, S state, Func<S, A, S> f)
+        public IEnumerable<C> SelectMany<B, C>(
+            Func<A, IEnumerable<B>> bind,
+            Func<A, B, C> project
+            )
         {
-            var maybe = AsOpt(ma);
-            return maybe.IsSome()
-                ? f(state, maybe.Value())
-                : state;
+            if (IsNone) return new C[0];
+            var v = Value;
+            return bind(v).Map(resU => project(v, resU));
         }
-
-        /// <summary>
-        /// Returns true if the optional is in a Some state
-        /// </summary>
-        /// <param name="a">Optional to check</param>
-        /// <returns>True if the optional is in a Some state</returns>
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool IsSomeA(Optional<A> a) =>
-            ((Option<A>)a).IsSome;
-
-        /// <summary>
-        /// Returns true if the optional is in a None state
-        /// </summary>
-        /// <param name="a">Optional to check</param>
-        /// <returns>True if the optional is in a None state</returns>
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool IsNoneA(Optional<A> a) =>
-            ((Option<A>)a).IsNone;
-
-        /// <summary>
-        /// Extracts the bound value an maps it, a None function is available
-        /// for when the Optional has no value to map.
-        /// 
-        /// Does not allow null values to be returned from Some or None
-        /// </summary>
-        /// <typeparam name="B">Type that the bound value is mapped to</typeparam>
-        /// <param name="a">The optional structure</param>
-        /// <param name="Some">The mapping function to call if the value is in a Some state</param>
-        /// <param name="None">The mapping function to call if the value is in a None state</param>
-        /// <returns>The bound value unwrapped and mapped to a value of type B</returns>
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public B Match<B>(Optional<A> a, Func<A, B> Some, Func<B> None) =>
-            ((Option<A>)a).Match(Some, None);
-
-        /// <summary>
-        /// Extracts the bound value an maps it, a None function is available
-        /// for when the Optional has no value to map.
-        /// 
-        /// Allows null values to be returned from Some or None (hence un Unsafe suffix)
-        /// </summary>
-        /// <typeparam name="B">Type that the bound value is mapped to</typeparam>
-        /// <param name="a">The optional structure</param>
-        /// <param name="Some">The mapping function to call if the value is in a Some state</param>
-        /// <param name="None">The mapping function to call if the value is in a None state</param>
-        /// <returns>The bound value unwrapped and mapped to a value of type B</returns>
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public B MatchUnsafe<B>(Optional<A> a, Func<A, B> Some, Func<B> None) =>
-            ((Option<A>)a).MatchUnsafe(Some, None);
-
-        /// <summary>
-        /// True if the optional type allows nulls
-        /// </summary>
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool IsUnsafe(Optional<A> a) => false;
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public MonadPlus<A> Plus(MonadPlus<A> a, MonadPlus<A> b)
-        {
-            var ma = AsOpt(a);
-            return ma.IsSome()
-                ? a
-                : b;
-        }
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public MonadPlus<A> Zero() =>
-            Option<A>.None;
-
-        [Pure]
-        static OptionV<A> AsOpt(Monad<A> a) => ((Option<A>)a).value ?? OptionV<A>.None;
-
-        [Pure]
-        static OptionV<A> AsOpt(Functor<A> a) => ((Option<A>)a).value ?? OptionV<A>.None;
-
-        [Pure]
-        static OptionV<A> AsOpt(Foldable<A> a) => ((Option<A>)a).value ?? OptionV<A>.None;
-
     }
 }

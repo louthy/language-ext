@@ -28,8 +28,7 @@ namespace LanguageExt
 #endif
     public abstract class NewType<NEWTYPE, A> :
         IEquatable<NEWTYPE>,
-        IComparable<NEWTYPE>,
-        Foldable<A>
+        IComparable<NEWTYPE>
         where NEWTYPE : NewType<NEWTYPE, A>
     {
         public readonly A Value;
@@ -175,22 +174,5 @@ namespace LanguageExt
         /// <returns>Folded state and NewType bound value</returns>
         public S FoldBack<S>(S state, Func<S, A, S> folder) =>
             folder(state, Value);
-
-        /// <summary>
-        /// Foldable typeclass: Fold
-        /// </summary>
-        public S Fold<S>(Foldable<A> fa, S state, Func<S, A, S> f) =>
-            f(state, As(fa).Value);
-
-        /// <summary>
-        /// Foldable typeclass: FoldBack
-        /// </summary>
-        public S FoldBack<S>(Foldable<A> fa, S state, Func<S, A, S> f) =>
-            f(state, As(fa).Value);
-
-        /// <summary>
-        /// Cast back to NewType so we can extract the value
-        /// </summary>
-        NEWTYPE As(Foldable<A> ma) => (NEWTYPE)ma;
    }
 }

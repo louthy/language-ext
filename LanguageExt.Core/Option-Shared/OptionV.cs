@@ -1,9 +1,5 @@
 ﻿using System.Diagnostics.Contracts;
-using System;
-using LanguageExt.TypeClasses;
-using LanguageExt.Instances;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
 
 namespace LanguageExt
 {
@@ -59,5 +55,14 @@ namespace LanguageExt
         [Pure]
         internal static SomeValue<A> Some(OptionV<A> ma) =>
             (SomeValue<A>)ma;
+
+        [Pure]
+        public abstract bool IsSome { get; }
+
+        [Pure]
+        public bool IsNone => !IsSome;
+
+        [Pure]
+        public abstract A Value { get; }
     }
 }

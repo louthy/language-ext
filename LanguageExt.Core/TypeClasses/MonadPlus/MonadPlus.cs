@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface MonadPlus<A> : Monad<A>
+    public interface MonadPlus<MA, A> : Monad<MA, A>
     {
         /// <summary>
         /// Associative binary operation
         /// </summary>
-        MonadPlus<A> Plus(MonadPlus<A> a, MonadPlus<A> b);
+        MA Plus(MA a, MA b);
 
         /// <summary>
         /// Neutral element (None in Option for example)
         /// </summary>
-        MonadPlus<A> Zero();
+        MA Zero();
     }
 }

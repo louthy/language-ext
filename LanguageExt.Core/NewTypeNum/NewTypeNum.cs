@@ -29,7 +29,7 @@ namespace LanguageExt
     public abstract class NewType<NEWTYPE, NUM, A> :
         IEquatable<NEWTYPE>,
         IComparable<NEWTYPE>,
-        Foldable<A>
+        Foldable<NEWTYPE, A>
         where NUM     : struct, Num<A>
         where NEWTYPE : NewType<NEWTYPE, NUM, A>
     {
@@ -260,18 +260,18 @@ namespace LanguageExt
         /// <summary>
         /// Foldable typeclass: Fold
         /// </summary>
-        public S Fold<S>(Foldable<A> fa, S state, Func<S, A, S> f) =>
-            f(state, As(fa).Value);
+        public S Fold<S>(NEWTYPE fa, S state, Func<S, A, S> f) =>
+            f(state, fa.Value);
 
         /// <summary>
         /// Foldable typeclass: FoldBack
         /// </summary>
-        public S FoldBack<S>(Foldable<A> fa, S state, Func<S, A, S> f) =>
-            f(state, As(fa).Value);
+        public S FoldBack<S>(NEWTYPE fa, S state, Func<S, A, S> f) =>
+            f(state, fa.Value);
 
         /// <summary>
-        /// Cast back to NewType so we can extract the value
+        /// Count (always 1)
         /// </summary>
-        NEWTYPE As(Foldable<A> ma) => (NEWTYPE)ma;
+        public int Count(NEWTYPE fa) => 1;
     }
 }

@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass;
 using System.Reactive.Linq;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
+using LanguageExt.Instances;
 
 namespace LanguageExt
 {
@@ -35,10 +37,6 @@ namespace LanguageExt
 #endif
     public struct Either<L, R> :
         IEither,
-        Optional<R>,
-        Choice<L, R>, 
-        MonadPlus<R>,
-        IOptional,
         IComparable<Either<L, R>>,
         IComparable<R>,
         IEquatable<Either<L, R>>,
@@ -142,12 +140,8 @@ namespace LanguageExt
         /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
         /// <returns>The return value of the invoked function</returns>
         [Pure]
-        public Ret Match<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
-            IsRight
-                ? CheckNullRightReturn(Right(RightValue))
-                : IsLeft
-                    ? CheckNullLeftReturn(Left(LeftValue))
-                    : raise<Ret>(new BottomException("Either"));
+        public Ret Match<Ret>(Func<R, Ret> Right, Func<L, Ret> Left, Func<Ret> Bottom = null) =>
+            default(MEither<L, R>).Match(this, Left, Right, Bottom);
 
         /// <summary>
         /// Invokes the Right or Left function depending on the state of the Either
@@ -158,12 +152,8 @@ namespace LanguageExt
         /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
         /// <returns>The return value of the invoked function</returns>
         [Pure]
-        public Ret MatchUnsafe<Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
-            IsRight
-                ? Right(RightValue)
-                : IsLeft
-                    ? Left(LeftValue)
-                    : raise<Ret>(new BottomException("Either"));
+        public Ret MatchUnsafe<Ret>(Func<R, Ret> Right, Func<L, Ret> Left, Func<Ret> Bottom = null) =>
+            default(MEither<L, R>).MatchUnsafe(this, Left, Right, Bottom);
 
         /// <summary>
         /// Invokes the Right or Left action depending on the state of the Either
@@ -172,58 +162,36 @@ namespace LanguageExt
         /// <param name="Left">Action to invoke if in a Left state</param>
         /// <returns>Unit</returns>
         /// <exception cref="BottomException">Thrown if matching on an Either in a bottom state</exception>
-        public Unit Match(Action<R> Right, Action<L> Left)
-        {
-            if (IsRight)
-            {
-                Right(RightValue);
-            }
-            else if (IsLeft)
-            {
-                Left(LeftValue);
-            }
-            else
-            {
-                raise<Unit>(new BottomException("Either"));
-            }
-            return unit;
-        }
+        public Unit Match(Action<R> Right, Action<L> Left, Action Bottom = null) =>
+            default(MEither<L, R>).Match(this, Left, Right, Bottom);
 
         /// <summary>
         /// Match the two states of the Either and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
-        public async Task<R2> MatchAsync<R2>(Func<R, Task<R2>> Right, Func<L, R2> Left) =>
-            IsRight
-                ? CheckNullRightReturn(await Right(RightValue))
-                : CheckNullLeftReturn(Left(LeftValue));
+        public Task<R2> MatchAsync<R2>(Func<R, Task<R2>> Right, Func<L, R2> Left) =>
+            this.MatchAsync<MEither<L, R>, Either<L, R>, L, R, R2>(Left, Right);
 
         /// <summary>
         /// Match the two states of the Either and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
-        public async Task<R2> MatchAsync<R2>(Func<R, Task<R2>> Right, Func<L, Task<R2>> Left) =>
-            IsRight
-                ? CheckNullRightReturn(await Right(RightValue))
-                : CheckNullLeftReturn(await Left(LeftValue));
+        public Task<R2> MatchAsync<R2>(Func<R, Task<R2>> Right, Func<L, Task<R2>> Left) =>
+            this.MatchAsync<MEither<L, R>, Either<L, R>, L, R, R2>(Left, Right);
 
         /// <summary>
         /// Match the two states of the Either and return an observable stream of non-null R2s.
         /// </summary>
         [Pure]
         public IObservable<R2> MatchObservable<R2>(Func<R, IObservable<R2>> Right, Func<L, R2> Left) =>
-            IsRight
-                ? Right(RightValue).Select(CheckNullRightReturn)
-                : Observable.Return(CheckNullLeftReturn(Left(LeftValue)));
+            this.MatchObservable<MEither<L, R>, Either<L, R>, L, R, R2>(Left, Right);
 
         /// <summary>
         /// Match the two states of the Either and return an observable stream of non-null R2s.
         /// </summary>
         [Pure]
         public IObservable<R2> MatchObservable<R2>(Func<R, IObservable<R2>> Right, Func<L, IObservable<R2>> Left) =>
-            IsRight
-                ? Right(RightValue).Select(CheckNullRightReturn)
-                : Left(LeftValue).Select(CheckNullLeftReturn);
+            this.MatchObservable<MEither<L, R>, Either<L, R>, L, R, R2>(Left, Right);
 
         /// <summary>
         /// Executes the Left function if the Either is in a Left state.
@@ -233,7 +201,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
         public R IfLeft(Func<R> Left) =>
-            Match(identity, _ => CheckNullReturn(Left(), nameof(Left)));
+            this.IfChoice1<MEither<L, R>, Either<L, R>, L, R>(Left);
 
         /// <summary>
         /// Executes the leftMap function if the Either is in a Left state.
@@ -243,7 +211,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
         public R IfLeft(Func<L, R> leftMap) =>
-            Match(identity, l => CheckNullReturn(leftMap(l), nameof(leftMap)));
+            this.IfChoice1<MEither<L, R>, Either<L, R>, L, R>(leftMap);
 
         /// <summary>
         /// Returns the rightValue if the Either is in a Left state.
@@ -253,35 +221,23 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
         public R IfLeft(R rightValue) =>
-            Match(identity, _ => rightValue);
+            this.IfChoice1<MEither<L, R>, Either<L, R>, L, R>(rightValue);
 
         /// <summary>
         /// Executes the Left action if the Either is in a Left state.
         /// </summary>
         /// <param name="Left">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
-        public Unit IfLeft(Action<L> Left)
-        {
-            if (!IsBottom && IsLeft)
-            {
-                Left(LeftValue);
-            }
-            return unit;
-        }
+        public Unit IfLeft(Action<L> Left) =>
+            this.IfChoice1<MEither<L, R>, Either<L, R>, L, R>(Left);
 
         /// <summary>
         /// Invokes the Right action if the Either is in a Right state, otherwise does nothing
         /// </summary>
         /// <param name="Right">Action to invoke</param>
         /// <returns>Unit</returns>
-        public Unit IfRight(Action<R> Right)
-        {
-            if (!IsBottom && IsRight)
-            {
-                Right(right);
-            }
-            return unit;
-        }
+        public Unit IfRight(Action<R> Right) =>
+            this.IfChoice2<MEither<L, R>, Either<L, R>, L, R>(Right);
 
         /// <summary>
         /// Returns the leftValue if the Either is in a Right state.
@@ -291,7 +247,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
         public L IfRight(L leftValue) =>
-            Match(_ => leftValue, identity);
+            this.IfChoice2<MEither<L, R>, Either<L, R>, L, R>(leftValue);
 
         /// <summary>
         /// Returns the result of Right() if the Either is in a Right state.
@@ -301,7 +257,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
         public L IfRight(Func<L> Right) =>
-            Match(_ => CheckNullReturn(Right(), nameof(Right)), identity);
+            this.IfChoice2<MEither<L, R>, Either<L, R>, L, R>(Right);
 
         /// <summary>
         /// Returns the result of rightMap if the Either is in a Right state.
@@ -311,7 +267,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
         public L IfRight(Func<R, L> rightMap) =>
-            Match(r => CheckNullReturn(rightMap(r), nameof(rightMap)), identity);
+            this.IfChoice2<MEither<L, R>, Either<L, R>, L, R>(rightMap);
 
         /// <summary>
         /// Match Right and return a context.  You must follow this with .Left(...) to complete the match
@@ -353,15 +309,7 @@ namespace LanguageExt
         /// <returns>Hash code</returns>
         [Pure]
         public override int GetHashCode() =>
-            IsBottom
-                ? -1
-                : IsRight
-                    ? isnull(RightValue)
-                        ? 0
-                        : RightValue.GetHashCode()
-                    : isnull(LeftValue)
-                        ? 0
-                        : LeftValue.GetHashCode();
+            this.GetHashCode<MEither<L, R>, Either<L, R>, L, R>();
 
         /// <summary>
         /// Equality check
@@ -370,14 +318,9 @@ namespace LanguageExt
         /// <returns>True if equal</returns>
         [Pure]
         public override bool Equals(object obj) =>
-            obj is Either<L, R>
-                ? map(this, (Either<L, R>)obj, (lhs, rhs) =>
-                    lhs.IsLeft && rhs.IsLeft
-                        ? lhs.LeftValue.Equals(rhs.LeftValue)
-                        : lhs.IsLeft || rhs.IsLeft
-                            ? false
-                            : lhs.RightValue.Equals(rhs.RightValue))
-                : false;
+            !ReferenceEquals(obj, null) && 
+            obj is Either<L, R> && 
+            default(EqChoice<EqDefault<L>, EqDefault<R>, MEither<L, R>, Either<L,R>, L, R>).Equals(this, (Either<L, R>)obj);
 
         /// <summary>
         /// Project the Either into a Lst R
@@ -386,7 +329,7 @@ namespace LanguageExt
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("ToList has been deprecated.  Please use RightToList.")]
         public Lst<R> ToList() =>
-            toList(AsEnumerable());
+            this.ToList<MEither<L,R>,Either<L,R>,L,R>();
 
         /// <summary>
         /// Project the Either into an ImmutableArray R
@@ -395,7 +338,7 @@ namespace LanguageExt
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("ToArray has been deprecated.  Please use RightToArray.")]
         public R[] ToArray() =>
-            toArray<R>(AsEnumerable());
+            this.ToArray<MEither<L, R>, Either<L, R>, L, R>();
 
         /// <summary>
         /// Project the Either into a Lst R
@@ -403,7 +346,7 @@ namespace LanguageExt
         /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
         [Pure]
         public Lst<R> RightToList() =>
-            toList(RightAsEnumerable());
+            this.Choice2ToList<MEither<L, R>, Either<L, R>, L, R>();
 
         /// <summary>
         /// Project the Either into an ImmutableArray R
@@ -411,7 +354,7 @@ namespace LanguageExt
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [Pure]
         public R[] RightToArray() =>
-            toArray(RightAsEnumerable());
+            this.Choice2ToArray<MEither<L, R>, Either<L, R>, L, R>();
 
         /// <summary>
         /// Project the Either into a Lst R
@@ -419,7 +362,7 @@ namespace LanguageExt
         /// <returns>If the Either is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
         [Pure]
         public Lst<L> LeftToList() =>
-            toList(LeftAsEnumerable());
+            this.Choice1ToList<MEither<L, R>, Either<L, R>, L, R>();
 
         /// <summary>
         /// Project the Either into an ImmutableArray R
@@ -427,56 +370,31 @@ namespace LanguageExt
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [Pure]
         public L[] LeftToArray() =>
-            toArray(LeftAsEnumerable());
+            this.Choice1ToArray<MEither<L, R>, Either<L, R>, L, R>();
 
         /// <summary>
         /// Project the Either into a IEnumerable R
         /// </summary>
         /// <returns>If the Either is in a Right state, a IEnumerable of R with one item.  A zero length IEnumerable R otherwise</returns>
         [Pure]
-        public IEnumerable<R> RightAsEnumerable()
-        {
-            if (IsRight)
-            {
-                yield return RightValue;
-            }
-        }
+        public IEnumerable<R> RightAsEnumerable() =>
+            this.Choice2AsEnumerable<MEither<L, R>, Either<L, R>, L, R>();
 
         /// <summary>
         /// Project the Either into a IEnumerable L
         /// </summary>
         /// <returns>If the Either is in a Left state, a IEnumerable of L with one item.  A zero length IEnumerable L otherwise</returns>
         [Pure]
-        public IEnumerable<L> LeftAsEnumerable()
-        {
-            if (IsLeft)
-            {
-                yield return LeftValue;
-            }
-        }
+        public IEnumerable<L> LeftAsEnumerable() =>
+            this.Choice1AsEnumerable<MEither<L, R>, Either<L, R>, L, R>();
 
-        /// <summary>
-        /// Project the Either into a IEnumerable R
-        /// </summary>
-        /// <returns>If the Either is in a Right state, a IEnumerable of R with one item.  A zero length IEnumerable R otherwise</returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("AsEnumerable has been deprecated.  Please use RightAsEnumerable.")]
-        public IEnumerable<R> AsEnumerable()
-        {
-            if (IsRight)
-            {
-                yield return RightValue;
-            }
-        }
         /// <summary>
         /// Convert the Either to an Option
         /// </summary>
         /// <returns>Some(Right) or None</returns>
         [Pure]
         public Option<R> ToOption() =>
-            IsRight
-                ? Some(RightValue)
-                : None;
+            this.ToOption<MEither<L, R>, Either<L, R>, L, R>();
 
         /// <summary>
         /// Convert the Either to an EitherUnsafe
@@ -484,23 +402,15 @@ namespace LanguageExt
         /// <returns>EitherUnsafe</returns>
         [Pure]
         public EitherUnsafe<L, R> ToEitherUnsafe() =>
-            IsRight
-                ? RightUnsafe<L, R>(RightValue)
-                : LeftUnsafe<L, R>(LeftValue);
+            this.ToEitherUnsafe<MEither<L, R>, Either<L, R>, L, R>();
 
         /// <summary>
         /// Convert the Either to an TryOption
         /// </summary>
         /// <returns>Some(Right) or None</returns>
         [Pure]
-        public TryOption<R> ToTryOption()
-        {
-            var self = this;
-            return TryOption(() =>
-                self.IsRight
-                    ? Some(self.RightValue)
-                    : None);
-        }
+        public TryOption<R> ToTryOption() =>
+            this.ToTryOption<MEither<L, R>, Either<L, R>, L, R>();
 
         /// <summary>
         /// Equality operator override
@@ -514,18 +424,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static bool operator !=(Either<L, R> lhs, Either<L, R> rhs) =>
-            !lhs.Equals(rhs);
+            !(lhs == rhs);
 
         /// <summary>
         /// Override of the Or operator to be a Left coalescing operator
         /// </summary>
         [Pure]
         public static Either<L, R> operator |(Either<L, R> lhs, Either<L, R> rhs) =>
-            lhs.IsBottom || rhs.IsBottom
-                ? lhs
-                : lhs.IsRight
-                    ? lhs
-                    : rhs;
+            default(MEither<L,R>).Plus(lhs,rhs);
 
         /// <summary>
         /// Override of the True operator to return True if the Either is Right
@@ -550,75 +456,49 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public int CompareTo(Either<L, R> other) =>
-            IsLeft && other.IsLeft
-                ? Comparer<L>.Default.Compare(LeftValue, other.LeftValue)
-                : IsRight && other.IsRight
-                    ? Comparer<R>.Default.Compare(RightValue, other.RightValue)
-                    : IsLeft
-                        ? -1
-                        : 1;
+            default(OrdChoice<OrdDefault<L>, OrdDefault<R>, MEither<L, R>, Either<L, R>, L, R>).Compare(this, other);
 
         /// <summary>
         /// CompareTo override
         /// </summary>
         [Pure]
         public int CompareTo(R other) =>
-            IsRight
-                ? Comparer<R>.Default.Compare(RightValue, other)
-                : -1;
+            CompareTo(Right<L, R>(other));
 
         /// <summary>
         /// CompareTo override
         /// </summary>
         [Pure]
         public int CompareTo(L other) =>
-            IsRight
-                ? -1
-                : Comparer<L>.Default.Compare(LeftValue, other);
+            CompareTo(Left<L, R>(other));
 
         /// <summary>
         /// Equality override
         /// </summary>
         [Pure]
         public bool Equals(R other) =>
-            IsBottom
-                ? false
-                : IsRight
-                    ? EqualityComparer<R>.Default.Equals(RightValue, other)
-                    : false;
+            Equals(Right<L, R>(other));
 
         /// <summary>
         /// Equality override
         /// </summary>
         [Pure]
         public bool Equals(L other) =>
-            IsBottom
-                ? false
-                : IsLeft
-                    ? EqualityComparer<L>.Default.Equals(LeftValue, other)
-                    : false;
+            Equals(Left<L, R>(other));
 
         /// <summary>
         /// Equality override
         /// </summary>
         [Pure]
         public bool Equals(Either<L, R> other) =>
-            IsBottom && other.IsBottom
-                ? true
-                : IsBottom || other.IsBottom
-                    ? false
-                    : IsRight
-                        ? other.Equals(RightValue)
-                        : other.Equals(LeftValue);
+            default(EqChoice<EqDefault<L>, EqDefault<R>, MEither<L, R>, Either<L, R>, L, R>).Equals(this, other);
 
         /// <summary>
         /// Match the Right and Left values but as objects.  This can be useful to avoid reflection.
         /// </summary>
         [Pure]
         public TResult MatchUntyped<TResult>(Func<object, TResult> Right, Func<object, TResult> Left) =>
-            IsRight
-                ? Right(RightValue)
-                : Left(LeftValue);
+            this.MatchUntyped<MEither<L, R>, Either<L, R>, L, R, TResult>(Choice1: Left, Choice2: Right);
 
         /// <summary>
         /// Find out the underlying Right type
@@ -664,121 +544,9 @@ namespace LanguageExt
                     : raise<L>(new EitherIsNotLeftException())
             );
 
-        public bool IsSome =>
-            IsRight;
-
-        public bool IsNone =>
-            IsLeft;
-
-        [Pure]
-        internal static T CheckNullReturn<T>(T value, string location) =>
-            isnull(value)
-                ? raise<T>(new ResultIsNullException($"'{location}' result is null.  Not allowed."))
-                : value;
-
-        internal static T CheckNullRightReturn<T>(T value) =>
-            CheckNullReturn(value, "Right");
-
-        internal static T CheckNullLeftReturn<T>(T value) =>
-            CheckNullReturn(value, "Left");
-
-        [Pure]
-        public bool IsUnsafe(Optional<R> a) => 
-            false;
-
-        [Pure]
-        public bool IsSomeA(Optional<R> a) =>
-            AsEither(a).IsRight;
-
-        [Pure]
-        public bool IsNoneA(Optional<R> a) =>
-            AsEither(a).IsLeft;
-
-        [Pure]
-        public B Match<B>(Optional<R> a, Func<R, B> Some, Func<B> None)
-        {
-            var ma = AsEither(a);
-            return ma.IsRight
-                ? CheckNullRightReturn(Some(ma.right))
-                : CheckNullLeftReturn(None());
-        }
-
-        [Pure]
-        public B MatchUnsafe<B>(Optional<R> a, Func<R, B> Some, Func<B> None)
-        {
-            var ma = AsEither(a);
-            return ma.IsRight
-                ? Some(ma.right)
-                : None();
-        }
-
-        [Pure]
-        public MonadPlus<R> Plus(MonadPlus<R> a, MonadPlus<R> b)
-        {
-            var ma = AsEither(a);
-            return ma.IsRight
-                ? a
-                : b;
-        }
-
-        [Pure]
-        public MonadPlus<R> Zero() => 
-            Bottom;
-
-        [Pure]
-        public Monad<R> Return(R x, params R[] xs) =>
-            Right(x);
-
-        [Pure]
-        public Monad<R> Return(IEnumerable<R> vs) =>
-            vs.Match(
-                ()      => Bottom,
-                x       => Right(x),
-                (x, xs) => Right(x));
-
-        [Pure]
-        public MB Bind<MB, B>(Monad<R> ma, Func<R, MB> f) where MB : struct, Monad<B>
-        {
-            var either = AsEither(ma);
-            return either.IsRight
-                ? f(either.right)
-                : (MB)default(MB).Fail(either.left);
-        }
-
-        [Pure]
-        public Monad<B> Bind<B>(Monad<R> ma, Func<R, Monad<B>> f)
-        {
-            var either = AsEither(ma);
-            return either.IsRight
-                ? f(either.right)
-                : (Monad<B>)either.Map(_ => default(B));
-        }
-
-        [Pure]
-        public Monad<R> Fail(Exception err = null) =>
-            Bottom;
-
-        [Pure]
-        public Monad<R> Fail<F>(F err = default(F)) =>
-            new Either<F, R>(err);
-
-        [Pure]
-        public Functor<B> Map<B>(Functor<R> fa, Func<R, B> f) =>
-            AsEither(fa).Map(f);
-
-        [Pure]
-        public S Fold<S>(Foldable<R> fa, S state, Func<S, R, S> f) =>
-            AsEither(fa).Fold(state, f);
-
-        [Pure]
-        public S FoldBack<S>(Foldable<R> fa, S state, Func<S, R, S> f) =>
-            AsEither(fa).Fold(state, f);
-
         [Pure]
         public R1 MatchUntyped<R1>(Func<object, R1> Some, Func<R1> None) =>
-            IsRight
-                ? Some(right)
-                : None();
+            this.MatchUntyped<MEither<L, R>, Either<L, R>, R, R1>(Some, None);
 
         [Pure]
         public Type GetUnderlyingType() => 
@@ -801,18 +569,15 @@ namespace LanguageExt
         /// Iterate the Either
         /// action is invoked if in the Right state
         /// </summary>
-        public Unit Iter(Action<R> action)
-        {
-            if (IsBottom)
-            {
-                return unit;
-            }
-            if (IsRight)
-            {
-                action(RightValue);
-            }
-            return unit;
-        }
+        public Unit Iter(Action<R> Right) =>
+            this.Iter<MEither<L, R>, Either<L, R>, R>(Right);
+
+        /// <summary>
+        /// Iterate the Either
+        /// action is invoked if in the Right state
+        /// </summary>
+        public Unit BiIter(Action<R> Right, Action<L> Left) =>
+            this.BiIter<MEither<L, R>, Either<L, R>, L, R>(Left, Right);
 
         /// <summary>
         /// Invokes a predicate on the value of the Either if it's in the Right state
@@ -820,17 +585,13 @@ namespace LanguageExt
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
         /// <param name="self">Either to forall</param>
-        /// <param name="pred">Predicate</param>
+        /// <param name="Right">Predicate</param>
         /// <returns>True if the Either is in a Left state.  
         /// True if the Either is in a Right state and the predicate returns True.  
         /// False otherwise.</returns>
         [Pure]
-        public bool ForAll(Func<R, bool> pred) =>
-            IsBottom
-                ? true
-                : IsRight
-                    ? pred(RightValue)
-                    : true;
+        public bool ForAll(Func<R, bool> Right) =>
+            this.ForAll<MEither<L, R>, Either<L, R>, R>(Right);
 
         /// <summary>
         /// Invokes a predicate on the value of the Either if it's in the Right state
@@ -838,54 +599,55 @@ namespace LanguageExt
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
         /// <param name="self">Either to forall</param>
-        /// <param name="Right">Right predicate</param>
-        /// <param name="Left">Left predicate</param>
+        /// <param name="Right">Predicate</param>
+        /// <param name="Left">Predicate</param>
+        /// <returns>True if either Predicate returns true</returns>
         [Pure]
         public bool BiForAll(Func<R, bool> Right, Func<L, bool> Left) =>
-            IsBottom
-                ? true
-                : IsRight
-                    ? Right(RightValue)
-                    : Left(LeftValue);
+            this.BiForAll<MEither<L, R>, Either<L, R>, L, R>(Left, Right);
 
         /// <summary>
-        /// Folds the either into an S
-        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// <para>
+        /// Either types are like lists of 0 or 1 items, and therefore follow the 
+        /// same rules when folding.
+        /// </para><para>
+        /// In the case of lists, 'Fold', when applied to a binary
+        /// operator, a starting value(typically the left-identity of the operator),
+        /// and a list, reduces the list using the binary operator, from left to
+        /// right:
+        /// </para><para>
+        /// Fold([x1, x2, ..., xn] == x1 `f` (x2 `f` ... (xn `f` z)...)
+        /// </para>
         /// </summary>
-        /// <typeparam name="S">State</typeparam>
-        /// <typeparam name="L">Left</typeparam>
-        /// <typeparam name="R">Right</typeparam>
-        /// <param name="self">Either to fold</param>
+        /// <typeparam name="S">Aggregate state type</typeparam>
         /// <param name="state">Initial state</param>
-        /// <param name="folder">Fold function</param>
-        /// <returns>Folded state</returns>
+        /// <param name="Right">Folder function, applied if structure is in a Right state</param>
+        /// <returns>The aggregate state</returns>
         [Pure]
-        public S Fold<S>(S state, Func<S, R, S> folder) =>
-            IsBottom
-                ? state
-                : IsRight
-                    ? folder(state, RightValue)
-                    : state;
+        public S Fold<S>(S state, Func<S, R, S> Right) =>
+            default(MEither<L,R>).Fold(this, state, Right);
 
         /// <summary>
-        /// Folds the either into an S
-        /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+        /// <para>
+        /// Either types are like lists of 0 or 1 items, and therefore follow the 
+        /// same rules when folding.
+        /// </para><para>
+        /// In the case of lists, 'Fold', when applied to a binary
+        /// operator, a starting value(typically the left-identity of the operator),
+        /// and a list, reduces the list using the binary operator, from left to
+        /// right:
+        /// </para><para>
+        /// Fold([x1, x2, ..., xn] == x1 `f` (x2 `f` ... (xn `f` z)...)
+        /// </para>
         /// </summary>
-        /// <typeparam name="S">State</typeparam>
-        /// <typeparam name="L">Left</typeparam>
-        /// <typeparam name="R">Right</typeparam>
-        /// <param name="self">Either to fold</param>
+        /// <typeparam name="S">Aggregate state type</typeparam>
         /// <param name="state">Initial state</param>
-        /// <param name="Right">Right fold function</param>
-        /// <param name="Left">Left fold function</param>
-        /// <returns>Folded state</returns>
+        /// <param name="Right">Folder function, applied if Either is in a Right state</param>
+        /// <param name="Left">Folder function, applied if Either is in a Left state</param>
+        /// <returns>The aggregate state</returns>
         [Pure]
         public S BiFold<S>(S state, Func<S, R, S> Right, Func<S, L, S> Left) =>
-            IsBottom
-                ? state
-                : IsRight
-                    ? Right(state, RightValue)
-                    : Left(state, LeftValue);
+            default(MEither<L, R>).BiFold(this, state, Left, Right);
 
         /// <summary>
         /// Invokes a predicate on the value of the Either if it's in the Right state
@@ -897,11 +659,7 @@ namespace LanguageExt
         /// <returns>True if the Either is in a Right state and the predicate returns True.  False otherwise.</returns>
         [Pure]
         public bool Exists(Func<R, bool> pred) =>
-            IsBottom
-                ? false
-                : IsRight
-                    ? pred(RightValue)
-                    : false;
+            this.Exists<MEither<L, R>, Either<L, R>, R>(pred);
 
         /// <summary>
         /// Invokes a predicate on the value of the Either
@@ -914,11 +672,7 @@ namespace LanguageExt
         /// <returns>True if the predicate returns True.  False otherwise or if the Either is in a bottom state.</returns>
         [Pure]
         public bool BiExists(Func<R, bool> Right, Func<L, bool> Left) =>
-            IsBottom
-                ? false
-                : IsLeft
-                    ? Left(LeftValue)
-                    : Right(RightValue);
+            this.BiExists<MEither<L, R>, Either<L, R>,L,  R>(Left, Right);
 
         /// <summary>
         /// Maps the value in the Either if it's in a Right state
@@ -931,11 +685,7 @@ namespace LanguageExt
         /// <returns>Mapped Either</returns>
         [Pure]
         public Either<L, Ret> Map<Ret>(Func<R, Ret> mapper) =>
-            IsBottom
-                ? Either<L, Ret>.Bottom
-                : IsRight
-                    ? Right<L, Ret>(mapper(RightValue))
-                    : Left<L, Ret>(LeftValue);
+            default(FEither<L, R, Ret>).Map(this, mapper);
 
         /// <summary>
         /// Maps the value in the Either if it's in a Left state
@@ -948,11 +698,7 @@ namespace LanguageExt
         /// <returns>Mapped Either</returns>
         [Pure]
         public Either<Ret, R> MapLeft<Ret>(Func<L, Ret> mapper) =>
-            IsBottom
-                ? Either<Ret, R>.Bottom
-                : IsLeft
-                    ? Left<Ret, R>(mapper(LeftValue))
-                    : Right<Ret, R>(RightValue);
+            default(FEither<L, R, Ret, R>).BiMap(this, mapper, identity);
 
         /// <summary>
         /// Bi-maps the value in the Either if it's in a Right state
@@ -966,16 +712,26 @@ namespace LanguageExt
         /// <param name="Left">Left map function</param>
         /// <returns>Mapped Either</returns>
         [Pure]
-        public Either<LRet, RRet> BiMap<LRet, RRet>(Func<R, RRet> Right, Func<L, LRet> Left) =>
-            IsBottom
-                ? Either<LRet, RRet>.Bottom
-                : IsRight
-                    ? Right<LRet, RRet>(Right(RightValue))
-                    : Left<LRet, RRet>(Left(LeftValue));
+        public Either<L, Ret> BiMap<LRet, Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
+            default(FEither<L, R, Ret>).BiMap(this, Left, Right);
 
         /// <summary>
-        /// Monadic bind function
-        /// https://en.wikipedia.org/wiki/Monad_(functional_programming)
+        /// Bi-maps the value in the Either if it's in a Right state
+        /// </summary>
+        /// <typeparam name="L">Left</typeparam>
+        /// <typeparam name="R">Right</typeparam>
+        /// <typeparam name="LRet">Left return</typeparam>
+        /// <typeparam name="RRet">Right return</typeparam>
+        /// <param name="self">Either to map</param>
+        /// <param name="Right">Right map function</param>
+        /// <param name="Left">Left map function</param>
+        /// <returns>Mapped Either</returns>
+        [Pure]
+        public Either<L2, R2> BiMap<L2, R2>(Func<R, R2> Right, Func<L, L2> Left) =>
+            default(FEither<L, R, L2, R2>).BiMap(this, Left, Right);
+
+        /// <summary>
+        /// Monadic bind
         /// </summary>
         /// <typeparam name="L">Left</typeparam>
         /// <typeparam name="R">Right</typeparam>
@@ -985,30 +741,7 @@ namespace LanguageExt
         /// <returns>Bound Either</returns>
         [Pure]
         public Either<L, Ret> Bind<Ret>(Func<R, Either<L, Ret>> binder) =>
-            IsBottom
-                ? Either<L, Ret>.Bottom
-                : IsRight
-                    ? binder(RightValue)
-                    : Either<L, Ret>.Left(LeftValue);
-
-        /// <summary>
-        /// Monadic bind function
-        /// https://en.wikipedia.org/wiki/Monad_(functional_programming)
-        /// </summary>
-        /// <typeparam name="L">Left</typeparam>
-        /// <typeparam name="R">Right</typeparam>
-        /// <typeparam name="Ret"></typeparam>
-        /// <param name="self">this</param>
-        /// <param name="Right">Right bind function</param>
-        /// <param name="Left">Left bind function</param>
-        /// <returns>Bound Either</returns>
-        [Pure]
-        public Either<LRet, RRet> BiBind<LRet, RRet>(Func<R, Either<LRet, RRet>> Right, Func<L, Either<LRet, RRet>> Left) =>
-            IsBottom
-                ? Either<LRet, RRet>.Bottom
-                : IsLeft
-                    ? Left(LeftValue)
-                    : Right(RightValue);
+            default(MEither<L, R>).Bind<MEither<L, Ret>, Either<L, Ret>, Ret>(this, binder);
 
         /// <summary>
         /// Filter the Either
@@ -1028,36 +761,7 @@ namespace LanguageExt
         /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
         [Pure]
         public Either<L, R> Filter(Func<R, bool> pred) =>
-            IsBottom
-                ? this
-                : match(this,
-                    Right: t => pred(t) ? Right(t) : Bottom,
-                    Left:  l => Left(l));
-
-        /// <summary>
-        /// Bi-filter the Either
-        /// </summary>
-        /// <remarks>
-        /// This may give unpredictable results for a filtered value.  The Either won't
-        /// return true for IsLeft or IsRight.  IsBottom is True if the value is filtered and that
-        /// should be checked for.
-        /// </remarks>
-        /// <typeparam name="L">Left</typeparam>
-        /// <typeparam name="R">Right</typeparam>
-        /// <param name="self">Either to filter</param>
-        /// <param name="pred">Predicate function</param>
-        /// <returns>
-        /// If the Either is in the Left state then the Left predicate is run against it.
-        /// If the Either is in the Right state then the Right predicate is run against it.
-        /// If the predicate returns False the Either is returned in a 'Bottom' state.</returns>
-        [Pure]
-        public Either<L, R> BiFilter(Func<R, bool> Right, Func<L, bool> Left) =>
-            IsBottom
-                ? this
-                : match(this,
-                    Right: r => Right(r) ? Either<L, R>.Right(r) : Bottom,
-                    Left: l => Left(l) ? Either<L, R>.Left(l) : Bottom);
-
+            this.Filter<MEither<L, R>, Either<L, R>, R>(pred);
 
         /// <summary>
         /// Filter the Either
@@ -1079,7 +783,7 @@ namespace LanguageExt
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public Either<L, R> Where(Func<R, bool> pred) =>
-            Filter(pred);
+            this.Filter<MEither<L, R>, Either<L, R>, R>(pred);
 
         /// <summary>
         /// Maps the value in the Either if it's in a Right state
@@ -1091,33 +795,18 @@ namespace LanguageExt
         /// <param name="map">Map function</param>
         /// <returns>Mapped Either</returns>
         [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public Either<L, U> Select<U>(Func<R, U> map) =>
-            IsBottom
-                ? Either<L, U>.Bottom
-                : match(this,
-                    Right: t => Either<L, U>.Right(map(t)),
-                    Left: l => Either<L, U>.Left(l));
+            default(FEither<L, R, U>).Map(this, map);
 
         /// <summary>
         /// Monadic bind function
-        /// https://en.wikipedia.org/wiki/Monad_(functional_programming)
         /// </summary>
         /// <returns>Bound Either</returns>
         [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Either<L, V> SelectMany<U, V>(Func<R, Either<L, U>> bind, Func<R, U, V> project)
-        {
-            if (IsBottom) return Either<L, V>.Bottom;
-            if (IsLeft) return Either<L, V>.Left(LeftValue);
-            var u = bind(RightValue);
-            if (u.IsBottom) return Either<L, V>.Bottom;
-            if (u.IsLeft) return Either<L, V>.Left(u.LeftValue);
-            return project(RightValue, u.RightValue);
-        }
+        public Either<L, V> SelectMany<U, V>(Func<R, Either<L, U>> bind, Func<R, U, V> project) =>
+            this.SelectMany<MEither<L, R>, MEither<L, U>, MEither<L, V>, Either<L, R>, Either<L, U>, Either<L, V>, R, U, V>(bind, project);
 
         [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public IEnumerable<V> SelectMany<U, V>(
             Func<R, IEnumerable<U>> bind,
             Func<R, U, V> project
@@ -1130,43 +819,14 @@ namespace LanguageExt
         }
 
         [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public Either<L, V> Join<U, K, V>(
             Either<L, U> inner,
             Func<R, K> outerKeyMap,
             Func<U, K> innerKeyMap,
-            Func<R, U, V> project)
-        {
-            if (IsLeft) return Left<L, V>(LeftValue);
-            if (inner.IsLeft) return Left<L, V>(inner.LeftValue);
-            if (IsBottom || inner.IsBottom) return Either<L, V>.Bottom;
-            return EqualityComparer<K>.Default.Equals(outerKeyMap(RightValue), innerKeyMap(inner.RightValue))
-                ? Right<L, V>(project(RightValue, inner.RightValue))
-                : Either<L, V>.Bottom;
-        }
-
-
-        Either<L, R> AsEither(Optional<R> x) => (Either<L, R>)x;
-        Either<L, R> AsEither(Foldable<R> x) => (Either<L, R>)x;
-        Either<L, R> AsEither(Functor<R> x) => (Either<L, R>)x;
-        Either<L, R> AsEither(Monad<R> x) => (Either<L, R>)x;
-        Either<L, R> AsEither(MonadPlus<R> x) => (Either<L, R>)x;
-        Either<L, R> AsEither(Choice<L, R> x) => (Either<L, R>)x;
-
-        public bool IsUnsafe(Choice<L, R> a) => 
-            false;
-
-        public bool IsChoice1(Choice<L, R> a) =>
-            AsEither(a).IsLeft;
-
-        public bool IsChoice2(Choice<L, R> a) =>
-            AsEither(a).IsRight;
-
-        public C Match<C>(Choice<L, R> a, Func<L, C> Choice1, Func<R, C> Choice2) =>
-            AsEither(a).Match(Choice2, Choice1);
-
-        public C MatchUnsafe<C>(Choice<L, R> a, Func<L, C> Choice1, Func<R, C> Choice2) =>
-            AsEither(a).MatchUnsafe(Choice2, Choice1);
+            Func<R, U, V> project) =>
+            this.Join<EqDefault<K>, MEither<L, R>, MEither<L, U>, MEither<L, V>, Either<L, R>, Either<L, U>, Either<L, V>, R, U, K, V>(
+                inner, outerKeyMap, innerKeyMap, project
+                );
     }
 
     /// <summary>

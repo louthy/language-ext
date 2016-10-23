@@ -8,33 +8,43 @@ using System.Threading.Tasks;
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
-    public interface Optional<A>
+    public interface Optional<OA, A>
     {
         /// <summary>
         /// True if the optional type allows nulls
         /// </summary>
-        bool IsUnsafe(Optional<A> a);
+        [Pure]
+        bool IsUnsafe(OA opt);
 
         /// <summary>
         /// Is the option in a Some state
         /// </summary>
-        bool IsSomeA(Optional<A> a);
+        [Pure]
+        bool IsSome(OA opt);
 
         /// <summary>
         /// Is the option in a None state
         /// </summary>
-        bool IsNoneA(Optional<A> a);
+        [Pure]
+        bool IsNone(OA opt);
 
         /// <summary>
         /// Match the two states of the Option and return a non-null B.
         /// </summary>
         [Pure]
-        B Match<B>(Optional<A> a, Func<A, B> Some, Func<B> None);
+        B Match<B>(OA opt, Func<A, B> Some, Func<B> None);
 
         /// <summary>
         /// Match the two states of the Option and return a B, which can be null.
         /// </summary>
         [Pure]
-        B MatchUnsafe<B>(Optional<A> a, Func<A, B> Some, Func<B> None);
+        B MatchUnsafe<B>(OA opt, Func<A, B> Some, Func<B> None);
+
+        /// <summary>
+        /// Match the two states of the Option A
+        /// </summary>
+        /// <param name="Some">Some match operation</param>
+        /// <param name="None">None match operation</param>
+        Unit Match(OA opt, Action<A> Some, Action None);
     }
 }

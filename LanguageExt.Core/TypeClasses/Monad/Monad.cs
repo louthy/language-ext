@@ -8,15 +8,18 @@ namespace LanguageExt.TypeClasses
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
     [Typeclass]
-    public interface Monad<A> : Functor<A>, Foldable<A>
+    public interface Monad<MA, A> : Foldable<MA, A>
     {
+        // TODO: Need a lazy Return to unify the delegate based monads and 
+        //       the strict monads.
+
         /// <summary>
         /// Monad return
         /// </summary>
         /// <typeparam name="A">Type of the bound monad value</typeparam>
         /// <param name="x">The bound monad value</param>
         /// <returns>Monad of A</returns>
-        Monad<A> Return(A x, params A[] xs);
+        MA Return(A x, params A[] xs);
 
         /// <summary>
         /// Monad return
@@ -24,35 +27,28 @@ namespace LanguageExt.TypeClasses
         /// <typeparam name="A">Type of the bound monad value</typeparam>
         /// <param name="x">The bound monad value(s)</param>
         /// <returns>Monad of A</returns>
-        Monad<A> Return(IEnumerable<A> xs);
+        MA Return(IEnumerable<A> xs);
 
         /// <summary>
         /// Monadic bind
         /// </summary>
+        /// <typeparam name="MONADB">Type-class of the return value</typeparam>
         /// <typeparam name="MB">Type of the monad to return</typeparam>
         /// <typeparam name="B">Type of the bound return value</typeparam>
         /// <param name="ma">Monad to bind</param>
         /// <param name="f">Bind function</param>
         /// <returns>Monad of type MB derived from Monad of B</returns>
-        MB Bind<MB, B>(Monad<A> ma, Func<A, MB> f) where MB : struct, Monad<B>;
-
-        /// <summary>
-        /// Monadic bind
-        /// </summary>
-        /// <typeparam name="B">Type of the bound return value</typeparam>
-        /// <param name="ma">Monad to bind</param>
-        /// <param name="f">Bind function</param>
-        /// <returns>Monad of B</returns>
-        Monad<B> Bind<B>(Monad<A> ma, Func<A, Monad<B>> f);
+        MB Bind<MONADB, MB, B>(MA ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>;
 
         /// <summary>
         /// Produce a failure value
         /// </summary>
-        Monad<A> Fail(Exception err = null);
+        MA Fail(Exception err = null);
 
         /// <summary>
         /// Produce a failure value
         /// </summary>
-        Monad<A> Fail<F>(F err = default(F));
+        MA Fail(object err);
     }
+
 }

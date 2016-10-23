@@ -1,5 +1,6 @@
 ﻿using LanguageExt;
 using LanguageExt.TypeClasses;
+using System.Collections.Generic;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.Instances
@@ -7,7 +8,7 @@ namespace LanguageExt.Instances
     /// <summary>
     /// Equality and ordering
     /// </summary>
-    public struct OrdSeq<ORD, A> : Ord<Seq<A>>
+    public struct OrdSeq<ORD, A> : Ord<IEnumerable<A>>
         where ORD : struct, Ord<A>
     {
         /// <summary>
@@ -16,7 +17,7 @@ namespace LanguageExt.Instances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
-        public bool Equals(Seq<A> x, Seq<A> y) =>
+        public bool Equals(IEnumerable<A> x, IEnumerable<A> y) =>
             default(EqSeq<ORD, A>).Equals(x, y);
 
         /// <summary>
@@ -29,14 +30,14 @@ namespace LanguageExt.Instances
         /// if x less than y    : -1
         /// if x equals y       : 0
         /// </returns>
-        public int Compare(Seq<A> x, Seq<A> y)
+        public int Compare(IEnumerable<A> x, IEnumerable<A> y)
         {
             if (ReferenceEquals(x, y)) return 0;
             if (ReferenceEquals(x, null)) return -1;
             if (ReferenceEquals(y, null)) return 1;
 
-            var enumx = x.AsEnumerable().GetEnumerator();
-            var enumy = y.AsEnumerable().GetEnumerator();
+            var enumx = x.GetEnumerator();
+            var enumy = y.GetEnumerator();
 
             while(true)
             {

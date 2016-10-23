@@ -12,13 +12,13 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="A">Bound optional value type</typeparam>
     /// <typeparam name="B">The operation return value type</typeparam>
-    public class SomeContext<OPT, A, B> where OPT : struct, Optional<A>
+    public class SomeContext<OPT, OA, A, B> where OPT : struct, Optional<OA, A>
     {
-        readonly Optional<A> option;
+        readonly OA option;
         readonly Func<A, B> someHandler;
         readonly bool unsafeOpt;
 
-        internal SomeContext(Optional<A> option, Func<A, B> someHandler, bool unsafeOpt)
+        internal SomeContext(OA option, Func<A, B> someHandler, bool unsafeOpt)
         {
             this.option = option;
             this.someHandler = someHandler;

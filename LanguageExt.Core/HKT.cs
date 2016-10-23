@@ -55,7 +55,7 @@ namespace LanguageExt
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<HMap<K, V>> SelectMany<T, K, U, V>(this IEnumerable<T> self, Func<T, HMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<HashMap<K, V>> SelectMany<T, K, U, V>(this IEnumerable<T> self, Func<T, HashMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
@@ -181,7 +181,7 @@ namespace LanguageExt
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<HMap<K, V>> SelectMany<T, K, U, V>(this Option<T> self, Func<T, HMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<HashMap<K, V>> SelectMany<T, K, U, V>(this Option<T> self, Func<T, HashMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
@@ -307,7 +307,7 @@ namespace LanguageExt
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<HMap<K, V>> SelectMany<T, K, U, V>(this OptionUnsafe<T> self, Func<T, HMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<HashMap<K, V>> SelectMany<T, K, U, V>(this OptionUnsafe<T> self, Func<T, HashMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
@@ -433,7 +433,7 @@ namespace LanguageExt
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<HMap<K, V>> SelectMany<T, K, U, V>(this Lst<T> self, Func<T, HMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<HashMap<K, V>> SelectMany<T, K, U, V>(this Lst<T> self, Func<T, HashMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
@@ -559,7 +559,7 @@ namespace LanguageExt
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, HMap<K, V>> SelectMany<K, T, U, V>(this Map<K, T> self, Func<T, HMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, HashMap<K, V>> SelectMany<K, T, U, V>(this Map<K, T> self, Func<T, HashMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
@@ -645,128 +645,128 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, IEnumerable<V>> SelectMany<K, T, U, V>(this HMap<K, T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, IEnumerable<V>> SelectMany<K, T, U, V>(this HashMap<K, T> self, Func<T, IEnumerable<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Option<V>> SelectMany<K, T, U, V>(this HMap<K, T> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Option<V>> SelectMany<K, T, U, V>(this HashMap<K, T> self, Func<T, Option<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, OptionUnsafe<V>> SelectMany<K, T, U, V>(this HMap<K, T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, OptionUnsafe<V>> SelectMany<K, T, U, V>(this HashMap<K, T> self, Func<T, OptionUnsafe<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Lst<V>> SelectMany<K, T, U, V>(this HMap<K, T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Lst<V>> SelectMany<K, T, U, V>(this HashMap<K, T> self, Func<T, Lst<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Map<K, V>> SelectMany<K, T, U, V>(this HMap<K, T> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Map<K, V>> SelectMany<K, T, U, V>(this HashMap<K, T> self, Func<T, Map<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, TryOption<V>> SelectMany<K, T, U, V>(this HMap<K, T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, TryOption<V>> SelectMany<K, T, U, V>(this HashMap<K, T> self, Func<T, TryOption<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Try<V>> SelectMany<K, T, U, V>(this HMap<K, T> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Try<V>> SelectMany<K, T, U, V>(this HashMap<K, T> self, Func<T, Try<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Either<L, V>> SelectMany<K, T, L, U, V>(this HMap<K, T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Either<L, V>> SelectMany<K, T, L, U, V>(this HashMap<K, T> self, Func<T, Either<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, EitherUnsafe<L, V>> SelectMany<K, T, L, U, V>(this HMap<K, T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, EitherUnsafe<L, V>> SelectMany<K, T, L, U, V>(this HashMap<K, T> self, Func<T, EitherUnsafe<L, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Reader<Env, V>> SelectMany<K, T, Env, U, V>(this HMap<K, T> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Reader<Env, V>> SelectMany<K, T, Env, U, V>(this HashMap<K, T> self, Func<T, Reader<Env, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Writer<Out, V>> SelectMany<K, T, Out, U, V>(this HMap<K, T> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Writer<Out, V>> SelectMany<K, T, Out, U, V>(this HashMap<K, T> self, Func<T, Writer<Out, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, State<State, V>> SelectMany<K, T, State, U, V>(this HMap<K, T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, State<State, V>> SelectMany<K, T, State, U, V>(this HashMap<K, T> self, Func<T, State<State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Rws<Env, Out, State, V>> SelectMany<K, T, Env, Out, State, U, V>(this HMap<K, T> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Rws<Env, Out, State, V>> SelectMany<K, T, Env, Out, State, U, V>(this HashMap<K, T> self, Func<T, Rws<Env, Out, State, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Task<V>> SelectMany<K, T, U, V>(this HMap<K, T> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Task<V>> SelectMany<K, T, U, V>(this HashMap<K, T> self, Func<T, Task<U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
@@ -820,7 +820,7 @@ namespace LanguageExt
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<HMap<K, V>> SelectMany<T, K, U, V>(this TryOption<T> self, Func<T, HMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<HashMap<K, V>> SelectMany<T, K, U, V>(this TryOption<T> self, Func<T, HashMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
@@ -946,7 +946,7 @@ namespace LanguageExt
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<HMap<K, V>> SelectMany<T, K, U, V>(this Try<T> self, Func<T, HMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<HashMap<K, V>> SelectMany<T, K, U, V>(this Try<T> self, Func<T, HashMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
@@ -1072,7 +1072,7 @@ namespace LanguageExt
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, HMap<K, V>> SelectMany<L, T, K, U, V>(this Either<L, T> self, Func<T, HMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, HashMap<K, V>> SelectMany<L, T, K, U, V>(this Either<L, T> self, Func<T, HashMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
@@ -1198,7 +1198,7 @@ namespace LanguageExt
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, HMap<K, V>> SelectMany<L, T, K, U, V>(this EitherUnsafe<L, T> self, Func<T, HMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, HashMap<K, V>> SelectMany<L, T, K, U, V>(this EitherUnsafe<L, T> self, Func<T, HashMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
@@ -1324,7 +1324,7 @@ namespace LanguageExt
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, HMap<K, V>> SelectMany<Env, T, K, U, V>(this Reader<Env, T> self, Func<T, HMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, HashMap<K, V>> SelectMany<Env, T, K, U, V>(this Reader<Env, T> self, Func<T, HashMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
@@ -1423,7 +1423,7 @@ namespace LanguageExt
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, HMap<K, V>> SelectMany<Out, T, K, U, V>(this Writer<Out, T> self, Func<T, HMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, HashMap<K, V>> SelectMany<Out, T, K, U, V>(this Writer<Out, T> self, Func<T, HashMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
@@ -1522,7 +1522,7 @@ namespace LanguageExt
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, HMap<K, V>> SelectMany<State, T, K, U, V>(this State<State, T> self, Func<T, HMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, HashMap<K, V>> SelectMany<State, T, K, U, V>(this State<State, T> self, Func<T, HashMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
@@ -1621,7 +1621,7 @@ namespace LanguageExt
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, HMap<K, V>> SelectMany<Env, Out, State, T, K, U, V>(this Rws<Env, Out, State, T> self, Func<T, HMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, HashMap<K, V>> SelectMany<Env, Out, State, T, K, U, V>(this Rws<Env, Out, State, T> self, Func<T, HashMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
@@ -1720,7 +1720,7 @@ namespace LanguageExt
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<HMap<K, V>> SelectMany<T, K, U, V>(this Task<T> self, Func<T, HMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<HashMap<K, V>> SelectMany<T, K, U, V>(this Task<T> self, Func<T, HashMap<K, U>> bind, Func<T, U, V> project) => self.Map(t => bind(t).Map(u => project(t, u)));
     }
     /// <summary>
     /// 
@@ -2046,47 +2046,47 @@ namespace LanguageExt
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K>(IEnumerable<HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K>(IEnumerable<HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<T, K>(IEnumerable<HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<T, K>(IEnumerable<HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static IEnumerable<HMap<K, U>> bindT<T, K, U>(IEnumerable<HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static IEnumerable<HashMap<K, U>> bindT<T, K, U>(IEnumerable<HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<T, K>(IEnumerable<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<T, K>(IEnumerable<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static IEnumerable<HMap<K, T>> filterT<T, K>(IEnumerable<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static IEnumerable<HashMap<K, T>> filterT<T, K>(IEnumerable<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<T, K, V>(IEnumerable<HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<T, K, V>(IEnumerable<HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<T, K>(IEnumerable<HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<T, K>(IEnumerable<HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<T, K>(IEnumerable<HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<T, K>(IEnumerable<HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static IEnumerable<HMap<K, U>> mapT<T, K, U>(IEnumerable<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static IEnumerable<HashMap<K, U>> mapT<T, K, U>(IEnumerable<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<T, K>(IEnumerable<HMap<K, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<T, K>(IEnumerable<HashMap<K, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<T, K>(IEnumerable<HMap<K, T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<T, K>(IEnumerable<HashMap<K, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -2781,47 +2781,47 @@ namespace LanguageExt
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K>(Option<HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K>(Option<HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<T, K>(Option<HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<T, K>(Option<HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Option<HMap<K, U>> bindT<T, K, U>(Option<HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Option<HashMap<K, U>> bindT<T, K, U>(Option<HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<T, K>(Option<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<T, K>(Option<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Option<HMap<K, T>> filterT<T, K>(Option<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Option<HashMap<K, T>> filterT<T, K>(Option<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<T, K, V>(Option<HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<T, K, V>(Option<HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<T, K>(Option<HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<T, K>(Option<HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<T, K>(Option<HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<T, K>(Option<HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Option<HMap<K, U>> mapT<T, K, U>(Option<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Option<HashMap<K, U>> mapT<T, K, U>(Option<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<T, K>(Option<HMap<K, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<T, K>(Option<HashMap<K, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<T, K>(Option<HMap<K, T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<T, K>(Option<HashMap<K, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -3516,47 +3516,47 @@ namespace LanguageExt
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K>(OptionUnsafe<HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K>(OptionUnsafe<HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<T, K>(OptionUnsafe<HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<T, K>(OptionUnsafe<HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static OptionUnsafe<HMap<K, U>> bindT<T, K, U>(OptionUnsafe<HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static OptionUnsafe<HashMap<K, U>> bindT<T, K, U>(OptionUnsafe<HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<T, K>(OptionUnsafe<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<T, K>(OptionUnsafe<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static OptionUnsafe<HMap<K, T>> filterT<T, K>(OptionUnsafe<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static OptionUnsafe<HashMap<K, T>> filterT<T, K>(OptionUnsafe<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<T, K, V>(OptionUnsafe<HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<T, K, V>(OptionUnsafe<HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<T, K>(OptionUnsafe<HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<T, K>(OptionUnsafe<HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<T, K>(OptionUnsafe<HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<T, K>(OptionUnsafe<HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static OptionUnsafe<HMap<K, U>> mapT<T, K, U>(OptionUnsafe<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static OptionUnsafe<HashMap<K, U>> mapT<T, K, U>(OptionUnsafe<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<T, K>(OptionUnsafe<HMap<K, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<T, K>(OptionUnsafe<HashMap<K, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<T, K>(OptionUnsafe<HMap<K, T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<T, K>(OptionUnsafe<HashMap<K, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -4251,47 +4251,47 @@ namespace LanguageExt
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K>(Lst<HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K>(Lst<HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<T, K>(Lst<HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<T, K>(Lst<HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Lst<HMap<K, U>> bindT<T, K, U>(Lst<HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Lst<HashMap<K, U>> bindT<T, K, U>(Lst<HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<T, K>(Lst<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<T, K>(Lst<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Lst<HMap<K, T>> filterT<T, K>(Lst<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Lst<HashMap<K, T>> filterT<T, K>(Lst<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<T, K, V>(Lst<HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<T, K, V>(Lst<HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<T, K>(Lst<HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<T, K>(Lst<HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<T, K>(Lst<HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<T, K>(Lst<HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Lst<HMap<K, U>> mapT<T, K, U>(Lst<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Lst<HashMap<K, U>> mapT<T, K, U>(Lst<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<T, K>(Lst<HMap<K, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<T, K>(Lst<HashMap<K, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<T, K>(Lst<HMap<K, T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<T, K>(Lst<HashMap<K, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -4986,47 +4986,47 @@ namespace LanguageExt
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K>(Map<K, HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K>(Map<K, HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<K, T>(Map<K, HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<K, T>(Map<K, HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Map<K, HMap<K, U>> bindT<K, T, U>(Map<K, HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Map<K, HashMap<K, U>> bindT<K, T, U>(Map<K, HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<K, T>(Map<K, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<K, T>(Map<K, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Map<K, HMap<K, T>> filterT<K, T>(Map<K, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Map<K, HashMap<K, T>> filterT<K, T>(Map<K, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<K, T, V>(Map<K, HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<K, T, V>(Map<K, HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<K, T>(Map<K, HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<K, T>(Map<K, HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<K, T>(Map<K, HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<K, T>(Map<K, HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Map<K, HMap<K, U>> mapT<K, T, U>(Map<K, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Map<K, HashMap<K, U>> mapT<K, T, U>(Map<K, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<K, T>(Map<K, HMap<K, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<K, T>(Map<K, HashMap<K, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(Map<K, HMap<K, T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(Map<K, HashMap<K, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -5472,737 +5472,737 @@ namespace LanguageExt
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K>(HMap<K, IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K>(HashMap<K, IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<K, T>(HMap<K, IEnumerable<T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<K, T>(HashMap<K, IEnumerable<T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, IEnumerable<U>> bindT<K, T, U>(HMap<K, IEnumerable<T>> self, Func<T, IEnumerable<U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, IEnumerable<U>> bindT<K, T, U>(HashMap<K, IEnumerable<T>> self, Func<T, IEnumerable<U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<K, T>(HMap<K, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<K, T>(HashMap<K, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, IEnumerable<T>> filterT<K, T>(HMap<K, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, IEnumerable<T>> filterT<K, T>(HashMap<K, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<K, T, V>(HMap<K, IEnumerable<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<K, T, V>(HashMap<K, IEnumerable<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<K, T>(HMap<K, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<K, T>(HashMap<K, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<K, T>(HMap<K, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<K, T>(HashMap<K, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, IEnumerable<U>> mapT<K, T, U>(HMap<K, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, IEnumerable<U>> mapT<K, T, U>(HashMap<K, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<K, T>(HMap<K, IEnumerable<T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<K, T>(HashMap<K, IEnumerable<T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(HMap<K, IEnumerable<T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(HashMap<K, IEnumerable<T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K>(HMap<K, Option<int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K>(HashMap<K, Option<int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<K, T>(HMap<K, Option<T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<K, T>(HashMap<K, Option<T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Option<U>> bindT<K, T, U>(HMap<K, Option<T>> self, Func<T, Option<U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Option<U>> bindT<K, T, U>(HashMap<K, Option<T>> self, Func<T, Option<U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<K, T>(HMap<K, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<K, T>(HashMap<K, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Option<T>> filterT<K, T>(HMap<K, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Option<T>> filterT<K, T>(HashMap<K, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<K, T, V>(HMap<K, Option<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<K, T, V>(HashMap<K, Option<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<K, T>(HMap<K, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<K, T>(HashMap<K, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<K, T>(HMap<K, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<K, T>(HashMap<K, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Option<U>> mapT<K, T, U>(HMap<K, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Option<U>> mapT<K, T, U>(HashMap<K, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<K, T>(HMap<K, Option<T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<K, T>(HashMap<K, Option<T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(HMap<K, Option<T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(HashMap<K, Option<T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K>(HMap<K, OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K>(HashMap<K, OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<K, T>(HMap<K, OptionUnsafe<T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<K, T>(HashMap<K, OptionUnsafe<T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, OptionUnsafe<U>> bindT<K, T, U>(HMap<K, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, OptionUnsafe<U>> bindT<K, T, U>(HashMap<K, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<K, T>(HMap<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<K, T>(HashMap<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, OptionUnsafe<T>> filterT<K, T>(HMap<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, OptionUnsafe<T>> filterT<K, T>(HashMap<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<K, T, V>(HMap<K, OptionUnsafe<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<K, T, V>(HashMap<K, OptionUnsafe<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<K, T>(HMap<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<K, T>(HashMap<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<K, T>(HMap<K, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<K, T>(HashMap<K, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, OptionUnsafe<U>> mapT<K, T, U>(HMap<K, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, OptionUnsafe<U>> mapT<K, T, U>(HashMap<K, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<K, T>(HMap<K, OptionUnsafe<T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<K, T>(HashMap<K, OptionUnsafe<T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(HMap<K, OptionUnsafe<T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(HashMap<K, OptionUnsafe<T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K>(HMap<K, Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K>(HashMap<K, Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<K, T>(HMap<K, Lst<T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<K, T>(HashMap<K, Lst<T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Lst<U>> bindT<K, T, U>(HMap<K, Lst<T>> self, Func<T, Lst<U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Lst<U>> bindT<K, T, U>(HashMap<K, Lst<T>> self, Func<T, Lst<U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<K, T>(HMap<K, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<K, T>(HashMap<K, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Lst<T>> filterT<K, T>(HMap<K, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Lst<T>> filterT<K, T>(HashMap<K, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<K, T, V>(HMap<K, Lst<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<K, T, V>(HashMap<K, Lst<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<K, T>(HMap<K, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<K, T>(HashMap<K, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<K, T>(HMap<K, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<K, T>(HashMap<K, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Lst<U>> mapT<K, T, U>(HMap<K, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Lst<U>> mapT<K, T, U>(HashMap<K, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<K, T>(HMap<K, Lst<T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<K, T>(HashMap<K, Lst<T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(HMap<K, Lst<T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(HashMap<K, Lst<T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K>(HMap<K, Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K>(HashMap<K, Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<K, T>(HMap<K, Map<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<K, T>(HashMap<K, Map<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Map<K, U>> bindT<K, T, U>(HMap<K, Map<K, T>> self, Func<T, Map<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Map<K, U>> bindT<K, T, U>(HashMap<K, Map<K, T>> self, Func<T, Map<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<K, T>(HMap<K, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<K, T>(HashMap<K, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Map<K, T>> filterT<K, T>(HMap<K, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Map<K, T>> filterT<K, T>(HashMap<K, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<K, T, V>(HMap<K, Map<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<K, T, V>(HashMap<K, Map<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<K, T>(HMap<K, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<K, T>(HashMap<K, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<K, T>(HMap<K, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<K, T>(HashMap<K, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Map<K, U>> mapT<K, T, U>(HMap<K, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Map<K, U>> mapT<K, T, U>(HashMap<K, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<K, T>(HMap<K, Map<K, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<K, T>(HashMap<K, Map<K, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(HMap<K, Map<K, T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(HashMap<K, Map<K, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K>(HMap<K, HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K>(HashMap<K, HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<K, T>(HMap<K, HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<K, T>(HashMap<K, HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, HMap<K, U>> bindT<K, T, U>(HMap<K, HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, HashMap<K, U>> bindT<K, T, U>(HashMap<K, HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<K, T>(HMap<K, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<K, T>(HashMap<K, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, HMap<K, T>> filterT<K, T>(HMap<K, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, HashMap<K, T>> filterT<K, T>(HashMap<K, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<K, T, V>(HMap<K, HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<K, T, V>(HashMap<K, HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<K, T>(HMap<K, HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<K, T>(HashMap<K, HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<K, T>(HMap<K, HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<K, T>(HashMap<K, HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, HMap<K, U>> mapT<K, T, U>(HMap<K, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, HashMap<K, U>> mapT<K, T, U>(HashMap<K, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<K, T>(HMap<K, HMap<K, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<K, T>(HashMap<K, HashMap<K, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(HMap<K, HMap<K, T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(HashMap<K, HashMap<K, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K>(HMap<K, TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K>(HashMap<K, TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<K, T>(HMap<K, TryOption<T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<K, T>(HashMap<K, TryOption<T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, TryOption<U>> bindT<K, T, U>(HMap<K, TryOption<T>> self, Func<T, TryOption<U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, TryOption<U>> bindT<K, T, U>(HashMap<K, TryOption<T>> self, Func<T, TryOption<U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<K, T>(HMap<K, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<K, T>(HashMap<K, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, TryOption<T>> filterT<K, T>(HMap<K, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, TryOption<T>> filterT<K, T>(HashMap<K, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<K, T, V>(HMap<K, TryOption<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<K, T, V>(HashMap<K, TryOption<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<K, T>(HMap<K, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<K, T>(HashMap<K, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<K, T>(HMap<K, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<K, T>(HashMap<K, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, TryOption<U>> mapT<K, T, U>(HMap<K, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, TryOption<U>> mapT<K, T, U>(HashMap<K, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<K, T>(HMap<K, TryOption<T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<K, T>(HashMap<K, TryOption<T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(HMap<K, TryOption<T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(HashMap<K, TryOption<T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K>(HMap<K, Try<int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K>(HashMap<K, Try<int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<K, T>(HMap<K, Try<T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<K, T>(HashMap<K, Try<T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Try<U>> bindT<K, T, U>(HMap<K, Try<T>> self, Func<T, Try<U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Try<U>> bindT<K, T, U>(HashMap<K, Try<T>> self, Func<T, Try<U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<K, T>(HMap<K, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<K, T>(HashMap<K, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Try<T>> filterT<K, T>(HMap<K, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Try<T>> filterT<K, T>(HashMap<K, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<K, T, V>(HMap<K, Try<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<K, T, V>(HashMap<K, Try<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<K, T>(HMap<K, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<K, T>(HashMap<K, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<K, T>(HMap<K, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<K, T>(HashMap<K, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Try<U>> mapT<K, T, U>(HMap<K, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Try<U>> mapT<K, T, U>(HashMap<K, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<K, T>(HMap<K, Try<T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<K, T>(HashMap<K, Try<T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(HMap<K, Try<T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(HashMap<K, Try<T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K, L>(HMap<K, Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K, L>(HashMap<K, Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<K, T, L>(HMap<K, Either<L, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<K, T, L>(HashMap<K, Either<L, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Either<L, U>> bindT<K, T, L, U>(HMap<K, Either<L, T>> self, Func<T, Either<L, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Either<L, U>> bindT<K, T, L, U>(HashMap<K, Either<L, T>> self, Func<T, Either<L, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<K, T, L>(HMap<K, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<K, T, L>(HashMap<K, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Either<L, T>> filterT<K, T, L>(HMap<K, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Either<L, T>> filterT<K, T, L>(HashMap<K, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<K, T, L, V>(HMap<K, Either<L, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<K, T, L, V>(HashMap<K, Either<L, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<K, T, L>(HMap<K, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<K, T, L>(HashMap<K, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<K, T, L>(HMap<K, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<K, T, L>(HashMap<K, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Either<L, U>> mapT<K, T, L, U>(HMap<K, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Either<L, U>> mapT<K, T, L, U>(HashMap<K, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<K, T, L>(HMap<K, Either<L, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<K, T, L>(HashMap<K, Either<L, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T, L>(HMap<K, Either<L, T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T, L>(HashMap<K, Either<L, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K, L>(HMap<K, EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K, L>(HashMap<K, EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<K, T, L>(HMap<K, EitherUnsafe<L, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<K, T, L>(HashMap<K, EitherUnsafe<L, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, EitherUnsafe<L, U>> bindT<K, T, L, U>(HMap<K, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, EitherUnsafe<L, U>> bindT<K, T, L, U>(HashMap<K, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<K, T, L>(HMap<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<K, T, L>(HashMap<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, EitherUnsafe<L, T>> filterT<K, T, L>(HMap<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, EitherUnsafe<L, T>> filterT<K, T, L>(HashMap<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<K, T, L, V>(HMap<K, EitherUnsafe<L, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<K, T, L, V>(HashMap<K, EitherUnsafe<L, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<K, T, L>(HMap<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<K, T, L>(HashMap<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<K, T, L>(HMap<K, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<K, T, L>(HashMap<K, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, EitherUnsafe<L, U>> mapT<K, T, L, U>(HMap<K, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, EitherUnsafe<L, U>> mapT<K, T, L, U>(HashMap<K, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<K, T, L>(HMap<K, EitherUnsafe<L, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<K, T, L>(HashMap<K, EitherUnsafe<L, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T, L>(HMap<K, EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T, L>(HashMap<K, EitherUnsafe<L, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static Reader<Env, int> sumT<K, Env>(HMap<K, Reader<Env, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static Reader<Env, int> sumT<K, Env>(HashMap<K, Reader<Env, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static Reader<Env, int> countT<K, T, Env>(HMap<K, Reader<Env, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static Reader<Env, int> countT<K, T, Env>(HashMap<K, Reader<Env, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Reader<Env, U>> bindT<K, T, Env, U>(HMap<K, Reader<Env, T>> self, Func<T, Reader<Env, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Reader<Env, U>> bindT<K, T, Env, U>(HashMap<K, Reader<Env, T>> self, Func<T, Reader<Env, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static Reader<Env, bool> existsT<K, T, Env>(HMap<K, Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static Reader<Env, bool> existsT<K, T, Env>(HashMap<K, Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Reader<Env, T>> filterT<K, T, Env>(HMap<K, Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Reader<Env, T>> filterT<K, T, Env>(HashMap<K, Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static Reader<Env, V> foldT<K, T, Env, V>(HMap<K, Reader<Env, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        [Pure] public static Reader<Env, V> foldT<K, T, Env, V>(HashMap<K, Reader<Env, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static Reader<Env, bool> forallT<K, T, Env>(HMap<K, Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        [Pure] public static Reader<Env, bool> forallT<K, T, Env>(HashMap<K, Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Reader<Env, Unit> iterT<K, T, Env>(HMap<K, Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static Reader<Env, Unit> iterT<K, T, Env>(HashMap<K, Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Reader<Env, U>> mapT<K, T, Env, U>(HMap<K, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Reader<Env, U>> mapT<K, T, Env, U>(HashMap<K, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static Reader<Env, T> liftT<K, T, Env>(HMap<K, Reader<Env, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static Reader<Env, T> liftT<K, T, Env>(HashMap<K, Reader<Env, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static Reader<Env, T> LiftUnsafeT<K, T, Env>(HMap<K, Reader<Env, T>> self )  where T : class => self.ValueT();
+        [Pure] public static Reader<Env, T> LiftUnsafeT<K, T, Env>(HashMap<K, Reader<Env, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static Writer<Out, int> sumT<K, Out>(HMap<K, Writer<Out, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static Writer<Out, int> sumT<K, Out>(HashMap<K, Writer<Out, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static Writer<Out, int> countT<K, T, Out>(HMap<K, Writer<Out, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static Writer<Out, int> countT<K, T, Out>(HashMap<K, Writer<Out, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Writer<Out, U>> bindT<K, T, Out, U>(HMap<K, Writer<Out, T>> self, Func<T, Writer<Out, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Writer<Out, U>> bindT<K, T, Out, U>(HashMap<K, Writer<Out, T>> self, Func<T, Writer<Out, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static Writer<Out, bool> existsT<K, T, Out>(HMap<K, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static Writer<Out, bool> existsT<K, T, Out>(HashMap<K, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Writer<Out, T>> filterT<K, T, Out>(HMap<K, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Writer<Out, T>> filterT<K, T, Out>(HashMap<K, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static Writer<Out, V> foldT<K, T, Out, V>(HMap<K, Writer<Out, T>> self, V state, Func<V, T, V> fold) => ()=> self.FoldT(state,(s,x) => x.FoldT(s, fold)().Value);
+        [Pure] public static Writer<Out, V> foldT<K, T, Out, V>(HashMap<K, Writer<Out, T>> self, V state, Func<V, T, V> fold) => ()=> self.FoldT(state,(s,x) => x.FoldT(s, fold)().Value);
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static Writer<Out, bool> forallT<K, T, Out>(HMap<K, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
+        [Pure] public static Writer<Out, bool> forallT<K, T, Out>(HashMap<K, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
         /// <summary>
         /// Iter
         /// </summary>
-        public static Writer<Out, Unit> iterT<K, T, Out>(HMap<K, Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
+        public static Writer<Out, Unit> iterT<K, T, Out>(HashMap<K, Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Writer<Out, U>> mapT<K, T, Out, U>(HMap<K, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Writer<Out, U>> mapT<K, T, Out, U>(HashMap<K, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static Writer<Out, T> liftT<K, T, Out>(HMap<K, Writer<Out, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static Writer<Out, T> liftT<K, T, Out>(HashMap<K, Writer<Out, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static Writer<Out, T> LiftUnsafeT<K, T, Out>(HMap<K, Writer<Out, T>> self )  where T : class => self.ValueT();
+        [Pure] public static Writer<Out, T> LiftUnsafeT<K, T, Out>(HashMap<K, Writer<Out, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static State<State, int> sumT<K, State>(HMap<K, State<State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static State<State, int> sumT<K, State>(HashMap<K, State<State, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static State<State, int> countT<K, T, State>(HMap<K, State<State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static State<State, int> countT<K, T, State>(HashMap<K, State<State, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, State<State, U>> bindT<K, T, State, U>(HMap<K, State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, State<State, U>> bindT<K, T, State, U>(HashMap<K, State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static State<State, bool> existsT<K, T, State>(HMap<K, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static State<State, bool> existsT<K, T, State>(HashMap<K, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, State<State, T>> filterT<K, T, State>(HMap<K, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, State<State, T>> filterT<K, T, State>(HashMap<K, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static State<State, V> foldT<K, T, State, V>(HMap<K, State<State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        [Pure] public static State<State, V> foldT<K, T, State, V>(HashMap<K, State<State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static State<State, bool> forallT<K, T, State>(HMap<K, State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        [Pure] public static State<State, bool> forallT<K, T, State>(HashMap<K, State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
-        public static State<State, Unit> iterT<K, T, State>(HMap<K, State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static State<State, Unit> iterT<K, T, State>(HashMap<K, State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, State<State, U>> mapT<K, T, State, U>(HMap<K, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, State<State, U>> mapT<K, T, State, U>(HashMap<K, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static State<State, T> liftT<K, T, State>(HMap<K, State<State, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static State<State, T> liftT<K, T, State>(HashMap<K, State<State, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static State<State, T> LiftUnsafeT<K, T, State>(HMap<K, State<State, T>> self )  where T : class => self.ValueT();
+        [Pure] public static State<State, T> LiftUnsafeT<K, T, State>(HashMap<K, State<State, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, int> sumT<K, Env, Out, State>(HMap<K, Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static Rws<Env, Out, State, int> sumT<K, Env, Out, State>(HashMap<K, Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, int> countT<K, T, Env, Out, State>(HMap<K, Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static Rws<Env, Out, State, int> countT<K, T, Env, Out, State>(HashMap<K, Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Rws<Env, Out, State, U>> bindT<K, T, Env, Out, State, U>(HMap<K, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Rws<Env, Out, State, U>> bindT<K, T, Env, Out, State, U>(HashMap<K, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, bool> existsT<K, T, Env, Out, State>(HMap<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static Rws<Env, Out, State, bool> existsT<K, T, Env, Out, State>(HashMap<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Rws<Env, Out, State, T>> filterT<K, T, Env, Out, State>(HMap<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Rws<Env, Out, State, T>> filterT<K, T, Env, Out, State>(HashMap<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, V> foldT<K, T, Env, Out, State, V>(HMap<K, Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        [Pure] public static Rws<Env, Out, State, V> foldT<K, T, Env, Out, State, V>(HashMap<K, Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, bool> forallT<K, T, Env, Out, State>(HMap<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        [Pure] public static Rws<Env, Out, State, bool> forallT<K, T, Env, Out, State>(HashMap<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Rws<Env, Out, State, Unit> iterT<K, T, Env, Out, State>(HMap<K, Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static Rws<Env, Out, State, Unit> iterT<K, T, Env, Out, State>(HashMap<K, Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Rws<Env, Out, State, U>> mapT<K, T, Env, Out, State, U>(HMap<K, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Rws<Env, Out, State, U>> mapT<K, T, Env, Out, State, U>(HashMap<K, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, T> liftT<K, T, Env, Out, State>(HMap<K, Rws<Env, Out, State, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static Rws<Env, Out, State, T> liftT<K, T, Env, Out, State>(HashMap<K, Rws<Env, Out, State, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, T> LiftUnsafeT<K, T, Env, Out, State>(HMap<K, Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
+        [Pure] public static Rws<Env, Out, State, T> LiftUnsafeT<K, T, Env, Out, State>(HashMap<K, Rws<Env, Out, State, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapT {
+    public static partial class HashMapT {
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K>(HMap<K, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K>(HashMap<K, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<K, T>(HMap<K, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<K, T>(HashMap<K, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Task<U>> bindT<K, T, U>(HMap<K, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Task<U>> bindT<K, T, U>(HashMap<K, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<K, T>(HMap<K, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<K, T>(HashMap<K, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Task<T>> filterT<K, T>(HMap<K, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Task<T>> filterT<K, T>(HashMap<K, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<K, T, V>(HMap<K, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<K, T, V>(HashMap<K, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<K, T>(HMap<K, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<K, T>(HashMap<K, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<K, T>(HMap<K, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<K, T>(HashMap<K, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Task<U>> mapT<K, T, U>(HMap<K, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Task<U>> mapT<K, T, U>(HashMap<K, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<K, T>(HMap<K, Task<T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<K, T>(HashMap<K, Task<T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(HMap<K, Task<T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(HashMap<K, Task<T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -6456,47 +6456,47 @@ namespace LanguageExt
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K>(TryOption<HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K>(TryOption<HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<T, K>(TryOption<HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<T, K>(TryOption<HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static TryOption<HMap<K, U>> bindT<T, K, U>(TryOption<HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static TryOption<HashMap<K, U>> bindT<T, K, U>(TryOption<HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<T, K>(TryOption<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<T, K>(TryOption<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static TryOption<HMap<K, T>> filterT<T, K>(TryOption<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static TryOption<HashMap<K, T>> filterT<T, K>(TryOption<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<T, K, V>(TryOption<HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<T, K, V>(TryOption<HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<T, K>(TryOption<HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<T, K>(TryOption<HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<T, K>(TryOption<HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<T, K>(TryOption<HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static TryOption<HMap<K, U>> mapT<T, K, U>(TryOption<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static TryOption<HashMap<K, U>> mapT<T, K, U>(TryOption<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<T, K>(TryOption<HMap<K, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<T, K>(TryOption<HashMap<K, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<T, K>(TryOption<HMap<K, T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<T, K>(TryOption<HashMap<K, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -7191,47 +7191,47 @@ namespace LanguageExt
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K>(Try<HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K>(Try<HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<T, K>(Try<HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<T, K>(Try<HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Try<HMap<K, U>> bindT<T, K, U>(Try<HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Try<HashMap<K, U>> bindT<T, K, U>(Try<HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<T, K>(Try<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<T, K>(Try<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Try<HMap<K, T>> filterT<T, K>(Try<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Try<HashMap<K, T>> filterT<T, K>(Try<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<T, K, V>(Try<HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<T, K, V>(Try<HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<T, K>(Try<HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<T, K>(Try<HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<T, K>(Try<HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<T, K>(Try<HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Try<HMap<K, U>> mapT<T, K, U>(Try<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Try<HashMap<K, U>> mapT<T, K, U>(Try<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<T, K>(Try<HMap<K, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<T, K>(Try<HashMap<K, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<T, K>(Try<HMap<K, T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<T, K>(Try<HashMap<K, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -7926,47 +7926,47 @@ namespace LanguageExt
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<L, K>(Either<L, HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<L, K>(Either<L, HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<L, T, K>(Either<L, HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<L, T, K>(Either<L, HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Either<L, HMap<K, U>> bindT<L, T, K, U>(Either<L, HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Either<L, HashMap<K, U>> bindT<L, T, K, U>(Either<L, HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<L, T, K>(Either<L, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<L, T, K>(Either<L, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Either<L, HMap<K, T>> filterT<L, T, K>(Either<L, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Either<L, HashMap<K, T>> filterT<L, T, K>(Either<L, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<L, T, K, V>(Either<L, HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<L, T, K, V>(Either<L, HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<L, T, K>(Either<L, HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<L, T, K>(Either<L, HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<L, T, K>(Either<L, HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<L, T, K>(Either<L, HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Either<L, HMap<K, U>> mapT<L, T, K, U>(Either<L, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Either<L, HashMap<K, U>> mapT<L, T, K, U>(Either<L, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<L, T, K>(Either<L, HMap<K, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<L, T, K>(Either<L, HashMap<K, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<L, T, K>(Either<L, HMap<K, T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<L, T, K>(Either<L, HashMap<K, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -8661,47 +8661,47 @@ namespace LanguageExt
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<L, K>(EitherUnsafe<L, HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<L, K>(EitherUnsafe<L, HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<L, T, K>(EitherUnsafe<L, HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<L, T, K>(EitherUnsafe<L, HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static EitherUnsafe<L, HMap<K, U>> bindT<L, T, K, U>(EitherUnsafe<L, HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static EitherUnsafe<L, HashMap<K, U>> bindT<L, T, K, U>(EitherUnsafe<L, HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<L, T, K>(EitherUnsafe<L, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<L, T, K>(EitherUnsafe<L, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static EitherUnsafe<L, HMap<K, T>> filterT<L, T, K>(EitherUnsafe<L, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static EitherUnsafe<L, HashMap<K, T>> filterT<L, T, K>(EitherUnsafe<L, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<L, T, K, V>(EitherUnsafe<L, HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<L, T, K, V>(EitherUnsafe<L, HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<L, T, K>(EitherUnsafe<L, HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<L, T, K>(EitherUnsafe<L, HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<L, T, K>(EitherUnsafe<L, HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<L, T, K>(EitherUnsafe<L, HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static EitherUnsafe<L, HMap<K, U>> mapT<L, T, K, U>(EitherUnsafe<L, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static EitherUnsafe<L, HashMap<K, U>> mapT<L, T, K, U>(EitherUnsafe<L, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<L, T, K>(EitherUnsafe<L, HMap<K, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<L, T, K>(EitherUnsafe<L, HashMap<K, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<L, T, K>(EitherUnsafe<L, HMap<K, T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<L, T, K>(EitherUnsafe<L, HashMap<K, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -9396,47 +9396,47 @@ namespace LanguageExt
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static Reader<Env, int> sumT<Env, K>(Reader<Env, HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static Reader<Env, int> sumT<Env, K>(Reader<Env, HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static Reader<Env, int> countT<Env, T, K>(Reader<Env, HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static Reader<Env, int> countT<Env, T, K>(Reader<Env, HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Reader<Env, HMap<K, U>> bindT<Env, T, K, U>(Reader<Env, HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Reader<Env, HashMap<K, U>> bindT<Env, T, K, U>(Reader<Env, HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static Reader<Env, bool> existsT<Env, T, K>(Reader<Env, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static Reader<Env, bool> existsT<Env, T, K>(Reader<Env, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Reader<Env, HMap<K, T>> filterT<Env, T, K>(Reader<Env, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Reader<Env, HashMap<K, T>> filterT<Env, T, K>(Reader<Env, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static Reader<Env, V> foldT<Env, T, K, V>(Reader<Env, HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static Reader<Env, V> foldT<Env, T, K, V>(Reader<Env, HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static Reader<Env, bool> forallT<Env, T, K>(Reader<Env, HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static Reader<Env, bool> forallT<Env, T, K>(Reader<Env, HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Reader<Env, Unit> iterT<Env, T, K>(Reader<Env, HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Reader<Env, Unit> iterT<Env, T, K>(Reader<Env, HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Reader<Env, HMap<K, U>> mapT<Env, T, K, U>(Reader<Env, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Reader<Env, HashMap<K, U>> mapT<Env, T, K, U>(Reader<Env, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<Env, T, K>(Reader<Env, HMap<K, T>> self , Env liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        [Pure] public static T liftT<Env, T, K>(Reader<Env, HashMap<K, T>> self , Env liftArg)  where T : struct => self.ValueT()(liftArg).Value;
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<Env, T, K>(Reader<Env, HMap<K, T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
+        [Pure] public static T LiftUnsafeT<Env, T, K>(Reader<Env, HashMap<K, T>> self , Env liftArg)  where T : class => self.ValueT()(liftArg).Value;
     }
     /// <summary>
     /// 
@@ -9984,47 +9984,47 @@ namespace LanguageExt
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static Writer<Out, int> sumT<Out, K>(Writer<Out, HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static Writer<Out, int> sumT<Out, K>(Writer<Out, HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static Writer<Out, int> countT<Out, T, K>(Writer<Out, HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static Writer<Out, int> countT<Out, T, K>(Writer<Out, HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Writer<Out, HMap<K, U>> bindT<Out, T, K, U>(Writer<Out, HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Writer<Out, HashMap<K, U>> bindT<Out, T, K, U>(Writer<Out, HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static Writer<Out, bool> existsT<Out, T, K>(Writer<Out, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static Writer<Out, bool> existsT<Out, T, K>(Writer<Out, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Writer<Out, HMap<K, T>> filterT<Out, T, K>(Writer<Out, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Writer<Out, HashMap<K, T>> filterT<Out, T, K>(Writer<Out, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static Writer<Out, V> foldT<Out, T, K, V>(Writer<Out, HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static Writer<Out, V> foldT<Out, T, K, V>(Writer<Out, HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static Writer<Out, bool> forallT<Out, T, K>(Writer<Out, HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static Writer<Out, bool> forallT<Out, T, K>(Writer<Out, HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Writer<Out, Unit> iterT<Out, T, K>(Writer<Out, HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Writer<Out, Unit> iterT<Out, T, K>(Writer<Out, HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Writer<Out, HMap<K, U>> mapT<Out, T, K, U>(Writer<Out, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Writer<Out, HashMap<K, U>> mapT<Out, T, K, U>(Writer<Out, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<Out, T, K>(Writer<Out, HMap<K, T>> self )  where T : struct => self.ValueT()().Value;
+        [Pure] public static T liftT<Out, T, K>(Writer<Out, HashMap<K, T>> self )  where T : struct => self.ValueT()().Value;
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<Out, T, K>(Writer<Out, HMap<K, T>> self )  where T : class => self.ValueT()().Value;
+        [Pure] public static T LiftUnsafeT<Out, T, K>(Writer<Out, HashMap<K, T>> self )  where T : class => self.ValueT()().Value;
     }
     /// <summary>
     /// 
@@ -10572,47 +10572,47 @@ namespace LanguageExt
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static State<State, int> sumT<State, K>(State<State, HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static State<State, int> sumT<State, K>(State<State, HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static State<State, int> countT<State, T, K>(State<State, HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static State<State, int> countT<State, T, K>(State<State, HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static State<State, HMap<K, U>> bindT<State, T, K, U>(State<State, HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static State<State, HashMap<K, U>> bindT<State, T, K, U>(State<State, HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static State<State, bool> existsT<State, T, K>(State<State, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static State<State, bool> existsT<State, T, K>(State<State, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static State<State, HMap<K, T>> filterT<State, T, K>(State<State, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static State<State, HashMap<K, T>> filterT<State, T, K>(State<State, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static State<State, V> foldT<State, T, K, V>(State<State, HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static State<State, V> foldT<State, T, K, V>(State<State, HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static State<State, bool> forallT<State, T, K>(State<State, HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static State<State, bool> forallT<State, T, K>(State<State, HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static State<State, Unit> iterT<State, T, K>(State<State, HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static State<State, Unit> iterT<State, T, K>(State<State, HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static State<State, HMap<K, U>> mapT<State, T, K, U>(State<State, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static State<State, HashMap<K, U>> mapT<State, T, K, U>(State<State, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<State, T, K>(State<State, HMap<K, T>> self , State liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        [Pure] public static T liftT<State, T, K>(State<State, HashMap<K, T>> self , State liftArg)  where T : struct => self.ValueT()(liftArg).Value;
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<State, T, K>(State<State, HMap<K, T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
+        [Pure] public static T LiftUnsafeT<State, T, K>(State<State, HashMap<K, T>> self , State liftArg)  where T : class => self.ValueT()(liftArg).Value;
     }
     /// <summary>
     /// 
@@ -11160,47 +11160,47 @@ namespace LanguageExt
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, int> sumT<Env, Out, State, K>(Rws<Env, Out, State, HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static Rws<Env, Out, State, int> sumT<Env, Out, State, K>(Rws<Env, Out, State, HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, int> countT<Env, Out, State, T, K>(Rws<Env, Out, State, HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static Rws<Env, Out, State, int> countT<Env, Out, State, T, K>(Rws<Env, Out, State, HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, HMap<K, U>> bindT<Env, Out, State, T, K, U>(Rws<Env, Out, State, HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Rws<Env, Out, State, HashMap<K, U>> bindT<Env, Out, State, T, K, U>(Rws<Env, Out, State, HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, bool> existsT<Env, Out, State, T, K>(Rws<Env, Out, State, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static Rws<Env, Out, State, bool> existsT<Env, Out, State, T, K>(Rws<Env, Out, State, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, HMap<K, T>> filterT<Env, Out, State, T, K>(Rws<Env, Out, State, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Rws<Env, Out, State, HashMap<K, T>> filterT<Env, Out, State, T, K>(Rws<Env, Out, State, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, V> foldT<Env, Out, State, T, K, V>(Rws<Env, Out, State, HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static Rws<Env, Out, State, V> foldT<Env, Out, State, T, K, V>(Rws<Env, Out, State, HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, bool> forallT<Env, Out, State, T, K>(Rws<Env, Out, State, HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static Rws<Env, Out, State, bool> forallT<Env, Out, State, T, K>(Rws<Env, Out, State, HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Rws<Env, Out, State, Unit> iterT<Env, Out, State, T, K>(Rws<Env, Out, State, HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, Unit> iterT<Env, Out, State, T, K>(Rws<Env, Out, State, HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, HMap<K, U>> mapT<Env, Out, State, T, K, U>(Rws<Env, Out, State, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Rws<Env, Out, State, HashMap<K, U>> mapT<Env, Out, State, T, K, U>(Rws<Env, Out, State, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<Env, Out, State, T, K>(Rws<Env, Out, State, HMap<K, T>> self , Tuple<Env,State> liftArg)  where T : struct => self.ValueT()(liftArg).Value;
+        [Pure] public static T liftT<Env, Out, State, T, K>(Rws<Env, Out, State, HashMap<K, T>> self , Tuple<Env,State> liftArg)  where T : struct => self.ValueT()(liftArg).Value;
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<Env, Out, State, T, K>(Rws<Env, Out, State, HMap<K, T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
+        [Pure] public static T LiftUnsafeT<Env, Out, State, T, K>(Rws<Env, Out, State, HashMap<K, T>> self , Tuple<Env,State> liftArg)  where T : class => self.ValueT()(liftArg).Value;
     }
     /// <summary>
     /// 
@@ -11748,47 +11748,47 @@ namespace LanguageExt
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int sumT<K>(Task<HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int sumT<K>(Task<HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int countT<T, K>(Task<HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int countT<T, K>(Task<HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Task<HMap<K, U>> bindT<T, K, U>(Task<HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Task<HashMap<K, U>> bindT<T, K, U>(Task<HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool existsT<T, K>(Task<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool existsT<T, K>(Task<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Task<HMap<K, T>> filterT<T, K>(Task<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Task<HashMap<K, T>> filterT<T, K>(Task<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V foldT<T, K, V>(Task<HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V foldT<T, K, V>(Task<HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool forallT<T, K>(Task<HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool forallT<T, K>(Task<HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit iterT<T, K>(Task<HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit iterT<T, K>(Task<HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Task<HMap<K, U>> mapT<T, K, U>(Task<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Task<HashMap<K, U>> mapT<T, K, U>(Task<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T liftT<T, K>(Task<HMap<K, T>> self )  where T : struct => self.ValueT();
+        [Pure] public static T liftT<T, K>(Task<HashMap<K, T>> self )  where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<T, K>(Task<HMap<K, T>> self )  where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<T, K>(Task<HashMap<K, T>> self )  where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -12488,52 +12488,52 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapMonad {
-        internal static T InnerValue<K, T>(this HMap<K, T> self) => self.Values.FirstOrDefault();
+    public static partial class HashMapMonad {
+        internal static T InnerValue<K, T>(this HashMap<K, T> self) => self.Values.FirstOrDefault();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] internal static int SumT<K>(this HMap<K, int> self) => self.Sum();
+        [Pure] internal static int SumT<K>(this HashMap<K, int> self) => self.Sum();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] internal static int CountT<K, T>(this HMap<K, T> self) => self.Count();
+        [Pure] internal static int CountT<K, T>(this HashMap<K, T> self) => self.Count();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] internal static HMap<K, U> BindT<K, T, U>(this HMap<K, T> self, Func<T, HMap<K, U>> binder) => self.Bind(binder);
+        [Pure] internal static HashMap<K, U> BindT<K, T, U>(this HashMap<K, T> self, Func<T, HashMap<K, U>> binder) => self.Bind(binder);
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] internal static bool ExistsT<K, T>(this HMap<K, T> self, Func<T, bool> pred) => self.Exists(pred);
+        [Pure] internal static bool ExistsT<K, T>(this HashMap<K, T> self, Func<T, bool> pred) => self.Exists(pred);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] internal static HMap<K, T> FilterT<K, T>(this HMap<K, T> self, Func<T, bool> pred) => self.Filter(pred);
+        [Pure] internal static HashMap<K, T> FilterT<K, T>(this HashMap<K, T> self, Func<T, bool> pred) => self.Filter(pred);
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] internal static V FoldT<K, T, V>(this HMap<K, T> self, V state, Func<V, T, V> fold) => self.Fold(state,fold);
+        [Pure] internal static V FoldT<K, T, V>(this HashMap<K, T> self, V state, Func<V, T, V> fold) => self.Fold(state,fold);
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] internal static bool ForAllT<K, T>(this HMap<K, T> self, Func<T, bool> pred) => self.ForAll(pred);
+        [Pure] internal static bool ForAllT<K, T>(this HashMap<K, T> self, Func<T, bool> pred) => self.ForAll(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        internal static Unit IterT<K, T>(this HMap<K, T> self, Action<T> action) => self.Iter(action);
+        internal static Unit IterT<K, T>(this HashMap<K, T> self, Action<T> action) => self.Iter(action);
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] internal static HMap<K, U> MapT<K, T, U>(this HMap<K, T> self, Func<T, U> mapper) => self.Map(mapper);
+        [Pure] internal static HashMap<K, U> MapT<K, T, U>(this HashMap<K, T> self, Func<T, U> mapper) => self.Map(mapper);
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T Lift<K, T>(this HMap<K, T> self ) where T : struct => self.InnerValue();
+        [Pure] public static T Lift<K, T>(this HashMap<K, T> self ) where T : struct => self.InnerValue();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafe<K, T>(this HMap<K, T> self ) where T : class => self.InnerValue();
+        [Pure] public static T LiftUnsafe<K, T>(this HashMap<K, T> self ) where T : class => self.InnerValue();
     }
     /// <summary>
     /// 
@@ -13239,51 +13239,51 @@ namespace LanguageExt.Trans
     /// 
     /// </summary>
     public static partial class ListTMonadT {
-        internal static T ValueT<T, K>(this IEnumerable<HMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        internal static T ValueT<T, K>(this IEnumerable<HashMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K>(this IEnumerable<HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K>(this IEnumerable<HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<T, K>(this IEnumerable<HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<T, K>(this IEnumerable<HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static IEnumerable<HMap<K, U>> BindT<T, K, U>(this IEnumerable<HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static IEnumerable<HashMap<K, U>> BindT<T, K, U>(this IEnumerable<HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<T, K>(this IEnumerable<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<T, K>(this IEnumerable<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static IEnumerable<HMap<K, T>> FilterT<T, K>(this IEnumerable<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static IEnumerable<HashMap<K, T>> FilterT<T, K>(this IEnumerable<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<T, K, V>(this IEnumerable<HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<T, K, V>(this IEnumerable<HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<T, K>(this IEnumerable<HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<T, K>(this IEnumerable<HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<T, K>(this IEnumerable<HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<T, K>(this IEnumerable<HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static IEnumerable<HMap<K, U>> MapT<T, K, U>(this IEnumerable<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static IEnumerable<HashMap<K, U>> MapT<T, K, U>(this IEnumerable<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<T, K>(this IEnumerable<HMap<K, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<T, K>(this IEnumerable<HashMap<K, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<T, K>(this IEnumerable<HMap<K, T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<T, K>(this IEnumerable<HashMap<K, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -13989,51 +13989,51 @@ namespace LanguageExt.Trans
     /// 
     /// </summary>
     public static partial class OptionTMonadT {
-        internal static T ValueT<T, K>(this Option<HMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        internal static T ValueT<T, K>(this Option<HashMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K>(this Option<HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K>(this Option<HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<T, K>(this Option<HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<T, K>(this Option<HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Option<HMap<K, U>> BindT<T, K, U>(this Option<HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Option<HashMap<K, U>> BindT<T, K, U>(this Option<HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<T, K>(this Option<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<T, K>(this Option<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Option<HMap<K, T>> FilterT<T, K>(this Option<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Option<HashMap<K, T>> FilterT<T, K>(this Option<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<T, K, V>(this Option<HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<T, K, V>(this Option<HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<T, K>(this Option<HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<T, K>(this Option<HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<T, K>(this Option<HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<T, K>(this Option<HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Option<HMap<K, U>> MapT<T, K, U>(this Option<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Option<HashMap<K, U>> MapT<T, K, U>(this Option<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<T, K>(this Option<HMap<K, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<T, K>(this Option<HashMap<K, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<T, K>(this Option<HMap<K, T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<T, K>(this Option<HashMap<K, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -14739,51 +14739,51 @@ namespace LanguageExt.Trans
     /// 
     /// </summary>
     public static partial class OptionUnsafeTMonadT {
-        internal static T ValueT<T, K>(this OptionUnsafe<HMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        internal static T ValueT<T, K>(this OptionUnsafe<HashMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K>(this OptionUnsafe<HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K>(this OptionUnsafe<HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<T, K>(this OptionUnsafe<HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<T, K>(this OptionUnsafe<HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static OptionUnsafe<HMap<K, U>> BindT<T, K, U>(this OptionUnsafe<HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static OptionUnsafe<HashMap<K, U>> BindT<T, K, U>(this OptionUnsafe<HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<T, K>(this OptionUnsafe<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<T, K>(this OptionUnsafe<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static OptionUnsafe<HMap<K, T>> FilterT<T, K>(this OptionUnsafe<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static OptionUnsafe<HashMap<K, T>> FilterT<T, K>(this OptionUnsafe<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<T, K, V>(this OptionUnsafe<HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<T, K, V>(this OptionUnsafe<HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<T, K>(this OptionUnsafe<HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<T, K>(this OptionUnsafe<HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<T, K>(this OptionUnsafe<HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<T, K>(this OptionUnsafe<HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static OptionUnsafe<HMap<K, U>> MapT<T, K, U>(this OptionUnsafe<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static OptionUnsafe<HashMap<K, U>> MapT<T, K, U>(this OptionUnsafe<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<T, K>(this OptionUnsafe<HMap<K, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<T, K>(this OptionUnsafe<HashMap<K, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<T, K>(this OptionUnsafe<HMap<K, T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<T, K>(this OptionUnsafe<HashMap<K, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -15489,51 +15489,51 @@ namespace LanguageExt.Trans
     /// 
     /// </summary>
     public static partial class ListTMonadT {
-        internal static T ValueT<T, K>(this Lst<HMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        internal static T ValueT<T, K>(this Lst<HashMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K>(this Lst<HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K>(this Lst<HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<T, K>(this Lst<HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<T, K>(this Lst<HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Lst<HMap<K, U>> BindT<T, K, U>(this Lst<HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Lst<HashMap<K, U>> BindT<T, K, U>(this Lst<HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<T, K>(this Lst<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<T, K>(this Lst<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Lst<HMap<K, T>> FilterT<T, K>(this Lst<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Lst<HashMap<K, T>> FilterT<T, K>(this Lst<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<T, K, V>(this Lst<HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<T, K, V>(this Lst<HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<T, K>(this Lst<HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<T, K>(this Lst<HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<T, K>(this Lst<HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<T, K>(this Lst<HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Lst<HMap<K, U>> MapT<T, K, U>(this Lst<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Lst<HashMap<K, U>> MapT<T, K, U>(this Lst<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<T, K>(this Lst<HMap<K, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<T, K>(this Lst<HashMap<K, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<T, K>(this Lst<HMap<K, T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<T, K>(this Lst<HashMap<K, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -16239,51 +16239,51 @@ namespace LanguageExt.Trans
     /// 
     /// </summary>
     public static partial class MapTMonadT {
-        internal static T ValueT<K, T>(this Map<K, HMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        internal static T ValueT<K, T>(this Map<K, HashMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K>(this Map<K, HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K>(this Map<K, HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<K, T>(this Map<K, HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<K, T>(this Map<K, HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Map<K, HMap<K, U>> BindT<K, T, U>(this Map<K, HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Map<K, HashMap<K, U>> BindT<K, T, U>(this Map<K, HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<K, T>(this Map<K, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<K, T>(this Map<K, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Map<K, HMap<K, T>> FilterT<K, T>(this Map<K, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Map<K, HashMap<K, T>> FilterT<K, T>(this Map<K, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<K, T, V>(this Map<K, HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<K, T, V>(this Map<K, HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<K, T>(this Map<K, HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<K, T>(this Map<K, HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<K, T>(this Map<K, HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<K, T>(this Map<K, HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Map<K, HMap<K, U>> MapT<K, T, U>(this Map<K, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Map<K, HashMap<K, U>> MapT<K, T, U>(this Map<K, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<K, T>(this Map<K, HMap<K, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<K, T>(this Map<K, HashMap<K, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(this Map<K, HMap<K, T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(this Map<K, HashMap<K, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -16738,752 +16738,752 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
-        internal static T ValueT<K, T>(this HMap<K, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+    public static partial class HashMapTMonadT {
+        internal static T ValueT<K, T>(this HashMap<K, IEnumerable<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K>(this HMap<K, IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K>(this HashMap<K, IEnumerable<int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<K, T>(this HMap<K, IEnumerable<T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<K, T>(this HashMap<K, IEnumerable<T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, IEnumerable<U>> BindT<K, T, U>(this HMap<K, IEnumerable<T>> self, Func<T, IEnumerable<U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, IEnumerable<U>> BindT<K, T, U>(this HashMap<K, IEnumerable<T>> self, Func<T, IEnumerable<U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<K, T>(this HMap<K, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<K, T>(this HashMap<K, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, IEnumerable<T>> FilterT<K, T>(this HMap<K, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, IEnumerable<T>> FilterT<K, T>(this HashMap<K, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<K, T, V>(this HMap<K, IEnumerable<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<K, T, V>(this HashMap<K, IEnumerable<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<K, T>(this HMap<K, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<K, T>(this HashMap<K, IEnumerable<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<K, T>(this HMap<K, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<K, T>(this HashMap<K, IEnumerable<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, IEnumerable<U>> MapT<K, T, U>(this HMap<K, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, IEnumerable<U>> MapT<K, T, U>(this HashMap<K, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<K, T>(this HMap<K, IEnumerable<T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<K, T>(this HashMap<K, IEnumerable<T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(this HMap<K, IEnumerable<T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(this HashMap<K, IEnumerable<T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
-        internal static T ValueT<K, T>(this HMap<K, Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+    public static partial class HashMapTMonadT {
+        internal static T ValueT<K, T>(this HashMap<K, Option<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K>(this HMap<K, Option<int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K>(this HashMap<K, Option<int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<K, T>(this HMap<K, Option<T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<K, T>(this HashMap<K, Option<T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Option<U>> BindT<K, T, U>(this HMap<K, Option<T>> self, Func<T, Option<U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Option<U>> BindT<K, T, U>(this HashMap<K, Option<T>> self, Func<T, Option<U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<K, T>(this HMap<K, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<K, T>(this HashMap<K, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Option<T>> FilterT<K, T>(this HMap<K, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Option<T>> FilterT<K, T>(this HashMap<K, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<K, T, V>(this HMap<K, Option<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<K, T, V>(this HashMap<K, Option<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<K, T>(this HMap<K, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<K, T>(this HashMap<K, Option<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<K, T>(this HMap<K, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<K, T>(this HashMap<K, Option<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Option<U>> MapT<K, T, U>(this HMap<K, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Option<U>> MapT<K, T, U>(this HashMap<K, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<K, T>(this HMap<K, Option<T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<K, T>(this HashMap<K, Option<T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(this HMap<K, Option<T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(this HashMap<K, Option<T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
-        internal static T ValueT<K, T>(this HMap<K, OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+    public static partial class HashMapTMonadT {
+        internal static T ValueT<K, T>(this HashMap<K, OptionUnsafe<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K>(this HMap<K, OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K>(this HashMap<K, OptionUnsafe<int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<K, T>(this HMap<K, OptionUnsafe<T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<K, T>(this HashMap<K, OptionUnsafe<T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, OptionUnsafe<U>> BindT<K, T, U>(this HMap<K, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, OptionUnsafe<U>> BindT<K, T, U>(this HashMap<K, OptionUnsafe<T>> self, Func<T, OptionUnsafe<U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<K, T>(this HMap<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<K, T>(this HashMap<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, OptionUnsafe<T>> FilterT<K, T>(this HMap<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, OptionUnsafe<T>> FilterT<K, T>(this HashMap<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<K, T, V>(this HMap<K, OptionUnsafe<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<K, T, V>(this HashMap<K, OptionUnsafe<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<K, T>(this HMap<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<K, T>(this HashMap<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<K, T>(this HMap<K, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<K, T>(this HashMap<K, OptionUnsafe<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, OptionUnsafe<U>> MapT<K, T, U>(this HMap<K, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, OptionUnsafe<U>> MapT<K, T, U>(this HashMap<K, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<K, T>(this HMap<K, OptionUnsafe<T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<K, T>(this HashMap<K, OptionUnsafe<T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(this HMap<K, OptionUnsafe<T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(this HashMap<K, OptionUnsafe<T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
-        internal static T ValueT<K, T>(this HMap<K, Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+    public static partial class HashMapTMonadT {
+        internal static T ValueT<K, T>(this HashMap<K, Lst<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K>(this HMap<K, Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K>(this HashMap<K, Lst<int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<K, T>(this HMap<K, Lst<T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<K, T>(this HashMap<K, Lst<T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Lst<U>> BindT<K, T, U>(this HMap<K, Lst<T>> self, Func<T, Lst<U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Lst<U>> BindT<K, T, U>(this HashMap<K, Lst<T>> self, Func<T, Lst<U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<K, T>(this HMap<K, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<K, T>(this HashMap<K, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Lst<T>> FilterT<K, T>(this HMap<K, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Lst<T>> FilterT<K, T>(this HashMap<K, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<K, T, V>(this HMap<K, Lst<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<K, T, V>(this HashMap<K, Lst<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<K, T>(this HMap<K, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<K, T>(this HashMap<K, Lst<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<K, T>(this HMap<K, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<K, T>(this HashMap<K, Lst<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Lst<U>> MapT<K, T, U>(this HMap<K, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Lst<U>> MapT<K, T, U>(this HashMap<K, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<K, T>(this HMap<K, Lst<T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<K, T>(this HashMap<K, Lst<T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(this HMap<K, Lst<T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(this HashMap<K, Lst<T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
-        internal static T ValueT<K, T>(this HMap<K, Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+    public static partial class HashMapTMonadT {
+        internal static T ValueT<K, T>(this HashMap<K, Map<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K>(this HMap<K, Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K>(this HashMap<K, Map<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<K, T>(this HMap<K, Map<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<K, T>(this HashMap<K, Map<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Map<K, U>> BindT<K, T, U>(this HMap<K, Map<K, T>> self, Func<T, Map<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Map<K, U>> BindT<K, T, U>(this HashMap<K, Map<K, T>> self, Func<T, Map<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<K, T>(this HMap<K, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<K, T>(this HashMap<K, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Map<K, T>> FilterT<K, T>(this HMap<K, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Map<K, T>> FilterT<K, T>(this HashMap<K, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<K, T, V>(this HMap<K, Map<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<K, T, V>(this HashMap<K, Map<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<K, T>(this HMap<K, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<K, T>(this HashMap<K, Map<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<K, T>(this HMap<K, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<K, T>(this HashMap<K, Map<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Map<K, U>> MapT<K, T, U>(this HMap<K, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Map<K, U>> MapT<K, T, U>(this HashMap<K, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<K, T>(this HMap<K, Map<K, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<K, T>(this HashMap<K, Map<K, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(this HMap<K, Map<K, T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(this HashMap<K, Map<K, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
-        internal static T ValueT<K, T>(this HMap<K, HMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+    public static partial class HashMapTMonadT {
+        internal static T ValueT<K, T>(this HashMap<K, HashMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K>(this HMap<K, HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K>(this HashMap<K, HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<K, T>(this HMap<K, HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<K, T>(this HashMap<K, HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, HMap<K, U>> BindT<K, T, U>(this HMap<K, HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, HashMap<K, U>> BindT<K, T, U>(this HashMap<K, HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<K, T>(this HMap<K, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<K, T>(this HashMap<K, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, HMap<K, T>> FilterT<K, T>(this HMap<K, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, HashMap<K, T>> FilterT<K, T>(this HashMap<K, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<K, T, V>(this HMap<K, HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<K, T, V>(this HashMap<K, HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<K, T>(this HMap<K, HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<K, T>(this HashMap<K, HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<K, T>(this HMap<K, HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<K, T>(this HashMap<K, HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, HMap<K, U>> MapT<K, T, U>(this HMap<K, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, HashMap<K, U>> MapT<K, T, U>(this HashMap<K, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<K, T>(this HMap<K, HMap<K, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<K, T>(this HashMap<K, HashMap<K, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(this HMap<K, HMap<K, T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(this HashMap<K, HashMap<K, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
-        internal static T ValueT<K, T>(this HMap<K, TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+    public static partial class HashMapTMonadT {
+        internal static T ValueT<K, T>(this HashMap<K, TryOption<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K>(this HMap<K, TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K>(this HashMap<K, TryOption<int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<K, T>(this HMap<K, TryOption<T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<K, T>(this HashMap<K, TryOption<T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, TryOption<U>> BindT<K, T, U>(this HMap<K, TryOption<T>> self, Func<T, TryOption<U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, TryOption<U>> BindT<K, T, U>(this HashMap<K, TryOption<T>> self, Func<T, TryOption<U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<K, T>(this HMap<K, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<K, T>(this HashMap<K, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, TryOption<T>> FilterT<K, T>(this HMap<K, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, TryOption<T>> FilterT<K, T>(this HashMap<K, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<K, T, V>(this HMap<K, TryOption<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<K, T, V>(this HashMap<K, TryOption<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<K, T>(this HMap<K, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<K, T>(this HashMap<K, TryOption<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<K, T>(this HMap<K, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<K, T>(this HashMap<K, TryOption<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, TryOption<U>> MapT<K, T, U>(this HMap<K, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, TryOption<U>> MapT<K, T, U>(this HashMap<K, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<K, T>(this HMap<K, TryOption<T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<K, T>(this HashMap<K, TryOption<T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(this HMap<K, TryOption<T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(this HashMap<K, TryOption<T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
-        internal static T ValueT<K, T>(this HMap<K, Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+    public static partial class HashMapTMonadT {
+        internal static T ValueT<K, T>(this HashMap<K, Try<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K>(this HMap<K, Try<int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K>(this HashMap<K, Try<int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<K, T>(this HMap<K, Try<T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<K, T>(this HashMap<K, Try<T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Try<U>> BindT<K, T, U>(this HMap<K, Try<T>> self, Func<T, Try<U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Try<U>> BindT<K, T, U>(this HashMap<K, Try<T>> self, Func<T, Try<U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<K, T>(this HMap<K, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<K, T>(this HashMap<K, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Try<T>> FilterT<K, T>(this HMap<K, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Try<T>> FilterT<K, T>(this HashMap<K, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<K, T, V>(this HMap<K, Try<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<K, T, V>(this HashMap<K, Try<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<K, T>(this HMap<K, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<K, T>(this HashMap<K, Try<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<K, T>(this HMap<K, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<K, T>(this HashMap<K, Try<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Try<U>> MapT<K, T, U>(this HMap<K, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Try<U>> MapT<K, T, U>(this HashMap<K, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<K, T>(this HMap<K, Try<T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<K, T>(this HashMap<K, Try<T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(this HMap<K, Try<T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(this HashMap<K, Try<T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
-        internal static T ValueT<K, T, L>(this HMap<K, Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+    public static partial class HashMapTMonadT {
+        internal static T ValueT<K, T, L>(this HashMap<K, Either<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K, L>(this HMap<K, Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K, L>(this HashMap<K, Either<L, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<K, T, L>(this HMap<K, Either<L, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<K, T, L>(this HashMap<K, Either<L, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Either<L, U>> BindT<K, T, L, U>(this HMap<K, Either<L, T>> self, Func<T, Either<L, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Either<L, U>> BindT<K, T, L, U>(this HashMap<K, Either<L, T>> self, Func<T, Either<L, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<K, T, L>(this HMap<K, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<K, T, L>(this HashMap<K, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Either<L, T>> FilterT<K, T, L>(this HMap<K, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Either<L, T>> FilterT<K, T, L>(this HashMap<K, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<K, T, L, V>(this HMap<K, Either<L, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<K, T, L, V>(this HashMap<K, Either<L, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<K, T, L>(this HMap<K, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<K, T, L>(this HashMap<K, Either<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<K, T, L>(this HMap<K, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<K, T, L>(this HashMap<K, Either<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Either<L, U>> MapT<K, T, L, U>(this HMap<K, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Either<L, U>> MapT<K, T, L, U>(this HashMap<K, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<K, T, L>(this HMap<K, Either<L, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<K, T, L>(this HashMap<K, Either<L, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T, L>(this HMap<K, Either<L, T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T, L>(this HashMap<K, Either<L, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
-        internal static T ValueT<K, T, L>(this HMap<K, EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+    public static partial class HashMapTMonadT {
+        internal static T ValueT<K, T, L>(this HashMap<K, EitherUnsafe<L, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K, L>(this HMap<K, EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K, L>(this HashMap<K, EitherUnsafe<L, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<K, T, L>(this HMap<K, EitherUnsafe<L, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<K, T, L>(this HashMap<K, EitherUnsafe<L, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, EitherUnsafe<L, U>> BindT<K, T, L, U>(this HMap<K, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, EitherUnsafe<L, U>> BindT<K, T, L, U>(this HashMap<K, EitherUnsafe<L, T>> self, Func<T, EitherUnsafe<L, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<K, T, L>(this HMap<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<K, T, L>(this HashMap<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, EitherUnsafe<L, T>> FilterT<K, T, L>(this HMap<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, EitherUnsafe<L, T>> FilterT<K, T, L>(this HashMap<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<K, T, L, V>(this HMap<K, EitherUnsafe<L, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<K, T, L, V>(this HashMap<K, EitherUnsafe<L, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<K, T, L>(this HMap<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<K, T, L>(this HashMap<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<K, T, L>(this HMap<K, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<K, T, L>(this HashMap<K, EitherUnsafe<L, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, EitherUnsafe<L, U>> MapT<K, T, L, U>(this HMap<K, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, EitherUnsafe<L, U>> MapT<K, T, L, U>(this HashMap<K, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<K, T, L>(this HMap<K, EitherUnsafe<L, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<K, T, L>(this HashMap<K, EitherUnsafe<L, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T, L>(this HMap<K, EitherUnsafe<L, T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T, L>(this HashMap<K, EitherUnsafe<L, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
-        internal static Reader<Env, T> ValueT<K, T, Env>(this HMap<K, Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+    public static partial class HashMapTMonadT {
+        internal static Reader<Env, T> ValueT<K, T, Env>(this HashMap<K, Reader<Env, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static Reader<Env, int> SumT<K, Env>(this HMap<K, Reader<Env, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static Reader<Env, int> SumT<K, Env>(this HashMap<K, Reader<Env, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static Reader<Env, int> CountT<K, T, Env>(this HMap<K, Reader<Env, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static Reader<Env, int> CountT<K, T, Env>(this HashMap<K, Reader<Env, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Reader<Env, U>> BindT<K, T, Env, U>(this HMap<K, Reader<Env, T>> self, Func<T, Reader<Env, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Reader<Env, U>> BindT<K, T, Env, U>(this HashMap<K, Reader<Env, T>> self, Func<T, Reader<Env, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static Reader<Env, bool> ExistsT<K, T, Env>(this HMap<K, Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static Reader<Env, bool> ExistsT<K, T, Env>(this HashMap<K, Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Reader<Env, T>> FilterT<K, T, Env>(this HMap<K, Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Reader<Env, T>> FilterT<K, T, Env>(this HashMap<K, Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static Reader<Env, V> FoldT<K, T, Env, V>(this HMap<K, Reader<Env, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        [Pure] public static Reader<Env, V> FoldT<K, T, Env, V>(this HashMap<K, Reader<Env, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static Reader<Env, bool> ForAllT<K, T, Env>(this HMap<K, Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        [Pure] public static Reader<Env, bool> ForAllT<K, T, Env>(this HashMap<K, Reader<Env, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Reader<Env, Unit> IterT<K, T, Env>(this HMap<K, Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static Reader<Env, Unit> IterT<K, T, Env>(this HashMap<K, Reader<Env, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Reader<Env, U>> MapT<K, T, Env, U>(this HMap<K, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Reader<Env, U>> MapT<K, T, Env, U>(this HashMap<K, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static Reader<Env, T> LiftT<K, T, Env>(this HMap<K, Reader<Env, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static Reader<Env, T> LiftT<K, T, Env>(this HashMap<K, Reader<Env, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static Reader<Env, T> LiftUnsafeT<K, T, Env>(this HMap<K, Reader<Env, T>> self ) where T : class => self.ValueT();
+        [Pure] public static Reader<Env, T> LiftUnsafeT<K, T, Env>(this HashMap<K, Reader<Env, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
-        internal static Writer<Out, T> ValueT<K, T, Out>(this HMap<K, Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+    public static partial class HashMapTMonadT {
+        internal static Writer<Out, T> ValueT<K, T, Out>(this HashMap<K, Writer<Out, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static Writer<Out, int> SumT<K, Out>(this HMap<K, Writer<Out, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static Writer<Out, int> SumT<K, Out>(this HashMap<K, Writer<Out, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static Writer<Out, int> CountT<K, T, Out>(this HMap<K, Writer<Out, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static Writer<Out, int> CountT<K, T, Out>(this HashMap<K, Writer<Out, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Writer<Out, U>> BindT<K, T, Out, U>(this HMap<K, Writer<Out, T>> self, Func<T, Writer<Out, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Writer<Out, U>> BindT<K, T, Out, U>(this HashMap<K, Writer<Out, T>> self, Func<T, Writer<Out, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static Writer<Out, bool> ExistsT<K, T, Out>(this HMap<K, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static Writer<Out, bool> ExistsT<K, T, Out>(this HashMap<K, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Writer<Out, T>> FilterT<K, T, Out>(this HMap<K, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Writer<Out, T>> FilterT<K, T, Out>(this HashMap<K, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static Writer<Out, V> FoldT<K, T, Out, V>(this HMap<K, Writer<Out, T>> self, V state, Func<V, T, V> fold) => ()=> self.FoldT(state,(s,x) => x.FoldT(s, fold)().Value);
+        [Pure] public static Writer<Out, V> FoldT<K, T, Out, V>(this HashMap<K, Writer<Out, T>> self, V state, Func<V, T, V> fold) => ()=> self.FoldT(state,(s,x) => x.FoldT(s, fold)().Value);
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static Writer<Out, bool> ForAllT<K, T, Out>(this HMap<K, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
+        [Pure] public static Writer<Out, bool> ForAllT<K, T, Out>(this HashMap<K, Writer<Out, T>> self, Func<T, bool> pred) => ()=> self.ForAllT(pred)();
         /// <summary>
         /// Iter
         /// </summary>
-        public static Writer<Out, Unit> IterT<K, T, Out>(this HMap<K, Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
+        public static Writer<Out, Unit> IterT<K, T, Out>(this HashMap<K, Writer<Out, T>> self, Action<T> action) => ()=> self.IterT(x => x.IterT(action)());
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Writer<Out, U>> MapT<K, T, Out, U>(this HMap<K, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Writer<Out, U>> MapT<K, T, Out, U>(this HashMap<K, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static Writer<Out, T> LiftT<K, T, Out>(this HMap<K, Writer<Out, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static Writer<Out, T> LiftT<K, T, Out>(this HashMap<K, Writer<Out, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static Writer<Out, T> LiftUnsafeT<K, T, Out>(this HMap<K, Writer<Out, T>> self ) where T : class => self.ValueT();
+        [Pure] public static Writer<Out, T> LiftUnsafeT<K, T, Out>(this HashMap<K, Writer<Out, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
-        internal static State<State, T> ValueT<K, T, State>(this HMap<K, State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+    public static partial class HashMapTMonadT {
+        internal static State<State, T> ValueT<K, T, State>(this HashMap<K, State<State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static State<State, int> SumT<K, State>(this HMap<K, State<State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static State<State, int> SumT<K, State>(this HashMap<K, State<State, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static State<State, int> CountT<K, T, State>(this HMap<K, State<State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static State<State, int> CountT<K, T, State>(this HashMap<K, State<State, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, State<State, U>> BindT<K, T, State, U>(this HMap<K, State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, State<State, U>> BindT<K, T, State, U>(this HashMap<K, State<State, T>> self, Func<T, State<State, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static State<State, bool> ExistsT<K, T, State>(this HMap<K, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static State<State, bool> ExistsT<K, T, State>(this HashMap<K, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, State<State, T>> FilterT<K, T, State>(this HMap<K, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, State<State, T>> FilterT<K, T, State>(this HashMap<K, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static State<State, V> FoldT<K, T, State, V>(this HMap<K, State<State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        [Pure] public static State<State, V> FoldT<K, T, State, V>(this HashMap<K, State<State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static State<State, bool> ForAllT<K, T, State>(this HMap<K, State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        [Pure] public static State<State, bool> ForAllT<K, T, State>(this HashMap<K, State<State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
-        public static State<State, Unit> IterT<K, T, State>(this HMap<K, State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static State<State, Unit> IterT<K, T, State>(this HashMap<K, State<State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, State<State, U>> MapT<K, T, State, U>(this HMap<K, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, State<State, U>> MapT<K, T, State, U>(this HashMap<K, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static State<State, T> LiftT<K, T, State>(this HMap<K, State<State, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static State<State, T> LiftT<K, T, State>(this HashMap<K, State<State, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static State<State, T> LiftUnsafeT<K, T, State>(this HMap<K, State<State, T>> self ) where T : class => self.ValueT();
+        [Pure] public static State<State, T> LiftUnsafeT<K, T, State>(this HashMap<K, State<State, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
-        internal static Rws<Env, Out, State, T> ValueT<K, T, Env, Out, State>(this HMap<K, Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+    public static partial class HashMapTMonadT {
+        internal static Rws<Env, Out, State, T> ValueT<K, T, Env, Out, State>(this HashMap<K, Rws<Env, Out, State, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, int> SumT<K, Env, Out, State>(this HMap<K, Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static Rws<Env, Out, State, int> SumT<K, Env, Out, State>(this HashMap<K, Rws<Env, Out, State, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, int> CountT<K, T, Env, Out, State>(this HMap<K, Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static Rws<Env, Out, State, int> CountT<K, T, Env, Out, State>(this HashMap<K, Rws<Env, Out, State, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Rws<Env, Out, State, U>> BindT<K, T, Env, Out, State, U>(this HMap<K, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Rws<Env, Out, State, U>> BindT<K, T, Env, Out, State, U>(this HashMap<K, Rws<Env, Out, State, T>> self, Func<T, Rws<Env, Out, State, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, bool> ExistsT<K, T, Env, Out, State>(this HMap<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static Rws<Env, Out, State, bool> ExistsT<K, T, Env, Out, State>(this HashMap<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Rws<Env, Out, State, T>> FilterT<K, T, Env, Out, State>(this HMap<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Rws<Env, Out, State, T>> FilterT<K, T, Env, Out, State>(this HashMap<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, V> FoldT<K, T, Env, Out, State, V>(this HMap<K, Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
+        [Pure] public static Rws<Env, Out, State, V> FoldT<K, T, Env, Out, State, V>(this HashMap<K, Rws<Env, Out, State, T>> self, V state, Func<V, T, V> fold) => args => self.FoldT(state,(s,x) => x.FoldT(s, fold)(args).Value);
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, bool> ForAllT<K, T, Env, Out, State>(this HMap<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
+        [Pure] public static Rws<Env, Out, State, bool> ForAllT<K, T, Env, Out, State>(this HashMap<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => args => self.ForAllT(pred)(args);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Rws<Env, Out, State, Unit> IterT<K, T, Env, Out, State>(this HMap<K, Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
+        public static Rws<Env, Out, State, Unit> IterT<K, T, Env, Out, State>(this HashMap<K, Rws<Env, Out, State, T>> self, Action<T> action) => args => self.IterT(x => x.IterT(action)(args));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Rws<Env, Out, State, U>> MapT<K, T, Env, Out, State, U>(this HMap<K, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Rws<Env, Out, State, U>> MapT<K, T, Env, Out, State, U>(this HashMap<K, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, T> LiftT<K, T, Env, Out, State>(this HMap<K, Rws<Env, Out, State, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static Rws<Env, Out, State, T> LiftT<K, T, Env, Out, State>(this HashMap<K, Rws<Env, Out, State, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, T> LiftUnsafeT<K, T, Env, Out, State>(this HMap<K, Rws<Env, Out, State, T>> self ) where T : class => self.ValueT();
+        [Pure] public static Rws<Env, Out, State, T> LiftUnsafeT<K, T, Env, Out, State>(this HashMap<K, Rws<Env, Out, State, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
-        internal static T ValueT<K, T>(this HMap<K, Task<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+    public static partial class HashMapTMonadT {
+        internal static T ValueT<K, T>(this HashMap<K, Task<T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K>(this HMap<K, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K>(this HashMap<K, Task<int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<K, T>(this HMap<K, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<K, T>(this HashMap<K, Task<T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static HMap<K, Task<U>> BindT<K, T, U>(this HMap<K, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static HashMap<K, Task<U>> BindT<K, T, U>(this HashMap<K, Task<T>> self, Func<T, Task<U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<K, T>(this HMap<K, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<K, T>(this HashMap<K, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static HMap<K, Task<T>> FilterT<K, T>(this HMap<K, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static HashMap<K, Task<T>> FilterT<K, T>(this HashMap<K, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<K, T, V>(this HMap<K, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<K, T, V>(this HashMap<K, Task<T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<K, T>(this HMap<K, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<K, T>(this HashMap<K, Task<T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<K, T>(this HMap<K, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<K, T>(this HashMap<K, Task<T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static HMap<K, Task<U>> MapT<K, T, U>(this HMap<K, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static HashMap<K, Task<U>> MapT<K, T, U>(this HashMap<K, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<K, T>(this HMap<K, Task<T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<K, T>(this HashMap<K, Task<T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<K, T>(this HMap<K, Task<T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<K, T>(this HashMap<K, Task<T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -17739,51 +17739,51 @@ namespace LanguageExt.Trans
     /// 
     /// </summary>
     public static partial class TryOptionTMonadT {
-        internal static T ValueT<T, K>(this TryOption<HMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        internal static T ValueT<T, K>(this TryOption<HashMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K>(this TryOption<HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K>(this TryOption<HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<T, K>(this TryOption<HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<T, K>(this TryOption<HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static TryOption<HMap<K, U>> BindT<T, K, U>(this TryOption<HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static TryOption<HashMap<K, U>> BindT<T, K, U>(this TryOption<HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<T, K>(this TryOption<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<T, K>(this TryOption<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static TryOption<HMap<K, T>> FilterT<T, K>(this TryOption<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static TryOption<HashMap<K, T>> FilterT<T, K>(this TryOption<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<T, K, V>(this TryOption<HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<T, K, V>(this TryOption<HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<T, K>(this TryOption<HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<T, K>(this TryOption<HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<T, K>(this TryOption<HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<T, K>(this TryOption<HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static TryOption<HMap<K, U>> MapT<T, K, U>(this TryOption<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static TryOption<HashMap<K, U>> MapT<T, K, U>(this TryOption<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<T, K>(this TryOption<HMap<K, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<T, K>(this TryOption<HashMap<K, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<T, K>(this TryOption<HMap<K, T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<T, K>(this TryOption<HashMap<K, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -18489,51 +18489,51 @@ namespace LanguageExt.Trans
     /// 
     /// </summary>
     public static partial class TryTMonadT {
-        internal static T ValueT<T, K>(this Try<HMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        internal static T ValueT<T, K>(this Try<HashMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K>(this Try<HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K>(this Try<HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<T, K>(this Try<HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<T, K>(this Try<HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Try<HMap<K, U>> BindT<T, K, U>(this Try<HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Try<HashMap<K, U>> BindT<T, K, U>(this Try<HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<T, K>(this Try<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<T, K>(this Try<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Try<HMap<K, T>> FilterT<T, K>(this Try<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Try<HashMap<K, T>> FilterT<T, K>(this Try<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<T, K, V>(this Try<HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<T, K, V>(this Try<HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<T, K>(this Try<HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<T, K>(this Try<HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<T, K>(this Try<HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<T, K>(this Try<HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Try<HMap<K, U>> MapT<T, K, U>(this Try<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Try<HashMap<K, U>> MapT<T, K, U>(this Try<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<T, K>(this Try<HMap<K, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<T, K>(this Try<HashMap<K, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<T, K>(this Try<HMap<K, T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<T, K>(this Try<HashMap<K, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -19239,51 +19239,51 @@ namespace LanguageExt.Trans
     /// 
     /// </summary>
     public static partial class EitherTMonadT {
-        internal static T ValueT<L, T, K>(this Either<L, HMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        internal static T ValueT<L, T, K>(this Either<L, HashMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<L, K>(this Either<L, HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<L, K>(this Either<L, HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<L, T, K>(this Either<L, HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<L, T, K>(this Either<L, HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Either<L, HMap<K, U>> BindT<L, T, K, U>(this Either<L, HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Either<L, HashMap<K, U>> BindT<L, T, K, U>(this Either<L, HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<L, T, K>(this Either<L, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<L, T, K>(this Either<L, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Either<L, HMap<K, T>> FilterT<L, T, K>(this Either<L, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Either<L, HashMap<K, T>> FilterT<L, T, K>(this Either<L, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<L, T, K, V>(this Either<L, HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<L, T, K, V>(this Either<L, HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<L, T, K>(this Either<L, HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<L, T, K>(this Either<L, HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<L, T, K>(this Either<L, HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<L, T, K>(this Either<L, HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Either<L, HMap<K, U>> MapT<L, T, K, U>(this Either<L, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Either<L, HashMap<K, U>> MapT<L, T, K, U>(this Either<L, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<L, T, K>(this Either<L, HMap<K, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<L, T, K>(this Either<L, HashMap<K, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<L, T, K>(this Either<L, HMap<K, T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<L, T, K>(this Either<L, HashMap<K, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -19989,51 +19989,51 @@ namespace LanguageExt.Trans
     /// 
     /// </summary>
     public static partial class EitherUnsafeTMonadT {
-        internal static T ValueT<L, T, K>(this EitherUnsafe<L, HMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        internal static T ValueT<L, T, K>(this EitherUnsafe<L, HashMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<L, K>(this EitherUnsafe<L, HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<L, K>(this EitherUnsafe<L, HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<L, T, K>(this EitherUnsafe<L, HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<L, T, K>(this EitherUnsafe<L, HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static EitherUnsafe<L, HMap<K, U>> BindT<L, T, K, U>(this EitherUnsafe<L, HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static EitherUnsafe<L, HashMap<K, U>> BindT<L, T, K, U>(this EitherUnsafe<L, HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<L, T, K>(this EitherUnsafe<L, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<L, T, K>(this EitherUnsafe<L, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static EitherUnsafe<L, HMap<K, T>> FilterT<L, T, K>(this EitherUnsafe<L, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static EitherUnsafe<L, HashMap<K, T>> FilterT<L, T, K>(this EitherUnsafe<L, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<L, T, K, V>(this EitherUnsafe<L, HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<L, T, K, V>(this EitherUnsafe<L, HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<L, T, K>(this EitherUnsafe<L, HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<L, T, K>(this EitherUnsafe<L, HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<L, T, K>(this EitherUnsafe<L, HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<L, T, K>(this EitherUnsafe<L, HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static EitherUnsafe<L, HMap<K, U>> MapT<L, T, K, U>(this EitherUnsafe<L, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static EitherUnsafe<L, HashMap<K, U>> MapT<L, T, K, U>(this EitherUnsafe<L, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<L, T, K>(this EitherUnsafe<L, HMap<K, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<L, T, K>(this EitherUnsafe<L, HashMap<K, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<L, T, K>(this EitherUnsafe<L, HMap<K, T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<L, T, K>(this EitherUnsafe<L, HashMap<K, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -20739,51 +20739,51 @@ namespace LanguageExt.Trans
     /// 
     /// </summary>
     public static partial class ReaderTMonadT {
-        internal static Reader<Env, T> ValueT<Env, T, K>(this Reader<Env, HMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        internal static Reader<Env, T> ValueT<Env, T, K>(this Reader<Env, HashMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static Reader<Env, int> SumT<Env, K>(this Reader<Env, HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static Reader<Env, int> SumT<Env, K>(this Reader<Env, HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static Reader<Env, int> CountT<Env, T, K>(this Reader<Env, HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static Reader<Env, int> CountT<Env, T, K>(this Reader<Env, HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Reader<Env, HMap<K, U>> BindT<Env, T, K, U>(this Reader<Env, HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Reader<Env, HashMap<K, U>> BindT<Env, T, K, U>(this Reader<Env, HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static Reader<Env, bool> ExistsT<Env, T, K>(this Reader<Env, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static Reader<Env, bool> ExistsT<Env, T, K>(this Reader<Env, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Reader<Env, HMap<K, T>> FilterT<Env, T, K>(this Reader<Env, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Reader<Env, HashMap<K, T>> FilterT<Env, T, K>(this Reader<Env, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static Reader<Env, V> FoldT<Env, T, K, V>(this Reader<Env, HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static Reader<Env, V> FoldT<Env, T, K, V>(this Reader<Env, HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static Reader<Env, bool> ForAllT<Env, T, K>(this Reader<Env, HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static Reader<Env, bool> ForAllT<Env, T, K>(this Reader<Env, HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Reader<Env, Unit> IterT<Env, T, K>(this Reader<Env, HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Reader<Env, Unit> IterT<Env, T, K>(this Reader<Env, HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Reader<Env, HMap<K, U>> MapT<Env, T, K, U>(this Reader<Env, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Reader<Env, HashMap<K, U>> MapT<Env, T, K, U>(this Reader<Env, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<Env, T, K>(this Reader<Env, HMap<K, T>> self , Env liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        [Pure] public static T LiftT<Env, T, K>(this Reader<Env, HashMap<K, T>> self , Env liftArg) where T : struct => self.ValueT()(liftArg).Value;
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<Env, T, K>(this Reader<Env, HMap<K, T>> self , Env liftArg) where T : class => self.ValueT()(liftArg).Value;
+        [Pure] public static T LiftUnsafeT<Env, T, K>(this Reader<Env, HashMap<K, T>> self , Env liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     /// <summary>
     /// 
@@ -21339,51 +21339,51 @@ namespace LanguageExt.Trans
     /// 
     /// </summary>
     public static partial class WriterTMonadT {
-        internal static Writer<Out, T> ValueT<Out, T, K>(this Writer<Out, HMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        internal static Writer<Out, T> ValueT<Out, T, K>(this Writer<Out, HashMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static Writer<Out, int> SumT<Out, K>(this Writer<Out, HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static Writer<Out, int> SumT<Out, K>(this Writer<Out, HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static Writer<Out, int> CountT<Out, T, K>(this Writer<Out, HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static Writer<Out, int> CountT<Out, T, K>(this Writer<Out, HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Writer<Out, HMap<K, U>> BindT<Out, T, K, U>(this Writer<Out, HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Writer<Out, HashMap<K, U>> BindT<Out, T, K, U>(this Writer<Out, HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static Writer<Out, bool> ExistsT<Out, T, K>(this Writer<Out, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static Writer<Out, bool> ExistsT<Out, T, K>(this Writer<Out, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Writer<Out, HMap<K, T>> FilterT<Out, T, K>(this Writer<Out, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Writer<Out, HashMap<K, T>> FilterT<Out, T, K>(this Writer<Out, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static Writer<Out, V> FoldT<Out, T, K, V>(this Writer<Out, HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static Writer<Out, V> FoldT<Out, T, K, V>(this Writer<Out, HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static Writer<Out, bool> ForAllT<Out, T, K>(this Writer<Out, HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static Writer<Out, bool> ForAllT<Out, T, K>(this Writer<Out, HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Writer<Out, Unit> IterT<Out, T, K>(this Writer<Out, HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Writer<Out, Unit> IterT<Out, T, K>(this Writer<Out, HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Writer<Out, HMap<K, U>> MapT<Out, T, K, U>(this Writer<Out, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Writer<Out, HashMap<K, U>> MapT<Out, T, K, U>(this Writer<Out, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<Out, T, K>(this Writer<Out, HMap<K, T>> self ) where T : struct => self.ValueT()().Value;
+        [Pure] public static T LiftT<Out, T, K>(this Writer<Out, HashMap<K, T>> self ) where T : struct => self.ValueT()().Value;
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<Out, T, K>(this Writer<Out, HMap<K, T>> self ) where T : class => self.ValueT()().Value;
+        [Pure] public static T LiftUnsafeT<Out, T, K>(this Writer<Out, HashMap<K, T>> self ) where T : class => self.ValueT()().Value;
     }
     /// <summary>
     /// 
@@ -21939,51 +21939,51 @@ namespace LanguageExt.Trans
     /// 
     /// </summary>
     public static partial class StateTMonadT {
-        internal static State<State, T> ValueT<State, T, K>(this State<State, HMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        internal static State<State, T> ValueT<State, T, K>(this State<State, HashMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static State<State, int> SumT<State, K>(this State<State, HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static State<State, int> SumT<State, K>(this State<State, HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static State<State, int> CountT<State, T, K>(this State<State, HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static State<State, int> CountT<State, T, K>(this State<State, HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static State<State, HMap<K, U>> BindT<State, T, K, U>(this State<State, HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static State<State, HashMap<K, U>> BindT<State, T, K, U>(this State<State, HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static State<State, bool> ExistsT<State, T, K>(this State<State, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static State<State, bool> ExistsT<State, T, K>(this State<State, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static State<State, HMap<K, T>> FilterT<State, T, K>(this State<State, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static State<State, HashMap<K, T>> FilterT<State, T, K>(this State<State, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static State<State, V> FoldT<State, T, K, V>(this State<State, HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static State<State, V> FoldT<State, T, K, V>(this State<State, HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static State<State, bool> ForAllT<State, T, K>(this State<State, HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static State<State, bool> ForAllT<State, T, K>(this State<State, HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static State<State, Unit> IterT<State, T, K>(this State<State, HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static State<State, Unit> IterT<State, T, K>(this State<State, HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static State<State, HMap<K, U>> MapT<State, T, K, U>(this State<State, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static State<State, HashMap<K, U>> MapT<State, T, K, U>(this State<State, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<State, T, K>(this State<State, HMap<K, T>> self , State liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        [Pure] public static T LiftT<State, T, K>(this State<State, HashMap<K, T>> self , State liftArg) where T : struct => self.ValueT()(liftArg).Value;
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<State, T, K>(this State<State, HMap<K, T>> self , State liftArg) where T : class => self.ValueT()(liftArg).Value;
+        [Pure] public static T LiftUnsafeT<State, T, K>(this State<State, HashMap<K, T>> self , State liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     /// <summary>
     /// 
@@ -22539,51 +22539,51 @@ namespace LanguageExt.Trans
     /// 
     /// </summary>
     public static partial class RwsTMonadT {
-        internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T, K>(this Rws<Env, Out, State, HMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        internal static Rws<Env, Out, State, T> ValueT<Env, Out, State, T, K>(this Rws<Env, Out, State, HashMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, int> SumT<Env, Out, State, K>(this Rws<Env, Out, State, HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static Rws<Env, Out, State, int> SumT<Env, Out, State, K>(this Rws<Env, Out, State, HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, int> CountT<Env, Out, State, T, K>(this Rws<Env, Out, State, HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static Rws<Env, Out, State, int> CountT<Env, Out, State, T, K>(this Rws<Env, Out, State, HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, HMap<K, U>> BindT<Env, Out, State, T, K, U>(this Rws<Env, Out, State, HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Rws<Env, Out, State, HashMap<K, U>> BindT<Env, Out, State, T, K, U>(this Rws<Env, Out, State, HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, bool> ExistsT<Env, Out, State, T, K>(this Rws<Env, Out, State, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static Rws<Env, Out, State, bool> ExistsT<Env, Out, State, T, K>(this Rws<Env, Out, State, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, HMap<K, T>> FilterT<Env, Out, State, T, K>(this Rws<Env, Out, State, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Rws<Env, Out, State, HashMap<K, T>> FilterT<Env, Out, State, T, K>(this Rws<Env, Out, State, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, V> FoldT<Env, Out, State, T, K, V>(this Rws<Env, Out, State, HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static Rws<Env, Out, State, V> FoldT<Env, Out, State, T, K, V>(this Rws<Env, Out, State, HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, bool> ForAllT<Env, Out, State, T, K>(this Rws<Env, Out, State, HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static Rws<Env, Out, State, bool> ForAllT<Env, Out, State, T, K>(this Rws<Env, Out, State, HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Rws<Env, Out, State, Unit> IterT<Env, Out, State, T, K>(this Rws<Env, Out, State, HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Rws<Env, Out, State, Unit> IterT<Env, Out, State, T, K>(this Rws<Env, Out, State, HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Rws<Env, Out, State, HMap<K, U>> MapT<Env, Out, State, T, K, U>(this Rws<Env, Out, State, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Rws<Env, Out, State, HashMap<K, U>> MapT<Env, Out, State, T, K, U>(this Rws<Env, Out, State, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<Env, Out, State, T, K>(this Rws<Env, Out, State, HMap<K, T>> self , Tuple<Env,State> liftArg) where T : struct => self.ValueT()(liftArg).Value;
+        [Pure] public static T LiftT<Env, Out, State, T, K>(this Rws<Env, Out, State, HashMap<K, T>> self , Tuple<Env,State> liftArg) where T : struct => self.ValueT()(liftArg).Value;
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<Env, Out, State, T, K>(this Rws<Env, Out, State, HMap<K, T>> self , Tuple<Env,State> liftArg) where T : class => self.ValueT()(liftArg).Value;
+        [Pure] public static T LiftUnsafeT<Env, Out, State, T, K>(this Rws<Env, Out, State, HashMap<K, T>> self , Tuple<Env,State> liftArg) where T : class => self.ValueT()(liftArg).Value;
     }
     /// <summary>
     /// 
@@ -23139,51 +23139,51 @@ namespace LanguageExt.Trans
     /// 
     /// </summary>
     public static partial class TaskTMonadT {
-        internal static T ValueT<T, K>(this Task<HMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
+        internal static T ValueT<T, K>(this Task<HashMap<K, T>> self) => self.MapT(x=> x.InnerValue()).InnerValue();
         /// <summary>
         /// Sum
         /// </summary>
-        [Pure] public static int SumT<K>(this Task<HMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
+        [Pure] public static int SumT<K>(this Task<HashMap<K, int>> self) => self.MapT(x => x.SumT()).SumT();
         /// <summary>
         /// Count
         /// </summary>
-        [Pure] public static int CountT<T, K>(this Task<HMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
+        [Pure] public static int CountT<T, K>(this Task<HashMap<K, T>> self) => self.MapT(x => x.CountT()).SumT();
         /// <summary>
         /// Bind
         /// </summary>
-        [Pure] public static Task<HMap<K, U>> BindT<T, K, U>(this Task<HMap<K, T>> self, Func<T, HMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
+        [Pure] public static Task<HashMap<K, U>> BindT<T, K, U>(this Task<HashMap<K, T>> self, Func<T, HashMap<K, U>> binder) => self.MapT(x => x.BindT(binder));
         /// <summary>
         /// Exists
         /// </summary>
-        [Pure] public static bool ExistsT<T, K>(this Task<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
+        [Pure] public static bool ExistsT<T, K>(this Task<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.ExistsT(pred)).ExistsT(x=>x);
         /// <summary>
         /// Filter
         /// </summary>
-        [Pure] public static Task<HMap<K, T>> FilterT<T, K>(this Task<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] public static Task<HashMap<K, T>> FilterT<T, K>(this Task<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// Fold
         /// </summary>
-        [Pure] public static V FoldT<T, K, V>(this Task<HMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
+        [Pure] public static V FoldT<T, K, V>(this Task<HashMap<K, T>> self, V state, Func<V, T, V> fold) => self.FoldT(state,(s,x) => x.FoldT(s, fold));
         /// <summary>
         /// ForAll
         /// </summary>
-        [Pure] public static bool ForAllT<T, K>(this Task<HMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
+        [Pure] public static bool ForAllT<T, K>(this Task<HashMap<K, T>> self, Func<T, bool> pred) => self.ForAllT(pred);
         /// <summary>
         /// Iter
         /// </summary>
-        public static Unit IterT<T, K>(this Task<HMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
+        public static Unit IterT<T, K>(this Task<HashMap<K, T>> self, Action<T> action) => self.IterT(x => x.IterT(action));
         /// <summary>
         /// Map
         /// </summary>
-        [Pure] public static Task<HMap<K, U>> MapT<T, K, U>(this Task<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] public static Task<HashMap<K, U>> MapT<T, K, U>(this Task<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Lift
         /// </summary>
-        [Pure] public static T LiftT<T, K>(this Task<HMap<K, T>> self ) where T : struct => self.ValueT();
+        [Pure] public static T LiftT<T, K>(this Task<HashMap<K, T>> self ) where T : struct => self.ValueT();
         /// <summary>
         /// LiftUnsafe
         /// </summary>
-        [Pure] public static T LiftUnsafeT<T, K>(this Task<HMap<K, T>> self ) where T : class => self.ValueT();
+        [Pure] public static T LiftUnsafeT<T, K>(this Task<HashMap<K, T>> self ) where T : class => self.ValueT();
     }
     /// <summary>
     /// 
@@ -23726,19 +23726,19 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapMonad {
+    public static partial class HashMapMonad {
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] internal static HMap<K, U> Select<K, T, U>(this HMap<K, T> self, Func<T, U> mapper) => self.Map(mapper);
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] internal static HashMap<K, U> Select<K, T, U>(this HashMap<K, T> self, Func<T, U> mapper) => self.Map(mapper);
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] internal static HMap<K, T> Where<K, T>(this HMap<K, T> self, Func<T, bool> pred) => self.Filter(pred);
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] internal static HashMap<K, T> Where<K, T>(this HashMap<K, T> self, Func<T, bool> pred) => self.Filter(pred);
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] internal static HMap<K, V> SelectMany<K, T, U, V>(this HMap<K, T> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] internal static HashMap<K, V> SelectMany<K, T, U, V>(this HashMap<K, T> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(t => project(t, bind(t)));
     }
     /// <summary>
     /// 
@@ -23985,15 +23985,15 @@ namespace LanguageExt.Trans
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<HMap<K, U>> Select<T, K, U>(this IEnumerable<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<HashMap<K, U>> Select<T, K, U>(this IEnumerable<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<HMap<K, T>> Where<T, K>(this IEnumerable<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<HashMap<K, T>> Where<T, K>(this IEnumerable<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<HMap<K, V>> SelectMany<T, K, U, V>(this IEnumerable<HMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static IEnumerable<HashMap<K, V>> SelectMany<T, K, U, V>(this IEnumerable<HashMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
@@ -24240,15 +24240,15 @@ namespace LanguageExt.Trans
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<HMap<K, U>> Select<T, K, U>(this Option<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<HashMap<K, U>> Select<T, K, U>(this Option<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<HMap<K, T>> Where<T, K>(this Option<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<HashMap<K, T>> Where<T, K>(this Option<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<HMap<K, V>> SelectMany<T, K, U, V>(this Option<HMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Option<HashMap<K, V>> SelectMany<T, K, U, V>(this Option<HashMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
@@ -24495,15 +24495,15 @@ namespace LanguageExt.Trans
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<HMap<K, U>> Select<T, K, U>(this OptionUnsafe<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<HashMap<K, U>> Select<T, K, U>(this OptionUnsafe<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<HMap<K, T>> Where<T, K>(this OptionUnsafe<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<HashMap<K, T>> Where<T, K>(this OptionUnsafe<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<HMap<K, V>> SelectMany<T, K, U, V>(this OptionUnsafe<HMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static OptionUnsafe<HashMap<K, V>> SelectMany<T, K, U, V>(this OptionUnsafe<HashMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
@@ -24750,15 +24750,15 @@ namespace LanguageExt.Trans
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<HMap<K, U>> Select<T, K, U>(this Lst<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<HashMap<K, U>> Select<T, K, U>(this Lst<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<HMap<K, T>> Where<T, K>(this Lst<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<HashMap<K, T>> Where<T, K>(this Lst<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<HMap<K, V>> SelectMany<T, K, U, V>(this Lst<HMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Lst<HashMap<K, V>> SelectMany<T, K, U, V>(this Lst<HashMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
@@ -25005,15 +25005,15 @@ namespace LanguageExt.Trans
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, HMap<K, U>> Select<K, T, U>(this Map<K, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, HashMap<K, U>> Select<K, T, U>(this Map<K, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, HMap<K, T>> Where<K, T>(this Map<K, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, HashMap<K, T>> Where<K, T>(this Map<K, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, HMap<K, V>> SelectMany<K, T, U, V>(this Map<K, HMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Map<K, HashMap<K, V>> SelectMany<K, T, U, V>(this Map<K, HashMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
@@ -25171,257 +25171,257 @@ namespace LanguageExt.Trans
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
+    public static partial class HashMapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, IEnumerable<U>> Select<K, T, U>(this HMap<K, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, IEnumerable<U>> Select<K, T, U>(this HashMap<K, IEnumerable<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, IEnumerable<T>> Where<K, T>(this HMap<K, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, IEnumerable<T>> Where<K, T>(this HashMap<K, IEnumerable<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, IEnumerable<V>> SelectMany<K, T, U, V>(this HMap<K, IEnumerable<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, IEnumerable<V>> SelectMany<K, T, U, V>(this HashMap<K, IEnumerable<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
+    public static partial class HashMapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Option<U>> Select<K, T, U>(this HMap<K, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Option<U>> Select<K, T, U>(this HashMap<K, Option<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Option<T>> Where<K, T>(this HMap<K, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Option<T>> Where<K, T>(this HashMap<K, Option<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Option<V>> SelectMany<K, T, U, V>(this HMap<K, Option<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Option<V>> SelectMany<K, T, U, V>(this HashMap<K, Option<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
+    public static partial class HashMapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, OptionUnsafe<U>> Select<K, T, U>(this HMap<K, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, OptionUnsafe<U>> Select<K, T, U>(this HashMap<K, OptionUnsafe<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, OptionUnsafe<T>> Where<K, T>(this HMap<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, OptionUnsafe<T>> Where<K, T>(this HashMap<K, OptionUnsafe<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, OptionUnsafe<V>> SelectMany<K, T, U, V>(this HMap<K, OptionUnsafe<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, OptionUnsafe<V>> SelectMany<K, T, U, V>(this HashMap<K, OptionUnsafe<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
+    public static partial class HashMapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Lst<U>> Select<K, T, U>(this HMap<K, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Lst<U>> Select<K, T, U>(this HashMap<K, Lst<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Lst<T>> Where<K, T>(this HMap<K, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Lst<T>> Where<K, T>(this HashMap<K, Lst<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Lst<V>> SelectMany<K, T, U, V>(this HMap<K, Lst<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Lst<V>> SelectMany<K, T, U, V>(this HashMap<K, Lst<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
+    public static partial class HashMapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Map<K, U>> Select<K, T, U>(this HMap<K, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Map<K, U>> Select<K, T, U>(this HashMap<K, Map<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Map<K, T>> Where<K, T>(this HMap<K, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Map<K, T>> Where<K, T>(this HashMap<K, Map<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Map<K, V>> SelectMany<K, T, U, V>(this HMap<K, Map<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Map<K, V>> SelectMany<K, T, U, V>(this HashMap<K, Map<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
+    public static partial class HashMapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, HMap<K, U>> Select<K, T, U>(this HMap<K, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, HashMap<K, U>> Select<K, T, U>(this HashMap<K, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, HMap<K, T>> Where<K, T>(this HMap<K, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, HashMap<K, T>> Where<K, T>(this HashMap<K, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, HMap<K, V>> SelectMany<K, T, U, V>(this HMap<K, HMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, HashMap<K, V>> SelectMany<K, T, U, V>(this HashMap<K, HashMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
+    public static partial class HashMapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, TryOption<U>> Select<K, T, U>(this HMap<K, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, TryOption<U>> Select<K, T, U>(this HashMap<K, TryOption<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, TryOption<T>> Where<K, T>(this HMap<K, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, TryOption<T>> Where<K, T>(this HashMap<K, TryOption<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, TryOption<V>> SelectMany<K, T, U, V>(this HMap<K, TryOption<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, TryOption<V>> SelectMany<K, T, U, V>(this HashMap<K, TryOption<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
+    public static partial class HashMapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Try<U>> Select<K, T, U>(this HMap<K, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Try<U>> Select<K, T, U>(this HashMap<K, Try<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Try<T>> Where<K, T>(this HMap<K, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Try<T>> Where<K, T>(this HashMap<K, Try<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Try<V>> SelectMany<K, T, U, V>(this HMap<K, Try<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Try<V>> SelectMany<K, T, U, V>(this HashMap<K, Try<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
+    public static partial class HashMapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Either<L, U>> Select<K, T, L, U>(this HMap<K, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Either<L, U>> Select<K, T, L, U>(this HashMap<K, Either<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Either<L, T>> Where<K, T, L>(this HMap<K, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Either<L, T>> Where<K, T, L>(this HashMap<K, Either<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Either<L, V>> SelectMany<K, T, L, U, V>(this HMap<K, Either<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Either<L, V>> SelectMany<K, T, L, U, V>(this HashMap<K, Either<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
+    public static partial class HashMapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, EitherUnsafe<L, U>> Select<K, T, L, U>(this HMap<K, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, EitherUnsafe<L, U>> Select<K, T, L, U>(this HashMap<K, EitherUnsafe<L, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, EitherUnsafe<L, T>> Where<K, T, L>(this HMap<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, EitherUnsafe<L, T>> Where<K, T, L>(this HashMap<K, EitherUnsafe<L, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, EitherUnsafe<L, V>> SelectMany<K, T, L, U, V>(this HMap<K, EitherUnsafe<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, EitherUnsafe<L, V>> SelectMany<K, T, L, U, V>(this HashMap<K, EitherUnsafe<L, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
+    public static partial class HashMapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Reader<Env, U>> Select<K, T, Env, U>(this HMap<K, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Reader<Env, U>> Select<K, T, Env, U>(this HashMap<K, Reader<Env, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Reader<Env, T>> Where<K, T, Env>(this HMap<K, Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Reader<Env, T>> Where<K, T, Env>(this HashMap<K, Reader<Env, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Reader<Env, V>> SelectMany<K, T, Env, U, V>(this HMap<K, Reader<Env, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Reader<Env, V>> SelectMany<K, T, Env, U, V>(this HashMap<K, Reader<Env, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
+    public static partial class HashMapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Writer<Out, U>> Select<K, T, Out, U>(this HMap<K, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Writer<Out, U>> Select<K, T, Out, U>(this HashMap<K, Writer<Out, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Writer<Out, T>> Where<K, T, Out>(this HMap<K, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Writer<Out, T>> Where<K, T, Out>(this HashMap<K, Writer<Out, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Writer<Out, V>> SelectMany<K, T, Out, U, V>(this HMap<K, Writer<Out, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Writer<Out, V>> SelectMany<K, T, Out, U, V>(this HashMap<K, Writer<Out, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
+    public static partial class HashMapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, State<State, U>> Select<K, T, State, U>(this HMap<K, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, State<State, U>> Select<K, T, State, U>(this HashMap<K, State<State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, State<State, T>> Where<K, T, State>(this HMap<K, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, State<State, T>> Where<K, T, State>(this HashMap<K, State<State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, State<State, V>> SelectMany<K, T, State, U, V>(this HMap<K, State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, State<State, V>> SelectMany<K, T, State, U, V>(this HashMap<K, State<State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
+    public static partial class HashMapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Rws<Env, Out, State, U>> Select<K, T, Env, Out, State, U>(this HMap<K, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Rws<Env, Out, State, U>> Select<K, T, Env, Out, State, U>(this HashMap<K, Rws<Env, Out, State, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Rws<Env, Out, State, T>> Where<K, T, Env, Out, State>(this HMap<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Rws<Env, Out, State, T>> Where<K, T, Env, Out, State>(this HashMap<K, Rws<Env, Out, State, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Rws<Env, Out, State, V>> SelectMany<K, T, Env, Out, State, U, V>(this HMap<K, Rws<Env, Out, State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Rws<Env, Out, State, V>> SelectMany<K, T, Env, Out, State, U, V>(this HashMap<K, Rws<Env, Out, State, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
     /// </summary>
-    public static partial class HMapTMonadT {
+    public static partial class HashMapTMonadT {
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Task<U>> Select<K, T, U>(this HMap<K, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Task<U>> Select<K, T, U>(this HashMap<K, Task<T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Task<T>> Where<K, T>(this HMap<K, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Task<T>> Where<K, T>(this HashMap<K, Task<T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HMap<K, Task<V>> SelectMany<K, T, U, V>(this HMap<K, Task<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static HashMap<K, Task<V>> SelectMany<K, T, U, V>(this HashMap<K, Task<T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
@@ -25515,15 +25515,15 @@ namespace LanguageExt.Trans
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<HMap<K, U>> Select<T, K, U>(this TryOption<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<HashMap<K, U>> Select<T, K, U>(this TryOption<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<HMap<K, T>> Where<T, K>(this TryOption<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<HashMap<K, T>> Where<T, K>(this TryOption<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<HMap<K, V>> SelectMany<T, K, U, V>(this TryOption<HMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static TryOption<HashMap<K, V>> SelectMany<T, K, U, V>(this TryOption<HashMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
@@ -25770,15 +25770,15 @@ namespace LanguageExt.Trans
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<HMap<K, U>> Select<T, K, U>(this Try<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<HashMap<K, U>> Select<T, K, U>(this Try<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<HMap<K, T>> Where<T, K>(this Try<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<HashMap<K, T>> Where<T, K>(this Try<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<HMap<K, V>> SelectMany<T, K, U, V>(this Try<HMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Try<HashMap<K, V>> SelectMany<T, K, U, V>(this Try<HashMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
@@ -26025,15 +26025,15 @@ namespace LanguageExt.Trans
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, HMap<K, U>> Select<L, T, K, U>(this Either<L, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, HashMap<K, U>> Select<L, T, K, U>(this Either<L, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, HMap<K, T>> Where<L, T, K>(this Either<L, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, HashMap<K, T>> Where<L, T, K>(this Either<L, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, HMap<K, V>> SelectMany<L, T, K, U, V>(this Either<L, HMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Either<L, HashMap<K, V>> SelectMany<L, T, K, U, V>(this Either<L, HashMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
@@ -26280,15 +26280,15 @@ namespace LanguageExt.Trans
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, HMap<K, U>> Select<L, T, K, U>(this EitherUnsafe<L, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, HashMap<K, U>> Select<L, T, K, U>(this EitherUnsafe<L, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, HMap<K, T>> Where<L, T, K>(this EitherUnsafe<L, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, HashMap<K, T>> Where<L, T, K>(this EitherUnsafe<L, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, HMap<K, V>> SelectMany<L, T, K, U, V>(this EitherUnsafe<L, HMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static EitherUnsafe<L, HashMap<K, V>> SelectMany<L, T, K, U, V>(this EitherUnsafe<L, HashMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
@@ -26535,15 +26535,15 @@ namespace LanguageExt.Trans
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, HMap<K, U>> Select<Env, T, K, U>(this Reader<Env, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, HashMap<K, U>> Select<Env, T, K, U>(this Reader<Env, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, HMap<K, T>> Where<Env, T, K>(this Reader<Env, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, HashMap<K, T>> Where<Env, T, K>(this Reader<Env, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, HMap<K, V>> SelectMany<Env, T, K, U, V>(this Reader<Env, HMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Reader<Env, HashMap<K, V>> SelectMany<Env, T, K, U, V>(this Reader<Env, HashMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
@@ -26739,15 +26739,15 @@ namespace LanguageExt.Trans
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, HMap<K, U>> Select<Out, T, K, U>(this Writer<Out, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, HashMap<K, U>> Select<Out, T, K, U>(this Writer<Out, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, HMap<K, T>> Where<Out, T, K>(this Writer<Out, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, HashMap<K, T>> Where<Out, T, K>(this Writer<Out, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, HMap<K, V>> SelectMany<Out, T, K, U, V>(this Writer<Out, HMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Writer<Out, HashMap<K, V>> SelectMany<Out, T, K, U, V>(this Writer<Out, HashMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
@@ -26943,15 +26943,15 @@ namespace LanguageExt.Trans
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, HMap<K, U>> Select<State, T, K, U>(this State<State, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, HashMap<K, U>> Select<State, T, K, U>(this State<State, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, HMap<K, T>> Where<State, T, K>(this State<State, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, HashMap<K, T>> Where<State, T, K>(this State<State, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, HMap<K, V>> SelectMany<State, T, K, U, V>(this State<State, HMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static State<State, HashMap<K, V>> SelectMany<State, T, K, U, V>(this State<State, HashMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
@@ -27147,15 +27147,15 @@ namespace LanguageExt.Trans
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, HMap<K, U>> Select<Env, Out, State, T, K, U>(this Rws<Env, Out, State, HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, HashMap<K, U>> Select<Env, Out, State, T, K, U>(this Rws<Env, Out, State, HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, HMap<K, T>> Where<Env, Out, State, T, K>(this Rws<Env, Out, State, HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, HashMap<K, T>> Where<Env, Out, State, T, K>(this Rws<Env, Out, State, HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, HMap<K, V>> SelectMany<Env, Out, State, T, K, U, V>(this Rws<Env, Out, State, HMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Rws<Env, Out, State, HashMap<K, V>> SelectMany<Env, Out, State, T, K, U, V>(this Rws<Env, Out, State, HashMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 
@@ -27351,15 +27351,15 @@ namespace LanguageExt.Trans
         /// <summary>
         /// Select
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<HMap<K, U>> Select<T, K, U>(this Task<HMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<HashMap<K, U>> Select<T, K, U>(this Task<HashMap<K, T>> self, Func<T, U> mapper) => self.MapT(x => x.MapT(mapper));
         /// <summary>
         /// Where
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<HMap<K, T>> Where<T, K>(this Task<HMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<HashMap<K, T>> Where<T, K>(this Task<HashMap<K, T>> self, Func<T, bool> pred) => self.MapT(x => x.FilterT(pred));
         /// <summary>
         /// SelectMany
         /// </summary>
-        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<HMap<K, V>> SelectMany<T, K, U, V>(this Task<HMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
+        [Pure] [EditorBrowsable(EditorBrowsableState.Never)] public static Task<HashMap<K, V>> SelectMany<T, K, U, V>(this Task<HashMap<K, T>> self, Func<T, U> bind, Func<T,U,V> project) => self.MapT(x => x.SelectMany(bind,project));
     }
     /// <summary>
     /// 

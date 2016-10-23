@@ -20,7 +20,7 @@ namespace LanguageExt
     /// <remarks>To invoke directly, call x.Try()</remarks>
     /// <returns>A value that represents the outcome of the computation, either
     /// Success or Failure</returns>
-    public struct Try<A> : Monad<A>, Optional<A>
+    public struct Try<A>
     {
         static readonly Func<A> defaultA = () => default(A);
 
@@ -559,117 +559,6 @@ namespace LanguageExt
                     : raise<V>(new BottomException());
             });
         }
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Monad<B> Bind<B>(Monad<A> ma, Func<A, Monad<B>> f)
-        {
-            var ta = AsTry(ma).Try();
-            return ta.IsFaulted
-                ? default(Try<B>).Fail(ta.Exception)
-                : f(ta.Value);
-        }
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public MB Bind<MB, B>(Monad<A> ma, Func<A, MB> f) where MB : struct, Monad<B>
-        {
-            var ta = AsTry(ma).Try();
-            return ta.IsFaulted
-                ? (MB)default(MB).Fail(ta.Exception)
-                : f(ta.Value);
-        }
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Monad<A> Fail(Exception err) =>
-            Try<A>(() => { throw new InnerException(err); });
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Monad<A> Fail<F>(F err = default(F)) =>
-            Try<A>(() => { throw BottomException.Default; });
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public S Fold<S>(Foldable<A> fa, S state, Func<S, A, S> f)
-        {
-            var ta = AsTry(fa).Run();
-            return f(state, ta);
-        }
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public S FoldBack<S>(Foldable<A> fa, S state, Func<S, A, S> f)
-        {
-            var ta = AsTry(fa).Run();
-            return f(state, ta);
-        }
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool IsNoneA(Optional<A> a) =>
-            AsTry(a).Try().IsFaulted;
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool IsSomeA(Optional<A> a) =>
-            !IsNoneA(a);
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool IsUnsafe(Optional<A> a) =>
-            true;
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Functor<B> Map<B>(Functor<A> fa, Func<A, B> f) =>
-            Try(() => f(AsTry(fa).Run()));
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public B Match<B>(Optional<A> a, Func<A, B> Some, Func<B> None) =>
-            AsTry(a).ToOption().Match(Some, None);
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public B MatchUnsafe<B>(Optional<A> a, Func<A, B> Some, Func<B> None) =>
-            AsTry(a).ToOption().MatchUnsafe(Some, None);
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Monad<A> Return(A x, params A[] xs) =>
-            Try(() => x);
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Monad<A> Return(IEnumerable<A> xs)
-        {
-            var x = xs.Take(1).ToArray();
-            return x.Length == 0
-                ? Try(() => raise<A>(new BottomException()))
-                : Try(() => x[0]);
-        }
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        static Try<A> AsTry(Optional<A> a) => (Try<A>)a;
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        static Try<A> AsTry(Monad<A> a) => (Try<A>)a;
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        static Try<A> AsTry(Functor<A> a) => (Try<A>)a;
-
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        static Try<A> AsTry(Foldable<A> a) => (Try<A>)a;
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Monad<A> Zero() =>
-            Try(() => default(A));
 
         /// <summary>
         /// Implicit conversion operator from TryDelegate to Try

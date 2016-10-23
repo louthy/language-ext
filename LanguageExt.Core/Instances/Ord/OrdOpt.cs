@@ -7,8 +7,9 @@ namespace LanguageExt.Instances
     /// Compare the equality and ordering of any type in the Optional
     /// type-class
     /// </summary>
-    public struct OrdOpt<ORD, A> : Ord<Optional<A>>
-        where ORD : struct, Ord<A>
+    public struct OrdOpt<ORD, OPTION, OA, A> : Ord<OA>
+        where ORD    : struct, Ord<A>
+        where OPTION : struct, Optional<OA, A>
     {
         /// <summary>
         /// Equality test
@@ -16,8 +17,8 @@ namespace LanguageExt.Instances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
-        public bool Equals(Optional<A> x, Optional<A> y) =>
-            default(EqOpt<ORD, A>).Equals(x, y);
+        public bool Equals(OA x, OA y) =>
+            default(EqOpt<ORD, OPTION, OA, A>).Equals(x, y);
 
         /// <summary>
         /// Compare two values
@@ -31,15 +32,20 @@ namespace LanguageExt.Instances
         /// 
         /// if x equals y       : 0
         /// </returns>
-        public int Compare(Optional<A> mx, Optional<A> my)
+        public int Compare(OA mx, OA my)
         {
-            if (mx.IsNoneA(mx) && my.IsNoneA(my)) return 0;
-            if (mx.IsSomeA(mx) && my.IsNoneA(my)) return 1;
-            if (mx.IsNoneA(mx) && my.IsSomeA(my)) return -1;
+            var xIsSome = default(OPTION).IsSome(mx);
+            var yIsSome = default(OPTION).IsSome(my);
+            var xIsNone = !xIsSome;
+            var yIsNone = !yIsSome;
 
-            return mx.Match(mx,
+            if (xIsNone && yIsNone) return 0;
+            if (xIsSome && yIsNone) return 1;
+            if (xIsNone && yIsSome) return -1;
+
+            return default(OPTION).Match(mx,
                 Some: a =>
-                    my.Match(my,
+                    default(OPTION).Match(my, 
                         Some: b => compare<ORD, A>(a, b),
                         None: () => 0),
                 None: () => 0);

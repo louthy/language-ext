@@ -9,9 +9,10 @@ namespace LanguageExt.Instances
     /// Compare the equality of any type in the Choice type-class.  Taking into
     /// account the ordering of both possible bound values.
     /// </summary>
-    public struct OrdChoice<ORDA, ORDB, A, B> : Ord<Choice<A, B>>
-        where ORDA : struct, Ord<A>
-        where ORDB : struct, Ord<B>
+    public struct OrdChoice<ORDA, ORDB, CHOICE, CH, A, B> : Ord<CH>
+        where CHOICE   : struct, Choice<CH, A, B>
+        where ORDA     : struct, Ord<A>
+        where ORDB     : struct, Ord<B>
     {
         /// <summary>
         /// Compare two values
@@ -23,14 +24,14 @@ namespace LanguageExt.Instances
         /// if x less than y    : -1
         /// if x equals y       : 0
         /// </returns>
-        public int Compare(Choice<A, B> x, Choice<A, B> y) =>
-            x.Match( x,
+        public int Compare(CH x, CH y) =>
+            default(CHOICE).Match( x,
                 Choice1: a =>
-                    y.Match(y, Choice1: b => compare<ORDA, A>(a, b),
-                               Choice2: _ => 1),
+                    default(CHOICE).Match(y, Choice1: b => compare<ORDA, A>(a, b),
+                                             Choice2: _ => 1),
                 Choice2: a =>
-                    y.Match(y, Choice1: _ => -1,
-                               Choice2: b => compare<ORDB, B>(a, b)));
+                    default(CHOICE).Match(y, Choice1: _ => -1,
+                                             Choice2: b => compare<ORDB, B>(a, b)));
 
         /// <summary>
         /// Equality test
@@ -38,22 +39,23 @@ namespace LanguageExt.Instances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
-        public bool Equals(Choice<A, B> x, Choice<A, B> y) =>
-            x.Match(x,
+        public bool Equals(CH x, CH y) =>
+            default(CHOICE).Match(x,
                 Choice1: a =>
-                    y.Match(y, Choice1: b => equals<ORDA, A>(a, b),
-                               Choice2: _ => false),
+                    default(CHOICE).Match(y, Choice1: b => equals<ORDA, A>(a, b),
+                                             Choice2: _ => false),
                 Choice2: a =>
-                    y.Match(y, Choice1: _ => false,
-                               Choice2: b => equals<ORDB, B>(a, b)));
+                    default(CHOICE).Match(y, Choice1: _ => false,
+                                             Choice2: b => equals<ORDB, B>(a, b)));
     }
 
     /// <summary>
     /// Compare the equality of any type in the Choice type-class.  Taking into
     /// account only the 'success bound value' of B.
     /// </summary>
-    public struct OrdChoice<ORD, A, B> : Ord<Choice<A, B>>
-        where ORD : struct, Ord<B>
+    public struct OrdChoice<ORD, CHOICE, CH, A, B> : Ord<CH>
+        where CHOICE : struct, Choice<CH, A, B>
+        where ORD    : struct, Ord<B>
     {
         /// <summary>
         /// Compare two values
@@ -65,13 +67,13 @@ namespace LanguageExt.Instances
         /// if x less than y    : -1
         /// if x equals y       : 0
         /// </returns>
-        public int Compare(Choice<A, B> x, Choice<A, B> y) =>
-            x.Match(x,
+        public int Compare(CH x, CH y) =>
+            default(CHOICE).Match(x,
                 Choice1: a =>
-                    y.Match(y, Choice1: b => 0,
+                    default(CHOICE).Match(y, Choice1: b => 0,
                                Choice2: _ => 1),
                 Choice2: a =>
-                    y.Match(y, Choice1: _ => -1,
+                    default(CHOICE).Match(y, Choice1: _ => -1,
                                Choice2: b => compare<ORD, B>(a, b)));
 
         /// <summary>
@@ -80,13 +82,13 @@ namespace LanguageExt.Instances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
-        public bool Equals(Choice<A, B> x, Choice<A, B> y) =>
-            x.Match(x,
+        public bool Equals(CH x, CH y) =>
+            default(CHOICE).Match(x,
                 Choice1: a =>
-                    y.Match(y, Choice1: b => true,
+                    default(CHOICE).Match(y, Choice1: b => true,
                                Choice2: _ => false),
                 Choice2: a =>
-                    y.Match(y, Choice1: _ => false,
+                    default(CHOICE).Match(y, Choice1: _ => false,
                                Choice2: b => equals<ORD, B>(a, b)));
     }
 }

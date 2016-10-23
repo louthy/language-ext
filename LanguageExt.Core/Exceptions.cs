@@ -96,7 +96,7 @@ namespace LanguageExt
         /// Ctor
         /// </summary>
         public ResultIsNullException()
-            : base("Result is null.  Not allowed with Option<T> or Either<R,L>.")
+            : base("Result is null.")
         {
         }
 

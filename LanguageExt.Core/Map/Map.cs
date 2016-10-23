@@ -21,12 +21,7 @@ namespace LanguageExt
 #endif
     public struct Map<K, V> :
         IEnumerable<IMapItem<K, V>>,
-        IReadOnlyDictionary<K, V>,
-        Functor<V>,
-        Foldable<V>,
-        Monoid<Map<K, V>>,
-        Difference<Map<K, V>>,
-        Eq<Map<K,V>>
+        IReadOnlyDictionary<K, V>
     {
         readonly MapInternal<K, V> value;
 
@@ -474,49 +469,8 @@ namespace LanguageExt
         internal Map<K, V> SetRoot(MapItem<K, V> root) =>
             new Map<K, V>(new MapInternal<K, V>(root, Value.Rev));
 
-        [Pure]
-        static Map<K, V> AsMap(Foldable<V> f) =>
-            (Map<K, V>)f;
-
-
-        [Pure]
-        static Map<K, V> AsMap(Functor<V> f) =>
-            (Map<K, V>)f;
-
-        [Pure]
-        IEnumerable<V> FoldableValues(Foldable<V> fa) =>
-            AsMap(fa).Values;
-
-        [Pure]
-        IEnumerable<V> MappableValues(Functor<V> fa) =>
-            AsMap(fa).Values;
-
-        [Pure]
-        public S Fold<S>(Foldable<V> fa, S state, Func<S, V, S> f) =>
-            FoldableValues(fa).Fold(state, f);
-
-        [Pure]
-        public S FoldBack<S>(Foldable<V> fa, S state, Func<S, V, S> f) =>
-            FoldableValues(fa).FoldBack(state, f);
-
-        [Pure]
-        Functor<B> Functor<V>.Map<B>(Functor<V> fa, Func<V, B> f) =>
-            Map.map(AsMap(fa), f);
-
-        [Pure]
-        public Map<K, V> Append(Map<K, V> x, Map<K, V> y) =>
-            x.Value.Append(y);
-
-        [Pure]
-        public Map<K, V> Difference(Map<K, V> x, Map<K, V> y) =>
-            x.Value.Subtract(y);
-
         public static Map<K, V> Empty = 
             new Map<K, V>(MapInternal<K, V>.Empty);
-
-        [Pure]
-        Map<K, V> Monoid<Map<K,V>>.Empty() =>
-                new Map<K, V>(MapInternal<K, V>.Empty);
 
         [Pure]
         public bool Equals(Map<K, V> x, Map<K, V> y) =>

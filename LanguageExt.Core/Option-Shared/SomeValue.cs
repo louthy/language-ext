@@ -1,4 +1,5 @@
-﻿using static LanguageExt.Prelude;
+﻿using System;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -11,12 +12,17 @@ namespace LanguageExt
         /// <summary>
         /// The bound value of the option
         /// </summary>
-        public readonly A Value;
+        readonly A value;
+
+        public override bool IsSome => true;
 
         internal SomeValue(A value)
         {
-            Value = value;
+            this.value = value;
         }
+
+        public override A Value =>
+            value;
 
         public static implicit operator SomeValue<A>(A value) =>
             value == null
