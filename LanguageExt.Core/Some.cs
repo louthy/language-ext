@@ -1,4 +1,4 @@
-﻿using LanguageExt.Instances;
+﻿using LanguageExt.ClassInstances;
 using System;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;

@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using LanguageExt;
 using LanguageExt.Trans;
 using LanguageExt.Parsec;
-using LanguageExt.Instances;
+using LanguageExt.ClassInstances;
 using static LanguageExt.List;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;

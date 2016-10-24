@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using LanguageExt.Instances;
+using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt

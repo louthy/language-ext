@@ -1,4 +1,4 @@
-﻿using LanguageExt.Instances;
+﻿using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using static LanguageExt.TypeClass;
 using System;

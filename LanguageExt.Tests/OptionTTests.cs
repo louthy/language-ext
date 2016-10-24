@@ -7,7 +7,7 @@ using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
 using static LanguageExt.List;
 using Xunit;
-using LanguageExt.Instances;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExtTests
 {

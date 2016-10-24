@@ -1,4 +1,4 @@
-﻿using LanguageExt.Instances;
+﻿using LanguageExt.ClassInstances;
 using System.Collections.Generic;
 using System.Linq;
 using static LanguageExt.Prelude;

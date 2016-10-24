@@ -2,7 +2,7 @@
 using System.Diagnostics.Contracts;
 using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
-using LanguageExt.Instances;
+using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 
 public static class NewTypeExtensions

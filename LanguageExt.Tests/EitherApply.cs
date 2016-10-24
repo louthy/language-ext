@@ -4,7 +4,7 @@ using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
-using LanguageExt.Instances;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExtTests
 {

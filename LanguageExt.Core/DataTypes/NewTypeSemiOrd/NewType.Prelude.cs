@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
-using LanguageExt.Instances;
+using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
 using static LanguageExt.TypeClass;
 

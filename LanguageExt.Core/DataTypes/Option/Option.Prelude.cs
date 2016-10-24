@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using LanguageExt;
 using static LanguageExt.TypeClass;
 using LanguageExt.TypeClasses;
-using LanguageExt.Instances;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {

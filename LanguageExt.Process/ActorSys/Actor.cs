@@ -8,7 +8,7 @@ using System.Reactive.Subjects;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using LanguageExt.Config;
-using LanguageExt.Instances;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {

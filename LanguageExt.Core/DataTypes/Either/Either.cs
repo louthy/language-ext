@@ -9,7 +9,7 @@ using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
-using LanguageExt.Instances;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {

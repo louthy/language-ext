@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static LanguageExt.TypeClass;
-using LanguageExt.Instances;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {

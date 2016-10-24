@@ -4,7 +4,7 @@ using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
-using LanguageExt.Instances;
+using LanguageExt.ClassInstances;
 
 public static class ValueTuple3Extensions
 {

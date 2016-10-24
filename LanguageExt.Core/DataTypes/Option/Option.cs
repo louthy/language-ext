@@ -5,7 +5,7 @@ using static LanguageExt.Prelude;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using System.Collections.Generic;
-using LanguageExt.Instances;
+using LanguageExt.ClassInstances;
 using System.ComponentModel;
 using System.Threading.Tasks;
 

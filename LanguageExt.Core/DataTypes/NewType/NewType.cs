@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using LanguageExt;
-using LanguageExt.Instances;
+using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;

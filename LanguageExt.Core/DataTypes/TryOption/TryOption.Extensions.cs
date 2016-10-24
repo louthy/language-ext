@@ -7,7 +7,7 @@ using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
 using LanguageExt.TypeClasses;
-using LanguageExt.Instances;
+using LanguageExt.ClassInstances;
 
 /// <summary>
 /// Extension methods for the Try monad

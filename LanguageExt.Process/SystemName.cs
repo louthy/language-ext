@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Linq;
-using LanguageExt.Instances;
+using LanguageExt.ClassInstances;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt

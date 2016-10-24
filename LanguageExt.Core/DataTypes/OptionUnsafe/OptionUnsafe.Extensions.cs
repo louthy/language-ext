@@ -9,7 +9,7 @@ using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.ComponentModel;
-using LanguageExt.Instances;
+using LanguageExt.ClassInstances;
 
 /// <summary>
 /// Extension methods for OptionUnsafe
