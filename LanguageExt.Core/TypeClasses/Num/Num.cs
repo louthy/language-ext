@@ -36,23 +36,23 @@ namespace LanguageExt.TypeClasses
         A FromInteger(int x);
 
         /// <summary>
+        /// Generate a numeric value from a decimal
+        /// </summary>
+        /// <param name="x">The decimal to use</param>
+        /// <returns>The equivalent of x in the Num<A></returns>
+        A FromDecimal(decimal x);
+
+        /// <summary>
         /// Generate a numeric value from a float
         /// </summary>
         /// <param name="x">The float to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
-        A FromDecimal(decimal x);
+        A FromFloat(float x);
 
         /// <summary>
         /// Generate a numeric value from a double
         /// </summary>
         /// <param name="x">The double to use</param>
-        /// <returns>The equivalent of x in the Num<A></returns>
-        A FromFloat(float x);
-
-        /// <summary>
-        /// Generate a numeric value from a decimal
-        /// </summary>
-        /// <param name="x">The decimal to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
         A FromDouble(double x);
 
@@ -65,11 +65,11 @@ namespace LanguageExt.TypeClasses
         A Plus(A x, A y);
 
         /// <summary>
-        /// Find the subtract between two values
+        /// Find the difference between two values
         /// </summary>
         /// <param name="x">left hand side of the subtraction operation</param>
         /// <param name="y">right hand side of the subtraction operation</param>
-        /// <returns>The sum subtract between x and y</returns>
+        /// <returns>The difference between x and y</returns>
         A Subtract(A x, A y);
 
         /// <summary>
@@ -87,5 +87,12 @@ namespace LanguageExt.TypeClasses
         /// <param name="y">right hand side of the division operation</param>
         /// <returns>x / y</returns>
         A Divide(A x, A y);
+
+        /// <summary>
+        /// Negate the value
+        /// </summary>
+        /// <param name="x">Value to negate</param>
+        /// <returns>The negated source value</returns>
+        A Negate(A x);
     }
 }

@@ -5,6 +5,7 @@ using LanguageExt.Instances;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using LanguageExt;
+using System;
 
 namespace LanguageExtTests
 {
@@ -67,5 +68,29 @@ namespace LanguageExtTests
             Assert.True(tup.Item2 == "Paul");
             Assert.True(tup.Item3 == false);
         }
+
+        [Fact]
+        public void ListProject()
+        {
+            var list = List("100", "50", "25");
+            var opt = Some("100");
+
+            // Parse a list of strings into a list of ints
+            Lst<int> res1 = ParseInts<FLst<string, int>, Lst<string>, Lst<int>>(list);
+
+            // Parse an option of string into an option of int
+            Option<int> res2 = ParseInts<FOption<string, int>, Option<string>, Option<int>>(opt);
+
+            Assert.True(res1[0] == 100);
+            Assert.True(res1[1] == 50);
+            Assert.True(res1[2] == 25);
+            Assert.True(res2 == 100);
+        }
+
+        /// Generic usage
+        public static FB ParseInts<Functor, FA, FB>(FA input)
+            where Functor : Functor<FA, FB, string, int> => 
+            default(Functor).Map(input, Int32.Parse);
+
     }
 }

@@ -46,6 +46,15 @@ namespace LanguageExt
             default(NUM).Divide(x, y);
 
         /// <summary>
+        /// Negate the value
+        /// </summary>
+        /// <param name="x">Value to negate</param>
+        /// <returns>The negated source value</returns>
+        [Pure]
+        public static A negate<NUM, A>(A x) where NUM : struct, Num<A> =>
+            default(NUM).Negate(x);
+
+        /// <summary>
         /// Find the absolute value of a number
         /// </summary>
         /// <param name="x">The value to find the absolute value of</param>

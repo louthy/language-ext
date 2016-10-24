@@ -44,11 +44,11 @@ namespace LanguageExt.Instances
             x + y;
 
         /// <summary>
-        /// Find the subtract between two numbers
+        /// Find the difference between two values
         /// </summary>
         /// <param name="x">left hand side of the subtraction operation</param>
         /// <param name="y">right hand side of the subtraction operation</param>
-        /// <returns>The sum subtract between x and y</returns>
+        /// <returns>The difference between x and y</returns>
         public long Subtract(long x, long y) =>
             x - y;
 
@@ -119,9 +119,19 @@ namespace LanguageExt.Instances
             (long)x;
 
         /// <summary>
-        /// x + y
+        /// Semigroup append (sum)
         /// </summary>
+        /// <param name="x">left hand side of the append operation</param>
+        /// <param name="y">right hand side of the append operation</param>
+        /// <returns>x + y</returns>
         public long Append(long x, long y) => 
             x + y;
+
+        /// <summary>
+        /// Negate the value
+        /// </summary>
+        /// <param name="x">Value to negate</param>
+        /// <returns>The negated source value</returns>
+        public long Negate(long x) => -x;
     }
 }

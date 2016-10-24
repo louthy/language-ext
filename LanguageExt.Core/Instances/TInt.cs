@@ -44,11 +44,11 @@ namespace LanguageExt.Instances
             x + y;
 
         /// <summary>
-        /// Find the subtract between two numbers
+        /// Find the difference between two values
         /// </summary>
         /// <param name="x">left hand side of the subtraction operation</param>
         /// <param name="y">right hand side of the subtraction operation</param>
-        /// <returns>The sum subtract between x and y</returns>
+        /// <returns>The difference between x and y</returns>
         public int Subtract(int x, int y) =>
             x - y;
 
@@ -118,8 +118,25 @@ namespace LanguageExt.Instances
         public int FromDouble(double x) =>
             (int)x;
 
+        /// <summary>
+        /// Monoid empty value (0)
+        /// </summary>
+        /// <returns>0</returns>
         public int Empty() => 0;
 
+        /// <summary>
+        /// Negate the value
+        /// </summary>
+        /// <param name="x">Value to negate</param>
+        /// <returns>The negated source value</returns>
+        public int Negate(int x) => -x;
+
+        /// <summary>
+        /// Semigroup append (sum)
+        /// </summary>
+        /// <param name="x">left hand side of the append operation</param>
+        /// <param name="y">right hand side of the append operation</param>
+        /// <returns>x + y</returns>
         public int Append(int x, int y) => 
             x + y;
     }
