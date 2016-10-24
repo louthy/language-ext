@@ -13,6 +13,8 @@ namespace LanguageExt.Instances
         Foldable<Try<A>, A>,
         BiFoldable<Try<A>, Unit, A>
     {
+        public static readonly MTry<A> Inst = default(MTry<A>);
+
         static Try<A> none = Try(() => raise<A>(new BottomException()));
 
         public MB Bind<MONADB, MB, B>(Try<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>

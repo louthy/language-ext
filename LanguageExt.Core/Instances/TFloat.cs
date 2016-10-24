@@ -5,6 +5,8 @@ namespace LanguageExt.Instances
 {
     public struct TFloat : Ord<float>, Floating<float>
     {
+        public static readonly TFloat Inst = default(TFloat);
+
         public bool Equals(float x, float y) => x == y;
 
         /// <summary>

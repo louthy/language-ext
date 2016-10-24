@@ -5,6 +5,8 @@ namespace LanguageExt.Instances
 {
     public struct TDouble : Ord<double>, Floating<double>
     {
+        public static readonly TDouble Inst = default(TDouble);
+
         public bool Equals(double x, double y) => x == y;
 
         /// <summary>

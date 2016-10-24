@@ -14,6 +14,8 @@ namespace LanguageExt.Instances
         BiFoldable<A?, Unit, A>
         where A : struct
     {
+        public static readonly MNullable<A> Inst = default(MNullable<A>);
+
         public MB Bind<MONADB, MB, B>(A? ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
             ma.HasValue && f != null
                 ? f(ma.Value)

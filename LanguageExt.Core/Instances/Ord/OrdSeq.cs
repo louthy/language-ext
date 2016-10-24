@@ -11,6 +11,8 @@ namespace LanguageExt.Instances
     public struct OrdSeq<ORD, A> : Ord<IEnumerable<A>>
         where ORD : struct, Ord<A>
     {
+        public static readonly OrdSeq<ORD, A> Inst = default(OrdSeq<ORD, A>);
+
         /// <summary>
         /// Equality test
         /// </summary>

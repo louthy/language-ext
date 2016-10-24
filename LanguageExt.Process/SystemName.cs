@@ -1,10 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+using LanguageExt.Instances;
+using static LanguageExt.TypeClass;
 
 namespace LanguageExt
 {
@@ -20,7 +18,7 @@ namespace LanguageExt
         readonly string value;
 
         public static readonly char[] InvalidNameChars =
-            System.IO.Path.GetInvalidFileNameChars().Append(new[] { '[', ']', ',' }).Distinct().ToArray();
+            MArray<char>.Inst.Append(System.IO.Path.GetInvalidFileNameChars(), new[] { '[', ']', ',' }).Distinct().ToArray();
 
         /// <summary>
         /// Ctor

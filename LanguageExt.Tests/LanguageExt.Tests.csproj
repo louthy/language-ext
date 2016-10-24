@@ -91,6 +91,7 @@
     <Compile Include="TupleTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeClassFoldable.cs" />
+    <Compile Include="TypeClassBiFunctor.cs" />
     <Compile Include="TypeClassFunctor.cs" />
     <Compile Include="TypeClassMonad.cs" />
     <Compile Include="TypeClassMonoid.cs" />

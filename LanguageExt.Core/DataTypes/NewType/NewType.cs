@@ -46,11 +46,11 @@ namespace LanguageExt
 
         [Pure]
         public int CompareTo(NEWTYPE other) =>
-             default(OrdNewType<NEWTYPE, OrdDefault<A>, A>).Compare(this, other);
+             OrdNewType<NEWTYPE, OrdDefault<A>, A>.Inst.Compare(this, other);
 
         [Pure]
         public bool Equals(NEWTYPE other) =>
-            equals<EqDefault<A>, A>(Value, other.Value);
+            EqDefault<A>.Inst.Equals(Value, other.Value);
 
         [Pure]
         public override bool Equals(object obj) =>
@@ -62,27 +62,27 @@ namespace LanguageExt
 
         [Pure]
         public static bool operator ==(NewType<NEWTYPE, A> lhs, NewType<NEWTYPE, A> rhs) =>
-             default(EqNewType<NEWTYPE, EqDefault<A>, A>).Equals(lhs, rhs);
+             EqNewType<NEWTYPE, EqDefault<A>, A>.Inst.Equals(lhs, rhs);
 
         [Pure]
         public static bool operator !=(NewType<NEWTYPE, A> lhs, NewType<NEWTYPE, A> rhs) =>
-             !default(EqNewType<NEWTYPE, EqDefault<A>, A>).Equals(lhs, rhs);
+             !EqNewType<NEWTYPE, EqDefault<A>, A>.Inst.Equals(lhs, rhs);
 
         [Pure]
         public static bool operator >(NewType<NEWTYPE, A> lhs, NewType<NEWTYPE, A> rhs) =>
-            default(OrdNewType<NEWTYPE, OrdDefault<A>, A>).Compare(lhs, rhs) > 0;
+            OrdNewType<NEWTYPE, OrdDefault<A>, A>.Inst.Compare(lhs, rhs) > 0;
 
         [Pure]
         public static bool operator >=(NewType<NEWTYPE, A> lhs, NewType<NEWTYPE, A> rhs) =>
-            default(OrdNewType<NEWTYPE, OrdDefault<A>, A>).Compare(lhs, rhs) >= 0;
+            OrdNewType<NEWTYPE, OrdDefault<A>, A>.Inst.Compare(lhs, rhs) >= 0;
 
         [Pure]
         public static bool operator <(NewType<NEWTYPE, A> lhs, NewType<NEWTYPE, A> rhs) =>
-            default(OrdNewType<NEWTYPE, OrdDefault<A>, A>).Compare(lhs, rhs) < 0;
+            OrdNewType<NEWTYPE, OrdDefault<A>, A>.Inst.Compare(lhs, rhs) < 0;
 
         [Pure]
         public static bool operator <=(NewType<NEWTYPE, A> lhs, NewType<NEWTYPE, A> rhs) =>
-            default(OrdNewType<NEWTYPE, OrdDefault<A>, A>).Compare(lhs, rhs) <= 0;
+            OrdNewType<NEWTYPE, OrdDefault<A>, A>.Inst.Compare(lhs, rhs) <= 0;
 
         /// <summary>
         /// Monadic bind of the bound value to a new value of the same type

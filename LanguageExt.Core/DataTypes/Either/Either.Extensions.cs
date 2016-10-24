@@ -121,7 +121,7 @@ public static class EitherExtensions
     /// <returns>An enumerable of L</returns>
     [Pure]
     public static IEnumerable<L> Lefts<L, R>(this IEnumerable<Either<L, R>> self) =>
-        self.Choice1s<MEither<L, R>, Either<L, R>, L, R>();
+        choice1s<MEither<L, R>, Either<L, R>, L, R>(self);
 
     /// <summary>
     /// Extracts from a list of 'Either' all the 'Right' elements.
@@ -133,7 +133,7 @@ public static class EitherExtensions
     /// <returns>An enumerable of L</returns>
     [Pure]
     public static IEnumerable<R> Rights<L, R>(this IEnumerable<Either<L, R>> self) =>
-        self.Choice2s<MEither<L, R>, Either<L, R>, L, R>();
+        choice2s<MEither<L, R>, Either<L, R>, L, R>(self);
 
     /// <summary>
     /// Partitions a list of 'Either' into two lists.
@@ -147,7 +147,7 @@ public static class EitherExtensions
     /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
     [Pure]
     public static Tuple<IEnumerable<L>, IEnumerable<R>> Partition<L, R>(this IEnumerable<Either<L, R>> self) =>
-        self.Partition<MEither<L, R>, Either<L, R>, L, R>();
+        partition<MEither<L, R>, Either<L, R>, L, R>(self);
 
     /// <summary>
     /// Sum of the Either
@@ -158,7 +158,7 @@ public static class EitherExtensions
     [Pure]
     public static R Sum<NUM, L, R>(this Either<L, R> self) 
         where NUM : struct, Num<R> =>
-        self.Sum<NUM, MEither<L, R>, Either<L, R>, R>();
+        sum<NUM, MEither<L, R>, Either<L, R>, R>(self);
 
     /// <summary>
     /// Sum of the Either
@@ -168,7 +168,7 @@ public static class EitherExtensions
     /// <returns>0 if Left, or value of Right</returns>
     [Pure]
     public static int Sum<L>(this Either<L, int> self)=>
-        self.Sum<TInt, MEither<L, int>, Either<L, int>, int>();
+        sum<TInt, MEither<L, int>, Either<L, int>, int>(self);
 
     /// <summary>
     /// Partial application map

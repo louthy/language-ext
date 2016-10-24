@@ -8,6 +8,8 @@ namespace LanguageExt.Instances
     /// </summary>
     public struct TLong : Num<long>
     {
+        public static readonly TLong Inst = default(TLong);
+
         /// <summary>
         /// Equality test
         /// </summary>
@@ -16,7 +18,6 @@ namespace LanguageExt.Instances
         /// <returns>True if x and y are equal</returns>
         public bool Equals(long x, long y) =>
             x == y;
-
 
         /// <summary>
         /// Compare two values

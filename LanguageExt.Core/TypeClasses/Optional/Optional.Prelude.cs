@@ -8,7 +8,7 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    public static partial class TypeClassExtensions
+    public static partial class TypeClass
     {
         static readonly Action noneIgnore = () => { };
         static readonly Func<Unit> noneIgnoreF = () => unit;
@@ -16,7 +16,7 @@ namespace LanguageExt
         /// <summary>
         /// Invokes the f action if Option is in the Some state, otherwise nothing happens.
         /// </summary>
-        public static Unit IfSome<OPT, OA, A>(this OA opt, Action<A> f)
+        public static Unit ifSome<OPT, OA, A>(OA opt, Action<A> f)
             where OPT : struct, Optional<OA, A> =>
             default(OPT).Match(opt, f, noneIgnore);
 
@@ -24,7 +24,7 @@ namespace LanguageExt
         /// Invokes the f function if Option is in the Some state, otherwise nothing
         /// happens.
         /// </summary>
-        public static Unit IfSome<OPT, OA, A>(this OA opt, Func<A, Unit> f)
+        public static Unit ifSome<OPT, OA, A>(OA opt, Func<A, Unit> f)
             where OPT : struct, Optional<OA, A> =>
             default(OPT).Match(opt, f, noneIgnoreF);
 
@@ -37,7 +37,7 @@ namespace LanguageExt
         /// <returns>Tesult of invoking the None() operation if the optional 
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
-        public static A IfNone<OPT, OA, A>(this OA opt, Func<A> None)
+        public static A ifNone<OPT, OA, A>(OA opt, Func<A> None)
             where OPT : struct, Optional<OA, A> =>
             default(OPT).Match(opt, identity, None);
 
@@ -50,7 +50,7 @@ namespace LanguageExt
         /// <returns>noneValue if the optional is in a None state, otherwise
         /// the bound Some(x) value is returned</returns>
         [Pure]
-        public static A IfNone<OPT, OA, A>(this OA opt, A noneValue)
+        public static A ifNone<OPT, OA, A>(OA opt, A noneValue)
             where OPT : struct, Optional<OA, A> =>
             default(OPT).Match(opt, identity, () => noneValue);
 
@@ -63,7 +63,7 @@ namespace LanguageExt
         /// <returns>Tesult of invoking the None() operation if the optional 
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
-        public static A IfNoneUnsafe<OPT, OA, A>(this OA opt, Func<A> None)
+        public static A ifNoneUnsafe<OPT, OA, A>(OA opt, Func<A> None)
             where OPT : struct, Optional<OA, A> =>
             default(OPT).MatchUnsafe(opt, identity, None);
 
@@ -76,7 +76,7 @@ namespace LanguageExt
         /// <returns>noneValue if the optional is in a None state, otherwise
         /// the bound Some(x) value is returned</returns>
         [Pure]
-        public static A IfNoneUnsafe<OPT, OA, A>(this OA opt, A noneValue)
+        public static A ifNoneUnsafe<OPT, OA, A>(OA opt, A noneValue)
             where OPT : struct, Optional<OA, A> =>
             default(OPT).MatchUnsafe(opt, identity, () => noneValue);
 
@@ -90,7 +90,7 @@ namespace LanguageExt
         /// <param name="ma">Option to match</param>
         /// <param name="f">The Some(x) match operation</param>
         [Pure]
-        public static SomeUnitContext<OPT, OA, A> Some<OPT, OA, A>(this OA ma, Action<A> f)
+        public static SomeUnitContext<OPT, OA, A> Some<OPT, OA, A>(OA ma, Action<A> f)
             where OPT : struct, Optional<OA, A> =>
             new SomeUnitContext<OPT, OA, A>(ma, f, default(OPT).IsUnsafe(ma));
 
@@ -106,7 +106,7 @@ namespace LanguageExt
         /// <param name="f">The Some(x) match operation</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public static SomeContext<OPT, OA, A, B> Some<OPT, OA, A, B>(this OA ma, Func<A, B> f)
+        public static SomeContext<OPT, OA, A, B> Some<OPT, OA, A, B>(OA ma, Func<A, B> f)
             where OPT : struct, Optional<OA, A> =>
             new SomeContext<OPT, OA, A, B>(ma, f, default(OPT).IsUnsafe(ma));
 
@@ -119,7 +119,7 @@ namespace LanguageExt
         /// <param name="None">Operation to perform if the option is in a None state</param>
         /// <returns>The result of the match operation</returns>
         [Pure]
-        public static R MatchUntyped<OPT, OA, A, R>(this OA ma, Func<object, R> Some, Func<R> None)
+        public static R matchUntyped<OPT, OA, A, R>(OA ma, Func<object, R> Some, Func<R> None)
             where OPT : struct, Optional<OA, A> =>
             default(OPT).Match( ma,
                 Some: x => Some(x),
@@ -132,7 +132,7 @@ namespace LanguageExt
         /// <param name="ma">Option</param>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
-        public static A[] ToArray<OPT, OA, A>(this OA ma)
+        public static A[] toArray<OPT, OA, A>(OA ma)
             where OPT : struct, Optional<OA, A> =>
             default(OPT).Match( ma,
                 Some: x  => new A[1] {x}, 
@@ -144,9 +144,9 @@ namespace LanguageExt
         /// <param name="ma">Option</param>
         /// <returns>An immutable list of zero or one items</returns>
         [Pure]
-        public static Lst<A> ToList<OPT, OA, A>(this OA ma)
+        public static Lst<A> toList<OPT, OA, A>(OA ma)
             where OPT : struct, Optional<OA, A> =>
-            List(ToArray<OPT, OA, A>(ma));
+            List(toArray<OPT, OA, A>(ma));
 
         /// <summary>
         /// Convert the Option to an enumerable of zero or one items
@@ -155,15 +155,15 @@ namespace LanguageExt
         /// <param name="ma">Option</param>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
-        public static IEnumerable<A> AsEnumerable<OPT, OA, A>(this OA ma)
+        public static IEnumerable<A> asEnumerable<OPT, OA, A>(OA ma)
             where OPT : struct, Optional<OA, A> =>
-            ToArray<OPT, OA, A>(ma).AsEnumerable();
+            toArray<OPT, OA, A>(ma).AsEnumerable();
 
         /// <summary>
         /// Convert the structure to an Either
         /// </summary>
         [Pure]
-        public static Either<L, A> ToEither<OPT, OA, L, A>(this OA ma, L defaultLeftValue)
+        public static Either<L, A> toEither<OPT, OA, L, A>(OA ma, L defaultLeftValue)
             where OPT : struct, Optional<OA, A> =>
             default(OPT).Match(ma,
                 Some: x  => Right<L, A>(x),
@@ -173,7 +173,7 @@ namespace LanguageExt
         /// Convert the structure to an Either
         /// </summary>
         [Pure]
-        public static Either<L, A> ToEither<OPT, OA, L, A>(this OA ma, Func<L> Left)
+        public static Either<L, A> toEither<OPT, OA, L, A>(OA ma, Func<L> Left)
             where OPT : struct, Optional<OA, A> =>
             default(OPT).Match(ma,
                 Some: x =>  Right<L, A>(x),
@@ -183,7 +183,7 @@ namespace LanguageExt
         /// Convert the structure to an EitherUnsafe
         /// </summary>
         [Pure]
-        public static EitherUnsafe<L, A> ToEitherUnsafe<OPT, OA, L, A>(this OA ma, L defaultLeftValue)
+        public static EitherUnsafe<L, A> toEitherUnsafe<OPT, OA, L, A>(OA ma, L defaultLeftValue)
             where OPT : struct, Optional<OA, A> =>
             default(OPT).Match(ma,
                 Some: x  => RightUnsafe<L, A>(x),
@@ -193,7 +193,7 @@ namespace LanguageExt
         /// Convert the structure to an EitherUnsafe
         /// </summary>
         [Pure]
-        public static EitherUnsafe<L, A> ToEitherUnsafe<OPT, OA, L, A>(this OA ma, Func<L> Left)
+        public static EitherUnsafe<L, A> toEitherUnsafe<OPT, OA, L, A>(OA ma, Func<L> Left)
             where OPT : struct, Optional<OA, A> =>
             default(OPT).Match(ma,
                 Some: x  => RightUnsafe<L, A>(x),
@@ -203,7 +203,7 @@ namespace LanguageExt
         /// Convert the structure to a Option
         /// </summary>
         [Pure]
-        public static Option<A> ToOption<OPT, OA, A>(this OA ma)
+        public static Option<A> toOption<OPT, OA, A>(OA ma)
             where OPT : struct, Optional<OA, A> =>
             default(OPT).Match(ma,
                 Some: x  => Optional(x),
@@ -213,7 +213,7 @@ namespace LanguageExt
         /// Convert the structure to a OptionUnsafe
         /// </summary>
         [Pure]
-        public static OptionUnsafe<A> ToOptionUnsafe<OPT, OA, A>(this OA ma)
+        public static OptionUnsafe<A> toOptionUnsafe<OPT, OA, A>(OA ma)
             where OPT : struct, Optional<OA, A> =>
             default(OPT).Match(ma,
                 Some: x  => SomeUnsafe(x),
@@ -223,7 +223,7 @@ namespace LanguageExt
         /// Convert the structure to a TryOption
         /// </summary>
         [Pure]
-        public static TryOption<A> ToTryOption<OPT, OA, A>(this OA ma)
+        public static TryOption<A> toTryOption<OPT, OA, A>(OA ma)
             where OPT : struct, Optional<OA, A> =>
             TryOption(() =>
                 default(OPT).Match(ma, 

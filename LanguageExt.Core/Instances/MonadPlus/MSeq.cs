@@ -18,13 +18,15 @@ namespace LanguageExt.Instances
         Eq<IEnumerable<A>>,
         Monoid<IEnumerable<A>>
     {
+        public static readonly MSeq<A> Inst = default(MSeq<A>);
+
         public IEnumerable<A> Append(IEnumerable<A> x, IEnumerable<A> y) =>
             x.Concat(y);
 
         IEnumerable<B> BindSeq<MONADB, MB, B>(IEnumerable<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
         {
             foreach (var a in ma)
-                foreach (var b in f(a).ToSeq<MONADB, MB, B>())
+                foreach (var b in toSeq<MONADB, MB, B>(f(a)))
                     yield return b;
         }
 

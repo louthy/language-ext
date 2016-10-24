@@ -12,6 +12,8 @@ namespace LanguageExt.Instances
         Monoid<Map<K, V>>,
         Eq<Map<K, V>>
     {
+        public static readonly MMap<K, V> Inst = default(MMap<K, V>);
+
         public Map<K, V> Append(Map<K, V> x, Map<K, V> y) =>
             x + y;
 

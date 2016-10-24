@@ -14,6 +14,8 @@ namespace LanguageExt.Instances
         Foldable<EitherUnsafe<L, R>, R>,
         BiFoldable<EitherUnsafe<L, R>, L, R>
     {
+        public static readonly MEitherUnsafe<L, R> Inst = default(MEitherUnsafe<L, R>);
+
         static A DefaultBottom<A>() =>
             raise<A>(new BottomException());
 

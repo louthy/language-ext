@@ -7,6 +7,8 @@ namespace LanguageExt.Instances
     /// </summary>
     public struct EqShort : Eq<short>
     {
+        public static readonly EqShort Inst = default(EqShort);
+
         /// <summary>
         /// Equality test
         /// </summary>

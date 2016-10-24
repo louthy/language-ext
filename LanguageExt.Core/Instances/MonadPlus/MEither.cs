@@ -14,6 +14,8 @@ namespace LanguageExt.Instances
         Foldable<Either<L, R>, R>,
         BiFoldable<Either<L, R>, L, R>
     {
+        public static readonly MEither<L, R> Inst = default(MEither<L, R>);
+
         static A DefaultBottom<A>() =>
             raise<A>(new BottomException());
 

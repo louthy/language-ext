@@ -11,15 +11,17 @@ namespace LanguageExt
         /// <summary>
         /// Projection from one value to another
         /// </summary>
-        /// <typeparam name="A">Functor value type</typeparam>
-        /// <typeparam name="B">Resulting functor value type</typeparam>
+        /// <typeparam name="FunctorAB">Functor instance from A to B</typeparam>
+        /// <typeparam name="FA">Source functor type</typeparam>
+        /// <typeparam name="FB">Target functor type</typeparam>
+        /// <typeparam name="A">Source functor bound value type</typeparam>
+        /// <typeparam name="B">Target functor bound value type</typeparam>
         /// <param name="ma">Functor value to map from </param>
-        /// <param name="fa">Projection function</param>
-        /// <param name="fb">Projection function</param>
+        /// <param name="f">Projection function</param>
         /// <returns>Mapped functor</returns>
         [Pure]
-        public static FC map<FUNCTORA, FA, FC, A, B, C>(FA ma, Func<A, C> fa, Func<B, C> fb)
-            where FUNCTORA : BiFunctor<FA, FC, A, B, C> =>
-            default(FUNCTORA).BiMap(ma, fa, fb);
+        public static FB map<FunctorAB, FA, FB, A, B>(FA ma, Func<A, B> f)
+            where FunctorAB : Functor<FA, FB, A, B> =>
+            default(FunctorAB).Map(ma, f);
     }
 }

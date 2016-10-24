@@ -10,6 +10,8 @@ namespace LanguageExt.Instances
         where A : struct
         where B : struct
     {
+        public static readonly FNullable<A, B> Inst = default(FNullable<A, B>);
+
         public B? BiMap(A? ma, Func<Unit, B> fa, Func<A, B> fb) =>
             ma.HasValue
                 ? fb == null

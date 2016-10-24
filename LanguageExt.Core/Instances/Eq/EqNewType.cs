@@ -11,6 +11,8 @@ namespace LanguageExt.Instances
         where EQ      : struct, Eq<A>
         where NEWTYPE : NewType<NEWTYPE, A>
     {
+        public static readonly EqNewType<NEWTYPE, EQ, A> Inst = default(EqNewType<NEWTYPE, EQ, A>);
+
         /// <summary>
         /// Equality test
         /// </summary>
@@ -35,6 +37,8 @@ namespace LanguageExt.Instances
         where EQ      : struct, Eq<A>
         where NEWTYPE : NewType<NEWTYPE, SEMI, ORD, A>
     {
+        public static readonly EqNewType<NEWTYPE, SEMI, ORD, EQ, A> Inst = default(EqNewType<NEWTYPE, SEMI, ORD, EQ, A>);
+
         /// <summary>
         /// Equality test
         /// </summary>

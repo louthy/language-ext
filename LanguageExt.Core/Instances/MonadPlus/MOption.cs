@@ -11,8 +11,11 @@ namespace LanguageExt.Instances
         Optional<Option<A>, A>,
         MonadPlus<Option<A>, A>,
         Foldable<Option<A>, A>,
-        BiFoldable<Option<A>, Unit, A>
+        BiFoldable<Option<A>, Unit, A>,
+        Liftable<Option<A>, A>
     {
+        public static readonly MOption<A> Inst = default(MOption<A>);
+
         public MB Bind<MONADB, MB, B>(Option<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
             ma.IsSome && f != null
                 ? f(ma.Value)
@@ -110,5 +113,11 @@ namespace LanguageExt.Instances
             ma.IsSome
                 ? 1
                 : 0;
+
+        public Option<A> Lift(A x, params A[] xs) =>
+            Return(x, xs);
+
+        public Option<A> Lift(IEnumerable<A> value) =>
+            Return(value);
     }
 }

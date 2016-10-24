@@ -27,7 +27,7 @@ namespace LanguageExt
         /// <param name="fb">Folder function, applied for each item in foldable</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        public static S bifold<FOLD, F, A, B, S>(F foldable, S state, Func<S, A, S> fa, Func<S, B, S> fb)
+        public static S biFold<FOLD, F, A, B, S>(F foldable, S state, Func<S, A, S> fa, Func<S, B, S> fb)
             where FOLD : struct, BiFoldable<F, A, B> =>
             default(FOLD).BiFold(foldable, state, fa, fb);
 
@@ -48,7 +48,7 @@ namespace LanguageExt
         /// <param name="fb">Folder function, applied for each item in foldable</param>
         /// <returns>The aggregate state</returns>
         [Pure]
-        public static S bifoldBack<FOLD, F, A, B, S>(F foldable, S state, Func<S, A, S> fa, Func<S, B, S> fb)
+        public static S biFoldBack<FOLD, F, A, B, S>(F foldable, S state, Func<S, A, S> fa, Func<S, B, S> fb)
             where FOLD : struct, BiFoldable<F, A, B> =>
             default(FOLD).BiFoldBack(foldable, state, fa, fb);
 
@@ -57,9 +57,9 @@ namespace LanguageExt
         /// </summary>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <param name="foldable">Foldable to perform the operation on</param>
-        public static Unit biiter<FOLD, F, A, B>(F foldable, Action<A> fa, Action<B> fb)
+        public static Unit biIter<FOLD, F, A, B>(F foldable, Action<A> fa, Action<B> fb)
             where FOLD : struct, BiFoldable<F, A, B> =>
-            bifold<FOLD, F, A, B, Unit>(foldable, unit, (s,x) => { fa(x); return unit; }, (s, x) => { fb(x); return unit; });
+            biFold<FOLD, F, A, B, Unit>(foldable, unit, (s,x) => { fa(x); return unit; }, (s, x) => { fb(x); return unit; });
 
         /// <summary>
         /// Turn any foldable into a sequence
@@ -70,7 +70,7 @@ namespace LanguageExt
         [Pure]
         public static IEnumerable<Either<A, B>> toBiSeq<FOLD, F, A, B>(F foldable)
             where FOLD : struct, BiFoldable<F, A, B> =>
-            bifoldBack<FOLD, F, A, B, IEnumerable<Either<A, B>>>(foldable, new Either<A, B>[0], (s, x) => Left<A,B>(x).Cons(s), (s, x) => Right<A, B>(x).Cons(s));
+            biFoldBack<FOLD, F, A, B, IEnumerable<Either<A, B>>>(foldable, new Either<A, B>[0], (s, x) => Left<A,B>(x).Cons(s), (s, x) => Right<A, B>(x).Cons(s));
 
         /// <summary>
         /// Convert the foldable to a sequence (IEnumerable) performing a map operation
@@ -82,7 +82,7 @@ namespace LanguageExt
         [Pure]
         public static IEnumerable<C> collect<FOLD, F, A, B, C>(F foldable, Func<A, C> fa, Func<B, C> fb)
             where FOLD : struct, BiFoldable<F, A, B> =>
-            bifoldBack<FOLD, F, A, B, IEnumerable<C>>(foldable, new C[0].AsEnumerable(), (s, x) => fa(x).Cons(s), (s, x) => fb(x).Cons(s));
+            biFoldBack<FOLD, F, A, B, IEnumerable<C>>(foldable, new C[0].AsEnumerable(), (s, x) => fa(x).Cons(s), (s, x) => fb(x).Cons(s));
 
         /// <summary>
         /// Does the element occur in the structure?
@@ -93,7 +93,7 @@ namespace LanguageExt
         /// <param name="item">Item to test</param>
         /// <returns>True if item in the structure</returns>
         [Pure]
-        public static bool elem<EQ, FOLD, F, A, B>(F foldable, A item)
+        public static bool contains<EQ, FOLD, F, A, B>(F foldable, A item)
             where FOLD : struct, BiFoldable<F, A, B>
             where EQ   : struct, Eq<A>
         {
@@ -113,7 +113,7 @@ namespace LanguageExt
         /// <param name="item">Item to test</param>
         /// <returns>True if item in the structure</returns>
         [Pure]
-        public static bool elem<EQ, FOLD, F, A, B>(F foldable, B item)
+        public static bool contains<EQ, FOLD, F, A, B>(F foldable, B item)
             where FOLD : struct, BiFoldable<F, A, B>
             where EQ   : struct, Eq<B>
         {
@@ -133,7 +133,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate to apply</param>
         /// <returns>True if the predicate holds for all values</returns>
         [Pure]
-        public static bool biforall<FOLD, F, A, B>(F foldable, Func<A, bool> preda, Func<B, bool> predb)
+        public static bool biForAll<FOLD, F, A, B>(F foldable, Func<A, bool> preda, Func<B, bool> predb)
             where FOLD : struct, BiFoldable<F, A, B>
         {
             foreach (var item in toBiSeq<FOLD, F, A, B>(foldable))
@@ -154,7 +154,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate to apply</param>
         /// <returns>True if the predicate holds for all values</returns>
         [Pure]
-        public static bool biexists<FOLD, F, A, B>(F foldable, Func<A, bool> preda, Func<B, bool> predb)
+        public static bool biExists<FOLD, F, A, B>(F foldable, Func<A, bool> preda, Func<B, bool> predb)
             where FOLD : struct, BiFoldable<F, A, B>
         {
             foreach (var item in toBiSeq<FOLD, F, A, B>(foldable))

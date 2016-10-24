@@ -11,6 +11,8 @@ namespace LanguageExt.Instances
     /// <returns>True if x and y are equal</returns>
     public struct EqSeq<EQ, A> : Eq<IEnumerable<A>> where EQ : struct, Eq<A>
     {
+        public static readonly EqSeq<EQ, A> Inst = default(EqSeq<EQ, A>);
+
         public bool Equals(IEnumerable<A> x, IEnumerable<A> y)
         {
             if (ReferenceEquals(x, y)) return true;

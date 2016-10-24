@@ -11,6 +11,8 @@ namespace LanguageExt.Instances
     /// </summary>
     public struct OrdDefault<A> : Ord<A>
     {
+        public static readonly OrdDefault<A> Inst = default(OrdDefault<A>);
+
         /// <summary>
         /// Equality test
         /// </summary>

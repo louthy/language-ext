@@ -236,7 +236,7 @@ public static class OptionUnsafeExtensions
     /// <returns>The bound value or 0 if None</returns>
     public static A Sum<NUM, A>(this OptionUnsafe<A> self)
         where NUM : struct, Num<A> =>
-        self.Sum<NUM, MOptionUnsafe<A>, OptionUnsafe<A>, A>();
+        sum<NUM, MOptionUnsafe<A>, OptionUnsafe<A>, A>(self);
 
     /// <summary>
     /// Projection from one value to another 

@@ -6,6 +6,8 @@ namespace LanguageExt.Instances
 {
     public struct TLst<A> : Monoid<Lst<A>>
     {
+        public static readonly TLst<A> Inst = default(TLst<A>);
+
         [Pure]
         public Lst<A> Append(Lst<A> x, Lst<A> y) =>
             x.Append(y);

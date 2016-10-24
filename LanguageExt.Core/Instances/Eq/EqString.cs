@@ -8,6 +8,8 @@ namespace LanguageExt.Instances
     /// </summary>
     public struct EqString : Eq<string>
     {
+        public static readonly EqString Inst = default(EqString);
+
         /// <summary>
         /// Equality test
         /// </summary>

@@ -18,6 +18,8 @@ namespace LanguageExt.Instances
         Eq<Lst<A>>,
         Monoid<Lst<A>>
    {
+        public static readonly MLst<A> Inst = default(MLst<A>);
+
         public Lst<A> Append(Lst<A> x, Lst<A> y) =>
             x.Concat(y).Freeze();
 
@@ -25,7 +27,7 @@ namespace LanguageExt.Instances
             where MONADB : struct, Monad<MB, B>
         {
             foreach(var a in ma)
-                foreach (var b in f(a).ToSeq<MONADB, MB, B>())
+                foreach (var b in toSeq<MONADB, MB, B>(f(a)))
                     yield return b;
         }
 

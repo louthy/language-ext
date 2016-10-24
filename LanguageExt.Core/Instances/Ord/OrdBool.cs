@@ -7,6 +7,8 @@ namespace LanguageExt.Instances
     /// </summary>
     public struct OrdBool : Ord<bool>
     {
+        public static readonly OrdBool Inst = default(OrdBool);
+
         /// <summary>
         /// Equality test
         /// </summary>

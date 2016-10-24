@@ -12,6 +12,8 @@ namespace LanguageExt.Instances
         Monoid<HashMap<K, V>>,
         Eq<HashMap<K, V>>
     {
+        public static readonly MHashMap<K, V> Inst = default(MHashMap<K, V>);
+
         public HashMap<K, V> Append(HashMap<K, V> x, HashMap<K, V> y) =>
             x + y;
 

@@ -10,6 +10,8 @@ namespace LanguageExt.Instances
     public struct OrdLst<ORD, A> : Ord<Lst<A>>
         where ORD : struct, Ord<A>
     {
+        public static readonly OrdLst<ORD, A> Inst = default(OrdLst<ORD, A>);
+
         /// <summary>
         /// Equality test
         /// </summary>

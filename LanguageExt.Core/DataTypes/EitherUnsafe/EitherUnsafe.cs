@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass;
 using System.Reactive.Linq;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
@@ -140,7 +141,7 @@ namespace LanguageExt
         /// <returns>The return value of the invoked function</returns>
         [Pure]
         public Ret MatchUnsafe<Ret>(Func<R, Ret> Right, Func<L, Ret> Left, Func<Ret> Bottom = null) =>
-            default(MEitherUnsafe<L, R>).Match(this, Left, Right, Bottom);
+            MEitherUnsafe<L, R>.Inst.Match(this, Left, Right, Bottom);
 
         /// <summary>
         /// Invokes the Right or Left action depending on the state of the EitherUnsafe
@@ -150,35 +151,35 @@ namespace LanguageExt
         /// <returns>Unit</returns>
         /// <exception cref="BottomException">Thrown if matching on an EitherUnsafe in a bottom state</exception>
         public Unit MatchUnsafe(Action<R> Right, Action<L> Left, Action Bottom = null) =>
-            default(MEitherUnsafe<L, R>).Match(this, Left, Right, Bottom);
+            MEitherUnsafe<L, R>.Inst.Match(this, Left, Right, Bottom);
 
         /// <summary>
         /// Match the two states of the EitherUnsafe and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
         public Task<R2> MatchAsyncUnsafe<R2>(Func<R, Task<R2>> Right, Func<L, R2> Left) =>
-            this.MatchAsync<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(Left, Right);
+            matchAsync<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(this, Left, Right);
 
         /// <summary>
         /// Match the two states of the EitherUnsafe and return a promise for a non-null R2.
         /// </summary>
         /// <returns>A promise to return a non-null R2</returns>
         public Task<R2> MatchAsyncUnsafe<R2>(Func<R, Task<R2>> Right, Func<L, Task<R2>> Left) =>
-            this.MatchAsync<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(Left, Right);
+            matchAsync<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(this, Left, Right);
 
         /// <summary>
         /// Match the two states of the EitherUnsafe and return an observable stream of non-null R2s.
         /// </summary>
         [Pure]
         public IObservable<R2> MatchObservableUnsafe<R2>(Func<R, IObservable<R2>> Right, Func<L, R2> Left) =>
-            this.MatchObservable<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(Left, Right);
+            matchObservable<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(this, Left, Right);
 
         /// <summary>
         /// Match the two states of the EitherUnsafe and return an observable stream of non-null R2s.
         /// </summary>
         [Pure]
         public IObservable<R2> MatchObservableUnsafe<R2>(Func<R, IObservable<R2>> Right, Func<L, IObservable<R2>> Left) =>
-            this.MatchObservable<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(Left, Right);
+            matchObservable<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, R2>(this, Left, Right);
 
         /// <summary>
         /// Executes the Left function if the EitherUnsafe is in a Left state.
@@ -188,7 +189,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
         public R IfLeftUnsafe(Func<R> Left) =>
-            this.IfChoice1<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(Left);
+            ifChoice1<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, Left);
 
         /// <summary>
         /// Executes the leftMap function if the EitherUnsafe is in a Left state.
@@ -198,7 +199,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
         public R IfLeftUnsafe(Func<L, R> leftMap) =>
-            this.IfChoice1<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(leftMap);
+            ifChoice1<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, leftMap);
 
         /// <summary>
         /// Returns the rightValue if the EitherUnsafe is in a Left state.
@@ -208,7 +209,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Right value</returns>
         [Pure]
         public R IfLeftUnsafe(R rightValue) =>
-            this.IfChoice1<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(rightValue);
+            ifChoice1<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, rightValue);
 
         /// <summary>
         /// Executes the Left action if the EitherUnsafe is in a Left state.
@@ -216,7 +217,7 @@ namespace LanguageExt
         /// <param name="Left">Function to generate a Right value if in the Left state</param>
         /// <returns>Returns an unwrapped Right value</returns>
         public Unit IfLeftUnsafe(Action<L> Left) =>
-            this.IfChoice1<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(Left);
+            ifChoice1<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, Left);
 
         /// <summary>
         /// Invokes the Right action if the EitherUnsafe is in a Right state, otherwise does nothing
@@ -224,7 +225,7 @@ namespace LanguageExt
         /// <param name="Right">Action to invoke</param>
         /// <returns>Unit</returns>
         public Unit IfRightUnsafe(Action<R> Right) =>
-            this.IfChoice2<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(Right);
+            ifChoice2<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, Right);
 
         /// <summary>
         /// Returns the leftValue if the EitherUnsafe is in a Right state.
@@ -234,7 +235,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
         public L IfRightUnsafe(L leftValue) =>
-            this.IfChoice2<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(leftValue);
+            ifChoice2<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, leftValue);
 
         /// <summary>
         /// Returns the result of Right() if the EitherUnsafe is in a Right state.
@@ -244,7 +245,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
         public L IfRightUnsafe(Func<L> Right) =>
-            this.IfChoice2<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(Right);
+            ifChoice2<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, Right);
 
         /// <summary>
         /// Returns the result of rightMap if the EitherUnsafe is in a Right state.
@@ -254,7 +255,7 @@ namespace LanguageExt
         /// <returns>Returns an unwrapped Left value</returns>
         [Pure]
         public L IfRightUnsafe(Func<R, L> rightMap) =>
-            this.IfChoice2<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(rightMap);
+            ifChoice2<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, rightMap);
 
         /// <summary>
         /// Match Right and return a context.  You must follow this with .Left(...) to complete the match
@@ -296,7 +297,7 @@ namespace LanguageExt
         /// <returns>Hash code</returns>
         [Pure]
         public override int GetHashCode() =>
-            this.GetHashCode<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
+            hashCode<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
         /// Equality check
@@ -307,7 +308,7 @@ namespace LanguageExt
         public override bool Equals(object obj) =>
             !ReferenceEquals(obj, null) &&
             obj is EitherUnsafe<L, R> &&
-            default(EqChoice<EqDefault<L>, EqDefault<R>, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>).Equals(this, (EitherUnsafe<L, R>)obj);
+            EqChoice<EqDefault<L>, EqDefault<R>, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Equals(this, (EitherUnsafe<L, R>)obj);
 
         /// <summary>
         /// Project the EitherUnsafe into a Lst R
@@ -316,7 +317,7 @@ namespace LanguageExt
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("ToList has been deprecated.  Please use RightToList.")]
         public Lst<R> ToList() =>
-            this.ToList<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
+            toList<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
         /// Project the EitherUnsafe into an ImmutableArray R
@@ -325,7 +326,7 @@ namespace LanguageExt
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("ToArray has been deprecated.  Please use RightToArray.")]
         public R[] ToArray() =>
-            this.ToArray<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
+            toArray<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
         /// Project the EitherUnsafe into a Lst R
@@ -333,7 +334,7 @@ namespace LanguageExt
         /// <returns>If the EitherUnsafe is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
         [Pure]
         public Lst<R> RightToList() =>
-            this.Choice2ToList<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
+            choice2ToList<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
         /// Project the EitherUnsafe into an ImmutableArray R
@@ -341,7 +342,7 @@ namespace LanguageExt
         /// <returns>If the EitherUnsafe is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [Pure]
         public R[] RightToArray() =>
-            this.Choice2ToArray<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
+            choice2ToArray<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
         /// Project the EitherUnsafe into a Lst R
@@ -349,7 +350,7 @@ namespace LanguageExt
         /// <returns>If the EitherUnsafe is in a Right state, a Lst of R with one item.  A zero length Lst R otherwise</returns>
         [Pure]
         public Lst<L> LeftToList() =>
-            this.Choice1ToList<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
+            choice1ToList<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
         /// Project the EitherUnsafe into an ImmutableArray R
@@ -357,7 +358,7 @@ namespace LanguageExt
         /// <returns>If the EitherUnsafe is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [Pure]
         public L[] LeftToArray() =>
-            this.Choice1ToArray<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
+            choice1ToArray<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
         /// Project the EitherUnsafe into a IEnumerable R
@@ -365,7 +366,7 @@ namespace LanguageExt
         /// <returns>If the EitherUnsafe is in a Right state, a IEnumerable of R with one item.  A zero length IEnumerable R otherwise</returns>
         [Pure]
         public IEnumerable<R> RightAsEnumerable() =>
-            this.Choice2AsEnumerable<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
+            choice2AsEnumerable<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
         /// Project the EitherUnsafe into a IEnumerable L
@@ -373,7 +374,7 @@ namespace LanguageExt
         /// <returns>If the EitherUnsafe is in a Left state, a IEnumerable of L with one item.  A zero length IEnumerable L otherwise</returns>
         [Pure]
         public IEnumerable<L> LeftAsEnumerable() =>
-            this.Choice1AsEnumerable<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
+            choice1AsEnumerable<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
         /// Convert the EitherUnsafe to an Option
@@ -381,7 +382,7 @@ namespace LanguageExt
         /// <returns>Some(Right) or None</returns>
         [Pure]
         public Option<R> ToOption() =>
-            this.ToOption<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
+            toOption<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
         /// Convert the EitherUnsafe to an EitherUnsafeUnsafe
@@ -389,7 +390,7 @@ namespace LanguageExt
         /// <returns>EitherUnsafeUnsafe</returns>
         [Pure]
         public Either<L, R> ToEither() =>
-            this.ToEither<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
+            toEither<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
         /// Convert the EitherUnsafe to an TryOption
@@ -397,7 +398,7 @@ namespace LanguageExt
         /// <returns>Some(Right) or None</returns>
         [Pure]
         public TryOption<R> ToTryOption() =>
-            this.ToTryOption<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
+            toTryOption<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
         /// Equality operator override
@@ -418,7 +419,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static EitherUnsafe<L, R> operator |(EitherUnsafe<L, R> lhs, EitherUnsafe<L, R> rhs) =>
-            default(MEitherUnsafe<L, R>).Plus(lhs, rhs);
+            MEitherUnsafe<L, R>.Inst.Plus(lhs, rhs);
 
         /// <summary>
         /// Override of the True operator to return True if the EitherUnsafe is Right
@@ -443,7 +444,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public int CompareTo(EitherUnsafe<L, R> other) =>
-            default(OrdChoice<OrdDefault<L>, OrdDefault<R>, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>).Compare(this, other);
+            OrdChoice<OrdDefault<L>, OrdDefault<R>, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Compare(this, other);
 
         /// <summary>
         /// CompareTo override
@@ -478,14 +479,14 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public bool Equals(EitherUnsafe<L, R> other) =>
-            default(EqChoice<EqDefault<L>, EqDefault<R>, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>).Equals(this, other);
+            EqChoice<EqDefault<L>, EqDefault<R>, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Equals(this, other);
 
         /// <summary>
         /// Match the Right and Left values but as objects.  This can be useful to avoid reflection.
         /// </summary>
         [Pure]
         public TResult MatchUntyped<TResult>(Func<object, TResult> Right, Func<object, TResult> Left) =>
-            this.MatchUntyped<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, TResult>(Choice1: Left, Choice2: Right);
+            matchUntyped<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R, TResult>(this, Choice1: Left, Choice2: Right);
 
         /// <summary>
         /// Find out the underlying Right type
@@ -533,7 +534,7 @@ namespace LanguageExt
 
         [Pure]
         public R1 MatchUntyped<R1>(Func<object, R1> Some, Func<R1> None) =>
-            this.MatchUntyped<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R, R1>(Some, None);
+            matchUntyped<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R, R1>(this, Some, None);
 
         [Pure]
         public Type GetUnderlyingType() =>
@@ -557,14 +558,14 @@ namespace LanguageExt
         /// action is invoked if in the Right state
         /// </summary>
         public Unit Iter(Action<R> Right) =>
-            this.Iter<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R>(Right);
+            iter<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R>(this, Right);
 
         /// <summary>
         /// Iterate the EitherUnsafe
         /// action is invoked if in the Right state
         /// </summary>
         public Unit BiIter(Action<R> Right, Action<L> Left) =>
-            this.BiIter<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(Left, Right);
+            biIter<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, Left, Right);
 
         /// <summary>
         /// Invokes a predicate on the value of the EitherUnsafe if it's in the Right state
@@ -578,7 +579,7 @@ namespace LanguageExt
         /// False otherwise.</returns>
         [Pure]
         public bool ForAll(Func<R, bool> Right) =>
-            this.ForAll<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R>(Right);
+            forall<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R>(this, Right);
 
         /// <summary>
         /// Invokes a predicate on the value of the EitherUnsafe if it's in the Right state
@@ -591,7 +592,7 @@ namespace LanguageExt
         /// <returns>True if EitherUnsafe Predicate returns true</returns>
         [Pure]
         public bool BiForAll(Func<R, bool> Right, Func<L, bool> Left) =>
-            this.BiForAll<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(Left, Right);
+            biForAll<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, Left, Right);
 
         /// <summary>
         /// <para>
@@ -612,7 +613,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public S Fold<S>(S state, Func<S, R, S> Right) =>
-            default(MEitherUnsafe<L, R>).Fold(this, state, Right);
+            MEitherUnsafe<L, R>.Inst.Fold(this, state, Right);
 
         /// <summary>
         /// <para>
@@ -634,7 +635,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public S BiFold<S>(S state, Func<S, R, S> Right, Func<S, L, S> Left) =>
-            default(MEitherUnsafe<L, R>).BiFold(this, state, Left, Right);
+            MEitherUnsafe<L, R>.Inst.BiFold(this, state, Left, Right);
 
         /// <summary>
         /// Invokes a predicate on the value of the EitherUnsafe if it's in the Right state
@@ -646,7 +647,7 @@ namespace LanguageExt
         /// <returns>True if the EitherUnsafe is in a Right state and the predicate returns True.  False otherwise.</returns>
         [Pure]
         public bool Exists(Func<R, bool> pred) =>
-            this.Exists<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R>(pred);
+            exists<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R>(this, pred);
 
         /// <summary>
         /// Invokes a predicate on the value of the EitherUnsafe
@@ -659,7 +660,7 @@ namespace LanguageExt
         /// <returns>True if the predicate returns True.  False otherwise or if the EitherUnsafe is in a bottom state.</returns>
         [Pure]
         public bool BiExists(Func<R, bool> Right, Func<L, bool> Left) =>
-            this.BiExists<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(Left, Right);
+            biExists<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this, Left, Right);
 
         /// <summary>
         /// Maps the value in the EitherUnsafe if it's in a Right state
@@ -672,7 +673,7 @@ namespace LanguageExt
         /// <returns>Mapped EitherUnsafe</returns>
         [Pure]
         public EitherUnsafe<L, Ret> Map<Ret>(Func<R, Ret> mapper) =>
-            default(FEitherUnsafe<L, R, Ret>).Map(this, mapper);
+            FEitherUnsafe<L, R, Ret>.Inst.Map(this, mapper);
 
         /// <summary>
         /// Maps the value in the EitherUnsafe if it's in a Left state
@@ -685,7 +686,7 @@ namespace LanguageExt
         /// <returns>Mapped EitherUnsafe</returns>
         [Pure]
         public EitherUnsafe<Ret, R> MapLeft<Ret>(Func<L, Ret> mapper) =>
-            default(FEitherUnsafe<L, R, Ret, R>).BiMap(this, mapper, identity);
+            FEitherUnsafe<L, R, Ret, R>.Inst.BiMap(this, mapper, identity);
 
         /// <summary>
         /// Bi-maps the value in the EitherUnsafe if it's in a Right state
@@ -700,7 +701,7 @@ namespace LanguageExt
         /// <returns>Mapped EitherUnsafe</returns>
         [Pure]
         public EitherUnsafe<L, Ret> BiMap<LRet, Ret>(Func<R, Ret> Right, Func<L, Ret> Left) =>
-            default(FEitherUnsafe<L, R, Ret>).BiMap(this, Left, Right);
+            FEitherUnsafe<L, R, Ret>.Inst.BiMap(this, Left, Right);
 
         /// <summary>
         /// Bi-maps the value in the EitherUnsafe if it's in a Right state
@@ -715,7 +716,7 @@ namespace LanguageExt
         /// <returns>Mapped EitherUnsafe</returns>
         [Pure]
         public EitherUnsafe<L2, R2> BiMap<L2, R2>(Func<R, R2> Right, Func<L, L2> Left) =>
-            default(FEitherUnsafe<L, R, L2, R2>).BiMap(this, Left, Right);
+            FEitherUnsafe<L, R, L2, R2>.Inst.BiMap(this, Left, Right);
 
         /// <summary>
         /// Monadic bind
@@ -728,7 +729,7 @@ namespace LanguageExt
         /// <returns>Bound EitherUnsafe</returns>
         [Pure]
         public EitherUnsafe<L, Ret> Bind<Ret>(Func<R, EitherUnsafe<L, Ret>> binder) =>
-            default(MEitherUnsafe<L, R>).Bind<MEitherUnsafe<L, Ret>, EitherUnsafe<L, Ret>, Ret>(this, binder);
+            MEitherUnsafe<L, R>.Inst.Bind<MEitherUnsafe<L, Ret>, EitherUnsafe<L, Ret>, Ret>(this, binder);
 
         /// <summary>
         /// Filter the EitherUnsafe
@@ -748,7 +749,7 @@ namespace LanguageExt
         /// If the predicate returns False the EitherUnsafe is returned in a 'Bottom' state.</returns>
         [Pure]
         public EitherUnsafe<L, R> Filter(Func<R, bool> pred) =>
-            this.Filter<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R>(pred);
+            filter<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R>(this, pred);
 
         /// <summary>
         /// Filter the EitherUnsafe
@@ -770,7 +771,7 @@ namespace LanguageExt
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public EitherUnsafe<L, R> Where(Func<R, bool> pred) =>
-            this.Filter<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R>(pred);
+            filter<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R>(this, pred);
 
         /// <summary>
         /// Maps the value in the EitherUnsafe if it's in a Right state
@@ -783,7 +784,7 @@ namespace LanguageExt
         /// <returns>Mapped EitherUnsafe</returns>
         [Pure]
         public EitherUnsafe<L, U> Select<U>(Func<R, U> map) =>
-            default(FEitherUnsafe<L, R, U>).Map(this, map);
+            FEitherUnsafe<L, R, U>.Inst.Map(this, map);
 
         /// <summary>
         /// Monadic bind function
@@ -791,7 +792,7 @@ namespace LanguageExt
         /// <returns>Bound EitherUnsafe</returns>
         [Pure]
         public EitherUnsafe<L, V> SelectMany<U, V>(Func<R, EitherUnsafe<L, U>> bind, Func<R, U, V> project) =>
-            this.SelectMany<MEitherUnsafe<L, R>, MEitherUnsafe<L, U>, MEitherUnsafe<L, V>, EitherUnsafe<L, R>, EitherUnsafe<L, U>, EitherUnsafe<L, V>, R, U, V>(bind, project);
+            selectMany<MEitherUnsafe<L, R>, MEitherUnsafe<L, U>, MEitherUnsafe<L, V>, EitherUnsafe<L, R>, EitherUnsafe<L, U>, EitherUnsafe<L, V>, R, U, V>(this, bind, project);
 
         [Pure]
         public IEnumerable<V> SelectMany<U, V>(
@@ -811,8 +812,8 @@ namespace LanguageExt
             Func<R, K> outerKeyMap,
             Func<U, K> innerKeyMap,
             Func<R, U, V> project) =>
-            this.Join<EqDefault<K>, MEitherUnsafe<L, R>, MEitherUnsafe<L, U>, MEitherUnsafe<L, V>, EitherUnsafe<L, R>, EitherUnsafe<L, U>, EitherUnsafe<L, V>, R, U, K, V>(
-                inner, outerKeyMap, innerKeyMap, project
+            join<EqDefault<K>, MEitherUnsafe<L, R>, MEitherUnsafe<L, U>, MEitherUnsafe<L, V>, EitherUnsafe<L, R>, EitherUnsafe<L, U>, EitherUnsafe<L, V>, R, U, K, V>(
+                this, inner, outerKeyMap, innerKeyMap, project
                 );
     }
     /// <summary>

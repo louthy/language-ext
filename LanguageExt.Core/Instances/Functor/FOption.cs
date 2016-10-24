@@ -8,6 +8,8 @@ namespace LanguageExt.Instances
         Functor<Option<A>, Option<B>, A, B>,
         BiFunctor<Option<A>, Option<B>, Unit, A, B>
     {
+        public static readonly FOption<A, B> Inst = default(FOption<A, B>);
+
         public Option<B> BiMap(Option<A> ma, Func<Unit, B> fa, Func<A, B> fb) =>
             ma.IsNone
                 ? fa == null

@@ -123,7 +123,7 @@ namespace LanguageExt
         [Pure]
         public static Option<A> lastOrNone<FOLD, F, A>(F fa) where FOLD : Foldable<F, A> =>
             toSeq<FOLD, F, A>(fa)
-                .Map(x => Some(x))
+                .Map(x => Prelude.Some(x))
                 .DefaultIfEmpty(Option<A>.None)
                 .LastOrDefault();
 
@@ -156,7 +156,7 @@ namespace LanguageExt
         /// <param name="item">Item to test</param>
         /// <returns>True if item in the structure</returns>
         [Pure]
-        public static bool elem<EQ, FOLD, F, A>(F fa, A item)
+        public static bool contains<EQ, FOLD, F, A>(F fa, A item)
             where EQ : struct, Eq<A>
             where FOLD : Foldable<F, A>
         {
@@ -188,7 +188,7 @@ namespace LanguageExt
         public static A product<NUM, FOLD, F, A>(F fa)
             where FOLD : Foldable<F, A>
             where NUM : struct, Num<A> =>
-                default(FOLD).Fold(fa, fromInteger<NUM, A>(0), (s, x) => product<NUM, A>(s, x));
+                default(FOLD).Fold(fa, fromInteger<NUM, A>(1), (s, x) => product<NUM, A>(s, x));
 
         /// <summary>
         /// Runs a predicate against the bound value(s).  If the predicate

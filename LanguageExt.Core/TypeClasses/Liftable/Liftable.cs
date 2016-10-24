@@ -10,18 +10,18 @@ namespace LanguageExt.TypeClasses
     /// Can lift a value A into a 
     /// </para>
     /// </summary>
-    /// <typeparam name="A">The type being described as a monoid</typeparam>
+    /// <typeparam name="A">The type to be lifted</typeparam>
     [Typeclass]
-    public interface Liftable<A>
+    public interface Liftable<LA, A>
     {
         /// <summary>
         /// Lift value A into a Liftable<A>
         /// <summary>
-        Liftable<A> Lift(A x, params A[] xs);
+        LA Lift(A x, params A[] xs);
 
         /// <summary>
         /// Lift value A into a Liftable<A>
         /// <summary>
-        Liftable<A> Lift(IEnumerable<A> value);
+        LA Lift(IEnumerable<A> value);
     }
 }

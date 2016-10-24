@@ -11,6 +11,8 @@ namespace LanguageExt.Instances
         where EQ     : struct, Eq<A>
         where OPTION : struct, Optional<OA, A>
     {
+        public static readonly EqOpt<EQ, OPTION, OA, A> Inst = default(EqOpt<EQ, OPTION, OA, A>);
+
         /// <summary>
         /// Equality test
         /// </summary>

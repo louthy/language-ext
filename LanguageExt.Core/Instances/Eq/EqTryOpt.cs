@@ -10,6 +10,8 @@ namespace LanguageExt.Instances
     public struct EqTryOpt<EQ, A> : Eq<TryOption<A>>
         where EQ : struct, Eq<A>
     {
+        public static readonly EqTryOpt<EQ, A> Inst = default(EqTryOpt<EQ, A>);
+
         /// <summary>
         /// Equality test
         /// </summary>

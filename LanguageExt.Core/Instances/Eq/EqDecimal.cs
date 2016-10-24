@@ -8,6 +8,8 @@ namespace LanguageExt.Instances
     /// </summary>
     public struct EqDecimal : Eq<decimal>
     {
+        public static readonly EqDecimal Inst = default(EqDecimal);
+
         /// <summary>
         /// Equality test
         /// </summary>

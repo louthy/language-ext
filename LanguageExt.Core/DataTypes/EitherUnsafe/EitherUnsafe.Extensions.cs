@@ -121,7 +121,7 @@ public static class EitherUnsafeExtensions
     /// <returns>An enumerable of L</returns>
     [Pure]
     public static IEnumerable<L> Lefts<L, R>(this IEnumerable<EitherUnsafe<L, R>> self) =>
-        self.Choice1s<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
+        choice1s<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(self);
 
     /// <summary>
     /// Extracts from a list of 'Either' all the 'Right' elements.
@@ -133,7 +133,7 @@ public static class EitherUnsafeExtensions
     /// <returns>An enumerable of L</returns>
     [Pure]
     public static IEnumerable<R> Rights<L, R>(this IEnumerable<EitherUnsafe<L, R>> self) =>
-        self.Choice2s<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
+        choice2s<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(self);
 
     /// <summary>
     /// Partitions a list of 'Either' into two lists.
@@ -147,7 +147,7 @@ public static class EitherUnsafeExtensions
     /// <returns>A tuple containing the an enumerable of L and an enumerable of R</returns>
     [Pure]
     public static Tuple<IEnumerable<L>, IEnumerable<R>> Partition<L, R>(this IEnumerable<EitherUnsafe<L, R>> self) =>
-        self.Partition<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>();
+        partition<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(self);
 
     /// <summary>
     /// Sum of the Either
@@ -158,7 +158,7 @@ public static class EitherUnsafeExtensions
     [Pure]
     public static R Sum<NUM, L, R>(this EitherUnsafe<L, R> self)
         where NUM : struct, Num<R> =>
-        self.Sum<NUM, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R>();
+        sum<NUM, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, R>(self);
 
     /// <summary>
     /// Sum of the Either
@@ -168,7 +168,7 @@ public static class EitherUnsafeExtensions
     /// <returns>0 if Left, or value of Right</returns>
     [Pure]
     public static int Sum<L>(this EitherUnsafe<L, int> self) =>
-        self.Sum<TInt, MEitherUnsafe<L, int>, EitherUnsafe<L, int>, int>();
+        sum<TInt, MEitherUnsafe<L, int>, EitherUnsafe<L, int>, int>(self);
 
     /// <summary>
     /// Partial application map

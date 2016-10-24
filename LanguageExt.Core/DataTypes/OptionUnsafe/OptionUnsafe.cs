@@ -164,7 +164,7 @@ namespace LanguageExt
         /// <returns>if lhs is Some then lhs, else rhs</returns>
         [Pure]
         public static OptionUnsafe<A> operator |(OptionUnsafe<A> lhs, OptionUnsafe<A> rhs) =>
-            default(MOptionUnsafe<A>).Plus(lhs, rhs);
+            MOptionUnsafe<A>.Inst.Plus(lhs, rhs);
 
         /// <summary>
         /// Truth operator
@@ -239,7 +239,7 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionUnsafe<B> Select<B>(Func<A, B> f) =>
-            default(FOptionUnsafe<A, B>).Map(this, f);
+            FOptionUnsafe<A, B>.Inst.Map(this, f);
 
         /// <summary>
         /// Projection from one value to another 
@@ -249,14 +249,14 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionUnsafe<B> Map<B>(Func<A, B> f) =>
-            default(FOptionUnsafe<A, B>).Map(this, f);
+            FOptionUnsafe<A, B>.Inst.Map(this, f);
 
         /// <summary>
         /// Monad bind operation
         /// </summary>
         [Pure]
         public OptionUnsafe<B> Bind<B>(Func<A, OptionUnsafe<B>> f) =>
-            default(MOptionUnsafe<A>).Bind<MOptionUnsafe<B>, OptionUnsafe<B>, B>(this, f);
+            MOptionUnsafe<A>.Inst.Bind<MOptionUnsafe<B>, OptionUnsafe<B>, B>(this, f);
 
         /// <summary>
         /// Monad bind operation
@@ -265,7 +265,7 @@ namespace LanguageExt
         public OptionUnsafe<C> SelectMany<B, C>(
             Func<A, OptionUnsafe<B>> bind,
             Func<A, B, C> project) =>
-            this.SelectMany<MOptionUnsafe<A>, MOptionUnsafe<B>, MOptionUnsafe<C>, OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>, A, B, C>(bind, project);
+            selectMany<MOptionUnsafe<A>, MOptionUnsafe<B>, MOptionUnsafe<C>, OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>, A, B, C>(this, bind, project);
 
         /// <summary>
         /// Match operation with an untyped value for Some. This can be
@@ -277,7 +277,7 @@ namespace LanguageExt
         /// <returns>The result of the match operation</returns>
         [Pure]
         public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
-            this.MatchUntyped<MOptionUnsafe<A>, OptionUnsafe<A>, A, R>(Some, None);
+            matchUntyped<MOptionUnsafe<A>, OptionUnsafe<A>, A, R>(this, Some, None);
 
         /// <summary>
         /// Get the Type of the bound value
@@ -293,7 +293,7 @@ namespace LanguageExt
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
         public A[] ToArray() =>
-            this.ToArray<MOptionUnsafe<A>, OptionUnsafe<A>, A>();
+            toArray<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this);
 
         /// <summary>
         /// Convert the OptionUnsafe to an immutable list of zero or one items
@@ -301,7 +301,7 @@ namespace LanguageExt
         /// <returns>An immutable list of zero or one items</returns>
         [Pure]
         public Lst<A> ToList() =>
-            this.ToList<MOptionUnsafe<A>, OptionUnsafe<A>, A>();
+            toList<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this);
 
         /// <summary>
         /// Convert the OptionUnsafe to an enumerable sequence of zero or one items
@@ -309,7 +309,7 @@ namespace LanguageExt
         /// <returns>An enumerable sequence of zero or one items</returns>
         [Pure]
         public IEnumerable<A> ToSeq() =>
-            this.ToSeq<MOptionUnsafe<A>, OptionUnsafe<A>, A>();
+            toSeq<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this);
 
         /// <summary>
         /// Convert the OptionUnsafe to an enumerable of zero or one items
@@ -317,7 +317,7 @@ namespace LanguageExt
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
         public IEnumerable<A> AsEnumerable() =>
-            this.AsEnumerable<MOptionUnsafe<A>, OptionUnsafe<A>, A>();
+            asEnumerable<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this);
 
         /// <summary>
         /// Convert the structure to an Either
@@ -326,7 +326,7 @@ namespace LanguageExt
         /// <returns>An Either representation of the structure</returns>
         [Pure]
         public Either<L, A> ToEither<L>(L defaultLeftValue) =>
-            this.ToEither<MOptionUnsafe<A>, OptionUnsafe<A>, L, A>(defaultLeftValue);
+            toEither<MOptionUnsafe<A>, OptionUnsafe<A>, L, A>(this, defaultLeftValue);
 
         /// <summary>
         /// Convert the structure to an Either
@@ -336,7 +336,7 @@ namespace LanguageExt
         /// <returns>An Either representation of the structure</returns>
         [Pure]
         public Either<L, A> ToEither<L>(Func<L> Left) =>
-            this.ToEither<MOptionUnsafe<A>, OptionUnsafe<A>, L, A>(Left);
+            toEither<MOptionUnsafe<A>, OptionUnsafe<A>, L, A>(this, Left);
 
         /// <summary>
         /// Convert the structure to an EitherUnsafe
@@ -345,7 +345,7 @@ namespace LanguageExt
         /// <returns>An EitherUnsafe representation of the structure</returns>
         [Pure]
         public EitherUnsafe<L, A> ToEitherUnsafe<L>(L defaultLeftValue) =>
-            this.ToEitherUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, L, A>(defaultLeftValue);
+            toEitherUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, L, A>(this, defaultLeftValue);
 
         /// <summary>
         /// Convert the structure to an EitherUnsafe
@@ -355,7 +355,7 @@ namespace LanguageExt
         /// <returns>An EitherUnsafe representation of the structure</returns>
         [Pure]
         public EitherUnsafe<L, A> ToEitherUnsafe<L>(Func<L> Left) =>
-            this.ToEitherUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, L, A>(Left);
+            toEitherUnsafe<MOptionUnsafe<A>, OptionUnsafe<A>, L, A>(this, Left);
 
         /// <summary>
         /// Convert the structure to a Option
@@ -363,7 +363,7 @@ namespace LanguageExt
         /// <returns>An OptionUnsafe representation of the structure</returns>
         [Pure]
         public Option<A> ToOption() =>
-            this.ToOption<MOptionUnsafe<A>, OptionUnsafe<A>, A>();
+            toOption<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this);
 
         /// <summary>
         /// Convert the structure to a TryOption
@@ -371,7 +371,7 @@ namespace LanguageExt
         /// <returns>A TryOption representation of the structure</returns>
         [Pure]
         public TryOption<A> ToTryOption() =>
-            this.ToTryOption<MOptionUnsafe<A>, OptionUnsafe<A>, A>();
+            toTryOption<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this);
 
         /// <summary>
         /// Fluent pattern matching.  Provide a Some handler and then follow
@@ -406,7 +406,7 @@ namespace LanguageExt
         /// <returns>B, or null</returns>
         [Pure]
         public B MatchUnsafe<B>(Func<A, B> Some, Func<B> None) =>
-            default(MOptionUnsafe<A>).MatchUnsafe(this, Some, None);
+            MOptionUnsafe<A>.Inst.MatchUnsafe(this, Some, None);
 
         /// <summary>
         /// Match the two states of the OptionUnsafe
@@ -414,14 +414,14 @@ namespace LanguageExt
         /// <param name="Some">Some match operation</param>
         /// <param name="None">None match operation</param>
         public Unit MatchUnsafe(Action<A> Some, Action None) =>
-            default(MOptionUnsafe<A>).Match(this, Some, None);
+            MOptionUnsafe<A>.Inst.Match(this, Some, None);
 
         /// <summary>
         /// Invokes the action if OptionUnsafe is in the Some state, otherwise nothing happens.
         /// </summary>
         /// <param name="f">Action to invoke if OptionUnsafe is in the Some state</param>
         public Unit IfSomeUnsafe(Action<A> f) =>
-            this.IfSome<MOptionUnsafe<A>, OptionUnsafe<A>, A>(f);
+            ifSome<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, f);
 
         /// <summary>
         /// Invokes the f function if OptionUnsafe is in the Some state, otherwise nothing
@@ -429,7 +429,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Function to invoke if OptionUnsafe is in the Some state</param>
         public Unit IfSomeUnsafe(Func<A, Unit> f) =>
-            this.IfSome<MOptionUnsafe<A>, OptionUnsafe<A>, A>(f);
+            ifSome<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, f);
 
         /// <summary>
         /// Returns the result of invoking the None() operation if the optional 
@@ -441,7 +441,7 @@ namespace LanguageExt
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
         public A IfNoneUnsafe(Func<A> None) =>
-            this.IfNone<MOptionUnsafe<A>, OptionUnsafe<A>, A>(None);
+            ifNone<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, None);
 
         /// <summary>
         /// Returns the noneValue if the optional is in a None state, otherwise
@@ -453,7 +453,7 @@ namespace LanguageExt
         /// the bound Some(x) value is returned</returns>
         [Pure]
         public A IfNoneUnsafe(A noneValue) =>
-            this.IfNone<MOptionUnsafe<A>, OptionUnsafe<A>, A>(noneValue);
+            ifNone<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, noneValue);
 
         /// <summary>
         /// <para>
@@ -478,7 +478,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public S Fold<S>(S state, Func<S, A, S> folder) =>
-            default(MOptionUnsafe<A>).Fold(this, state, folder);
+            MOptionUnsafe<A>.Inst.Fold(this, state, folder);
 
         /// <summary>
         /// <para>
@@ -503,7 +503,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public S FoldBack<S>(S state, Func<S, A, S> folder) =>
-            default(MOptionUnsafe<A>).FoldBack(this, state, folder);
+            MOptionUnsafe<A>.Inst.FoldBack(this, state, folder);
 
         /// <summary>
         /// <para>
@@ -529,7 +529,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, Unit, S> None) =>
-            default(MOptionUnsafe<A>).BiFold(this, state, None, Some);
+            MOptionUnsafe<A>.Inst.BiFold(this, state, None, Some);
 
         /// <summary>
         /// <para>
@@ -555,7 +555,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, S> None) =>
-            default(MOptionUnsafe<A>).BiFold(this, state, (s, _) => None(s), Some);
+            MOptionUnsafe<A>.Inst.BiFold(this, state, (s, _) => None(s), Some);
 
         /// <summary>
         /// Projection from one value to another
@@ -566,7 +566,7 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionUnsafe<B> BiMap<B>(Func<A, B> Some, Func<Unit, B> None) =>
-            default(FOptionUnsafe<A, B>).BiMap(this, None, Some);
+            FOptionUnsafe<A, B>.Inst.BiMap(this, None, Some);
 
         /// <summary>
         /// Projection from one value to another
@@ -577,7 +577,7 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public OptionUnsafe<B> BiMap<B>(Func<A, B> Some, Func<B> None) =>
-            default(FOptionUnsafe<A, B>).BiMap(this, _ => None(), Some);
+            FOptionUnsafe<A, B>.Inst.BiMap(this, _ => None(), Some);
 
         /// <summary>
         /// <para>
@@ -593,7 +593,7 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public int Count() =>
-            default(MOptionUnsafe<A>).Count(this);
+            MOptionUnsafe<A>.Inst.Count(this);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
@@ -608,7 +608,7 @@ namespace LanguageExt
         /// predicate supplied.</returns>
         [Pure]
         public bool ForAll(Func<A, bool> pred) =>
-            this.ForAll<MOptionUnsafe<A>, OptionUnsafe<A>, A>(pred);
+            forall<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, pred);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
@@ -624,7 +624,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool BiForAll(Func<A, bool> Some, Func<Unit, bool> None) =>
-            this.BiForAll<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(None, Some);
+            biForAll<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(this, None, Some);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
@@ -640,7 +640,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool BiForAll(Func<A, bool> Some, Func<bool> None) =>
-            this.BiForAll<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(_ => None(), Some);
+            biForAll<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(this, _ => None(), Some);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
@@ -655,7 +655,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool Exists(Func<A, bool> pred) =>
-            this.Exists<MOptionUnsafe<A>, OptionUnsafe<A>, A>(pred);
+            exists<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, pred);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
@@ -670,7 +670,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool BiExists(Func<A, bool> Some, Func<Unit, bool> None) =>
-            this.BiExists<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(None, Some);
+            biExists<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(this, None, Some);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the OptionUnsafe is in a None state
@@ -685,7 +685,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool BiExists(Func<A, bool> Some, Func<bool> None) =>
-            this.BiExists<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(_ => None(), Some);
+            biExists<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(this, _ => None(), Some);
 
         /// <summary>
         /// Invoke an action for the bound value (if in a Some state)
@@ -693,7 +693,7 @@ namespace LanguageExt
         /// <param name="Some">Action to invoke</param>
         [Pure]
         public Unit Iter(Action<A> Some) =>
-            this.Iter<MOptionUnsafe<A>, OptionUnsafe<A>, A>(Some);
+            iter<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, Some);
 
         /// <summary>
         /// Invoke an action depending on the state of the OptionUnsafe
@@ -702,7 +702,7 @@ namespace LanguageExt
         /// <param name="None">Action to invoke if in a None state</param>
         [Pure]
         public Unit BiIter(Action<A> Some, Action<Unit> None) =>
-            this.BiIter<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(None, Some);
+            biIter<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(this, None, Some);
 
         /// <summary>
         /// Invoke an action depending on the state of the OptionUnsafe
@@ -711,7 +711,7 @@ namespace LanguageExt
         /// <param name="None">Action to invoke if in a None state</param>
         [Pure]
         public Unit BiIter(Action<A> Some, Action None) =>
-            this.BiIter<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(_ => None(), Some);
+            biIter<MOptionUnsafe<A>, OptionUnsafe<A>, Unit, A>(this, _ => None(), Some);
 
         /// <summary>
         /// Apply a predicate to the bound value (if in a Some state)
@@ -721,7 +721,7 @@ namespace LanguageExt
         /// returns True.  None otherwise.</returns>
         [Pure]
         public OptionUnsafe<A> Filter(Func<A, bool> pred) =>
-            this.Filter<MOptionUnsafe<A>, OptionUnsafe<A>, A>(pred);
+            filter<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, pred);
 
         /// <summary>
         /// Apply a predicate to the bound value (if in a Some state)
@@ -731,7 +731,7 @@ namespace LanguageExt
         /// returns True.  None otherwise.</returns>
         [Pure]
         public OptionUnsafe<A> Where(Func<A, bool> pred) =>
-            this.Filter<MOptionUnsafe<A>, OptionUnsafe<A>, A>(pred);
+            filter<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this, pred);
 
         /// <summary>
         /// Monadic join
@@ -742,8 +742,8 @@ namespace LanguageExt
             Func<A, C> outerKeyMap,
             Func<B, C> innerKeyMap,
             Func<A, B, D> project) =>
-            this.Join<EqDefault<C>, MOptionUnsafe<A>, MOptionUnsafe<B>, MOptionUnsafe<D>, OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<D>, A, B, C, D>(
-                inner, outerKeyMap, innerKeyMap, project
+            join<EqDefault<C>, MOptionUnsafe<A>, MOptionUnsafe<B>, MOptionUnsafe<D>, OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<D>, A, B, C, D>(
+                this, inner, outerKeyMap, innerKeyMap, project
                 );
 
         /// <summary>

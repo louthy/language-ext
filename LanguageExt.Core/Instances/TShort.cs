@@ -8,6 +8,8 @@ namespace LanguageExt.Instances
     /// </summary>
     public struct TShort : Num<short>
     {
+        public static readonly TShort Inst = default(TShort);
+
         /// <summary>
         /// Equality test
         /// </summary>

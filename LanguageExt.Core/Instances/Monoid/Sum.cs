@@ -9,6 +9,8 @@ namespace LanguageExt.Instances
     /// <typeparam name="A">The type of the number being added.</typeparam>
     public struct Sum<NUM, A> : Monoid<A> where NUM : struct, Num<A>
     {
+        public static readonly Sum<NUM, A> Inst = default(Sum<NUM, A>);
+
         public A Append(A x, A y) =>
             plus<NUM, A>(x, y);
 

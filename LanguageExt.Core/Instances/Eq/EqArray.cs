@@ -8,6 +8,8 @@ namespace LanguageExt.Instances
     /// </summary>
     public struct EqArray<EQ, A> : Eq<A[]> where EQ : struct, Eq<A>
     {
+        public static readonly EqArray<EQ, A> Inst = default(EqArray<EQ, A>);
+
         /// <summary>
         /// Equality test
         /// </summary>
@@ -28,6 +30,6 @@ namespace LanguageExt.Instances
         }
 
         public static implicit operator EqArray<EQ,A>(EQ eq) =>
-            default(EqArray<EQ,A>);
+            EqArray<EQ,A>.Inst;
     }
 }

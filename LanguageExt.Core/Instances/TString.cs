@@ -4,6 +4,8 @@ namespace LanguageExt.Instances
 {
     public struct TString : Ord<string>, Monoid<string>
     {
+        public static readonly TString Inst = default(TString);
+
         /// <summary>
         /// Append
         /// </summary>

@@ -1,7 +1,10 @@
 ﻿using System;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
+using LanguageExt.TypeClasses;
+using LanguageExt.Instances;
 
 public static class Tuple3Extensions
 {
@@ -13,32 +16,75 @@ public static class Tuple3Extensions
         Tuple(self.Item1, self.Item2, self.Item3, fourth);
 
     /// <summary>
-    /// Sum
+    /// Semigroup append
     /// </summary>
     [Pure]
-    public static int Sum(this Tuple<int, int, int> self) =>
-        self.Item1 + self.Item2 + self.Item3;
+    public static Tuple<A, B, C> Append<SemiA, SemiB, SemiC, A, B, C>(this Tuple<A, B, C> a, Tuple<A, B, C> b)
+        where SemiA : struct, Semigroup<A>
+        where SemiB : struct, Semigroup<B>
+        where SemiC : struct, Semigroup<C> =>
+        Tuple(
+            append<SemiA, A>(a.Item1, b.Item1),
+            append<SemiB, B>(a.Item2, b.Item2),
+            append<SemiC, C>(a.Item3, b.Item3));
 
     /// <summary>
-    /// Sum
+    /// Monoid concat
     /// </summary>
     [Pure]
-    public static double Sum(this Tuple<double, double, double> self) =>
-        self.Item1 + self.Item2 + self.Item3;
+    public static Tuple<A, B, C> Concat<MonoidA, MonoidB, MonoidC, A, B, C>(this Tuple<A, B, C> a, Tuple<A, B, C> b)
+        where MonoidA : struct, Monoid<A>
+        where MonoidB : struct, Monoid<B>
+        where MonoidC : struct, Monoid<C> =>
+        Tuple(
+            mconcat<MonoidA, A>(a.Item1, b.Item1),
+            mconcat<MonoidB, B>(a.Item2, b.Item2),
+            mconcat<MonoidC, C>(a.Item3, b.Item3));
 
     /// <summary>
-    /// Sum
+    /// Take the first item
     /// </summary>
     [Pure]
-    public static float Sum(this Tuple<float, float, float> self) =>
-        self.Item1 + self.Item2 + self.Item3;
+    public static T1 Head<T1, T2, T3>(this Tuple<T1, T2, T3> self) =>
+        self.Item1;
 
     /// <summary>
-    /// Sum
+    /// Take the last item
     /// </summary>
     [Pure]
-    public static decimal Sum(this Tuple<decimal, decimal, decimal> self) =>
-        self.Item1 + self.Item2 + self.Item3;
+    public static T3 Last<T1, T2, T3>(this Tuple<T1, T2, T3> self) =>
+        self.Item3;
+
+    /// <summary>
+    /// Take the second item onwards and build a new tuple
+    /// </summary>
+    [Pure]
+    public static Tuple<T2, T3> Tail<T1, T2, T3>(this Tuple<T1, T2, T3> self) =>
+        Tuple(self.Item2, self.Item3);
+
+    /// <summary>
+    /// Sum of the items
+    /// </summary>
+    [Pure]
+    public static A Sum<NUM, A>(this Tuple<A, A, A> self)
+        where NUM : struct, Num<A> =>
+        sum<NUM, FoldTuple<A>, Tuple<A, A, A>, A>(self);
+
+    /// <summary>
+    /// Product of the items
+    /// </summary>
+    [Pure]
+    public static A Product<NUM, A>(this Tuple<A, A, A> self)
+        where NUM : struct, Num<A> =>
+        product<NUM, FoldTuple<A>, Tuple<A, A, A>, A>(self);
+
+    /// <summary>
+    /// One of the items matches the value passed
+    /// </summary>
+    [Pure]
+    public static bool Contains<EQ, A>(this Tuple<A, A, A> self, A value)
+        where EQ : struct, Eq<A> =>
+        contains<EQ, FoldTuple<A>, Tuple<A, A, A>, A>(self, value);
 
     /// <summary>
     /// Map to R

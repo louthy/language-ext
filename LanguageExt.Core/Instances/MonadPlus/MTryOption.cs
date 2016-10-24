@@ -13,6 +13,8 @@ namespace LanguageExt.Instances
         Foldable<TryOption<A>, A>,
         BiFoldable<TryOption<A>, Unit, A>
     {
+        public static readonly MTryOption<A> Inst = default(MTryOption<A>);
+
         static TryOption<A> none = TryOption(() => Option<A>.None);
 
         public MB Bind<MONADB, MB, B>(TryOption<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>

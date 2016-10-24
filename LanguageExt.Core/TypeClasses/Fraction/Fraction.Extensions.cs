@@ -9,7 +9,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="x">The ratio to convert</param>
         /// <returns>The equivalent of x in the implementing type.</returns>
-        public static A FromRational<A>(Fraction<A> frac, Ratio<int> x) =>
+        public static A FromRational<A>(this Fraction<A> frac, Ratio<int> x) =>
             frac.FromRational(x);
     }
 }

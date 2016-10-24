@@ -7,6 +7,8 @@ namespace LanguageExt.Instances
     /// </summary>
     public struct EqSet<EQ, A> : Eq<Set<A>> where EQ : struct, Eq<A>
     {
+        public static readonly EqSet<EQ, A> Inst = default(EqSet<EQ, A>);
+
         /// <summary>
         /// Equality test
         /// </summary>

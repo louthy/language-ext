@@ -11,6 +11,8 @@ namespace LanguageExt.Instances
         where ORD    : struct, Ord<A>
         where OPTION : struct, Optional<OA, A>
     {
+        public static readonly OrdOpt<ORD, OPTION, OA, A> Inst = default(OrdOpt<ORD, OPTION, OA, A>);
+
         /// <summary>
         /// Equality test
         /// </summary>

@@ -9,6 +9,8 @@ namespace LanguageExt.Instances
 {
     public struct TArray<A> : Monoid<A[]>
     {
+        public static readonly TArray<A> Inst = default(TArray<A>);
+
         static readonly A[] emp = new A[0];
 
         public A[] Append(A[] x, A[] y) =>

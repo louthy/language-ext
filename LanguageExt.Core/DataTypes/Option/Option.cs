@@ -164,7 +164,7 @@ namespace LanguageExt
         /// <returns>if lhs is Some then lhs, else rhs</returns>
         [Pure]
         public static Option<A> operator |(Option<A> lhs, Option<A> rhs) =>
-            default(MOption<A>).Plus(lhs, rhs);
+            MOption<A>.Inst.Plus(lhs, rhs);
 
         /// <summary>
         /// Truth operator
@@ -239,7 +239,7 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public Option<B> Select<B>(Func<A, B> f) =>
-            default(FOption<A, B>).Map(this, f);
+            FOption<A, B>.Inst.Map(this, f);
 
         /// <summary>
         /// Projection from one value to another 
@@ -249,14 +249,14 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public Option<B> Map<B>(Func<A, B> f) =>
-            default(FOption<A, B>).Map(this, f);
+            FOption<A, B>.Inst.Map(this, f);
 
         /// <summary>
         /// Monad bind operation
         /// </summary>
         [Pure]
         public Option<B> Bind<B>(Func<A, Option<B>> f) =>
-            default(MOption<A>).Bind<MOption<B>, Option<B>, B>(this, f);
+            MOption<A>.Inst.Bind<MOption<B>, Option<B>, B>(this, f);
 
         /// <summary>
         /// Monad bind operation
@@ -265,7 +265,7 @@ namespace LanguageExt
         public Option<C> SelectMany<B, C>(
             Func<A, Option<B>> bind,
             Func<A, B, C> project) =>
-            this.SelectMany<MOption<A>, MOption<B>, MOption<C>, Option<A>, Option<B>, Option<C>, A, B, C>(bind, project);
+            selectMany<MOption<A>, MOption<B>, MOption<C>, Option<A>, Option<B>, Option<C>, A, B, C>(this, bind, project);
 
         /// <summary>
         /// Match operation with an untyped value for Some. This can be
@@ -277,7 +277,7 @@ namespace LanguageExt
         /// <returns>The result of the match operation</returns>
         [Pure]
         public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
-            this.MatchUntyped<MOption<A>, Option<A>, A, R>(Some, None);
+            matchUntyped<MOption<A>, Option<A>, A, R>(this, Some, None);
 
         /// <summary>
         /// Get the Type of the bound value
@@ -293,7 +293,7 @@ namespace LanguageExt
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
         public A[] ToArray() =>
-            this.ToArray<MOption<A>, Option<A>, A>();
+            toArray<MOption<A>, Option<A>, A>(this);
 
         /// <summary>
         /// Convert the Option to an immutable list of zero or one items
@@ -301,7 +301,7 @@ namespace LanguageExt
         /// <returns>An immutable list of zero or one items</returns>
         [Pure]
         public Lst<A> ToList() =>
-            this.ToList<MOption<A>, Option<A>, A>();
+            toList<MOption<A>, Option<A>, A>(this);
 
         /// <summary>
         /// Convert the Option to an enumerable sequence of zero or one items
@@ -309,7 +309,7 @@ namespace LanguageExt
         /// <returns>An enumerable sequence of zero or one items</returns>
         [Pure]
         public IEnumerable<A> ToSeq() =>
-            this.ToSeq<MOption<A>, Option<A>, A>();
+            toSeq<MOption<A>, Option<A>, A>(this);
 
         /// <summary>
         /// Convert the Option to an enumerable of zero or one items
@@ -317,7 +317,7 @@ namespace LanguageExt
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
         public IEnumerable<A> AsEnumerable() =>
-            this.AsEnumerable<MOption<A>, Option<A>, A>();
+            asEnumerable<MOption<A>, Option<A>, A>(this);
 
         /// <summary>
         /// Convert the structure to an Either
@@ -326,7 +326,7 @@ namespace LanguageExt
         /// <returns>An Either representation of the structure</returns>
         [Pure]
         public Either<L, A> ToEither<L>(L defaultLeftValue) =>
-            this.ToEither<MOption<A>, Option<A>, L, A>(defaultLeftValue);
+            toEither<MOption<A>, Option<A>, L, A>(this, defaultLeftValue);
 
         /// <summary>
         /// Convert the structure to an Either
@@ -336,7 +336,7 @@ namespace LanguageExt
         /// <returns>An Either representation of the structure</returns>
         [Pure]
         public Either<L, A> ToEither<L>(Func<L> Left) =>
-            this.ToEither<MOption<A>, Option<A>, L, A>(Left);
+            toEither<MOption<A>, Option<A>, L, A>(this, Left);
 
         /// <summary>
         /// Convert the structure to an EitherUnsafe
@@ -345,7 +345,7 @@ namespace LanguageExt
         /// <returns>An EitherUnsafe representation of the structure</returns>
         [Pure]
         public EitherUnsafe<L, A> ToEitherUnsafe<L>(L defaultLeftValue) =>
-            this.ToEitherUnsafe<MOption<A>, Option<A>, L, A>(defaultLeftValue);
+            toEitherUnsafe<MOption<A>, Option<A>, L, A>(this, defaultLeftValue);
 
         /// <summary>
         /// Convert the structure to an EitherUnsafe
@@ -355,7 +355,7 @@ namespace LanguageExt
         /// <returns>An EitherUnsafe representation of the structure</returns>
         [Pure]
         public EitherUnsafe<L, A> ToEitherUnsafe<L>(Func<L> Left) =>
-            this.ToEitherUnsafe<MOption<A>, Option<A>, L, A>(Left);
+            toEitherUnsafe<MOption<A>, Option<A>, L, A>(this, Left);
 
         /// <summary>
         /// Convert the structure to a OptionUnsafe
@@ -363,7 +363,7 @@ namespace LanguageExt
         /// <returns>An OptionUnsafe representation of the structure</returns>
         [Pure]
         public OptionUnsafe<A> ToOptionUnsafe() =>
-            this.ToOptionUnsafe<MOption<A>, Option<A>, A>();
+            toOptionUnsafe<MOption<A>, Option<A>, A>(this);
 
         /// <summary>
         /// Convert the structure to a TryOption
@@ -371,7 +371,7 @@ namespace LanguageExt
         /// <returns>A TryOption representation of the structure</returns>
         [Pure]
         public TryOption<A> ToTryOption() =>
-            this.ToTryOption<MOption<A>, Option<A>, A>();
+            toTryOption<MOption<A>, Option<A>, A>(this);
 
         /// <summary>
         /// Fluent pattern matching.  Provide a Some handler and then follow
@@ -406,7 +406,7 @@ namespace LanguageExt
         /// <returns>A non-null B</returns>
         [Pure]
         public B Match<B>(Func<A, B> Some, Func<B> None) =>
-            default(MOption<A>).Match(this, Some, None);
+            MOption<A>.Inst.Match(this, Some, None);
 
         /// <summary>
         /// Match the two states of the Option and return a B, which can be null.
@@ -417,7 +417,7 @@ namespace LanguageExt
         /// <returns>B, or null</returns>
         [Pure]
         public B MatchUnsafe<B>(Func<A, B> Some, Func<B> None) =>
-            default(MOption<A>).MatchUnsafe(this, Some, None);
+            MOption<A>.Inst.MatchUnsafe(this, Some, None);
 
         /// <summary>
         /// Match the two states of the Option
@@ -425,14 +425,14 @@ namespace LanguageExt
         /// <param name="Some">Some match operation</param>
         /// <param name="None">None match operation</param>
         public Unit Match(Action<A> Some, Action None) =>
-            default(MOption<A>).Match(this, Some, None);
+            MOption<A>.Inst.Match(this, Some, None);
 
         /// <summary>
         /// Invokes the action if Option is in the Some state, otherwise nothing happens.
         /// </summary>
         /// <param name="f">Action to invoke if Option is in the Some state</param>
         public Unit IfSome(Action<A> f) =>
-            this.IfSome<MOption<A>, Option<A>, A>(f);
+            ifSome<MOption<A>, Option<A>, A>(this, f);
 
         /// <summary>
         /// Invokes the f function if Option is in the Some state, otherwise nothing
@@ -440,7 +440,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="f">Function to invoke if Option is in the Some state</param>
         public Unit IfSome(Func<A, Unit> f) =>
-            this.IfSome<MOption<A>, Option<A>, A>(f);
+            ifSome<MOption<A>, Option<A>, A>(this, f);
 
         /// <summary>
         /// Returns the result of invoking the None() operation if the optional 
@@ -452,7 +452,7 @@ namespace LanguageExt
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
         public A IfNone(Func<A> None) =>
-            this.IfNone<MOption<A>, Option<A>, A>(None);
+            ifNone<MOption<A>, Option<A>, A>(this, None);
 
         /// <summary>
         /// Returns the noneValue if the optional is in a None state, otherwise
@@ -464,7 +464,7 @@ namespace LanguageExt
         /// the bound Some(x) value is returned</returns>
         [Pure]
         public A IfNone(A noneValue) =>
-            this.IfNone<MOption<A>, Option<A>, A>(noneValue);
+            ifNone<MOption<A>, Option<A>, A>(this, noneValue);
 
         /// <summary>
         /// Returns the result of invoking the None() operation if the optional 
@@ -476,7 +476,7 @@ namespace LanguageExt
         /// is in a None state, otherwise the bound Some(x) value is returned.</returns>
         [Pure]
         public A IfNoneUnsafe(Func<A> None) =>
-            this.IfNoneUnsafe<MOption<A>, Option<A>, A>(None);
+            ifNoneUnsafe<MOption<A>, Option<A>, A>(this, None);
 
         /// <summary>
         /// Returns the noneValue if the optional is in a None state, otherwise
@@ -488,7 +488,7 @@ namespace LanguageExt
         /// the bound Some(x) value is returned</returns>
         [Pure]
         public A IfNoneUnsafe(A noneValue) =>
-            this.IfNoneUnsafe<MOption<A>, Option<A>, A>(noneValue);
+            ifNoneUnsafe<MOption<A>, Option<A>, A>(this, noneValue);
 
         /// <summary>
         /// <para>
@@ -513,7 +513,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public S Fold<S>(S state, Func<S, A, S> folder) =>
-            default(MOption<A>).Fold(this, state, folder);
+            MOption<A>.Inst.Fold(this, state, folder);
 
         /// <summary>
         /// <para>
@@ -538,7 +538,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public S FoldBack<S>(S state, Func<S, A, S> folder) =>
-            default(MOption<A>).FoldBack(this, state, folder);
+            MOption<A>.Inst.FoldBack(this, state, folder);
 
         /// <summary>
         /// <para>
@@ -564,7 +564,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, Unit, S> None) =>
-            default(MOption<A>).BiFold(this, state, None, Some);
+            MOption<A>.Inst.BiFold(this, state, None, Some);
 
         /// <summary>
         /// <para>
@@ -590,7 +590,7 @@ namespace LanguageExt
         /// <returns>The aggregate state</returns>
         [Pure]
         public S BiFold<S>(S state, Func<S, A, S> Some, Func<S, S> None) =>
-            default(MOption<A>).BiFold(this, state, (s, _) => None(s), Some);
+            MOption<A>.Inst.BiFold(this, state, (s, _) => None(s), Some);
 
         /// <summary>
         /// Projection from one value to another
@@ -601,7 +601,7 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public Option<B> BiMap<B>(Func<A, B> Some, Func<Unit, B> None) =>
-            default(FOption<A, B>).BiMap(this, None, Some);
+            FOption<A, B>.Inst.BiMap(this, None, Some);
 
         /// <summary>
         /// Projection from one value to another
@@ -612,7 +612,7 @@ namespace LanguageExt
         /// <returns>Mapped functor</returns>
         [Pure]
         public Option<B> BiMap<B>(Func<A, B> Some, Func<B> None) =>
-            default(FOption<A, B>).BiMap(this, _ => None(), Some);
+            FOption<A, B>.Inst.BiMap(this, _ => None(), Some);
 
         /// <summary>
         /// <para>
@@ -628,7 +628,7 @@ namespace LanguageExt
         /// <returns></returns>
         [Pure]
         public int Count() =>
-            default(MOption<A>).Count(this);
+            MOption<A>.Inst.Count(this);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -643,7 +643,7 @@ namespace LanguageExt
         /// predicate supplied.</returns>
         [Pure]
         public bool ForAll(Func<A, bool> pred) =>
-            this.ForAll<MOption<A>, Option<A>, A>(pred);
+            forall<MOption<A>, Option<A>, A>(this, pred);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -659,7 +659,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool BiForAll(Func<A, bool> Some, Func<Unit, bool> None) =>
-            this.BiForAll<MOption<A>, Option<A>, Unit, A>(None, Some);
+            biForAll<MOption<A>, Option<A>, Unit, A>(this, None, Some);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -675,7 +675,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool BiForAll(Func<A, bool> Some, Func<bool> None) =>
-            this.BiForAll<MOption<A>, Option<A>, Unit, A>(_ => None(), Some);
+            biForAll<MOption<A>, Option<A>, Unit, A>(this, _ => None(), Some);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -690,7 +690,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool Exists(Func<A, bool> pred) =>
-            this.Exists<MOption<A>, Option<A>, A>(pred);
+            exists<MOption<A>, Option<A>, A>(this, pred);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -705,7 +705,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool BiExists(Func<A, bool> Some, Func<Unit, bool> None) =>
-            this.BiExists<MOption<A>, Option<A>, Unit, A>(None, Some);
+            biExists<MOption<A>, Option<A>, Unit, A>(this, None, Some);
 
         /// <summary>
         /// Apply a predicate to the bound value.  If the Option is in a None state
@@ -720,7 +720,7 @@ namespace LanguageExt
         /// supplied.</returns>
         [Pure]
         public bool BiExists(Func<A, bool> Some, Func<bool> None) =>
-            this.BiExists<MOption<A>, Option<A>, Unit, A>(_ => None(), Some);
+            biExists<MOption<A>, Option<A>, Unit, A>(this, _ => None(), Some);
 
         /// <summary>
         /// Invoke an action for the bound value (if in a Some state)
@@ -728,7 +728,7 @@ namespace LanguageExt
         /// <param name="Some">Action to invoke</param>
         [Pure]
         public Unit Iter(Action<A> Some) =>
-            this.Iter<MOption<A>, Option<A>, A>(Some);
+            iter<MOption<A>, Option<A>, A>(this, Some);
 
         /// <summary>
         /// Invoke an action depending on the state of the Option
@@ -737,7 +737,7 @@ namespace LanguageExt
         /// <param name="None">Action to invoke if in a None state</param>
         [Pure]
         public Unit BiIter(Action<A> Some, Action<Unit> None) =>
-            this.BiIter<MOption<A>, Option<A>, Unit, A>(None, Some);
+            biIter<MOption<A>, Option<A>, Unit, A>(this, None, Some);
 
         /// <summary>
         /// Invoke an action depending on the state of the Option
@@ -746,7 +746,7 @@ namespace LanguageExt
         /// <param name="None">Action to invoke if in a None state</param>
         [Pure]
         public Unit BiIter(Action<A> Some, Action None) =>
-            this.BiIter<MOption<A>, Option<A>, Unit, A>(_ => None(), Some);
+            biIter<MOption<A>, Option<A>, Unit, A>(this, _ => None(), Some);
 
         /// <summary>
         /// Apply a predicate to the bound value (if in a Some state)
@@ -756,7 +756,7 @@ namespace LanguageExt
         /// returns True.  None otherwise.</returns>
         [Pure]
         public Option<A> Filter(Func<A, bool> pred) =>
-            this.Filter<MOption<A>, Option<A>, A>(pred);
+            filter<MOption<A>, Option<A>, A>(this, pred);
 
         /// <summary>
         /// Apply a predicate to the bound value (if in a Some state)
@@ -766,7 +766,7 @@ namespace LanguageExt
         /// returns True.  None otherwise.</returns>
         [Pure]
         public Option<A> Where(Func<A, bool> pred) =>
-            this.Filter<MOption<A>, Option<A>, A>(pred);
+            filter<MOption<A>, Option<A>, A>(this, pred);
 
         /// <summary>
         /// Monadic join
@@ -777,8 +777,8 @@ namespace LanguageExt
             Func<A, C> outerKeyMap,
             Func<B, C> innerKeyMap,
             Func<A, B, D> project) =>
-            this.Join<EqDefault<C>, MOption<A>, MOption<B>, MOption<D>, Option<A>, Option<B>, Option<D>, A, B, C, D>(
-                inner, outerKeyMap, innerKeyMap, project
+            join<EqDefault<C>, MOption<A>, MOption<B>, MOption<D>, Option<A>, Option<B>, Option<D>, A, B, C, D>(
+                this, inner, outerKeyMap, innerKeyMap, project
                 );
 
         /// <summary>

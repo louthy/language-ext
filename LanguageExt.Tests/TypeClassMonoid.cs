@@ -69,6 +69,6 @@ namespace LanguageExtTests
         static A Max<MONAD, MA, MONOID, A>(MA ma)
             where MONAD  : struct, MonadPlus<MA, A>
             where MONOID : struct, Ord<A>, Monoid<A> =>
-            fold<MONAD, MA, A, A>(ma, default(MONOID).Empty(), default(Max<MONOID, A>).Append);
+            fold<MONAD, MA, A, A>(ma, default(MONOID).Empty(), Max<MONOID, A>.Inst.Append);
     }
 }

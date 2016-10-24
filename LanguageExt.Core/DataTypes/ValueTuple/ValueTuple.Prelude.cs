@@ -9,6 +9,20 @@ namespace LanguageExt
         /// Tuple constructor
         /// </summary>
         [Pure]
+        public static ValueTuple VTuple() =>
+            ValueTuple.Create();
+
+        /// <summary>
+        /// Tuple constructor
+        /// </summary>
+        [Pure]
+        public static ValueTuple<T1> VTuple<T1>(T1 item1) =>
+            ValueTuple.Create(item1);
+
+        /// <summary>
+        /// Tuple constructor
+        /// </summary>
+        [Pure]
         public static ValueTuple<T1, T2> VTuple<T1, T2>(T1 item1, T2 item2) =>
             ValueTuple.Create(item1, item2);
 

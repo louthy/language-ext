@@ -2,9 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+using static LanguageExt.TypeClass;
+using LanguageExt.Instances;
 
 namespace LanguageExt
 {
@@ -22,7 +21,7 @@ namespace LanguageExt
         public readonly string Value;
 
         public static readonly char[] InvalidNameChars =
-            System.IO.Path.GetInvalidFileNameChars().Append(new[] { '[', ']', ',' }).Distinct().ToArray();
+            append<MArray<char>, char[]>(System.IO.Path.GetInvalidFileNameChars(), new[] { '[', ']', ',' }).Distinct().ToArray();
 
         /// <summary>
         /// Ctor

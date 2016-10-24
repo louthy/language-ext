@@ -11,6 +11,8 @@ namespace LanguageExt.Instances
         where ORD     : struct, Ord<A>
         where NEWTYPE : NewType<NEWTYPE, A>
     {
+        public static readonly OrdNewType<NEWTYPE, ORD, A> Inst = default(OrdNewType<NEWTYPE, ORD, A>);
+
         /// <summary>
         /// Equality test
         /// </summary>
@@ -47,6 +49,8 @@ namespace LanguageExt.Instances
         where NUM : struct, Num<A>
         where NEWTYPE : NewType<NEWTYPE, NUM, A>
     {
+        public static readonly OrdNewTypeNum<NEWTYPE, NUM, A> Inst = default(OrdNewTypeNum<NEWTYPE, NUM, A>);
+
         /// <summary>
         /// Equality test
         /// </summary>
@@ -83,6 +87,8 @@ namespace LanguageExt.Instances
         where ORD  : struct, Ord<A>
         where NEWTYPE : NewType<NEWTYPE, SEMI, ORD, A>
     {
+        public static readonly OrdNewType<NEWTYPE, SEMI, ORD, A> Inst = default(OrdNewType<NEWTYPE, SEMI, ORD, A>);
+
         /// <summary>
         /// Equality test
         /// </summary>

@@ -7,6 +7,8 @@ namespace LanguageExt.Instances
     /// </summary>
     public struct EqDouble : Eq<double>
     {
+        public static readonly EqDouble Inst = default(EqDouble);
+
         /// <summary>
         /// Equality test
         /// </summary>

@@ -237,7 +237,7 @@ public static class OptionExtensions
     /// <returns>The bound value or 0 if None</returns>
     public static A Sum<NUM, A>(this Option<A> self)
         where NUM : struct, Num<A> =>
-        self.Sum<NUM, MOption<A>, Option<A>, A>();
+        sum<NUM, MOption<A>, Option<A>, A>(self);
 
     /// <summary>
     /// Projection from one value to another 

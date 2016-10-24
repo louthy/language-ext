@@ -5,6 +5,8 @@ namespace LanguageExt.Instances
 {
     public struct TDecimal : Ord<decimal>, Floating<decimal>
     {
+        public static readonly TDecimal Inst = default(TDecimal);
+
         public bool Equals(decimal x, decimal y) => x == y;
 
         /// <summary>

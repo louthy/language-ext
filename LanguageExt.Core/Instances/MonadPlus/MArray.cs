@@ -18,6 +18,8 @@ namespace LanguageExt.Instances
         Eq<A[]>,
         Monoid<A[]>
    {
+        public static readonly MArray<A> Inst = default(MArray<A>);
+
         public A[] Append(A[] x, A[] y) =>
             x.Concat(y).ToArray();
 
@@ -25,7 +27,7 @@ namespace LanguageExt.Instances
             where MONADB : struct, Monad<MB, B>
         {
             foreach(var a in ma)
-                foreach (var b in f(a).ToSeq<MONADB, MB, B>())
+                foreach (var b in toSeq<MONADB, MB, B>(f(a)))
                     yield return b;
         }
 

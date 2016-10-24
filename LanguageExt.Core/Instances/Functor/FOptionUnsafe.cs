@@ -8,6 +8,8 @@ namespace LanguageExt.Instances
         Functor<OptionUnsafe<A>, OptionUnsafe<B>, A, B>,
         BiFunctor<OptionUnsafe<A>, OptionUnsafe<B>, Unit, A, B>
     {
+        public static readonly FOptionUnsafe<A, B> Inst = default(FOptionUnsafe<A, B>);
+
         public OptionUnsafe<B> BiMap(OptionUnsafe<A> ma, Func<Unit, B> fa, Func<A, B> fb) =>
             ma.IsNone
                 ? fa == null

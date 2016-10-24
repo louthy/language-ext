@@ -18,6 +18,8 @@ namespace LanguageExt.Instances
         Eq<HashSet<A>>,
         Monoid<HashSet<A>>
    {
+        public static readonly MHashSet<A> Inst = default(MHashSet<A>);
+
         public HashSet<A> Append(HashSet<A> x, HashSet<A> y) =>
             HashSet.createRange(x.Concat(y));
 
@@ -25,7 +27,7 @@ namespace LanguageExt.Instances
             where MONADB : struct, Monad<MB, B>
         {
             foreach(var a in ma)
-                foreach (var b in f(a).ToSeq<MONADB, MB, B>())
+                foreach (var b in toSeq<MONADB, MB, B>(f(a)))
                     yield return b;
         }
 

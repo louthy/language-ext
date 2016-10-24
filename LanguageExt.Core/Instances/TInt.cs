@@ -8,6 +8,8 @@ namespace LanguageExt.Instances
     /// </summary>
     public struct TInt : Num<int>, Monoid<int>
     {
+        public static readonly TInt Inst = default(TInt);
+
         /// <summary>
         /// Equality test
         /// </summary>

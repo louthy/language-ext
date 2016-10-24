@@ -19,7 +19,7 @@ namespace LanguageExt
         /// <returns>True if x is greater than y</returns>
         [Pure]
         public static bool greaterThan<ORD, A>(A x, A y) where ORD : struct, Ord<A> =>
-            default(ORD).GreaterThan(x, y);
+            default(ORD).Compare(x, y) >0;
 
         /// <summary>
         /// Returns true if x is greater than or equal to y
@@ -29,7 +29,7 @@ namespace LanguageExt
         /// <returns>True if x is greater than or equal to y</returns>
         [Pure]
         public static bool greaterOrEq<ORD, A>(A x, A y) where ORD : struct, Ord<A> =>
-            default(ORD).GreaterOrEq(x, y);
+            default(ORD).Compare(x, y) >= 0;
 
         /// <summary>
         /// Returns true if x is less than y
@@ -39,7 +39,7 @@ namespace LanguageExt
         /// <returns>True if x is less than y</returns>
         [Pure]
         public static bool lessThan<ORD, A>(A x, A y) where ORD : struct, Ord<A> =>
-            default(ORD).LessThan(x, y);
+            default(ORD).Compare(x, y) < 0;
 
         /// <summary>
         /// Returns true if x is less than or equal to y
@@ -49,7 +49,7 @@ namespace LanguageExt
         /// <returns>True if x is less than or equal to y</returns>
         [Pure]
         public static bool lessOrEq<ORD, A>(A x, A y) where ORD : struct, Ord<A> =>
-            default(ORD).LessOrEq(x, y);
+            default(ORD).Compare(x, y) <= 0;
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -77,7 +77,7 @@ namespace LanguageExt
         /// </returns>
         [Pure]
         public static int compare<ORD, A>(Option<A> x, Option<A> y) where ORD : struct, Ord<A> =>
-            default(OrdOpt<ORD, MOption<A>, Option<A>, A>).Compare(x, y);
+            OrdOpt<ORD, MOption<A>, Option<A>, A>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -91,7 +91,7 @@ namespace LanguageExt
         /// </returns>
         [Pure]
         public static int compare<ORD, A>(OptionUnsafe<A> x, OptionUnsafe<A> y) where ORD : struct, Ord<A> =>
-            default(OrdOpt<ORD, MOptionUnsafe<A>, OptionUnsafe<A>, A>).Compare(x, y);
+            OrdOpt<ORD, MOptionUnsafe<A>, OptionUnsafe<A>, A>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -107,7 +107,7 @@ namespace LanguageExt
         public static int compare<ORDA, ORDB, A, B>(Either<A, B> x, Either<A, B> y)
             where ORDA : struct, Ord<A>
             where ORDB : struct, Ord<B> =>
-            default(OrdChoice<ORDA, ORDB, MEither<A, B>, Either<A, B>, A, B>).Compare(x, y);
+            OrdChoice<ORDA, ORDB, MEither<A, B>, Either<A, B>, A, B>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -123,7 +123,7 @@ namespace LanguageExt
         public static int compare<ORDA, ORDB, A, B>(EitherUnsafe<A, B> x, EitherUnsafe<A, B> y)
             where ORDA : struct, Ord<A>
             where ORDB : struct, Ord<B> =>
-            default(OrdChoice<ORDA, ORDB, MEitherUnsafe<A, B>, EitherUnsafe<A, B>, A, B>).Compare(x, y);
+            OrdChoice<ORDA, ORDB, MEitherUnsafe<A, B>, EitherUnsafe<A, B>, A, B>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -138,7 +138,7 @@ namespace LanguageExt
         [Pure]
         public static int compare<ORD, A>(A[] x, A[] y)
             where ORD : struct, Ord<A> =>
-            default(OrdArray<ORD, A>).Compare(x, y);
+            OrdArray<ORD, A>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -153,7 +153,7 @@ namespace LanguageExt
         [Pure]
         public static int compare<ORD, A>(Lst<A> x, Lst<A> y)
             where ORD : struct, Ord<A> =>
-            default(OrdLst<ORD, A>).Compare(x, y);
+            OrdLst<ORD, A>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -169,7 +169,7 @@ namespace LanguageExt
         public static int compare<NEWTYPE, ORD, T>(NEWTYPE x, NEWTYPE y)
             where ORD : struct, Ord<T>
             where NEWTYPE : NewType<NEWTYPE, T> =>
-            default(OrdNewType<NEWTYPE, ORD, T>).Compare(x, y);
+            OrdNewType<NEWTYPE, ORD, T>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -185,7 +185,7 @@ namespace LanguageExt
         public static int compare<NEWTYPE, NUM, T>(NEWTYPE x, NewType<NEWTYPE, NUM, T> y)
             where NUM : struct, Num<T>
             where NEWTYPE : NewType<NEWTYPE, NUM, T> =>
-            default(OrdNewTypeNum<NEWTYPE, NUM, T>).Compare(x, y);
+            OrdNewTypeNum<NEWTYPE, NUM, T>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -202,7 +202,7 @@ namespace LanguageExt
             where SEMI : struct, Semigroup<T>
             where ORD : struct, Ord<T>
             where NEWTYPE : NewType<NEWTYPE, SEMI, ORD, T> =>
-            default(OrdNewType<NEWTYPE, SEMI, ORD, T>).Compare(x, y);
+            OrdNewType<NEWTYPE, SEMI, ORD, T>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -216,7 +216,7 @@ namespace LanguageExt
         /// </returns>
         [Pure]
         public static int compare<ORD, A>(TryOption<A> x, TryOption<A> y) where ORD : struct, Ord<A> =>
-            default(OrdOpt<ORD, MTryOption<A>, TryOption<A>, A>).Compare(x, y);
+            OrdOpt<ORD, MTryOption<A>, TryOption<A>, A>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -230,7 +230,7 @@ namespace LanguageExt
         /// </returns>
         [Pure]
         public static int compare<ORD, A>(Try<A> x, Try<A> y) where ORD : struct, Ord<A> =>
-            default(OrdOpt<ORD, MTry<A>, Try<A>, A>).Compare(x, y);
+            OrdOpt<ORD, MTry<A>, Try<A>, A>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -244,7 +244,7 @@ namespace LanguageExt
         /// </returns>
         [Pure]
         public static int compare<ORD, L, R>(Either<L, R> x, Either<L, R> y) where ORD : struct, Ord<R> =>
-            default(OrdChoice<ORD, MEither<L, R>, Either<L, R>, L, R>).Compare(x, y);
+            OrdChoice<ORD, MEither<L, R>, Either<L, R>, L, R>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -258,7 +258,7 @@ namespace LanguageExt
         /// </returns>
         [Pure]
         public static int compare<ORD, L, R>(EitherUnsafe<L, R> x, EitherUnsafe<L, R> y) where ORD : struct, Ord<R> =>
-            default(OrdChoice<ORD, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>).Compare(x, y);
+            OrdChoice<ORD, MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>.Inst.Compare(x, y);
 
     }
 }

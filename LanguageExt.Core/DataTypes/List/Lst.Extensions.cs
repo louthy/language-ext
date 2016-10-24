@@ -10,6 +10,17 @@ using LanguageExt.TypeClasses;
 public static class ListExtensions
 {
     /// <summary>
+    /// Concatenate two enumerables (Concat in LINQ)
+    /// </summary>
+    /// <typeparam name="A">Enumerable item type</typeparam>
+    /// <param name="lhs">First enumerable</param>
+    /// <param name="rhs">Second enumerable</param>
+    /// <returns>Concatenated enumerable</returns>
+    [Pure]
+    public static IEnumerable<A> Append<A>(this IEnumerable<A> lhs, IEnumerable<A> rhs) =>
+        lhs.Concat(rhs);
+
+    /// <summary>
     /// List pattern matching
     /// </summary>
     [Pure]

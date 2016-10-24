@@ -60,7 +60,7 @@
     <Compile Include="DataTypes\EitherUnsafe\EitherUnsafe.Prelude.cs" />
     <Compile Include="DataTypes\Either\Either.Extensions.cs" />
     <Compile Include="DataTypes\ValueTuple\Tuple2\ValueTuple2.Prelude.cs" />
-    <Compile Include="DataTypes\ValueTuple\Tuple2\ValueTuple2.cs" />
+    <Compile Include="DataTypes\ValueTuple\Tuple2\ValueTuple2.Extensions.cs" />
     <Compile Include="HKT.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -80,6 +80,8 @@
     <Compile Include="Instances\Functor\FSeq.cs" />
     <Compile Include="Instances\Functor\FOptionUnsafe.cs" />
     <Compile Include="Instances\Functor\FOption.cs" />
+    <Compile Include="Instances\Functor\FTupleTri.cs" />
+    <Compile Include="Instances\Functor\FTupleBi.cs" />
     <Compile Include="Instances\Functor\FTupleFst.cs" />
     <Compile Include="Instances\Functor\FTupleThrd.cs" />
     <Compile Include="Instances\Functor\FTupleSnd.cs" />
@@ -155,18 +157,18 @@
     <Compile Include="DataTypes\Try\TryConfig.cs" />
     <Compile Include="DataTypes\Try\TryResult.cs" />
     <Compile Include="DataTypes\Try\TrySuccContext.cs" />
-    <Compile Include="TypeClasses\Applicative\Applicative.Extensions.cs" />
     <Compile Include="TypeClasses\Applicative\Applicative.Prelude.cs" />
+    <Compile Include="TypeClasses\TriFunctor\TriFunctor.cs" />
+    <Compile Include="TypeClasses\TriFunctor\TriFunctor.Prelude.cs" />
     <Compile Include="TypeClasses\BiFunctor\BiFunctor.cs" />
     <Compile Include="TypeClasses\BiFunctor\BiFunctor.Prelude.cs" />
     <Compile Include="TypeClasses\Choice\Choice.cs" />
-    <Compile Include="TypeClasses\Choice\Choice.Extensions.cs" />
+    <Compile Include="TypeClasses\Choice\Choice.Prelude.cs" />
     <Compile Include="TypeClasses\Eq\Eq.Extensions.cs" />
-    <Compile Include="TypeClasses\BiFoldable\BiFoldable.Extensions.cs" />
     <Compile Include="TypeClasses\BiFoldable\BiFoldable.cs" />
     <Compile Include="TypeClasses\BiFoldable\BiFoldable.Prelude.cs" />
     <Compile Include="TypeClasses\Liftable\Liftable.cs" />
-    <Compile Include="DataTypes\ValueTuple\Tuple3\ValueTuple3.cs" />
+    <Compile Include="DataTypes\ValueTuple\Tuple3\ValueTuple3.Extensions.cs" />
     <Compile Include="TypeclassAttribute.cs" />
     <Compile Include="DataTypes\HashMap\HashMap.Prelude.cs" />
     <Compile Include="DataTypes\HashSet\HashSet.cs" />
@@ -217,7 +219,7 @@
     <Compile Include="DataTypes\Either\Either.Prelude.cs" />
     <Compile Include="Prelude_Func.cs" />
     <Compile Include="Prelude_Memoize.cs" />
-    <Compile Include="Prelude_Tuple.cs" />
+    <Compile Include="DataTypes\Tuple\Tuple.Prelude.cs" />
     <Compile Include="Queue.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="Reader.cs" />
@@ -236,23 +238,16 @@
     <Compile Include="Stck.cs" />
     <Compile Include="DataTypes\Try\Try.Extensions.cs" />
     <Compile Include="TryOutExt.cs" />
-    <Compile Include="DataTypes\Tuple\Tuple3\Tuple3.cs" />
-    <Compile Include="DataTypes\Tuple\Tuple2\Tuple2.cs" />
-    <Compile Include="DataTypes\Tuple\TupleExt.cs" />
+    <Compile Include="DataTypes\Tuple\Tuple3\Tuple3.Extensions.cs" />
+    <Compile Include="DataTypes\Tuple\Tuple2\Tuple2.Extensions.cs" />
+    <Compile Include="DataTypes\Tuple\Tuple.Extensions.cs" />
     <Compile Include="Instances\Eq\EqDefault.cs" />
-    <Compile Include="TypeClasses\Foldable\Foldable.Extensions.cs" />
     <Compile Include="TypeClasses\Fraction\Fraction.Extensions.cs" />
     <Compile Include="TypeClasses\MonadPlus\MonadPlus.cs" />
-    <Compile Include="TypeClasses\MonadPlus\MonadPlus.Extensions.cs" />
     <Compile Include="TypeClasses\MonadPlus\MonadPlus.Prelude.cs" />
-    <Compile Include="TypeClasses\Monad\Monad.Extensions.cs" />
-    <Compile Include="TypeClasses\Functor\Functor.Extensions.cs" />
     <Compile Include="Instances\Ord\OrdOpt.cs" />
-    <Compile Include="TypeClasses\Monoid\Monoid.Extensions.cs" />
     <Compile Include="TypeClasses\Optional\Optional.cs" />
-    <Compile Include="TypeClasses\Optional\Optional.Extensions.cs" />
-    <Compile Include="TypeClasses\Ord\Ord.Extensions.cs" />
-    <Compile Include="TypeClasses\Semigroup\Semigroup.Extensions.cs" />
+    <Compile Include="TypeClasses\Optional\Optional.Prelude.cs" />
     <Compile Include="TypeClasses\Foldable\Foldable.cs" />
     <Compile Include="TypeClasses\Functor\Functor.cs" />
     <Compile Include="TypeClasses\Monad\Monad.cs" />

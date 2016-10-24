@@ -14,7 +14,8 @@ namespace LanguageExtTests
         public void Tuple2FirstItemMap()
         {
             var tup = Tuple(42, "Paul");
-            tup = default(FTupleFst<int, string, int>).Map(tup, x => x * 2);
+
+            tup = FTupleFst<int, string, int>.Inst.Map(tup, x => x * 2);
 
             Assert.True(tup.Item1 == 84);
             Assert.True(tup.Item2 == "Paul");
@@ -24,7 +25,8 @@ namespace LanguageExtTests
         public void Tuple2SecondItemMap()
         {
             var tup = Tuple(42, "Paul");
-            tup = default(FTupleSnd<int, string, string>).Map(tup, x => x + " Louth");
+
+            tup = FTupleSnd<int, string, string>.Inst.Map(tup, x => x + " Louth");
 
             Assert.True(tup.Item1 == 42);
             Assert.True(tup.Item2 == "Paul Louth");
@@ -34,7 +36,8 @@ namespace LanguageExtTests
         public void Tuple3FirstItemMap()
         {
             var tup = Tuple(42, "Paul", true);
-            tup = default(FTupleFst<int, string, bool, int>).Map(tup, x => x * 2);
+
+            tup = FTupleFst<int, string, bool, int>.Inst.Map(tup, x => x * 2);
 
             Assert.True(tup.Item1 == 84);
             Assert.True(tup.Item2 == "Paul");
@@ -45,7 +48,8 @@ namespace LanguageExtTests
         public void Tuple3SecondItemMap()
         {
             var tup = Tuple(42, "Paul", true);
-            tup = default(FTupleSnd<int, string, bool, string>).Map(tup, x => x + " Louth");
+
+            tup = FTupleSnd<int, string, bool, string>.Inst.Map(tup, x => x + " Louth");
 
             Assert.True(tup.Item1 == 42);
             Assert.True(tup.Item2 == "Paul Louth");
@@ -56,7 +60,8 @@ namespace LanguageExtTests
         public void Tuple3ThirdItemMap()
         {
             var tup = Tuple(42, "Paul", true);
-            tup = default(FTupleThrd<int, string, bool, bool>).Map(tup, _ => false);
+
+            tup = FTupleThrd<int, string, bool, bool>.Inst.Map(tup, _ => false);
 
             Assert.True(tup.Item1 == 42);
             Assert.True(tup.Item2 == "Paul");

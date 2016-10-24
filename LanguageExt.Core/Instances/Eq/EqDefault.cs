@@ -11,6 +11,8 @@ namespace LanguageExt.Instances
     /// </summary>
     public struct EqDefault<A> : Eq<A>
     {
+        public static readonly EqDefault<A> Inst = default(EqDefault<A>);
+
         /// <summary>
         /// Equality test
         /// </summary>

@@ -7,6 +7,8 @@ namespace LanguageExt.Instances
     /// </summary>
     public struct EqQueue<A> : Eq<Que<A>>
     {
+        public static readonly EqQueue<A> Inst = default(EqQueue<A>);
+
         /// <summary>
         /// Equality test
         /// </summary>

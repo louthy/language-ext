@@ -1,22 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Diagnostics;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters;
+using Newtonsoft.Json;
 using LanguageExt;
 using LanguageExt.Trans;
+using LanguageExt.Parsec;
+using LanguageExt.Instances;
 using static LanguageExt.List;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Runtime.Serialization.Formatters;
-using LanguageExt.Parsec;
+using static LanguageExt.TypeClass;
 using static LanguageExt.Parsec.Char;
 using static LanguageExt.Parsec.Prim;
 using static LanguageExt.Parsec.Token;
-using LanguageExt.Instances;
 
 // ************************************************************************************
 // 
@@ -42,7 +43,7 @@ namespace TestBed
             var a = new Hours(2);
             var b = new Hours(2);
 
-            var c = a.Append<Hours, TInt, int>(b);
+            var c = append<Hours, TInt, int>(a, b);
         }
     }
 

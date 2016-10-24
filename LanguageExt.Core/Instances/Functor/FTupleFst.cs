@@ -1,9 +1,6 @@
-﻿using LanguageExt.TypeClasses;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using LanguageExt.TypeClasses;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.Instances
 {
@@ -17,6 +14,8 @@ namespace LanguageExt.Instances
         Functor<Tuple<A, B>, Tuple<R, B>, A, R>,
         Functor<ValueTuple<A, B>, ValueTuple<R, B>, A, R>
     {
+        public static readonly FTupleFst<A, B, R> Inst = default(FTupleFst<A, B, R>);
+
         /// <summary>
         /// Maps the third item in a tuple 3
         /// </summary>
@@ -24,7 +23,7 @@ namespace LanguageExt.Instances
         /// <param name="f">Mapping function</param>
         /// <returns>Target tuple</returns>
         public Tuple<R, B> Map(Tuple<A, B> ma, Func<A, R> f) =>
-            new Tuple<R, B>(f(ma.Item1), ma.Item2);
+            Tuple(f(ma.Item1), ma.Item2);
 
         /// <summary>
         /// Maps the third item in a tuple 3
@@ -33,7 +32,7 @@ namespace LanguageExt.Instances
         /// <param name="f">Mapping function</param>
         /// <returns>Target tuple</returns>
         public ValueTuple<R, B> Map(ValueTuple<A, B> ma, Func<A, R> f) =>
-            new ValueTuple<R, B>(f(ma.Item1), ma.Item2);
+            VTuple(f(ma.Item1), ma.Item2);
     }
 
     /// <summary>
@@ -47,6 +46,8 @@ namespace LanguageExt.Instances
         Functor<Tuple<A, B, C>, Tuple<R, B, C>, A, R>,
         Functor<ValueTuple<A, B, C>, ValueTuple<R, B, C>, A, R>
     {
+        public static readonly FTupleFst<A, B, C, R> Inst = default(FTupleFst<A, B, C, R>);
+
         /// <summary>
         /// Maps the third item in a tuple 3
         /// </summary>
@@ -54,7 +55,7 @@ namespace LanguageExt.Instances
         /// <param name="f">Mapping function</param>
         /// <returns>Target tuple</returns>
         public Tuple<R, B, C> Map(Tuple<A, B, C> ma, Func<A, R> f) =>
-            new Tuple<R, B, C>(f(ma.Item1), ma.Item2, ma.Item3);
+            Tuple(f(ma.Item1), ma.Item2, ma.Item3);
 
         /// <summary>
         /// Maps the third item in a tuple 3
@@ -63,6 +64,6 @@ namespace LanguageExt.Instances
         /// <param name="f">Mapping function</param>
         /// <returns>Target tuple</returns>
         public ValueTuple<R, B, C> Map(ValueTuple<A, B, C> ma, Func<A, R> f) =>
-            new ValueTuple<R, B, C>(f(ma.Item1), ma.Item2, ma.Item3);
+            VTuple(f(ma.Item1), ma.Item2, ma.Item3);
     }
 }

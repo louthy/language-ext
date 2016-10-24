@@ -9,6 +9,8 @@ namespace LanguageExt.Instances
     public struct OrdArray<ORD, A> : Ord<A[]>
         where ORD : struct, Ord<A>
     {
+        public static readonly OrdArray<ORD, A> Inst = default(OrdArray<ORD, A>);
+
         /// <summary>
         /// Equality test
         /// </summary>

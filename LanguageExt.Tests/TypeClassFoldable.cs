@@ -16,7 +16,7 @@ namespace LanguageExtTests
         {
             var tup = Tuple(1, 2, 4);
 
-            var total = tup.Sum<TInt, FoldTuple<int>, Tuple<int, int, int>, int>();
+            var total = sum<TInt, FoldTuple<int>, Tuple<int, int, int>, int>(tup);
 
             Assert.True(total == 7);
         }
@@ -26,7 +26,7 @@ namespace LanguageExtTests
         {
             var tup = Tuple(2, 4, 8);
 
-            var total = tup.Product<TInt, FoldTuple<int>, Tuple<int, int, int>, int>();
+            var total = product<TInt, FoldTuple<int>, Tuple<int, int, int>, int>(tup);
 
             Assert.True(total == 64);
         }
@@ -36,7 +36,7 @@ namespace LanguageExtTests
         {
             var tup = Tuple(2, 4, 8);
 
-            bool res = tup.Contains<TInt, FoldTuple<int>, Tuple<int, int, int>, int>(8);
+            bool res = contains<TInt, FoldTuple<int>, Tuple<int, int, int>, int>(tup, 8);
 
             Assert.True(res);
         }
@@ -46,7 +46,7 @@ namespace LanguageExtTests
         {
             var tup = Tuple(2, 4, 8);
 
-            bool res = tup.Contains<TInt, FoldTuple<int>, Tuple<int, int, int>, int>(16);
+            bool res = contains<TInt, FoldTuple<int>, Tuple<int, int, int>, int>(tup, 16);
 
             Assert.False(res);
         }
@@ -56,7 +56,7 @@ namespace LanguageExtTests
         {
             var tup = Tuple(2, 4, 8);
 
-            var res = tup.Last<FoldTuple<int>, Tuple<int, int, int>, int>();
+            var res = last<FoldTuple<int>, Tuple<int, int, int>, int>(tup);
 
             Assert.True(res == 8);
         }
@@ -66,7 +66,7 @@ namespace LanguageExtTests
         {
             var tup = Tuple(2, 4, 8);
 
-            var res = tup.Head<FoldTuple<int>, Tuple<int, int, int>, int>();
+            var res = head<FoldTuple<int>, Tuple<int, int, int>, int>(tup);
 
             Assert.True(res == 2);
         }
@@ -76,7 +76,7 @@ namespace LanguageExtTests
         {
             var tup = Tuple(2, 4, 8);
 
-            var res = tup.ToSeq<FoldTuple<int>, Tuple<int, int, int>, int>().ToArray();
+            var res = toSeq<FoldTuple<int>, Tuple<int, int, int>, int>(tup).ToArray();
 
             Assert.True(res.Length == 3);
             Assert.True(res[0] == 2);

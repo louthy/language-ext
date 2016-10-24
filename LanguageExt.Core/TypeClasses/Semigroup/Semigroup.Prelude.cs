@@ -49,7 +49,7 @@ namespace LanguageExt
         /// <returns>The result of the operation</returns>
         [Pure]
         public static HashMap<K, V> append<K, V>(HashMap<K, V> x, HashMap<K, V> y) =>
-            default(MHashMap<K, V>).Append(x, y);
+            MHashMap<K, V>.Inst.Append(x, y);
 
         /// <summary>
         /// An associative binary operation
@@ -59,7 +59,7 @@ namespace LanguageExt
         /// <returns>The result of the operation</returns>
         [Pure]
         public static HashSet<A> append<A>(HashSet<A> x, HashSet<A> y) =>
-            default(MHashSet<A>).Append(x, y);
+            MHashSet<A>.Inst.Append(x, y);
 
         /// <summary>
         /// An associative binary operation
@@ -69,7 +69,7 @@ namespace LanguageExt
         /// <returns>The result of the operation</returns>
         [Pure]
         public static Lst<A> append<A>(Lst<A> x, Lst<A> y) =>
-            default(MLst<A>).Append(x, y);
+            MLst<A>.Inst.Append(x, y);
 
         /// <summary>
         /// An associative binary operation
@@ -79,7 +79,7 @@ namespace LanguageExt
         /// <returns>The result of the operation</returns>
         [Pure]
         public static Map<K, V> append<K, V>(Map<K, V> x, Map<K, V> y) =>
-            default(MMap<K, V>).Append(x, y);
+            MMap<K, V>.Inst.Append(x, y);
 
         /// <summary>
         /// An associative binary operation

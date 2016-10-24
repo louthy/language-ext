@@ -18,6 +18,8 @@ namespace LanguageExt.Instances
         Eq<Set<A>>,
         Monoid<Set<A>>
    {
+        public static readonly MSet<A> Inst = default(MSet<A>);
+
         public Set<A> Append(Set<A> x, Set<A> y) =>
             Set.createRange(x.Concat(y));
 
@@ -25,7 +27,7 @@ namespace LanguageExt.Instances
             where MONADB : struct, Monad<MB, B>
         {
             foreach(var a in ma)
-                foreach (var b in f(a).ToSeq<MONADB, MB, B>())
+                foreach (var b in toSeq<MONADB, MB, B>(f(a)))
                     yield return b;
         }
 

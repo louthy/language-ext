@@ -79,7 +79,7 @@ namespace LanguageExt
         public static Option<T> Some<T>(T value) =>
             isnull(value)
                 ? raise<Option<T>>(new ValueIsNullException())
-                : default(MOption<T>).Return(value);
+                : MOption<T>.Inst.Return(value);
 
         /// <summary>
         /// Create a Some of T from a Nullable<T> (Option<T>)
@@ -91,7 +91,7 @@ namespace LanguageExt
         [Pure]
         public static Option<T> Some<T>(T? value) where T : struct =>
             value.HasValue
-                ? default(MOption<T>).Return(value.Value)
+                ? MOption<T>.Inst.Return(value.Value)
                 : raise<Option<T>>(new ValueIsNullException());
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace LanguageExt
         /// <returns>If the value is null it will be None else Some(value)</returns>
         [Pure]
         public static Option<T> Optional<T>(T value) =>
-            default(MOption<T>).Return(value);
+            MOption<T>.Inst.Return(value);
 
         /// <summary>
         /// Create a lazy Some of T (Option<T>)
@@ -126,7 +126,7 @@ namespace LanguageExt
         [Pure]
         public static Option<T> Optional<T>(T? value) where T : struct =>
             value.HasValue
-                ? default(MOption<T>).Return(value.Value)
+                ? MOption<T>.Inst.Return(value.Value)
                 : Option<T>.None;
 
         /// <summary>

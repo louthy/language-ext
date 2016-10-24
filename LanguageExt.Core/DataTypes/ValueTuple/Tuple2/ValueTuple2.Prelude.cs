@@ -1,5 +1,10 @@
 using System;
+using LanguageExt;
+using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
+using LanguageExt.Instances;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -13,32 +18,72 @@ namespace LanguageExt
             self.Append(third);
 
         /// <summary>
-        /// Sum
+        /// Semigroup append
         /// </summary>
         [Pure]
-        public static int sum<T1, T2>(ValueTuple<int, int> self) =>
-            self.Sum();
+        public static ValueTuple<A, B> append<SemiA, SemiB, A, B>(ValueTuple<A, B> a, ValueTuple<A, B> b)
+            where SemiA : struct, Semigroup<A>
+            where SemiB : struct, Semigroup<B> =>
+            VTuple(
+                default(SemiA).Append(a.Item1, b.Item1),
+                default(SemiB).Append(a.Item2, b.Item2));
 
         /// <summary>
-        /// Sum
+        /// Monoid concat
         /// </summary>
         [Pure]
-        public static double sum<T1, T2>(ValueTuple<double, double> self) =>
-            self.Sum();
+        public static ValueTuple<A, B> concat<MonoidA, MonoidB, A, B>(ValueTuple<A, B> a, ValueTuple<A, B> b)
+            where MonoidA : struct, Monoid<A>
+            where MonoidB : struct, Monoid<B> =>
+            VTuple(
+                mconcat<MonoidA, A>(a.Item1, b.Item1),
+                mconcat<MonoidB, B>(a.Item2, b.Item2));
 
         /// <summary>
-        /// Sum
+        /// Take the first item
         /// </summary>
         [Pure]
-        public static float sum<T1, T2>(ValueTuple<float, float> self) =>
-            self.Sum();
+        public static T1 head<T1, T2>(ValueTuple<T1, T2> self) =>
+            self.Item1;
 
         /// <summary>
-        /// Sum
+        /// Take the last item
         /// </summary>
         [Pure]
-        public static decimal sum<T1, T2>(ValueTuple<decimal, decimal> self) =>
-            self.Sum();
+        public static T2 last<T1, T2>(ValueTuple<T1, T2> self) =>
+            self.Item2;
+
+        /// <summary>
+        /// Take the second item onwards and build a new tuple
+        /// </summary>
+        [Pure]
+        public static ValueTuple<T2> tail<T1, T2>(ValueTuple<T1, T2> self) =>
+            VTuple(self.Item2);
+
+        /// <summary>
+        /// Sum of the items
+        /// </summary>
+        [Pure]
+        public static A sum<NUM, A>(this ValueTuple<A, A> self)
+            where NUM : struct, Num<A> =>
+            sum<NUM, FoldTuple<A>, ValueTuple<A, A>, A>(self);
+
+        /// <summary>
+        /// Product of the items
+        /// </summary>
+        [Pure]
+        public static A product<NUM, A>(this ValueTuple<A, A> self)
+            where NUM : struct, Num<A> =>
+            product<NUM, FoldTuple<A>, ValueTuple<A, A>, A>(self);
+
+        /// <summary>
+        /// One of the items matches the value passed
+        /// </summary>
+        [Pure]
+        public static bool contains<EQ, A>(this ValueTuple<A, A> self, A value)
+            where EQ : struct, Eq<A> =>
+            contains<EQ, FoldTuple<A>, ValueTuple<A, A>, A>(self, value);
+
 
         /// <summary>
         /// Map to R

@@ -12,6 +12,8 @@ namespace LanguageExt.Instances
         where EQA    : struct, Eq<A>
         where EQB    : struct, Eq<B>
     {
+        public static readonly EqChoice<EQA, EQB, CHOICE, CH, A, B> Inst = default(EqChoice<EQA, EQB, CHOICE, CH, A, B>);
+
         /// <summary>
         /// Equality test
         /// </summary>
@@ -36,6 +38,8 @@ namespace LanguageExt.Instances
         where CHOICE : struct, Choice<CH, A, B>
         where EQB : struct, Eq<B>
     {
+        public static EqChoice<EQB, CHOICE, CH, A, B> Inst = default(EqChoice<EQB, CHOICE, CH, A, B>);
+
         /// <summary>
         /// Equality test
         /// </summary>

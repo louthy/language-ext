@@ -1,5 +1,10 @@
 using System;
+using LanguageExt;
+using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
+using LanguageExt.Instances;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -13,32 +18,47 @@ namespace LanguageExt
             self.Append(third);
 
         /// <summary>
-        /// Sum
+        /// Semigroup append
         /// </summary>
         [Pure]
-        public static int sum<T1, T2>(Tuple<int, int> self) =>
-            self.Sum();
+        public static Tuple<A, B> append<SemiA, SemiB, A, B>(Tuple<A, B> a, Tuple<A, B> b)
+            where SemiA : struct, Semigroup<A>
+            where SemiB : struct, Semigroup<B> =>
+            Tuple(
+                default(SemiA).Append(a.Item1, b.Item1),
+                default(SemiB).Append(a.Item2, b.Item2));
 
         /// <summary>
-        /// Sum
+        /// Monoid concat
         /// </summary>
         [Pure]
-        public static double sum<T1, T2>(Tuple<double, double> self) =>
-            self.Sum();
+        public static Tuple<A, B> concat<MonoidA, MonoidB, A, B>(Tuple<A, B> a, Tuple<A, B> b)
+            where MonoidA : struct, Monoid<A>
+            where MonoidB : struct, Monoid<B> =>
+            Tuple(
+                mconcat<MonoidA, A>(a.Item1, b.Item1),
+                mconcat<MonoidB, B>(a.Item2, b.Item2));
 
         /// <summary>
-        /// Sum
+        /// Take the first item
         /// </summary>
         [Pure]
-        public static float sum<T1, T2>(Tuple<float, float> self) =>
-            self.Sum();
+        public static T1 head<T1, T2>(Tuple<T1, T2> self) =>
+            self.Item1;
 
         /// <summary>
-        /// Sum
+        /// Take the last item
         /// </summary>
         [Pure]
-        public static decimal sum<T1, T2>(Tuple<decimal, decimal> self) =>
-            self.Sum();
+        public static T2 last<T1, T2>(Tuple<T1, T2> self) =>
+            self.Item2;
+
+        /// <summary>
+        /// Take the second item onwards and build a new tuple
+        /// </summary>
+        [Pure]
+        public static Tuple<T2> tail<T1, T2>(Tuple<T1, T2> self) =>
+            Tuple(self.Item2);
 
         /// <summary>
         /// Map to R
