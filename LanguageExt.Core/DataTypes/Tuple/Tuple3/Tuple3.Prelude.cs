@@ -70,7 +70,7 @@ namespace LanguageExt
         [Pure]
         public static A sum<NUM, A>(Tuple<A, A, A> self)
             where NUM : struct, Num<A> =>
-            sum<NUM, FoldTuple<A>, Tuple<A, A, A>, A>(self);
+            default(NUM).Plus(self.Item1, default(NUM).Product(self.Item2, self.Item3));
 
         /// <summary>
         /// Product of the items
@@ -78,7 +78,7 @@ namespace LanguageExt
         [Pure]
         public static A product<NUM, A>(Tuple<A, A, A> self)
             where NUM : struct, Num<A> =>
-            product<NUM, FoldTuple<A>, Tuple<A, A, A>, A>(self);
+            default(NUM).Product(self.Item1, default(NUM).Product(self.Item2, self.Item3));
 
         /// <summary>
         /// One of the items matches the value passed

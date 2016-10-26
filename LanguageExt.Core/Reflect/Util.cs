@@ -8,12 +8,11 @@ namespace LanguageExt.Reflect
     internal static class Util
     {
         /// <summary>
-        /// Emits the IL to instantiate a NewType of A
+        /// Emits the IL to instantiate a type of R
         /// </summary>
-        /// <returns></returns>
-        public static Func<A, NEWTYPE> CreateDynamicConstructor<A, NEWTYPE>()
+        public static Func<A, R> CtorOfArity1<A, R>()
         {
-            var ctorInfo = typeof(NEWTYPE)
+            var ctorInfo = typeof(R)
                 .GetTypeInfo()
                 .GetConstructors()
                 .Where(x => x.GetParameters().Length == 1)
@@ -34,7 +33,7 @@ namespace LanguageExt.Reflect
             il.Emit(OpCodes.Newobj, ctorInfo);
             il.Emit(OpCodes.Ret);
 
-            return (Func<A, NEWTYPE>)dynamic.CreateDelegate(typeof(Func<A, NEWTYPE>));
+            return (Func<A, R>)dynamic.CreateDelegate(typeof(Func<A, R>));
 #endif
         }
     }

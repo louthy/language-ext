@@ -90,6 +90,35 @@ namespace LanguageExt
         [Pure]
         public static NEWTYPE append<NEWTYPE, SEMI, A>(NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y)
             where NEWTYPE : NewType<NEWTYPE, A>
+            where SEMI : struct, Semigroup<A> =>
+            from a in x
+            from b in y
+            select default(SEMI).Append(a, b);
+
+        /// <summary>
+        /// An associative binary operation
+        /// </summary>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>The result of the operation</returns>
+        [Pure]
+        public static NUMTYPE append<NUMTYPE, NUM, A>(NumType<NUMTYPE, NUM, A> x, NumType<NUMTYPE, NUM, A> y)
+            where NUMTYPE : NumType<NUMTYPE, NUM, A>
+            where NUM : struct, Num<A> =>
+            from a in x
+            from b in y
+            select default(NUM).Append(a, b);
+
+        /// <summary>
+        /// An associative binary operation
+        /// </summary>
+        /// <param name="x">The left hand side of the operation</param>
+        /// <param name="y">The right hand side of the operation</param>
+        /// <returns>The result of the operation</returns>
+        [Pure]
+        public static NEWTYPE append<NEWTYPE, SEMI, A, PRED>(NewType<NEWTYPE, A, PRED> x, NewType<NEWTYPE, A, PRED> y)
+            where NEWTYPE : NewType<NEWTYPE, A, PRED>
+            where PRED    : struct, Pred<A>
             where SEMI    : struct, Semigroup<A> =>
             from a in x
             from b in y
@@ -102,23 +131,9 @@ namespace LanguageExt
         /// <param name="y">The right hand side of the operation</param>
         /// <returns>The result of the operation</returns>
         [Pure]
-        public static NEWTYPE append<NEWTYPE, SEMI, ORD, A>(NewType<NEWTYPE, SEMI, ORD, A> x, NewType<NEWTYPE, SEMI, ORD, A> y)
-            where NEWTYPE : NewType<NEWTYPE, SEMI, ORD, A>
-            where ORD     : struct, Ord<A>
-            where SEMI    : struct, Semigroup<A> =>
-            from a in x
-            from b in y
-            select default(SEMI).Append(a, b);
-
-        /// <summary>
-        /// An associative binary operation
-        /// </summary>
-        /// <param name="x">The left hand side of the operation</param>
-        /// <param name="y">The right hand side of the operation</param>
-        /// <returns>The result of the operation</returns>
-        [Pure]
-        public static NEWTYPE append<NEWTYPE, NUM, A>(NewType<NEWTYPE, NUM, A> x, NewType<NEWTYPE, NUM, A> y)
-            where NEWTYPE : NewType<NEWTYPE, NUM, A>
+        public static NUMTYPE append<NUMTYPE, NUM, A, PRED>(NumType<NUMTYPE, NUM, A, PRED> x, NumType<NUMTYPE, NUM, A, PRED> y)
+            where NUMTYPE : NumType<NUMTYPE, NUM, A, PRED>
+            where PRED    : struct, Pred<A>
             where NUM     : struct, Num<A> =>
             from a in x
             from b in y

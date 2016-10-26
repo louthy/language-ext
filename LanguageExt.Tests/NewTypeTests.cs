@@ -2,20 +2,24 @@
 using LanguageExt;
 using LanguageExt.ClassInstances;
 using static LanguageExt.TypeClass;
+using LanguageExt.ClassInstances.Pred;
+using LanguageExt.ClassInstances.Const;
+using System;
 
 namespace LanguageExtTests
 {
-    public class Metres : NewType<Metres, TInt, int>
+    public class Metres : NumType<Metres, TInt, int>
     {
         public Metres(int value) : base(value) { }
     }
 
-    public class Hours : NewType<Hours, int>
+    public class Hours : NumType<Hours, TInt, int, ForAll<int, GreaterOrEq<int, TInt, I0>, LessThan<int, TInt, I24>>>
     {
+
         public Hours(int value) : base(value) { }
     }
 
-    public class Seconds : NewType<Seconds, int>
+    public class Seconds : NumType<Seconds,  TInt, int, Range<int, TInt, I0, I59>>
     {
         public Seconds(int value) : base(value) { }
     }
@@ -23,9 +27,13 @@ namespace LanguageExtTests
     public class NewTypeTests
     {
         [Fact]
-        public void BrokenTest()
+        public void OutOfRange()
         {
-            var x = new Seconds(10);
+            Assert.Throws<ArgumentOutOfRangeException>(() => Hours.New(-1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Hours.New(24));
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => Seconds.New(-1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Seconds.New(60));
         }
 
         public Metres New(int x) => new Metres(x);
@@ -128,40 +136,6 @@ namespace LanguageExtTests
             // Assert.Throws<Exception>(() => m1 * h1);
         }
 
-        public class Arr<A> : NewType<Arr<A>, TArray<A>, OrdArray<OrdDefault<A>, A>, A[]>
-        {
-            public Arr(A[] x) : base(x) { }
-        }
-
-        [Fact]
-        public void AppendTest()
-        {
-            var a1 = new Arr<int>(new[] { 1, 2, 3, 4, 5 });
-            var a2 = new Arr<int>(new[] { 10, 2 });
-
-            var a3 = append(a1, a2);
-
-            var a4 = a1 + a2;
-
-            Assert.True(a3.Value.Length == 7);
-            Assert.True(a3.Value[0] == 1);
-            Assert.True(a3.Value[1] == 2);
-            Assert.True(a3.Value[2] == 3);
-            Assert.True(a3.Value[3] == 4);
-            Assert.True(a3.Value[4] == 5);
-            Assert.True(a3.Value[5] == 10);
-            Assert.True(a3.Value[6] == 2);
-
-            Assert.True(a4.Value.Length == 7);
-            Assert.True(a4.Value[0] == 1);
-            Assert.True(a4.Value[1] == 2);
-            Assert.True(a4.Value[2] == 3);
-            Assert.True(a4.Value[3] == 4);
-            Assert.True(a4.Value[4] == 5);
-            Assert.True(a4.Value[5] == 10);
-            Assert.True(a4.Value[6] == 2);
-
-        }
 #endif
     }
 }

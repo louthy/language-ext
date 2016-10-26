@@ -86,9 +86,10 @@ namespace LanguageExt
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
-        public static bool equals<NEWTYPE, EQ, A>(NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) 
+        public static bool equals<NEWTYPE, EQ, A, PRED>(NewType<NEWTYPE, A, PRED> x, NewType<NEWTYPE, A, PRED> y) 
             where EQ      : struct, Eq<A>
-            where NEWTYPE : NewType<NEWTYPE, A>
+            where PRED    : struct, Pred<A>
+            where NEWTYPE : NewType<NEWTYPE, A, PRED>
             =>
             !ReferenceEquals(x, y) || ReferenceEquals(x, null) || ReferenceEquals(y, null) 
                 ? false 

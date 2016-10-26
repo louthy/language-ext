@@ -1,11 +1,7 @@
 ﻿using LanguageExt.ClassInstances;
 using LanguageExt.TypeClasses;
-using System;
-using System.Collections.Generic;
+using LanguageExt.ClassInstances.Pred;
 using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LanguageExt
 {
@@ -166,10 +162,11 @@ namespace LanguageExt
         ///  1 if x less than y
         /// </returns>
         [Pure]
-        public static int compare<NEWTYPE, ORD, T>(NEWTYPE x, NEWTYPE y)
+        public static int compare<NEWTYPE, ORD, T, PRED>(NEWTYPE x, NEWTYPE y)
             where ORD : struct, Ord<T>
-            where NEWTYPE : NewType<NEWTYPE, T> =>
-            OrdNewType<NEWTYPE, ORD, T>.Inst.Compare(x, y);
+            where PRED : struct, Pred<T>
+            where NEWTYPE : NewType<NEWTYPE, T, PRED> =>
+            OrdNewType<NEWTYPE, ORD, T, PRED>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering
@@ -182,27 +179,11 @@ namespace LanguageExt
         ///  1 if x less than y
         /// </returns>
         [Pure]
-        public static int compare<NEWTYPE, NUM, T>(NEWTYPE x, NewType<NEWTYPE, NUM, T> y)
+        public static int compare<NEWTYPE, NUM, T, PRED>(NEWTYPE x, NumType<NEWTYPE, NUM, T, PRED> y)
             where NUM : struct, Num<T>
-            where NEWTYPE : NewType<NEWTYPE, NUM, T> =>
-            OrdNewTypeNum<NEWTYPE, NUM, T>.Inst.Compare(x, y);
-
-        /// <summary>
-        /// Compare one item to another to ascertain ordering
-        /// </summary>
-        /// <param name="x">The first item to compare</param>
-        /// <param name="y">The second item to compare</param>
-        /// <returns>
-        ///  0 if x is equal to y
-        /// -1 if x greater than y
-        ///  1 if x less than y
-        /// </returns>
-        [Pure]
-        public static int compare<NEWTYPE, SEMI, ORD, T>(NEWTYPE x, NewType<NEWTYPE, SEMI, ORD, T> y)
-            where SEMI : struct, Semigroup<T>
-            where ORD : struct, Ord<T>
-            where NEWTYPE : NewType<NEWTYPE, SEMI, ORD, T> =>
-            OrdNewType<NEWTYPE, SEMI, ORD, T>.Inst.Compare(x, y);
+            where PRED : struct, Pred<T>
+            where NEWTYPE : NumType<NEWTYPE, NUM, T, PRED> =>
+            OrdNumType<NEWTYPE, NUM, T, PRED>.Inst.Compare(x, y);
 
         /// <summary>
         /// Compare one item to another to ascertain ordering

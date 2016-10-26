@@ -66,7 +66,7 @@ namespace LanguageExt
         [Pure]
         public static A sum<NUM, A>(this ValueTuple<A, A> self)
             where NUM : struct, Num<A> =>
-            sum<NUM, FoldTuple<A>, ValueTuple<A, A>, A>(self);
+            default(NUM).Plus(self.Item1, self.Item2);
 
         /// <summary>
         /// Product of the items
@@ -74,7 +74,7 @@ namespace LanguageExt
         [Pure]
         public static A product<NUM, A>(this ValueTuple<A, A> self)
             where NUM : struct, Num<A> =>
-            product<NUM, FoldTuple<A>, ValueTuple<A, A>, A>(self);
+            default(NUM).Product(self.Item1, self.Item2);
 
         /// <summary>
         /// One of the items matches the value passed

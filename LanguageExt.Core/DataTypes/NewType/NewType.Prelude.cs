@@ -9,69 +9,44 @@ namespace LanguageExt
     public static partial class Prelude
     {
         [Pure]
-        public static NEWTYPE bind<NEWTYPE, T>(NewType<NEWTYPE, T> value, Func<T, NEWTYPE> bind)
-            where NEWTYPE : NewType<NEWTYPE, T> =>
+        public static NEWTYPE bind<NEWTYPE, T, PRED>(NewType<NEWTYPE, T, PRED> value, Func<T, NEWTYPE> bind)
+            where PRED : struct, Pred<T>
+            where NEWTYPE : NewType<NEWTYPE, T, PRED> =>
             value.Bind(bind);
 
-        public static Unit iter<NEWTYPE, T>(NewType<NEWTYPE, T> value, Action<T> f)
-            where NEWTYPE : NewType<NEWTYPE, T> =>
+        public static Unit iter<NEWTYPE, T, PRED>(NewType<NEWTYPE, T, PRED> value, Action<T> f)
+            where PRED : struct, Pred<T>
+            where NEWTYPE : NewType<NEWTYPE, T, PRED> =>
             value.Iter(f);
 
         [Pure]
-        public static int count<NEWTYPE, T>(NewType<NEWTYPE, T> value)
-            where NEWTYPE : NewType<NEWTYPE, T> =>
+        public static int count<NEWTYPE, T, PRED>(NewType<NEWTYPE, T, PRED> value)
+            where PRED : struct, Pred<T>
+            where NEWTYPE : NewType<NEWTYPE, T, PRED> =>
             1;
 
         [Pure]
-        public static bool exists<NEWTYPE, T>(NewType<NEWTYPE, T> value, Func<T, bool> predicate)
-            where NEWTYPE : NewType<NEWTYPE, T> =>
+        public static bool exists<NEWTYPE, T, PRED>(NewType<NEWTYPE, T, PRED> value, Func<T, bool> predicate)
+            where PRED : struct, Pred<T>
+            where NEWTYPE : NewType<NEWTYPE, T, PRED> =>
             predicate(value.Value);
 
         [Pure]
-        public static bool forall<NEWTYPE, T>(NewType<NEWTYPE, T> value, Func<T, bool> predicate)
-            where NEWTYPE : NewType<NEWTYPE, T> =>
+        public static bool forall<NEWTYPE, T, PRED>(NewType<NEWTYPE, T, PRED> value, Func<T, bool> predicate)
+            where PRED : struct, Pred<T>
+            where NEWTYPE : NewType<NEWTYPE, T, PRED> =>
             predicate(value.Value);
 
         [Pure]
-        public static NEWTYPE map<NEWTYPE, T>(NewType<NEWTYPE, T> value, Func<T, T> map)
-            where NEWTYPE : NewType<NEWTYPE, T> =>
+        public static NEWTYPE map<NEWTYPE, T, PRED>(NewType<NEWTYPE, T, PRED> value, Func<T, T> map)
+            where PRED : struct, Pred<T>
+            where NEWTYPE : NewType<NEWTYPE, T, PRED> =>
             value.Map(map);
 
         [Pure]
-        public static S fold<NEWTYPE, T, S>(NewType<NEWTYPE, T> value, S state, Func<S, T, S> folder)
-            where NEWTYPE : NewType<NEWTYPE, T> =>
+        public static S fold<NEWTYPE, T, S, PRED>(NewType<NEWTYPE, T, PRED> value, S state, Func<S, T, S> folder)
+            where PRED : struct, Pred<T>
+            where NEWTYPE : NewType<NEWTYPE, T, PRED> =>
             value.Fold(state, folder);
-
-        [Pure]
-        public static NEWTYPE plus<NEWTYPE, NUM, T>(NEWTYPE lhs, NEWTYPE rhs)
-            where NUM     : struct, Num<T>
-            where NEWTYPE : NewType<NEWTYPE, T> =>
-            from x in lhs
-            from y in rhs
-            select default(NUM).Plus(x, y);
-
-        [Pure]
-        public static NEWTYPE subtract<NEWTYPE, NUM, T>(NEWTYPE lhs, NEWTYPE rhs)
-            where NUM    : struct, Num<T>
-            where NEWTYPE : NewType<NEWTYPE, T> =>
-            from x in lhs
-            from y in rhs
-            select default(NUM).Subtract(x, y);
-
-        [Pure]
-        public static NEWTYPE divide<NEWTYPE, NUM, T>(NEWTYPE lhs, NEWTYPE rhs)
-            where NUM     : struct, Num<T>
-            where NEWTYPE : NewType<NEWTYPE, T> =>
-            from x in lhs
-            from y in rhs
-            select default(NUM).Divide(x, y);
-
-        [Pure]
-        public static NEWTYPE product<NEWTYPE, NUM, T>(NEWTYPE lhs, NEWTYPE rhs)
-            where NUM    : struct, Num<T>
-            where NEWTYPE : NewType<NEWTYPE, T> =>
-            from x in lhs
-            from y in rhs
-            select default(NUM).Product(x, y);
     }
 }

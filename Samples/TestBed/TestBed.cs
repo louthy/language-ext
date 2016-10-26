@@ -28,8 +28,8 @@ using static LanguageExt.Parsec.Token;
 namespace TestBed
 {
     public class Metres : NewType<Metres, double> { public Metres(double x) : base(x) { } }
-    public class Hours : NewType<Hours, int> { public Hours(int x) : base(x) { } }
-    public class Days : NewType<Hours, int> { public Days(int x) : base(x) { } }
+    public class Hours  : NewType<Hours, int>     { public Hours(int x)     : base(x) { } }
+    public class Days   : NewType<Hours, int>     { public Days(int x)      : base(x) { } }
 
     public static class Testing
     {

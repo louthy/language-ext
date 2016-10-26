@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Linq;
-using LanguageExt;
 using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
-using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
 
@@ -11,49 +8,53 @@ namespace LanguageExt
 {
     /// <summary>
     /// NewType - inspired by Haskell's 'newtype' keyword.
-    /// 
     /// https://wiki.haskell.org/Newtype
-    /// 
-    /// Derive type from this one to get: Equatable, Comparable, Appendable, Foldable, 
-    /// Monadic, Functor, Iterable: strongly typed values.
+    /// Derive type from this one to get: Equatable, Comparable, Appendable, Subtractable, 
+    /// Multiplicable, Divisible, Foldable, Monadic, Functor, Interable: strongly typed values.  
     ///
     /// For example:
     ///
-    ///     class Html : NewType<Html, TString, TString, TString, string> { public Html(string x) : base(x) {} }
+    ///     class Metres : NewType<Metres, double> { public Metres(double x) : base(x) {} }
+    ///     class Hours : NewType<Hours, double> { public Hours(double x) : base(x) {} }
     ///
     /// Will not accept null values
+    ///
     /// </summary>
 #if !COREFX
     [Serializable]
 #endif
-    public abstract class NewType<NEWTYPE, SEMI, ORD, A> :
+    public abstract class NewType<NEWTYPE, A, PRED> :
         IEquatable<NEWTYPE>,
-        IComparable<NEWTYPE>,
-        Foldable<NEWTYPE, A>
-        where SEMI    : struct, Semigroup<A>
-        where ORD     : struct, Ord<A>
-        where NEWTYPE : NewType<NEWTYPE, SEMI, ORD, A>
+        IComparable<NEWTYPE>
+        where PRED    : struct, Pred<A>
+        where NEWTYPE : NewType<NEWTYPE, A, PRED>
     {
         public readonly A Value;
 
         /// <summary>
         /// Constructor function
         /// </summary>
-        public static readonly Func<A, NEWTYPE> New = Reflect.Util.CreateDynamicConstructor<A, NEWTYPE>();
+        public static readonly Func<A, NEWTYPE> New = Reflect.Util.CtorOfArity1<A, NEWTYPE>();
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="value">Value to bind</param>
+        /// <exception cref="ArgumentOutOfRangeException">If argument fails to pass the predicate provided in the generic argument PRED</exception>
+        /// <exception cref="ArgumentNullException">Null values are not accepted</exception>
         public NewType(A value)
         {
-            if (isnull(value)) throw new ArgumentNullException(nameof(value));
+            if (!default(PRED).True(value)) throw new ArgumentOutOfRangeException(nameof(value), value, $"Argument failed {typeof(NEWTYPE).Name} NewType predicate");
             Value = value;
         }
 
         [Pure]
         public int CompareTo(NEWTYPE other) =>
-            default(ORD).Compare(Value, other.Value);
+             OrdNewType<NEWTYPE, OrdDefault<A>, A, PRED>.Inst.Compare(this, other);
 
         [Pure]
         public bool Equals(NEWTYPE other) =>
-            default(ORD).Equals(Value, other.Value);
+            EqDefault<A>.Inst.Equals(Value, other.Value);
 
         [Pure]
         public override bool Equals(object obj) =>
@@ -64,32 +65,28 @@ namespace LanguageExt
             Value == null ? 0 : Value.GetHashCode();
 
         [Pure]
-        public static NEWTYPE operator +(NewType<NEWTYPE, SEMI, ORD, A> lhs, NewType<NEWTYPE, SEMI, ORD, A> rhs) =>
-             New(default(SEMI).Append(lhs.Value, rhs.Value));
+        public static bool operator ==(NewType<NEWTYPE, A, PRED> lhs, NewType<NEWTYPE, A, PRED> rhs) =>
+             EqNewType<NEWTYPE, EqDefault<A>, A, PRED>.Inst.Equals(lhs, rhs);
 
         [Pure]
-        public static bool operator == (NewType<NEWTYPE, SEMI, ORD, A> lhs, NewType<NEWTYPE, SEMI, ORD, A> rhs) =>
-             default(ORD).Equals(lhs.Value, rhs.Value);
+        public static bool operator !=(NewType<NEWTYPE, A, PRED> lhs, NewType<NEWTYPE, A, PRED> rhs) =>
+             !EqNewType<NEWTYPE, EqDefault<A>, A, PRED>.Inst.Equals(lhs, rhs);
 
         [Pure]
-        public static bool operator != (NewType<NEWTYPE, SEMI, ORD, A> lhs, NewType<NEWTYPE, SEMI, ORD, A> rhs) =>
-             !default(ORD).Equals(lhs.Value, rhs.Value);
+        public static bool operator >(NewType<NEWTYPE, A, PRED> lhs, NewType<NEWTYPE, A, PRED> rhs) =>
+            OrdNewType<NEWTYPE, OrdDefault<A>, A, PRED>.Inst.Compare(lhs, rhs) > 0;
 
         [Pure]
-        public static bool operator > (NewType<NEWTYPE, SEMI, ORD, A> lhs, NewType<NEWTYPE, SEMI, ORD, A> rhs) =>
-            default(ORD).Compare(lhs.Value, rhs.Value) > 0;
+        public static bool operator >=(NewType<NEWTYPE, A, PRED> lhs, NewType<NEWTYPE, A, PRED> rhs) =>
+            OrdNewType<NEWTYPE, OrdDefault<A>, A, PRED>.Inst.Compare(lhs, rhs) >= 0;
 
         [Pure]
-        public static bool operator >= (NewType<NEWTYPE, SEMI, ORD, A> lhs, NewType<NEWTYPE, SEMI, ORD, A> rhs) =>
-            default(ORD).Compare(lhs.Value, rhs.Value) >= 0;
+        public static bool operator <(NewType<NEWTYPE, A, PRED> lhs, NewType<NEWTYPE, A, PRED> rhs) =>
+            OrdNewType<NEWTYPE, OrdDefault<A>, A, PRED>.Inst.Compare(lhs, rhs) < 0;
 
         [Pure]
-        public static bool operator < (NewType<NEWTYPE, SEMI, ORD, A> lhs, NewType<NEWTYPE, SEMI, ORD, A> rhs) =>
-            default(ORD).Compare(lhs.Value, rhs.Value) < 0;
-
-        [Pure]
-        public static bool operator <= (NewType<NEWTYPE, SEMI, ORD, A> lhs, NewType<NEWTYPE, SEMI, ORD, A> rhs) =>
-            default(ORD).Compare(lhs.Value, rhs.Value) <= 0;
+        public static bool operator <=(NewType<NEWTYPE, A, PRED> lhs, NewType<NEWTYPE, A, PRED> rhs) =>
+            OrdNewType<NEWTYPE, OrdDefault<A>, A, PRED>.Inst.Compare(lhs, rhs) <= 0;
 
         /// <summary>
         /// Monadic bind of the bound value to a new value of the same type
@@ -141,7 +138,7 @@ namespace LanguageExt
         /// <param name="project">Final projection (select)</param>
         [Pure]
         public NEWTYPE SelectMany(
-            Func<A, NewType<NEWTYPE, SEMI, ORD, A>> bind,
+            Func<A, NewType<NEWTYPE, A, PRED>> bind,
             Func<A, A, A> project) =>
             New(project(Value, bind(Value).Value));
 
@@ -181,22 +178,5 @@ namespace LanguageExt
         /// <returns>Folded state and NewType bound value</returns>
         public S FoldBack<S>(S state, Func<S, A, S> folder) =>
             folder(state, Value);
-
-        /// <summary>
-        /// Foldable typeclass: Fold
-        /// </summary>
-        public S Fold<S>(NEWTYPE fa, S state, Func<S, A, S> f) =>
-            f(state, fa.Value);
-
-        /// <summary>
-        /// Foldable typeclass: FoldBack
-        /// </summary>
-        public S FoldBack<S>(NEWTYPE fa, S state, Func<S, A, S> f) =>
-            f(state, fa.Value);
-
-        /// <summary>
-        /// Count (always 1)
-        /// </summary>
-        public int Count(NEWTYPE fa) => 1;
     }
 }

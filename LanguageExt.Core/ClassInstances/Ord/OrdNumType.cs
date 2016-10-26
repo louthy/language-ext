@@ -4,14 +4,14 @@ using static LanguageExt.TypeClass;
 namespace LanguageExt.ClassInstances
 {
     /// <summary>
-    /// Compare the equality and ordering of any type in the NewType
+    /// Compare the equality and ordering of any type in the NumType
     /// type-class
     /// </summary>
-    public struct OrdNewType<NEWTYPE, ORD, A> : Ord<NewType<NEWTYPE, A>>
-        where ORD : struct, Ord<A>
-        where NEWTYPE : NewType<NEWTYPE, A>
+    public struct OrdNumType<NUMTYPE, NUM, A> : Ord<NumType<NUMTYPE, NUM, A>>
+        where NUM : struct, Num<A>
+        where NUMTYPE : NumType<NUMTYPE, NUM, A>
     {
-        public static readonly OrdNewType<NEWTYPE, ORD, A> Inst = default(OrdNewType<NEWTYPE, ORD, A>);
+        public static readonly OrdNumType<NUMTYPE, NUM, A> Inst = default(OrdNumType<NUMTYPE, NUM, A>);
 
         /// <summary>
         /// Equality test
@@ -19,8 +19,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
-        public bool Equals(NewType<NEWTYPE, A> x, NewType<NEWTYPE, A> y) =>
-            default(EqNewType<NEWTYPE, ORD, A>).Equals(x, y);
+        public bool Equals(NumType<NUMTYPE, NUM, A> x, NumType<NUMTYPE, NUM, A> y) =>
+            default(EqNumType<NUMTYPE, NUM, A>).Equals(x, y);
 
         /// <summary>
         /// Compare two values
@@ -32,25 +32,25 @@ namespace LanguageExt.ClassInstances
         /// if x less than y    : -1
         /// if x equals y       : 0
         /// </returns>
-        public int Compare(NewType<NEWTYPE, A> mx, NewType<NEWTYPE, A> my)
+        public int Compare(NumType<NUMTYPE, NUM, A> mx, NumType<NUMTYPE, NUM, A> my)
         {
             if (ReferenceEquals(mx, my)) return 0;
             if (ReferenceEquals(mx, null)) return -1;
             if (ReferenceEquals(my, null)) return 1;
-            return default(ORD).Compare(mx.Value, my.Value);
+            return default(NUM).Compare(mx.Value, my.Value);
         }
     }
 
     /// <summary>
-    /// Compare the equality and ordering of any type in the NewType
+    /// Compare the equality and ordering of any type in the NumType
     /// type-class
     /// </summary>
-    public struct OrdNewType<NEWTYPE, ORD, A, PRED> : Ord<NewType<NEWTYPE, A, PRED>>
-        where ORD     : struct, Ord<A>
+    public struct OrdNumType<NUMTYPE, NUM, A, PRED> : Ord<NumType<NUMTYPE, NUM, A, PRED>>
+        where NUM     : struct, Num<A>
         where PRED    : struct, Pred<A>
-        where NEWTYPE : NewType<NEWTYPE, A, PRED>
+        where NUMTYPE : NumType<NUMTYPE, NUM, A, PRED>
     {
-        public static readonly OrdNewType<NEWTYPE, ORD, A, PRED> Inst = default(OrdNewType<NEWTYPE, ORD, A, PRED>);
+        public static readonly OrdNumType<NUMTYPE, NUM, A, PRED> Inst = default(OrdNumType<NUMTYPE, NUM, A, PRED>);
 
         /// <summary>
         /// Equality test
@@ -58,8 +58,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
-        public bool Equals(NewType<NEWTYPE, A, PRED> x, NewType<NEWTYPE, A, PRED> y) =>
-            default(EqNewType<NEWTYPE, ORD, A, PRED>).Equals(x, y);
+        public bool Equals(NumType<NUMTYPE, NUM, A, PRED> x, NumType<NUMTYPE, NUM, A, PRED> y) =>
+            default(EqNumType<NUMTYPE, NUM, A, PRED>).Equals(x, y);
 
         /// <summary>
         /// Compare two values
@@ -71,12 +71,12 @@ namespace LanguageExt.ClassInstances
         /// if x less than y    : -1
         /// if x equals y       : 0
         /// </returns>
-        public int Compare(NewType<NEWTYPE, A, PRED> mx, NewType<NEWTYPE, A, PRED> my)
+        public int Compare(NumType<NUMTYPE, NUM, A, PRED> mx, NumType<NUMTYPE, NUM, A, PRED> my)
         {
             if (ReferenceEquals(mx, my)) return 0;
             if (ReferenceEquals(mx, null)) return -1;
             if (ReferenceEquals(my, null)) return 1;
-            return default(ORD).Compare(mx.Value, my.Value);
+            return default(NUM).Compare(mx.Value, my.Value);
         }
     }
 }
