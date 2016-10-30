@@ -258,5 +258,10 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">right hand side of the append operation</param>
         /// <returns>x + y</returns>
         public float Append(float x, float y) => x + y;
+
+        /// <summary>
+        /// Zero
+        /// </summary>
+        public float Empty() => 0.0f;
     }
 }

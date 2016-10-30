@@ -258,5 +258,9 @@ namespace LanguageExt.ClassInstances
         /// <returns>x + y</returns>
         public decimal Append(decimal x, decimal y) => x + y;
 
+        /// <summary>
+        /// Zero
+        /// </summary>
+        public decimal Empty() => 0;
     }
 }

@@ -260,5 +260,10 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">right hand side of the append operation</param>
         /// <returns>x + y</returns>
         public double Append(double x, double y) => x + y;
+
+        /// <summary>
+        /// Zero
+        /// </summary>
+        public double Empty() => 0.0;
     }
 }

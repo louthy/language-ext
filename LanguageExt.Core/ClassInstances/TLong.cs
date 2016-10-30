@@ -133,5 +133,10 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Value to negate</param>
         /// <returns>The negated source value</returns>
         public long Negate(long x) => -x;
+
+        /// <summary>
+        /// Zero
+        /// </summary>
+        public long Empty() => 0;
     }
 }

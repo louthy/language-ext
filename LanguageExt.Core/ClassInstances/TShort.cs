@@ -133,5 +133,10 @@ namespace LanguageExt.ClassInstances
         /// <returns>x + y</returns>
         public short Append(short x, short y) =>
             (short)(x + y);
+
+        /// <summary>
+        /// Zero
+        /// </summary>
+        public short Empty() => 0;
     }
 }
