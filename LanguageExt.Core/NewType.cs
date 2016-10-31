@@ -57,10 +57,8 @@ namespace LanguageExt
             Value.Equals(other.Value);
 
         [Pure]
-        public override bool Equals(object obj) =>
-            !ReferenceEquals(obj, null) &&
-            obj is NewType<T> &&
-            Equals((NewType<T>)obj);
+        public override bool Equals(object obj) => 
+            Equals(obj as NewType<T>);
 
         [Pure]
         public override int GetHashCode() =>
@@ -68,11 +66,13 @@ namespace LanguageExt
 
         [Pure]
         public static bool operator ==(NewType<T> lhs, NewType<T> rhs) =>
-            lhs.Equals(rhs);
+            (ReferenceEquals(lhs, null) && ReferenceEquals(rhs, null))
+            ||
+            lhs?.Equals(rhs) == true;
 
         [Pure]
-        public static bool operator !=(NewType<T> lhs, NewType<T> rhs) =>
-            !lhs.Equals(rhs);
+        public static bool operator !=(NewType<T> lhs, NewType<T> rhs) => 
+            !(lhs == rhs);
 
         [Pure]
         public static bool operator >(NewType<T> lhs, NewType<T> rhs) =>

@@ -43,10 +43,12 @@ namespace LanguageExt.Parsec
                     : Column.CompareTo(other.Column);
 
         public static bool operator ==(Pos lhs, Pos rhs) =>
-            lhs.Equals(rhs);
+            (ReferenceEquals(lhs, null) && ReferenceEquals(rhs, null))
+            ||
+            lhs?.Equals(rhs) == true;
 
-        public static bool operator !=(Pos lhs, Pos rhs) =>
-            !lhs.Equals(rhs);
+        public static bool operator !=(Pos lhs, Pos rhs) => 
+            !(lhs == rhs);
 
         public static bool operator < (Pos lhs, Pos rhs) =>
             lhs.CompareTo(rhs) < 0;
