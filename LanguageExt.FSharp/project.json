@@ -1,5 +1,5 @@
 {
-  "version": "1.9.4",
+  "version": "1.9.5",
   "authors": [ "Paul Louth" ],
   "description": "Helper library for LanguageExt.Core that facilitates conversion between F# native types like Option, Map, List, etc to .NET and Language Ext types.",
   "copyright": "Copyright (c) Paul Louth",
@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "LanguageExt.Core": {
-      "version": "1.9.4",
+      "version": "1.9.5",
       "target": "project"
     }
   },
@@ -47,7 +47,7 @@
         "FSharp.Core": "4.0.0.1"
       }
     },
-    "netstandard16": {
+    "netstandard14": {
       "dependencies": {
         "Microsoft.FSharp.Core.netcore": "1.0.0-*",
         "System.Collections": "4.0.11"

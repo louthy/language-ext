@@ -68,7 +68,7 @@
           "lib/net45/System.Reactive.PlatformServices.dll": {}
         }
       },
-      "LanguageExt.Core/1.9.1": {
+      "LanguageExt.Core/1.9.5": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
@@ -84,11 +84,11 @@
           "net45/LanguageExt.Core.dll": {}
         }
       },
-      "LanguageExt.Parsec/1.9.1": {
+      "LanguageExt.Parsec/1.9.5": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
-          "LanguageExt.Core": "1.9.1",
+          "LanguageExt.Core": "1.9.5",
           "System.Reactive.Core": "3.0.0",
           "System.Reactive.Interfaces": "3.0.0",
           "System.Reactive.Linq": "3.0.0",
@@ -168,7 +168,7 @@
           "lib/net46/System.Reactive.PlatformServices.dll": {}
         }
       },
-      "LanguageExt.Core/1.9.1": {
+      "LanguageExt.Core/1.9.5": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.6",
         "dependencies": {
@@ -184,11 +184,11 @@
           "net46/LanguageExt.Core.dll": {}
         }
       },
-      "LanguageExt.Parsec/1.9.1": {
+      "LanguageExt.Parsec/1.9.5": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.6",
         "dependencies": {
-          "LanguageExt.Core": "1.9.1",
+          "LanguageExt.Core": "1.9.5",
           "System.Reactive.Core": "3.0.0",
           "System.Reactive.Interfaces": "3.0.0",
           "System.Reactive.Linq": "3.0.0",
@@ -230,7 +230,7 @@
           "lib/netstandard1.3/Microsoft.CSharp.dll": {}
         }
       },
-      "Microsoft.FSharp.Core.netcore/1.0.0-alpha-160629": {
+      "Microsoft.FSharp.Core.netcore/1.0.0-alpha-161103": {
         "type": "package",
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.0.1",
@@ -257,6 +257,10 @@
             "rid": "any"
           },
           "runtimes/any/native/FSharp.Core.sigdata": {
+            "assetType": "native",
+            "rid": "any"
+          },
+          "runtimes/any/native/FSharp.Core.xml": {
             "assetType": "native",
             "rid": "any"
           }
@@ -1668,9 +1672,9 @@
           "lib/netstandard1.3/System.Xml.XDocument.dll": {}
         }
       },
-      "LanguageExt.Core/1.9.1": {
+      "LanguageExt.Core/1.9.5": {
         "type": "project",
-        "framework": ".NETStandard,Version=v1.6",
+        "framework": ".NETStandard,Version=v1.3",
         "dependencies": {
           "System.Collections": "4.0.11",
           "System.Collections.Concurrent": "4.0.12",
@@ -1683,17 +1687,17 @@
           "System.Security.Cryptography.Algorithms": "4.2.0"
         },
         "compile": {
-          "netstandard1.6/LanguageExt.Core.dll": {}
+          "netstandard1.3/LanguageExt.Core.dll": {}
         },
         "runtime": {
-          "netstandard1.6/LanguageExt.Core.dll": {}
+          "netstandard1.3/LanguageExt.Core.dll": {}
         }
       },
-      "LanguageExt.Parsec/1.9.1": {
+      "LanguageExt.Parsec/1.9.5": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "LanguageExt.Core": "1.9.1",
+          "LanguageExt.Core": "1.9.5",
           "System.Collections": "4.0.11",
           "System.Collections.Concurrent": "4.0.12",
           "System.Linq.Queryable": "4.0.1",
@@ -1807,12 +1811,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "Microsoft.FSharp.Core.netcore/1.0.0-alpha-160629": {
-      "sha512": "T4n8//0DBC9JWuZ6HY5eErgLg16bPXo+q49UX4m+MrDIMP7LScUfS3otExI0/Un4Ibs+OjQ6PB7mnM8rHcy13w==",
+    "Microsoft.FSharp.Core.netcore/1.0.0-alpha-161103": {
+      "sha512": "DGHRfazx+k6BWWXx78lCyGpB3nDsi4uAbczkLxMK8/f/ypsL0hg5eDj1pjLiQdqyVQoL7+qXGJ3Qoc1M6llWZA==",
       "type": "package",
-      "path": "Microsoft.FSharp.Core.netcore/1.0.0-alpha-160629",
+      "path": "Microsoft.FSharp.Core.netcore/1.0.0-alpha-161103",
       "files": [
-        "Microsoft.FSharp.Core.netcore.1.0.0-alpha-160629.nupkg.sha512",
+        "Microsoft.FSharp.Core.netcore.1.0.0-alpha-161103.nupkg.sha512",
         "Microsoft.FSharp.Core.netcore.nuspec",
         "content/any/netstandard1.6/FSharp.Core.optdata",
         "content/any/netstandard1.6/FSharp.Core.sigdata",
@@ -1820,8 +1824,10 @@
         "lib/netstandard1.6/FSharp.Core.optdata",
         "lib/netstandard1.6/FSharp.Core.runtimeconfig.json",
         "lib/netstandard1.6/FSharp.Core.sigdata",
+        "lib/netstandard1.6/FSharp.Core.xml",
         "runtimes/any/native/FSharp.Core.optdata",
-        "runtimes/any/native/FSharp.Core.sigdata"
+        "runtimes/any/native/FSharp.Core.sigdata",
+        "runtimes/any/native/FSharp.Core.xml"
       ]
     },
     "Microsoft.NETCore.Platforms/1.0.1": {
@@ -5562,12 +5568,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "LanguageExt.Core/1.9.1": {
+    "LanguageExt.Core/1.9.5": {
       "type": "project",
       "path": "../LanguageExt.Core/project.json",
       "msbuildProject": "../LanguageExt.Core/LanguageExt.Core.xproj"
     },
-    "LanguageExt.Parsec/1.9.1": {
+    "LanguageExt.Parsec/1.9.5": {
       "type": "project",
       "path": "../LanguageExt.Parsec/project.json",
       "msbuildProject": "../LanguageExt.Parsec/LanguageExt.Parsec.xproj"
@@ -5575,8 +5581,8 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "LanguageExt.Core >= 1.9.1",
-      "LanguageExt.Parsec >= 1.9.1",
+      "LanguageExt.Core >= 1.9.5",
+      "LanguageExt.Parsec >= 1.9.5",
       "Newtonsoft.Json >= 9.0.1",
       "System.Reactive.Core >= 3.0.0-*",
       "System.Reactive.Interfaces >= 3.0.0-*",

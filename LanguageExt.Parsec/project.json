@@ -1,5 +1,5 @@
 {
-  "version": "1.9.4",
+  "version": "1.9.5",
   "authors": [ "Paul Louth" ],
   "description": "Parser combinators library based on Haskell Parsec.  This is part of the LanguageExt functional base class library and requires LanguageExt.Core",
 
@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "LanguageExt.Core": {
-      "version": "1.9.4",
+      "version": "1.9.5",
       "target": "project"
     },    
     "System.Reactive.Core": "3.0.0-*",
@@ -44,7 +44,7 @@
     },
     "net46": {
     },
-    "netstandard16": {
+    "netstandard13": {
       "buildOptions": { "define": [ "COREFX" ] },
       "dependencies": {
         "System.Security.Cryptography.Algorithms": "4.2.0",

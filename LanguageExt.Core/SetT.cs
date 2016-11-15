@@ -721,6 +721,9 @@ namespace LanguageExt
         }
     }
 
+#if !COREFX
+    [Serializable]
+#endif
     internal class SetItem<K>
     {
         public static readonly SetItem<K> Empty = new SetItem<K>(0, 0, default(K), null, null);
