@@ -1,3 +1,4 @@
+dotnet restore
 dotnet pack LanguageExt.Core -c RELEASE -o ./artifacts/bin
 dotnet pack LanguageExt.FSharp -c RELEASE -o ./artifacts/bin
 dotnet pack LanguageExt.Parsec -c RELEASE -o ./artifacts/bin

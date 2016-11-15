@@ -1,15 +1,27 @@
 {
-    "version": "1.9.5",
+    "version": "1.9.6",
     "buildOptions": {
         "buildOptions": { "define": [ "COREFX" ] },
         "emitEntryPoint": true
     },
 
     "dependencies": {
-        "LanguageExt.Core": "1.9.5",
-        "LanguageExt.Parsec": "1.9.5",
-        "LanguageExt.Process": "1.9.5",
-        "LanguageExt.Process.Redis": "1.9.5",
+        "LanguageExt.Core": {
+            "version": "1.9.6",
+            "target": "project"
+        },
+        "LanguageExt.Parsec": {
+            "version": "1.9.6",
+            "target": "project"
+        },
+        "LanguageExt.Process": {
+            "version": "1.9.6",
+            "target": "project"
+        },
+        "LanguageExt.Process.Redis": {
+            "version": "1.9.6",
+            "target": "project"
+        },
         "Microsoft.NETCore.App": {
             "type": "platform",
             "version": "1.0.0"
