@@ -366,13 +366,13 @@ namespace LanguageExt
         /// </remarks>
         IEnumerable<string> QueryKeys(string keyQuery, string prefix, string suffix) =>
             Retry(() =>
-                from keys in map($"{prefix}{keyQuery}{suffix}", ibxkey =>
+               (from keys in map($"{prefix}{keyQuery}{suffix}", ibxkey =>
                         redis.GetEndPoints()
                             .Map(ep => redis.GetServer(ep))
                             .Map(sv => sv.Keys(databaseNumber, ibxkey)))
                 from redisKey in keys
                 let strKey = (string)redisKey
-                select strKey);
+                select strKey).ToList());
 
         /// <summary>
         /// Finds all session keys
