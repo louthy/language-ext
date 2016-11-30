@@ -92,7 +92,7 @@ namespace LanguageExtTests
                 .Apply(Right<string, int>(4));
 
             var second = Right<string, int>(3)
-                .Map(add)
+                .ParMap(add)
                 .Apply(Right<string, int>(4));
 
             Assert.Equal(first, second);
@@ -108,7 +108,7 @@ namespace LanguageExtTests
                     ),
                     Right<string, int>(4));
 
-            var second = apply(map(Right<string, int>(3), add), Right<string, int>(4));
+            var second = apply(parmap(Right<string, int>(3), add), Right<string, int>(4));
 
             Assert.Equal(first, second);
         }
@@ -122,7 +122,7 @@ namespace LanguageExtTests
                 Right<string, int>(4)
             );
 
-            var second = apply(map(Right<string, int>(3), add), Right<string, int>(4));
+            var second = apply(parmap(Right<string, int>(3), add), Right<string, int>(4));
 
             Assert.Equal(first, second);
         }

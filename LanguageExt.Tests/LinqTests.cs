@@ -3,7 +3,6 @@ using System.Linq;
 using Xunit;
 using LanguageExt;
 using static LanguageExt.Prelude;
-
 using LanguageExt.Trans;
 
 namespace LanguageExtTests
@@ -18,9 +17,9 @@ namespace LanguageExtTests
                       from r in Range(1, 10)
                       select v * r;
 
-            var res2 = res.LiftUnsafe().ToList();
+            var res2 = res.ToList();
 
-            Assert.True(res.CountT() == 10);
+            Assert.True(res2.Count() == 10);
             Assert.True(res2[0] == 10);
             Assert.True(res2[9] == 100);
         }
@@ -32,13 +31,13 @@ namespace LanguageExtTests
                       from r in Range(1, 10)
                       select v * r;
 
-            Assert.True(res.CountT() == 0);
+            Assert.True(res.Count() == 0);
         }
 
         [Fact]
         public void WithOptionUnsafeSomeList()
         {
-            var res = (from v in GetOptionUnsafeValue(true).AsEnumerable()
+            var res = (from v in GetOptionUnsafeValue(true)
                        from r in Range(1, 10)
                        select v * r)
                       .ToList();
@@ -55,7 +54,7 @@ namespace LanguageExtTests
                       from r in Range(1, 10)
                       select v * r;
 
-            Assert.True(res.CountT() == 0);
+            Assert.True(res.Count() == 0);
         }
 
         [Fact]
@@ -65,9 +64,9 @@ namespace LanguageExtTests
                       from r in Range(1, 10)
                       select v * r;
 
-            var res2 = res.LiftUnsafe().ToList();
+            var res2 = res.ToList();
 
-            Assert.True(res.CountT() == 10);
+            Assert.True(res.Count() == 10);
             Assert.True(res2[0] == 10);
             Assert.True(res2[9] == 100);
         }
@@ -79,7 +78,7 @@ namespace LanguageExtTests
                       from r in Range(1, 10)
                       select v * r;
 
-            Assert.True(res.CountT() == 0);
+            Assert.True(res.Count() == 0);
         }
 
         [Fact]
@@ -89,9 +88,9 @@ namespace LanguageExtTests
                       from r in Range(1, 10)
                       select v * r;
 
-            var res2 = res.LiftUnsafe().ToList();
+            var res2 = res.ToList();
 
-            Assert.True(res.CountT() == 10);
+            Assert.True(res.Count() == 10);
             Assert.True(res2[0] == 10);
             Assert.True(res2[9] == 100);
         }
@@ -103,7 +102,7 @@ namespace LanguageExtTests
                       from r in Range(1, 10)
                       select v * r;
 
-            Assert.True(res.CountT() == 0);
+            Assert.True(res.Count() == 0);
         }
 
         [Fact]
@@ -113,9 +112,9 @@ namespace LanguageExtTests
                       from r in Range(1, 10)
                       select v * r;
 
-            var res2 = res.LiftUnsafe().ToList();
+            var res2 = res.ToList();
 
-            Assert.True(res.CountT() == 10);
+            Assert.True(res.Count() == 10);
             Assert.True(res2[0] == 10);
             Assert.True(res2[9] == 100);
         }
@@ -127,7 +126,7 @@ namespace LanguageExtTests
                       from r in Range(1, 10)
                       select v * r;
 
-            Assert.True(res.CountT() == 0);
+            Assert.True(res.Count() == 0);
         }
 
         [Fact]

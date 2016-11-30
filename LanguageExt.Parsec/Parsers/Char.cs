@@ -130,14 +130,14 @@ namespace LanguageExt.Parsec
         /// Parses a carriage-return char (\r)
         /// Returns the parsed character.
         /// </summary>
-        public static readonly Parser<char> carriageReturn =
+        public static readonly Parser<char> CR =
             satisfy(c => c == '\r').label("cr carriage-return");
 
         /// <summary>
         /// Parses a carriage-return then line-feed
         /// Returns the new-line.
         /// </summary>
-        public static readonly Parser<char> crlf =
+        public static readonly Parser<char> CRLF =
             (from cr in ch('\r')
              from nl in ch('\n')
              select nl)
@@ -148,7 +148,7 @@ namespace LanguageExt.Parsec
         /// Returns a newline character(\'\\n\').
         /// </summary>
         public static readonly Parser<char> endOfLine =
-             either(newline, crlf).label("new-line");
+             either(newline, CRLF).label("new-line");
 
         /// <summary>
         /// Parses a digit

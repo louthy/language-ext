@@ -6,6 +6,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Threading;
 using System.ComponentModel;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -79,6 +80,7 @@ namespace LanguageExt
         /// <summary>
         /// Number of items in the set
         /// </summary>
+        [Pure]
         public int Count
         {
             get
@@ -92,6 +94,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item added</returns>
+        [Pure]
         public Set<T> Add(T value) =>
             new Set<T>(SetModule.Add(set,value,Comparer<T>.Default));
 
@@ -101,6 +104,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item maybe added</returns>
+        [Pure]
         public Set<T> TryAdd(T value) =>
             Contains(value)
                 ? this
@@ -112,12 +116,14 @@ namespace LanguageExt
         /// </summary>
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item maybe added</returns>
+        [Pure]
         public Set<T> AddOrUpdate(T value) =>
             new Set<T>(SetModule.AddOrUpdate(set, value, Comparer<T>.Default));
 
         /// <summary>
         /// Returns true if both sets contain the same elements
         /// </summary>
+        [Pure]
         public bool Compare(Set<T> setB) =>
             SetEquals(setB);
 
@@ -125,6 +131,7 @@ namespace LanguageExt
         /// Get the number of elements in the set
         /// </summary>
         /// <returns>Number of elements</returns>
+        [Pure]
         public int Length() =>
             Count;
 
@@ -132,6 +139,7 @@ namespace LanguageExt
         /// Returns this - setB.  Only the items in this that are not in 
         /// setB will be returned.
         /// </summary>
+        [Pure]
         public Set<T> Difference(Set<T> setB) =>
             Except(setB);
 
@@ -140,12 +148,14 @@ namespace LanguageExt
         /// </summary>
         /// <param name="value">Value to find</param>
         /// <returns>Some(T) if found, None otherwise</returns>
+        [Pure]
         public Option<T> Find(T value) =>
             SetModule.TryFind(set, value, Comparer<T>.Default);
 
         /// <summary>
         /// Returns the elements that are in both this and other
         /// </summary>
+        [Pure]
         public Set<T> Intersect(IEnumerable<T> other)
         {
             var res = new List<T>();
@@ -160,6 +170,7 @@ namespace LanguageExt
         /// Returns this - other.  Only the items in this that are not in 
         /// other will be returned.
         /// </summary>
+        [Pure]
         public Set<T> Except(IEnumerable<T> other)
         {
             var self = this;
@@ -177,6 +188,7 @@ namespace LanguageExt
         /// Only items that are in one set or the other will be returned.
         /// If an item is in both, it is dropped.
         /// </summary>
+        [Pure]
         public Set<T> SymmetricExcept(IEnumerable<T> other)
         {
             var rhs = new Set<T>(other);
@@ -207,9 +219,9 @@ namespace LanguageExt
         /// </summary>
         /// <param name="other">Other set to union with</param>
         /// <returns>A set which contains all items from both sets</returns>
+        [Pure]
         public Set<T> Union(IEnumerable<T> other)
         {
-            // TODO: Perf
             var self = this;
             foreach (var item in other)
             {
@@ -222,6 +234,7 @@ namespace LanguageExt
         /// Clears the set
         /// </summary>
         /// <returns>An empty set</returns>
+        [Pure]
         public Set<T> Clear() =>
             new Set<T>();
 
@@ -229,6 +242,7 @@ namespace LanguageExt
         /// Get enumerator
         /// </summary>
         /// <returns>IEnumerator T</returns>
+        [Pure]
         public IEnumerator<T> GetEnumerator() =>
             new SetModule.SetEnumerator<T>(set,false,0);
 
@@ -236,6 +250,7 @@ namespace LanguageExt
         /// Get enumerator
         /// </summary>
         /// <returns>IEnumerator</returns>
+        [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
             new SetModule.SetEnumerator<T>(set, false, 0);
 
@@ -244,6 +259,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="value">Value to check</param>
         /// <returns>New set with item removed</returns>
+        [Pure]
         public Set<T> Remove(T value) =>
             new Set<T>(SetModule.Remove(set, value, Comparer<T>.Default));
 
@@ -258,6 +274,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Aggregate value</returns>
+        [Pure]
         public S Fold<S>(S state, Func<S, T, S> folder) =>
             SetModule.Fold(set,state,folder);
 
@@ -272,6 +289,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Aggregate value</returns>
+        [Pure]
         public S FoldBack<S>(S state, Func<S, T, S> folder) =>
             SetModule.FoldBack(set, state, folder);
 
@@ -282,6 +300,7 @@ namespace LanguageExt
         /// <typeparam name="R">Mapped element type</typeparam>
         /// <param name="mapper">Mapping function</param>
         /// <returns>Mapped Set</returns>
+        [Pure]
         public Set<U> Map<U>(Func<T, U> map) =>
             new Set<U>(this.AsEnumerable().Select(map), true);
 
@@ -292,6 +311,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="pred">Predicate</param>
         /// <returns>Filtered enumerable</returns>
+        [Pure]
         public Set<T> Filter(Func<T, bool> pred) =>
             new Set<T>(SetModule.Filter(set, pred));
 
@@ -302,6 +322,7 @@ namespace LanguageExt
         /// <remarks>Note this scans the entire set.</remarks>
         /// <param name="pred">Predicate</param>
         /// <returns>True if predicate returns true for any item</returns>
+        [Pure]
         public bool Exists(Func<T, bool> pred) =>
             SetModule.Exists(set, pred);
 
@@ -310,6 +331,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="value">Value to check</param>
         /// <returns>True if the item 'value' is in the Set 'set'</returns>
+        [Pure]
         public bool Contains(T value) =>
             SetModule.Contains(set, value, Comparer<T>.Default);
 
@@ -318,6 +340,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="other">Other distinct set to compare</param>
         /// <returns>True if the sets are equal</returns>
+        [Pure]
         public bool SetEquals(IEnumerable<T> other)
         {
             var rhs = new Set<T>(other);
@@ -332,12 +355,14 @@ namespace LanguageExt
         /// <summary>
         /// True if the set has no elements
         /// </summary>
+        [Pure]
         public bool IsEmpty => 
             Count == 0;
 
         /// <summary>
         /// IsReadOnly - Always true
         /// </summary>
+        [Pure]
         public bool IsReadOnly
         {
             get
@@ -349,6 +374,7 @@ namespace LanguageExt
         /// <summary>
         /// Syncronisation root
         /// </summary>
+        [Pure]
         public object SyncRoot
         {
             get
@@ -360,6 +386,7 @@ namespace LanguageExt
         /// <summary>
         /// IsSynchronized - Always true
         /// </summary>
+        [Pure]
         public bool IsSynchronized
         {
             get
@@ -372,6 +399,7 @@ namespace LanguageExt
         /// Returns True if 'other' is a proper subset of this set
         /// </summary>
         /// <returns>True if 'other' is a proper subset of this set</returns>
+        [Pure]
         public bool IsProperSubsetOf(IEnumerable<T> other)
         {
             if (IsEmpty)
@@ -411,6 +439,7 @@ namespace LanguageExt
         /// Returns True if 'other' is a proper superset of this set
         /// </summary>
         /// <returns>True if 'other' is a proper superset of this set</returns>
+        [Pure]
         public bool IsProperSupersetOf(IEnumerable<T> other)
         {
             if (IsEmpty)
@@ -435,6 +464,7 @@ namespace LanguageExt
         /// Returns True if 'other' is a superset of this set
         /// </summary>
         /// <returns>True if 'other' is a superset of this set</returns>
+        [Pure]
         public bool IsSubsetOf(IEnumerable<T> other)
         {
             if (IsEmpty)
@@ -458,6 +488,7 @@ namespace LanguageExt
         /// Returns True if 'other' is a superset of this set
         /// </summary>
         /// <returns>True if 'other' is a superset of this set</returns>
+        [Pure]
         public bool IsSupersetOf(IEnumerable<T> other)
         {
             foreach (T item in other)
@@ -477,6 +508,7 @@ namespace LanguageExt
         /// <param name="setA">Set A</param>
         /// <param name="setB">Set B</param>
         /// <returns>True if other overlaps this set</returns>
+        [Pure]
         public bool Overlaps(IEnumerable<T> other)
         {
             if (IsEmpty)
@@ -534,6 +566,7 @@ namespace LanguageExt
         /// <param name="lhs">Left hand side set</param>
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Unioned set</returns>
+        [Pure]
         public static Set<T> operator +(Set<T> lhs, Set<T> rhs) =>
             lhs.Append(rhs);
 
@@ -542,6 +575,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Unioned set</returns>
+        [Pure]
         public Set<T> Append(Set<T> rhs) =>
             Union(rhs);
 
@@ -551,6 +585,7 @@ namespace LanguageExt
         /// <param name="lhs">Left hand side set</param>
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Differenced set</returns>
+        [Pure]
         public static Set<T> operator -(Set<T> lhs, Set<T> rhs) =>
             lhs.Subtract(rhs);
 
@@ -559,6 +594,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Differenced set</returns>
+        [Pure]
         public Set<T> Subtract(Set<T> rhs)
         {
             var self = this;
@@ -577,6 +613,7 @@ namespace LanguageExt
         /// <param name="lhs">Left hand side set</param>
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Product of the two sets</returns>
+        [Pure]
         public static Set<T> operator *(Set<T> lhs, Set<T> rhs) =>
             lhs.Multiply(rhs);
 
@@ -587,6 +624,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Product of the two sets</returns>
+        [Pure]
         public Set<T> Multiply(Set<T> rhs) =>
             new Set<T>((from x in this.AsEnumerable()
                         from y in rhs.AsEnumerable()
@@ -600,6 +638,7 @@ namespace LanguageExt
         /// <param name="lhs">Left hand side set</param>
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Result of the division of the two sets</returns>
+        [Pure]
         public static Set<T> operator /(Set<T> lhs, Set<T> rhs) =>
             lhs.Divide(rhs);
 
@@ -610,6 +649,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Result of the division of the two sets</returns>
+        [Pure]
         public Set<T> Divide(Set<T> rhs) =>
             new Set<T>((from y in rhs.AsEnumerable()
                         from x in this.AsEnumerable()
@@ -620,6 +660,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="other">Other set to test</param>
         /// <returns>True if sets are equal</returns>
+        [Pure]
         public bool Equals(Set<T> other) =>
             SetEquals(other);
 
@@ -680,6 +721,9 @@ namespace LanguageExt
         }
     }
 
+#if !COREFX
+    [Serializable]
+#endif
     internal class SetItem<K>
     {
         public static readonly SetItem<K> Empty = new SetItem<K>(0, 0, default(K), null, null);
@@ -702,11 +746,13 @@ namespace LanguageExt
             Right = right;
         }
 
+        [Pure]
         internal int BalanceFactor =>
             Count == 0
                 ? 0
                 : ((int)Left.Height) - ((int)Right.Height);
 
+        [Pure]
         public K Key
         {
             get;
@@ -716,6 +762,7 @@ namespace LanguageExt
 
     internal static class SetModule
     {
+        [Pure]
         public static S Fold<S, K>(SetItem<K> node, S state, Func<S, K, S> folder)
         {
             if (node.IsEmpty)
@@ -728,6 +775,7 @@ namespace LanguageExt
             return state;
         }
 
+        [Pure]
         public static S FoldBack<S, K>(SetItem<K> node, S state, Func<S, K, S> folder)
         {
             if (node.IsEmpty)
@@ -740,6 +788,7 @@ namespace LanguageExt
             return state;
         }
 
+        [Pure]
         public static bool ForAll<K>(SetItem<K> node, Func<K, bool> pred) =>
             node.IsEmpty
                 ? true
@@ -747,6 +796,7 @@ namespace LanguageExt
                     ? ForAll(node.Left, pred) && ForAll(node.Right, pred)
                     : false;
 
+        [Pure]
         public static bool Exists<K>(SetItem<K> node, Func<K, bool> pred) =>
             node.IsEmpty
                 ? false
@@ -754,6 +804,7 @@ namespace LanguageExt
                     ? true
                     : Exists(node.Left, pred) || Exists(node.Right, pred);
 
+        [Pure]
         public static SetItem<K> Filter<K>(SetItem<K> node, Func<K, bool> pred) =>
             node.IsEmpty
                 ? node
@@ -761,6 +812,7 @@ namespace LanguageExt
                     ? Balance(Make(node.Key, Filter(node.Left, pred), Filter(node.Right, pred)))
                     : Balance(Filter(AddTreeToRight(node.Left, node.Right), pred));
 
+        [Pure]
         public static SetItem<K> Add<K>(SetItem<K> node, K key, Comparer<K> comparer)
         {
             if (node.IsEmpty)
@@ -782,6 +834,7 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         public static SetItem<K> TryAdd<K>(SetItem<K> node, K key,  Comparer<K> comparer)
         {
             if (node.IsEmpty)
@@ -803,6 +856,7 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         public static SetItem<K> AddOrUpdate<K>(SetItem<K> node, K key, Comparer<K> comparer)
         {
             if (node.IsEmpty)
@@ -824,11 +878,13 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         public static SetItem<K> AddTreeToRight<K>(SetItem<K> node, SetItem<K> toAdd) =>
             node.IsEmpty
                 ? toAdd
                 : Balance(Make(node.Key, node.Left, AddTreeToRight(node.Right, toAdd)));
 
+        [Pure]
         public static SetItem<K> Remove<K>(SetItem<K> node, K key, Comparer<K> comparer)
         {
             if (node.IsEmpty)
@@ -850,6 +906,7 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         public static bool Contains<K>(SetItem<K> node, K key, Comparer<K> comparer)
         {
             if (node.IsEmpty)
@@ -871,6 +928,7 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         public static K Find<K>(SetItem<K> node, K key, Comparer<K> comparer)
         {
             if (node.IsEmpty)
@@ -896,6 +954,7 @@ namespace LanguageExt
         /// TODO: I suspect this is suboptimal, it would be better with a custom Enumerator 
         /// that maintains a stack of nodes to retrace.
         /// </summary>
+        [Pure]
         public static IEnumerable<K> FindRange<K>(SetItem<K> node, K a, K b, Comparer<K> comparer)
         {
             if (node.IsEmpty)
@@ -930,6 +989,7 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         public static Option<K> TryFind<K>(SetItem<K> node, K key, Comparer<K> comparer)
         {
             if (node.IsEmpty)
@@ -951,6 +1011,7 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         public static SetItem<K> Skip<K>(SetItem<K> node, int amount)
         {
             if (amount == 0 || node.IsEmpty)
@@ -986,9 +1047,11 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         public static SetItem<K> Make<K>(K k, SetItem<K> l, SetItem<K> r) =>
             new SetItem<K>((byte)(1 + Math.Max(l.Height, r.Height)), l.Count + r.Count + 1, k, l, r);
 
+        [Pure]
         public static SetItem<K> Balance<K>(SetItem<K> node) =>
             node.BalanceFactor >= 2
                 ? node.Left.BalanceFactor >= 1
@@ -1000,21 +1063,25 @@ namespace LanguageExt
                         : DblRotLeft(node)
                     : node;
 
+        [Pure]
         public static SetItem<K> RotRight<K>(SetItem<K> node) =>
             node.IsEmpty || node.Left.IsEmpty
                 ? node
                 : Make(node.Left.Key, node.Left.Left, Make(node.Key, node.Left.Right, node.Right));
 
+        [Pure]
         public static SetItem<K> RotLeft<K>(SetItem<K> node) =>
             node.IsEmpty || node.Right.IsEmpty
                 ? node
                 : Make(node.Right.Key, Make(node.Key, node.Left, node.Right.Left), node.Right.Right);
 
+        [Pure]
         public static SetItem<K> DblRotRight<K>(SetItem<K> node) =>
             node.IsEmpty
                 ? node
                 : RotRight(Make(node.Key, RotLeft(node.Left), node.Right));
 
+        [Pure]
         public static SetItem<K> DblRotLeft<K>(SetItem<K> node) =>
             node.IsEmpty
                 ? node

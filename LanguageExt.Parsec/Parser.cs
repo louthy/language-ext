@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using LanguageExt;
 using LanguageExt.Parsec;
 using static LanguageExt.Prelude;
 using static LanguageExt.Parsec.Prim;
+using static LanguageExt.Parsec.Common;
 using static LanguageExt.Parsec.ParserResult;
+using static LanguageExt.Parsec.ParserResultIO;
 using System.Diagnostics;
 
 namespace LanguageExt.Parsec
@@ -20,6 +20,34 @@ namespace LanguageExt.Parsec
 
 public static class ___ParserExt
 {
+    public static Parser<char, T> ToParserIO<T>(this Parser<T> self) =>
+        inp =>
+        {
+            var res = self(new PString(new string(inp.Value), inp.Index, inp.EndIndex, inp.Pos, inp.DefPos, inp.Side, inp.UserState));
+
+            var state = res.Reply.State;
+
+            var pstr = new PString<char>(
+                        state.Value.ToCharArray(),
+                        state.Index,
+                        state.EndIndex,
+                        state.Pos,
+                        state.DefPos,
+                        state.Side,
+                        state.UserState);
+
+            var reply = res.Reply;
+
+            return new ParserResult<char, T>(
+                res.Tag,
+                new Reply<char, T>(
+                    reply.Tag,
+                    reply.Result,
+                    pstr,
+                    reply.Error));
+        };
+
+
     /// <summary>
     /// A label for the parser
     /// </summary>

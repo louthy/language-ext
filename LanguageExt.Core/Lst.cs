@@ -5,6 +5,7 @@ using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Threading;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -23,7 +24,8 @@ namespace LanguageExt
         IAppendable<Lst<T>>, 
         ISubtractable<Lst<T>>,
         IMultiplicable<Lst<T>>,
-        IDivisible<Lst<T>>
+        IDivisible<Lst<T>>,
+        IEquatable<Lst<T>>
     {
         /// <summary>
         /// Empty list
@@ -32,6 +34,7 @@ namespace LanguageExt
 
         internal readonly ListItem<T> Root;
         internal readonly bool Rev;
+        internal int HashCode;
 
         /// <summary>
         /// Ctor
@@ -46,9 +49,18 @@ namespace LanguageExt
         /// </summary>
         internal Lst(IEnumerable<T> initial)
         {
-            var lst = new List<T>(initial);
-            Root = ListModule.FromList(lst, 0, lst.Count());
-            Rev = false;
+            if (initial is Lst<T>)
+            {
+                var lst = (Lst<T>)initial;
+                Root = lst.Root;
+                Rev = lst.Rev;
+            }
+            else
+            {
+                var lst = new List<T>(initial);
+                Root = ListModule.FromList(lst, 0, lst.Count());
+                Rev = false;
+            }
         }
 
         /// <summary>
@@ -63,6 +75,7 @@ namespace LanguageExt
         /// <summary>
         /// Index accessor
         /// </summary>
+        [Pure]
         public T this[int index]
         {
             get
@@ -75,6 +88,7 @@ namespace LanguageExt
         /// <summary>
         /// Number of items in the list
         /// </summary>
+        [Pure]
         public int Count
         {
             get
@@ -83,7 +97,7 @@ namespace LanguageExt
             }
         }
 
-
+        [Pure]
         int IReadOnlyCollection<T>.Count
         {
             get
@@ -92,6 +106,7 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         T IReadOnlyList<T>.this[int index]
         {
             get
@@ -104,12 +119,14 @@ namespace LanguageExt
         /// <summary>
         /// Add an item to the end of the list
         /// </summary>
+        [Pure]
         public Lst<T> Add(T value) =>
             new Lst<T>(ListModule.Insert(Root, value, Rev ? 0 : Root.Count), Rev);
 
         /// <summary>
         /// Add a range of items to the end of the list
         /// </summary>
+        [Pure]
         public Lst<T> AddRange(IEnumerable<T> items)
         {
             if (items == null) return this;
@@ -121,18 +138,21 @@ namespace LanguageExt
         /// <summary>
         /// Clear the list
         /// </summary>
+        [Pure]
         public Lst<T> Clear() =>
             Empty;
 
         /// <summary>
         /// Get enumerator
         /// </summary>
+        [Pure]
         public IEnumerator<T> GetEnumerator() =>
             new ListModule.ListEnumerator<T>(Root,Rev,0);
 
         /// <summary>
         /// Find the index of an item
         /// </summary>
+        [Pure]
         public int IndexOf(T item, int index = 0, int count = -1, IEqualityComparer<T> equalityComparer = null)
         {
             count = count == -1
@@ -160,6 +180,7 @@ namespace LanguageExt
         /// <summary>
         /// Insert value at specified index
         /// </summary>
+        [Pure]
         public Lst<T> Insert(int index, T value)
         {
             if (index < 0 || index > Root.Count) throw new IndexOutOfRangeException();
@@ -169,6 +190,7 @@ namespace LanguageExt
         /// <summary>
         /// Insert range of values at specified index
         /// </summary>
+        [Pure]
         public Lst<T> InsertRange(int index, IEnumerable<T> items)
         {
             if (items == null) return this;
@@ -182,18 +204,21 @@ namespace LanguageExt
         /// <summary>
         /// Find the last index of an item in the list
         /// </summary>
+        [Pure]
         public int LastIndexOf(T item, int index = 0, int count = -1, IEqualityComparer<T> equalityComparer = null) =>
             Count - Reverse().IndexOf(item, index, count, equalityComparer) - 1;
 
         /// <summary>
         /// Remove an item from the list
         /// </summary>
+        [Pure]
         public Lst<T> Remove(T value) => 
             Remove(value, Comparer<T>.Default);
 
         /// <summary>
         /// Remove an item from the list
         /// </summary>
+        [Pure]
         public Lst<T> Remove(T value, IComparer<T> equalityComparer)
         {
             var index = ListModule.Find(Root, value, 0, Count, equalityComparer);
@@ -205,6 +230,7 @@ namespace LanguageExt
         /// <summary>
         /// Remove all items that match a predicate
         /// </summary>
+        [Pure]
         public Lst<T> RemoveAll(Predicate<T> pred)
         {
             var self = this;
@@ -228,6 +254,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
+        [Pure]
         public Lst<T> RemoveAt(int index)
         {
             if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
@@ -237,6 +264,7 @@ namespace LanguageExt
         /// <summary>
         /// Remove a range of items
         /// </summary>
+        [Pure]
         public Lst<T> RemoveRange(int index, int count)
         {
             if (index < 0 || index >= Root.Count) throw new IndexOutOfRangeException();
@@ -253,6 +281,7 @@ namespace LanguageExt
         /// <summary>
         /// Set an item at the specified index
         /// </summary>
+        [Pure]
         public Lst<T> SetItem(int index, T value)
         {
             if (isnull(value)) throw new ArgumentNullException(nameof(value));
@@ -260,12 +289,15 @@ namespace LanguageExt
             return new Lst<T>(ListModule.SetItem(Root,value,index),Rev);
         }
 
+        [Pure]
         IEnumerator IEnumerable.GetEnumerator() =>
             new ListModule.ListEnumerator<T>(Root, Rev, 0);
 
+        [Pure]
         IEnumerator<T> IEnumerable<T>.GetEnumerator() =>
             new ListModule.ListEnumerator<T>(Root, Rev, 0);
 
+        [Pure]
         public IEnumerable<T> Skip(int amount)
         {
             var iter = new ListModule.ListEnumerator<T>(Root, Rev, amount);
@@ -278,6 +310,7 @@ namespace LanguageExt
         /// <summary>
         /// Reverse the order of the items in the list
         /// </summary>
+        [Pure]
         public Lst<T> Reverse()
         {
             // This is currenty buggy, so going the safe (and less efficient) route for now
@@ -288,6 +321,7 @@ namespace LanguageExt
         /// <summary>
         /// Fold
         /// </summary>
+        [Pure]
         public S Fold<S>(S state, Func<S, T, S> folder)
         {
             foreach (var item in this)
@@ -300,12 +334,14 @@ namespace LanguageExt
         /// <summary>
         /// Map
         /// </summary>
+        [Pure]
         public Lst<U> Map<U>(Func<T, U> map) =>
             new Lst<U>(ListModule.Map(Root,map),Rev);
 
         /// <summary>
         /// Filter
         /// </summary>
+        [Pure]
         public Lst<T> Filter(Func<T, bool> pred)
         {
             var filtered = new List<T>();
@@ -320,21 +356,27 @@ namespace LanguageExt
             return new Lst<T>(root, Rev);
         }
 
+        [Pure]
         public static Lst<T> operator +(Lst<T> lhs, T rhs) =>
             lhs.Add(rhs);
 
+        [Pure]
         public static Lst<T> operator +(T rhs, Lst<T> lhs) =>
             rhs.Cons(lhs);
 
+        [Pure]
         public static Lst<T> operator +(Lst<T> lhs, Lst<T> rhs) =>
             lhs.Append(rhs);
 
+        [Pure]
         public Lst<T> Append(Lst<T> rhs) =>
             AddRange(rhs);
 
+        [Pure]
         public static Lst<T> operator -(Lst<T> lhs, Lst<T> rhs) =>
             lhs.Subtract(rhs);
 
+        [Pure]
         public Lst<T> Subtract(Lst<T> rhs)
         {
             var self = this;
@@ -345,21 +387,74 @@ namespace LanguageExt
             return self;
         }
 
+        [Pure]
         public static Lst<T> operator *(Lst<T> lhs, Lst<T> rhs) =>
             lhs.Multiply(rhs);
 
+        [Pure]
         public Lst<T> Multiply(Lst<T> rhs) =>
             (from x in this.AsEnumerable()
              from y in rhs.AsEnumerable()
              select TypeDesc.Multiply(x, y, TypeDesc<T>.Default)).Freeze();
 
+        [Pure]
         public static Lst<T> operator /(Lst<T> lhs, Lst<T> rhs) =>
             lhs.Divide(rhs);
 
+        [Pure]
         public Lst<T> Divide(Lst<T> rhs) =>
             (from y in rhs.AsEnumerable()
              from x in this.AsEnumerable()
              select TypeDesc.Divide(x, y, TypeDesc<T>.Default)).Freeze();
+
+        [Pure]
+        public override bool Equals(object obj) =>
+            !ReferenceEquals(obj,null) && 
+            obj is Lst<T> && 
+            Equals((Lst<T>)obj);
+
+        /// <summary>
+        /// Get the hash code
+        /// Lazily (and once only) calculates the hash from the elements in the list
+        /// Empty list hash == 0
+        /// </summary>
+        [Pure]
+        public override int GetHashCode()
+        {
+            if (Count == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                if (HashCode == 0)
+                {
+                    unchecked
+                    {
+                        HashCode = Fold(7, (s, x) => s + x.GetHashCode() * 13);
+                    }
+                }
+                return HashCode;
+            }
+        }
+
+        [Pure]
+        public bool Equals(Lst<T> other)
+        {
+            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(other, null)) return false;
+            var comparer = EqualityComparer<T>.Default;
+            return Count == other.Count && this.Zip(other, (x, y) => comparer.Equals(x, y)).ForAll(x => x);
+        }
+
+        [Pure]
+        public static bool operator ==(Lst<T> lhs, Lst<T> rhs) =>
+              ReferenceEquals(lhs, null)  && ReferenceEquals(rhs, null) || 
+              !ReferenceEquals(lhs, null) && !ReferenceEquals(rhs, null) && lhs.Equals(rhs);
+
+        [Pure]
+        public static bool operator !=(Lst<T> lhs, Lst<T> rhs) =>
+              !(lhs == rhs);
     }
 
 #if !COREFX

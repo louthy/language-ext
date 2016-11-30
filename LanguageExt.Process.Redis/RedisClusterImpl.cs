@@ -12,6 +12,7 @@ using LanguageExt;
 using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using System.Threading;
+using System.Reflection;
 
 namespace LanguageExt
 {
@@ -89,6 +90,7 @@ namespace LanguageExt
                 if (redis == null)
                 {
                     Retry(() => redis = ConnectionMultiplexer.Connect(Config.ConnectionString));
+                    redis.PreserveAsyncOrder = false;
                     this.databaseNumber = (int)databaseNumber;
                 }
             }
@@ -156,7 +158,7 @@ namespace LanguageExt
                 .Select(value => {
                     try
                     {
-                        return Some(JsonConvert.DeserializeObject(value, type));
+                        return Some(Deserialise(value, type));
                     }
                     catch
                     {
@@ -266,6 +268,10 @@ namespace LanguageExt
             }
         }
 
+        public bool SetExpire(string key, TimeSpan time) =>
+            Retry(() =>
+                Db.KeyExpire(key, time));
+
         public void SetAddOrUpdate<T>(string key, T value) =>
             Retry(() =>
                 Db.SetAdd(key, JsonConvert.SerializeObject(value)));
@@ -304,6 +310,14 @@ namespace LanguageExt
         public int DeleteHashFields(string key, IEnumerable<string> fields) =>
             Retry(() =>
                 (int)Db.HashDelete(key, fields.Map(x => (RedisValue)x).ToArray()));
+
+        public Map<string, object> GetHashFields(string key) =>
+            Retry(() =>
+                Db.HashGetAll(key)
+                  .Fold(
+                    Map.empty<string, object>(),
+                    (m, e) => m.Add(e.Name, JsonConvert.DeserializeObject(e.Value)))
+                  .Filter(notnull));
 
         public Map<string, T> GetHashFields<T>(string key) =>
             Retry(() =>
@@ -352,13 +366,20 @@ namespace LanguageExt
         /// </remarks>
         IEnumerable<string> QueryKeys(string keyQuery, string prefix, string suffix) =>
             Retry(() =>
-                from keys in map($"{prefix}{keyQuery}{suffix}", ibxkey =>
+               (from keys in map($"{prefix}{keyQuery}{suffix}", ibxkey =>
                         redis.GetEndPoints()
                             .Map(ep => redis.GetServer(ep))
                             .Map(sv => sv.Keys(databaseNumber, ibxkey)))
                 from redisKey in keys
                 let strKey = (string)redisKey
-                select strKey);
+                select strKey).ToList());
+
+        /// <summary>
+        /// Finds all session keys
+        /// </summary>
+        /// <returns>Session keys</returns>
+        public IEnumerable<string> QuerySessionKeys() =>
+            QueryKeys("sys-session-*", "", "");
 
         /// <summary>
         /// Finds all registered names in a role
@@ -398,31 +419,50 @@ namespace LanguageExt
         IDatabase Db => 
             redis.GetDatabase(databaseNumber);
 
+        static readonly Func<Type, MethodInfo> DeserialiseFunc =
+           memo<Type, MethodInfo>(type =>
+                typeof(JsonConvert).GetMethods()
+                                   .Filter(m => m.IsGenericMethod)
+                                   .Filter(m => m.Name == "DeserializeObject")
+                                   .Filter(m => m.GetParameters().Length == 1)
+                                   .Head()
+                                   .MakeGenericMethod(type));
+
+        public static object Deserialise(string value, Type type) =>
+            DeserialiseFunc(type).Invoke(null, new[] { value });
+
         static T Retry<T>(Func<T> f)
         {
-            using (var ev = new AutoResetEvent(false))
+            try
             {
-                for (int i = 0; ; i++)
+                return f();
+            }
+            catch (TimeoutException)
+            {
+                using (var ev = new AutoResetEvent(false))
                 {
-                    try
+                    for (int i = 0; ; i++)
                     {
-                        return f();
-                    }
-                    catch (TimeoutException)
-                    {
-                        if (i == TimeoutRetries)
+                        try
                         {
-                            throw;
+                            return f();
                         }
+                        catch (TimeoutException)
+                        {
+                            if (i == TimeoutRetries)
+                            {
+                                throw;
+                            }
 
-                        // Backing off wait time
-                        // 0 - immediately
-                        // 1 - 100 ms
-                        // 2 - 400 ms
-                        // 3 - 900 ms
-                        // 4 - 1600 ms
-                        // Maximum wait == 3000ms
-                        ev.WaitOne(i * i * 100);
+                            // Backing off wait time
+                            // 0 - immediately
+                            // 1 - 100 ms
+                            // 2 - 400 ms
+                            // 3 - 900 ms
+                            // 4 - 1600 ms
+                            // Maximum wait == 3000ms
+                            ev.WaitOne(i * i * 100);
+                        }
                     }
                 }
             }
@@ -430,29 +470,37 @@ namespace LanguageExt
 
         static void Retry(Action f)
         {
-            using (var ev = new AutoResetEvent(false))
+            try
             {
-                for (int i = TimeoutRetries; ; i--)
+                f();
+                return;
+            }
+            catch (TimeoutException)
+            {
+                using (var ev = new AutoResetEvent(false))
                 {
-                    try
+                    for (int i = 1; ; i++)
                     {
-                        f();
-                        return;
-                    }
-                    catch (TimeoutException)
-                    {
-                        if (i == 0)
+                        try
                         {
-                            throw;
+                            f();
+                            return;
                         }
-                        // Backing off wait time
-                        // 0 - immediately
-                        // 1 - 100 ms
-                        // 2 - 400 ms
-                        // 3 - 900 ms
-                        // 4 - 1600 ms
-                        // Maximum wait == 3000ms
-                        ev.WaitOne(i * i * 100);
+                        catch (TimeoutException)
+                        {
+                            if (i == TimeoutRetries)
+                            {
+                                throw;
+                            }
+                            // Backing off wait time
+                            // 0 - immediately
+                            // 1 - 100 ms
+                            // 2 - 400 ms
+                            // 3 - 900 ms
+                            // 4 - 1600 ms
+                            // Maximum wait == 3000ms
+                            ev.WaitOne(i * i * 100);
+                        }
                     }
                 }
             }

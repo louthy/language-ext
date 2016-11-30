@@ -64,7 +64,7 @@ namespace LanguageExtTests
                 .Apply(Some(4));
 
             var second = Some(3)
-                .Map(add)
+                .ParMap(add)
                 .Apply(Some(4));
 
             Assert.Equal(first, second);
@@ -74,7 +74,7 @@ namespace LanguageExtTests
         public void ApplicativeLawHoldsF()
         {
             var first = apply(apply(Some(add), Some(3)), Some(4));
-            var second = apply(map(Some(3), add), Some(4));
+            var second = apply(parmap(Some(3), add), Some(4));
 
             Assert.Equal(first, second);
         }
@@ -83,7 +83,7 @@ namespace LanguageExtTests
         public void ApplicativeLawHoldsF2()
         {
             var first = apply(Some(add), Some(3), Some(4));
-            var second = apply(map(Some(3), add), Some(4));
+            var second = apply(parmap(Some(3), add), Some(4));
 
             Assert.Equal(first, second);
         }

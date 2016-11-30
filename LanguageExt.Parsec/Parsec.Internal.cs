@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using static LanguageExt.Parsec.Common;
 using static LanguageExt.Parsec.Prim;
 using static LanguageExt.Parsec.ParserResult;
 
@@ -8,20 +9,14 @@ namespace LanguageExt.Parsec
 {
     static class Internal
     {
-        public static bool onside(Pos pos, Pos delta) =>
-            pos.Column > delta.Column || pos.Line == delta.Line;
-
-        public static readonly Parser<Pos> getPos =
-            (PString inp) => ConsumedOK(inp.Pos, inp);
+        public static string concat(IEnumerable<char> chs) =>
+            new string(chs.ToArray());
 
         public static readonly Parser<Pos> getDefPos =
             (PString inp) => ConsumedOK(inp.DefPos, inp);
 
         public static Parser<T> setDefPos<T>(Pos defpos, Parser<T> p) =>
             (PString inp) => p(inp.SetDefPos(defpos));
-
-        public static string concat(IEnumerable<char> chs) =>
-            new string(chs.ToArray());
 
         public static ParserResult<char> newstate(PString inp)
         {
@@ -44,21 +39,203 @@ namespace LanguageExt.Parsec
                     inp.UserState));
         }
 
-        public static Parser<T> choicei<T>(Parser<T>[] ps, int index) =>
+        /// <summary>
+        /// Imperative implementation of the choice parser, which in a non-stack 
+        /// overflow utopia would look similar to this:
+        /// 
+        ///     either(ps[index], choicei(ps, index + 1))
+        /// 
+        /// </summary>
+        public static Parser<T> choicei<T>(Parser<T>[] ps) =>
             ps.Length == 0
-                ? unexpected<T>("no choice")
-                : index == ps.Length - 1
-                    ? ps[index]
-                    : either(ps[index], choicei(ps, index + 1));
+                ? unexpected<T>("choice parser with no choices")
+                : inp =>
+            {
+                List<T> results = new List<T>();
+                ParserError error = null;
 
-        public static Parser<IEnumerable<T>> chaini<T>(Parser<T>[] ps, int index) =>
+                foreach (var p in ps)
+                {
+                    var t = p(inp);
+
+                    // cok
+                    if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
+                    {
+                        return t;
+                    }
+
+                    // eok
+                    if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
+                    {
+                        return EmptyOK(t.Reply.Result, t.Reply.State, mergeError(error, t.Reply.Error));
+                    }
+
+                    // cerr
+                    if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
+                    {
+                        return ConsumedError<T>(mergeError(error, t.Reply.Error));
+                    }
+
+                    error = mergeError(error, t.Reply.Error);
+                }
+
+                return EmptyError<T>(error);
+            };
+
+        /// <summary>
+        /// Imperative implementation of chain, which in a non-stack overflow utopia
+        /// would look similar to this:
+        /// 
+        ///     from x in ps[index]
+        ///     from y in chaini(ps, index + 1)
+        ///     select x.Cons(y);
+        /// 
+        /// </summary>
+        public static Parser<IEnumerable<T>> chaini<T>(Parser<T>[] ps) =>
             ps.Length == 0
-                ? unexpected<IEnumerable<T>>("no chain")
-                : index == ps.Length - 1
-                    ? ps[index].Map(x => new[] { x }.AsEnumerable())
-                    : from x in ps[index]
-                      from y in chaini(ps, index + 1)
-                      select x.Cons(y);
+                ? unexpected<IEnumerable<T>>("chain parser with 0 items")
+                : inp =>
+            {
+                if( ps.Length == 1)
+                {
+                    return ps[0].Map(x => new[] { x }.AsEnumerable())(inp);
+                }
+
+                var current = inp;
+                List<T> results = new List<T>();
+                ParserError error = null;
+                ParserResult<T> last = null;
+                int count = ps.Length;
+
+                foreach (var p in ps)
+                {
+                    count--;
+                    var t = p(current);
+
+                    if( last == null)
+                    {
+                        // cerr
+                        if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
+                        {
+                            return ConsumedError<IEnumerable<T>>(t.Reply.Error);
+                        }
+                        // eerr
+                        else if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.Error)
+                        {
+                            return EmptyError<IEnumerable<T>>(t.Reply.Error);
+                        }
+                        // cok
+                        else if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
+                        {
+                            results.Add(t.Reply.Result);
+                            last = t;
+                            error = t.Reply.Error;
+                            current = t.Reply.State;
+                        }
+                        // eok
+                        else //if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
+                        {
+                            results.Add(t.Reply.Result);
+                            last = t;
+                            error = t.Reply.Error;
+                        }
+                    }
+                    else
+                    {
+                        if (last.Tag == ResultTag.Consumed)
+                        {
+                            // cok, cerr
+                            if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
+                            {
+                                return ConsumedError<IEnumerable<T>>(t.Reply.Error);
+                            }
+                            // cok, eerr
+                            else if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.Error)
+                            {
+                                return ConsumedError<IEnumerable<T>>(mergeError(error, t.Reply.Error));
+                            }
+                            // cok, cok
+                            else if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
+                            {
+                                if (count == 0)
+                                {
+                                    results.Add(t.Reply.Result);
+                                    return ConsumedOK<IEnumerable<T>>(results, t.Reply.State, t.Reply.Error);
+                                }
+                                else
+                                {
+                                    results.Add(t.Reply.Result);
+                                    last = t;
+                                    error = t.Reply.Error;
+                                    current = t.Reply.State;
+                                }
+                            }
+                            // cok, eok
+                            else //if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
+                            {
+                                if (count == 0)
+                                {
+                                    // cok, eok -> cok  (not a typo, this should be -> cok)
+                                    results.Add(t.Reply.Result);
+                                    return ConsumedOK<IEnumerable<T>>(results, t.Reply.State, mergeError(error, t.Reply.Error));
+                                }
+                                else
+                                {
+                                    results.Add(t.Reply.Result);
+                                    last = t;
+                                    error = mergeError(error, t.Reply.Error);
+                                }
+                            }
+                        }
+                        else if (last.Tag == ResultTag.Empty)
+                        {
+                            // eok, cerr
+                            if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
+                            {
+                                return ConsumedError<IEnumerable<T>>(t.Reply.Error);
+                            }
+                            // eok, eerr
+                            else if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.Error)
+                            {
+                                return EmptyError<IEnumerable<T>>(mergeError(error, t.Reply.Error));
+                            }
+                            // eok, cok
+                            else if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
+                            {
+                                if (count == 0)
+                                {
+                                    results.Add(t.Reply.Result);
+                                    return ConsumedOK<IEnumerable<T>>(results, t.Reply.State, t.Reply.Error);
+                                }
+                                else
+                                {
+                                    results.Add(t.Reply.Result);
+                                    last = t;
+                                    error = t.Reply.Error;
+                                    current = t.Reply.State;
+                                }
+                            }
+                            // eok, eok
+                            else //if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
+                            {
+                                if (count == 0)
+                                {
+                                    results.Add(t.Reply.Result);
+                                    return EmptyOK<IEnumerable<T>>(results, t.Reply.State, mergeError(error, t.Reply.Error));
+                                }
+                                else
+                                {
+                                    results.Add(t.Reply.Result);
+                                    last = t;
+                                    error = mergeError(error, t.Reply.Error);
+                                }
+                            }
+                        }
+                    }
+                }
+                return ConsumedOK<IEnumerable<T>>(results, current, error);
+            };
+
 
         public static Parser<IEnumerable<T>> counti<T>(int n, Parser<T> p) =>
            n <= 0

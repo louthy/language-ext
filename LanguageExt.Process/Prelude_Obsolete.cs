@@ -7,11 +7,6 @@ using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
-    /// <summary>
-    /// 
-    ///     Process: Obsolete functions
-    /// 
-    /// </summary>
     public static partial class Process
     {
         /// <summary>

@@ -42,6 +42,10 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CompositionTests.cs" />
+    <Compile Include="HashMapTests.cs" />
+    <Compile Include="NewTypeTests.cs" />
+    <Compile Include="TaskTests.cs" />
     <Compile Include="Divisible.cs" />
     <Compile Include="Multiplicable.cs" />
     <Compile Include="ParsecTests.cs" />
@@ -60,6 +64,7 @@
     <Compile Include="LinqTests.cs" />
     <Compile Include="ListMatchingTests.cs" />
     <Compile Include="EitherApply.cs" />
+    <Compile Include="TryOption.cs" />
     <Compile Include="TryOptionApply.cs" />
     <Compile Include="TryApply.cs" />
     <Compile Include="OptionUnsafeApply.cs" />

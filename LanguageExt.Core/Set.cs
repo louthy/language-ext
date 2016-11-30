@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using LanguageExt;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -18,6 +19,7 @@ namespace LanguageExt
         /// </summary>
         /// <typeparam name="T">Element type</typeparam>
         /// <returns>True if the set has no elements</returns>
+        [Pure]
         public static bool isEmpty<T>(Set<T> set) =>
             set.IsEmpty;
 
@@ -26,6 +28,7 @@ namespace LanguageExt
         /// </summary>
         /// <typeparam name="T">Element type</typeparam>
         /// <returns>Empty set</returns>
+        [Pure]
         public static Set<T> create<T>() =>
             Set<T>.Empty;
 
@@ -35,6 +38,7 @@ namespace LanguageExt
         /// <typeparam name="T">Element type</typeparam>
         /// <param name="range">Range of items</param>
         /// <returns>Set</returns>
+        [Pure]
         public static Set<T> createRange<T>(IEnumerable<T> range) =>
             new Set<T>(range);
 
@@ -43,6 +47,7 @@ namespace LanguageExt
         /// </summary>
         /// <typeparam name="T">Element type</typeparam>
         /// <returns>Empty set</returns>
+        [Pure]
         public static Set<T> empty<T>() =>
             Set<T>.Empty;
 
@@ -53,6 +58,7 @@ namespace LanguageExt
         /// <param name="set">Set to add item to</param>
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item added</returns>
+        [Pure]
         public static Set<T> add<T>(Set<T> set, T value) =>
             set.Add(value);
 
@@ -64,6 +70,7 @@ namespace LanguageExt
         /// <param name="set">Set to add item to</param>
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item maybe added</returns>
+        [Pure]
         public static Set<T> tryAdd<T>(Set<T> set, T value) =>
             set.TryAdd(value);
 
@@ -75,6 +82,7 @@ namespace LanguageExt
         /// <param name="set">Set to add item to</param>
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item maybe added</returns>
+        [Pure]
         public static Set<T> addOrUpdate<T>(Set<T> set, T value) =>
             set.AddOrUpdate(value);
 
@@ -85,6 +93,7 @@ namespace LanguageExt
         /// <param name="set">Set</param>
         /// <param name="value">Value to find</param>
         /// <returns>Some(T) if found, None otherwise</returns>
+        [Pure]
         public static Option<T> find<T>(Set<T> set, T value) =>
             set.Find(value);
 
@@ -97,12 +106,14 @@ namespace LanguageExt
         /// <param name="set">Set</param>
         /// <param name="pred">Predicate</param>
         /// <returns>True if predicate returns true for any item</returns>
+        [Pure]
         public static bool exists<T>(Set<T> set, Func<T, bool> pred) =>
             set.Exists(pred);
 
         /// <summary>
         /// Returns true if both sets contain the same elements
         /// </summary>
+        [Pure]
         public static bool equals<T>(Set<T> setA, Set<T> setB) =>
             setA.SetEquals(setB);
 
@@ -112,6 +123,7 @@ namespace LanguageExt
         /// <typeparam name="T">Element type</typeparam>
         /// <param name="set">Set</param>
         /// <returns>Number of elements</returns>
+        [Pure]
         public static int length<T>(Set<T> set) =>
             set.Count();
 
@@ -119,6 +131,7 @@ namespace LanguageExt
         /// Returns setA - setB.  Only the items in setA that are not in 
         /// setB will be returned.
         /// </summary>
+        [Pure]
         public static Set<T> difference<T>(Set<T> setA, Set<T> setB) =>
             setA.Except(setB);
 
@@ -130,6 +143,7 @@ namespace LanguageExt
         /// <param name="setA">Set A</param>
         /// <param name="setB">Set A</param>
         /// <returns>A set which contains all items from both sets</returns>
+        [Pure]
         public static Set<T> union<T>(Set<T> setA, Set<T> setB) =>
             setA.Union(setB);
 
@@ -142,6 +156,7 @@ namespace LanguageExt
         /// <param name="set">Set</param>
         /// <param name="pred">Predicate</param>
         /// <returns>Filtered enumerable</returns>
+        [Pure]
         public static Set<T> filter<T>(Set<T> set, Func<T, bool> pred) =>
             set.Filter(pred);
 
@@ -158,6 +173,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Aggregate value</returns>
+        [Pure]
         public static S fold<T, S>(Set<T> set, S state, Func<S, T, S> folder) =>
             set.Fold(state, folder);
 
@@ -174,18 +190,21 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Aggregate value</returns>
+        [Pure]
         public static S foldBack<T, S>(Set<T> set, S state, Func<S, T, S> folder) =>
             set.FoldBack(state, folder);
 
         /// <summary>
         /// Returns the elements that are in both setA and setB
         /// </summary>
+        [Pure]
         public static Set<T> intersect<T>(Set<T> setA, IEnumerable<T> setB) =>
             setA.Intersect(setB);
 
         /// <summary>
         /// Returns the elements that are in both setA and setB
         /// </summary>
+        [Pure]
         public static Set<T> except<T>(Set<T> setA, IEnumerable<T> setB) =>
             setA.Except(setB);
 
@@ -193,8 +212,9 @@ namespace LanguageExt
         /// Only items that are in one set or the other will be returned.
         /// If an item is in both, it is dropped.
         /// </summary>
+        [Pure]
         public static Set<T> symmetricExcept<T>(Set<T> setA, IEnumerable<T> setB) =>
-            setA.Except(setB);
+            setA.SymmetricExcept(setB);
 
         /// <summary>
         /// Maps the values of this set into a new set of values using the
@@ -205,6 +225,7 @@ namespace LanguageExt
         /// <param name="set">Set</param>
         /// <param name="mapper">Mapping function</param>
         /// <returns>Mapped enumerable</returns>
+        [Pure]
         public static Set<R> map<T, R>(Set<T> set, Func<T, R> mapper) =>
             set.Map(mapper);
 
@@ -215,6 +236,7 @@ namespace LanguageExt
         /// <param name="set">Set</param>
         /// <param name="value">Value to check</param>
         /// <returns>True if the item 'value' is in the Set 'set'</returns>
+        [Pure]
         public static bool contains<T>(Set<T> set, T value) =>
             set.Contains(value);
 
@@ -225,6 +247,7 @@ namespace LanguageExt
         /// <param name="set">Set</param>
         /// <param name="value">Value to check</param>
         /// <returns>New set with item removed</returns>
+        [Pure]
         public static Set<T> remove<T>(Set<T> set, T value) =>
             set.Remove(value);
 
@@ -235,6 +258,7 @@ namespace LanguageExt
         /// <param name="setA">Set A</param>
         /// <param name="setB">Set B</param>
         /// <returns>True is setB is a subset of setA</returns>
+        [Pure]
         public static bool isSubset<T>(Set<T> setA, IEnumerable<T> setB) =>
             setA.IsSubsetOf(setB);
 
@@ -245,6 +269,7 @@ namespace LanguageExt
         /// <param name="setA">Set A</param>
         /// <param name="setB">Set B</param>
         /// <returns>True is setB is a superset of setA</returns>
+        [Pure]
         public static bool isSuperset<T>(Set<T> setA, IEnumerable<T> setB) =>
             setA.IsSupersetOf(setB);
 
@@ -255,6 +280,7 @@ namespace LanguageExt
         /// <param name="setA">Set A</param>
         /// <param name="setB">Set B</param>
         /// <returns>True is setB is a proper subset of setA</returns>
+        [Pure]
         public static bool isProperSubset<T>(Set<T> setA, IEnumerable<T> setB) =>
             setA.IsProperSubsetOf(setB);
 
@@ -265,6 +291,7 @@ namespace LanguageExt
         /// <param name="setA">Set A</param>
         /// <param name="setB">Set B</param>
         /// <returns>True is setB is a proper subset of setA</returns>
+        [Pure]
         public static bool isProperSuperset<T>(Set<T> setA, IEnumerable<T> setB) =>
             setA.IsProperSupersetOf(setB);
 
@@ -275,6 +302,7 @@ namespace LanguageExt
         /// <param name="setA">Set A</param>
         /// <param name="setB">Set B</param>
         /// <returns>True if setA overlaps setB</returns>
+        [Pure]
         public static bool overlaps<T>(Set<T> setA, IEnumerable<T> setB) =>
             setA.Overlaps(setB);
     }

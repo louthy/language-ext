@@ -16,9 +16,10 @@ namespace Strategies
     {
         static void Main(string[] args)
         {
+            ProcessConfig.initialiseFileSystem();
+
             try
             {
-                Process.readConfigFromFile();
 
                 Test1();
                 Test2();

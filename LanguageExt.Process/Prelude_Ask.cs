@@ -8,16 +8,18 @@ using static LanguageExt.Prelude;
 namespace LanguageExt
 {
     /// <summary>
-    /// 
+    /// <para>
     ///     Process: Ask functions
-    /// 
+    /// </para>
+    /// <para>
     ///     'ask' is a request/response system for processes.  You can ask a process a question (a message) and it
     ///     can reply using the 'Process.reply' function.  It doesn't have to and 'ask' will timeout after 
     ///     ActorConfig.Default.Timeout seconds. 
-    /// 
+    /// </para>
+    /// <para>
     ///     'ask' is blocking, because mostly it will be called from within a process and processes shouldn't 
     ///     perform asynchronous operations.
-    /// 
+    /// </para>
     /// </summary>
     public static partial class Process
     {
@@ -28,7 +30,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <returns>The response to the request</returns>
         public static T ask<T>(ProcessId pid, object message) =>
-            ActorContext.Ask<T>(pid, message);
+            ActorContext.System(pid).Ask<T>(pid, message);
 
         /// <summary>
         /// Ask children the same message
@@ -36,7 +38,7 @@ namespace LanguageExt
         /// <param name="message">Message to send</param>
         /// <returns></returns>
         public static IEnumerable<T> askChildren<T>(object message, int take = Int32.MaxValue) =>
-            ActorContext.AskMany<T>(Children.Values, message, take);
+            ActorContext.System(default(SystemName)).AskMany<T>(Children.Values, message, take);
 
         /// <summary>
         /// Ask parent process for a reply

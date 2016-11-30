@@ -29,6 +29,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AppVeyorBuild|AnyCPU'">
+    <OutputPath>bin\AppVeyorBuild\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -40,25 +49,40 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common.cs" />
+    <Compile Include="GenLanguageDefIO.cs" />
     <Compile Include="GenLanguageDef.cs" />
+    <Compile Include="GenTokenParserIO.cs" />
     <Compile Include="GenTokenParser.cs" />
+    <Compile Include="LanguageIO.cs" />
+    <Compile Include="OperatorIOs.cs" />
+    <Compile Include="ParsecIO.Internal.cs" />
     <Compile Include="Parsec.Internal.cs" />
+    <Compile Include="ParserIOs\Char.cs" />
+    <Compile Include="ParserIOs\Expr.cs" />
+    <Compile Include="ParserIOs\Item.cs" />
+    <Compile Include="ParserIOs\Prim.cs" />
+    <Compile Include="ParserIO.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="ParserError.cs" />
     <Compile Include="Exceptions.cs" />
+    <Compile Include="ParserResultIO.cs" />
     <Compile Include="ParserResult.cs" />
     <Compile Include="Parsers\Indent.cs" />
+    <Compile Include="ParserIOs\Token.cs" />
     <Compile Include="Pos.cs" />
     <Compile Include="Parsers\Char.cs" />
     <Compile Include="Parsers\Expr.cs" />
-    <Compile Include="Parsers\Language.cs" />
-    <Compile Include="Parsers\Operators.cs" />
+    <Compile Include="Language.cs" />
+    <Compile Include="Operators.cs" />
     <Compile Include="Parsers\Prim.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PStringIO.cs" />
     <Compile Include="PString.cs" />
+    <Compile Include="ReplyIO.cs" />
     <Compile Include="Reply.cs" />
     <Compile Include="Sidedness.cs" />
-    <Compile Include="StringExt.cs" />
+    <Compile Include="StringAndCollectionExt.cs" />
     <Compile Include="Parsers\Token.cs" />
   </ItemGroup>
   <ItemGroup>

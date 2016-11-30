@@ -20,7 +20,7 @@ namespace RedisWatcherA
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-watcher-a", "localhost", "0", "global");
+            ProcessConfig.initialise("sys", "global", "redis-watcher-a", "localhost", "0");
 
             var ping = spawn<string>(
                 Name: "ping",

@@ -3,20 +3,22 @@
 C# Functional Language Extensions
 =================================
 
-[![Join the chat at https://gitter.im/louthy/language-ext](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/louthy/language-ext?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
+[![Join the chat at https://gitter.im/louthy/language-ext](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/louthy/language-ext?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![git-brag-stats](https://labs.turbo.run/git-brag?user=louthy&repo=language-ext&maxn=10)](https://github.com/turbo/git-brag)
 
 This library uses and abuses the features of C# 6 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself.  It also includes an 'Erlang like' process system (actors) that can optionally persist messages and state to Redis (note you can use it without Redis for in-app messaging).  The process system additionally supports Rx streams of messages and state allowing for a complete system of reactive events and message dispatch.
 
+#### [API Reference](https://louthy.github.io)
+
 Nu-get package | Description
 ---------------|-------------
-[LanguageExt.Core](https://www.nuget.org/packages/LanguageExt.Core) | All of the core types and functional 'prelude'.  This is all that's needed to get started.
+[LanguageExt.Core](https://www.nuget.org/packages/LanguageExt.Core) | All of the core types and functional 'prelude'.  __This is all that's needed to get started__.
 [LanguageExt.FSharp](https://www.nuget.org/packages/LanguageExt.FSharp) | F# to C# interop library.  Provides interop between the LanguageExt.Core types (like `Option`, `List` and `Map`) to the F# equivalents, as well as interop between core BCL types and F#
+[LanguageExt.Parsec](https://www.nuget.org/packages/LanguageExt.Parsec) | Port of the [Haskell parsec library](https://hackage.haskell.org/package/parsec)
 [LanguageExt.Process](https://www.nuget.org/packages/LanguageExt.Process) | 'Erlang like' actor system for in-app messaging and massive concurrency
 [LanguageExt.Process.Redis](https://www.nuget.org/packages/LanguageExt.Process.Redis) | Cluster support for the `LanguageExt.Process` system for cluster aware processes using Redis for queue and state persistence
 [LanguageExt.Process.FSharp](https://www.nuget.org/packages/LanguageExt.Process.FSharp) | F# API to the `LanguageExt.Process` system
 [LanguageExt.ProcessJS](https://www.nuget.org/packages/LanguageExt.ProcessJS) | Javascript API to the `LanguageExt.Process` system.  Supports running of Processes in a client browser, with hooks for two-way UI binding.
-[LanguageExt.Parsec](https://www.nuget.org/packages/LanguageExt.Parsec) | Port of the [Haskell parsec library](https://hackage.haskell.org/package/parsec)
- 
+
 __Twitter:__ 
 https://twitter.com/paullouth
 
@@ -44,7 +46,7 @@ There is however a naming guide that will stand you in good stead whilst reading
 ```C#
     Option<int> x = Some(123);
     Option<int> y = None;
-    Lst<int> items = List(1,2,3,4,5);
+    List<int> items = List(1,2,3,4,5);
     Map<int,string> dict = Map(Tuple(1, "Hello"), Tuple(2, "World"));
 ```
 * Any (non-type constructor) static functions that can be used on their own by `using static LanguageExt.Prelude` are camelCase.
@@ -70,14 +72,20 @@ using static LanguageExt.Prelude;
 The namespace `LanguageExt` contains the types, and `LanguageExt.Prelude` contains the functions.  
 
 There is also:
-* `LanguageExt.List`
-* `LanguageExt.Map`
-* `LanguageExt.Queue`
-* `LanguageExt.Set`
-* `LanguageExt.Stack` 
-* `LanguageExt.Process` 
-* `LanguageExt.Trans` 
-* `LanguageExt.Trans.Linq` 
+* [`LanguageExt.List`](https://louthy.github.io/languageext.core/LanguageExt/List_.htm)
+* [`LanguageExt.Map`](https://louthy.github.io/languageext.core/LanguageExt/Map_.htm)
+* [`LanguageExt.Queue`](https://louthy.github.io/languageext.core/LanguageExt/Queue_.htm)
+* [`LanguageExt.Set`](https://louthy.github.io/languageext.core/LanguageExt/Set_.htm)
+* [`LanguageExt.Stack` ](https://louthy.github.io/languageext.core/LanguageExt/Stack_.htm)
+* [`LanguageExt.Process`](https://louthy.github.io/LanguageExt.Process/LanguageExt/Process_.htm)
+* [`LanguageExt.Parsec`](https://louthy.github.io/LanguageExt.Parsec/LanguageExt.Parsec/index.htm)
+* [`LanguageExt.Parsec.Char`](https://louthy.github.io/LanguageExt.Parsec/LanguageExt.Parsec/Char_.htm)
+* `LanguageExt.Parsec.Expr`
+* [`LanguageExt.Parsec.Prim`](https://louthy.github.io/LanguageExt.Parsec/LanguageExt.Parsec/Prim_.htm)
+* `LanguageExt.Parsec.Token`
+* [`LanguageExt.Parsec.Indent`](https://louthy.github.io/LanguageExt.Parsec/LanguageExt.Parsec/Indent_.htm)
+* `LanguageExt.UnitsOfMeasure`
+
 
 _(more on those later)_
 
@@ -85,32 +93,35 @@ _(more on those later)_
 
 This library is quickly becoming a 'Base Class Library' for functional programming in C#.  The features include:
 
-Feature | Description
---------|------------
-`Lst<T>` | [Immutable list](https://github.com/louthy/language-ext/wiki/List-reference)
-`Map<K,V>` | Immutable map
-`Set<T>` | Immutable set
-`Que<T>` | Immutable queue
-`Stck<T>` | Immutable stack
-`Option<T>` | Option monad that can't be used with `null` values
-`OptionUnsafe<T>` | Option monad that can be used with `null` values
-`Either<L,R>` | Right/Left choice monad that won't accept `null` values
-`EitherUnsafe<L,R>` | Right/Left choice monad that can be used with `null` values
-`Try<T>` | Exception catching monad
-`TryOption<T>` | Option monad with third state 'Fail' that catches exceptions
-`Parser<T>` | Parser monad and full parser combinators library: LanguageExt.Parsec
-`Reader<E,T>` | Reader monad
-`Writer<O,T>` | Writer monad
-`State<S,T>` | State monad
-`Rws<E,O,S,T>` | Reader/Writer/State monad
-Monad transformers | A higher kinded type (ish)
-`Process` library | [Actor system.  The same as Erlang processes for massive concurrency with state management.](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
-Redis persistence | [Persistence of the `Process` system message-queues and state, for robustness and inter-app communication.](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
-Currying | https://en.wikipedia.org/wiki/Currying
-Partial application | https://en.wikipedia.org/wiki/Partial_application
-Memoization | https://en.wikipedia.org/wiki/Memoization
-Improved lambda type inference | `var add = fun( (int x, int y) => x + y)`
-`IObservable<T>` extensions  | 
+Location | Feature | Description
+---------|---------|------------
+`Core` | `Lst<T>` | [Immutable list](https://louthy.github.io/languageext.core/LanguageExt/Lst_T.htm)
+`Core` | `Map<K,V>` | [Immutable map](https://louthy.github.io/languageext.core/LanguageExt/Map_K_V.htm)
+`Core` | `Set<T>` | [Immutable set](https://louthy.github.io/languageext.core/LanguageExt/Set_T.htm)
+`Core` | `Que<T>` | [Immutable queue](https://louthy.github.io/languageext.core/LanguageExt/Que_T.htm)
+`Core` | `Stck<T>` | [Immutable stack](https://louthy.github.io/languageext.core/LanguageExt/Stck_T.htm)
+`Core` | `Option<T>` | [Option monad](https://louthy.github.io/languageext.core/LanguageExt/Option_T.htm) that can't be used with `null` values
+`Core` | `OptionUnsafe<T>` | [Option monad](https://louthy.github.io/languageext.core/LanguageExt/OptionUnsafe_T.htm) that can be used with `null` values
+`Core` | `Either<L,R>` | [Right/Left choice monad](https://louthy.github.io/languageext.core/LanguageExt/Either_L_R.htm) that won't accept `null` values
+`Core` | `EitherUnsafe<L,R>` | [Right/Left choice monad](https://louthy.github.io/languageext.core/LanguageExt/EitherUnsafe_L_R.htm) that can be used with `null` values
+`Core` | `Try<T>` | [Exception handling lazy monad](https://louthy.github.io/languageext.core/LanguageExt/index.htm#Try_T)
+`Core` | `TryOption<T>` | [Option monad with third state](https://louthy.github.io/languageext.core/LanguageExt/index.htm#TryOption_T) 'Fail' that catches exceptions
+`Core` | `Reader<E,T>` | [Reader monad](https://louthy.github.io/languageext.core/LanguageExt/index.htm#Reader_Env_T)
+`Core` | `Writer<O,T>` | [Writer monad](https://louthy.github.io/languageext.core/LanguageExt/index.htm#Writer_Out_T)
+`Core` | `State<S,T>` | [State monad](https://louthy.github.io/languageext.core/LanguageExt/index.htm#State_S_T)
+`Core` | `Rws<E,O,S,T>` | [Reader/Writer/State monad](https://louthy.github.io/languageext.core/LanguageExt/index.htm#Rws_R_W_S_T)
+`Parsec` | `Parser<T>` | [Parser monad and full parser combinators library](https://louthy.github.io/LanguageExt.Parsec/LanguageExt.Parsec/index.htm)
+`Core` | `NewType<T>` | [Haskell `newtype` equivalent](https://louthy.github.io/languageext.core/LanguageExt/NewType_T.htm) i.e: `class Hours : NewType<double> { public Hours(double value) : base(value) { } }`.  The resulting type is: equatable, comparable, foldable, a functor, monadic, appendable, subtractable, divisible, multiplicable, and iterable
+`Core` | `Nullable<T>` extensions | [Extension methods for `Nullable<T>`](https://louthy.github.io/languageext.core/LanguageExt/NullableExtensions_.htm) that make it into a functor, applicative, foldable, iterable and a monad
+`Core` | `Task<T>` extensions | [Extension methods for `Task<T>`](https://louthy.github.io/languageext.core/LanguageExt/__TaskExt_.htm) that make it into a functor, applicative, foldable, iterable and a monad
+`Core` | Monad transformers | A higher kinded type (ish)
+`Process` | `Process` library | [Actor system.  The same as Erlang processes for massive concurrency with state management.](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
+`Process.Redis` | Redis persistence | [Persistence of the `Process` system message-queues and state, for robustness and inter-app communication.](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
+`Core` | Currying | [Translate the evaluation of a function that takes multiple arguments into a sequence of functions, each with a single argument](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#curry<T1, T2, R>)
+`Core` | Partial application | [the process of fixing a number of arguments to a function, producing another function of smaller arity](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#par<T1, T2, R>)
+`Core` | Memoization | [An optimization technique used primarily to speed up programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#memo<T, R>)
+`Core` | [Improved lambda type inference](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#fun) | `var add = fun( (int x, int y) => x + y)`
+`Core` | `IObservable<T>` extensions  |
 
 It started out trying to deal with issues in C#, that after using Haskell and F# started to frustrate me:
 
@@ -302,7 +313,7 @@ So you can use `matchUnsafe` and `ifNoneUnsafe`:
                             Some: v => v,
                             None: () => null );
 
-    string x = ifNoneUnsafe( optional, null );
+    string x = ifNoneUnsafe( optional, (string)null );
     string x = ifNoneUnsafe( optional, () => GetNull() );
 ```
 And fluent versions:
@@ -311,14 +322,14 @@ And fluent versions:
                    Some: v => v,
                    None: () => null 
                    );
-    string x = optional.IfNoneUnsafe(null);
+    string x = optional.IfNoneUnsafe((string)null);
     string x = optional.IfNoneUnsafe(() => GetNull());
 ```
 That is consistent throughout the library.  Anything that could return `null` has the `Unsafe` suffix.  That means that in those unavoidable circumstances where you need a `null`, it gives you and any other programmers working with your code the clearest possible sign that they should treat the result with care.
 
 ### Option monad - gasp!  Not the M word!
 
-I know, it's that damn monad word again.  They're actually not scary at all, and damn useful.  But if you couldn't care less (or _could_ care less, for my American friends), it won't stop you taking advantage of the `Option<T>` type.  However, `Option<T>` type also implements `Select` and `SelectMany` and is therefore monadic.  That means it can be use in LINQ expressions, but it means much more also.  
+I know, it's that damn monad word again.  They're actually not scary at all, and damn useful.  But if you couldn't care less (or _could_ care less, for my American friends), it won't stop you taking advantage of the `Option<T>` type.  However, `Option<T>` type also implements `Select` and `SelectMany` and is therefore monadic.  That means it can be used in LINQ expressions, but it means much more also.  
 
 ```C#
     Option<int> two = Some(2);
@@ -365,15 +376,21 @@ To take this much further, all of the monads in this library implement a standar
 ```
 This makes them into what would be known in Haskell as a Type Class (although more of a catch-all type-class than a set of well-defined type-classes).  
 
+
+* [Option reference](https://louthy.github.io/languageext.core/LanguageExt/Option_T.htm)
+* [Option extensions reference](https://louthy.github.io/languageext.core/LanguageExt/OptionExtensions_.htm)
+
 __Monad transformers__
 
 Now the problem with C# is it can't do higher order polymorphism  (imagine saying `Monad<Option<T>>` instead of `Option<T>`, `Either<L,R>`, `Try<T>`, `IEnumerable<T>`.  And then the resulting type having all the features of the `Option` as well as the standard interface to `Monad`).
 
-There's a kind of cheat way to do it in C# through extension methods.  It still doesn't get you a single type called `Monad<T>`, so it has limitations in terms of passing it around.  However it makes some of the problems of dealing with 'wrapped types' easier.
+There's a kind of cheat way to do it in C# through extension methods.  It still doesn't get you a single type called `Monad<T>`, so it has limitations in terms of passing it around.  However it makes some of the problems of dealing with nested monadic types easier.
 
 For example, below is a list of optional integers: `Lst<Option<int>>` (see lists later).  We want to double all of the `Some` values, leave the `None` alone and keep everything in the list:
 
 ```C#
+    using LanguageExt.Trans;  // Required for all transformer extension methods
+
     var list = List(Some(1), None, Some(2), None, Some(3));
     
     var presum = list.SumT();                                // 6
@@ -394,9 +411,9 @@ Notice the use of `MapT` instead of `Map` (and `SumT` instead of `Sum`).  If we 
 ```
 As you can see the intention is much clearer in the first example.  And that's the point with functional programming most of the time.  It's about declaring intent rather than the mechanics of delivery.
 
-To make this work we need extension methods for `List<Option<T>>` that define `MapT` and `SumT` [for the one  example above].  And we need one for every pair of monads in this library (for one level of wrapping `A<B<T>>`), and for every function from the 'standard functional set' listed above.  So that's 13 monads * 13 monads * 14 functions.  That's a lot of extension methods.  So there's T4 template that generates 'monad transformers' that allows for nested monads.
+To make this work we need extension methods for `List<Option<T>>` that define `MapT` and `SumT` [for the one  example above].  And we need one for every pair of monads in this library (for one level of nesting `A<B<T>>`), and for every function from the 'standard functional set' listed above.  So that's 13 monads * 13 monads * 14 functions.  That's a lot of extension methods.  So there's T4 template that generates 'monad transformers' that allows for nested monads.
 
-This is super powerful, and means that most of the time you can leave your `Option<T>` or any of the monads in this library wrapped.  You rarely need to extract the value.  Mostly you only need to extract the value to pass to the BCL or Third-party libraries.  Even then you could keep them wrapped and use `Iter` or in the case of `Option<T>`: `IfSome`.  Both invoke `Action` delegates that take the value(s) in the monad.
+This is super powerful, and means that most of the time you can leave your `Option<T>` or any of the monads in this library wrapped.  You rarely need to extract the value.  Mostly you only need to extract the value to pass to the BCL or Third-party libraries.  Even then you could keep them wrapped and use `Iter` or `IterT`.
 
 
 ## if( arg == null ) throw new ArgumentNullException("arg")
@@ -416,7 +433,7 @@ By wrapping `string` as `Some<string>` we get free runtime `null` checking. Esse
         ...
     }
 ```
-If you're wondering how it works, well `Some<T>` is a `struct`, and has implicit conversation operators that convert a type of `T` to a type of `Some<T>`.  The constructor of `Some<T>` ensures that the value of `T` has a non-null value.
+If you're wondering how it works, well `Some<T>` is a `struct`, and has implicit conversion operators that convert a type of `T` to a type of `Some<T>`.  The constructor of `Some<T>` ensures that the value of `T` has a non-null value.
 
 There is also an implicit cast operator from `Some<T>` to `Option<T>`.  The `Some<T>` will automatically put the `Option<T>` into a `Some` state.  It's not possible to go the other way and cast from `Option<T>` to `Some<T>`, because the `Option<T>` could be in a `None` state which would cause the `Some<T>` to throw `ValueIsNullException`.  We want to avoid exceptions being thrown, so you must explicitly `match` to extract the `Some` value.
 
@@ -460,6 +477,8 @@ There's no silver bullet here unfortunately.
 
 _NOTE: Since writing this library I have come to the opinion that `Some<T>` isn't that useful.  It's much better to protect 'everything else' using `Option<T>` and immutable data structures.  It doesn't fix the argument null checks unfortunately.  But perhaps using a contracts library would be better._
 
+* [Some reference](https://louthy.github.io/languageext.core/LanguageExt/Some_T.htm)
+
 ## Lack of lambda and expression inference 
 
 One really annoying thing about the `var` type inference in C# is that it can't handle inline lambdas.  For example this won't compile, even though it's obvious it's a `Func<int,int,int>`.
@@ -492,6 +511,10 @@ Note, if you're creating a `Func` or `Action` that take parameters, you must pro
     var add = fun( (int x, int y) => x + y );
 ```
 
+* [`fun` reference](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#fun)
+* [`act` reference](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#act)
+* [`expr` reference](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#expr)
+
 ## Void isn't a real type
 
 Functional languages have a concept of a type that has one possible value, itself, called `Unit`.  As an example `bool` has two possible values: `true` and `false`.  `Unit` has one possible value, usually represented in functional languages as `()`.  You can imagine that methods that take no arguments, do in fact take one argument of `()`.  Anyway, we can't use the `()` representation in C#, so `LanguageExt` now provides `unit`.
@@ -504,6 +527,8 @@ Functional languages have a concept of a type that has one possible value, itsel
 ```
 
 `Unit` is the type and `unit` is the value.  It is used throughout the `LanguageExt` library instead of `void`.  The primary reason is that if you want to program functionally then all functions should return a value and `void` is a type with zero possible values - and that's the type-theory reason why `void` is a pain in the arse in C#.  This can help a lot with LINQ expressions.
+
+* [Unit reference](https://louthy.github.io/languageext.core/LanguageExt/Unit_.htm)
 
 ## Mutable lists and dictionaries
 
@@ -668,9 +693,9 @@ The two recursive examples above for calculating the sum and product of a sequen
 ```
 `reduce` is `fold` but instead of providing an initial state value, it uses the first item in the sequence.  Therefore you don't get an initial multiply by zero (unless the first item is zero!).  Internally `fold`, `foldBack` and `reduce` use an iterative loop rather than a recursive one; so no stack blowing problems!
 
-__Reference__
-
-[View list reference](https://github.com/louthy/language-ext/wiki/List-reference)
+* [List module reference](https://louthy.github.io/languageext.core/LanguageExt/List_.htm)
+* [Enumerable extensions reference](https://louthy.github.io/languageext.core/LanguageExt/EnumerableExtensions_.htm)
+* [`Lst<T>` immutable list type reference](https://louthy.github.io/languageext.core/LanguageExt/Lst_T.htm)
 
 ### Maps
 
@@ -731,34 +756,9 @@ By holding onto a reference to the `Map` before and after calling `add` you esse
 
 So only store immutable items in a `Map`, or leave them alone if they're mutable.
 
-`map` functions (`using static LanguageExt.Map`):
-* `add`
-* `addOrUpdate`
-* `addOrUpdateRange`
-* `addRange`
-* `choose`
-* `clear`
-* `contains`
-* `containsKey`
-* `create`
-* `createRange`
-* `empty`
-* `exists`
-* `filter`
-* `find`
-* `findRange`
-* `fold`
-* `forall`
-* `iter`
-* `length`
-* `map`
-* `remove`
-* `setItem`
-* `setItems`
-* `skip`
-* `tryAdd`
-* `tryAddRange`
-* `trySetItem`
+* [Map module reference](https://louthy.github.io/languageext.core/LanguageExt/Map_.htm)
+* [Map extensions reference](https://louthy.github.io/languageext.core/LanguageExt/MapExtensions_.htm)
+* [`Map<K, V>` immutable type reference](https://louthy.github.io/languageext.core/LanguageExt/Map_K_V.htm)
 
 ### Map transformers
 
@@ -994,7 +994,7 @@ static class Cache
         tell(pid, new Msg { Tag = Tag.Remove, Key = key });
 
     public static string Get(ProcessId pid, string key) =>
-        ask<V>(pid, new Msg { Tag = Tag.Get, Key = key });
+        ask<string>(pid, new Msg { Tag = Tag.Get, Key = key });
 
     public static Unit Flush(ProcessId pid) =>
         tell(pid, new Msg { Tag = Tag.Flush });
@@ -1167,26 +1167,31 @@ There's also `system` process under `root` that handles stuff like dead-letters 
     /root/system/dead-letters
     etc.
 ```
-When you create a Redis cluster connection the second argument is the name of the node in the 'cluster' (i.e. the name of the app/service/website, whatever it is).  The last argument is the _role_ of the node in the cluster (see `Role.Broadcast`, `Role.LeastBusy`, `Role.Random`, `Role.RoundRobin`, `Role.First` - for cluster dispatch methods).  There is a static property `Process.ClusterNodes` that allows you to interrogate the nodes are online and what their role is.
+When you create a Redis cluster connection the second argument is the name of the node in the 'cluster' (i.e. the name of the app/service/website, whatever it is).  The third argument is the _role_ of the node in the cluster (see `Role.Broadcast`, `Role.LeastBusy`, `Role.Random`, `Role.RoundRobin`, `Role.First` - for cluster dispatch methods).  There is a static property `Process.ClusterNodes` that allows you to interrogate the nodes are online and what their role is.
 ```C#
     RedisCluster.register();
-    Cluster.connect("redis", "my-stuff", "localhost", "0", "my-node-role");
+    ProcessConfig.initialise("sys", "web-front-end", "web-front-end-1", "localhost", "0");
 ```
+* `"sys"` is the 'system name', but easier to think of it as the name of the cluster as a whole.  That means you can call it with a different value and point it at another Redis db for multiple clusters.  But for now it's easier to call it `sys` and leave it.
+* `"web-front-end"` is the role, you can have multiple nodes in a role and the role based dispatchers allow you to implement high-availability and load balancing strategies.
+* `"web-front-end-1"` is the name of this node, and should be unique in the cluster
+* `"localhost"` is the Redis connection (can be comma separated for multiple Redis nodes)
+* `"0"` is the Redis catalogue to use (`"0" - "15"`)
+
 Then instead of having `root` as the top level Process in your hierarchy, you have `my-stuff`:
 ```C#
-    /my-stuff/user/...
-    /my-stuff/system/dead-letters
+    /web-front-end-1/user/...
+    /web-front-end-1/system/dead-letters
 ```
 Therefore you know where things are, and what they're called, and they're easily addressable.  You can just 'tell' the address:
 ```C#
-    tell("/my-stuff/user/hello", "Hello!");
+    tell("/web-front-end-1/user/hello", "Hello!");
 ```
 Or you can use the `ProcessId` API to build the path:
 ```C#
-   ProcessId a = "/my-stuff/user/hello";
-   ProcessId b = tell(ProcessId.Top["my-stuff"]["user"]["hello"]);
-   ProcessId c = tell(ProcessId.User["hello"]);   // (from 'my-stuff' node)
-   // a == b == c
+   ProcessId a = "/web-front-end-1/user/hello";
+   ProcessId b = ProcessId.Top["web-front-end-1"]["user"]["hello"];
+   // a == b
 ```
 Even that isn't great if you don't know what the name of the 'app' that is running a Process.  So processes can register by a single name, that goes into a 'shared namespace'.  It's a kind of DNS for processes:
 ```
@@ -1200,7 +1205,7 @@ This goes in:
 ```
     /disp/reg/hello-world
 ```
-Your process now has two addresses, the `/my-stuff/user/hello-world` address and the `/disp/reg/hello-world` address that anyone can find by calling `find("hello-world")`.  This makes it very simple to bootstrap processes and get messages to them even if you don't know what system is actually dealing with it:
+Your process now has two addresses, the `/web-front-end-1/user/hello-world` address and the `/disp/reg/hello-world` address that anyone can find by calling `find("hello-world")`.  This makes it very simple to bootstrap processes and get messages to them even if you don't know what system is actually dealing with it:
 ```C#
     tell(find("hello-world"), "Hi!");
 ```
@@ -1236,7 +1241,7 @@ I haven't had time to document everything, so here's a quick list of what was mi
 Type or function | Description
 -----------------|------------
 `TryOption<T>` | The same as `Option<T>` except it also handles exceptions.  It has a third state called `Fail`.
-`Either<Left,Right>` | Like `Option<T>`, however the `None` in `Option<T>` is called `Left` in `Either`, and `Some` is called `Right`.  Just remember: `Right` is right, `Left` is wrong.  Both `Right` and `Left` can hold values.  And they can be different types.  See the OptionEitherConfigSample for a demo.  Supports all the same functionality as `Option<T>`.
+`Either<Left,Right>` | Like `Option<T>`, however the `None` in `Option<T>` is called `Left` in `Either`, and `Some` is called `Right`.  Just remember: `Right` is right, `Left` is wrong.  Both `Right` and `Left` can hold values.  And they can be different types.  See the [ConfigSample](https://github.com/louthy/language-ext/blob/master/Samples/ConfigSample) for a demo.  Supports all the same functionality as `Option<T>`.
 `SomeUnsafe()`, `RightUnsafe()`, `LeftUnsafe()` | These methods accept that sometimes `null` is a valid result, but you still want an option of saying `None`.  They allow `null` to propagate through, and it removes the `null` checks from the return value of `match`
 `Set<T>()` | Creates a `Set<T>`, an immutable set (AVL tree).
 `Stack<T>()` | Creates a `Stck<T>`, an immutable stack

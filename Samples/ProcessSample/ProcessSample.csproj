@@ -74,7 +74,7 @@
     <None Include="App.config" />
     <None Include="packages.config" />
     <None Include="process.conf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>

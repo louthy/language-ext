@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using static LanguageExt.Parsec.Common;
 using static LanguageExt.Parsec.Internal;
 using static LanguageExt.Parsec.Char;
 using static LanguageExt.Parsec.ParserResult;
@@ -58,6 +59,19 @@ namespace LanguageExt.Parsec
                         ? ConsumedOK((T)x, inp)
                         : EmptyError<T>(ParserError.Message(inp.Pos, "User state type-mismatch")),
                     None: () => EmptyError<T>(ParserError.Message(inp.Pos, "No user state set")));
+
+        /// <summary>
+        /// Get the current position of the parser in the source as a line
+        /// and column index (starting at 1 for both)
+        /// </summary>
+        public static readonly Parser<Pos> getPos =
+            (PString inp) => ConsumedOK(inp.Pos, inp);
+
+        /// <summary>
+        /// Get the current index into the source
+        /// </summary>
+        public static readonly Parser<int> getIndex =
+            (PString inp) => ConsumedOK(inp.Index, inp);
 
         /// <summary>
         /// The parser unexpected(msg) always fails with an Unexpect error
@@ -152,9 +166,7 @@ namespace LanguageExt.Parsec
         /// The value of the succeeding parser.
         /// </returns>
         public static Parser<T> choice<T>(params Parser<T>[] ps) =>
-            ps.Length == 0
-                ? zero<T>()
-                : choicei(ps, 0);
+            choicei(ps);
 
         /// <summary>
         /// choice(ps) tries to apply the parsers in the list ps in order, until one 
@@ -164,7 +176,7 @@ namespace LanguageExt.Parsec
         /// The value of the succeeding parser.
         /// </returns>
         public static Parser<T> choice<T>(IEnumerable<Parser<T>> ps) =>
-            choicei(ps.ToArray(), 0);
+            choicei(ps.ToArray());
 
         /// <summary>
         /// Runs a sequence of parsers, if any fail then the failure state is
@@ -174,7 +186,7 @@ namespace LanguageExt.Parsec
         /// The result of each parser as an enumerable.
         /// </returns>
         public static Parser<IEnumerable<T>> chain<T>(params Parser<T>[] ps) =>
-            chaini(ps, 0).Map(x => x.Freeze().AsEnumerable());
+            chaini(ps).Map(x => x.Freeze().AsEnumerable());
 
         /// <summary>
         /// Runs a sequence of parsers, if any fail then the failure state is
@@ -184,7 +196,7 @@ namespace LanguageExt.Parsec
         /// The result of each parser as an enumerable.
         /// </returns>
         public static Parser<IEnumerable<T>> chain<T>(IEnumerable<Parser<T>> ps) =>
-            chaini(ps.ToArray(), 0).Map(x => x.Freeze().AsEnumerable());
+            chaini(ps.ToArray()).Map(x => x.Freeze().AsEnumerable());
 
         /// <summary>
         /// The parser attempt(p) behaves like parser p, except that it
@@ -274,7 +286,42 @@ namespace LanguageExt.Parsec
         /// Enumerable of the returned values of p.
         /// </returns>
         public static Parser<IEnumerable<T>> many<T>(Parser<T> p) =>
-            either(many1(p), result(new T[0].AsEnumerable()));
+            inp =>
+            {
+                var current = inp;
+                List<T> results = new List<T>();
+                ParserError error = null;
+
+                while(true)
+                {
+                    var t = p(current);
+
+                    // cok
+                    if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.OK)
+                    {
+                        results.Add(t.Reply.Result);
+                        current = t.Reply.State;
+                        error = t.Reply.Error;
+                        continue;
+                    }
+
+                    // eok
+                    if (t.Tag == ResultTag.Empty && t.Reply.Tag == ReplyTag.OK)
+                    {
+                        // eok, eerr
+                        return EmptyError<IEnumerable<T>>(new ParserError(ParserErrorTag.SysUnexpect, current.Pos, "many: combinator 'many' is applied to a parser that accepts an empty string.", List.empty<string>()));
+                    }
+
+                    // cerr
+                    if (t.Tag == ResultTag.Consumed && t.Reply.Tag == ReplyTag.Error)
+                    {
+                        return ConsumedError<IEnumerable<T>>(mergeError(error, t.Reply.Error));
+                    }
+
+                    // eerr
+                    return EmptyOK<IEnumerable<T>>(results, current, mergeError(error, t.Reply.Error));
+                }
+            };
 
         /// <summary>
         /// many1(p) applies the parser p one or more times.
@@ -597,25 +644,5 @@ namespace LanguageExt.Parsec
 
             return scan;
         }
-
-        public static ParserError mergeError(ParserError err1, ParserError err2) =>
-            err1 == null && err2 == null ? ParserError.Unknown(Pos.Zero)
-          : err1 == null ? err2
-          : err2 == null ? err1          : String.IsNullOrEmpty(err1.Msg) ? err2
-          : String.IsNullOrEmpty(err2.Msg) ? err1
-          : Pos.Compare(
-              err1.Pos, err2.Pos,
-              EQ: () =>
-                err1 > err2
-                    ? new ParserError(err1.Tag, err1.Pos, err1.Msg, List.append(err1.Expected, err2.Expected).Freeze())
-                    : new ParserError(err2.Tag, err2.Pos, err2.Msg, List.append(err1.Expected, err2.Expected).Freeze()),
-              GT: () => err1,
-              LT: () => err2
-              );
-
-        public static Reply<T> mergeErrorReply<T>(ParserError err, Reply<T> reply) =>
-            reply.Tag == ReplyTag.OK
-                ? Reply.OK(reply.Result, reply.State, mergeError(err, reply.Error))
-                : Reply.Error<T>(mergeError(err, reply.Error));
     }
 }

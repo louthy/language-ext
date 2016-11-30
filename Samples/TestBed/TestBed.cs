@@ -11,6 +11,12 @@ using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.Runtime.Serialization.Formatters;
+using LanguageExt.Parsec;
+using static LanguageExt.Parsec.Char;
+using static LanguageExt.Parsec.Prim;
+using static LanguageExt.Parsec.Token;
 
 // ************************************************************************************
 // 
@@ -22,6 +28,183 @@ namespace TestBed
 {
     class Tests
     {
+        public class Version : IComparable<Version>, IEquatable<Version>
+        {
+            public int Major { get; private set; }
+            public int Minor { get; private set; }
+            public int Build { get; private set; }
+            public string Name { get; private set; }
+
+            public Version(Option<string> name, int major, int minor, int build)
+            {
+                Major = major;
+                Minor = minor;
+                Build = build;
+                Name = name.IfNone("");
+            }
+
+            public Version(IEnumerable<int> numbers, Option<string> name)
+            {
+                match(
+                    numbers,
+                    ()                       => failwith<Version>("No numbers specified in the version string"),
+                    major                    => New(name, major),
+                    (major, minor)           => New(name, major, minor),
+                    (major, minor, build)    => New(name, major, minor, build),
+                    (major, minor, build, _) => failwith<Version>("More than 3 numbers in the version string")
+                );
+            }
+
+            public static Version New(Option<string> name, int major, int minor = 0, int build = 0) =>
+                new Version(name, major, minor, build);
+
+            public int CompareTo(Version other)
+            {
+                var res = Major.CompareTo(other.Major);
+                if (res != 0) return res;
+                res = Minor.CompareTo(other.Minor);
+                if (res != 0) return res;
+                res = Build.CompareTo(other.Build);
+                if (res != 0) return res;
+                return Name.CompareTo(other.Name);
+            }
+
+            public bool Equals(Version other) =>
+                !ReferenceEquals(other, null) &&
+                 Major == other.Major &&
+                 Minor == other.Minor &&
+                 Build == other.Build &&
+                 Name == other.Name;
+
+            public override bool Equals(object obj) =>
+                obj is Version && Equals((Version)obj);
+
+            public override int GetHashCode() =>
+                (Major.GetHashCode() * 13) +
+                (Minor.GetHashCode() * 13) +
+                (Build.GetHashCode() * 13) +
+                Name.GetHashCode();
+
+            public static bool operator ==(Version lhs, Version rhs) =>
+                lhs.Equals(rhs);
+
+            public static bool operator !=(Version lhs, Version rhs) =>
+                !lhs.Equals(rhs);
+
+            public static bool operator >(Version lhs, Version rhs) =>
+                lhs.CompareTo(rhs) > 0;
+
+            public static bool operator >=(Version lhs, Version rhs) =>
+                lhs.CompareTo(rhs) >= 0;
+
+            public static bool operator <(Version lhs, Version rhs) =>
+                lhs.CompareTo(rhs) < 0;
+
+            public static bool operator <=(Version lhs, Version rhs) =>
+                lhs.CompareTo(rhs) <= 0;
+
+            public override string ToString() =>
+                Name.Length == 0
+                    ? $"{Major}.{Minor}.{Build}"
+                    : $"{Major}.{Minor}.{Build}-{Name}";
+
+            static readonly Parser<int> Integer =
+                Token(
+                    from x in many1(digit)
+                    let v = parseInt(new string(x.ToArray()))
+                    from n in v.Match(
+                        Some: d => result(d),
+                        None: () => failure<int>("Not a valid decimal value"))
+                    select n);
+
+            static readonly Parser<char> Dot =
+                Token(ch('.'));
+
+            static readonly Parser<char> Dash =
+                Token(ch('-'));
+
+            static Parser<T> Token<T>(Parser<T> p) =>
+                from v in p
+                from _ in skipMany(space)
+                select v;
+
+            static readonly Parser<string> Word =
+                Token(asString(many1(alphaNum)));
+
+            static readonly Parser<Version> Parser =
+                from numbers in sepBy1(Integer, Dot)
+                from _ in optional(Dash)
+                from name in optional(Word)
+                select new Version(numbers, name);
+
+            public static Option<Version> Parse(string version) =>
+                Parser(version.ToPString()).Reply.Result;
+        }
+
+        public static void VersionTest()
+        {
+            var versions = new[] { "xdsd.efrer", "3 .  67.  6 - bler", "9.0", "4.5-beta", "4.5-alpha", "1.0", "1.2.3", "1.20.300", "1.200.3sometext"};
+
+            var results = from v in versions
+                          from pv in Version.Parse(v).AsEnumerable()
+                          orderby pv
+                          select pv;
+        }
+
+        public static void StopStart()
+        {
+            StopStartImpl();
+            StopStartImpl();
+            StopStartImpl();
+            StopStartImpl();
+            StopStartImpl();
+            StopStartImpl();
+            StopStartImpl();
+        }
+
+        public static readonly JsonSerializerSettings JsonSerializerSettings =
+            new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.All,
+                TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+        class Hours : NewType<int> { public Hours(int value) : base(value) { } }
+
+        internal static void SerialiseDeserialiseCoreTypes()
+        {
+            var h1 = JsonConvert.SerializeObject(new Hours(2), JsonSerializerSettings);
+
+            var method = typeof(JsonConvert).GetMethods()
+                                            .Filter(m => m.IsGenericMethod)
+                                            .Filter(m => m.Name == "DeserializeObject")
+                                            .Filter(m => m.GetParameters().Length == 1)
+                                            .Head();
+
+            var h2 = method.MakeGenericMethod(typeof(Hours)).Invoke(null, new[] { h1 });
+
+            var x = Some(123);
+            var y = Option<int>.None;
+
+            var str = JsonConvert.SerializeObject(x, JsonSerializerSettings);
+            var z = method.MakeGenericMethod(typeof(Option<int>)).Invoke(null, new[] { str });
+        }
+
+        public static void StopStartImpl()
+        {
+            shutdownAll();
+            ProcessConfig.initialiseFileSystem();
+
+            ProcessId pid = spawn<string, string>("start-stop", () => "", (_, msg) => msg);
+            tell(pid, "1");
+            kill(pid);
+
+            var kids = children(User());
+            var len = kids.Length;
+            Debug.Assert(len == 0);
+        }
+
         public static void MemoTest3()
         {
             GC.Collect();
@@ -58,6 +241,7 @@ namespace TestBed
         //public static void LocalRegisterTest()
         //{
         //    shutdownAll();
+        //    ProcessConfig.initialise();
 
         //    string value = null;
         //    var pid = spawn<string>("reg-proc", msg => value = msg);
@@ -104,7 +288,7 @@ namespace TestBed
                             }
                             else
                             {
-                                if (Children.ContainsKey(cpid.GetName().Value))
+                                if (Children.ContainsKey(cpid.Name.Value))
                                 {
                                     reply(ask<string>(cpid, "echo") == "echo");
                                 }
@@ -141,6 +325,7 @@ namespace TestBed
         //    try
         //    {
         //        shutdownAll();
+        //        ProcessConfig.initialise();
 
         //        // Let Language Ext know that Redis exists
         //        RedisCluster.register();
@@ -279,6 +464,7 @@ namespace TestBed
         public static void ProcessStartupError()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             try
             {
@@ -305,7 +491,7 @@ namespace TestBed
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-test", "localhost", "0", "global");
+            ProcessConfig.initialise("sys", "global", "redis-test", "localhost", "0");
 
             try
             {
@@ -331,6 +517,7 @@ namespace TestBed
         //public static void RegisteredAskReply()
         //{
         //    shutdownAll();
+        //    ProcessConfig.initialise();
 
         //    var helloServer = spawn<string>("hello-server", msg =>
         //    {
@@ -352,7 +539,7 @@ namespace TestBed
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-test", "localhost", "0", "global");
+            ProcessConfig.initialise("sys", "global", "redis-test", "localhost", "0");
 
             var helloServer = spawn<string>("hello-server", msg =>
                 {
@@ -368,6 +555,7 @@ namespace TestBed
         public static void PubSubTest()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             // Spawn a process
             var pid = spawn<string>("pubsub", msg =>
@@ -392,12 +580,14 @@ namespace TestBed
         public static void SpawnProcess()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             Console.WriteLine("*** ABOUT TO SHUTDOWN ***");
 
             shutdownAll();
 
             Console.WriteLine("*** SHUTDOWN COMPLETE ***");
+            ProcessConfig.initialise();
 
             var pid = spawn<string, string>("SpawnProcess", () => "", (_, msg) => msg);
 
@@ -414,7 +604,7 @@ namespace TestBed
 
             kill(pid);
 
-            Debug.Assert(children(User).Count == 0);
+            Debug.Assert(children(User()).Count == 0);
 
             Console.WriteLine("*** END OF TEST ***");
         }
@@ -532,7 +722,7 @@ namespace TestBed
                     Debug.Assert(x[3] == 8);
                     Debug.Assert(x[4] == 10);
                 },
-                None: () => Debug.Assert(false)
+                None: () => { Debug.Assert(false); }
             );
         }
 
@@ -541,17 +731,17 @@ namespace TestBed
                 ? Some(10)
                 : None;
 
-        public static void LinqTest()
-        {
-            var res = (from v in match(
-                                     GetTryOptionValue(true).AsEnumerable(),
-                                     Right: r => List(r),
-                                     Left: l => List<int>()
-                                 )
-                       from r in Range(1, 10)
-                       select v * r)
-                      .ToList();
-        }
+        //public static void LinqTest()
+        //{
+        //    var res = (from v in GetTryOptionValue(true).Match(
+        //                             Some: r  => List(r),
+        //                             None: () => List<int>(),
+        //                             Fail: e  => List<int>()
+        //                         )
+        //               from r in Range(1, 10)
+        //               select v * r)
+        //              .ToList();
+        //}
 
         public static void ExTest4()
         {
@@ -622,6 +812,7 @@ namespace TestBed
         public static void SpawnErrorSurviveProcess()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             var pid = spawn<int, string>("SpawnAnErrorProcess", () => 0, (count,_) =>
             {
@@ -654,13 +845,14 @@ namespace TestBed
         public static void SpawnAndKillProcess()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             ProcessId pid = spawn<string, string>("SpawnAndKillProcess", () => "", (_, msg) => msg);
             tell(pid, "1");
             kill(pid);
             tell(pid, "2");
 
-            var kids = children(User);
+            var kids = children(User());
             var len = kids.Length;
             Debug.Assert(len == 0);
         }
@@ -668,6 +860,7 @@ namespace TestBed
         public static void SpawnAndKillHierarchy()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             int value = 0;
 
@@ -683,7 +876,7 @@ namespace TestBed
             Thread.Sleep(200);
 
             Debug.Assert(value == 1,"Expected 1, got "+value);
-            Debug.Assert(children(User).Length == 0);
+            Debug.Assert(children(User()).Length == 0);
         }
 
         public static int DepthMax(int depth) =>
@@ -699,6 +892,7 @@ namespace TestBed
             int max = DepthMax(depth);
 
             shutdownAll();
+            ProcessConfig.initialise();
 
             var actor = fun((Unit s, string msg) =>
             {
@@ -707,7 +901,7 @@ namespace TestBed
 
             setup = fun(() =>
             {
-                int level = Int32.Parse(Self.GetName().Value.Split('_').First()) + 1;
+                int level = Int32.Parse(Self.Name.Value.Split('_').First()) + 1;
                 if (level <= depth)
                 {
                     iter(Range(0, nodes), i => spawn(level + "_" + i, setup, actor));
@@ -719,12 +913,13 @@ namespace TestBed
             tell(zero, "Hello");
             kill(zero);
 
-            Debug.Assert(children(User).Count() == 0);
+            Debug.Assert(children(User()).Count() == 0);
         }
 
         public static void MassiveSpawnAndKillHierarchy()
         {
             shutdownAll();
+            ProcessConfig.initialise();
 
             Func<Unit> setup = null;
             int count = 0;
@@ -743,7 +938,7 @@ namespace TestBed
             {
                 Interlocked.Increment(ref count);
 
-                int level = Int32.Parse(Self.GetName().Value.Split('_').First()) + 1;
+                int level = Int32.Parse(Self.Name.Value.Split('_').First()) + 1;
                 if (level <= depth)
                 {
                     iter(Range(0, nodes), i => {
@@ -765,7 +960,7 @@ namespace TestBed
 
             Thread.Sleep(3000);
 
-            Debug.Assert(children(User).Count() == 0);
+            Debug.Assert(children(User()).Count() == 0);
         }
 
         public static void ScheduledMsgTest()
@@ -789,6 +984,14 @@ namespace TestBed
         {
             Console.WriteLine(pid);
             children(pid).Iter(ShowChildren);
+        }
+
+        public static void PStringCasting()
+        {
+            string str = "Hello";
+            var pstr = str.ToCharArray().ToPString();
+            var ostr = pstr.Cast<object>();
+            pstr = ostr.Cast<char>();
         }
     }
 }

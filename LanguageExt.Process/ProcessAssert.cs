@@ -11,7 +11,7 @@ namespace LanguageExt
     {
         public static void CanAccept<T>(ProcessId pid, string message = null)
         {
-            var res = ActorContext.GetDispatcher(pid).CanAccept<T>();
+            var res = ActorContext.System(pid).GetDispatcher(pid).CanAccept<T>();
 
             res.IfLeft(err =>
             {
@@ -21,7 +21,7 @@ namespace LanguageExt
 
         public static void HasStateTypeOf<T>(ProcessId pid, string message = null)
         {
-            var res = ActorContext.GetDispatcher(pid).HasStateTypeOf<T>();
+            var res = ActorContext.System(pid).GetDispatcher(pid).HasStateTypeOf<T>();
 
             res.IfLeft(err =>
             {

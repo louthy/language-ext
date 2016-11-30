@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
     public static partial class Prelude
     {
+        [Pure]
         public static Option<T> convert<T>(string text)
         {
             if (text == null)
@@ -22,6 +24,7 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         public static Option<long> parseLong(string value)
         {
             long result;
@@ -30,6 +33,7 @@ namespace LanguageExt
                 : None;
         }
 
+        [Pure]
         public static Option<int> parseInt(string value)
         {
             int result;
@@ -38,6 +42,7 @@ namespace LanguageExt
                 : None;
         }
 
+        [Pure]
         public static Option<int> parseInt(string value, int fromBase)
         {
             try
@@ -50,6 +55,7 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         public static Option<short> parseShort(string value)
         {
             short result;
@@ -58,7 +64,7 @@ namespace LanguageExt
                 : None;
         }
 
-
+        [Pure]
         public static Option<char> parseChar(string value)
         {
             char result;
@@ -67,6 +73,7 @@ namespace LanguageExt
                 : None;
         }
 
+        [Pure]
         public static Option<byte> parseByte(string value)
         {
             byte result;
@@ -75,6 +82,7 @@ namespace LanguageExt
                 : None;
         }
 
+        [Pure]
         public static Option<ulong> parseULong(string value)
         {
             ulong result;
@@ -83,6 +91,7 @@ namespace LanguageExt
                 : None;
         }
 
+        [Pure]
         public static Option<uint> parseUInt(string value)
         {
             uint result;
@@ -91,6 +100,7 @@ namespace LanguageExt
                 : None;
         }
 
+        [Pure]
         public static Option<ushort> parseUShort(string value)
         {
             ushort result;
@@ -99,6 +109,7 @@ namespace LanguageExt
                 : None;
         }
 
+        [Pure]
         public static Option<float> parseFloat(string value)
         {
             float result;
@@ -107,6 +118,7 @@ namespace LanguageExt
                 : None;
         }
 
+        [Pure]
         public static Option<double> parseDouble(string value)
         {
             double result;
@@ -115,6 +127,7 @@ namespace LanguageExt
                 : None;
         }
 
+        [Pure]
         public static Option<decimal> parseDecimal(string value)
         {
             decimal result;
@@ -123,6 +136,7 @@ namespace LanguageExt
                 : None;
         }
 
+        [Pure]
         public static Option<bool> parseBool(string value)
         {
             bool result;
@@ -131,6 +145,7 @@ namespace LanguageExt
                 : None;
         }
 
+        [Pure]
         public static Option<Guid> parseGuid(string value)
         {
             Guid result;
@@ -139,6 +154,7 @@ namespace LanguageExt
                 : None;
         }
 
+        [Pure]
         public static Option<DateTime> parseDateTime(string value)
         {
             DateTime result;

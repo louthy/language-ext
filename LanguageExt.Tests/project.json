@@ -1,54 +1,74 @@
 {
-  "version": "1.7.32-*",
-  "authors": [ "Paul Louth" ],
-  "owners": [ "paullouth" ],
-  "title": "LanguageExt Unit Tests",
-  "description": "Lang Ext Unit Tests",
-  "projectUrl": "https://github.com/louthy/language-ext",
-  "licenseUrl": "https://github.com/louthy/language-ext/blob/master/LICENSE.md",
-  "copyright": "Copyright (c) Paul Louth",
-  "configurations": {
-    "Debug": {
-      "compilationOptions": {
-        "define": [ "DEBUG", "TRACE" ]
-      }
+    "version": "1.9.7",
+    "authors": [ "Paul Louth" ],
+    "title": "LanguageExt Unit Tests",
+    "description": "Lang Ext Unit Tests",
+    "copyright": "Copyright (c) Paul Louth",
+    "configurations": {
+        "Debug": {
+            "buildOptions": {
+                "define": [ "DEBUG", "TRACE" ],
+                "compile": "*.cs"
+            }
+        },
+        "Release": {
+            "buildOptions": {
+                "define": [ "RELEASE", "TRACE" ],
+                "optimize": true,
+                "compile": "*.cs"
+            }
+        }
     },
-    "Release": {
-      "compilationOptions": {
-        "define": [ "RELEASE", "TRACE" ],
-        "optimize": true
-      }
+    "dependencies": {
+        "LanguageExt.Core": {
+            "version": "1.9.7",
+            "target": "project"
+        },
+        "LanguageExt.Parsec": {
+            "version": "1.9.7",
+            "target": "project"
+        },
+        "LanguageExt.Process": {
+            "version": "1.9.7",
+            "target": "project"
+        },
+        "LanguageExt.Process.FSharp": {
+            "version": "1.9.7",
+            "target": "project"
+        },
+        "LanguageExt.Process.Redis": {
+            "version": "1.9.7",
+            "target": "project"
+        },
+        "LanguageExt.FSharp": {
+            "version": "1.9.7",
+            "target": "project"
+        },
+        "LanguageExt.ProcessJS": {
+            "version": "1.9.7",
+            "target": "project"
+        },
+        "Newtonsoft.Json": "9.0.1",
+        "System.Runtime": "4.0.0",
+        "System.Threading.Tasks": "4.0.0",
+        "System.Reactive.Core": "3.0.0-*",
+        "System.Reactive.Interfaces": "3.0.0-*",
+        "System.Reactive.PlatformServices": "3.0.0-*",
+        "System.Reactive.Linq": "3.0.0-*",
+        "StackExchange.Redis": "1.1.604-alpha",
+        "FSharp.Core": "4.0.0.1",
+        "xunit": "2.2.0-*",
+        "xunit.assert": "2.2.0-*",
+        "xunit.runners": "2.0.0-*",
+        "xunit.extensibility.execution": "2.2.0-*"
+    },
+    "commands": {
+        "test": "xunit.runner.aspnet"
+    },
+    "frameworks": {
+        "net45": {
+            "dependencies": {
+            }
+        }
     }
-  },
-  "dependencies": {
-    "LanguageExt.Core": "1.7.32",
-    "LanguageExt.Parsec": "1.7.32",
-    "LanguageExt.Process": "1.7.32",
-    "LanguageExt.Process.FSharp": "1.7.32",
-    "LanguageExt.Process.Redis": "1.7.32",
-    "LanguageExt.FSharp": "1.7.32",
-    "LanguageExt.ProcessJS": "1.7.32",
-    "Newtonsoft.Json": "7.0.1",
-    "Rx-Main": "2.2.5.0",
-    "StackExchange.Redis": "1.0.488",
-    "FSharp.Core": "4.0.0.1",
-    "xunit.assert": "2.1.0-*",
-    "xunit.extensibility.execution": "2.1.0-*"
-  },
-  "commands": {
-    "test": "xunit.runner.aspnet"
-  },
-  "frameworks": {
-    "dnx451": {
-      "dependencies": {
-        "Microsoft.Dnx.Compilation.CSharp": "1.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-      },
-      "frameworkAssemblies": {
-        "System.Runtime": "4.0.10.0",
-        "System.Threading.Tasks": "4.0.0.0"
-      }
-    }
-  },
-  "compile": "*.cs"
 }

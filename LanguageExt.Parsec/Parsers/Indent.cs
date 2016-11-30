@@ -37,23 +37,23 @@ namespace LanguageExt.Parsec
                 return p(inp);
             };
 
-        ///// <summary>
-        ///// Parses only when indented one characters past the level of the reference
-        ///// </summary>
-        //public static Parser<T> indented1<T>(Parser<T> p) =>
-        //    indented(1, p);
+        /// <summary>
+        /// Parses only when indented one characters past the level of the reference
+        /// </summary>
+        public static Parser<T> indented1<T>(Parser<T> p) =>
+            indented(1, p);
 
-        ///// <summary>
-        ///// Parses only when indented two characters past the level of the reference
-        ///// </summary>
-        //public static Parser<T> indented2<T>(Parser<T> p) =>
-        //    indented(2, p);
+        /// <summary>
+        /// Parses only when indented two characters past the level of the reference
+        /// </summary>
+        public static Parser<T> indented2<T>(Parser<T> p) =>
+            indented(2, p);
 
-        ///// <summary>
-        ///// Parses only when indented two characters past the level of the reference
-        ///// </summary>
-        //public static Parser<T> indented4<T>(Parser<T> p) =>
-        //    indented(4, p);
+        /// <summary>
+        /// Parses only when indented two characters past the level of the reference
+        /// </summary>
+        public static Parser<T> indented4<T>(Parser<T> p) =>
+            indented(4, p);
 
     }
 }

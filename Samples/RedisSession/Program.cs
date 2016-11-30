@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
@@ -16,15 +17,15 @@ namespace RedisSession
             RedisCluster.register();
 
             // Connect to the Redis cluster
-            Cluster.connect("redis", "redis-session-test", "localhost:6379", "0", "global");
+            ProcessConfig.initialiseFileSystem("session-test-1");
 
             var ping = ProcessId.None;
             var pong = ProcessId.None;
 
             // Start a process which simply writes the messages it receives to std-out
-            var logger = spawn<string>("logger", x => Console.WriteLine(x));
+            var logger = spawn<string>("logger", x => Console.WriteLine(x), ProcessFlags.PersistInbox);
 
-            sessionStart("xyz", 20*seconds);
+            sessionStart("xyz", 20 * seconds, "live");
 
             // Ping process
             ping = spawn<string>("ping", msg =>
@@ -35,8 +36,11 @@ namespace RedisSession
                     ? sessionId().ToString()
                     : "expired";
 
-                tell(pong, "ping-"+txt, TimeSpan.FromMilliseconds(1000));
-            });
+                var val = sessionGetData<int>("test");
+                sessionSetData("test", val.FirstOrDefault() + 1);
+                
+                tell(pong, $"ping-{txt}-{val.FirstOrDefault()}", TimeSpan.FromMilliseconds(1000));
+            }, ProcessFlags.PersistInbox);
 
             // Pong process
             pong = spawn<string>("pong", msg =>
@@ -47,8 +51,11 @@ namespace RedisSession
                     ? sessionId().ToString()
                     : "expired";
 
-                tell(ping, "pong-" + txt, TimeSpan.FromMilliseconds(1000));
-            });
+                var val = sessionGetData<int>("test");
+                sessionSetData("test", val.FirstOrDefault() + 1);
+
+                tell(ping, $"pong-{txt}-{val.FirstOrDefault()}", TimeSpan.FromMilliseconds(1000));
+            }, ProcessFlags.PersistInbox);
 
             // Trigger
             tell(pong, "start");

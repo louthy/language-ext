@@ -14,6 +14,8 @@ namespace Throughput
     {
         static void Main(string[] args)
         {
+            ProcessConfig.initialise();
+
             int pairs = args.Count() == 0 ? 16 : Int32.Parse(args[0]);
             int msgs = args.Count() == 2 ? Int32.Parse(args[1]) : 10;
             int sleepForMax = 20;

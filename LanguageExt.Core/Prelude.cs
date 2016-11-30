@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -50,6 +51,7 @@ namespace LanguageExt
         /// Useful when one needs to declare a local variable which breaks your
         /// expression.  This allows you to keep the expression going.
         /// </summary>
+        [Pure]
         public static R map<T, R>(T value, Func<T, R> project) =>
             project(value);
 
@@ -58,6 +60,7 @@ namespace LanguageExt
         /// Useful when one needs to declare a local variable which breaks your
         /// expression.  This allows you to keep the expression going.
         /// </summary>
+        [Pure]
         public static R map<T1, T2, R>(T1 value1, T2 value2, Func<T1, T2, R> project) =>
             project(value1, value2);
 
@@ -66,6 +69,7 @@ namespace LanguageExt
         /// Useful when one needs to declare a local variable which breaks your
         /// expression.  This allows you to keep the expression going.
         /// </summary>
+        [Pure]
         public static R map<T1, T2, T3, R>(T1 value1, T2 value2, T3 value3, Func<T1, T2, T3, R> project) =>
             project(value1, value2, value3);
 
@@ -74,6 +78,7 @@ namespace LanguageExt
         /// Useful when one needs to declare a local variable which breaks your
         /// expression.  This allows you to keep the expression going.
         /// </summary>
+        [Pure]
         public static R map<T1, T2, T3, T4, R>(T1 value1, T2 value2, T3 value3, T4 value4, Func<T1, T2, T3, T4, R> project) =>
             project(value1, value2, value3, value4);
 
@@ -82,12 +87,14 @@ namespace LanguageExt
         /// Useful when one needs to declare a local variable which breaks your
         /// expression.  This allows you to keep the expression going.
         /// </summary>
+        [Pure]
         public static R map<T1, T2, T3, T4, T5, R>(T1 value1, T2 value2, T3 value3, T4 value4, T5 value5, Func<T1, T2, T3, T4, T5, R> project) =>
             project(value1, value2, value3, value4, value5);
 
         /// <summary>
         /// Use with the 'match' function to match values and map a result
         /// </summary>
+        [Pure]
         public static Func<T, Option<R>> with<T, R>(T value, Func<T, R> map) =>
             (T input) =>
                 EqualityComparer<T>.Default.Equals(input, value)
@@ -97,6 +104,7 @@ namespace LanguageExt
         /// <summary>
         /// Use with the 'match' function to match values and map a result
         /// </summary>
+        [Pure]
         public static Func<Exception, Option<R>> with<T, R>(Func<T, R> map)
             where T : Exception =>
             (Exception input) =>
@@ -107,6 +115,7 @@ namespace LanguageExt
         /// <summary>
         /// Use with the 'match' function to catch a non-matched value and map a result
         /// </summary>
+        [Pure]
         public static Func<T, Option<R>> otherwise<T, R>(Func<T, R> map) =>
             (T input) => Some(map(input));
 
@@ -118,6 +127,7 @@ namespace LanguageExt
         /// <param name="value">Value to match</param>
         /// <param name="clauses">Clauses to test</param>
         /// <returns>Result</returns>
+        [Pure]
         public static R match<T, R>(T value, params Func<T, Option<R>>[] clauses)
         {
             foreach (var clause in clauses)
@@ -136,6 +146,7 @@ namespace LanguageExt
         /// <param name="value">Value to match</param>
         /// <param name="clauses">Clauses to test</param>
         /// <returns>Result</returns>
+        [Pure]
         public static Func<T, R> function<T, R>(params Func<T, Option<R>>[] clauses) => (T value) =>
          {
              foreach (var clause in clauses)
@@ -149,6 +160,7 @@ namespace LanguageExt
         /// <summary>
         /// Identity function
         /// </summary>
+        [Pure]
         public static T identity<T>(T x) => x;
 
         /// <summary>
@@ -160,7 +172,7 @@ namespace LanguageExt
             () => { throw new Exception(message); };
 
         /// <summary>
-        /// Raises an Exception wigth the messge provided
+        /// Raises an Exception with the message provided
         /// </summary>
         /// <typeparam name="R">The return type of the expression this function is being used in.
         /// This allows exceptions to be thrown in ternary operators, or LINQ expressions for
@@ -172,6 +184,20 @@ namespace LanguageExt
             throw new Exception(message);
         }
 
+#if !COREFX
+        /// <summary>
+        /// Raises an ApplicationException with the message provided
+        /// </summary>
+        /// <typeparam name="R">The return type of the expression this function is being used in.
+        /// This allows exceptions to be thrown in ternary operators, or LINQ expressions for
+        /// example</typeparam>
+        /// <param name="message">ApplicationException message</param>
+        /// <returns>Throws an ApplicationException</returns>
+        public static R raiseapp<R>(string message)
+        {
+            throw new ApplicationException(message);
+        }
+#endif
         /// <summary>
         /// Raise an exception
         /// </summary>
@@ -191,6 +217,7 @@ namespace LanguageExt
         /// <typeparam name="E">Type to match</typeparam>
         /// <param name="e">Exception to test</param>
         /// <returns>True if e is of type E</returns>
+        [Pure]
         public static bool exceptionIs<E>(Exception e)
         {
             if (e is E) return true;
@@ -198,10 +225,19 @@ namespace LanguageExt
             return exceptionIs<E>(e.InnerException);
         }
 
+        [Pure]
         public static bool isnull<T>(T value) =>
             Object.ReferenceEquals(value, null);
 
+        [Pure]
         public static bool notnull<T>(T value) =>
             !Object.ReferenceEquals(value, null);
-    }
+
+        /// <summary>
+        /// Convert a value to string
+        /// </summary>
+        [Pure]
+        public static string toString<T>(T value) =>
+            value?.ToString();
+   }
 }

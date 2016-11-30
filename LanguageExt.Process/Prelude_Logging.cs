@@ -6,15 +6,19 @@ namespace LanguageExt
 {
     public static partial class Process
     {
+#if DEBUG
         /// <summary>
         /// Log info - Internal 
         /// </summary>
         internal static void logInfo(object message)
-#if DEBUG
         {
             Debug.WriteLine(new ProcessLogItem(ProcessLogItemType.Info, (message ?? "").ToString()));
         }
 #else
+        /// <summary>
+        /// Log info - Internal 
+        /// </summary>
+        internal static void logInfo(object message)
         {
         }
 #endif 

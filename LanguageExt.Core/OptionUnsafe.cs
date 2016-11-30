@@ -6,6 +6,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -22,11 +23,11 @@ namespace LanguageExt
     [TypeConverter(typeof(OptionalTypeConverter))]
     [Serializable]
 #endif
-    public struct OptionUnsafe<T> : 
-        IOptional, 
-        IComparable<OptionUnsafe<T>>, 
-        IComparable<T>, 
-        IEquatable<OptionUnsafe<T>>, 
+    public struct OptionUnsafe<T> :
+        IOptional,
+        IComparable<OptionUnsafe<T>>,
+        IComparable<T>,
+        IEquatable<OptionUnsafe<T>>,
         IEquatable<T>,
         IAppendable<OptionUnsafe<T>>,
         ISubtractable<OptionUnsafe<T>>,
@@ -47,32 +48,38 @@ namespace LanguageExt
             this.value = value;
         }
 
+        [Pure]
         public static OptionUnsafe<T> Some(T value) =>
             new OptionUnsafe<T>(value, true);
 
         public static readonly OptionUnsafe<T> None = new OptionUnsafe<T>();
 
+        [Pure]
         public bool IsSome { get; }
 
+        [Pure]
         public bool IsNone =>
             !IsSome;
 
+        [Pure]
         internal T Value =>
             IsSome
                 ? value
                 : raise<T>(new OptionIsNoneException());
 
+        [Pure]
         public static implicit operator OptionUnsafe<T>(T value) =>
             Some(value);
 
+        [Pure]
         public static implicit operator OptionUnsafe<T>(OptionNone none) =>
             None;
 
+        [Pure]
         public R MatchUnsafe<R>(Func<T, R> Some, Func<R> None) =>
             IsSome
                 ? Some(Value)
                 : None();
-
 
         /// <summary>
         /// Match the two states of the Option
@@ -108,6 +115,7 @@ namespace LanguageExt
         /// <param name="Some">Some handler</param>
         /// <param name="None">None handler</param>
         /// <returns>A promise to return an stream of Rs</returns>
+        [Pure]
         public IObservable<R> MatchObservableUnsafe<R>(Func<T, IObservable<R>> Some, Func<R> None) =>
             IsSome
                 ? Some(Value)
@@ -121,11 +129,13 @@ namespace LanguageExt
         /// <param name="Some">Some handler</param>
         /// <param name="None">None handler</param>
         /// <returns>A promise to return an stream of Rs</returns>
+        [Pure]
         public IObservable<R> MatchObservableUnsafe<R>(Func<T, IObservable<R>> Some, Func<IObservable<R>> None) =>
             IsSome
                 ? Some(Value)
                 : None();
 
+        [Pure]
         public R MatchUntyped<R>(Func<object, R> Some, Func<R> None) =>
             IsSome
                 ? Some(Value)
@@ -144,7 +154,7 @@ namespace LanguageExt
             return Unit.Default;
         }
 
-       
+
         /// <summary>
         /// Invokes the someHandler if OptionUnsafe is in the Some state, otherwise nothing
         /// happens.
@@ -171,9 +181,11 @@ namespace LanguageExt
             return unit;
         }
 
+        [Pure]
         public T IfNoneUnsafe(Func<T> None) =>
             MatchUnsafe(identity, None);
 
+        [Pure]
         public T IfNoneUnsafe(T noneValue) =>
             MatchUnsafe(identity, () => noneValue);
 
@@ -187,12 +199,15 @@ namespace LanguageExt
         public T FailureUnsafe(T noneValue) =>
             MatchUnsafe(identity, () => noneValue);
 
+        [Pure]
         public SomeUnsafeUnitContext<T> SomeUnsafe<R>(Action<T> someHandler) =>
             new SomeUnsafeUnitContext<T>(this, someHandler);
 
+        [Pure]
         public SomeUnsafeContext<T, R> SomeUnsafe<R>(Func<T, R> someHandler) =>
             new SomeUnsafeContext<T, R>(this, someHandler);
 
+        [Pure]
         public override string ToString() =>
             IsSome
                 ? isnull(Value)
@@ -200,11 +215,13 @@ namespace LanguageExt
                     : $"Some({Value})"
                 : "None";
 
+        [Pure]
         public override int GetHashCode() =>
             IsSome && notnull(Value)
                 ? Value.GetHashCode()
                 : 0;
 
+        [Pure]
         public override bool Equals(object obj) =>
             obj is OptionUnsafe<T>
                 ? map(this, (OptionUnsafe<T>)obj, (lhs, rhs) =>
@@ -219,6 +236,7 @@ namespace LanguageExt
                     ? Value.Equals(obj)
                     : false;
 
+        [Pure]
         public IEnumerable<T> AsEnumerable()
         {
             if (IsSome)
@@ -227,42 +245,53 @@ namespace LanguageExt
             }
         }
 
+        [Pure]
         public EitherUnsafe<L, T> ToEitherUnsafe<L>(L defaultLeftValue) =>
             IsSome
                 ? RightUnsafe<L, T>(Value)
                 : LeftUnsafe<L, T>(defaultLeftValue);
 
+        [Pure]
         public EitherUnsafe<L, T> ToEitherUnsafe<L>(Func<L> Left) =>
             IsSome
                 ? RightUnsafe<L, T>(Value)
                 : LeftUnsafe<L, T>(Left());
 
+        [Pure]
         public Lst<T> ToList() =>
             Prelude.toList(AsEnumerable());
 
+        [Pure]
         public T[] ToArray() =>
             Prelude.toArray(AsEnumerable());
 
+        [Pure]
         public static bool operator ==(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
             lhs.Equals(rhs);
 
+        [Pure]
         public static bool operator !=(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
             !lhs.Equals(rhs);
 
+        [Pure]
         public static OptionUnsafe<T> operator |(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
             lhs.IsSome
                 ? lhs
                 : rhs;
 
+        [Pure]
         public static bool operator true(OptionUnsafe<T> value) =>
             value.IsSome;
 
+        [Pure]
         public static bool operator false(OptionUnsafe<T> value) =>
             value.IsNone;
 
+        [Pure]
         public Type GetUnderlyingType() =>
             typeof(T);
 
+        [Pure]
         public int CompareTo(OptionUnsafe<T> other) =>
             IsNone && other.IsNone
                 ? 0
@@ -272,16 +301,19 @@ namespace LanguageExt
                         ? -1
                         : 1;
 
+        [Pure]
         public int CompareTo(T other) =>
             IsNone
                 ? -1
                 : Comparer<T>.Default.Compare(Value, other);
 
+        [Pure]
         public bool Equals(T other) =>
             IsNone
                 ? false
                 : EqualityComparer<T>.Default.Equals(Value, other);
 
+        [Pure]
         public bool Equals(OptionUnsafe<T> other) =>
             IsNone && other.IsNone
                 ? true
@@ -301,6 +333,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
+        [Pure]
         public static OptionUnsafe<T> operator +(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
             lhs.Append(rhs);
 
@@ -316,6 +349,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
+        [Pure]
         public OptionUnsafe<T> Append(OptionUnsafe<T> rhs)
         {
             if (IsNone && rhs.IsNone) return this;  // None  + None  = None
@@ -335,6 +369,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
+        [Pure]
         public static OptionUnsafe<T> operator -(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
             lhs.Subtract(rhs);
 
@@ -349,6 +384,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
+        [Pure]
         public OptionUnsafe<T> Subtract(OptionUnsafe<T> rhs)
         {
             var self = IsNone
@@ -372,6 +408,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
+        [Pure]
         public static OptionUnsafe<T> operator *(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
             lhs.Multiply(rhs);
 
@@ -386,6 +423,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
+        [Pure]
         public OptionUnsafe<T> Multiply(OptionUnsafe<T> rhs)
         {
             if (IsNone) return this;      // zero * rhs = zero
@@ -404,6 +442,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
+        [Pure]
         public static OptionUnsafe<T> operator /(OptionUnsafe<T> lhs, OptionUnsafe<T> rhs) =>
             lhs.Divide(rhs);
 
@@ -418,6 +457,7 @@ namespace LanguageExt
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
+        [Pure]
         public OptionUnsafe<T> Divide(OptionUnsafe<T> rhs)
         {
             if (IsNone) return this;      // zero / rhs  = zero
@@ -437,9 +477,11 @@ namespace LanguageExt
             this.someHandler = someHandler;
         }
 
+        [Pure]
         public R None(Func<R> noneHandler) =>
             matchUnsafe(option, someHandler, noneHandler);
 
+        [Pure]
         public R None(R noneValue) =>
             matchUnsafe(option, someHandler, () => noneValue);
     }
@@ -461,12 +503,13 @@ namespace LanguageExt
 
     internal static class OptionUnsafeCast
     {
+        [Pure]
         public static OptionUnsafe<T> Cast<T>(T value) =>
             isnull(value)
                 ? OptionUnsafe<T>.None
                 : OptionUnsafe<T>.Some(value);
 
-
+        [Pure]
         public static OptionUnsafe<T> Cast<T>(T? value) where T : struct =>
             isnull(value)
                 ? OptionUnsafe<T>.None
@@ -474,12 +517,13 @@ namespace LanguageExt
     }
 }
 
-public static class __OptionUnsafeExt
+public static class OptionUnsafeExtensions
 {
     /// <summary>
     /// Extracts from a list of 'Option' all the 'Some' elements.
     /// All the 'Some' elements are extracted in order.
     /// </summary>
+    [Pure]
     public static IEnumerable<T> Somes<T>(this IEnumerable<OptionUnsafe<T>> self)
     {
         foreach (var item in self)
@@ -497,6 +541,7 @@ public static class __OptionUnsafeExt
     /// <param name="opt">Optional function</param>
     /// <param name="arg">Optional argument</param>
     /// <returns>Returns the result of applying the optional argument to the optional function</returns>
+    [Pure]
     public static OptionUnsafe<R> Apply<T, R>(this OptionUnsafe<Func<T, R>> opt, OptionUnsafe<T> arg) =>
         opt.IsSome && arg.IsSome
             ? SomeUnsafe(opt.Value(arg.Value))
@@ -509,9 +554,10 @@ public static class __OptionUnsafeExt
     /// <param name="arg">Optional argument</param>
     /// <returns>Returns the result of applying the optional argument to the optional function:
     /// an optonal function of arity 1</returns>
+    [Pure]
     public static OptionUnsafe<Func<T2, R>> Apply<T1, T2, R>(this OptionUnsafe<Func<T1, T2, R>> opt, OptionUnsafe<T1> arg) =>
         opt.IsSome && arg.IsSome
-            ? SomeUnsafe(par(opt.Value,arg.Value))
+            ? SomeUnsafe(par(opt.Value, arg.Value))
             : None;
 
     /// <summary>
@@ -521,15 +567,18 @@ public static class __OptionUnsafeExt
     /// <param name="arg1">Optional argument</param>
     /// <param name="arg2">Optional argument</param>
     /// <returns>Returns the result of applying the optional arguments to the optional function</returns>
+    [Pure]
     public static OptionUnsafe<R> Apply<T1, T2, R>(this OptionUnsafe<Func<T1, T2, R>> opt, OptionUnsafe<T1> arg1, OptionUnsafe<T2> arg2) =>
         opt.IsSome && arg1.IsSome && arg2.IsSome
             ? SomeUnsafe(opt.Value(arg1.Value, arg2.Value))
             : None;
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static OptionUnsafe<U> Select<T, U>(this OptionUnsafe<T> self, Func<T, U> map) => 
+    public static OptionUnsafe<U> Select<T, U>(this OptionUnsafe<T> self, Func<T, U> map) =>
         self.Map(map);
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static OptionUnsafe<T> Where<T>(this OptionUnsafe<T> self, Func<T, bool> pred) =>
         self.Filter(pred)
@@ -539,26 +588,31 @@ public static class __OptionUnsafeExt
     public static Unit Iter<T>(this OptionUnsafe<T> self, Action<T> action) =>
         self.IfSomeUnsafe(action);
 
+    [Pure]
     public static int Count<T>(this OptionUnsafe<T> self) =>
         self.IsSome
             ? 1
             : 0;
 
+    [Pure]
     public static bool ForAll<T>(this OptionUnsafe<T> self, Func<T, bool> pred) =>
         self.IsSome
             ? pred(self.Value)
             : true;
 
+    [Pure]
     public static bool Exists<T>(this OptionUnsafe<T> self, Func<T, bool> pred) =>
         self.IsSome
             ? pred(self.Value)
             : false;
 
+    [Pure]
     public static S Fold<S, T>(this OptionUnsafe<T> self, S state, Func<S, T, S> folder) =>
         self.IsSome
             ? folder(state, self.Value)
             : state;
 
+    [Pure]
     public static OptionUnsafe<R> Map<T, R>(this OptionUnsafe<T> self, Func<T, R> mapper) =>
         self.IsSome
             ? OptionUnsafeCast.Cast(mapper(self.Value))
@@ -568,16 +622,19 @@ public static class __OptionUnsafeExt
     /// Partial application map
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
-    public static OptionUnsafe<Func<T2, R>> Map<T1, T2, R>(this OptionUnsafe<T1> opt, Func<T1, T2, R> func) =>
+    [Pure]
+    public static OptionUnsafe<Func<T2, R>> ParMap<T1, T2, R>(this OptionUnsafe<T1> opt, Func<T1, T2, R> func) =>
         opt.Map(curry(func));
 
     /// <summary>
     /// Partial application map
     /// </summary>
     /// <remarks>TODO: Better documentation of this function</remarks>
-    public static OptionUnsafe<Func<T2, Func<T3, R>>> Map<T1, T2, T3, R>(this OptionUnsafe<T1> opt, Func<T1, T2, T3, R> func) =>
+    [Pure]
+    public static OptionUnsafe<Func<T2, Func<T3, R>>> ParMap<T1, T2, T3, R>(this OptionUnsafe<T1> opt, Func<T1, T2, T3, R> func) =>
         opt.Map(curry(func));
 
+    [Pure]
     public static OptionUnsafe<T> Filter<T>(this OptionUnsafe<T> self, Func<T, bool> pred) =>
         self.IsSome
             ? pred(self.Value)
@@ -585,16 +642,19 @@ public static class __OptionUnsafeExt
                 : None
             : self;
 
+    [Pure]
     public static OptionUnsafe<R> Bind<T, R>(this OptionUnsafe<T> self, Func<T, OptionUnsafe<R>> binder) =>
         self.IsSome
             ? binder(self.Value)
             : None;
 
+    [Pure]
     public static int Sum(this OptionUnsafe<int> self) =>
         self.IsSome
             ? self.Value
             : 0;
 
+    [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static OptionUnsafe<V> SelectMany<T, U, V>(this OptionUnsafe<T> self,
         Func<T, OptionUnsafe<U>> bind,
@@ -605,6 +665,31 @@ public static class __OptionUnsafeExt
         var resU = bind(self.Value);
         if (resU.IsNone) return None;
         return project(self.Value, resU.Value);
+    }
+
+    [Pure]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static IEnumerable<V> SelectMany<T, U, V>(this OptionUnsafe<T> self,
+        Func<T, IEnumerable<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        if (self.IsNone) return new V[0];
+        return bind(self.Value).Map(resU => project(self.Value, resU));
+    }
+
+    [Pure]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static OptionUnsafe<V> SelectMany<T, U, V>(this IEnumerable<T> self,
+        Func<T, OptionUnsafe<U>> bind,
+        Func<T, U, V> project
+        )
+    {
+        var ta = self.Take(1).ToArray();
+        if (ta.Length == 0) return None;
+        var resU = bind(ta[0]);
+        if (resU.IsNone) return None;
+        return project(ta[0], resU.Value);
     }
 
     /// <summary>
@@ -634,6 +719,7 @@ public static class __OptionUnsafeExt
     /// <param name="Some">Some handler</param>
     /// <param name="None">None handler</param>
     /// <returns>A stream of Rs</returns>
+    [Pure]
     public static IObservable<R> MatchObservable<T, R>(this OptionUnsafe<IObservable<T>> self, Func<T, R> Some, Func<R> None) =>
         self.IsSome
             ? self.Value.Select(Some)
@@ -649,6 +735,133 @@ public static class __OptionUnsafeExt
     /// <param name="Some">Some handler</param>
     /// <param name="None">None handler</param>
     /// <returns>A stream of Rs</returns>
+    [Pure]
     public static IObservable<R> MatchObservable<T, R>(this IObservable<OptionUnsafe<T>> self, Func<T, R> Some, Func<R> None) =>
         self.Select(opt => matchUnsafe(opt, Some, None));
+
+
+    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this OptionUnsafe<T> self, Func<T, Task<R>> map) =>
+        self.IsSome
+            ? SomeUnsafe(await map(self.Value))
+            : None;
+
+    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this Task<OptionUnsafe<T>> self, Func<T, Task<R>> map)
+    {
+        var val = await self;
+        return val.IsSome
+            ? SomeUnsafe(await map(val.Value))
+            : None;
+    }
+
+    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this Task<OptionUnsafe<T>> self, Func<T, R> map)
+    {
+        var val = await self;
+        return val.IsSome
+            ? SomeUnsafe(map(val.Value))
+            : None;
+    }
+
+    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this OptionUnsafe<Task<T>> self, Func<T, R> map) =>
+        self.IsSome
+            ? SomeUnsafe(map(await self.Value))
+            : None;
+
+    public static async Task<OptionUnsafe<R>> MapAsync<T, R>(this OptionUnsafe<Task<T>> self, Func<T, Task<R>> map) =>
+        self.IsSome
+            ? SomeUnsafe(await map(await self.Value))
+            : None;
+
+
+    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this OptionUnsafe<T> self, Func<T, Task<OptionUnsafe<R>>> bind) =>
+        self.IsSome
+            ? await bind(self.Value)
+            : None;
+
+    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this Task<OptionUnsafe<T>> self, Func<T, Task<OptionUnsafe<R>>> bind)
+    {
+        var val = await self;
+        return val.IsSome
+            ? await bind(val.Value)
+            : None;
+    }
+
+    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this Task<OptionUnsafe<T>> self, Func<T, OptionUnsafe<R>> bind)
+    {
+        var val = await self;
+        return val.IsSome
+            ? bind(val.Value)
+            : None;
+    }
+
+    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this OptionUnsafe<Task<T>> self, Func<T, OptionUnsafe<R>> bind) =>
+        self.IsSome
+            ? bind(await self.Value)
+            : None;
+
+    public static async Task<OptionUnsafe<R>> BindAsync<T, R>(this OptionUnsafe<Task<T>> self, Func<T, Task<OptionUnsafe<R>>> bind) =>
+        self.IsSome
+            ? await bind(await self.Value)
+            : None;
+
+    public static async Task<Unit> IterAsync<T>(this Task<OptionUnsafe<T>> self, Action<T> action)
+    {
+        var val = await self;
+        if (val.IsSome) action(val.Value);
+        return unit;
+    }
+
+    public static async Task<Unit> IterAsync<T>(this OptionUnsafe<Task<T>> self, Action<T> action)
+    {
+        if (self.IsSome) action(await self.Value);
+        return unit;
+    }
+
+    public static async Task<int> CountAsync<T>(this Task<OptionUnsafe<T>> self) =>
+        (await self).Count();
+
+    public static async Task<int> SumAsync(this Task<OptionUnsafe<int>> self) =>
+        (await self).Sum();
+
+    public static async Task<int> SumAsync(this OptionUnsafe<Task<int>> self) =>
+        self.IsSome
+            ? await self.Value
+            : 0;
+
+    public static async Task<S> FoldAsync<T, S>(this Task<OptionUnsafe<T>> self, S state, Func<S, T, S> folder) =>
+        (await self).Fold(state, folder);
+
+    public static async Task<S> FoldAsync<T, S>(this OptionUnsafe<Task<T>> self, S state, Func<S, T, S> folder) =>
+        self.IsSome
+            ? folder(state, await self.Value)
+            : state;
+
+    public static async Task<bool> ForAllAsync<T>(this Task<OptionUnsafe<T>> self, Func<T, bool> pred) =>
+        (await self).ForAll(pred);
+
+    public static async Task<bool> ForAllAsync<T>(this OptionUnsafe<Task<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? pred(await self.Value)
+            : true;
+
+    public static async Task<bool> ExistsAsync<T>(this Task<OptionUnsafe<T>> self, Func<T, bool> pred) =>
+        (await self).Exists(pred);
+
+    public static async Task<bool> ExistsAsync<T>(this OptionUnsafe<Task<T>> self, Func<T, bool> pred) =>
+        self.IsSome
+            ? pred(await self.Value)
+            : false;
+
+    public static OptionUnsafe<V> Join<L, T, U, K, V>(
+        this OptionUnsafe<T> self,
+        OptionUnsafe<U> inner,
+        Func<T, K> outerKeyMap,
+        Func<U, K> innerKeyMap,
+        Func<T, U, V> project)
+    {
+        if (self.IsNone) return None;
+        if (inner.IsNone) return None;
+        return EqualityComparer<K>.Default.Equals(outerKeyMap(self.Value), innerKeyMap(inner.Value))
+            ? SomeUnsafe(project(self.Value, inner.Value))
+            : None;
+    }
 }

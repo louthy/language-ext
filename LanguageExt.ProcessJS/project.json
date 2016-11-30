@@ -1,66 +1,64 @@
 {
-  "version": "1.7.32-*",
+  "version": "1.9.7",
   "authors": [ "Paul Louth" ],
-  "owners": [ "paullouth" ],
-  "title": "LanguageExt.ProcessJS",
   "description": "Javascript actor library component that works with LanguageExt.Process: A library that uses and abuses the features of C# 6 to provide a functional 'Base class library', that, if you squint, can look like extensions to the language itself. It also includes an 'Erlang like' process system (actors) that can optionally persist messages and state to Redis (note you can use it without Redis for in-app messaging). The process system additionally supports Rx streams of messages and state allowing for a complete system of reactive events and message dispatch.",
-  "tags": [ "C#", "Functional", "javascript", "js", "Language Extension", "Monad", "Option", "Either", "Reader", "Writer", "State", "List", "Set", "Map", "Queue", "Memo", "Memoization", "Immutable", "Lambda", "Pattern Matching", "Tuple", "Actor", "Process", "Akka", "Redis" ],
-  "releaseNotes": "",
-  "iconUrl": "https://camo.githubusercontent.com/08525ae465a9061150679d871731e77b399c2a94/687474703a2f2f7777772e34666f75722e6f72672f696d616765732f6c616e672d6578742d6c6f676f2e706e67",
-  "projectUrl": "https://github.com/louthy/language-ext",
-  "licenseUrl": "https://github.com/louthy/language-ext/blob/master/LICENSE.md",
   "copyright": "Copyright (c) Paul Louth",
+
+  "packOptions": {
+    "title": "LanguageExt.ProcessJS",
+    "owners": [ "paullouth" ],
+    "tags": [ "C#", "Functional", "javascript", "js", "Language Extension", "Monad", "Option", "Either", "Reader", "Writer", "State", "List", "Set", "Map", "Queue", "Memo", "Memoization", "Immutable", "Lambda", "Pattern Matching", "Tuple", "Actor", "Process", "Akka", "Redis" ],
+    "iconUrl": "https://camo.githubusercontent.com/08525ae465a9061150679d871731e77b399c2a94/687474703a2f2f7777772e34666f75722e6f72672f696d616765732f6c616e672d6578742d6c6f676f2e706e67",
+    "releaseNotes": "",
+    "projectUrl": "https://github.com/louthy/language-ext",
+    "licenseUrl": "https://github.com/louthy/language-ext/blob/master/LICENSE.md"
+  },
+
   "configurations": {
     "Debug": {
-      "compilationOptions": {
-        "define": [ "DEBUG", "TRACE" ]
+      "buildOptions": {
+        "define": [ "DEBUG", "TRACE" ],
+        "compile": "*.cs"
       }
     },
     "Release": {
-      "compilationOptions": {
+      "buildOptions": {
         "define": [ "RELEASE", "TRACE" ],
-        "optimize": true
+        "optimize": true,
+        "compile": "*.cs"
       }
     }
   },
   "dependencies": {
-    "LanguageExt.Core": "1.7.32",
-    "LanguageExt.Process": "1.7.32",
-    "Newtonsoft.Json": "7.0.1",
-    "Rx-Main": "2.2.5.0",
-    "FSharp.Core": "4.0.0.1"
+    "LanguageExt.Core": {
+      "version": "1.9.7",
+      "target": "project"
+    },
+    "LanguageExt.Process": {
+      "version": "1.9.7",
+      "target": "project"
+    },
+    "Newtonsoft.Json": "9.0.1",
+    "System.Reactive.Core": "3.0.0-*",
+    "System.Reactive.Interfaces": "3.0.0-*",
+    "System.Reactive.PlatformServices": "3.0.0-*",
+    "System.Reactive.Linq": "3.0.0-*"
   },
   "frameworks": {
     "net45": {
       "dependencies": {
+        "FSharp.Core": "4.0.0.1",
         "Microsoft.Owin": "3.0.1",
         "Microsoft.Owin.Security": "3.0.1",
         "Microsoft.AspNet.SignalR": "2.2.0"
-      },
-      "frameworkAssemblies": {
-        "System.Core": "4.0.0.0"
       }
     },
     "net46": {
       "dependencies": {
+        "FSharp.Core": "4.0.0.1",
         "Microsoft.Owin": "3.0.1",
         "Microsoft.Owin.Security": "3.0.1",
-        "Microsoft.AspNet.SignalR": "2.2.0"
-      },
-      "frameworkAssemblies": {
-        "System.Core": "4.0.0.0"
-      }
-    },
-    "dnx451": {
-      "dependencies": {
-        "Microsoft.AspNet.SignalR": "2.2.0"
-      }
-    },
-    "dnx461": {
-      "dependencies": {
-        "Microsoft.AspNet.SignalR": "2.2.0"
-      }
+        "Microsoft.AspNet.SignalR": "2.2.0"      },
     }
-  },
-  "compile": "*.cs"
+  }
 }
