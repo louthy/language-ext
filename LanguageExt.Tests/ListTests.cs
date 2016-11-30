@@ -261,5 +261,28 @@ namespace LanguageExtTests
                 Assert.False(fst == snd, $"'{fst}' == '{snd}'");
             }));
         }
+
+        [Fact]
+        public void DistinctTest1()
+        {
+            var lst = List(Tuple(1, 1), Tuple(1, 9), Tuple(9, 9));
+
+            Assert.True(lst.Distinct((a, b) => a.Item1 == b.Item1).Count() == 2);
+            Assert.True(lst.Distinct((a, b) => a.Item2 == b.Item2).Count() == 2);
+
+            Assert.True(lst.Distinct(o => o.Item1).Count() == 2);
+            Assert.True(lst.Distinct(o => o.Item1).Count() == 2);
+        }
+
+        [Fact]
+        public void DistinctTest2()
+        {
+            var lst = List(Tuple(1, 1), Tuple(1, 9), Tuple(9, 9));
+
+            var dlist = lst.Distinct(o => o.Item1).ToList();
+            
+            Assert.True(dlist[0].Item1 == 1 && dlist[0].Item2 == 1);
+            Assert.True(dlist[1].Item1 == 9 && dlist[1].Item2 == 9);
+        }
     }
 }

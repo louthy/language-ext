@@ -777,6 +777,16 @@ namespace LanguageExt
             list.Distinct(new EqCompare<T>(compare));
 
         /// <summary>
+        /// Return a new enumerable with all duplicate values removed
+        /// </summary>
+        /// <typeparam name="T">Enumerable item type</typeparam>
+        /// <param name="list">Enumerable</param>
+        /// <returns>A new enumerable with all duplicate values removed</returns>
+        [Pure]
+        public static IEnumerable<T> distinct<T, K>(IEnumerable<T> list, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
+             list.Distinct(new EqCompare<T>((a, b) => compare.IfNone(EqualityComparer<K>.Default.Equals)(keySelector(a), keySelector(b)), a => keySelector(a).GetHashCode()));
+
+        /// <summary>
         /// Returns a new enumerable with the first 'count' items from the enumerable provided
         /// </summary>
         /// <typeparam name="T">Enumerable item type</typeparam>
@@ -1064,10 +1074,17 @@ namespace LanguageExt
     class EqCompare<T> : IEqualityComparer<T>
     {
         readonly Func<T, T, bool> compare;
+        readonly Option<Func<T, int>> getHashCode = None;
 
         public EqCompare(Func<T, T, bool> compare)
         {
             this.compare = compare;
+        }
+
+        public EqCompare(Func<T, T, bool> compare, Func<T, int> getHashCode)
+        {
+            this.compare = compare;
+            this.getHashCode = getHashCode;
         }
 
         [Pure]
@@ -1080,9 +1097,9 @@ namespace LanguageExt
 
         [Pure]
         public int GetHashCode(T obj) =>
-            isnull(obj)
-                ? 0
-                : obj.GetHashCode();
+            getHashCode.Match(
+                f => isnull(obj) ? 0 : f(obj),
+                () => 0);
     }
 
     public static class EnumerableExtensions
@@ -1811,6 +1828,16 @@ namespace LanguageExt
         [Pure]
         public static IEnumerable<T> Distinct<T>(this IEnumerable<T> list, Func<T, T, bool> compare) =>
             LanguageExt.List.distinct(list, compare);
+
+        /// <summary>
+        /// Return a new enumerable with all duplicate values removed
+        /// </summary>
+        /// <typeparam name="T">Enumerable item type</typeparam>
+        /// <param name="list">Enumerable</param>
+        /// <returns>A new enumerable with all duplicate values removed</returns>
+        [Pure]
+        public static IEnumerable<T> Distinct<T, K>(this IEnumerable<T> list, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
+            LanguageExt.List.distinct(list, keySelector, compare);
 
         /// <summary>
         /// Returns true if any item in the enumerable matches the predicate provided

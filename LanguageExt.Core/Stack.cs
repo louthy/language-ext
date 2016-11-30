@@ -465,6 +465,16 @@ namespace LanguageExt
             List.distinct(stack, compare);
 
         /// <summary>
+        /// Return an enumerable with all duplicate values removed
+        /// </summary>
+        /// <typeparam name="T">Stack item type</typeparam>
+        /// <param name="stack">Stack</param>
+        /// <returns>An enumerable with all duplicate values removed</returns>
+        [Pure]
+        public static IEnumerable<T> distinct<T, K>(Stck<T> stack, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
+            List.distinct(stack, keySelector, compare);
+
+        /// <summary>
         /// Returns a new enumerable with the first 'count' items from the stack
         /// </summary>
         /// <typeparam name="T">Stack item type</typeparam>
@@ -838,6 +848,16 @@ public static class StackExtensions
     [Pure]
     public static IEnumerable<T> Distinct<T>(this Stck<T> stack, Func<T, T, bool> compare) =>
         LanguageExt.List.distinct(stack, compare);
+
+    /// <summary>
+    /// Return an enumerable with all duplicate values removed
+    /// </summary>
+    /// <typeparam name="T">Stack item type</typeparam>
+    /// <param name="stack">Stack</param>
+    /// <returns>An enumerable with all duplicate values removed</returns>
+    [Pure]
+    public static IEnumerable<T> Distinct<T, K>(Stck<T> stack, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
+        LanguageExt.List.distinct(stack, keySelector, compare);
 
     /// <summary>
     /// Returns a new enumerable with the first 'count' items from the stack
