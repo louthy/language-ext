@@ -784,7 +784,7 @@ namespace LanguageExt
         /// <returns>A new enumerable with all duplicate values removed</returns>
         [Pure]
         public static IEnumerable<T> distinct<T, K>(IEnumerable<T> list, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
-             list.Distinct(new EqCompare<T>((a, b) => compare.IfNone(EqualityComparer<K>.Default.Equals)(keySelector(a), keySelector(b)), a => keySelector(a).GetHashCode()));
+             list.Distinct(new EqCompare<T>((a, b) => compare.IfNone(EqualityComparer<K>.Default.Equals)(keySelector(a), keySelector(b)), a => keySelector(a)?.GetHashCode() ?? 0));
 
         /// <summary>
         /// Returns a new enumerable with the first 'count' items from the enumerable provided
@@ -1074,17 +1074,17 @@ namespace LanguageExt
     class EqCompare<T> : IEqualityComparer<T>
     {
         readonly Func<T, T, bool> compare;
-        readonly Option<Func<T, int>> getHashCode = None;
+        readonly Option<Func<T, int>> hashCode = None;
 
         public EqCompare(Func<T, T, bool> compare)
         {
             this.compare = compare;
         }
 
-        public EqCompare(Func<T, T, bool> compare, Func<T, int> getHashCode)
+        public EqCompare(Func<T, T, bool> compare, Func<T, int> hashCode)
         {
             this.compare = compare;
-            this.getHashCode = getHashCode;
+            this.hashCode = hashCode;
         }
 
         [Pure]
@@ -1097,7 +1097,7 @@ namespace LanguageExt
 
         [Pure]
         public int GetHashCode(T obj) =>
-            getHashCode.Match(
+            hashCode.Match(
                 f => isnull(obj) ? 0 : f(obj),
                 () => 0);
     }

@@ -856,7 +856,7 @@ public static class StackExtensions
     /// <param name="stack">Stack</param>
     /// <returns>An enumerable with all duplicate values removed</returns>
     [Pure]
-    public static IEnumerable<T> Distinct<T, K>(Stck<T> stack, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
+    public static IEnumerable<T> Distinct<T, K>(this Stck<T> stack, Func<T, K> keySelector, Option<Func<K, K, bool>> compare = default(Option<Func<K, K, bool>>)) =>
         LanguageExt.List.distinct(stack, keySelector, compare);
 
     /// <summary>
@@ -902,6 +902,6 @@ public static class StackExtensions
     /// <param name="pred">Predicate</param>
     /// <returns>True if any item in the stack matches the predicate provided</returns>
     [Pure]
-    public static bool Exists<T>(Stck<T> stack, Func<T, bool> pred) =>
+    public static bool Exists<T>(this Stck<T> stack, Func<T, bool> pred) =>
         LanguageExt.List.exists(stack, pred);
 }
