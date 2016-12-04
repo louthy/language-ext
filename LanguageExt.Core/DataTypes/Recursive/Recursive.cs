@@ -15,9 +15,7 @@ namespace LanguageExt.DataTypes.Recursive
     /// <remarks>
     /// Intended usage is for situations where an algorithm might more conveniently be expressed as 
     /// a recursive function but fears this may result in a stack overflow error.
-    /// 
-    /// Sample 
-    /// 
+    ///     
     /// Note: This is a lazy type. The function is only invoked when an implicit cast occurs    
     /// </remarks>
     /// <typeparam name="A">Base case return type</typeparam>
