@@ -72,6 +72,8 @@
     <Compile Include="DataTypes\Either\Either.Extensions.cs" />
     <Compile Include="DataTypes\NewType\NewType.Predicate.cs" />
     <Compile Include="DataTypes\NumType\NumType.cs" />
+    <Compile Include="DataTypes\Recursive\Recursive.cs" />
+    <Compile Include="DataTypes\Recursive\Recursive.Prelude.cs" />
     <Compile Include="DataTypes\ValueTuple\Tuple2\ValueTuple2.Prelude.cs" />
     <Compile Include="DataTypes\ValueTuple\Tuple2\ValueTuple2.Extensions.cs" />
     <Compile Include="HKT.cs">

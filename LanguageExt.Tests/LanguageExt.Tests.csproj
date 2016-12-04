@@ -45,6 +45,7 @@
     <Compile Include="CompositionTests.cs" />
     <Compile Include="HashMapTests.cs" />
     <Compile Include="NewTypeTests.cs" />
+    <Compile Include="RecursiveTests.cs" />
     <Compile Include="TaskTests.cs" />
     <Compile Include="Divisible.cs" />
     <Compile Include="Multiplicable.cs" />
@@ -126,6 +127,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
