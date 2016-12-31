@@ -117,7 +117,7 @@ Location | Feature | Description
 `Core` | Monad transformers | A higher kinded type (ish)
 `Process` | `Process` library | [Actor system.  The same as Erlang processes for massive concurrency with state management.](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
 `Process.Redis` | Redis persistence | [Persistence of the `Process` system message-queues and state, for robustness and inter-app communication.](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
-`Core` | Flip | [Reverse the order of the first two arguments of a function](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#flip<T1, T2, TResult>)
+`Core` | Flip | [Reverse the order of the first two arguments of a function](https://github.com/louthy/language-ext/blob/master/LanguageExt.Process/README.md)
 `Core` | Currying | [Translate the evaluation of a function that takes multiple arguments into a sequence of functions, each with a single argument](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#curry<T1, T2, R>)
 `Core` | Partial application | [the process of fixing a number of arguments to a function, producing another function of smaller arity](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#par<T1, T2, R>)
 `Core` | Memoization | [An optimization technique used primarily to speed up programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again](https://louthy.github.io/languageext.core/LanguageExt/Prelude_.htm#memo<T, R>)
