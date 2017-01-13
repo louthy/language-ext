@@ -7,6 +7,7 @@ using Xunit;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using static LanguageExt.CondExt;
+using Newtonsoft.Json;
 
 namespace LanguageExtTests
 {
@@ -59,6 +60,20 @@ namespace LanguageExtTests
         static Task<A> T<A>(A value) => 
             Task.FromResult(value);
 
+        Task<int> GetIntegerValue(int x) => Task.FromResult(x);
+
+        [Fact]
+        public async Task AsyncTest2()
+        {
+            var cond = Cond<int>(async x => (await GetIntegerValue(x)) > 0).Then(x => 1).Else(x => 0);
+
+            var a = await cond(100);  // 1
+            var b = await cond(-100);  // 0
+
+            Assert.True(a == 1);
+            Assert.True(b == 0);
+        }
+
         [Fact]
         public async Task AsynchronousTests()
         {
@@ -71,7 +86,6 @@ namespace LanguageExtTests
             var cond7 = Subj<int>().Any(x => T(x == 4), x => T(x > 4)).Then(_ => T(true)).Else(_ => T(false));
             var cond8 = Subj<int>().Any(x => T(x == 4), x => T(x > 4)).Then(T(true)).Else(false);
             var cond9 = Subj<int>().Any(x => T(x == 4), x => T(x > 4)).Then(T(true)).Else(T(false));
-
             var condA = Cond<int>(x => x == 4).Then(_ => T(true)).Else(false);
             var condB = Cond<int>(x => x == 4).Then(true).Else(_ => T(false));
             var condC = Cond<int>(x => x == 4).Then(_ => T(true)).Else(_ => false);

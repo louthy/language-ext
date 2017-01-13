@@ -56,6 +56,23 @@ namespace LanguageExt
             cond(a);
 
         /// <summary>
+        /// Apply a value as the first argument to the function provided.  
+        /// </summary>
+        /// <remarks>This is a general case apply function, however it is especially 
+        /// useful for fluently applying a value to the result of the CondAsync.Else() 
+        /// extension method.
+        /// </remarks>
+        /// <typeparam name="A">Type of the value to apply to the function</typeparam>
+        /// <typeparam name="B"></typeparam>
+        /// <param name="a">Value to apply to the function</param>
+        /// <param name="f">Function to apply the value to</param>
+        /// <returns>Promise to return the result of applying the value to the function</returns>
+        public static Task<B> Apply<A, B>(this Task<A> taskA, Func<A, Task<B>> cond) =>
+            from a in taskA
+            from b in cond(a)
+            select b;
+
+        /// <summary>
         /// Provide the behaviour to run if the condition of the Cond computation
         /// is in a Some/True state.  This is equivalent to the 'then' part of an If/Then/Else
         /// operation.
