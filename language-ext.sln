@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Core", "LanguageExt.Core\LanguageExt.Core.csproj", "{C0FA07A0-8B83-4FA5-ACFB-14185D5C4484}"
 EndProject
@@ -84,6 +84,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Parsec", "LanguageExt.Parsec\LanguageExt.Parsec.csproj", "{49F181C4-D5B4-4076-BE96-1B516903AD8C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisSubscribeSample", "Samples\RedisSubscribeSample\RedisSubscribeSample.csproj", "{E2D6DAE8-8F03-4341-91DD-1D2B6BE94C6B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.ProcessJS.Tests", "LanguageExt.ProcessJS.Tests\LanguageExt.ProcessJS.Tests.csproj", "{37539A2D-B235-47D1-BC06-89C2E068C9F8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -285,6 +287,14 @@ Global
 		{E2D6DAE8-8F03-4341-91DD-1D2B6BE94C6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E2D6DAE8-8F03-4341-91DD-1D2B6BE94C6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E2D6DAE8-8F03-4341-91DD-1D2B6BE94C6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37539A2D-B235-47D1-BC06-89C2E068C9F8}.AppVeyorBuild|Any CPU.ActiveCfg = AppVeyorBuild|Any CPU
+		{37539A2D-B235-47D1-BC06-89C2E068C9F8}.AppVeyorBuild|Any CPU.Build.0 = AppVeyorBuild|Any CPU
+		{37539A2D-B235-47D1-BC06-89C2E068C9F8}.CI|Any CPU.ActiveCfg = AppVeyorBuild|Any CPU
+		{37539A2D-B235-47D1-BC06-89C2E068C9F8}.CI|Any CPU.Build.0 = AppVeyorBuild|Any CPU
+		{37539A2D-B235-47D1-BC06-89C2E068C9F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37539A2D-B235-47D1-BC06-89C2E068C9F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37539A2D-B235-47D1-BC06-89C2E068C9F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37539A2D-B235-47D1-BC06-89C2E068C9F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

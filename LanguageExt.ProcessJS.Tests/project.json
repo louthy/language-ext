@@ -1,5 +1,5 @@
 {
-  "version": "1.7.29-*",
+  "version": "1.9.4-*",
   "authors": [ "Paul Louth" ],
   "owners": ["paullouth"],
   "title": "LanguageExt.ProcessJS.Tests",
@@ -21,20 +21,33 @@
     }
   },
   "dependencies": {
+    "LanguageExt.Core": {
+      "version": "1.9.4",
+      "target": "project"
+    },
+    "LanguageExt.Process": {
+      "version": "1.9.4",
+      "target": "project"
+    },
+    "LanguageExt.ProcessJS": {
+      "version": "1.9.4",
+      "target": "project"
+    },
+    "Newtonsoft.Json": "9.0.1",
+    "System.Reactive.Core": "3.1.1",
+    "System.Reactive.Interfaces": "3.1.1",
+    "System.Reactive.PlatformServices": "3.1.1",
+    "System.Reactive.Linq": "3.1.1",
+    "System.ValueTuple": "4.3.0",
+    "FSharp.Core": "4.0.0.1"
   },
   "frameworks": {
-    "dnx451": {
+    "net46": {
       "dependencies": {
-        "LanguageExt.Core": "1.7.5",
-        "LanguageExt.Process": "1.7.5",
-        "LanguageExt.ProcessJS": "1.7.5",
-        "Newtonsoft.Json": "7.0.1",
-        "Rx-Main": "2.2.5.0",
         "FSharp.Core": "4.0.0.1",
-        "Microsoft.AspNet.SignalR": "2.2.0"
-      },
-      "frameworkAssemblies": {
-        "System.Web": "4.0.0.0"
+        "Microsoft.Owin": "3.0.1",
+        "Microsoft.Owin.Security": "3.0.1",
+        "Microsoft.AspNet.SignalR": "2.2.0"     
       }
     }
   },

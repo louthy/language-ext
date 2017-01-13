@@ -65,6 +65,7 @@
     <Compile Include="ClassInstances\Pred\Range.cs" />
     <Compile Include="ClassInstances\Pred\String\Predicates.cs" />
     <Compile Include="ClassInstances\TChar.cs" />
+    <Compile Include="Cond.cs" />
     <Compile Include="DataTypes\EitherUnsafe\EitherUnsafe.cs" />
     <Compile Include="DataTypes\EitherUnsafe\EitherUnsafe.Trans.cs" />
     <Compile Include="DataTypes\EitherUnsafe\EitherUnsafe.Extensions.cs" />

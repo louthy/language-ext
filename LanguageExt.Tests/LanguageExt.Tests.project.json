@@ -2,9 +2,9 @@
   "dependencies": {
     "FSharp.Core": "4.0.0.1",
     "Newtonsoft.Json": "9.0.1",
-    "StackExchange.Redis": "1.1.608",
-    "System.Reactive": "3.0.0",
-    "System.ValueTuple": "4.0.0-rc3-24212-01",
+    "StackExchange.Redis": "1.2.0",
+    "System.Reactive": "3.1.1",
+    "System.ValueTuple": "4.3.0",
     "xunit": "2.2.0-beta3-build3402",
     "xunit.abstractions": "2.0.1",
     "xunit.assert": "2.2.0-beta3-build3402",
