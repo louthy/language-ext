@@ -11,9 +11,9 @@ namespace LanguageExtTests
     public class TypeClassMonad
     {
         [Fact]
-        public void MonadBindTest()
+        public void MonadReturnTest()
         {
-            var x = DoubleAndLift<MOption<int>, Option<int>, TInt, int>(100);
+            Option<int> x = DoubleAndLift<MOption<int>, Option<int>, TInt, int>(100);
             Assert.True(x.IfNone(0) == 200);
         }
 
