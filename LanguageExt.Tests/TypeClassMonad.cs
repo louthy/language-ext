@@ -21,5 +21,10 @@ namespace LanguageExtTests
             where MONAD : struct, Monad<MA, A>
             where NUM   : struct, Num<A> =>
             Return<MONAD, MA, A>(product<NUM, A>(num, fromInteger<NUM, A>(2)));
+
+        public static MA DoubleAndLift<MONAD, MA, NUM>(int num)
+            where MONAD : struct, Monad<MA, int>
+            where NUM   : struct, Num<int> =>
+            Return<MONAD, MA, int>(product<NUM, int>(num, fromInteger<NUM, int>(2)));
     }
 }

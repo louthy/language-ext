@@ -324,7 +324,7 @@ namespace LanguageExt
         {
             foreach (var item in ma)
             {
-                if (default(CHOICE).IsChoice1(item))
+                if (default(CHOICE).IsChoice2(item))
                 {
                     yield return default(CHOICE).Match(
                         item,
