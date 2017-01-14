@@ -162,12 +162,12 @@ namespace LanguageExt
         /// <typeparam name="A">Type of the input value</typeparam>
         /// <typeparam name="B">Type of the result value</typeparam>
         /// <param name="self">The Cond computation to test</param>
-        /// <param name="Else">The Else function to run if the Cond computation ends up
+        /// <param name="f">The Else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
-        public static Func<A, B> Else<A, B>(this Cond<A, B> self, Func<A, B> Else) =>
+        public static Func<A, B> Else<A, B>(this Cond<A, B> self, Func<A, B> f) =>
             input =>
-                self(input).IfNone(() => Else(input));
+                self(input).IfNone(() => f(input));
 
         /// <summary>
         /// Builds a delegate that runs the conditional computation, taking an input
@@ -177,12 +177,12 @@ namespace LanguageExt
         /// <typeparam name="A">Type of the input value</typeparam>
         /// <typeparam name="B">Type of the result value</typeparam>
         /// <param name="self">The Cond computation to test</param>
-        /// <param name="Else">The Else function to run if the Cond computation ends up
+        /// <param name="f">The else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
-        public static Func<A, B> Else<A, B>(this Cond<A, B> self, Func<B> Else) =>
+        public static Func<A, B> Else<A, B>(this Cond<A, B> self, Func<B> f) =>
             input =>
-                self(input).IfNone(Else);
+                self(input).IfNone(f);
 
         /// <summary>
         /// Builds a delegate that runs the conditional computation, taking an input
@@ -192,12 +192,60 @@ namespace LanguageExt
         /// <typeparam name="A">Type of the input value</typeparam>
         /// <typeparam name="B">Type of the result value</typeparam>
         /// <param name="self">The Cond computation to test</param>
-        /// <param name="Else">The Else function to run if the Cond computation ends up
+        /// <param name="value">The else value to use if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
-        public static Func<A, B> Else<A, B>(this Cond<A, B> self, B Else) =>
+        public static Func<A, B> Else<A, B>(this Cond<A, B> self, B value) =>
             input =>
-                self(input).IfNone(Else);
+                self(input).IfNone(value);
+
+        /// <summary>
+        /// Builds a delegate that runs the conditional computation, taking an input
+        /// value and returning a result value.  This would usually be the last thing
+        /// in a fluent Cond computation.
+        /// </summary>
+        /// <typeparam name="A">Type of the input value</typeparam>
+        /// <typeparam name="B">Type of the result value</typeparam>
+        /// <param name="self">The Cond computation to test</param>
+        /// <param name="f">The Else function to run if the Cond computation ends up
+        /// in a None/False state.</param>
+        /// <returns>The result of the conditional computation</returns>
+        public static Func<Task<A>, Task<B>> ElseAsync<A, B>(this Cond<A, B> self, Func<A, B> f) =>
+            input =>
+                from a in input
+                select self(a).IfNone(() => f(a));
+
+        /// <summary>
+        /// Builds a delegate that runs the conditional computation, taking an input
+        /// value and returning a result value.  This would usually be the last thing
+        /// in a fluent Cond computation.
+        /// </summary>
+        /// <typeparam name="A">Type of the input value</typeparam>
+        /// <typeparam name="B">Type of the result value</typeparam>
+        /// <param name="self">The Cond computation to test</param>
+        /// <param name="f">The else function to run if the Cond computation ends up
+        /// in a None/False state.</param>
+        /// <returns>The result of the conditional computation</returns>
+        public static Func<Task<A>, Task<B>> ElseAsync<A, B>(this Cond<A, B> self, Func<B> f) =>
+            input =>
+                from a in input
+                select self(a).IfNone(f);
+
+        /// <summary>
+        /// Builds a delegate that runs the conditional computation, taking an input
+        /// value and returning a result value.  This would usually be the last thing
+        /// in a fluent Cond computation.
+        /// </summary>
+        /// <typeparam name="A">Type of the input value</typeparam>
+        /// <typeparam name="B">Type of the result value</typeparam>
+        /// <param name="self">The Cond computation to test</param>
+        /// <param name="value">The else value to use if the Cond computation ends up
+        /// in a None/False state.</param>
+        /// <returns>The result of the conditional computation</returns>
+        public static Func<Task<A>, Task<B>> ElseAsync<A, B>(this Cond<A, B> self, B value) =>
+            input =>
+                from a in input
+                select self(a).IfNone(value);
 
         /// <summary>
         /// Functor map of the conditional computation
