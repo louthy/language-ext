@@ -1,6 +1,7 @@
 ﻿using LanguageExt.TypeClasses;
 using static LanguageExt.TypeClass;
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,10 +21,19 @@ namespace LanguageExt
     [Serializable]
 #endif
     public struct Map<K, V> :
-        IEnumerable<IMapItem<K, V>>,
-        IReadOnlyDictionary<K, V>
+        IEnumerable<MapItem<K, V>>
     {
         readonly MapInternal<K, V> value;
+
+        public Map(IEnumerable<MapItem<K,V>> items)
+        {
+            var map = Map<K, V>.Empty;
+            foreach (var item in items)
+            {
+                map = map.Add(item.Key, item.Value);
+            }
+            this.value = map.value;
+        }
 
         internal Map(MapInternal<K, V> value)
         {
@@ -303,7 +313,7 @@ namespace LanguageExt
         /// <param name="amount">Amount to skip</param>
         /// <returns>New tree</returns>
         [Pure]
-        public IEnumerable<IMapItem<K, V>> Skip(int amount) => Value.Skip(amount);
+        public IEnumerable<MapItem<K, V>> Skip(int amount) => Value.Skip(amount);
 
         /// <summary>
         /// Checks for existence of a key in the map
@@ -402,16 +412,6 @@ namespace LanguageExt
         public bool Contains(KeyValuePair<K, V> pair) => Value.Contains(pair);
 
         /// <summary>
-        /// TryGetValue
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("TryGetValue is obsolete, use TryFind instead")]
-        public bool TryGetValue(K key, out V value) => Value.TryGetValue(key, out value);
-
-        /// <summary>
         /// Enumerable of map keys
         /// </summary>
         [Pure]
@@ -434,37 +434,38 @@ namespace LanguageExt
         /// Map the map the a dictionary
         /// </summary>
         [Pure]
-        public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<IMapItem<K, V>, KR> keySelector, Func<IMapItem<K, V>, VR> valueSelector)
+        public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<MapItem<K, V>, KR> keySelector, Func<MapItem<K, V>, VR> valueSelector)
             => Value.ToDictionary(keySelector, valueSelector);
+
+        /// <summary>
+        /// Get a IReadOnlyDictionary for this map.  No mapping is required, so this is very fast.
+        /// </summary>
+        [Pure]
+        public IReadOnlyDictionary<K, V> ToReadOnlyDictionary() =>
+            value;
 
         /// <summary>
         /// Enumerable of in-order tuples that make up the map
         /// </summary>
         /// <returns>Tuples</returns>
         [Pure]
-        public IEnumerable<Tuple<K, V>> Tuples => Value.Tuples;
+        public IEnumerable<Tuple<K, V>> Tuples => 
+            Value.Tuples;
 
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
-        public IEnumerator<IMapItem<K, V>> GetEnumerator() => Value.GetEnumerator();
+        public IEnumerator<MapItem<K, V>> GetEnumerator() => 
+            Value.GetEnumerator();
 
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
-        IEnumerator IEnumerable.GetEnumerator() => Value.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => 
+            Value.GetEnumerator();
 
-        public IEnumerable<IMapItem<K, V>> AsEnumerable() => Value.AsEnumerable();
-
-        IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator()
-        {
-            foreach(var item in this)
-            {
-                yield return new KeyValuePair<K, V>(item.Key, item.Value);
-            }
-        }
-
-        public bool TryGetKey(K equalKey, out K actualKey) =>  Value.TryGetKey(equalKey, out actualKey);
+        public IEnumerable<MapItem<K, V>> AsEnumerable() => 
+            Value.AsEnumerable();
 
         internal Map<K, V> SetRoot(MapItem<K, V> root) =>
             new Map<K, V>(new MapInternal<K, V>(root, Value.Rev));

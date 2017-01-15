@@ -87,6 +87,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisSubscribeSample", "Sam
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.Dependencies", "LanguageExt.Dependencies\LanguageExt.Dependencies.csproj", "{CEFA51BA-3EF5-4117-8D75-77F54B173AF7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageExt.ProcessJS.Tests", "LanguageExt.ProcessJS.Tests\LanguageExt.ProcessJS.Tests.csproj", "{F55248FD-6159-4AB8-AECE-A672DE54E70B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		AppVeyorBuild|Any CPU = AppVeyorBuild|Any CPU
@@ -295,6 +297,14 @@ Global
 		{CEFA51BA-3EF5-4117-8D75-77F54B173AF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CEFA51BA-3EF5-4117-8D75-77F54B173AF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CEFA51BA-3EF5-4117-8D75-77F54B173AF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F55248FD-6159-4AB8-AECE-A672DE54E70B}.AppVeyorBuild|Any CPU.ActiveCfg = Release|Any CPU
+		{F55248FD-6159-4AB8-AECE-A672DE54E70B}.AppVeyorBuild|Any CPU.Build.0 = Release|Any CPU
+		{F55248FD-6159-4AB8-AECE-A672DE54E70B}.CI|Any CPU.ActiveCfg = Release|Any CPU
+		{F55248FD-6159-4AB8-AECE-A672DE54E70B}.CI|Any CPU.Build.0 = Release|Any CPU
+		{F55248FD-6159-4AB8-AECE-A672DE54E70B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F55248FD-6159-4AB8-AECE-A672DE54E70B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F55248FD-6159-4AB8-AECE-A672DE54E70B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F55248FD-6159-4AB8-AECE-A672DE54E70B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

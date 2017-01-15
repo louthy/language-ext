@@ -8,6 +8,9 @@ using System.Collections.Generic;
 using LanguageExt.ClassInstances;
 using System.ComponentModel;
 using System.Threading.Tasks;
+#if !COREFX
+using System.Runtime.Serialization;
+#endif
 
 namespace LanguageExt
 {
@@ -32,6 +35,9 @@ namespace LanguageExt
     [Serializable]
 #endif
     public struct OptionUnsafe<A> :
+#if !COREFX
+        ISerializable,
+#endif
         IOptional,
         IEquatable<OptionUnsafe<A>>,
         IComparable<OptionUnsafe<A>>
@@ -57,6 +63,32 @@ namespace LanguageExt
         /// </summary>
         internal OptionUnsafe(OptionV<A> value) =>
             this.value = value ?? throw new ArgumentNullException(nameof(value));
+
+#if !COREFX
+        /// <summary>
+        /// Deserialisation constructor
+        /// </summary>
+        public OptionUnsafe(SerializationInfo info, StreamingContext context)
+        {
+            var isSome = (bool)info.GetValue("IsSome", typeof(bool));
+            var value = isSome
+                ? (A)info.GetValue("Value", typeof(A))
+                : default(A);
+
+            this.value = isSome
+                ? OptionV<A>.Some(value)
+                : OptionV<A>.None;
+        }
+
+        /// <summary>
+        /// Serialisation support
+        /// </summary>
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("IsSome", IsSome, typeof(bool));
+            info.AddValue("Value", IsSome ? Value : default(A), typeof(A));
+        }
+#endif
 
         /// <summary>
         /// Uses the EqDefault instance to do an equality check on the bound value.  
@@ -182,7 +214,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public override bool Equals(object obj) =>
-            equals<EqDefault<A>, A>(this, (ReferenceEquals(obj, null) ? None : (OptionUnsafe<A>)obj));
+            obj is OptionUnsafe<A> && equals<EqDefault<A>, A>(this, (ReferenceEquals(obj, null) ? None : (OptionUnsafe<A>)obj));
 
         /// <summary>
         /// Calculate the hash-code from the bound value, unless the OptionUnsafe is in a None

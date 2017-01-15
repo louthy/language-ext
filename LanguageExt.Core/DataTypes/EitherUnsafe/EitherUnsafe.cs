@@ -10,6 +10,9 @@ using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
+#if !COREFX
+using System.Runtime.Serialization;
+#endif
 
 namespace LanguageExt
 {
@@ -36,6 +39,9 @@ namespace LanguageExt
     [Serializable]
 #endif
     public struct EitherUnsafe<L, R> :
+#if !COREFX
+        ISerializable,
+#endif
         IEither,
         IComparable<EitherUnsafe<L, R>>,
         IComparable<R>,
@@ -66,6 +72,51 @@ namespace LanguageExt
             this.right = default(R);
             this.left = left;
         }
+
+#if !COREFX
+        /// <summary>
+        /// Deserialisation constructor
+        /// </summary>
+        public EitherUnsafe(SerializationInfo info, StreamingContext context)
+        {
+            State = (EitherState)info.GetValue("State", typeof(EitherState));
+
+            switch (State)
+            {
+                case EitherState.IsRight:
+                    right = (R)info.GetValue("RightValue", typeof(R));
+                    left = default(L);
+                    break;
+
+                case EitherState.IsLeft:
+                    left = (L)info.GetValue("LeftValue", typeof(L));
+                    right = default(R);
+                    break;
+
+                default:
+                    right = default(R);
+                    left = default(L);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Serialisation support
+        /// </summary>
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("State", State, typeof(EitherState));
+            if (State == EitherState.IsRight)
+            {
+                info.AddValue("RightValue", RightValue, typeof(R));
+            }
+            else if (State == EitherState.IsLeft)
+            {
+                info.AddValue("LeftValue", LeftValue, typeof(L));
+            }
+        }
+#endif
+
 
         /// <summary>
         /// State of the EitherUnsafe

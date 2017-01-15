@@ -1,13 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Diagnostics.Contracts;
 using System.ComponentModel;
-using LanguageExt;
-using LanguageExt.TypeClasses;
-using static LanguageExt.TypeClass;
-using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -18,7 +14,7 @@ namespace LanguageExt
 #if !COREFX
     [Serializable]
 #endif
-    public struct Lst<A> : 
+    public struct Lst<A> :
         IEnumerable<A>, 
         IReadOnlyList<A>,
         IReadOnlyCollection<A>
@@ -35,7 +31,7 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
-        internal Lst(IEnumerable<A> initial)
+        public Lst(IEnumerable<A> initial)
         {
             value = new LstInternal<A>(initial);
         }
