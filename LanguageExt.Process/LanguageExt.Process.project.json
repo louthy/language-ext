@@ -1,9 +1,5 @@
 ﻿{
-  "dependencies": {
-    "FSharp.Core": "4.0.0.1",
-    "Newtonsoft.Json": "9.0.1",
-    "System.Reactive": "3.0.0"
-  },
+  "dependencies": {},
   "frameworks": {
     "net45": {
       "frameworkAssemblies": {}

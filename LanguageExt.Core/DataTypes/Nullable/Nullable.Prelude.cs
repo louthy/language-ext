@@ -441,9 +441,7 @@ namespace LanguageExt
 
         [Pure]
         public static int sum(int? self) =>
-            self.HasValue
-                ? self.Value
-                : 0;
+            self ?? 0;
 
         /// <summary>
         /// Match the two states of the IObservable&lt;Nullable&lt;T&gt;&gt; and return a stream of non-null Rs.

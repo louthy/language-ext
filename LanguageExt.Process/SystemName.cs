@@ -37,9 +37,7 @@ namespace LanguageExt
         }
 
         public string Value =>
-            value == null
-                ? ""
-                : value;
+            value ?? "";
 
         public bool IsValid =>
             !String.IsNullOrEmpty(Value);

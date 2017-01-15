@@ -478,9 +478,7 @@ namespace LanguageExt
 
         [Pure]
         public static int Sum(this int? self) =>
-            self.HasValue
-                ? self.Value
-                : 0;
+            self ?? 0;
 
         [Pure]
         [EditorBrowsable(EditorBrowsableState.Never)]

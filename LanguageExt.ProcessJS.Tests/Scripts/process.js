@@ -1,6 +1,6 @@
 ﻿// LanguageExt.Process.js
 // The MIT License (MIT)
-// Copyright (c) 2014-2015 Paul Louth
+// Copyright (c) 2014-2017 Paul Louth
 // https://github.com/louthy/language-ext/blob/master/LICENSE.md
 
 var unit = "(unit)";
@@ -443,13 +443,13 @@ var Process = (function () {
                 "<div class='process-log-row process-log-row" + msg.TypeDisplay + "'>" +
                 "<div class='log-time'>" + msg.DateDisplay + "</div>" +
                 "<div class='log-type'>" + msg.TypeDisplay + "</div>" +
-                (msg.Message == null
+                (msg.Message == null || !msg.Message.IsSome
                     ? ""
-                    : "<div class='log-msg'>" + msg.Message + "</div>") +
+                    : "<div class='log-msg'>" + msg.Message.Value + "</div>") +
                 "</div>" +
-                (msg.Exception == null || msg.Exception == ""
+                (msg.Exception == null || !msg.Exception.IsSome || !msg.Exception.Value == ""
                     ? ""
-                    : "<div class='process-log-row testbed-log-rowError'><div id='log-ex-msg'>" + msg.Exception + "</div></div>") +
+                    : "<div class='process-log-row testbed-log-rowError'><div id='log-ex-msg'>" + msg.Exception.Value + "</div></div>") +
                 "</div>";
     };
 

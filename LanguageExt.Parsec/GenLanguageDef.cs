@@ -122,22 +122,22 @@ namespace LanguageExt.Parsec
             Parser<char> IdentLetter = null,
             Parser<char> OpStart = null,
             Parser<char> OpLetter = null,
-            Lst<string> ReservedNames = default(Lst<string>),
-            Lst<string> ReservedOpNames = default(Lst<string>),
+            Lst<string>? ReservedNames = null,
+            Lst<string>? ReservedOpNames = null,
             bool? CaseSensitive = null
             ) =>
             new GenLanguageDef(
-                CommentStart == null ? this.CommentStart : CommentStart,
-                CommentEnd == null ? this.CommentEnd : CommentEnd,
-                CommentLine == null ? this.CommentLine : CommentLine,
-                NestedComments == null ? this.NestedComments : NestedComments.Value,
-                IdentStart == null ? this.IdentStart : IdentStart,
-                IdentLetter == null ? this.IdentLetter : IdentLetter,
-                OpStart == null ? this.OpStart : OpStart,
-                OpLetter == null ? this.OpLetter : OpLetter,
-                ReservedNames == null ? this.ReservedNames : ReservedNames,
-                ReservedOpNames == null ? this.ReservedOpNames : ReservedOpNames,
-                CaseSensitive == null ? this.CaseSensitive : CaseSensitive.Value
+                CommentStart ?? this.CommentStart,
+                CommentEnd ?? this.CommentEnd,
+                CommentLine ?? this.CommentLine,
+                NestedComments ?? this.NestedComments,
+                IdentStart ?? this.IdentStart,
+                IdentLetter ?? this.IdentLetter,
+                OpStart ?? this.OpStart,
+                OpLetter ?? this.OpLetter,
+                ReservedNames ?? this.ReservedNames,
+                ReservedOpNames ?? this.ReservedOpNames,
+                CaseSensitive ?? this.CaseSensitive
             );
     }
 }

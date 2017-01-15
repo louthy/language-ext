@@ -49,8 +49,8 @@ namespace LanguageExt
             IActorSystem sys
             )
         {
-            if (setup == null) throw new ArgumentNullException(nameof(setup));
-            if (actor == null) throw new ArgumentNullException(nameof(actor));
+            setupFn = setup ?? throw new ArgumentNullException(nameof(setup));
+            actorFn = actor ?? throw new ArgumentNullException(nameof(actor));
 
             this.sys = sys;
             Id = parent.Actor.Id[name];
@@ -58,9 +58,9 @@ namespace LanguageExt
             this.flags = flags == ProcessFlags.Default
                 ? settings.GetProcessFlags(Id)
                 : flags;
-            actorFn = actor;
+            
             termFn = term;
-            setupFn = setup;
+            
             Parent = parent;
             Name = name;
             Strategy = strategy;
@@ -558,9 +558,8 @@ namespace LanguageExt
                                 }
                             );
                 }
-                else if (request.Message is T)
+                else if (request.Message is T msg)
                 {
-                    var msg = (T)request.Message;
                     var stateIn = GetState();
                     var stateOut = actorFn(stateIn, msg);
                     try
@@ -577,9 +576,9 @@ namespace LanguageExt
                     }
                     state = stateOut;
                 }
-                else if (request.Message is Message)
+                else if (request.Message is Message m)
                 {
-                    ProcessSystemMessage((Message)request.Message);
+                    ProcessSystemMessage(m);
                 }
                 else
                 {

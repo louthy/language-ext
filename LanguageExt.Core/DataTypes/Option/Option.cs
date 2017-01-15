@@ -8,6 +8,9 @@ using System.Collections.Generic;
 using LanguageExt.ClassInstances;
 using System.ComponentModel;
 using System.Threading.Tasks;
+#if !COREFX
+using System.Runtime.Serialization;
+#endif
 
 namespace LanguageExt
 {
@@ -32,6 +35,9 @@ namespace LanguageExt
     [Serializable]
 #endif
     public struct Option<A> :
+#if !COREFX
+        ISerializable,
+#endif
         IOptional, 
         IEquatable<Option<A>>, 
         IComparable<Option<A>>
@@ -55,11 +61,8 @@ namespace LanguageExt
         /// <summary>
         /// Takes the value-type OptionV<A>
         /// </summary>
-        internal Option(OptionV<A> value)
-        {
-            if (value == null) throw new ArgumentNullException(nameof(value));
-            this.value = value;
-        }
+        internal Option(OptionV<A> value) =>
+            this.value = value ?? throw new ArgumentNullException(nameof(value));
 
         /// <summary>
         /// Uses the EqDefault instance to do an equality check on the bound value.  
@@ -185,7 +188,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public override bool Equals(object obj) =>
-            equals<EqDefault<A>, A>(this, (ReferenceEquals(obj,null) ? None : (Option<A>)obj));
+            obj is Option<A> && equals<EqDefault<A>, A>(this, (ReferenceEquals(obj, null) ? None : (Option<A>)obj));
 
         /// <summary>
         /// Calculate the hash-code from the bound value, unless the Option is in a None
@@ -822,5 +825,31 @@ namespace LanguageExt
             var v = Value;
             return bind(v).Map(resU => project(v, resU));
         }
+
+#if !COREFX
+        /// <summary>
+        /// Serialisation support
+        /// </summary>
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("IsSome", IsSome, typeof(bool));
+            info.AddValue("Value", IsSome ? Value : default(A), typeof(A));
+        }
+
+        /// <summary>
+        /// Deserialisation constructor
+        /// </summary>
+        public Option(SerializationInfo info, StreamingContext context)
+        {
+            var isSome = (bool)info.GetValue("IsSome", typeof(bool));
+            var value = isSome
+                ? (A)info.GetValue("Value", typeof(A))
+                : default(A);
+
+            this.value = isSome
+                ? OptionV<A>.Some(value)
+                : OptionV<A>.None;
+        }
+#endif
     }
 }

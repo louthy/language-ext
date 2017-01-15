@@ -8,6 +8,9 @@ using System.Threading;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+#if !COREFX
+using System.Runtime.Serialization;
+#endif
 
 namespace LanguageExt
 {
@@ -23,7 +26,7 @@ namespace LanguageExt
     [Serializable]
 #endif
     internal class MapInternal<K, V> :
-        IEnumerable<IMapItem<K, V>>,
+        IEnumerable<MapItem<K, V>>,
         IReadOnlyDictionary<K, V>
     {
         public static readonly MapInternal<K, V> Empty = new MapInternal<K, V>(MapItem<K, V>.Empty, false);
@@ -476,7 +479,7 @@ namespace LanguageExt
         /// <param name="amount">Amount to skip</param>
         /// <returns>New tree</returns>
         [Pure]
-        public IEnumerable<IMapItem<K, V>> Skip(int amount)
+        public IEnumerable<MapItem<K, V>> Skip(int amount)
         {
             var enumer = new MapModule.MapEnumerator<K, V>(Root, Rev, amount);
             while (enumer.MoveNext())
@@ -706,7 +709,7 @@ namespace LanguageExt
         /// Map the map the a dictionary
         /// </summary>
         [Pure]
-        public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<IMapItem<K, V>, KR> keySelector, Func<IMapItem<K, V>, VR> valueSelector) =>
+        public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<MapItem<K, V>, KR> keySelector, Func<MapItem<K, V>, VR> valueSelector) =>
             AsEnumerable().ToDictionary(x => keySelector(x), x => valueSelector(x));
 
         /// <summary>
@@ -721,7 +724,7 @@ namespace LanguageExt
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
-        public IEnumerator<IMapItem<K, V>> GetEnumerator() =>
+        public IEnumerator<MapItem<K, V>> GetEnumerator() =>
             new MapModule.MapEnumerator<K, V>(Root, Rev, 0);
 
         /// <summary>
@@ -730,7 +733,7 @@ namespace LanguageExt
         IEnumerator IEnumerable.GetEnumerator() =>
             MapModule.AsEnumerable(this).GetEnumerator();
 
-        public IEnumerable<IMapItem<K, V>> AsEnumerable() =>
+        public IEnumerable<MapItem<K, V>> AsEnumerable() =>
             MapModule.AsEnumerable(this);
 
         IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
@@ -798,15 +801,19 @@ namespace LanguageExt
 #if !COREFX
     [Serializable]
 #endif
-    class MapItem<K, V> : IMapItem<K, V>
+    public class MapItem<K, V> :
+#if !COREFX
+        ISerializable,
+#endif
+        IMapItem<K, V>
     {
-        public static readonly MapItem<K, V> Empty = new MapItem<K, V>(0, 0, default(K), default(V), null, null);
+        internal static readonly MapItem<K, V> Empty = new MapItem<K, V>(0, 0, default(K), default(V), null, null);
 
-        public bool IsEmpty => Count == 0;
-        public readonly int Count;
-        public readonly byte Height;
-        public readonly MapItem<K, V> Left;
-        public readonly MapItem<K, V> Right;
+        internal bool IsEmpty => Count == 0;
+        internal readonly int Count;
+        internal readonly byte Height;
+        internal readonly MapItem<K, V> Left;
+        internal readonly MapItem<K, V> Right;
 
         /// <summary>
         /// Ctor
@@ -820,6 +827,30 @@ namespace LanguageExt
             Left = left;
             Right = right;
         }
+
+#if !COREFX
+        /// <summary>
+        /// Deserialisation constructor
+        /// </summary>
+        public MapItem(SerializationInfo info, StreamingContext context)
+        {
+            Key = (K)info.GetValue("Key", typeof(K));
+            Value = (V)info.GetValue("Value", typeof(V));
+            Count = 1;
+            Height = 1;
+            Left = Empty;
+            Right = Empty;
+        }
+
+        /// <summary>
+        /// Serialisation support
+        /// </summary>
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("Key", Key, typeof(K));
+            info.AddValue("Value", Value, typeof(V));
+        }
+#endif
 
         internal int BalanceFactor =>
             Count == 0
@@ -837,7 +868,6 @@ namespace LanguageExt
             get;
             private set;
         }
-
     }
 
     static class MapModule
@@ -1064,7 +1094,7 @@ namespace LanguageExt
             }
         }
 
-        public static IEnumerable<IMapItem<K, V>> AsEnumerable<K, V>(MapInternal<K, V> node)
+        public static IEnumerable<MapItem<K, V>> AsEnumerable<K, V>(MapInternal<K, V> node)
         {
             return node;
         }
@@ -1197,7 +1227,7 @@ namespace LanguageExt
                 ? node
                 : RotLeft(Make(node.Key, node.Value, node.Left, RotRight(node.Right)));
 
-        public class MapEnumerator<K, V> : IEnumerator<IMapItem<K, V>>
+        public class MapEnumerator<K, V> : IEnumerator<MapItem<K, V>>
         {
             static ObjectPool<Stack<MapItem<K, V>>> pool = new ObjectPool<Stack<MapItem<K, V>>>(32, () => new Stack<MapItem<K, V>>(32));
 
@@ -1222,7 +1252,7 @@ namespace LanguageExt
                 set;
             }
 
-            public IMapItem<K, V> Current => NodeCurrent;
+            public MapItem<K, V> Current => NodeCurrent;
             object IEnumerator.Current => NodeCurrent;
 
             public void Dispose()

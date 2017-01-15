@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("LanguageExt.ProcessJS.Tests")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,9 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-#if !CORE_FX
-[assembly: Guid("37539a2d-b235-47d1-bc06-89c2e068c9f8")]
-#endif
+[assembly: Guid("f55248fd-6159-4ab8-aece-a672de54e70b")]
 
 // Version information for an assembly consists of the following four values:
 //

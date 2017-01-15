@@ -1,9 +1,5 @@
 ﻿{
-  "dependencies": {
-    "Newtonsoft.Json": "9.0.1",
-    "StackExchange.Redis": "1.1.608",
-    "System.Reactive": "3.0.0"
-  },
+  "dependencies": {},
   "frameworks": {
     "net45": {
       "frameworkAssemblies": {}

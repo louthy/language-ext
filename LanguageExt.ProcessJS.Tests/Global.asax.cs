@@ -14,13 +14,35 @@ namespace LanguageExt.ProcessJS.Tests
     {
         protected void Application_Start(object sender, EventArgs e)
         {
-            ProcessLog.startup(None);
+            RedisCluster.register();
+        }
 
-            // Ping-pong server process
-            spawn<string>("pingpong", PingPong.Inbox);
+        static bool started = false;
+        static object sync = new object();
 
-            // Chat server process
-            spawn<string>("chat", msg => publish(msg));
+        protected void Application_BeginRequest(Object sender, EventArgs e)
+        {
+            if (!started)
+            {
+                lock (sync)
+                {
+                    if (!started)
+                    {
+                        ProcessConfig.initialiseWeb(() =>
+                        {
+                            started = true;
+
+                            ProcessLog.startup(None);
+
+                            // Ping-pong server process
+                            spawn<string>("pingpong", PingPong.Inbox);
+
+                            // Chat server process
+                            spawn<string>("chat", msg => publish(msg));
+                        });
+                    }
+                }
+            }
         }
     }
 

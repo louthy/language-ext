@@ -62,7 +62,7 @@ namespace LanguageExt
 
         [Pure]
         public override int GetHashCode() =>
-            Value == null ? 0 : Value.GetHashCode();
+            Value?.GetHashCode() ?? 0;
 
         [Pure]
         public static bool operator ==(NewType<NEWTYPE, A, PRED> lhs, NewType<NEWTYPE, A, PRED> rhs) =>
