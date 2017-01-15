@@ -133,7 +133,7 @@ namespace LanguageExt
 
         [Pure]
         public override int GetHashCode() =>
-            Value == null ? 0 : Value.GetHashCode();
+            Value?.GetHashCode() ?? 0;
 
         [Pure]
         public static NUMTYPE operator -(NumType<NUMTYPE, NUM, A, PRED> x) =>

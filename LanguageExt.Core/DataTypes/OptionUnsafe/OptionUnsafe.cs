@@ -55,11 +55,8 @@ namespace LanguageExt
         /// <summary>
         /// Takes the value-type OptionV<A>
         /// </summary>
-        internal OptionUnsafe(OptionV<A> value)
-        {
-            if (value == null) throw new ArgumentNullException(nameof(value));
-            this.value = value;
-        }
+        internal OptionUnsafe(OptionV<A> value) =>
+            this.value = value ?? throw new ArgumentNullException(nameof(value));
 
         /// <summary>
         /// Uses the EqDefault instance to do an equality check on the bound value.  

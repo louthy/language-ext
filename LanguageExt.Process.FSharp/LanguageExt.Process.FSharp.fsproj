@@ -10,7 +10,7 @@
     <RootNamespace>LanguageExt.Process.FSharp</RootNamespace>
     <AssemblyName>LanguageExt.Process.FSharp</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
+    <TargetFSharpCoreVersion>4.4.1.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Name>LanguageExt.Process.FSharp</Name>
     <TargetFrameworkProfile />
@@ -92,6 +92,9 @@
       <Project>{d1ab41c6-8b45-4e01-8400-97d2779034df}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <Reference Include="System.ValueTuple">
+      <HintPath>..\lib\System.ValueTuple.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

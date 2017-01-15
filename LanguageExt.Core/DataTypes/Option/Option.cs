@@ -57,8 +57,7 @@ namespace LanguageExt
         /// </summary>
         internal Option(OptionV<A> value)
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
-            this.value = value;
+            this.value = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>

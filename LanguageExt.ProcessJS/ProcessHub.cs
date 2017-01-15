@@ -32,7 +32,7 @@ namespace LanguageExt.ProcessJS
             {
                 Set<string> set = Set.createRange(processes.Map(x => x.Path).Distinct());
                 processWhitelist = processWhitelist == null
-                    ? processWhitelist = set
+                    ? set
                     : processWhitelist.Union(set);
 
                 processBlacklist = null;
@@ -64,7 +64,7 @@ namespace LanguageExt.ProcessJS
             {
                 Set<string> set = Set.createRange(processes.Map(x => x.Path).Distinct());
                 processBlacklist = processBlacklist == null
-                    ? processBlacklist = set
+                    ? set
                     : processBlacklist.Union(set);
 
                 processWhitelist = null;
@@ -195,11 +195,7 @@ namespace LanguageExt.ProcessJS
                 {
                     if (processHub.IsValid) return processHub;
                     processHub = spawn<OutboundRelayMsg>("process-hub-js", msg =>
-                    {
-                        var conns = new List<string>();
-                        conns.Add(msg.ConnectionId);
-                        GlobalHost.ConnectionManager.GetHubContext<ProcessHub>().Clients.Clients(conns).onMessage(msg.Message);
-                    });
+                        GlobalHost.ConnectionManager.GetHubContext<ProcessHub>().Clients.Client(msg.ConnectionId).onMessage(msg.Message));
                     return processHub;
                 }
             }

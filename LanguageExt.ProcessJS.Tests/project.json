@@ -1,7 +1,11 @@
-{
+﻿{
   "version": "1.9.4-*",
-  "authors": [ "Paul Louth" ],
-  "owners": ["paullouth"],
+  "authors": [
+    "Paul Louth"
+  ],
+  "owners": [
+    "paullouth"
+  ],
   "title": "LanguageExt.ProcessJS.Tests",
   "description": "Test app for LanguageExt.ProcessJS",
   "projectUrl": "https://github.com/louthy/language-ext",
@@ -10,44 +14,30 @@
   "configurations": {
     "Debug": {
       "compilationOptions": {
-        "define": [ "DEBUG", "TRACE" ]
+        "define": [
+          "DEBUG",
+          "TRACE"
+        ]
       }
     },
     "Release": {
       "compilationOptions": {
-        "define": [ "RELEASE", "TRACE" ],
+        "define": [
+          "RELEASE",
+          "TRACE"
+        ],
         "optimize": true
       }
     }
   },
-  "dependencies": {
-    "LanguageExt.Core": {
-      "version": "1.9.4",
-      "target": "project"
-    },
-    "LanguageExt.Process": {
-      "version": "1.9.4",
-      "target": "project"
-    },
-    "LanguageExt.ProcessJS": {
-      "version": "1.9.4",
-      "target": "project"
-    },
-    "Newtonsoft.Json": "9.0.1",
-    "System.Reactive.Core": "3.1.1",
-    "System.Reactive.Interfaces": "3.1.1",
-    "System.Reactive.PlatformServices": "3.1.1",
-    "System.Reactive.Linq": "3.1.1",
-    "System.ValueTuple": "4.3.0",
-    "FSharp.Core": "4.0.0.1"
-  },
+  "dependencies": {},
   "frameworks": {
     "net46": {
       "dependencies": {
         "FSharp.Core": "4.0.0.1",
         "Microsoft.Owin": "3.0.1",
         "Microsoft.Owin.Security": "3.0.1",
-        "Microsoft.AspNet.SignalR": "2.2.0"     
+        "Microsoft.AspNet.SignalR": "2.2.0"
       }
     }
   },
