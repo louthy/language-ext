@@ -455,9 +455,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static IEnumerable<T> seq<T>(IEnumerable<T> value) =>
-            value == null
-                ? new T[0]
-                : value.AsEnumerable();
+            value?.AsEnumerable() ?? new T[0];
 
         /// <summary>
         /// Convert an option to an enumerable

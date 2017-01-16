@@ -17,8 +17,6 @@ namespace LanguageExt.ClassInstances
         /// <returns>True if x and y are equal</returns>
         public bool Equals(Set<A> x, Set<A> y)
         {
-            if (x == null) return y == null;
-            if (y == null) return false;
             if (ReferenceEquals(x, y)) return true;
             if (x.Count != y.Count) return false;
 

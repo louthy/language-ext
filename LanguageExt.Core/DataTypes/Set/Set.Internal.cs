@@ -19,22 +19,17 @@ namespace LanguageExt
 #if !COREFX
     [Serializable]
 #endif
-    public class Set<A> :
-        IEnumerable<A>, 
-        IEnumerable, 
-        IReadOnlyCollection<A>, 
-        ICollection<A>, 
-        ISet<A>, 
-        ICollection, 
-        IEquatable<Set<A>>
+    internal class SetInternal<A> :
+        IEquatable<SetInternal<A>>
     {
-        public static readonly Set<A> Empty = new Set<A>();
+        public static readonly SetInternal<A> Empty = new SetInternal<A>();
         readonly SetItem<A> set;
+        int hashCode;
 
         /// <summary>
         /// Default ctor
         /// </summary>
-        internal Set()
+        internal SetInternal()
         {
             set = SetItem<A>.Empty;
         }
@@ -43,7 +38,7 @@ namespace LanguageExt
         /// Ctor that takes a root element
         /// </summary>
         /// <param name="root"></param>
-        internal Set(SetItem<A> root)
+        internal SetInternal(SetItem<A> root)
         {
             set = root;
         }
@@ -51,15 +46,30 @@ namespace LanguageExt
         /// <summary>
         /// Ctor from an enumerable 
         /// </summary>
-        public Set(IEnumerable<A> items) : this(items, true)
+        public SetInternal(IEnumerable<A> items) : this(items, true)
         {
+        }
+
+        public override int GetHashCode()
+        {
+            if (hashCode != 0) return hashCode;
+            return hashCode = hash(this.AsEnumerable());
+        }
+
+        public IEnumerable<A> AsEnumerable()
+        {
+            var iter = GetEnumerator();
+            while(iter.MoveNext())
+            {
+                yield return iter.Current;
+            }
         }
 
         /// <summary>
         /// Ctor that takes an initial (distinct) set of items
         /// </summary>
         /// <param name="items"></param>
-        internal Set(IEnumerable<A> items, bool checkUniqueness)
+        internal SetInternal(IEnumerable<A> items, bool checkUniqueness)
         {
             set = SetItem<A>.Empty;
 
@@ -83,13 +93,8 @@ namespace LanguageExt
         /// Number of items in the set
         /// </summary>
         [Pure]
-        public int Count
-        {
-            get
-            {
-                return set.Count;
-            }
-        }
+        public int Count =>
+            set.Count;
 
         /// <summary>
         /// Add an item to the set
@@ -97,8 +102,8 @@ namespace LanguageExt
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item added</returns>
         [Pure]
-        public Set<A> Add(A value) =>
-            new Set<A>(SetModule.Add(set,value,Comparer<A>.Default));
+        public SetInternal<A> Add(A value) =>
+            new SetInternal<A>(SetModule.Add(set,value,Comparer<A>.Default));
 
         /// <summary>
         /// Attempt to add an item to the set.  If an item already
@@ -107,7 +112,7 @@ namespace LanguageExt
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item maybe added</returns>
         [Pure]
-        public Set<A> TryAdd(A value) =>
+        public SetInternal<A> TryAdd(A value) =>
             Contains(value)
                 ? this
                 : Add(value);
@@ -119,8 +124,8 @@ namespace LanguageExt
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item maybe added</returns>
         [Pure]
-        public Set<A> AddOrUpdate(A value) =>
-            new Set<A>(SetModule.AddOrUpdate(set, value, Comparer<A>.Default));
+        public SetInternal<A> AddOrUpdate(A value) =>
+            new SetInternal<A>(SetModule.AddOrUpdate(set, value, Comparer<A>.Default));
 
         /// <summary>
         /// Returns true if both sets contain the same elements
@@ -150,14 +155,15 @@ namespace LanguageExt
         /// Returns the elements that are in both this and other
         /// </summary>
         [Pure]
-        public Set<A> Intersect(IEnumerable<A> other)
+        public SetInternal<A> Intersect(IEnumerable<A> other)
         {
             var res = new List<A>();
             foreach (var item in other)
             {
-                if (Contains(item)) res.Add(item);
+                if (Contains(item))
+                    res.Add(item);
             }
-            return new Set<A>(res);
+            return new SetInternal<A>(res);
         }
 
         /// <summary>
@@ -165,7 +171,7 @@ namespace LanguageExt
         /// other will be returned.
         /// </summary>
         [Pure]
-        public Set<A> Except(IEnumerable<A> other)
+        public SetInternal<A> Except(IEnumerable<A> other)
         {
             var self = this;
             foreach (var item in other)
@@ -183,9 +189,9 @@ namespace LanguageExt
         /// If an item is in both, it is dropped.
         /// </summary>
         [Pure]
-        public Set<A> SymmetricExcept(IEnumerable<A> other)
+        public SetInternal<A> SymmetricExcept(IEnumerable<A> other)
         {
-            var rhs = new Set<A>(other);
+            var rhs = new SetInternal<A>(other);
             var res = new List<A>();
 
             foreach (var item in this)
@@ -204,7 +210,7 @@ namespace LanguageExt
                 }
             }
 
-            return new Set<A>(res);
+            return new SetInternal<A>(res);
         }
 
         /// <summary>
@@ -214,7 +220,7 @@ namespace LanguageExt
         /// <param name="other">Other set to union with</param>
         /// <returns>A set which contains all items from both sets</returns>
         [Pure]
-        public Set<A> Union(IEnumerable<A> other)
+        public SetInternal<A> Union(IEnumerable<A> other)
         {
             var self = this;
             foreach (var item in other)
@@ -229,8 +235,8 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An empty set</returns>
         [Pure]
-        public Set<A> Clear() =>
-            new Set<A>();
+        public SetInternal<A> Clear() =>
+            Empty;
 
         /// <summary>
         /// Get enumerator
@@ -241,21 +247,13 @@ namespace LanguageExt
             new SetModule.SetEnumerator<A>(set,false,0);
 
         /// <summary>
-        /// Get enumerator
-        /// </summary>
-        /// <returns>IEnumerator</returns>
-        [Pure]
-        IEnumerator IEnumerable.GetEnumerator() =>
-            new SetModule.SetEnumerator<A>(set, false, 0);
-
-        /// <summary>
         /// Removes an item from the set (if it exists)
         /// </summary>
         /// <param name="value">Value to check</param>
         /// <returns>New set with item removed</returns>
         [Pure]
-        public Set<A> Remove(A value) =>
-            new Set<A>(SetModule.Remove(set, value, Comparer<A>.Default));
+        public SetInternal<A> Remove(A value) =>
+            new SetInternal<A>(SetModule.Remove(set, value, Comparer<A>.Default));
 
         /// <summary>
         /// Applies a function 'folder' to each element of the collection, threading an accumulator 
@@ -295,8 +293,8 @@ namespace LanguageExt
         /// <param name="mapper">Mapping function</param>
         /// <returns>Mapped Set</returns>
         [Pure]
-        public Set<U> Map<U>(Func<A, U> map) =>
-            new Set<U>(this.AsEnumerable().Select(map), true);
+        public SetInternal<U> Map<U>(Func<A, U> map) =>
+            new SetInternal<U>(this.AsEnumerable().Select(map), true);
 
         /// <summary>
         /// Filters items from the set using the predicate.  If the predicate
@@ -306,8 +304,8 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>Filtered enumerable</returns>
         [Pure]
-        public Set<A> Filter(Func<A, bool> pred) =>
-            new Set<A>(SetModule.Filter(set, pred));
+        public SetInternal<A> Filter(Func<A, bool> pred) =>
+            new SetInternal<A>(SetModule.Filter(set, pred));
 
         /// <summary>
         /// Check the existence of an item in the set using a 
@@ -337,8 +335,8 @@ namespace LanguageExt
         [Pure]
         public bool SetEquals(IEnumerable<A> other)
         {
-            var rhs = new Set<A>(other);
-            if (rhs.Count() != Count) return false;
+            var rhs = new SetInternal<A>(other);
+            if (rhs.Count != Count) return false;
             foreach (var item in rhs)
             {
                 if (!Contains(item)) return false;
@@ -561,7 +559,7 @@ namespace LanguageExt
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Unioned set</returns>
         [Pure]
-        public static Set<A> operator +(Set<A> lhs, Set<A> rhs) =>
+        public static SetInternal<A> operator +(SetInternal<A> lhs, SetInternal<A> rhs) =>
             lhs.Append(rhs);
 
         /// <summary>
@@ -570,8 +568,8 @@ namespace LanguageExt
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Unioned set</returns>
         [Pure]
-        public Set<A> Append(Set<A> rhs) =>
-            Union(rhs);
+        public SetInternal<A> Append(SetInternal<A> rhs) =>
+            Union(rhs.AsEnumerable());
 
         /// <summary>
         /// Subtract operator - performs a subtract of the two sets
@@ -580,7 +578,7 @@ namespace LanguageExt
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Subtractd set</returns>
         [Pure]
-        public static Set<A> operator -(Set<A> lhs, Set<A> rhs) =>
+        public static SetInternal<A> operator -(SetInternal<A> lhs, SetInternal<A> rhs) =>
             lhs.Subtract(rhs);
 
         /// <summary>
@@ -589,7 +587,7 @@ namespace LanguageExt
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Subtractd set</returns>
         [Pure]
-        public Set<A> Subtract(Set<A> rhs)
+        public SetInternal<A> Subtract(SetInternal<A> rhs)
         {
             var self = this;
             foreach (var item in rhs)
@@ -605,64 +603,8 @@ namespace LanguageExt
         /// <param name="other">Other set to test</param>
         /// <returns>True if sets are equal</returns>
         [Pure]
-        public bool Equals(Set<A> other) =>
-            SetEquals(other);
-
-        [Obsolete("Remove can't be implemented because this type is immutable")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        bool ICollection<A>.Remove(A item)
-        {
-            throw new NotSupportedException();
-        }
-
-        [Obsolete("Add can't be implemented because this type is immutable")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        bool ISet<A>.Add(A item)
-        {
-            throw new NotSupportedException();
-        }
-
-        [Obsolete("UnionWith can't be implemented because this type is immutable")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public void UnionWith(IEnumerable<A> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        [Obsolete("IntersectWith can't be implemented because this type is immutable")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public void IntersectWith(IEnumerable<A> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        [Obsolete("ExceptWith can't be implemented because this type is immutable")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public void ExceptWith(IEnumerable<A> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        [Obsolete("SymmetricExceptWith can't be implemented because this type is immutable")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public void SymmetricExceptWith(IEnumerable<A> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        [Obsolete("ICollection<T>.Add can't be implemented because this type is immutable")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        void ICollection<A>.Add(A item)
-        {
-            throw new NotSupportedException();
-        }
-
-        [Obsolete("ICollection<T>.Clear can't be implemented because this type is immutable")]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        void ICollection<A>.Clear()
-        {
-            throw new NotSupportedException();
-        }
+        public bool Equals(SetInternal<A> other) =>
+            SetEquals(other.AsEnumerable());
     }
 
     internal class SetItem<K>

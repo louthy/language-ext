@@ -79,6 +79,7 @@ namespace LanguageExtTests
             var json = JsonConvert.SerializeObject(set);
 
             set = JsonConvert.DeserializeObject<Set<ProcessName>>(json);
+            var lst = JsonConvert.DeserializeObject<Lst<ProcessName>>(json);
 
             Assert.True(set.Count == 5);
             Assert.True(set.Contains("test1"));

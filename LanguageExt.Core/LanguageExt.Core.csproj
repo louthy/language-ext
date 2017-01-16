@@ -93,6 +93,7 @@
     <Compile Include="DataTypes\Either\Either.Extensions.cs" />
     <Compile Include="DataTypes\NewType\NewType.Predicate.cs" />
     <Compile Include="DataTypes\NumType\NumType.cs" />
+    <Compile Include="DataTypes\Set\Set.Internal.cs" />
     <Compile Include="DataTypes\ValueTuple\Tuple2\ValueTuple2.Prelude.cs" />
     <Compile Include="DataTypes\ValueTuple\Tuple2\ValueTuple2.Extensions.cs" />
     <Compile Include="HKT.cs">
@@ -257,8 +258,8 @@
     <Compile Include="Queue.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="Reader.cs" />
-    <Compile Include="DataTypes\Set\SetT.cs" />
     <Compile Include="DataTypes\Set\Set.cs" />
+    <Compile Include="DataTypes\Set\Set.Module.cs" />
     <Compile Include="Some.cs" />
     <Compile Include="Prelude.cs" />
     <Compile Include="DataTypes\List\Lst.Module.cs" />
