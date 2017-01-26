@@ -43,6 +43,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CompositionTests.cs" />
+    <Compile Include="HashSetTests.cs" />
     <Compile Include="HashMapTests.cs" />
     <Compile Include="NewTypeTests.cs" />
     <Compile Include="TaskTests.cs" />

@@ -58,6 +58,8 @@ namespace LanguageExt
                     set = set.Add(item);
                 }
             }
+            hashTable = set.hashTable;
+            count = set.count;
         }
         
         [Pure]
