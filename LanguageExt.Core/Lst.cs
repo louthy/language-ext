@@ -492,6 +492,14 @@ namespace LanguageExt
             get;
             private set;
         }
+
+        public bool IsBalanced => 
+            (uint)(BalanceFactor + 1) <= 2;
+
+        public override string ToString() =>
+            IsEmpty
+                ? "(empty)"
+                : Key.ToString();
     }
 
     static class ListModule
@@ -622,19 +630,21 @@ namespace LanguageExt
                 return node;
             }
 
+            var result = node;
+
             if (index == node.Left.Count)
             {
                 if (node.Right.IsEmpty && node.Left.IsEmpty)
                 {
-                    return ListItem<T>.Empty;
+                    result = ListItem<T>.Empty;
                 }
                 else if (node.Right.IsEmpty && !node.Left.IsEmpty)
                 {
-                    return Balance(node.Left);
+                    result = node.Left;
                 }
                 else if (!node.Right.IsEmpty && node.Left.IsEmpty)
                 {
-                    return Balance(node.Right);
+                    result = Balance(node.Right);
                 }
                 else
                 {
@@ -645,19 +655,20 @@ namespace LanguageExt
                     }
 
                     var right = Remove(node.Right, 0);
-                    return Balance(Make(node.Key, node.Left, right));
+                    result = Balance(Make(next.Key, node.Left, right));
                 }
             }
             else if (index < node.Left.Count)
             {
                 var left = Remove(node.Left, index);
-                return Balance(Make(node.Key,left,node.Right));
+                result = Make(node.Key,left,node.Right);
             }
             else
             {
                 var right = Remove(node.Right, index - node.Left.Count - 1);
-                return Balance(Make(node.Key,node.Left, right));
+                result = Make(node.Key,node.Left, right);
             }
+            return result.IsEmpty || result.IsBalanced ? result : Balance(result);
         }
 
         public static int Find<T>(ListItem<T> node, T key, int index, int count, IComparer<T> comparer)

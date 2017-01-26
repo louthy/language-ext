@@ -284,5 +284,32 @@ namespace LanguageExtTests
             Assert.True(dlist[0].Item1 == 1 && dlist[0].Item2 == 1);
             Assert.True(dlist[1].Item1 == 9 && dlist[1].Item2 == 9);
         }
+
+        [Fact]
+        public void Issue180Tests1()
+        {
+            var x = List("Chorizo", "Avocado", "Feta", "Banana", "Pineapple", "Bacon");
+            var y = x.RemoveAt(0);
+            var z = List("Avocado", "Feta", "Banana", "Pineapple", "Bacon");
+            Assert.True(y == z);
+        }
+
+        [Fact]
+        public void Issue180Tests2()
+        {
+            var x = List("Chorizo", "Avocado", "Feta", "Banana", "Pineapple", "Bacon");
+            var y = x.RemoveAt(1);
+            var z = List("Chorizo", "Feta", "Banana", "Pineapple", "Bacon");
+            Assert.True(y == z);
+        }
+
+        [Fact]
+        public void Issue180Tests3()
+        {
+            var x = List("Chorizo", "Avocado", "Feta", "Banana", "Pineapple", "Bacon");
+            var y = x.RemoveAt(3);
+            var z = List("Chorizo", "Avocado", "Feta", "Pineapple", "Bacon");
+            Assert.True(y == z);
+        }
     }
 }
