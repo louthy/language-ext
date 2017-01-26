@@ -234,5 +234,33 @@ namespace LanguageExtTests
             Assert.True(rev.LastIndexOf(1) == 4, "Should have been 4, actually is: " + rev.LastIndexOf(1));
             Assert.True(rev.LastIndexOf(2) == 2, "Should have been 2, actually is: " + rev.LastIndexOf(5));
         }
+
+
+        [Fact]
+        public void Issue180Tests1()
+        {
+            var x = List("Chorizo", "Avocado", "Feta", "Banana", "Pineapple", "Bacon");
+            var y = x.RemoveAt(0);
+            var z = List("Avocado", "Feta", "Banana", "Pineapple", "Bacon");
+            Assert.True(y == z);
+        }
+
+        [Fact]
+        public void Issue180Tests2()
+        {
+            var x = List("Chorizo", "Avocado", "Feta", "Banana", "Pineapple", "Bacon");
+            var y = x.RemoveAt(1);
+            var z = List("Chorizo", "Feta", "Banana", "Pineapple", "Bacon");
+            Assert.True(y == z);
+        }
+
+        [Fact]
+        public void Issue180Tests3()
+        {
+            var x = List("Chorizo", "Avocado", "Feta", "Banana", "Pineapple", "Bacon");
+            var y = x.RemoveAt(3);
+            var z = List("Chorizo", "Avocado", "Feta", "Pineapple", "Bacon");
+            Assert.True(y == z);
+        }
     }
 }
