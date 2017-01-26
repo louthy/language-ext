@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0-*",
+    "buildOptions": {
+        "buildOptions": { "define": [ "COREFX" ] },
+        "emitEntryPoint": true
+    },
+
+  "dependencies": {
+    "LanguageExt.Core": "1.9.4",
+    "LanguageExt.Parsec": "1.9.4",
+    "LanguageExt.Process": "1.9.4",
+    "LanguageExt.Process.Redis": "1.9.4",
+    "Microsoft.NETCore.App": {
+        "type": "platform",
+        "version": "1.0.0"
+    }
+  },
+
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": "dnxcore50"
+    }
+  }
+}

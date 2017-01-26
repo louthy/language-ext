@@ -235,32 +235,29 @@ namespace LanguageExtTests
             Assert.True(rev.LastIndexOf(2) == 2, "Should have been 2, actually is: " + rev.LastIndexOf(5));
         }
 
-
         [Fact]
-        public void Issue180Tests1()
+        public void OpEqualTest()
         {
-            var x = List("Chorizo", "Avocado", "Feta", "Banana", "Pineapple", "Bacon");
-            var y = x.RemoveAt(0);
-            var z = List("Avocado", "Feta", "Banana", "Pineapple", "Bacon");
-            Assert.True(y == z);
-        }
+            var goodOnes = List(
+                Tuple(List(1, 2, 3), List(1, 2, 3)),
+                Tuple(Lst<int>.Empty, Lst<int>.Empty)
+            );
+            var badOnes = List(
+                Tuple(List(1, 2, 3), List(1, 2, 4)),
+                Tuple(List(1, 2, 3), Lst<int>.Empty)
+            );
 
-        [Fact]
-        public void Issue180Tests2()
-        {
-            var x = List("Chorizo", "Avocado", "Feta", "Banana", "Pineapple", "Bacon");
-            var y = x.RemoveAt(1);
-            var z = List("Chorizo", "Feta", "Banana", "Pineapple", "Bacon");
-            Assert.True(y == z);
-        }
+            goodOnes.Iter(t => t.Iter((fst, snd) =>
+            {
+                Assert.True(fst == snd, $"'{fst}' == '{snd}'");
+                Assert.False(fst != snd, $"'{fst}' != '{snd}'");
+            }));
 
-        [Fact]
-        public void Issue180Tests3()
-        {
-            var x = List("Chorizo", "Avocado", "Feta", "Banana", "Pineapple", "Bacon");
-            var y = x.RemoveAt(3);
-            var z = List("Chorizo", "Avocado", "Feta", "Pineapple", "Bacon");
-            Assert.True(y == z);
+            badOnes.Iter(t => t.Iter((fst, snd) =>
+            {
+                Assert.True(fst != snd, $"'{fst}' != '{snd}'");
+                Assert.False(fst == snd, $"'{fst}' == '{snd}'");
+            }));
         }
     }
 }

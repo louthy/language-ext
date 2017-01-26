@@ -68,7 +68,7 @@ namespace LanguageExtTests
             var comp = apply(tryadd, fail, four);
 
             comp.Match(
-                Some: x => Assert.True(false),
+                Some: x  => Assert.True(false),
                 None: () => Assert.True(false),
                 Fail: ex => Assert.True(ex.Message == "fail")
                 );

@@ -20,6 +20,29 @@ namespace LanguageExtTests
 {
     public class ParsecTests
     {
+
+        [Fact]
+        public void MultiLineNestedComments()
+        {
+            var jstp = makeTokenParser(Language.JavaStyle.With(NestedComments: true));
+            var ws = jstp.WhiteSpace;
+            var test3 = parse(ws, @"
+/*
+*/
+");
+        }
+
+        [Fact]
+        public void MultiLineComments()
+        {
+            var jstp = makeTokenParser(Language.JavaStyle.With(NestedComments: false));
+            var ws = jstp.WhiteSpace;
+            var test3 = parse(ws, @"
+/*
+*/
+");
+        }
+
         [Fact]
         public void ResultComb()
         {

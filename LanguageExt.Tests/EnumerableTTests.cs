@@ -1,4 +1,6 @@
-﻿using LanguageExt;
+﻿using System.Collections;
+using System.Linq;
+using LanguageExt;
 using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using Xunit;
@@ -26,6 +28,27 @@ namespace LanguageExtTests
 
             Assert.True(res == 0, "Fold results, expected 0 got " + res);
             Assert.True(lst.CountT() == 0, "Empty count, expected 0 got " + res);
+        }
+
+        [Fact]
+        public void ChooseTest()
+        {
+            var input = List(
+                Some(1),
+                Some(2),
+                Some(3),
+                None,
+                Some(4),
+                None,
+                Some(5));
+
+            var actual = input.Choose(x => x).ToList();
+
+            var expected = List(1, 2, 3, 4, 5);
+
+            var toString = fun((IEnumerable items) => string.Join(", ", items));
+
+            Assert.True(Enumerable.SequenceEqual(actual, expected), $"Expected {toString(expected)} but was {toString(actual)}");
         }
 
         [Fact]

@@ -57,7 +57,7 @@ namespace LanguageExt.Parsec
                 choice(
                     from x in attempt(str(def.CommentEnd))
                     select unit,
-                    from x in multiLineComment
+                    from x in lazyp(() => multiLineComment)
                     from y in inCommentMulti
                     select unit,
                     from x in skipMany1(noneOf(startEnd))

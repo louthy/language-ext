@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using LanguageExt.ClassInstances;
+using System.Collections.Generic;
 using System.Linq;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
@@ -223,8 +224,8 @@ namespace LanguageExt
                 var nodeMap = Nodes(leaf);
 
                 var nodes = fwd
-                    ? nodeMap.Values.Append(nodeMap.Values)
-                    : nodeMap.Values.Append(nodeMap.Values).Reverse(); //< TODO: Inefficient
+                    ? MSeq<ClusterNode>.Inst.Append(nodeMap.Values, nodeMap.Values)
+                    : MSeq<ClusterNode>.Inst.Append(nodeMap.Values, nodeMap.Values).Reverse(); //< TODO: Inefficient
 
                 foreach (var node in nodes)
                 {

@@ -1,18 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Diagnostics;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters;
+using Newtonsoft.Json;
 using LanguageExt;
 using LanguageExt.Trans;
+using LanguageExt.Parsec;
+using LanguageExt.ClassInstances;
 using static LanguageExt.List;
 using static LanguageExt.Prelude;
 using static LanguageExt.Process;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Runtime.Serialization.Formatters;
-using LanguageExt.Parsec;
+using static LanguageExt.TypeClass;
 using static LanguageExt.Parsec.Char;
 using static LanguageExt.Parsec.Prim;
 using static LanguageExt.Parsec.Token;
@@ -25,6 +27,26 @@ using static LanguageExt.Parsec.Token;
 
 namespace TestBed
 {
+    public class Metres : NewType<Metres, double> { public Metres(double x) : base(x) { } }
+    public class Hours  : NewType<Hours, int>     { public Hours(int x)     : base(x) { } }
+    public class Days   : NewType<Hours, int>     { public Days(int x)      : base(x) { } }
+
+    public static class Testing
+    {
+        public static void Test()
+        {
+            var ms = new Metres(100);
+            ms = ms.Select(x => x * 2);
+
+            var hs = new Hours(24);
+
+            var a = new Hours(2);
+            var b = new Hours(2);
+
+            var c = append<Hours, TInt, int>(a, b);
+        }
+    }
+
     class Tests
     {
         public class Version : IComparable<Version>, IEquatable<Version>
@@ -169,7 +191,7 @@ namespace TestBed
                 MissingMemberHandling = MissingMemberHandling.Ignore
             };
 
-        class Hours : NewType<int> { public Hours(int value) : base(value) { } }
+        class Hours : NewType<Hours, int> { public Hours(int value) : base(value) { } }
 
         internal static void SerialiseDeserialiseCoreTypes()
         {

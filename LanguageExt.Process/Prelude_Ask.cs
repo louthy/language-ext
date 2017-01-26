@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -23,6 +24,18 @@ namespace LanguageExt
     /// </summary>
     public static partial class Process
     {
+        /// <summary>
+        /// Asynchronous ask - must be used outside of a Process
+        /// </summary>
+        /// <typeparam name="R"></typeparam>
+        /// <param name="pid">Process to ask</param>
+        /// <param name="message">Message to send</param>
+        /// <returns>A promise to return a response to the request</returns>
+        public static Task<R> askAsync<R>(ProcessId pid, object message) =>
+            InMessageLoop
+                ? raiseDontUseInMessageLoopException<Task<R>>(nameof(observeState))
+                : Task.Run(() => ask<R>(pid, message));
+
         /// <summary>
         /// Ask a process for a reply
         /// </summary>

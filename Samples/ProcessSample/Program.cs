@@ -4,6 +4,7 @@ using static LanguageExt.Prelude;
 using static LanguageExt.Process;
 using static LanguageExt.ProcessConfig;
 using LanguageExt.Config;
+using System.Threading;
 
 namespace ProcessSample
 {
@@ -20,7 +21,7 @@ namespace ProcessSample
             var ping = ProcessId.None;
             var pong = ProcessId.None;
 
-            Process.PreShutdown.Subscribe(_ =>
+            PreShutdown.Subscribe(_ =>
             {
                 kill(ping);
                 kill(pong);
@@ -54,6 +55,8 @@ namespace ProcessSample
 
                 tell(ping, $"pong {name}-{ind}", TimeSpan.FromMilliseconds(100));
             });
+
+            Thread.Sleep(3000); // TODO: Look into the race condition on startup that makes this necessary
                         
             // Trigger
             tell(ping, "start");

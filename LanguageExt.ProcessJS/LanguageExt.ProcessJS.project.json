@@ -1,10 +1,5 @@
 ﻿{
-  "dependencies": {
-    "FSharp.Core": "4.0.0.1",
-    "Microsoft.AspNet.SignalR.Core": "2.2.0",
-    "Newtonsoft.Json": "7.0.1",
-    "System.Reactive": "3.0.0"
-  },
+  "dependencies": {},
   "frameworks": {
     "net45": {
       "frameworkAssemblies": {}

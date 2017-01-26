@@ -49,6 +49,7 @@ namespace LanguageExt
                 return initialiseFileSystem(hostName(HttpContext.Current), setup, strategyFuncs);
             }
         }
+#endif
 
         /// <summary>
         /// Process system configuration initialisation
@@ -122,7 +123,11 @@ namespace LanguageExt
         {
             lock (sync)
             {
+#if COREFX
+                var appPath = "";
+#else
                 var appPath = AppDomain.CurrentDomain.BaseDirectory;
+#endif
                 var clusterPath = Path.Combine(appPath, "cluster.conf");
                 var processPath = Path.Combine(appPath, "process.conf");
 
@@ -138,7 +143,6 @@ namespace LanguageExt
                 return initialise(clusterText + processText, nodeName, setup, strategyFuncs);
             }
         }
-#endif
 
         /// <summary>
         /// Process system initialisation
@@ -218,7 +222,7 @@ namespace LanguageExt
                 nodeName.Map(_ => configs.Filter(c => c.NodeName == nodeName).Iter(StartFromConfig))
                         .IfNone(() => configs.Filter(c => c.NodeName == "root").Iter(StartFromConfig));
 
-                if(setup != null) setup();
+                setup?.Invoke();
                 return unit;
             }
         }

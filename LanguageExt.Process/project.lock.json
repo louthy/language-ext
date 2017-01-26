@@ -68,6 +68,20 @@
           "lib/net45/System.Reactive.PlatformServices.dll": {}
         }
       },
+      "System.Runtime/4.1.0": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "System",
+          "System.ComponentModel.Composition",
+          "System.Core"
+        ],
+        "compile": {
+          "ref/net45/_._": {}
+        },
+        "runtime": {
+          "lib/net45/_._": {}
+        }
+      },
       "System.ValueTuple/4.0.0-rc3-24212-01": {
         "type": "package",
         "compile": {
@@ -77,7 +91,7 @@
           "lib/netstandard1.1/System.ValueTuple.dll": {}
         }
       },
-      "LanguageExt.Core/1.9.1": {
+      "LanguageExt.Core/1.9.3": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
@@ -85,6 +99,7 @@
           "System.Reactive.Interfaces": "3.0.0",
           "System.Reactive.Linq": "3.0.0",
           "System.Reactive.PlatformServices": "3.0.0",
+          "System.Runtime": "4.1.0",
           "System.ValueTuple": "4.0.0"
         },
         "compile": {
@@ -94,11 +109,11 @@
           "net45/LanguageExt.Core.dll": {}
         }
       },
-      "LanguageExt.Parsec/1.9.1": {
+      "LanguageExt.Parsec/1.9.3": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
-          "LanguageExt.Core": "1.9.1",
+          "LanguageExt.Core": "1.9.3",
           "System.Reactive.Core": "3.0.0",
           "System.Reactive.Interfaces": "3.0.0",
           "System.Reactive.Linq": "3.0.0",
@@ -178,6 +193,20 @@
           "lib/net46/System.Reactive.PlatformServices.dll": {}
         }
       },
+      "System.Runtime/4.1.0": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "System",
+          "System.ComponentModel.Composition",
+          "System.Core"
+        ],
+        "compile": {
+          "ref/net45/_._": {}
+        },
+        "runtime": {
+          "lib/net45/_._": {}
+        }
+      },
       "System.ValueTuple/4.0.0-rc3-24212-01": {
         "type": "package",
         "compile": {
@@ -187,7 +216,7 @@
           "lib/netstandard1.1/System.ValueTuple.dll": {}
         }
       },
-      "LanguageExt.Core/1.9.1": {
+      "LanguageExt.Core/1.9.3": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.6",
         "dependencies": {
@@ -195,6 +224,7 @@
           "System.Reactive.Interfaces": "3.0.0",
           "System.Reactive.Linq": "3.0.0",
           "System.Reactive.PlatformServices": "3.0.0",
+          "System.Runtime": "4.1.0",
           "System.ValueTuple": "4.0.0"
         },
         "compile": {
@@ -204,11 +234,11 @@
           "net46/LanguageExt.Core.dll": {}
         }
       },
-      "LanguageExt.Parsec/1.9.1": {
+      "LanguageExt.Parsec/1.9.3": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.6",
         "dependencies": {
-          "LanguageExt.Core": "1.9.1",
+          "LanguageExt.Core": "1.9.3",
           "System.Reactive.Core": "3.0.0",
           "System.Reactive.Interfaces": "3.0.0",
           "System.Reactive.Linq": "3.0.0",
@@ -250,7 +280,7 @@
           "lib/netstandard1.3/Microsoft.CSharp.dll": {}
         }
       },
-      "Microsoft.FSharp.Core.netcore/1.0.0-alpha-160805": {
+      "Microsoft.FSharp.Core.netcore/1.0.0-alpha-160831": {
         "type": "package",
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.0.1",
@@ -1706,7 +1736,7 @@
           "lib/netstandard1.3/System.Xml.XDocument.dll": {}
         }
       },
-      "LanguageExt.Core/1.9.1": {
+      "LanguageExt.Core/1.9.3": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
@@ -1718,6 +1748,8 @@
           "System.Reactive.Interfaces": "3.0.0",
           "System.Reactive.Linq": "3.0.0",
           "System.Reactive.PlatformServices": "3.0.0",
+          "System.Reflection": "4.1.0",
+          "System.Runtime": "4.1.0",
           "System.Security.Cryptography.Algorithms": "4.2.0",
           "System.ValueTuple": "4.0.0"
         },
@@ -1728,11 +1760,11 @@
           "netstandard1.6/LanguageExt.Core.dll": {}
         }
       },
-      "LanguageExt.Parsec/1.9.1": {
+      "LanguageExt.Parsec/1.9.3": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.6",
         "dependencies": {
-          "LanguageExt.Core": "1.9.1",
+          "LanguageExt.Core": "1.9.3",
           "System.Collections": "4.0.11",
           "System.Collections.Concurrent": "4.0.12",
           "System.Linq.Queryable": "4.0.1",
@@ -1846,12 +1878,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "Microsoft.FSharp.Core.netcore/1.0.0-alpha-160805": {
-      "sha512": "K1370KtROWRMWSgaL6fk9XpKY3NESKVtRRSIyms0aMaZ5PooMXhuzpzhiGc1oujxuCvALro3xqfpX2b2OUfpYw==",
+    "Microsoft.FSharp.Core.netcore/1.0.0-alpha-160831": {
+      "sha512": "9ZN1o4FUXWk+9dYbt8IjAr9/ZHYunYf1587UbCE13b2NLCGfyddy/hp6fsCSseMgZ5yiIPChy2Z2ANe8rAKbYg==",
       "type": "package",
-      "path": "Microsoft.FSharp.Core.netcore/1.0.0-alpha-160805",
+      "path": "Microsoft.FSharp.Core.netcore/1.0.0-alpha-160831",
       "files": [
-        "Microsoft.FSharp.Core.netcore.1.0.0-alpha-160805.nupkg.sha512",
+        "Microsoft.FSharp.Core.netcore.1.0.0-alpha-160831.nupkg.sha512",
         "Microsoft.FSharp.Core.netcore.nuspec",
         "content/any/netstandard1.6/FSharp.Core.optdata",
         "content/any/netstandard1.6/FSharp.Core.sigdata",
@@ -5616,12 +5648,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "LanguageExt.Core/1.9.1": {
+    "LanguageExt.Core/1.9.3": {
       "type": "project",
       "path": "../LanguageExt.Core/project.json",
       "msbuildProject": "../LanguageExt.Core/LanguageExt.Core.xproj"
     },
-    "LanguageExt.Parsec/1.9.1": {
+    "LanguageExt.Parsec/1.9.3": {
       "type": "project",
       "path": "../LanguageExt.Parsec/project.json",
       "msbuildProject": "../LanguageExt.Parsec/LanguageExt.Parsec.xproj"
@@ -5629,8 +5661,8 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "LanguageExt.Core >= 1.9.1",
-      "LanguageExt.Parsec >= 1.9.1",
+      "LanguageExt.Core >= 1.9.3",
+      "LanguageExt.Parsec >= 1.9.3",
       "Newtonsoft.Json >= 9.0.1",
       "System.Reactive.Core >= 3.0.0-*",
       "System.Reactive.Interfaces >= 3.0.0-*",

@@ -1,5 +1,5 @@
 {
-    "version": "1.9.1",
+    "version": "1.9.4",
     "authors": [ "Paul Louth" ],
     "title": "LanguageExt Unit Tests",
     "description": "Lang Ext Unit Tests",
@@ -21,43 +21,46 @@
     },
     "dependencies": {
         "LanguageExt.Core": {
-            "version": "1.9.1",
+            "version": "1.9.4",
             "target": "project"
         },
         "LanguageExt.Parsec": {
-            "version": "1.9.1",
+            "version": "1.9.4",
             "target": "project"
         },
         "LanguageExt.Process": {
-            "version": "1.9.1",
+            "version": "1.9.4",
             "target": "project"
         },
         "LanguageExt.Process.FSharp": {
-            "version": "1.9.1",
+            "version": "1.9.4",
             "target": "project"
         },
         "LanguageExt.Process.Redis": {
-            "version": "1.9.1",
+            "version": "1.9.4",
             "target": "project"
         },
         "LanguageExt.FSharp": {
-            "version": "1.9.1",
+            "version": "1.9.4",
             "target": "project"
         },
         "LanguageExt.ProcessJS": {
-            "version": "1.9.1",
+            "version": "1.9.4",
             "target": "project"
         },
         "Newtonsoft.Json": "9.0.1",
-        "System.Runtime": "4.1.0-*",
-        "System.Threading.Tasks": "4.0.11-*",
-        "System.Reactive.Core": "3.0.0-*",
-        "System.Reactive.Interfaces": "3.0.0-*",
-        "System.Reactive.PlatformServices": "3.0.0-*",
-        "System.Reactive.Linq": "3.0.0-*",
-        "StackExchange.Redis": "1.1.604-alpha",
+        "System.Runtime": "4.0.0",
+        "System.Threading.Tasks": "4.0.0",
+        "System.Reactive.Core": "3.1.1",
+        "System.Reactive.Interfaces": "3.1.1",
+        "System.Reactive.PlatformServices": "3.1.1",
+        "System.Reactive.Linq": "3.1.1",
+        "System.ValueTuple": "4.3.0",
+        "StackExchange.Redis": "1.2.0",
         "FSharp.Core": "4.0.0.1",
+        "xunit": "2.2.0-*",
         "xunit.assert": "2.2.0-*",
+        "xunit.runners": "2.0.0-*",
         "xunit.extensibility.execution": "2.2.0-*"
     },
     "commands": {

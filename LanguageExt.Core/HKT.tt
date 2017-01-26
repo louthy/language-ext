@@ -11,7 +11,7 @@
         T("OptionUnsafe","!T",                  "self.IsSome ? self.Value : default(T)",          DelType.Not),
         T("Lst",         "!T",                  "self.FirstOrDefault()",                          DelType.Not, "List"),
         T("Map",         "K, !T",               "self.Values.FirstOrDefault()",                   DelType.Not),
-        T("HMap",        "K, !T",               "self.Values.FirstOrDefault()",                   DelType.Not),
+        T("HashMap",     "K, !T",               "self.Values.FirstOrDefault()",                   DelType.Not),
         T("TryOption",   "!T",                  "self.Try().Value.IfNone(default(T))",            DelType.Not),
         T("Try",         "!T",                  "self.Try().Value",                               DelType.Not),
         T("Either",      "L, !T",               "self.IsRight ? self.RightValue : default(T)",    DelType.Not),

@@ -6,15 +6,18 @@ namespace LanguageExt.TypeClasses
     /// Functor type-class
     /// </summary>
     [Typeclass]
-    public interface Functor<A>
+    public interface Functor<FA, FB, A, B>
     {
         /// <summary>
-        /// Projection from one value to another using f
+        /// Projection from one value to another
         /// </summary>
-        /// <typeparam name="B">Resulting functor value type</typeparam>
-        /// <param name="fa">Functor value to map from </param>
+        /// <typeparam name="FA">Source functor type</typeparam>
+        /// <typeparam name="FB">Target functor type</typeparam>
+        /// <typeparam name="A">Source functor bound value type</typeparam>
+        /// <typeparam name="B">Target functor bound value type</typeparam>
+        /// <param name="ma">Functor value to map from </param>
         /// <param name="f">Projection function</param>
         /// <returns>Mapped functor</returns>
-        Functor<B> Map<B>(Functor<A> fa, Func<A, B> f);
+        FB Map(FA ma, Func<A, B> f);
     }
 }

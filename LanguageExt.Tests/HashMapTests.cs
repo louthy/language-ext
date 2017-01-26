@@ -204,7 +204,7 @@ namespace LanguageExtTests
         [Fact]
         public void MapOptionTest()
         {
-            var m = HashMap<Option<int>, HMap<Option<int>, string>>();
+            var m = HashMap<Option<int>, HashMap<Option<int>, string>>();
 
             m = m.AddOrUpdate(Some(1), Some(1), "Some Some");
             m = m.AddOrUpdate(None, Some(1), "None Some");

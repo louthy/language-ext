@@ -172,7 +172,7 @@ namespace LanguageExt
             () => { throw new Exception(message); };
 
         /// <summary>
-        /// Raises an Exception wigth the messge provided
+        /// Raises an Exception with the message provided
         /// </summary>
         /// <typeparam name="R">The return type of the expression this function is being used in.
         /// This allows exceptions to be thrown in ternary operators, or LINQ expressions for
@@ -186,7 +186,7 @@ namespace LanguageExt
 
 #if !COREFX
         /// <summary>
-        /// Raises an ApplicationException wigth the messge provided
+        /// Raises an ApplicationException with the message provided
         /// </summary>
         /// <typeparam name="R">The return type of the expression this function is being used in.
         /// This allows exceptions to be thrown in ternary operators, or LINQ expressions for
@@ -223,6 +223,24 @@ namespace LanguageExt
             if (e is E) return true;
             if (e.InnerException == null) return false;
             return exceptionIs<E>(e.InnerException);
+        }
+
+        /// <summary>
+        /// Calculate a hash-code for an enumerable
+        /// </summary>
+        public static int hash<T>(IEnumerable<T> xs)
+        {
+            unchecked
+            {
+                int hash = 1;
+                foreach(var x in xs)
+                {
+                    hash = ReferenceEquals(x, null)
+                        ? hash * 31
+                        : hash * 31 + x.GetHashCode();
+                }
+                return hash;
+            }
         }
 
         [Pure]

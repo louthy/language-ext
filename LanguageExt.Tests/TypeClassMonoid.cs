@@ -1,7 +1,7 @@
 ﻿using Xunit;
 using System.Linq;
 using LanguageExt.TypeClasses;
-using LanguageExt.Instances;
+using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using LanguageExt;
@@ -33,5 +33,42 @@ namespace LanguageExtTests
 
             Assert.True(res == "mary had a little lamb");
         }
+
+        [Fact]
+        public void MaxIntArrayMonad()
+        {
+            var xs = new[] { 1, 2, 3, 5, 4 };
+            var res = Max<MArray<int>, int[], TInt, int>(xs);
+
+            Assert.True(res == 5);
+        }
+
+        [Fact]
+        public void MaxStringArrayMonad()
+        {
+            var xs = new[] { "mary ", "had ", "a ", "little ", "lamb" };
+
+            var res = Max<MArray<string>, string[], TString, string>(xs);
+
+            Assert.True(res == "mary ");
+        }
+
+        [Fact]
+        public void MaxLstArrayMonad()
+        {
+            var xs = List("mary ", "had ", "a ", "little ", "lamb");
+
+            var res = Max<MLst<string>, Lst<string>, TString, string>(xs);
+
+            Assert.True(res == "mary ");
+        }
+
+        /// <summary>
+        /// General purpose maximum value operation
+        /// </summary>
+        static A Max<MONAD, MA, MONOID, A>(MA ma)
+            where MONAD  : struct, MonadPlus<MA, A>
+            where MONOID : struct, Ord<A>, Monoid<A> =>
+            fold<MONAD, MA, A, A>(ma, default(MONOID).Empty(), Max<MONOID, A>.Inst.Append);
     }
 }

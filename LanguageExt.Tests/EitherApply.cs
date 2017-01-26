@@ -4,6 +4,7 @@ using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExtTests
 {
@@ -45,18 +46,14 @@ namespace LanguageExtTests
             Assert.Equal(Right<string, int>(7), either);
         }
 
-        private APPL GeneralApply<APPL>(Monad<Func<int, int, int>> f, Monad<int> a, Monad<int> b)
-            where APPL : struct, Monad<int> =>
-                apply<APPL, int, int, int>(f, a, b);
-
         [Fact]
         public void ApplyLeftArgs()
         {
             var opt  = Some(add);
             var none = Option<int>.None;
-            var four = Pure<Option<int>,int>(4);  // Some(4);
+            var four = Pure<MOption<int>, Option<int>,int>(4);  // Some(4);
 
-            var res = GeneralApply<Option<int>>(opt, none, four);
+            var res = apply(opt, none, four);
 
             Assert.Equal(None, res);
 

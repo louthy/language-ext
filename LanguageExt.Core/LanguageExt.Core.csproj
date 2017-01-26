@@ -22,6 +22,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>
     </DocumentationFile>
+    <NoWarn>IDE1006</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>
     </DocumentationFile>
+    <NoWarn>IDE1006</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AppVeyorBuild|AnyCPU'">
     <OutputPath>bin\CI\</OutputPath>
@@ -41,10 +43,27 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <NoWarn>IDE1006</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Reactive.Core, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\System.Reactive.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -53,100 +72,164 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionObservable.cs" />
-    <Compile Include="EitherUnsafe\EitherUnsafe.cs" />
-    <Compile Include="EitherUnsafe\EitherUnsafeTrans.cs" />
-    <Compile Include="EitherUnsafe\Extensions.cs" />
-    <Compile Include="EitherUnsafe\Prelude.cs" />
-    <Compile Include="Either\Extensions.cs" />
+    <Compile Include="Check.cs" />
+    <Compile Include="ClassInstances\Const\Char.cs" />
+    <Compile Include="ClassInstances\Eq\EqChar.cs" />
+    <Compile Include="ClassInstances\Eq\EqNumType.cs" />
+    <Compile Include="ClassInstances\Ord\OrdNumType.cs" />
+    <Compile Include="ClassInstances\Pred\Boolean.cs" />
+    <Compile Include="ClassInstances\Pred\Char\Predicates.cs" />
+    <Compile Include="ClassInstances\Pred\Equality.cs" />
+    <Compile Include="ClassInstances\Pred\Ordering.cs" />
+    <Compile Include="ClassInstances\Pred\Range.cs" />
+    <Compile Include="ClassInstances\Pred\String\Predicates.cs" />
+    <Compile Include="ClassInstances\TChar.cs" />
+    <Compile Include="DataTypes\Cond\CondAsync.cs" />
+    <Compile Include="DataTypes\Cond\Cond.cs" />
+    <Compile Include="DataTypes\EitherUnsafe\EitherUnsafe.cs" />
+    <Compile Include="DataTypes\EitherUnsafe\EitherUnsafe.Trans.cs" />
+    <Compile Include="DataTypes\EitherUnsafe\EitherUnsafe.Extensions.cs" />
+    <Compile Include="DataTypes\EitherUnsafe\EitherUnsafe.Prelude.cs" />
+    <Compile Include="DataTypes\Either\Either.Extensions.cs" />
+    <Compile Include="DataTypes\NewType\NewType.Predicate.cs" />
+    <Compile Include="DataTypes\NumType\NumType.cs" />
+    <Compile Include="DataTypes\Set\Set.Internal.cs" />
+    <Compile Include="DataTypes\ValueTuple\Tuple2\ValueTuple2.Prelude.cs" />
+    <Compile Include="DataTypes\ValueTuple\Tuple2\ValueTuple2.Extensions.cs" />
     <Compile Include="HKT.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>HKT.tt</DependentUpon>
     </Compile>
     <Compile Include="Identity.cs" />
-    <Compile Include="Instances\Any.cs" />
-    <Compile Include="Instances\All.cs" />
-    <Compile Include="Instances\EqChoice.cs" />
-    <Compile Include="Instances\EqSeq.cs" />
-    <Compile Include="Instances\EqTry.cs" />
-    <Compile Include="Instances\EqTryOpt.cs" />
-    <Compile Include="Instances\MinMax.cs" />
-    <Compile Include="Instances\OrdDefault.cs" />
-    <Compile Include="Instances\EqOpt.cs" />
-    <Compile Include="Instances\EqQueue.cs" />
-    <Compile Include="Instances\EqSet.cs" />
-    <Compile Include="Instances\EqLst.cs" />
-    <Compile Include="Instances\EqArray.cs" />
-    <Compile Include="Instances\EqString.cs" />
-    <Compile Include="Instances\EqDecimal.cs" />
-    <Compile Include="Instances\EqDouble.cs" />
-    <Compile Include="Instances\EqFloat.cs" />
-    <Compile Include="Instances\EqLong.cs" />
-    <Compile Include="Instances\EqShort.cs" />
-    <Compile Include="Instances\EqInt.cs" />
-    <Compile Include="Instances\Product.cs" />
-    <Compile Include="Instances\Sum.cs" />
+    <Compile Include="ClassInstances\Foldable\FoldTuple.cs" />
+    <Compile Include="ClassInstances\Functor\FEitherUnsafe.cs" />
+    <Compile Include="ClassInstances\Functor\FEither.cs" />
+    <Compile Include="ClassInstances\Functor\FHashMap.cs" />
+    <Compile Include="ClassInstances\Functor\FSet.cs" />
+    <Compile Include="ClassInstances\Functor\FHashSet.cs" />
+    <Compile Include="ClassInstances\Functor\FMap.cs" />
+    <Compile Include="ClassInstances\Functor\FLst.cs" />
+    <Compile Include="ClassInstances\Functor\FArray.cs" />
+    <Compile Include="ClassInstances\Functor\FNullable.cs" />
+    <Compile Include="ClassInstances\Functor\FSeq.cs" />
+    <Compile Include="ClassInstances\Functor\FOptionUnsafe.cs" />
+    <Compile Include="ClassInstances\Functor\FOption.cs" />
+    <Compile Include="ClassInstances\Functor\FTupleTri.cs" />
+    <Compile Include="ClassInstances\Functor\FTupleBi.cs" />
+    <Compile Include="ClassInstances\Functor\FTupleFst.cs" />
+    <Compile Include="ClassInstances\Functor\FTupleThrd.cs" />
+    <Compile Include="ClassInstances\Functor\FTupleSnd.cs" />
+    <Compile Include="ClassInstances\MonadPlus\MEitherUnsafe.cs" />
+    <Compile Include="ClassInstances\MonadPlus\MEither.cs" />
+    <Compile Include="ClassInstances\MonadPlus\MHashMap.cs" />
+    <Compile Include="ClassInstances\MonadPlus\MSet.cs" />
+    <Compile Include="ClassInstances\MonadPlus\MHashSet.cs" />
+    <Compile Include="ClassInstances\MonadPlus\MArray.cs" />
+    <Compile Include="ClassInstances\MonadPlus\MMap.cs" />
+    <Compile Include="ClassInstances\MonadPlus\MNullable.cs" />
+    <Compile Include="ClassInstances\MonadPlus\MTry.cs" />
+    <Compile Include="ClassInstances\MonadPlus\MTryOption.cs" />
+    <Compile Include="ClassInstances\MonadPlus\MOptionUnsafe.cs" />
+    <Compile Include="ClassInstances\MonadPlus\MOption.cs" />
+    <Compile Include="ClassInstances\MonadPlus\MLst.cs" />
+    <Compile Include="ClassInstances\MonadPlus\MSeq.cs" />
+    <Compile Include="ClassInstances\Monoid\Any.cs" />
+    <Compile Include="ClassInstances\Monoid\All.cs" />
+    <Compile Include="ClassInstances\Monoid\Product.cs" />
+    <Compile Include="ClassInstances\Ord\OrdSeq.cs" />
+    <Compile Include="ClassInstances\Ord\OrdLst.cs" />
+    <Compile Include="ClassInstances\Ord\OrdChoice.cs" />
+    <Compile Include="ClassInstances\Eq\EqChoice.cs" />
+    <Compile Include="ClassInstances\Eq\EqNewType.cs" />
+    <Compile Include="ClassInstances\Eq\EqSeq.cs" />
+    <Compile Include="ClassInstances\Eq\EqTry.cs" />
+    <Compile Include="ClassInstances\Eq\EqTryOpt.cs" />
+    <Compile Include="ClassInstances\Semigroup\MinMax.cs" />
+    <Compile Include="ClassInstances\Ord\OrdDefault.cs" />
+    <Compile Include="ClassInstances\Eq\EqOpt.cs" />
+    <Compile Include="ClassInstances\Eq\EqQueue.cs" />
+    <Compile Include="ClassInstances\Eq\EqSet.cs" />
+    <Compile Include="ClassInstances\Eq\EqLst.cs" />
+    <Compile Include="ClassInstances\Eq\EqArray.cs" />
+    <Compile Include="ClassInstances\Eq\EqString.cs" />
+    <Compile Include="ClassInstances\Eq\EqDecimal.cs" />
+    <Compile Include="ClassInstances\Eq\EqDouble.cs" />
+    <Compile Include="ClassInstances\Eq\EqFloat.cs" />
+    <Compile Include="ClassInstances\Eq\EqLong.cs" />
+    <Compile Include="ClassInstances\Eq\EqShort.cs" />
+    <Compile Include="ClassInstances\Eq\EqInt.cs" />
+    <Compile Include="ClassInstances\Ord\OrdNewType.cs" />
+    <Compile Include="ClassInstances\Ord\OrdArray.cs" />
+    <Compile Include="ClassInstances\Monoid\Sum.cs" />
+    <Compile Include="ClassInstances\TArray.cs" />
     <Compile Include="IOptional.cs" />
-    <Compile Include="List\Extensions.cs" />
-    <Compile Include="List\Lst.cs" />
-    <Compile Include="Map\Map.cs" />
-    <Compile Include="Map\Extensions.cs" />
-    <Compile Include="OptionUnsafe\OptionUnsafe.cs" />
-    <Compile Include="OptionUnsafe\Extensions.cs" />
-    <Compile Include="Option\Prelude.cs" />
-    <Compile Include="OptionUnsafe\Prelude.cs" />
-    <Compile Include="Prelude_ValueTuple.cs" />
-    <Compile Include="Prelude_ValueTuple2.cs" />
-    <Compile Include="Prelude_ValueTuple3.cs" />
-    <Compile Include="TryOption\Prelude.cs" />
-    <Compile Include="TryOption\TryOption.cs" />
-    <Compile Include="TryOption\Extensions.cs" />
-    <Compile Include="TryOption\TryOptionResult.cs" />
-    <Compile Include="TryOption\TryOptionSuccContext.cs" />
-    <Compile Include="Try\Try.cs" />
-    <Compile Include="Try\TryConfig.cs" />
-    <Compile Include="Try\TryResult.cs" />
-    <Compile Include="Try\TrySuccContext.cs" />
-    <Compile Include="TypeClasses\Applicative\Extensions.cs" />
-    <Compile Include="TypeClasses\Applicative\Prelude.cs" />
+    <Compile Include="DataTypes\List\Lst.Extensions.cs" />
+    <Compile Include="DataTypes\List\Lst.cs" />
+    <Compile Include="DataTypes\Map\Map.cs" />
+    <Compile Include="DataTypes\Map\Map.Extensions.cs" />
+    <Compile Include="DataTypes\NumType\NumType.Prelude.cs" />
+    <Compile Include="DataTypes\NumType\NumType.Predicate.cs" />
+    <Compile Include="DataTypes\Option-Shared\LazyOption.cs" />
+    <Compile Include="DataTypes\OptionUnsafe\OptionUnsafe.cs" />
+    <Compile Include="DataTypes\OptionUnsafe\OptionUnsafe.Extensions.cs" />
+    <Compile Include="DataTypes\Option\Option.Prelude.cs" />
+    <Compile Include="DataTypes\OptionUnsafe\OptionUnsafe.Prelude.cs" />
+    <Compile Include="DataTypes\ValueTuple\ValueTuple.Prelude.cs" />
+    <Compile Include="DataTypes\ValueTuple\Tuple3\ValueTuple3.Prelude.cs" />
+    <Compile Include="Reflect\Util.cs" />
+    <Compile Include="DataTypes\TryOption\TryOption.Prelude.cs" />
+    <Compile Include="DataTypes\TryOption\TryOption.cs" />
+    <Compile Include="DataTypes\TryOption\TryOption.Extensions.cs" />
+    <Compile Include="DataTypes\TryOption\TryOptionResult.cs" />
+    <Compile Include="DataTypes\TryOption\TryOptionSuccContext.cs" />
+    <Compile Include="DataTypes\Try\Try.cs" />
+    <Compile Include="DataTypes\Try\TryConfig.cs" />
+    <Compile Include="DataTypes\Try\TryResult.cs" />
+    <Compile Include="DataTypes\Try\TrySuccContext.cs" />
+    <Compile Include="TypeClasses\Applicative\Applicative.Prelude.cs" />
+    <Compile Include="TypeClasses\Const\Const.cs" />
+    <Compile Include="ClassInstances\Pred\Exists.cs" />
+    <Compile Include="ClassInstances\Const\Integer.cs" />
+    <Compile Include="ClassInstances\Pred\ForAll.cs" />
+    <Compile Include="TypeClasses\Predicate\Predicate.cs" />
+    <Compile Include="TypeClasses\TriFunctor\TriFunctor.cs" />
+    <Compile Include="TypeClasses\TriFunctor\TriFunctor.Prelude.cs" />
+    <Compile Include="TypeClasses\BiFunctor\BiFunctor.cs" />
+    <Compile Include="TypeClasses\BiFunctor\BiFunctor.Prelude.cs" />
     <Compile Include="TypeClasses\Choice\Choice.cs" />
-    <Compile Include="TypeClasses\Eq\Extensions.cs" />
-    <Compile Include="ValueTuple3.cs" />
-    <Compile Include="ValueTuple2.cs" />
+    <Compile Include="TypeClasses\Choice\Choice.Prelude.cs" />
+    <Compile Include="TypeClasses\Eq\Eq.Extensions.cs" />
+    <Compile Include="TypeClasses\BiFoldable\BiFoldable.cs" />
+    <Compile Include="TypeClasses\BiFoldable\BiFoldable.Prelude.cs" />
+    <Compile Include="TypeClasses\Liftable\Liftable.cs" />
+    <Compile Include="DataTypes\ValueTuple\Tuple3\ValueTuple3.Extensions.cs" />
     <Compile Include="TypeclassAttribute.cs" />
-    <Compile Include="Option\OptionT.cs" />
-    <Compile Include="Seq\Seq.cs" />
-    <Compile Include="HMap\Prelude.cs" />
-    <Compile Include="HSet\HSet.cs" />
-    <Compile Include="HSet\HSetInternal.cs" />
-    <Compile Include="HMap\HMapInternal.cs" />
-    <Compile Include="HMap\HMap.cs" />
-    <Compile Include="HSet\Prelude.cs" />
-    <Compile Include="NewType.cs" />
-    <Compile Include="Option-Shared\None.cs" />
-    <Compile Include="Option-Shared\OptionV.cs" />
-    <Compile Include="Option\Extensions.cs" />
-    <Compile Include="Option-Shared\OptionVExtensions.cs" />
-    <Compile Include="Option\Option.cs" />
-    <Compile Include="Option-Shared\OptionNone.cs" />
-    <Compile Include="Option-Shared\SomeValue.cs" />
-    <Compile Include="Option-Shared\SomeContext.cs" />
-    <Compile Include="Option-Shared\SomeUnitContext.cs" />
-    <Compile Include="Prelude_NewType.cs" />
-    <Compile Include="Prelude_Nullable.cs" />
-    <Compile Include="DVV.cs" />
+    <Compile Include="DataTypes\HashMap\HashMap.Prelude.cs" />
+    <Compile Include="DataTypes\HashSet\HashSet.cs" />
+    <Compile Include="DataTypes\HashSet\HashSet.Internal.cs" />
+    <Compile Include="DataTypes\HashMap\HashMap.Internal.cs" />
+    <Compile Include="DataTypes\HashMap\HashMap.cs" />
+    <Compile Include="DataTypes\HashSet\HashSet.Prelude.cs" />
+    <Compile Include="DataTypes\NewType\NewType.cs" />
+    <Compile Include="DataTypes\Option-Shared\None.cs" />
+    <Compile Include="DataTypes\Option-Shared\OptionV.cs" />
+    <Compile Include="DataTypes\Option\Option.Extensions.cs" />
+    <Compile Include="DataTypes\Option-Shared\OptionVExtensions.cs" />
+    <Compile Include="DataTypes\Option\Option.cs" />
+    <Compile Include="DataTypes\Option-Shared\OptionNone.cs" />
+    <Compile Include="DataTypes\Option-Shared\SomeValue.cs" />
+    <Compile Include="DataTypes\Option-Shared\SomeContext.cs" />
+    <Compile Include="DataTypes\Option-Shared\SomeUnitContext.cs" />
+    <Compile Include="DataTypes\NewType\NewType.Prelude.cs" />
+    <Compile Include="DataTypes\Nullable\Nullable.Prelude.cs" />
     <Compile Include="Prelude_Tasks.cs" />
     <Compile Include="Task.cs" />
     <Compile Include="Compose.cs" />
-    <Compile Include="Either-Shared\EitherState.cs" />
-    <Compile Include="Either\EitherTrans.cs" />
+    <Compile Include="DataTypes\Either-Shared\EitherState.cs" />
+    <Compile Include="DataTypes\Either\Either.Trans.cs" />
     <Compile Include="Exceptions.cs" />
-    <Compile Include="IDivisible.cs" />
-    <Compile Include="INumeric.cs" />
-    <Compile Include="IMultiplicable.cs" />
-    <Compile Include="ISubtractable.cs" />
-    <Compile Include="IAppendable.cs" />
-    <Compile Include="List\LstInternal.cs" />
+    <Compile Include="DataTypes\List\Lst.Internal.cs" />
     <Compile Include="MemoEnumerable.cs" />
     <Compile Include="ObjectPool.cs" />
     <Compile Include="ObservableExt.cs" />
@@ -154,107 +237,91 @@
     <Compile Include="Prelude_Curry.cs" />
     <Compile Include="ExceptionMatch.cs" />
     <Compile Include="IEither.cs" />
-    <Compile Include="Map\MapInternal.cs" />
+    <Compile Include="DataTypes\Map\MapInternal.cs" />
     <Compile Include="Prelude_Monad.cs" />
     <Compile Include="Prelude_Obsolete.cs" />
     <Compile Include="Prelude_PartialApplication.cs" />
     <Compile Include="Prelude_Timer.cs" />
-    <Compile Include="Prelude_Tuple3.cs" />
-    <Compile Include="Prelude_Tuple2.cs" />
+    <Compile Include="DataTypes\Tuple\Tuple3\Tuple3.Prelude.cs" />
+    <Compile Include="DataTypes\Tuple\Tuple2\Tuple2.Prelude.cs" />
     <Compile Include="Prelude_UnitsOfMeasure.cs" />
     <Compile Include="Prelude_Use.cs" />
     <Compile Include="Que.cs" />
     <Compile Include="Query.cs" />
-    <Compile Include="Try\Prelude.cs" />
-    <Compile Include="Map\MapModule.cs" />
+    <Compile Include="DataTypes\Try\Try.Prelude.cs" />
+    <Compile Include="DataTypes\Map\MapModule.cs" />
     <Compile Include="Prelude_Collections.cs" />
-    <Compile Include="Either\Prelude.cs" />
+    <Compile Include="DataTypes\Either\Either.Prelude.cs" />
     <Compile Include="Prelude_Func.cs" />
     <Compile Include="Prelude_Memoize.cs" />
-    <Compile Include="Prelude_Tuple.cs" />
+    <Compile Include="DataTypes\Tuple\Tuple.Prelude.cs" />
     <Compile Include="Queue.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="Reader.cs" />
-    <Compile Include="SetT.cs" />
-    <Compile Include="Set.cs" />
+    <Compile Include="DataTypes\Set\Set.cs" />
+    <Compile Include="DataTypes\Set\Set.Module.cs" />
     <Compile Include="Some.cs" />
     <Compile Include="Prelude.cs" />
-    <Compile Include="List\ListModule.cs" />
-    <Compile Include="NullableExt.cs" />
-    <Compile Include="Either\Either.cs" />
+    <Compile Include="DataTypes\List\Lst.Module.cs" />
+    <Compile Include="DataTypes\Nullable\Nullable.Extensions.cs" />
+    <Compile Include="DataTypes\Either\Either.cs" />
     <Compile Include="Prelude_Parse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Stack.cs" />
     <Compile Include="RWS.cs" />
     <Compile Include="State.cs" />
     <Compile Include="Stck.cs" />
-    <Compile Include="Try\Extensions.cs" />
+    <Compile Include="DataTypes\Try\Try.Extensions.cs" />
     <Compile Include="TryOutExt.cs" />
-    <Compile Include="Tuple3.cs" />
-    <Compile Include="Tuple2.cs" />
-    <Compile Include="TupleExt.cs" />
-    <Compile Include="Instances\EqDefault.cs" />
-    <Compile Include="TypeClasses\Foldable\FoldableT.cs" />
-    <Compile Include="TypeClasses\Foldable\Extensions.cs" />
-    <Compile Include="TypeClasses\Fraction\Fraction_Extensions.cs" />
-    <Compile Include="TypeClasses\Functor\FunctorT.cs" />
+    <Compile Include="DataTypes\Tuple\Tuple3\Tuple3.Extensions.cs" />
+    <Compile Include="DataTypes\Tuple\Tuple2\Tuple2.Extensions.cs" />
+    <Compile Include="DataTypes\Tuple\Tuple.Extensions.cs" />
+    <Compile Include="ClassInstances\Eq\EqDefault.cs" />
+    <Compile Include="TypeClasses\Fraction\Fraction.Extensions.cs" />
     <Compile Include="TypeClasses\MonadPlus\MonadPlus.cs" />
-    <Compile Include="TypeClasses\MonadPlus\MonadPlus_Extensions.cs" />
-    <Compile Include="TypeClasses\MonadPlus\MonadPlus_Prelude.cs" />
-    <Compile Include="TypeClasses\MonadTrans\MonadTrans.cs" />
-    <Compile Include="TypeClasses\MonadTrans\MonadTrans_Extensions.cs" />
-    <Compile Include="TypeClasses\MonadTrans\MonadTrans_Prelude.cs" />
-    <Compile Include="TypeClasses\Monad\MonadT.cs" />
-    <Compile Include="TypeClasses\Monad\Monad_Extensions.cs" />
-    <Compile Include="TypeClasses\Functor\Functor_Extensions.cs" />
-    <Compile Include="Instances\OrdOpt.cs" />
-    <Compile Include="TypeClasses\Monoid\Monoid_Extensions.cs" />
+    <Compile Include="TypeClasses\MonadPlus\MonadPlus.Prelude.cs" />
+    <Compile Include="ClassInstances\Ord\OrdOpt.cs" />
     <Compile Include="TypeClasses\Optional\Optional.cs" />
-    <Compile Include="TypeClasses\Optional\Extensions.cs" />
-    <Compile Include="TypeClasses\Ord\Ord_Extensions.cs" />
-    <Compile Include="TypeClasses\Semigroup\Semigroup_Extensions.cs" />
+    <Compile Include="TypeClasses\Optional\Optional.Prelude.cs" />
     <Compile Include="TypeClasses\Foldable\Foldable.cs" />
     <Compile Include="TypeClasses\Functor\Functor.cs" />
     <Compile Include="TypeClasses\Monad\Monad.cs" />
     <Compile Include="TypeClasses\Monoid\Monoid.cs" />
-    <Compile Include="TypeClasses\Floating\Prelude.cs" />
-    <Compile Include="TypeClasses\Foldable\Prelude.cs" />
-    <Compile Include="TypeClasses\Functor\Functor_Prelude.cs" />
-    <Compile Include="TypeClasses\Monad\Monad_Prelude.cs" />
-    <Compile Include="TypeClasses\Monoid\Monoid_Prelude.cs" />
-    <Compile Include="TypeClasses\Num\Prelude.cs" />
-    <Compile Include="TypeClasses\Fraction\Fraction_Prelude.cs" />
-    <Compile Include="TypeClasses\Ord\Ord_Prelude.cs" />
-    <Compile Include="TypeClasses\Semigroup\Semigroup_Prelude.cs" />
-    <Compile Include="Instances\OrdBool.cs" />
+    <Compile Include="TypeClasses\Floating\Floating.Prelude.cs" />
+    <Compile Include="TypeClasses\Foldable\Foldable.Prelude.cs" />
+    <Compile Include="TypeClasses\Functor\Functor.Prelude.cs" />
+    <Compile Include="TypeClasses\Monad\Monad.Prelude.cs" />
+    <Compile Include="TypeClasses\Monoid\Monoid.Prelude.cs" />
+    <Compile Include="TypeClasses\Num\Num.Prelude.cs" />
+    <Compile Include="TypeClasses\Fraction\Fraction.Prelude.cs" />
+    <Compile Include="TypeClasses\Ord\Ord.Prelude.cs" />
+    <Compile Include="TypeClasses\Semigroup\Semigroup.Prelude.cs" />
+    <Compile Include="ClassInstances\Ord\OrdBool.cs" />
     <Compile Include="TypeClasses\Eq\Eq.cs" />
     <Compile Include="TypeClasses\Floating\Floating.cs" />
     <Compile Include="TypeClasses\Fraction\Fraction.cs" />
-    <Compile Include="Instances\TDecimal.cs" />
-    <Compile Include="Instances\TFloat.cs" />
-    <Compile Include="Instances\TDouble.cs" />
-    <Compile Include="Instances\TShort.cs" />
-    <Compile Include="Instances\TLong.cs" />
-    <Compile Include="Instances\TInt.cs" />
+    <Compile Include="ClassInstances\TDecimal.cs" />
+    <Compile Include="ClassInstances\TFloat.cs" />
+    <Compile Include="ClassInstances\TDouble.cs" />
+    <Compile Include="ClassInstances\TShort.cs" />
+    <Compile Include="ClassInstances\TLong.cs" />
+    <Compile Include="ClassInstances\TInt.cs" />
     <Compile Include="TypeClasses\Num\Num.cs" />
     <Compile Include="TypeClasses\Ord\Ord.cs" />
-    <Compile Include="TypeClasses\Eq\Prelude.cs" />
+    <Compile Include="TypeClasses\Eq\Eq.Prelude.cs" />
     <Compile Include="Ratio.cs" />
     <Compile Include="TypeClasses\Semigroup\Semigroup.cs" />
-    <Compile Include="Instances\TLst.cs" />
-    <Compile Include="Instances\TString.cs" />
-    <Compile Include="TypeClasses\Traversable\Traversable.cs" />
-    <Compile Include="TypeClasses\Traversable\Traversable_Extensions.cs" />
+    <Compile Include="ClassInstances\TLst.cs" />
+    <Compile Include="ClassInstances\TString.cs" />
     <Compile Include="TypeConverters.cs" />
-    <Compile Include="TypeDesc.cs" />
     <Compile Include="Unit.cs" />
-    <Compile Include="UnitsOfMeasure\Accel.cs" />
-    <Compile Include="UnitsOfMeasure\TimeSq.cs" />
-    <Compile Include="UnitsOfMeasure\VelocitySq.cs" />
-    <Compile Include="UnitsOfMeasure\Velocity.cs" />
-    <Compile Include="UnitsOfMeasure\Area.cs" />
-    <Compile Include="UnitsOfMeasure\Length.cs" />
-    <Compile Include="UnitsOfMeasure\Time.cs" />
+    <Compile Include="DataTypes\UnitsOfMeasure\Accel.cs" />
+    <Compile Include="DataTypes\UnitsOfMeasure\TimeSq.cs" />
+    <Compile Include="DataTypes\UnitsOfMeasure\VelocitySq.cs" />
+    <Compile Include="DataTypes\UnitsOfMeasure\Velocity.cs" />
+    <Compile Include="DataTypes\UnitsOfMeasure\Area.cs" />
+    <Compile Include="DataTypes\UnitsOfMeasure\Length.cs" />
+    <Compile Include="DataTypes\UnitsOfMeasure\Time.cs" />
     <Compile Include="VectorClock.cs" />
     <Compile Include="Versioned.cs" />
     <Compile Include="Writer.cs" />

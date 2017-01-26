@@ -31,11 +31,8 @@ namespace LanguageExt.ProcessJS
             lock(sync)
             {
                 Set<string> set = Set.createRange(processes.Map(x => x.Path).Distinct());
-                processWhitelist = processWhitelist == null
-                    ? processWhitelist = set
-                    : processWhitelist.Union(set);
-
-                processBlacklist = null;
+                processWhitelist = processWhitelist.Union(set);
+                processBlacklist = Set<string>.Empty;
             }
         }
 
@@ -46,10 +43,8 @@ namespace LanguageExt.ProcessJS
         /// white or blacklist a set of processes.
         /// </summary>
         /// <param name="process">Process to add to the whitelist</param>
-        public static void AddToProcessWhitelist(ProcessId process)
-        {
+        public static void AddToProcessWhitelist(ProcessId process) =>
             AddToProcessWhitelist( new[] { process } );
-        }
 
         /// <summary>
         /// Process blacklist
@@ -63,11 +58,8 @@ namespace LanguageExt.ProcessJS
             lock (sync)
             {
                 Set<string> set = Set.createRange(processes.Map(x => x.Path).Distinct());
-                processBlacklist = processBlacklist == null
-                    ? processBlacklist = set
-                    : processBlacklist.Union(set);
-
-                processWhitelist = null;
+                processBlacklist = processBlacklist.Union(set);
+                processWhitelist = Set<string>.Empty;
             }
         }
 
@@ -78,54 +70,32 @@ namespace LanguageExt.ProcessJS
         /// white or blacklist a set of processes.
         /// </summary>
         /// <param name="process">Process to add to the whitelist</param>
-        public static void AddToProcessBlacklist(ProcessId process)
-        {
+        public static void AddToProcessBlacklist(ProcessId process) =>
             AddToProcessBlacklist(new[] { process });
-        }
 
         /// <summary>
         /// Remove process from blacklist
         /// </summary>
-        public static void RemoveFromProcessBlacklist(IEnumerable<ProcessId> processes)
-        {
-            if (processBlacklist != null)
-            {
-                processBlacklist = Set.difference(processBlacklist, Set.createRange(processes.Map(p => p.Path).Distinct()));
-            }
-        }
+        public static void RemoveFromProcessBlacklist(IEnumerable<ProcessId> processes) =>
+            processBlacklist = Set.subtract(processBlacklist, Set.createRange(processes.Map(p => p.Path).Distinct()));
 
         /// <summary>
         /// Remove process from blacklist
         /// </summary>
-        public static void RemoveFromProcessBlacklist(ProcessId process)
-        {
-            if (processBlacklist != null)
-            {
-                processBlacklist = processBlacklist.Remove(process.Path);
-            }
-        }
+        public static void RemoveFromProcessBlacklist(ProcessId process) =>
+            processBlacklist = processBlacklist.Remove(process.Path);
 
         /// <summary>
         /// Remove process from whitelist
         /// </summary>
-        public static void RemoveFromProcessWhitelist(IEnumerable<ProcessId> processes)
-        {
-            if (processWhitelist != null)
-            {
-                processWhitelist = Set.difference(processWhitelist, Set.createRange(processes.Map(p => p.Path).Distinct()));
-            }
-        }
+        public static void RemoveFromProcessWhitelist(IEnumerable<ProcessId> processes) =>
+            processWhitelist = Set.subtract(processWhitelist, Set.createRange(processes.Map(p => p.Path).Distinct()));
 
         /// <summary>
         /// Remove process from whitelist
         /// </summary>
-        public static void RemoveFromProcessWhitelist(ProcessId process)
-        {
-            if (processWhitelist != null)
-            {
-                processWhitelist = processWhitelist.Remove(process.Path);
-            }
-        }
+        public static void RemoveFromProcessWhitelist(ProcessId process) =>
+            processWhitelist = processWhitelist.Remove(process.Path);
 
         /// <summary>
         /// Tell method called by the javascript process system.  Do not use it directly.
@@ -178,8 +148,8 @@ namespace LanguageExt.ProcessJS
 
         private static void Bouncer(ProcessId pid, Action f)
         {
-            if (processWhitelist != null && !processWhitelist.Contains(pid.Path)) return;
-            if (processBlacklist != null && processBlacklist.Contains(pid.Path)) return;
+            if (processWhitelist.Count > 0 && !processWhitelist.Contains(pid.Path)) return;
+            if (processBlacklist.Count > 0 && processBlacklist.Contains(pid.Path)) return;
             f();
         }
 
@@ -195,11 +165,7 @@ namespace LanguageExt.ProcessJS
                 {
                     if (processHub.IsValid) return processHub;
                     processHub = spawn<OutboundRelayMsg>("process-hub-js", msg =>
-                    {
-                        var conns = new List<string>();
-                        conns.Add(msg.ConnectionId);
-                        GlobalHost.ConnectionManager.GetHubContext<ProcessHub>().Clients.Clients(conns).onMessage(msg.Message);
-                    });
+                        GlobalHost.ConnectionManager.GetHubContext<ProcessHub>().Clients.Client(msg.ConnectionId).onMessage(msg.Message));
                     return processHub;
                 }
             }
