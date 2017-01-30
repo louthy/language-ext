@@ -1255,5 +1255,7 @@ Type or function | Description
 `failwith(message)` | Throws an `Exception` with the message provided.  Useful in lambda's where a return value is needed.
 `identity<T>()` | Identity function.  Returns the same value it was passed.
 
-### Future
-There's more to come with this library.  Feel free to get in touch with any suggestions.
+### Contributions
+All contributors are welcome.  For anything other than bug fixes please get in touch via the issues page.  There are no fixed rules on what should and shouldn't be in this library, but some features are more valuable than others, and some require long-term maintenance that outweights the value of the feature.  So please get sign-off from the project leader (Paul Louth) before putting in an excessive amount of work. 
+
+If you would just like to get involved, but don't have any major feature work to submit, then the project will always benefit from more unit-tests, documentation, peer-review, etc.  
