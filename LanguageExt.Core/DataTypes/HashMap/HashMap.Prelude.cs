@@ -42,7 +42,21 @@ namespace LanguageExt
         /// Creates a new Map seeded with the keyValues provided
         /// </summary>
         [Pure]
+        public static HashMap<K, V> create<K, V>(params (K, V)[] keyValues) =>
+            empty<K, V>().AddRange(keyValues);
+
+        /// <summary>
+        /// Creates a new Map seeded with the keyValues provided
+        /// </summary>
+        [Pure]
         public static HashMap<K, V> createRange<K, V>(IEnumerable<Tuple<K, V>> keyValues) =>
+            empty<K, V>().AddRange(keyValues);
+
+        /// <summary>
+        /// Creates a new Map seeded with the keyValues provided
+        /// </summary>
+        [Pure]
+        public static HashMap<K, V> createRange<K, V>(IEnumerable<(K, V)> keyValues) =>
             empty<K, V>().AddRange(keyValues);
 
         /// <summary>
@@ -136,6 +150,18 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
+        public static HashMap<K, V> addRange<K, V>(HashMap<K, V> map, IEnumerable<(K, V)> keyValues) =>
+            map.AddRange(keyValues);
+
+        /// <summary>
+        /// Atomically adds a range of items to the map.
+        /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
+        /// <param name="range">Range of tuples to add</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
+        /// <returns>New Map with the items added</returns>
+        [Pure]
         public static HashMap<K, V> addRange<K, V>(HashMap<K, V> map, IEnumerable<KeyValuePair<K, V>> keyValues) =>
             map.AddRange(keyValues);
 
@@ -149,6 +175,18 @@ namespace LanguageExt
         /// <returns>New Map with the items added</returns>
         [Pure]
         public static HashMap<K, V> tryAddRange<K, V>(HashMap<K, V> map, IEnumerable<Tuple<K, V>> keyValues) =>
+            map.TryAddRange(keyValues);
+
+        /// <summary>
+        /// Atomically adds a range of items to the map.  If any of the keys exist already
+        /// then they're ignored.
+        /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
+        /// <param name="range">Range of tuples to add</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
+        /// <returns>New Map with the items added</returns>
+        [Pure]
+        public static HashMap<K, V> tryAddRange<K, V>(HashMap<K, V> map, IEnumerable<(K, V)> keyValues) =>
             map.TryAddRange(keyValues);
 
         /// <summary>
@@ -171,6 +209,16 @@ namespace LanguageExt
         /// <returns>New Map with the items added</returns>
         [Pure]
         public static HashMap<K, V> addOrUpdateRange<K, V>(HashMap<K, V> map, IEnumerable<Tuple<K, V>> range) =>
+            map.AddOrUpdateRange(range);
+
+        /// <summary>
+        /// Atomically adds a range of items to the map.  If any of the keys exist already
+        /// then they're replaced.
+        /// </summary>
+        /// <param name="range">Range of tuples to add</param>
+        /// <returns>New Map with the items added</returns>
+        [Pure]
+        public static HashMap<K, V> addOrUpdateRange<K, V>(HashMap<K, V> map, IEnumerable<(K, V)> range) =>
             map.AddOrUpdateRange(range);
 
         /// <summary>
@@ -223,6 +271,15 @@ namespace LanguageExt
             map.Contains(kv.Item1, kv.Item2);
 
         /// <summary>
+        /// Checks for existence of a key in the map
+        /// </summary>
+        /// <param name="key">Key to check</param>
+        /// <returns>True if an item with the key supplied is in the map</returns>
+        [Pure]
+        public static bool contains<K, V>(HashMap<K, V> map, (K, V) kv) =>
+            map.Contains(kv.Item1, kv.Item2);
+
+        /// <summary>
         /// Atomically updates an existing item
         /// </summary>
         /// <remarks>Null is not allowed for a Key or a Value</remarks>
@@ -270,6 +327,16 @@ namespace LanguageExt
             map.SetItems(items);
 
         /// <summary>
+        /// Atomically sets a series of items using the Tuples provided
+        /// </summary>
+        /// <param name="items">Items to set</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
+        /// <returns>New map with the items set</returns>
+        [Pure]
+        public static HashMap<K, V> setItems<K, V>(HashMap<K, V> map, IEnumerable<(K, V)> items) =>
+            map.SetItems(items);
+
+        /// <summary>
         /// Atomically sets a series of items using the KeyValuePairs provided
         /// </summary>
         /// <param name="items">Items to set</param>
@@ -287,6 +354,16 @@ namespace LanguageExt
         /// <returns>New map with the items set</returns>
         [Pure]
         public static HashMap<K, V> trySetItems<K, V>(HashMap<K, V> map, IEnumerable<Tuple<K, V>> items) =>
+            map.SetItems(items);
+
+        /// <summary>
+        /// Atomically sets a series of items using the Tuples provided.
+        /// </summary>
+        /// <param name="items">Items to set</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
+        /// <returns>New map with the items set</returns>
+        [Pure]
+        public static HashMap<K, V> trySetItems<K, V>(HashMap<K, V> map, IEnumerable<(K, V)> items) =>
             map.SetItems(items);
 
         /// <summary>
@@ -400,6 +477,15 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
+        public static bool forall<K, V>(HashMap<K, V> map, Func<(K Key, V Value), bool> pred) =>
+            map.ForAll(pred);
+
+        /// <summary>
+        /// Return true if all items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
         public static bool forall<K, V>(HashMap<K, V> map, Func<KeyValuePair<K, V>, bool> pred) =>
             map.ForAll(pred);
 
@@ -482,6 +568,15 @@ namespace LanguageExt
         /// <returns>True if all items in the map return true when the predicate is applied</returns>
         [Pure]
         public static bool exists<K, V>(HashMap<K, V> map, Func<Tuple<K, V>, bool> pred) =>
+            map.Exists(pred);
+
+        /// <summary>
+        /// Return true if *any* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public static bool exists<K, V>(HashMap<K, V> map, Func<(K Key, V Value), bool> pred) =>
             map.Exists(pred);
 
         /// <summary>
@@ -576,6 +671,15 @@ public static class HMapExtensions
         self.AsEnumerable().Map(kv => Tuple(kv.Key, kv.Value)).ForAll(pred);
 
     /// <summary>
+    /// Return true if all items in the map return true when the predicate is applied
+    /// </summary>
+    /// <param name="pred">Predicate</param>
+    /// <returns>True if all items in the map return true when the predicate is applied</returns>
+    [Pure]
+    public static bool ForAll<K, V>(this HashMap<K, V> self, Func<(K Key, V Value), bool> pred) =>
+        self.AsEnumerable().Map(kv => (Key: kv.Key, Value: kv.Value)).ForAll(pred);
+
+    /// <summary>
     /// Return true if *all* items in the map return true when the predicate is applied
     /// </summary>
     /// <param name="pred">Predicate</param>
@@ -606,6 +710,7 @@ public static class HMapExtensions
         }
         return false;
     }
+
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied
     /// </summary>
@@ -614,6 +719,15 @@ public static class HMapExtensions
     [Pure]
     public static bool Exists<K, V>(this HashMap<K, V> self, Func<Tuple<K, V>, bool> pred) =>
         self.AsEnumerable().Map(kv => Tuple(kv.Key, kv.Value)).Exists(pred);
+
+    /// <summary>
+    /// Return true if *any* items in the map return true when the predicate is applied
+    /// </summary>
+    /// <param name="pred">Predicate</param>
+    /// <returns>True if all items in the map return true when the predicate is applied</returns>
+    [Pure]
+    public static bool Exists<K, V>(this HashMap<K, V> self, Func<(K Key, V Value), bool> pred) =>
+        self.AsEnumerable().Map(kv => (Key: kv.Key, Value: kv.Value)).Exists(pred);
 
     /// <summary>
     /// Return true if *any* items in the map return true when the predicate is applied
@@ -674,6 +788,21 @@ public static class HMapExtensions
         foreach (var item in self)
         {
             action(new Tuple<K, V>(item.Key, item.Value));
+        }
+        return unit;
+    }
+
+    /// <summary>
+    /// Atomically iterate through all key/value pairs (as tuples) in the map (in order) 
+    /// and execute an action on each
+    /// </summary>
+    /// <param name="action">Action to execute</param>
+    /// <returns>Unit</returns>
+    public static Unit Iter<K, V>(this HashMap<K, V> self, Action<(K Key, V Value)> action)
+    {
+        foreach (var item in self)
+        {
+            action((item.Key, item.Value));
         }
         return unit;
     }

@@ -14,6 +14,17 @@ namespace LanguageExt.TypeClasses
         //       the strict monads.
 
         /// <summary>
+        /// Monadic bind
+        /// </summary>
+        /// <typeparam name="MONADB">Type-class of the return value</typeparam>
+        /// <typeparam name="MB">Type of the monad to return</typeparam>
+        /// <typeparam name="B">Type of the bound return value</typeparam>
+        /// <param name="ma">Monad to bind</param>
+        /// <param name="f">Bind function</param>
+        /// <returns>Monad of type MB derived from Monad of B</returns>
+        MB Bind<MONADB, MB, B>(MA ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>;
+
+        /// <summary>
         /// Monad return
         /// </summary>
         /// <typeparam name="A">Type of the bound monad value</typeparam>
@@ -24,21 +35,9 @@ namespace LanguageExt.TypeClasses
         /// <summary>
         /// Monad return
         /// </summary>
-        /// <typeparam name="A">Type of the bound monad value</typeparam>
-        /// <param name="x">The bound monad value(s)</param>
+        /// <param name="xs">The bound monad value(s)</param>
         /// <returns>Monad of A</returns>
         MA Return(IEnumerable<A> xs);
-
-        /// <summary>
-        /// Monadic bind
-        /// </summary>
-        /// <typeparam name="MONADB">Type-class of the return value</typeparam>
-        /// <typeparam name="MB">Type of the monad to return</typeparam>
-        /// <typeparam name="B">Type of the bound return value</typeparam>
-        /// <param name="ma">Monad to bind</param>
-        /// <param name="f">Bind function</param>
-        /// <returns>Monad of type MB derived from Monad of B</returns>
-        MB Bind<MONADB, MB, B>(MA ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>;
 
         /// <summary>
         /// Produce a failure value

@@ -12,7 +12,7 @@ public static class Tuple2Extensions
     /// Append an extra item to the tuple
     /// </summary>
     [Pure]
-    public static Tuple<T1, T2, T3> Append<T1, T2, T3>(this Tuple<T1, T2> self, T3 third) =>
+    public static Tuple<A, B, C> add<A, B, C>(this Tuple<A, B> self, C third) =>
         Tuple(self.Item1, self.Item2, third);
 
     /// <summary>
@@ -22,9 +22,16 @@ public static class Tuple2Extensions
     public static Tuple<A, B> Append<SemiA, SemiB, A, B>(this Tuple<A, B> a, Tuple<A, B> b)
         where SemiA : struct, Semigroup<A>
         where SemiB : struct, Semigroup<B> =>
-        Tuple(
-            append<SemiA, A>(a.Item1, b.Item1),
-            append<SemiB, B>(a.Item2, b.Item2));
+        Tuple(default(SemiA).Append(a.Item1, b.Item1),
+              default(SemiB).Append(a.Item2, b.Item2));
+
+    /// <summary>
+    /// Semigroup append
+    /// </summary>
+    [Pure]
+    public static A Append<SemiA, A>(this Tuple<A, A> a)
+        where SemiA : struct, Semigroup<A> =>
+        default(SemiA).Append(a.Item1, a.Item2);
 
     /// <summary>
     /// Monoid concat
@@ -33,9 +40,16 @@ public static class Tuple2Extensions
     public static Tuple<A, B> Concat<MonoidA, MonoidB, A, B>(this Tuple<A, B> a, Tuple<A, B> b)
         where MonoidA : struct, Monoid<A>
         where MonoidB : struct, Monoid<B> =>
-        Tuple(
-            mconcat<MonoidA, A>(a.Item1, b.Item1),
-            mconcat<MonoidB, B>(a.Item2, b.Item2));
+        Tuple(mconcat<MonoidA, A>(a.Item1, b.Item1),
+              mconcat<MonoidB, B>(a.Item2, b.Item2));
+
+    /// <summary>
+    /// Monoid concat
+    /// </summary>
+    [Pure]
+    public static A Concat<MonoidA, A>(this Tuple<A, A> a)
+        where MonoidA : struct, Monoid<A> =>
+        mconcat<MonoidA, A>(a.Item1, a.Item2);
 
     /// <summary>
     /// Take the first item
@@ -64,7 +78,7 @@ public static class Tuple2Extensions
     [Pure]
     public static A Sum<NUM, A>(this Tuple<A, A> self)
         where NUM : struct, Num<A> =>
-        sum<NUM, FoldTuple<A>, Tuple<A, A>, A>(self);
+        TypeClass.sum<NUM, FoldTuple<A>, Tuple<A, A>, A>(self);
 
     /// <summary>
     /// Product of the items
@@ -72,7 +86,7 @@ public static class Tuple2Extensions
     [Pure]
     public static A Product<NUM, A>(this Tuple<A, A> self)
         where NUM : struct, Num<A> =>
-        product<NUM, FoldTuple<A>, Tuple<A, A>, A>(self);
+        TypeClass.product<NUM, FoldTuple<A>, Tuple<A, A>, A>(self);
 
     /// <summary>
     /// One of the items matches the value passed
@@ -80,17 +94,31 @@ public static class Tuple2Extensions
     [Pure]
     public static bool Contains<EQ, A>(this Tuple<A, A> self, A value)
         where EQ : struct, Eq<A> =>
-        contains<EQ, FoldTuple<A>, Tuple<A, A>, A>(self, value);
+        TypeClass.contains<EQ, FoldTuple<A>, Tuple<A, A>, A>(self, value);
 
     /// <summary>
-    /// Map to R
+    /// Map 
     /// </summary>
     [Pure]
     public static R Map<T1, T2, R>(this Tuple<T1, T2> self, Func<T1, T2, R> map) =>
         map(self.Item1, self.Item2);
 
     /// <summary>
-    /// Map to tuple
+    /// Map
+    /// </summary>
+    [Pure]
+    public static R Map<A, B, R>(this Tuple<A, B> self, Func<Tuple<A, B>, R> map) =>
+        map(self);
+
+    /// <summary>
+    /// Map
+    /// </summary>
+    [Pure]
+    public static Tuple<Y, Z> Map<A, B, Y, Z>(this Tuple<A, B> self, Func<A, B, Tuple<Y, Z>> map) =>
+        map(self.Item1, self.Item2);
+
+    /// <summary>
+    /// Map
     /// </summary>
     [Pure]
     public static Tuple<R1, R2> Map<T1, T2, R1, R2>(this Tuple<T1, T2> self, Func<Tuple<T1, T2>, Tuple<R1, R2>> map) =>

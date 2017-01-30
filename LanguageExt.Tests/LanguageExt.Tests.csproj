@@ -1,180 +1,41 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props" Condition="Exists('..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props')" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Debug'">
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <NoWarn>1701;1702;1705;IDE1006</NoWarn>
+  </PropertyGroup>
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{95AFE589-C43E-46B8-998A-C4D758324FE8}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LanguageExtTests</RootNamespace>
-    <AssemblyName>LanguageExt.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <NoWarn>IDE1006</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <NoWarn>IDE1006</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AppVeyorBuild|AnyCPU'">
-    <OutputPath>bin\CI\</OutputPath>
-    <DefineConstants>TRACE;CI</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <NoWarn>IDE1006</NoWarn>
+    <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
+    <PackageVersion>2.0.0-alpha</PackageVersion>
+    <PackageId>LanguageExt.Tests</PackageId>
+    <Title>LanguageExt.Tests</Title>
+    <Authors>Paul Louth</Authors>
+    <Summary>Tests for functional language extensions for C#</Summary>
+    <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
+    <Description>Unit tests</Description>
+    <PackageTags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple, Actor, Process, Akka, Redis</PackageTags>
+    <PackageIconUrl>https://camo.githubusercontent.com/08525ae465a9061150679d871731e77b399c2a94/687474703a2f2f7777772e34666f75722e6f72672f696d616765732f6c616e672d6578742d6c6f676f2e706e67</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <OutputType>library</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CompositionTests.cs" />
-    <Compile Include="CondTest.cs" />
-    <Compile Include="HashMapTests.cs" />
-    <Compile Include="NewTypeTests.cs" />
-    <Compile Include="TaskTests.cs" />
-    <Compile Include="Divisible.cs" />
-    <Compile Include="Multiplicable.cs" />
-    <Compile Include="ParsecTests.cs" />
-    <Compile Include="ProcessIdTests.cs" />
-    <Compile Include="ProcessProxies.cs" />
-    <Compile Include="ProcessStrategyTests.cs" />
-    <Compile Include="ProcessTypeChecks.cs" />
-    <Compile Include="Subtractable.cs" />
-    <Compile Include="Appendable.cs" />
-    <Compile Include="DelayTests.cs" />
-    <Compile Include="EitherUnsafeApply.cs" />
-    <Compile Include="EnumerableTTests.cs" />
-    <Compile Include="EqualityTests.cs" />
-    <Compile Include="ExceptionMatching.cs" />
-    <Compile Include="FunTests.cs" />
-    <Compile Include="LinqTests.cs" />
-    <Compile Include="ListMatchingTests.cs" />
-    <Compile Include="EitherApply.cs" />
-    <Compile Include="TryOption.cs" />
-    <Compile Include="TryOptionApply.cs" />
-    <Compile Include="TryApply.cs" />
-    <Compile Include="OptionUnsafeApply.cs" />
-    <Compile Include="OptionApply.cs" />
-    <Compile Include="OptionTTests.cs" />
-    <Compile Include="PartialAndCurryingTests.cs" />
-    <Compile Include="QueryTests.cs" />
-    <Compile Include="ListTests.cs" />
-    <Compile Include="MapTests.cs" />
-    <Compile Include="MemoTests.cs" />
-    <Compile Include="EitherTests.cs" />
-    <Compile Include="NonNullTests.cs" />
-    <Compile Include="EitherCoalesceTests.cs" />
-    <Compile Include="OptionCoalesceTests.cs" />
-    <Compile Include="OptionTests.cs" />
-    <Compile Include="ProcessTests.cs" />
-    <Compile Include="SerialisationTests.cs" />
-    <Compile Include="QueueTests.cs" />
-    <Compile Include="StackTests.cs" />
-    <Compile Include="TryOptionMonadTests.cs" />
-    <Compile Include="TryMonadTests.cs" />
-    <Compile Include="TrySimpleTests.cs" />
-    <Compile Include="TryOutTests.cs" />
-    <Compile Include="TupleTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TypeClassFoldable.cs" />
-    <Compile Include="TypeClassBiFunctor.cs" />
-    <Compile Include="TypeClassFunctor.cs" />
-    <Compile Include="TypeClassMonad.cs" />
-    <Compile Include="TypeClassMonoid.cs" />
-    <Compile Include="TypeClassORD.cs" />
-    <Compile Include="TypeClassEQ.cs" />
-    <Compile Include="UnitsOfMeasureTests.cs" />
-    <Compile Include="UnsafeTests.cs" />
-    <Compile Include="MonadTests.cs" />
+    <Compile Include="**\*.cs" />
+    <EmbeddedResource Include="**\*.resx" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj">
-      <Project>{c0fa07a0-8b83-4fa5-acfb-14185d5c4484}</Project>
-      <Name>LanguageExt.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\LanguageExt.Parsec\LanguageExt.Parsec.csproj">
-      <Project>{49f181c4-d5b4-4076-be96-1b516903ad8c}</Project>
-      <Name>LanguageExt.Parsec</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\LanguageExt.Process.Redis\LanguageExt.Process.Redis.csproj">
-      <Project>{dc05f334-346b-41bc-bea5-bfbe24e52b5f}</Project>
-      <Name>LanguageExt.Process.Redis</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\LanguageExt.Process\LanguageExt.Process.csproj">
-      <Project>{d1ab41c6-8b45-4e01-8400-97d2779034df}</Project>
-      <Name>LanguageExt.Process</Name>
-    </ProjectReference>
+    <PackageReference Include="NETStandard.Library" Version="1.6" />
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="System.Net.Http" Version="4.3.0" />
+    <PackageReference Include="xunit" Version="2.2.0-beta5-build3474" />
+    <PackageReference Include="xunit.runner.console" Version="2.2.0-beta5-build3474" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0-beta5-build1225" />
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+    <ProjectReference Include="..\LanguageExt.Core\LanguageExt.Core.csproj" />
+    <ProjectReference Include="..\LanguageExt.FSharp\LanguageExt.FSharp.csproj" />
+    <ProjectReference Include="..\LanguageExt.Parsec\LanguageExt.Parsec.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="FSharp.Core, Version=4.4.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\FSharp.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="StackExchange.Redis, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\StackExchange.Redis.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Net" />
-    <Reference Include="System.Reactive.Core, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\System.Reactive.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Interfaces, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\System.Reactive.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Linq, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\System.Reactive.Linq.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.PlatformServices, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\System.Reactive.PlatformServices.dll</HintPath>
-    </Reference>
-    <Reference Include="System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\System.ValueTuple.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

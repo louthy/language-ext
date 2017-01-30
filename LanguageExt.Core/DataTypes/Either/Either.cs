@@ -6,9 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LanguageExt.ClassInstances;
-#if !COREFX
 using System.Runtime.Serialization;
-#endif
 
 namespace LanguageExt
 {
@@ -31,13 +29,9 @@ namespace LanguageExt
     /// </remarks>
     /// <typeparam name="L">Left</typeparam>
     /// <typeparam name="R">Right</typeparam>
-#if !COREFX
     [Serializable]
-#endif
     public struct Either<L, R> :
-#if !COREFX
         ISerializable,
-#endif
         IEither,
         IComparable<Either<L, R>>,
         IComparable<R>,
@@ -69,7 +63,6 @@ namespace LanguageExt
             this.left = left;
         }
 
-#if !COREFX
         /// <summary>
         /// Deserialisation constructor
         /// </summary>
@@ -111,7 +104,6 @@ namespace LanguageExt
                 info.AddValue("LeftValue", LeftValue, typeof(L));
             }
         }
-#endif
 
         /// <summary>
         /// State of the Either

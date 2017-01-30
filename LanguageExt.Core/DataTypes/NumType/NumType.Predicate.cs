@@ -29,9 +29,7 @@ namespace LanguageExt
     /// <typeparam name="A">Bound value type</typeparam>
     /// <typeparam name="PRED">A predicate to be applied to the value passed into the constructor.
     /// Allows for constraints on the value stored.</typeparam>
-#if !COREFX
     [Serializable]
-#endif
     public abstract class NumType<NUMTYPE, NUM, A, PRED> :
         IEquatable<NUMTYPE>,
         IComparable<NUMTYPE>

@@ -22,9 +22,7 @@ namespace LanguageExt
     /// <typeparam name="NUMTYPE">Self reference type - i.e. class Metres : NumType<Metres, ... ></typeparam>
     /// <typeparam name="NUM">Num of A, e.g. TInt, TDouble, TFloat, etc.</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
-#if !COREFX
     [Serializable]
-#endif
     public abstract class NumType<NUMTYPE, NUM, A> : NumType<NUMTYPE, NUM, A, True<A>>
         where NUM     : struct, Num<A>
         where NUMTYPE : NumType<NUMTYPE, NUM, A, True<A>>

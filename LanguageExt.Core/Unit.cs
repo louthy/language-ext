@@ -6,9 +6,7 @@ namespace LanguageExt
     /// <summary>
     /// A unit type is a type that allows only one value (and thus can hold no information)
     /// </summary>
-#if !COREFX
     [Serializable]
-#endif
     public struct Unit : IEquatable<Unit>
     {
         public static readonly Unit Default = new Unit();

@@ -1,6 +1,4 @@
-﻿#if false
-
-#if !COREFX
+﻿#if !COREFX
 using System;
 using System.Linq;
 using System.ComponentModel;
@@ -25,7 +23,7 @@ namespace LanguageExt
 
         static OptionalTypeConverter()
         {
-            optional = (from info in typeof(Prelude).GetMethods()
+            optional = (from info in typeof(Prelude).GetTypeInfo().DeclaredMethods
                         where info.Name == "Optional"
                         select info)
                        .First();
@@ -60,7 +58,7 @@ namespace LanguageExt
 
         static SomeTypeConverter()
         {
-            someCreate = (from info in typeof(Some).GetMethods()
+            someCreate = (from info in typeof(Some).GetTypeInfo().DeclaredMethods
                           where info.Name == "Create"
                           select info)
                          .First();
@@ -104,7 +102,7 @@ namespace LanguageExt
         {
             this.type = type;
             this.methods = methods;
-            this.simpleType = type.GetGenericArguments().Single();
+            this.simpleType = type.GetTypeInfo().GenericTypeArguments.Single();
             this.simpleTypeConverter = TypeDescriptor.GetConverter(simpleType);
             this.emptyStringIsNone = emptyStringIsNone;
         }
@@ -175,5 +173,4 @@ namespace LanguageExt
                 None: () => ConvertToValueNull(context, culture, destinationType, baseConvertTo));
     }
 }
-#endif
 #endif

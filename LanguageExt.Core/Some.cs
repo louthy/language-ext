@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using System.Runtime.Serialization;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -28,16 +29,16 @@ namespace LanguageExt
         }
     }
 
-#if !COREFX
     // TODO: Restore when the type-class work is complete [TypeConverter(typeof(OptionalTypeConverter))]
     [Serializable]
-#endif
-    public struct Some<T> : IOptional
+    public struct Some<A> : 
+        ISerializable, 
+        IOptional
     {
-        readonly T value;
+        readonly A value;
         readonly bool initialised;
 
-        public Some(T value)
+        public Some(A value)
         {
             if (isnull(value))
             {
@@ -47,26 +48,46 @@ namespace LanguageExt
             initialised = true;
         }
 
+        /// <summary>
+        /// Serialisation support
+        /// </summary>
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("IsSome", initialised, typeof(bool));
+            info.AddValue("Value", initialised ? value : default(A), typeof(A));
+        }
+
+        /// <summary>
+        /// Deserialisation constructor
+        /// </summary>
+        public Some(SerializationInfo info, StreamingContext context)
+        {
+            initialised = (bool)info.GetValue("IsSome", typeof(bool));
+            value = initialised
+                ? (A)info.GetValue("Value", typeof(A))
+                : default(A);
+        }
+
         [Pure]
-        public T Value => 
+        public A Value => 
             CheckInitialised(value);
 
         [Pure]
         private U CheckInitialised<U>(U value) =>
             initialised
                 ? value
-                : raise<U>( new SomeNotInitialisedException(typeof(T)) );
+                : raise<U>( new SomeNotInitialisedException(typeof(A)) );
 
         [Pure]
-        public static implicit operator Option<T>(Some<T> value) =>
-            default(MOption<T>).Return(value.Value);
+        public static implicit operator Option<A>(Some<A> value) =>
+            default(MOption<A>).Return(value.Value);
 
         [Pure]
-        public static implicit operator Some<T>(T value) => 
-            new Some<T>(value);
+        public static implicit operator Some<A>(A value) => 
+            new Some<A>(value);
 
         [Pure]
-        public static implicit operator T(Some<T> value) => 
+        public static implicit operator A(Some<A> value) => 
             value.Value;
 
         [Pure]
@@ -97,7 +118,7 @@ namespace LanguageExt
 
         [Pure]
         public Type GetUnderlyingType() =>
-            typeof(T);
+            typeof(A);
     }
 
     public static class Some

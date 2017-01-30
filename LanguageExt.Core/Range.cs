@@ -8,9 +8,7 @@ namespace LanguageExt
     /// <summary>
     /// Represents a range of integers lazily.
     /// </summary>
-#if !COREFX
     [Serializable]
-#endif
     internal class IntegerRange : IEnumerable<int>
     {
         public IntegerRange(int from, int count, int step = 1)
@@ -85,9 +83,7 @@ namespace LanguageExt
     /// <summary>
     /// Represents a range of chars lazily.
     /// </summary>
-#if !COREFX
     [Serializable]
-#endif
     internal class CharRange : IEnumerable<char>
     {
         public CharRange(char from, char to)

@@ -14,8 +14,8 @@ namespace LanguageExt
         /// Append an extra item to the tuple
         /// </summary>
         [Pure]
-        public static Tuple<T1, T2, T3> append<T1, T2, T3>(Tuple<T1, T2> self, T3 third) =>
-            self.Append(third);
+        public static Tuple<T1, T2, T3> add<T1, T2, T3>(Tuple<T1, T2> self, T3 third) =>
+            Tuple(self.Item1, self.Item2, third);
 
         /// <summary>
         /// Semigroup append
@@ -24,9 +24,16 @@ namespace LanguageExt
         public static Tuple<A, B> append<SemiA, SemiB, A, B>(Tuple<A, B> a, Tuple<A, B> b)
             where SemiA : struct, Semigroup<A>
             where SemiB : struct, Semigroup<B> =>
-            Tuple(
-                default(SemiA).Append(a.Item1, b.Item1),
-                default(SemiB).Append(a.Item2, b.Item2));
+            Tuple(default(SemiA).Append(a.Item1, b.Item1),
+                  default(SemiB).Append(a.Item2, b.Item2));
+
+        /// <summary>
+        /// Semigroup append
+        /// </summary>
+        [Pure]
+        public static A append<SemiA, A>(Tuple<A, A> a)
+            where SemiA : struct, Semigroup<A> =>
+            default(SemiA).Append(a.Item1, a.Item2);
 
         /// <summary>
         /// Monoid concat
@@ -35,9 +42,16 @@ namespace LanguageExt
         public static Tuple<A, B> concat<MonoidA, MonoidB, A, B>(Tuple<A, B> a, Tuple<A, B> b)
             where MonoidA : struct, Monoid<A>
             where MonoidB : struct, Monoid<B> =>
-            Tuple(
-                mconcat<MonoidA, A>(a.Item1, b.Item1),
-                mconcat<MonoidB, B>(a.Item2, b.Item2));
+            Tuple(mconcat<MonoidA, A>(a.Item1, b.Item1),
+                  mconcat<MonoidB, B>(a.Item2, b.Item2));
+
+        /// <summary>
+        /// Monoid concat
+        /// </summary>
+        [Pure]
+        public static A concat<MonoidA, A>(Tuple<A, A> a)
+            where MonoidA : struct, Monoid<A> =>
+            mconcat<MonoidA, A>(a.Item1, a.Item2);
 
         /// <summary>
         /// Take the first item
@@ -61,18 +75,43 @@ namespace LanguageExt
             Tuple(self.Item2);
 
         /// <summary>
-        /// Map to R
+        /// Sum of the items
+        /// </summary>
+        [Pure]
+        public static A sum<NUM, A>(this Tuple<A, A> self)
+            where NUM : struct, Num<A> =>
+            default(NUM).Plus(self.Item1, self.Item2);
+
+        /// <summary>
+        /// Product of the items
+        /// </summary>
+        [Pure]
+        public static A product<NUM, A>(this Tuple<A, A> self)
+            where NUM : struct, Num<A> =>
+            default(NUM).Product(self.Item1, self.Item2);
+
+        /// <summary>
+        /// One of the items matches the value passed
+        /// </summary>
+        [Pure]
+        public static bool contains<EQ, A>(this Tuple<A, A> self, A value)
+            where EQ : struct, Eq<A> =>
+            default(EQ).Equals(self.Item1, value) ||
+            default(EQ).Equals(self.Item2, value);
+
+        /// <summary>
+        /// Map 
         /// </summary>
         [Pure]
         public static R map<T1, T2, R>(Tuple<T1, T2> self, Func<T1, T2, R> map) =>
-            self.Map(map);
+            map(self.Item1, self.Item2);
 
         /// <summary>
-        /// Map to tuple
+        /// Map
         /// </summary>
         [Pure]
-        public static Tuple<R1, R2> map<T1, T2, R1, R2>(Tuple<T1, T2> self, Func<Tuple<T1, T2>, Tuple<R1, R2>> map) =>
-            self.Map(map);
+        public static R map<A, B, R>(Tuple<A, B> self, Func<Tuple<A, B>, R> map) =>
+            map(self);
 
         /// <summary>
         /// Bi-map to tuple

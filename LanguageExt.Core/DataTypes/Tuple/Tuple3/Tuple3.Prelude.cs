@@ -14,7 +14,7 @@ namespace LanguageExt
         /// Append an extra item to the tuple
         /// </summary>
         [Pure]
-        public static Tuple<T1, T2, T3, T4> append<T1, T2, T3, T4>(this Tuple<T1, T2, T3> self, T4 fourth) =>
+        public static Tuple<T1, T2, T3, T4> append<T1, T2, T3, T4>(Tuple<T1, T2, T3> self, T4 fourth) =>
             Tuple(self.Item1, self.Item2, self.Item3, fourth);
 
         /// <summary>
@@ -25,10 +25,18 @@ namespace LanguageExt
             where SemiA : struct, Semigroup<A>
             where SemiB : struct, Semigroup<B>
             where SemiC : struct, Semigroup<C> =>
-            Tuple(
-                default(SemiA).Append(a.Item1, b.Item1),
-                default(SemiB).Append(a.Item2, b.Item2),
-                default(SemiC).Append(a.Item3, b.Item3));
+            Tuple(default(SemiA).Append(a.Item1, b.Item1),
+                  default(SemiB).Append(a.Item2, b.Item2),
+                  default(SemiC).Append(a.Item3, b.Item3));
+
+        /// <summary>
+        /// Semigroup append
+        /// </summary>
+        [Pure]
+        public static A append<SemiA, A>(Tuple<A, A, A> a)
+            where SemiA : struct, Semigroup<A> =>
+            default(SemiA).Append(a.Item1,
+                default(SemiA).Append(a.Item2, a.Item3));
 
         /// <summary>
         /// Monoid concat
@@ -38,10 +46,17 @@ namespace LanguageExt
             where MonoidA : struct, Monoid<A>
             where MonoidB : struct, Monoid<B>
             where MonoidC : struct, Monoid<C> =>
-            Tuple(
-                mconcat<MonoidA, A>(a.Item1, b.Item1),
-                mconcat<MonoidB, B>(a.Item2, b.Item2),
-                mconcat<MonoidC, C>(a.Item3, b.Item3));
+            Tuple(mconcat<MonoidA, A>(a.Item1, b.Item1),
+                  mconcat<MonoidB, B>(a.Item2, b.Item2),
+                  mconcat<MonoidC, C>(a.Item3, b.Item3));
+
+        /// <summary>
+        /// Monoid concat
+        /// </summary>
+        [Pure]
+        public static A concat<MonoidA, A>(Tuple<A, A, A> a)
+            where MonoidA : struct, Monoid<A> =>
+            mconcat<MonoidA, A>(a.Item1, a.Item2, a.Item3);
 
         /// <summary>
         /// Take the first item
@@ -86,21 +101,23 @@ namespace LanguageExt
         [Pure]
         public static bool contains<EQ, A>(Tuple<A, A, A> self, A value)
             where EQ : struct, Eq<A> =>
-            contains<EQ, FoldTuple<A>, Tuple<A, A, A>, A>(self, value);
+            default(EQ).Equals(self.Item1, value) ||
+            default(EQ).Equals(self.Item2, value) ||
+            default(EQ).Equals(self.Item3, value);
 
         /// <summary>
-        /// Map to R
+        /// Map
         /// </summary>
         [Pure]
-        public static R map<T1, T2, T3, R>(Tuple<T1, T2, T3> self, Func<T1, T2, T3, R> map) =>
-            map(self.Item1, self.Item2, self.Item3);
-
-        /// <summary>
-        /// Map to tuple
-        /// </summary>
-        [Pure]
-        public static Tuple<R1, R2, R3> map<T1, T2, T3, R1, R2, R3>(Tuple<T1, T2, T3> self, Func<Tuple<T1, T2, T3>, Tuple<R1, R2, R3>> map) =>
+        public static R map<A, B, C, R>(Tuple<A, B, C> self, Func<Tuple<A, B, C>, R> map) =>
             map(self);
+
+        /// <summary>
+        /// Map
+        /// </summary>
+        [Pure]
+        public static R map<A, B, C, R>(Tuple<A, B, C> self, Func<A, B, C, R> map) =>
+            map(self.Item1, self.Item2, self.Item3);
 
         /// <summary>
         /// Tri-map to tuple

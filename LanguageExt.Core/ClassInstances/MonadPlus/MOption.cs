@@ -16,6 +16,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly MOption<A> Inst = default(MOption<A>);
 
+        [Pure]
         public MB Bind<MONADB, MB, B>(Option<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
             ma.IsSome && f != null
                 ? f(ma.Value)

@@ -9,9 +9,7 @@ namespace LanguageExt
     /// Immutable stack
     /// </summary>
     /// <typeparam name="T">Stack element type</typeparam>
-#if !COREFX
     [Serializable]
-#endif
     public class Stck<T> : IEnumerable<T>, IEnumerable
     {
         public readonly static Stck<T> Empty = new Stck<T>();
@@ -41,7 +39,7 @@ namespace LanguageExt
         /// <summary>
         /// Ctor that takes an initial state as an IEnumerable T
         /// </summary>
-        internal Stck(IEnumerable<T> initial)
+        public Stck(IEnumerable<T> initial)
         {
             tail = new Stck<T>();
             foreach (var item in initial)

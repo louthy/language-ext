@@ -14,12 +14,10 @@ namespace LanguageExt.Reflect
         {
             var ctorInfo = typeof(R)
                 .GetTypeInfo()
-                .GetConstructors()
+                .DeclaredConstructors
                 .Where(x => x.GetParameters().Length == 1)
                 .First();
-#if COREFX
-            return fun((T x) => (NEWTYPE)Activator.CreateInstance(typeof(NEWTYPE), new object[1] { x }));
-#else
+
             var ctorParams = ctorInfo.GetParameters();
 
             var boundType = typeof(A);
@@ -34,7 +32,6 @@ namespace LanguageExt.Reflect
             il.Emit(OpCodes.Ret);
 
             return (Func<A, R>)dynamic.CreateDelegate(typeof(Func<A, R>));
-#endif
         }
     }
 }

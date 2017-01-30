@@ -17,9 +17,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="K">Key type</typeparam>
     /// <typeparam name="V">Value type</typeparam>
-#if !COREFX
     [Serializable]
-#endif
     public struct Map<K, V> :
         IEnumerable<MapItem<K, V>>
     {
@@ -125,6 +123,17 @@ namespace LanguageExt
         public Map<K, V> AddRange(IEnumerable<Tuple<K, V>> range) => Value.AddRange(range);
 
         /// <summary>
+        /// Atomically adds a range of items to the map.
+        /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
+        /// <param name="range">Range of tuples to add</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
+        /// <returns>New Map with the items added</returns>
+        [Pure]
+        public Map<K, V> AddRange(IEnumerable<(K, V)> range) => Value.AddRange(range);
+
+        /// <summary>
         /// Atomically adds a range of items to the map.  If any of the keys exist already
         /// then they're ignored.
         /// </summary>
@@ -134,6 +143,17 @@ namespace LanguageExt
         /// <returns>New Map with the items added</returns>
         [Pure]
         public Map<K, V> TryAddRange(IEnumerable<Tuple<K, V>> range) => Value.TryAddRange(range);
+
+        /// <summary>
+        /// Atomically adds a range of items to the map.  If any of the keys exist already
+        /// then they're ignored.
+        /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
+        /// <param name="range">Range of tuples to add</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
+        /// <returns>New Map with the items added</returns>
+        [Pure]
+        public Map<K, V> TryAddRange(IEnumerable<(K, V)> range) => Value.TryAddRange(range);
 
         /// <summary>
         /// Atomically adds a range of items to the map.  If any of the keys exist already
@@ -156,6 +176,17 @@ namespace LanguageExt
         /// <returns>New Map with the items added</returns>
         [Pure]
         public Map<K, V> AddOrUpdateRange(IEnumerable<Tuple<K, V>> range) => Value.AddOrUpdateRange(range);
+
+        /// <summary>
+        /// Atomically adds a range of items to the map.  If any of the keys exist already
+        /// then they're replaced.
+        /// </summary>
+        /// <remarks>Null is not allowed for a Key or a Value</remarks>
+        /// <param name="range">Range of tuples to add</param>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
+        /// <returns>New Map with the items added</returns>
+        [Pure]
+        public Map<K, V> AddOrUpdateRange(IEnumerable<(K, V)> range) => Value.AddOrUpdateRange(range);
 
         /// <summary>
         /// Atomically adds a range of items to the map.  If any of the keys exist already
@@ -367,6 +398,15 @@ namespace LanguageExt
         public Map<K, V> SetItems(IEnumerable<Tuple<K, V>> items) => Value.SetItems(items);
 
         /// <summary>
+        /// Atomically sets a series of items using the Tuples provided.
+        /// </summary>
+        /// <param name="items">Items to set</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
+        /// <returns>New map with the items set</returns>
+        [Pure]
+        public Map<K, V> SetItems(IEnumerable<(K, V)> items) => Value.SetItems(items);
+
+        /// <summary>
         /// Atomically sets a series of items using the KeyValuePairs provided.  If any of the 
         /// items don't exist then they're silently ignored.
         /// </summary>
@@ -383,6 +423,15 @@ namespace LanguageExt
         /// <returns>New map with the items set</returns>
         [Pure]
         public Map<K, V> TrySetItems(IEnumerable<Tuple<K, V>> items) => Value.TrySetItems(items);
+
+        /// <summary>
+        /// Atomically sets a series of items using the Tuples provided  If any of the 
+        /// items don't exist then they're silently ignored.
+        /// </summary>
+        /// <param name="items">Items to set</param>
+        /// <returns>New map with the items set</returns>
+        [Pure]
+        public Map<K, V> TrySetItems(IEnumerable<(K, V)> items) => Value.TrySetItems(items);
 
         /// <summary>
         /// Atomically sets a series of items using the keys provided to find the items
@@ -451,6 +500,14 @@ namespace LanguageExt
         [Pure]
         public IEnumerable<Tuple<K, V>> Tuples => 
             Value.Tuples;
+
+        /// <summary>
+        /// Enumerable of in-order tuples that make up the map
+        /// </summary>
+        /// <returns>Tuples</returns>
+        [Pure]
+        public IEnumerable<(K Key, V Value)> ValueTuples =>
+            Value.ValueTuples;
 
         /// <summary>
         /// GetEnumerator - IEnumerable interface

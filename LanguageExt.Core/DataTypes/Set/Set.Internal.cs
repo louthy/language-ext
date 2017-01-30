@@ -16,9 +16,7 @@ namespace LanguageExt
     /// http://en.wikipedia.org/wiki/AVL_tree
     /// </summary>
     /// <typeparam name="A">List item type</typeparam>
-#if !COREFX
     [Serializable]
-#endif
     internal class SetInternal<A> :
         IEquatable<SetInternal<A>>
     {

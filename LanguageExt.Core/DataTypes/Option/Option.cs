@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Linq;
 using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
-using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using System.Collections.Generic;
 using LanguageExt.ClassInstances;
 using System.ComponentModel;
 using System.Threading.Tasks;
-#if !COREFX
 using System.Runtime.Serialization;
-#endif
 
 namespace LanguageExt
 {
@@ -31,13 +27,9 @@ namespace LanguageExt
     ///     Ord         : OrdOpt
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
-#if !COREFX
     [Serializable]
-#endif
     public struct Option<A> :
-#if !COREFX
         ISerializable,
-#endif
         IOptional, 
         IEquatable<Option<A>>, 
         IComparable<Option<A>>
@@ -826,7 +818,6 @@ namespace LanguageExt
             return bind(v).Map(resU => project(v, resU));
         }
 
-#if !COREFX
         /// <summary>
         /// Serialisation support
         /// </summary>
@@ -850,6 +841,5 @@ namespace LanguageExt
                 ? OptionV<A>.Some(value)
                 : OptionV<A>.None;
         }
-#endif
     }
 }

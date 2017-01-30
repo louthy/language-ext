@@ -20,9 +20,7 @@ namespace LanguageExt
     /// Will not accept null values
     ///
     /// </summary>
-#if !COREFX
     [Serializable]
-#endif
     public abstract class NewType<NEWTYPE, A, PRED> :
         IEquatable<NEWTYPE>,
         IComparable<NEWTYPE>

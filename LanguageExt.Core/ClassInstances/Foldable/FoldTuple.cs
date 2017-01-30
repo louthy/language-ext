@@ -9,12 +9,14 @@ namespace LanguageExt.ClassInstances
     /// </summary>
     /// <typeparam name="A">Element type</typeparam>
     public struct FoldTuple<A> :
+        Foldable<Tuple<A>, A>,
         Foldable<Tuple<A, A>, A>,
         Foldable<Tuple<A, A, A>, A>,
         Foldable<Tuple<A, A, A, A>, A>,
         Foldable<Tuple<A, A, A, A, A>, A>,
         Foldable<Tuple<A, A, A, A, A, A>, A>,
         Foldable<Tuple<A, A, A, A, A, A, A>, A>,
+        Foldable<ValueTuple<A>, A>,
         Foldable<ValueTuple<A, A>, A>,
         Foldable<ValueTuple<A, A, A>, A>,
         Foldable<ValueTuple<A, A, A, A>, A>,
@@ -23,6 +25,36 @@ namespace LanguageExt.ClassInstances
         Foldable<ValueTuple<A, A, A, A, A, A, A>, A>
     {
         public static readonly FoldTuple<A> Inst = default(FoldTuple<A>);
+
+        public int Count(Tuple<A> fa) =>
+            1;
+
+        public S Fold<S>(Tuple<A> fa, S state, Func<S, A, S> f)
+        {
+            state = f(state, fa.Item1);
+            return state;
+        }
+
+        public S FoldBack<S>(Tuple<A> fa, S state, Func<S, A, S> f)
+        {
+            state = f(state, fa.Item1);
+            return state;
+        }
+
+        public int Count(ValueTuple<A> fa) =>
+            1;
+
+        public S Fold<S>(ValueTuple<A> fa, S state, Func<S, A, S> f)
+        {
+            state = f(state, fa.Item1);
+            return state;
+        }
+
+        public S FoldBack<S>(ValueTuple<A> fa, S state, Func<S, A, S> f)
+        {
+            state = f(state, fa.Item1);
+            return state;
+        }
 
         public int Count(Tuple<A, A> fa) =>
             2;

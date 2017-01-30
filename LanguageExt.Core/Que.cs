@@ -7,9 +7,7 @@ using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
-#if !COREFX
     [Serializable]
-#endif
     public class Que<T> : IEnumerable<T>, IEnumerable
     {
         public readonly static Que<T> Empty = new Que<T>();
@@ -22,6 +20,18 @@ namespace LanguageExt
         {
             forward = Stck<T>.Empty;
             backward = Stck<T>.Empty;
+        }
+
+        internal Que(IEnumerable<T> items)
+        {
+            var q = new Que<T>();
+            foreach(var item in items)
+            {
+                q = q.Enqueue(item);
+            }
+            forward = q.forward;
+            backward = q.backward;
+            backwardRev = q.backwardRev;
         }
 
         private Que(Stck<T> f, Stck<T> b)

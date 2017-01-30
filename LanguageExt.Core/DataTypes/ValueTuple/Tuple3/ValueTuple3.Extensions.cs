@@ -12,8 +12,8 @@ public static class ValueTuple3Extensions
     /// Append an extra item to the tuple
     /// </summary>
     [Pure]
-    public static ValueTuple<T1, T2, T3, T4> Append<T1, T2, T3, T4>(this ValueTuple<T1, T2, T3> self, T4 fourth) =>
-        VTuple(self.Item1, self.Item2, self.Item3, fourth);
+    public static ValueTuple<T1, T2, T3, T4> Add<T1, T2, T3, T4>(this ValueTuple<T1, T2, T3> self, T4 fourth) =>
+        (self.Item1, self.Item2, self.Item3, fourth);
 
     /// <summary>
     /// Semigroup append
@@ -23,10 +23,18 @@ public static class ValueTuple3Extensions
         where SemiA : struct, Semigroup<A>
         where SemiB : struct, Semigroup<B>
         where SemiC : struct, Semigroup<C> =>
-        VTuple(
-            default(SemiA).Append(a.Item1, b.Item1),
-            default(SemiB).Append(a.Item2, b.Item2),
-            default(SemiC).Append(a.Item3, b.Item3));
+        (default(SemiA).Append(a.Item1, b.Item1),
+         default(SemiB).Append(a.Item2, b.Item2),
+         default(SemiC).Append(a.Item3, b.Item3));
+
+    /// <summary>
+    /// Semigroup append
+    /// </summary>
+    [Pure]
+    public static A Append<SemiA, A>(this ValueTuple<A, A, A> a)
+        where SemiA : struct, Semigroup<A> =>
+        default(SemiA).Append(a.Item1,
+            default(SemiA).Append(a.Item2, a.Item3));
 
     /// <summary>
     /// Monoid concat
@@ -36,10 +44,17 @@ public static class ValueTuple3Extensions
         where MonoidA : struct, Monoid<A>
         where MonoidB : struct, Monoid<B>
         where MonoidC : struct, Monoid<C> =>
-        VTuple(
-            mconcat<MonoidA, A>(a.Item1, b.Item1),
-            mconcat<MonoidB, B>(a.Item2, b.Item2),
-            mconcat<MonoidC, C>(a.Item3, b.Item3));
+        (mconcat<MonoidA, A>(a.Item1, b.Item1),
+         mconcat<MonoidB, B>(a.Item2, b.Item2),
+         mconcat<MonoidC, C>(a.Item3, b.Item3));
+
+    /// <summary>
+    /// Monoid concat
+    /// </summary>
+    [Pure]
+    public static A Concat<MonoidA, A>(this ValueTuple<A, A, A> a)
+        where MonoidA : struct, Monoid<A> =>
+        mconcat<MonoidA, A>(a.Item1, a.Item2, a.Item3);
 
     /// <summary>
     /// Take the first item
@@ -60,7 +75,7 @@ public static class ValueTuple3Extensions
     /// </summary>
     [Pure]
     public static ValueTuple<T2, T3> Tail<T1, T2, T3>(this ValueTuple<T1, T2, T3> self) =>
-        VTuple(self.Item2, self.Item3);
+        (self.Item2, self.Item3);
 
     /// <summary>
     /// Sum of the items
@@ -68,7 +83,7 @@ public static class ValueTuple3Extensions
     [Pure]
     public static A Sum<NUM, A>(this ValueTuple<A, A, A> self)
         where NUM : struct, Num<A> =>
-        sum<NUM, FoldTuple<A>, ValueTuple<A, A, A>, A>(self);
+        default(NUM).Plus(self.Item1, default(NUM).Product(self.Item2, self.Item3));
 
     /// <summary>
     /// Product of the items
@@ -76,7 +91,7 @@ public static class ValueTuple3Extensions
     [Pure]
     public static A Product<NUM, A>(this ValueTuple<A, A, A> self)
         where NUM : struct, Num<A> =>
-        product<NUM, FoldTuple<A>, ValueTuple<A, A, A>, A>(self);
+        default(NUM).Product(self.Item1, default(NUM).Product(self.Item2, self.Item3));
 
     /// <summary>
     /// One of the items matches the value passed
@@ -84,42 +99,51 @@ public static class ValueTuple3Extensions
     [Pure]
     public static bool Contains<EQ, A>(this ValueTuple<A, A, A> self, A value)
         where EQ : struct, Eq<A> =>
-        contains<EQ, FoldTuple<A>, ValueTuple<A, A, A>, A>(self, value);
+        default(EQ).Equals(self.Item1, value) ||
+        default(EQ).Equals(self.Item2, value) ||
+        default(EQ).Equals(self.Item3, value);
 
     /// <summary>
-    /// Map to tuple
+    /// Map
     /// </summary>
     [Pure]
-    public static ValueTuple<R1, R2, R3> Map<T1, T2, T3, R1, R2, R3>(this ValueTuple<T1, T2, T3> self, Func<ValueTuple<T1, T2, T3>, ValueTuple<R1, R2, R3>> map) =>
+    public static R Map<A, B, C, R>(this ValueTuple<A, B, C> self, Func<ValueTuple<A, B, C>, R> map) =>
         map(self);
+
+    /// <summary>
+    /// Map
+    /// </summary>
+    [Pure]
+    public static R Map<A, B, C, R>(this ValueTuple<A, B, C> self, Func<A, B, C, R> map) =>
+        map(self.Item1, self.Item2, self.Item3);
 
     /// <summary>
     /// Tri-map to tuple
     /// </summary>
     [Pure]
     public static ValueTuple<R1, R2, R3> Map<T1, T2, T3, R1, R2, R3>(this ValueTuple<T1, T2, T3> self, Func<T1, R1> firstMap, Func<T2, R2> secondMap, Func<T3, R3> thirdMap) =>
-        VTuple(firstMap(self.Item1), secondMap(self.Item2), thirdMap(self.Item3));
+        (firstMap(self.Item1), secondMap(self.Item2), thirdMap(self.Item3));
 
     /// <summary>
     /// First item-map to tuple
     /// </summary>
     [Pure]
     public static ValueTuple<R1, T2, T3> MapFirst<T1, T2, T3, R1>(this ValueTuple<T1, T2, T3> self, Func<T1, R1> firstMap) =>
-        VTuple(firstMap(self.Item1), self.Item2, self.Item3);
+        (firstMap(self.Item1), self.Item2, self.Item3);
 
     /// <summary>
     /// Second item-map to tuple
     /// </summary>
     [Pure]
     public static ValueTuple<T1, R2, T3> MapSecond<T1, T2, T3, R2>(this ValueTuple<T1, T2, T3> self, Func<T2, R2> secondMap) =>
-        VTuple(self.Item1, secondMap(self.Item2), self.Item3);
+        (self.Item1, secondMap(self.Item2), self.Item3);
 
     /// <summary>
-    /// Second item-map to tuple
+    /// Third item-map to tuple
     /// </summary>
     [Pure]
     public static ValueTuple<T1, T2, R3> MapThird<T1, T2, T3, R3>(this ValueTuple<T1, T2, T3> self, Func<T3, R3> thirdMap) =>
-        VTuple(self.Item1, self.Item2, thirdMap(self.Item3));
+        (self.Item1, self.Item2, thirdMap(self.Item3));
 
     /// <summary>
     /// Map to tuple

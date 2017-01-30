@@ -16,9 +16,7 @@ namespace LanguageExt
     /// http://en.wikipedia.org/wiki/AVL_tree
     /// </summary>
     /// <typeparam name="A">Set item type</typeparam>
-#if !COREFX
     [Serializable]
-#endif
     public struct Set<A> :
         IEnumerable<A>,
         IEquatable<Set<A>>,

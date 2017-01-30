@@ -18,9 +18,7 @@ namespace LanguageExt
     /// Will not accept null values
     ///
     /// </summary>
-#if !COREFX
     [Serializable]
-#endif
     public abstract class NewType<NEWTYPE, A> : NewType<NEWTYPE, A, True<A>>
         where NEWTYPE : NewType<NEWTYPE, A, True<A>>
     {

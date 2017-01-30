@@ -8,9 +8,7 @@ using System.Collections.Generic;
 using LanguageExt.ClassInstances;
 using System.ComponentModel;
 using System.Threading.Tasks;
-#if !COREFX
 using System.Runtime.Serialization;
-#endif
 
 namespace LanguageExt
 {
@@ -31,13 +29,9 @@ namespace LanguageExt
     ///     Ord         : OrdOpt
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
-#if !COREFX
     [Serializable]
-#endif
     public struct OptionUnsafe<A> :
-#if !COREFX
         ISerializable,
-#endif
         IOptional,
         IEquatable<OptionUnsafe<A>>,
         IComparable<OptionUnsafe<A>>
@@ -64,7 +58,6 @@ namespace LanguageExt
         internal OptionUnsafe(OptionV<A> value) =>
             this.value = value ?? throw new ArgumentNullException(nameof(value));
 
-#if !COREFX
         /// <summary>
         /// Deserialisation constructor
         /// </summary>
@@ -88,7 +81,6 @@ namespace LanguageExt
             info.AddValue("IsSome", IsSome, typeof(bool));
             info.AddValue("Value", IsSome ? Value : default(A), typeof(A));
         }
-#endif
 
         /// <summary>
         /// Uses the EqDefault instance to do an equality check on the bound value.  

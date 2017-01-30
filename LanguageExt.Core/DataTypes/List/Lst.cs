@@ -11,9 +11,7 @@ namespace LanguageExt
     /// Immutable list
     /// </summary>
     /// <typeparam name="A">Value type</typeparam>
-#if !COREFX
     [Serializable]
-#endif
     public struct Lst<A> :
         IEnumerable<A>, 
         IReadOnlyList<A>,

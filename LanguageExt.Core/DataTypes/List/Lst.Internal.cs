@@ -14,9 +14,7 @@ namespace LanguageExt
     /// Immutable list
     /// </summary>
     /// <typeparam name="A">Value type</typeparam>
-#if !COREFX
     [Serializable]
-#endif
     internal class LstInternal<A> : 
         IEnumerable<A>, 
         IReadOnlyList<A>,
@@ -446,9 +444,7 @@ namespace LanguageExt
             !lhs.Equals(rhs);
     }
 
-#if !COREFX
     [Serializable]
-#endif
     class ListItem<T>
     {
         public static readonly ListItem<T> Empty = new ListItem<T>(0, 0, default(T), null, null);

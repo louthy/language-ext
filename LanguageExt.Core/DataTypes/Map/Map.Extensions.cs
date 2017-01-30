@@ -109,6 +109,15 @@ namespace LanguageExt
             MapModule.ForAll(self.Value.Root, (k, v) => pred(new Tuple<K, V>(k, v)));
 
         /// <summary>
+        /// Return true if all items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public static bool ForAll<K, V>(this Map<K, V> self, Func<(K Key, V Value), bool> pred) =>
+            MapModule.ForAll(self.Value.Root, (k, v) => pred((k, v)));
+
+        /// <summary>
         /// Return true if *all* items in the map return true when the predicate is applied
         /// </summary>
         /// <param name="pred">Predicate</param>
@@ -143,6 +152,15 @@ namespace LanguageExt
         [Pure]
         public static bool Exists<K, V>(this Map<K, V> self, Func<Tuple<K, V>, bool> pred) =>
             MapModule.Exists(self.Value.Root, (k, v) => pred(new Tuple<K, V>(k, v)));
+
+        /// <summary>
+        /// Return true if *any* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public static bool Exists<K, V>(this Map<K, V> self, Func<(K, V), bool> pred) =>
+            MapModule.Exists(self.Value.Root, (k, v) => pred((k, v)));
 
         /// <summary>
         /// Return true if *any* items in the map return true when the predicate is applied
@@ -203,6 +221,21 @@ namespace LanguageExt
             foreach (var item in self)
             {
                 action(new Tuple<K, V>(item.Key, item.Value));
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Atomically iterate through all key/value pairs (as tuples) in the map (in order) 
+        /// and execute an action on each
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>Unit</returns>
+        public static Unit Iter<K, V>(this Map<K, V> self, Action<(K, V)> action)
+        {
+            foreach (var item in self)
+            {
+                action((item.Key, item.Value));
             }
             return unit;
         }

@@ -13,7 +13,6 @@ using static LanguageExt.Parsec.Prim;
 using static LanguageExt.Parsec.Char;
 using static LanguageExt.Parsec.Expr;
 using static LanguageExt.Parsec.Token;
-using LanguageExt.Config;
 using LanguageExt.UnitsOfMeasure;
 
 namespace LanguageExtTests
@@ -480,102 +479,6 @@ namespace LanguageExtTests
             var r = parse(p, "\"/abc\"");
             Assert.False(r.IsFaulted);
             Assert.True(r.Reply.Result == "/abc");
-        }
-
-        [Fact]
-        public void ProcessesSettingsParserTest()
-        {
-            lock (ProcessTests.sync)
-            {
-                Process.shutdownAll();
-
-                var text = @"
-
-                bool  transactional-io: true
-                let   default-retries : 3
-                let   strSetting      : ""testing 123""
-                float dblSetting      : 1.25
-
-                strategy testStrat1: 
-	                one-for-one:
-		                retries: count = default-retries + 2, duration = 10 seconds
-		                backoff: 1 seconds
-
-                        always: restart
-
-                        redirect when
-                         | restart  -> forward-to-self
-		                 | stop     -> forward-to-dead-letters
-
-                strategy testStrat2: 
-                    all-for-one:
-                        retries: 5
-		                backoff: min = 1 seconds, max = 100 seconds, step = 2 second
-                        
-                        match
-                         | LanguageExt.ProcessSetupException -> restart
-
-                        redirect when
-                         | restart  -> forward-to-self
-
-                process test1Supervisor:
-	                pid:          /root/user/test1-supervisor
-                    strategy:     testStrat1
-                    string hello: ""world""
-
-                process test2Supervisor:
-                    pid:          /root/user/test2-supervisor
-                    strategy:     testStrat2
-                ";
-
-                var config = ProcessConfig.initialise(text, None);
-
-                // TODO: Restore tests
-
-                //var res = parse(config.Parser, text);
-
-                //Assert.False(res.IsFaulted);
-
-                //var result = res.Reply.Result;
-
-                //Assert.True(result.Count == 7);
-
-                //var timeout = result["timeout"];
-                //var session = result["session-timeout"];
-                //var mailbox= result["mailbox-size"];
-
-                // Load process settings
-                //var processes = M.createRange(from val in result.Values
-                //                              where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Process
-                //                              let p = (ProcessToken)val.Values.Values.First().Value
-                //                              where p.ProcessId.IsSome
-                //                              let id = p.ProcessId.IfNone(ProcessId.None)
-                //                              select Tuple(id, p));
-
-                //var strats = M.createRange(from val in result.Values
-                //                           where val.Spec.Args.Length > 0 && val.Spec.Args[0].Type.Tag == ArgumentTypeTag.Strategy
-                //                           let s = (StrategyToken)val.Values.Values.First().Value
-                //                           select Tuple(val.Name, s));
-
-
-                //Assert.True(timeout.Name == "timeout");
-                //Assert.True(timeout.Attributes.Count == 1);
-                //Assert.True(timeout.Attributes["value"].Type.Tag == ArgumentTypeTag.Time);
-                //Assert.True((Time)timeout.Attributes["value"].Value == 30*seconds);
-
-                //Assert.True(session.Name == "session-timeout");
-                //Assert.True(session.Attributes.Count == 1);
-                //Assert.True(session.Attributes["value"].Type.Tag == ArgumentTypeTag.Time);
-                //Assert.True((Time)session.Attributes["value"].Value == 60 * seconds);
-
-                //Assert.True(mailbox.Name == "mailbox-size");
-                //Assert.True(mailbox.Attributes.Count == 1);
-                //Assert.True(mailbox.Attributes["value"].Type.Tag == ArgumentTypeTag.Int);
-                //Assert.True((int)mailbox.Attributes["value"].Value == 10000);
-
-                //Assert.True(strats.Count == 2);
-                //Assert.True(processes.Count == 2);
-            }
         }
     }
 }

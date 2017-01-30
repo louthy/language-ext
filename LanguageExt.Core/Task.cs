@@ -5,6 +5,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
+using System.Reflection;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
 
@@ -191,11 +192,16 @@ public static class TaskExtensions
         T t = await source;
         return project(t, inner.Where(u => EqualityComparer<K>.Default.Equals(outerKeyMap(t), innerKeyMap(u))));
     }
-#if !COREFX
+
+    class PropCache<T>
+    {
+        public static PropertyInfo Info = typeof(T).GetTypeInfo().DeclaredProperties.Where(p => p.Name == "Result").First();
+    }
+
     public static async Task<T> Cast<T>(this Task source)
     {
         await source;
-        return (T)((dynamic)source).Result;
+        if (source == null) return default(T);
+        return (T)PropCache<T>.Info.GetValue(source);
     }
-#endif
 }
