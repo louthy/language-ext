@@ -8,11 +8,11 @@ namespace LanguageExtTests
     public class TryApply
     {
         Func<int, int, int> add = (a, b) => a + b;
-        Try<Func<int, int, int>> tryadd = Try(() => fun((int a, int b) => a + b));
-        Try<int> three = Try(() => 3);
-        Try<int> four = Try(() => 4);
-        Try<int> seven = Try(() => 7);
-        Try<int> fail = Try(() => failwith<int>("fail"));
+        Try<Func<int, int, int>> tryadd = () => fun((int a, int b) => a + b);
+        Try<int> three = () => 3;
+        Try<int> four = () => 4;
+        Try<int> seven = () => 7;
+        Try<int> fail = () => failwith<int>("fail");
 
         [Fact]
         public void ApplySuccArgs()

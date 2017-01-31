@@ -15,7 +15,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly MTry<A> Inst = default(MTry<A>);
 
-        static Try<A> none = Try(() => raise<A>(new BottomException()));
+        static Try<A> none = () => raise<A>(new BottomException());
 
         public MB Bind<MONADB, MB, B>(Try<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
         {
@@ -33,20 +33,23 @@ namespace LanguageExt.ClassInstances
             Try<A>(() => { throw err; });
 
         [Pure]
-        public Try<A> Plus(Try<A> ma, Try<A> mb) => Try(() =>
+        public Try<A> Plus(Try<A> ma, Try<A> mb) => () =>
         {
             var res = ma.Try();
             if (!res.IsFaulted) return res.Value;
-            return mb.Run();
-        });
+            return mb().Value;
+        };
 
         [Pure]
-        public Try<A> Return(IEnumerable<A> xs) =>        // TODO: We need a lazy Return
-            Try(() => xs.FirstOrDefault());
+        public Try<A> Return(IEnumerable<A> xs)
+        {
+            var head = xs.FirstOrDefault();
+            return () => head;
+        }
 
         [Pure]
-        public Try<A> Return(A x, params A[] xs) =>       // TODO: We need a lazy Return
-            Try(() => x);
+        public Try<A> Return(A x, params A[] xs) =>
+            () => x;
 
         [Pure]
         public Try<A> Zero() => 

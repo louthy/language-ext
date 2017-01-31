@@ -365,7 +365,7 @@ namespace LanguageExt
         public Try<A> ToTry()
         {
             var self = this;
-            return Try(() => self.IfFailThrow());
+            return () => self.IfFailThrow();
         }
 
         [Pure]

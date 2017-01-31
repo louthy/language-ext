@@ -388,11 +388,11 @@ namespace LanguageExt
             tryDel.ToList().AsQueryable();
 
         [Pure]
-        public static Try<T> tryfun<T>(Func<Try<T>> tryDel) => 
-            Try(() => tryDel().Run());
+        public static Try<T> tryfun<T>(Func<Try<T>> tryDel) => () => 
+            tryDel()().Value;
 
         [Pure]
-        public static Try<T> Try<T>(Func<T> tryDel) => new Try<T>(tryDel);
-
+        public static Try<T> Try<T>(Func<T> tryDel) => () =>
+            tryDel();
     }
 }

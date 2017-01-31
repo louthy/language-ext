@@ -118,7 +118,7 @@ namespace LanguageExt
         /// <param name="f">Inner map function that uses the disposable value</param>
         /// <returns>Result of f(disposable)</returns>
         public static Try<R> tryuse<T, R>(T disposable, Func<T, R> f)
-            where T : IDisposable => Try(() =>
+            where T : IDisposable => () =>
         {
             try
             {
@@ -128,6 +128,6 @@ namespace LanguageExt
             {
                 disposable.Dispose();
             }
-        });
+        };
     }
 }

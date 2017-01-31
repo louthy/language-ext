@@ -247,18 +247,18 @@ namespace LanguageExt
         };
 
         [Pure]
-        public static Try<Reader<Env, T>> tryfun<Env, T>(Func<Reader<Env, T>> tryDel) =>
-            Try(() => from x in tryDel()
-                      select x);
+        public static Try<Reader<Env, T>> tryfun<Env, T>(Func<Reader<Env, T>> tryDel) => () => 
+            from x in tryDel()
+            select x;
 
         [Pure]
-        public static Try<State<S, T>> tryfun<S, T>(Func<State<S, T>> tryDel) =>
-            Try(() => from x in tryDel()
-                      select x);
+        public static Try<State<S, T>> tryfun<S, T>(Func<State<S, T>> tryDel) => () => 
+            from x in tryDel()
+            select x;
 
         [Pure]
-        public static Try<Writer<Out, T>> tryfun<Out, T>(Func<Writer<Out, T>> tryDel) =>
-            Try(() => from x in tryDel()
-                      select x);
+        public static Try<Writer<Out, T>> tryfun<Out, T>(Func<Writer<Out, T>> tryDel) => () => 
+            from x in tryDel()
+            select x;
     }
 }

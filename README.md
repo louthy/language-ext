@@ -176,7 +176,7 @@ For example:
     var sumA = (1, 2, 3).Sum<TInt, int>();                                   // 6
     var sumB = (2, 4, 8).Product<TInt, int>();                               // 64
     var flag = ("one", "two", "three").Contains<TString, string>("one");     // true
-    var str = ("hello", "world").Concat<TString, string>();                  // "Hello, World"
+	var str = ("Hello", " ", "World").Concat<TString, string>();             // "Hello World"
     var list = (List(1, 2, 3), List(4, 5, 6)).Concat<TLst<int>, Lst<int>>(); // [1,2,3,4,5,6]
 ```
 
@@ -938,5 +938,12 @@ _any others you think should be included, please get in touch_
 This README.md is a basic introduction to the library.  It is however full of many useful types, so 
 do check the [API Reference](https://louthy.github.io) for more info.
 
-### Future
-There's more to come with this library.  Feel free to get in touch with any suggestions.
+### Contributions
+All contributors are welcome.  For anything other than bug fixes please get in touch via the issues 
+page.  There are no fixed rules on what should and shouldn't be in this library, but some features are 
+more valuable than others, and some require long-term maintenance that outweighs the value of the 
+feature.  So please get sign-off from the project leader (Paul Louth) before putting in an excessive 
+amount of work. 
+
+If you would just like to get involved, but don't have any major feature work to submit, then the 
+project will always benefit from more unit-tests, documentation, peer-review, etc.
