@@ -32,7 +32,7 @@ namespace LanguageExt.ClassInstances
         }
 
         public MB Bind<MONADB, MB, B>(HashSet<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
-            default(MONADB).Return(BindSeq<MONADB, MB, B>(ma, f));
+            default(MONADB).FromSeq(BindSeq<MONADB, MB, B>(ma, f));
 
         public int Count(HashSet<A> fa) =>
             fa.Count();
@@ -61,11 +61,11 @@ namespace LanguageExt.ClassInstances
         public HashSet<A> Plus(HashSet<A> ma, HashSet<A> mb) =>
             ma + mb;
 
-        public HashSet<A> Return(IEnumerable<A> xs) =>
+        public HashSet<A> FromSeq(IEnumerable<A> xs) =>
             HashSet.createRange(xs);
 
-        public HashSet<A> Return(A x, params A[] xs) =>
-            HashSet.createRange(x.Cons(xs));
+        public HashSet<A> Return(A x) =>
+            HashSet(x);
 
         public HashSet<A> Zero() =>
             Empty();

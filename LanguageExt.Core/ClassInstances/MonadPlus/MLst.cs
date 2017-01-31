@@ -32,7 +32,7 @@ namespace LanguageExt.ClassInstances
         }
 
         public MB Bind<MONADB, MB, B>(Lst<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
-            default(MONADB).Return(BindSeq<MONADB, MB, B>(ma, f));
+            default(MONADB).FromSeq(BindSeq<MONADB, MB, B>(ma, f));
 
         public int Count(Lst<A> fa) =>
             fa.Count();
@@ -67,11 +67,11 @@ namespace LanguageExt.ClassInstances
             foreach (var b in mb) yield return b;
         }
 
-        public Lst<A> Return(IEnumerable<A> xs) =>
+        public Lst<A> FromSeq(IEnumerable<A> xs) =>
             xs.Freeze();
 
-        public Lst<A> Return(A x, params A[] xs) =>
-            x.Cons(xs).Freeze();
+        public Lst<A> Return(A x) =>
+            List(x);
 
         public Lst<A> Zero() =>
             Empty();

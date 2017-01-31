@@ -30,14 +30,14 @@ namespace LanguageExt.TypeClasses
         /// <typeparam name="A">Type of the bound monad value</typeparam>
         /// <param name="x">The bound monad value</param>
         /// <returns>Monad of A</returns>
-        MA Return(A x, params A[] xs);
+        MA Return(A x);
 
-        /// <summary>
-        /// Monad return
-        /// </summary>
-        /// <param name="xs">The bound monad value(s)</param>
-        /// <returns>Monad of A</returns>
-        MA Return(IEnumerable<A> xs);
+        ///// <summary>
+        ///// Monad return
+        ///// </summary>
+        ///// <param name="xs">The bound monad value(s)</param>
+        ///// <returns>Monad of A</returns>
+        MA FromSeq(IEnumerable<A> xs);
 
         /// <summary>
         /// Produce a failure value

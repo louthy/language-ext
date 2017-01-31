@@ -36,7 +36,7 @@ namespace LanguageExt.ClassInstances
                 : b;
 
         [Pure]
-        public A? Return(IEnumerable<A> xs)
+        public A? FromSeq(IEnumerable<A> xs)
         {
             var x = xs.Take(1).ToArray();
             return x.Length == 0 
@@ -45,7 +45,7 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public A? Return(A x, params A[] xs) =>
+        public A? Return(A x) =>
             isnull(x)
                 ? null
                 : (A?)x;

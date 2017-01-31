@@ -36,7 +36,7 @@ namespace LanguageExt.ClassInstances
                 : b;
 
         [Pure]
-        public OptionUnsafe<A> Return(IEnumerable<A> xs)
+        public OptionUnsafe<A> FromSeq(IEnumerable<A> xs)
         {
             var x = xs.Take(1).ToArray();
             return x.Length == 0
@@ -45,7 +45,7 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public OptionUnsafe<A> Return(A x, params A[] xs) =>
+        public OptionUnsafe<A> Return(A x) =>
             new OptionUnsafe<A>(new SomeValue<A>(x));
 
         [Pure]
@@ -112,10 +112,7 @@ namespace LanguageExt.ClassInstances
                 ? 1
                 : 0;
 
-        public OptionUnsafe<A> Lift(A x, params A[] xs) =>
-            Return(x, xs);
-
-        public OptionUnsafe<A> Lift(IEnumerable<A> value) =>
-            Return(value);
+        public OptionUnsafe<A> Lift(A x) =>
+            Return(x);
     }
 }

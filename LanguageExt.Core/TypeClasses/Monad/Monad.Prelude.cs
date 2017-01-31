@@ -17,7 +17,7 @@ namespace LanguageExt
         /// <param name="x">The bound monad value</param>
         /// <returns>Monad of A</returns>
         [Pure]
-        public static MA Return<MONAD, MA, A>(A x, params A[] xs) where MONAD : struct, Monad<MA, A> =>
+        public static MA Return<MONAD, MA, A>(A x) where MONAD : struct, Monad<MA, A> =>
             default(MONAD).Return(x);
 
         /// <summary>
@@ -27,8 +27,8 @@ namespace LanguageExt
         /// <param name="a">The bound monad value</param>
         /// <returns>Monad of A</returns>
         [Pure]
-        public static MA Return<MONAD, MA, A>(IEnumerable<A> xs) where MONAD : struct, Monad<MA, A> =>
-            default(MONAD).Return(xs);
+        public static MA FromSeq<MONAD, MA, A>(IEnumerable<A> xs) where MONAD : struct, Monad<MA, A> =>
+            default(MONAD).FromSeq(xs);
 
         /// <summary>
         /// Monadic bind

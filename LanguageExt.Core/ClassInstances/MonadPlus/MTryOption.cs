@@ -42,7 +42,7 @@ namespace LanguageExt.ClassInstances
         });
 
         [Pure]
-        public TryOption<A> Return(IEnumerable<A> xs) =>        // TODO: We need a lazy Return
+        public TryOption<A> FromSeq(IEnumerable<A> xs) =>
             TryOption(() =>
             {
                 var x = xs.Take(1).ToArray();
@@ -52,7 +52,7 @@ namespace LanguageExt.ClassInstances
             });
 
         [Pure]
-        public TryOption<A> Return(A x, params A[] xs) =>       // TODO: We need a lazy Return
+        public TryOption<A> Return(A x) =>
             TryOption(() => x);
 
         [Pure]

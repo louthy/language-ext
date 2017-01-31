@@ -17,11 +17,11 @@ namespace LanguageExt.TypeClasses
         /// <summary>
         /// Lift value A into a Liftable<A>
         /// <summary>
-        LA Lift(A x, params A[] xs);
+        LA Lift(A x);
 
         /// <summary>
         /// Lift value A into a Liftable<A>
         /// <summary>
-        LA Lift(IEnumerable<A> value);
+        LA FromSeq(IEnumerable<A> value);
     }
 }

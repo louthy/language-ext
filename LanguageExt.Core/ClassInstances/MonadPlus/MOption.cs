@@ -37,7 +37,7 @@ namespace LanguageExt.ClassInstances
                 : b;
 
         [Pure]
-        public Option<A> Return(IEnumerable<A> xs)
+        public Option<A> FromSeq(IEnumerable<A> xs)
         {
             var x = xs.Take(1).ToArray();
             return x.Length == 0 
@@ -46,7 +46,7 @@ namespace LanguageExt.ClassInstances
         }
 
         [Pure]
-        public Option<A> Return(A x, params A[] xs) =>
+        public Option<A> Return(A x) =>
             isnull(x)
                 ? Option<A>.None
                 : new Option<A>(new SomeValue<A>(x));
@@ -115,10 +115,7 @@ namespace LanguageExt.ClassInstances
                 ? 1
                 : 0;
 
-        public Option<A> Lift(A x, params A[] xs) =>
-            Return(x, xs);
-
-        public Option<A> Lift(IEnumerable<A> value) =>
-            Return(value);
+        public Option<A> Lift(A x) =>
+            Return(x);
     }
 }

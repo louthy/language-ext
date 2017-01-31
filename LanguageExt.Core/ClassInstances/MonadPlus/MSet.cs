@@ -32,7 +32,7 @@ namespace LanguageExt.ClassInstances
         }
 
         public MB Bind<MONADB, MB, B>(Set<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
-            default(MONADB).Return(BindSeq<MONADB, MB, B>(ma, f));
+            default(MONADB).FromSeq(BindSeq<MONADB, MB, B>(ma, f));
 
         public int Count(Set<A> fa) =>
             fa.Count();
@@ -61,11 +61,11 @@ namespace LanguageExt.ClassInstances
         public Set<A> Plus(Set<A> ma, Set<A> mb) =>
             ma + mb;
 
-        public Set<A> Return(IEnumerable<A> xs) =>
+        public Set<A> FromSeq(IEnumerable<A> xs) =>
             Set.createRange(xs);
 
-        public Set<A> Return(A x, params A[] xs) =>
-            Set.createRange(x.Cons(xs));
+        public Set<A> Return(A x) =>
+            Set(x);
 
         public Set<A> Zero() =>
             Empty();

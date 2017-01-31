@@ -47,11 +47,11 @@ namespace LanguageExt.ClassInstances
                 Bottom: () => mb);
 
         [Pure]
-        public Either<L, R> Return(IEnumerable<R> xs) =>
+        public Either<L, R> FromSeq(IEnumerable<R> xs) =>
             Either<L,R>.Right(xs.FirstOrDefault());
 
         [Pure]
-        public Either<L, R> Return(R x, params R[] xs) =>
+        public Either<L, R> Return(R x) =>
             Either<L, R>.Right(x);
 
         [Pure]

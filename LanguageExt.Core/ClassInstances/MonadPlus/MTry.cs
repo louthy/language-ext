@@ -41,14 +41,14 @@ namespace LanguageExt.ClassInstances
         };
 
         [Pure]
-        public Try<A> Return(IEnumerable<A> xs)
+        public Try<A> FromSeq(IEnumerable<A> xs)
         {
             var head = xs.FirstOrDefault();
             return () => head;
         }
 
         [Pure]
-        public Try<A> Return(A x, params A[] xs) =>
+        public Try<A> Return(A x) =>
             () => x;
 
         [Pure]

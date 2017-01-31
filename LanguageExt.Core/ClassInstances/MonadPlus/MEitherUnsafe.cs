@@ -47,11 +47,11 @@ namespace LanguageExt.ClassInstances
                 Bottom: () => mb);
 
         [Pure]
-        public EitherUnsafe<L, R> Return(IEnumerable<R> xs) =>
+        public EitherUnsafe<L, R> FromSeq(IEnumerable<R> xs) =>
             EitherUnsafe<L,R>.Right(xs.FirstOrDefault());
 
         [Pure]
-        public EitherUnsafe<L, R> Return(R x, params R[] xs) =>
+        public EitherUnsafe<L, R> Return(R x) =>
             EitherUnsafe<L, R>.Right(x);
 
         [Pure]
