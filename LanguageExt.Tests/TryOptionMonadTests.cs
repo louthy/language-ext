@@ -76,17 +76,17 @@ namespace LanguageExtTests
         }
 
         public TryOption<string> GetSomeValue(bool select) =>
-            TryOption(() => select
+            () => select
                 ? Some("Hello, World")
-                : None);
+                : None;
 
         public TryOption<string> GetValue(bool select) =>
-            TryOption(() => select
+            () => select
                 ? "Hello, World"
-                : (string)null);
+                : (string)null;
 
         public TryOption<string> GetFailValue() =>
-            TryOption(() => failwith<string>("Whoops"));
+            () => failwith<string>("Whoops");
 
     }
 }

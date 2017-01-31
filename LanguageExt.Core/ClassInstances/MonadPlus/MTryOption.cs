@@ -15,7 +15,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly MTryOption<A> Inst = default(MTryOption<A>);
 
-        static TryOption<A> none = TryOption(() => Option<A>.None);
+        static TryOption<A> none = () => Option<A>.None;
 
         public MB Bind<MONADB, MB, B>(TryOption<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
         {
@@ -34,12 +34,12 @@ namespace LanguageExt.ClassInstances
             TryOption<A>(() => { throw err; });
 
         [Pure]
-        public TryOption<A> Plus(TryOption<A> ma, TryOption<A> mb) => TryOption(() =>
+        public TryOption<A> Plus(TryOption<A> ma, TryOption<A> mb) => () =>
         {
             var res = ma.Try();
             if (!res.IsFaulted && res.Value.IsSome) return res.Value;
-            return mb.Run();
-        });
+            return mb();
+        };
 
         [Pure]
         public TryOption<A> FromSeq(IEnumerable<A> xs) =>
@@ -53,7 +53,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public TryOption<A> Return(A x) =>
-            TryOption(() => x);
+            () => x;
 
         [Pure]
         public TryOption<A> Zero() => 

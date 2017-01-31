@@ -27,6 +27,6 @@ namespace LanguageExtTests
         }
     
         public TryOption<string> GetLastPathObj(string text) =>
-            TryOption(() => text.Split('/').Last());
+            () => text.Split('/').Last();
     }
 }

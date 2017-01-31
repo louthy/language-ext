@@ -212,14 +212,13 @@ public static class TryExtensions
     }
 
     [Pure]
-    public static TryOption<A> ToTryOption<A>(this Try<A> self) =>
-        TryOption(() =>
-        {
-            var res = self.Try();
-            return res.IsFaulted
-                ? None
-                : Optional(res.Value);
-        });
+    public static TryOption<A> ToTryOption<A>(this Try<A> self) => () =>
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? None
+            : Optional(res.Value);
+    };
 
     [Pure]
     public static A IfFailThrow<A>(this Try<A> self)
@@ -499,12 +498,12 @@ public static class TryExtensions
     [Pure]
     public static TryResult<T> Try<T>(this Try<T> self)
     {
-        if(self == null)
-        {
-            return new TryResult<T>(new ArgumentNullException("this is null in Try()"));
-        }
         try
         {
+            if (self == null)
+            {
+                throw new ArgumentNullException("this is null");
+            }
             return self();
         }
         catch (Exception e)
@@ -518,17 +517,14 @@ public static class TryExtensions
     public static Try<U> Use<T, U>(this Try<T> self, Func<T, U> select)
         where T : IDisposable => () =>
             {
-                TryResult<T> t = default(TryResult<T>);
+                var t = default(T);
                 try
                 {
-                    t = self();
-                    return t.IsFaulted
-                        ? throw t.Exception
-                        : select(t.Value);
+                    return select(self().Value);
                 }
                 finally
                 {
-                    t.Value?.Dispose();
+                    t?.Dispose();
                 }
             };
 
@@ -536,21 +532,15 @@ public static class TryExtensions
     public static Try<U> Use<T, U>(this Try<T> self, Func<T, Try<U>> select)
         where T : IDisposable => () =>
         {
-            TryResult<T> t = default(T);
+            var t = default(T);
             try
             {
-                t = self();
-                var u = t.IsFaulted
-                    ? throw t.Exception
-                    : select(t.Value)();
-
-                return u.IsFaulted
-                    ? throw u.Exception
-                    : u.Value;
+                t = self().Value;
+                return select(t)().Value;
             }
             finally
             {
-                t.Value?.Dispose();
+                t?.Dispose();
             }
         };
 

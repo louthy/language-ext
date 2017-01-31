@@ -283,7 +283,7 @@ namespace LanguageExtTests
         //    throw new Exception("Nooooo");
         //}
 
-        private static TryOption<string> Hello2(string who) => TryOption(() => Some("Hello, " + who));
+        private static TryOption<string> Hello2(string who) => () => Some("Hello, " + who);
         private static Try<Option<string>> Hello(string who) => () => Some("Hello, " + who);
         private static Try<Option<string>> NoWorky(string who) => () => Some(failwith<string>("fail!"));
     }

@@ -224,10 +224,9 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static TryOption<A> toTryOption<OPT, OA, A>(OA ma)
-            where OPT : struct, Optional<OA, A> =>
-            TryOption(() =>
+            where OPT : struct, Optional<OA, A> => () =>
                 default(OPT).Match(ma, 
                     Some: x  => Option<A>.Some(x),
-                    None: () => Option<A>.None ));
+                    None: () => Option<A>.None);
     }
 }

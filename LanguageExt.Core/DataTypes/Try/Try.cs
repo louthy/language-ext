@@ -1,16 +1,4 @@
-﻿using System;
-using System.Linq;
-using static LanguageExt.TypeClass;
-using static LanguageExt.Prelude;
-using LanguageExt.TypeClasses;
-using System.Diagnostics.Contracts;
-using System.Collections.Generic;
-using LanguageExt.ClassInstances;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using System.Reactive.Linq;
-
-namespace LanguageExt
+﻿namespace LanguageExt
 {
     /// <summary>
     /// The Try monad captures exceptions and uses them to cancel the

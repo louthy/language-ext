@@ -109,12 +109,11 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static TryOption<B> toTryOption<CHOICE, CH, A, B>(CH ma)
-            where CHOICE : struct, Choice<CH, A, B> =>
-            TryOption(() =>
+            where CHOICE : struct, Choice<CH, A, B> => () =>
                 default(CHOICE).Match(ma,
                     Choice1: _ => Option<B>.None,
                     Choice2:      Option<B>.Some,
-                    Bottom: () => Option<B>.None));
+                    Bottom: () => Option<B>.None);
 
         public static Task<R> matchAsync<CHOICE, CH, A, B, R>(CH ma, Func<A, R> Choice1, Func<B, Task<R>> Choice2)
             where CHOICE : struct, Choice<CH, A, B> =>

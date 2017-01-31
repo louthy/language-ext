@@ -469,11 +469,11 @@ namespace LanguageExt
 
         [Pure]
         public static TryOption<T> tryfun<T>(Func<TryOption<T>> tryDel) =>
-            TryOption(() => tryDel().Run());
+            () => tryDel()();
 
         [Pure]
-        public static TryOption<T> TryOption<T>(Func<Option<T>> tryDel) => 
-            new TryOption<T>(tryDel);
+        public static TryOption<T> TryOption<T>(Func<Option<T>> tryDel) => () =>
+            tryDel();
 
         [Pure]
         public static TryOption<T> TryOption<T>(Func<T> tryDel) =>
