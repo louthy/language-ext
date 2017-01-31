@@ -36,6 +36,19 @@ namespace LanguageExtTests
             Assert.False(m1 == m3);
             //var r3 = m1 == h1;    // won't compile
         }
+        [Fact]
+        public void EqTestWithNull()
+        {
+            var m1 = new Metres(1);
+            var m2 = default(Metres);
+
+            Assert.False(m1 == m2);
+            Assert.False(m1 == null);
+            Assert.False(null == m1);
+
+            Assert.True(null == m2);
+            Assert.True(m2 == null);
+        }
 
         [Fact]
         public void OrdTest1()
