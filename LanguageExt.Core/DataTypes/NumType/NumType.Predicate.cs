@@ -106,16 +106,26 @@ namespace LanguageExt
         /// </summary>
         /// <param name="x">The value to find the absolute value of</param>
         /// <returns>The non-negative absolute value of x</returns>
-        public A Abs() =>
-            default(NUM).Abs(Value);
+        public NUMTYPE Abs() =>
+            New(default(NUM).Abs(Value));
 
         /// <summary>
         /// Find the sign of x
         /// </summary>
         /// <param name="x">The value to find the sign of</param>
         /// <returns>-1, 0, or +1</returns>
-        public A Signum() =>
-            default(NUM).Signum(Value);
+        public NUMTYPE Signum() =>
+            New(default(NUM).Signum(Value));
+
+        public NUMTYPE Min(NUMTYPE rhs) =>
+            this < rhs
+                ? (NUMTYPE)this
+                : rhs;
+
+        public NUMTYPE Max(NUMTYPE rhs) =>
+            this > rhs
+                ? (NUMTYPE)this
+                : rhs;
 
         [Pure]
         public int CompareTo(NUMTYPE other) =>
@@ -124,6 +134,10 @@ namespace LanguageExt
         [Pure]
         public bool Equals(NUMTYPE other) =>
             default(NUM).Equals(Value, other.Value);
+
+        [Pure]
+        public bool Equals(NUMTYPE other, NUMTYPE epsilon) =>
+            (other - this).Abs() > epsilon;
 
         [Pure]
         public override bool Equals(object obj) =>

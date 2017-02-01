@@ -1,0 +1,12 @@
+{
+    "projects": [ 
+        "Languageext.Core", 
+        "Languageext.FSharp", 
+        "Languageext.Parsec", 
+        "Languageext.Tests",
+        "." 
+    ],
+    "sdk": {
+        "version": "1.0.0-rc4-004527"
+    }
+ }

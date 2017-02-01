@@ -48,14 +48,6 @@ namespace LanguageExt
             }
         }
 
-        public State<S, Unit> Iter(Action<A> action) =>
-            default(MState<S, Unit>).Return(state =>
-            {
-                var (x, s, b) = Eval(state);
-                if (!b) action(x);
-                return (unit, b ? state : s, false);
-            });
-
         [Pure]
         public new State<S, int> Count() =>
             default(MState<S, int>).Return(state =>
@@ -148,6 +140,14 @@ namespace LanguageExt
                 var (x, s, b) = Eval(state);
                 if (b || !pred(x)) return (default(A), state, true);
                 return (x, s, b);
+            });
+
+        public State<S, Unit> Iter(Action<A> action) =>
+            default(MState<S, Unit>).Return(state => {
+                var (x, s, b) = Eval(state);
+                if (!b) action(x);
+                var ns = b ? state : s;
+                return (unit, ns, false);
             });
     }
 }
