@@ -104,7 +104,7 @@ namespace LanguageExtTests
                        from _ in put(hw)
                        select hw.Length;
 
-            var r = comp("hello");
+            var r = comp.Eval("hello");
 
             Assert.True(r.Value == 12);
             Assert.True(r.State == "hello, world");
@@ -122,9 +122,9 @@ namespace LanguageExtTests
                       where x * c > 50 && y * c > 50
                       select (x + y) * c;
 
-            Assert.True(rdr(10).Value == 200);
-            Assert.True(rdr(2).Value == 0);
-            Assert.True(rdr(2).IsBottom);
+            Assert.True(rdr.Eval(10).Value == 200);
+            Assert.True(rdr.Eval(2).Value == 0);
+            Assert.True(rdr.Eval(2).IsBottom);
         }
 
         [Fact]
@@ -139,9 +139,9 @@ namespace LanguageExtTests
                       from y in v2
                       select (x + y) * c;
 
-            Assert.True(rdr(10).Value == 200);
-            Assert.True(rdr(2).Value == 0);
-            Assert.True(rdr(2).IsBottom);
+            Assert.True(rdr.Eval(10).Value == 200);
+            Assert.True(rdr.Eval(2).Value == 0);
+            Assert.True(rdr.Eval(2).IsBottom);
         }
         
         // TODO: Restore when type-classes are complete

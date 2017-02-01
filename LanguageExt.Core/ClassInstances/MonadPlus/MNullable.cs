@@ -51,6 +51,10 @@ namespace LanguageExt.ClassInstances
                 : (A?)x;
 
         [Pure]
+        public A? Return(Func<A> f) =>
+            Return(f());
+
+        [Pure]
         public A? Zero() =>
             null;
 

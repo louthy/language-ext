@@ -40,6 +40,11 @@ namespace LanguageExt.ClassInstances
             return mb().Value;
         };
 
+        /// <summary>
+        /// Monad return
+        /// </summary>
+        /// <param name="xs">The bound monad value(s)</param>
+        /// <returns>Monad of A</returns>
         [Pure]
         public Try<A> FromSeq(IEnumerable<A> xs)
         {
@@ -47,9 +52,24 @@ namespace LanguageExt.ClassInstances
             return () => head;
         }
 
+        /// <summary>
+        /// Monad return
+        /// </summary>
+        /// <typeparam name="A">Type of the bound monad value</typeparam>
+        /// <param name="x">The bound monad value</param>
+        /// <returns>Monad of A</returns>
         [Pure]
         public Try<A> Return(A x) =>
             () => x;
+
+        /// <summary>
+        /// Monad return
+        /// </summary>
+        /// <param name="f">The function to invoke to get the bound monad value(s)</param>
+        /// <returns>Monad of A</returns>
+        [Pure]
+        public Try<A> Return(Func<A> f) => () =>
+            f();
 
         [Pure]
         public Try<A> Zero() => 

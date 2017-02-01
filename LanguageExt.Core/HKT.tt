@@ -18,7 +18,7 @@
         T("EitherUnsafe","L, !T",               "self.IsRight ? self.RightValue : default(T)",    DelType.Not),
         T("Reader",      "Env, !T",             "self",                                           DelType.Func1),
         T("Writer",      "Out, !T",             "self",                                           DelType.Func0),
-        T("State",       "State, !T",           "self",                                           DelType.Func1),
+        //T("State",       "State, !T",           "self",                                           DelType.Func1),
         T("Rws",         "Env, Out, State, !T", "self",                                           DelType.Func1),
         T("Task",        "!T",					"self.Result",								      DelType.Not),
         //T("Nullable",    "!T",                  "self.HasValue ? self.Value : default(T)",        DelType.Not),

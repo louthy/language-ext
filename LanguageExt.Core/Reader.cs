@@ -219,17 +219,17 @@ public static class ReaderExt
     public static Reader<Env, State<S, V>> foldT<Env, S, T, V>(Reader<Env, State<S, T>> self, V state, Func<V, T, V> fold) =>
         self.FoldT(state, fold);
 
-    [Pure]
-    public static State<S, T> liftT<Env, S, T>(Reader<Env, State<S, T>> self, Env env) where T : struct =>
-        self.LiftT(env);
+    //[Pure]
+    //public static State<S, T> liftT<Env, S, T>(Reader<Env, State<S, T>> self, Env env) where T : struct =>
+    //    self.LiftT(env);
 
     [Pure]
     public static Writer<Out, T> liftT<Env, Out, T>(Reader<Env, Writer<Out, T>> self, Env env) where T : struct =>
         self.LiftT(env);
 
-    [Pure]
-    public static State<S, T> liftUnsafeT<Env, S, T>(Reader<Env, State<S, T>> self, Env env) where T : class =>
-        self.LiftUnsafeT(env);
+    //[Pure]
+    //public static State<S, T> liftUnsafeT<Env, S, T>(Reader<Env, State<S, T>> self, Env env) where T : class =>
+    //    self.LiftUnsafeT(env);
 
     [Pure]
     public static Writer<Out, T> liftUnsafeT<Env, Out, T>(Reader<Env, Writer<Out, T>> self, Env env) where T : class =>
@@ -257,18 +257,18 @@ public static class ReaderExt
         };
     }
 
-    [Pure]
-    public static State<S, T> LiftT<Env, S, T>(this Reader<Env, State<S, T>> self, Env env) where T : struct
-    {
-        return state =>
-        {
-            var inner = self.Valid()(env);
-            if (inner.IsBottom) return StateResult.Bottom<S, T>(state);
-            var res = inner.Value(state);
-            if (res.IsBottom) return StateResult.Bottom<S, T>(state);
-            return StateResult.Return(res.State, res.Value);
-        };
-    }
+    //[Pure]
+    //public static State<S, T> LiftT<Env, S, T>(this Reader<Env, State<S, T>> self, Env env) where T : struct
+    //{
+    //    return state =>
+    //    {
+    //        var inner = self.Valid()(env);
+    //        if (inner.IsBottom) return StateResult.Bottom<S, T>(state);
+    //        var res = inner.Value(state);
+    //        if (res.IsBottom) return StateResult.Bottom<S, T>(state);
+    //        return StateResult.Return(res.State, res.Value);
+    //    };
+    //}
 
     [Pure]
     public static Writer<Out, T> LiftT<Env, Out, T>(this Reader<Env, Writer<Out, T>> self, Env env) where T : struct
@@ -283,18 +283,18 @@ public static class ReaderExt
         };
     }
 
-    [Pure]
-    public static State<S, T> LiftUnsafeT<Env, S, T>(this Reader<Env, State<S, T>> self, Env env) where T : class
-    {
-        return state =>
-        {
-            var inner = self.Valid()(env);
-            if (inner.IsBottom) return StateResult.Bottom<S, T>(state);
-            var res = inner.Value(state);
-            if (res.IsBottom) return StateResult.Bottom<S, T>(state);
-            return StateResult.Return(res.State, res.Value);
-        };
-    }
+    //[Pure]
+    //public static State<S, T> LiftUnsafeT<Env, S, T>(this Reader<Env, State<S, T>> self, Env env) where T : class
+    //{
+    //    return state =>
+    //    {
+    //        var inner = self.Valid()(env);
+    //        if (inner.IsBottom) return StateResult.Bottom<S, T>(state);
+    //        var res = inner.Value(state);
+    //        if (res.IsBottom) return StateResult.Bottom<S, T>(state);
+    //        return StateResult.Return(res.State, res.Value);
+    //    };
+    //}
 
     [Pure]
     public static Writer<Out, T> LiftUnsafeT<Env, Out, T>(this Reader<Env, Writer<Out, T>> self, Env env) where T : class
@@ -334,30 +334,30 @@ public static class ReaderExt
         };
     }
 
-    /// <summary>
-    /// Select Many
-    /// </summary>
-    [Pure]
-    public static Reader<E, State<S, V>> SelectMany<E, S, T, U, V>(
-        this Reader<E, T> self,
-        Func<T, State<S, U>> bind,
-        Func<T, U, V> project
-        )
-    {
-        if (bind == null) throw new ArgumentNullException(nameof(bind));
-        if (project == null) throw new ArgumentNullException(nameof(project));
-        return (E env) =>
-        {
-            var resT = self.Valid()(env);
-            if (resT.IsBottom) return Bottom<State<S, V>>();
-            return Return<State<S, V>>(state =>
-            {
-                var resU = bind(resT.Value).Valid()(state);
-                if (resU.IsBottom) return StateResult.Bottom<S, V>(state);
-                return StateResult.Return(resU.State, project(resT.Value, resU.Value));
-            });
-        };
-    }
+    ///// <summary>
+    ///// Select Many
+    ///// </summary>
+    //[Pure]
+    //public static Reader<E, State<S, V>> SelectMany<E, S, T, U, V>(
+    //    this Reader<E, T> self,
+    //    Func<T, State<S, U>> bind,
+    //    Func<T, U, V> project
+    //    )
+    //{
+    //    if (bind == null) throw new ArgumentNullException(nameof(bind));
+    //    if (project == null) throw new ArgumentNullException(nameof(project));
+    //    return (E env) =>
+    //    {
+    //        var resT = self.Valid()(env);
+    //        if (resT.IsBottom) return Bottom<State<S, V>>();
+    //        return Return<State<S, V>>(state =>
+    //        {
+    //            var resU = bind(resT.Value).Valid()(state);
+    //            if (resU.IsBottom) return StateResult.Bottom<S, V>(state);
+    //            return StateResult.Return(resU.State, project(resT.Value, resU.Value));
+    //        });
+    //    };
+    //}
 
 
     [Pure]

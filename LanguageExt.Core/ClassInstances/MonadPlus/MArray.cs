@@ -73,6 +73,9 @@ namespace LanguageExt.ClassInstances
         public A[] Return(A x) =>
             new[] { x };
 
+        public A[] Return(Func<A> f) =>
+            Return(f());
+
         public A[] Zero() =>
             Empty();
     }

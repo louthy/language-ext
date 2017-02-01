@@ -49,6 +49,10 @@ namespace LanguageExt.ClassInstances
             new OptionUnsafe<A>(new SomeValue<A>(x));
 
         [Pure]
+        public OptionUnsafe<A> Return(Func<A> f) =>
+            Return(f());
+
+        [Pure]
         public OptionUnsafe<A> Zero() =>
             OptionUnsafe<A>.None;
 

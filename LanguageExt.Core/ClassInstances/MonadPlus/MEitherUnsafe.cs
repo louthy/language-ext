@@ -55,6 +55,10 @@ namespace LanguageExt.ClassInstances
             EitherUnsafe<L, R>.Right(x);
 
         [Pure]
+        public EitherUnsafe<L, R> Return(Func<R> f) =>
+            Return(f());
+
+        [Pure]
         public EitherUnsafe<L, R> Zero() =>
             EitherUnsafe<L, R>.Right(default(R));
 

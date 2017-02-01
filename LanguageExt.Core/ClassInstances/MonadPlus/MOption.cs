@@ -52,6 +52,14 @@ namespace LanguageExt.ClassInstances
                 : new Option<A>(new SomeValue<A>(x));
 
         [Pure]
+        public Option<A> Lift(A x) =>
+            Return(x);
+
+        [Pure]
+        public Option<A> Return(Func<A> f) =>
+            Return(f());
+
+        [Pure]
         public Option<A> Zero() =>
             Option<A>.None;
 
@@ -114,8 +122,5 @@ namespace LanguageExt.ClassInstances
             ma.IsSome
                 ? 1
                 : 0;
-
-        public Option<A> Lift(A x) =>
-            Return(x);
     }
 }

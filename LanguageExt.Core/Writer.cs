@@ -229,9 +229,9 @@ public static class WriterExtensions
     public static Writer<Out, V> foldT<Out, T, V>(Writer<Out, Writer<Out, T>> self, V state, Func<V, T, V> fold) =>
         self.FoldT(state, fold);
 
-    [Pure]
-    public static Writer<Out, State<S, V>> foldT<Out, S, T, V>(Writer<Out, State<S, T>> self, V state, Func<V, T, V> fold) =>
-        self.FoldT(state, fold);
+    //[Pure]
+    //public static Writer<Out, State<S, V>> foldT<Out, S, T, V>(Writer<Out, State<S, T>> self, V state, Func<V, T, V> fold) =>
+    //    self.FoldT(state, fold);
 
     [Pure]
     public static Writer<Out, Reader<Env, V>> FoldT<Out, Env, T, V>(this Writer<Out, Reader<Env, T>> self, V state, Func<V, T, V> fold)
@@ -260,20 +260,20 @@ public static class WriterExtensions
         };
     }
 
-    [Pure]
-    public static Writer<Out, State<S, V>> FoldT<Out, S, T, V>(this Writer<Out, State<S, T>> self, V state, Func<V, T, V> fold)
-    {
-        return () =>
-        {
-            var inner = self.Valid()();
-            if (inner.IsBottom) return WriterResult.Bottom<Out, State<S, V>>(inner.Output);
+    //[Pure]
+    //public static Writer<Out, State<S, V>> FoldT<Out, S, T, V>(this Writer<Out, State<S, T>> self, V state, Func<V, T, V> fold)
+    //{
+    //    return () =>
+    //    {
+    //        var inner = self.Valid()();
+    //        if (inner.IsBottom) return WriterResult.Bottom<Out, State<S, V>>(inner.Output);
 
-            return WriterResult.Return<Out, State<S, V>>(s =>
-               inner.Value.Fold(state, fold)(s),
-               inner.Output
-            );
-        };
-    }
+    //        return WriterResult.Return<Out, State<S, V>>(s =>
+    //           inner.Value.Fold(state, fold)(s),
+    //           inner.Output
+    //        );
+    //    };
+    //}
 
     /// <summary>
     /// Select Many
@@ -301,29 +301,29 @@ public static class WriterExtensions
         };
     }
 
-    /// <summary>
-    /// Select Many
-    /// </summary>
-    [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Writer<Out, State<S, V>> SelectMany<Out, S, T, U, V>(
-        this Writer<Out, T> self,
-        Func<T, State<S, U>> bind,
-        Func<T, U, V> project
-        )
-    {
-        if (bind == null) throw new ArgumentNullException(nameof(bind));
-        if (project == null) throw new ArgumentNullException(nameof(project));
-        return () =>
-        {
-            var resT = self.Valid()();
-            if (resT.IsBottom) return WriterResult.Bottom<Out, State<S, V>>(resT.Output);
-            return WriterResult.Return<Out, State<S, V>>(state =>
-            {
-                var resU = bind(resT.Value).Valid()(state);
-                if (resU.IsBottom) return StateResult.Bottom<S, V>(state);
-                return StateResult.Return(resU.State, project(resT.Value, resU.Value));
-            }, resT.Output);
-        };
-    }
+    ///// <summary>
+    ///// Select Many
+    ///// </summary>
+    //[Pure]
+    //[EditorBrowsable(EditorBrowsableState.Never)]
+    //public static Writer<Out, State<S, V>> SelectMany<Out, S, T, U, V>(
+    //    this Writer<Out, T> self,
+    //    Func<T, State<S, U>> bind,
+    //    Func<T, U, V> project
+    //    )
+    //{
+    //    if (bind == null) throw new ArgumentNullException(nameof(bind));
+    //    if (project == null) throw new ArgumentNullException(nameof(project));
+    //    return () =>
+    //    {
+    //        var resT = self.Valid()();
+    //        if (resT.IsBottom) return WriterResult.Bottom<Out, State<S, V>>(resT.Output);
+    //        return WriterResult.Return<Out, State<S, V>>(state =>
+    //        {
+    //            var resU = bind(resT.Value).Valid()(state);
+    //            if (resU.IsBottom) return StateResult.Bottom<S, V>(state);
+    //            return StateResult.Return(resU.State, project(resT.Value, resU.Value));
+    //        }, resT.Output);
+    //    };
+    //}
 }

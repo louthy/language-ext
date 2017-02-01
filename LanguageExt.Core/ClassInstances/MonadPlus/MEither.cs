@@ -55,6 +55,10 @@ namespace LanguageExt.ClassInstances
             Either<L, R>.Right(x);
 
         [Pure]
+        public Either<L, R> Return(Func<R> f) =>
+            Return(f());
+
+        [Pure]
         public Either<L, R> Zero() =>
             Either<L, R>.Right(default(R));
 

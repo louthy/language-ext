@@ -41,19 +41,38 @@ namespace LanguageExt.ClassInstances
             return mb();
         };
 
+        /// <summary>
+        /// Monad return
+        /// </summary>
+        /// <param name="xs">The bound monad value(s)</param>
+        /// <returns>Monad of A</returns>
         [Pure]
-        public TryOption<A> FromSeq(IEnumerable<A> xs) =>
-            TryOption(() =>
-            {
-                var x = xs.Take(1).ToArray();
-                return x.Length == 0
-                    ? None
-                    : Optional(x[0]);
-            });
+        public TryOption<A> FromSeq(IEnumerable<A> xs) => () =>
+        {
+            var x = xs.Take(1).ToArray();
+            return x.Length == 0
+                ? None
+                : Optional(x[0]);
+        };
 
+        /// <summary>
+        /// Monad return
+        /// </summary>
+        /// <typeparam name="A">Type of the bound monad value</typeparam>
+        /// <param name="x">The bound monad value</param>
+        /// <returns>Monad of A</returns>
         [Pure]
         public TryOption<A> Return(A x) =>
             () => x;
+
+        /// <summary>
+        /// Monad return
+        /// </summary>
+        /// <param name="f">The function to invoke to get the bound monad value(s)</param>
+        /// <returns>Monad of A</returns>
+        [Pure]
+        public TryOption<A> Return(Func<A> f) => () =>
+            f();
 
         [Pure]
         public TryOption<A> Zero() => 
