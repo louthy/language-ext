@@ -29,18 +29,21 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Reader<Env, B> Reader<B>(Func<Env, B> f) =>
-            default(MReader<Env, Env>).Bind<MReader<Env, B>, Reader<Env, B>, B>(
-                default(MReader<Env, A>).Ask(),
-                env => default(MReader<Env, B>).Return(f(env)));
+            new Reader<Env, B>(env => (f(env), env, false));
 
         [Pure]
-        public Reader<Env, Env> Ask() =>
-            Reader(x => x);
+        public Reader<Env, Env> Ask =>
+            ReaderEnv<Env>.Ask;
 
         [Pure]
         public Reader<Env, A> Local(Func<Env, Env> f, Reader<Env, A> ma) =>
-            default(MReader<Env, A>).Bind<MReader<Env, A>, Reader<Env, A>, A>(ma, a =>
-            default(MReader<Env, A>).Return(env => (a, f(env), false)));
+            new Reader<Env, A>(env =>
+            {
+                var e = f(env);
+                var (a, _, b) = ma.Eval(e);
+                if (b) return (a, env, b);
+                return (a, e, b);
+            });
 
         [Pure]
         public Reader<Env, A> Return(A x) =>
@@ -51,5 +54,10 @@ namespace LanguageExt.ClassInstances
             bottom
                 ? (default(A), state, bottom)
                 : ma.Eval(state);
+    }
+
+    internal class ReaderEnv<Env>
+    {
+        public static readonly Reader<Env, Env> Ask = new Reader<Env, Env>(e => (e, e, false));
     }
 }

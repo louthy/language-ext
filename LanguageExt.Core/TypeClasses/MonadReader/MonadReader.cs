@@ -13,7 +13,7 @@ namespace LanguageExt
         /// Returns the state from the internals of the monad.
         /// </summary>
         /// <returns>State value where the internal state and the bound value are the same</returns>
-        Reader<Env, Env> Ask();
+        Reader<Env, Env> Ask { get; }
 
         /// <summary>
         /// Retrieves a function of the current environment.

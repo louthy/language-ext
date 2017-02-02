@@ -89,7 +89,7 @@ namespace LanguageExtTests
 
         /// Generic usage
         public static FB ParseInts<Functor, FA, FB>(FA input)
-            where Functor : Functor<FA, FB, string, int> => 
+            where Functor : struct, Functor<FA, FB, string, int> => 
             default(Functor).Map(input, Int32.Parse);
 
     }

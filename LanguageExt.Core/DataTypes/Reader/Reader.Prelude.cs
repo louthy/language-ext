@@ -25,7 +25,7 @@ namespace LanguageExt
         /// <returns>Reader monad with the environment in as the bound value</returns>
         [Pure]
         public static Reader<Env, Env> ask<Env>() =>
-            default(MReader<Env, Env>).Ask();
+            default(MReader<Env, Env>).Ask;
 
         /// <summary>
         /// Retrieves a function of the current environment.

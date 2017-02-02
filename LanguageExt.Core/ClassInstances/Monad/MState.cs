@@ -30,12 +30,12 @@ namespace LanguageExt.ClassInstances
             new State<S, A>(f);
 
         [Pure]
-        public State<S, S> Get() =>
-            State(s => (s, s, false));
+        public State<S, S> Get =>
+            StateS<S>.Get;
 
         [Pure]
         public State<S, Unit> Put(S state) =>
-            State(s => (unit, s, false));
+            new State<S, Unit>(_ => (unit, state, false));
 
         [Pure]
         public State<S, A> Return(A x) =>
@@ -50,7 +50,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public State<S, B> State<B>(Func<S, (B, S, bool)> f) =>
             default(MState<S, S>).Bind<MState<S, B>, State<S, B>, B>(
-                default(MState<S, A>).Get(), s =>
+                default(MState<S, A>).Get, s =>
                 {
                     var(a, s1, bottom) = f(s);
                     return bottom
@@ -59,5 +59,10 @@ namespace LanguageExt.ClassInstances
                                 default(MState<S, S>).Put(s1), _ =>
                                     default(MState<S, B>).Return(a));
                 });
+    }
+
+    internal class StateS<S>
+    {
+        public static readonly State<S, S> Get = new State<S, S>(s => (s, s, false));
     }
 }

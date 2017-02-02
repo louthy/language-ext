@@ -15,7 +15,7 @@ namespace LanguageExt
         /// Returns the state from the internals of the monad.
         /// </summary>
         /// <returns>State value where the internal state and the bound value are the same</returns>
-        State<S, S> Get();
+        State<S, S> Get { get; }
 
         /// <summary>
         /// Replaces the state inside the monad.

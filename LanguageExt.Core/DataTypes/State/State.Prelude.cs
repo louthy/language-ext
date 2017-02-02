@@ -25,7 +25,7 @@ namespace LanguageExt
         /// <returns>State monad with state in the value</returns>
         [Pure]
         public static State<S, S> get<S>() =>
-            default(MState<S, S>).Get();
+            default(MState<S, S>).Get;
 
         /// <summary>
         /// Set the state 
@@ -55,7 +55,7 @@ namespace LanguageExt
         [Pure]
         public static State<S, A> gets<S, A>(Func<S, A> f) =>
             default(MState<S, S>).Bind<MState<S, A>, State<S, A>, A>(
-                default(MState<S, S>).Get(), s =>
+                default(MState<S, S>).Get, s =>
                     default(MState<S, A>).Return(f(s)));
 
         /// <summary>
