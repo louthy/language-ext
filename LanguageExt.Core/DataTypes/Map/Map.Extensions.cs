@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
-using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
@@ -462,35 +461,6 @@ namespace LanguageExt
             else
             {
                 return self;
-            }
-        }
-
-        [Pure]
-        public static Map<A, Map<B, Map<C, Map<D, E>>>> Remove<A, B, C, D, E>(this Map<A, Map<B, Map<C, Map<D, E>>>> self, A aKey, B bKey, C cKey, D dKey)
-        {
-            var res = self.Find(aKey, bKey, cKey);
-
-            if (res.IsSome && res.CountT() > 1)
-            {
-                return self.SetItemT(aKey, bKey, cKey, res.IfNoneUnsafe(null).Remove(dKey));
-            }
-            else
-            {
-                if (res.IsSome)
-                {
-                    if (res.Map(d => d.ContainsKey(dKey)).IfNone(false))
-                    {
-                        return Remove(self, aKey, bKey, cKey);
-                    }
-                    else
-                    {
-                        return self;
-                    }
-                }
-                else
-                {
-                    return Remove(self, aKey, bKey, cKey);
-                }
             }
         }
 

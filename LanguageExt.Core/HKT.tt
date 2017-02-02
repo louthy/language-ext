@@ -16,7 +16,7 @@
         T("Try",         "!T",                  "self.Try().Value",                               DelType.Not),
         T("Either",      "L, !T",               "self.IsRight ? self.RightValue : default(T)",    DelType.Not),
         T("EitherUnsafe","L, !T",               "self.IsRight ? self.RightValue : default(T)",    DelType.Not),
-        T("Reader",      "Env, !T",             "self",                                           DelType.Func1),
+        //T("Reader",      "Env, !T",             "self",                                           DelType.Func1),
         T("Writer",      "Out, !T",             "self",                                           DelType.Func0),
         //T("State",       "State, !T",           "self",                                           DelType.Func1),
         T("Rws",         "Env, Out, State, !T", "self",                                           DelType.Func1),

@@ -20,12 +20,6 @@ namespace LanguageExt
             value.Iter(f);
 
         [Pure]
-        public static int count<NEWTYPE, T, PRED>(NewType<NEWTYPE, T, PRED> value)
-            where PRED : struct, Pred<T>
-            where NEWTYPE : NewType<NEWTYPE, T, PRED> =>
-            1;
-
-        [Pure]
         public static bool exists<NEWTYPE, T, PRED>(NewType<NEWTYPE, T, PRED> value, Func<T, bool> predicate)
             where PRED : struct, Pred<T>
             where NEWTYPE : NewType<NEWTYPE, T, PRED> =>

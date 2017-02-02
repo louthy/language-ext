@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LanguageExt;
-using static LanguageExt.Prelude;
-using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
+    /// <summary>
+    /// State monad type class
+    /// </summary>
+    [Typeclass]
     public interface MonadState<S, A> : Monad<S, State<S, A>, A>
     {
         /// <summary>
@@ -25,13 +23,13 @@ namespace LanguageExt
         /// <typeparam name="B">Type of the value to use as the state</typeparam>
         /// <param name="state">State value to use</param>
         /// <returns>Updated state monad</returns>
-        State<S, Unit> Put<B>(B state);
+        State<S, Unit> Put(S state);
 
         /// <summary>
         /// Embed a simple state action into the monad
         /// </summary>
         /// <param name="f">Action to embed</param>
         /// <returns>Updated state monad</returns>
-        State<S, A> State(Func<S, (A, S, bool)> f);
+        State<S, B> State<B>(Func<S, (B, S, bool)> f);
     }
 }

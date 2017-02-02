@@ -10,8 +10,6 @@ namespace LanguageExt.ClassInstances
 {
     public struct MState<S, A> : MonadState<S, A>
     {
-        static readonly State<S, A> Bottom = new State<S, A>((default(A), default(S), true));
-
         [Pure]
         public MB Bind<MONADB, MB, B>(State<S, A> ma, Func<A, MB> f) where MONADB : struct, Monad<S, MB, B> =>
             default(MONADB).Return(s1 =>
@@ -22,10 +20,10 @@ namespace LanguageExt.ClassInstances
             });
 
         public State<S, A> Fail(object err) =>
-            Bottom;
+            State<S, A>.Bottom;
 
         public State<S, A> Fail(Exception err = null) =>
-            Bottom;
+            State<S, A>.Bottom;
 
         [Pure]
         public State<S, A> Return(Func<S, (A, S, bool)> f) =>
@@ -33,15 +31,15 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public State<S, S> Get() =>
-            default(MState<S, S>).State(s => (s, s, false));
+            State(s => (s, s, false));
 
         [Pure]
-        public State<S, Unit> Put<B>(B state) =>
-            default(MState<S, Unit>).State(s => (unit, s, false));
+        public State<S, Unit> Put(S state) =>
+            State(s => (unit, s, false));
 
         [Pure]
         public State<S, A> Return(A x) =>
-            State(st => (x, st, false));
+            State(s => (x, s, false));
 
         [Pure]
         public (A, S, bool) Eval(State<S, A> ma, S state, bool bottom) =>
@@ -50,15 +48,16 @@ namespace LanguageExt.ClassInstances
                 : ma.Eval(state);
 
         [Pure]
-        public State<S, A> State(Func<S, (A, S, bool)> f) =>
-            default(MState<S, S>).Bind<MState<S, A>, State<S, A>, A>(Get(), s =>
-            {
-                var (a, s1, bottom) = f(s);
-                return bottom 
-                    ? default(MState<S, A>).Fail()
-                    : default(MState<S, Unit>).Bind<MState<S, A>, State<S, A>, A>(
-                          default(MState<S, S>).Put(s1), _ =>
-                              default(MState<S, A>).Return(a));
-            });
+        public State<S, B> State<B>(Func<S, (B, S, bool)> f) =>
+            default(MState<S, S>).Bind<MState<S, B>, State<S, B>, B>(
+                default(MState<S, A>).Get(), s =>
+                {
+                    var(a, s1, bottom) = f(s);
+                    return bottom
+                        ? default(MState<S, B>).Fail()
+                        : default(MState<S, Unit>).Bind<MState<S, B>, State<S, B>, B>(
+                                default(MState<S, S>).Put(s1), _ =>
+                                    default(MState<S, B>).Return(a));
+                });
     }
 }

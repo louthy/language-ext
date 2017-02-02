@@ -63,7 +63,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
         [Pure]
-        public NUMTYPE Plus(NUMTYPE rhs) =>
+        public virtual NUMTYPE Plus(NUMTYPE rhs) =>
             from x in this
             from y in rhs
             select plus<NUM, A>(x, y);
@@ -74,7 +74,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
         [Pure]
-        public NUMTYPE Subtract(NUMTYPE rhs) =>
+        public virtual NUMTYPE Subtract(NUMTYPE rhs) =>
             from x in this
             from y in rhs
             select subtract<NUM, A>(x, y);
@@ -85,7 +85,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public NUMTYPE Divide(NUMTYPE rhs) =>
+        public virtual NUMTYPE Divide(NUMTYPE rhs) =>
             from x in this
             from y in rhs
             select subtract<NUM, A>(x, y);
@@ -96,7 +96,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
         [Pure]
-        public NUMTYPE Product(NUMTYPE rhs) =>
+        public virtual NUMTYPE Product(NUMTYPE rhs) =>
             from x in this
             from y in rhs
             select subtract<NUM, A>(x, y);
@@ -106,7 +106,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="x">The value to find the absolute value of</param>
         /// <returns>The non-negative absolute value of x</returns>
-        public NUMTYPE Abs() =>
+        public virtual NUMTYPE Abs() =>
             New(default(NUM).Abs(Value));
 
         /// <summary>
@@ -114,29 +114,29 @@ namespace LanguageExt
         /// </summary>
         /// <param name="x">The value to find the sign of</param>
         /// <returns>-1, 0, or +1</returns>
-        public NUMTYPE Signum() =>
+        public virtual NUMTYPE Signum() =>
             New(default(NUM).Signum(Value));
 
-        public NUMTYPE Min(NUMTYPE rhs) =>
+        public virtual NUMTYPE Min(NUMTYPE rhs) =>
             this < rhs
                 ? (NUMTYPE)this
                 : rhs;
 
-        public NUMTYPE Max(NUMTYPE rhs) =>
+        public virtual NUMTYPE Max(NUMTYPE rhs) =>
             this > rhs
                 ? (NUMTYPE)this
                 : rhs;
 
         [Pure]
-        public int CompareTo(NUMTYPE other) =>
+        public virtual int CompareTo(NUMTYPE other) =>
             default(NUM).Compare(Value, other.Value);
 
         [Pure]
-        public bool Equals(NUMTYPE other) =>
+        public virtual bool Equals(NUMTYPE other) =>
             default(NUM).Equals(Value, other.Value);
 
         [Pure]
-        public bool Equals(NUMTYPE other, NUMTYPE epsilon) =>
+        public virtual bool Equals(NUMTYPE other, NUMTYPE epsilon) =>
             (other - this).Abs() > epsilon;
 
         [Pure]
@@ -196,42 +196,35 @@ namespace LanguageExt
         /// </summary>
         /// <param name="bind">Bind function</param>
         [Pure]
-        public NUMTYPE Bind(Func<A, NUMTYPE> bind) =>
+        public virtual NUMTYPE Bind(Func<A, NUMTYPE> bind) =>
             bind(Value);
 
         /// <summary>
         /// Run a predicate for all values in the NumType (only ever one)
         /// </summary>
         [Pure]
-        public bool Exists(Func<A, bool> predicate) =>
+        public virtual bool Exists(Func<A, bool> predicate) =>
             predicate(Value);
 
         /// <summary>
         /// Run a predicate for all values in the NumType (only ever one)
         /// </summary>
         [Pure]
-        public bool ForAll(Func<A, bool> predicate) =>
+        public virtual bool ForAll(Func<A, bool> predicate) =>
             predicate(Value);
-
-        /// <summary>
-        /// Number of items (always 1)
-        /// </summary>
-        /// <returns></returns>
-        [Pure]
-        public int Count() => 1;
 
         /// <summary>
         /// Map the bound value to a new value of the same type
         /// </summary>
         [Pure]
-        public NUMTYPE Map(Func<A, A> map) =>
+        public virtual NUMTYPE Map(Func<A, A> map) =>
             Select(map);
 
         /// <summary>
         /// Map the bound value to a new value of the same type
         /// </summary>
         [Pure]
-        public NUMTYPE Select(Func<A, A> map) =>
+        public virtual NUMTYPE Select(Func<A, A> map) =>
             New(map(Value));
 
         /// <summary>
@@ -240,7 +233,7 @@ namespace LanguageExt
         /// <param name="bind">Bind function</param>
         /// <param name="project">Final projection (select)</param>
         [Pure]
-        public NUMTYPE SelectMany(
+        public virtual NUMTYPE SelectMany(
             Func<A, NumType<NUMTYPE, NUM, A, PRED>> bind,
             Func<A, A, A> project) =>
             New(project(Value, bind(Value).Value));
@@ -249,7 +242,7 @@ namespace LanguageExt
         /// Invoke an action that takes the bound value as an argument
         /// </summary>
         /// <param name="f">Action to invoke</param>
-        public Unit Iter(Action<A> f)
+        public virtual Unit Iter(Action<A> f)
         {
             f(Value);
             return unit;
@@ -269,7 +262,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Folded state and NumType bound value</returns>
-        public S Fold<S>(S state, Func<S, A, S> folder) =>
+        public virtual S Fold<S>(S state, Func<S, A, S> folder) =>
             folder(state, Value);
 
         /// <summary>
@@ -279,12 +272,12 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Folded state and NumType bound value</returns>
-        public S FoldBack<S>(S state, Func<S, A, S> folder) =>
+        public virtual S FoldBack<S>(S state, Func<S, A, S> folder) =>
             folder(state, Value);
         
         /// <summary>
         /// Sum
         /// </summary>
-        public A Sum() => Value;
+        public virtual A Sum() => Value;
     }
 }

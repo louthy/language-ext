@@ -58,7 +58,7 @@ namespace LanguageExtTests
                                     Tuple("b", 2)
                                     );
 
-            bool res = calcIsCountCorrect(sampleBindings).Value;
+            bool res = calcIsCountCorrect.Run(sampleBindings).IfNone(false);
 
             Assert.True(res);
         }
@@ -72,11 +72,11 @@ namespace LanguageExtTests
             var calculateModifiedContentLen = local(content => "Prefix " + content, calculateContentLen);
 
             var s = "12345";
-            var modifiedLen = calculateModifiedContentLen(s);
-            var len = calculateContentLen(s);
+            var modifiedLen = calculateModifiedContentLen.Run(s).IfNone(0);
+            var len = calculateContentLen.Run(s).IfNone(0);
 
-            Assert.True(modifiedLen.Value == 12);
-            Assert.True(len.Value == 5);
+            Assert.True(modifiedLen == 12);
+            Assert.True(len == 5);
         }
 
         [Fact]
@@ -91,9 +91,8 @@ namespace LanguageExtTests
                       where x * c > 50 && y * c > 50
                       select (x + y) * c;
 
-            Assert.True(rdr(10).Value == 200);
-            Assert.True(rdr(2).Value == 0);
-            Assert.True(rdr(2).IsBottom);
+            Assert.True(rdr.Run(10).IfNone(0) == 200);
+            Assert.True(rdr.Run(2).IfNone(0) == 0);
         }
 
         [Fact]
@@ -104,9 +103,9 @@ namespace LanguageExtTests
                        from _ in put(hw)
                        select hw.Length;
 
-            var r = comp.Eval("hello");
+            var r = comp.Run("hello");
 
-            Assert.True(r.Value == 12);
+            Assert.True(r.Value.IfNone(0) == 12);
             Assert.True(r.State == "hello, world");
         }
 
@@ -122,9 +121,8 @@ namespace LanguageExtTests
                       where x * c > 50 && y * c > 50
                       select (x + y) * c;
 
-            Assert.True(rdr.Eval(10).Value == 200);
-            Assert.True(rdr.Eval(2).Value == 0);
-            Assert.True(rdr.Eval(2).IsBottom);
+            Assert.True(rdr.Run(10).Value.IfNone(0) == 200);
+            Assert.True(rdr.Run(2).Value.IfNone(0) == 0);
         }
 
         [Fact]
@@ -139,9 +137,8 @@ namespace LanguageExtTests
                       from y in v2
                       select (x + y) * c;
 
-            Assert.True(rdr.Eval(10).Value == 200);
-            Assert.True(rdr.Eval(2).Value == 0);
-            Assert.True(rdr.Eval(2).IsBottom);
+            Assert.True(rdr.Run(10).Value.IfNone(0) == 200);
+            Assert.True(rdr.Run(2).Value.IfNone(0) == 0);
         }
         
         // TODO: Restore when type-classes are complete

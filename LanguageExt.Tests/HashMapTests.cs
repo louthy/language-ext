@@ -1,5 +1,5 @@
 ﻿using LanguageExt;
-using LanguageExt.Trans;
+//using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using static LanguageExt.HashMap;
 using Xunit;
@@ -201,26 +201,27 @@ namespace LanguageExtTests
             }
         }
 
-        [Fact]
-        public void MapOptionTest()
-        {
-            var m = HashMap<Option<int>, HashMap<Option<int>, string>>();
+        // TODO: RESTORE WHEN NEW TRANSFORMER SYSTEM IS IN PLACE
+        //[Fact]
+        //public void MapOptionTest()
+        //{
+        //    var m = HashMap<Option<int>, HashMap<Option<int>, string>>();
 
-            m = m.AddOrUpdate(Some(1), Some(1), "Some Some");
-            m = m.AddOrUpdate(None, Some(1), "None Some");
-            m = m.AddOrUpdate(Some(1), None, "Some None");
-            m = m.AddOrUpdate(None, None, "None None");
+        //    m = m.AddOrUpdate(Some(1), Some(1), "Some Some");
+        //    m = m.AddOrUpdate(None, Some(1), "None Some");
+        //    m = m.AddOrUpdate(Some(1), None, "Some None");
+        //    m = m.AddOrUpdate(None, None, "None None");
 
-            Assert.True(m[Some(1)][Some(1)] == "Some Some");
-            Assert.True(m[None][Some(1)] == "None Some");
-            Assert.True(m[Some(1)][None] == "Some None");
-            Assert.True(m[None][None] == "None None");
+        //    Assert.True(m[Some(1)][Some(1)] == "Some Some");
+        //    Assert.True(m[None][Some(1)] == "None Some");
+        //    Assert.True(m[Some(1)][None] == "Some None");
+        //    Assert.True(m[None][None] == "None None");
 
-            Assert.True(m.CountT() == 4);
+        //    Assert.True(m.CountT() == 4);
 
-            m = m.FilterT(v => v.EndsWith("None", StringComparison.Ordinal));
+        //    m = m.FilterT(v => v.EndsWith("None", StringComparison.Ordinal));
 
-            Assert.True(m.CountT() == 2);
-        }
+        //    Assert.True(m.CountT() == 2);
+        //}
     }
 }

@@ -47,11 +47,11 @@ namespace LanguageExt
         }
 
         [Pure]
-        public int CompareTo(NEWTYPE other) =>
+        public virtual int CompareTo(NEWTYPE other) =>
              OrdNewType<NEWTYPE, OrdDefault<A>, A, PRED>.Inst.Compare(this, other);
 
         [Pure]
-        public bool Equals(NEWTYPE other) =>
+        public virtual bool Equals(NEWTYPE other) =>
             EqDefault<A>.Inst.Equals(Value, other.Value);
 
         [Pure]
@@ -91,42 +91,35 @@ namespace LanguageExt
         /// </summary>
         /// <param name="bind">Bind function</param>
         [Pure]
-        public NEWTYPE Bind(Func<A, NEWTYPE> bind) =>
+        public virtual NEWTYPE Bind(Func<A, NEWTYPE> bind) =>
             bind(Value);
 
         /// <summary>
         /// Run a predicate for all values in the NewType (only ever one)
         /// </summary>
         [Pure]
-        public bool Exists(Func<A, bool> predicate) =>
+        public virtual bool Exists(Func<A, bool> predicate) =>
             predicate(Value);
 
         /// <summary>
         /// Run a predicate for all values in the NewType (only ever one)
         /// </summary>
         [Pure]
-        public bool ForAll(Func<A, bool> predicate) =>
+        public virtual bool ForAll(Func<A, bool> predicate) =>
             predicate(Value);
-
-        /// <summary>
-        /// Number of items (always 1)
-        /// </summary>
-        /// <returns></returns>
-        [Pure]
-        public int Count() => 1;
 
         /// <summary>
         /// Map the bound value to a new value of the same type
         /// </summary>
         [Pure]
-        public NEWTYPE Map(Func<A, A> map) =>
+        public virtual NEWTYPE Map(Func<A, A> map) =>
             Select(map);
 
         /// <summary>
         /// Map the bound value to a new value of the same type
         /// </summary>
         [Pure]
-        public NEWTYPE Select(Func<A, A> map) =>
+        public virtual NEWTYPE Select(Func<A, A> map) =>
             New(map(Value));
 
         /// <summary>
@@ -135,7 +128,7 @@ namespace LanguageExt
         /// <param name="bind">Bind function</param>
         /// <param name="project">Final projection (select)</param>
         [Pure]
-        public NEWTYPE SelectMany(
+        public virtual NEWTYPE SelectMany(
             Func<A, NewType<NEWTYPE, A, PRED>> bind,
             Func<A, A, A> project) =>
             New(project(Value, bind(Value).Value));
@@ -144,7 +137,7 @@ namespace LanguageExt
         /// Invoke an action that takes the bound value as an argument
         /// </summary>
         /// <param name="f">Action to invoke</param>
-        public Unit Iter(Action<A> f)
+        public virtual Unit Iter(Action<A> f)
         {
             f(Value);
             return unit;
@@ -164,7 +157,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Folded state and NewType bound value</returns>
-        public S Fold<S>(S state, Func<S, A, S> folder) =>
+        public virtual S Fold<S>(S state, Func<S, A, S> folder) =>
             folder(state, Value);
 
         /// <summary>
@@ -174,7 +167,7 @@ namespace LanguageExt
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Folded state and NewType bound value</returns>
-        public S FoldBack<S>(S state, Func<S, A, S> folder) =>
+        public virtual S FoldBack<S>(S state, Func<S, A, S> folder) =>
             folder(state, Value);
     }
 }

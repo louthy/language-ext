@@ -31,9 +31,8 @@ namespace LanguageExt
 
         internal WriterResult(T value, IEnumerable<Out> output, bool isBottom = false)
         {
-            if (output == null) throw new ArgumentNullException(nameof(output));
             Value = value;
-            Output = output;
+            Output = output ?? throw new ArgumentNullException(nameof(output));
             IsBottom = isBottom;
         }
 
@@ -221,9 +220,9 @@ public static class WriterExtensions
         }
     }
 
-    [Pure]
-    public static Writer<Out, Reader<Env, V>> foldT<Out, Env, T, V>(Writer<Out, Reader<Env, T>> self, V state, Func<V, T, V> fold) =>
-        self.FoldT(state, fold);
+    //[Pure]
+    //public static Writer<Out, Reader<Env, V>> foldT<Out, Env, T, V>(Writer<Out, Reader<Env, T>> self, V state, Func<V, T, V> fold) =>
+    //    self.FoldT(state, fold);
 
     [Pure]
     public static Writer<Out, V> foldT<Out, T, V>(Writer<Out, Writer<Out, T>> self, V state, Func<V, T, V> fold) =>
@@ -233,20 +232,20 @@ public static class WriterExtensions
     //public static Writer<Out, State<S, V>> foldT<Out, S, T, V>(Writer<Out, State<S, T>> self, V state, Func<V, T, V> fold) =>
     //    self.FoldT(state, fold);
 
-    [Pure]
-    public static Writer<Out, Reader<Env, V>> FoldT<Out, Env, T, V>(this Writer<Out, Reader<Env, T>> self, V state, Func<V, T, V> fold)
-    {
-        return () =>
-        {
-            var inner = self.Valid()();
-            if (inner.IsBottom) return WriterResult.Bottom<Out, Reader<Env, V>>(inner.Output);
+    //[Pure]
+    //public static Writer<Out, Reader<Env, V>> FoldT<Out, Env, T, V>(this Writer<Out, Reader<Env, T>> self, V state, Func<V, T, V> fold)
+    //{
+    //    return () =>
+    //    {
+    //        var inner = self.Valid()();
+    //        if (inner.IsBottom) return WriterResult.Bottom<Out, Reader<Env, V>>(inner.Output);
 
-            return WriterResult.Return<Out, Reader<Env, V>>(env =>
-               inner.Value.Fold(state, fold)(env),
-               inner.Output
-            );
-        };
-    }
+    //        return WriterResult.Return<Out, Reader<Env, V>>(env =>
+    //           inner.Value.Fold(state, fold)(env),
+    //           inner.Output
+    //        );
+    //    };
+    //}
 
     [Pure]
     public static Writer<Out, V> FoldT<Out, T, V>(this Writer<Out, Writer<Out, T>> self, V state, Func<V, T, V> fold)
@@ -275,31 +274,31 @@ public static class WriterExtensions
     //    };
     //}
 
-    /// <summary>
-    /// Select Many
-    /// </summary>
-    [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Writer<Out, Reader<E, V>> SelectMany<Out, E, T, U, V>(
-        this Writer<Out, T> self,
-        Func<T, Reader<E, U>> bind,
-        Func<T, U, V> project
-        )
-    {
-        if (bind == null) throw new ArgumentNullException(nameof(bind));
-        if (project == null) throw new ArgumentNullException(nameof(project));
-        return () =>
-        {
-            var resT = self.Valid()();
-            if (resT.IsBottom) return WriterResult.Bottom<Out, Reader<E, V>>(resT.Output);
-            return WriterResult.Return<Out, Reader<E, V>>(env =>
-            {
-                var resU = bind(resT.Value).Valid()(env);
-                if (resU.IsBottom) return ReaderResult.Bottom<V>();
-                return ReaderResult.Return(project(resT.Value, resU.Value));
-            }, resT.Output);
-        };
-    }
+    ///// <summary>
+    ///// Select Many
+    ///// </summary>
+    //[Pure]
+    //[EditorBrowsable(EditorBrowsableState.Never)]
+    //public static Writer<Out, Reader<E, V>> SelectMany<Out, E, T, U, V>(
+    //    this Writer<Out, T> self,
+    //    Func<T, Reader<E, U>> bind,
+    //    Func<T, U, V> project
+    //    )
+    //{
+    //    if (bind == null) throw new ArgumentNullException(nameof(bind));
+    //    if (project == null) throw new ArgumentNullException(nameof(project));
+    //    return () =>
+    //    {
+    //        var resT = self.Valid()();
+    //        if (resT.IsBottom) return WriterResult.Bottom<Out, Reader<E, V>>(resT.Output);
+    //        return WriterResult.Return<Out, Reader<E, V>>(env =>
+    //        {
+    //            var resU = bind(resT.Value).Valid()(env);
+    //            if (resU.IsBottom) return ReaderResult.Bottom<V>();
+    //            return ReaderResult.Return(project(resT.Value, resU.Value));
+    //        }, resT.Output);
+    //    };
+    //}
 
     ///// <summary>
     ///// Select Many

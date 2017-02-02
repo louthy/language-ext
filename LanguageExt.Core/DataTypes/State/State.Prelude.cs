@@ -77,12 +77,12 @@ namespace LanguageExt
             });
 
         [Pure]
-        public static State<S, T> trystate<S, T>(Func<State<S, T>> tryDel) =>
+        public static State<S, T> trystate<S, T>(Func<State<S, T>> f) =>
             default(MState<S, T>).Return(state =>
             {
                 try
                 {
-                    return tryDel().Eval(state);
+                    return f().Eval(state);
                 }
                 catch
                 {

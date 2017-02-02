@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
-using LanguageExt.Trans;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
@@ -1003,34 +1002,6 @@ public static class HMapExtensions
         else
         {
             return self;
-        }
-    }
-
-    [Pure]
-    public static HashMap<A, HashMap<B, HashMap<C, HashMap<D, T>>>> Remove<A, B, C, D, T>(this HashMap<A, HashMap<B, HashMap<C, HashMap<D, T>>>> self, A aKey, B bKey, C cKey, D dKey)
-    {
-        var res = self.Find(aKey, bKey, cKey);
-        if (res.IsSome && res.CountT() > 1)
-        {
-            return self.SetItemT(aKey, bKey, cKey, res.Lift().Remove(dKey));
-        }
-        else
-        {
-            if (res.IsSome)
-            {
-                if (res.MapT(d => d.ContainsKey(dKey)).Lift())
-                {
-                    return Remove(self, aKey, bKey, cKey);
-                }
-                else
-                {
-                    return self;
-                }
-            }
-            else
-            {
-                return Remove(self, aKey, bKey, cKey);
-            }
         }
     }
 
