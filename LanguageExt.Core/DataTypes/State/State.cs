@@ -20,7 +20,7 @@ namespace LanguageExt
         /// <summary>
         /// Evaluate the state monad
         /// </summary>
-        internal readonly Func<S, (A Value, S State, bool IsBottom)> eval;
+        internal Func<S, (A Value, S State, bool IsBottom)> eval;
 
         /// <summary>
         /// Ctor
