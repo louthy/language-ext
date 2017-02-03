@@ -716,6 +716,11 @@ public static class OptionExtensions
             ? Optional(mapper(self.Value))
             : None;
 
+    public static async Task<Option<R>> MapAsync<T, R>(this Option<T> self, Func<T, Task<R>> mapper) =>
+        self.IsSome
+            ? Optional(await mapper(self.Value))
+            : None;
+
     [Pure]
     public static Option<R> Map<T, R>(this Option<T> self, Func<T, R> Some, Func<R> None) =>
         self.IsSome
@@ -767,6 +772,11 @@ public static class OptionExtensions
         self.IsSome
             ? Some(self.Value)
             : None();
+
+    public static async Task<Option<R>> BindAsync<T, R>(this Option<T> self, Func<T, Task<Option<R>>> binder) =>
+        self.IsSome
+            ? await binder(self.Value)
+            : None;
 
     [Pure]
     [EditorBrowsable(EditorBrowsableState.Never)]
