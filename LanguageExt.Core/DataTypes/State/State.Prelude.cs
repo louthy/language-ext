@@ -89,5 +89,10 @@ namespace LanguageExt
                     return (default(A), state, true);
                 }
             });
+
+        [Pure]
+        public static Try<State<S, A>> tryfun<S, A>(State<S, A> ma) => () =>
+            from x in ma
+            select x;
     }
 }

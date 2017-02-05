@@ -81,5 +81,10 @@ namespace LanguageExt
                     return (default(A), state, true);
                 }
             });
+
+        [Pure]
+        public static Try<Reader<Env, A>> tryfun<Env, A>(Reader<Env, A> ma) => () => 
+            from x in ma
+            select x;
     }
 }

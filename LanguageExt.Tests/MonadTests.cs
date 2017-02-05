@@ -14,7 +14,7 @@ namespace LanguageExtTests
         [Fact]
         public void WriterTest()
         {
-            var telll = fun((string x) => tell<MLst<string>, Lst<string>, int>(List(x)));
+            var telll = fun((string x) => tell<MLst<string>, Lst<string>>(List(x)));
 
             var value = fun((int x) => from _ in telll($"Got number: {x}")
                                        select x);

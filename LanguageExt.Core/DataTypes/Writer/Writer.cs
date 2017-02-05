@@ -1,10 +1,10 @@
-﻿using LanguageExt.TypeClasses;
+﻿using LanguageExt.ClassInstances;
+using LanguageExt.TypeClasses;
 using System;
 
 namespace LanguageExt
 {
-    public class Writer<MonoidW, W, A>
-        where MonoidW : struct, Monoid<W>
+    public class Writer<MonoidW, W, A> where MonoidW : struct, Monoid<W>
     {
         /// <summary>
         /// Evaluate the state monad

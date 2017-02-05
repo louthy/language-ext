@@ -98,7 +98,7 @@ namespace LanguageExt
         /// <param name="what">The value to tell</param>
         /// <returns>Updated writer monad</returns>
         [Pure]
-        public static Writer<MonoidW, W, Unit> tell<MonoidW, W, A>(W what)
+        public static Writer<MonoidW, W, Unit> tell<MonoidW, W>(W what)
             where MonoidW : struct, Monoid<W> =>
                 default(MWriter<SWriter<MonoidW, W, Unit>, Writer<MonoidW, W, Unit>, MonoidW, W, Unit>)
                     .Tell<SWriter<MonoidW, W, Unit>, Writer<MonoidW, W, Unit>>(what);
@@ -122,5 +122,28 @@ namespace LanguageExt
             where MonoidW : struct, Monoid<W> =>
                 self.Iter(action);
 
+        /// <summary>
+        /// Run the writer and catch exceptions
+        /// </summary>
+        [Pure]
+        public static Writer<MonoidW, W, A> trywrite<MonoidW, W, A>(Writer<MonoidW, W, A> m) 
+            where MonoidW : struct, Monoid<W> =>
+                default(MWriter<SWriter<MonoidW, W, A>, Writer<MonoidW, W, A>, MonoidW, W, A>).Return(state =>
+                {
+                    try
+                    {
+                        return m.Eval(state);
+                    }
+                    catch
+                    {
+                        return (default(A), state, true);
+                    }
+                });
+
+        [Pure]
+        public static Try<Writer<MonoidW, W, A>> tryfun<MonoidW, W, A>(Writer<MonoidW, W, A> ma) 
+            where MonoidW : struct, Monoid<W> => () =>
+                from x in ma
+                select x;
     }
 }

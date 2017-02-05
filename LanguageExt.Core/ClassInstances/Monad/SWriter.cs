@@ -8,8 +8,8 @@ namespace LanguageExt.ClassInstances
     {
         static readonly Writer<MonoidW, W, A> bottom = new Writer<MonoidW, W, A>(_ => (default(A), default(MonoidW).Empty(), true));
 
-        public (A, W, bool) Eval(Writer<MonoidW, W, A> r, W env) =>
-            r.eval(env);
+        public (A, W, bool) Eval(Writer<MonoidW, W, A> ma, W env) =>
+            ma.eval(env);
 
         public Writer<MonoidW, W, A> Lift((A, W, bool) value) =>
             new Writer<MonoidW, W, A>(_ => value);
