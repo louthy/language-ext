@@ -94,7 +94,7 @@ public static class ReaderExt
 
     [Pure]
     public static Reader<Env, A> Where<Env, A>(this Reader<Env, A> self, Func<A, bool> pred) =>
-        default(MReader<Env, A>).Return(env => {
+        default(MReader<SReader<Env,A>, Reader<Env, A>, Env, A>).Return(env => {
             var (x, _, b) = self.Eval(env);
             if (b || !pred(x)) return (default(A), env, true);
             return (x, env, b);
@@ -102,15 +102,16 @@ public static class ReaderExt
 
     [Pure]
     public static Reader<Env, B> Bind<Env, A, B>(this Reader<Env, A> self, Func<A, Reader<Env, B>> binder) =>
-        default(MReader<Env, A>).Bind<MReader<Env, B>, Reader<Env, B>, B>(self, binder);
+        default(MReader<SReader<Env, A>, Reader<Env, A>, Env, A>)
+            .Bind<MReader<SReader<Env, B>, Reader<Env, B>, Env, B>, Reader<Env, B>, B>(self, binder);
 
     /// <summary>
     /// Select
     /// </summary>
     [Pure]
     public static Reader<Env, B> Select<Env, A, B>(this Reader<Env, A> self, Func<A, B> map) =>
-        default(MReader<Env, A>).Bind<MReader<Env, B>, Reader<Env, B>, B>(self, a =>
-        default(MReader<Env, B>).Return(map(a)));
+        default(MReader<SReader<Env, A>, Reader<Env, A>, Env, A>).Bind<MReader<SReader<Env, B>, Reader<Env, B>, Env, B>, Reader<Env, B>, B>(self, a =>
+        default(MReader<SReader<Env, B>, Reader<Env, B>, Env, B>).Return(map(a)));
 
     /// <summary>
     /// Select Many
@@ -120,13 +121,13 @@ public static class ReaderExt
         this Reader<Env, A> self,
         Func<A, Reader<Env, B>> bind,
         Func<A, B, C> project) =>
-            default(MReader<Env, A>).Bind<MReader<Env, C>, Reader<Env, C>, C>(self, a =>
-            default(MReader<Env, B>).Bind<MReader<Env, C>, Reader<Env, C>, C>(bind(a), b =>
-            default(MReader<Env, C>).Return(project(a, b))));
+            default(MReader<SReader<Env, A>, Reader<Env, A>, Env, A>).Bind<MReader<SReader<Env, C>, Reader<Env, C>, Env, C>, Reader<Env, C>, C>(self, a =>
+            default(MReader<SReader<Env, B>, Reader<Env, B>, Env, B>).Bind<MReader<SReader<Env, C>, Reader<Env, C>, Env, C>, Reader<Env, C>, C>(bind(a), b =>
+            default(MReader<SReader<Env, C>, Reader<Env, C>, Env, C>).Return(project(a, b))));
 
     [Pure]
     public static Reader<Env, S> Fold<Env, A, S>(this Reader<Env, A> self, S initialState, Func<S, A, S> f) =>
-        default(MReader<Env, S>).Return(env =>
+        default(MReader<SReader<Env, S>, Reader<Env, S>, Env, S>).Return(env =>
         {
             var (x, _, b) = self.Eval(env);
             return b
@@ -136,7 +137,7 @@ public static class ReaderExt
 
     [Pure]
     public static Reader<Env, Env> Fold<Env, A>(this Reader<Env, A> self, Func<Env, A, Env> f) =>
-        default(MReader<Env, Env>).Return(env =>
+        default(MReader<SReader<Env, Env>, Reader<Env, Env>, Env, Env>).Return(env =>
         {
             var (x, _, b) = self.Eval(env);
             return b

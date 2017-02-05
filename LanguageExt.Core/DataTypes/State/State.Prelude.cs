@@ -16,7 +16,7 @@ namespace LanguageExt
         /// <returns>State monad</returns>
         [Pure]
         public static State<S, A> State<S, A>(A value) =>
-            default(MState<S, A>).Return(value);
+            default(MState<SState<S, A>, State<S, A>, S, A>).Return(value);
 
         /// <summary>
         /// Get the state from monad into its wrapped value
@@ -25,7 +25,7 @@ namespace LanguageExt
         /// <returns>State monad with state in the value</returns>
         [Pure]
         public static State<S, S> get<S>() =>
-            default(MState<S, S>).Get;
+            default(MState<SState<S, S>, State<S, S>, S, S>).Get<SState<S, S>, State<S, S>>();
 
         /// <summary>
         /// Set the state 
@@ -34,7 +34,7 @@ namespace LanguageExt
         /// <returns>State monad with state set and with a Unit value</returns>
         [Pure]
         public static State<S, Unit> put<S>(S state) =>
-            default(MState<S, Unit>).Put(state);
+            default(MState<SState<S, Unit>, State<S, Unit>, S, Unit>).Put<SState<S, Unit>, State<S, Unit>>(state);
 
         /// <summary>
         /// modify::MonadState s m => (s -> s) -> m()
@@ -45,7 +45,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static State<S, Unit> modify<S>(Func<S, S> f) =>
-            default(MState<S, Unit>).State(s => (unit, f(s), false));
+            default(MState<SState<S, Unit>, State<S, Unit>, S, Unit>).State(s => (unit, f(s), false));
 
         /// <summary>
         /// gets :: MonadState s m => (s -> a) -> m a
@@ -54,16 +54,16 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static State<S, A> gets<S, A>(Func<S, A> f) =>
-            default(MState<S, S>).Bind<MState<S, A>, State<S, A>, A>(
-                default(MState<S, S>).Get, s =>
-                    default(MState<S, A>).Return(f(s)));
+            default(MState<SState<S, S>, State<S, S>, S, S>).Bind<MState<SState<S, A>, State<S, A>, S, A>, State<S, A>, A>(
+                default(MState<SState<S, S>, State<S, S>, S, S>).Get<SState<S, S>, State<S, S>>(), s =>
+                    default(MState<SState<S, A>, State<S, A>, S, A>).Return(f(s)));
 
         /// <summary>
         /// Chooses the first monad result that has a Some(x) for the value
         /// </summary>
         [Pure]
-        public static State<S, Option<T>> choose<S, T>(params State<S, Option<T>>[] monads) =>
-            default(MState<S, Option<T>>).Return(state => 
+        public static State<S, Option<A>> choose<S, A>(params State<S, Option<A>>[] monads) =>
+            default(MState<SState<S, Option<A>>, State<S, Option<A>>, S, Option<A>>).Return(state => 
             {
                 foreach (var monad in monads)
                 {
@@ -73,20 +73,20 @@ namespace LanguageExt
                         return (x, s, bottom);
                     }
                 }
-                return (default(T), state, true);
+                return (default(A), state, true);
             });
 
         [Pure]
-        public static State<S, T> trystate<S, T>(Func<State<S, T>> f) =>
-            default(MState<S, T>).Return(state =>
+        public static State<S, A> trystate<S, A>(State<S, A> value) =>
+            default(MState<SState<S, A>, State<S, A>, S, A>).Return(state =>
             {
                 try
                 {
-                    return f().Eval(state);
+                    return value.Eval(state);
                 }
                 catch
                 {
-                    return (default(T), state, true);
+                    return (default(A), state, true);
                 }
             });
     }

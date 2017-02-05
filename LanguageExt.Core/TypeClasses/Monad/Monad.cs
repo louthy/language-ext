@@ -93,7 +93,7 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         /// <param name="f">The function to invoke to get the monad value(s)</param>
         /// <returns>Monad of A</returns>
-        (A, Env, bool) Eval(MA ma, Env e, bool bottom);
+        (A, Env, bool) Eval(MA ma, Env e);
 
         /// <summary>
         /// Produce a failure value

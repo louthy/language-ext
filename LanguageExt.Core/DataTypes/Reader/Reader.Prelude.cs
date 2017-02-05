@@ -11,12 +11,12 @@ namespace LanguageExt
         /// Reader monad constructor
         /// </summary>
         /// <typeparam name="Env">Environment</typeparam>
-        /// <typeparam name="T">Wrapped type</typeparam>
+        /// <typeparam name="A">Wrapped type</typeparam>
         /// <param name="value">Wrapped value</param>
         /// <returns>Reader monad</returns>
         [Pure]
-        public static Reader<Env, T> Reader<Env, T>(T value) =>
-            new Reader<Env, T>(env => (value, env, false));
+        public static Reader<Env, A> Reader<Env, A>(A value) =>
+            default(MReader<SReader<Env, A>, Reader<Env, A>, Env, A>).Return(value);
 
         /// <summary>
         /// Retrieves the reader monad environment.
@@ -25,7 +25,7 @@ namespace LanguageExt
         /// <returns>Reader monad with the environment in as the bound value</returns>
         [Pure]
         public static Reader<Env, Env> ask<Env>() =>
-            default(MReader<Env, Env>).Ask;
+            default(MReader<SReader<Env, Env>, Reader<Env, Env>, Env, Env>).Ask<SReader<Env, Env>, Reader<Env, Env>>();
 
         /// <summary>
         /// Retrieves a function of the current environment.
@@ -35,7 +35,7 @@ namespace LanguageExt
         /// <returns>Reader monad with the mapped environment in as the bound value</returns>
         [Pure]
         public static Reader<Env, R> asks<Env, R>(Func<Env, R> f) =>
-            default(MReader<Env, R>).Reader(f);
+            default(MReader<SReader<Env, R>, Reader<Env, R>, Env, R>).Reader(f);
 
         /// <summary>
         /// Executes a computation in a modified environment
@@ -45,14 +45,14 @@ namespace LanguageExt
         /// <returns>Modified reader</returns>
         [Pure]
         public static Reader<Env, A> local<Env, A>(Func<Env, Env> f, Reader<Env, A> ma) =>
-            default(MReader<Env, A>).Local(f, ma);
+            default(MReader<SReader<Env, A>, Reader<Env, A>, Env, A>).Local(f, ma);
 
         /// <summary>
         /// Chooses the first monad result that has a Some(x) for the value
         /// </summary>
         [Pure]
-        public static Reader<S, Option<T>> choose<S, T>(params Reader<S, Option<T>>[] monads) =>
-            default(MReader<S, Option<T>>).Return(state =>
+        public static Reader<Env, Option<A>> choose<Env, A>(params Reader<Env, Option<A>>[] monads) =>
+            default(MReader<SReader<Env, Option<A>>, Reader<Env, Option<A>>, Env, Option<A>>).Return(state =>
             {
                 foreach (var monad in monads)
                 {
@@ -62,16 +62,19 @@ namespace LanguageExt
                         return (x, s, bottom);
                     }
                 }
-                return (default(T), state, true);
+                return (default(A), state, true);
             });
 
+        /// <summary>
+        /// Run the reader and catch exceptions
+        /// </summary>
         [Pure]
-        public static Reader<Env, A> tryread<Env, A>(Func<Reader<Env, A>> f) =>
-            default(MReader<Env, A>).Return(state =>
+        public static Reader<Env, A> tryread<Env, A>(Reader<Env, A> m) =>
+            default(MReader<SReader<Env, A>, Reader<Env, A>, Env, A>).Return(state =>
             {
                 try
                 {
-                    return f().Eval(state);
+                    return m.Eval(state);
                 }
                 catch
                 {

@@ -13,10 +13,8 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="S">State type</typeparam>
     /// <typeparam name="A">Bound value type</typeparam>
-    public class State<S, A> : NewType<State<S, A>, (A, S, bool)>
+    public class State<S, A>
     {
-        public static readonly State<S, A> Bottom = new State<S, A>((default(A), default(S), true));
-
         /// <summary>
         /// Evaluate the state monad
         /// </summary>
@@ -25,15 +23,8 @@ namespace LanguageExt
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="value"></param>
-        internal State((A, S, bool) value) : base(value) =>
-            eval = state => value;
-
-        internal State(Func<S, (A, S, bool)> f) : base(default((A, S, bool))) =>
-            eval = f ?? (s => (default(A), s, true));
-
-        [Pure]
-        internal static State<S, A> From(Func<S, (A, S, bool)> f) =>
-            new State<S, A>(f);
+        /// <param name="f"></param>
+        internal State(Func<S, (A, S, bool)> f) =>
+            eval = f;
     }
 }

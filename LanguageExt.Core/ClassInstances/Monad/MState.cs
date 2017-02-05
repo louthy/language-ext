@@ -1,68 +1,52 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using LanguageExt;
 using LanguageExt.TypeClasses;
 using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct MState<S, A> : MonadState<S, A>
+    public struct MState<SStateA, SSA, S, A> : MonadState<SStateA, SSA, S, A>, Monad<S, SSA, A>
+        where SStateA : struct, StateMonadValue<SSA, S, A>
     {
         [Pure]
-        public MB Bind<MONADB, MB, B>(State<S, A> ma, Func<A, MB> f) where MONADB : struct, Monad<S, MB, B> =>
+        public MB Bind<MONADB, MB, B>(SSA ma, Func<A, MB> f) where MONADB : struct, Monad<S, MB, B> =>
             default(MONADB).Return(s1 =>
             {
-                var (x, s2, bottom) = ma.Eval(s1);
+                var (x, s2, bottom) = default(SStateA).Eval(ma, s1);
                 if (bottom) return (default(B), s1, true);
-                return default(MONADB).Eval(f(x), s2, false);
+                return default(MONADB).Eval(f(x), s2);
             });
 
-        public State<S, A> Fail(object err) =>
-            State<S, A>.Bottom;
+        public SSA Fail(object err) =>
+            default(SStateA).Bottom;
 
-        public State<S, A> Fail(Exception err = null) =>
-            State<S, A>.Bottom;
-
-        [Pure]
-        public State<S, A> Return(Func<S, (A, S, bool)> f) =>
-            new State<S, A>(f);
+        public SSA Fail(Exception err = null) =>
+            default(SStateA).Bottom;
 
         [Pure]
-        public State<S, S> Get =>
-            StateS<S>.Get;
+        public SSA Return(Func<S, (A, S, bool)> f) =>
+            default(SStateA).Lift(f);
 
         [Pure]
-        public State<S, Unit> Put(S state) =>
-            new State<S, Unit>(_ => (unit, state, false));
+        public SSS Get<SStateS, SSS>()
+            where SStateS : struct, StateMonadValue<SSS, S, S> =>
+                default(SStateS).Lift(state => (state, state, false));
 
         [Pure]
-        public State<S, A> Return(A x) =>
+        public SSU Put<SStateU, SSU>(S state)
+            where SStateU : struct, StateMonadValue<SSU, S, Unit> =>
+                default(SStateU).Lift(_ => (unit, state, false));
+
+        [Pure]
+        public SSA Return(A x) =>
             State(s => (x, s, false));
 
         [Pure]
-        public (A, S, bool) Eval(State<S, A> ma, S state, bool bottom) =>
-            bottom
-                ? (default(A), state, bottom)
-                : ma.Eval(state);
+        public (A, S, bool) Eval(SSA ma, S state) =>
+            default(SStateA).Eval(ma, state);
 
         [Pure]
-        public State<S, B> State<B>(Func<S, (B, S, bool)> f) =>
-            default(MState<S, S>).Bind<MState<S, B>, State<S, B>, B>(
-                default(MState<S, A>).Get, s =>
-                {
-                    var(a, s1, bottom) = f(s);
-                    return bottom
-                        ? default(MState<S, B>).Fail()
-                        : default(MState<S, Unit>).Bind<MState<S, B>, State<S, B>, B>(
-                                default(MState<S, S>).Put(s1), _ =>
-                                    default(MState<S, B>).Return(a));
-                });
-    }
-
-    internal class StateS<S>
-    {
-        public static readonly State<S, S> Get = new State<S, S>(s => (s, s, false));
+        public SSA State(Func<S, (A, S, bool)> f) =>
+            default(SStateA).Lift(state => f(state));
     }
 }

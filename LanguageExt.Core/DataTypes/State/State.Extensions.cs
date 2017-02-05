@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using LanguageExt.ClassInstances;
 
 /// <summary>
-/// Extension methods for Option
+/// Extension methods for State
 /// </summary>
 public static class StateExtensions
 {
@@ -62,7 +62,7 @@ public static class StateExtensions
 
     [Pure]
     public static State<S, int> Count<S>(this State<S, int> self) =>
-        default(MState<S, int>).Return(state =>
+        default(MState<SState<S, int>, State<S, int>, S, int>).Return(state =>
         {
             var (x, s, b) = self.Eval(state);
             return b
@@ -72,7 +72,7 @@ public static class StateExtensions
 
     [Pure]
     public static State<S, bool> ForAll<S, A>(this State<S, A> self, Func<A, bool> pred) =>
-        default(MState<S, bool>).Return(state =>
+        default(MState<SState<S, bool>, State<S, bool>, S, bool>).Return(state =>
         {
             var (x, s, b) = self.Eval(state);
             return b
@@ -82,7 +82,7 @@ public static class StateExtensions
 
     [Pure]
     public static State<S, bool> Exists<S, A>(this State<S, A> self, Func<A, bool> pred) =>
-        default(MState<S, bool>).Return(state =>
+        default(MState<SState<S, bool>, State<S, bool>, S, bool>).Return(state =>
         {
             var (x, s, b) = self.Eval(state);
             return b
@@ -92,7 +92,7 @@ public static class StateExtensions
 
     [Pure]
     public static State<S, FState> Fold<FState, S, A>(this State<S, A> self, FState initialState, Func<FState, A, FState> f) =>
-        default(MState<S, FState>).Return(state =>
+        default(MState<SState<S, FState>, State<S, FState>, S, FState>).Return(state =>
         {
             var (x, s, b) = self.Eval(state);
             return b
@@ -102,7 +102,7 @@ public static class StateExtensions
 
     [Pure]
     public static State<S, S> Fold<S, A>(this State<S, A> self, Func<S, A, S> f) =>
-        default(MState<S, S>).Return(state =>
+        default(MState<SState<S, S>, State<S, S>, S, S>).Return(state =>
         {
             var (x, s, b) = self.Eval(state);
             return b
@@ -115,33 +115,30 @@ public static class StateExtensions
         self.Select(f);
 
     /// <summary>
-    /// modify::MonadState s m => (s -> s) -> m()
-    /// 
     /// Monadic state transformer.
-    /// 
     /// Maps an old state to a new state inside a state monad.The old state is thrown away.
     /// </summary>
     [Pure]
     public static State<S, Unit> Modify<S, A>(this State<S, A> self, Func<S, S> f) =>
-        default(MState<S, Unit>).State(s => (unit, f(s), false));
+        default(MState<SState<S, Unit>, State<S, Unit>, S, Unit>).State(s => (unit, f(s), false));
 
     [Pure]
     public static State<S, B> Bind<S, A, B>(this State<S, A> self, Func<A, State<S, B>> f) =>
-        default(MState<S, A>).Bind<MState<S, B>, State<S, B>, B>(self, f);
+        default(MState<SState<S, A>, State<S, A>, S, A>).Bind<MState<SState<S, B>, State<S, B>, S, B>, State<S, B>, B>(self, f);
 
     [Pure]
     public static State<S, B> Select<S, A, B>(this State<S, A> self, Func<A, B> f) =>
-        default(MState<S, A>).Bind<MState<S, B>, State<S, B>, B>(self, a =>
-        default(MState<S, B>).Return(f(a)));
+        default(MState<SState<S, A>, State<S, A>, S, A>).Bind<MState<SState<S, B>, State<S, B>, S, B>, State<S, B>, B>(self, a =>
+        default(MState<SState<S, B>, State<S, B>, S, B>).Return(f(a)));
 
     [Pure]
     public static State<S, C> SelectMany<S, A, B, C>(
         this State<S, A> self,
         Func<A, State<S, B>> bind,
         Func<A, B, C> project) =>
-            default(MState<S, A>).Bind<MState<S, C>, State<S, C>, C>(self, a =>
-            default(MState<S, B>).Bind<MState<S, C>, State<S, C>, C>(bind(a), b =>
-            default(MState<S, C>).Return(project(a, b))));
+            default(MState<SState<S, A>, State<S, A>, S, A>).Bind<MState<SState<S, C>, State<S, C>, S, C>, State<S, C>, C>(self, a =>
+            default(MState<SState<S, B>, State<S, B>, S, B>).Bind<MState<SState<S, C>, State<S, C>, S, C>, State<S, C>, C>(bind(a), b =>
+            default(MState<SState<S, C>, State<S, C>, S, C>).Return(project(a, b))));
 
     [Pure]
     public static State<S, A> Filter<S, A>(this State<S, A> self, Func<A, bool> pred) =>
@@ -149,14 +146,14 @@ public static class StateExtensions
 
     [Pure]
     public static State<S, A> Where<S, A>(this State<S, A> self, Func<A, bool> pred) =>
-        default(MState<S, A>).Return(state => {
+        default(MState<SState<S, A>, State<S, A>, S, A>).Return(state => {
             var (x, s, b) = self.Eval(state);
             if (b || !pred(x)) return (default(A), state, true);
             return (x, s, b);
         });
 
     public static State<S, Unit> Iter<S, A>(this State<S, A> self, Action<A> action) =>
-        default(MState<S, Unit>).Return(state => {
+        default(MState<SState<S, Unit>, State<S, Unit>, S, Unit>).Return(state => {
             var (x, s, b) = self.Eval(state);
             if (!b) action(x);
             var ns = b ? state : s;

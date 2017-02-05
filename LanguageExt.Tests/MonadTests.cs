@@ -4,6 +4,7 @@ using LanguageExt;
 using static LanguageExt.List;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExtTests
 {
@@ -13,17 +14,20 @@ namespace LanguageExtTests
         [Fact]
         public void WriterTest()
         {
-            var logNumber = fun((int x) => Writer(x, List("Got number: " + x)));
+            var telll = fun((string x) => tell<MLst<string>, Lst<string>, int>(List(x)));
 
-            var multWithLog = from a in logNumber(3)
-                              from b in logNumber(5)
-                              from _ in tell("Gonna multiply these two")
+            var value = fun((int x) => from _ in telll($"Got number: {x}")
+                                       select x);
+
+            var multWithLog = from a in value(3)
+                              from b in value(5)
+                              from _ in telll("Gonna multiply these two")
                               select a * b;
 
-            var res = multWithLog();
+            var res = multWithLog.Run();
 
             Assert.True(length(res.Output) == 3);
-            Assert.True(res.Value == 15);
+            Assert.True(res.Value.IfNone(0) == 15);
             Assert.True(head(res.Output) == "Got number: 3");
             Assert.True(head(tail(res.Output)) == "Got number: 5");
             Assert.True(head(tail(tail(res.Output))) == "Gonna multiply these two");

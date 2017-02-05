@@ -1,5 +1,6 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -7,33 +8,16 @@ namespace LanguageExt
     /// RWS monad type class
     /// </summary>
     [Typeclass]
-    public interface MonadRWS<R, W, S, A> : Monad<(R, W, S), RWS<R, W, S, A>, A>
+    public interface MonadRWS<SRwsA, RwsA, MonoidW, R, W, S, A> : 
+        MonadReader<SRwsA, RwsA, R, A>,
+        MonadWriter<SRwsA, RwsA, MonoidW, W, A>,
+        MonadState<SRwsA, RwsA, S, A>
+        where SRwsA   : struct, 
+            ReaderMonadValue<RwsA, R, A>,
+            WriterMonadValue<RwsA, W, A>, 
+            StateMonadValue<RwsA, S, A>, 
+            MonadValue<RwsA, (R, W, S), A>
+        where MonoidW : struct, Monoid<W>
     {
-        /// <summary>
-        /// Returns the environment from the internals of the monad.
-        /// </summary>
-        /// <returns>Reader where the environment and the bound value are the same</returns>
-        RWS<R, W, S, R> Ask { get; }
-
-        /// <summary>
-        /// Retrieves a function of the current environment.
-        /// </summary>
-        /// <param name="f">The function to modify the environment.</param>
-        /// <returns></returns>
-        RWS<R, W, S, A> Local(Func<R, R> f, Reader<R, A> ma);
-
-        /// <summary>
-        /// Returns the state from the internals of the monad.
-        /// </summary>
-        /// <returns>State value where the internal state and the bound value are the same</returns>
-        RWS<R, W, S, S> Get { get; }
-
-        /// <summary>
-        /// Replaces the state inside the monad.
-        /// </summary>
-        /// <typeparam name="B">Type of the value to use as the state</typeparam>
-        /// <param name="state">State value to use</param>
-        /// <returns>Updated state monad</returns>
-        RWS<R, W, S, Unit> Put(S state);
     }
 }
