@@ -91,5 +91,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public IEnumerable<A> Return(Func<A> f) =>
             Return(f());
+
+        [Pure]
+        public int GetHashCode(IEnumerable<A> x) =>
+            hash(x);
     }
 }

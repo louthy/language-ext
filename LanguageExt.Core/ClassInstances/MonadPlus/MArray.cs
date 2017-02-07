@@ -5,6 +5,7 @@ using static LanguageExt.Prelude;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -78,5 +79,9 @@ namespace LanguageExt.ClassInstances
 
         public A[] Zero() =>
             Empty();
+
+        [Pure]
+        public int GetHashCode(A[] x) =>
+            hash(x);
     }
 }

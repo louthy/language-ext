@@ -16,5 +16,11 @@
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         bool Equals(A x, A y);
+
+        /// <summary>
+        /// Get the hash-code of the provided value
+        /// </summary>
+        /// <returns>Hash code of x</returns>
+        int GetHashCode(A x);
     }
 }

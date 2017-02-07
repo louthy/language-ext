@@ -32,5 +32,12 @@ namespace LanguageExt.ClassInstances
         /// </returns>
         public int Compare(bool x, bool y) =>
             x.CompareTo(y);
+
+        /// <summary>
+        /// Get the hash-code of the provided value
+        /// </summary>
+        /// <returns>Hash code of x</returns>
+        public int GetHashCode(bool x) =>
+            x.GetHashCode();
     }
 }

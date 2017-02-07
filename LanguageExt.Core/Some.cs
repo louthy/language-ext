@@ -29,7 +29,6 @@ namespace LanguageExt
         }
     }
 
-    // TODO: Restore when the type-class work is complete [TypeConverter(typeof(OptionalTypeConverter))]
     [Serializable]
     public struct Some<A> : 
         ISerializable, 

@@ -1,4 +1,5 @@
 ﻿using LanguageExt.TypeClasses;
+using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.ClassInstances
@@ -51,5 +52,12 @@ namespace LanguageExt.ClassInstances
                 return cmp;
             }
         }
+
+        /// <summary>
+        /// Get the hash-code of the provided value
+        /// </summary>
+        /// <returns>Hash code of x</returns>
+        public int GetHashCode(A[] x) =>
+            hash(x);
     }
 }

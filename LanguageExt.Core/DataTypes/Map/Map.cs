@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -21,7 +22,10 @@ namespace LanguageExt
     public struct Map<K, V> :
         IEnumerable<MapItem<K, V>>
     {
-        readonly MapInternal<K, V> value;
+        readonly MapInternal<OrdDefault<K>, K, V> value;
+
+        internal static Map<K, V> Wrap(MapInternal<OrdDefault<K>, K, V> map) =>
+            new Map<K, V>(map);
 
         public Map(IEnumerable<MapItem<K,V>> items)
         {
@@ -33,18 +37,18 @@ namespace LanguageExt
             this.value = map.value;
         }
 
-        internal Map(MapInternal<K, V> value)
+        internal Map(MapInternal<OrdDefault<K>, K, V> value)
         {
             this.value = value;
         }
 
         internal Map(MapItem<K, V> root, bool rev)
         {
-            this.value = new MapInternal<K, V>(root, rev);
+            this.value = new MapInternal<OrdDefault<K>, K, V>(root, rev);
         }
 
-        internal MapInternal<K, V> Value =>
-            value ?? MapInternal<K, V>.Empty;
+        internal MapInternal<OrdDefault<K>, K, V> Value =>
+            value ?? MapInternal<OrdDefault<K>, K, V>.Empty;
 
         /// <summary>
         /// 'this' accessor
@@ -82,7 +86,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public Map<K, V> Add(K key, V value) => Value.Add(key,value);
+        public Map<K, V> Add(K key, V value) => Wrap(Value.Add(key,value));
 
         /// <summary>
         /// Atomically adds a new item to the map.
@@ -94,7 +98,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public Map<K, V> TryAdd(K key, V value) => Value.TryAdd(key, value);
+        public Map<K, V> TryAdd(K key, V value) => Wrap(Value.TryAdd(key, value));
 
         /// <summary>
         /// Atomically adds a new item to the map.
@@ -109,7 +113,8 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public Map<K, V> TryAdd(K key, V value, Func<Map<K, V>, V, Map<K, V>> Fail) => Value.TryAdd(key, value, Fail);
+        public Map<K, V> TryAdd(K key, V value, Func<Map<K, V>, V, Map<K, V>> Fail) =>
+            Wrap(Value.TryAdd(key, value, (m, v) => Fail(Wrap(m), v).Value));
 
         /// <summary>
         /// Atomically adds a range of items to the map.
@@ -120,7 +125,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public Map<K, V> AddRange(IEnumerable<Tuple<K, V>> range) => Value.AddRange(range);
+        public Map<K, V> AddRange(IEnumerable<Tuple<K, V>> range) => Wrap(Value.AddRange(range));
 
         /// <summary>
         /// Atomically adds a range of items to the map.
@@ -131,7 +136,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public Map<K, V> AddRange(IEnumerable<(K, V)> range) => Value.AddRange(range);
+        public Map<K, V> AddRange(IEnumerable<(K, V)> range) => Wrap(Value.AddRange(range));
 
         /// <summary>
         /// Atomically adds a range of items to the map.  If any of the keys exist already
@@ -142,7 +147,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public Map<K, V> TryAddRange(IEnumerable<Tuple<K, V>> range) => Value.TryAddRange(range);
+        public Map<K, V> TryAddRange(IEnumerable<Tuple<K, V>> range) => Wrap(Value.TryAddRange(range));
 
         /// <summary>
         /// Atomically adds a range of items to the map.  If any of the keys exist already
@@ -153,7 +158,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public Map<K, V> TryAddRange(IEnumerable<(K, V)> range) => Value.TryAddRange(range);
+        public Map<K, V> TryAddRange(IEnumerable<(K, V)> range) => Wrap(Value.TryAddRange(range));
 
         /// <summary>
         /// Atomically adds a range of items to the map.  If any of the keys exist already
@@ -164,7 +169,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public Map<K, V> TryAddRange(IEnumerable<KeyValuePair<K, V>> range) => Value.TryAddRange(range);
+        public Map<K, V> TryAddRange(IEnumerable<KeyValuePair<K, V>> range) => Wrap(Value.TryAddRange(range));
 
         /// <summary>
         /// Atomically adds a range of items to the map.  If any of the keys exist already
@@ -175,7 +180,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public Map<K, V> AddOrUpdateRange(IEnumerable<Tuple<K, V>> range) => Value.AddOrUpdateRange(range);
+        public Map<K, V> AddOrUpdateRange(IEnumerable<Tuple<K, V>> range) => Wrap(Value.AddOrUpdateRange(range));
 
         /// <summary>
         /// Atomically adds a range of items to the map.  If any of the keys exist already
@@ -186,7 +191,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public Map<K, V> AddOrUpdateRange(IEnumerable<(K, V)> range) => Value.AddOrUpdateRange(range);
+        public Map<K, V> AddOrUpdateRange(IEnumerable<(K, V)> range) => Wrap(Value.AddOrUpdateRange(range));
 
         /// <summary>
         /// Atomically adds a range of items to the map.  If any of the keys exist already
@@ -197,7 +202,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public Map<K, V> AddOrUpdateRange(IEnumerable<KeyValuePair<K, V>> range) => Value.AddOrUpdateRange(range);
+        public Map<K, V> AddOrUpdateRange(IEnumerable<KeyValuePair<K, V>> range) => Wrap(Value.AddOrUpdateRange(range));
 
         /// <summary>
         /// Atomically removes an item from the map
@@ -206,7 +211,7 @@ namespace LanguageExt
         /// <param name="key">Key</param>
         /// <returns>New map with the item removed</returns>
         [Pure]
-        public Map<K, V> Remove(K key) => Value.Remove(key);
+        public Map<K, V> Remove(K key) => Wrap(Value.Remove(key));
 
         /// <summary>
         /// Retrieve a value from the map by key
@@ -242,7 +247,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public Map<K, V> SetItem(K key, V value) => Value.SetItem(key, value);
+        public Map<K, V> SetItem(K key, V value) => Wrap(Value.SetItem(key, value));
 
         /// <summary>
         /// Retrieve a value from the map by key, map it to a new value,
@@ -253,7 +258,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
         [Pure]
-        public Map<K, V> SetItem(K key, Func<V, V> Some) => Value.SetItem(key, Some);
+        public Map<K, V> SetItem(K key, Func<V, V> Some) => Wrap(Value.SetItem(key, Some));
 
         /// <summary>
         /// Atomically updates an existing item, unless it doesn't exist, in which case 
@@ -265,7 +270,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the value is null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public Map<K, V> TrySetItem(K key, V value) => Value.TrySetItem(key, value);
+        public Map<K, V> TrySetItem(K key, V value) => Wrap(Value.TrySetItem(key, value));
 
         /// <summary>
         /// Atomically sets an item by first retrieving it, applying a map, and then putting it back.
@@ -277,7 +282,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New map with the item set</returns>
         [Pure]
-        public Map<K, V> TrySetItem(K key, Func<V, V> Some) => Value.TrySetItem(key, Some);
+        public Map<K, V> TrySetItem(K key, Func<V, V> Some) => Wrap(Value.TrySetItem(key, Some));
 
         /// <summary>
         /// Atomically sets an item by first retrieving it, applying a map, and then putting it back.
@@ -291,7 +296,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if None returns null</exception>
         /// <returns>New map with the item set</returns>
         [Pure]
-        public Map<K, V> TrySetItem(K key, Func<V, V> Some, Func<Map<K, V>, Map<K, V>> None) => Value.TrySetItem(key, Some, None);
+        public Map<K, V> TrySetItem(K key, Func<V, V> Some, Func<Map<K, V>, Map<K, V>> None) => Wrap(Value.TrySetItem(key, Some, None));
 
         /// <summary>
         /// Atomically adds a new item to the map.
@@ -303,7 +308,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public Map<K, V> AddOrUpdate(K key, V value) => Value.AddOrUpdate(key,value);
+        public Map<K, V> AddOrUpdate(K key, V value) => Wrap(Value.AddOrUpdate(key,value));
 
         /// <summary>
         /// Retrieve a value from the map by key, map it to a new value,
@@ -314,7 +319,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
         [Pure]
-        public Map<K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None) => Value.AddOrUpdate(key, Some, None);
+        public Map<K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None) => Wrap(Value.AddOrUpdate(key, Some, None));
 
         /// <summary>
         /// Retrieve a value from the map by key, map it to a new value,
@@ -325,7 +330,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
         [Pure]
-        public Map<K, V> AddOrUpdate(K key, Func<V, V> Some, V None) => Value.AddOrUpdate(key, Some, None);
+        public Map<K, V> AddOrUpdate(K key, Func<V, V> Some, V None) => Wrap(Value.AddOrUpdate(key, Some, None));
 
         /// <summary>
         /// Retrieve a range of values 
@@ -368,7 +373,7 @@ namespace LanguageExt
         /// <remarks>Functionally equivalent to calling Map.empty as the original structure is untouched</remarks>
         /// <returns>Empty map</returns>
         [Pure]
-        public Map<K, V> Clear() => Value.Clear();
+        public Map<K, V> Clear() => Wrap(Value.Clear());
 
         /// <summary>
         /// Atomically adds a range of items to the map
@@ -377,7 +382,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public Map<K, V> AddRange(IEnumerable<KeyValuePair<K, V>> pairs) => Value.AddRange(pairs);
+        public Map<K, V> AddRange(IEnumerable<KeyValuePair<K, V>> pairs) => Wrap(Value.AddRange(pairs));
 
         /// <summary>
         /// Atomically sets a series of items using the KeyValuePairs provided
@@ -386,7 +391,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public Map<K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items) => Value.SetItems(items);
+        public Map<K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items) => Wrap(Value.SetItems(items));
 
         /// <summary>
         /// Atomically sets a series of items using the Tuples provided.
@@ -395,7 +400,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public Map<K, V> SetItems(IEnumerable<Tuple<K, V>> items) => Value.SetItems(items);
+        public Map<K, V> SetItems(IEnumerable<Tuple<K, V>> items) => Wrap(Value.SetItems(items));
 
         /// <summary>
         /// Atomically sets a series of items using the Tuples provided.
@@ -404,7 +409,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public Map<K, V> SetItems(IEnumerable<(K, V)> items) => Value.SetItems(items);
+        public Map<K, V> SetItems(IEnumerable<(K, V)> items) => Wrap(Value.SetItems(items));
 
         /// <summary>
         /// Atomically sets a series of items using the KeyValuePairs provided.  If any of the 
@@ -413,7 +418,7 @@ namespace LanguageExt
         /// <param name="items">Items to set</param>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public Map<K, V> TrySetItems(IEnumerable<KeyValuePair<K, V>> items) => Value.TrySetItems(items);
+        public Map<K, V> TrySetItems(IEnumerable<KeyValuePair<K, V>> items) => Wrap(Value.TrySetItems(items));
 
         /// <summary>
         /// Atomically sets a series of items using the Tuples provided  If any of the 
@@ -422,7 +427,7 @@ namespace LanguageExt
         /// <param name="items">Items to set</param>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public Map<K, V> TrySetItems(IEnumerable<Tuple<K, V>> items) => Value.TrySetItems(items);
+        public Map<K, V> TrySetItems(IEnumerable<Tuple<K, V>> items) => Wrap(Value.TrySetItems(items));
 
         /// <summary>
         /// Atomically sets a series of items using the Tuples provided  If any of the 
@@ -431,7 +436,7 @@ namespace LanguageExt
         /// <param name="items">Items to set</param>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public Map<K, V> TrySetItems(IEnumerable<(K, V)> items) => Value.TrySetItems(items);
+        public Map<K, V> TrySetItems(IEnumerable<(K, V)> items) => Wrap(Value.TrySetItems(items));
 
         /// <summary>
         /// Atomically sets a series of items using the keys provided to find the items
@@ -442,7 +447,7 @@ namespace LanguageExt
         /// <param name="Some">Function map the existing item to a new one</param>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public Map<K, V> TrySetItems(IEnumerable<K> keys, Func<V, V> Some) => Value.TrySetItems(keys, Some);
+        public Map<K, V> TrySetItems(IEnumerable<K> keys, Func<V, V> Some) => Wrap(Value.TrySetItems(keys, Some));
 
         /// <summary>
         /// Atomically removes a set of keys from the map
@@ -450,7 +455,7 @@ namespace LanguageExt
         /// <param name="keys">Keys to remove</param>
         /// <returns>New map with the items removed</returns>
         [Pure]
-        public Map<K, V> RemoveRange(IEnumerable<K> keys) => Value.RemoveRange(keys);
+        public Map<K, V> RemoveRange(IEnumerable<K> keys) => Wrap(Value.RemoveRange(keys));
 
         /// <summary>
         /// Returns true if a Key/Value pair exists in the map
@@ -525,10 +530,10 @@ namespace LanguageExt
             Value.AsEnumerable();
 
         internal Map<K, V> SetRoot(MapItem<K, V> root) =>
-            new Map<K, V>(new MapInternal<K, V>(root, Value.Rev));
+            new Map<K, V>(new MapInternal<OrdDefault<K>, K, V>(root, Value.Rev));
 
         public static Map<K, V> Empty = 
-            new Map<K, V>(MapInternal<K, V>.Empty);
+            new Map<K, V>(MapInternal<OrdDefault<K>, K, V>.Empty);
 
         [Pure]
         public bool Equals(Map<K, V> x, Map<K, V> y) =>

@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using LanguageExt;
-using static LanguageExt.Prelude;
-using System.Threading;
-using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
-using LanguageExt.TypeClasses;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -18,25 +13,22 @@ namespace LanguageExt
     /// <typeparam name="A">Key type</typeparam>
     public struct HashSet<A> :
         IReadOnlyCollection<A>,
-        IEquatable<HashSet<A>>,
-        ICollection<A>,
-        ISet<A>,
-        ICollection
+        IEquatable<HashSet<A>>
     {
-        public static readonly HashSet<A> Empty = new HashSet<A>(HashSetInternal<A>.Empty);
+        public static readonly HashSet<A> Empty = new HashSet<A>(HashSetInternal<OrdDefault<A>, A>.Empty);
 
-        readonly HashSetInternal<A> value;
-        HashSetInternal<A> Value => value ?? HashSetInternal<A>.Empty;
+        readonly HashSetInternal<OrdDefault<A>, A> value;
+        HashSetInternal<OrdDefault<A>, A> Value => value ?? HashSetInternal<OrdDefault<A>, A>.Empty;
 
-        internal HashSet(HashSetInternal<A> value)
+        internal HashSet(HashSetInternal<OrdDefault<A>, A> value)
         {
             this.value = value;
         }
 
-        HashSet<A> Wrap(HashSetInternal<A> value) =>
+        HashSet<A> Wrap(HashSetInternal<OrdDefault<A>, A> value) =>
             new HashSet<A>(value);
 
-        static HashSet<U> Wrap<U>(HashSetInternal<U> value) =>
+        static HashSet<U> Wrap<U>(HashSetInternal<OrdDefault<U>, U> value) =>
             new HashSet<U>(value);
 
         /// <summary>
@@ -45,7 +37,7 @@ namespace LanguageExt
         /// <param name="items"></param>
         internal HashSet(IEnumerable<A> items, bool checkUniqueness = false)
         {
-            value = new HashSetInternal<A>(items, checkUniqueness);
+            value = new HashSetInternal<OrdDefault<A>, A>(items, checkUniqueness);
         }
 
         /// <summary>
@@ -93,7 +85,7 @@ namespace LanguageExt
         /// <returns>Mapped enumerable</returns>
         [Pure]
         public HashSet<R> Map<R>(Func<A, R> mapper) =>
-            Wrap(Value.Map(mapper));
+            Wrap(Value.Map<OrdDefault<R>, R>(mapper));
 
         /// <summary>
         /// Filters items from the set using the predicate.  If the predicate
@@ -119,7 +111,7 @@ namespace LanguageExt
         /// <returns>Mapped enumerable</returns>
         [Pure]
         public HashSet<R> Select<R>(Func<A, R> mapper) =>
-            Wrap(Value.Map(mapper));
+            Wrap(Value.Map<OrdDefault<R>, R>(mapper));
 
         /// <summary>
         /// Filters items from the set using the predicate.  If the predicate
@@ -478,55 +470,6 @@ namespace LanguageExt
         public bool SetEquals(IEnumerable<A> other) =>
             Value.SetEquals(other);
 
-        [Obsolete]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        bool ISet<A>.Add(A item)
-        {
-            throw new NotSupportedException();
-        }
-
-        [Obsolete]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public void UnionWith(IEnumerable<A> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        [Obsolete]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public void IntersectWith(IEnumerable<A> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        [Obsolete]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public void ExceptWith(IEnumerable<A> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        [Obsolete]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public void SymmetricExceptWith(IEnumerable<A> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        [Obsolete]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        void ICollection<A>.Add(A item)
-        {
-            throw new NotSupportedException();
-        }
-
-        [Obsolete]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        void ICollection<A>.Clear()
-        {
-            throw new NotSupportedException();
-        }
-
         /// <summary>
         /// Copy the items from the set into the specified array
         /// </summary>
@@ -542,11 +485,6 @@ namespace LanguageExt
         /// <param name="index">Index into the array to start</param>
         public void CopyTo(Array array, int index) =>
             Value.CopyTo(array, index);
-
-        bool ICollection<A>.Remove(A item)
-        {
-            throw new NotSupportedException();
-        }
 
         [Pure]
         public override bool Equals(object obj) =>

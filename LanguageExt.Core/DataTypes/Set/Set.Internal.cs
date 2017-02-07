@@ -6,6 +6,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -17,10 +18,11 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="A">List item type</typeparam>
     [Serializable]
-    internal class SetInternal<A> :
-        IEquatable<SetInternal<A>>
+    internal class SetInternal<OrdA, A> :
+        IEquatable<SetInternal<OrdA, A>>
+        where OrdA : struct, Ord<A>
     {
-        public static readonly SetInternal<A> Empty = new SetInternal<A>();
+        public static readonly SetInternal<OrdA, A> Empty = new SetInternal<OrdA, A>();
         readonly SetItem<A> set;
         int hashCode;
 
@@ -75,14 +77,14 @@ namespace LanguageExt
             {
                 foreach (var item in items)
                 {
-                    set = SetModule.TryAdd(set, item, Comparer<A>.Default);
+                    set = SetModule.TryAdd<OrdA, A>(set, item);
                 }
             }
             else
             {
                 foreach (var item in items)
                 {
-                    set = SetModule.Add(set, item, Comparer<A>.Default);
+                    set = SetModule.Add<OrdA, A>(set, item);
                 }
             }
         }
@@ -100,8 +102,8 @@ namespace LanguageExt
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item added</returns>
         [Pure]
-        public SetInternal<A> Add(A value) =>
-            new SetInternal<A>(SetModule.Add(set,value,Comparer<A>.Default));
+        public SetInternal<OrdA, A> Add(A value) =>
+            new SetInternal<OrdA, A>(SetModule.Add<OrdA, A>(set,value));
 
         /// <summary>
         /// Attempt to add an item to the set.  If an item already
@@ -110,7 +112,7 @@ namespace LanguageExt
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item maybe added</returns>
         [Pure]
-        public SetInternal<A> TryAdd(A value) =>
+        public SetInternal<OrdA, A> TryAdd(A value) =>
             Contains(value)
                 ? this
                 : Add(value);
@@ -122,15 +124,41 @@ namespace LanguageExt
         /// <param name="value">Value to add to the set</param>
         /// <returns>New set with the item maybe added</returns>
         [Pure]
-        public SetInternal<A> AddOrUpdate(A value) =>
-            new SetInternal<A>(SetModule.AddOrUpdate(set, value, Comparer<A>.Default));
+        public SetInternal<OrdA, A> AddOrUpdate(A value) =>
+            new SetInternal<OrdA, A>(SetModule.AddOrUpdate<OrdA, A>(set, value));
 
-        /// <summary>
-        /// Returns true if both sets contain the same elements
-        /// </summary>
         [Pure]
-        public bool Compare(Set<A> setB) =>
-            SetEquals(setB);
+        public SetInternal<OrdA, A> AddRange(IEnumerable<A> xs)
+        {
+            var set = this;
+            foreach(var x in xs)
+            {
+                set = set.Add(x);
+            }
+            return set;
+        }
+
+        [Pure]
+        public SetInternal<OrdA, A> TryAddRange(IEnumerable<A> xs)
+        {
+            var set = this;
+            foreach (var x in xs)
+            {
+                set = set.TryAdd(x);
+            }
+            return set;
+        }
+
+        [Pure]
+        public SetInternal<OrdA, A> AddOrUpdateRange(IEnumerable<A> xs)
+        {
+            var set = this;
+            foreach (var x in xs)
+            {
+                set = set.AddOrUpdate(x);
+            }
+            return set;
+        }
 
         /// <summary>
         /// Get the number of elements in the set
@@ -147,13 +175,13 @@ namespace LanguageExt
         /// <returns>Some(T) if found, None otherwise</returns>
         [Pure]
         public Option<A> Find(A value) =>
-            SetModule.TryFind(set, value, Comparer<A>.Default);
+            SetModule.TryFind<OrdA, A>(set, value);
 
         /// <summary>
         /// Returns the elements that are in both this and other
         /// </summary>
         [Pure]
-        public SetInternal<A> Intersect(IEnumerable<A> other)
+        public SetInternal<OrdA, A> Intersect(IEnumerable<A> other)
         {
             var res = new List<A>();
             foreach (var item in other)
@@ -161,7 +189,7 @@ namespace LanguageExt
                 if (Contains(item))
                     res.Add(item);
             }
-            return new SetInternal<A>(res);
+            return new SetInternal<OrdA, A>(res);
         }
 
         /// <summary>
@@ -169,7 +197,7 @@ namespace LanguageExt
         /// other will be returned.
         /// </summary>
         [Pure]
-        public SetInternal<A> Except(IEnumerable<A> other)
+        public SetInternal<OrdA, A> Except(IEnumerable<A> other)
         {
             var self = this;
             foreach (var item in other)
@@ -187,9 +215,9 @@ namespace LanguageExt
         /// If an item is in both, it is dropped.
         /// </summary>
         [Pure]
-        public SetInternal<A> SymmetricExcept(IEnumerable<A> other)
+        public SetInternal<OrdA, A> SymmetricExcept(IEnumerable<A> other)
         {
-            var rhs = new SetInternal<A>(other);
+            var rhs = new SetInternal<OrdA, A>(other);
             var res = new List<A>();
 
             foreach (var item in this)
@@ -208,7 +236,7 @@ namespace LanguageExt
                 }
             }
 
-            return new SetInternal<A>(res);
+            return new SetInternal<OrdA, A>(res);
         }
 
         /// <summary>
@@ -218,7 +246,7 @@ namespace LanguageExt
         /// <param name="other">Other set to union with</param>
         /// <returns>A set which contains all items from both sets</returns>
         [Pure]
-        public SetInternal<A> Union(IEnumerable<A> other)
+        public SetInternal<OrdA, A> Union(IEnumerable<A> other)
         {
             var self = this;
             foreach (var item in other)
@@ -233,7 +261,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An empty set</returns>
         [Pure]
-        public SetInternal<A> Clear() =>
+        public SetInternal<OrdA, A> Clear() =>
             Empty;
 
         /// <summary>
@@ -250,8 +278,8 @@ namespace LanguageExt
         /// <param name="value">Value to check</param>
         /// <returns>New set with item removed</returns>
         [Pure]
-        public SetInternal<A> Remove(A value) =>
-            new SetInternal<A>(SetModule.Remove(set, value, Comparer<A>.Default));
+        public SetInternal<OrdA, A> Remove(A value) =>
+            new SetInternal<OrdA, A>(SetModule.Remove<OrdA, A>(set, value));
 
         /// <summary>
         /// Applies a function 'folder' to each element of the collection, threading an accumulator 
@@ -291,8 +319,19 @@ namespace LanguageExt
         /// <param name="mapper">Mapping function</param>
         /// <returns>Mapped Set</returns>
         [Pure]
-        public SetInternal<U> Map<U>(Func<A, U> map) =>
-            new SetInternal<U>(this.AsEnumerable().Select(map), true);
+        public SetInternal<OrdB, B> Map<OrdB, B>(Func<A, B> map) where OrdB : struct, Ord<B> =>
+            new SetInternal<OrdB, B>(this.AsEnumerable().Select(map), true);
+
+        /// <summary>
+        /// Maps the values of this set into a new set of values using the
+        /// mapper function to tranform the source values.
+        /// </summary>
+        /// <typeparam name="R">Mapped element type</typeparam>
+        /// <param name="mapper">Mapping function</param>
+        /// <returns>Mapped Set</returns>
+        [Pure]
+        public SetInternal<OrdA, A> Map(Func<A, A> map) =>
+            new SetInternal<OrdA, A>(this.AsEnumerable().Select(map), true);
 
         /// <summary>
         /// Filters items from the set using the predicate.  If the predicate
@@ -302,8 +341,8 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>Filtered enumerable</returns>
         [Pure]
-        public SetInternal<A> Filter(Func<A, bool> pred) =>
-            new SetInternal<A>(SetModule.Filter(set, pred));
+        public SetInternal<OrdA, A> Filter(Func<A, bool> pred) =>
+            new SetInternal<OrdA, A>(SetModule.Filter(set, pred));
 
         /// <summary>
         /// Check the existence of an item in the set using a 
@@ -323,7 +362,7 @@ namespace LanguageExt
         /// <returns>True if the item 'value' is in the Set 'set'</returns>
         [Pure]
         public bool Contains(A value) =>
-            SetModule.Contains(set, value, Comparer<A>.Default);
+            SetModule.Contains<OrdA, A>(set, value);
 
         /// <summary>
         /// Returns true if both sets contain the same elements
@@ -333,7 +372,7 @@ namespace LanguageExt
         [Pure]
         public bool SetEquals(IEnumerable<A> other)
         {
-            var rhs = new SetInternal<A>(other);
+            var rhs = new SetInternal<OrdA, A>(other);
             if (rhs.Count != Count) return false;
             foreach (var item in rhs)
             {
@@ -354,30 +393,6 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public bool IsReadOnly
-        {
-            get
-            {
-                return true;
-            }
-        }
-
-        /// <summary>
-        /// Syncronisation root
-        /// </summary>
-        [Pure]
-        public object SyncRoot
-        {
-            get
-            {
-                return set;
-            }
-        }
-
-        /// <summary>
-        /// IsSynchronized - Always true
-        /// </summary>
-        [Pure]
-        public bool IsSynchronized
         {
             get
             {
@@ -557,7 +572,7 @@ namespace LanguageExt
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Unioned set</returns>
         [Pure]
-        public static SetInternal<A> operator +(SetInternal<A> lhs, SetInternal<A> rhs) =>
+        public static SetInternal<OrdA, A> operator +(SetInternal<OrdA, A> lhs, SetInternal<OrdA, A> rhs) =>
             lhs.Append(rhs);
 
         /// <summary>
@@ -566,7 +581,7 @@ namespace LanguageExt
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Unioned set</returns>
         [Pure]
-        public SetInternal<A> Append(SetInternal<A> rhs) =>
+        public SetInternal<OrdA, A> Append(SetInternal<OrdA, A> rhs) =>
             Union(rhs.AsEnumerable());
 
         /// <summary>
@@ -576,7 +591,7 @@ namespace LanguageExt
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Subtractd set</returns>
         [Pure]
-        public static SetInternal<A> operator -(SetInternal<A> lhs, SetInternal<A> rhs) =>
+        public static SetInternal<OrdA, A> operator -(SetInternal<OrdA, A> lhs, SetInternal<OrdA, A> rhs) =>
             lhs.Subtract(rhs);
 
         /// <summary>
@@ -585,7 +600,7 @@ namespace LanguageExt
         /// <param name="rhs">Right hand side set</param>
         /// <returns>Subtractd set</returns>
         [Pure]
-        public SetInternal<A> Subtract(SetInternal<A> rhs)
+        public SetInternal<OrdA, A> Subtract(SetInternal<OrdA, A> rhs)
         {
             var self = this;
             foreach (var item in rhs)
@@ -601,7 +616,7 @@ namespace LanguageExt
         /// <param name="other">Other set to test</param>
         /// <returns>True if sets are equal</returns>
         [Pure]
-        public bool Equals(SetInternal<A> other) =>
+        public bool Equals(SetInternal<OrdA, A> other) =>
             SetEquals(other.AsEnumerable());
     }
 
@@ -694,20 +709,20 @@ namespace LanguageExt
                     : Balance(Filter(AddTreeToRight(node.Left, node.Right), pred));
 
         [Pure]
-        public static SetItem<K> Add<K>(SetItem<K> node, K key, Comparer<K> comparer)
+        public static SetItem<K> Add<OrdK, K>(SetItem<K> node, K key) where OrdK : struct, Ord<K>
         {
             if (node.IsEmpty)
             {
                 return new SetItem<K>(1, 1, key, SetItem<K>.Empty, SetItem<K>.Empty);
             }
-            var cmp = comparer.Compare(key, node.Key);
+            var cmp = default(OrdK).Compare(key, node.Key);
             if (cmp < 0)
             {
-                return Balance(Make(node.Key, Add(node.Left, key, comparer), node.Right));
+                return Balance(Make(node.Key, Add<OrdK, K>(node.Left, key), node.Right));
             }
             else if (cmp > 0)
             {
-                return Balance(Make(node.Key, node.Left, Add(node.Right, key, comparer)));
+                return Balance(Make(node.Key, node.Left, Add<OrdK, K>(node.Right, key)));
             }
             else
             {
@@ -716,20 +731,20 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static SetItem<K> TryAdd<K>(SetItem<K> node, K key,  Comparer<K> comparer)
+        public static SetItem<K> TryAdd<OrdK, K>(SetItem<K> node, K key) where OrdK : struct, Ord<K>
         {
             if (node.IsEmpty)
             {
                 return new SetItem<K>(1, 1, key, SetItem<K>.Empty, SetItem<K>.Empty);
             }
-            var cmp = comparer.Compare(key, node.Key);
+            var cmp = default(OrdK).Compare(key, node.Key);
             if (cmp < 0)
             {
-                return Balance(Make(node.Key, TryAdd(node.Left, key, comparer), node.Right));
+                return Balance(Make(node.Key, TryAdd<OrdK, K>(node.Left, key), node.Right));
             }
             else if (cmp > 0)
             {
-                return Balance(Make(node.Key, node.Left, TryAdd(node.Right, key, comparer)));
+                return Balance(Make(node.Key, node.Left, TryAdd<OrdK, K>(node.Right, key)));
             }
             else
             {
@@ -738,20 +753,20 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static SetItem<K> AddOrUpdate<K>(SetItem<K> node, K key, Comparer<K> comparer)
+        public static SetItem<K> AddOrUpdate<OrdK, K>(SetItem<K> node, K key) where OrdK : struct, Ord<K>
         {
             if (node.IsEmpty)
             {
                 return new SetItem<K>(1, 1, key, SetItem<K>.Empty, SetItem<K>.Empty);
             }
-            var cmp = comparer.Compare(key, node.Key);
+            var cmp = default(OrdK).Compare(key, node.Key);
             if (cmp < 0)
             {
-                return Balance(Make(node.Key, TryAdd(node.Left, key, comparer), node.Right));
+                return Balance(Make(node.Key, TryAdd<OrdK, K>(node.Left, key), node.Right));
             }
             else if (cmp > 0)
             {
-                return Balance(Make(node.Key, node.Left, TryAdd(node.Right, key, comparer)));
+                return Balance(Make(node.Key, node.Left, TryAdd<OrdK, K>(node.Right, key)));
             }
             else
             {
@@ -766,20 +781,20 @@ namespace LanguageExt
                 : Balance(Make(node.Key, node.Left, AddTreeToRight(node.Right, toAdd)));
 
         [Pure]
-        public static SetItem<K> Remove<K>(SetItem<K> node, K key, Comparer<K> comparer)
+        public static SetItem<K> Remove<OrdK, K>(SetItem<K> node, K key) where OrdK : struct, Ord<K>
         {
             if (node.IsEmpty)
             {
                 return node;
             }
-            var cmp = comparer.Compare(key, node.Key);
+            var cmp = default(OrdK).Compare(key, node.Key);
             if (cmp < 0)
             {
-                return Balance(Make(node.Key, Remove(node.Left, key, comparer), node.Right));
+                return Balance(Make(node.Key, Remove<OrdK, K>(node.Left, key), node.Right));
             }
             else if (cmp > 0)
             {
-                return Balance(Make(node.Key, node.Left, Remove(node.Right, key, comparer)));
+                return Balance(Make(node.Key, node.Left, Remove<OrdK, K>(node.Right, key)));
             }
             else
             {
@@ -788,20 +803,20 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static bool Contains<K>(SetItem<K> node, K key, Comparer<K> comparer)
+        public static bool Contains<OrdK, K>(SetItem<K> node, K key) where OrdK : struct, Ord<K>
         {
             if (node.IsEmpty)
             {
                 return false;
             }
-            var cmp = comparer.Compare(key, node.Key);
+            var cmp = default(OrdK).Compare(key, node.Key);
             if (cmp < 0)
             {
-                return Contains(node.Left, key, comparer);
+                return Contains<OrdK, K>(node.Left, key);
             }
             else if (cmp > 0)
             {
-                return Contains(node.Right, key, comparer);
+                return Contains<OrdK, K>(node.Right, key);
             }
             else
             {
@@ -810,20 +825,20 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static K Find<K>(SetItem<K> node, K key, Comparer<K> comparer)
+        public static K Find<OrdK, K>(SetItem<K> node, K key) where OrdK : struct, Ord<K>
         {
             if (node.IsEmpty)
             {
                 throw new ArgumentException("Key not found in set");
             }
-            var cmp = comparer.Compare(key, node.Key);
+            var cmp = default(OrdK).Compare(key, node.Key);
             if (cmp < 0)
             {
-                return Find(node.Left, key, comparer);
+                return Find<OrdK, K>(node.Left, key);
             }
             else if (cmp > 0)
             {
-                return Find(node.Right, key, comparer);
+                return Find<OrdK, K>(node.Right, key);
             }
             else
             {
@@ -836,34 +851,34 @@ namespace LanguageExt
         /// that maintains a stack of nodes to retrace.
         /// </summary>
         [Pure]
-        public static IEnumerable<K> FindRange<K>(SetItem<K> node, K a, K b, Comparer<K> comparer)
+        public static IEnumerable<K> FindRange<OrdK, K>(SetItem<K> node, K a, K b) where OrdK : struct, Ord<K>
         {
             if (node.IsEmpty)
             {
                 yield break;
             }
-            if (comparer.Compare(node.Key, a) < 0)
+            if (default(OrdK).Compare(node.Key, a) < 0)
             {
-                foreach (var item in FindRange(node.Right, a, b, comparer))
+                foreach (var item in FindRange<OrdK, K>(node.Right, a, b))
                 {
                     yield return item;
                 }
             }
-            else if (comparer.Compare(node.Key, b) > 0)
+            else if (default(OrdK).Compare(node.Key, b) > 0)
             {
-                foreach (var item in FindRange(node.Left, a, b, comparer))
+                foreach (var item in FindRange<OrdK, K>(node.Left, a, b))
                 {
                     yield return item;
                 }
             }
             else
             {
-                foreach (var item in FindRange(node.Left, a, b, comparer))
+                foreach (var item in FindRange<OrdK, K>(node.Left, a, b))
                 {
                     yield return item;
                 }
                 yield return node.Key;
-                foreach (var item in FindRange(node.Right, a, b, comparer))
+                foreach (var item in FindRange<OrdK, K>(node.Right, a, b))
                 {
                     yield return item;
                 }
@@ -871,20 +886,20 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static Option<K> TryFind<K>(SetItem<K> node, K key, Comparer<K> comparer)
+        public static Option<K> TryFind<OrdK, K>(SetItem<K> node, K key) where OrdK : struct, Ord<K>
         {
             if (node.IsEmpty)
             {
                 return None;
             }
-            var cmp = comparer.Compare(key, node.Key);
+            var cmp = default(OrdK).Compare(key, node.Key);
             if (cmp < 0)
             {
-                return TryFind(node.Left, key, comparer);
+                return TryFind<OrdK, K>(node.Left, key);
             }
             else if (cmp > 0)
             {
-                return TryFind(node.Right, key, comparer);
+                return TryFind<OrdK, K>(node.Right, key);
             }
             else
             {

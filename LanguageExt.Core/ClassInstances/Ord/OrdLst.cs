@@ -58,5 +58,12 @@ namespace LanguageExt.ClassInstances
                 return cmp;
             }
         }
+
+        /// <summary>
+        /// Get the hash-code of the provided value
+        /// </summary>
+        /// <returns>Hash code of x</returns>
+        public int GetHashCode(Lst<A> x) =>
+            x.GetHashCode();
     }
 }

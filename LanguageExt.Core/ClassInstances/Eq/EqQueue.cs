@@ -22,5 +22,13 @@ namespace LanguageExt.ClassInstances
             if (x.Count != y.Count) return false;
             return x == y;
         }
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        public int GetHashCode(Que<A> x) =>
+            x.IsNull() ? 0 : x.GetHashCode();
     }
 }

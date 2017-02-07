@@ -96,5 +96,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Lst<A> Zero() =>
             Empty();
+
+        [Pure]
+        public int GetHashCode(Lst<A> x) =>
+            x.GetHashCode();
     }
 }

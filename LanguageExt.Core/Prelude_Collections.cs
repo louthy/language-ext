@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using LanguageExt.TypeClasses;
 
 namespace LanguageExt
 {
@@ -101,6 +102,44 @@ namespace LanguageExt
             LanguageExt.Map.createRange(items);
 
 
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        [Pure]
+        public static Map<OrdK, K, V> Map<OrdK, K, V>() where OrdK : struct, Ord<K> =>
+            LanguageExt.Map.empty<OrdK, K, V>();
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        [Pure]
+        public static Map<OrdK, K, V> Map<OrdK, K, V>(params Tuple<K, V>[] items) where OrdK : struct, Ord<K> =>
+            LanguageExt.Map.createRange<OrdK, K, V>(items);
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        [Pure]
+        public static Map<OrdK, K, V> Map<OrdK, K, V>(IEnumerable<Tuple<K, V>> items) where OrdK : struct, Ord<K> =>
+            LanguageExt.Map.createRange<OrdK, K, V>(items);
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        [Pure]
+        public static Map<OrdK, K, V> Map<OrdK, K, V>(params KeyValuePair<K, V>[] items) where OrdK : struct, Ord<K> =>
+            LanguageExt.Map.createRange<OrdK, K, V>(from x in items select Tuple(x.Key, x.Value));
+
+        /// <summary>
+        /// Create an immutable map
+        /// </summary>
+        [Pure]
+        public static Map<OrdK, K, V> Map<OrdK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where OrdK : struct, Ord<K> =>
+            LanguageExt.Map.createRange<OrdK, K, V>(items);
+
+
+
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
@@ -136,6 +175,47 @@ namespace LanguageExt
         [Pure]
         public static HashMap<K, V> HashMap<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
             LanguageExt.HashMap.createRange(items);
+
+
+
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static HashMap<EqK, K, V> HashMap<EqK, K, V>() where EqK : struct, Eq<K> =>
+            LanguageExt.HashMap.empty<EqK, K, V>();
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static HashMap<EqK, K, V> HashMap<EqK, K, V>(params Tuple<K, V>[] items) where EqK : struct, Eq<K> =>
+            LanguageExt.HashMap.createRange<EqK, K, V>(items);
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static HashMap<EqK, K, V> HashMap<EqK, K, V>(IEnumerable<Tuple<K, V>> items) where EqK : struct, Eq<K> =>
+            LanguageExt.HashMap.createRange<EqK, K, V>(items);
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static HashMap<EqK, K, V> HashMap<EqK, K, V>(params KeyValuePair<K, V>[] items) where EqK : struct, Eq<K> =>
+            LanguageExt.HashMap.createRange<EqK, K, V>(from x in items select Tuple(x.Key, x.Value));
+
+        /// <summary>
+        /// Create an immutable hash-map
+        /// </summary>
+        [Pure]
+        public static HashMap<EqK, K, V> HashMap<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where EqK : struct, Eq<K> =>
+            LanguageExt.HashMap.createRange<EqK, K, V>(items);
+
+
+
 
         /// <summary>
         /// Create an immutable list
@@ -292,6 +372,39 @@ namespace LanguageExt
         public static Set<T> toSet<T>(IEnumerable<T> items) =>
             LanguageExt.Set.createRange<T>(items);
 
+
+
+        /// <summary>
+        /// Create an immutable set
+        /// </summary>
+        [Pure]
+        public static Set<OrdT, T> Set<OrdT, T>() where OrdT : struct, Ord<T> =>
+            LanguageExt.Set.create<OrdT, T>();
+
+        /// <summary>
+        /// Create an immutable set
+        /// </summary>
+        [Pure]
+        public static Set<OrdT, T> Set<OrdT, T>(T item) where OrdT : struct, Ord<T> =>
+            LanguageExt.Set.create<OrdT, T>().Add(item);
+
+        /// <summary>
+        /// Create an immutable set
+        /// </summary>
+        [Pure]
+        public static Set<OrdT, T> Set<OrdT, T>(params T[] items) where OrdT : struct, Ord<T> =>
+            LanguageExt.Set.createRange<OrdT, T>(items);
+
+        /// <summary>
+        /// Create an immutable set
+        /// </summary>
+        [Pure]
+        public static Set<OrdT, T> toSet<OrdT, T>(IEnumerable<T> items) where OrdT : struct, Ord<T> =>
+            LanguageExt.Set.createRange<OrdT, T>(items);
+
+
+
+
         /// <summary>
         /// Create an immutable hash-set
         /// </summary>
@@ -319,6 +432,42 @@ namespace LanguageExt
         [Pure]
         public static HashSet<T> toHashSet<T>(IEnumerable<T> items) =>
             LanguageExt.HashSet.createRange<T>(items);
+
+
+
+
+
+        /// <summary>
+        /// Create an immutable hash-set
+        /// </summary>
+        [Pure]
+        public static HashSet<EqT, T> HashSet<EqT, T>() where EqT : struct, Eq<T> =>
+            LanguageExt.HashSet.create<EqT, T>();
+
+        /// <summary>
+        /// Create an immutable hash-set
+        /// </summary>
+        [Pure]
+        public static HashSet<EqT, T> HashSet<EqT, T>(T item) where EqT : struct, Eq<T> =>
+            LanguageExt.HashSet.create<EqT, T>().Add(item);
+
+        /// <summary>
+        /// Create an immutable hash-set
+        /// </summary>
+        [Pure]
+        public static HashSet<EqT, T> HashSet<EqT, T>(params T[] items) where EqT : struct, Eq<T> =>
+            LanguageExt.HashSet.createRange<EqT, T>(items);
+
+        /// <summary>
+        /// Create an immutable hash-set
+        /// </summary>
+        [Pure]
+        public static HashSet<EqT, T> toHashSet<EqT, T>(IEnumerable<T> items) where EqT : struct, Eq<T> =>
+            LanguageExt.HashSet.createRange<EqT, T>(items);
+
+
+
+
 
         /// <summary>
         /// Create a queryable

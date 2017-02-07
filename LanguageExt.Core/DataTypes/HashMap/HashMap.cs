@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LanguageExt.ClassInstances;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,28 +13,24 @@ namespace LanguageExt
     /// <typeparam name="K">Key type</typeparam>
     /// <typeparam name="V">Value</typeparam>
     public struct HashMap<K, V> :
-        IEnumerable<IMapItem<K, V>>,
-        IReadOnlyDictionary<K, V>
-        //Monoid<HMap<K, V>>,
-        //Subtract<HMap<K, V>>,
-        //Eq<HMap<K, V>>
+        IEnumerable<IMapItem<K, V>>
     {
-        public static readonly HashMap<K, V> Empty = new HashMap<K,V>(HashMapInternal<K, V>.Empty);
+        public static readonly HashMap<K, V> Empty = new HashMap<K,V>(HashMapInternal<EqDefault<K>, K, V>.Empty);
 
-        readonly HashMapInternal<K, V> value;
+        readonly HashMapInternal<EqDefault<K>, K, V> value;
 
-        internal HashMapInternal<K, V> Value => 
-            value ?? HashMapInternal<K, V>.Empty;
+        internal HashMapInternal<EqDefault<K>, K, V> Value => 
+            value ?? HashMapInternal<EqDefault<K>, K, V>.Empty;
 
-        internal HashMap(HashMapInternal<K, V> value)
+        internal HashMap(HashMapInternal<EqDefault<K>, K, V> value)
         {
             this.value = value;
         }
 
-        HashMap<K, V> Wrap(HashMapInternal<K, V> value) =>
+        HashMap<K, V> Wrap(HashMapInternal<EqDefault<K>, K, V> value) =>
             new HashMap<K, V>(value);
 
-        HashMap<K, U> Wrap<U>(HashMapInternal<K, U> value) =>
+        HashMap<K, U> Wrap<U>(HashMapInternal<EqDefault<K>, K, U> value) =>
             new HashMap<K, U>(value);
 
         /// <summary>
@@ -546,9 +543,6 @@ namespace LanguageExt
 
         public IEnumerable<IMapItem<K, V>> AsEnumerable() =>
             Value.AsEnumerable();
-
-        IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
-            ((IEnumerable<KeyValuePair<K, V>>)Value).GetEnumerator();
 
         #endregion
 

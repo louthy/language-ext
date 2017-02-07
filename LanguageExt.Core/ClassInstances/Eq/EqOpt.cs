@@ -37,5 +37,14 @@ namespace LanguageExt.ClassInstances
                                 None: () => false),
                         None: () => false);
         }
+
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        public int GetHashCode(OA x) =>
+            x.IsNull() ? 0 : x.GetHashCode();
     }
 }

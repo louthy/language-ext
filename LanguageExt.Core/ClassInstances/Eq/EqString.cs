@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using LanguageExt.TypeClasses;
 
 namespace LanguageExt.ClassInstances
 {
     /// <summary>
-    /// String point equality
+    /// String equality
     /// </summary>
     public struct EqString : Eq<string>
     {
@@ -13,9 +13,117 @@ namespace LanguageExt.ClassInstances
         /// <summary>
         /// Equality test
         /// </summary>
-        /// <param name="x">The left hand side of the equality operation</param>
-        /// <param name="y">The right hand side of the equality operation</param>
-        /// <returns>True if x and y are equal</returns>
+        /// <param name="a">The left hand side of the equality operation</param>
+        /// <param name="b">The right hand side of the equality operation</param>
+        /// <returns>True if a and b are equal</returns>
         public bool Equals(string a, string b) { return a == b; }
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        public int GetHashCode(string x) =>
+            x.IsNull() ? 0 : x.GetHashCode();
+    }
+
+    /// <summary>
+    /// String equality (ordinal, ignore case)
+    /// </summary>
+    public struct EqStringOrdinalIgnoreCase : Eq<string>
+    {
+        public static readonly EqStringOrdinalIgnoreCase Inst = default(EqStringOrdinalIgnoreCase);
+
+        /// <summary>
+        /// Equality test
+        /// </summary>
+        /// <param name="a">The left hand side of the equality operation</param>
+        /// <param name="b">The right hand side of the equality operation</param>
+        /// <returns>True if a and b are equal</returns>
+        public bool Equals(string a, string b) =>
+            StringComparer.OrdinalIgnoreCase.Equals(a, b);
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        public int GetHashCode(string x) =>
+            StringComparer.OrdinalIgnoreCase.GetHashCode(x);
+    }
+
+    /// <summary>
+    /// String equality (ordinal)
+    /// </summary>
+    public struct EqStringOrdinal : Eq<string>
+    {
+        public static readonly EqStringOrdinal Inst = default(EqStringOrdinal);
+
+        /// <summary>
+        /// Equality test
+        /// </summary>
+        /// <param name="a">The left hand side of the equality operation</param>
+        /// <param name="b">The right hand side of the equality operation</param>
+        /// <returns>True if a and b are equal</returns>
+        public bool Equals(string a, string b) =>
+            StringComparer.Ordinal.Equals(a, b);
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        public int GetHashCode(string x) =>
+            StringComparer.Ordinal.GetHashCode(x);
+    }
+
+    /// <summary>
+    /// String equality (current culture, ignore case)
+    /// </summary>
+    public struct EqStringCurrentCultureIgnoreCase : Eq<string>
+    {
+        public static readonly EqStringCurrentCultureIgnoreCase Inst = default(EqStringCurrentCultureIgnoreCase);
+
+        /// <summary>
+        /// Equality test
+        /// </summary>
+        /// <param name="a">The left hand side of the equality operation</param>
+        /// <param name="b">The right hand side of the equality operation</param>
+        /// <returns>True if a and b are equal</returns>
+        public bool Equals(string a, string b) =>
+            StringComparer.CurrentCultureIgnoreCase.Equals(a, b);
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        public int GetHashCode(string x) =>
+            StringComparer.CurrentCultureIgnoreCase.GetHashCode(x);
+    }
+
+    /// <summary>
+    /// String equality (current culture)
+    /// </summary>
+    public struct EqStringCurrentCulture : Eq<string>
+    {
+        public static readonly EqStringCurrentCulture Inst = default(EqStringCurrentCulture);
+
+        /// <summary>
+        /// Equality test
+        /// </summary>
+        /// <param name="a">The left hand side of the equality operation</param>
+        /// <param name="b">The right hand side of the equality operation</param>
+        /// <returns>True if a and b are equal</returns>
+        public bool Equals(string a, string b) =>
+            StringComparer.CurrentCulture.Equals(a, b);
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        public int GetHashCode(string x) =>
+            StringComparer.CurrentCulture.GetHashCode(x);
     }
 }

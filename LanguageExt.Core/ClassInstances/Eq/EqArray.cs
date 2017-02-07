@@ -1,4 +1,5 @@
 ﻿using LanguageExt.TypeClasses;
+using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.ClassInstances
@@ -31,5 +32,13 @@ namespace LanguageExt.ClassInstances
 
         public static implicit operator EqArray<EQ,A>(EQ eq) =>
             EqArray<EQ,A>.Inst;
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        public int GetHashCode(A[] x) =>
+            hash(x);
     }
 }

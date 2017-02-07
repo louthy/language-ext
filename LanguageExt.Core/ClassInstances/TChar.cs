@@ -48,5 +48,12 @@ namespace LanguageExt.ClassInstances
         /// <returns>x + y</returns>
         public char Append(char x, char y) => 
             (char)(x + y);
+
+        /// <summary>
+        /// Get the hash-code of the provided value
+        /// </summary>
+        /// <returns>Hash code of x</returns>
+        public int GetHashCode(char x) =>
+            x.GetHashCode();
     }
 }

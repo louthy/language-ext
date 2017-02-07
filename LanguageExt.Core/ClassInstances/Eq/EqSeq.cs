@@ -1,4 +1,5 @@
 ﻿using LanguageExt.TypeClasses;
+using static LanguageExt.Prelude;
 using System.Collections.Generic;
 
 namespace LanguageExt.ClassInstances
@@ -28,5 +29,13 @@ namespace LanguageExt.ClassInstances
                 if (default(EQ).Equals(enumx.Current, enumy.Current)) return false;
             }
         }
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        public int GetHashCode(IEnumerable<A> x) =>
+            hash(x);
     }
 }

@@ -8,6 +8,8 @@ using System.Threading;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using LanguageExt.TypeClasses;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -18,11 +20,11 @@ namespace LanguageExt
     /// TODO: Some functions are not as optimal as they could be
     /// TODO: Too much cut n paste.  Make DRY.
     /// </summary>
-    internal class HashMapInternal<K, V> :
-        IEnumerable<IMapItem<K, V>>,
-        IReadOnlyDictionary<K, V>
+    internal class HashMapInternal<EqK, K, V> :
+        IEnumerable<IMapItem<K, V>>
+        where EqK : struct, Eq<K>
     {
-        public static readonly HashMapInternal<K, V> Empty = new HashMapInternal<K,V>();
+        public static readonly HashMapInternal<EqK, K, V> Empty = new HashMapInternal<EqK, K, V>();
 
         readonly Map<int, Lst<IMapItem<K, V>>> hashTable;
         readonly int count;
@@ -90,7 +92,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         [Pure]
-        public HashMapInternal<K, V> Filter(Func<V, bool> pred) =>
+        public HashMapInternal<EqK, K, V> Filter(Func<V, bool> pred) =>
             Filter(kv => pred(kv.Value));
 
         /// <summary>
@@ -99,7 +101,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         [Pure]
-        public HashMapInternal<K, V> Filter(Func<K, V, bool> pred) =>
+        public HashMapInternal<EqK, K, V> Filter(Func<K, V, bool> pred) =>
             Filter(kv => pred(kv.Key, kv.Value));
 
         /// <summary>
@@ -108,7 +110,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         [Pure]
-        public HashMapInternal<K, V> Filter(Func<IMapItem<K, V>, bool> pred)
+        public HashMapInternal<EqK, K, V> Filter(Func<IMapItem<K, V>, bool> pred)
         {
             var ht = Map<int, Lst<IMapItem<K, V>>>.Empty;
             var count = 0;
@@ -122,7 +124,7 @@ namespace LanguageExt
                     ht = ht.Add(bucket.Key, b);
                 }
             }
-            return new HashMapInternal<K, V>(ht, count);
+            return new HashMapInternal<EqK, K, V>(ht, count);
         }
 
         /// <summary>
@@ -130,16 +132,16 @@ namespace LanguageExt
         /// </summary>
         /// <returns>Mapped items in a new map</returns>
         [Pure]
-        public HashMapInternal<K, U> Map<U>(Func<V, U> mapper) =>
-            new HashMapInternal<K, U>(hashTable.Map(bucket => bucket.Map(kv => KV(kv.Key, mapper(kv.Value)))), Count);
+        public HashMapInternal<EqK, K, U> Map<U>(Func<V, U> mapper) =>
+            new HashMapInternal<EqK, K, U>(hashTable.Map(bucket => bucket.Map(kv => KV(kv.Key, mapper(kv.Value)))), Count);
 
         /// <summary>
         /// Atomically maps the map to a new map
         /// </summary>
         /// <returns>Mapped items in a new map</returns>
         [Pure]
-        public HashMapInternal<K, U> Map<U>(Func<K, V, U> mapper) =>
-            new HashMapInternal<K, U>(hashTable.Map(bucket => bucket.Map(kv => KV(kv.Key, mapper(kv.Key, kv.Value)))), Count);
+        public HashMapInternal<EqK, K, U> Map<U>(Func<K, V, U> mapper) =>
+            new HashMapInternal<EqK, K, U>(hashTable.Map(bucket => bucket.Map(kv => KV(kv.Key, mapper(kv.Key, kv.Value)))), Count);
 
         /// <summary>
         /// Atomically adds a new item to the map
@@ -151,21 +153,20 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public HashMapInternal<K, V> Add(K key, V value)
+        public HashMapInternal<EqK, K, V> Add(K key, V value)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
             if (isnull(value)) throw new ArgumentNullException(nameof(value));
 
             var ht = hashTable;
-            var hash = key.GetHashCode();
+            var hash = default(EqK).GetHashCode(key);
             var bucket = ht.Find(hash);
 
             if (bucket.IsSome)
             {
-                var eq = EqualityComparer<K>.Default;
                 foreach(var item in bucket.Value)
                 {
-                    if(eq.Equals(item.Key, key))
+                    if(default(EqK).Equals(item.Key, key))
                     {
                         throw new ArgumentException("Key already exists in HMap");
                     }
@@ -176,7 +177,7 @@ namespace LanguageExt
             {
                 ht = ht.Add(hash, List(KV(key, value)));
             }
-            return new HashMapInternal<K, V>(ht, Count + 1);
+            return new HashMapInternal<EqK, K, V>(ht, Count + 1);
         }
 
         /// <summary>
@@ -189,20 +190,19 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public HashMapInternal<K, V> TryAdd(K key, V value)
+        public HashMapInternal<EqK, K, V> TryAdd(K key, V value)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
 
             var ht = hashTable;
-            var hash = key.GetHashCode();
+            var hash = default(EqK).GetHashCode(key);
             var bucket = ht.Find(hash);
 
             if (bucket.IsSome)
             {
-                var eq = EqualityComparer<K>.Default;
                 foreach (var item in bucket.Value)
                 {
-                    if (eq.Equals(item.Key, key))
+                    if (default(EqK).Equals(item.Key, key))
                     {
                         return this;
                     }
@@ -213,7 +213,7 @@ namespace LanguageExt
             {
                 ht = ht.Add(hash, List(KV(key, value)));
             }
-            return new HashMapInternal<K, V>(ht, Count + 1);
+            return new HashMapInternal<EqK, K, V>(ht, Count + 1);
         }
 
         /// <summary>
@@ -226,7 +226,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public HashMapInternal<K, V> AddOrUpdate(K key, V value) =>
+        public HashMapInternal<EqK, K, V> AddOrUpdate(K key, V value) =>
             AddOrUpdate(key, _ => value, () => value);
 
         /// <summary>
@@ -238,25 +238,24 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
         [Pure]
-        public HashMapInternal<K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None)
+        public HashMapInternal<EqK, K, V> AddOrUpdate(K key, Func<V, V> Some, Func<V> None)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
 
             var ht = hashTable;
-            var hash = key.GetHashCode();
+            var hash = default(EqK).GetHashCode(key);
             var bucket = ht.Find(hash);
 
             if (bucket.IsSome)
             {
                 var bucketValue = bucket.Value;
-                var eq = EqualityComparer<K>.Default;
                 var contains = false;
                 var index = 0;
                 V value = default(V);
 
                 foreach (var item in bucketValue)
                 {
-                    if (eq.Equals(item.Key, key))
+                    if (default(EqK).Equals(item.Key, key))
                     {
                         value = item.Value;
                         contains = true;
@@ -266,16 +265,16 @@ namespace LanguageExt
                 }
                 if (contains)
                 {
-                    return new HashMapInternal<K, V>(ht.SetItem(hash, bucketValue.SetItem(index, KV(key, Some(value)))), Count);
+                    return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucketValue.SetItem(index, KV(key, Some(value)))), Count);
                 }
                 else
                 {
-                    return new HashMapInternal<K, V>(ht.SetItem(hash, bucketValue.Add(KV(key, None()))), Count + 1);
+                    return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucketValue.Add(KV(key, None()))), Count + 1);
                 }
             }
             else
             {
-                return new HashMapInternal<K, V>(ht.Add(hash, List(KV(key, None()))), Count + 1);
+                return new HashMapInternal<EqK, K, V>(ht.Add(hash, List(KV(key, None()))), Count + 1);
             }
         }
 
@@ -288,7 +287,7 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
         [Pure]
-        public HashMapInternal<K, V> AddOrUpdate(K key, Func<V, V> Some, V None) =>
+        public HashMapInternal<EqK, K, V> AddOrUpdate(K key, Func<V, V> Some, V None) =>
             AddOrUpdate(key, Some, () => None);
 
         /// <summary>
@@ -300,7 +299,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMapInternal<K, V> AddRange(IEnumerable<Tuple<K, V>> range)
+        public HashMapInternal<EqK, K, V> AddRange(IEnumerable<Tuple<K, V>> range)
         {
             if (range == null)
             {
@@ -323,7 +322,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMapInternal<K, V> AddRange(IEnumerable<(K,V)> range)
+        public HashMapInternal<EqK, K, V> AddRange(IEnumerable<(K,V)> range)
         {
             if (range == null)
             {
@@ -346,7 +345,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMapInternal<K, V> TryAddRange(IEnumerable<Tuple<K, V>> range)
+        public HashMapInternal<EqK, K, V> TryAddRange(IEnumerable<Tuple<K, V>> range)
         {
             if (range == null)
             {
@@ -369,7 +368,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMapInternal<K, V> TryAddRange(IEnumerable<(K, V)> range)
+        public HashMapInternal<EqK, K, V> TryAddRange(IEnumerable<(K, V)> range)
         {
             if (range == null)
             {
@@ -392,7 +391,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMapInternal<K, V> TryAddRange(IEnumerable<KeyValuePair<K, V>> range)
+        public HashMapInternal<EqK, K, V> TryAddRange(IEnumerable<KeyValuePair<K, V>> range)
         {
             if (range == null)
             {
@@ -415,7 +414,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMapInternal<K, V> AddOrUpdateRange(IEnumerable<Tuple<K, V>> range)
+        public HashMapInternal<EqK, K, V> AddOrUpdateRange(IEnumerable<Tuple<K, V>> range)
         {
             if (range == null)
             {
@@ -438,7 +437,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMapInternal<K, V> AddOrUpdateRange(IEnumerable<(K, V)> range)
+        public HashMapInternal<EqK, K, V> AddOrUpdateRange(IEnumerable<(K, V)> range)
         {
             if (range == null)
             {
@@ -461,7 +460,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMapInternal<K, V> AddOrUpdateRange(IEnumerable<KeyValuePair<K, V>> range)
+        public HashMapInternal<EqK, K, V> AddOrUpdateRange(IEnumerable<KeyValuePair<K, V>> range)
         {
             if (range == null)
             {
@@ -482,21 +481,20 @@ namespace LanguageExt
         /// <param name="key">Key</param>
         /// <returns>New map with the item removed</returns>
         [Pure]
-        public HashMapInternal<K, V> Remove(K key)
+        public HashMapInternal<EqK, K, V> Remove(K key)
         {
             if (isnull(key)) return this;
             var ht = hashTable;
-            var hash = key.GetHashCode();
+            var hash = default(EqK).GetHashCode(key);
             var bucket = ht.Find(hash);
 
             if (bucket.IsSome)
             {
                 var bucketValue = bucket.Value;
-                var eq = EqualityComparer<K>.Default;
-                bucketValue = bucketValue.Filter(x => !eq.Equals(x.Key, key));
+                bucketValue = bucketValue.Filter(x => !default(EqK).Equals(x.Key, key));
                 return bucketValue.Count == 0
-                    ? new HashMapInternal<K, V>(ht.Remove(hash), Count - 1)
-                    : new HashMapInternal<K, V>(ht.SetItem(hash, bucketValue), Count - 1);
+                    ? new HashMapInternal<EqK, K, V>(ht.Remove(hash), Count - 1)
+                    : new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucketValue), Count - 1);
             }
             else
             {
@@ -513,9 +511,8 @@ namespace LanguageExt
         public Option<V> Find(K key)
         {
             if (isnull(key)) return None;
-            var eq = EqualityComparer<K>.Default;
-            return hashTable.Find(key.GetHashCode())
-                            .Bind(bucket => bucket.Find(x => eq.Equals(x.Key, key))
+            return hashTable.Find(default(EqK).GetHashCode(key))
+                            .Bind(bucket => bucket.Find(x => default(EqK).Equals(x.Key, key))
                                                   .Map(x => x.Value));
         }
 
@@ -547,17 +544,16 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public HashMapInternal<K, V> SetItem(K key, V value)
+        public HashMapInternal<EqK, K, V> SetItem(K key, V value)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
 
             var ht = hashTable;
-            var hash = key.GetHashCode();
+            var hash = default(EqK).GetHashCode(key);
             var bucket = ht.Find(hash);
             if (bucket.IsSome)
             {
-                var eq = EqualityComparer<K>.Default;
-                return new HashMapInternal<K, V>(ht.SetItem(hash, bucket.Value.Map(x => eq.Equals(x.Key, key) ? KV(x.Key, value) : x)), Count);
+                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? KV(x.Key, value) : x)), Count);
             }
             else
             {
@@ -574,17 +570,16 @@ namespace LanguageExt
         /// <exception cref="Exception">Throws Exception if Some returns null</exception>
         /// <returns>New map with the mapped value</returns>
         [Pure]
-        public HashMapInternal<K, V> SetItem(K key, Func<V, V> Some)
+        public HashMapInternal<EqK, K, V> SetItem(K key, Func<V, V> Some)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
 
             var ht = hashTable;
-            var hash = key.GetHashCode();
+            var hash = default(EqK).GetHashCode(key);
             var bucket = ht.Find(hash);
             if (bucket.IsSome)
             {
-                var eq = EqualityComparer<K>.Default;
-                return new HashMapInternal<K, V>(ht.SetItem(hash, bucket.Value.Map(x => eq.Equals(x.Key, key) ? KV(x.Key, Some(x.Value)) : x)), Count);
+                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? KV(x.Key, Some(x.Value)) : x)), Count);
             }
             else
             {
@@ -602,17 +597,16 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the value is null</exception>
         /// <returns>New Map with the item added</returns>
         [Pure]
-        public HashMapInternal<K, V> TrySetItem(K key, V value)
+        public HashMapInternal<EqK, K, V> TrySetItem(K key, V value)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
 
             var ht = hashTable;
-            var hash = key.GetHashCode();
+            var hash = default(EqK).GetHashCode(key);
             var bucket = ht.Find(hash);
             if (bucket.IsSome)
             {
-                var eq = EqualityComparer<K>.Default;
-                return new HashMapInternal<K, V>(ht.SetItem(hash, bucket.Value.Map(x => eq.Equals(x.Key, key) ? KV(x.Key, value) : x)), Count);
+                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? KV(x.Key, value) : x)), Count);
             }
             else
             {
@@ -630,17 +624,16 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the key or value are null</exception>
         /// <returns>New map with the item set</returns>
         [Pure]
-        public HashMapInternal<K, V> TrySetItem(K key, Func<V, V> Some)
+        public HashMapInternal<EqK, K, V> TrySetItem(K key, Func<V, V> Some)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
 
             var ht = hashTable;
-            var hash = key.GetHashCode();
+            var hash = default(EqK).GetHashCode(key);
             var bucket = ht.Find(hash);
             if (bucket.IsSome)
             {
-                var eq = EqualityComparer<K>.Default;
-                return new HashMapInternal<K, V>(ht.SetItem(hash, bucket.Value.Map(x => eq.Equals(x.Key, key) ? KV(x.Key, Some(x.Value)) : x)), Count);
+                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? KV(x.Key, Some(x.Value)) : x)), Count);
             }
             else
             {
@@ -665,7 +658,19 @@ namespace LanguageExt
         [Pure]
         public bool Contains(K key, V value) =>
             match(Find(key),
-                Some: v => EqualityComparer<V>.Default.Equals(v, value),
+                Some: v => default(EqDefault<V>).Equals(v, value),
+                None: () => false
+                );
+
+        /// <summary>
+        /// Checks for existence of a key in the map
+        /// </summary>
+        /// <param name="key">Key to check</param>
+        /// <returns>True if an item with the key supplied is in the map</returns>
+        [Pure]
+        public bool Contains<EqV>(K key, V value) where EqV : struct, Eq<V> =>
+            match(Find(key),
+                Some: v => default(EqV).Equals(v, value),
                 None: () => false
                 );
 
@@ -675,7 +680,7 @@ namespace LanguageExt
         /// <remarks>Functionally equivalent to calling Map.empty as the original structure is untouched</remarks>
         /// <returns>Empty map</returns>
         [Pure]
-        public HashMapInternal<K, V> Clear() =>
+        public HashMapInternal<EqK, K, V> Clear() =>
             Empty;
 
         /// <summary>
@@ -685,7 +690,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMapInternal<K, V> AddRange(IEnumerable<KeyValuePair<K, V>> pairs) =>
+        public HashMapInternal<EqK, K, V> AddRange(IEnumerable<KeyValuePair<K, V>> pairs) =>
             AddRange(from kv in pairs
                      select Tuple(kv.Key, kv.Value));
 
@@ -696,7 +701,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public HashMapInternal<K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items)
+        public HashMapInternal<EqK, K, V> SetItems(IEnumerable<KeyValuePair<K, V>> items)
         {
             if (items == null) return this;
             var self = this;
@@ -715,7 +720,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public HashMapInternal<K, V> SetItems(IEnumerable<Tuple<K, V>> items)
+        public HashMapInternal<EqK, K, V> SetItems(IEnumerable<Tuple<K, V>> items)
         {
             if (items == null) return this;
             var self = this;
@@ -734,7 +739,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public HashMapInternal<K, V> SetItems(IEnumerable<(K, V)> items)
+        public HashMapInternal<EqK, K, V> SetItems(IEnumerable<(K, V)> items)
         {
             if (items == null) return this;
             var self = this;
@@ -753,7 +758,7 @@ namespace LanguageExt
         /// <param name="items">Items to set</param>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public HashMapInternal<K, V> TrySetItems(IEnumerable<KeyValuePair<K, V>> items)
+        public HashMapInternal<EqK, K, V> TrySetItems(IEnumerable<KeyValuePair<K, V>> items)
         {
             if (items == null) return this;
             var self = this;
@@ -772,7 +777,7 @@ namespace LanguageExt
         /// <param name="items">Items to set</param>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public HashMapInternal<K, V> TrySetItems(IEnumerable<Tuple<K, V>> items)
+        public HashMapInternal<EqK, K, V> TrySetItems(IEnumerable<Tuple<K, V>> items)
         {
             if (items == null) return this;
             var self = this;
@@ -791,7 +796,7 @@ namespace LanguageExt
         /// <param name="items">Items to set</param>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public HashMapInternal<K, V> TrySetItems(IEnumerable<(K, V)> items)
+        public HashMapInternal<EqK, K, V> TrySetItems(IEnumerable<(K, V)> items)
         {
             if (items == null) return this;
             var self = this;
@@ -812,7 +817,7 @@ namespace LanguageExt
         /// <param name="Some">Function map the existing item to a new one</param>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public HashMapInternal<K, V> TrySetItems(IEnumerable<K> keys, Func<V, V> Some)
+        public HashMapInternal<EqK, K, V> TrySetItems(IEnumerable<K> keys, Func<V, V> Some)
         {
             var self = this;
             foreach (var key in keys)
@@ -829,7 +834,7 @@ namespace LanguageExt
         /// <param name="keys">Keys to remove</param>
         /// <returns>New map with the items removed</returns>
         [Pure]
-        public HashMapInternal<K, V> RemoveRange(IEnumerable<K> keys)
+        public HashMapInternal<EqK, K, V> RemoveRange(IEnumerable<K> keys)
         {
             var self = this;
             foreach (var key in keys)
@@ -846,8 +851,19 @@ namespace LanguageExt
         /// <returns>True if exists, false otherwise</returns>
         [Pure]
         public bool Contains(KeyValuePair<K, V> pair) =>
-            hashTable.Find(pair.Key.GetHashCode(),
-                Some: bucket => bucket.Exists(kv => EqualityComparer<K>.Default.Equals(kv.Key, pair.Key) && EqualityComparer<V>.Default.Equals(kv.Value, pair.Value)),
+            hashTable.Find(default(EqK).GetHashCode(pair.Key),
+                Some: bucket => bucket.Exists(kv => default(EqK).Equals(kv.Key, pair.Key) && default(EqDefault<V>).Equals(kv.Value, pair.Value)),
+                None: () => false);
+
+        /// <summary>
+        /// Returns true if a Key/Value pair exists in the map
+        /// </summary>
+        /// <param name="pair">Pair to find</param>
+        /// <returns>True if exists, false otherwise</returns>
+        [Pure]
+        public bool Contains<EqV>(KeyValuePair<K, V> pair) where EqV : struct, Eq<V> =>
+            hashTable.Find(default(EqK).GetHashCode(pair.Key),
+                Some: bucket => bucket.Exists(kv => default(EqK).Equals(kv.Key, pair.Key) && default(EqV).Equals(kv.Value, pair.Value)),
                 None: () => false);
 
         /// <summary>
@@ -926,10 +942,6 @@ namespace LanguageExt
         public IEnumerable<IMapItem<K, V>> AsEnumerable() =>
             hashTable.Values.Bind(x => x);
 
-        IEnumerator<KeyValuePair<K, V>> IEnumerable<KeyValuePair<K, V>>.GetEnumerator() =>
-            (from x in AsEnumerable()
-             select new KeyValuePair<K, V>(x.Key, x.Value)).GetEnumerator();
-
         #endregion
 
 
@@ -940,11 +952,11 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static HashMapInternal<K, V> operator +(HashMapInternal<K, V> lhs, HashMapInternal<K, V> rhs) =>
+        public static HashMapInternal<EqK, K, V> operator +(HashMapInternal<EqK, K, V> lhs, HashMapInternal<EqK, K, V> rhs) =>
             lhs.Append(rhs);
 
         [Pure]
-        public HashMapInternal<K, V> Append(HashMapInternal<K, V> rhs)
+        public HashMapInternal<EqK, K, V> Append(HashMapInternal<EqK, K, V> rhs)
         {
             var self = this;
             foreach (var item in rhs)
@@ -958,11 +970,11 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static HashMapInternal<K, V> operator -(HashMapInternal<K, V> lhs, HashMapInternal<K, V> rhs) =>
+        public static HashMapInternal<EqK, K, V> operator -(HashMapInternal<EqK, K, V> lhs, HashMapInternal<EqK, K, V> rhs) =>
             lhs.Subtract(rhs);
 
         [Pure]
-        public HashMapInternal<K, V> Subtract(HashMapInternal<K, V> rhs)
+        public HashMapInternal<EqK, K, V> Subtract(HashMapInternal<EqK, K, V> rhs)
         {
             var self = this;
             foreach (var item in rhs)

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 
 namespace LanguageExt
 {
@@ -230,6 +232,7 @@ namespace LanguageExt
         /// </summary>
         public static int hash<T>(IEnumerable<T> xs)
         {
+            if (xs == null) return 0;
             unchecked
             {
                 int hash = 1;
@@ -243,13 +246,77 @@ namespace LanguageExt
             }
         }
 
+        /// <summary>
+        /// Returns true if the value is equal to this type's
+        /// default value.
+        /// </summary>
+        /// <example>
+        ///     isDefault(0)  // true
+        ///     isDefault(1)  // false
+        /// </example>
+        /// <returns>True if the value is equal to this type's
+        /// default value</returns>
         [Pure]
-        public static bool isnull<T>(T value) =>
-            ReferenceEquals(value, null);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool isDefault<T>(T value) =>
+            EqualityComparer<T>.Default.Equals(value, default(T));
 
+        /// <summary>
+        /// Returns true if the value is not equal to this type's
+        /// default value.
+        /// </summary>
+        /// <example>
+        ///     notDefault(0)  // false
+        ///     notDefault(1)  // true
+        /// </example>
+        /// <returns>True if the value is not equal to this type's
+        /// default value</returns>
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool notDefault<T>(T value) =>
+            !isDefault(value);
+
+        /// <summary>
+        /// Returns true if the value is null, and does so without
+        /// boxing of any value-types.  Value-types will always
+        /// return false.
+        /// </summary>
+        /// <example>
+        ///     int x = 0;
+        ///     string y = null;
+        ///     
+        ///     isnull(x)  // false
+        ///     isnull(y)  // true
+        /// </example>
+        /// <returns>True if the value is null, and does so without
+        /// boxing of any value-types.  Value-types will always
+        /// return false.</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool isnull<T>(T value) =>
+            Check<T>.IsNull(value);
+
+        /// <summary>
+        /// Returns true if the value is not null, and does so without
+        /// boxing of any value-types.  Value-types will always return 
+        /// true.
+        /// </summary>
+        /// <example>
+        ///     int x = 0;
+        ///     string y = null;
+        ///     string z = "Hello";
+        ///     
+        ///     notnull(x)  // true
+        ///     notnull(y)  // false
+        ///     notnull(z)  // true
+        /// </example>
+        /// <returns>True if the value is null, and does so without
+        /// boxing of any value-types.  Value-types will always
+        /// return false.</returns>
+        [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool notnull<T>(T value) =>
-            !ReferenceEquals(value, null);
+            !Check<T>.IsNull(value);
 
         /// <summary>
         /// Convert a value to string
@@ -257,5 +324,19 @@ namespace LanguageExt
         [Pure]
         public static string toString<T>(T value) =>
             value?.ToString();
+
+        class Check<T>
+        {
+            static bool IsValueType;
+
+            static Check()
+            {
+                IsValueType = typeof(T).GetTypeInfo().IsValueType;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public static bool IsNull(T value) =>
+                !IsValueType && EqualityComparer<T>.Default.Equals(value, default(T));
+        }
    }
 }

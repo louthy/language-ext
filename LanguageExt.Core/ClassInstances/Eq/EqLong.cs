@@ -16,5 +16,14 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         public bool Equals(long a, long b) { return a == b; }
+
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        public int GetHashCode(long x) =>
+            x.GetHashCode();
     }
 }

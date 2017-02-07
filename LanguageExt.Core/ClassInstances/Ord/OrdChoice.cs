@@ -49,6 +49,16 @@ namespace LanguageExt.ClassInstances
                 Choice2: a =>
                     default(CHOICE).Match(y, Choice1: _ => false,
                                              Choice2: b => equals<ORDB, B>(a, b)));
+
+
+        /// <summary>
+        /// Get the hash-code of the provided value
+        /// </summary>
+        /// <returns>Hash code of x</returns>
+        public int GetHashCode(CH x) =>
+            default(CHOICE).Match(x,
+                Choice1: a => a.IsNull() ? 0 : a.GetHashCode(),
+                Choice2: b => b.IsNull() ? 0 : b.GetHashCode());
     }
 
     /// <summary>
@@ -94,5 +104,14 @@ namespace LanguageExt.ClassInstances
                 Choice2: a =>
                     default(CHOICE).Match(y, Choice1: _ => false,
                                Choice2: b => equals<ORD, B>(a, b)));
+
+        /// <summary>
+        /// Get the hash-code of the provided value
+        /// </summary>
+        /// <returns>Hash code of x</returns>
+        public int GetHashCode(CH x) =>
+            default(CHOICE).Match(x,
+                Choice1: a => a.IsNull() ? 0 : a.GetHashCode(),
+                Choice2: b => b.IsNull() ? 0 : b.GetHashCode());
     }
 }

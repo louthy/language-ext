@@ -34,5 +34,8 @@ namespace LanguageExt.ClassInstances
 
         public S FoldBack<S>(Map<K, V> fa, S state, Func<S, V, S> f) =>
             fa.Values.Reverse().FoldBack(state, f);
+
+        public int GetHashCode(Map<K, V> x) =>
+            x.GetHashCode();
     }
 }

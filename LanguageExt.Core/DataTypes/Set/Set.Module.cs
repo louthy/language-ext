@@ -12,7 +12,7 @@ namespace LanguageExt
     /// AVL tree is a self-balancing binary search tree. 
     /// http://en.wikipedia.org/wiki/AVL_tree
     /// </summary>
-    public static class Set
+    public static partial class Set
     {
         /// <summary>
         /// True if the set has no elements
@@ -85,6 +85,43 @@ namespace LanguageExt
         [Pure]
         public static Set<T> addOrUpdate<T>(Set<T> set, T value) =>
             set.AddOrUpdate(value);
+
+
+        /// <summary>
+        /// Atomically adds a range of items to the set.
+        /// </summary>
+        /// <remarks>Null is not allowed for a Key</remarks>
+        /// <param name="range">Range of keys to add</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException if any of the keys are null</exception>
+        /// <returns>New Set with the items added</returns>
+        [Pure]
+        public static Set<A> addRange<A>(Set<A> set, IEnumerable<A> range) =>
+            set.AddRange(range);
+
+        /// <summary>
+        /// Atomically adds a range of items to the set.  If an item already exists, it's ignored.
+        /// </summary>
+        /// <remarks>Null is not allowed for a Key</remarks>
+        /// <param name="range">Range of keys to add</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException if any of the keys are null</exception>
+        /// <returns>New Set with the items added</returns>
+        [Pure]
+        public static Set<A> tryAddRange<A>(Set<A> set, IEnumerable<A> range) =>
+            set.TryAddRange(range);
+
+        /// <summary>
+        /// Atomically adds a range of items to the set.  If any items already exist, they're ignored.
+        /// </summary>
+        /// <remarks>Null is not allowed for a Key</remarks>
+        /// <param name="range">Range of keys to add</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException if any of the keys are null</exception>
+        /// <returns>New Set with the items added</returns>
+        [Pure]
+        public static Set<A> addOrUpdateRange<A>(Set<A> set, IEnumerable<A> range) =>
+            set.AddOrUpdateRange(range);
 
         /// <summary>
         /// Attempts to find an item in the set.  

@@ -29,6 +29,16 @@ namespace LanguageExt.ClassInstances
                     default(CHOICE).Match(y, Choice1: _ => false,
                                              Choice2: b => equals<EQB, B>(a, b)),
                 Bottom: () => default(CHOICE).IsBottom(y));
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        public int GetHashCode(CH x) =>
+            default(CHOICE).Match(x,
+                Choice1: a => a.IsNull() ? 0 : a.GetHashCode(),
+                Choice2: a => a.IsNull() ? 0 : a.GetHashCode());
     }
 
     /// <summary>
@@ -55,5 +65,15 @@ namespace LanguageExt.ClassInstances
                     default(CHOICE).Match(y, Choice1: _ => false,
                                              Choice2: b => equals<EQB, B>(a, b)),
                 Bottom: () => default(CHOICE).IsBottom(y));
+
+        /// <summary>
+        /// Get hash code of the value
+        /// </summary>
+        /// <param name="x">Value to get the hash code of</param>
+        /// <returns>The hash code of x</returns>
+        public int GetHashCode(CH x) =>
+            default(CHOICE).Match(x,
+                Choice1: a => a.IsNull() ? 0 : a.GetHashCode(),
+                Choice2: a => a.IsNull() ? 0 : a.GetHashCode());
     }
 }

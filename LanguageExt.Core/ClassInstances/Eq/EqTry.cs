@@ -1,6 +1,8 @@
-﻿using LanguageExt;
+﻿using System;
+using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.TypeClass;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -25,6 +27,13 @@ namespace LanguageExt.ClassInstances
             if (a.IsFaulted && b.IsFaulted) return true;
             if (a.IsFaulted || b.IsFaulted) return false;
             return equals<EQ, A>(a.Value, b.Value);
+        }
+
+        [Pure]
+        public int GetHashCode(Try<A> x)
+        {
+            var res = x.Try();
+            return res.IsFaulted || res.Value.IsNull() ? 0 : res.Value.GetHashCode();
         }
     }
 }

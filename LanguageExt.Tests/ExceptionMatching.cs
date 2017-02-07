@@ -31,7 +31,7 @@ namespace LanguageExtTests
                                             .With<ArgumentNullException>(e => "Arg null")
                                             .Otherwise("Not handled") );
 
-            Assert.True(x == "It's a system exception");
+            Assert.True(x == "It's an invalid operation exception");
         }
 
         [Fact]

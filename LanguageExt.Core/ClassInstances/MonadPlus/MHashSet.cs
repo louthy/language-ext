@@ -89,5 +89,9 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public HashSet<A> Zero() =>
             Empty();
+
+        [Pure]
+        public int GetHashCode(HashSet<A> x) =>
+            x.GetHashCode();
     }
 }

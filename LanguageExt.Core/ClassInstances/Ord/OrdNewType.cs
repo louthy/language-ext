@@ -39,6 +39,13 @@ namespace LanguageExt.ClassInstances
             if (ReferenceEquals(my, null)) return 1;
             return default(ORD).Compare(mx.Value, my.Value);
         }
+
+        /// <summary>
+        /// Get the hash-code of the provided value
+        /// </summary>
+        /// <returns>Hash code of x</returns>
+        public int GetHashCode(NewType<NEWTYPE, A> x) =>
+            x.IsNull() ? 0 : x.GetHashCode();
     }
 
     /// <summary>
@@ -78,5 +85,12 @@ namespace LanguageExt.ClassInstances
             if (ReferenceEquals(my, null)) return 1;
             return default(ORD).Compare(mx.Value, my.Value);
         }
+
+        /// <summary>
+        /// Get the hash-code of the provided value
+        /// </summary>
+        /// <returns>Hash code of x</returns>
+        public int GetHashCode(NewType<NEWTYPE, A, PRED> x) =>
+            x.IsNull() ? 0 : x.GetHashCode();
     }
 }

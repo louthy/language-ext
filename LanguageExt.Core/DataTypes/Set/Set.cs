@@ -6,6 +6,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -22,24 +23,24 @@ namespace LanguageExt
         IEquatable<Set<A>>,
         IReadOnlyCollection<A>
     {
-        public static readonly Set<A> Empty = new Set<A>(SetInternal<A>.Empty);
+        public static readonly Set<A> Empty = new Set<A>(SetInternal<OrdDefault<A>, A>.Empty);
 
-        readonly SetInternal<A> value;
+        readonly SetInternal<OrdDefault<A>, A> value;
 
-        SetInternal<A> Value => value ?? Empty.Value;
+        SetInternal<OrdDefault<A>, A> Value => value ?? Empty.Value;
 
         /// <summary>
         /// Ctor from an enumerable 
         /// </summary>
         public Set(IEnumerable<A> items)
         {
-            value = new SetInternal<A>(items, true);
+            value = new SetInternal<OrdDefault<A>, A>(items, true);
         }
 
         /// <summary>
         /// Default ctor
         /// </summary>
-        internal Set(SetInternal<A> set) =>
+        internal Set(SetInternal<OrdDefault<A>, A> set) =>
             value = set;
 
         /// <summary>
@@ -47,7 +48,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="root"></param>
         internal Set(SetItem<A> root) =>
-            value = new SetInternal<A>(root);
+            value = new SetInternal<OrdDefault<A>, A>(root);
 
         /// <summary>
         /// Ctor that takes an initial (distinct) set of items
@@ -55,13 +56,13 @@ namespace LanguageExt
         /// <param name="items"></param>
         internal Set(IEnumerable<A> items, bool checkUniqueness)
         {
-            value = new SetInternal<A>(items, checkUniqueness);
+            value = new SetInternal<OrdDefault<A>, A>(items, checkUniqueness);
         }
 
-        static Set<A> Wrap(SetInternal<A> set) =>
+        static Set<A> Wrap(SetInternal<OrdDefault<A>, A> set) =>
             new Set<A>(set);
 
-        static Set<B> Wrap<B>(SetInternal<B> set) =>
+        static Set<B> Wrap<B>(SetInternal<OrdDefault<B>, B> set) =>
             new Set<B>(set);
 
         /// <summary>
@@ -101,11 +102,40 @@ namespace LanguageExt
             Wrap(Value.AddOrUpdate(value));
 
         /// <summary>
-        /// Returns true if both sets contain the same elements
+        /// Atomically adds a range of items to the set.
         /// </summary>
+        /// <remarks>Null is not allowed for a Key</remarks>
+        /// <param name="range">Range of keys to add</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException if any of the keys are null</exception>
+        /// <returns>New Set with the items added</returns>
         [Pure]
-        public bool Compare(Set<A> setB) =>
-            Value.Compare(setB);
+        public Set<A> AddRange(IEnumerable<A> range) =>
+            Wrap(Value.AddRange(range));
+
+        /// <summary>
+        /// Atomically adds a range of items to the set.  If an item already exists, it's ignored.
+        /// </summary>
+        /// <remarks>Null is not allowed for a Key</remarks>
+        /// <param name="range">Range of keys to add</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException if any of the keys are null</exception>
+        /// <returns>New Set with the items added</returns>
+        [Pure]
+        public Set<A> TryAddRange(IEnumerable<A> range) =>
+            Wrap(Value.TryAddRange(range));
+
+        /// <summary>
+        /// Atomically adds a range of items to the set.  If any items already exist, they're ignored.
+        /// </summary>
+        /// <remarks>Null is not allowed for a Key</remarks>
+        /// <param name="range">Range of keys to add</param>
+        /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys already exist</exception>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException if any of the keys are null</exception>
+        /// <returns>New Set with the items added</returns>
+        [Pure]
+        public Set<A> AddOrUpdateRange(IEnumerable<A> range) =>
+            Wrap(Value.AddOrUpdateRange(range));
 
         /// <summary>
         /// Get the number of elements in the set
@@ -228,8 +258,8 @@ namespace LanguageExt
         /// <param name="mapper">Mapping function</param>
         /// <returns>Mapped Set</returns>
         [Pure]
-        public Set<U> Map<U>(Func<A, U> map) =>
-            Wrap(Value.Map(map));
+        public Set<B> Map<B>(Func<A, B> map) =>
+            Wrap(Value.Map<OrdDefault<B>, B>(map));
 
         /// <summary>
         /// Filters items from the set using the predicate.  If the predicate
@@ -277,27 +307,6 @@ namespace LanguageExt
         [Pure]
         public bool IsEmpty => 
             Value.IsEmpty;
-
-        /// <summary>
-        /// IsReadOnly - Always true
-        /// </summary>
-        [Pure]
-        public bool IsReadOnly =>
-            Value.IsReadOnly;
-
-        /// <summary>
-        /// Syncronisation root
-        /// </summary>
-        [Pure]
-        public object SyncRoot =>
-            Value.SyncRoot;
-
-        /// <summary>
-        /// IsSynchronized - Always true
-        /// </summary>
-        [Pure]
-        public bool IsSynchronized =>
-            Value.IsSynchronized;
 
         /// <summary>
         /// Returns True if 'other' is a proper subset of this set

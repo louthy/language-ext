@@ -262,5 +262,12 @@ namespace LanguageExt.ClassInstances
         /// Zero
         /// </summary>
         public decimal Empty() => 0;
+
+        /// <summary>
+        /// Get the hash-code of the provided value
+        /// </summary>
+        /// <returns>Hash code of x</returns>
+        public int GetHashCode(decimal x) =>
+            x.GetHashCode();
     }
 }

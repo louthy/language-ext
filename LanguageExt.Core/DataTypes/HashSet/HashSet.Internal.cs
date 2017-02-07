@@ -4,44 +4,43 @@ using System.Collections.Generic;
 using System.Linq;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
+using LanguageExt.TypeClasses;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
     /// <summary>
-    /// Internal representation of a hash-set.  This allows for the HSet type to be
+    /// Internal representation of a hash-set.  This allows for the HashSet type to be
     /// a non-nullable struct.
     /// 
     /// TODO: Some functions are not as optimal as they could be
     /// TODO: Too much cut n paste.  Make DRY.
     /// </summary>
-    /// <typeparam name="T">Key type</typeparam>
-    internal class HashSetInternal<T> :
-        IReadOnlyCollection<T>,
-        ICollection<T>,
-        ISet<T>,
-        ICollection,
-        IEquatable<HashSetInternal<T>>
+    /// <typeparam name="A">Key type</typeparam>
+    internal class HashSetInternal<EqA, A> :
+        IEquatable<HashSetInternal<EqA, A>>
+        where EqA : struct, Eq<A>
     {
-        public static readonly HashSetInternal<T> Empty = new HashSetInternal<T>();
+        public static readonly HashSetInternal<EqA, A> Empty = new HashSetInternal<EqA, A>();
 
-        readonly Map<int, Lst<T>> hashTable;
+        readonly MapInternal<TInt, int, Lst<A>> hashTable;
         readonly int count;
         int hashCode;
 
         internal HashSetInternal()
         {
-            hashTable = Map<int, Lst<T>>.Empty;
+            hashTable = MapInternal<TInt, int, Lst<A>>.Empty;
         }
 
-        internal HashSetInternal(Map<int, Lst<T>> hashTable, int count)
+        internal HashSetInternal(MapInternal<TInt, int, Lst<A>> hashTable, int count)
         {
             this.hashTable = hashTable;
             this.count = count;
         }
 
-        internal HashSetInternal(IEnumerable<T> items, bool checkUniqueness = false)
+        internal HashSetInternal(IEnumerable<A> items, bool checkUniqueness = false)
         {
-            var set = new HashSetInternal<T>();
+            var set = new HashSetInternal<EqA, A>();
 
             if (checkUniqueness)
             {
@@ -63,8 +62,8 @@ namespace LanguageExt
         }
         
         [Pure]
-        public T this[T key] =>
-            Find(key).IfNone(() => failwith<T>("Key doesn't exist in set"));
+        public A this[A key] =>
+            Find(key).IfNone(() => failwith<A>("Key doesn't exist in set"));
 
         [Pure]
         public bool IsEmpty =>
@@ -91,13 +90,23 @@ namespace LanguageExt
             true;
 
         [Pure]
-        public HashSetInternal<U> Map<U>(Func<T,U> map) =>
-            new HashSetInternal<U>(hashTable.Map(bucket => bucket.Map(map)), Count);
+        public HashSetInternal<EqB, B> Map<EqB, B>(Func<A, B> map) where EqB : struct, Eq<B>
+        {
+            var set = HashSetInternal<EqB, B>.Empty;
+            foreach(var bucket in hashTable)
+            {
+                foreach(var item in bucket.Value)
+                {
+                    set = set.Add(map(item));
+                }
+            }
+            return set;
+        }
 
         [Pure]
-        public HashSetInternal<T> Filter(Func<T, bool> pred)
+        public HashSetInternal<EqA, A> Filter(Func<A, bool> pred)
         {
-            var ht = Map<int, Lst<T>>.Empty;
+            var ht = MapInternal<TInt, int, Lst<A>>.Empty;
             var count = 0;
 
             foreach(var bucket in hashTable)
@@ -109,23 +118,22 @@ namespace LanguageExt
                     ht = ht.Add(bucket.Key, b);
                 }
             }
-            return new HashSetInternal<T>(ht, count);
+            return new HashSetInternal<EqA, A>(ht, count);
         }
 
         [Pure]
-        public HashSetInternal<T> Add(T key)
+        public HashSetInternal<EqA, A> Add(A key)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
 
             var ht = hashTable;
-            var hash = key.GetHashCode();
+            var hash = default(EqA).GetHashCode(key);
             var bucket = ht.Find(hash);
             if (bucket.IsSome)
             {
-                var eq = EqualityComparer<T>.Default;
                 foreach(var item in bucket.Value)
                 {
-                    if(eq.Equals(item, key))
+                    if(default(EqA).Equals(item, key))
                     {
                         throw new ArgumentException("Key already exists in HSet");
                     }
@@ -136,23 +144,22 @@ namespace LanguageExt
             {
                 ht = ht.Add(hash, List(key));
             }
-            return new HashSetInternal<T>(ht, Count + 1);
+            return new HashSetInternal<EqA, A>(ht, Count + 1);
         }
 
         [Pure]
-        public HashSetInternal<T> TryAdd(T key)
+        public HashSetInternal<EqA, A> TryAdd(A key)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
 
             var ht = hashTable;
-            var hash = key.GetHashCode();
+            var hash = default(EqA).GetHashCode(key);
             var bucket = ht.Find(hash);
             if (bucket.IsSome)
             {
-                var eq = EqualityComparer<T>.Default;
                 foreach (var item in bucket.Value)
                 {
-                    if (eq.Equals(item, key))
+                    if (default(EqA).Equals(item, key))
                     {
                         return this;
                     }
@@ -163,27 +170,26 @@ namespace LanguageExt
             {
                 ht = ht.Add(hash, List(key));
             }
-            return new HashSetInternal<T>(ht, Count + 1);
+            return new HashSetInternal<EqA, A>(ht, Count + 1);
         }
 
         [Pure]
-        public HashSetInternal<T> AddOrUpdate(T key)
+        public HashSetInternal<EqA, A> AddOrUpdate(A key)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
 
             var ht = hashTable;
-            var hash = key.GetHashCode();
+            var hash = default(EqA).GetHashCode(key);
             var bucket = ht.Find(hash);
             if (bucket.IsSome)
             {
                 var bucketValue = bucket.Value;
-                var eq = EqualityComparer<T>.Default;
                 var contains = false;
                 var index = 0;
 
                 foreach (var item in bucketValue)
                 {
-                    if (eq.Equals(item, key))
+                    if (default(EqA).Equals(item, key))
                     {
                         contains = true;
                         break;
@@ -193,21 +199,21 @@ namespace LanguageExt
 
                 if (contains)
                 {
-                    return new HashSetInternal<T>(ht.SetItem(hash, bucketValue.SetItem(index, key)), Count);
+                    return new HashSetInternal<EqA, A>(ht.SetItem(hash, bucketValue.SetItem(index, key)), Count);
                 }
                 else
                 {
-                    return new HashSetInternal<T>(ht.SetItem(hash, bucketValue.Add(key)), Count + 1);
+                    return new HashSetInternal<EqA, A>(ht.SetItem(hash, bucketValue.Add(key)), Count + 1);
                 }
             }
             else
             {
-                return new HashSetInternal<T>(ht.Add(hash, List(key)), Count + 1);
+                return new HashSetInternal<EqA, A>(ht.Add(hash, List(key)), Count + 1);
             }
         }
 
         [Pure]
-        public HashSetInternal<T> AddRange(IEnumerable<T> range)
+        public HashSetInternal<EqA, A> AddRange(IEnumerable<A> range)
         {
             if (range == null)
             {
@@ -222,7 +228,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public HashSetInternal<T> TryAddRange(IEnumerable<T> range)
+        public HashSetInternal<EqA, A> TryAddRange(IEnumerable<A> range)
         {
             if (range == null)
             {
@@ -237,7 +243,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public HashSetInternal<T> AddOrUpdateRange(IEnumerable<T> range)
+        public HashSetInternal<EqA, A> AddOrUpdateRange(IEnumerable<A> range)
         {
             if (range == null)
             {
@@ -252,20 +258,19 @@ namespace LanguageExt
         }
 
         [Pure]
-        public HashSetInternal<T> Remove(T key)
+        public HashSetInternal<EqA, A> Remove(A key)
         {
             if (isnull(key)) return this;
             var ht = hashTable;
-            var hash = key.GetHashCode();
+            var hash = default(EqA).GetHashCode(key);
             var bucket = ht.Find(hash);
             if (bucket.IsSome)
             {
                 var bucketValue = bucket.Value;
-                var eq = EqualityComparer<T>.Default;
-                bucketValue = bucketValue.Filter(x => !eq.Equals(x, key));
+                bucketValue = bucketValue.Filter(x => !default(EqA).Equals(x, key));
                 return bucketValue.Count == 0
-                    ? new HashSetInternal<T>(ht.Remove(hash), Count - 1)
-                    : new HashSetInternal<T>(ht.SetItem(hash, bucketValue), Count - 1);
+                    ? new HashSetInternal<EqA, A>(ht.Remove(hash), Count - 1)
+                    : new HashSetInternal<EqA, A>(ht.SetItem(hash, bucketValue), Count - 1);
             }
             else
             {
@@ -274,70 +279,57 @@ namespace LanguageExt
         }
 
         [Pure]
-        public Option<T> Find(T key)
+        public Option<A> Find(A key)
         {
             if (isnull(key)) return None;
-            var eq = EqualityComparer<T>.Default;
-            return hashTable.Find(key.GetHashCode())
-                            .Bind(bucket => bucket.Find(x => eq.Equals(x, key)));
+            return hashTable.Find(default(EqA).GetHashCode(key))
+                            .Bind(bucket => bucket.Find(x => default(EqA).Equals(x, key)));
         }
 
         [Pure]
-        public IEnumerable<T> FindSeq(T key) =>
+        public IEnumerable<A> FindSeq(A key) =>
             Find(key).AsEnumerable();
 
         [Pure]
-        public R Find<R>(T key, Func<T, R> Some, Func<R> None) =>
+        public R Find<R>(A key, Func<A, R> Some, Func<R> None) =>
             Find(key).Match(Some, None);
 
         [Pure]
-        public HashSetInternal<T> SetItem(T key)
+        public HashSetInternal<EqA, A> SetItem(A key)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
 
             var ht = hashTable;
-            var hash = key.GetHashCode();
+            var hash = default(EqA).GetHashCode(key);
             var bucket = ht.Find(hash);
-            if (bucket.IsSome)
-            {
-                var eq = EqualityComparer<T>.Default;
-                return new HashSetInternal<T>(ht.SetItem(hash, bucket.Value.Map(x => eq.Equals(x, key) ? key : x)), Count);
-            }
-            else
-            {
-                return this;
-            }
+            return bucket.IsSome
+                ? new HashSetInternal<EqA, A>(ht.SetItem(hash, bucket.Value.Map(x => default(EqA).Equals(x, key) ? key : x)), Count)
+                : this;
         }
 
         [Pure]
-        public HashSetInternal<T> TrySetItem(T key)
+        public HashSetInternal<EqA, A> TrySetItem(A key)
         {
             if (isnull(key)) throw new ArgumentNullException(nameof(key));
 
             var ht = hashTable;
-            var hash = key.GetHashCode();
+            var hash = default(EqA).GetHashCode(key);
             var bucket = ht.Find(hash);
-            if (bucket.IsSome)
-            {
-                var eq = EqualityComparer<T>.Default;
-                return new HashSetInternal<T>(ht.SetItem(hash, bucket.Value.Map(x => eq.Equals(x, key) ? key : x)), Count);
-            }
-            else
-            {
-                return this;
-            }
+            return bucket.IsSome
+                ? new HashSetInternal<EqA, A>(ht.SetItem(hash, bucket.Value.Map(x => default(EqA).Equals(x, key) ? key : x)), Count)
+                : this;
         }
 
         [Pure]
-        public bool Contains(T key) =>
+        public bool Contains(A key) =>
             !isnull(key) && Find(key).IsSome;
 
         [Pure]
-        public HashSetInternal<T> Clear() =>
+        public HashSetInternal<EqA, A> Clear() =>
             Empty;
 
         [Pure]
-        public HashSetInternal<T> SetItems(IEnumerable<T> items)
+        public HashSetInternal<EqA, A> SetItems(IEnumerable<A> items)
         {
             if (items == null) return this;
             var self = this;
@@ -350,7 +342,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public HashSetInternal<T> TrySetItems(IEnumerable<T> items)
+        public HashSetInternal<EqA, A> TrySetItems(IEnumerable<A> items)
         {
             if (items == null) return this;
             var self = this;
@@ -363,7 +355,7 @@ namespace LanguageExt
         }
 
         [Pure]
-        public HashSetInternal<T> RemoveRange(IEnumerable<T> keys)
+        public HashSetInternal<EqA, A> RemoveRange(IEnumerable<A> keys)
         {
             var self = this;
             foreach (var key in keys)
@@ -373,25 +365,18 @@ namespace LanguageExt
             return self;
         }
 
-        #region IEnumerable interface
-
-        public IEnumerator<T> GetEnumerator() =>
+        public IEnumerator<A> GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() =>
-            AsEnumerable().GetEnumerator();
-
-        public IEnumerable<T> AsEnumerable() =>
+        public IEnumerable<A> AsEnumerable() =>
             hashTable.Values.Bind(x => x);
 
-        #endregion
-
         [Pure]
-        public static HashSetInternal<T> operator +(HashSetInternal<T> lhs, HashSetInternal<T> rhs) =>
+        public static HashSetInternal<EqA, A> operator +(HashSetInternal<EqA, A> lhs, HashSetInternal<EqA, A> rhs) =>
             lhs.Append(rhs);
 
         [Pure]
-        public HashSetInternal<T> Append(HashSetInternal<T> rhs)
+        public HashSetInternal<EqA, A> Append(HashSetInternal<EqA, A> rhs)
         {
             var self = this;
             foreach (var item in rhs)
@@ -405,11 +390,11 @@ namespace LanguageExt
         }
 
         [Pure]
-        public static HashSetInternal<T> operator -(HashSetInternal<T> lhs, HashSetInternal<T> rhs) =>
+        public static HashSetInternal<EqA, A> operator -(HashSetInternal<EqA, A> lhs, HashSetInternal<EqA, A> rhs) =>
             lhs.Subtract(rhs);
 
         [Pure]
-        public HashSetInternal<T> Subtract(HashSetInternal<T> rhs)
+        public HashSetInternal<EqA, A> Subtract(HashSetInternal<EqA, A> rhs)
         {
             var self = this;
             foreach (var item in rhs)
@@ -419,18 +404,17 @@ namespace LanguageExt
             return self;
         }
 
-        public bool Equals(HashSetInternal<T> other)
+        public bool Equals(HashSetInternal<EqA, A> other)
         {
             if (other == null || Count != other.Count) return false;
             var iterx = GetEnumerator();
             var itery = other.GetEnumerator();
 
-            var eq = EqualityComparer<T>.Default;
             for (int i = 0; i < count; i++)
             {
                 iterx.MoveNext();
                 itery.MoveNext();
-                if (!eq.Equals(iterx.Current, itery.Current)) return false;
+                if (!default(EqA).Equals(iterx.Current, itery.Current)) return false;
             }
             return true;
         }
@@ -440,14 +424,14 @@ namespace LanguageExt
         /// </summary>
         /// <returns>True if 'other' is a proper subset of this set</returns>
         [Pure]
-        public bool IsProperSubsetOf(IEnumerable<T> other)
+        public bool IsProperSubsetOf(IEnumerable<A> other)
         {
             if (IsEmpty)
             {
                 return other.Any();
             }
 
-            var otherSet = new HashSetInternal<T>(other);
+            var otherSet = new HashSetInternal<EqA, A>(other);
             if (Count >= otherSet.Count)
             {
                 return false;
@@ -480,7 +464,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>True if 'other' is a proper superset of this set</returns>
         [Pure]
-        public bool IsProperSupersetOf(IEnumerable<T> other)
+        public bool IsProperSupersetOf(IEnumerable<A> other)
         {
             if (IsEmpty)
             {
@@ -505,14 +489,14 @@ namespace LanguageExt
         /// </summary>
         /// <returns>True if 'other' is a superset of this set</returns>
         [Pure]
-        public bool IsSubsetOf(IEnumerable<T> other)
+        public bool IsSubsetOf(IEnumerable<A> other)
         {
             if (IsEmpty)
             {
                 return true;
             }
 
-            var otherSet = new HashSetInternal<T>(other);
+            var otherSet = new HashSetInternal<EqA, A>(other);
             int matches = 0;
             foreach (var item in otherSet)
             {
@@ -529,7 +513,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>True if 'other' is a superset of this set</returns>
         [Pure]
-        public bool IsSupersetOf(IEnumerable<T> other)
+        public bool IsSupersetOf(IEnumerable<A> other)
         {
             foreach (var item in other)
             {
@@ -549,7 +533,7 @@ namespace LanguageExt
         /// <param name="setB">Set B</param>
         /// <returns>True if other overlaps this set</returns>
         [Pure]
-        public bool Overlaps(IEnumerable<T> other)
+        public bool Overlaps(IEnumerable<A> other)
         {
             if (IsEmpty)
             {
@@ -566,45 +550,10 @@ namespace LanguageExt
             return false;
         }
 
-        bool ISet<T>.Add(T item)
-        {
-            throw new NotSupportedException();
-        }
+        public bool SetEquals(IEnumerable<A> other) =>
+            Equals(new HashSetInternal<EqA, A>(other));
 
-        public void UnionWith(IEnumerable<T> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void IntersectWith(IEnumerable<T> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void ExceptWith(IEnumerable<T> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void SymmetricExceptWith(IEnumerable<T> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        public bool SetEquals(IEnumerable<T> other) =>
-            Equals(new HashSetInternal<T>(other));
-
-        void ICollection<T>.Add(T item)
-        {
-            throw new NotSupportedException();
-        }
-
-        void ICollection<T>.Clear()
-        {
-            throw new NotSupportedException();
-        }
-
-        public void CopyTo(T[] array, int index)
+        public void CopyTo(A[] array, int index)
         {
             if (array == null) throw new ArgumentNullException(nameof(array));
             if (index < 0 || index > array.Length) throw new IndexOutOfRangeException();
@@ -627,12 +576,6 @@ namespace LanguageExt
                 array.SetValue(element, index++);
             }
         }
-
-        bool ICollection<T>.Remove(T item)
-        {
-            throw new NotSupportedException();
-        }
-
         public override int GetHashCode()
         {
             if (hashCode != 0) return hashCode;

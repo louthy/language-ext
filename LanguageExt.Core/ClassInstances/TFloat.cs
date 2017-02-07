@@ -263,5 +263,12 @@ namespace LanguageExt.ClassInstances
         /// Zero
         /// </summary>
         public float Empty() => 0.0f;
+
+        /// <summary>
+        /// Get the hash-code of the provided value
+        /// </summary>
+        /// <returns>Hash code of x</returns>
+        public int GetHashCode(float x) =>
+            x.GetHashCode();
     }
 }

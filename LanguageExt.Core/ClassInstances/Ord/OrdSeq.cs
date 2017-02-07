@@ -1,6 +1,7 @@
 ﻿using LanguageExt;
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
+using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.ClassInstances
@@ -53,5 +54,12 @@ namespace LanguageExt.ClassInstances
                 if (cmp != 0) return cmp;
             }
         }
+
+        /// <summary>
+        /// Get the hash-code of the provided value
+        /// </summary>
+        /// <returns>Hash code of x</returns>
+        public int GetHashCode(IEnumerable<A> x) =>
+            hash(x);
     }
 }
