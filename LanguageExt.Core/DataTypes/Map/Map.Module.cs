@@ -476,7 +476,7 @@ namespace LanguageExt
         /// <param name="amount">Amount to skip</param>
         /// <returns>Enumerable of map items</returns>
         [Pure]
-        public static IEnumerable<IMapItem<K, V>> skip<K, V>(Map<K, V> map, int amount) =>
+        public static IEnumerable<(K Key, V Value)> skip<K, V>(Map<K, V> map, int amount) =>
             map.Skip(amount);
 
         /// <summary>

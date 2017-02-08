@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances;
 using System.Runtime.Serialization;
+using LanguageExt.DataTypes.Serialisation;
+using System.Collections;
 
 namespace LanguageExt
 {
@@ -35,7 +37,7 @@ namespace LanguageExt
     /// <typeparam name="R">Right</typeparam>
     [Serializable]
     public struct EitherUnsafe<L, R> :
-        ISerializable,
+        IEnumerable<EitherData<L, R>>,
         IEither,
         IComparable<EitherUnsafe<L, R>>,
         IComparable<R>,
@@ -68,46 +70,37 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Deserialisation constructor
+        /// Ctor that facilitates serialisation
         /// </summary>
-        public EitherUnsafe(SerializationInfo info, StreamingContext context)
+        /// <param name="option">None or Some A.</param>
+        [Pure]
+        public EitherUnsafe(IEnumerable<EitherData<L, R>> either)
         {
-            State = (EitherState)info.GetValue("State", typeof(EitherState));
-
-            switch (State)
+            var first = either.Take(1).ToArray();
+            if (first.Length == 0)
             {
-                case EitherState.IsRight:
-                    right = (R)info.GetValue("RightValue", typeof(R));
-                    left = default(L);
-                    break;
-
-                case EitherState.IsLeft:
-                    left = (L)info.GetValue("LeftValue", typeof(L));
-                    right = default(R);
-                    break;
-
-                default:
-                    right = default(R);
-                    left = default(L);
-                    break;
+                this.State = EitherState.IsBottom;
+                this.right = default(R);
+                this.left = default(L);
+            }
+            else
+            {
+                this.right = first[0].Right;
+                this.left = first[0].Left;
+                this.State =first[0].State;
             }
         }
 
-        /// <summary>
-        /// Serialisation support
-        /// </summary>
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        IEnumerable<EitherData<L, R>> EitherEnum()
         {
-            info.AddValue("State", State, typeof(EitherState));
-            if (State == EitherState.IsRight)
-            {
-                info.AddValue("RightValue", RightValue, typeof(R));
-            }
-            else if (State == EitherState.IsLeft)
-            {
-                info.AddValue("LeftValue", LeftValue, typeof(L));
-            }
+            yield return new EitherData<L, R>(State, right, left);
         }
+
+        public IEnumerator<EitherData<L, R>> GetEnumerator() =>
+            EitherEnum().GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() =>
+            EitherEnum().GetEnumerator();
 
         /// <summary>
         /// State of the EitherUnsafe

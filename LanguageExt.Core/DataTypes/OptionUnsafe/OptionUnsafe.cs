@@ -9,6 +9,7 @@ using LanguageExt.ClassInstances;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
+using System.Collections;
 
 namespace LanguageExt
 {
@@ -29,9 +30,8 @@ namespace LanguageExt
     ///     Ord         : OrdOpt
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
-    [Serializable]
     public struct OptionUnsafe<A> :
-        ISerializable,
+        IEnumerable<A>,
         IOptional,
         IEquatable<OptionUnsafe<A>>,
         IComparable<OptionUnsafe<A>>
@@ -59,28 +59,28 @@ namespace LanguageExt
             this.value = value ?? throw new ArgumentNullException(nameof(value));
 
         /// <summary>
-        /// Deserialisation constructor
+        /// Ctor that facilitates serialisation
         /// </summary>
-        public OptionUnsafe(SerializationInfo info, StreamingContext context)
+        /// <param name="option">None or Some A.</param>
+        [Pure]
+        public OptionUnsafe(IEnumerable<A> option)
         {
-            var isSome = (bool)info.GetValue("IsSome", typeof(bool));
-            var value = isSome
-                ? (A)info.GetValue("Value", typeof(A))
-                : default(A);
-
-            this.value = isSome
-                ? OptionV<A>.Some(value)
-                : OptionV<A>.None;
+            var first = option.Take(1).ToArray();
+            if (first.Length == 0)
+            {
+                value = OptionV<A>.None;
+            }
+            else
+            {
+                value = OptionV<A>.Some(first[0]);
+            }
         }
 
-        /// <summary>
-        /// Serialisation support
-        /// </summary>
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("IsSome", IsSome, typeof(bool));
-            info.AddValue("Value", IsSome ? Value : default(A), typeof(A));
-        }
+        public IEnumerator<A> GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
 
         /// <summary>
         /// Uses the EqDefault instance to do an equality check on the bound value.  

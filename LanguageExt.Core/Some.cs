@@ -1,5 +1,8 @@
 ﻿using LanguageExt.ClassInstances;
 using System;
+using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Runtime.Serialization;
@@ -31,7 +34,7 @@ namespace LanguageExt
 
     [Serializable]
     public struct Some<A> : 
-        ISerializable, 
+        IEnumerable<A>,
         IOptional
     {
         readonly A value;
@@ -48,24 +51,33 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Serialisation support
+        /// Used to facilitate serialisation
         /// </summary>
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        public Some(IEnumerable<A> someValue)
         {
-            info.AddValue("IsSome", initialised, typeof(bool));
-            info.AddValue("Value", initialised ? value : default(A), typeof(A));
-        }
-
-        /// <summary>
-        /// Deserialisation constructor
-        /// </summary>
-        public Some(SerializationInfo info, StreamingContext context)
-        {
-            initialised = (bool)info.GetValue("IsSome", typeof(bool));
-            value = initialised
-                ? (A)info.GetValue("Value", typeof(A))
+            var first = someValue.Take(1).ToArray();
+            initialised = first.Length == 1;
+            this.value = initialised
+                ? first[0]
                 : default(A);
         }
+
+        [Pure]
+        public IEnumerable<A> AsEnumerable()
+        {
+            if(initialised)
+            {
+                yield return value;
+            }
+        }
+
+        [Pure]
+        public IEnumerator<A> GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
+
+        [Pure]
+        IEnumerator IEnumerable.GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
 
         [Pure]
         public A Value => 

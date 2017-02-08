@@ -19,7 +19,7 @@ namespace LanguageExt
     /// <typeparam name="V">Value type</typeparam>
     [Serializable]
     public struct Map<OrdK, K, V> :
-        IEnumerable<MapItem<K, V>>
+        IEnumerable<(K Key, V Value)>
         where OrdK : struct, Ord<K>
     {
         readonly MapInternal<OrdK, K, V> value;
@@ -27,7 +27,7 @@ namespace LanguageExt
         internal static Map<OrdK, K, V> Wrap(MapInternal<OrdK, K, V> map) =>
             new Map<OrdK, K, V>(map);
 
-        public Map(IEnumerable<MapItem<K,V>> items)
+        public Map(IEnumerable<(K Key, V Value)> items)
         {
             var map = Map<OrdK, K, V>.Empty;
             foreach (var item in items)
@@ -349,7 +349,7 @@ namespace LanguageExt
         /// <param name="amount">Amount to skip</param>
         /// <returns>New tree</returns>
         [Pure]
-        public IEnumerable<MapItem<K, V>> Skip(int amount) => Value.Skip(amount);
+        public IEnumerable<(K Key, V Value)> Skip(int amount) => Value.Skip(amount);
 
         /// <summary>
         /// Checks for existence of a key in the map
@@ -488,7 +488,7 @@ namespace LanguageExt
         /// Map the map the a dictionary
         /// </summary>
         [Pure]
-        public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<MapItem<K, V>, KR> keySelector, Func<MapItem<K, V>, VR> valueSelector)
+        public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<(K Key, V Value), KR> keySelector, Func<(K Key, V Value), VR> valueSelector)
             => Value.ToDictionary(keySelector, valueSelector);
 
         /// <summary>
@@ -517,7 +517,7 @@ namespace LanguageExt
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
-        public IEnumerator<MapItem<K, V>> GetEnumerator() => 
+        public IEnumerator<(K Key, V Value)> GetEnumerator() => 
             Value.GetEnumerator();
 
         /// <summary>
@@ -526,7 +526,7 @@ namespace LanguageExt
         IEnumerator IEnumerable.GetEnumerator() => 
             Value.GetEnumerator();
 
-        public IEnumerable<MapItem<K, V>> AsEnumerable() => 
+        public IEnumerable<(K Key, V Value)> AsEnumerable() => 
             Value.AsEnumerable();
 
         internal Map<OrdK, K, V> SetRoot(MapItem<K, V> root) =>

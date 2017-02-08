@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using static LanguageExt.TypeClass;
 using static LanguageExt.Prelude;
 using System.Diagnostics.Contracts;
-using System.Collections.Generic;
 using LanguageExt.ClassInstances;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
+using System.Collections;
 
 namespace LanguageExt
 {
@@ -27,9 +29,8 @@ namespace LanguageExt
     ///     Ord         : OrdOpt
     /// </summary>
     /// <typeparam name="A">Bound value</typeparam>
-    [Serializable]
     public struct Option<A> :
-        ISerializable,
+        IEnumerable<A>,
         IOptional, 
         IEquatable<Option<A>>, 
         IComparable<Option<A>>
@@ -49,6 +50,24 @@ namespace LanguageExt
         [Pure]
         public static Option<A> Some(A value) => 
             value;
+
+        /// <summary>
+        /// Ctor that facilitates serialisation
+        /// </summary>
+        /// <param name="option">None or Some A.</param>
+        [Pure]
+        public Option(IEnumerable<A> option)
+        {
+            var first = option.Take(1).ToArray();
+            if(first.Length == 0)
+            {
+                value = OptionV<A>.None;
+            }
+            else
+            {
+                value = OptionV<A>.Optional(first[0]);
+            }
+        }
 
         /// <summary>
         /// Takes the value-type OptionV<A>
@@ -818,28 +837,10 @@ namespace LanguageExt
             return bind(v).Map(resU => project(v, resU));
         }
 
-        /// <summary>
-        /// Serialisation support
-        /// </summary>
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("IsSome", IsSome, typeof(bool));
-            info.AddValue("Value", IsSome ? Value : default(A), typeof(A));
-        }
+        public IEnumerator<A> GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
 
-        /// <summary>
-        /// Deserialisation constructor
-        /// </summary>
-        public Option(SerializationInfo info, StreamingContext context)
-        {
-            var isSome = (bool)info.GetValue("IsSome", typeof(bool));
-            var value = isSome
-                ? (A)info.GetValue("Value", typeof(A))
-                : default(A);
-
-            this.value = isSome
-                ? OptionV<A>.Some(value)
-                : OptionV<A>.None;
-        }
+        IEnumerator IEnumerable.GetEnumerator() =>
+            AsEnumerable().GetEnumerator();
     }
 }

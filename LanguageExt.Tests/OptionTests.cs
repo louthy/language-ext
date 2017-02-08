@@ -1,5 +1,6 @@
 ﻿using Xunit;
 using System;
+using System.Collections.Generic;
 using LanguageExt;
 using static LanguageExt.Prelude;
 
@@ -71,12 +72,14 @@ namespace LanguageExtTests
             var four = Some(4);
             var six = Some(6);
 
-            match(from x in two
-                  from y in four
-                  from z in six
-                  select x + y + z,
-                   Some: v => Assert.True(v == 12),
-                   None: failwith("Shouldn't get here"));
+            var expr = from x in two
+                       from y in four
+                       from z in six
+                       select x + y + z;
+
+            match(expr,
+                Some: v => Assert.True(v == 12),
+                None: failwith("Shouldn't get here"));
         }
 
         [Fact]
