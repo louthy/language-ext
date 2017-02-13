@@ -16,10 +16,13 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly MOptionUnsafe<A> Inst = default(MOptionUnsafe<A>);
 
-        public MB Bind<MONADB, MB, B>(OptionUnsafe<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
-            ma.IsSome && f != null
+        public MB Bind<MONADB, MB, B>(OptionUnsafe<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
+        {
+            if (f == null) throw new ArgumentNullException(nameof(f));
+            return ma.IsSome && f != null
                 ? f(ma.Value)
                 : default(MONADB).Fail(ValueIsNoneException.Default);
+        }
 
         [Pure]
         public OptionUnsafe<A> Fail(object err) =>
@@ -38,6 +41,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionUnsafe<A> FromSeq(IEnumerable<A> xs)
         {
+            if (xs == null) return None;
             var x = xs.Take(1).ToArray();
             return x.Length == 0
                 ? OptionUnsafe<A>.None
@@ -69,46 +73,74 @@ namespace LanguageExt.ClassInstances
             true;
 
         [Pure]
-        public B Match<B>(OptionUnsafe<A> opt, Func<A, B> Some, Func<B> None) =>
-            opt.IsSome
+        public B Match<B>(OptionUnsafe<A> opt, Func<A, B> Some, Func<B> None)
+        {
+            if (Some == null) throw new ArgumentNullException(nameof(Some));
+            if (None == null) throw new ArgumentNullException(nameof(None));
+            return opt.IsSome
                 ? Some(opt.Value)
                 : None();
+        }
 
         public Unit Match(OptionUnsafe<A> opt, Action<A> Some, Action None)
         {
+            if (Some == null) throw new ArgumentNullException(nameof(Some));
+            if (None == null) throw new ArgumentNullException(nameof(None));
             if (opt.IsSome) Some(opt.Value); else None();
             return unit;
         }
 
         [Pure]
-        public B MatchUnsafe<B>(OptionUnsafe<A> opt, Func<A, B> Some, Func<B> None) =>
-            opt.IsSome
+        public B MatchUnsafe<B>(OptionUnsafe<A> opt, Func<A, B> Some, Func<B> None)
+        {
+            if (Some == null) throw new ArgumentNullException(nameof(Some));
+            if (None == null) throw new ArgumentNullException(nameof(None));
+            return opt.IsSome
                 ? Some(opt.Value)
                 : None();
+        }
 
         [Pure]
-        public S Fold<S>(OptionUnsafe<A> ma, S state, Func<S, A, S> f) =>
-            ma.IsSome
+        public S Fold<S>(OptionUnsafe<A> ma, S state, Func<S, A, S> f)
+        {
+            if (state.IsNull()) throw new ArgumentNullException(nameof(state));
+            if (f == null) throw new ArgumentNullException(nameof(f));
+            return ma.IsSome
                 ? f(state, ma.Value)
                 : state;
+        }
 
         [Pure]
-        public S FoldBack<S>(OptionUnsafe<A> ma, S state, Func<S, A, S> f) =>
-            ma.IsSome
+        public S FoldBack<S>(OptionUnsafe<A> ma, S state, Func<S, A, S> f)
+        {
+            if (state.IsNull()) throw new ArgumentNullException(nameof(state));
+            if (f == null) throw new ArgumentNullException(nameof(f));
+            return ma.IsSome
                 ? f(state, ma.Value)
                 : state;
+        }
 
         [Pure]
-        public S BiFold<S>(OptionUnsafe<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb) =>
-            ma.IsNone
+        public S BiFold<S>(OptionUnsafe<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb)
+        {
+            if (state.IsNull()) throw new ArgumentNullException(nameof(state));
+            if (fa == null) throw new ArgumentNullException(nameof(fa));
+            if (fb == null) throw new ArgumentNullException(nameof(fb));
+            return ma.IsNone
                 ? fa(state, unit)
                 : fb(state, ma.Value);
+        }
 
         [Pure]
-        public S BiFoldBack<S>(OptionUnsafe<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb) =>
-            ma.IsNone
+        public S BiFoldBack<S>(OptionUnsafe<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb)
+        {
+            if (state.IsNull()) throw new ArgumentNullException(nameof(state));
+            if (fa == null) throw new ArgumentNullException(nameof(fa));
+            if (fb == null) throw new ArgumentNullException(nameof(fb));
+            return ma.IsNone
                 ? fa(state, unit)
                 : fb(state, ma.Value);
+        }
 
         [Pure]
         public int Count(OptionUnsafe<A> ma) =>

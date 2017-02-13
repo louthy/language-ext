@@ -16,7 +16,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="a">The left hand side of the equality operation</param>
         /// <param name="b">The right hand side of the equality operation</param>
         /// <returns>True if a and b are equal</returns>
-        public bool Equals(string a, string b) { return a == b; }
+        public bool Equals(string a, string b) =>
+            a == b;
 
         /// <summary>
         /// Get hash code of the value
@@ -24,7 +25,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
         public int GetHashCode(string x) =>
-            x.IsNull() ? 0 : x.GetHashCode();
+            x == null ? 0 : x.GetHashCode();
     }
 
     /// <summary>

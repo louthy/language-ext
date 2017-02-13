@@ -1,13 +1,15 @@
 ﻿using LanguageExt.TypeClasses;
+using System;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt.ClassInstances
 {
     /// <summary>
-    /// Floating point equality
+    /// DateTime equality
     /// </summary>
-    public struct EqDouble : Eq<double>
+    public struct EqDateTime : Eq<DateTime>
     {
-        public static readonly EqDouble Inst = default(EqDouble);
+        public static readonly EqDateTime Inst = default(EqDateTime);
 
         /// <summary>
         /// Equality test
@@ -15,16 +17,15 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
-        public bool Equals(double a, double b) =>
+        public bool Equals(DateTime a, DateTime b)  => 
             a == b;
-
 
         /// <summary>
         /// Get hash code of the value
         /// </summary>
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
-        public int GetHashCode(double x) =>
+        public int GetHashCode(DateTime x) =>
             x.GetHashCode();
     }
 }

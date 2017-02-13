@@ -1,13 +1,15 @@
 ﻿using LanguageExt.TypeClasses;
+using static LanguageExt.Prelude;
+using System.Numerics;
 
 namespace LanguageExt.ClassInstances
 {
     /// <summary>
-    /// Floating point equality
+    /// Integer equality
     /// </summary>
-    public struct EqDouble : Eq<double>
+    public struct EqBigInt : Eq<BigInteger>
     {
-        public static readonly EqDouble Inst = default(EqDouble);
+        public static readonly EqBigInt Inst = default(EqBigInt);
 
         /// <summary>
         /// Equality test
@@ -15,7 +17,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
-        public bool Equals(double a, double b) =>
+        public bool Equals(BigInteger a, BigInteger b) =>
             a == b;
 
 
@@ -24,7 +26,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
-        public int GetHashCode(double x) =>
+        public int GetHashCode(BigInteger x) =>
             x.GetHashCode();
     }
 }

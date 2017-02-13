@@ -17,10 +17,13 @@ namespace LanguageExt.ClassInstances
         public static readonly MOption<A> Inst = default(MOption<A>);
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(Option<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
-            ma.IsSome && f != null
+        public MB Bind<MONADB, MB, B>(Option<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
+        {
+            if (f == null) throw new ArgumentNullException(nameof(f));
+            return ma.IsSome && f != null
                 ? f(ma.Value)
                 : default(MONADB).Fail(ValueIsNoneException.Default);
+        }
 
         [Pure]
         public Option<A> Fail(object err) =>
@@ -39,6 +42,7 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public Option<A> FromSeq(IEnumerable<A> xs)
         {
+            if (xs == null) return None;
             var x = xs.Take(1).ToArray();
             return x.Length == 0 
                 ? Option<A>.None
@@ -76,46 +80,74 @@ namespace LanguageExt.ClassInstances
             false;
 
         [Pure]
-        public B Match<B>(Option<A> opt, Func<A, B> Some, Func<B> None) =>
-            opt.IsSome
+        public B Match<B>(Option<A> opt, Func<A, B> Some, Func<B> None)
+        {
+            if (Some == null) throw new ArgumentNullException(nameof(Some));
+            if (None == null) throw new ArgumentNullException(nameof(None));
+            return opt.IsSome
                 ? Check.NullReturn(Some(opt.Value))
                 : Check.NullReturn(None());
+        }
 
         public Unit Match(Option<A> opt, Action<A> Some, Action None)
         {
+            if (Some == null) throw new ArgumentNullException(nameof(Some));
+            if (None == null) throw new ArgumentNullException(nameof(None));
             if (opt.IsSome) Some(opt.Value); else None();
             return Unit.Default;
         }
 
         [Pure]
-        public B MatchUnsafe<B>(Option<A> opt, Func<A, B> Some, Func<B> None) =>
-            opt.IsSome
+        public B MatchUnsafe<B>(Option<A> opt, Func<A, B> Some, Func<B> None)
+        {
+            if (Some == null) throw new ArgumentNullException(nameof(Some));
+            if (None == null) throw new ArgumentNullException(nameof(None));
+            return opt.IsSome
                 ? Some(opt.Value)
                 : None();
+        }
 
         [Pure]
-        public S Fold<S>(Option<A> ma, S state, Func<S, A, S> f) =>
-            Check.NullReturn(ma.IsSome
+        public S Fold<S>(Option<A> ma, S state, Func<S, A, S> f)
+        {
+            if (state.IsNull()) throw new ArgumentNullException(nameof(state));
+            if (f == null) throw new ArgumentNullException(nameof(f));
+            return Check.NullReturn(ma.IsSome
                 ? f(state, ma.Value)
                 : state);
+        }
 
         [Pure]
-        public S FoldBack<S>(Option<A> ma, S state, Func<S, A, S> f) =>
-            Check.NullReturn(ma.IsSome
+        public S FoldBack<S>(Option<A> ma, S state, Func<S, A, S> f)
+        {
+            if (state.IsNull()) throw new ArgumentNullException(nameof(state));
+            if (f == null) throw new ArgumentNullException(nameof(f));
+            return Check.NullReturn(ma.IsSome
                 ? f(state, ma.Value)
                 : state);
+        }
 
         [Pure]
-        public S BiFold<S>(Option<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb) =>
-            Check.NullReturn(ma.IsNone
+        public S BiFold<S>(Option<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb)
+        {
+            if (state.IsNull()) throw new ArgumentNullException(nameof(state));
+            if (fa == null) throw new ArgumentNullException(nameof(fa));
+            if (fb == null) throw new ArgumentNullException(nameof(fb));
+            return Check.NullReturn(ma.IsNone
                 ? fa(state, unit)
                 : fb(state, ma.Value));
+        }
 
         [Pure]
-        public S BiFoldBack<S>(Option<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb) =>
-            Check.NullReturn(ma.IsNone
+        public S BiFoldBack<S>(Option<A> ma, S state, Func<S, Unit, S> fa, Func<S, A, S> fb)
+        {
+            if (state.IsNull()) throw new ArgumentNullException(nameof(state));
+            if (fa == null) throw new ArgumentNullException(nameof(fa));
+            if (fb == null) throw new ArgumentNullException(nameof(fb));
+            return Check.NullReturn(ma.IsNone
                 ? fa(state, unit)
                 : fb(state, ma.Value));
+        }
 
         [Pure]
         public int Count(Option<A> ma) =>
