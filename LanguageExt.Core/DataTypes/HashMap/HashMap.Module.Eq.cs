@@ -22,7 +22,7 @@ namespace LanguageExt
         /// <returns>Empty map</returns>
         [Pure]
         public static HashMap<EqK, K, V> clear<EqK, K, V>(HashMap<EqK, K, V> map) where EqK : struct, Eq<K> =>
-            map.Clear();
+            HashMap<EqK, K, V>.Empty;
 
         /// <summary>
         /// Creates a new empty Map
@@ -32,18 +32,32 @@ namespace LanguageExt
             HashMap<EqK, K, V>.Empty;
 
         /// <summary>
-        /// Creates a new Map seeded with the keyValues provided
+        /// Creates a new empty HashMap
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> create<EqK, K, V>(params Tuple<K, V>[] keyValues) where EqK : struct, Eq<K> =>
-            empty<EqK, K, V>().AddRange(keyValues);
+        public static HashMap<EqK, K, V> create<EqK, K, V>() where EqK : struct, Eq<K> =>
+            HashMap<EqK, K, V>.Empty;
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> create<EqK, K, V>(params (K, V)[] keyValues) where EqK : struct, Eq<K> =>
-            empty<EqK, K, V>().AddRange(keyValues);
+        public static HashMap<EqK, K, V> create<EqK, K, V>(Tuple<K, V> head, params Tuple<K, V>[] tail) where EqK : struct, Eq<K> =>
+            empty<EqK, K, V>().AddRange(head.Cons(tail));
+
+        /// <summary>
+        /// Creates a new Map seeded with the keyValues provided
+        /// </summary>
+        [Pure]
+        public static HashMap<EqK, K, V> create<EqK, K, V>((K, V) head, params (K, V)[] tail) where EqK : struct, Eq<K> =>
+            empty<EqK, K, V>().AddRange(head.Cons(tail));
+
+        /// <summary>
+        /// Creates a new Map seeded with the keyValues provided
+        /// </summary>
+        [Pure]
+        public static HashMap<EqK, K, V> create<EqK, K, V>(KeyValuePair<K,V> head, params KeyValuePair<K, V>[] tail) where EqK : struct, Eq<K> =>
+            empty<EqK, K, V>().AddRange(head.Cons(tail));
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided

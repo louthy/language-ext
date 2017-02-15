@@ -21,28 +21,42 @@ namespace LanguageExt
         /// <returns>Empty map</returns>
         [Pure]
         public static HashMap<K, V> clear<K, V>(HashMap<K, V> map) =>
-            map.Clear();
+            HashMap<K, V>.Empty;
 
         /// <summary>
-        /// Creates a new empty Map
+        /// Creates a new empty HashMap 
         /// </summary>
         [Pure]
         public static HashMap<K, V> empty<K, V>() =>
             HashMap<K, V>.Empty;
 
         /// <summary>
-        /// Creates a new Map seeded with the keyValues provided
+        /// Creates a new empty HashMap 
         /// </summary>
         [Pure]
-        public static HashMap<K, V> create<K, V>(params Tuple<K, V>[] keyValues) =>
-            empty<K, V>().AddRange(keyValues);
+        public static HashMap<K, V> create<K, V>() =>
+            HashMap<K, V>.Empty;
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided
         /// </summary>
         [Pure]
-        public static HashMap<K, V> create<K, V>(params (K, V)[] keyValues) =>
-            empty<K, V>().AddRange(keyValues);
+        public static HashMap<K, V> create<K, V>(Tuple<K, V> head, params Tuple<K, V>[] tail) =>
+            empty<K, V>().AddRange(head.Cons(tail));
+
+        /// <summary>
+        /// Creates a new Map seeded with the keyValues provided
+        /// </summary>
+        [Pure]
+        public static HashMap<K, V> create<K, V>((K, V) head, params (K, V)[] tail) =>
+            empty<K, V>().AddRange(head.Cons(tail));
+
+        /// <summary>
+        /// Creates a new Map seeded with the keyValues provided
+        /// </summary>
+        [Pure]
+        public static HashMap<K, V> create<K, V>(KeyValuePair<K, V> head, params KeyValuePair<K,V>[] tail) =>
+            empty<K, V>().AddRange(head.Cons(tail));
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided

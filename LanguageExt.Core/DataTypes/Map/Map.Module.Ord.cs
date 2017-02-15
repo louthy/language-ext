@@ -34,18 +34,32 @@ namespace LanguageExt
             Map<OrdK, K, V>.Empty;
 
         /// <summary>
-        /// Creates a new Map seeded with the keyValues provided
+        /// Creates a new empty Map
         /// </summary>
         [Pure]
-        public static Map<OrdK, K, V> create<OrdK, K, V>(params Tuple<K, V>[] keyValues) where OrdK : struct, Ord<K> =>
-            empty<OrdK, K, V>().AddRange(keyValues);
+        public static Map<OrdK, K, V> create<OrdK, K, V>() where OrdK : struct, Ord<K> =>
+            Map<OrdK, K, V>.Empty;
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided
         /// </summary>
         [Pure]
-        public static Map<OrdK, K, V> create<OrdK, K, V>(params (K, V)[] keyValues) where OrdK : struct, Ord<K> =>
-            empty<OrdK, K, V>().AddRange(keyValues);
+        public static Map<OrdK, K, V> create<OrdK, K, V>(Tuple<K,V> head, params Tuple<K, V>[] tail) where OrdK : struct, Ord<K> =>
+            empty<OrdK, K, V>().AddRange(head.Cons(tail));
+
+        /// <summary>
+        /// Creates a new Map seeded with the keyValues provided
+        /// </summary>
+        [Pure]
+        public static Map<OrdK, K, V> create<OrdK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where OrdK : struct, Ord<K> =>
+            empty<OrdK, K, V>().AddRange(head.Cons(tail));
+
+        /// <summary>
+        /// Creates a new Map seeded with the keyValues provided
+        /// </summary>
+        [Pure]
+        public static Map<OrdK, K, V> create<OrdK, K, V>((K, V) head, params (K, V)[] tail) where OrdK : struct, Ord<K> =>
+            empty<OrdK, K, V>().AddRange(head.Cons(tail));
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided

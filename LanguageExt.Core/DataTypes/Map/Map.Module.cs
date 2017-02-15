@@ -36,15 +36,29 @@ namespace LanguageExt
         /// Creates a new Map seeded with the keyValues provided
         /// </summary>
         [Pure]
-        public static Map<K, V> create<K, V>(params Tuple<K, V>[] keyValues) =>
-            empty<K, V>().AddRange(keyValues);
+        public static Map<K, V> create<K, V>() =>
+            Map<K, V>.Empty;
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided
         /// </summary>
         [Pure]
-        public static Map<K, V> create<K, V>(params (K, V)[] keyValues) =>
-            empty<K, V>().AddRange(keyValues);
+        public static Map<K, V> create<K, V>(Tuple<K, V> head, params Tuple<K, V>[] tail) =>
+            empty<K, V>().AddRange(head.Cons(tail));
+
+        /// <summary>
+        /// Creates a new Map seeded with the keyValues provided
+        /// </summary>
+        [Pure]
+        public static Map<K, V> create<K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) =>
+            empty<K, V>().AddRange(head.Cons(tail));
+
+        /// <summary>
+        /// Creates a new Map seeded with the keyValues provided
+        /// </summary>
+        [Pure]
+        public static Map<K, V> create<K, V>((K, V) head, params (K, V)[] tail) =>
+            empty<K, V>().AddRange(head.Cons(tail));
 
         /// <summary>
         /// Creates a new Map seeded with the keyValues provided
