@@ -841,7 +841,7 @@ namespace LanguageExt
         /// <returns>Bound Either</returns>
         [Pure]
         public Either<L, V> SelectMany<U, V>(Func<R, Either<L, U>> bind, Func<R, U, V> project) =>
-            selectMany<MEither<L, R>, MEither<L, U>, MEither<L, V>, Either<L, R>, Either<L, U>, Either<L, V>, R, U, V>(this, bind, project);
+            SelectMany<MEither<L, R>, MEither<L, U>, MEither<L, V>, Either<L, R>, Either<L, U>, Either<L, V>, R, U, V>(this, bind, project);
 
         [Pure]
         public IEnumerable<V> SelectMany<U, V>(

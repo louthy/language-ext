@@ -279,7 +279,7 @@ namespace LanguageExt
         public Option<C> SelectMany<B, C>(
             Func<A, Option<B>> bind,
             Func<A, B, C> project) =>
-            selectMany<MOption<A>, MOption<B>, MOption<C>, Option<A>, Option<B>, Option<C>, A, B, C>(this, bind, project);
+            SelectMany<MOption<A>, MOption<B>, MOption<C>, Option<A>, Option<B>, Option<C>, A, B, C>(this, bind, project);
 
         /// <summary>
         /// Match operation with an untyped value for Some. This can be

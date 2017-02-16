@@ -827,7 +827,7 @@ namespace LanguageExt
         /// <returns>Bound EitherUnsafe</returns>
         [Pure]
         public EitherUnsafe<L, V> SelectMany<U, V>(Func<R, EitherUnsafe<L, U>> bind, Func<R, U, V> project) =>
-            selectMany<MEitherUnsafe<L, R>, MEitherUnsafe<L, U>, MEitherUnsafe<L, V>, EitherUnsafe<L, R>, EitherUnsafe<L, U>, EitherUnsafe<L, V>, R, U, V>(this, bind, project);
+            SelectMany<MEitherUnsafe<L, R>, MEitherUnsafe<L, U>, MEitherUnsafe<L, V>, EitherUnsafe<L, R>, EitherUnsafe<L, U>, EitherUnsafe<L, V>, R, U, V>(this, bind, project);
 
         [Pure]
         public IEnumerable<V> SelectMany<U, V>(

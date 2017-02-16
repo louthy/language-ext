@@ -87,7 +87,7 @@ namespace LanguageExt
         /// Monadic bind and project
         /// </summary>
         [Pure]
-        public static MC selectMany<MONADA, MONADB, MONADC, MA, MB, MC, A, B, C>(
+        public static MC SelectMany<MONADA, MONADB, MONADC, MA, MB, MC, A, B, C>(
             MA self,
             Func<A, MB> bind,
             Func<A, B, C> project)
@@ -99,7 +99,7 @@ namespace LanguageExt
                 default(MONADC).Return(project(t, u))));
 
         [Pure]
-        public static IEnumerable<C> selectMany<MONADA, MA, A, B, C>(
+        public static IEnumerable<C> SelectMany<MONADA, MA, A, B, C>(
             MA self,
             Func<A, IEnumerable<B>> bind,
             Func<A, B, C> project)
