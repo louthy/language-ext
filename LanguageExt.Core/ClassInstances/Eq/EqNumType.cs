@@ -21,7 +21,7 @@ namespace LanguageExt.ClassInstances
             if (ReferenceEquals(x, y)) return true;
             if (ReferenceEquals(x, null)) return false;
             if (ReferenceEquals(y, null)) return false;
-            return default(NUM).Equals(x.Value, y.Value);
+            return default(NUM).Equals((A)x, (A)y);
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace LanguageExt.ClassInstances
             if (ReferenceEquals(x, y)) return true;
             if (ReferenceEquals(x, null)) return false;
             if (ReferenceEquals(y, null)) return false;
-            return default(NUM).Equals(x.Value, y.Value);
+            return default(NUM).Equals((A)x, (A)y);
         }
 
         /// <summary>

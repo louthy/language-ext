@@ -27,12 +27,12 @@ namespace LanguageExt
         where PRED    : struct, Pred<A>
         where NEWTYPE : NewType<NEWTYPE, A, PRED>
     {
-        public readonly A Value;
+        readonly A Value;
 
         /// <summary>
         /// Constructor function
         /// </summary>
-        public static readonly Func<A, NEWTYPE> New = Reflect.Util.CtorOfArity1<A, NEWTYPE>();
+        public static readonly Func<A, NEWTYPE> New = Reflect.Util.CtorInvoke<A, NEWTYPE>();
 
         /// <summary>
         /// Constructor
@@ -45,6 +45,14 @@ namespace LanguageExt
             if (!default(PRED).True(value)) throw new ArgumentOutOfRangeException(nameof(value), value, $"Argument failed {typeof(NEWTYPE).Name} NewType predicate");
             Value = value;
         }
+
+        /// <summary>
+        /// Explicit conversion operator for extracting the bound value
+        /// </summary>
+        /// <param name="type"></param>
+        [Pure]
+        public static explicit operator A(NewType<NEWTYPE, A, PRED> type) =>
+            type.Value;
 
         [Pure]
         public virtual int CompareTo(NEWTYPE other) =>

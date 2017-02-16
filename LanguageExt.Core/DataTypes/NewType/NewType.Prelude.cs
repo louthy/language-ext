@@ -23,13 +23,13 @@ namespace LanguageExt
         public static bool exists<NEWTYPE, T, PRED>(NewType<NEWTYPE, T, PRED> value, Func<T, bool> predicate)
             where PRED : struct, Pred<T>
             where NEWTYPE : NewType<NEWTYPE, T, PRED> =>
-            predicate(value.Value);
+            predicate((T)value);
 
         [Pure]
         public static bool forall<NEWTYPE, T, PRED>(NewType<NEWTYPE, T, PRED> value, Func<T, bool> predicate)
             where PRED : struct, Pred<T>
             where NEWTYPE : NewType<NEWTYPE, T, PRED> =>
-            predicate(value.Value);
+            predicate((T)value);
 
         [Pure]
         public static NEWTYPE map<NEWTYPE, T, PRED>(NewType<NEWTYPE, T, PRED> value, Func<T, T> map)

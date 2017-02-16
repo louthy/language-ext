@@ -93,6 +93,6 @@ namespace LanguageExt
             =>
             !ReferenceEquals(x, y) || ReferenceEquals(x, null) || ReferenceEquals(y, null) 
                 ? false 
-                : default(EQ).Equals(x.Value, y.Value);
+                : default(EQ).Equals((A)x, (A)y);
     }
 }

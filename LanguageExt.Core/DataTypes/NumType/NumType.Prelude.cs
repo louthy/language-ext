@@ -33,14 +33,14 @@ namespace LanguageExt
             where NUM     : struct, Num<T>
             where PRED    : struct, Pred<T>
             where NUMTYPE : NumType<NUMTYPE, NUM, T, PRED> =>
-            predicate(value.Value);
+            predicate((T)value);
 
         [Pure]
         public static bool forall<NUMTYPE, NUM, T, PRED>(NumType<NUMTYPE, NUM, T, PRED> value, Func<T, bool> predicate)
             where NUM     : struct, Num<T>
             where PRED    : struct, Pred<T>
             where NUMTYPE : NumType<NUMTYPE, NUM, T, PRED> =>
-            predicate(value.Value);
+            predicate((T)value);
 
         [Pure]
         public static NUMTYPE map<NUMTYPE, NUM, T, PRED>(NumType<NUMTYPE, NUM, T, PRED> value, Func<T, T> map)
@@ -128,7 +128,7 @@ namespace LanguageExt
             where NUMTYPE : NumType<NUMTYPE, NUM, A, PRED>
             where PRED : struct, Pred<A>
             where NUM     : struct, Num<A> =>
-            self.Value;
+                (A)self;
 
 
         [Pure]
@@ -152,13 +152,13 @@ namespace LanguageExt
         public static bool exists<NUMTYPE, NUM, T>(NumType<NUMTYPE, NUM, T> value, Func<T, bool> predicate)
             where NUM : struct, Num<T>
             where NUMTYPE : NumType<NUMTYPE, NUM, T> =>
-            predicate(value.Value);
+            predicate((T)value);
 
         [Pure]
         public static bool forall<NUMTYPE, NUM, T>(NumType<NUMTYPE, NUM, T> value, Func<T, bool> predicate)
             where NUM : struct, Num<T>
             where NUMTYPE : NumType<NUMTYPE, NUM, T> =>
-            predicate(value.Value);
+            predicate((T)value);
 
         [Pure]
         public static NUMTYPE map<NUMTYPE, NUM, T>(NumType<NUMTYPE, NUM, T> value, Func<T, T> map)
@@ -239,7 +239,7 @@ namespace LanguageExt
         public static A sum<NUMTYPE, NUM, A>(NumType<NUMTYPE, NUM, A> self)
             where NUMTYPE : NumType<NUMTYPE, NUM, A>
             where NUM     : struct, Num<A> =>
-            self.Value;
+            (A)self;
 
     }
 }

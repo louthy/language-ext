@@ -15,7 +15,6 @@ namespace LanguageExtTests
 
     public class Hours : NumType<Hours, TInt, int, ForAll<int, GreaterOrEq<int, TInt, I0>, LessThan<int, TInt, I24>>>
     {
-
         public Hours(int value) : base(value) { }
     }
 
@@ -99,7 +98,7 @@ namespace LanguageExtTests
                          from y in m2
                          select x + y;
 
-            Assert.True(res.Value == 3);
+            Assert.True(res == Metres.New(3));
 
             var h1 = new Hours(1);
 
@@ -122,10 +121,10 @@ namespace LanguageExtTests
             var r3 = m1 / m2;
             var r4 = m1 * m2;
 
-            Assert.True(r1.Value == 10);
-            Assert.True(r2.Value == 6);
-            Assert.True(r3.Value == 4);
-            Assert.True(r4.Value == 16);
+            Assert.True(r1 == Metres.New(10));
+            Assert.True(r2 == Metres.New(6));
+            Assert.True(r3 == Metres.New(4));
+            Assert.True(r4 == Metres.New(16));
 
             var h1 = new Hours(1);
 

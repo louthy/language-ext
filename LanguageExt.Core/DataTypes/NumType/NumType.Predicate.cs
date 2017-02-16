@@ -37,12 +37,12 @@ namespace LanguageExt
         where PRED : struct, Pred<A>
         where NUMTYPE : NumType<NUMTYPE, NUM, A, PRED>
     {
-        public readonly A Value;
+        readonly A Value;
 
         /// <summary>
         /// Constructor function
         /// </summary>
-        public static readonly Func<A, NUMTYPE> New = Reflect.Util.CtorOfArity1<A, NUMTYPE>();
+        public static readonly Func<A, NUMTYPE> New = Reflect.Util.CtorInvoke<A, NUMTYPE>();
 
         /// <summary>
         /// Constructor
@@ -56,6 +56,14 @@ namespace LanguageExt
             if (isnull(value)) throw new ArgumentNullException(nameof(value));
             Value = value;
         }
+
+        /// <summary>
+        /// Explicit conversion operator for extracting the bound value
+        /// </summary>
+        /// <param name="type"></param>
+        [Pure]
+        public static explicit operator A(NumType<NUMTYPE, NUM, A, PRED> type) =>
+            type.Value;
 
         /// <summary>
         /// Sum of NumType(x) and NumType(y)

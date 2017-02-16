@@ -37,7 +37,7 @@ namespace LanguageExt.ClassInstances
             if (ReferenceEquals(mx, my)) return 0;
             if (ReferenceEquals(mx, null)) return -1;
             if (ReferenceEquals(my, null)) return 1;
-            return default(NUM).Compare(mx.Value, my.Value);
+            return default(NUM).Compare((A)mx, (A)my);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace LanguageExt.ClassInstances
             if (ReferenceEquals(mx, my)) return 0;
             if (ReferenceEquals(mx, null)) return -1;
             if (ReferenceEquals(my, null)) return 1;
-            return default(NUM).Compare(mx.Value, my.Value);
+            return default(NUM).Compare((A)mx, (A)my);
         }
 
         /// <summary>
