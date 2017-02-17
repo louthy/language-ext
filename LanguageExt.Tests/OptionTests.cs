@@ -177,6 +177,56 @@ namespace LanguageExtTests
                 );
         }
 
+        [Fact]
+        public void NullableNullIsNone()
+        {
+#pragma warning disable CS0612 // Type or member is obsolete
+
+            Assert.True(Option<int>.None == null);
+            Assert.True(null == Option<int>.None);
+            Assert.True(Option<int>.None == default(int?));
+            Assert.True(default(int?) == Option<int>.None);
+
+            Assert.False(Option<int>.None != null);
+            Assert.False(null != Option<int>.None);
+            Assert.False(Option<int>.None != default(int?));
+            Assert.False(default(int?) != Option<int>.None);
+
+            var some = Some(1);
+
+            Assert.False(some == null);
+            Assert.False(null == some);
+            Assert.False(some == default(int?));
+            Assert.False(default(int?) == some);
+
+            Assert.True(some != null);
+            Assert.True(null != some);
+            Assert.True(some != default(int?));
+            Assert.True(default(int?) != some);
+
+#pragma warning restore CS0612 // Type or member is obsolete
+        }
+
+        [Fact]
+        public void NullableNullIsNotSome()
+        {
+#pragma warning disable CS0612 // Type or member is obsolete
+
+            var some = Some(1);
+
+            Assert.False(some == null);
+            Assert.False(null == some);
+            Assert.False(some == default(int?));
+            Assert.False(default(int?) == some);
+
+            Assert.True(some != null);
+            Assert.True(null != some);
+            Assert.True(some != default(int?));
+            Assert.True(default(int?) != some);
+
+#pragma warning restore CS0612 // Type or member is obsolete
+        }
+
         private Option<string> GetStringNone()
         {
             // This should fail

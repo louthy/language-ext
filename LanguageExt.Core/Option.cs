@@ -344,6 +344,24 @@ namespace LanguageExt
         }
 
         [Pure]
+        static bool Equals(Option<T>? lhs, Option<T>? rhs) =>
+            lhs.HasValue
+                ? lhs.Value.Match(
+                    v => rhs.HasValue && lhs.Value.Equals(rhs.Value),
+                    () => !rhs.HasValue || rhs.Value.IsNone)
+                : !rhs.HasValue || rhs.Value.IsNone;
+
+        [Pure]
+        [Obsolete]
+        public static bool operator ==(Option<T>? lhs, Option<T>? rhs) =>
+            Equals(lhs, rhs);
+
+        [Pure]
+        [Obsolete]
+        public static bool operator !=(Option<T>? lhs, Option<T>? rhs) =>
+            !Equals(lhs, rhs);
+
+        [Pure]
         public static bool operator ==(Option<T> lhs, Option<T> rhs) =>
             lhs.Equals(rhs);
 
