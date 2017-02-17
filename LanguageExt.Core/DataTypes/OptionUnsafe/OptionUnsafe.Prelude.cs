@@ -478,7 +478,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
-        public static T[] toArray<T>(OptionUnsafe<T> option) =>
+        public static Arr<T> toArray<T>(OptionUnsafe<T> option) =>
             option.ToArray();
     }
 }

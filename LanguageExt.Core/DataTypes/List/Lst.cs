@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.ComponentModel;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -231,8 +231,8 @@ namespace LanguageExt
             lhs.Add(rhs);
 
         [Pure]
-        public static Lst<A> operator +(A rhs, Lst<A> lhs) =>
-            rhs.Cons(lhs);
+        public static Lst<A> operator +(A lhs, Lst<A> rhs) =>
+            lhs.Cons(rhs);
 
         [Pure]
         public static Lst<A> operator +(Lst<A> lhs, Lst<A> rhs) =>
@@ -243,11 +243,6 @@ namespace LanguageExt
             Value.Append(rhs);
 
         [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Lst<A> Append(Lst<A> lhs, Lst<A> rhs) =>
-            lhs.Append(rhs);
-
-        [Pure]
         public static Lst<A> operator -(Lst<A> lhs, Lst<A> rhs) =>
             lhs.Subtract(rhs);
 
@@ -256,15 +251,8 @@ namespace LanguageExt
             Value.Subtract(rhs);
 
         [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Lst<A> Subtract(Lst<A> lhs, Lst<A> rhs) =>
-            lhs.Subtract(rhs);
-
-        [Pure]
         public override bool Equals(object obj) =>
-            !ReferenceEquals(obj,null) && 
-            obj is Lst<A> && 
-            Value.Equals(((Lst<A>)obj).Value);
+            obj is Lst<A> && Equals((Lst<A>)obj);
 
         /// <summary>
         /// Get the hash code
@@ -288,7 +276,7 @@ namespace LanguageExt
             !(lhs == rhs);
 
         [Pure]
-        public bool Equals(Lst<A> a, Lst<A> b) =>
-            a == b;
-    }
+        public Arr<A> ToArray() =>
+            toArray(this);
+   }
 }

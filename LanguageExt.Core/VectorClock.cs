@@ -130,7 +130,7 @@ namespace LanguageExt
             var clockVersions = clock.Versions.ToArray();
             var newClockVersions = List.empty<ClockEntry>();
 
-            while (i < versions.Length && j < clockVersions.Length)
+            while (i < versions.Count && j < clockVersions.Count)
             {
                 var v1 = versions[i];
                 var v2 = clockVersions[j];
@@ -156,11 +156,11 @@ namespace LanguageExt
             }
 
             // Okay now there may be leftovers on one or the other list remaining
-            for (int k = i; k < versions.Length; k++)
+            for (int k = i; k < versions.Count; k++)
             {
                 newClockVersions = newClockVersions.Add(versions[k]);
             }
-            for (int k = j; k < clockVersions.Length; k++)
+            for (int k = j; k < clockVersions.Count; k++)
             {
                 newClockVersions = newClockVersions.Add(clockVersions[k]);
             }

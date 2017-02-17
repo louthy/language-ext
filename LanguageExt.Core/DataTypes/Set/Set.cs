@@ -364,7 +364,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="array">Array to copy to</param>
         /// <param name="index">Index into the array to start</param>
-        public void CopyTo(Array array, int index) =>
+        public void CopyTo(System.Array array, int index) =>
             Value.CopyTo(array, index);
 
         /// <summary>

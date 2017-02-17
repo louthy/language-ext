@@ -691,13 +691,13 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Map<K, V> freeze<K, V>(IDictionary<K, V> dict) =>
-            Map(dict.AsEnumerable());
+            toMap(dict.AsEnumerable());
 
         /// <summary>
         /// Convert any IDictionary into an immutable Map K V
         /// </summary>
         [Pure]
         public static Map<K, V> Freeze<K, V>(this IDictionary<K, V> dict) =>
-            Map(dict.AsEnumerable());
+            toMap(dict.AsEnumerable());
     }
 }

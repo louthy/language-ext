@@ -313,7 +313,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
-        public A[] ToArray() =>
+        public Arr<A> ToArray() =>
             toArray<MOptionUnsafe<A>, OptionUnsafe<A>, A>(this);
 
         /// <summary>

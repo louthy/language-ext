@@ -437,7 +437,7 @@ public static class TryExtensions
         toList(self.AsEnumerable());
 
     [Pure]
-    public static Either<Exception, A>[] ToArray<A>(this Try<A> self) =>
+    public static Arr<Either<Exception, A>> ToArray<A>(this Try<A> self) =>
         toArray(self.AsEnumerable());
 
     [Pure]

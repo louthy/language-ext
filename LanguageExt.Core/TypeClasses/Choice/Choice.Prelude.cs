@@ -34,7 +34,7 @@ namespace LanguageExt
         /// <param name="ma">Option</param>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
-        public static B[] toArray<CHOICE, CH, A, B>(CH ma)
+        public static Arr<B> toArray<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
                 Choice1: x => new B[0],
@@ -49,7 +49,7 @@ namespace LanguageExt
         [Pure]
         public static Lst<B> toList<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
-            List(toArray<CHOICE, CH, A, B>(ma));
+            toList<B>(toArray<CHOICE, CH, A, B>(ma));
 
         /// <summary>
         /// Convert the Option to an enumerable sequence of zero or one items
@@ -231,9 +231,9 @@ namespace LanguageExt
         /// </summary>
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [Pure]
-        public static B[] choice2ToArray<CHOICE, CH, A, B>(CH ma)
+        public static Arr<B> choice2ToArray<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
-            choice2AsEnumerable<CHOICE, CH, A, B>(ma).ToArray();
+            toArray<B>(choice2AsEnumerable<CHOICE, CH, A, B>(ma));
 
         /// <summary>
         /// Project the Either into a Lst R
@@ -249,9 +249,9 @@ namespace LanguageExt
         /// </summary>
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [Pure]
-        public static A[] choice1ToArray<CHOICE, CH, A, B>(CH ma)
+        public static Arr<A> choice1ToArray<CHOICE, CH, A, B>(CH ma)
             where CHOICE : struct, Choice<CH, A, B> =>
-            choice1AsEnumerable<CHOICE, CH, A, B>(ma).ToArray();
+            toArray<A>(choice1AsEnumerable<CHOICE, CH, A, B>(ma));
 
         /// <summary>
         /// Project the Either into a IEnumerable R

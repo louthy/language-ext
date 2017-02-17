@@ -532,7 +532,7 @@ namespace LanguageExt
         /// <param name="either">Either to project</param>
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [Pure]
-        public static R[] rightToArray<L, R>(Either<L, R> either) =>
+        public static Arr<R> rightToArray<L, R>(Either<L, R> either) =>
             either.RightToArray();
 
         /// <summary>
@@ -554,7 +554,7 @@ namespace LanguageExt
         /// <param name="either">Either to project</param>
         /// <returns>If the Either is in a Right state, an array of L with one item.  A zero length array of L otherwise</returns>
         [Pure]
-        public static L[] leftToArray<L, R>(Either<L, R> either) =>
+        public static Arr<L> leftToArray<L, R>(Either<L, R> either) =>
             either.LeftToArray();
 
         /// <summary>

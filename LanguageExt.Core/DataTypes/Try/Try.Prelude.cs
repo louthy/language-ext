@@ -380,7 +380,7 @@ namespace LanguageExt
             tryDel.ToList();
 
         [Pure]
-        public static Either<Exception, T>[] toArray<T>(Try<T> tryDel) =>
+        public static Arr<Either<Exception, T>> toArray<T>(Try<T> tryDel) =>
             tryDel.ToArray();
 
         [Pure]

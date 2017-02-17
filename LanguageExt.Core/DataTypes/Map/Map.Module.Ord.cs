@@ -692,13 +692,13 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Map<OrdK, K, V> freeze<OrdK, K, V>(IDictionary<K, V> dict) where OrdK : struct, Ord<K> =>
-            Map<OrdK, K, V>(dict.AsEnumerable());
+            toMap<OrdK, K, V>(dict.AsEnumerable());
 
         /// <summary>
         /// Convert any IDictionary into an immutable Map K V
         /// </summary>
         [Pure]
         public static Map<OrdK, K, V> Freeze<OrdK, K, V>(this IDictionary<K, V> dict) where OrdK : struct, Ord<K> =>
-            Map<OrdK, K, V>(dict.AsEnumerable());
+            toMap<OrdK, K, V>(dict.AsEnumerable());
     }
 }

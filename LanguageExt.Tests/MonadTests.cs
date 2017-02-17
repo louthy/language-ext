@@ -38,7 +38,7 @@ namespace LanguageExtTests
             public readonly Map<string, int> Map;
             public Bindings(params Tuple<string, int>[] items)
             {
-                Map = Map(items);
+                Map = toMap(items);
             }
 
             public static Bindings New(params Tuple<string, int>[] items)

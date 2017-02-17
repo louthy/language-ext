@@ -161,7 +161,7 @@ namespace LanguageExt
             toList(self.AsEnumerable());
 
         [Pure]
-        public static T[] ToArray<T>(this T? self) where T : struct =>
+        public static Arr<T> ToArray<T>(this T? self) where T : struct =>
             toArray(self.AsEnumerable());
 
         [Pure]

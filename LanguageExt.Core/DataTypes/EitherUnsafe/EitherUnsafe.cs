@@ -360,7 +360,7 @@ namespace LanguageExt
         /// <returns>If the EitherUnsafe is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("ToArray has been deprecated.  Please use RightToArray.")]
-        public R[] ToArray() =>
+        public Arr<R> ToArray() =>
             toArray<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
@@ -376,7 +376,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>If the EitherUnsafe is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [Pure]
-        public R[] RightToArray() =>
+        public Arr<R> RightToArray() =>
             choice2ToArray<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>
@@ -392,7 +392,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>If the EitherUnsafe is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [Pure]
-        public L[] LeftToArray() =>
+        public Arr<L> LeftToArray() =>
             choice1ToArray<MEitherUnsafe<L, R>, EitherUnsafe<L, R>, L, R>(this);
 
         /// <summary>

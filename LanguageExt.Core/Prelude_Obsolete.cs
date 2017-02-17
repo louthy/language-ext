@@ -338,7 +338,7 @@ namespace LanguageExt
         /// <returns>If the Either is in a Right state, a ImmutableArray of R with one item.  A zero length ImmutableArray of R otherwise</returns>
         [Obsolete("ToArray has been deprecated.  Please use RightToArray.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static R[] toArray<L, R>(Either<L, R> either) =>
+        public static Arr<R> toArray<L, R>(Either<L, R> either) =>
             either.ToArray();
 
         [EditorBrowsable(EditorBrowsableState.Never)]

@@ -97,21 +97,21 @@ namespace LanguageExt
         /// Create an immutable map
         /// </summary>
         [Pure]
-        public static Map<K, V> Map<K, V>(IEnumerable<Tuple<K, V>> items) =>
+        public static Map<K, V> toMap<K, V>(IEnumerable<Tuple<K, V>> items) =>
             LanguageExt.Map.createRange(items);
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
         [Pure]
-        public static Map<K, V> Map<K, V>(IEnumerable<(K, V)> items) =>
+        public static Map<K, V> toMap<K, V>(IEnumerable<(K, V)> items) =>
             LanguageExt.Map.createRange(items);
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
         [Pure]
-        public static Map<K, V> Map<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
+        public static Map<K, V> toMap<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
             LanguageExt.Map.createRange(items);
 
 
@@ -141,28 +141,28 @@ namespace LanguageExt
         /// Create an immutable map
         /// </summary>
         [Pure]
-        public static Map<OrdK, K, V> Map<OrdK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where OrdK : struct, Ord<K> =>
+        public static Map<OrdK, K, V> toMap<OrdK, K, V>(KeyValuePair<K, V> head, params KeyValuePair<K, V>[] tail) where OrdK : struct, Ord<K> =>
             LanguageExt.Map.create<OrdK, K, V>(head, tail);
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
         [Pure]
-        public static Map<OrdK, K, V> Map<OrdK, K, V>(IEnumerable<(K, V)> items) where OrdK : struct, Ord<K> =>
+        public static Map<OrdK, K, V> toMap<OrdK, K, V>(IEnumerable<(K, V)> items) where OrdK : struct, Ord<K> =>
             LanguageExt.Map.createRange<OrdK, K, V>(items);
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
         [Pure]
-        public static Map<OrdK, K, V> Map<OrdK, K, V>(IEnumerable<Tuple<K, V>> items) where OrdK : struct, Ord<K> =>
+        public static Map<OrdK, K, V> toMap<OrdK, K, V>(IEnumerable<Tuple<K, V>> items) where OrdK : struct, Ord<K> =>
             LanguageExt.Map.createRange<OrdK, K, V>(items);
 
         /// <summary>
         /// Create an immutable map
         /// </summary>
         [Pure]
-        public static Map<OrdK, K, V> Map<OrdK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where OrdK : struct, Ord<K> =>
+        public static Map<OrdK, K, V> toMap<OrdK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where OrdK : struct, Ord<K> =>
             LanguageExt.Map.createRange<OrdK, K, V>(items);
 
 
@@ -199,21 +199,21 @@ namespace LanguageExt
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HashMap<K, V> HashMap<K, V>(IEnumerable<(K, V)> items) =>
+        public static HashMap<K, V> toHashMap<K, V>(IEnumerable<(K, V)> items) =>
             LanguageExt.HashMap.createRange(items);
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HashMap<K, V> HashMap<K, V>(IEnumerable<Tuple<K, V>> items) =>
+        public static HashMap<K, V> toHashMap<K, V>(IEnumerable<Tuple<K, V>> items) =>
             LanguageExt.HashMap.createRange(items);
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HashMap<K, V> HashMap<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
+        public static HashMap<K, V> toHashMap<K, V>(IEnumerable<KeyValuePair<K, V>> items) =>
             LanguageExt.HashMap.createRange(items);
 
 
@@ -250,21 +250,21 @@ namespace LanguageExt
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> HashMap<EqK, K, V>(IEnumerable<Tuple<K, V>> items) where EqK : struct, Eq<K> =>
+        public static HashMap<EqK, K, V> toHashMap<EqK, K, V>(IEnumerable<Tuple<K, V>> items) where EqK : struct, Eq<K> =>
             LanguageExt.HashMap.createRange<EqK, K, V>(items);
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> HashMap<EqK, K, V>(IEnumerable<(K, V)> items) where EqK : struct, Eq<K> =>
+        public static HashMap<EqK, K, V> toHashMap<EqK, K, V>(IEnumerable<(K, V)> items) where EqK : struct, Eq<K> =>
             LanguageExt.HashMap.createRange<EqK, K, V>(items);
 
         /// <summary>
         /// Create an immutable hash-map
         /// </summary>
         [Pure]
-        public static HashMap<EqK, K, V> HashMap<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where EqK : struct, Eq<K> =>
+        public static HashMap<EqK, K, V> toHashMap<EqK, K, V>(IEnumerable<KeyValuePair<K, V>> items) where EqK : struct, Eq<K> =>
             LanguageExt.HashMap.createRange<EqK, K, V>(items);
 
 
@@ -281,10 +281,15 @@ namespace LanguageExt
         /// Create an immutable list
         /// </summary>
         [Pure]
-        public static Lst<T> List<T>(params T[] items) =>
-            items.Length == 0
-                ? Lst<T>.Empty
-                : new Lst<T>(items);
+        public static Lst<T> List<T>(T x, params T[] xs) =>
+            new Lst<T>(x.Cons(xs));
+
+        /// <summary>
+        /// Create an immutable list
+        /// </summary>
+        [Pure]
+        public static Lst<T> toList<T>(Arr<T> items) =>
+            new Lst<T>(items.Value);
 
         /// <summary>
         /// Create an immutable list
@@ -299,47 +304,22 @@ namespace LanguageExt
         /// Create an immutable queue
         /// </summary>
         [Pure]
-        public static T[] Array<T>() =>
-            new T[0];
+        public static Arr<T> Array<T>() =>
+            Arr<T>.Empty;
 
         /// <summary>
         /// Create an immutable queue
         /// </summary>
         [Pure]
-        public static T[] Array<T>(T item) =>
-            new T[1] { item };
+        public static Arr<T> Array<T>(T x, params T[] xs) =>
+            new Arr<T>(x.Cons(xs).ToArray());
 
         /// <summary>
         /// Create an immutable queue
         /// </summary>
         [Pure]
-        public static T[] Array<T>(params T[] items)
-        {
-            var a = new T[items.Length];
-            int i = 0;
-            foreach (var item in items)
-            {
-                a[i] = item;
-                i++;
-            }
-            return a;
-        }
-
-        /// <summary>
-        /// Create an immutable queue
-        /// </summary>
-        [Pure]
-        public static T[] toArray<T>(IEnumerable<T> items)
-        {
-            var a = new T[items.Count()];
-            int i = 0;
-            foreach (var item in items)
-            {
-                a[i] = item;
-                i++;
-            }
-            return a;
-        }
+        public static Arr<T> toArray<T>(IEnumerable<T> items) =>
+            new Arr<T>(items);
 
         /// <summary>
         /// Create an immutable queue

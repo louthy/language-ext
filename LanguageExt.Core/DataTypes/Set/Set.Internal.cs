@@ -553,7 +553,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="array">Array to copy to</param>
         /// <param name="index">Index into the array to start</param>
-        public void CopyTo(Array array, int index)
+        public void CopyTo(System.Array array, int index)
         {
             if (array == null) throw new ArgumentNullException(nameof(array));
             if (index < 0 || index > array.Length) throw new IndexOutOfRangeException();

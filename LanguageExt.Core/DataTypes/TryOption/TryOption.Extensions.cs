@@ -613,7 +613,7 @@ public static class TryOptionExtensions
         toList(self.AsEnumerable());
 
     [Pure]
-    public static Either<Exception, A>[] ToArray<A>(this TryOption<A> self) =>
+    public static Arr<Either<Exception, A>> ToArray<A>(this TryOption<A> self) =>
         toArray(self.AsEnumerable());
 
     [Pure]

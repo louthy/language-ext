@@ -132,7 +132,7 @@ namespace LanguageExt
         /// <param name="ma">Option</param>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
-        public static A[] toArray<OPT, OA, A>(OA ma)
+        public static Arr<A> toArray<OPT, OA, A>(OA ma)
             where OPT : struct, Optional<OA, A> =>
             default(OPT).Match( ma,
                 Some: x  => new A[1] {x}, 
@@ -146,7 +146,7 @@ namespace LanguageExt
         [Pure]
         public static Lst<A> toList<OPT, OA, A>(OA ma)
             where OPT : struct, Optional<OA, A> =>
-            List(toArray<OPT, OA, A>(ma));
+            toList<A>(toArray<OPT, OA, A>(ma));
 
         /// <summary>
         /// Convert the Option to an enumerable of zero or one items

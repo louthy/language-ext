@@ -54,7 +54,7 @@ namespace LanguageExtTests
             GC.Collect();
 
             var fix = 0;
-            var count = 1000;
+            var count = 100;
 
             Func<int, int> fn = x => x + fix;
 
@@ -62,7 +62,7 @@ namespace LanguageExtTests
 
             var nums1 = freeze(map(Range(0, count), i => m(i)));
 
-            fix = 1000;
+            fix = 100;
 
             var nums2 = freeze(map(Range(0, count), i => m(i)));
 

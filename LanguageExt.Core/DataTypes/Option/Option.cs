@@ -306,7 +306,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>An enumerable of zero or one items</returns>
         [Pure]
-        public A[] ToArray() =>
+        public Arr<A> ToArray() =>
             toArray<MOption<A>, Option<A>, A>(this);
 
         /// <summary>
