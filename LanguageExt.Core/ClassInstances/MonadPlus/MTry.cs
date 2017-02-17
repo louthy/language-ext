@@ -17,6 +17,7 @@ namespace LanguageExt.ClassInstances
 
         static Try<A> none = () => raise<A>(new BottomException());
 
+        [Pure]
         public MB Bind<MONADB, MB, B>(Try<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
         {
             var mr = ma.Try();

@@ -16,6 +16,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly MNullable<A> Inst = default(MNullable<A>);
 
+        [Pure]
         public MB Bind<MONADB, MB, B>(A? ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
             ma.HasValue && f != null
                 ? f(ma.Value)

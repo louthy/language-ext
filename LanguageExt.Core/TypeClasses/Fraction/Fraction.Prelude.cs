@@ -1,4 +1,5 @@
 ﻿using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -9,6 +10,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="x">The ratio to convert</param>
         /// <returns>The equivalent of x in the implementing type.</returns>
+        [Pure]
         public static A fromRational<FRACTION, A>(Ratio<int> x) where FRACTION : struct, Fraction<A> =>
             default(FRACTION).FromRational(x);
     }

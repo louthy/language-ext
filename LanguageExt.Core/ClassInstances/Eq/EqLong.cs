@@ -1,4 +1,5 @@
 ﻿using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -15,6 +16,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
+        [Pure]
         public bool Equals(long a, long b) =>
             a == b;
 
@@ -24,6 +26,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
+        [Pure]
         public int GetHashCode(long x) =>
             x.GetHashCode();
     }

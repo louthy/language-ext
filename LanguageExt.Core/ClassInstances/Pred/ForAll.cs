@@ -1,5 +1,6 @@
 ﻿
 using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances.Pred
 {
@@ -15,6 +16,7 @@ namespace LanguageExt.ClassInstances.Pred
     {
         public static readonly ForAll<A, Term1, Term2> Is = default(ForAll<A, Term1, Term2>);
 
+        [Pure]
         public bool True(A value) =>
             default(Term1).True(value) &&
             default(Term2).True(value);
@@ -34,6 +36,7 @@ namespace LanguageExt.ClassInstances.Pred
     {
         public static readonly ForAll<A, Term1, Term2, Term3> Is = default(ForAll<A, Term1, Term2, Term3>);
 
+        [Pure]
         public bool True(A value) =>
             default(Term1).True(value) &&
             default(Term2).True(value) &&

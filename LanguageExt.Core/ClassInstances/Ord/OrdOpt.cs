@@ -1,4 +1,5 @@
 ﻿using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.ClassInstances
@@ -19,6 +20,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
+        [Pure]
         public bool Equals(OA x, OA y) =>
             default(EqOpt<ORD, OPTION, OA, A>).Equals(x, y);
 
@@ -34,6 +36,7 @@ namespace LanguageExt.ClassInstances
         /// 
         /// if x equals y       : 0
         /// </returns>
+        [Pure]
         public int Compare(OA mx, OA my)
         {
             var xIsSome = default(OPTION).IsSome(mx);
@@ -57,6 +60,7 @@ namespace LanguageExt.ClassInstances
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
+        [Pure]
         public int GetHashCode(OA x) =>
             x.IsNull() ? 0 : x.GetHashCode();
     }

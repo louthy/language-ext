@@ -1,5 +1,6 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -16,6 +17,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
+        [Pure]
         public bool Equals(short x, short y) =>
             x == y;
 
@@ -31,6 +33,7 @@ namespace LanguageExt.ClassInstances
         /// 
         /// if x equals y       : 0
         /// </returns>
+        [Pure]
         public int Compare(short x, short y) => 
             x.CompareTo(y);
 
@@ -40,6 +43,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">left hand side of the addition operation</param>
         /// <param name="y">right hand side of the addition operation</param>
         /// <returns>The sum of x and y</returns>
+        [Pure]
         public short Plus(short x, short y) =>
             (short)(x + y);
 
@@ -49,6 +53,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">left hand side of the subtraction operation</param>
         /// <param name="y">right hand side of the subtraction operation</param>
         /// <returns>The difference between x and y</returns>
+        [Pure]
         public short Subtract(short x, short y) =>
             (short)(x - y);
 
@@ -58,6 +63,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">left hand side of the product operation</param>
         /// <param name="y">right hand side of the product operation</param>
         /// <returns>The product of x and y</returns>
+        [Pure]
         public short Product(short x, short y) =>
             (short)(x * y);
 
@@ -67,6 +73,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">left hand side of the division operation</param>
         /// <param name="y">right hand side of the division operation</param>
         /// <returns>x / y</returns>
+        [Pure]
         public short Divide(short x, short y) =>
             (short)(x / y);
 
@@ -75,6 +82,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The value to find the absolute value of</param>
         /// <returns>The non-negative absolute value of x</returns>
+        [Pure]
         public short Abs(short x) =>
             Math.Abs(x);
 
@@ -83,6 +91,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The value to find the sign of</param>
         /// <returns>-1, 0, or +1</returns>
+        [Pure]
         public short Signum(short x) =>
             (short)Math.Sign(x);
 
@@ -91,6 +100,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The integer to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
+        [Pure]
         public short FromInteger(int x) =>
             (short)x;
 
@@ -99,6 +109,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The float to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
+        [Pure]
         public short FromDecimal(decimal x) =>
             (short)x;
 
@@ -107,6 +118,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The double to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
+        [Pure]
         public short FromFloat(float x) =>
             (short)x;
 
@@ -115,6 +127,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The decimal to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
+        [Pure]
         public short FromDouble(double x) =>
             (short)x;
 
@@ -123,6 +136,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">Value to negate</param>
         /// <returns>The negated source value</returns>
+        [Pure]
         public short Negate(short x) => (short)-x;
 
         /// <summary>
@@ -131,18 +145,21 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">left hand side of the append operation</param>
         /// <param name="y">right hand side of the append operation</param>
         /// <returns>x + y</returns>
+        [Pure]
         public short Append(short x, short y) =>
             (short)(x + y);
 
         /// <summary>
         /// Zero
         /// </summary>
+        [Pure]
         public short Empty() => 0;
 
         /// <summary>
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
+        [Pure]
         public int GetHashCode(short x) =>
             x.GetHashCode();
     }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics.Contracts;
 
 namespace LanguageExt.TypeClasses
 {
@@ -15,6 +11,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="x">The first operand to the operation</param>
         /// <param name="y">The second operand to the operation</param>
         /// <returns>The result of the operation</returns>
+        [Pure]
         A Append(A x, A y);
     }
 }

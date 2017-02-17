@@ -1,6 +1,7 @@
 ﻿using LanguageExt;
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 
@@ -20,6 +21,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
+        [Pure]
         public bool Equals(IEnumerable<A> x, IEnumerable<A> y) =>
             default(EqSeq<ORD, A>).Equals(x, y);
 
@@ -33,6 +35,7 @@ namespace LanguageExt.ClassInstances
         /// if x less than y    : -1
         /// if x equals y       : 0
         /// </returns>
+        [Pure]
         public int Compare(IEnumerable<A> x, IEnumerable<A> y)
         {
             if (ReferenceEquals(x, y)) return 0;
@@ -59,6 +62,7 @@ namespace LanguageExt.ClassInstances
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
+        [Pure]
         public int GetHashCode(IEnumerable<A> x) =>
             hash(x);
     }

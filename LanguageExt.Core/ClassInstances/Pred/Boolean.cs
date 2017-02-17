@@ -1,4 +1,5 @@
 ﻿using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances.Pred
 {
@@ -8,6 +9,7 @@ namespace LanguageExt.ClassInstances.Pred
     /// <typeparam name="A">Bound value to test</typeparam>
     public struct True<A> : Pred<A>
     {
+        [Pure]
         bool Pred<A>.True(A value) => true;
     }
 
@@ -17,6 +19,7 @@ namespace LanguageExt.ClassInstances.Pred
     /// <typeparam name="A">Bound value to test</typeparam>
     public struct False<A> : Pred<A>
     {
+        [Pure]
         bool Pred<A>.True(A value) => false;
    }
 }

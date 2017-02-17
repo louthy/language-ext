@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
@@ -27,6 +28,7 @@ namespace LanguageExt
         /// <typeparam name="A">Input type to the conditional computation</typeparam>
         /// <param name="pred">Predicate to apply to the input value</param>
         /// <returns>Conditional computation</returns>
+        [Pure]
         public static CondAsync<A, A> Cond<A>(Func<A, Task<bool>> pred) =>
             (A input) =>
                 pred(input).ContinueWith(task =>
@@ -52,6 +54,7 @@ namespace LanguageExt
         /// <param name="a">Value to apply to the function</param>
         /// <param name="f">Function to apply the value to</param>
         /// <returns>Promise to return the result of applying the value to the function</returns>
+        [Pure]
         public static Task<B> Apply<A, B>(this A a, Func<A, Task<B>> f) =>
             f(a);
 
@@ -68,6 +71,7 @@ namespace LanguageExt
         /// conditional computation</param>
         /// <param name="f">Function to apply the value to</param>
         /// <returns>Promise to return the result of applying the value to the function</returns>
+        [Pure]
         public static Task<B> Apply<A, B>(this Task<A> taskA, Func<A, Task<B>> f) =>
             from a in taskA
             from b in f(a)
@@ -86,6 +90,7 @@ namespace LanguageExt
         /// conditional computation</param>
         /// <param name="f">Function to apply the value to</param>
         /// <returns>Promise to return the result of applying the value to the function</returns>
+        [Pure]
         public static Task<B> Apply<A, B>(this Task<A> taskA, Func<Task<A>, Task<B>> f) =>
             f(taskA);
 
@@ -99,6 +104,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to compose with</param>
         /// <param name="f">The 'then' computation</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Then<A, B>(this CondAsync<A, A> self, Func<A, B> f) =>
             self.Select(f);
 
@@ -112,6 +118,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to compose with</param>
         /// <param name="f">The 'then' computation</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Then<A, B>(this CondAsync<A, A> self, Func<B> f) =>
             self.Select(_ => f());
 
@@ -125,6 +132,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to compose with</param>
         /// <param name="value">The 'then' value</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Then<A, B>(this CondAsync<A, A> self, B value) =>
             self.Select(_ => value);
 
@@ -138,6 +146,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to compose with</param>
         /// <param name="f">The 'then' computation</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Then<A, B>(this CondAsync<A, A> self, Func<A, Task<B>> f) =>
             self.Select(f);
 
@@ -151,6 +160,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to compose with</param>
         /// <param name="f">The 'then' computation</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Then<A, B>(this CondAsync<A, A> self, Func<Task<B>> f) =>
             self.Select(_ => f());
 
@@ -170,6 +180,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to compose with</param>
         /// <param name="value">The 'then' value</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Then<A, B>(this CondAsync<A, A> self, Task<B> value) =>
             self.Select(_ => value);
 
@@ -183,6 +194,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to test</param>
         /// <param name="predicates">The predicates to test the bound value with</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Any<A, B>(this CondAsync<A, B> self, params Func<B, Task<bool>>[] predicates) =>
             input =>
                 from x in self(input)
@@ -203,6 +215,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to test</param>
         /// <param name="predicates">The predicates to test the bound value with</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> All<A, B>(this CondAsync<A, B> self, params Func<B, Task<bool>>[] predicates) =>
             input =>
                 from x in self(input)
@@ -223,6 +236,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to test</param>
         /// <param name="predicates">The predicates to test the bound value with</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Any<A, B>(this CondAsync<A, B> self, params Func<B, bool>[] predicates) =>
             env =>
                 self(env).BindAsync(
@@ -248,6 +262,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to test</param>
         /// <param name="predicates">The predicates to test the bound value with</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> All<A, B>(this CondAsync<A, B> self, params Func<B, bool>[] predicates) =>
             env =>
                 self(env).BindAsync(
@@ -274,6 +289,7 @@ namespace LanguageExt
         /// <param name="f">The else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<A, Task<B>> Else<A, B>(this CondAsync<A, B> self, Func<A, B> f) =>
             input =>
                 self(input).ContinueWith(b => b.Result.IfNone(() => f(input)));
@@ -289,6 +305,7 @@ namespace LanguageExt
         /// <param name="f">The else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<A, Task<B>> Else<A, B>(this CondAsync<A, B> self, Func<B> f) =>
             input =>
                 self(input).ContinueWith(b => b.Result.IfNone(() => f()));
@@ -304,6 +321,7 @@ namespace LanguageExt
         /// <param name="value">The else value to use if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<A, Task<B>> Else<A, B>(this CondAsync<A, B> self, B value) =>
             input =>
                 self(input).ContinueWith(b => b.Result.IfNone(value));
@@ -319,6 +337,7 @@ namespace LanguageExt
         /// <param name="f">The else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<A, Task<B>> Else<A, B>(this CondAsync<A, B> self, Func<A, Task<B>> f) =>
             input =>
                 from b in self(input)
@@ -338,6 +357,7 @@ namespace LanguageExt
         /// <param name="f">The else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<A, Task<B>> Else<A, B>(this CondAsync<A, B> self, Func<Task<B>> f) =>
             input =>
                 from b in self(input)
@@ -363,6 +383,7 @@ namespace LanguageExt
         /// <param name="valuePromise">The else value promise to use if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<A, Task<B>> Else<A, B>(this CondAsync<A, B> self, Task<B> valuePromise) =>
             input =>
                 from b in self(input)
@@ -382,6 +403,7 @@ namespace LanguageExt
         /// <param name="f">The else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<Task<A>, Task<B>> ElseAsync<A, B>(this CondAsync<A, B> self, Func<A, B> f) =>
             input =>
                 from a in input
@@ -399,6 +421,7 @@ namespace LanguageExt
         /// <param name="f">The else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<Task<A>, Task<B>> ElseAsync<A, B>(this CondAsync<A, B> self, Func<B> f) =>
             input =>
                 from a in input
@@ -416,6 +439,7 @@ namespace LanguageExt
         /// <param name="value">The else value to use if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<Task<A>, Task<B>> ElseAsync<A, B>(this CondAsync<A, B> self, B value) =>
             input =>
                 from a in input
@@ -433,6 +457,7 @@ namespace LanguageExt
         /// <param name="f">The else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<Task<A>, Task<B>> ElseAsync<A, B>(this CondAsync<A, B> self, Func<A, Task<B>> f) =>
             input =>
                 from a in input
@@ -453,6 +478,7 @@ namespace LanguageExt
         /// <param name="f">The else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<Task<A>, Task<B>> ElseAsync<A, B>(this CondAsync<A, B> self, Func<Task<B>> f) =>
             input =>
                 from a in input
@@ -479,6 +505,7 @@ namespace LanguageExt
         /// <param name="valuePromise">The else value promise to use if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<Task<A>, Task<B>> ElseAsync<A, B>(this CondAsync<A, B> self, Task<B> valuePromise) =>
             input =>
                 from a in input
@@ -497,6 +524,7 @@ namespace LanguageExt
         /// <param name="self">The conditional computation to map</param>
         /// <param name="map">Functor mapping function</param>
         /// <returns>A mapped conditional computation</returns>
+        [Pure]
         public static CondAsync<A, C> Map<A, B, C>(this CondAsync<A, B> self, Func<B, Task<C>> map) =>
             Select(self, map);
 
@@ -509,6 +537,7 @@ namespace LanguageExt
         /// <param name="self">The conditional computation to map</param>
         /// <param name="map">Functor mapping function</param>
         /// <returns>A mapped conditional computation</returns>
+        [Pure]
         public static CondAsync<A, C> Map<A, B, C>(this CondAsync<A, B> self, Func<B, C> map) =>
             Select(self, map);
 
@@ -521,6 +550,7 @@ namespace LanguageExt
         /// <param name="self">The conditional computation to map</param>
         /// <param name="map">Functor mapping function</param>
         /// <returns>A mapped conditional computation</returns>
+        [Pure]
         public static CondAsync<A, C> Select<A, B, C>(this CondAsync<A, B> self, Func<B, Task<C>> map) =>
             input =>
                 from b in self(input)
@@ -538,6 +568,7 @@ namespace LanguageExt
         /// <param name="self">The conditional computation to map</param>
         /// <param name="map">Functor mapping function</param>
         /// <returns>A mapped conditional computation</returns>
+        [Pure]
         public static CondAsync<A, C> Select<A, B, C>(this CondAsync<A, B> self, Func<B, C> map) =>
             input =>
                 from b in self(input)
@@ -548,6 +579,7 @@ namespace LanguageExt
         /// that follow the rules of Cond, namely that a None/False result cancels the
         /// operation until an Else is encountered.
         /// </summary>
+        [Pure]
         public static CondAsync<A, D> SelectMany<A, B, C, D>(
             this CondAsync<A, B> self,
             Func<B, CondAsync<A, C>> bind,
@@ -570,6 +602,7 @@ namespace LanguageExt
         /// <param name="self">The conditional computation to test</param>
         /// <param name="pred">The predicate function</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Filter<A, B>(this CondAsync<A, B> self, Func<B, bool> pred) =>
             input =>
                 from b in self(input)
@@ -584,6 +617,7 @@ namespace LanguageExt
         /// <param name="self">The conditional computation to test</param>
         /// <param name="pred">The predicate function</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Filter<A, B>(this CondAsync<A, B> self, Func<B, Task<bool>> pred) =>
             input =>
                 from b in self(input)
@@ -599,6 +633,7 @@ namespace LanguageExt
         /// <param name="self">The conditional computation to test</param>
         /// <param name="pred">The predicate function</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Where<A, B>(this CondAsync<A, B> self, Func<B, bool> pred) =>
             input =>
                 from b in self(input)
@@ -613,6 +648,7 @@ namespace LanguageExt
         /// <param name="self">The conditional computation to test</param>
         /// <param name="pred">The predicate function</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Where<A, B>(this CondAsync<A, B> self, Func<B, Task<bool>> pred) =>
             input =>
                 from b in self(input)
@@ -629,6 +665,7 @@ namespace LanguageExt
         /// <typeparam name="B">Type of the computation output value</typeparam>
         /// <param name="self">The synchronous computation to convert</param>
         /// <returns></returns>
+        [Pure]
         public static CondAsync<A, B> ToAsync<A, B>(this Cond<A, B> self) =>
             input =>
                 Task.Run(() => self(input));
@@ -643,6 +680,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to compose with</param>
         /// <param name="f">The 'then' computation</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Then<A, B>(this Cond<A, A> self, Func<A, Task<B>> f) =>
             self.ToAsync().Select(f);
 
@@ -656,6 +694,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to compose with</param>
         /// <param name="f">The 'then' computation</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Then<A, B>(this Cond<A, A> self, Func<Task<B>> f) =>
             self.Select(_ => f());
 
@@ -669,6 +708,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to compose with</param>
         /// <param name="value">The 'then' value</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Then<A, B>(this Cond<A, A> self, Task<B> value) =>
             self.Select(_ => value);
 
@@ -682,6 +722,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to test</param>
         /// <param name="predicates">The predicates to test the bound value with</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Any<A, B>(this Cond<A, B> self, params Func<B, Task<bool>>[] predicates) =>
             input =>
                 from x in self.ToAsync()(input)
@@ -702,6 +743,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to test</param>
         /// <param name="predicates">The predicates to test the bound value with</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> All<A, B>(this Cond<A, B> self, params Func<B, Task<bool>>[] predicates) =>
             input =>
                 from x in self.ToAsync()(input)
@@ -723,6 +765,7 @@ namespace LanguageExt
         /// <param name="Else">The Else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<A, Task<B>> Else<A, B>(this Cond<A, B> self, Func<A, Task<B>> Else) =>
             input =>
                 from b in self.ToAsync()(input)
@@ -742,6 +785,7 @@ namespace LanguageExt
         /// <param name="Else">The Else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<A, Task<B>> Else<A, B>(this Cond<A, B> self, Func<Task<B>> Else) =>
             input =>
                 from b in self.ToAsync()(input)
@@ -767,6 +811,7 @@ namespace LanguageExt
         /// <param name="Else">The Else task to use if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<A, Task<B>> Else<A, B>(this Cond<A, B> self, Task<B> Else) =>
             input =>
                 from b in self.ToAsync()(input)
@@ -786,6 +831,7 @@ namespace LanguageExt
         /// <param name="Else">The Else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<Task<A>, Task<B>> ElseAsync<A, B>(this Cond<A, B> self, Func<A, Task<B>> Else) =>
             input =>
                 from a in input
@@ -806,6 +852,7 @@ namespace LanguageExt
         /// <param name="Else">The Else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<Task<A>, Task<B>> ElseAsync<A, B>(this Cond<A, B> self, Func<Task<B>> Else) =>
             input =>
                 from a in input
@@ -832,6 +879,7 @@ namespace LanguageExt
         /// <param name="Else">The Else task to use if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<Task<A>, Task<B>> ElseAsync<A, B>(this Cond<A, B> self, Task<B> Else) =>
             input =>
                 from a in input
@@ -850,6 +898,7 @@ namespace LanguageExt
         /// <param name="self">The conditional computation to map</param>
         /// <param name="map">Functor mapping function</param>
         /// <returns>A mapped conditional computation</returns>
+        [Pure]
         public static CondAsync<A, C> Map<A, B, C>(this Cond<A, B> self, Func<B, Task<C>> map) =>
             Select(self, map);
 
@@ -862,6 +911,7 @@ namespace LanguageExt
         /// <param name="self">The conditional computation to map</param>
         /// <param name="map">Functor mapping function</param>
         /// <returns>A mapped conditional computation</returns>
+        [Pure]
         public static CondAsync<A, C> Select<A, B, C>(this Cond<A, B> self, Func<B, Task<C>> map) =>
             input =>
                 from b in self.ToAsync()(input)
@@ -875,6 +925,7 @@ namespace LanguageExt
         /// that follow the rules of Cond, namely that a None/False result cancels the
         /// operation until an Else is encountered.
         /// </summary>
+        [Pure]
         public static CondAsync<A, D> SelectMany<A, B, C, D>(
             this Cond<A, B> self,
             Func<B, CondAsync<A, C>> bind,
@@ -897,6 +948,7 @@ namespace LanguageExt
         /// <param name="self">The conditional computation to test</param>
         /// <param name="pred">The predicate function</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Filter<A, B>(this Cond<A, B> self, Func<B, Task<bool>> pred) =>
             input =>
                 from b in self.ToAsync()(input)
@@ -912,6 +964,7 @@ namespace LanguageExt
         /// <param name="self">The conditional computation to test</param>
         /// <param name="pred">The predicate function</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static CondAsync<A, B> Where<A, B>(this Cond<A, B> self, Func<B, Task<bool>> pred) =>
             input =>
                 from b in self.ToAsync()(input)
@@ -921,6 +974,7 @@ namespace LanguageExt
 
     static class Tasks
     {
+        [Pure]
         public static async Task<bool> ForAll<A, B>(A a, IEnumerable<Func<A, B>> fs, Func<B, bool> pred)
         {
             var tasks = fs.Map(f => Task.Run(() => f(a))).ToList();
@@ -937,6 +991,7 @@ namespace LanguageExt
             return true;
         }
 
+        [Pure]
         public static async Task<bool> ForAll<A>(IEnumerable<Task<A>> fs, Func<A, bool> pred)
         {
             var tasks = fs.ToList();
@@ -953,6 +1008,7 @@ namespace LanguageExt
             return true;
         }
 
+        [Pure]
         public static async Task<bool> Exists<A, B>(A a, IEnumerable<Func<A, B>> fs, Func<B, bool> pred)
         {
             var tasks = fs.Map(f => Task.Run(() => f(a))).ToList();
@@ -971,6 +1027,7 @@ namespace LanguageExt
             return false;
         }
 
+        [Pure]
         public static async Task<bool> Exists<A>(IEnumerable<Task<A>> fs, Func<A, bool> pred)
         {
             var tasks = fs.ToList();

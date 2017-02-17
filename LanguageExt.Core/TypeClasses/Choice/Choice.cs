@@ -13,21 +13,25 @@ namespace LanguageExt.TypeClasses
         /// <summary>
         /// True if the choice type allows nulls
         /// </summary>
+        [Pure]
         bool IsUnsafe(CH choice);
 
         /// <summary>
         /// Is the choice in the first state
         /// </summary>
+        [Pure]
         bool IsChoice1(CH choice);
 
         /// <summary>
         /// Is the choice in the second state
         /// </summary>
+        [Pure]
         bool IsChoice2(CH choice);
 
         /// <summary>
         /// Is the choice in the bottom
         /// </summary>
+        [Pure]
         bool IsBottom(CH choice);
 
         /// <summary>

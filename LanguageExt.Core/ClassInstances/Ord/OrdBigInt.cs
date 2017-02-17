@@ -1,4 +1,5 @@
 ﻿using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 using System.Numerics;
 
 namespace LanguageExt.ClassInstances
@@ -16,6 +17,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
+        [Pure]
         public bool Equals(BigInteger x, BigInteger y) =>
             x == y;
 
@@ -31,6 +33,7 @@ namespace LanguageExt.ClassInstances
         /// 
         /// if x equals y       : 0
         /// </returns>
+        [Pure]
         public int Compare(BigInteger x, BigInteger y) =>
             x.CompareTo(y);
 
@@ -38,6 +41,7 @@ namespace LanguageExt.ClassInstances
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
+        [Pure]
         public int GetHashCode(BigInteger x) =>
             x.GetHashCode();
     }

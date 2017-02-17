@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.TypeClasses
 {
@@ -19,6 +20,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="ma">Monad to bind</param>
         /// <param name="f">Bind function</param>
         /// <returns>Monad of type MB derived from Monad of B</returns>
+        [Pure]
         MB Bind<MONADB, MB, B>(MA ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>;
 
         /// <summary>
@@ -27,6 +29,7 @@ namespace LanguageExt.TypeClasses
         /// <typeparam name="A">Type of the bound monad value</typeparam>
         /// <param name="x">The bound monad value</param>
         /// <returns>Monad of A</returns>
+        [Pure]
         MA Return(A x);
 
         /// <summary>
@@ -34,6 +37,7 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         /// <param name="f">The function to invoke to get the bound monad value(s)</param>
         /// <returns>Monad of A</returns>
+        [Pure]
         MA Return(Func<A> f);
 
         /// <summary>
@@ -41,16 +45,19 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         /// <param name="xs">The bound monad value(s)</param>
         /// <returns>Monad of A</returns>
+        [Pure]
         MA FromSeq(IEnumerable<A> xs);
 
         /// <summary>
         /// Produce a failure value
         /// </summary>
+        [Pure]
         MA Fail(Exception err = null);
 
         /// <summary>
         /// Produce a failure value
         /// </summary>
+        [Pure]
         MA Fail(object err);
     }
 
@@ -70,6 +77,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="ma">Monad to bind</param>
         /// <param name="f">Bind function</param>
         /// <returns>Monad of type MB derived from Monad of B</returns>
+        [Pure]
         MB Bind<MONADB, MB, B>(MA ma, Func<A, MB> f) 
             where MONADB : struct, Monad<Env, MB, B>;
 
@@ -79,6 +87,7 @@ namespace LanguageExt.TypeClasses
         /// <typeparam name="A">Type of the bound monad value</typeparam>
         /// <param name="x">The bound monad value</param>
         /// <returns>Monad of A</returns>
+        [Pure]
         MA Return(A x);
 
         /// <summary>
@@ -86,6 +95,7 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         /// <param name="f">The function to invoke to get the bound monad value(s)</param>
         /// <returns>Monad of A</returns>
+        [Pure]
         MA Return(Func<Env, (A, Env, bool)> f);
 
         /// <summary>
@@ -93,16 +103,19 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         /// <param name="f">The function to invoke to get the monad value(s)</param>
         /// <returns>Monad of A</returns>
+        [Pure]
         (A, Env, bool) Eval(MA ma, Env e);
 
         /// <summary>
         /// Produce a failure value
         /// </summary>
+        [Pure]
         MA Fail(Exception err = null);
 
         /// <summary>
         /// Produce a failure value
         /// </summary>
+        [Pure]
         MA Fail(object err);
     }
 }

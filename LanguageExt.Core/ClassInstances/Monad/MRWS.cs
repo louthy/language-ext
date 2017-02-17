@@ -16,10 +16,12 @@ namespace LanguageExt.ClassInstances
                 StateMonadValue<RwsA, S, A>
             where MonoidW : struct, Monoid<W>
     {
+        [Pure]
         public SEnv Ask<SReaderEnv, SEnv>() where SReaderEnv : struct, ReaderMonadValue<SEnv, R, R> =>
             default(SReaderEnv).Lift(env =>
                 (env, env, false));
 
+        [Pure]
         public MB Bind<MONADB, MB, B>(RwsA ma, Func<A, MB> f) where MONADB : struct, Monad<(R, W, S), MB, B> =>
             default(MONADB).Return(env =>
             {
@@ -28,18 +30,23 @@ namespace LanguageExt.ClassInstances
                 return default(MONADB).Eval(f(x), (env.Item1, default(MonoidW).Append(env.Item2, w), s));
             });
 
+        [Pure]
         public (A, (R, W, S), bool) Eval(RwsA ma, (R, W, S) state) =>
             default(SRwsA).Eval(ma, state);
 
+        [Pure]
         public RwsA Fail(Exception err = null) =>
             default(SRwsA).Lift(_ => (default(A), (default(R), default(MonoidW).Empty(), default(S)), true));
 
+        [Pure]
         public RwsA Fail(object err) =>
             default(SRwsA).Lift(_ => (default(A), (default(R), default(MonoidW).Empty(), default(S)), true));
 
+        [Pure]
         public SSS Get<SStateS, SSS>() where SStateS : struct, StateMonadValue<SSS, S, S> =>
             default(SStateS).Lift(state => (state, state, false));
 
+        [Pure]
         public SSAW Listen<SWriterAW, SSAW>(RwsA ma) where SWriterAW : struct, WriterMonadValue<SSAW, W, (A, W)> =>
             default(SWriterAW).Lift(written =>
             {
@@ -49,6 +56,7 @@ namespace LanguageExt.ClassInstances
                     : ((a, w), default(MonoidW).Append(written, w), false);
             });
 
+        [Pure]
         public RwsA Local(Func<R, R> f, RwsA ma) =>
             default(SRwsA).Lift(env =>
             {
@@ -58,18 +66,23 @@ namespace LanguageExt.ClassInstances
                 return (a, (r, default(MonoidW).Append(env.Item2, w), s), b);
             });
 
+        [Pure]
         public SSU Put<SStateU, SSU>(S state) where SStateU : struct, StateMonadValue<SSU, S, Unit> =>
             default(SStateU).Lift(_ => (unit, state, false));
 
+        [Pure]
         public RwsA Reader(Func<R, A> f) =>
             default(SRwsA).Lift(env => (f(env.Item1), env, false));
 
+        [Pure]
         public RwsA Return(A x) =>
             default(SRwsA).Lift((x, (default(R), default(MonoidW).Empty(), default(S)), false));
 
+        [Pure]
         public RwsA Return(Func<(R, W, S), (A, (R, W, S), bool)> f) =>
             default(SRwsA).Lift(f);
 
+        [Pure]
         public RwsA State(Func<S, (A, S, bool)> f) =>
             default(SRwsA).Lift(rws =>
             {
@@ -77,6 +90,7 @@ namespace LanguageExt.ClassInstances
                 return (a, (rws.Item1, rws.Item2, s), b);
             });
 
+        [Pure]
         public SSU Tell<SWriterU, SSU>(W what) where SWriterU : struct, WriterMonadValue<SSU, W, Unit> =>
             default(SWriterU).Lift(output => 
                 (unit, default(MonoidW).Append(output, what), false));

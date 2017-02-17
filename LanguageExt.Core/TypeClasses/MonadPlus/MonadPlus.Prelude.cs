@@ -1,6 +1,7 @@
 ﻿using LanguageExt.TypeClasses;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -12,6 +13,7 @@ namespace LanguageExt
         /// <typeparam name="MA">Monad type</typeparam>
         /// <typeparam name="A">Bound type</typeparam>
         /// <returns>Zero for the structure</returns>
+        [Pure]
         public static MA mzero<MPLUS, MA, A>() where MPLUS : struct, MonadPlus<MA, A> =>
             default(MPLUS).Zero();
 
@@ -34,6 +36,7 @@ namespace LanguageExt
         /// <param name="x">Left hand side of the operation</param>
         /// <param name="y">Right hand side of the operation</param>
         /// <returns>x 'plus' y </returns>
+        [Pure]
         public static MA mplus<MPLUS, MA, A>(MA x, MA y) where MPLUS : struct, MonadPlus<MA, A> =>
             default(MPLUS).Plus(x, y);
 
@@ -44,6 +47,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound type</typeparam>
         /// <param name="xs">The monads to sum</param>
         /// <returns>The summed monads</returns>
+        [Pure]
         public static MA msum<MPLUS, MA, A>(params MA[] xs) where MPLUS : struct, MonadPlus<MA, A> =>
             xs.Fold(mzero<MPLUS, MA, A>(), (s, x) => mplus<MPLUS, MA, A>(s, x));
 
@@ -54,6 +58,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound type</typeparam>
         /// <param name="xs">The monads to sum</param>
         /// <returns>The summed monads</returns>
+        [Pure]
         public static MA msum<MPLUS, MA, A>(IEnumerable<MA> xs) where MPLUS : struct, MonadPlus<MA, A> =>
             xs.Fold(mzero<MPLUS, MA, A>(), (s, x) => mplus<MPLUS, MA, A>(s, x));
 
@@ -64,6 +69,7 @@ namespace LanguageExt
         /// <typeparam name="A">Bound type</typeparam>
         /// <param name="ma">The monads filter</param>
         /// <returns>The filtered (or not) monad</returns>
+        [Pure]
         public static MA filter<MPLUS, MA, A>(MA ma, Func<A, bool> pred) where MPLUS : struct, MonadPlus<MA, A> =>
             default(MPLUS).Bind<MPLUS, MA, A>(ma, 
                 x => pred(x)

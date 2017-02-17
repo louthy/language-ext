@@ -1,6 +1,7 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -25,6 +26,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="fb">Second item mapping operation</param>
         /// <param name="fc">Third item mapping operation</param>
         /// <returns>Target tuple</returns>
+        [Pure]
         public ValueTuple<T, U, V> TriMap(ValueTuple<A, B, C> ma, Func<A, T> fa, Func<B, U> fb, Func<C, V> fc) =>
             VTuple(fa(ma.Item1), fb(ma.Item2), fc(ma.Item3));
 
@@ -36,6 +38,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="fb">Second item mapping operation</param>
         /// <param name="fc">Third item mapping operation</param>
         /// <returns>Target tuple</returns>
+        [Pure]
         public Tuple<T, U, V> TriMap(Tuple<A, B, C> ma, Func<A, T> fa, Func<B, U> fb, Func<C, V> fc) =>
             Tuple(fa(ma.Item1), fb(ma.Item2), fc(ma.Item3));
 

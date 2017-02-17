@@ -1,6 +1,7 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -10,6 +11,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly FOptionUnsafe<A, B> Inst = default(FOptionUnsafe<A, B>);
 
+        [Pure]
         public OptionUnsafe<B> BiMap(OptionUnsafe<A> ma, Func<Unit, B> fa, Func<A, B> fb) =>
             ma.IsNone
                 ? fa == null
@@ -19,6 +21,7 @@ namespace LanguageExt.ClassInstances
                     ? OptionUnsafe<B>.None
                     : fb(ma.Value);
 
+        [Pure]
         public OptionUnsafe<B> Map(OptionUnsafe<A> ma, Func<A, B> f) =>
             ma.IsSome
                 ? OptionUnsafe<B>.Some(f(ma.Value))

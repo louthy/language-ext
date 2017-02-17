@@ -1,4 +1,6 @@
 ﻿
+using System.Diagnostics.Contracts;
+
 namespace LanguageExt.TypeClasses
 {
     /// <summary>
@@ -13,6 +15,7 @@ namespace LanguageExt.TypeClasses
     {
         public static readonly Exists<A, Term1, Term2> Is = default(Exists<A, Term1, Term2>);
 
+        [Pure]
         public bool True(A value) =>
             default(Term1).True(value) ||
             default(Term2).True(value);
@@ -31,6 +34,7 @@ namespace LanguageExt.TypeClasses
     {
         public static readonly Exists<A, Term1, Term2, Term3> Is = default(Exists<A, Term1, Term2, Term3>);
 
+        [Pure]
         public bool True(A value) =>
             default(Term1).True(value) ||
             default(Term2).True(value) ||
@@ -51,6 +55,7 @@ namespace LanguageExt.TypeClasses
     {
         public static readonly Exists<A, Term1, Term2, Term3, Term4> Is = default(Exists<A, Term1, Term2, Term3, Term4>);
 
+        [Pure]
         public bool True(A value) =>
             default(Term1).True(value) ||
             default(Term2).True(value) ||
@@ -76,6 +81,7 @@ namespace LanguageExt.TypeClasses
     {
         public static readonly Exists<A, Term1, Term2, Term3, Term4, Term5> Is = default(Exists<A, Term1, Term2, Term3, Term4, Term5>);
 
+        [Pure]
         public bool True(A value) =>
             default(Term1).True(value) ||
             default(Term2).True(value) ||

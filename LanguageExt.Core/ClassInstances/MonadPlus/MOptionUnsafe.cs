@@ -16,6 +16,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly MOptionUnsafe<A> Inst = default(MOptionUnsafe<A>);
 
+        [Pure]
         public MB Bind<MONADB, MB, B>(OptionUnsafe<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
         {
             if (f == null) throw new ArgumentNullException(nameof(f));
@@ -148,6 +149,7 @@ namespace LanguageExt.ClassInstances
                 ? 1
                 : 0;
 
+        [Pure]
         public OptionUnsafe<A> Lift(A x) =>
             Return(x);
     }

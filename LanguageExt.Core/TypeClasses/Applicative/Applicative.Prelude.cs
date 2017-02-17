@@ -14,6 +14,7 @@ namespace LanguageExt
         /// <typeparam name="A">Type of the applicative value</typeparam>
         /// <param name="a">Applicative value</param>
         /// <returns>Applicative of A</returns>
+        [Pure]
         public static MA Pure<MONAD, MA, A>(A x, params A[] xs) where MONAD : struct, Monad<MA, A> =>
             default(MONAD).Return(x);
 

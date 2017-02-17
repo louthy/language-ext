@@ -3,6 +3,7 @@ using System.Linq;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -11,6 +12,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly FArray<A, B> Inst = default(FArray<A, B>);
 
+        [Pure]
         public B[] Map(A[] ma, Func<A, B> f) =>
             default(FSeq<A, B>).Map(ma, f).ToArray();
     }

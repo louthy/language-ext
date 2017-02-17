@@ -1,5 +1,6 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -13,6 +14,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Left hand side of the equality operation</param>
         /// <param name="y">Right hand side of the equality operation</param>
         /// <returns>True if parameters are equal</returns>
+        [Pure]
         public bool Equals(double x, double y) => x == y;
 
         /// <summary>
@@ -27,6 +29,7 @@ namespace LanguageExt.ClassInstances
         /// 
         /// if x equals y       : 0
         /// </returns>
+        [Pure]
         public int Compare(double x, double y) =>
             x.CompareTo(y);
 
@@ -36,6 +39,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">left hand side of the addition operation</param>
         /// <param name="y">right hand side of the addition operation</param>
         /// <returns>The sum of x and y</returns>
+        [Pure]
         public double Plus(double x, double y) => 
             x + y;
 
@@ -45,6 +49,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">left hand side of the subtraction operation</param>
         /// <param name="y">right hand side of the subtraction operation</param>
         /// <returns>The difference between x and y</returns>
+        [Pure]
         public double Subtract(double x, double y) => 
             x - y;
 
@@ -54,6 +59,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">left hand side of the product operation</param>
         /// <param name="y">right hand side of the product operation</param>
         /// <returns>The product of x and y</returns>
+        [Pure]
         public double Product(double x, double y) => 
             x * y;
 
@@ -63,6 +69,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">left hand side of the division operation</param>
         /// <param name="y">right hand side of the division operation</param>
         /// <returns>x / y</returns>
+        [Pure]
         public double Divide(double x, double y) =>
             x / y;
 
@@ -71,6 +78,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The value to find the absolute value of</param>
         /// <returns>The non-negative absolute value of x</returns>
+        [Pure]
         public double Abs(double x) => Math.Abs(x);
 
         /// <summary>
@@ -78,6 +86,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The value to find the sign of</param>
         /// <returns>-1, 0, or +1</returns>
+        [Pure]
         public double Signum(double x) => Math.Sign(x);
 
         /// <summary>
@@ -85,6 +94,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The integer to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
+        [Pure]
         public double FromInteger(int x) => (double)x;
 
         /// <summary>
@@ -92,6 +102,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The decimal to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
+        [Pure]
         public double FromDecimal(decimal x) => (double)x;
 
         /// <summary>
@@ -99,6 +110,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The float to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
+        [Pure]
         public double FromFloat(float x) => (double)x;
 
         /// <summary>
@@ -106,6 +118,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The double to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
+        [Pure]
         public double FromDouble(double x) => (double)x;
 
         /// <summary>
@@ -113,12 +126,14 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The ratio to convert</param>
         /// <returns>The equivalent of x in the implementing type.</returns>
+        [Pure]
         public double FromRational(Ratio<int> x) => x.Numerator / x.Denominator;
 
         /// <summary>
         /// Returns an approximation of pi.
         /// </summary>
         /// <returns>A reasonable approximation of pi in this type</returns>
+        [Pure]
         public double Pi() => Math.PI;
 
         /// <summary>
@@ -126,6 +141,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The value for which we are calculating the exponential</param>
         /// <returns>The value of <c>e^x</c></returns>
+        [Pure]
         public double Exp(double x) => Math.Exp(x);
 
         /// <summary>
@@ -133,6 +149,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The value for which we are calculating the square root.</param>
         /// <returns>The value of <c>sqrt(x)</c>.</returns>
+        [Pure]
         public double Sqrt(double x) => Math.Sqrt(x);
 
         /// <summary>
@@ -142,6 +159,7 @@ namespace LanguageExt.ClassInstances
         /// The value for which we are calculating the natural logarithm.
         /// </param>
         /// <returns>The value of <c>ln(x)</c>.</returns>
+        [Pure]
         public double Log(double x) => Math.Log(x);
 
         /// <summary>Raises x to the power y
@@ -149,6 +167,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The base to be raised to y</param>
         /// <param name="y">The exponent to which we are raising x</param>
         /// <returns>The value of <c>x^y</c>.</returns>
+        [Pure]
         public double Pow(double x, double y) => Math.Pow(x, y);
 
         /// <summary>
@@ -157,6 +176,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The base to use for the logarithm of t</param>
         /// <param name="y">The value for which we are calculating the logarithm.</param>
         /// <returns>The value of <c>log x (y)</c>.</returns>
+        [Pure]
         public double LogBase(double b, double x) => Math.Log(x, b);
 
         /// <summary>
@@ -164,6 +184,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">An angle, in radians</param>
         /// <returns>The value of <c>sin(x)</c></returns>
+        [Pure]
         public double Sin(double x) => Math.Sin(x);
 
         /// <summary>
@@ -171,6 +192,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">An angle, in radians</param>
         /// <returns>The value of <c>cos(x)</c></returns>
+        [Pure]
         public double Cos(double x) => Math.Cos(x);
 
         /// <summary>
@@ -178,6 +200,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">An angle, in radians</param>
         /// <returns>The value of <c>tan(x)</c></returns>
+        [Pure]
         public double Tan(double x) => Math.Tan(x);
 
         /// <summary>
@@ -185,6 +208,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The value for which an arcsine is to be calculated.</param>
         /// <returns>The value of <c>asin(x)</c>, in radians.</returns>
+        [Pure]
         public double Asin(double x) => Math.Asin(x);
 
         /// <summary>
@@ -192,6 +216,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The value for which an arc-cosine is to be calculated</param>
         /// <returns>The value of <c>acos(x)</c>, in radians</returns>
+        [Pure]
         public double Acos(double x) => Math.Acos(x);
 
         /// <summary>
@@ -199,6 +224,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The value for which an arc-tangent is to be calculated</param>
         /// <returns>The value of <c>atan(x)</c>, in radians</returns>
+        [Pure]
         public double Atan(double x) => Math.Atan(x);
 
         /// <summary>
@@ -206,6 +232,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The value for which a hyperbolic sine is to be calculated</param>
         /// <returns>The value of <c>sinh(x)</c></returns>
+        [Pure]
         public double Sinh(double x) => Math.Sinh(x);
 
         /// <summary>
@@ -213,6 +240,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">The value for which a hyperbolic cosine is to be calculated</param>
         /// <returns>The value of <c>cosh(x)</c></returns>
+        [Pure]
         public double Cosh(double x) => Math.Cosh(x);
 
         /// <summary>
@@ -222,12 +250,14 @@ namespace LanguageExt.ClassInstances
         /// The value for which a hyperbolic tangent is to be calculated.
         /// </param>
         /// <returns>The value of <c>tanh(x)</c></returns>
+        [Pure]
         public double Tanh(double x) => Math.Tanh(x);
 
         /// <summary>Calculates an area hyperbolic sine</summary>
         /// <param name="x">The value for which an area hyperbolic sine is to be calculated.
         /// </param>
         /// <returns>The value of <c>asinh(x)</c>.</returns>
+        [Pure]
         public double Asinh(double x) => Math.Log(x + Math.Sqrt((x * x) + 1.0));
 
         /// <summary>
@@ -236,6 +266,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The value for which an area hyperbolic cosine is to be calculated.
         /// </param>
         /// <returns>The value of <c>acosh(x)</c>.</returns>
+        [Pure]
         public double Acosh(double x) => Math.Log(x + Math.Sqrt((x * x) - 1.0));
 
         /// <summary>
@@ -244,6 +275,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The value for which an area hyperbolic tangent is to be calculated.
         /// </param>
         /// <returns>The value of <c>atanh(x)</c></returns>
+        [Pure]
         public double Atanh(double x) => 0.5 * Math.Log((1.0 + x) / (1.0 - x));
 
         /// <summary>
@@ -251,6 +283,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">Value to negate</param>
         /// <returns>The negated source value</returns>
+        [Pure]
         public double Negate(double x) => -x;
 
         /// <summary>
@@ -259,17 +292,20 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">left hand side of the append operation</param>
         /// <param name="y">right hand side of the append operation</param>
         /// <returns>x + y</returns>
+        [Pure]
         public double Append(double x, double y) => x + y;
 
         /// <summary>
         /// Zero
         /// </summary>
+        [Pure]
         public double Empty() => 0.0;
 
         /// <summary>
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
+        [Pure]
         public int GetHashCode(double x) =>
             x.GetHashCode();
     }

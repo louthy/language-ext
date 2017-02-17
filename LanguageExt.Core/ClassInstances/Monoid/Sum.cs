@@ -1,4 +1,5 @@
 ﻿using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.ClassInstances
@@ -11,9 +12,11 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly Sum<NUM, A> Inst = default(Sum<NUM, A>);
 
+        [Pure]
         public A Append(A x, A y) =>
             plus<NUM, A>(x, y);
 
+        [Pure]
         public A Empty() =>
             fromInteger<NUM, A>(0);
     }

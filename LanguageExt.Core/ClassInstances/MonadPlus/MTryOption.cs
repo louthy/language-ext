@@ -17,6 +17,7 @@ namespace LanguageExt.ClassInstances
 
         static TryOption<A> none = () => Option<A>.None;
 
+        [Pure]
         public MB Bind<MONADB, MB, B>(TryOption<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
         {
             var mr = ma.Try();

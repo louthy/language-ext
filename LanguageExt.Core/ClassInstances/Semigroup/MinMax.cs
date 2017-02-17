@@ -1,4 +1,5 @@
 ﻿using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.ClassInstances
@@ -12,6 +13,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly Min<ORD, A> Inst = default(Min<ORD, A>);
 
+        [Pure]
         public A Append(A x, A y) =>
             lessOrEq<ORD, A>(x, y) ? x : y;
     }
@@ -24,6 +26,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly Max<ORD, A> Inst = default(Max<ORD, A>);
 
+        [Pure]
         public A Append(A x, A y) =>
             lessOrEq<ORD, A>(x, y) ? y : x;
     }

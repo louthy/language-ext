@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.TypeClasses
 {
@@ -24,6 +25,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="fa">Projection function</param>
         /// <param name="fb">Projection function</param>
         /// <returns>Mapped functor</returns>
+        [Pure]
         FR TriMap(FABC ma, Func<A, R> fa, Func<B, R> fb, Func<B, R> fc);
     }
 
@@ -50,6 +52,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="fb">Projection function</param>
         /// <param name="fc">Projection function</param>
         /// <returns>Mapped functor</returns>
+        [Pure]
         FTUV TriMap(FABC ma, Func<A, T> fa, Func<B, U> fb, Func<C, V> fc);
     }
 

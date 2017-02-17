@@ -1,4 +1,6 @@
 ﻿
+using System.Diagnostics.Contracts;
+
 namespace LanguageExt.TypeClasses
 {
     [Typeclass]
@@ -16,6 +18,7 @@ namespace LanguageExt.TypeClasses
         /// 
         /// if x equals y       : 0
         /// </returns>
+        [Pure]
         int Compare(A x, A y);
     }
 }

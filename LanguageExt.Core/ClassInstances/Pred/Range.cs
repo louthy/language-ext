@@ -1,4 +1,5 @@
 ﻿using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances.Pred
 {
@@ -9,6 +10,7 @@ namespace LanguageExt.ClassInstances.Pred
     {
         public static readonly Range<A, ORD, MIN, MAX> Is = default(Range<A, ORD, MIN, MAX>);
 
+        [Pure]
         public bool True(A value) =>
             GreaterOrEq<A, ORD, MIN>.Is.True(value) && LessOrEq<A, ORD, MAX>.Is.True(value);
     }

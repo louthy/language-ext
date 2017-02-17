@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading.Tasks;
 using static LanguageExt.Prelude;
@@ -26,6 +27,7 @@ namespace LanguageExt
         /// <typeparam name="A">Input type to the conditional computation</typeparam>
         /// <param name="pred">Predicate to apply to the input value</param>
         /// <returns>Conditional computation</returns>
+        [Pure]
         public static Cond<A, A> Cond<A>(Func<A, bool> pred) =>
             input =>
                 pred(input)
@@ -40,6 +42,7 @@ namespace LanguageExt
         /// <typeparam name="A">Input type to the conditional computation</typeparam>
         /// <param name="pred">Predicate to apply to the input value</param>
         /// <returns>Conditional computation</returns>
+        [Pure]
         public static Cond<A, A> Subj<A>() =>
             input =>
                 Optional(input);
@@ -62,6 +65,7 @@ namespace LanguageExt
         /// <param name="a">Value to apply to the function</param>
         /// <param name="f">Function to apply the value to</param>
         /// <returns>The result of applying the value to the function</returns>
+        [Pure]
         public static B Apply<A, B>(this A a, Func<A, B> f) =>
             f(a);
 
@@ -75,6 +79,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to compose with</param>
         /// <param name="f">The 'then' computation</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static Cond<A, B> Then<A, B>(this Cond<A, A> self, Func<A, B> f) =>
             self.Select(f);
 
@@ -88,6 +93,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to compose with</param>
         /// <param name="f">The 'then' computation</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static Cond<A, B> Then<A, B>(this Cond<A, A> self, Func<B> f) =>
             self.Select(_ => f());
 
@@ -101,6 +107,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to compose with</param>
         /// <param name="value">The 'then' value</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static Cond<A, B> Then<A, B>(this Cond<A, A> self, B value) =>
             self.Select(_ => value);
 
@@ -114,6 +121,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to test</param>
         /// <param name="predicates">The predicates to test the bound value with</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static Cond<A, B> Any<A, B>(this Cond<A, B> self, params Func<B, bool>[] predicates) =>
             env =>
                 self(env).Bind(
@@ -139,6 +147,7 @@ namespace LanguageExt
         /// <param name="self">The Cond computation to test</param>
         /// <param name="predicates">The predicates to test the bound value with</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static Cond<A, B> All<A, B>(this Cond<A, B> self, params Func<B, bool>[] predicates) =>
             env =>
                 self(env).Bind(
@@ -165,6 +174,7 @@ namespace LanguageExt
         /// <param name="f">The Else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<A, B> Else<A, B>(this Cond<A, B> self, Func<A, B> f) =>
             input =>
                 self(input).IfNone(() => f(input));
@@ -180,6 +190,7 @@ namespace LanguageExt
         /// <param name="f">The else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<A, B> Else<A, B>(this Cond<A, B> self, Func<B> f) =>
             input =>
                 self(input).IfNone(f);
@@ -195,6 +206,7 @@ namespace LanguageExt
         /// <param name="value">The else value to use if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<A, B> Else<A, B>(this Cond<A, B> self, B value) =>
             input =>
                 self(input).IfNone(value);
@@ -210,6 +222,7 @@ namespace LanguageExt
         /// <param name="f">The Else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<Task<A>, Task<B>> ElseAsync<A, B>(this Cond<A, B> self, Func<A, B> f) =>
             input =>
                 from a in input
@@ -226,6 +239,7 @@ namespace LanguageExt
         /// <param name="f">The else function to run if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<Task<A>, Task<B>> ElseAsync<A, B>(this Cond<A, B> self, Func<B> f) =>
             input =>
                 from a in input
@@ -242,6 +256,7 @@ namespace LanguageExt
         /// <param name="value">The else value to use if the Cond computation ends up
         /// in a None/False state.</param>
         /// <returns>The result of the conditional computation</returns>
+        [Pure]
         public static Func<Task<A>, Task<B>> ElseAsync<A, B>(this Cond<A, B> self, B value) =>
             input =>
                 from a in input
@@ -256,6 +271,7 @@ namespace LanguageExt
         /// <param name="self">The conditional computation to map</param>
         /// <param name="map">Functor mapping function</param>
         /// <returns>A mapped conditional computation</returns>
+        [Pure]
         public static Cond<A, C> Map<A, B, C>(this Cond<A, B> self, Func<B, C> map) =>
             Select(self, map);
 
@@ -268,6 +284,7 @@ namespace LanguageExt
         /// <param name="self">The conditional computation to map</param>
         /// <param name="map">Functor mapping function</param>
         /// <returns>A mapped conditional computation</returns>
+        [Pure]
         public static Cond<A, C> Select<A, B, C>(this Cond<A, B> self, Func<B, C> map) =>
             input =>
                 self(input).Map(map);
@@ -277,6 +294,7 @@ namespace LanguageExt
         /// that follow the rules of Cond, namely that a None/False result cancels the
         /// operation until an Else is encountered.
         /// </summary>
+        [Pure]
         public static Cond<A, D> SelectMany<A, B, C, D>(
             this Cond<A, B> self,
             Func<B, Cond<A, C>> bind,
@@ -295,6 +313,7 @@ namespace LanguageExt
         /// <param name="self">The conditional computation to test</param>
         /// <param name="pred">The predicate function</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static Cond<A, B> Filter<A, B>(this Cond<A, B> self, Func<B, bool> pred) =>
             Where(self, pred);
 
@@ -307,6 +326,7 @@ namespace LanguageExt
         /// <param name="self">The conditional computation to test</param>
         /// <param name="pred">The predicate function</param>
         /// <returns>A conditional computation</returns>
+        [Pure]
         public static Cond<A, B> Where<A, B>(this Cond<A, B> self, Func<B, bool> pred) =>
             input =>
                 self(input).Where(pred);

@@ -1,4 +1,5 @@
 ﻿using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.TypeClasses
@@ -16,8 +17,9 @@ namespace LanguageExt.TypeClasses
         /// <summary>
         /// Identity
         /// <summary>
+        [Pure]
         A Empty();
 
-        // Concat is defined in Prelude_Monoid
+        // Concat is defined in Monoid.Prelude
     }
 }

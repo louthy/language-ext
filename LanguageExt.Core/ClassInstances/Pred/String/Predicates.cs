@@ -1,4 +1,5 @@
 ﻿using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances.Pred
 {
@@ -8,6 +9,7 @@ namespace LanguageExt.ClassInstances.Pred
     {
         public static readonly StrLen<NMin, NMax> Is = default(StrLen<NMin, NMax>);
 
+        [Pure]
         public bool True(string value) =>
             Range<int, TInt, NMin, NMax>.Is.True(value?.Length ?? 0);
     }

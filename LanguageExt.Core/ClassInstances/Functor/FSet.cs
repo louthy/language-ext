@@ -2,6 +2,7 @@
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -10,6 +11,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly FSet<A, B> Inst = default(FSet<A, B>);
 
+        [Pure]
         public Set<B> Map(Set<A> ma, Func<A, B> f) =>
             ma.Map(f);
     }

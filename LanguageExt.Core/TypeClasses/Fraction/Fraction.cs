@@ -1,4 +1,6 @@
-﻿namespace LanguageExt.TypeClasses
+﻿using System.Diagnostics.Contracts;
+
+namespace LanguageExt.TypeClasses
 {
     /// <summary>
     /// Fractional number type-class
@@ -13,6 +15,7 @@
         /// </summary>
         /// <param name="x">The ratio to convert</param>
         /// <returns>The equivalent of x in the implementing type.</returns>
+        [Pure]
         A FromRational(Ratio<int> x);
     }
 }

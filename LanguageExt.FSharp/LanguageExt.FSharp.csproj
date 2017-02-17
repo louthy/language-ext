@@ -7,14 +7,14 @@
   </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
-    <PackageVersion>2.0.5-alpha</PackageVersion>
+    <PackageVersion>2.0.7-alpha</PackageVersion>
     <PackageId>LanguageExt.FSharp</PackageId>
     <Title>LanguageExt.FSharp</Title>
     <Authors>Paul Louth</Authors>
     <Summary>Functional language extensions for C#</Summary>
     <Copyright>Copyright (c) Paul Louth. All rights reserved.</Copyright>
     <Description>Helper library for LanguageExt.Core that facilitates conversion between F# native types like Option, Map, List, etc to .NET and Language Ext types.</Description>
-    <PackageTags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple, Actor, Process, Akka, Redis</PackageTags>
+    <PackageTags>C#, Functional, Language Extension, Monad, Option, Either, Reader, Writer, State, List, Set, Map, Queue, Memo, Memoization, Immutable, Lambda, Pattern Matching, Tuple</PackageTags>
     <PackageIconUrl>https://camo.githubusercontent.com/08525ae465a9061150679d871731e77b399c2a94/687474703a2f2f7777772e34666f75722e6f72672f696d616765732f6c616e672d6578742d6c6f676f2e706e67</PackageIconUrl>
     <PackageProjectUrl>https://github.com/louthy/language-ext</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/louthy/language-ext/blob/master/LICENSE.md</PackageLicenseUrl>

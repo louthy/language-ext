@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         /// <param name="x">The value to find the absolute value of</param>
         /// <returns>The non-negative absolute value of x</returns>
+        [Pure]
         A Abs(A x);
 
         /// <summary>
@@ -26,6 +28,7 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         /// <param name="x">The value to find the sign of</param>
         /// <returns>-1, 0, or +1</returns>
+        [Pure]
         A Signum(A x);
 
         /// <summary>
@@ -33,6 +36,7 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         /// <param name="x">The integer to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
+        [Pure]
         A FromInteger(int x);
 
         /// <summary>
@@ -40,6 +44,7 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         /// <param name="x">The decimal to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
+        [Pure]
         A FromDecimal(decimal x);
 
         /// <summary>
@@ -47,6 +52,7 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         /// <param name="x">The float to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
+        [Pure]
         A FromFloat(float x);
 
         /// <summary>
@@ -54,6 +60,7 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         /// <param name="x">The double to use</param>
         /// <returns>The equivalent of x in the Num<A></returns>
+        [Pure]
         A FromDouble(double x);
 
         /// <summary>
@@ -62,6 +69,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="x">left hand side of the addition operation</param>
         /// <param name="y">right hand side of the addition operation</param>
         /// <returns>The sum of x and y</returns>
+        [Pure]
         A Plus(A x, A y);
 
         /// <summary>
@@ -70,6 +78,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="x">left hand side of the subtraction operation</param>
         /// <param name="y">right hand side of the subtraction operation</param>
         /// <returns>The difference between x and y</returns>
+        [Pure]
         A Subtract(A x, A y);
 
         /// <summary>
@@ -78,6 +87,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="x">left hand side of the product operation</param>
         /// <param name="y">right hand side of the product operation</param>
         /// <returns>The product of x and y</returns>
+        [Pure]
         A Product(A x, A y);
 
         /// <summary>
@@ -86,6 +96,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="x">left hand side of the division operation</param>
         /// <param name="y">right hand side of the division operation</param>
         /// <returns>x / y</returns>
+        [Pure]
         A Divide(A x, A y);
 
         /// <summary>
@@ -93,6 +104,7 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         /// <param name="x">Value to negate</param>
         /// <returns>The negated source value</returns>
+        [Pure]
         A Negate(A x);
     }
 }

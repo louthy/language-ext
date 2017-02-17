@@ -1,6 +1,7 @@
 ﻿using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -14,6 +15,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly EqSeq<EQ, A> Inst = default(EqSeq<EQ, A>);
 
+        [Pure]
         public bool Equals(IEnumerable<A> x, IEnumerable<A> y)
         {
             if (ReferenceEquals(x, y)) return true;
@@ -35,6 +37,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
+        [Pure]
         public int GetHashCode(IEnumerable<A> x) =>
             hash(x);
     }

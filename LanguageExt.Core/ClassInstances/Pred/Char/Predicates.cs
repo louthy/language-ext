@@ -1,5 +1,6 @@
 ﻿using LanguageExt.ClassInstances.Const;
 using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances.Pred
 {
@@ -9,6 +10,7 @@ namespace LanguageExt.ClassInstances.Pred
     {
         public static readonly CharSatisfy<MIN, MAX> Is = default(CharSatisfy<MIN, MAX>);
 
+        [Pure]
         public bool True(char value) =>
             Range<char, TChar, MIN, MAX>.Is.True(value);
     }
@@ -18,6 +20,7 @@ namespace LanguageExt.ClassInstances.Pred
     {
         public static readonly Char<CH> Is = default(Char<CH>);
 
+        [Pure]
         public bool True(char value) =>
             default(CH).Value == value;
     }
@@ -26,6 +29,7 @@ namespace LanguageExt.ClassInstances.Pred
     {
         public static readonly Letter Is = default(Letter);
 
+        [Pure]
         public bool True(char value) =>
             Exists<char,
                 CharSatisfy<ChA, ChZ>,
@@ -36,6 +40,7 @@ namespace LanguageExt.ClassInstances.Pred
     {
         public static readonly Digit Is = default(Digit);
 
+        [Pure]
         public bool True(char value) =>
             CharSatisfy<Ch0, Ch9>.Is.True(value);
     }
@@ -44,6 +49,7 @@ namespace LanguageExt.ClassInstances.Pred
     {
         public static readonly Space Is = default(Space);
 
+        [Pure]
         public bool True(char value) =>
             Exists<char, Char<ChSpace>, Char<ChTab>, Char<ChCR>, Char<ChLF>>.Is.True(value);
     }
@@ -52,6 +58,7 @@ namespace LanguageExt.ClassInstances.Pred
     {
         public static readonly AlphaNum Is = default(AlphaNum);
 
+        [Pure]
         public bool True(char value) =>
             Exists<char, Letter, Digit>.Is.True(value);
     }

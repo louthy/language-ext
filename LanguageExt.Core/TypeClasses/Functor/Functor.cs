@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.TypeClasses
 {
@@ -18,6 +19,7 @@ namespace LanguageExt.TypeClasses
         /// <param name="ma">Functor value to map from </param>
         /// <param name="f">Projection function</param>
         /// <returns>Mapped functor</returns>
+        [Pure]
         FB Map(FA ma, Func<A, B> f);
     }
 }

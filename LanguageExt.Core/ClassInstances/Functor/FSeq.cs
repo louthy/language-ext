@@ -2,6 +2,7 @@
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -10,6 +11,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly FSeq<A, B> Inst = default(FSeq<A, B>);
 
+        [Pure]
         public IEnumerable<B> Map(IEnumerable<A> ma, Func<A, B> f)
         {
             foreach (var a in ma)

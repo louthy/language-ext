@@ -1,6 +1,7 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -22,6 +23,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="ma">Source tuple</param>
         /// <param name="f">Mapping function</param>
         /// <returns>Target tuple</returns>
+        [Pure]
         public ValueTuple<A, R> Map(ValueTuple<A, B> ma, Func<B, R> f) =>
             VTuple(ma.Item1, f(ma.Item2));
 
@@ -31,6 +33,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="ma">Source tuple</param>
         /// <param name="f">Mapping function</param>
         /// <returns>Target tuple</returns>
+        [Pure]
         public Tuple<A, R> Map(Tuple<A, B> ma, Func<B, R> f) =>
             Tuple(ma.Item1, f(ma.Item2));
     }
@@ -54,6 +57,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="ma">Source tuple</param>
         /// <param name="f">Mapping function</param>
         /// <returns>Target tuple</returns>
+        [Pure]
         public ValueTuple<A, R, C> Map(ValueTuple<A, B, C> ma, Func<B, R> f) =>
             VTuple(ma.Item1, f(ma.Item2), ma.Item3);
 
@@ -63,6 +67,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="ma">Source tuple</param>
         /// <param name="f">Mapping function</param>
         /// <returns>Target tuple</returns>
+        [Pure]
         public Tuple<A, R, C> Map(Tuple<A, B, C> ma, Func<B, R> f) =>
             Tuple(ma.Item1, f(ma.Item2), ma.Item3);
     }

@@ -1,6 +1,7 @@
 ﻿using LanguageExt.TypeClasses;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,9 +14,11 @@ namespace LanguageExt.ClassInstances
 
         static readonly A[] emp = new A[0];
 
+        [Pure]
         public A[] Append(A[] x, A[] y) =>
             x.Concat(y).ToArray();
 
+        [Pure]
         public A[] Empty() => emp;
     }
 }

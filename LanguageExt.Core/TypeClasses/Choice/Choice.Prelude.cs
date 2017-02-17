@@ -115,12 +115,14 @@ namespace LanguageExt
                     Choice2:      Option<B>.Some,
                     Bottom: () => Option<B>.None);
 
+        [Pure]
         public static Task<R> matchAsync<CHOICE, CH, A, B, R>(CH ma, Func<A, R> Choice1, Func<B, Task<R>> Choice2)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma,
                 Choice1: a => Task.FromResult(Choice1(a)),
                 Choice2: b => Choice2(b));
 
+        [Pure]
         public static Task<R> matchAsync<CHOICE, CH, A, B, R>(CH ma, Func<A, Task<R>> Choice1, Func<B, Task<R>> Choice2)
             where CHOICE : struct, Choice<CH, A, B> =>
             default(CHOICE).Match(ma, 

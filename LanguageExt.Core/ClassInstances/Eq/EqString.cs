@@ -1,5 +1,6 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -16,6 +17,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="a">The left hand side of the equality operation</param>
         /// <param name="b">The right hand side of the equality operation</param>
         /// <returns>True if a and b are equal</returns>
+        [Pure]
         public bool Equals(string a, string b) =>
             a == b;
 
@@ -24,6 +26,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
+        [Pure]
         public int GetHashCode(string x) =>
             x == null ? 0 : x.GetHashCode();
     }
@@ -41,6 +44,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="a">The left hand side of the equality operation</param>
         /// <param name="b">The right hand side of the equality operation</param>
         /// <returns>True if a and b are equal</returns>
+        [Pure]
         public bool Equals(string a, string b) =>
             StringComparer.OrdinalIgnoreCase.Equals(a, b);
 
@@ -49,6 +53,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
+        [Pure]
         public int GetHashCode(string x) =>
             StringComparer.OrdinalIgnoreCase.GetHashCode(x);
     }
@@ -66,6 +71,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="a">The left hand side of the equality operation</param>
         /// <param name="b">The right hand side of the equality operation</param>
         /// <returns>True if a and b are equal</returns>
+        [Pure]
         public bool Equals(string a, string b) =>
             StringComparer.Ordinal.Equals(a, b);
 
@@ -74,6 +80,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
+        [Pure]
         public int GetHashCode(string x) =>
             StringComparer.Ordinal.GetHashCode(x);
     }
@@ -91,6 +98,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="a">The left hand side of the equality operation</param>
         /// <param name="b">The right hand side of the equality operation</param>
         /// <returns>True if a and b are equal</returns>
+        [Pure]
         public bool Equals(string a, string b) =>
             StringComparer.CurrentCultureIgnoreCase.Equals(a, b);
 
@@ -99,6 +107,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
+        [Pure]
         public int GetHashCode(string x) =>
             StringComparer.CurrentCultureIgnoreCase.GetHashCode(x);
     }
@@ -116,6 +125,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="a">The left hand side of the equality operation</param>
         /// <param name="b">The right hand side of the equality operation</param>
         /// <returns>True if a and b are equal</returns>
+        [Pure]
         public bool Equals(string a, string b) =>
             StringComparer.CurrentCulture.Equals(a, b);
 
@@ -124,6 +134,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
+        [Pure]
         public int GetHashCode(string x) =>
             StringComparer.CurrentCulture.GetHashCode(x);
     }

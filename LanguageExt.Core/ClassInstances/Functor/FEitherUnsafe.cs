@@ -1,6 +1,7 @@
 ﻿using LanguageExt.TypeClasses;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,12 +14,14 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly FEitherUnsafe<L, R, Res> Inst = default(FEitherUnsafe<L, R, Res>);
 
+        [Pure]
         public EitherUnsafe<L, Res> BiMap(EitherUnsafe<L, R> ma, Func<L, Res> fa, Func<R, Res> fb) =>
             default(MEitherUnsafe<L, R>).Match(ma,
                 Choice1: a => EitherUnsafe<L, Res>.Right(fa(a)),
                 Choice2: b => EitherUnsafe<L, Res>.Right(fb(b)),
                 Bottom: () => EitherUnsafe<L, Res>.Bottom);
 
+        [Pure]
         public EitherUnsafe<L, Res> Map(EitherUnsafe<L, R> ma, Func<R, Res> f) =>
             default(MEitherUnsafe<L, R>).Match(ma,
                 Choice1: EitherUnsafe<L, Res>.Left,
@@ -31,6 +34,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly FEitherUnsafe<L, R, L2, R2> Inst = default(FEitherUnsafe<L, R, L2, R2>);
 
+        [Pure]
         public EitherUnsafe<L2, R2> BiMap(EitherUnsafe<L, R> ma, Func<L, L2> fa, Func<R, R2> fb) =>
             default(MEitherUnsafe<L, R>).Match(ma,
                 Choice1: a => EitherUnsafe<L2, R2>.Left(fa(a)),

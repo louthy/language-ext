@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics.Contracts;
 
 namespace LanguageExt.TypeClasses
 {
@@ -18,6 +14,7 @@ namespace LanguageExt.TypeClasses
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
+        [Pure]
         bool True(A value);
     }
 }

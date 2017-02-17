@@ -1,5 +1,6 @@
 ﻿using LanguageExt.TypeClasses;
 using System;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -15,24 +16,30 @@ namespace LanguageExt.ClassInstances
 
         public RWS<MonoidW, R, W, S, A> Bottom => bottom;
 
+        [Pure]
         public (A, (R, W, S), bool) Eval(RWS<MonoidW, R, W, S, A> ma, (R, W, S) state) =>
             ma.eval(state);
 
+        [Pure]
         public RWS<MonoidW, R, W, S, A> Lift((A, (R, W, S), bool) value) =>
             new RWS<MonoidW, R, W, S, A>(_ => value);
 
+        [Pure]
         public RWS<MonoidW, R, W, S, A> Lift(Func<(R, W, S), (A, (R, W, S), bool)> f) =>
             new RWS<MonoidW, R, W, S, A>(f);
 
+        [Pure]
         public (A, R, bool) Eval(RWS<MonoidW, R, W, S, A> ma, R state)
         {
             var (a, (r, w, s), b) = ma.eval((state, default(MonoidW).Empty(), default(S)));
             return (a, state, b);
         }
 
+        [Pure]
         public RWS<MonoidW, R, W, S, A> Lift((A, R, bool) value) =>
             new RWS<MonoidW, R, W, S, A>(rws => (value.Item1, (value.Item2, rws.Item2, rws.Item3), false));
 
+        [Pure]
         public RWS<MonoidW, R, W, S, A> Lift(Func<R, (A, R, bool)> f) =>
             new RWS<MonoidW, R, W, S, A>(rws =>
             {
@@ -40,15 +47,18 @@ namespace LanguageExt.ClassInstances
                 return (a, (r, rws.Item2, rws.Item3), b);
             });
 
+        [Pure]
         public (A, W, bool) Eval(RWS<MonoidW, R, W, S, A> ma, W output)
         {
             var (a, (r, w, s), b) = ma.eval((default(R), output, default(S)));
             return (a, default(MonoidW).Append(output, w), b);
         }
 
+        [Pure]
         public RWS<MonoidW, R, W, S, A> Lift((A, W, bool) value) =>
             new RWS<MonoidW, R, W, S, A>(rws => (value.Item1, (rws.Item1, value.Item2, rws.Item3), false));
 
+        [Pure]
         public RWS<MonoidW, R, W, S, A> Lift(Func<W, (A, W, bool)> f) =>
             new RWS<MonoidW, R, W, S, A>(rws =>
             {
@@ -56,15 +66,18 @@ namespace LanguageExt.ClassInstances
                 return (a, (rws.Item1, default(MonoidW).Append(rws.Item2, w), rws.Item3), b);
             });
 
+        [Pure]
         public (A, S, bool) Eval(RWS<MonoidW, R, W, S, A> ma, S state)
         {
             var (a, (r, w, s), b) = ma.eval((default(R), default(MonoidW).Empty(), state));
             return (a, s, b);
         }
 
+        [Pure]
         public RWS<MonoidW, R, W, S, A> Lift((A, S, bool) value) =>
             new RWS<MonoidW, R, W, S, A>(rws => (value.Item1, (rws.Item1, rws.Item2, value.Item2), false));
 
+        [Pure]
         public RWS<MonoidW, R, W, S, A> Lift(Func<S, (A, S, bool)> f) =>
             new RWS<MonoidW, R, W, S, A>(rws =>
             {

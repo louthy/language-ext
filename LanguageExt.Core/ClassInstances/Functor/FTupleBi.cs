@@ -1,6 +1,7 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -24,6 +25,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="fa">First item mapping operation</param>
         /// <param name="fb">Second item mapping operation</param>
         /// <returns>Target tuple</returns>
+        [Pure]
         public ValueTuple<U, V> BiMap(ValueTuple<A, B> ma, Func<A, U> fa, Func<B, V> fb) =>
             VTuple(fa(ma.Item1), fb(ma.Item2));
 
@@ -34,6 +36,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="fa">First item mapping operation</param>
         /// <param name="fb">Second item mapping operation</param>
         /// <returns>Target tuple</returns>
+        [Pure]
         public Tuple<U, V> BiMap(Tuple<A, B> ma, Func<A, U> fa, Func<B, V> fb) =>
             Tuple(fa(ma.Item1), fb(ma.Item2));
     }

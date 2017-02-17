@@ -2,6 +2,7 @@
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -10,6 +11,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly FLst<A, B> Inst = default(FLst<A, B>);
 
+        [Pure]
         public Lst<B> Map(Lst<A> ma, Func<A, B> f) =>
             ma.Map(f);
     }

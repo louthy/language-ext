@@ -1,6 +1,7 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
 using static LanguageExt.Prelude;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -12,6 +13,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly FNullable<A, B> Inst = default(FNullable<A, B>);
 
+        [Pure]
         public B? BiMap(A? ma, Func<Unit, B> fa, Func<A, B> fb) =>
             ma.HasValue
                 ? fb == null
@@ -21,6 +23,7 @@ namespace LanguageExt.ClassInstances
                     ? (B?)null
                     : fa(unit);
 
+        [Pure]
         public B? Map(A? ma, Func<A, B> f) =>
             ma.HasValue && f != null
                 ? f(ma.Value)

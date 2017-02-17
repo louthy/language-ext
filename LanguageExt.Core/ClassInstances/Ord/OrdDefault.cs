@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using static LanguageExt.Prelude;
 using System;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -19,9 +20,11 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
+        [Pure]
         public int Compare(A x, A y) =>
             Comparer<A>.Default.Compare(x, y);
 
+        [Pure]
         public bool Equals(A x, A y) =>
             default(EqDefault<A>).Equals(x, y);
 
@@ -29,6 +32,7 @@ namespace LanguageExt.ClassInstances
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
+        [Pure]
         public int GetHashCode(A x) =>
             x.IsNull() ? 0 : x.GetHashCode();
     }

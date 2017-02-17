@@ -17,9 +17,11 @@ namespace LanguageExt.ClassInstances
                 return default(MONADB).Eval(f(x), s2);
             });
 
+        [Pure]
         public SSA Fail(object err) =>
             default(SStateA).Bottom;
 
+        [Pure]
         public SSA Fail(Exception err = null) =>
             default(SStateA).Bottom;
 

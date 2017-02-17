@@ -1,4 +1,5 @@
 ﻿using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.ClassInstances
@@ -19,6 +20,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
+        [Pure]
         public bool Equals(NumType<NUMTYPE, NUM, A> x, NumType<NUMTYPE, NUM, A> y) =>
             default(EqNumType<NUMTYPE, NUM, A>).Equals(x, y);
 
@@ -32,6 +34,7 @@ namespace LanguageExt.ClassInstances
         /// if x less than y    : -1
         /// if x equals y       : 0
         /// </returns>
+        [Pure]
         public int Compare(NumType<NUMTYPE, NUM, A> mx, NumType<NUMTYPE, NUM, A> my)
         {
             if (ReferenceEquals(mx, my)) return 0;
@@ -44,6 +47,7 @@ namespace LanguageExt.ClassInstances
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
+        [Pure]
         public int GetHashCode(NumType<NUMTYPE, NUM, A> x) =>
             x.IsNull() ? 0 : x.GetHashCode();
     }
@@ -65,6 +69,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
+        [Pure]
         public bool Equals(NumType<NUMTYPE, NUM, A, PRED> x, NumType<NUMTYPE, NUM, A, PRED> y) =>
             default(EqNumType<NUMTYPE, NUM, A, PRED>).Equals(x, y);
 
@@ -78,6 +83,7 @@ namespace LanguageExt.ClassInstances
         /// if x less than y    : -1
         /// if x equals y       : 0
         /// </returns>
+        [Pure]
         public int Compare(NumType<NUMTYPE, NUM, A, PRED> mx, NumType<NUMTYPE, NUM, A, PRED> my)
         {
             if (ReferenceEquals(mx, my)) return 0;
@@ -90,6 +96,7 @@ namespace LanguageExt.ClassInstances
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
+        [Pure]
         public int GetHashCode(NumType<NUMTYPE, NUM, A, PRED> x) =>
             x.IsNull() ? 0 : x.GetHashCode();
     }

@@ -1,4 +1,5 @@
 ﻿using LanguageExt.TypeClasses;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -12,6 +13,7 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly EqLst<EQ, A> Inst = default(EqLst<EQ, A>);
 
+        [Pure]
         public bool Equals(Lst<A> x, Lst<A> y)
         {
             if (ReferenceEquals(x, null)) return ReferenceEquals(y, null);
@@ -38,6 +40,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
+        [Pure]
         public int GetHashCode(Lst<A> x) =>
             x.GetHashCode();
     }

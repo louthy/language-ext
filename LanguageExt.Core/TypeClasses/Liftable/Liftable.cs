@@ -1,5 +1,6 @@
 ﻿using LanguageExt.TypeClasses;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using static LanguageExt.TypeClass;
 
 namespace LanguageExt.TypeClasses
@@ -17,11 +18,13 @@ namespace LanguageExt.TypeClasses
         /// <summary>
         /// Lift value A into a Liftable<A>
         /// <summary>
+        [Pure]
         LA Lift(A x);
 
         /// <summary>
         /// Lift value A into a Liftable<A>
         /// <summary>
+        [Pure]
         LA FromSeq(IEnumerable<A> value);
     }
 }

@@ -2,6 +2,7 @@
 using LanguageExt;
 using LanguageExt.TypeClasses;
 using static LanguageExt.TypeClass;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
@@ -26,6 +27,7 @@ namespace LanguageExt.ClassInstances
         /// if x less than y    : -1
         /// if x equals y       : 0
         /// </returns>
+        [Pure]
         public int Compare(CH x, CH y) =>
             default(CHOICE).Match( x,
                 Choice1: a =>
@@ -41,6 +43,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
+        [Pure]
         public bool Equals(CH x, CH y) =>
             default(CHOICE).Match(x,
                 Choice1: a =>
@@ -55,6 +58,7 @@ namespace LanguageExt.ClassInstances
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
+        [Pure]
         public int GetHashCode(CH x) =>
             default(CHOICE).Match(x,
                 Choice1: a => a.IsNull() ? 0 : a.GetHashCode(),
@@ -81,6 +85,7 @@ namespace LanguageExt.ClassInstances
         /// if x less than y    : -1
         /// if x equals y       : 0
         /// </returns>
+        [Pure]
         public int Compare(CH x, CH y) =>
             default(CHOICE).Match(x,
                 Choice1: a =>
@@ -96,6 +101,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">The left hand side of the equality operation</param>
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
+        [Pure]
         public bool Equals(CH x, CH y) =>
             default(CHOICE).Match(x,
                 Choice1: a =>
@@ -109,6 +115,7 @@ namespace LanguageExt.ClassInstances
         /// Get the hash-code of the provided value
         /// </summary>
         /// <returns>Hash code of x</returns>
+        [Pure]
         public int GetHashCode(CH x) =>
             default(CHOICE).Match(x,
                 Choice1: a => a.IsNull() ? 0 : a.GetHashCode(),
