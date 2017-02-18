@@ -7,16 +7,16 @@ using System.Diagnostics.Contracts;
 
 namespace LanguageExt.ClassInstances
 {
-    public struct FArray<A, B> : 
-        Functor<A[], B[], A, B>
+    public struct FArr<A, B> : 
+        Functor<Arr<A>, Arr<B>, A, B>
     {
-        public static readonly FArray<A, B> Inst = default(FArray<A, B>);
+        public static readonly FArr<A, B> Inst = default(FArr<A, B>);
 
         [Pure]
-        public B[] Map(A[] ma, Func<A, B> f)
+        public Arr<B> Map(Arr<A> ma, Func<A, B> f)
         {
-            var bs = new B[ma.Length];
-            var iter = ma.AsEnumerable().GetEnumerator();
+            var bs = new B[ma.Count];
+            var iter = ma.GetEnumerator();
             for (int i = 0; iter.MoveNext(); i++)
             {
                 bs[i] = f(iter.Current);

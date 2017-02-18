@@ -87,7 +87,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// Add a range of items to the end of the list
+        /// Add a range of items to the end of the array
         /// </summary>
         [Pure]
         public Arr<A> AddRange(IEnumerable<A> items) =>
@@ -379,7 +379,7 @@ namespace LanguageExt
             Value.Skip(amount);
 
         /// <summary>
-        /// Reverse the order of the items in the list
+        /// Reverse the order of the items in the array
         /// </summary>
         [Pure]
         public Arr<A> Reverse() =>
@@ -443,8 +443,8 @@ namespace LanguageExt
 
         /// <summary>
         /// Get the hash code
-        /// Lazily (and once only) calculates the hash from the elements in the list
-        /// Empty list hash == 0
+        /// Lazily (and once only) calculates the hash from the elements in the array
+        /// Empty array hash == 0
         /// </summary>
         [Pure]
         public override int GetHashCode() =>

@@ -12,14 +12,14 @@ namespace LanguageExt
     public static partial class Arr
     {
         /// <summary>
-        /// Create an empty IEnumerable T
+        /// Create an empty array
         /// </summary>
         [Pure]
         public static Arr<T> empty<T>() =>
             Arr<T>.Empty;
 
         /// <summary>
-        /// Create a new empty list
+        /// Create a new empty array
         /// </summary>
         /// <returns>Lst T</returns>
         [Pure]
@@ -27,7 +27,7 @@ namespace LanguageExt
             Arr<T>.Empty;
 
         /// <summary>
-        /// Create a list from a initial set of items
+        /// Create an array from a initial set of items
         /// </summary>
         /// <param name="items">Items</param>
         /// <returns>Lst T</returns>
@@ -36,7 +36,7 @@ namespace LanguageExt
             new Arr<T>(items);
 
         /// <summary>
-        /// Create a list from an initial set of items
+        /// Create an array from an initial set of items
         /// </summary>
         /// <param name="items">Items</param>
         /// <returns>Lst T</returns>
@@ -45,53 +45,53 @@ namespace LanguageExt
             new Arr<T>(items);
 
         /// <summary>
-        /// Add an item to the list
+        /// Add an item to the array
         /// </summary>
-        /// <param name="list">List</param>
+        /// <param name="array">Array</param>
         /// <param name="value">Item to add</param>
         /// <returns>A new Lst T</returns>
         [Pure]
-        public static Arr<T> add<T>(Arr<T> list, T value) =>
-            list.Add(value);
+        public static Arr<T> add<T>(Arr<T> array, T value) =>
+            array.Add(value);
 
         /// <summary>
-        /// Add a range of items to the list
+        /// Add a range of items to the array
         /// </summary>
-        /// <param name="list">List</param>
+        /// <param name="array">Array</param>
         /// <param name="value">Items to add</param>
         /// <returns>A new Lst T</returns>
         [Pure]
-        public static Arr<T> addRange<T>(Arr<T> list, IEnumerable<T> value) =>
-            list.AddRange(value);
+        public static Arr<T> addRange<T>(Arr<T> array, IEnumerable<T> value) =>
+            array.AddRange(value);
 
         /// <summary>
-        /// Remove an item from the list
+        /// Remove an item from the array
         /// </summary>
-        /// <param name="list">List</param>
+        /// <param name="array">Array</param>
         /// <param name="value">value to remove</param>
         /// <returns>A new Lst T</returns>
         [Pure]
-        public static Arr<T> remove<T>(Arr<T> list, T value) =>
-            list.Remove(value);
+        public static Arr<T> remove<T>(Arr<T> array, T value) =>
+            array.Remove(value);
 
         /// <summary>
-        /// Remove an item at a specified index in the list
+        /// Remove an item at a specified index in the array
         /// </summary>
-        /// <param name="list">List</param>
+        /// <param name="array">Array</param>
         /// <param name="index">Index of item to remove</param>
         /// <returns>A new Lst T</returns>
         [Pure]
-        public static Arr<T> removeAt<T>(Arr<T> list, int index) =>
-            list.RemoveAt(index);
+        public static Arr<T> removeAt<T>(Arr<T> array, int index) =>
+            array.RemoveAt(index);
 
         /// <summary>
-        /// Reverses the list (Reverse in LINQ)
+        /// Reverses the array (Reverse in LINQ)
         /// </summary>
-        /// <typeparam name="T">List item type</typeparam>
-        /// <param name="list">List to reverse</param>
+        /// <typeparam name="T">Array item type</typeparam>
+        /// <param name="array">Array to reverse</param>
         /// <returns>Reversed list</returns>
         [Pure]
-        public static Arr<T> rev<T>(Arr<T> list) =>
-            list.Reverse();
+        public static Arr<T> rev<T>(Arr<T> array) =>
+            array.Reverse();
     }
 }
