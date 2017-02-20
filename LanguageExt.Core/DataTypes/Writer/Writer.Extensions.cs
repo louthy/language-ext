@@ -39,7 +39,7 @@ public static class WriterExtensions
         }
     }
 
-    internal static (A Value, W State, bool IsBottom) Eval<MonoidW, W, A>(this Writer<MonoidW, W, A> self, W output)
+    internal static (A Value, W Output, bool IsBottom) Eval<MonoidW, W, A>(this Writer<MonoidW, W, A> self, W output)
         where MonoidW : struct, Monoid<W> =>
         self == null || self.eval == null
             ? (default(A), default(MonoidW).Empty(), true) // bottom
