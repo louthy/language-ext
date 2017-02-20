@@ -37,7 +37,7 @@ namespace LanguageExt
         where PRED : struct, Pred<A>
         where NUMTYPE : NumType<NUMTYPE, NUM, A, PRED>
     {
-        readonly A Value;
+        protected readonly A Value;
 
         /// <summary>
         /// Constructor function

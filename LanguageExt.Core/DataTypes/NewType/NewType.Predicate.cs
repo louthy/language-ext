@@ -27,7 +27,7 @@ namespace LanguageExt
         where PRED    : struct, Pred<A>
         where NEWTYPE : NewType<NEWTYPE, A, PRED>
     {
-        readonly A Value;
+        protected readonly A Value;
 
         /// <summary>
         /// Constructor function

@@ -1,6 +1,7 @@
 ﻿using System;
 using LanguageExt.TypeClasses;
 using LanguageExt.ClassInstances.Pred;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -35,5 +36,12 @@ namespace LanguageExt
         public NumType(A value) : base(value)
         {
         }
+
+        /// <summary>
+        /// Explicit conversion operator for extracting the bound value
+        /// </summary>
+        [Pure]
+        public static explicit operator A(NumType<NUMTYPE, NUM, A> type) =>
+            type.Value;
     }
 }

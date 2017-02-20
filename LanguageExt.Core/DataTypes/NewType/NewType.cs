@@ -1,6 +1,7 @@
 ﻿using System;
 using LanguageExt.ClassInstances;
 using LanguageExt.ClassInstances.Pred;
+using System.Diagnostics.Contracts;
 
 namespace LanguageExt
 {
@@ -28,5 +29,12 @@ namespace LanguageExt
         /// <param name="value">Value to bind</param>
         /// <exception cref="ArgumentNullException">Null values are not accepted</exception>
         public NewType(A value) : base(value) {}
+
+        /// <summary>
+        /// Explicit conversion operator for extracting the bound value
+        /// </summary>
+        [Pure]
+        public static explicit operator A(NewType<NEWTYPE, A> type) =>
+            type.Value;
     }
 }
