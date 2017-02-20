@@ -840,7 +840,6 @@ public static class ListExtensions
         self.Bind(t => bind(t).Map(u => project(t, u)));
 
     [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Lst<C> SelectMany<A, B, C>(this Lst<A> self,
         Func<A, IEnumerable<B>> bind,
         Func<A, B, C> project
@@ -851,7 +850,6 @@ public static class ListExtensions
     }
 
     [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public static Lst<V> SelectMany<T, U, V>(this IEnumerable<T> self,
         Func<T, Lst<U>> bind,
         Func<T, U, V> project
@@ -860,5 +858,48 @@ public static class ListExtensions
         var ta = self.Take(1).ToArray();
         if (ta.Length == 0) return Lst<V>.Empty;
         return self.Bind(t => bind(t).Map(u => project(t, u))).Freeze();
+    }
+
+    /// <summary>
+    /// Take all but the last item in an enumerable
+    /// </summary>
+    /// <typeparam name="T">Bound value type</typeparam>
+    public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> self)
+    {
+        var iter = self.GetEnumerator();
+        bool remaining = false;
+        bool first = true;
+        T item = default(T);
+
+        do
+        {
+            remaining = iter.MoveNext();
+            if (remaining)
+            {
+                if (!first) yield return item;
+                item = iter.Current;
+                first = false;
+            }
+        } while (remaining);
+    }
+
+    /// <summary>
+    /// Take all but the last n items in an enumerable
+    /// </summary>
+    /// <typeparam name="T">Bound value type</typeparam>
+    public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> self, int n)
+    {
+        var iter = self.GetEnumerator();
+        bool remaining = false;
+        var cache = new Queue<T>(n + 1);
+
+        do
+        {
+            if (remaining = iter.MoveNext())
+            {
+                cache.Enqueue(iter.Current);
+                if (cache.Count > n) yield return cache.Dequeue();
+            }
+        } while (remaining);
     }
 }

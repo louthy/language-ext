@@ -259,5 +259,45 @@ namespace LanguageExtTests
                 Assert.False(fst == snd, $"'{fst}' == '{snd}'");
             }));
         }
+
+        [Fact]
+        public void SkipLastTest1()
+        {
+            var list = List(1, 2, 3, 4, 5);
+
+            var skipped = list.SkipLast().Freeze();
+
+            Assert.True(skipped == List(1, 2, 3, 4));
+        }
+
+        [Fact]
+        public void SkipLastTest2()
+        {
+            var list = List<int>();
+
+            var skipped = list.SkipLast().Freeze();
+
+            Assert.True(skipped == list);
+        }
+
+        [Fact]
+        public void SkipLastTest3()
+        {
+            var list = List(1, 2, 3, 4, 5);
+
+            var skipped = list.SkipLast(2).Freeze();
+
+            Assert.True(skipped == List(1, 2, 3));
+        }
+
+        [Fact]
+        public void SkipLastTest4()
+        {
+            var list = List<int>();
+
+            var skipped = list.SkipLast(2).Freeze();
+
+            Assert.True(skipped == list);
+        }
     }
 }
