@@ -239,7 +239,7 @@ It's hinted at above, but there are now type-classes (interfaces) for:
 
  Type-class | Functions | Description
 ------------|-----------|-------------
-`BiFoldable<F, A, B>` | `BiFold`, `BiFoldBack` | for folding types that have two values (`Tuple<A,B>`` or `Either<L,R>` for example)
+`BiFoldable<F, A, B>` | `BiFold`, `BiFoldBack` | for folding types that have two values (`Tuple<A,B>` or `Either<L,R>` for example)
 `BiFunctor<FAB, FR, A, B, R>` | `BiMap` | as above, but for projection
 `Choice<CH, A, B>` | `IsChoice1`, `IsChoice2`, `Match`, `MatchUnsafe`, `IsBottom`, `IsUnsafe` | Represents a type (`CH`) with two possible values (a discriminated union of two types basically - like `Either<L, R>`).  Allows for generalisation of code that requires a binary choice, but doesn't want to be locked down to using `Either` (`Option` for example is a `Choice<Option<A>, Unit, A>`)
 `Const<A>` | `Value` | Used for providing constants to the predicates for `NewType`
