@@ -10,16 +10,16 @@ using System.Diagnostics.Contracts;
 namespace LanguageExt.ClassInstances
 {
     /// <summary>
-    /// MQueue type-class instance
+    /// MQue type-class instance
     /// </summary>
     /// <typeparam name="A">Bound value type</typeparam>
-    public struct MQueue<A> :
+    public struct MQue<A> :
         MonadPlus<Que<A>, A>,
         Foldable<Que<A>, A>,
         Eq<Que<A>>,
         Monoid<Que<A>>
    {
-        public static readonly MQueue<A> Inst = default(MQueue<A>);
+        public static readonly MQue<A> Inst = default(MQue<A>);
 
         [Pure]
         public Que<A> Append(Que<A> x, Que<A> y) =>

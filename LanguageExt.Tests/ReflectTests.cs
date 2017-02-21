@@ -107,5 +107,16 @@ namespace LanguageExt.Tests
             Assert.True(res.Y == "Bender");
             Assert.True(res.Z == "EQ");
         }
+
+        [Fact]
+        public void DateConstructTest()
+        {
+            var ticks = new DateTime(2017, 1, 1).Ticks;
+            var ctor = Reflect.Util.CtorInvoke<long, DateTime>();
+
+            DateTime res = ctor(ticks);
+
+            Assert.True(res.Ticks == ticks);
+        }
     }
 }

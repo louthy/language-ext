@@ -8,10 +8,10 @@ namespace LanguageExt.ClassInstances
     /// <summary>
     /// Equality and ordering
     /// </summary>
-    public struct OrdLst<ORD, A> : Ord<Lst<A>>
+    public struct OrdQue<ORD, A> : Ord<Que<A>>
         where ORD : struct, Ord<A>
     {
-        public static readonly OrdLst<ORD, A> Inst = default(OrdLst<ORD, A>);
+        public static readonly OrdQue<ORD, A> Inst = default(OrdQue<ORD, A>);
 
         /// <summary>
         /// Equality test
@@ -20,8 +20,8 @@ namespace LanguageExt.ClassInstances
         /// <param name="y">The right hand side of the equality operation</param>
         /// <returns>True if x and y are equal</returns>
         [Pure]
-        public bool Equals(Lst<A> x, Lst<A> y) =>
-            default(EqLst<ORD, A>).Equals(x, y);
+        public bool Equals(Que<A> x, Que<A> y) =>
+            default(EqQue<ORD, A>).Equals(x, y);
 
         /// <summary>
         /// Compare two values
@@ -34,7 +34,7 @@ namespace LanguageExt.ClassInstances
         /// if x equals y       : 0
         /// </returns>
         [Pure]
-        public int Compare(Lst<A> x, Lst<A> y)
+        public int Compare(Que<A> x, Que<A> y)
         {
             var cmp = x.Count.CompareTo(y.Count);
             if (cmp == 0)
@@ -63,7 +63,7 @@ namespace LanguageExt.ClassInstances
         /// </summary>
         /// <returns>Hash code of x</returns>
         [Pure]
-        public int GetHashCode(Lst<A> x) =>
+        public int GetHashCode(Que<A> x) =>
             x.GetHashCode();
     }
 }

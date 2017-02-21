@@ -8,6 +8,7 @@ using static LanguageExt.Prelude;
 namespace LanguageExt.ClassInstances
 {
     public struct MOption<A> :
+        Choice<Option<A>, Unit, A>,
         Optional<Option<A>, A>,
         MonadPlus<Option<A>, A>,
         Foldable<Option<A>, A>,
@@ -154,5 +155,35 @@ namespace LanguageExt.ClassInstances
             ma.IsSome
                 ? 1
                 : 0;
+
+        [Pure]
+        public bool IsChoice1(Option<A> choice) =>
+            choice.IsNone;
+
+        [Pure]
+        public bool IsChoice2(Option<A> choice) =>
+            choice.IsSome;
+
+        [Pure]
+        public bool IsBottom(Option<A> choice) =>
+            false;
+
+        [Pure]
+        public C Match<C>(Option<A> choice, Func<Unit, C> Choice1, Func<A, C> Choice2, Func<C> Bottom = null) =>
+            choice.Match(
+                Some: Choice2,
+                None: () => Choice1(unit));
+
+        [Pure]
+        public Unit Match(Option<A> choice, Action<Unit> Choice1, Action<A> Choice2, Action Bottom = null) =>
+            choice.Match(
+                Some: Choice2,
+                None: () => Choice1(unit));
+
+        [Pure]
+        public C MatchUnsafe<C>(Option<A> choice, Func<Unit, C> Choice1, Func<A, C> Choice2, Func<C> Bottom = null) =>
+            choice.Match(
+                Some: Choice2,
+                None: () => Choice1(unit));
     }
 }

@@ -22,7 +22,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public bool Equals(HashSet<A> x, HashSet<A> y)
         {
-            if (ReferenceEquals(x, y)) return true;
             if (x.Count != y.Count) return false;
 
             var enumx = x.GetEnumerator();

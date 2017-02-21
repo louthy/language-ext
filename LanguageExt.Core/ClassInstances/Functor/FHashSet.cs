@@ -15,4 +15,16 @@ namespace LanguageExt.ClassInstances
         public HashSet<B> Map(HashSet<A> ma, Func<A, B> f) =>
             ma.Map(f);
     }
+
+    public struct FHashSet<EqA, EqB, A, B> :
+        Functor<HashSet<EqA, A>, HashSet<EqB, B>, A, B>
+        where EqA : struct, Eq<A>
+        where EqB : struct, Eq<B>
+    {
+        public static readonly FHashSet<EqA, EqB, A, B> Inst = default(FHashSet<EqA, EqB, A, B>);
+
+        [Pure]
+        public HashSet<EqB, B> Map(HashSet<EqA, A> ma, Func<A, B> f) =>
+            ma.Map<EqB, B>(f);
+    }
 }

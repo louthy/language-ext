@@ -13,13 +13,13 @@ namespace LanguageExt.ClassInstances
     /// MStack type-class instance
     /// </summary>
     /// <typeparam name="A">Bound value type</typeparam>
-    public struct MStack<A> :
+    public struct MStck<A> :
         MonadPlus<Stck<A>, A>,
         Foldable<Stck<A>, A>,
         Eq<Stck<A>>,
         Monoid<Stck<A>>
    {
-        public static readonly MStack<A> Inst = default(MStack<A>);
+        public static readonly MStck<A> Inst = default(MStck<A>);
 
         [Pure]
         public Stck<A> Append(Stck<A> x, Stck<A> y) =>

@@ -15,4 +15,16 @@ namespace LanguageExt.ClassInstances
         public Set<B> Map(Set<A> ma, Func<A, B> f) =>
             ma.Map(f);
     }
+
+    public struct FSet<OrdA, OrdB, A, B> :
+        Functor<Set<A>, Set<B>, A, B>
+        where OrdA : struct, Ord<A>
+        where OrdB : struct, Ord<B>
+    {
+        public static readonly FSet<OrdA, OrdB, A, B> Inst = default(FSet<OrdA, OrdB, A, B>);
+
+        [Pure]
+        public Set<B> Map(Set<A> ma, Func<A, B> f) =>
+            ma.Map(f);
+    }
 }

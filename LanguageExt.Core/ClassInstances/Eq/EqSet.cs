@@ -19,7 +19,6 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public bool Equals(Set<A> x, Set<A> y)
         {
-            if (ReferenceEquals(x, y)) return true;
             if (x.Count != y.Count) return false;
 
             var enumx = x.GetEnumerator();

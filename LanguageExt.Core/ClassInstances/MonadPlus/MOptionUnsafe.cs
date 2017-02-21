@@ -8,6 +8,7 @@ using System.Diagnostics.Contracts;
 namespace LanguageExt.ClassInstances
 {
     public struct MOptionUnsafe<A> :
+        Choice<OptionUnsafe<A>, Unit, A>,
         MonadPlus<OptionUnsafe<A>, A>,
         Optional<OptionUnsafe<A>, A>,
         Foldable<OptionUnsafe<A>, A>,
@@ -152,5 +153,35 @@ namespace LanguageExt.ClassInstances
         [Pure]
         public OptionUnsafe<A> Lift(A x) =>
             Return(x);
+
+        [Pure]
+        public bool IsChoice1(OptionUnsafe<A> choice) =>
+            choice.IsNone;
+
+        [Pure]
+        public bool IsChoice2(OptionUnsafe<A> choice) =>
+            choice.IsSome;
+
+        [Pure]
+        public bool IsBottom(OptionUnsafe<A> choice) =>
+            false;
+
+        [Pure]
+        public C Match<C>(OptionUnsafe<A> choice, Func<Unit, C> Choice1, Func<A, C> Choice2, Func<C> Bottom = null) =>
+            choice.MatchUnsafe(
+                Some: Choice2,
+                None: () => Choice1(unit));
+
+        [Pure]
+        public Unit Match(OptionUnsafe<A> choice, Action<Unit> Choice1, Action<A> Choice2, Action Bottom = null) =>
+            choice.MatchUnsafe(
+                Some: Choice2,
+                None: () => Choice1(unit));
+
+        [Pure]
+        public C MatchUnsafe<C>(OptionUnsafe<A> choice, Func<Unit, C> Choice1, Func<A, C> Choice2, Func<C> Bottom = null) =>
+            choice.MatchUnsafe(
+                Some: Choice2,
+                None: () => Choice1(unit));
     }
 }

@@ -9,12 +9,12 @@ namespace LanguageExt.ClassInstances
     /// <param name="x">The left hand side of the equality operation</param>
     /// <param name="y">The right hand side of the equality operation</param>
     /// <returns>True if x and y are equal</returns>
-    public struct EqLst<EQ, A> : Eq<Lst<A>> where EQ : struct, Eq<A>
+    public struct EqQue<EQ, A> : Eq<Que<A>> where EQ : struct, Eq<A>
     {
-        public static readonly EqLst<EQ, A> Inst = default(EqLst<EQ, A>);
+        public static readonly EqQue<EQ, A> Inst = default(EqQue<EQ, A>);
 
         [Pure]
-        public bool Equals(Lst<A> x, Lst<A> y)
+        public bool Equals(Que<A> x, Que<A> y)
         {
             if (x.Count != y.Count) return false;
 
@@ -38,7 +38,7 @@ namespace LanguageExt.ClassInstances
         /// <param name="x">Value to get the hash code of</param>
         /// <returns>The hash code of x</returns>
         [Pure]
-        public int GetHashCode(Lst<A> x) =>
+        public int GetHashCode(Que<A> x) =>
             x.GetHashCode();
     }
 }
