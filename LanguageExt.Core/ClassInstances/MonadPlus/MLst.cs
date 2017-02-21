@@ -10,9 +10,9 @@ using System.Diagnostics.Contracts;
 namespace LanguageExt.ClassInstances
 {
     /// <summary>
-    /// Enumerable type-class instance
+    /// MLst type-class instance
     /// </summary>
-    /// <typeparam name="A"></typeparam>
+    /// <typeparam name="A">Bound value type</typeparam>
     public struct MLst<A> :
         MonadPlus<Lst<A>, A>,
         Foldable<Lst<A>, A>,

@@ -10,7 +10,7 @@ namespace LanguageExt
     public static class StateResult
     {
         public static (A Value, S State, bool IsBottom) ToState<S, A>(this (A, S) self) =>
-            (self.Item1, self.Item2, false);
+            self.Add(false);
 
         public static (A Value, S State, bool IsBottom) Return<S, A>(A value, S state) =>
             (value, state, false);

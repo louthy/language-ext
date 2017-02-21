@@ -9,7 +9,7 @@ namespace LanguageExt
     {
         public static (A Value, W Output, bool IsBottom) ToWriter<MonoidW, W, A>(this (A, W) self)
             where MonoidW : struct, Monoid<W> =>
-                (self.Item1, self.Item2, false);
+                self.Add(false);
 
         public static (A Value, W Output, bool IsBottom) Return<MonoidW, W, A>(A value, W output)
             where MonoidW : struct, Monoid<W> =>

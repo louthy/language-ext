@@ -156,7 +156,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public override string ToString() =>
-            $"{GetType().Name}({Value})";
+            $"{Value}";
 
         /// <summary>
         /// Fold

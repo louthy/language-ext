@@ -1,4 +1,5 @@
 ﻿using LanguageExt.TypeClasses;
+using static LanguageExt.Prelude;
 using static LanguageExt.TypeClass;
 using System;
 using System.Linq;
@@ -562,5 +563,282 @@ namespace LanguageExt
         [Pure]
         public override int GetHashCode() =>
             Value.GetHashCode();
+
+
+
+
+
+
+
+
+
+
+
+
+        /// <summary>
+        /// Atomically maps the map to a new map
+        /// </summary>
+        /// <returns>Mapped items in a new map</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Map<OrdK, K, U> Select<U>(Func<V, U> mapper) =>
+            new Map<OrdK, K, U>(MapModule.Map(Value.Root, mapper), Value.Rev);
+
+        /// <summary>
+        /// Atomically maps the map to a new map
+        /// </summary>
+        /// <returns>Mapped items in a new map</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Map<OrdK, K, U> Select<U>(Func<K, V, U> mapper) =>
+            new Map<OrdK, K, U>(MapModule.Map(Value.Root, mapper), Value.Rev);
+
+        /// <summary>
+        /// Atomically filter out items that return false when a predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>New map with items filtered</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Map<OrdK, K, V> Where(Func<V, bool> pred) =>
+            new Map<OrdK, K, V>(MapModule.Filter(Value.Root, pred), Value.Rev);
+
+        /// <summary>
+        /// Atomically filter out items that return false when a predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>New map with items filtered</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Map<OrdK, K, V> Where(Func<K, V, bool> pred) =>
+            SetRoot(MapModule.Filter(Value.Root, pred));
+
+        /// <summary>
+        /// Atomically filter out items that return false when a predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>New map with items filtered</returns>
+        [Pure]
+        public Map<OrdK, K, V> Filter(Func<V, bool> pred) =>
+            SetRoot(MapModule.Filter(Value.Root, pred));
+
+        /// <summary>
+        /// Atomically filter out items that return false when a predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>New map with items filtered</returns>
+        [Pure]
+        public Map<OrdK, K, V> Filter(Func<K, V, bool> pred) =>
+            SetRoot(MapModule.Filter(Value.Root, pred));
+
+        /// <summary>
+        /// Return true if all items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool ForAll(Func<K, V, bool> pred) =>
+            MapModule.ForAll(Value.Root, pred);
+
+        /// <summary>
+        /// Return true if all items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool ForAll(Func<Tuple<K, V>, bool> pred) =>
+            MapModule.ForAll(Value.Root, (k, v) => pred(new Tuple<K, V>(k, v)));
+
+        /// <summary>
+        /// Return true if all items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool ForAll(Func<(K Key, V Value), bool> pred) =>
+            MapModule.ForAll(Value.Root, (k, v) => pred((k, v)));
+
+        /// <summary>
+        /// Return true if *all* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool ForAll(Func<KeyValuePair<K, V>, bool> pred) =>
+            MapModule.ForAll(Value.Root, (k, v) => pred(new KeyValuePair<K, V>(k, v)));
+
+        /// <summary>
+        /// Return true if all items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool ForAll(Func<V, bool> pred) =>
+            MapModule.ForAll(Value.Root, (k, v) => pred(v));
+
+        /// <summary>
+        /// Return true if *any* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool Exists(Func<K, V, bool> pred) =>
+            MapModule.Exists(Value.Root, pred);
+
+        /// <summary>
+        /// Return true if *any* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool Exists(Func<Tuple<K, V>, bool> pred) =>
+            MapModule.Exists(Value.Root, (k, v) => pred(new Tuple<K, V>(k, v)));
+
+        /// <summary>
+        /// Return true if *any* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool Exists(Func<(K, V), bool> pred) =>
+            MapModule.Exists(Value.Root, (k, v) => pred((k, v)));
+
+        /// <summary>
+        /// Return true if *any* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool Exists(Func<KeyValuePair<K, V>, bool> pred) =>
+            MapModule.Exists(Value.Root, (k, v) => pred(new KeyValuePair<K, V>(k, v)));
+
+        /// <summary>
+        /// Return true if *any* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool Exists(Func<V, bool> pred) =>
+            MapModule.Exists(Value.Root, (_, v) => pred(v));
+
+        /// <summary>
+        /// Atomically iterate through all key/value pairs in the map (in order) and execute an
+        /// action on each
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>Unit</returns>
+        public Unit Iter(Action<K, V> action) 
+        {
+            foreach (var item in this)
+            {
+                action(item.Key, item.Value);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Atomically iterate through all values in the map (in order) and execute an
+        /// action on each
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>Unit</returns>
+        public Unit Iter(Action<V> action) 
+        {
+            foreach (var item in this)
+            {
+                action(item.Value);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Atomically iterate through all key/value pairs (as tuples) in the map (in order) 
+        /// and execute an action on each
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>Unit</returns>
+        public Unit Iter(Action<Tuple<K, V>> action) 
+        {
+            foreach (var item in this)
+            {
+                action(new Tuple<K, V>(item.Key, item.Value));
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Atomically iterate through all key/value pairs (as tuples) in the map (in order) 
+        /// and execute an action on each
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>Unit</returns>
+        public Unit Iter(Action<(K, V)> action) 
+        {
+            foreach (var item in this)
+            {
+                action(item);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Atomically iterate through all key/value pairs in the map (in order) and execute an
+        /// action on each
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>Unit</returns>
+        public Unit Iter(Action<KeyValuePair<K, V>> action) 
+        {
+            foreach (var item in this)
+            {
+                action(new KeyValuePair<K, V>(item.Key, item.Value));
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Equivalent to map and filter but the filtering is done based on whether the returned
+        /// Option is Some or None.  If the item is None then it's filtered out, if not the the
+        /// mapped Some value is used.
+        /// </summary>
+        /// <param name="selector">Predicate</param>
+        /// <returns>Filtered map</returns>
+        [Pure]
+        public Map<OrdK, K, U> Choose<U>(Func<K, V, Option<U>> selector) =>
+            new Map<OrdK, K, U>(MapModule.Choose(Value.Root, selector), Value.Rev);
+
+        /// <summary>
+        /// Equivalent to map and filter but the filtering is done based on whether the returned
+        /// Option is Some or None.  If the item is None then it's filtered out, if not the the
+        /// mapped Some value is used.
+        /// </summary>
+        /// <param name="selector">Predicate</param>
+        /// <returns>Filtered map</returns>
+        [Pure]
+        public Map<OrdK, K, U> Choose<U>(Func<V, Option<U>> selector) =>
+            new Map<OrdK, K, U>(MapModule.Choose(Value.Root, selector), Value.Rev);
+
+        /// <summary>
+        /// Atomically folds all items in the map (in order) using the folder function provided.
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Folded state</returns>
+        [Pure]
+        public S Fold<S>(S state, Func<S, K, V, S> folder) =>
+            MapModule.Fold(Value.Root, state, folder);
+
+        /// <summary>
+        /// Atomically folds all items in the map (in order) using the folder function provided.
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Folded state</returns>
+        [Pure]
+        public S Fold<S>(S state, Func<S, V, S> folder) =>
+            MapModule.Fold(Value.Root, state, folder);
+
     }
 }

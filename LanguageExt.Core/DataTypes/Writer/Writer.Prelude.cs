@@ -23,6 +23,18 @@ namespace LanguageExt
             where MonoidW : struct, Monoid<W> =>
                 default(SWriter<MonoidW, W, A>).Lift((value, default(MonoidW).Empty(), false));
 
+        /// <summary>
+        /// Writer monad constructor
+        /// </summary>
+        /// <typeparam name="W">Writer type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="value">Value</param>
+        /// <returns>Writer monad</returns>
+        [Pure]
+        public static Writer<MonoidW, W, A> Writer<MonoidW, W, A>(Func<W, (A, W)> f)
+            where MonoidW : struct, Monoid<W> =>
+                default(SWriter<MonoidW, W, A>).Lift(o => f(o).Add(false));
+
         [Pure]
         public static Writer<MonoidW, W, int> sum<MonoidW, W>(Writer<MonoidW, W, int> self)
             where MonoidW : struct, Monoid<W> =>

@@ -89,7 +89,7 @@ namespace LanguageExt
         /// </summary>
         /// <returns>Tuple of popped stack and optional top-of-stack value</returns>
         [Pure]
-        public static Tuple<Stck<T>, Option<T>> trypop<T>(Stck<T> stack) =>
+        public static (Stck<T>, Option<T>) trypop<T>(Stck<T> stack) =>
             stack.TryPop();
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using LanguageExt.ClassInstances;
+using static LanguageExt.Prelude;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace LanguageExt
     /// <typeparam name="K">Key type</typeparam>
     /// <typeparam name="V">Value</typeparam>
     public struct HashMap<K, V> :
-        IEnumerable<IMapItem<K, V>>
+        IEnumerable<(K Key, V Value)>
     {
         public static readonly HashMap<K, V> Empty = new HashMap<K,V>(HashMapInternal<EqDefault<K>, K, V>.Empty);
 
@@ -182,7 +183,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMap<K, V> AddRange(IEnumerable<(K, V)> range) =>
+        public HashMap<K, V> AddRange(IEnumerable<(K Key, V Value)> range) =>
             Wrap(Value.AddRange(range));
 
         /// <summary>
@@ -206,7 +207,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMap<K, V> TryAddRange(IEnumerable<(K, V)> range) =>
+        public HashMap<K, V> TryAddRange(IEnumerable<(K Key, V Value)> range) =>
             Wrap(Value.TryAddRange(range));
 
         /// <summary>
@@ -242,7 +243,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentNullException">Throws ArgumentNullException the keys or values are null</exception>
         /// <returns>New Map with the items added</returns>
         [Pure]
-        public HashMap<K, V> AddOrUpdateRange(IEnumerable<(K, V)> range) =>
+        public HashMap<K, V> AddOrUpdateRange(IEnumerable<(K Key, V Value)> range) =>
             Wrap(Value.AddOrUpdateRange(range));
 
         /// <summary>
@@ -409,7 +410,7 @@ namespace LanguageExt
         /// <exception cref="ArgumentException">Throws ArgumentException if any of the keys aren't in the map</exception>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public HashMap<K, V> SetItems(IEnumerable<(K, V)> items) =>
+        public HashMap<K, V> SetItems(IEnumerable<(K Key, V Value)> items) =>
             Wrap(Value.SetItems(items));
 
         /// <summary>
@@ -439,7 +440,7 @@ namespace LanguageExt
         /// <param name="items">Items to set</param>
         /// <returns>New map with the items set</returns>
         [Pure]
-        public HashMap<K, V> TrySetItems(IEnumerable<(K, V)> items) =>
+        public HashMap<K, V> TrySetItems(IEnumerable<(K Key, V Value)> items) =>
             Wrap(Value.TrySetItems(items));
 
         /// <summary>
@@ -509,30 +510,14 @@ namespace LanguageExt
         /// Map the map the a dictionary
         /// </summary>
         [Pure]
-        public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<IMapItem<K, V>, KR> keySelector, Func<IMapItem<K, V>, VR> valueSelector) =>
+        public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<(K Key, V Value), KR> keySelector, Func<(K Key, V Value), VR> valueSelector) =>
             Value.ToDictionary(keySelector, valueSelector);
-
-        /// <summary>
-        /// Enumerable of in-order tuples that make up the map
-        /// </summary>
-        /// <returns>Tuples</returns>
-        [Pure]
-        public IEnumerable<Tuple<K, V>> Tuples =>
-            Value.Tuples;
-
-        /// <summary>
-        /// Enumerable of in-order tuples that make up the map
-        /// </summary>
-        /// <returns>Tuples</returns>
-        [Pure]
-        public IEnumerable<(K Key, V Value)> ValueTuples =>
-            Value.ValueTuples;
 
         #region IEnumerable interface
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
-        public IEnumerator<IMapItem<K, V>> GetEnumerator() =>
+        public IEnumerator<(K Key, V Value)> GetEnumerator() =>
             Value.GetEnumerator();
 
         /// <summary>
@@ -541,7 +526,7 @@ namespace LanguageExt
         IEnumerator IEnumerable.GetEnumerator() =>
             Value.GetEnumerator();
 
-        public IEnumerable<IMapItem<K, V>> AsEnumerable() =>
+        public IEnumerable<(K Key, V Value)> AsEnumerable() =>
             Value.AsEnumerable();
 
         #endregion
@@ -584,5 +569,238 @@ namespace LanguageExt
         public override int GetHashCode() =>
             Value.GetHashCode();
 
+        /// <summary>
+        /// Atomically maps the map to a new map
+        /// </summary>
+        /// <returns>Mapped items in a new map</returns>
+        [Pure]
+        public HashMap<K, U> Select<U>(Func<V, U> mapper) =>
+            Map(mapper);
+
+        /// <summary>
+        /// Atomically maps the map to a new map
+        /// </summary>
+        /// <returns>Mapped items in a new map</returns>
+        [Pure]
+        public HashMap<K, U> Select<U>(Func<K, V, U> mapper) =>
+            Map(mapper);
+
+        /// <summary>
+        /// Atomically filter out items that return false when a predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>New map with items filtered</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public HashMap<K, V> Where(Func<V, bool> pred) =>
+            Filter(pred);
+
+        /// <summary>
+        /// Atomically filter out items that return false when a predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>New map with items filtered</returns>
+        [Pure]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public HashMap<K, V> Where(Func<K, V, bool> pred) =>
+            Filter(pred);
+
+        /// <summary>
+        /// Return true if all items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool ForAll(Func<K, V, bool> pred)
+        {
+            foreach (var item in AsEnumerable())
+            {
+                if (!pred(item.Key, item.Value)) return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Return true if all items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool ForAll(Func<Tuple<K, V>, bool> pred) =>
+            AsEnumerable().Map(kv => Tuple(kv.Key, kv.Value)).ForAll(pred);
+
+        /// <summary>
+        /// Return true if all items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool ForAll(Func<(K Key, V Value), bool> pred) =>
+            AsEnumerable().Map(kv => (Key: kv.Key, Value: kv.Value)).ForAll(pred);
+
+        /// <summary>
+        /// Return true if *all* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool ForAll(Func<KeyValuePair<K, V>, bool> pred) =>
+            AsEnumerable().Map(kv => new KeyValuePair<K, V>(kv.Key, kv.Value)).ForAll(pred);
+
+        /// <summary>
+        /// Return true if all items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool ForAll(Func<V, bool> pred) =>
+            Values.ForAll(pred);
+
+        /// <summary>
+        /// Return true if *any* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        public bool Exists(Func<K, V, bool> pred)
+        {
+            foreach (var item in AsEnumerable())
+            {
+                if (pred(item.Key, item.Value)) return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Return true if *any* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool Exists(Func<Tuple<K, V>, bool> pred) =>
+            AsEnumerable().Map(kv => Tuple(kv.Key, kv.Value)).Exists(pred);
+
+        /// <summary>
+        /// Return true if *any* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool Exists(Func<(K Key, V Value), bool> pred) =>
+            AsEnumerable().Map(kv => (Key: kv.Key, Value: kv.Value)).Exists(pred);
+
+        /// <summary>
+        /// Return true if *any* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool Exists(Func<KeyValuePair<K, V>, bool> pred) =>
+            AsEnumerable().Map(kv => new KeyValuePair<K, V>(kv.Key, kv.Value)).Exists(pred);
+
+        /// <summary>
+        /// Return true if *any* items in the map return true when the predicate is applied
+        /// </summary>
+        /// <param name="pred">Predicate</param>
+        /// <returns>True if all items in the map return true when the predicate is applied</returns>
+        [Pure]
+        public bool Exists(Func<V, bool> pred) =>
+            Values.Exists(pred);
+
+        /// <summary>
+        /// Atomically iterate through all key/value pairs in the map (in order) and execute an
+        /// action on each
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>Unit</returns>
+        public Unit Iter(Action<K, V> action)
+        {
+            foreach (var item in this)
+            {
+                action(item.Key, item.Value);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Atomically iterate through all values in the map (in order) and execute an
+        /// action on each
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>Unit</returns>
+        public Unit Iter(Action<V> action)
+        {
+            foreach (var item in this)
+            {
+                action(item.Value);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Atomically iterate through all key/value pairs (as tuples) in the map (in order) 
+        /// and execute an action on each
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>Unit</returns>
+        public Unit Iter(Action<Tuple<K, V>> action)
+        {
+            foreach (var item in this)
+            {
+                action(new Tuple<K, V>(item.Key, item.Value));
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Atomically iterate through all key/value pairs (as tuples) in the map (in order) 
+        /// and execute an action on each
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>Unit</returns>
+        public Unit Iter(Action<(K Key, V Value)> action)
+        {
+            foreach (var item in this)
+            {
+                action(item);
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Atomically iterate through all key/value pairs in the map (in order) and execute an
+        /// action on each
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>Unit</returns>
+        public Unit Iter(Action<KeyValuePair<K, V>> action)
+        {
+            foreach (var item in this)
+            {
+                action(new KeyValuePair<K, V>(item.Key, item.Value));
+            }
+            return unit;
+        }
+
+        /// <summary>
+        /// Atomically folds all items in the map (in order) using the folder function provided.
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Folded state</returns>
+        [Pure]
+        public S Fold<S>(S state, Func<S, K, V, S> folder) =>
+            AsEnumerable().Fold(state, (s, x) => folder(s, x.Key, x.Value));
+
+        /// <summary>
+        /// Atomically folds all items in the map (in order) using the folder function provided.
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <param name="state">Initial state</param>
+        /// <param name="folder">Fold function</param>
+        /// <returns>Folded state</returns>
+        [Pure]
+        public S Fold<S>(S state, Func<S, V, S> folder) =>
+            Values.Fold(state, folder);
     }
 }

@@ -21,31 +21,25 @@ namespace LanguageExt
     /// TODO: Too much cut n paste.  Make DRY.
     /// </summary>
     internal class HashMapInternal<EqK, K, V> :
-        IEnumerable<IMapItem<K, V>>
+        IEnumerable<(K Key, V Value)>
         where EqK : struct, Eq<K>
     {
         public static readonly HashMapInternal<EqK, K, V> Empty = new HashMapInternal<EqK, K, V>();
 
-        readonly Map<int, Lst<IMapItem<K, V>>> hashTable;
+        readonly Map<int, Lst<(K Key, V Value)>> hashTable;
         readonly int count;
         int hashCode;
 
         internal HashMapInternal()
         {
-            hashTable = Map<int, Lst<IMapItem<K, V>>>.Empty;
+            hashTable = Map<int, Lst<(K, V)>>.Empty;
         }
 
-        internal HashMapInternal(Map<int, Lst<IMapItem<K, V>>> hashTable, int count)
+        internal HashMapInternal(Map<int, Lst<(K, V)>> hashTable, int count)
         {
             this.hashTable = hashTable;
             this.count = count;
         }
-
-        IMapItem<K, V> KV(K key, V value) => 
-            new HMapKeyValue<K, V>(key, value);
-
-        IMapItem<K, U> KV<U>(K key, U value) =>
-            new HMapKeyValue<K, U>(key, value);
 
         /// <summary>
         /// 'this' accessor
@@ -110,9 +104,9 @@ namespace LanguageExt
         /// <param name="pred">Predicate</param>
         /// <returns>New map with items filtered</returns>
         [Pure]
-        public HashMapInternal<EqK, K, V> Filter(Func<IMapItem<K, V>, bool> pred)
+        public HashMapInternal<EqK, K, V> Filter(Func<(K Key, V Value), bool> pred)
         {
-            var ht = Map<int, Lst<IMapItem<K, V>>>.Empty;
+            var ht = Map<int, Lst<(K, V)>>.Empty;
             var count = 0;
 
             foreach (var bucket in hashTable)
@@ -133,7 +127,7 @@ namespace LanguageExt
         /// <returns>Mapped items in a new map</returns>
         [Pure]
         public HashMapInternal<EqK, K, U> Map<U>(Func<V, U> mapper) =>
-            new HashMapInternal<EqK, K, U>(hashTable.Map(bucket => bucket.Map(kv => KV(kv.Key, mapper(kv.Value)))), Count);
+            new HashMapInternal<EqK, K, U>(hashTable.Map(bucket => bucket.Map(kv => (kv.Key, mapper(kv.Value)))), Count);
 
         /// <summary>
         /// Atomically maps the map to a new map
@@ -141,7 +135,7 @@ namespace LanguageExt
         /// <returns>Mapped items in a new map</returns>
         [Pure]
         public HashMapInternal<EqK, K, U> Map<U>(Func<K, V, U> mapper) =>
-            new HashMapInternal<EqK, K, U>(hashTable.Map(bucket => bucket.Map(kv => KV(kv.Key, mapper(kv.Key, kv.Value)))), Count);
+            new HashMapInternal<EqK, K, U>(hashTable.Map(bucket => bucket.Map(kv => (kv.Key, mapper(kv.Key, kv.Value)))), Count);
 
         /// <summary>
         /// Atomically adds a new item to the map
@@ -171,11 +165,11 @@ namespace LanguageExt
                         throw new ArgumentException("Key already exists in HMap");
                     }
                 }
-                ht = ht.SetItem(hash, bucket.Value.Add(KV(key, value)));
+                ht = ht.SetItem(hash, bucket.Value.Add((key, value)));
             }
             else
             {
-                ht = ht.Add(hash, List(KV(key, value)));
+                ht = ht.Add(hash, List((key, value)));
             }
             return new HashMapInternal<EqK, K, V>(ht, Count + 1);
         }
@@ -207,11 +201,11 @@ namespace LanguageExt
                         return this;
                     }
                 }
-                ht = ht.SetItem(hash, bucket.Value.Add(KV(key, value)));
+                ht = ht.SetItem(hash, bucket.Value.Add((key, value)));
             }
             else
             {
-                ht = ht.Add(hash, List(KV(key, value)));
+                ht = ht.Add(hash, List((key, value)));
             }
             return new HashMapInternal<EqK, K, V>(ht, Count + 1);
         }
@@ -265,16 +259,16 @@ namespace LanguageExt
                 }
                 if (contains)
                 {
-                    return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucketValue.SetItem(index, KV(key, Some(value)))), Count);
+                    return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucketValue.SetItem(index, (key, Some(value)))), Count);
                 }
                 else
                 {
-                    return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucketValue.Add(KV(key, None()))), Count + 1);
+                    return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucketValue.Add((key, None()))), Count + 1);
                 }
             }
             else
             {
-                return new HashMapInternal<EqK, K, V>(ht.Add(hash, List(KV(key, None()))), Count + 1);
+                return new HashMapInternal<EqK, K, V>(ht.Add(hash, List((key, None()))), Count + 1);
             }
         }
 
@@ -553,7 +547,7 @@ namespace LanguageExt
             var bucket = ht.Find(hash);
             if (bucket.IsSome)
             {
-                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? KV(x.Key, value) : x)), Count);
+                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? (x.Key, value) : x)), Count);
             }
             else
             {
@@ -579,7 +573,7 @@ namespace LanguageExt
             var bucket = ht.Find(hash);
             if (bucket.IsSome)
             {
-                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? KV(x.Key, Some(x.Value)) : x)), Count);
+                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? (x.Key, Some(x.Value)) : x)), Count);
             }
             else
             {
@@ -606,7 +600,7 @@ namespace LanguageExt
             var bucket = ht.Find(hash);
             if (bucket.IsSome)
             {
-                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? KV(x.Key, value) : x)), Count);
+                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? (x.Key, value) : x)), Count);
             }
             else
             {
@@ -633,7 +627,7 @@ namespace LanguageExt
             var bucket = ht.Find(hash);
             if (bucket.IsSome)
             {
-                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? KV(x.Key, Some(x.Value)) : x)), Count);
+                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? (x.Key, Some(x.Value)) : x)), Count);
             }
             else
             {
@@ -907,30 +901,14 @@ namespace LanguageExt
         /// Map the map the a dictionary
         /// </summary>
         [Pure]
-        public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<IMapItem<K, V>, KR> keySelector, Func<IMapItem<K, V>, VR> valueSelector) =>
+        public IDictionary<KR, VR> ToDictionary<KR, VR>(Func<(K, V), KR> keySelector, Func<(K, V), VR> valueSelector) =>
             AsEnumerable().ToDictionary(x => keySelector(x), x => valueSelector(x));
-
-        /// <summary>
-        /// Enumerable of in-order tuples that make up the map
-        /// </summary>
-        /// <returns>Tuples</returns>
-        [Pure]
-        public IEnumerable<Tuple<K, V>> Tuples =>
-            AsEnumerable().Map(kv => Tuple(kv.Key, kv.Value));
-
-        /// <summary>
-        /// Enumerable of in-order tuples that make up the map
-        /// </summary>
-        /// <returns>Tuples</returns>
-        [Pure]
-        public IEnumerable<(K Key, V Value)> ValueTuples =>
-            AsEnumerable().Map(kv => (Key: kv.Key, Value: kv.Value));
 
         #region IEnumerable interface
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
-        public IEnumerator<IMapItem<K, V>> GetEnumerator() =>
+        public IEnumerator<(K Key, V Value)> GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 
         /// <summary>
@@ -939,7 +917,7 @@ namespace LanguageExt
         IEnumerator IEnumerable.GetEnumerator() =>
             AsEnumerable().GetEnumerator();
 
-        public IEnumerable<IMapItem<K, V>> AsEnumerable() =>
+        public IEnumerable<(K Key, V Value)> AsEnumerable() =>
             hashTable.Values.Bind(x => x);
 
         #endregion

@@ -19,6 +19,17 @@ namespace LanguageExt
             default(MState<SState<S, A>, State<S, A>, S, A>).Return(value);
 
         /// <summary>
+        /// State monad constructor
+        /// </summary>
+        /// <typeparam name="S">State type</typeparam>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="value">Value</param>
+        /// <returns>State monad</returns>
+        [Pure]
+        public static State<S, A> State<S, A>(Func<S, (A, S)> f) =>
+            default(MState<SState<S, A>, State<S, A>, S, A>).Return(s => f(s).Add(false));
+
+        /// <summary>
         /// Get the state from monad into its wrapped value
         /// </summary>
         /// <typeparam name="S">State type</typeparam>

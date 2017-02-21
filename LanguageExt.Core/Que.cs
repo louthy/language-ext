@@ -12,14 +12,14 @@ namespace LanguageExt
     {
         public readonly static Que<T> Empty = new Que<T>();
 
-        readonly Stck<T> forward;
-        readonly Stck<T> backward;
-        Stck<T> backwardRev;
+        readonly StckInternal<T> forward;
+        readonly StckInternal<T> backward;
+        StckInternal<T> backwardRev;
 
         internal Que()
         {
-            forward = Stck<T>.Empty;
-            backward = Stck<T>.Empty;
+            forward = StckInternal<T>.Empty;
+            backward = StckInternal<T>.Empty;
         }
 
         internal Que(IEnumerable<T> items)
@@ -34,13 +34,13 @@ namespace LanguageExt
             backwardRev = q.backwardRev;
         }
 
-        private Que(Stck<T> f, Stck<T> b)
+        private Que(StckInternal<T> f, StckInternal<T> b)
         {
             forward = f;
             backward = b;
         }
 
-        private Stck<T> BackwardRev
+        private StckInternal<T> BackwardRev
         {
             get
             {
@@ -82,7 +82,7 @@ namespace LanguageExt
             }
             else
             {
-                return new Que<T>(BackwardRev, Stck<T>.Empty);
+                return new Que<T>(BackwardRev, StckInternal<T>.Empty);
             }
         }
 
@@ -107,7 +107,7 @@ namespace LanguageExt
         [Pure]
         public Que<T> Enqueue(T value) =>
             IsEmpty
-                ? new Que<T>(Stck<T>.Empty.Push(value), Stck<T>.Empty)
+                ? new Que<T>(StckInternal<T>.Empty.Push(value), StckInternal<T>.Empty)
                 : new Que<T>(forward, backward.Push(value));
 
         [Pure]

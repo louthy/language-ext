@@ -10,7 +10,7 @@ namespace LanguageExt
     public static class ReaderResult
     {
         public static (A Value, Env Environment, bool IsBottom) ToReader<Env, A>(this (A, Env) self) =>
-            (self.Item1, self.Item2, false);
+            self.Add(false);
 
         public static (A Value, Env Environment, bool IsBottom) Return<Env, A>(A value, Env env) =>
             (value, env, false);

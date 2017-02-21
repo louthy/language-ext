@@ -19,6 +19,17 @@ namespace LanguageExt
             default(MReader<SReader<Env, A>, Reader<Env, A>, Env, A>).Return(value);
 
         /// <summary>
+        /// Reader monad constructor
+        /// </summary>
+        /// <typeparam name="Env">Environment</typeparam>
+        /// <typeparam name="A">Wrapped type</typeparam>
+        /// <param name="value">Wrapped value</param>
+        /// <returns>Reader monad</returns>
+        [Pure]
+        public static Reader<Env, A> Reader<Env, A>(Func<Env, A> f) =>
+            default(MReader<SReader<Env, A>, Reader<Env, A>, Env, A>).Return(e => (f(e),e,false));
+
+        /// <summary>
         /// Retrieves the reader monad environment.
         /// </summary>
         /// <typeparam name="Env">Environment</typeparam>
