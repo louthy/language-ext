@@ -244,7 +244,7 @@ It's hinted at above, but there are now type-classes (interfaces) for:
 `Choice<CH, A, B>` | `IsChoice1`, `IsChoice2`, `Match`, `MatchUnsafe`, `IsBottom`, `IsUnsafe` | Represents a type (`CH`) with two possible values (a discriminated union of two types basically - like `Either<L, R>`).  Allows for generalisation of code that requires a binary choice, but doesn't want to be locked down to using `Either` (`Option` for example is a `Choice<Option<A>, Unit, A>`)
 `Const<A>` | `Value` | Used for providing constants to the predicates for `NewType`
 `Eq<A>`| `Equals`, `GetHashCode` | Equality type-class
-`Floating<A>` | `Pi`, Exp`, `Sqrt`, `Log`, `Pow`, `LogBase`, `Sin`, `Cos`, `Tan`, `Asin`, `Acos`, `Atan`, `Sinh`, `Cosh`, `Tanh`, `Asinh`, `Acosh`, `Atanh` | Floating point number type-class.  Derives from `Fractional<A> -> Num<A> -> Ord<A> -> Eq<A>, Monoid<A> -> Semigroup<A>`.  
+`Floating<A>` | `Pi`, `Exp`, `Sqrt`, `Log`, `Pow`, `LogBase`, `Sin`, `Cos`, `Tan`, `Asin`, `Acos`, `Atan`, `Sinh`, `Cosh`, `Tanh`, `Asinh`, `Acosh`, `Atanh` | Floating point number type-class.  Derives from `Fractional<A> -> Num<A> -> Ord<A> -> Eq<A>, Monoid<A> -> Semigroup<A>`.  
 `Foldable<FA, A>` | `Fold`, `FoldBack`, `Count` | standard type-class for types that can be folded (like `Lst`, `Option`, etc.)
 `Fraction<A>` | `FromRational` | Provides a way to get an `A` from `A / A`
 `Functor<FA, FB, A, B>` | `Map` | standard mapping projection function
