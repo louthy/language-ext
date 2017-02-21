@@ -225,7 +225,7 @@ Here's a simple example:
                              .Then("Is a vowel")
                              .Else("Is a consonant");
 
-    var x = vowels('a'); // true
+    var x = vowels('a'); // "Is a vowel"
 ```
 This can then be tagged onto anything that returns a char or a `Task<char>`:
 ```c#
