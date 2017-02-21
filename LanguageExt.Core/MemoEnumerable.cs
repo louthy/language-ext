@@ -14,7 +14,7 @@ namespace LanguageExt
     /// Use the IEnumerable extension method Memo for convenience.
     /// </summary>
     /// <remarks>
-    /// Although this allows efficient lazy evaluation, it does come at a memory cost.
+    /// Although this allows for efficient lazy evaluation, it does come at a memory cost.
     /// Each item is cached internally, so this method doesn't allow for evaluation of
     /// infinite sequences.
     /// </remarks>

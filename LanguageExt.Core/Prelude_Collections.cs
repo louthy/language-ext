@@ -326,7 +326,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static Que<T> Queue<T>() =>
-            new Que<T>();
+            Que<T>.Empty;
 
         /// <summary>
         /// Create an immutable queue
@@ -334,12 +334,12 @@ namespace LanguageExt
         [Pure]
         public static Que<T> Queue<T>(params T[] items)
         {
-            var q = new Que<T>();
+            var q = new QueInternal<T>();
             foreach (var item in items)
             {
                 q = q.Enqueue(item);
             }
-            return q;
+            return new Que<T>(q);
         }
 
         /// <summary>
@@ -348,12 +348,12 @@ namespace LanguageExt
         [Pure]
         public static Que<T> toQueue<T>(IEnumerable<T> items)
         {
-            var q = new Que<T>();
+            var q = new QueInternal<T>();
             foreach (var item in items)
             {
                 q = q.Enqueue(item);
             }
-            return q;
+            return new Que<T>(q);
         }
 
         /// <summary>

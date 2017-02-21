@@ -44,7 +44,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Stck<A> Subtract(Stck<A> x, Stck<A> y) =>
-            new Stck<A>(Enumerable.Except(x, y));
+            x - y;
 
         [Pure]
         public Stck<A> Empty() =>
@@ -52,15 +52,15 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public bool Equals(Stck<A> x, Stck<A> y) =>
-            Enumerable.SequenceEqual(x, y);
+            x == y;
 
         [Pure]
         public Stck<A> Fail(object err) =>
-            Empty();
+            Stck<A>.Empty;
 
         [Pure]
         public Stck<A> Fail(Exception err = null) =>
-            Empty();
+            Stck<A>.Empty;
 
         [Pure]
         public S Fold<S>(Stck<A> fa, S state, Func<S, A, S> f) =>
@@ -72,14 +72,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Stck<A> Plus(Stck<A> ma, Stck<A> mb) =>
-            new Stck<A>(PlusSeq(ma, mb));
-
-        [Pure]
-        IEnumerable<A> PlusSeq(Stck<A> ma, Stck<A> mb)
-        {
-            foreach (var a in ma) yield return a;
-            foreach (var b in mb) yield return b;
-        }
+            ma + mb;
 
         [Pure]
         public Stck<A> FromSeq(IEnumerable<A> xs) =>
@@ -95,7 +88,7 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public Stck<A> Zero() =>
-            Empty();
+            Stck<A>.Empty;
 
         [Pure]
         public int GetHashCode(Stck<A> x) =>

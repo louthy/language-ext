@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using static LanguageExt.Prelude;
 
 namespace LanguageExt
 {
@@ -11,10 +12,14 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="T">Stack element type</typeparam>
     [Serializable]
-    public struct Stck<T> : IEnumerable<T>, IEnumerable
+    public struct Stck<T> : 
+        IEnumerable<T>, 
+        IEnumerable,
+        IEquatable<Stck<T>>
     {
         public readonly static Stck<T> Empty = new Stck<T>(StckInternal<T>.Empty);
 
+        int hashCode;
         readonly StckInternal<T> value;
         StckInternal<T> Value => value ?? StckInternal<T>.Empty;
 
@@ -24,6 +29,7 @@ namespace LanguageExt
         internal Stck(StckInternal<T> value)
         {
             this.value = value;
+            this.hashCode = 0;
         }
 
         /// <summary>
@@ -32,14 +38,7 @@ namespace LanguageExt
         public Stck(IEnumerable<T> initial)
         {
             value = new StckInternal<T>(initial);
-        }
-
-        /// <summary>
-        /// Ctor that takes an initial state as a Lst T
-        /// </summary>
-        internal Stck(Lst<T> initial)
-        {
-            value = new StckInternal<T>(initial);
+            this.hashCode = 0;
         }
 
         /// <summary>
@@ -226,5 +225,27 @@ namespace LanguageExt
         [Pure]
         public Stck<T> Subtract(Stck<T> rhs) =>
             new Stck<T>(Enumerable.Except(this, rhs));
+
+        [Pure]
+        public static bool operator ==(Stck<T> lhs, Stck<T> rhs) =>
+            lhs.Equals(rhs);
+
+        [Pure]
+        public static bool operator !=(Stck<T> lhs, Stck<T> rhs) =>
+            !(lhs == rhs);
+
+        [Pure]
+        public override int GetHashCode() =>
+            hashCode == 0
+                ? hashCode = hash(this)
+                : hashCode;
+
+        [Pure]
+        public override bool Equals(object obj) =>
+            obj is Stck<T> && Equals((Stck<T>)obj);
+
+        [Pure]
+        public bool Equals(Stck<T> other) =>
+            hashCode == other.hashCode && Enumerable.Equals(this.Value, other.Value);
     }
 }

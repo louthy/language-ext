@@ -325,7 +325,7 @@ namespace LanguageExt
         public static string toString<T>(T value) =>
             value?.ToString();
 
-        class Check<T>
+        static class Check<T>
         {
             static bool IsValueType;
 

@@ -14,44 +14,20 @@ namespace LanguageExt
             queue.Enqueue(value);
 
         [Pure]
-        public static Tuple<Que<T>, T> deqUnsafe<T>(Que<T> queue)
-        {
-            T value;
-            var newqueue = queue.Dequeue(out value);
-            return Tuple(newqueue, value);
-        }
+        public static (Que<T> Queue, T Value) deqUnsafe<T>(Que<T> queue) =>
+            queue.DequeueUnsafe();
 
         [Pure]
-        public static Tuple<Que<T>, Option<T>> deq<T>(Que<T> queue)
-        {
-            try
-            {
-                T value;
-                var newqueue = queue.Dequeue(out value);
-                return Tuple(newqueue, Some(value));
-            }
-            catch (InvalidOperationException)
-            {
-                return Tuple(queue, Option<T>.None);
-            }
-        }
+        public static (Que<T> Queue, Option<T> Value) deq<T>(Que<T> queue) =>
+            queue.TryDequeue();
 
         [Pure]
         public static T peekUnsafe<T>(Que<T> queue) =>
             queue.Peek();
 
         [Pure]
-        public static Option<T> peek<T>(Que<T> queue)
-        {
-            try
-            {
-                return Some(queue.Peek());
-            }
-            catch (InvalidOperationException)
-            {
-                return None;
-            }
-        }
+        public static Option<T> peek<T>(Que<T> queue) =>
+            queue.TryPeek();
 
         [Pure]
         public static Que<T> clear<T>(Que<T> queue) =>
@@ -175,11 +151,11 @@ namespace LanguageExt
     public static class QueueExtensions
     {
         [Pure]
-        public static Tuple<Que<T>, T> PopUnsafe<T>(this Que<T> queue) =>
+        public static (Que<T>, T) PopUnsafe<T>(this Que<T> queue) =>
             LanguageExt.Queue.deqUnsafe(queue);
 
         [Pure]
-        public static Tuple<Que<T>, Option<T>> Pop<T>(this Que<T> queue) =>
+        public static (Que<T>, Option<T>) Pop<T>(this Que<T> queue) =>
             LanguageExt.Queue.deq(queue);
 
         [Pure]

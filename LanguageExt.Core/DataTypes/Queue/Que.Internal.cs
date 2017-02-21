@@ -8,23 +8,23 @@ using System.Diagnostics.Contracts;
 namespace LanguageExt
 {
     [Serializable]
-    public class Que<T> : IEnumerable<T>, IEnumerable
+    internal class QueInternal<T> : IEnumerable<T>, IEnumerable
     {
-        public readonly static Que<T> Empty = new Que<T>();
+        public readonly static QueInternal<T> Empty = new QueInternal<T>();
 
         readonly StckInternal<T> forward;
         readonly StckInternal<T> backward;
         StckInternal<T> backwardRev;
 
-        internal Que()
+        internal QueInternal()
         {
             forward = StckInternal<T>.Empty;
             backward = StckInternal<T>.Empty;
         }
 
-        internal Que(IEnumerable<T> items)
+        internal QueInternal(IEnumerable<T> items)
         {
-            var q = new Que<T>();
+            var q = new QueInternal<T>();
             foreach(var item in items)
             {
                 q = q.Enqueue(item);
@@ -34,7 +34,7 @@ namespace LanguageExt
             backwardRev = q.backwardRev;
         }
 
-        private Que(StckInternal<T> f, StckInternal<T> b)
+        private QueInternal(StckInternal<T> f, StckInternal<T> b)
         {
             forward = f;
             backward = b;
@@ -61,7 +61,7 @@ namespace LanguageExt
             forward.IsEmpty && backward.IsEmpty;
 
         [Pure]
-        public Que<T> Clear() =>
+        public QueInternal<T> Clear() =>
             Empty;
 
         [Pure]
@@ -69,12 +69,12 @@ namespace LanguageExt
             forward.Peek();
 
         [Pure]
-        public Que<T> Dequeue()
+        public QueInternal<T> Dequeue()
         {
             var f = forward.Pop();
             if (!f.IsEmpty)
             {
-                return new Que<T>(f, backward);
+                return new QueInternal<T>(f, backward);
             }
             else if (backward.IsEmpty)
             {
@@ -82,22 +82,22 @@ namespace LanguageExt
             }
             else
             {
-                return new Que<T>(BackwardRev, StckInternal<T>.Empty);
+                return new QueInternal<T>(BackwardRev, StckInternal<T>.Empty);
             }
         }
 
         [Pure]
-        public Que<T> Dequeue(out T outValue)
+        public QueInternal<T> Dequeue(out T outValue)
         {
             outValue = Peek();
             return Dequeue();
         }
 
         [Pure]
-        public Tuple<Que<T>, Option<T>> TryDequeue() =>
+        public (QueInternal<T>, Option<T>) TryDequeue() =>
             forward.TryPeek().Match(
-                Some: x => Tuple(Dequeue(), Some(x)),
-                None: () => Tuple(this, Option<T>.None)
+                Some: x => (Dequeue(), Some(x)),
+                None: () => (this, Option<T>.None)
             );
 
         [Pure]
@@ -105,10 +105,10 @@ namespace LanguageExt
             forward.TryPeek();
 
         [Pure]
-        public Que<T> Enqueue(T value) =>
+        public QueInternal<T> Enqueue(T value) =>
             IsEmpty
-                ? new Que<T>(StckInternal<T>.Empty.Push(value), StckInternal<T>.Empty)
-                : new Que<T>(forward, backward.Push(value));
+                ? new QueInternal<T>(StckInternal<T>.Empty.Push(value), StckInternal<T>.Empty)
+                : new QueInternal<T>(forward, backward.Push(value));
 
         [Pure]
         public IEnumerable<T> AsEnumerable() =>
@@ -123,11 +123,11 @@ namespace LanguageExt
             AsEnumerable().GetEnumerator();
 
         [Pure]
-        public static Que<T> operator +(Que<T> lhs, Que<T> rhs) =>
+        public static QueInternal<T> operator +(QueInternal<T> lhs, QueInternal<T> rhs) =>
             lhs.Append(rhs);
 
         [Pure]
-        public Que<T> Append(Que<T> rhs)
+        public QueInternal<T> Append(QueInternal<T> rhs)
         {
             var self = this;
             foreach (var item in rhs)
