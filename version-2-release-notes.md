@@ -1,3 +1,5 @@
+# Version 2 Release Notes (WIP)
+
 ## Bug fixes
 
 * Fix for `Process.exists()` exception (when no process exists)
