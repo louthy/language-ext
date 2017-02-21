@@ -238,7 +238,7 @@ See the pull request that led to this feature:
 It's hinted at above, but there are now type-classes (interfaces) for:
 
  Type-class | Functions | Description
---------------------------------------
+------------|-----------|-------------
 `BiFoldable<F, A, B>`| `BiFold`, `BiFoldBack` | for folding types that have two values (`Tuple<A,B>`` or `Either<L,R>` for example)
 `BiFunctor<FAB, FR, A, B, R>`| `BiMap` | as above, but for projection
 `Choice<CH, A, B>`| `IsChoice1`, `IsChoice2`, `Match`, `MatchUnsafe`, `IsBottom`, `IsUnsafe` | Represents a type (`CH`) with two possible values (a discriminated union of two types basically - like `Either<L, R>`).  Allows for generalisation of code that requires a binary choice, but doesn't want to be locked down to using `Either` (`Option` for example is a `Choice<Option<A>, Unit, A>``)
@@ -266,7 +266,7 @@ It's hinted at above, but there are now type-classes (interfaces) for:
 Class instances implement the type-class interfaces, are structs, and can be invoked by `default(TClassInstance).Foo()`.  This allows for ad-hoc polymorphic behaviours to be applied to sealed types.
 
  Type-class              | Class instances
--------------------------------------------
+-------------------------|-----------------
 `Const<A>`               | `ChA` - `ChZ`, `Cha` - `Chz`, `Ch0` - `Ch9`, `ChSpace`, `ChTab`, `ChCR`, `ChLF`
                          | `D0`, `D1`, `DNeg`
                          | `I0`-`I256`, `I300`, `I320`, `I384`, `I400`, `I480`, `I500`, `I512`, `I600`, `I640`, `I700`, `I768`, ..., `I1073741824`, `IMax`, `IMin`.
