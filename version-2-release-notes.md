@@ -239,22 +239,22 @@ It's hinted at above, but there are now type-classes (interfaces) for:
 
  Type-class | Functions | Description
 ------------|-----------|-------------
-`BiFoldable<F, A, B>`| `BiFold`, `BiFoldBack` | for folding types that have two values (`Tuple<A,B>`` or `Either<L,R>` for example)
-`BiFunctor<FAB, FR, A, B, R>`| `BiMap` | as above, but for projection
-`Choice<CH, A, B>`| `IsChoice1`, `IsChoice2`, `Match`, `MatchUnsafe`, `IsBottom`, `IsUnsafe` | Represents a type (`CH`) with two possible values (a discriminated union of two types basically - like `Either<L, R>`).  Allows for generalisation of code that requires a binary choice, but doesn't want to be locked down to using `Either` (`Option` for example is a `Choice<Option<A>, Unit, A>``)
-`Const<A>`| `Value` | Used for providing constants to the predicates for `NewType`
+`BiFoldable<F, A, B>` | `BiFold`, `BiFoldBack` | for folding types that have two values (`Tuple<A,B>`` or `Either<L,R>` for example)
+`BiFunctor<FAB, FR, A, B, R>` | `BiMap` | as above, but for projection
+`Choice<CH, A, B>` | `IsChoice1`, `IsChoice2`, `Match`, `MatchUnsafe`, `IsBottom`, `IsUnsafe` | Represents a type (`CH`) with two possible values (a discriminated union of two types basically - like `Either<L, R>`).  Allows for generalisation of code that requires a binary choice, but doesn't want to be locked down to using `Either` (`Option` for example is a `Choice<Option<A>, Unit, A>`)
+`Const<A>` | `Value` | Used for providing constants to the predicates for `NewType`
 `Eq<A>`| `Equals`, `GetHashCode` | Equality type-class
-`Floating<A>`| `Pi`, Exp`, `Sqrt`, `Log`, `Pow`, `LogBase`, `Sin`, `Cos`, `Tan`, `Asin`, `Acos`, `Atan`, `Sinh`, `Cosh`, `Tanh`, `Asinh`, `Acosh`, `Atanh` | Floating point number type-class.  Derives from `Fractional<A> -> Num<A> -> Ord<A> -> Eq<A>, Monoid<A> -> Semigroup<A>`.  
-`Foldable<FA, A>`| `Fold`, `FoldBack`, `Count` | standard type-class for types that can be folded (like `Lst`, `Option`, etc.)
-`Fraction<A>`| `FromRational` | Provides a way to get an `A` from `A / A`
-`Functor<FA, FB, A, B>`| `Map` | standard mapping projection function
-`Liftable<LA, A>`| `Lift`, `LiftSeq` | For lifting value(s) of `A` into the container type of `LA`
-`Monad<MA, A>`| `Bind`, `Return`, `FromSeq`, `Fail` | Monad type-class
-`MonadPlus<MA, A>`| Superclass of `Monad<MA, A>` | Adds `Plus` and `Zero`, which allows for `Filter`/`Where` to be derived.
-`MonadReader<Env, E>`| `Ask`, `Local`, `Reader` | Reader monad type-class, allows for an environment to be passed through a computation
-`MonadState<S, E>`| `Get`, `Put`, `State` | State monad type-class, allows for a state to be passed through a computation, one that can be set (using `Put`).
-`MonadWriter<MonoidW, W, A>`| `Tell`, `Listen` | Writer monad type-class, allows for aggregating outout (like a log for example).  The old version forced the use of `IEnumerable` to collect the output from `Tell` calls.  This is because I didn't have a `Monoid` type-class (`Monoid` provides `Append` and `Empty`).  So `MonadWriter` isn't limited to lists any more, it's limited to monoids: numbers, strings, etc.  Obviously you can implement your own monoids too.
-`Num<A>`| `Abs`, `Signum`, `FromInteger`, `Plus`, `Subtract`, `Product`, `Divide`, `Negate` | Represents a numeric type.  Derives from `Ord<A> -> Eq<A>, Monoid<A> -> Semigroup<A>`.
+`Floating<A>` | `Pi`, Exp`, `Sqrt`, `Log`, `Pow`, `LogBase`, `Sin`, `Cos`, `Tan`, `Asin`, `Acos`, `Atan`, `Sinh`, `Cosh`, `Tanh`, `Asinh`, `Acosh`, `Atanh` | Floating point number type-class.  Derives from `Fractional<A> -> Num<A> -> Ord<A> -> Eq<A>, Monoid<A> -> Semigroup<A>`.  
+`Foldable<FA, A>` | `Fold`, `FoldBack`, `Count` | standard type-class for types that can be folded (like `Lst`, `Option`, etc.)
+`Fraction<A>` | `FromRational` | Provides a way to get an `A` from `A / A`
+`Functor<FA, FB, A, B>` | `Map` | standard mapping projection function
+`Liftable<LA, A>` | `Lift`, `LiftSeq` | For lifting value(s) of `A` into the container type of `LA`
+`Monad<MA, A>` | `Bind`, `Return`, `FromSeq`, `Fail` | Monad type-class
+`MonadPlus<MA, A>` | Superclass of `Monad<MA, A>` | Adds `Plus` and `Zero`, which allows for `Filter`/`Where` to be derived.
+`MonadReader<Env, E>` | `Ask`, `Local`, `Reader` | Reader monad type-class, allows for an environment to be passed through a computation
+`MonadState<S, E>` | `Get`, `Put`, `State` | State monad type-class, allows for a state to be passed through a computation, one that can be set (using `Put`).
+`MonadWriter<MonoidW, W, A>` | `Tell`, `Listen` | Writer monad type-class, allows for aggregating outout (like a log for example).  The old version forced the use of `IEnumerable` to collect the output from `Tell` calls.  This is because I didn't have a `Monoid` type-class (`Monoid` provides `Append` and `Empty`).  So `MonadWriter` isn't limited to lists any more, it's limited to monoids: numbers, strings, etc.  Obviously you can implement your own monoids too.
+`Num<A>` | `Abs`, `Signum`, `FromInteger`, `Plus`, `Subtract`, `Product`, `Divide`, `Negate` | Represents a numeric type.  Derives from `Ord<A> -> Eq<A>, Monoid<A> -> Semigroup<A>`.
 `Optional<OA, A>` | IsSome, IsNone, Match, MatchUnsafe, IsUnsafe | Represents an optional value.  Like the `Choice` type, this allows unification of values that have an optional result (`Option`, `Either`, `Try`, `TryOption`, etc.)
 `Ord<A>` | `Compare` | Ordering type-class
 `Pred<A>` | `True` | Predicate type-class, used by `NewType` and `NumType` for validation, but essentially can be used to represent any predicate expression.
