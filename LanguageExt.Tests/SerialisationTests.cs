@@ -14,11 +14,11 @@ namespace LanguageExtTests
         public void MapTest()
         {
             var map = Map(
-                Tuple("test5", "/root/user/test5"),
-                Tuple("test2", "/root/user/test2"),
-                Tuple("test1", "/root/user/test1"),
-                Tuple("test3", "/root/user/test3"),
-                Tuple("test4", "/root/user/test4")
+                ("test5", "/root/user/test5"),
+                ("test2", "/root/user/test2"),
+                ("test1", "/root/user/test1"),
+                ("test3", "/root/user/test3"),
+                ("test4", "/root/user/test4")
                 );
 
             var json = JsonConvert.SerializeObject(map);
