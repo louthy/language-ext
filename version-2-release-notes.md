@@ -186,12 +186,12 @@ Or:
 ```
 `Sum` and `Product`:
 ```c#
-    var a = (100, 200, 300).Sum();  // 600
-    var b = (10, 10, 10).Product(); // 1000
+    var a = (100, 200, 300).Sum<TInt, int>();  // 600
+    var b = (10, 10, 10).Product<TInt, int>(); // 1000
 ```
 `Contains`:
 ```c#
-    var a = (1,2,3,4,5).Contains(3);  // true
+    var a = (1,2,3,4,5).Contains<EqInt, int>(3);  // true
 ```
 Mapping:
 ```c#
