@@ -220,6 +220,22 @@ Also:
 
 Here's a simple example:
 ```c#
+var cond = Cond<int>(x => x == 4)
+               .Then(true)
+               .Else(false);
+```
+That can be run like so:
+```c#
+bool result = cond(4); // True
+bool result = cond(0); // False
+```
+Or,
+```c#
+bool result = 4.Apply(cond); // True
+bool result = 0.Apply(cond); // False
+```
+Here's a slightly more complex  example:
+```c#
     var vowels = Subj<char>().Map(Char.ToLower)
                              .Any(x => x == 'a', x => x == 'e', x => x == 'i', x => x == 'o', x => x == 'u')
                              .Then("Is a vowel")
@@ -231,9 +247,9 @@ This can then be tagged onto anything that returns a char or a `Task<char>`:
 ```c#
     var res = GetCharFromRemoteServer().Apply(vowels);   // Task<string>
 ```
-See the pull request that led to this feature:
+See the [pull request](https://github.com/louthy/language-ext/pull/179) that led to this feature for more examples.
 
-    https://github.com/louthy/language-ext/pull/179
+    
 
 ### Type-classes
 
