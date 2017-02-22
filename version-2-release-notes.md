@@ -111,7 +111,7 @@ With the new type-classes and class-instances (see later), it's now possible to 
         public Metres(double x) : base(x) {}
     }
 ```
-That gives you these extras over `NumType`:
+That gives you these extras over `NewType`:
 ```c#
     operator: + * / -
     Product()
@@ -124,7 +124,7 @@ That gives you these extras over `NumType`:
     Max()
     Sum()
 ```
-You can also use a predicate with `NumType`:
+As with `NewType` you can also use a predicate:
 ```c#
     public class Age : NumType<Age, TInt, int, Range<int, TInt, I0, I120>> 
     { 
@@ -247,9 +247,7 @@ This can then be tagged onto anything that returns a char or a `Task<char>`:
 ```c#
     var res = GetCharFromRemoteServer().Apply(vowels);   // Task<string>
 ```
-See the [pull request](https://github.com/louthy/language-ext/pull/179) that led to this feature for more examples.
-
-Thanks to [@ncthbrt](https://github.com/ncthbrt) for the suggestion and initial implementation.
+See the [pull request](https://github.com/louthy/language-ext/pull/179) that led to this feature for more examples.  Thanks to [@ncthbrt](https://github.com/ncthbrt) for the suggestion and initial implementation.
     
 ### Type-classes
 
