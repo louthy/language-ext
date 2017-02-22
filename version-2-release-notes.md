@@ -249,7 +249,7 @@ This can then be tagged onto anything that returns a char or a `Task<char>`:
 ```
 See the [pull request](https://github.com/louthy/language-ext/pull/179) that led to this feature for more examples.
 
-Thanks to @ncthbrt for the suggestion and initial implementation.
+Thanks to [@ncthbrt](https://github.com/ncthbrt) for the suggestion and initial implementation.
     
 ### Type-classes
 
