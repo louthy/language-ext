@@ -414,8 +414,8 @@ namespace LanguageExt
             isnull(key)
                 ? this
                 : match(MapModule.TryFind<OrdK, K, V>(Root, key),
-                        Some: x => SetItem(key, Some(x)),
-                        None: () => raise<MapInternal<OrdK, K, V>>(new ArgumentException("Key not found in Map")));
+                        Some: x  => SetItem(key, Some(x)),
+                        None: () => throw new ArgumentException("Key not found in Map"));
 
         /// <summary>
         /// Atomically updates an existing item, unless it doesn't exist, in which case 

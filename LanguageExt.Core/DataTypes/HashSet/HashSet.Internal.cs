@@ -316,7 +316,7 @@ namespace LanguageExt
             var hash = default(EqA).GetHashCode(key);
             var bucket = ht.Find(hash);
             return bucket.IsSome
-                ? new HashSetInternal<EqA, A>(ht.SetItem(hash, bucket.Value.Map(x => default(EqA).Equals(x, key) ? key : x)), Count)
+                ? new HashSetInternal<EqA, A>(ht.TrySetItem(hash, bucket.Value.Map(x => default(EqA).Equals(x, key) ? key : x)), Count)
                 : this;
         }
 

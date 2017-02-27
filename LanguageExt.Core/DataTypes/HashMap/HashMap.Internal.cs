@@ -600,7 +600,7 @@ namespace LanguageExt
             var bucket = ht.Find(hash);
             if (bucket.IsSome)
             {
-                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? (x.Key, value) : x)), Count);
+                return new HashMapInternal<EqK, K, V>(ht.TrySetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? (x.Key, value) : x)), Count);
             }
             else
             {
@@ -627,7 +627,7 @@ namespace LanguageExt
             var bucket = ht.Find(hash);
             if (bucket.IsSome)
             {
-                return new HashMapInternal<EqK, K, V>(ht.SetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? (x.Key, Some(x.Value)) : x)), Count);
+                return new HashMapInternal<EqK, K, V>(ht.TrySetItem(hash, bucket.Value.Map(x => default(EqK).Equals(x.Key, key) ? (x.Key, Some(x.Value)) : x)), Count);
             }
             else
             {
