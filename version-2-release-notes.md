@@ -1,3 +1,5 @@
+# Version 2 Release Notes (WIP)
+
 ## Bug fixes
 
 * Fix for `Process.exists()` exception (when no process exists)
@@ -89,7 +91,7 @@ So you should be able to see that this allows validation to be embedded into the
         { }
     }
 ```
-`ClientConnectionId` is like a session token, and `StrLen<I10, I100>` means the string must be `10` to `100` chars long.  By embedding the validation into the type, there is no 'get out of jail free' cards where a loophole can be found in the type.  And it also becomes fundamentally (in the type system) a different type to say `NewType<ClientConnectionId, string, StrLen<I0, I100>>`; so any function that wants to work with the client connection token must accept either `ClientConnectionId` or its base type of `NewType<ClientConnectionId, string, StrLen<I10, I100>>`.  I think this is a pretty powerful concept for improving the safety of C# types in general, and takes the original `NewType` idea to the next level.
+`ClientConnectionId` is like a session token, and `StrLen<I10, I100>` means the string must be `10` to `100` chars long.  By embedding the validation into the type, there is no 'get out of jail free' cards where a loophole can be found in the type.  And it also becomes fundamentally a different type to `NewType<ClientConnectionId, string, StrLen<I0, I10>>` _(See the `<I0, I10>` at the end)_; so any function that wants to work with the client connection token must accept either `ClientConnectionId` or its base type of `NewType<ClientConnectionId, string, StrLen<I10, I100>>`.  I think this is a pretty powerful concept for improving the safety of C# types in general, and takes the original `NewType` idea to the next level.
 
 One breaking change is that the `Value` property has been made `protected`.  That means you can expose it if you like when you declare the `NewType`, but by default it's not visible outside of the class.  There is an explicit cast operator.  So for the `Metres` example above:
 ```c#
@@ -109,7 +111,7 @@ With the new type-classes and class-instances (see later), it's now possible to 
         public Metres(double x) : base(x) {}
     }
 ```
-That gives you these extras over `NumType`:
+That gives you these extras over `NewType`:
 ```c#
     operator: + * / -
     Product()
@@ -122,7 +124,7 @@ That gives you these extras over `NumType`:
     Max()
     Sum()
 ```
-You can also use a predicate with `NumType`:
+As with `NewType` you can also use a predicate:
 ```c#
     public class Age : NumType<Age, TInt, int, Range<int, TInt, I0, I120>> 
     { 
@@ -184,12 +186,12 @@ Or:
 ```
 `Sum` and `Product`:
 ```c#
-    var a = (100, 200, 300).Sum();  // 600
-    var b = (10, 10, 10).Product(); // 1000
+    var a = (100, 200, 300).Sum<TInt, int>();  // 600
+    var b = (10, 10, 10).Product<TInt, int>(); // 1000
 ```
 `Contains`:
 ```c#
-    var a = (1,2,3,4,5).Contains(3);  // true
+    var a = (1,2,3,4,5).Contains<EqInt, int>(3);  // true
 ```
 Mapping:
 ```c#
@@ -218,43 +220,57 @@ Also:
 
 Here's a simple example:
 ```c#
+var cond = Cond<int>(x => x == 4)
+               .Then(true)
+               .Else(false);
+```
+That can be run like so:
+```c#
+bool result = cond(4); // True
+bool result = cond(0); // False
+```
+Or,
+```c#
+bool result = 4.Apply(cond); // True
+bool result = 0.Apply(cond); // False
+```
+Here's a slightly more complex  example:
+```c#
     var vowels = Subj<char>().Map(Char.ToLower)
                              .Any(x => x == 'a', x => x == 'e', x => x == 'i', x => x == 'o', x => x == 'u')
                              .Then("Is a vowel")
                              .Else("Is a consonant");
 
-    var x = vowels('a'); // true
+    var x = vowels('a'); // "Is a vowel"
 ```
 This can then be tagged onto anything that returns a char or a `Task<char>`:
 ```c#
     var res = GetCharFromRemoteServer().Apply(vowels);   // Task<string>
 ```
-See the pull request that led to this feature:
-
-    https://github.com/louthy/language-ext/pull/179
-
+See the [pull request](https://github.com/louthy/language-ext/pull/179) that led to this feature for more examples.  Thanks to [@ncthbrt](https://github.com/ncthbrt) for the suggestion and initial implementation.
+    
 ### Type-classes
 
 It's hinted at above, but there are now type-classes (interfaces) for:
 
  Type-class | Functions | Description
---------------------------------------
-`BiFoldable<F, A, B>`| `BiFold`, `BiFoldBack` | for folding types that have two values (`Tuple<A,B>`` or `Either<L,R>` for example)
-`BiFunctor<FAB, FR, A, B, R>`| `BiMap` | as above, but for projection
-`Choice<CH, A, B>`| `IsChoice1`, `IsChoice2`, `Match`, `MatchUnsafe`, `IsBottom`, `IsUnsafe` | Represents a type (`CH`) with two possible values (a discriminated union of two types basically - like `Either<L, R>`).  Allows for generalisation of code that requires a binary choice, but doesn't want to be locked down to using `Either` (`Option` for example is a `Choice<Option<A>, Unit, A>``)
-`Const<A>`| `Value` | Used for providing constants to the predicates for `NewType`
+------------|-----------|-------------
+`BiFoldable<F, A, B>` | `BiFold`, `BiFoldBack` | for folding types that have two values (`Tuple<A,B>` or `Either<L,R>` for example)
+`BiFunctor<FAB, FR, A, B, R>` | `BiMap` | as above, but for projection
+`Choice<CH, A, B>` | `IsChoice1`, `IsChoice2`, `Match`, `MatchUnsafe`, `IsBottom`, `IsUnsafe` | Represents a type (`CH`) with two possible values (a discriminated union of two types basically - like `Either<L, R>`).  Allows for generalisation of code that requires a binary choice, but doesn't want to be locked down to using `Either` (`Option` for example is a `Choice<Option<A>, Unit, A>`)
+`Const<A>` | `Value` | Used for providing constants to the predicates for `NewType`
 `Eq<A>`| `Equals`, `GetHashCode` | Equality type-class
-`Floating<A>`| `Pi`, Exp`, `Sqrt`, `Log`, `Pow`, `LogBase`, `Sin`, `Cos`, `Tan`, `Asin`, `Acos`, `Atan`, `Sinh`, `Cosh`, `Tanh`, `Asinh`, `Acosh`, `Atanh` | Floating point number type-class.  Derives from `Fractional<A> -> Num<A> -> Ord<A> -> Eq<A>, Monoid<A> -> Semigroup<A>`.  
-`Foldable<FA, A>`| `Fold`, `FoldBack`, `Count` | standard type-class for types that can be folded (like `Lst`, `Option`, etc.)
-`Fraction<A>`| `FromRational` | Provides a way to get an `A` from `A / A`
-`Functor<FA, FB, A, B>`| `Map` | standard mapping projection function
-`Liftable<LA, A>`| `Lift`, `LiftSeq` | For lifting value(s) of `A` into the container type of `LA`
-`Monad<MA, A>`| `Bind`, `Return`, `FromSeq`, `Fail` | Monad type-class
-`MonadPlus<MA, A>`| Superclass of `Monad<MA, A>` | Adds `Plus` and `Zero`, which allows for `Filter`/`Where` to be derived.
-`MonadReader<Env, E>`| `Ask`, `Local`, `Reader` | Reader monad type-class, allows for an environment to be passed through a computation
-`MonadState<S, E>`| `Get`, `Put`, `State` | State monad type-class, allows for a state to be passed through a computation, one that can be set (using `Put`).
-`MonadWriter<MonoidW, W, A>`| `Tell`, `Listen` | Writer monad type-class, allows for aggregating outout (like a log for example).  The old version forced the use of `IEnumerable` to collect the output from `Tell` calls.  This is because I didn't have a `Monoid` type-class (`Monoid` provides `Append` and `Empty`).  So `MonadWriter` isn't limited to lists any more, it's limited to monoids: numbers, strings, etc.  Obviously you can implement your own monoids too.
-`Num<A>`| `Abs`, `Signum`, `FromInteger`, `Plus`, `Subtract`, `Product`, `Divide`, `Negate` | Represents a numeric type.  Derives from `Ord<A> -> Eq<A>, Monoid<A> -> Semigroup<A>`.
+`Floating<A>` | `Pi`, `Exp`, `Sqrt`, `Log`, `Pow`, `LogBase`, `Sin`, `Cos`, `Tan`, `Asin`, `Acos`, `Atan`, `Sinh`, `Cosh`, `Tanh`, `Asinh`, `Acosh`, `Atanh` | Floating point number type-class.  Derives from `Fractional<A> -> Num<A> -> Ord<A> -> Eq<A>, Monoid<A> -> Semigroup<A>`.  
+`Foldable<FA, A>` | `Fold`, `FoldBack`, `Count` | standard type-class for types that can be folded (like `Lst`, `Option`, etc.)
+`Fraction<A>` | `FromRational` | Provides a way to get an `A` from `A / A`
+`Functor<FA, FB, A, B>` | `Map` | standard mapping projection function
+`Liftable<LA, A>` | `Lift`, `LiftSeq` | For lifting value(s) of `A` into the container type of `LA`
+`Monad<MA, A>` | `Bind`, `Return`, `FromSeq`, `Fail` | Monad type-class
+`MonadPlus<MA, A>` | Superclass of `Monad<MA, A>` | Adds `Plus` and `Zero`, which allows for `Filter`/`Where` to be derived.
+`MonadReader<Env, E>` | `Ask`, `Local`, `Reader` | Reader monad type-class, allows for an environment to be passed through a computation
+`MonadState<S, E>` | `Get`, `Put`, `State` | State monad type-class, allows for a state to be passed through a computation, one that can be set (using `Put`).
+`MonadWriter<MonoidW, W, A>` | `Tell`, `Listen` | Writer monad type-class, allows for aggregating outout (like a log for example).  The old version forced the use of `IEnumerable` to collect the output from `Tell` calls.  This is because I didn't have a `Monoid` type-class (`Monoid` provides `Append` and `Empty`).  So `MonadWriter` isn't limited to lists any more, it's limited to monoids: numbers, strings, etc.  Obviously you can implement your own monoids too.
+`Num<A>` | `Abs`, `Signum`, `FromInteger`, `Plus`, `Subtract`, `Product`, `Divide`, `Negate` | Represents a numeric type.  Derives from `Ord<A> -> Eq<A>, Monoid<A> -> Semigroup<A>`.
 `Optional<OA, A>` | IsSome, IsNone, Match, MatchUnsafe, IsUnsafe | Represents an optional value.  Like the `Choice` type, this allows unification of values that have an optional result (`Option`, `Either`, `Try`, `TryOption`, etc.)
 `Ord<A>` | `Compare` | Ordering type-class
 `Pred<A>` | `True` | Predicate type-class, used by `NewType` and `NumType` for validation, but essentially can be used to represent any predicate expression.
@@ -266,7 +282,7 @@ It's hinted at above, but there are now type-classes (interfaces) for:
 Class instances implement the type-class interfaces, are structs, and can be invoked by `default(TClassInstance).Foo()`.  This allows for ad-hoc polymorphic behaviours to be applied to sealed types.
 
  Type-class              | Class instances
--------------------------------------------
+-------------------------|-----------------
 `Const<A>`               | `ChA` - `ChZ`, `Cha` - `Chz`, `Ch0` - `Ch9`, `ChSpace`, `ChTab`, `ChCR`, `ChLF`
                          | `D0`, `D1`, `DNeg`
                          | `I0`-`I256`, `I300`, `I320`, `I384`, `I400`, `I480`, `I500`, `I512`, `I600`, `I640`, `I700`, `I768`, ..., `I1073741824`, `IMax`, `IMin`.
