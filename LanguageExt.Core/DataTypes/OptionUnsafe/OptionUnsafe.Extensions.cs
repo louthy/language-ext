@@ -92,39 +92,61 @@ public static class OptionUnsafeExtensions
         from b in y
         select divide<NUM, A>(a, b);
 
-    /// Apply y to x
+    /// <summary>
+    /// Apply
     /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
-    public static OptionUnsafe<B> Apply<A, B>(this OptionUnsafe<Func<A, B>> x, OptionUnsafe<A> y) =>
-        apply<MOptionUnsafe<Func<A, B>>, MOptionUnsafe<A>, MOptionUnsafe<B>, OptionUnsafe<Func<A, B>>, OptionUnsafe<A>, OptionUnsafe<B>, A, B>(x, y);
+    public static OptionUnsafe<B> Apply<A, B>(this OptionUnsafe<Func<A, B>> fab, OptionUnsafe<A> fa) =>
+        FOptionUnsafe<A, B>.Inst.Apply(fab, fa);
 
     /// <summary>
-    /// Apply y and z to x
+    /// Apply
     /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative a to apply</param>
+    /// <param name="fb">Applicative b to apply</param>
+    /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
-    public static OptionUnsafe<C> Apply<A, B, C>(this OptionUnsafe<Func<A, B, C>> x, OptionUnsafe<A> y, OptionUnsafe<B> z) =>
-        apply<MOptionUnsafe<Func<A, B, C>>, MOptionUnsafe<A>, MOptionUnsafe<B>, MOptionUnsafe<C>, OptionUnsafe<Func<A, B, C>>, OptionUnsafe<A>, OptionUnsafe<B>, OptionUnsafe<C>, A, B, C>(x, y, z);
+    public static OptionUnsafe<C> Apply<A, B, C>(this OptionUnsafe<Func<A, B, C>> fabc, OptionUnsafe<A> fa, OptionUnsafe<B> fb) =>
+        from x in fabc
+        from y in FOptionUnsafe<A, B, C>.Inst.Apply(curry(x), fa, fb)
+        select y;
 
     /// <summary>
-    /// Apply y to x
+    /// Apply
     /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
-    public static OptionUnsafe<Func<B, C>> Apply<A, B, C>(this OptionUnsafe<Func<A, B, C>> x, OptionUnsafe<A> y) =>
-        apply<MOptionUnsafe<Func<A, B, C>>, MOptionUnsafe<A>, MOptionUnsafe<Func<B, C>>, OptionUnsafe<Func<A, B, C>>, OptionUnsafe<A>, OptionUnsafe<Func<B, C>>, A, B, C>(x, y);
+    public static OptionUnsafe<Func<B, C>> Apply<A, B, C>(this OptionUnsafe<Func<A, B, C>> fabc, OptionUnsafe<A> fa) =>
+        from x in fabc
+        from y in FOptionUnsafe<A, B, C>.Inst.Apply(curry(x), fa)
+        select y;
 
     /// <summary>
-    /// Apply y to x
+    /// Apply
     /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
-    public static OptionUnsafe<Func<B, C>> Apply<A, B, C>(this OptionUnsafe<Func<A, Func<B, C>>> x, OptionUnsafe<A> y) =>
-        apply2<MOptionUnsafe<Func<A, Func<B, C>>>, MOptionUnsafe<A>, MOptionUnsafe<Func<B, C>>, OptionUnsafe<Func<A, Func<B, C>>>, OptionUnsafe<A>, OptionUnsafe<Func<B, C>>, A, B, C>(x, y);
+    public static OptionUnsafe<Func<B, C>> Apply<A, B, C>(this OptionUnsafe<Func<A, Func<B, C>>> fabc, OptionUnsafe<A> fa) =>
+        FOptionUnsafe<A, B, C>.Inst.Apply(fabc, fa);
 
     /// <summary>
-    /// Apply x, then y, ignoring the result of x
+    /// Evaluate fa, then fb, ignoring the result of fa
     /// </summary>
+    /// <param name="fa">Applicative to evaluate first</param>
+    /// <param name="fb">Applicative to evaluate second and then return</param>
+    /// <returns>Applicative of type Option<B></returns>
     [Pure]
-    public static OptionUnsafe<B> Action<A, B>(this OptionUnsafe<A> x, OptionUnsafe<B> y) =>
-        action<MOptionUnsafe<A>, MOptionUnsafe<B>, OptionUnsafe<A>, OptionUnsafe<B>, A, B>(x, y);
+    public static OptionUnsafe<B> Action<A, B>(this OptionUnsafe<A> fa, OptionUnsafe<B> fb) =>
+        FOptionUnsafe<A, B>.Inst.Action(fa, fb);
+
 
     /// <summary>
     /// Convert the OptionUnsafe type to a Nullable of A

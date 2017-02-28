@@ -933,52 +933,55 @@ public static class TryOptionExtensions
         select w;
 
     /// <summary>
-    /// Apply a TryOptional argument to a TryOptional function of arity 1
+    /// Apply
     /// </summary>
-    /// <param name="option">Optional function</param>
-    /// <param name="x">Argument to apply</param>
-    /// <returns>Returns the result of applying the optional argument to the optional function</returns>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
-    public static TryOption<B> Apply<A, B>(this TryOption<Func<A, B>> x, TryOption<A> y) =>
-        apply<MTryOption<Func<A, B>>, MTryOption<A>, MTryOption<B>, TryOption<Func<A, B>>, TryOption<A>, TryOption<B>, A, B>(x, y);
+    public static TryOption<B> Apply<A, B>(this TryOption<Func<A, B>> fab, TryOption<A> fa) =>
+        FTryOption<A, B>.Inst.Apply(fab, fa);
 
     /// <summary>
-    /// Apply two TryOptional arguments to a TryOptional function of arity 2
+    /// Apply
     /// </summary>
-    /// <param name="TryOption">TryOptional function</param>
-    /// <param name="x">Argument to apply</param>
-    /// <param name="y">Argument to apply</param>
-    /// <returns>Returns the result of applying the TryOptional argument to the TryOptional function</returns>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative a to apply</param>
+    /// <param name="fb">Applicative b to apply</param>
+    /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
-    public static TryOption<C> Apply<A, B, C>(this TryOption<Func<A, B, C>> x, TryOption<A> y, TryOption<B> z) =>
-        apply<MTryOption<Func<A, B, C>>, MTryOption<A>, MTryOption<B>, MTryOption<C>, TryOption<Func<A, B, C>>, TryOption<A>, TryOption<B>, TryOption<C>, A, B, C>(x, y, z);
+    public static TryOption<C> Apply<A, B, C>(this TryOption<Func<A, B, C>> fabc, TryOption<A> fa, TryOption<B> fb) =>
+        fabc.Bind(f => FTryOption<A, B, C>.Inst.Apply(MTryOption<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa, fb));
 
     /// <summary>
-    /// Apply one TryOptional arguments to a TryOptional function of arity 2
+    /// Apply
     /// </summary>
-    /// <param name="TryOption">TryOptional function</param>
-    /// <param name="x">Argument to apply</param>
-    /// <returns>Returns the result of applying the TryOptional argument to the TryOptional function</returns>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
-    public static TryOption<Func<B, C>> Apply<A, B, C>(this TryOption<Func<A, B, C>> x, TryOption<A> y) =>
-        apply<MTryOption<Func<A, B, C>>, MTryOption<A>, MTryOption<Func<B, C>>, TryOption<Func<A, B, C>>, TryOption<A>, TryOption<Func<B, C>>, A, B, C>(x, y);
+    public static TryOption<Func<B, C>> Apply<A, B, C>(this TryOption<Func<A, B, C>> fabc, TryOption<A> fa) =>
+        fabc.Bind(f => FTryOption<A, B, C>.Inst.Apply(MTryOption<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa));
 
     /// <summary>
-    /// Apply one TryOptional arguments to a TryOptional function of arity 2
+    /// Apply
     /// </summary>
-    /// <param name="TryOption">TryOptional function</param>
-    /// <param name="x">Argument to apply</param>
-    /// <returns>Returns the result of applying the TryOptional argument to the TryOptional function</returns>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
-    public static TryOption<Func<B, C>> Apply<A, B, C>(this TryOption<Func<A, Func<B, C>>> x, TryOption<A> y) =>
-        apply2<MTryOption<Func<A, Func<B, C>>>, MTryOption<A>, MTryOption<Func<B, C>>, TryOption<Func<A, Func<B, C>>>, TryOption<A>, TryOption<Func<B, C>>, A, B, C>(x, y);
+    public static TryOption<Func<B, C>> Apply<A, B, C>(this TryOption<Func<A, Func<B, C>>> fabc, TryOption<A> fa) =>
+        FTryOption<A, B, C>.Inst.Apply(fabc, fa);
 
     /// <summary>
-    /// Partially apply a TryOptional argument to a curried TryOptional function
+    /// Evaluate fa, then fb, ignoring the result of fa
     /// </summary>
+    /// <param name="fa">Applicative to evaluate first</param>
+    /// <param name="fb">Applicative to evaluate second and then return</param>
+    /// <returns>Applicative of type Option<B></returns>
     [Pure]
-    public static TryOption<B> Action<A, B>(this TryOption<A> x, TryOption<B> y) =>
-        action<MTryOption<A>, MTryOption<B>, TryOption<A>, TryOption<B>, A, B>(x, y);
+    public static TryOption<B> Action<A, B>(this TryOption<A> fa, TryOption<B> fb) =>
+        FTryOption<A, B>.Inst.Action(fa, fb);
 
     /// <summary>
     /// Add the bound value of Try(x) to Try(y).  If either of the

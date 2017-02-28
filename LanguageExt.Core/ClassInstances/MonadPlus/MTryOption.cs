@@ -18,6 +18,9 @@ namespace LanguageExt.ClassInstances
         static TryOption<A> none = () => Option<A>.None;
 
         [Pure]
+        public TryOption<A> None => none;
+
+        [Pure]
         public MB Bind<MONADB, MB, B>(TryOption<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
         {
             var mr = ma.Try();
@@ -52,8 +55,8 @@ namespace LanguageExt.ClassInstances
         {
             var x = xs.Take(1).ToArray();
             return x.Length == 0
-                ? None
-                : Optional(x[0]);
+                ? Option<A>.None
+                : Prelude.Optional(x[0]);
         };
 
         /// <summary>
@@ -165,5 +168,13 @@ namespace LanguageExt.ClassInstances
             ma.Try().Value.IsSome
                 ? 1
                 : 0;
+
+        [Pure]
+        public TryOption<A> Some(A value) =>
+            Return(value);
+
+        [Pure]
+        public TryOption<A> Optional(A value) =>
+            Return(value);
     }
 }

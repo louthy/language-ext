@@ -76,39 +76,59 @@ namespace LanguageExt
             select default(NUM).Divide(a, b);
 
         /// <summary>
-        /// Apply y to x
+        /// Apply
         /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
-        public static EitherUnsafe<L, B> apply<L, A, B>(EitherUnsafe<L, Func<A, B>> x, EitherUnsafe<L, A> y) =>
-            apply<MEitherUnsafe<L, Func<A, B>>, MEitherUnsafe<L, A>, MEitherUnsafe<L, B>, EitherUnsafe<L, Func<A, B>>, EitherUnsafe<L, A>, EitherUnsafe<L, B>, A, B>(x, y);
+        public static EitherUnsafe<L, B> apply<L, A, B>(EitherUnsafe<L, Func<A, B>> fab, EitherUnsafe<L, A> fa) =>
+            FEitherUnsafe<L, A, B>.Inst.Apply(fab, fa);
 
         /// <summary>
-        /// Apply y and z to x
+        /// Apply
         /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative a to apply</param>
+        /// <param name="fb">Applicative b to apply</param>
+        /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
-        public static EitherUnsafe<L, C> apply<L, A, B, C>(EitherUnsafe<L, Func<A, B, C>> x, EitherUnsafe<L, A> y, EitherUnsafe<L, B> z) =>
-            apply<MEitherUnsafe<L, Func<A, B, C>>, MEitherUnsafe<L, A>, MEitherUnsafe<L, B>, MEitherUnsafe<L, C>, EitherUnsafe<L, Func<A, B, C>>, EitherUnsafe<L, A>, EitherUnsafe<L, B>, EitherUnsafe<L, C>, A, B, C>(x, y, z);
+        public static EitherUnsafe<L, C> apply<L, A, B, C>(EitherUnsafe<L, Func<A, B, C>> fabc, EitherUnsafe<L, A> fa, EitherUnsafe<L, B> fb) =>
+            from x in fabc
+            from y in FEitherUnsafe<L, A, B, C>.Inst.Apply(curry(x), fa, fb)
+            select y;
 
         /// <summary>
-        /// Apply y to x
+        /// Apply
         /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
-        public static EitherUnsafe<L, Func<B, C>> apply<L, A, B, C>(EitherUnsafe<L, Func<A, B, C>> x, EitherUnsafe<L, A> y) =>
-            apply<MEitherUnsafe<L, Func<A, B, C>>, MEitherUnsafe<L, A>, MEitherUnsafe<L, Func<B, C>>, EitherUnsafe<L, Func<A, B, C>>, EitherUnsafe<L, A>, EitherUnsafe<L, Func<B, C>>, A, B, C>(x, y);
+        public static EitherUnsafe<L, Func<B, C>> apply<L, A, B, C>(EitherUnsafe<L, Func<A, B, C>> fabc, EitherUnsafe<L, A> fa) =>
+            from x in fabc
+            from y in FEitherUnsafe<L, A, B, C>.Inst.Apply(curry(x), fa)
+            select y;
 
         /// <summary>
-        /// Apply y to x
+        /// Apply
         /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
-        public static EitherUnsafe<L, Func<B, C>> apply<L, A, B, C>(EitherUnsafe<L, Func<A, Func<B, C>>> x, EitherUnsafe<L, A> y) =>
-            apply2<MEitherUnsafe<L, Func<A, Func<B, C>>>, MEitherUnsafe<L, A>, MEitherUnsafe<L, Func<B, C>>, EitherUnsafe<L, Func<A, Func<B, C>>>, EitherUnsafe<L, A>, EitherUnsafe<L, Func<B, C>>, A, B, C>(x, y);
+        public static EitherUnsafe<L, Func<B, C>> apply<L, A, B, C>(EitherUnsafe<L, Func<A, Func<B, C>>> fabc, EitherUnsafe<L, A> fa) =>
+            FEitherUnsafe<L, A, B, C>.Inst.Apply(fabc, fa);
 
         /// <summary>
-        /// Apply x, then y, ignoring the result of x
+        /// Evaluate fa, then fb, ignoring the result of fa
         /// </summary>
+        /// <param name="fa">Applicative to evaluate first</param>
+        /// <param name="fb">Applicative to evaluate second and then return</param>
+        /// <returns>Applicative of type Option<B></returns>
         [Pure]
-        public static EitherUnsafe<L, B> action<L, A, B>(EitherUnsafe<L, A> x, EitherUnsafe<L, B> y) =>
-            action<MEitherUnsafe<L, A>, MEitherUnsafe<L, B>, EitherUnsafe<L, A>, EitherUnsafe<L, B>, A, B>(x, y);
+        public static EitherUnsafe<L, B> action<L, A, B>(EitherUnsafe<L, A> fa, EitherUnsafe<L, B> fb) =>
+            FEitherUnsafe<L, A, B>.Inst.Action(fa, fb);
 
         /// <summary>
         /// Returns the state of the Either provided

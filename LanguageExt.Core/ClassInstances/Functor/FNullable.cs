@@ -15,18 +15,10 @@ namespace LanguageExt.ClassInstances
 
         [Pure]
         public B? BiMap(A? ma, Func<Unit, B> fa, Func<A, B> fb) =>
-            ma.HasValue
-                ? fb == null
-                    ? (B?)null
-                    : fb(ma.Value)
-                : fa == null
-                    ? (B?)null
-                    : fa(unit);
+            FOptional<MNullable<A>, MNullable<B>, A?, B?, A, B>.Inst.BiMap(ma, fa, fb);
 
         [Pure]
         public B? Map(A? ma, Func<A, B> f) =>
-            ma.HasValue && f != null
-                ? f(ma.Value)
-                : (B?)null;
+            FOptional<MNullable<A>, MNullable<B>, A?, B?, A, B>.Inst.Map(ma, f);
     }
 }

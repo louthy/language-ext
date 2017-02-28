@@ -18,6 +18,9 @@ namespace LanguageExt.ClassInstances
         public static readonly MOptionUnsafe<A> Inst = default(MOptionUnsafe<A>);
 
         [Pure]
+        public OptionUnsafe<A> None => OptionUnsafe<A>.None;
+
+        [Pure]
         public MB Bind<MONADB, MB, B>(OptionUnsafe<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
         {
             if (f == null) throw new ArgumentNullException(nameof(f));
@@ -183,5 +186,13 @@ namespace LanguageExt.ClassInstances
             choice.MatchUnsafe(
                 Some: Choice2,
                 None: () => Choice1(unit));
+
+        [Pure]
+        public OptionUnsafe<A> Some(A value) =>
+            OptionUnsafe<A>.Some(value);
+
+        [Pure]
+        public OptionUnsafe<A> Optional(A value) =>
+            OptionUnsafe<A>.Some(value);
     }
 }

@@ -4,24 +4,25 @@ using static LanguageExt.TypeClass;
 using System;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LanguageExt
 {
     public static partial class Prelude
     {
         /// <summary>
-        /// Add the bound value of Try(x) to Try(y).  If either of the
+        /// Add the bound value of TryAsync(x) to TryAsync(y).  If either of the
         /// Trys are Fail then the result is Fail
         /// </summary>
         /// <param name="lhs">Left-hand side of the operation</param>
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs + rhs</returns>
         [Pure]
-        public static Try<A> add<NUM, A>(Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
+        public static TryAsync<A> add<NUM, A>(TryAsync<A> lhs, TryAsync<A> rhs) where NUM : struct, Num<A> =>
             lhs.Add<NUM, A>(rhs);
-    
+
         /// <summary>
-        /// Subtract the Try(x) from Try(y).  If either of the Trys throw then the result is Fail
+        /// Subtract the TryAsync(x) from TryAsync(y).  If either of the Trys throw then the result is Fail
         /// For numeric values the behaviour is to find the subtract between the Trys (lhs - rhs)
         /// For Lst values the behaviour is to remove items in the rhs from the lhs
         /// For Map or Set values the behaviour is to remove items in the rhs from the lhs
@@ -32,11 +33,11 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs - rhs</returns>
         [Pure]
-        public static Try<T> subtract<NUM, T>(Try<T> lhs, Try<T> rhs) where NUM : struct, Num<T> =>
+        public static TryAsync<T> subtract<NUM, T>(TryAsync<T> lhs, TryAsync<T> rhs) where NUM : struct, Num<T> =>
             lhs.Subtract<NUM, T>(rhs);
 
         /// <summary>
-        /// Find the product of Try(x) and Try(y).  If either of the Trys throw then the result is Fail
+        /// Find the product of TryAsync(x) and TryAsync(y).  If either of the Trys throw then the result is Fail
         /// For numeric values the behaviour is to multiply the Trys (lhs * rhs)
         /// For Lst values the behaviour is to multiply all combinations of values in both lists 
         /// to produce a new list
@@ -47,7 +48,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs * rhs</returns>
         [Pure]
-        public static Try<T> product<NUM, T>(Try<T> lhs, Try<T> rhs) where NUM : struct, Num<T> =>
+        public static TryAsync<T> product<NUM, T>(TryAsync<T> lhs, TryAsync<T> rhs) where NUM : struct, Num<T> =>
             lhs.Product<NUM, T>(rhs);
 
         /// <summary>
@@ -62,7 +63,7 @@ namespace LanguageExt
         /// <param name="rhs">Right-hand side of the operation</param>
         /// <returns>lhs / rhs</returns>
         [Pure]
-        public static Try<T> divide<NUM, T>(Try<T> lhs, Try<T> rhs) where NUM : struct, Num<T> =>
+        public static TryAsync<T> divide<NUM, T>(TryAsync<T> lhs, TryAsync<T> rhs) where NUM : struct, Num<T> =>
             lhs.Divide<NUM, T>(rhs);
 
         /// <summary>
@@ -72,8 +73,8 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
-        public static Try<B> apply<A, B>(Try<Func<A, B>> fab, Try<A> fa) =>
-            FTry<A, B>.Inst.Apply(fab, fa);
+        public static TryAsync<B> apply<A, B>(TryAsync<Func<A, B>> fab, TryAsync<A> fa) =>
+            FTryAsync<A, B>.Inst.Apply(fab, fa);
 
         /// <summary>
         /// Apply
@@ -83,8 +84,8 @@ namespace LanguageExt
         /// <param name="fb">Applicative b to apply</param>
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
-        public static Try<C> apply<A, B, C>(Try<Func<A, B, C>> fabc, Try<A> fa, Try<B> fb) =>
-            fabc.Bind(f => FTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa, fb));
+        public static TryAsync<C> apply<A, B, C>(TryAsync<Func<A, B, C>> fabc, TryAsync<A> fa, TryAsync<B> fb) =>
+            fabc.Bind(f => FTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa, fb));
 
         /// <summary>
         /// Apply
@@ -93,8 +94,8 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
-        public static Try<Func<B, C>> apply<A, B, C>(Try<Func<A, B, C>> fabc, Try<A> fa) =>
-            fabc.Bind(f => FTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa));
+        public static TryAsync<Func<B, C>> apply<A, B, C>(TryAsync<Func<A, B, C>> fabc, TryAsync<A> fa) =>
+            fabc.Bind(f => FTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa));
 
         /// <summary>
         /// Apply
@@ -103,8 +104,8 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
-        public static Try<Func<B, C>> apply<A, B, C>(Try<Func<A, Func<B, C>>> fabc, Try<A> fa) =>
-            FTry<A, B, C>.Inst.Apply(fabc, fa);
+        public static TryAsync<Func<B, C>> apply<A, B, C>(TryAsync<Func<A, Func<B, C>>> fabc, TryAsync<A> fa) =>
+            FTryAsync<A, B, C>.Inst.Apply(fabc, fa);
 
         /// <summary>
         /// Evaluate fa, then fb, ignoring the result of fa
@@ -113,58 +114,59 @@ namespace LanguageExt
         /// <param name="fb">Applicative to evaluate second and then return</param>
         /// <returns>Applicative of type Option<B></returns>
         [Pure]
-        public static Try<B> action<A, B>(Try<A> fa, Try<B> fb) =>
-            FTry<A, B>.Inst.Action(fa, fb);
+        public static TryAsync<B> action<A, B>(TryAsync<A> fa, TryAsync<B> fb) =>
+            FTryAsync<A, B>.Inst.Action(fa, fb);
 
         /// <summary>
-        /// Test if the Try computation is successful
+        /// Test if the TryAsync computation is successful
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
-        /// <param name="self">Try computation to test</param>
+        /// <param name="self">TryAsync computation to test</param>
         /// <returns>True if successful</returns>
         [Pure]
-        public static bool isSucc<T>(Try<T> self) =>
-            !isFail(self);
+        public static TryAsync<bool> isSucc<T>(TryAsync<T> self) =>
+            from x in isFail(self)
+            select !x;
 
         /// <summary>
-        /// Test if the Try computation fails
+        /// Test if the TryAsync computation fails
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
-        /// <param name="self">Try computation to test</param>
+        /// <param name="self">TryAsync computation to test</param>
         /// <returns>True if fails</returns>
         [Pure]
-        public static bool isFail<T>(Try<T> self) =>
-            self.Try().IsFaulted;
+        public static TryAsync<bool> isFail<T>(TryAsync<T> self) => async () =>
+            (await self.Try()).IsFaulted;
 
         /// <summary>
-        /// Invoke a delegate if the Try returns a value successfully
+        /// Invoke a delegate if the TryAsync returns a value successfully
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
-        /// <param name="self">Try computation</param>
+        /// <param name="self">TryAsync computation</param>
         /// <param name="Succ">Delegate to invoke if successful</param>
-        public static Unit ifSucc<T>(Try<T> self, Action<T> Succ) =>
+        public static Task<Unit> ifSucc<T>(TryAsync<T> self, Action<T> Succ) =>
             self.IfSucc(Succ);
 
         /// <summary>
-        /// Invoke a delegate if the Try fails
+        /// Invoke a delegate if the TryAsync fails
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
-        /// <param name="value">Try computation</param>
+        /// <param name="value">TryAsync computation</param>
         /// <param name="Fail">Delegate to invoke on failure</param>
-        /// <returns>Result of the invocation of Fail on failure, the result of the Try otherwise</returns>
+        /// <returns>Result of the invocation of Fail on failure, the result of the TryAsync otherwise</returns>
         [Pure]
-        public static T ifFail<T>(Try<T> self, Func<T> Fail) =>
+        public static Task<T> ifFail<T>(TryAsync<T> self, Func<T> Fail) =>
             self.IfFail(Fail);
 
         /// <summary>
-        /// Return a default value if the Try fails
+        /// Return a default value if the TryAsync fails
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
-        /// <param name="self">Try computation</param>
+        /// <param name="self">TryAsync computation</param>
         /// <param name="failValue">Default value to use on failure</param>
-        /// <returns>failValue on failure, the result of the Try otherwise</returns>
+        /// <returns>failValue on failure, the result of the TryAsync otherwise</returns>
         [Pure]
-        public static T ifFail<T>(Try<T> self, T failValue) =>
+        public static Task<T> ifFail<T>(TryAsync<T> self, T failValue) =>
             self.IfFail(failValue);
 
         /// <summary>
@@ -172,146 +174,146 @@ namespace LanguageExt
         /// when the Try fails.
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
-        /// <param name="self">Try computation</param>
+        /// <param name="self">TryAsync computation</param>
         /// <returns>Fluent exception matcher</returns>
         [Pure]
-        public static ExceptionMatch<T> ifFail<T>(Try<T> self) =>
+        public static ExceptionMatchAsync<T> ifFail<T>(TryAsync<T> self) =>
             self.IfFail();
 
         /// <summary>
-        /// Maps the bound value to the resulting exception (if the Try computation fails).  
-        /// If the Try computation succeeds then a NotSupportedException is used.
+        /// Maps the bound value to the resulting exception (if the TryAsync computation fails).  
+        /// If the TryAsync computation succeeds then a NotSupportedException is used.
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
-        /// <param name="self">Try computation</param>
+        /// <param name="self">TryAsync computation</param>
         /// <returns>Try of Exception</returns>
         [Pure]
-        public static Try<Exception> failed<T>(Try<T> self) =>
+        public static TryAsync<Exception> failed<T>(TryAsync<T> self) =>
             bimap(self, 
                 Succ: _  => new NotSupportedException(),
                 Fail: ex => ex
                 );
 
         /// <summary>
-        /// Flattens nested Try computations
+        /// Flattens nested TryAsync computations
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
-        /// <param name="self">Try computation</param>
-        /// <returns>Flattened Try computation</returns>
+        /// <param name="self">TryAsync computation</param>
+        /// <returns>Flattened TryAsync computation</returns>
         [Pure]
-        public static Try<T> flatten<T>(Try<Try<T>> self) =>
+        public static TryAsync<T> flatten<T>(TryAsync<TryAsync<T>> self) =>
             self.Flatten();
 
         /// <summary>
-        /// Flattens nested Try computations
+        /// Flattens nested TryAsync computations
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
-        /// <param name="self">Try computation</param>
-        /// <returns>Flattened Try computation</returns>
+        /// <param name="self">TryAsync computation</param>
+        /// <returns>Flattened TryAsync computation</returns>
         [Pure]
-        public static Try<T> flatten<T>(Try<Try<Try<T>>> self) =>
+        public static TryAsync<T> flatten<T>(TryAsync<TryAsync<TryAsync<T>>> self) =>
             self.Flatten();
 
         /// <summary>
-        /// Flattens nested Try computations
+        /// Flattens nested TryAsync computations
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
-        /// <param name="self">Try computation</param>
-        /// <returns>Flattened Try computation</returns>
+        /// <param name="self">TryAsync computation</param>
+        /// <returns>Flattened TryAsync computation</returns>
         [Pure]
-        public static Try<T> flatten<T>(Try<Try<Try<Try<T>>>> self) =>
+        public static TryAsync<T> flatten<T>(TryAsync<TryAsync<TryAsync<TryAsync<T>>>> self) =>
             self.Flatten();
 
         /// <summary>
-        /// Pattern matches the two possible states of the Try computation
+        /// Pattern matches the two possible states of the TryAsync computation
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
         /// <typeparam name="R">Type of the resulting bound value</typeparam>
         /// <param name="self">Try computation</param>
-        /// <param name="Succ">Delegate to invoke if the Try computation completes successfully</param>
-        /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
+        /// <param name="Succ">Delegate to invoke if the TryAsync computation completes successfully</param>
+        /// <param name="Fail">Delegate to invoke if the TryAsync computation fails</param>
         /// <returns>The result of either the Succ or Fail delegates</returns>
         [Pure]
-        public static R match<T, R>(Try<T> self, Func<T, R> Succ, Func<Exception, R> Fail) =>
+        public static Task<R> match<T, R>(TryAsync<T> self, Func<T, R> Succ, Func<Exception, R> Fail) =>
             self.Match(Succ, Fail);
 
         /// <summary>
-        /// Pattern matches the two possible states of the Try computation
+        /// Pattern matches the two possible states of the TryAsync computation
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
         /// <typeparam name="R">Type of the resulting bound value</typeparam>
-        /// <param name="self">Try computation</param>
-        /// <param name="Succ">Delegate to invoke if the Try computation completes successfully</param>
-        /// <param name="Fail">Default value to use if the Try computation fails</param>
+        /// <param name="self">TryAsync computation</param>
+        /// <param name="Succ">Delegate to invoke if the TryAsync computation completes successfully</param>
+        /// <param name="Fail">Default value to use if the TryAsync computation fails</param>
         /// <returns>The result of either the Succ delegate or the Fail value</returns>
         [Pure]
-        public static R match<T, R>(Try<T> self, Func<T, R> Succ, R Fail) =>
+        public static Task<R> match<T, R>(TryAsync<T> self, Func<T, R> Succ, R Fail) =>
             self.Match(Succ, Fail);
 
         /// <summary>
-        /// Pattern matches the two possible states of the Try computation
+        /// Pattern matches the two possible states of the TryAsync computation
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
-        /// <param name="self">Try computation</param>
-        /// <param name="Succ">Delegate to invoke if the Try computation completes successfully</param>
-        /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
-        public static Unit match<T>(Try<T> self, Action<T> Succ, Action<Exception> Fail) =>
+        /// <param name="self">TryAsync computation</param>
+        /// <param name="Succ">Delegate to invoke if the TryAsync computation completes successfully</param>
+        /// <param name="Fail">Delegate to invoke if the TryAsync computation fails</param>
+        public static Task<Unit> match<T>(TryAsync<T> self, Action<T> Succ, Action<Exception> Fail) =>
             self.Match(Succ, Fail);
 
         /// <summary>
-        /// Invokes a delegate with the result of the Try computation if it is successful.
+        /// Invokes a delegate with the result of the TryAsync computation if it is successful.
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
-        /// <param name="self">Try computation</param>
-        /// <param name="action">Delegate to invoke on successful invocation of the Try computation</param>
-        public static Unit iter<T>(Try<T> self, Action<T> action) =>
+        /// <param name="self">TryAsync computation</param>
+        /// <param name="action">Delegate to invoke on successful invocation of the TryAsync computation</param>
+        public static Task<Unit> iter<T>(TryAsync<T> self, Action<T> action) =>
             self.Iter(action);
 
         /// <summary>
-        /// Folds the value of Try into an S.
+        /// Folds the value of TryAsync into an S.
         /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
         /// </summary>
-        /// <param name="self">Try to fold</param>
+        /// <param name="self">TryAsync to fold</param>
         /// <param name="state">Initial state</param>
         /// <param name="folder">Fold function</param>
         /// <returns>Folded state</returns>
         [Pure]
-        public static S fold<S, T>(Try<T> self, S state, Func<S, T, S> folder) =>
+        public static Task<S> fold<S, T>(TryAsync<T> self, S state, Func<S, T, S> folder) =>
             self.Fold(state, folder);
 
         /// <summary>
-        /// Folds the result of Try into an S.
+        /// Folds the result of TryAsync into an S.
         /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
         /// </summary>
-        /// <param name="tryDel">Try to fold</param>
+        /// <param name="tryDel">TryAsync to fold</param>
         /// <param name="state">Initial state</param>
-        /// <param name="Succ">Fold function when Try succeeds</param>
-        /// <param name="Fail">Fold function when Try fails</param>
+        /// <param name="Succ">Fold function when TryAsync succeeds</param>
+        /// <param name="Fail">Fold function when TryAsync fails</param>
         /// <returns>Folded state</returns>
         [Pure]
-        public static S fold<S, T>(Try<T> self, S state, Func<S, T, S> Succ, Func<S, Exception, S> Fail) =>
+        public static Task<S> fold<S, T>(TryAsync<T> self, S state, Func<S, T, S> Succ, Func<S, Exception, S> Fail) =>
             self.BiFold(state, Succ, Fail);
 
         /// <summary>
         /// Tests that a predicate holds for all values of the bound value T
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
-        /// <param name="self">Try computation</param>
+        /// <param name="self">TryAsync computation</param>
         /// <param name="pred">Predicate to test the bound value against</param>
-        /// <returns>True if the predicate holds for the bound value, or if the Try computation
+        /// <returns>True if the predicate holds for the bound value, or if the TryAsync computation
         /// fails.  False otherwise.</returns>
         [Pure]
-        public static bool forall<T>(Try<T> self, Func<T, bool> pred) =>
+        public static Task<bool> forall<T>(TryAsync<T> self, Func<T, bool> pred) =>
             self.ForAll(pred);
 
         /// <summary>
         /// Counts the number of bound values.  
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
-        /// <param name="self">TrTry computation</param>
-        /// <returns>1 if the Try computation is successful, 0 otherwise.</returns>
+        /// <param name="self">TryAsync computation</param>
+        /// <returns>1 if the TryAsync computation is successful, 0 otherwise.</returns>
         [Pure]
-        public static int count<T>(Try<T> self) =>
+        public static Task<int> count<T>(TryAsync<T> self) =>
             self.Count();
 
         /// <summary>
@@ -322,7 +324,7 @@ namespace LanguageExt
         /// <param name="pred">Predicate to test the bound value against</param>
         /// <returns>True if the predicate holds for the bound value.  False otherwise.</returns>
         [Pure]
-        public static bool exists<T>(Try<T> self, Func<T, bool> pred) =>
+        public static Task<bool> exists<T>(TryAsync<T> self, Func<T, bool> pred) =>
             self.Exists(pred);
 
         /// <summary>
@@ -330,11 +332,11 @@ namespace LanguageExt
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
         /// <typeparam name="R">Resulting bound value type</typeparam>
-        /// <param name="self">Try computation</param>
+        /// <param name="self">TryAsync computation</param>
         /// <param name="mapper">Delegate to map the bound value</param>
         /// <returns>Mapped Try computation</returns>
         [Pure]
-        public static Try<R> map<T, R>(Try<T> self, Func<T, R> mapper) =>
+        public static TryAsync<R> map<T, R>(TryAsync<T> self, Func<T, R> mapper) =>
             self.Map(mapper);
 
         /// <summary>
@@ -342,12 +344,12 @@ namespace LanguageExt
         /// </summary>
         /// <typeparam name="T">Type of the bound value</typeparam>
         /// <typeparam name="R">Resulting bound value type</typeparam>
-        /// <param name="self">Try computation</param>
+        /// <param name="self">TryAsync computation</param>
         /// <param name="Succ">Delegate to map the bound value</param>
         /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
         /// <returns>Mapped Try computation</returns>
         [Pure]
-        public static Try<R> bimap<T, R>(Try<T> tryDel, Func<T, R> Succ, Func<Exception, R> Fail) =>
+        public static TryAsync<R> bimap<T, R>(TryAsync<T> tryDel, Func<T, R> Succ, Func<Exception, R> Fail) =>
             tryDel.BiMap(Succ, Fail);
 
         /// <summary>
@@ -355,7 +357,7 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
-        public static Try<Func<T2, R>> parmap<T1, T2, R>(Try<T1> self, Func<T1, T2, R> func) =>
+        public static TryAsync<Func<T2, R>> parmap<T1, T2, R>(TryAsync<T1> self, Func<T1, T2, R> func) =>
             self.ParMap(func);
 
         /// <summary>
@@ -363,51 +365,43 @@ namespace LanguageExt
         /// </summary>
         /// <remarks>TODO: Better documentation of this function</remarks>
         [Pure]
-        public static Try<Func<T2, Func<T3, R>>> parmap<T1, T2, T3, R>(Try<T1> self, Func<T1, T2, T3, R> func) =>
+        public static TryAsync<Func<T2, Func<T3, R>>> parmap<T1, T2, T3, R>(TryAsync<T1> self, Func<T1, T2, T3, R> func) =>
             self.ParMap(func);
 
         [Pure]
-        public static Try<T> filter<T>(Try<T> self, Func<T, bool> pred) =>
+        public static TryAsync<T> filter<T>(TryAsync<T> self, Func<T, bool> pred) =>
             self.Filter(pred);
 
         [Obsolete]
-        public static Try<T> filter<T>(Try<T> self, Func<T, bool> Succ, Func<Exception, bool> Fail) =>
+        public static TryAsync<T> TryAsync<T>(TryAsync<T> self, Func<T, bool> Succ, Func<Exception, bool> Fail) =>
             self.BiFilter(Succ, Fail);
 
         [Pure]
-        public static Try<T> bifilter<T>(Try<T> self, Func<T, bool> Succ, Func<Exception, bool> Fail) =>
+        public static TryAsync<T> bifilter<T>(TryAsync<T> self, Func<T, bool> Succ, Func<Exception, bool> Fail) =>
             self.BiFilter(Succ, Fail);
 
         [Pure]
-        public static Try<R> bind<T, R>(Try<T> tryDel, Func<T, Try<R>> binder) =>
+        public static TryAsync<R> bind<T, R>(TryAsync<T> tryDel, Func<T, TryAsync<R>> binder) =>
             tryDel.Bind(binder);
 
-        [Obsolete]
-        public static Try<R> bind<T, R>(Try<T> self, Func<T, Try<R>> Succ, Func<Exception, Try<R>> Fail) =>
+        [Pure]
+        public static TryAsync<R> bibind<T, R>(TryAsync<T> self, Func<T, TryAsync<R>> Succ, Func<Exception, TryAsync<R>> Fail) =>
             self.BiBind(Succ, Fail);
 
         [Pure]
-        public static Try<R> bibind<T, R>(Try<T> self, Func<T, Try<R>> Succ, Func<Exception, Try<R>> Fail) =>
-            self.BiBind(Succ, Fail);
-
-        [Pure]
-        public static Lst<Either<Exception, T>> toList<T>(Try<T> tryDel) =>
+        public static Task<Lst<Either<Exception, T>>> toList<T>(TryAsync<T> tryDel) =>
             tryDel.ToList();
 
         [Pure]
-        public static Arr<Either<Exception, T>> toArray<T>(Try<T> tryDel) =>
+        public static Task<Arr<Either<Exception, T>>> toArray<T>(TryAsync<T> tryDel) =>
             tryDel.ToArray();
 
         [Pure]
-        public static IQueryable<Either<Exception, T>> toQuery<T>(Try<T> tryDel) =>
-            tryDel.ToList().AsQueryable();
+        public static TryAsync<T> tryfun<T>(Func<TryAsync<T>> tryDel) => () => 
+            tryDel().Try();
 
         [Pure]
-        public static Try<T> tryfun<T>(Func<Try<T>> tryDel) => () => 
-            tryDel()().Value;
-
-        [Pure]
-        public static Try<T> Try<T>(Func<T> tryDel) => () =>
-            tryDel();
+        public static TryAsync<T> TryAsync<T>(Func<T> tryDel) => () =>
+            Task.Run(() => new Result<T>(tryDel()));
     }
 }

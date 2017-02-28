@@ -721,7 +721,7 @@ namespace LanguageExt
         /// <returns>Mapped EitherUnsafe</returns>
         [Pure]
         public EitherUnsafe<Ret, R> MapLeft<Ret>(Func<L, Ret> mapper) =>
-            FEitherUnsafe<L, R, Ret, R>.Inst.BiMap(this, mapper, identity);
+            FEitherUnsafeBi<L, R, Ret, R>.Inst.BiMap(this, mapper, identity);
 
         /// <summary>
         /// Bi-maps the value in the EitherUnsafe if it's in a Right state
@@ -751,7 +751,7 @@ namespace LanguageExt
         /// <returns>Mapped EitherUnsafe</returns>
         [Pure]
         public EitherUnsafe<L2, R2> BiMap<L2, R2>(Func<R, R2> Right, Func<L, L2> Left) =>
-            FEitherUnsafe<L, R, L2, R2>.Inst.BiMap(this, Left, Right);
+            FEitherUnsafeBi<L, R, L2, R2>.Inst.BiMap(this, Left, Right);
 
         /// <summary>
         /// Monadic bind

@@ -51,7 +51,7 @@ namespace LanguageExtTests
         {
             var opt  = Some(add);
             var none = Option<int>.None;
-            var four = Pure<MOption<int>, Option<int>,int>(4);  // Some(4);
+            var four = Some(4); 
 
             var res = apply(opt, none, four);
 

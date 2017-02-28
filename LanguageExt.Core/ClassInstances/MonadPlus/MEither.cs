@@ -16,14 +16,6 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly MEither<L, R> Inst = default(MEither<L, R>);
 
-        static A DefaultBottom<A>() =>
-            raise<A>(new BottomException());
-
-        static void DefaultBottom()
-        {
-            throw new BottomException();
-        }
-
         [Pure]
         public MB Bind<MONADB, MB, B>(Either<L, R> ma, Func<R, MB> f) where MONADB : struct, Monad<MB, B> =>
             Match(ma,
@@ -173,5 +165,25 @@ namespace LanguageExt.ClassInstances
                 Choice1: _ => 0,
                 Choice2: _ => 1,
                 Bottom: () => 0);
+
+        [Pure]
+        public Either<L, R> None =>
+            default(R);
+
+        static A DefaultBottom<A>() =>
+            raise<A>(new BottomException());
+
+        static void DefaultBottom()
+        {
+            throw new BottomException();
+        }
+
+        [Pure]
+        public Either<L, R> Some(R value) =>
+            value;
+
+        [Pure]
+        public Either<L, R> Optional(R value) =>
+            value;
     }
 }

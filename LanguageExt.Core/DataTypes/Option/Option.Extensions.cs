@@ -93,39 +93,59 @@ public static class OptionExtensions
         select divide<NUM, A>(a, b);
 
     /// <summary>
-    /// Apply y to x
+    /// Apply
     /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type FB derived from Applicative of B</returns>
     [Pure]
-    public static Option<B> Apply<A, B>(this Option<Func<A, B>> x, Option<A> y) =>
-        apply<MOption<Func<A, B>>, MOption<A>, MOption<B>, Option<Func<A, B>>, Option<A>, Option<B>, A, B>(x, y);
+    public static Option<B> Apply<A, B>(this Option<Func<A, B>> fab, Option<A> fa) =>
+        FOption<A, B>.Inst.Apply(fab, fa);
 
     /// <summary>
-    /// Apply y and z to x
+    /// Apply
     /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative a to apply</param>
+    /// <param name="fb">Applicative b to apply</param>
+    /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
-    public static Option<C> Apply<A, B, C>(this Option<Func<A, B, C>> x, Option<A> y, Option<B> z) =>
-        apply<MOption<Func<A, B, C>>, MOption<A>, MOption<B>, MOption<C>, Option<Func<A, B, C>>, Option<A>, Option<B>, Option<C>, A, B, C>(x, y, z);
+    public static Option<C> Apply<A, B, C>(this Option<Func<A, B, C>> fabc, Option<A> fa, Option<B> fb) =>
+        from x in fabc
+        from y in FOption<A, B, C>.Inst.Apply(curry(x), fa, fb)
+        select y;
 
     /// <summary>
-    /// Apply y to x
+    /// Apply
     /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
-    public static Option<Func<B, C>> Apply<A, B, C>(this Option<Func<A, B, C>> x, Option<A> y) =>
-        apply<MOption<Func<A, B, C>>, MOption<A>, MOption<Func<B, C>>, Option<Func<A, B, C>>, Option<A>, Option<Func<B, C>>, A, B, C>(x, y);
+    public static Option<Func<B, C>> Apply<A, B, C>(this Option<Func<A, B, C>> fabc, Option<A> fa) =>
+        from x in fabc
+        from y in FOption<A, B, C>.Inst.Apply(curry(x), fa)
+        select y;
 
     /// <summary>
-    /// Apply y to x
+    /// Apply
     /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
-    public static Option<Func<B, C>> Apply<A, B, C>(this Option<Func<A, Func<B, C>>> x, Option<A> y) =>
-        apply2<MOption<Func<A, Func<B, C>>>, MOption<A>, MOption<Func<B,C>>, Option<Func<A, Func<B, C>>>, Option<A>, Option<Func<B,C>>, A, B, C>(x, y);
+    public static Option<Func<B, C>> Apply<A, B, C>(this Option<Func<A, Func<B, C>>> fabc, Option<A> fa) =>
+        FOption<A, B, C>.Inst.Apply(fabc, fa);
 
     /// <summary>
-    /// Apply x, then y, ignoring the result of x
+    /// Evaluate fa, then fb, ignoring the result of fa
     /// </summary>
+    /// <param name="fa">Applicative to evaluate first</param>
+    /// <param name="fb">Applicative to evaluate second and then return</param>
+    /// <returns>Applicative of type Option<B></returns>
     [Pure]
-    public static Option<B> Action<A, B>(this Option<A> x, Option<B> y) =>
-        action<MOption<A>, MOption<B>, Option<A>, Option<B>, A, B>(x, y);
+    public static Option<B> Action<A, B>(this Option<A> fa, Option<B> fb) =>
+        FOption<A, B>.Inst.Action(fa, fb);
 
     /// <summary>
     /// Convert the Option type to a Nullable of A

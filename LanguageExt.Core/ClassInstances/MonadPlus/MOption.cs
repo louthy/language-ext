@@ -18,6 +18,9 @@ namespace LanguageExt.ClassInstances
         public static readonly MOption<A> Inst = default(MOption<A>);
 
         [Pure]
+        public Option<A> None => Option<A>.None;
+
+        [Pure]
         public MB Bind<MONADB, MB, B>(Option<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
         {
             if (f == null) throw new ArgumentNullException(nameof(f));
@@ -185,5 +188,13 @@ namespace LanguageExt.ClassInstances
             choice.Match(
                 Some: Choice2,
                 None: () => Choice1(unit));
+
+        [Pure]
+        public Option<A> Some(A value) =>
+            Option<A>.Some(value);
+
+        [Pure]
+        public Option<A> Optional(A value) =>
+            Prelude.Optional(value);
     }
 }

@@ -16,14 +16,6 @@ namespace LanguageExt.ClassInstances
     {
         public static readonly MEitherUnsafe<L, R> Inst = default(MEitherUnsafe<L, R>);
 
-        static A DefaultBottom<A>() =>
-            raise<A>(new BottomException());
-
-        static void DefaultBottom()
-        {
-            throw new BottomException();
-        }
-
         [Pure]
         public MB Bind<MONADB, MB, B>(EitherUnsafe<L, R> ma, Func<R, MB> f) where MONADB : struct, Monad<MB, B> =>
             Match(ma,
@@ -169,5 +161,26 @@ namespace LanguageExt.ClassInstances
                 Choice1: _ => 0,
                 Choice2: _ => 1,
                 Bottom: () => 0);
+
+        [Pure]
+        public EitherUnsafe<L, R> Some(R value) =>
+            value;
+
+        [Pure]
+        public EitherUnsafe<L, R> Optional(R value) =>
+            value;
+
+        [Pure]
+        public EitherUnsafe<L, R> None =>
+            default(R);
+
+        static A DefaultBottom<A>() =>
+            raise<A>(new BottomException());
+
+        static void DefaultBottom()
+        {
+            throw new BottomException();
+        }
+
     }
 }

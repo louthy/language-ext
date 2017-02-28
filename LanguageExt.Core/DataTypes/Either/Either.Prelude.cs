@@ -76,39 +76,59 @@ namespace LanguageExt
             select default(NUM).Divide(a, b);
 
         /// <summary>
-        /// Apply y to x
+        /// Apply
         /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type FB derived from Applicative of B</returns>
         [Pure]
-        public static Either<L, B> apply<L, A, B>(Either<L, Func<A, B>> x, Either<L, A> y) =>
-            apply<MEither<L, Func<A, B>>, MEither<L, A>, MEither<L, B>, Either<L, Func<A, B>>, Either<L, A>, Either<L, B>, A, B>(x, y);
+        public static Either<L, B> apply<L, A, B>(Either<L, Func<A, B>> fab, Either<L, A> fa) =>
+            FEither<L, A, B>.Inst.Apply(fab, fa);
 
         /// <summary>
-        /// Apply y and z to x
+        /// Apply
         /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative a to apply</param>
+        /// <param name="fb">Applicative b to apply</param>
+        /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
-        public static Either<L, C> apply<L, A, B, C>(Either<L, Func<A, B, C>> x, Either<L, A> y, Either<L, B> z) =>
-            apply<MEither<L, Func<A, B, C>>, MEither<L, A>, MEither<L, B>, MEither<L, C>, Either<L, Func<A, B, C>>, Either<L, A>, Either<L, B>, Either<L, C>, A, B, C>(x, y, z);
+        public static Either<L, C> apply<L, A, B, C>(Either<L, Func<A, B, C>> fabc, Either<L, A> fa, Either<L, B> fb) =>
+            from x in fabc
+            from y in FEither<L, A, B, C>.Inst.Apply(curry(x), fa, fb)
+            select y;
 
         /// <summary>
-        /// Apply y to x
+        /// Apply
         /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
-        public static Either<L, Func<B, C>> apply<L, A, B, C>(Either<L, Func<A, B, C>> x, Either<L, A> y) =>
-            apply<MEither<L, Func<A, B, C>>, MEither<L, A>, MEither<L, Func<B, C>>, Either<L, Func<A, B, C>>, Either<L, A>, Either<L, Func<B, C>>, A, B, C>(x, y);
+        public static Either<L, Func<B, C>> apply<L, A, B, C>(Either<L, Func<A, B, C>> fabc, Either<L, A> fa) =>
+            from x in fabc
+            from y in FEither<L, A, B, C>.Inst.Apply(curry(x), fa)
+            select y;
 
         /// <summary>
-        /// Apply y to x
+        /// Apply
         /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
-        public static Either<L, Func<B, C>> apply<L, A, B, C>(Either<L, Func<A, Func<B, C>>> x, Either<L, A> y) =>
-            apply2<MEither<L, Func<A, Func<B, C>>>, MEither<L, A>, MEither<L, Func<B, C>>, Either<L, Func<A, Func<B, C>>>, Either<L, A>, Either<L, Func<B, C>>, A, B, C>(x, y);
+        public static Either<L, Func<B, C>> apply<L, A, B, C>(Either<L, Func<A, Func<B, C>>> fabc, Either<L, A> fa) =>
+            FEither<L, A, B, C>.Inst.Apply(fabc, fa);
 
         /// <summary>
-        /// Apply x, then y, ignoring the result of x
+        /// Evaluate fa, then fb, ignoring the result of fa
         /// </summary>
+        /// <param name="fa">Applicative to evaluate first</param>
+        /// <param name="fb">Applicative to evaluate second and then return</param>
+        /// <returns>Applicative of type Option<B></returns>
         [Pure]
-        public static Either<L, B> action<L, A, B>(Either<L, A> x, Either<L, B> y) =>
-            action<MEither<L, A>, MEither<L, B>, Either<L, A>, Either<L, B>, A, B>(x, y);
+        public static Either<L, B> action<L, A, B>(Either<L, A> fa, Either<L, B> fb) =>
+            FEither<L, A, B>.Inst.Action(fa, fb);
 
         /// <summary>
         /// Returns the state of the Either provided

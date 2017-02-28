@@ -12,6 +12,23 @@ using static LanguageExt.Prelude;
 public static class TaskExtensions
 {
     /// <summary>
+    /// Convert a task to a TryAsync
+    /// </summary>
+    public static TryAsync<A> ToTryAsync<A>(this Task<A> self) =>
+        async () =>
+        {
+            try
+            {
+                var res = await self;
+                return new Result<A>(res);
+            }
+            catch(Exception e)
+            {
+                return new Result<A>(e);
+            }
+        };
+
+    /// <summary>
     /// Convert a value to a Task that completes immediately
     /// </summary>
     public static Task<T> AsTask<T>(this T self) =>

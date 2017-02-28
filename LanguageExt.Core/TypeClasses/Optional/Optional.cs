@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LanguageExt.TypeClasses
 {
@@ -46,5 +42,14 @@ namespace LanguageExt.TypeClasses
         /// <param name="Some">Some match operation</param>
         /// <param name="None">None match operation</param>
         Unit Match(OA opt, Action<A> Some, Action None);
+
+        [Pure]
+        OA None { get; }
+
+        [Pure]
+        OA Some(A value);
+
+        [Pure]
+        OA Optional(A value);
     }
 }
