@@ -27,7 +27,7 @@ namespace LanguageExtTests
             var res = multWithLog.Run();
 
             Assert.True(length(res.Output) == 3);
-            Assert.True(res.Value.IfNone(0) == 15);
+            Assert.True(res.Value.IfNoneOrFail(0) == 15);
             Assert.True(head(res.Output) == "Got number: 3");
             Assert.True(head(tail(res.Output)) == "Got number: 5");
             Assert.True(head(tail(tail(res.Output))) == "Gonna multiply these two");
@@ -62,7 +62,7 @@ namespace LanguageExtTests
                                     Tuple("b", 2)
                                     );
 
-            bool res = calcIsCountCorrect.Run(sampleBindings).IfNone(false);
+            bool res = calcIsCountCorrect.Run(sampleBindings).IfNoneOrFail(false);
 
             Assert.True(res);
         }
@@ -76,8 +76,8 @@ namespace LanguageExtTests
             var calculateModifiedContentLen = local(content => "Prefix " + content, calculateContentLen);
 
             var s = "12345";
-            var modifiedLen = calculateModifiedContentLen.Run(s).IfNone(0);
-            var len = calculateContentLen.Run(s).IfNone(0);
+            var modifiedLen = calculateModifiedContentLen.Run(s).IfNoneOrFail(0);
+            var len = calculateContentLen.Run(s).IfNoneOrFail(0);
 
             Assert.True(modifiedLen == 12);
             Assert.True(len == 5);
@@ -95,8 +95,8 @@ namespace LanguageExtTests
                       where x * c > 50 && y * c > 50
                       select (x + y) * c;
 
-            Assert.True(rdr.Run(10).IfNone(0) == 200);
-            Assert.True(rdr.Run(2).IfNone(0) == 0);
+            Assert.True(rdr.Run(10).IfNoneOrFail(0) == 200);
+            Assert.True(rdr.Run(2).IfNoneOrFail(0) == 0);
         }
 
         [Fact]
@@ -109,7 +109,7 @@ namespace LanguageExtTests
 
             var r = comp.Run("hello");
 
-            Assert.True(r.Value.IfNone(0) == 12);
+            Assert.True(r.Value.IfNoneOrFail(0) == 12);
             Assert.True(r.State == "hello, world");
         }
 
@@ -125,8 +125,8 @@ namespace LanguageExtTests
                       where x * c > 50 && y * c > 50
                       select (x + y) * c;
 
-            Assert.True(rdr.Run(10).Value.IfNone(0) == 200);
-            Assert.True(rdr.Run(2).Value.IfNone(0) == 0);
+            Assert.True(rdr.Run(10).Value.IfNoneOrFail(0) == 200);
+            Assert.True(rdr.Run(2).Value.IfNoneOrFail(0) == 0);
         }
 
         [Fact]
@@ -141,8 +141,8 @@ namespace LanguageExtTests
                       from y in v2
                       select (x + y) * c;
 
-            Assert.True(rdr.Run(10).Value.IfNone(0) == 200);
-            Assert.True(rdr.Run(2).Value.IfNone(0) == 0);
+            Assert.True(rdr.Run(10).Value.IfNoneOrFail(0) == 200);
+            Assert.True(rdr.Run(2).Value.IfNoneOrFail(0) == 0);
         }
         
         // TODO: Restore when type-classes are complete

@@ -21,14 +21,34 @@ namespace LanguageExt
             Task.Run(() => new OptionalResult<A>(f()));
 
         /// <summary>
-        /// TryOptionAsync identity constructor function
+        /// TryOptionAsync constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="f">Function to run asynchronously</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static TryOptionAsync<A> TryOptionAsync<A>(Func<Option<A>> f) => () =>
+            Task.Run(() => new OptionalResult<A>(f()));
+
+        /// <summary>
+        /// TryOptionAsync constructor function
         /// </summary>
         /// <typeparam name="A">Bound value type</typeparam>
         /// <param name="v">Bound value to return</param>
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
         public static TryOptionAsync<A> TryOptionAsync<A>(A v) => () =>
-            Task.Run(() => new OptionalResult<A>(v));
+            Task.FromResult(new OptionalResult<A>(v));
+
+        /// <summary>
+        /// TryOptionAsync constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Bound value to return</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static TryOptionAsync<A> TryOptionAsync<A>(Option<A> v) => () =>
+            Task.FromResult(new OptionalResult<A>(v));
 
         /// <summary>
         /// Append the bound value of TryOptionAsync(x) to TryOptionAsync(y).  If either of the
@@ -186,8 +206,8 @@ namespace LanguageExt
         /// <param name="Fail">Delegate to invoke on failure</param>
         /// <returns>Result of the invocation of Fail on failure, the result of the TryOptionAsync otherwise</returns>
         [Pure]
-        public static Task<T> ifFail<T>(TryOptionAsync<T> self, Func<T> Fail) =>
-            self.IfFail(Fail);
+        public static Task<T> ifFailOrNone<T>(TryOptionAsync<T> self, Func<T> Fail) =>
+            self.IfNoneOrFail(Fail);
 
         /// <summary>
         /// Return a default value if the TryOptionAsync fails
@@ -197,8 +217,8 @@ namespace LanguageExt
         /// <param name="failValue">Default value to use on failure</param>
         /// <returns>failValue on failure, the result of the TryOptionAsync otherwise</returns>
         [Pure]
-        public static Task<T> ifFail<T>(TryOptionAsync<T> self, T failValue) =>
-            self.IfFail(failValue);
+        public static Task<T> ifNoneOrFail<T>(TryOptionAsync<T> self, T failValue) =>
+            self.IfNoneOrFail(failValue);
 
         /// <summary>
         /// Provides a fluent exception matching interface which is invoked

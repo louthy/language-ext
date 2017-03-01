@@ -11,10 +11,10 @@ namespace LanguageExt.Tests
     public class ApplicativeTests
     {
 
-        TryAsync<int> GetValueOne() => 
+        TryAsync<int> GetValueOne() =>
             TryAsync(2);
 
-        TryAsync<int> GetValueTwo() => 
+        TryAsync<int> GetValueTwo() =>
             TryAsync(() => 10);
 
         TryAsync<int> GetException() =>
@@ -62,28 +62,63 @@ namespace LanguageExt.Tests
 
             Assert.True(res == 0);
         }
-
-        // Some example method prototypes
-        public TryAsync<int> LongRunningAsyncTaskOp() => TryAsync(10);
-        public Task<Try<int>> LongRunningAsyncOp()    => Task.FromResult(Try(10));
-        public Try<int> LongRunningOp()               => () => 10;
-        public Task<int> MapToTask(int x)             => Task.FromResult(x * 2);
-        public int MapTo(int x)                       => x * 2;
-
-        public async void Test()
-        {
-            // These run synchronously
-            int a = LongRunningOp().IfFail(0);
-            Try<int> b = LongRunningOp().Map(MapTo);
-
-            // These run asynchronously
-            int u = await LongRunningAsyncTaskOp().IfFail(0);
-            int v = await LongRunningAsyncOp().IfFail(0);
-            int x = await LongRunningOp().IfFailAsync(0);
-            TryAsync<int> y1 = LongRunningOp().MapAsync(MapTo);
-            TryAsync<int> y2 = LongRunningOp().MapAsync(MapToTask);
-            int z1 = await y1.IfFail(0);
-            int z2 = await y2.IfFail(0);
-        }
     }
+
+class TestSigs1
+{ 
+    // Some example method prototypes
+    public TryAsync<int> LongRunningAsyncTaskOp() => TryAsync(10);
+    public Task<Try<int>> LongRunningAsyncOp()    => Task.FromResult(Try(10));
+    public Try<int> LongRunningOp()               => Try(10);
+    public Task<int> MapToTask(int x)             => Task.FromResult(x * 2);
+    public int MapTo(int x)                       => x * 2;
+
+    public async void Test()
+    {
+        var j = LongRunningOp().ToAsync();
+        var k = LongRunningAsyncOp().ToAsync();
+
+        // These run synchronously
+        int a = LongRunningOp().IfFail(0);
+        Try<int> b = LongRunningOp().Map(MapTo);
+
+        // These run asynchronously
+        int u = await LongRunningAsyncTaskOp().IfFail(0);
+        int v = await LongRunningAsyncOp().IfFail(0);
+        int x = await LongRunningOp().IfFailAsync(0);
+        TryAsync<int> y1 = LongRunningOp().MapAsync(MapTo);
+        TryAsync<int> y2 = LongRunningOp().MapAsync(MapToTask);
+        int z1 = await y1.IfFail(0);
+        int z2 = await y2.IfFail(0);
+    }
+}
+
+class TestSigs2
+{
+    // Some example method prototypes
+    public TryOptionAsync<int> LongRunningAsyncTaskOp() => TryOptionAsync(10);
+    public Task<TryOption<int>> LongRunningAsyncOp()    => Task.FromResult(TryOption(10));
+    public TryOption<int> LongRunningOp()               => TryOption(10);
+    public Task<int> MapToTask(int x)                   => Task.FromResult(x * 2);
+    public int MapTo(int x)                             => x * 2;
+
+    public async void Test()
+    {
+        var j = LongRunningOp().ToAsync();
+        var k = LongRunningAsyncOp().ToAsync();
+
+        // These run synchronously
+        int a = LongRunningOp().IfNoneOrFail(0);
+        TryOption<int> b = LongRunningOp().Map(MapTo);
+
+        // These run asynchronously
+        int u = await LongRunningAsyncTaskOp().IfNoneOrFail(0);
+        int v = await LongRunningAsyncOp().IfNoneOrFail(0);
+        int x = await LongRunningOp().IfNoneOrFailAsync(0);
+        TryOptionAsync<int> y1 = LongRunningOp().MapAsync(MapTo);
+        TryOptionAsync<int> y2 = LongRunningOp().MapAsync(MapToTask);
+        int z1 = await y1.IfNoneOrFail(0);
+        int z2 = await y2.IfNoneOrFail(0);
+    }
+}
 }

@@ -168,13 +168,13 @@ namespace LanguageExtTests
                        where v == 10
                        select v;
 
-            Assert.True(res1.IfNone(0) == 10);
+            Assert.True(res1.IfNoneOrFail(0) == 10);
 
             var res2 = from v in GetTryOptionValue(1)
                        where v == 10
                        select v;
 
-            Assert.True(res2.IfNone(0) == 0);
+            Assert.True(res2.IfNoneOrFail(0) == 0);
 
             var res3 = match(from v in GetTryOptionValue(2)
                              where v == 10

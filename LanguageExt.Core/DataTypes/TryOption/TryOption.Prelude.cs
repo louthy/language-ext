@@ -10,6 +10,34 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
+        /// TryOption constructor
+        /// </summary>
+        [Pure]
+        public static TryOption<T> TryOption<T>(Func<Option<T>> f) => () =>
+            f();
+
+        /// <summary>
+        /// TryOption constructor
+        /// </summary>
+        [Pure]
+        public static TryOption<T> TryOption<T>(Func<T> f) => () => 
+            Optional(f());
+
+        /// <summary>
+        /// TryOption constructor
+        /// </summary>
+        [Pure]
+        public static TryOption<T> TryOption<T>(T value) => () => 
+            Optional(value);
+
+        /// <summary>
+        /// TryOption constructor
+        /// </summary>
+        [Pure]
+        public static TryOption<T> TryOption<T>(Option<T> value) => () => 
+            value;
+
+        /// <summary>
         /// Add the bound value of Try(x) to Try(y).  If either of the
         /// Trys are Fail then the result is Fail
         /// </summary>
@@ -178,8 +206,8 @@ namespace LanguageExt
         /// <param name="Fail">Delegate to invoke on failure</param>
         /// <returns>Result of the invocation of Fail on failure, the result of the Try otherwise</returns>
         [Pure]
-        public static T ifNone<T>(TryOption<T> self, Func<T> Fail) =>
-            self.IfNone(Fail);
+        public static T ifNoneOrFail<T>(TryOption<T> self, Func<T> Fail) =>
+            self.IfNoneOrFail(Fail);
 
         /// <summary>
         /// Return a default value if the Try fails
@@ -189,8 +217,8 @@ namespace LanguageExt
         /// <param name="defaultValue">Default value to use on failure</param>
         /// <returns>failValue on failure, the result of the Try otherwise</returns>
         [Pure]
-        public static T ifNone<T>(TryOption<T> self, T defaultValue) =>
-            self.IfNone(defaultValue);
+        public static T ifNoneOrFail<T>(TryOption<T> self, T defaultValue) =>
+            self.IfNoneOrFail(defaultValue);
 
         /// <summary>
         /// Provides a fluent exception matching interface which is invoked
@@ -472,14 +500,5 @@ namespace LanguageExt
         [Pure]
         public static TryOption<T> tryfun<T>(Func<TryOption<T>> tryDel) =>
             () => tryDel()();
-
-        [Pure]
-        public static TryOption<T> TryOption<T>(Func<Option<T>> tryDel) => () =>
-            tryDel();
-
-        [Pure]
-        public static TryOption<T> TryOption<T>(Func<T> tryDel) =>
-            new TryOption<T>(() => Optional(tryDel()));
-
     }
 }

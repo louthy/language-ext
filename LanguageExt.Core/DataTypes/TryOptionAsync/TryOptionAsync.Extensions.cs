@@ -17,7 +17,7 @@ using LanguageExt.ClassInstances;
 public static class TryOptionAsyncExtensions
 {
     /// <summary>
-    /// Invoke a delegate if the Try returns a value successfully
+    /// Invoke a delegate if the computation returns a value successfully
     /// </summary>
     /// <param name="Some">Delegate to invoke if successful</param>
     public static async Task<Unit> IfSome<A>(this TryOptionAsync<A> self, Action<A> Some)
@@ -42,86 +42,147 @@ public static class TryOptionAsyncExtensions
     }
 
     /// <summary>
-    /// Return a default value if the Try fails
+    /// Return a default value if the computation fails or completes successfully 
+    /// but returns None
     /// </summary>
-    /// <param name="failValue">Default value to use on failure</param>
-    /// <returns>failValue on failure, the result of the Try otherwise</returns>
-    [Pure]
-    public static async Task<A> IfFail<A>(this TryOptionAsync<A> self, A failValue)
-    {
-        if (isnull(self)) throw new ArgumentNullException("this");
-        if (isnull(failValue)) throw new ArgumentNullException(nameof(failValue));
+    /// <param name="Some">Delegate to invoke if successful</param>
+    public static Task<A> IfNoneOrFail<A>(this TryOptionAsync<A> self, A defaultValue) =>
+        self.IfNoneOrFail(() => defaultValue);
 
-        try
-        {
-            var res = await self.Try();
-            if (res.IsFaultedOrNone)
-                return failValue;
-            else
-                return res.Value.Value;
-        }
-        catch (Exception e)
-        {
-            TryConfig.ErrorLogger(e);
-            return failValue;
-        }
+    /// <summary>
+    /// Invoke a delegate if the computation fails or completes successfully but returns None
+    /// </summary>
+    /// <param name="Some">Delegate to invoke if successful</param>
+    public static async Task<Unit> IfNoneOrFail<A>(this TryOptionAsync<A> self, Action None)
+    {
+        await self.IfNoneOrFail(() => { None(); return default(A); } );
+        return unit;
     }
 
     /// <summary>
-    /// Invoke a delegate if the Try fails
+    /// Invoke a delegate if the computation fails or completes successfully but returns None
     /// </summary>
-    /// <param name="Fail">Delegate to invoke on failure</param>
-    /// <returns>Result of the invocation of Fail on failure, the result of the Try otherwise</returns>
-    [Pure]
-    public static async Task<A> IfFail<A>(this TryOptionAsync<A> self, Func<Task<A>> Fail)
+    /// <param name="Some">Delegate to invoke if successful</param>
+    public static Task<A> IfNoneOrFail<A>(this TryOptionAsync<A> self, Func<A> None) =>
+        self.IfNoneOrFail(None, _ => None());
+
+    /// <summary>
+    /// Invoke a delegate if the computation fails or completes successfully but returns None
+    /// </summary>
+    /// <param name="Some">Delegate to invoke if successful</param>
+    public static Task<A> IfNoneOrFail<A>(this TryOptionAsync<A> self, Func<Task<A>> None)
+    {
+        Task<A> fail(Exception _) => None();
+        return self.IfNoneOrFail(None, fail);
+    }
+
+    /// <summary>
+    /// Invoke a delegate if the computation fails or completes successfully but returns None
+    /// </summary>
+    /// <param name="Some">Delegate to invoke if successful</param>
+    public static async Task<A> IfNoneOrFail<A>(this TryOptionAsync<A> self, Func<A> None, Func<Exception, A> Fail)
     {
         if (isnull(self)) throw new ArgumentNullException("this");
+        if (isnull(None)) throw new ArgumentNullException(nameof(None));
         if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
 
         try
         {
             var res = await self.Try();
-            if (res.IsFaultedOrNone)
-                return await Fail();
-            else
-                return res.Value.Value;
+            return res.IsFaulted 
+                ? Fail(res.Exception)
+                : res.Value.IsNone
+                    ? None()
+                    : res.Value.Value;
         }
         catch (Exception e)
         {
             TryConfig.ErrorLogger(e);
-            return await Fail();
+            return None();
         }
     }
 
     /// <summary>
-    /// Invoke a delegate if the Try fails
+    /// Invoke a delegate if the computation fails or completes successfully but returns None
     /// </summary>
-    /// <param name="Fail">Delegate to invoke on failure</param>
-    /// <returns>Result of the invocation of Fail on failure, the result of the Try otherwise</returns>
-    [Pure]
-    public static async Task<A> IfFail<A>(this TryOptionAsync<A> self, Func<A> Fail)
+    /// <param name="Some">Delegate to invoke if successful</param>
+    public static async Task<A> IfNoneOrFail<A>(this TryOptionAsync<A> self, Func<Task<A>> None, Func<Exception, A> Fail)
     {
         if (isnull(self)) throw new ArgumentNullException("this");
+        if (isnull(None)) throw new ArgumentNullException(nameof(None));
         if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
 
         try
         {
             var res = await self.Try();
-            if (res.IsFaultedOrNone)
-                return Fail();
-            else
-                return res.Value.Value;
+            return res.IsFaulted
+                ? Fail(res.Exception)
+                : res.Value.IsNone
+                    ? await None()
+                    : res.Value.Value;
         }
         catch (Exception e)
         {
             TryConfig.ErrorLogger(e);
-            return Fail();
+            return await None();
+        }
+    }
+
+    /// <summary>
+    /// Invoke a delegate if the computation fails or completes successfully but returns None
+    /// </summary>
+    /// <param name="Some">Delegate to invoke if successful</param>
+    public static async Task<A> IfNoneOrFail<A>(this TryOptionAsync<A> self, Func<A> None, Func<Exception, Task<A>> Fail)
+    {
+        if (isnull(self)) throw new ArgumentNullException("this");
+        if (isnull(None)) throw new ArgumentNullException(nameof(None));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+        try
+        {
+            var res = await self.Try();
+            return res.IsFaulted
+                ? await Fail(res.Exception)
+                : res.Value.IsNone
+                    ? None()
+                    : res.Value.Value;
+        }
+        catch (Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            return None();
+        }
+    }
+
+    /// <summary>
+    /// Invoke a delegate if the computation fails or completes successfully but returns None
+    /// </summary>
+    /// <param name="Some">Delegate to invoke if successful</param>
+    public static async Task<A> IfNoneOrFail<A>(this TryOptionAsync<A> self, Func<Task<A>> None, Func<Exception, Task<A>> Fail)
+    {
+        if (isnull(self)) throw new ArgumentNullException("this");
+        if (isnull(None)) throw new ArgumentNullException(nameof(None));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+        try
+        {
+            var res = await self.Try();
+            return res.IsFaulted
+                ? await Fail(res.Exception)
+                : res.Value.IsNone
+                    ? await None()
+                    : res.Value.Value;
+        }
+        catch (Exception e)
+        {
+            TryConfig.ErrorLogger(e);
+            return await None();
         }
     }
 
     /// <summary>
     /// Provides a fluent exception matching interface which is invoked
-    /// when the Try fails.
+    /// when the computation fails.
     /// </summary>
     /// <returns>Fluent exception matcher</returns>
     [Pure]
@@ -129,12 +190,91 @@ public static class TryOptionAsyncExtensions
         new ExceptionMatchOptionalAsync<A>(self.Try());
 
     /// <summary>
-    /// Pattern matches the three possible states of the Try computation
+    /// Pattern matches the three possible states of the computation computation
     /// </summary>
     /// <typeparam name="R">Type of the resulting bound value</typeparam>
-    /// <param name="Some">Delegate to invoke if the Try computation completes successfully</param>
-    /// <param name="None">Delegate to invoke if the Try computation completes successfully but returns no value</param>
-    /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
+    /// <param name="Succ">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="Fail">Value to use if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static Task<R> Match<A, R>(this TryOptionAsync<A> self, Func<A, R> Succ, R Fail) =>
+        self.Match(Succ, () => Fail);
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation computation
+    /// </summary>
+    /// <param name="Succ">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static async Task<Unit> Match<A>(this TryOptionAsync<A> self, Action<A> Succ, Action Fail) =>
+        await Match(self, a => { Succ(a); return unit; }, () => { Fail(); return unit; });
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="Succ">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, None, or Fail delegate</returns>
+    [Pure]
+    public static async Task<R> Match<A, R>(this TryOptionAsync<A> self, Func<A, R> Succ, Func<R> Fail)
+    {
+        if (isnull(Succ)) throw new ArgumentNullException(nameof(Succ));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+        var res = await self.Try();
+        return res.IsFaultedOrNone
+            ? Fail()
+            : Succ(res.Value.Value);
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="Succ">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, Fail delegate</returns>
+    [Pure]
+    public static async Task<R> Match<A, R>(this TryOptionAsync<A> self, Func<A, R> Succ, Func<Task<R>> Fail)
+    {
+        if (isnull(Succ)) throw new ArgumentNullException(nameof(Succ));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+        var res = await self.Try();
+        return res.IsFaultedOrNone
+            ? await Fail()
+            : Succ(res.Value.Value);
+    }
+
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="Succ">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
+    /// <returns>The result of either the Succ, Fail delegate</returns>
+    [Pure]
+    public static async Task<R> Match<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> Succ, Func<Task<R>> Fail)
+    {
+        if (isnull(Succ)) throw new ArgumentNullException(nameof(Succ));
+        if (isnull(Fail)) throw new ArgumentNullException(nameof(Fail));
+
+        var res = await self.Try();
+        return res.IsFaultedOrNone
+            ? await Fail()
+            : await Succ(res.Value.Value);
+    }
+
+    /// <summary>
+    /// Pattern matches the three possible states of the computation computation
+    /// </summary>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> Match<A, R>(this TryOptionAsync<A> self, Func<A, R> Some, Func<R> None, Func<Exception, R> Fail)
@@ -150,12 +290,12 @@ public static class TryOptionAsyncExtensions
     }
 
     /// <summary>
-    /// Pattern matches the three possible states of the Try computation
+    /// Pattern matches the three possible states of the computation
     /// </summary>
     /// <typeparam name="R">Type of the resulting bound value</typeparam>
-    /// <param name="Some">Delegate to invoke if the Try computation completes successfully</param>
-    /// <param name="None">Delegate to invoke if the Try computation completes successfully but returns no value</param>
-    /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> Match<A, R>(this TryOptionAsync<A> self, Func<A, R> Some, Func<Task<R>> None, Func<Exception, R> Fail)
@@ -173,12 +313,12 @@ public static class TryOptionAsyncExtensions
     }
 
     /// <summary>
-    /// Pattern matches the three possible states of the Try computation
+    /// Pattern matches the three possible states of the computation
     /// </summary>
     /// <typeparam name="R">Type of the resulting bound value</typeparam>
-    /// <param name="Some">Delegate to invoke if the Try computation completes successfully</param>
-    /// <param name="None">Delegate to invoke if the Try computation completes successfully but returns no value</param>
-    /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> Match<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> Some, Func<R> None, Func<Exception, R> Fail)
@@ -196,12 +336,12 @@ public static class TryOptionAsyncExtensions
     }
 
     /// <summary>
-    /// Pattern matches the three possible states of the Try computation
+    /// Pattern matches the three possible states of the computation
     /// </summary>
     /// <typeparam name="R">Type of the resulting bound value</typeparam>
-    /// <param name="Some">Delegate to invoke if the Try computation completes successfully</param>
-    /// <param name="None">Delegate to invoke if the Try computation completes successfully but returns no value</param>
-    /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> Match<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> Some, Func<Task<R>> None, Func<Exception, R> Fail)
@@ -219,12 +359,12 @@ public static class TryOptionAsyncExtensions
     }
 
     /// <summary>
-    /// Pattern matches the three possible states of the Try computation
+    /// Pattern matches the three possible states of the computation
     /// </summary>
     /// <typeparam name="R">Type of the resulting bound value</typeparam>
-    /// <param name="Some">Delegate to invoke if the Try computation completes successfully</param>
-    /// <param name="None">Delegate to invoke if the Try computation completes successfully but returns no value</param>
-    /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> Match<A, R>(this TryOptionAsync<A> self, Func<A, R> Some, Func<R> None, Func<Exception, Task<R>> Fail)
@@ -240,12 +380,12 @@ public static class TryOptionAsyncExtensions
     }
 
     /// <summary>
-    /// Pattern matches the three possible states of the Try computation
+    /// Pattern matches the three possible states of the computation
     /// </summary>
     /// <typeparam name="R">Type of the resulting bound value</typeparam>
-    /// <param name="Some">Delegate to invoke if the Try computation completes successfully</param>
-    /// <param name="None">Delegate to invoke if the Try computation completes successfully but returns no value</param>
-    /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> Match<A, R>(this TryOptionAsync<A> self, Func<A, R> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail)
@@ -263,12 +403,12 @@ public static class TryOptionAsyncExtensions
     }
 
     /// <summary>
-    /// Pattern matches the three possible states of the Try computation
+    /// Pattern matches the three possible states of the computation
     /// </summary>
     /// <typeparam name="R">Type of the resulting bound value</typeparam>
-    /// <param name="Some">Delegate to invoke if the Try computation completes successfully</param>
-    /// <param name="None">Delegate to invoke if the Try computation completes successfully but returns no value</param>
-    /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> Match<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> Some, Func<R> None, Func<Exception, Task<R>> Fail)
@@ -286,12 +426,12 @@ public static class TryOptionAsyncExtensions
     }
 
     /// <summary>
-    /// Pattern matches the three possible states of the Try computation
+    /// Pattern matches the three possible states of the computation
     /// </summary>
     /// <typeparam name="R">Type of the resulting bound value</typeparam>
-    /// <param name="Some">Delegate to invoke if the Try computation completes successfully</param>
-    /// <param name="None">Delegate to invoke if the Try computation completes successfully but returns no value</param>
-    /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> Match<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> Some, Func<Task<R>> None, Func<Exception, Task<R>> Fail)
@@ -309,12 +449,12 @@ public static class TryOptionAsyncExtensions
     }
 
     /// <summary>
-    /// Pattern matches the three possible states of the Try computation
+    /// Pattern matches the three possible states of the computation
     /// </summary>
     /// <typeparam name="R">Type of the resulting bound value</typeparam>
-    /// <param name="Some">Delegate to invoke if the Try computation completes successfully</param>
-    /// <param name="None">Delegate to invoke if the Try computation completes successfully but returns no value</param>
-    /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> Match<A, R>(this TryOptionAsync<A> self, Func<A, R> Some, Func<R> None, R Fail)
@@ -330,12 +470,12 @@ public static class TryOptionAsyncExtensions
     }
 
     /// <summary>
-    /// Pattern matches the three possible states of the Try computation
+    /// Pattern matches the three possible states of the computation
     /// </summary>
     /// <typeparam name="R">Type of the resulting bound value</typeparam>
-    /// <param name="Some">Delegate to invoke if the Try computation completes successfully</param>
-    /// <param name="None">Delegate to invoke if the Try computation completes successfully but returns no value</param>
-    /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> Match<A, R>(this TryOptionAsync<A> self, Func<A, R> Some, Func<Task<R>> None, R Fail)
@@ -353,12 +493,12 @@ public static class TryOptionAsyncExtensions
     }
 
     /// <summary>
-    /// Pattern matches the three possible states of the Try computation
+    /// Pattern matches the three possible states of the computation
     /// </summary>
     /// <typeparam name="R">Type of the resulting bound value</typeparam>
-    /// <param name="Some">Delegate to invoke if the Try computation completes successfully</param>
-    /// <param name="None">Delegate to invoke if the Try computation completes successfully but returns no value</param>
-    /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> Match<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> Some, Func<R> None, R Fail)
@@ -376,12 +516,12 @@ public static class TryOptionAsyncExtensions
     }
 
     /// <summary>
-    /// Pattern matches the three possible states of the Try computation
+    /// Pattern matches the three possible states of the computation
     /// </summary>
     /// <typeparam name="R">Type of the resulting bound value</typeparam>
-    /// <param name="Some">Delegate to invoke if the Try computation completes successfully</param>
-    /// <param name="None">Delegate to invoke if the Try computation completes successfully but returns no value</param>
-    /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     [Pure]
     public static async Task<R> Match<A, R>(this TryOptionAsync<A> self, Func<A, Task<R>> Some, Func<Task<R>> None, R Fail)
@@ -399,12 +539,12 @@ public static class TryOptionAsyncExtensions
     }
 
     /// <summary>
-    /// Pattern matches the three possible states of the Try computation
+    /// Pattern matches the three possible states of the computation
     /// </summary>
     /// <typeparam name="R">Type of the resulting bound value</typeparam>
-    /// <param name="Some">Delegate to invoke if the Try computation completes successfully</param>
-    /// <param name="None">Delegate to invoke if the Try computation completes successfully but returns no value</param>
-    /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
+    /// <param name="Some">Delegate to invoke if the computation completes successfully</param>
+    /// <param name="None">Delegate to invoke if the computation completes successfully but returns no value</param>
+    /// <param name="Fail">Delegate to invoke if the computation fails</param>
     /// <returns>The result of either the Succ, None, or Fail delegate</returns>
     public static async Task<Unit> Match<A>(this TryOptionAsync<A> self, Action<A> Some, Action None, Action<Exception> Fail)
     {
@@ -571,9 +711,9 @@ public static class TryOptionAsyncExtensions
     /// </summary>
     /// <typeparam name="A">Type of the bound value</typeparam>
     /// <typeparam name="B">Resulting bound value type</typeparam>
-    /// <param name="self">Try computation</param>
+    /// <param name="self">computation</param>
     /// <param name="select">Delegate to map the bound value</param>
-    /// <returns>Mapped Try computation</returns>
+    /// <returns>Mapped computation</returns>
     [Pure]
     public static TryOptionAsync<B> Select<A, B>(this TryOptionAsync<A> self, Func<A, B> select) =>
         Map(self, select);
@@ -583,21 +723,21 @@ public static class TryOptionAsyncExtensions
     /// </summary>
     /// <typeparam name="A">Type of the bound value</typeparam>
     /// <typeparam name="B">Resulting bound value type</typeparam>
-    /// <param name="self">Try computation</param>
+    /// <param name="self">computation</param>
     /// <param name="select">Delegate to map the bound value</param>
-    /// <returns>Mapped Try computation</returns>
+    /// <returns>Mapped computation</returns>
     [Pure]
     public static TryOptionAsync<B> Select<A, B>(this TryOptionAsync<A> self, Func<A, Task<B>> select) =>
         Map(self, select);
 
 
     /// <summary>
-    /// Apply Try values to a Try function of arity 2
+    /// Apply computation values to a computation function of arity 2
     /// </summary>
-    /// <param name="self">Try function</param>
-    /// <param name="arg1">Try argument</param>
-    /// <param name="arg2">Try argument</param>
-    /// <returns>Returns the result of applying the Try arguments to the Try function</returns>
+    /// <param name="self">computation function</param>
+    /// <param name="arg1">computation argument</param>
+    /// <param name="arg2">computation argument</param>
+    /// <returns>Returns the result of applying the computation arguments to the computation function</returns>
     public static Task<Unit> Iter<A>(this TryOptionAsync<A> self, Action<A> action) =>
         IfSome(self, action);
 
@@ -605,47 +745,122 @@ public static class TryOptionAsyncExtensions
     /// Counts the number of bound values.  
     /// </summary>
     /// <typeparam name="T">Type of the bound value</typeparam>
-    /// <param name="self">TrTry computation</param>
-    /// <returns>1 if the Try computation is successful, 0 otherwise.</returns>
+    /// <param name="self">computation</param>
+    /// <returns>1 if the computation is successful, 0 otherwise.</returns>
     [Pure]
     public static Task<int> Count<A>(this TryOptionAsync<A> self) =>
-        Map(self, _ => 1).IfFail(0);
+        Map(self, _ => 1).IfNoneOrFail(0);
 
     /// <summary>
     /// Tests that a predicate holds for all values of the bound value T
     /// </summary>
     /// <typeparam name="T">Type of the bound value</typeparam>
-    /// <param name="self">Try computation</param>
+    /// <param name="self">computation</param>
     /// <param name="pred">Predicate to test the bound value against</param>
-    /// <returns>True if the predicate holds for the bound value, or if the Try computation
+    /// <returns>True if the predicate holds for the bound value, or if the computation
     /// fails.  False otherwise.</returns>
     [Pure]
     public static Task<bool> ForAll<A>(this TryOptionAsync<A> self, Func<A, bool> pred) =>
-        Map(self, pred).IfFail(true);
+        Map(self, pred).IfNoneOrFail(true);
 
     /// <summary>
     /// Tests that a predicate holds for all values of the bound value T
     /// </summary>
     /// <typeparam name="T">Type of the bound value</typeparam>
-    /// <param name="self">Try computation</param>
+    /// <param name="self">computation</param>
     /// <param name="pred">Predicate to test the bound value against</param>
-    /// <returns>True if the predicate holds for the bound value, or if the Try computation
+    /// <returns>True if the predicate holds for the bound value, or if the computation
     /// fails.  False otherwise.</returns>
     [Pure]
     public static Task<bool> ForAll<A>(this TryOptionAsync<A> self, Func<A, Task<bool>> pred) =>
-        Map(self, pred).IfFail(true);
+        Map(self, pred).IfNoneOrFail(true);
 
     /// <summary>
-    /// Folds Try value into an S.
+    /// Folds computation value into an S.
     /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
     /// </summary>
-    /// <param name="self">Try to fold</param>
+    /// <param name="self">computation to fold</param>
     /// <param name="state">Initial state</param>
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
     [Pure]
     public static Task<S> Fold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, S> folder) =>
-        Map(self, v => folder(state, v)).IfFail(state);
+        Map(self, v => folder(state, v)).IfNoneOrFail(state);
+
+    /// <summary>
+    /// Folds computation value into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="self">computation to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="folder">Fold function</param>
+    /// <returns>Folded state</returns>
+    [Pure]
+    public static Task<S> Fold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, Task<S>> folder) =>
+        Map(self, v => folder(state, v)).IfNoneOrFail(state);
+
+    /// <summary>
+    /// Folds computation value into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="self">computation to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="Succ">Fold function for Success</param>
+    /// <param name="Fail">Fold function for Failure</param>
+    /// <returns>Folded state</returns>
+    [Pure]
+    public static Task<S> BiFold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, S> Succ, Func<S, S> Fail) =>
+        BiMap(self,
+            Succ: v  => Succ(state, v),
+            Fail: () => Fail(state)).IfNoneOrFail(state);
+
+    /// <summary>
+    /// Folds computation value into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="self">computation to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="Succ">Fold function for Success</param>
+    /// <param name="Fail">Fold function for Failure</param>
+    /// <returns>Folded state</returns>
+    [Pure]
+    public static Task<S> BiFold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, S> Succ, Func<S, Task<S>> Fail) =>
+        BiMap(self,
+            Succ: v  => Succ(state, v),
+            Fail: () => Fail(state)).IfNoneOrFail(state);
+
+
+    /// <summary>
+    /// Folds computation value into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="self">computation to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="Succ">Fold function for Success</param>
+    /// <param name="Fail">Fold function for Failure</param>
+    /// <returns>Folded state</returns>
+    [Pure]
+    public static Task<S> BiFold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, Task<S>> Succ, Func<S, S> Fail) =>
+        BiMap(self,
+            Succ: v  => Succ(state, v),
+            Fail: () => Fail(state)).IfNoneOrFail(state);
+
+    /// <summary>
+    /// Folds computation value into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="self">computation to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="Succ">Fold function for Success</param>
+    /// <param name="Fail">Fold function for Failure</param>
+    /// <returns>Folded state</returns>
+    [Pure]
+    public static Task<S> BiFold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, Task<S>> Succ, Func<S, Task<S>> Fail) =>
+        BiMap(self,
+            Succ: v  => Succ(state, v),
+            Fail: () => Fail(state))
+           .IfNoneOrFail(state);
+
 
     /// <summary>
     /// Folds Try value into an S.
@@ -653,74 +868,125 @@ public static class TryOptionAsyncExtensions
     /// </summary>
     /// <param name="self">Try to fold</param>
     /// <param name="state">Initial state</param>
-    /// <param name="folder">Fold function</param>
+    /// <param name="Some">Fold function for Success</param>
+    /// <param name="None">Fold function for None</param>
+    /// <param name="Fail">Fold function for Failure</param>
     /// <returns>Folded state</returns>
     [Pure]
-    public static Task<S> Fold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, Task<S>> folder) =>
-        Map(self, v => folder(state, v)).IfFail(state);
+    public static Task<S> TriFold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, S> Some, Func<S, S> None, Func<S, Exception, S> Fail) =>
+        TriMap(self,
+            Some: v  => Some(state, v),
+            None: () => None(state),
+            Fail: x  => Fail(state, x))
+           .IfNoneOrFail(state);
 
-    // TODO: Need TriFold and BiFold
+    /// <summary>
+    /// Folds Try value into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="self">Try to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="Some">Fold function for Success</param>
+    /// <param name="None">Fold function for None</param>
+    /// <param name="Fail">Fold function for Failure</param>
+    /// <returns>Folded state</returns>
+    [Pure]
+    public static Task<S> TriFold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, Task<S>> Some, Func<S, S> None, Func<S, Exception, S> Fail) =>
+        TriMap(self,
+            Some: v => Some(state, v),
+            None: () => None(state),
+            Fail: x => Fail(state, x))
+           .IfNoneOrFail(state);
 
-    ///// <summary>
-    ///// Folds Try value into an S.
-    ///// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
-    ///// </summary>
-    ///// <param name="self">Try to fold</param>
-    ///// <param name="state">Initial state</param>
-    ///// <param name="Succ">Fold function for Success</param>
-    ///// <param name="Fail">Fold function for Failure</param>
-    ///// <returns>Folded state</returns>
-    //[Pure]
-    //public static Task<S> BiFold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, S> Succ, Func<S, Exception, S> Fail) =>
-    //    BiMap(self,
-    //        Succ: v => Succ(state, v),
-    //        Fail: x => Fail(state, x)).IfFail(state);
+    /// <summary>
+    /// Folds Try value into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="self">Try to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="Some">Fold function for Success</param>
+    /// <param name="None">Fold function for None</param>
+    /// <param name="Fail">Fold function for Failure</param>
+    /// <returns>Folded state</returns>
+    [Pure]
+    public static Task<S> TriFold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, S> Some, Func<S, Task<S>> None, Func<S, Exception, S> Fail) =>
+        TriMap(self,
+            Some: v => Some(state, v),
+            None: () => None(state),
+            Fail: x => Fail(state, x))
+           .IfNoneOrFail(state);
 
-    ///// <summary>
-    ///// Folds Try value into an S.
-    ///// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
-    ///// </summary>
-    ///// <param name="self">Try to fold</param>
-    ///// <param name="state">Initial state</param>
-    ///// <param name="Succ">Fold function for Success</param>
-    ///// <param name="Fail">Fold function for Failure</param>
-    ///// <returns>Folded state</returns>
-    //[Pure]
-    //public static Task<S> BiFold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, S> Succ, Func<S, Exception, Task<S>> Fail) =>
-    //    BiMap(self,
-    //        Succ: v => Succ(state, v),
-    //        Fail: x => Fail(state, x)).IfFail(state);
+    /// <summary>
+    /// Folds Try value into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="self">Try to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="Some">Fold function for Success</param>
+    /// <param name="None">Fold function for None</param>
+    /// <param name="Fail">Fold function for Failure</param>
+    /// <returns>Folded state</returns>
+    [Pure]
+    public static Task<S> TriFold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, S> Some, Func<S, S> None, Func<S, Exception, Task<S>> Fail) =>
+        TriMap(self,
+            Some: v => Some(state, v),
+            None: () => None(state),
+            Fail: x => Fail(state, x))
+           .IfNoneOrFail(state);
 
+    /// <summary>
+    /// Folds Try value into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="self">Try to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="Some">Fold function for Success</param>
+    /// <param name="None">Fold function for None</param>
+    /// <param name="Fail">Fold function for Failure</param>
+    /// <returns>Folded state</returns>
+    [Pure]
+    public static Task<S> TriFold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, Task<S>> Some, Func<S, Task<S>> None, Func<S, Exception, S> Fail) =>
+        TriMap(self,
+            Some: v => Some(state, v),
+            None: () => None(state),
+            Fail: x => Fail(state, x))
+           .IfNoneOrFail(state);
 
-    ///// <summary>
-    ///// Folds Try value into an S.
-    ///// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
-    ///// </summary>
-    ///// <param name="self">Try to fold</param>
-    ///// <param name="state">Initial state</param>
-    ///// <param name="Succ">Fold function for Success</param>
-    ///// <param name="Fail">Fold function for Failure</param>
-    ///// <returns>Folded state</returns>
-    //[Pure]
-    //public static Task<S> BiFold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, Task<S>> Succ, Func<S, Exception, S> Fail) =>
-    //    BiMap(self,
-    //        Succ: v => Succ(state, v),
-    //        Fail: x => Fail(state, x)).IfFail(state);
+    /// <summary>
+    /// Folds Try value into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="self">Try to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="Some">Fold function for Success</param>
+    /// <param name="None">Fold function for None</param>
+    /// <param name="Fail">Fold function for Failure</param>
+    /// <returns>Folded state</returns>
+    [Pure]
+    public static Task<S> TriFold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, S> Some, Func<S, Task<S>> None, Func<S, Exception, Task<S>> Fail) =>
+        TriMap(self,
+            Some: v => Some(state, v),
+            None: () => None(state),
+            Fail: x => Fail(state, x))
+           .IfNoneOrFail(state);
 
-    ///// <summary>
-    ///// Folds Try value into an S.
-    ///// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
-    ///// </summary>
-    ///// <param name="self">Try to fold</param>
-    ///// <param name="state">Initial state</param>
-    ///// <param name="Succ">Fold function for Success</param>
-    ///// <param name="Fail">Fold function for Failure</param>
-    ///// <returns>Folded state</returns>
-    //[Pure]
-    //public static Task<S> BiFold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, Task<S>> Succ, Func<S, Exception, Task<S>> Fail) =>
-    //    BiMap(self,
-    //        Succ: v => Succ(state, v),
-    //        Fail: x => Fail(state, x)).IfFail(state);
+    /// <summary>
+    /// Folds Try value into an S.
+    /// https://en.wikipedia.org/wiki/Fold_(higher-order_function)
+    /// </summary>
+    /// <param name="self">Try to fold</param>
+    /// <param name="state">Initial state</param>
+    /// <param name="Some">Fold function for Success</param>
+    /// <param name="None">Fold function for None</param>
+    /// <param name="Fail">Fold function for Failure</param>
+    /// <returns>Folded state</returns>
+    [Pure]
+    public static Task<S> TriFold<A, S>(this TryOptionAsync<A> self, S state, Func<S, A, Task<S>> Some, Func<S, Task<S>> None, Func<S, Exception, Task<S>> Fail) =>
+        TriMap(self,
+            Some: v => Some(state, v),
+            None: () => None(state),
+            Fail: x => Fail(state, x))
+           .IfNoneOrFail(state);
 
     /// <summary>
     /// Tests that a predicate holds for any value of the bound value T
@@ -731,7 +997,7 @@ public static class TryOptionAsyncExtensions
     /// <returns>True if the predicate holds for the bound value.  False otherwise.</returns>
     [Pure]
     public static Task<bool> Exists<A>(this TryOptionAsync<A> self, Func<A, bool> pred) =>
-        self.Map(pred).IfFail(false);
+        self.Map(pred).IfNoneOrFail(false);
 
     /// <summary>
     /// Tests that a predicate holds for any value of the bound value T
@@ -742,16 +1008,16 @@ public static class TryOptionAsyncExtensions
     /// <returns>True if the predicate holds for the bound value.  False otherwise.</returns>
     [Pure]
     public static Task<bool> Exists<A>(this TryOptionAsync<A> self, Func<A, Task<bool>> pred) =>
-        self.Map(pred).IfFail(false);
+        self.Map(pred).IfNoneOrFail(false);
 
     /// <summary>
     /// Maps the bound value
     /// </summary>
     /// <typeparam name="A">Type of the bound value</typeparam>
     /// <typeparam name="B">Resulting bound value type</typeparam>
-    /// <param name="self">Try computation</param>
+    /// <param name="self">computation</param>
     /// <param name="mapper">Delegate to map the bound value</param>
-    /// <returns>Mapped Try computation</returns>
+    /// <returns>Mapped computation</returns>
     [Pure]
     public static TryOptionAsync<B> Map<A, B>(this TryOptionAsync<A> self, Func<A, B> mapper) => async () =>
     {
@@ -765,9 +1031,9 @@ public static class TryOptionAsyncExtensions
     /// </summary>
     /// <typeparam name="A">Type of the bound value</typeparam>
     /// <typeparam name="B">Resulting bound value type</typeparam>
-    /// <param name="self">Try computation</param>
+    /// <param name="self">computation</param>
     /// <param name="mapper">Delegate to map the bound value</param>
-    /// <returns>Mapped Try computation</returns>
+    /// <returns>Mapped computation</returns>
     [Pure]
     public static TryOptionAsync<B> Map<A, B>(this TryOptionAsync<A> self, Func<A, Task<B>> mapper) => async () =>
     {
@@ -781,10 +1047,10 @@ public static class TryOptionAsyncExtensions
     /// </summary>
     /// <typeparam name="A">Type of the bound value</typeparam>
     /// <typeparam name="B">Resulting bound value type</typeparam>
-    /// <param name="self">Try computation</param>
+    /// <param name="self">computation</param>
     /// <param name="Succ">Delegate to map the bound value</param>
     /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
-    /// <returns>Mapped Try computation</returns>
+    /// <returns>Mapped computation</returns>
     [Pure]
     public static TryOptionAsync<B> BiMap<A, B>(this TryOptionAsync<A> self, Func<A, B> Succ, Func<B> Fail) => async () =>
     {
@@ -799,10 +1065,10 @@ public static class TryOptionAsyncExtensions
     /// </summary>
     /// <typeparam name="A">Type of the bound value</typeparam>
     /// <typeparam name="B">Resulting bound value type</typeparam>
-    /// <param name="self">Try computation</param>
+    /// <param name="self">computation</param>
     /// <param name="Succ">Delegate to map the bound value</param>
     /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
-    /// <returns>Mapped Try computation</returns>
+    /// <returns>Mapped computation</returns>
     [Pure]
     public static TryOptionAsync<B> BiMap<A, B>(this TryOptionAsync<A> self, Func<A, Task<B>> Succ, Func<B> Fail) => async () =>
     {
@@ -817,10 +1083,10 @@ public static class TryOptionAsyncExtensions
     /// </summary>
     /// <typeparam name="A">Type of the bound value</typeparam>
     /// <typeparam name="B">Resulting bound value type</typeparam>
-    /// <param name="self">Try computation</param>
+    /// <param name="self">computation</param>
     /// <param name="Succ">Delegate to map the bound value</param>
     /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
-    /// <returns>Mapped Try computation</returns>
+    /// <returns>Mapped computation</returns>
     [Pure]
     public static TryOptionAsync<B> BiMap<A, B>(this TryOptionAsync<A> self, Func<A, B> Succ, Func<Task<B>> Fail) => async () =>
     {
@@ -835,10 +1101,10 @@ public static class TryOptionAsyncExtensions
     /// </summary>
     /// <typeparam name="A">Type of the bound value</typeparam>
     /// <typeparam name="B">Resulting bound value type</typeparam>
-    /// <param name="self">Try computation</param>
+    /// <param name="self">computation</param>
     /// <param name="Succ">Delegate to map the bound value</param>
     /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
-    /// <returns>Mapped Try computation</returns>
+    /// <returns>Mapped computation</returns>
     [Pure]
     public static TryOptionAsync<B> BiMap<A, B>(this TryOptionAsync<A> self, Func<A, Task<B>> Succ, Func<Task<B>> Fail) => async () =>
     {
@@ -846,6 +1112,153 @@ public static class TryOptionAsyncExtensions
         return res.IsFaultedOrNone
             ? await Fail()
             : await Succ(res.Value.Value);
+    };
+
+    /// <summary>
+    /// Maps the bound value
+    /// </summary>
+    /// <typeparam name="A">Type of the bound value</typeparam>
+    /// <typeparam name="B">Resulting bound value type</typeparam>
+    /// <param name="self">computation</param>
+    /// <param name="Some">Delegate to map the bound value</param>
+    /// <param name="None">Delegate to map the None to the desired bound result type</param>
+    /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
+    /// <returns>Mapped computation</returns>
+    [Pure]
+    public static TryOptionAsync<B> TriMap<A, B>(this TryOptionAsync<A> self, Func<A, B> Some, Func<B> None, Func<Exception, B> Fail) => async () =>
+    {
+        var res = await self.Try();
+        return res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.IsSome
+                ? Some(res.Value.Value)
+                : None();
+    };
+
+    /// <summary>
+    /// Maps the bound value
+    /// </summary>
+    /// <typeparam name="A">Type of the bound value</typeparam>
+    /// <typeparam name="B">Resulting bound value type</typeparam>
+    /// <param name="self">computation</param>
+    /// <param name="Some">Delegate to map the bound value</param>
+    /// <param name="None">Delegate to map the None to the desired bound result type</param>
+    /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
+    /// <returns>Mapped computation</returns>
+    [Pure]
+    public static TryOptionAsync<B> TriMap<A, B>(this TryOptionAsync<A> self, Func<A, Task<B>> Some, Func<B> None, Func<Exception, B> Fail) => async () =>
+    {
+        var res = await self.Try();
+        return res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.IsSome
+                ? await Some(res.Value.Value)
+                : None();
+    };
+
+    /// <summary>
+    /// Maps the bound value
+    /// </summary>
+    /// <typeparam name="A">Type of the bound value</typeparam>
+    /// <typeparam name="B">Resulting bound value type</typeparam>
+    /// <param name="self">computation</param>
+    /// <param name="Some">Delegate to map the bound value</param>
+    /// <param name="None">Delegate to map the None to the desired bound result type</param>
+    /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
+    /// <returns>Mapped computation</returns>
+    [Pure]
+    public static TryOptionAsync<B> TriMap<A, B>(this TryOptionAsync<A> self, Func<A, B> Some, Func<Task<B>> None, Func<Exception, B> Fail) => async () =>
+    {
+        var res = await self.Try();
+        return res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.IsSome
+                ? Some(res.Value.Value)
+                : await None();
+    };
+
+    /// <summary>
+    /// Maps the bound value
+    /// </summary>
+    /// <typeparam name="A">Type of the bound value</typeparam>
+    /// <typeparam name="B">Resulting bound value type</typeparam>
+    /// <param name="self">computation</param>
+    /// <param name="Some">Delegate to map the bound value</param>
+    /// <param name="None">Delegate to map the None to the desired bound result type</param>
+    /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
+    /// <returns>Mapped computation</returns>
+    [Pure]
+    public static TryOptionAsync<B> TriMap<A, B>(this TryOptionAsync<A> self, Func<A, B> Some, Func<B> None, Func<Exception, Task<B>> Fail) => async () =>
+    {
+        var res = await self.Try();
+        return res.IsFaulted
+            ? await Fail(res.Exception)
+            : res.Value.IsSome
+                ? Some(res.Value.Value)
+                : None();
+    };
+
+    /// <summary>
+    /// Maps the bound value
+    /// </summary>
+    /// <typeparam name="A">Type of the bound value</typeparam>
+    /// <typeparam name="B">Resulting bound value type</typeparam>
+    /// <param name="self">computation</param>
+    /// <param name="Some">Delegate to map the bound value</param>
+    /// <param name="None">Delegate to map the None to the desired bound result type</param>
+    /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
+    /// <returns>Mapped computation</returns>
+    [Pure]
+    public static TryOptionAsync<B> TriMap<A, B>(this TryOptionAsync<A> self, Func<A, Task<B>> Some, Func<Task<B>> None, Func<Exception, B> Fail) => async () =>
+    {
+        var res = await self.Try();
+        return res.IsFaulted
+            ? Fail(res.Exception)
+            : res.Value.IsSome
+                ? await Some(res.Value.Value)
+                : await None();
+    };
+
+    /// <summary>
+    /// Maps the bound value
+    /// </summary>
+    /// <typeparam name="A">Type of the bound value</typeparam>
+    /// <typeparam name="B">Resulting bound value type</typeparam>
+    /// <param name="self">computation</param>
+    /// <param name="Some">Delegate to map the bound value</param>
+    /// <param name="None">Delegate to map the None to the desired bound result type</param>
+    /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
+    /// <returns>Mapped computation</returns>
+    [Pure]
+    public static TryOptionAsync<B> TriMap<A, B>(this TryOptionAsync<A> self, Func<A, B> Some, Func<Task<B>> None, Func<Exception, Task<B>> Fail) => async () =>
+    {
+        var res = await self.Try();
+        return res.IsFaulted
+            ? await Fail(res.Exception)
+            : res.Value.IsSome
+                ? Some(res.Value.Value)
+                : await None();
+    };
+
+    /// <summary>
+    /// Maps the bound value
+    /// </summary>
+    /// <typeparam name="A">Type of the bound value</typeparam>
+    /// <typeparam name="B">Resulting bound value type</typeparam>
+    /// <param name="self">computation</param>
+    /// <param name="Some">Delegate to map the bound value</param>
+    /// <param name="None">Delegate to map the None to the desired bound result type</param>
+    /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
+    /// <returns>Mapped computation</returns>
+    [Pure]
+    public static TryOptionAsync<B> TriMap<A, B>(this TryOptionAsync<A> self, Func<A, Task<B>> Some, Func<Task<B>> None, Func<Exception, Task<B>> Fail) => async () =>
+    {
+        var res = await self.Try();
+        return res.IsFaulted
+            ? await Fail(res.Exception)
+            : res.Value.IsSome
+                ? await Some(res.Value.Value)
+                : await None();
     };
 
     /// <summary>
@@ -1287,10 +1700,10 @@ public static class TryOptionAsyncExtensions
     };
 
     /// <summary>
-    /// Convert the Try type to a Nullable of A
+    /// Convert the computation type to a Nullable of A
     /// </summary>
     /// <typeparam name="A">Type of the bound value</typeparam>
-    /// <param name="ma">Try to convert</param>
+    /// <param name="ma">computation to convert</param>
     /// <returns>Nullable of A</returns>
     [Pure]
     public static async Task<A?> ToNullable<A>(this TryOptionAsync<A> ma) where A : struct

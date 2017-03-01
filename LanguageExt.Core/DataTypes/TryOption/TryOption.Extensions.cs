@@ -34,7 +34,7 @@ public static class TryOptionExtensions
     /// Invoke a delegate if the Try is in a Fail or None state
     /// </summary>
     /// <param name="None">Delegate to invoke if successful</param>
-    public static Unit IfNone<A>(this TryOption<A> self, Action None)
+    public static Unit IfNoneOrFail<A>(this TryOption<A> self, Action None)
     {
         var res = TryOptionExtensions.Try(self);
         if (res.IsFaulted || res.Value.IsNone)
@@ -50,7 +50,7 @@ public static class TryOptionExtensions
     /// <param name="defaultValue">Default value to use on failure</param>
     /// <returns>failValue on failure, the result of the Try otherwise</returns>
     [Pure]
-    public static A IfNone<A>(this TryOption<A> self, A defaultValue)
+    public static A IfNoneOrFail<A>(this TryOption<A> self, A defaultValue)
     {
         if (isnull(defaultValue)) throw new ArgumentNullException(nameof(defaultValue));
 
@@ -67,7 +67,7 @@ public static class TryOptionExtensions
     /// <param name="None">Delegate to invoke on failure</param>
     /// <returns>Result of the invocation of Fail on failure, the result of the Try otherwise</returns>
     [Pure]
-    public static A IfNone<A>(this TryOption<A> self, Func<A> None)
+    public static A IfNoneOrFail<A>(this TryOption<A> self, Func<A> None)
     {
         var res = TryOptionExtensions.Try(self);
         if (res.IsFaulted || res.Value.IsNone)

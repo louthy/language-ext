@@ -1,88 +1,73 @@
 ﻿using System;
+using System.Linq;
+using System.ComponentModel;
 using LanguageExt;
+using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
+using System.Reactive.Linq;
 using LanguageExt.TypeClasses;
 using System.Collections.Generic;
+using LanguageExt.ClassInstances;
 
-public static class TaskTryExtensions
+/// <summary>
+/// Extension methods for the Try monad
+/// </summary>
+public static class TryExtensionsAsync
 {
     /// <summary>
-    /// Convert a Task<Try<A>> to a TryAsync<A>
+    /// Converts this Try to a TryAsync
     /// </summary>
+    /// <typeparam name="A">Bound value type</typeparam>
+    /// <param name="self">This</param>
+    /// <returns>Asynchronous Try</returns>
     [Pure]
-    public static TryAsync<A> ToAsync<A>(this Task<Try<A>> self) =>
-        async () =>
-        {
-            try
-            {
-                var resT = await self;
-                return resT.Try();
-            }
-            catch (Exception e)
-            {
-                return new Result<A>(e);
-            }
-        };
+    public static TryAsync<A> ToAsync<A>(this Try<A> self) => () =>
+        Task.Run(() => self.Try());
 
     /// <summary>
-    /// Convert a Task<Try<A>> to a TryAsync<A>
-    /// </summary>
-    [Pure]
-    public static TryAsync<A> ToAsync<A>(this Try<Task<A>> self) =>
-        async () =>
-        {
-            try
-            {
-                var task = self.Try();
-                if (task.IsFaulted) return new Result<A>(task.Exception);
-                return await task.Value;
-            }
-            catch (Exception e)
-            {
-                return new Result<A>(e);
-            }
-        };
-
-    /// <summary>
-    /// Invoke a delegate if the Try returns a value successfully
+    /// Runs the Try asynchronously.  Invoke a delegate if the Try returns a 
+    /// value successfully
     /// </summary>
     /// <param name="Succ">Delegate to invoke if successful</param>
-    public static Task<Unit> IfSucc<A>(this Task<Try<A>> self, Action<A> Succ) =>
+    [Pure]
+    public static Task<Unit> IfSuccAsync<A>(this Try<A> self, Action<A> Succ) =>
         self.ToAsync().IfSucc(Succ);
 
     /// <summary>
-    /// Return a default value if the Try fails
+    /// Runs the Try asynchronously.  Return a default value if the Try fails
     /// </summary>
     /// <param name="failValue">Default value to use on failure</param>
     /// <returns>failValue on failure, the result of the Try otherwise</returns>
     [Pure]
-    public static Task<A> IfFail<A>(this Task<Try<A>> self, A failValue) =>
+    public static Task<A> IfFailAsync<A>(this Try<A> self, A failValue) =>
         self.ToAsync().IfFail(failValue);
 
     /// <summary>
-    /// Invoke a delegate if the Try fails
+    /// Runs the Try asynchronously.  Invoke a delegate if the Try fails
     /// </summary>
     /// <param name="Fail">Delegate to invoke on failure</param>
     /// <returns>Result of the invocation of Fail on failure, the result of the Try otherwise</returns>
     [Pure]
-    public static Task<A> IfFail<A>(this Task<Try<A>> self, Func<A> Fail) =>
+    public static Task<A> IfFailAsync<A>(this Try<A> self, Func<Task<A>> Fail) =>
         self.ToAsync().IfFail(Fail);
 
     /// <summary>
-    /// Returns the Succ(value) of the Try or a default if it's Fail
+    /// Runs the Try asynchronously.  Returns the Succ(value) of the 
+    /// Try or a default if it's Fail
     /// </summary>
     [Pure]
-    public static Task<A> IfFail<A>(this Task<Try<A>> self, Func<Exception, A> Fail) =>
+    public static Task<A> IfFailAsync<A>(this Try<A> self, Func<Exception, Task<A>> Fail) =>
         self.ToAsync().IfFail(Fail);
 
     /// <summary>
-    /// Provides a fluent exception matching interface which is invoked
-    /// when the Try fails.
+    /// Runs the Try asynchronously.  Provides a fluent exception matching interface 
+    /// which is invoked when the Try fails.
     /// </summary>
     /// <returns>Fluent exception matcher</returns>
     [Pure]
-    public static ExceptionMatchAsync<A> IfFail<A>(this Task<Try<A>> self) =>
+    public static ExceptionMatchAsync<A> IfFailAsync<A>(this Try<A> self) =>
         self.ToAsync().IfFail();
 
     /// <summary>
@@ -93,7 +78,7 @@ public static class TaskTryExtensions
     /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
     /// <returns>The result of either the Succ or Fail delegates</returns>
     [Pure]
-    public static Task<R> Match<A, R>(this Task<Try<A>> self, Func<A, R> Succ, Func<Exception, R> Fail) =>
+    public static Task<R> MatchAsync<A, R>(this Try<A> self, Func<A, R> Succ, Func<Exception, R> Fail) =>
         self.ToAsync().Match(Succ, Fail);
 
     /// <summary>
@@ -104,7 +89,7 @@ public static class TaskTryExtensions
     /// <param name="Fail">Default value to use if the Try computation fails</param>
     /// <returns>The result of either the Succ delegate or the Fail value</returns>
     [Pure]
-    public static Task<R> Match<A, R>(this Task<Try<A>> self, Func<A, R> Succ, R Fail) =>
+    public static Task<R> MatchAsync<A, R>(this Try<A> self, Func<A, R> Succ, R Fail) =>
         self.ToAsync().Match(Succ, Fail);
 
     /// <summary>
@@ -112,18 +97,7 @@ public static class TaskTryExtensions
     /// </summary>
     /// <param name="Succ">Delegate to invoke if the Try computation completes successfully</param>
     /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
-    public static Task<Unit> Match<A>(this Task<Try<A>> self, Action<A> Succ, Action<Exception> Fail) =>
-        self.ToAsync().Match(Succ, Fail);
-
-    /// <summary>
-    /// Pattern matches the two possible states of the Try computation
-    /// </summary>
-    /// <typeparam name="R">Type of the resulting bound value</typeparam>
-    /// <param name="Succ">Delegate to invoke if the Try computation completes successfully</param>
-    /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
-    /// <returns>The result of either the Succ or Fail delegates</returns>
-    [Pure]
-    public static Task<R> Match<A, R>(this Task<Try<A>> self, Func<A, Task<R>> Succ, Func<Exception, R> Fail) =>
+    public static Task<Unit> MatchAsync<A>(this Try<A> self, Action<A> Succ, Action<Exception> Fail) =>
         self.ToAsync().Match(Succ, Fail);
 
     /// <summary>
@@ -134,7 +108,7 @@ public static class TaskTryExtensions
     /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
     /// <returns>The result of either the Succ or Fail delegates</returns>
     [Pure]
-    public static Task<R> Match<A, R>(this Task<Try<A>> self, Func<A, Task<R>> Succ, Func<Exception, Task<R>> Fail) =>
+    public static Task<R> MatchAsync<A, R>(this Try<A> self, Func<A, Task<R>> Succ, Func<Exception, R> Fail) =>
         self.ToAsync().Match(Succ, Fail);
 
     /// <summary>
@@ -145,80 +119,27 @@ public static class TaskTryExtensions
     /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
     /// <returns>The result of either the Succ or Fail delegates</returns>
     [Pure]
-    public static Task<R> Match<A, R>(this Task<Try<A>> self, Func<A, R> Succ, Func<Exception, Task<R>> Fail) =>
+    public static Task<R> MatchAsync<A, R>(this Try<A> self, Func<A, Task<R>> Succ, Func<Exception, Task<R>> Fail) =>
         self.ToAsync().Match(Succ, Fail);
 
     /// <summary>
-    /// Turns the computation into an observable stream
+    /// Pattern matches the two possible states of the Try computation
     /// </summary>
-    /// <typeparam name="A">Bound type</typeparam>
-    /// <typeparam name="R">Returned observable bound type</typeparam>
-    /// <param name="self">This</param>
-    /// <param name="Succ">Function to call when the operation succeeds</param>
-    /// <param name="Fail">Function to call when the operation fails</param>
-    /// <returns>An observable that represents the result of Succ or Fail</returns>
+    /// <typeparam name="R">Type of the resulting bound value</typeparam>
+    /// <param name="Succ">Delegate to invoke if the Try computation completes successfully</param>
+    /// <param name="Fail">Delegate to invoke if the Try computation fails</param>
+    /// <returns>The result of either the Succ or Fail delegates</returns>
     [Pure]
-    public static IObservable<R> MatchObservable<A, R>(this Task<Try<A>> self, Func<A, IObservable<R>> Succ, Func<Exception, R> Fail) =>
-        self.ToAsync().MatchObservable(Succ, Fail);
-
-    /// <summary>
-    /// Turns the computation into an observable stream
-    /// </summary>
-    /// <typeparam name="A">Bound type</typeparam>
-    /// <typeparam name="R">Returned observable bound type</typeparam>
-    /// <param name="self">This</param>
-    /// <param name="Succ">Function to call when the operation succeeds</param>
-    /// <param name="Fail">Function to call when the operation fails</param>
-    /// <returns>An observable that represents the result of Succ or Fail</returns>
-    [Pure]
-    public static IObservable<R> MatchObservable<A, R>(this Task<Try<A>> self, Func<A, IObservable<R>> Succ, Func<Exception, IObservable<R>> Fail) =>
-        self.ToAsync().MatchObservable(Succ, Fail);
-
-    /// <summary>
-    /// Turns the computation into an observable stream
-    /// </summary>
-    /// <typeparam name="A">Bound type</typeparam>
-    /// <typeparam name="R">Returned observable bound type</typeparam>
-    /// <param name="self">This</param>
-    /// <param name="Succ">Function to call when the operation succeeds</param>
-    /// <param name="Fail">Function to call when the operation fails</param>
-    /// <returns>An observable that represents the result of Succ or Fail</returns>
-    [Pure]
-    public static IObservable<R> MatchObservable<A, R>(this Task<Try<A>> self, Func<A, R> Succ, Func<Exception, IObservable<R>> Fail) =>
-        self.ToAsync().MatchObservable(Succ, Fail);
-
-    /// <summary>
-    /// Memoise the try
-    /// </summary>
-    [Pure]
-    public static TryAsync<A> Memo<A>(this Task<Try<A>> self) =>
-        self.ToAsync().Memo();
+    public static Task<R> MatchAsync<A, R>(this Try<A> self, Func<A, R> Succ, Func<Exception, Task<R>> Fail) =>
+        self.ToAsync().Match(Succ, Fail);
 
     [Pure]
-    public static Task<Option<A>> ToOption<A>(this Task<Try<A>> self) =>
+    public static Task<Option<A>> ToOptionAsync<A>(this Try<A> self) =>
         self.ToAsync().ToOption();
 
-    // TODO: Need TryOptionAsync
-    //[Pure]
-    //public static TryOptionAsync<A> ToTryOption<A>(this Task<Try<A>> self) =>
-    //  self.ToTryAsync().ToTryOption();
-
     [Pure]
-    public static Task<A> IfFailThrow<A>(this Task<Try<A>> self) =>
+    public static Task<A> IfFailThrowAsync<A>(this Try<A> self) =>
         self.ToAsync().IfFailThrow();
-
-    /// <summary>
-    /// Map the bound value from A to B
-    /// </summary>
-    /// <typeparam name="A">Bound value type</typeparam>
-    /// <typeparam name="B">Returned bound value type</typeparam>
-    /// <param name="self">This</param>
-    /// <param name="f">Mapping function</param>
-    /// <returns>Mapped Try</returns>
-    [Pure]
-    public static Task<Try<B>> Select<A, B>(this Task<Try<A>> self, Func<A, B> f) =>
-        from x in self.ToAsync().Select(f).Try()
-        select new Try<B>(() => x);
 
     /// <summary>
     /// Map the bound value from A to Task of B
@@ -229,9 +150,8 @@ public static class TaskTryExtensions
     /// <param name="f">Mapping function</param>
     /// <returns>Returns an asynchronous Try</returns>
     [Pure]
-    public static Task<Try<B>> Select<A, B>(this Task<Try<A>> self, Func<A, Task<B>> f) =>
-        from x in self.ToAsync().Select(f).Try()
-        select new Try<B>(() => x);
+    public static TryAsync<B> Select<A, B>(this Try<A> self, Func<A, Task<B>> f) =>
+        self.ToAsync().Select(f);
 
     /// <summary>
     /// Apply Try values to a Try function of arity 2
@@ -240,8 +160,8 @@ public static class TaskTryExtensions
     /// <param name="arg1">Try argument</param>
     /// <param name="arg2">Try argument</param>
     /// <returns>Returns the result of applying the Try arguments to the Try function</returns>
-    public static Task<Unit> Iter<A>(this Task<Try<A>> self, Action<A> action) =>
-        self.IfSucc(action);
+    public static Task<Unit> IterAsync<A>(this Try<A> self, Action<A> action) =>
+        self.ToAsync().IfSucc(action);
 
     /// <summary>
     /// Counts the number of bound values.  
@@ -250,7 +170,7 @@ public static class TaskTryExtensions
     /// <param name="self">TrTry computation</param>
     /// <returns>1 if the Try computation is successful, 0 otherwise.</returns>
     [Pure]
-    public static Task<int> Count<A>(this Task<Try<A>> self) =>
+    public static Task<int> CountAsync<A>(this Try<A> self) =>
         self.ToAsync().Count();
 
     /// <summary>
@@ -262,7 +182,7 @@ public static class TaskTryExtensions
     /// <returns>True if the predicate holds for the bound value, or if the Try computation
     /// fails.  False otherwise.</returns>
     [Pure]
-    public static Task<bool> ForAll<A>(this Task<Try<A>> self, Func<A, bool> pred) =>
+    public static Task<bool> ForAllAsync<A>(this Try<A> self, Func<A, bool> pred) =>
         self.ToAsync().ForAll(pred);
 
     /// <summary>
@@ -274,7 +194,7 @@ public static class TaskTryExtensions
     /// <returns>True if the predicate holds for the bound value, or if the Try computation
     /// fails.  False otherwise.</returns>
     [Pure]
-    public static Task<bool> ForAll<A>(this Task<Try<A>> self, Func<A, Task<bool>> pred) =>
+    public static Task<bool> ForAllAsync<A>(this Try<A> self, Func<A, Task<bool>> pred) =>
         self.ToAsync().ForAll(pred);
 
     /// <summary>
@@ -286,7 +206,7 @@ public static class TaskTryExtensions
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
     [Pure]
-    public static Task<S> Fold<A, S>(this Task<Try<A>> self, S state, Func<S, A, S> folder) =>
+    public static Task<S> FoldAsync<A, S>(this Try<A> self, S state, Func<S, A, S> folder) =>
         self.ToAsync().Fold(state, folder);
 
     /// <summary>
@@ -298,7 +218,7 @@ public static class TaskTryExtensions
     /// <param name="folder">Fold function</param>
     /// <returns>Folded state</returns>
     [Pure]
-    public static Task<S> Fold<A, S>(this Task<Try<A>> self, S state, Func<S, A, Task<S>> folder) =>
+    public static Task<S> FoldAsync<A, S>(this Try<A> self, S state, Func<S, A, Task<S>> folder) =>
         self.ToAsync().Fold(state, folder);
 
     /// <summary>
@@ -311,7 +231,7 @@ public static class TaskTryExtensions
     /// <param name="Fail">Fold function for Failure</param>
     /// <returns>Folded state</returns>
     [Pure]
-    public static Task<S> BiFold<A, S>(this Task<Try<A>> self, S state, Func<S, A, S> Succ, Func<S, Exception, S> Fail) =>
+    public static Task<S> BiFoldAsync<A, S>(this Try<A> self, S state, Func<S, A, S> Succ, Func<S, Exception, S> Fail) =>
         self.ToAsync().BiFold(state, Succ, Fail);
 
     /// <summary>
@@ -324,7 +244,7 @@ public static class TaskTryExtensions
     /// <param name="Fail">Fold function for Failure</param>
     /// <returns>Folded state</returns>
     [Pure]
-    public static Task<S> BiFold<A, S>(this Task<Try<A>> self, S state, Func<S, A, Task<S>> Succ, Func<S, Exception, S> Fail) =>
+    public static Task<S> BiFoldAsync<A, S>(this Try<A> self, S state, Func<S, A, Task<S>> Succ, Func<S, Exception, S> Fail) =>
         self.ToAsync().BiFold(state, Succ, Fail);
 
     /// <summary>
@@ -337,7 +257,7 @@ public static class TaskTryExtensions
     /// <param name="Fail">Fold function for Failure</param>
     /// <returns>Folded state</returns>
     [Pure]
-    public static Task<S> BiFold<A, S>(this Task<Try<A>> self, S state, Func<S, A, S> Succ, Func<S, Exception, Task<S>> Fail) =>
+    public static Task<S> BiFoldAsync<A, S>(this Try<A> self, S state, Func<S, A, S> Succ, Func<S, Exception, Task<S>> Fail) =>
         self.ToAsync().BiFold(state, Succ, Fail);
 
     /// <summary>
@@ -350,7 +270,7 @@ public static class TaskTryExtensions
     /// <param name="Fail">Fold function for Failure</param>
     /// <returns>Folded state</returns>
     [Pure]
-    public static Task<S> BiFold<A, S>(this Task<Try<A>> self, S state, Func<S, A, Task<S>> Succ, Func<S, Exception, Task<S>> Fail) =>
+    public static Task<S> BiFoldAsync<A, S>(this Try<A> self, S state, Func<S, A, Task<S>> Succ, Func<S, Exception, Task<S>> Fail) =>
         self.ToAsync().BiFold(state, Succ, Fail);
 
     /// <summary>
@@ -361,7 +281,7 @@ public static class TaskTryExtensions
     /// <param name="pred">Predicate to test the bound value against</param>
     /// <returns>True if the predicate holds for the bound value.  False otherwise.</returns>
     [Pure]
-    public static Task<bool> Exists<A>(this Task<Try<A>> self, Func<A, bool> pred) =>
+    public static Task<bool> ExistsAsync<A>(this Try<A> self, Func<A, bool> pred) =>
         self.ToAsync().Exists(pred);
 
     /// <summary>
@@ -372,7 +292,7 @@ public static class TaskTryExtensions
     /// <param name="pred">Predicate to test the bound value against</param>
     /// <returns>True if the predicate holds for the bound value.  False otherwise.</returns>
     [Pure]
-    public static Task<bool> Exists<A>(this Task<Try<A>> self, Func<A, Task<bool>> pred) =>
+    public static Task<bool> ExistsAsync<A>(this Try<A> self, Func<A, Task<bool>> pred) =>
         self.ToAsync().Exists(pred);
 
     /// <summary>
@@ -384,8 +304,8 @@ public static class TaskTryExtensions
     /// <param name="mapper">Delegate to map the bound value</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static Task<Try<R>> Map<A, R>(this Task<Try<A>> self, Func<A, R> mapper) =>
-        self.Select(mapper);
+    public static TryAsync<R> MapAsync<A, R>(this Try<A> self, Func<A, R> mapper) =>
+        self.ToAsync().Map(mapper);
 
     /// <summary>
     /// Maps the bound value
@@ -396,8 +316,8 @@ public static class TaskTryExtensions
     /// <param name="mapper">Delegate to map the bound value</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static Task<Try<R>> Map<A, R>(this Task<Try<A>> self, Func<A, Task<R>> mapper) =>
-        self.Select(mapper);
+    public static TryAsync<R> MapAsync<A, R>(this Try<A> self, Func<A, Task<R>> mapper) =>
+        self.ToAsync().Map(mapper);
 
     /// <summary>
     /// Maps the bound value
@@ -409,9 +329,8 @@ public static class TaskTryExtensions
     /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static Task<Try<R>> BiMap<A, R>(this Task<Try<A>> self, Func<A, R> Succ, Func<Exception, R> Fail) =>
-        from x in self.ToAsync().BiMap(Succ, Fail).Try()
-        select new Try<R>(() => x);
+    public static TryAsync<R> BiMapAsync<A, R>(this Try<A> self, Func<A, R> Succ, Func<Exception, R> Fail) =>
+        self.ToAsync().BiMap(Succ, Fail);
 
     /// <summary>
     /// Maps the bound value
@@ -423,9 +342,8 @@ public static class TaskTryExtensions
     /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static Task<Try<R>> BiMap<A, R>(this Task<Try<A>> self, Func<A, Task<R>> Succ, Func<Exception, R> Fail) =>
-        from x in self.ToAsync().BiMap(Succ, Fail).Try()
-        select new Try<R>(() => x);
+    public static TryAsync<R> BiMapAsync<A, R>(this Try<A> self, Func<A, Task<R>> Succ, Func<Exception, R> Fail) =>
+        self.ToAsync().BiMap(Succ, Fail);
 
     /// <summary>
     /// Maps the bound value
@@ -437,9 +355,8 @@ public static class TaskTryExtensions
     /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static Task<Try<R>> BiMap<A, R>(this Task<Try<A>> self, Func<A, R> Succ, Func<Exception, Task<R>> Fail) =>
-        from x in self.ToAsync().BiMap(Succ, Fail).Try()
-        select new Try<R>(() => x);
+    public static TryAsync<R> BiMapAsync<A, R>(this Try<A> self, Func<A, R> Succ, Func<Exception, Task<R>> Fail) =>
+        self.ToAsync().BiMap(Succ, Fail);
 
     /// <summary>
     /// Maps the bound value
@@ -451,109 +368,55 @@ public static class TaskTryExtensions
     /// <param name="Fail">Delegate to map the exception to the desired bound result type</param>
     /// <returns>Mapped Try computation</returns>
     [Pure]
-    public static Task<Try<R>> BiMap<A, R>(this Task<Try<A>> self, Func<A, Task<R>> Succ, Func<Exception, Task<R>> Fail) =>
-        from x in self.ToAsync().BiMap(Succ, Fail).Try()
-        select new Try<R>(() => x);
+    public static TryAsync<R> BiMapAsync<A, R>(this Try<A> self, Func<A, Task<R>> Succ, Func<Exception, Task<R>> Fail) =>
+        self.ToAsync().BiMap(Succ, Fail);
 
     [Pure]
-    public static Task<Try<A>> Filter<A>(this Task<Try<A>> self, Func<A, bool> pred) =>
-        from x in self.ToAsync().Filter(pred).Try()
-        select new Try<A>(() => x);
+    public static TryAsync<A> FilterAsync<A>(this Try<A> self, Func<A, bool> pred) =>
+        self.ToAsync().Filter(pred);
 
     [Pure]
-    public static Task<Try<A>> Filter<A>(this Task<Try<A>> self, Func<A, Task<bool>> pred) =>
-        from x in self.ToAsync().Filter(pred).Try()
-        select new Try<A>(() => x);
+    public static TryAsync<A> FilterAsync<A>(this Try<A> self, Func<A, Task<bool>> pred) =>
+        self.ToAsync().Filter(pred);
 
     [Pure]
-    public static Task<Try<A>> BiFilter<A>(this Task<Try<A>> self, Func<A, bool> Succ, Func<Exception, bool> Fail) =>
-        from x in self.ToAsync().BiFilter(Succ, Fail).Try()
-        select new Try<A>(() => x);
+    public static TryAsync<A> BiFilterAsync<A>(this Try<A> self, Func<A, bool> Succ, Func<Exception, bool> Fail) =>
+        self.ToAsync().BiFilter(Succ, Fail);
 
     [Pure]
-    public static Task<Try<A>> BiFilter<A>(this Task<Try<A>> self, Func<A, Task<bool>> Succ, Func<Exception, bool> Fail) =>
-        from x in self.ToAsync().BiFilter(Succ, Fail).Try()
-        select new Try<A>(() => x);
+    public static TryAsync<A> BiFilterAsync<A>(this Try<A> self, Func<A, Task<bool>> Succ, Func<Exception, bool> Fail) =>
+        self.ToAsync().BiFilter(Succ, Fail);
 
     [Pure]
-    public static Task<Try<A>> BiFilter<A>(this Task<Try<A>> self, Func<A, bool> Succ, Func<Exception, Task<bool>> Fail) =>
-        from x in self.ToAsync().BiFilter(Succ, Fail).Try()
-        select new Try<A>(() => x);
+    public static TryAsync<A> BiFilterAsync<A>(this Try<A> self, Func<A, bool> Succ, Func<Exception, Task<bool>> Fail) =>
+        self.ToAsync().BiFilter(Succ, Fail);
 
     [Pure]
-    public static Task<Try<A>> BiFilter<A>(this Task<Try<A>> self, Func<A, Task<bool>> Succ, Func<Exception, Task<bool>> Fail) =>
-        from x in self.ToAsync().BiFilter(Succ, Fail).Try()
-        select new Try<A>(() => x);
+    public static TryAsync<A> BiFilterAsync<A>(this Try<A> self, Func<A, Task<bool>> Succ, Func<Exception, Task<bool>> Fail) =>
+        self.ToAsync().BiFilter(Succ, Fail);
 
     [Pure]
-    public static Task<Try<A>> Where<A>(this Task<Try<A>> self, Func<A, bool> pred) =>
-        from x in self.ToAsync().Filter(pred).Try()
-        select new Try<A>(() => x);
+    public static TryAsync<A> Where<A>(this Try<A> self, Func<A, Task<bool>> pred) =>
+        self.FilterAsync(pred);
 
     [Pure]
-    public static Task<Try<A>> Where<A>(this Task<Try<A>> self, Func<A, Task<bool>> pred) =>
-        from x in self.ToAsync().Filter(pred).Try()
-        select new Try<A>(() => x);
-
-    [Pure]
-    public static Task<IEnumerable<Either<Exception, A>>> AsEnumerable<A>(this Task<Try<A>> self) =>
+    public static Task<IEnumerable<Either<Exception, A>>> AsEnumerableAsync<A>(this Try<A> self) =>
         self.ToAsync().AsEnumerable();
 
     [Pure]
-    public static Task<Lst<Either<Exception, A>>> ToList<A>(this Task<Try<A>> self) =>
+    public static Task<Lst<Either<Exception, A>>> ToListAsync<A>(this Try<A> self) =>
         self.ToAsync().ToList();
 
     [Pure]
-    public static Task<Arr<Either<Exception, A>>> ToArray<A>(this Task<Try<A>> self) =>
+    public static Task<Arr<Either<Exception, A>>> ToArrayAsync<A>(this Try<A> self) =>
         self.ToAsync().ToArray();
 
     [Pure]
-    public static Task<string> AsString<A>(this Task<Try<A>> self) =>
+    public static Task<string> AsStringAsync<A>(this Try<A> self) =>
         self.ToAsync().AsString();
 
     [Pure]
-    public static Task<Try<B>> Bind<A, B>(this Task<Try<A>> self, Func<A, Task<Try<B>>> binder) => 
-        Task.Run((async () =>
-        {
-            try
-            {
-                var resA = await self;
-                var a = resA.Try();
-                return a.IsFaulted
-                    ? new Try<B>(() => new Result<B>(a.Exception))
-                    : await binder(a.Value);
-            }
-            catch (Exception e)
-            {
-                return new Try<B>(() => new Result<B>(e));
-            }
-        }));
-
-    [Pure]
-    public static Task<Try<C>> SelectMany<A, B, C>(
-        this Task<Try<A>> self,
-        Func<A, Task<Try<B>>> bind,
-        Func<A, B, C> project) =>
-            Task.Run((async () =>
-            {
-                try
-                {
-                    var resA = await self;
-                    var a = resA.Try();
-                    if (a.IsFaulted) return new Try<C>(() => new Result<C>(a.Exception));
-                    var resB = await bind(a.Value);
-                    var b = resB.Try();
-                    if (b.IsFaulted) return new Try<C>(() => new Result<C>(b.Exception));
-                    return new Try<C>(() => project(a.Value, b.Value));
-                }
-                catch(Exception e)
-                {
-                    return new Try<C>(() => new Result<C>(e));
-                }
-            }));
-    
-    [Pure]
-    public static Task<int> Sum(this Task<Try<int>> self) =>
+    public static Task<int> SumAsync(this Try<int> self) =>
         self.ToAsync().Sum();
 
     /// <summary>
@@ -563,8 +426,19 @@ public static class TaskTryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>1 if lhs > rhs, 0 if lhs == rhs, -1 if lhs < rhs</returns>
     [Pure]
-    public static Task<int> Compare<ORD, A>(this Task<Try<A>> lhs, Task<Try<A>> rhs) where ORD : struct, Ord<A> =>
+    public static Task<int> CompareAsync<ORD, A>(this Try<A> lhs, Try<A> rhs) where ORD : struct, Ord<A> =>
         lhs.ToAsync().Compare<ORD, A>(rhs.ToAsync());
+
+    /// <summary>
+    /// Append the bound value of Try(x) to Try(y).  If either of the
+    /// Trys are Fail then the result is Fail
+    /// </summary>
+    /// <param name="lhs">Left-hand side of the operation</param>
+    /// <param name="rhs">Right-hand side of the operation</param>
+    /// <returns>lhs `append` rhs</returns>
+    [Pure]
+    public static TryAsync<A> AppendAsync<SEMI, A>(this Try<A> lhs, Try<A> rhs) where SEMI : struct, Semigroup<A> =>
+        lhs.ToAsync().Append<SEMI, A>(rhs.ToAsync());
 
     /// <summary>
     /// Add the bound value of Try(x) to Try(y).  If either of the
@@ -574,7 +448,7 @@ public static class TaskTryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Add<NUM, A>(this Task<Try<A>> lhs, Task<Try<A>> rhs) where NUM : struct, Num<A> =>
+    public static TryAsync<A> AddAsync<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
         lhs.ToAsync().Add<NUM, A>(rhs.ToAsync());
 
     /// <summary>
@@ -585,7 +459,7 @@ public static class TaskTryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Subtract<NUM, A>(this Task<Try<A>> lhs, Task<Try<A>> rhs) where NUM : struct, Num<A> =>
+    public static TryAsync<A> SubtractAsync<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
         lhs.ToAsync().Subtract<NUM, A>(rhs.ToAsync());
 
     /// <summary>
@@ -596,7 +470,7 @@ public static class TaskTryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Product<NUM, A>(this Task<Try<A>> lhs, Task<Try<A>> rhs) where NUM : struct, Num<A> =>
+    public static TryAsync<A> ProductAsync<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
         lhs.ToAsync().Product<NUM, A>(rhs.ToAsync());
 
     /// <summary>
@@ -607,7 +481,7 @@ public static class TaskTryExtensions
     /// <param name="rhs">Right-hand side of the operation</param>
     /// <returns>lhs + rhs</returns>
     [Pure]
-    public static TryAsync<A> Divide<NUM, A>(this Task<Try<A>> lhs, Task<Try<A>> rhs) where NUM : struct, Num<A> =>
+    public static TryAsync<A> DivideAsync<NUM, A>(this Try<A> lhs, Try<A> rhs) where NUM : struct, Num<A> =>
         lhs.ToAsync().Divide<NUM, A>(rhs.ToAsync());
 
     /// <summary>
@@ -617,6 +491,6 @@ public static class TaskTryExtensions
     /// <param name="ma">Try to convert</param>
     /// <returns>Nullable of A</returns>
     [Pure]
-    public static Task<A?> ToNullable<A>(this Task<Try<A>> ma) where A : struct =>
+    public static Task<A?> ToNullableAsync<A>(this Try<A> ma) where A : struct =>
         ma.ToAsync().ToNullable();
 }

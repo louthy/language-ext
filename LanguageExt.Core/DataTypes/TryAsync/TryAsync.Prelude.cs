@@ -28,7 +28,7 @@ namespace LanguageExt
         /// <returns>A lifted operation that returns a value of A</returns>
         [Pure]
         public static TryAsync<A> TryAsync<A>(A v) => () =>
-            Task.Run(() => new Result<A>(v));
+            Task.FromResult(new Result<A>(v));
 
         /// <summary>
         /// Append the bound value of TryAsync(x) to TryAsync(y).  If either of the
