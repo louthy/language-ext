@@ -33,7 +33,7 @@ public static class StateExtensions
         }
         catch (Exception e)
         {
-            return (() => new TryOptionResult<A>(e), state);
+            return (() => new OptionalResult<A>(e), state);
         }
     }
 

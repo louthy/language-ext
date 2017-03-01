@@ -10,6 +10,37 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
+        /// Try constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="f">Function to run when invoked</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static Try<A> Try<A>(Func<A> f) => () =>
+            f();
+
+        /// <summary>
+        /// Try identity constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Bound value to return</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static Try<A> Try<A>(A v) => () =>
+            v;
+
+        /// <summary>
+        /// Append the bound value of Try(x) to Try(y).  If either of the
+        /// Trys are Fail then the result is Fail
+        /// </summary>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs `append` rhs</returns>
+        [Pure]
+        public static Try<A> append<SEMI, A>(Try<A> lhs, Try<A> rhs) where SEMI : struct, Semigroup<A> =>
+            lhs.Append<SEMI, A>(rhs);
+
+        /// <summary>
         /// Add the bound value of Try(x) to Try(y).  If either of the
         /// Trys are Fail then the result is Fail
         /// </summary>
@@ -405,9 +436,5 @@ namespace LanguageExt
         [Pure]
         public static Try<T> tryfun<T>(Func<Try<T>> tryDel) => () => 
             tryDel()().Value;
-
-        [Pure]
-        public static Try<T> Try<T>(Func<T> tryDel) => () =>
-            tryDel();
     }
 }

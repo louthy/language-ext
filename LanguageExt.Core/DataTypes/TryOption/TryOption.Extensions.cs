@@ -688,7 +688,7 @@ public static class TryOptionExtensions
     /// <param name="self">TryOption to invoke</param>
     /// <returns>TryOptionResult</returns>
     [Pure]
-    public static TryOptionResult<T> Try<T>(this TryOption<T> self)
+    public static OptionalResult<T> Try<T>(this TryOption<T> self)
     {
         try
         {
@@ -701,7 +701,7 @@ public static class TryOptionExtensions
         catch (Exception e)
         {
             TryConfig.ErrorLogger(e);
-            return new TryOptionResult<T>(e);
+            return new OptionalResult<T>(e);
         }
     }
 

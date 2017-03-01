@@ -29,6 +29,25 @@ public static class TaskTryExtensions
         };
 
     /// <summary>
+    /// Convert a Task<Try<A>> to a TryAsync<A>
+    /// </summary>
+    [Pure]
+    public static TryAsync<A> ToTryAsync<A>(this Try<Task<A>> self) =>
+        async () =>
+        {
+            try
+            {
+                var task = self.Try();
+                if (task.IsFaulted) return new Result<A>(task.Exception);
+                return await task.Value;
+            }
+            catch (Exception e)
+            {
+                return new Result<A>(e);
+            }
+        };
+
+    /// <summary>
     /// Invoke a delegate if the Try returns a value successfully
     /// </summary>
     /// <param name="Succ">Delegate to invoke if successful</param>

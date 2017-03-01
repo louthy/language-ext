@@ -35,7 +35,7 @@ public static class WriterExtensions
         }
         catch (Exception e)
         {
-            return (() => new TryOptionResult<A>(e), default(MonoidW).Empty());
+            return (() => new OptionalResult<A>(e), default(MonoidW).Empty());
         }
     }
 

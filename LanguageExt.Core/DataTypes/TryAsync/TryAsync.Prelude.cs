@@ -11,6 +11,37 @@ namespace LanguageExt
     public static partial class Prelude
     {
         /// <summary>
+        /// TryAsync constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="f">Function to run asynchronously</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static TryAsync<A> TryAsync<A>(Func<A> f) => () =>
+            Task.Run(() => new Result<A>(f()));
+
+        /// <summary>
+        /// TryAsync identity constructor function
+        /// </summary>
+        /// <typeparam name="A">Bound value type</typeparam>
+        /// <param name="v">Bound value to return</param>
+        /// <returns>A lifted operation that returns a value of A</returns>
+        [Pure]
+        public static TryAsync<A> TryAsync<A>(A v) => () =>
+            Task.Run(() => new Result<A>(v));
+
+        /// <summary>
+        /// Append the bound value of TryAsync(x) to TryAsync(y).  If either of the
+        /// Trys are Fail then the result is Fail
+        /// </summary>
+        /// <param name="lhs">Left-hand side of the operation</param>
+        /// <param name="rhs">Right-hand side of the operation</param>
+        /// <returns>lhs `append` rhs</returns>
+        [Pure]
+        public static TryAsync<A> Append<SEMI, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where SEMI : struct, Semigroup<A> =>
+            lhs.Append<SEMI, A>(rhs);
+    
+        /// <summary>
         /// Add the bound value of TryAsync(x) to TryAsync(y).  If either of the
         /// Trys are Fail then the result is Fail
         /// </summary>
@@ -372,10 +403,6 @@ namespace LanguageExt
         public static TryAsync<T> filter<T>(TryAsync<T> self, Func<T, bool> pred) =>
             self.Filter(pred);
 
-        [Obsolete]
-        public static TryAsync<T> TryAsync<T>(TryAsync<T> self, Func<T, bool> Succ, Func<Exception, bool> Fail) =>
-            self.BiFilter(Succ, Fail);
-
         [Pure]
         public static TryAsync<T> bifilter<T>(TryAsync<T> self, Func<T, bool> Succ, Func<Exception, bool> Fail) =>
             self.BiFilter(Succ, Fail);
@@ -397,11 +424,7 @@ namespace LanguageExt
             tryDel.ToArray();
 
         [Pure]
-        public static TryAsync<T> tryfun<T>(Func<TryAsync<T>> tryDel) => () => 
-            tryDel().Try();
-
-        [Pure]
-        public static TryAsync<T> TryAsync<T>(Func<T> tryDel) => () =>
-            Task.Run(() => new Result<T>(tryDel()));
+        public static TryAsync<T> tryfun<T>(Func<TryAsync<T>> f) => () => 
+            f().Try();
     }
 }

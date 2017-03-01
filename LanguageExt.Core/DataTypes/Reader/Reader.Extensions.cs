@@ -38,7 +38,7 @@ public static class ReaderExt
         }
         catch(Exception e)
         {
-            return () => new TryOptionResult<A>(e);
+            return () => new OptionalResult<A>(e);
         }
     }
 

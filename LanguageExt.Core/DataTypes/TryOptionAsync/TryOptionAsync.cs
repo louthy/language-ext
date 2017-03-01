@@ -1,4 +1,5 @@
-﻿
+﻿using System.Threading.Tasks;
+
 namespace LanguageExt
 {
     /// <summary>
@@ -8,6 +9,6 @@ namespace LanguageExt
     /// </summary>
     /// <remarks>To invoke directly, call x.Try()</remarks>
     /// <returns>A value that represents the outcome of the computation, either
-    /// Some, None, or Failure</returns>
-    public delegate OptionalResult<A> TryOption<A>();
+    /// Success or Failure</returns>
+    public delegate Task<OptionalResult<A>> TryOptionAsync<A>();
 }

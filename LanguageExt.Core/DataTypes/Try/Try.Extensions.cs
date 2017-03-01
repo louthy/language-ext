@@ -334,10 +334,6 @@ public static class TryExtensions
             : Optional(res.Value);
     };
 
-    // TODO: Need TryOptionAsync
-    //[Pure]
-    //public static TryOption<A> ToTryOption<A>(this Try<A> self) => () =>
-
     [Pure]
     public static A IfFailThrow<A>(this Try<A> self)
     {
@@ -1092,6 +1088,30 @@ public static class TryExtensions
     [Pure]
     public static Task<int> CompareAsync<ORD, A>(this Try<A> lhs, Try<A> rhs) where ORD : struct, Ord<A> =>
         lhs.ToAsync().Compare<ORD, A>(rhs.ToAsync());
+
+    /// <summary>
+    /// Append the bound value of Try(x) to Try(y).  If either of the
+    /// Trys are Fail then the result is Fail
+    /// </summary>
+    /// <param name="lhs">Left-hand side of the operation</param>
+    /// <param name="rhs">Right-hand side of the operation</param>
+    /// <returns>lhs `append` rhs</returns>
+    [Pure]
+    public static Try<A> Append<SEMI, A>(this Try<A> lhs, Try<A> rhs) where SEMI : struct, Semigroup<A> =>
+        from x in lhs
+        from y in rhs
+        select append<SEMI, A>(x, y);
+
+    /// <summary>
+    /// Append the bound value of Try(x) to Try(y).  If either of the
+    /// Trys are Fail then the result is Fail
+    /// </summary>
+    /// <param name="lhs">Left-hand side of the operation</param>
+    /// <param name="rhs">Right-hand side of the operation</param>
+    /// <returns>lhs `append` rhs</returns>
+    [Pure]
+    public static TryAsync<A> AppendAsync<SEMI, A>(this Try<A> lhs, Try<A> rhs) where SEMI : struct, Semigroup<A> =>
+        lhs.ToAsync().Append<SEMI, A>(rhs.ToAsync());
 
     /// <summary>
     /// Add the bound value of Try(x) to Try(y).  If either of the

@@ -2,6 +2,7 @@
 using System.Diagnostics.Contracts;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using static LanguageExt.TypeClass;
 using LanguageExt.ClassInstances;
 
 namespace LanguageExt
@@ -9,14 +10,14 @@ namespace LanguageExt
     /// <summary>
     /// Represents the result of an operation:
     /// 
-    ///     A | Exception
+    ///     Some(A) | None | Exception
     /// 
     /// </summary>
     /// <typeparam name="A">Bound value type</typeparam>
-    public struct Result<A> : IEquatable<Result<A>>
+    public struct OptionalResult<A> : IEquatable<OptionalResult<A>>
     {
         readonly bool IsValid;
-        internal readonly A Value;
+        internal readonly Option<A> Value;
         internal Exception Exception;
 
         /// <summary>
@@ -24,7 +25,7 @@ namespace LanguageExt
         /// </summary>
         /// <param name="value"></param>
         [Pure]
-        public Result(A value)
+        public OptionalResult(Option<A> value)
         {
             IsValid = true;
             Value = value;
@@ -36,11 +37,11 @@ namespace LanguageExt
         /// </summary>
         /// <param name="e"></param>
         [Pure]
-        public Result(Exception e)
+        public OptionalResult(Exception e)
         {
             IsValid = true;
             Exception = e;
-            Value = default(A);
+            Value = None;
         }
 
         /// <summary>
@@ -48,14 +49,36 @@ namespace LanguageExt
         /// </summary>
         /// <param name="value">Value</param>
         [Pure]
-        public static implicit operator Result<A>(A value) =>
-            new Result<A>(value);
+        public static implicit operator OptionalResult<A>(A value) =>
+            new OptionalResult<A>(value);
+
+        /// <summary>
+        /// Implicit conversion operator from Option<A> to Result<A>
+        /// </summary>
+        /// <param name="value">Value</param>
+        [Pure]
+        public static implicit operator OptionalResult<A>(Option<A> value) =>
+            new OptionalResult<A>(value);
+
+        /// <summary>
+        /// Implicit conversion operator from Option<A> to Result<A>
+        /// </summary>
+        /// <param name="value">Value</param>
+        [Pure]
+        public static implicit operator OptionalResult<A>(OptionNone value) =>
+            new OptionalResult<A>(value);
 
         /// <summary>
         /// True if the result is faulted
         /// </summary>
         [Pure]
         public bool IsFaulted => Exception != null || IsBottom;
+
+        /// <summary>
+        /// True if the result is faulted
+        /// </summary>
+        [Pure]
+        public bool IsFaultedOrNone => Exception != null || IsBottom || Value.IsNone;
 
         /// <summary>
         /// True if the struct is in an invalid state
@@ -76,18 +99,18 @@ namespace LanguageExt
         /// Equality check
         /// </summary>
         [Pure]
-        public bool Equals(Result<A> other) =>
+        public bool Equals(OptionalResult<A> other) =>
             IsBottom == other.IsBottom &&
             IsFaulted
                 ? Exception == other.Exception
-                : EqDefault<A>.Inst.Equals(Value, other.Value);
+                : equals<EqDefault<A>, A>(Value, other.Value);
 
         /// <summary>
         /// Equality check
         /// </summary>
         [Pure]
         public override bool Equals(object obj) =>
-            obj is Result<A> && Equals((Result<A>)obj);
+            obj is OptionalResult<A> && Equals((OptionalResult<A>)obj);
 
         /// <summary>
         /// Get hash code for bound value
@@ -97,31 +120,37 @@ namespace LanguageExt
         {
             if (IsBottom) return -1;
             if (IsFaulted) return -2;
-            return Value?.GetHashCode() ?? 0;
+            return Value.GetHashCode();
         }
 
         [Pure]
-        public static bool operator==(Result<A> a, Result<A> b) =>
+        public static bool operator==(OptionalResult<A> a, OptionalResult<A> b) =>
             a.Equals(b);
 
         [Pure]
-        public static bool operator !=(Result<A> a, Result<A> b) =>
+        public static bool operator !=(OptionalResult<A> a, OptionalResult<A> b) =>
             !(a==b);
 
-        public readonly static Result<A> Bottom =
-            new Result<A>(BottomException.Default);
+        public readonly static OptionalResult<A> Bottom =
+            new OptionalResult<A>(BottomException.Default);
 
         [Pure]
         public A IfFail(A defaultValue) =>
-            IsFaulted
+            IsFaulted || Value.IsNone
                 ? defaultValue
-                : Value;
+                : Value.Value;
 
         [Pure]
-        public A IfFail(Func<Exception, A> f) =>
+        public Option<A> IfFail(Func<Exception, A> f) =>
             IsFaulted
                 ? f(Exception)
                 : Value;
+
+        public Unit IfFail(Action f)
+        {
+            if (IsFaulted || Value.IsNone) f();
+            return unit;
+        }
 
         public Unit IfFail(Action<Exception> f)
         {
@@ -131,19 +160,21 @@ namespace LanguageExt
 
         public Unit IfSucc(Action<A> f)
         {
-            if (!IsFaulted) f(Value);
+            if (!IsFaulted && Value.IsSome) f(Value.Value);
             return unit;
         }
 
         [Pure]
-        public R Match<R>(Func<A, R> Succ, Func<Exception, R> Fail) =>
+        public R Match<R>(Func<A, R> Some, Func<R> None, Func<Exception, R> Fail) =>
             IsFaulted
                 ? Fail(Exception)
-                : Succ(Value);
+                : Value.Match(Some, None);
 
-        internal OptionalResult<A> ToOptional() =>
+        internal Result<A> ToResult() =>
             IsFaulted
-                ? new OptionalResult<A>(Exception)
-                : new OptionalResult<A>(Value);
+                ? new Result<A>(Exception)
+                : Value.IsSome
+                    ? new Result<A>(Value.Value)
+                    : new Result<A>(default(A));
     }
 }

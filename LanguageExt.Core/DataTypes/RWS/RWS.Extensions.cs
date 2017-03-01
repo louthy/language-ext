@@ -34,12 +34,12 @@ public static class RWSExt
             }
             else
             {
-                return (() => new TryOptionResult<A>(Optional(a)), w, s);
+                return (() => new OptionalResult<A>(Optional(a)), w, s);
             }
         }
         catch (Exception e)
         {
-            return (() => new TryOptionResult<A>(e), default(MonoidW).Empty(), state);
+            return (() => new OptionalResult<A>(e), default(MonoidW).Empty(), state);
         }
     }
 

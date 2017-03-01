@@ -370,16 +370,9 @@ public static class TryAsyncExtensions
               Succ: v => Some(v),
               Fail: _ => Option<A>.None);
 
-    // TODO: Need TryOptionAsync
-    //[Pure]
-    //public static TryOption<A> ToTryOption<A>(this TryAsync<A> self) =>
-    //    () =>
-    //    {
-    //        var res = self().Result;
-    //        return res.IsFaulted
-    //            ? None
-    //            : Optional(res.Value);
-    //    };
+    [Pure]
+    public static TryOptionAsync<A> ToTryOption<A>(this TryAsync<A> self) =>
+        async () => (await self.Try()).ToOptional();
 
     [Pure]
     public static async Task<A> IfFailThrow<A>(this TryAsync<A> self)
@@ -894,7 +887,7 @@ public static class TryAsyncExtensions
                 try
                 {
                     var res = await self.Try();
-                    if (res.IsFaulted) return default(U);
+                    if (res.IsFaulted) return new Result<U>(res.Exception);
                     t = res.Value;
                     return select(t);
                 }
@@ -1020,6 +1013,24 @@ public static class TryAsyncExtensions
         if (!x.Result.IsFaulted && y.Result.IsFaulted) return 1;
         return default(ORD).Compare(x.Result.Value, y.Result.Value);
     }
+
+    /// <summary>
+    /// Append the bound value of TryAsync(x) to TryAsync(y).  If either of the
+    /// Trys are Fail then the result is Fail
+    /// </summary>
+    /// <param name="lhs">Left-hand side of the operation</param>
+    /// <param name="rhs">Right-hand side of the operation</param>
+    /// <returns>lhs `append` rhs</returns>
+    [Pure]
+    public static TryAsync<A> Append<SEMI, A>(this TryAsync<A> lhs, TryAsync<A> rhs) where SEMI : struct, Semigroup<A> => async () =>
+    {
+        var x = lhs.Try();
+        var y = rhs.Try();
+        await Task.WhenAll(x, y);
+        if (x.IsFaulted || x.Result.IsFaulted) return x.Result;
+        if (y.IsFaulted || y.Result.IsFaulted) return y.Result;
+        return append<SEMI, A>(x.Result.Value, y.Result.Value);
+    };
 
     /// <summary>
     /// Add the bound value of Try(x) to Try(y).  If either of the
