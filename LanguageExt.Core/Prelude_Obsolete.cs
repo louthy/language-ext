@@ -249,7 +249,7 @@ namespace LanguageExt
         /// </summary>
         [Obsolete("Use 'Cons'.  All constructor functions are renamed to have their first letter as a capital.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IEnumerable<T> cons<T>(this T head, IEnumerable<T> tail)
+        public static IEnumerable<T> cons<T>(T head, IEnumerable<T> tail)
         {
             yield return head;
             foreach (var item in tail)
@@ -263,7 +263,7 @@ namespace LanguageExt
         /// </summary>
         [Obsolete("Use 'Cons'.  All constructor functions are renamed to have their first letter as a capital.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Lst<T> cons<T>(this T head, Lst<T> tail) =>
+        public static Lst<T> cons<T>(T head, Lst<T> tail) =>
             tail.Insert(0, head);
 
         /// <summary>

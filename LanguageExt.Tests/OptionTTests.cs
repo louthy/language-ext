@@ -8,11 +8,60 @@ using static LanguageExt.Prelude;
 using static LanguageExt.List;
 using Xunit;
 using LanguageExt.ClassInstances;
+using System;
 
 namespace LanguageExtTests
 {
+
     public class OptionTTests
     {
+        [Fact]
+        public void TestLstT()
+        {
+            var x = List(Some(1), Some(2), None, Some(4));
+
+            var r = LstTBind(x, (a => a % 2 == 0 ? Some(a) : None));
+
+            Assert.True(r == List(None, Some(2), None, Some(4)));
+        }
+
+        [Fact]
+        public void TestOptionT()
+        {
+            var x = Some(List(1, 2, 3, 4, 5));
+
+            var r = OptionTBind(x, (a => a % 2 == 0 ? List(a) : List<int>()));
+
+            Assert.True(r == Some(List(2, 4)));
+        }
+
+        static OptionT<MLst<Option<int>>, Lst<Option<int>>, int> OptionT;
+        static Trans<MLst<Option<int>>, Lst<Option<int>>, MOption<int>, Option<int>, int> LstT;
+
+        [Fact]
+        public void TestOptionT2()
+        {
+            var list = List(Some(1), Some(2), Some(3), Some(4), Some(5));
+
+            var newlist = OptionT.Bind(list, x => x % 2 == 0 ? Some(x) : None);
+
+            Assert.True(newlist == List(None, Some(2), None, Some(4), None));
+        }
+
+        public static Lst<Option<B>> LstTBind<A, B>(Lst<Option<A>> list, Func<A, Option<B>> bind)
+        {
+            var LstT = default(Trans<MLst<Option<A>>, Lst<Option<A>>, MOption<A>, Option<A>, A>);
+
+            return LstT.Bind<MLst<Option<B>>, Lst<Option<B>>, MOption<B>, Option<B>, B>(list, bind);
+        }
+
+        public static Option<Lst<B>> OptionTBind<A, B>(Option<Lst<A>> list, Func<A, Lst<B>> bind)
+        {
+            var OptionT = default(Trans<MOption<Lst<A>>, Option<Lst<A>>, MLst<A>, Lst<A>, A>);
+
+            return OptionT.Bind<MOption<Lst<B>>, Option<Lst<B>>, MLst<B>, Lst<B>, B>(list, bind);
+        }
+
         // TODO: RESTORE WHEN NEW TRANSFORMER SYSTEM IS IN PLACE
         //[Fact]
         //public void WrappedListTest()
