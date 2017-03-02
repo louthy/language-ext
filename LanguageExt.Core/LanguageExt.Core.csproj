@@ -48,14 +48,10 @@
     <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="HKT.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>HKT.cs</LastGenOutput>
-    </None>
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="HKT.cs">
+    <Compile Update="HKT\HKT.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>HKT.tt</DependentUpon>
@@ -63,5 +59,16 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="HKT\HKT.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HKT.tt</DependentUpon>
+    </None>
+    <None Update="HKT\HKT.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>HKT.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 </Project>

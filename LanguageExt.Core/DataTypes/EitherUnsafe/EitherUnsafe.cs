@@ -54,7 +54,7 @@ namespace LanguageExt
             if (isnull(right))
                 throw new ValueIsNullException();
 
-            this.State = EitherState.IsRight;
+            this.State = EitherStatus.IsRight;
             this.right = right;
             this.left = default(L);
         }
@@ -64,7 +64,7 @@ namespace LanguageExt
             if (isnull(left))
                 throw new ValueIsNullException();
 
-            this.State = EitherState.IsLeft;
+            this.State = EitherStatus.IsLeft;
             this.right = default(R);
             this.left = left;
         }
@@ -79,7 +79,7 @@ namespace LanguageExt
             var first = either.Take(1).ToArray();
             if (first.Length == 0)
             {
-                this.State = EitherState.IsBottom;
+                this.State = EitherStatus.IsBottom;
                 this.right = default(R);
                 this.left = default(L);
             }
@@ -109,7 +109,7 @@ namespace LanguageExt
         ///     IsLeft
         ///     IsBottom
         /// </summary>
-        public readonly EitherState State;
+        public readonly EitherStatus State;
 
         /// <summary>
         /// Is the EitherUnsafe in a Right state?
@@ -117,7 +117,7 @@ namespace LanguageExt
         /// <exception cref="BottomException">EitherUnsafeT state is Bottom</exception>
         [Pure]
         public bool IsRight =>
-            CheckInitialised(State == EitherState.IsRight);
+            CheckInitialised(State == EitherStatus.IsRight);
 
         /// <summary>
         /// Is the EitherUnsafe in a Left state?
@@ -125,7 +125,7 @@ namespace LanguageExt
         /// <exception cref="BottomException">EitherUnsafeT state is Bottom</exception>
         [Pure]
         public bool IsLeft =>
-            CheckInitialised(State == EitherState.IsLeft);
+            CheckInitialised(State == EitherStatus.IsLeft);
 
         /// <summary>
         /// Is the EitherUnsafe in a Bottom state?
@@ -142,7 +142,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public bool IsBottom =>
-            State == EitherState.IsBottom;
+            State == EitherStatus.IsBottom;
 
         /// <summary>
         /// Implicit conversion operator from R to EitherUnsafe R L
@@ -539,7 +539,7 @@ namespace LanguageExt
 
         [Pure]
         private U CheckInitialised<U>(U value) =>
-            State == EitherState.IsBottom
+            State == EitherStatus.IsBottom
                 ? raise<U>(new BottomException("EitherUnsafe"))
                 : value;
 

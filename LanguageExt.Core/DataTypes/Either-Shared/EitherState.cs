@@ -3,7 +3,7 @@
     /// <summary>
     /// Possible states of an Either
     /// </summary>
-    public enum EitherState : byte
+    public enum EitherStatus : byte
     {
         /// <summary>
         /// Bottom state 

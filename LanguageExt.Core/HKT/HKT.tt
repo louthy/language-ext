@@ -1,0 +1,151 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<# 
+
+    var noArgs = new string[0];
+
+    var types = new [] {
+        T("Arr"),
+        T("HashSet"),
+        T("Lst"),
+        T("Option"),
+        T("OptionUnsafe"),
+        T("Either", "L"),
+        T("EitherUnsafe", "L"),
+        T("Try"),
+        T("TryAsync"),
+        T("TryOption"), 
+        T("TryOptionAsync"),
+        T("Que"),
+        T2("MSeq", "IEnumerable"),
+        T("Set"),
+        T("Stck")
+    };
+
+    string template = System.IO.File.ReadAllText(this.Host.ResolvePath("Template.txt"));
+#>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using LanguageExt.ClassInstances;
+using LanguageExt.TypeClasses;
+using static LanguageExt.Prelude;
+
+namespace LanguageExt
+{
+<#
+    foreach(var outerType in types)
+    {
+        foreach(var innerType in types)
+        {
+            var CLASS_NAME = outerType.Name+innerType.Name;
+
+            var INNER_A = innerType.TypeA;
+            var INNER_B = innerType.TypeB;
+            var INNER_C = innerType.TypeC;
+            var M_INNER_A = innerType.MTypeA;
+            var M_INNER_B = innerType.MTypeB;
+            var M_INNER_C = innerType.MTypeC;
+
+            var OUTER_A = outerType.OuterTypeA(innerType);
+            var OUTER_B = outerType.OuterTypeB(innerType);
+            var OUTER_C = outerType.OuterTypeC(innerType);
+            var M_OUTER_A = outerType.MOuterTypeA(innerType);
+            var M_OUTER_B = outerType.MOuterTypeB(innerType);
+            var M_OUTER_C = outerType.MOuterTypeC(innerType);
+
+            var GENS = TypeDesc.Gens(outerType, innerType);
+
+            var src = template.Replace("CLASS_NAME", CLASS_NAME)
+                              .Replace("M_OUTER_C", M_OUTER_C)
+                              .Replace("M_OUTER_B", M_OUTER_B)
+                              .Replace("M_OUTER_A", M_OUTER_A)
+                              .Replace("OUTER_C", OUTER_C)
+                              .Replace("OUTER_B", OUTER_B)
+                              .Replace("OUTER_A", OUTER_A)
+                              .Replace("M_INNER_C", M_INNER_C)
+                              .Replace("M_INNER_B", M_INNER_B)
+                              .Replace("M_INNER_A", M_INNER_A)
+                              .Replace("INNER_C", INNER_C)
+                              .Replace("INNER_B", INNER_B)
+                              .Replace("INNER_A", INNER_A)
+                              .Replace("GENS,", GENS);
+#>
+<#= src #>
+<#
+        }
+    }
+
+#>
+}
+<#+
+
+    public class TypeDesc
+    {
+        public readonly string MName;
+        public readonly string Name;
+        public readonly string[] Args;
+
+        public TypeDesc(string mname, string name, params string[] args)
+        {
+            MName = mname;
+            Name = name;
+            Args = args;
+        }
+
+        public static string Gens(TypeDesc outer, TypeDesc inner)
+        {
+            var gens = Enumerable.Concat(outer.Args, inner.Args).Distinct().ToArray();
+            if(gens.Length == 0) return "";
+            return String.Join(", ", gens)+",";
+        }
+
+        public string ArgsDisplay(string a) =>
+            Args.Length == 0
+                ? a
+                : String.Join(", ", Args) + ", " + a;
+
+        public string ArgsA => ArgsDisplay("A");
+        public string ArgsB => ArgsDisplay("B");
+        public string ArgsC => ArgsDisplay("C");
+
+        public string Type(string a) =>
+            $"{Name}<" + ArgsDisplay(a) + ">";
+
+        public string MType(string a) =>
+            $"{MName}<" + ArgsDisplay(a) + ">";
+
+        public string TypeA => Type("A");
+        public string TypeB => Type("B");
+        public string TypeC => Type("C");
+
+        public string MTypeA => MType("A");
+        public string MTypeB => MType("B");
+        public string MTypeC => MType("C");
+
+        public string OuterType(TypeDesc inner, string a) => $"{Name}<" + ArgsDisplay(inner.Type(a)) + ">";
+        public string OuterTypeA(TypeDesc inner) => OuterType(inner, "A");
+        public string OuterTypeB(TypeDesc inner) => OuterType(inner, "B");
+        public string OuterTypeC(TypeDesc inner) => OuterType(inner, "C");
+
+        public string MOuterType(TypeDesc inner, string a) => $"{MName}<" + ArgsDisplay(inner.Type(a)) + ">";
+        public string MOuterTypeA(TypeDesc inner) => MOuterType(inner, "A");
+        public string MOuterTypeB(TypeDesc inner) => MOuterType(inner, "B");
+        public string MOuterTypeC(TypeDesc inner) => MOuterType(inner, "C");
+
+    }
+
+    public TypeDesc T(string name, params string[] args)
+    {
+        return new TypeDesc("M"+name, name,args);
+    }
+
+    public TypeDesc T2(string mname, string name, params string[] args)
+    {
+        return new TypeDesc(mname, name,args);
+    }
+#>

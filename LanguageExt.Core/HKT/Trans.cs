@@ -11,7 +11,7 @@ namespace LanguageExt
     /// 
     ///     i.e.
     ///     
-    ///         Trans<MLst<Option<int>>, MOption<int>, Lst<Option<int>>, Option<int>, int>
+    ///         Trans<MLst<Option<int>>, Lst<Option<int>>, MOption<int>, Option<int>, int>
     /// 
     /// </summary>
     public struct Trans<OuterMonad, OuterType, InnerMonad, InnerType, A>

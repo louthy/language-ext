@@ -51,7 +51,7 @@ namespace LanguageExt
             if (isnull(right))
                 throw new ValueIsNullException();
 
-            this.State = EitherState.IsRight;
+            this.State = EitherStatus.IsRight;
             this.right = right;
             this.left = default(L);
         }
@@ -61,7 +61,7 @@ namespace LanguageExt
             if (isnull(left))
                 throw new ValueIsNullException();
 
-            this.State = EitherState.IsLeft;
+            this.State = EitherStatus.IsLeft;
             this.right = default(R);
             this.left = left;
         }
@@ -76,7 +76,7 @@ namespace LanguageExt
             var first = either.Take(1).ToArray();
             if (first.Length == 0)
             {
-                this.State = EitherState.IsBottom;
+                this.State = EitherStatus.IsBottom;
                 this.right = default(R);
                 this.left = default(L);
             }
@@ -86,9 +86,9 @@ namespace LanguageExt
                 this.left = first[0].Left;
                 this.State = 
                     (right.IsNull() && left.IsNull()) ||
-                    (first[0].State == EitherState.IsLeft && left.IsNull()) ||
-                    (first[0].State == EitherState.IsRight && right.IsNull())
-                        ? EitherState.IsBottom
+                    (first[0].State == EitherStatus.IsLeft && left.IsNull()) ||
+                    (first[0].State == EitherStatus.IsRight && right.IsNull())
+                        ? EitherStatus.IsBottom
                         : first[0].State;
             }
         }
@@ -111,7 +111,7 @@ namespace LanguageExt
         ///     IsLeft
         ///     IsBottom
         /// </summary>
-        public readonly EitherState State;
+        public readonly EitherStatus State;
 
         /// <summary>
         /// Is the Either in a Right state?
@@ -119,7 +119,7 @@ namespace LanguageExt
         /// <exception cref="BottomException">EitherT state is Bottom</exception>
         [Pure]
         public bool IsRight =>
-            CheckInitialised(State == EitherState.IsRight);
+            CheckInitialised(State == EitherStatus.IsRight);
 
         /// <summary>
         /// Is the Either in a Left state?
@@ -127,7 +127,7 @@ namespace LanguageExt
         /// <exception cref="BottomException">EitherT state is Bottom</exception>
         [Pure]
         public bool IsLeft =>
-            CheckInitialised(State == EitherState.IsLeft);
+            CheckInitialised(State == EitherStatus.IsLeft);
 
         /// <summary>
         /// Is the Either in a Bottom state?
@@ -144,7 +144,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public bool IsBottom =>
-            State == EitherState.IsBottom;
+            State == EitherStatus.IsBottom;
 
         /// <summary>
         /// Implicit conversion operator from R to Either R L
@@ -553,7 +553,7 @@ namespace LanguageExt
 
         [Pure]
         private U CheckInitialised<U>(U value) =>
-            State == EitherState.IsBottom
+            State == EitherStatus.IsBottom
                 ? raise<U>(new BottomException("Either"))
                 : value;
 
