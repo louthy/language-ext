@@ -48,6 +48,16 @@ namespace LanguageExtTests
             Assert.True(newlist == List(None, Some(2), None, Some(4), None));
         }
 
+        [Fact]
+        public void TestOptionT3()
+        {
+            var list = List(Some(1), Some(2), Some(3), Some(4), Some(5));
+
+            var result = OptionT.Sum(list);
+
+            Assert.True(result == 15);
+        }
+
         public static Lst<Option<B>> LstTBind<A, B>(Lst<Option<A>> list, Func<A, Option<B>> bind)
         {
             var LstT = default(Trans<MLst<Option<A>>, Lst<Option<A>>, MOption<A>, Option<A>, A>);
