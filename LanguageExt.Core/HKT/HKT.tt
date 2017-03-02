@@ -16,23 +16,24 @@
         T("OptionUnsafe"),
         T("Either", "L"),
         T("EitherUnsafe", "L"),
+        T("Task"),
         T("Try"),
         T("TryAsync"),
         T("TryOption"), 
         T("TryOptionAsync"),
-        T("Que"),
-        T2("MSeq", "IEnumerable"),
+        T2("FSeq", "MSeq", "IEnumerable"),
         T("Set"),
-        T("Stck")
     };
 
     string template = System.IO.File.ReadAllText(this.Host.ResolvePath("Template.txt"));
 #>
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using LanguageExt.ClassInstances;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
+using LanguageExt.ClassInstances;
 using static LanguageExt.Prelude;
 
 namespace LanguageExt
@@ -54,22 +55,45 @@ namespace LanguageExt
             var OUTER_A = outerType.OuterTypeA(innerType);
             var OUTER_B = outerType.OuterTypeB(innerType);
             var OUTER_C = outerType.OuterTypeC(innerType);
+            var OUTER_INT = outerType.OuterTypeInt(innerType);
+            var OUTER_BOOL = outerType.OuterTypeBool(innerType);
             var M_OUTER_A = outerType.MOuterTypeA(innerType);
             var M_OUTER_B = outerType.MOuterTypeB(innerType);
             var M_OUTER_C = outerType.MOuterTypeC(innerType);
 
+            var APPL_INNER_ABC  = outerType.ApplicativeInnerABC(innerType);
+            var APPL_INNER_AB   = outerType.ApplicativeInnerAB(innerType);
+            var APPL_ABC        = innerType.ApplicativeABC;
+            var APPL_AB         = innerType.ApplicativeAB;
+
+            var M_INNER_FUNC_ABC = outerType.MInnerFuncABC(innerType);
+            var M_INNER_FUNC_AB  = outerType.MInnerFuncAB(innerType);
+
+            var M_FUNC_ABC = innerType.MFuncABC;
+            var M_FUNC_AB  = innerType.MFuncAB;
+
             var GENS = TypeDesc.Gens(outerType, innerType);
 
             var src = template.Replace("CLASS_NAME", CLASS_NAME)
+                              .Replace("APPL_ABC", APPL_ABC)
+                              .Replace("APPL_AB", APPL_AB)
+                              .Replace("APPL_INNER_ABC", APPL_INNER_ABC)
+                              .Replace("APPL_INNER_AB", APPL_INNER_AB)
+                              .Replace("M_INNER_FUNC_ABC", M_INNER_FUNC_ABC)
+                              .Replace("M_INNER_FUNC_AB", M_INNER_FUNC_AB)
+                              .Replace("M_FUNC_ABC", M_FUNC_ABC)
+                              .Replace("M_FUNC_AB", M_FUNC_AB)
                               .Replace("M_OUTER_C", M_OUTER_C)
                               .Replace("M_OUTER_B", M_OUTER_B)
                               .Replace("M_OUTER_A", M_OUTER_A)
-                              .Replace("OUTER_C", OUTER_C)
-                              .Replace("OUTER_B", OUTER_B)
-                              .Replace("OUTER_A", OUTER_A)
                               .Replace("M_INNER_C", M_INNER_C)
                               .Replace("M_INNER_B", M_INNER_B)
                               .Replace("M_INNER_A", M_INNER_A)
+                              .Replace("OUTER_INT", OUTER_INT)
+                              .Replace("OUTER_BOOL", OUTER_BOOL)
+                              .Replace("OUTER_C", OUTER_C)
+                              .Replace("OUTER_B", OUTER_B)
+                              .Replace("OUTER_A", OUTER_A)
                               .Replace("INNER_C", INNER_C)
                               .Replace("INNER_B", INNER_B)
                               .Replace("INNER_A", INNER_A)
@@ -86,12 +110,14 @@ namespace LanguageExt
 
     public class TypeDesc
     {
+        public readonly string FName;
         public readonly string MName;
         public readonly string Name;
         public readonly string[] Args;
 
-        public TypeDesc(string mname, string name, params string[] args)
+        public TypeDesc(string fname, string mname, string name, params string[] args)
         {
+            FName = fname;
             MName = mname;
             Name = name;
             Args = args;
@@ -100,6 +126,13 @@ namespace LanguageExt
         public static string Gens(TypeDesc outer, TypeDesc inner)
         {
             var gens = Enumerable.Concat(outer.Args, inner.Args).Distinct().ToArray();
+            if(gens.Length == 0) return "";
+            return String.Join(", ", gens)+",";
+        }
+
+        public string Gens()
+        {
+            var gens = Args.Distinct().ToArray();
             if(gens.Length == 0) return "";
             return String.Join(", ", gens)+",";
         }
@@ -131,21 +164,33 @@ namespace LanguageExt
         public string OuterTypeA(TypeDesc inner) => OuterType(inner, "A");
         public string OuterTypeB(TypeDesc inner) => OuterType(inner, "B");
         public string OuterTypeC(TypeDesc inner) => OuterType(inner, "C");
+        public string OuterTypeInt(TypeDesc inner) => OuterType(inner, "int");
+        public string OuterTypeBool(TypeDesc inner) => OuterType(inner, "bool");
 
         public string MOuterType(TypeDesc inner, string a) => $"{MName}<" + ArgsDisplay(inner.Type(a)) + ">";
         public string MOuterTypeA(TypeDesc inner) => MOuterType(inner, "A");
         public string MOuterTypeB(TypeDesc inner) => MOuterType(inner, "B");
         public string MOuterTypeC(TypeDesc inner) => MOuterType(inner, "C");
 
+        public string ApplicativeInnerABC(TypeDesc inner) => $"{FName}<{Gens()} {inner.TypeA}, {inner.TypeB}, {inner.TypeC}>";
+        public string ApplicativeInnerAB(TypeDesc inner) => $"{FName}<{Gens()} {inner.TypeA}, {inner.TypeB}>";
+        public string ApplicativeABC => $"{FName}<{Gens()} A, B, C>";
+        public string ApplicativeAB => $"{FName}<{Gens()} A, B>";
+        
+        public string MInnerFuncABC(TypeDesc inner) => $"{MName}<{Gens()} Func<{inner.TypeA}, Func<{inner.TypeB}, {inner.TypeC}>>>";
+        public string MInnerFuncAB(TypeDesc inner) => $"{MName}<{Gens()} Func<{inner.TypeA}, {inner.TypeB}>>";
+        
+        public string MFuncABC => $"{MName}<{Gens()} Func<A, Func<B, C>>>";
+        public string MFuncAB => $"{MName}<{Gens()} Func<A, B>>";
     }
 
     public TypeDesc T(string name, params string[] args)
     {
-        return new TypeDesc("M"+name, name,args);
+        return new TypeDesc("F"+name, "M"+name, name,args);
     }
 
-    public TypeDesc T2(string mname, string name, params string[] args)
+    public TypeDesc T2(string fname, string mname, string name, params string[] args)
     {
-        return new TypeDesc(mname, name,args);
+        return new TypeDesc(fname, mname, name,args);
     }
 #>

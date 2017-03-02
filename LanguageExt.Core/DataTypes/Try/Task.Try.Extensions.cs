@@ -198,10 +198,9 @@ public static class TaskTryExtensions
     public static Task<Option<A>> ToOption<A>(this Task<Try<A>> self) =>
         self.ToAsync().ToOption();
 
-    // TODO: Need TryOptionAsync
-    //[Pure]
-    //public static TryOptionAsync<A> ToTryOption<A>(this Task<Try<A>> self) =>
-    //  self.ToTryAsync().ToTryOption();
+    [Pure]
+    public static TryOptionAsync<A> ToTryOption<A>(this Task<Try<A>> self) =>
+      self.ToAsync().ToTryOption();
 
     [Pure]
     public static Task<A> IfFailThrow<A>(this Task<Try<A>> self) =>

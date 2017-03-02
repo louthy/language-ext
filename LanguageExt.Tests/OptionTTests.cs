@@ -35,15 +35,17 @@ namespace LanguageExtTests
             Assert.True(r == Some(List(2, 4)));
         }
 
-        static OptionT<MLst<Option<int>>, Lst<Option<int>>, int> OptionT;
-        static Trans<MLst<Option<int>>, Lst<Option<int>>, MOption<int>, Option<int>, int> LstT;
+        static Trans<MLst<Option<int>>, Lst<Option<int>>, MOption<int>, Option<int>, int> OptionT;
 
         [Fact]
         public void TestOptionT2()
         {
             var list = List(Some(1), Some(2), Some(3), Some(4), Some(5));
 
-            var newlist = OptionT.Bind(list, x => x % 2 == 0 ? Some(x) : None);
+            var newlist = OptionT.Bind<MLst<Option<int>>, Lst<Option<int>>, MOption<int>, Option<int>, int>(
+                list, 
+                x => x % 2 == 0 ? Some(x) : None
+            );
 
             Assert.True(newlist == List(None, Some(2), None, Some(4), None));
         }

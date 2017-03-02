@@ -22,10 +22,27 @@ namespace LanguageExt.ClassInstances
         public TryAsync<A> None => none;
 
         [Pure]
-        public MB Bind<MONADB, MB, B>(TryAsync<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B> =>
-            ma.Match(
-                Succ: f,
-                Fail: x => default(MONADB).Fail(x)).Result;  // TODO: Need a better solution for lazy/tasks
+        public MB Bind<MONADB, MB, B>(TryAsync<A> ma, Func<A, MB> f) where MONADB : struct, Monad<MB, B>
+        {
+            if (typeof(MB) == typeof(TryAsync<B>) && typeof(MONADB) == typeof(MTryAsync<B>))
+            {
+                // TODO: This is a hack to get around the type system for async
+                //       A better solution is needed
+
+                var mb = from a in ma
+                         from b in (TryAsync<B>)(object)f(a)
+                         select b;
+
+                return (MB)(object)mb;
+            }
+            else
+            {
+                // Synchronous type-safe version
+                return ma.Match(
+                    Succ: f,
+                    Fail: x => default(MONADB).Fail(x)).Result;
+            }
+        } 
 
         [Pure]
         public TryAsync<A> Fail(object err) =>

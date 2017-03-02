@@ -922,13 +922,6 @@ namespace LanguageExt
 
         #endregion
 
-
-        public bool TryGetKey(K equalKey, out K actualKey)
-        {
-            // TODO: Not sure of the behaviour here
-            throw new NotImplementedException();
-        }
-
         [Pure]
         public static HashMapInternal<EqK, K, V> operator +(HashMapInternal<EqK, K, V> lhs, HashMapInternal<EqK, K, V> rhs) =>
             lhs.Append(rhs);

@@ -1,11 +1,8 @@
 ﻿using Xunit;
 using LanguageExt;
-//using LanguageExt.Trans;
-using System.IO;
-using System.Collections.Generic;
 using static LanguageExt.Prelude;
+using LanguageExt.ClassInstances;
 using System;
-using System.Net;
 using System.Net.Http;
 
 namespace LanguageExtTests
@@ -173,20 +170,19 @@ namespace LanguageExtTests
                           select lines)
             select result;
 
-        // TODO: RESTORE WHEN NEW TRANSFORMER SYSTEM IS IN PLACE
-        //[Fact]
-        //public void UrlTest()
-        //{
-        //    // Iterates all lines of content
-        //    getURLContent("http://www.google.com").IterT(x => Console.WriteLine(x));
+        [Fact]
+        public void UrlTest()
+        {
+            // Iterates all lines of content
+            getURLContent("http://www.google.com").IterT(x => Console.WriteLine(x));
 
-        //    // Counts the number of lines
-        //    int numberOfLines = getURLContent("http://www.google.com").CountT();
+            // Counts the number of lines
+            int numberOfLines = getURLContent("http://www.google.com").CountT();
 
-        //    // Maps the lines to line-lengths, then sums them
-        //    int totalSize = getURLContent("http://www.google.com")
-        //                        .MapT(x => x.Length)
-        //                        .SumT();
-        //}
+            // Maps the lines to line-lengths, then sums them
+            int totalSize = getURLContent("http://www.google.com")
+                                .MapT(x => x.Length)
+                                .SumT<TInt, int>();
+        }
     }
 }

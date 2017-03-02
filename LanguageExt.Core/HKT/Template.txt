@@ -1,38 +1,47 @@
 ﻿    public static class CLASS_NAME
     {
+        [Pure]
         public static A SumT<NumA, GENS, A>(this OUTER_A ma)
             where NumA : struct, Num<A> =>
                 Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, NumA, A>.Inst.Sum(ma);
 
+        [Pure]
         public static int CountT<GENS, A>(this OUTER_A ma) =>
             Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>.Inst.Count(ma);
 
+        [Pure]
         public static OUTER_B BindT<GENS, A, B>(this OUTER_A ma, Func<A, INNER_B> f) =>
             Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Bind<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
 
+        [Pure]
         public static OUTER_B MapT<GENS, A, B>(this OUTER_A ma, Func<A, B> f) =>
             Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Map<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
 
+        [Pure]
         public static bool ExistsT<GENS, A, B>(this OUTER_A ma, Func<A, bool> f) =>
             Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Fold(ma, false, (s, x) => s || f(x));
 
+        [Pure]
         public static bool ForAllT<GENS, A, B>(this OUTER_A ma, Func<A, bool> f) =>
             Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Fold(ma, true, (s, x) => s && f(x));
 
-        public static Unit IterT<GENS, A, B>(this OUTER_A ma, Action<A> f) =>
+        public static Unit IterT<GENS, A>(this OUTER_A ma, Action<A> f) =>
             Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Fold(ma, unit, (s, x) => { f(x); return unit; });
 
+        [Pure]
         public static OUTER_A Lift<GENS, A>(INNER_A ma) =>
             default(M_OUTER_A).Return(ma);
 
+        [Pure]
         public static OUTER_A Lift<GENS, A>(A a) =>
             default(M_OUTER_A).Return(default(M_INNER_A).Return(a));
 
+        [Pure]
         public static OUTER_A FilterT<GENS, A>(this OUTER_A ma, Func<A, bool> pred) =>
             Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Bind<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
@@ -40,6 +49,7 @@
                         ? default(M_INNER_A).Return(a)
                         : default(M_INNER_A).Zero());
 
+        [Pure]
         public static OUTER_A Where<GENS, A>(this OUTER_A ma, Func<A, bool> pred) =>
             Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Bind<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>(ma, 
@@ -47,10 +57,12 @@
                         ? default(M_INNER_A).Return(a)
                         : default(M_INNER_A).Zero());
 
+        [Pure]
         public static OUTER_B Select<GENS, A, B>(this OUTER_A ma, Func<A, B> f) =>
             Trans<M_OUTER_A, OUTER_A, M_INNER_A, INNER_A, A>
                 .Inst.Map<M_OUTER_B, OUTER_B, M_INNER_B, INNER_B, B>(ma, f);
 
+        [Pure]
         public static OUTER_C SelectMany<GENS, A, B, C>(
             this OUTER_A ma,
             Func<A, INNER_B> bind,
@@ -61,4 +73,50 @@
                         var mb = bind(a);
                         return default(M_INNER_B).Bind<M_INNER_C, INNER_C, C>(mb, b => default(M_INNER_C).Return(project(a, b)));
                     });
+
+        [Pure]
+        public static OUTER_A PlusT<NUM, GENS, A>(this OUTER_A x, OUTER_A y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Plus, x, y);
+
+        [Pure]
+        public static OUTER_A SubtractT<NUM, GENS, A>(this OUTER_A x, OUTER_A y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Subtract, x, y);
+
+        [Pure]
+        public static OUTER_A ProductT<NUM, GENS, A>(this OUTER_A x, OUTER_A y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Product, x, y);
+
+        [Pure]
+        public static OUTER_A DivideT<NUM, GENS, A>(this OUTER_A x, OUTER_A y) where NUM : struct, Num<A> =>
+            ApplyT(default(NUM).Divide, x, y);
+
+        [Pure]
+        public static OUTER_A AppendT<SEMI, GENS, A>(this OUTER_A x, OUTER_A y) where SEMI : struct, Semigroup<A> =>
+            ApplyT(default(SEMI).Append, x, y);
+
+        [Pure]
+        public static OUTER_INT CompareT<ORD, GENS, A>(this OUTER_A x, OUTER_A y) where ORD : struct, Ord<A> =>
+            ApplyT(default(ORD).Compare, x, y);
+
+        [Pure]
+        public static OUTER_BOOL EqualsT<EQ, GENS, A>(this OUTER_A x, OUTER_A y) where EQ : struct, Eq<A> =>
+            ApplyT(default(EQ).Equals, x, y);
+
+        [Pure]
+        public static OUTER_B ApplyT<GENS, A, B>(this Func<A, B> fab, OUTER_A fa) =>
+            APPL_INNER_AB.Inst.Apply(
+                 M_INNER_FUNC_AB.Inst.Return((INNER_A a) => APPL_AB.Inst.Apply(
+                     M_FUNC_AB.Inst.Return(fab), 
+                     a)),
+                 fa);
+
+        [Pure]
+        public static OUTER_C ApplyT<GENS, A, B, C>(this Func<A, B, C> fabc, OUTER_A fa, OUTER_B fb) =>
+            APPL_INNER_ABC.Inst.Apply(
+                M_INNER_FUNC_ABC.Inst.Return(
+                    (INNER_A a) =>
+                        (INNER_B b) =>
+                            APPL_ABC.Inst.Apply(
+                                M_FUNC_ABC.Inst.Return(curry(fabc)), a, b)), fa, fb);
+
     } 

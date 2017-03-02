@@ -857,12 +857,6 @@ namespace LanguageExt
         internal MapInternal<OrdK, K, V> SetRoot(MapItem<K, V> root) =>
             new MapInternal<OrdK, K, V>(root, Rev);
 
-        public bool TryGetKey(K equalKey, out K actualKey)
-        {
-            // TODO: Not sure of the behaviour here
-            throw new NotImplementedException();
-        }
-
         [Pure]
         public static MapInternal<OrdK, K, V> operator +(MapInternal<OrdK, K, V> lhs, MapInternal<OrdK, K, V> rhs) =>
             lhs.Append(rhs);
@@ -1214,7 +1208,7 @@ namespace LanguageExt
         }
 
         /// <summary>
-        /// TODO: I suspect this is suboptimal, it would be better with a customer Enumerator 
+        /// TODO: I suspect this is suboptimal, it would be better with a custom Enumerator 
         /// that maintains a stack of nodes to retrace.
         /// </summary>
         public static IEnumerable<V> FindRange<OrdK, K, V>(MapItem<K, V> node, K a, K b)

@@ -550,12 +550,6 @@ namespace LanguageExt
 
         #endregion
 
-        public bool TryGetKey(K equalKey, out K actualKey)
-        {
-            // TODO: Not sure of the behaviour here
-            throw new NotImplementedException();
-        }
-
         [Pure]
         public static bool operator ==(HashMap<EqK, K, V> lhs, HashMap<EqK, K, V> rhs) =>
             lhs.Value == rhs.Value;

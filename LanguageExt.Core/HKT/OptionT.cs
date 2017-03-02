@@ -5,7 +5,14 @@ using System.Collections.Generic;
 
 namespace LanguageExt
 {
-    public struct OptionT<OuterMonad, OuterType, A> : MonadTrans<OuterMonad, OuterType, MOption<A>, Option<A>, A>
+    /// <summary>
+    /// Testing - Ignore
+    /// </summary>
+    /// <typeparam name="OuterMonad"></typeparam>
+    /// <typeparam name="OuterType"></typeparam>
+    /// <typeparam name="A"></typeparam>
+
+    struct OptionT<OuterMonad, OuterType, A> : MonadTrans<OuterMonad, OuterType, MOption<A>, Option<A>, A>
         where OuterMonad : struct, Monad<OuterType, Option<A>>
     {
         public static readonly OptionT<OuterMonad, OuterType, A> Inst;
@@ -38,3 +45,4 @@ namespace LanguageExt
                 .Inst.Map<NewOuterMonad, NewOuterType, NewInnerMonad, NewInnerType, B>(ma, f);
     }
 }
+
