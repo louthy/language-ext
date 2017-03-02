@@ -16,20 +16,6 @@ public static class HashMapExtensions
         self.Count;
 
     [Pure]
-    public static Map<K, U> Bind<K, T, U>(this HashMap<K, T> self, Func<T, Map<K, U>> binder) =>
-        failwith<Map<K, U>>("Map<K,V> doesn't support Bind.");
-
-    [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Map<K, U> SelectMany<K, T, U>(this HashMap<K, T> self, Func<T, Map<K, U>> binder) =>
-        failwith<Map<K, U>>("Map<K,V> doesn't support Bind or SelectMany.");
-
-    [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static Map<K, V> SelectMany<K, T, U, V>(this HashMap<K, T> self, Func<T, Map<K, U>> binder, Func<T, U, V> project) =>
-        failwith<Map<K, V>>("Map<K,V> doesn't support Bind or SelectMany.");
-
-    [Pure]
     public static int Sum<K>(this HashMap<K, int> self) =>
         self.Values.Sum();
 
@@ -424,19 +410,4 @@ public static class HashMapExtensions
     {
         return map.Fold(state, (s, x) => x.FoldT(s, folder));
     }
-
-    [Pure]
-    public static HashMap<K, U> Bind<K, T, U>(this HashMap<K, T> self, Func<T, HashMap<K, U>> binder) =>
-        failwith<HashMap<K, U>>("HMap<K,V> doesn't support Bind.");
-
-    [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static HashMap<K, U> SelectMany<K, T, U>(this HashMap<K, T> self, Func<T, HashMap<K, U>> binder) =>
-        failwith<HashMap<K, U>>("HMap<K,V> doesn't support Bind or SelectMany.");
-
-    [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static HashMap<K, V> SelectMany<K, T, U, V>(this HashMap<K, T> self, Func<T, HashMap<K, U>> binder, Func<T, U, V> project) =>
-        failwith<HashMap<K, V>>("Map<K,V> doesn't support Bind or SelectMany.");
-
 }

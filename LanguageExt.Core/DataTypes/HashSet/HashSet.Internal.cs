@@ -38,11 +38,11 @@ namespace LanguageExt
             this.count = count;
         }
 
-        internal HashSetInternal(IEnumerable<A> items, bool checkUniqueness = false)
+        internal HashSetInternal(IEnumerable<A> items, bool tryAdd = false)
         {
             var set = new HashSetInternal<EqA, A>();
 
-            if (checkUniqueness)
+            if (tryAdd)
             {
                 foreach (var item in items)
                 {

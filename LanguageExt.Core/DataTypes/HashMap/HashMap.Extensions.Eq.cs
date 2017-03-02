@@ -17,35 +17,7 @@ public static class HashMapEqExtensions
         self.Count;
 
     [Pure]
-    public static HashMap<EqK, K, U> Bind<EqK, K, T, U>(this HashMap<EqK, K, T> self, Func<T, Map<K, U>> binder) where EqK : struct, Eq<K> =>
-        failwith<HashMap<EqK, K, U>>("Map<EqK, K,V> doesn't support Bind.");
-
-    [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static HashMap<EqK, K, U> SelectMany<EqK, K, T, U>(this HashMap<EqK, K, T> self, Func<T, Map<K, U>> binder) where EqK : struct, Eq<K> =>
-        failwith<HashMap<EqK, K, U>>("Map<EqK, K,V> doesn't support Bind or SelectMany.");
-
-    [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static HashMap<EqK, K, V> SelectMany<EqK, K, T, U, V>(this HashMap<K, T> self, Func<T, Map<K, U>> binder, Func<T, U, V> project) where EqK : struct, Eq<K> =>
-        failwith<HashMap<EqK, K, V>>("Map<K,V> doesn't support Bind or SelectMany.");
-
-    [Pure]
     public static int Sum<EqK, K>(this HashMap<EqK, K, int> self) where EqK : struct, Eq<K> =>
         self.Values.Sum();
-
-    [Pure]
-    public static HashMap<EqK, K, U> Bind<EqK, K, T, U>(this HashMap<EqK, K, T> self, Func<T, HashMap<EqK, K, U>> binder) where EqK : struct, Eq<K> =>
-        failwith<HashMap<EqK, K, U>>("HMap<K,V> doesn't support Bind.");
-
-    [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static HashMap<EqK, K, U> SelectMany<EqK, K, T, U>(this HashMap<EqK, K, T> self, Func<T, HashMap<EqK, K, U>> binder) where EqK : struct, Eq<K> =>
-        failwith<HashMap<EqK, K, U>>("HMap<K,V> doesn't support Bind or SelectMany.");
-
-    [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static HashMap<EqK, K, V> SelectMany<EqK, K, T, U, V>(this HashMap<EqK, K, T> self, Func<T, HashMap<EqK, K, U>> binder, Func<T, U, V> project) where EqK : struct, Eq<K> =>
-        failwith<HashMap<EqK, K, V>>("Map<K,V> doesn't support Bind or SelectMany.");
 
 }

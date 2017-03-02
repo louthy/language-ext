@@ -111,12 +111,33 @@ namespace LanguageExt
         /// Apply
         /// </summary>
         /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type FB derived from Applicative of B</returns>
+        [Pure]
+        public static TryAsync<B> apply<A, B>(Func<A, B> fab, TryAsync<A> fa) =>
+            FTryAsync<A, B>.Inst.Apply(TryAsync(fab), fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
         /// <param name="fa">Applicative a to apply</param>
         /// <param name="fb">Applicative b to apply</param>
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
         public static TryAsync<C> apply<A, B, C>(TryAsync<Func<A, B, C>> fabc, TryAsync<A> fa, TryAsync<B> fb) =>
             fabc.Bind(f => FTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa, fb));
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative a to apply</param>
+        /// <param name="fb">Applicative b to apply</param>
+        /// <returns>Applicative of type FC derived from Applicative of C</returns>
+        [Pure]
+        public static TryAsync<C> apply<A, B, C>(Func<A, B, C> fabc, TryAsync<A> fa, TryAsync<B> fb) =>
+            FTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa, fb);
 
         /// <summary>
         /// Apply
@@ -135,8 +156,28 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
+        public static TryAsync<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, TryAsync<A> fa) =>
+            FTryAsync<A, B, C>.Inst.Apply(MTryAsync<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+        [Pure]
         public static TryAsync<Func<B, C>> apply<A, B, C>(TryAsync<Func<A, Func<B, C>>> fabc, TryAsync<A> fa) =>
             FTryAsync<A, B, C>.Inst.Apply(fabc, fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+        [Pure]
+        public static TryAsync<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, TryAsync<A> fa) =>
+            FTryAsync<A, B, C>.Inst.Apply(TryAsync(fabc), fa);
 
         /// <summary>
         /// Evaluate fa, then fb, ignoring the result of fa
@@ -416,11 +457,11 @@ namespace LanguageExt
             self.BiBind(Succ, Fail);
 
         [Pure]
-        public static Task<Lst<Either<Exception, T>>> toList<T>(TryAsync<T> tryDel) =>
+        public static Task<Lst<T>> toList<T>(TryAsync<T> tryDel) =>
             tryDel.ToList();
 
         [Pure]
-        public static Task<Arr<Either<Exception, T>>> toArray<T>(TryAsync<T> tryDel) =>
+        public static Task<Arr<T>> toArray<T>(TryAsync<T> tryDel) =>
             tryDel.ToArray();
 
         [Pure]

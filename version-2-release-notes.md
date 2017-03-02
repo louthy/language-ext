@@ -77,7 +77,7 @@ Becomes:
 ```c#
     class Metres : NewType<Metres, double>  { ... } 
 ```
-That makes lots of _stuff_ more type-safe for `NewType` derived types.  For example monadic and functor operators like `Select`, `Map`, `Bind`, `SelectMany` can now return `Metres` rather than `NewType<double>`.  Which is very important for the integrity of the type.
+That makes lots of functionality more type-safe for `NewType` derived types.  For example monadic and functor operators like `Select`, `Map`, `Bind`, `SelectMany` can now return `Metres` rather than `NewType<double>`.  Which is very important for the integrity of the type.
 
 There is a variant that takes an additional generic argument `PRED`.  Which is constrained to be a `struct` of `Pred<A>`.  This is called in the base constructor:
 ```c#
@@ -91,14 +91,14 @@ So you should be able to see that this allows validation to be embedded into the
         { }
     }
 ```
-`ClientConnectionId` is like a session token, and `StrLen<I10, I100>` means the string must be `10` to `100` chars long.  By embedding the validation into the type, there is no 'get out of jail free' cards where a loophole can be found in the type.  And it also becomes fundamentally a different type to `NewType<ClientConnectionId, string, StrLen<I0, I10>>` _(See the `<I0, I10>` at the end)_; so any function that wants to work with the client connection token must accept either `ClientConnectionId` or its base type of `NewType<ClientConnectionId, string, StrLen<I10, I100>>`.  I think this is a pretty powerful concept for improving the safety of C# types in general, and takes the original `NewType` idea to the next level.
+`ClientConnectionId` is like a session token, and `StrLen<I10, I100>` means the string must be `10` to `100` chars long.  By embedding the validation into the type, there is no 'get out of jail free' cards where a loophole can be found in the type (or sub-type).  And it also becomes fundamentally a different type to (for example) `NewType<ClientConnectionId, string, StrLen<I0, I10>>` _(See the `<I0, I10>` at the end)_; so any function that wants to work with a client connection token must accept either `ClientConnectionId` or its base type of `NewType<ClientConnectionId, string, StrLen<I10, I100>>`.  I think this is a pretty powerful concept for improving the safety of C# types in general, and takes the original `NewType` idea to the next level.
 
-One breaking change is that the `Value` property has been made `protected`.  That means you can expose it if you like when you declare the `NewType`, but by default it's not visible outside of the class.  There is an explicit cast operator.  So for the `Metres` example above:
+Another breaking change is that the `Value` property has been made `protected`.  That means you can expose it if you like when you declare the `NewType`, but by default it's not visible outside of the class.  There is an explicit cast operator.  So for the `Metres` example above:
 ```c#
     Metres m = Metres.New(100);
     double x = (double)m * 2.0;
 ```
-I think that creates a _barrier to entry_ that is high enough to make it much more attractive to use `Map`, `Bind`, etc. and therefore keep the value in context, i.e:
+I think that creates a _barrier to entry_ that is high enough to make it more attractive to use `Map`, `Bind`, etc. and therefore keep the value in context, i.e:
 ```c#
     Metres m = Metres.New(100);
     Metres x = m.Map(v => v * 2);
@@ -216,7 +216,7 @@ Also:
 ```
 ### Cond
 
-`Cond` allows for building conditional expressions that can be used fluently.  It also seamlessly steps between synchronous and asynchronous behaviour without any need for ceremony.  It's a technique that I'd like to add to the other types (although that will mean an `OptionAsync`, `EitherAsync`, etc. so not free).
+`Cond` allows for building conditional expressions that can be used fluently.  It also seamlessly steps between synchronous and asynchronous behaviour without any need for ceremony.  
 
 Here's a simple example:
 ```c#
@@ -366,4 +366,74 @@ So for example:
    }
 
    var ms = Metres.New(100);
+```
+
+### TryAsync
+
+There is a new monadic type called `TryAsync` which, as you may have guessed, is an asynchronous version of `Try`.  `Try` and `TryAsync` are delegate types that are invoked when you call extension methods like `Match` on them.  By default the `TryAsync` evaluation extension methods will wrap the invocation in a `Task` and will catch any exceptions thrown. 
+```c#
+    TryAsync<int> LongRunningOp() => TryAsync(() => 10);
+
+    int x = await LongRunningOp().Match(
+                Succ: y  => y * 2,
+                Fail: ex => 0
+                );
+```
+Unfortunately you must wrap the operation in a `TryAsync(() => ...)` because the compiler can't infer the result-type like it can with `Try`.  However you can promote a `Try` to a `TryAsync`:
+```c#
+    Try<int> LongRunningOp() => () => 10;
+
+    int x = await LongRunningOp().ToAsync().Match(
+                Succ: y  => y * 2,
+                Fail: ex => 0
+                );
+```
+Or use any of the new `Async` extension methods added to `Try`:
+```c#
+    Try<int> LongRunningOp() => () => 10;
+
+    int x = await LongRunningOp().MatchAsync(
+                Succ: y  => y * 2,
+                Fail: ex => 0
+                );
+```
+Every single method of `Try` now has an `Async` variant.  Also any method of `Try` or `TryAsync` that takes a `Func` (for example `Map(Try<A> x, Func<A, B> f)`), now has a variant that allows a `Task` to be returned instead.  For `Try` methods this will either promote the result to be a `TryAsync` (as is the case with `Map`), or a `Task` (as is the case with `Fold`).  This makes it trivial to deal with asynchronous results, as the `Try` or `TryAsync` will automatically perform the correct synchronisation required to extract a valid result.
+
+For functions where operations could run in parallel then the types will again handle that automatically.  For example if you use the new `Applicative` functionality, this is possible:
+```c#
+// Placeholder functions.  Imagine they're doing some work to get some remote
+// data lists.
+TryAsync<Lst<int>> GetListOneFromRemote() => TryAsync(List(1, 2, 3));
+TryAsync<Lst<int>> GetListTwoFromRemote() => TryAsync(List(4, 5, 6));
+
+// Combines two lists and sorts them. 
+public static IEnumerable<int> CombineAndOrder(Lst<int> x, Lst<int> y) =>
+    from item in (x + y)
+    orderby item
+    select item;
+
+// Uses the fact that TryAsync is an applicative, and therefore has the 
+// apply function available.  The apply function will run all three parts
+// of the applicative asynchronously, will handle errors from any term,
+// and will then apply them to the CombineAndOrder function.
+public TryAsync<IEnumerable<int>> GetRemoteListsAndCombine() =>
+    apply(
+        CombineAndOrder,
+        GetListOneFromRemote(),
+        GetListTwoFromRemote());
+
+[Fact]
+public async void ListCombineTest()
+{
+    var res = await GetRemoteListsAndCombine().IfFail(Enumerable.Empty<int>());
+
+    var arr = res.ToArray();
+
+    Assert.True(arr[0] == 1);
+    Assert.True(arr[1] == 2);
+    Assert.True(arr[2] == 3);
+    Assert.True(arr[3] == 4);
+    Assert.True(arr[4] == 5);
+    Assert.True(arr[5] == 6);
+}
 ```

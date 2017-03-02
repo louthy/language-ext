@@ -107,12 +107,33 @@ namespace LanguageExt
         /// Apply
         /// </summary>
         /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type FB derived from Applicative of B</returns>
+        [Pure]
+        public static TryOption<B> apply<A, B>(Func<A, B> fab, TryOption<A> fa) =>
+            FTryOption<A, B>.Inst.Apply(TryOption(fab), fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
         /// <param name="fa">Applicative a to apply</param>
         /// <param name="fb">Applicative b to apply</param>
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
         [Pure]
         public static TryOption<C> apply<A, B, C>(TryOption<Func<A, B, C>> fabc, TryOption<A> fa, TryOption<B> fb) =>
             fabc.Bind(f => FTryOption<A, B, C>.Inst.Apply(MTryOption<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa, fb));
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative a to apply</param>
+        /// <param name="fb">Applicative b to apply</param>
+        /// <returns>Applicative of type FC derived from Applicative of C</returns>
+        [Pure]
+        public static TryOption<C> apply<A, B, C>(Func<A, B, C> fabc, TryOption<A> fa, TryOption<B> fb) =>
+            FTryOption<A, B, C>.Inst.Apply(MTryOption<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa, fb);
 
         /// <summary>
         /// Apply
@@ -131,8 +152,28 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
+        public static TryOption<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, TryOption<A> fa) =>
+            FTryOption<A, B, C>.Inst.Apply(MTryOption<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+        [Pure]
         public static TryOption<Func<B, C>> apply<A, B, C>(TryOption<Func<A, Func<B, C>>> fabc, TryOption<A> fa) =>
             FTryOption<A, B, C>.Inst.Apply(fabc, fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+        [Pure]
+        public static TryOption<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, TryOption<A> fa) =>
+            FTryOption<A, B, C>.Inst.Apply(TryOption(fabc), fa);
 
         /// <summary>
         /// Evaluate fa, then fb, ignoring the result of fa
@@ -486,16 +527,12 @@ namespace LanguageExt
             self.TriBind(Some, None, Fail);
 
         [Pure]
-        public static Lst<Either<Exception, T>> toList<T>(TryOption<T> tryDel) =>
+        public static Lst<T> toList<T>(TryOption<T> tryDel) =>
             tryDel.ToList();
 
         [Pure]
-        public static Arr<Either<Exception, T>> toArray<T>(TryOption<T> tryDel) =>
+        public static Arr<T> toArray<T>(TryOption<T> tryDel) =>
             tryDel.ToArray();
-
-        [Pure]
-        public static IQueryable<Either<Exception, T>> toQuery<T>(TryOption<T> tryDel) =>
-            tryDel.ToList().AsQueryable();
 
         [Pure]
         public static TryOption<T> tryfun<T>(Func<TryOption<T>> tryDel) =>

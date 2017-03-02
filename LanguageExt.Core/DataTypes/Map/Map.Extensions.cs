@@ -37,19 +37,19 @@ namespace LanguageExt
         public static int Sum<K>(this Map<K, int> self) =>
             self.Values.Sum();
 
-        [Pure]
-        public static Map<K, U> Bind<K, T, U>(this Map<K, T> self, Func<T, Map<K, U>> binder) =>
-            failwith<Map<K, U>>("Map<K,V> doesn't support Bind.");
+        //[Pure]
+        //public static Map<K, U> Bind<K, T, U>(this Map<K, T> self, Func<T, Map<K, U>> binder) =>
+        //    failwith<Map<K, U>>("Map<K,V> doesn't support Bind.");
 
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Map<K, U> SelectMany<K, T, U>(this Map<K, T> self, Func<T, Map<K, U>> binder) =>
-            failwith<Map<K, U>>("Map<K,V> doesn't support Bind or SelectMany.");
+        //[Pure]
+        //[EditorBrowsable(EditorBrowsableState.Never)]
+        //public static Map<K, U> SelectMany<K, T, U>(this Map<K, T> self, Func<T, Map<K, U>> binder) =>
+        //    failwith<Map<K, U>>("Map<K,V> doesn't support Bind or SelectMany.");
 
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Map<K, V> SelectMany<K, T, U, V>(this Map<K, T> self, Func<T, Map<K, U>> binder, Func<T, U, V> project) =>
-            failwith<Map<K, V>>("Map<K,V> doesn't support Bind or SelectMany.");
+        //[Pure]
+        //[EditorBrowsable(EditorBrowsableState.Never)]
+        //public static Map<K, V> SelectMany<K, T, U, V>(this Map<K, T> self, Func<T, Map<K, U>> binder, Func<T, U, V> project) =>
+        //    failwith<Map<K, V>>("Map<K,V> doesn't support Bind or SelectMany.");
 
         // 
         // Map<A<Map<B,C>>

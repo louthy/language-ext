@@ -682,9 +682,30 @@ public static class TryOptionAsyncExtensions
     [Pure]
     public static Task<Option<A>> ToOption<A>(this TryOptionAsync<A> self) =>
         self.Match(
-              Some: v  => Option<A>.Some(v),
-              None: () => Option<A>.None,
-              Fail: _  => Option<A>.None);
+            Some: v  => Option<A>.Some(v),
+            None: () => Option<A>.None,
+            Fail: _  => Option<A>.None);
+
+    [Pure]
+    public static Task<OptionUnsafe<A>> ToOptionUnsafe<A>(this TryOptionAsync<A> self) =>
+        self.Match(
+            Some: v => OptionUnsafe<A>.Some(v),
+            None: () => OptionUnsafe<A>.None,
+            Fail: _ => OptionUnsafe<A>.None);
+
+    [Pure]
+    public static Task<Either<Exception, Option<A>>> ToEither<A>(this TryOptionAsync<A> self) =>
+        self.Match(
+            Some: v  => Either<Exception,Option<A>>.Right(v),
+            None: () => Either<Exception,Option<A>>.Right(None),
+            Fail: ex => Either<Exception, Option<A>>.Left(ex));
+
+    [Pure]
+    public static Task<EitherUnsafe<Exception, Option<A>>> ToEitherUnsafe<A>(this TryOptionAsync<A> self) =>
+        self.Match(
+            Some: v  => EitherUnsafe<Exception,Option<A>>.Right(v),
+            None: () => EitherUnsafe<Exception,Option<A>>.Right(None),
+            Fail: ex => EitherUnsafe<Exception, Option<A>>.Left(ex));
 
     [Pure]
     public static TryAsync<A> ToTry<A>(this TryOptionAsync<A> self) =>
@@ -1377,18 +1398,18 @@ public static class TryOptionAsyncExtensions
     };
 
     [Pure]
-    public static Task<IEnumerable<Either<Exception, A>>> AsEnumerable<A>(this TryOptionAsync<A> self) =>
+    public static Task<IEnumerable<A>> AsEnumerable<A>(this TryOptionAsync<A> self) =>
         self.Match(
-            Some: v  => new Either<Exception, A>[1] { v }.AsEnumerable(),
-            None: () => new Either<Exception, A>[0].AsEnumerable(),
-            Fail: x  => new Either<Exception, A>[1] { x }.AsEnumerable());
+            Some: v  => (IEnumerable<A>)new A[1] { v },
+            None: () => (IEnumerable<A>)new A[0],
+            Fail: x  => (IEnumerable<A>)new A[0]);
 
     [Pure]
-    public static async Task<Lst<Either<Exception, A>>> ToList<A>(this TryOptionAsync<A> self) =>
+    public static async Task<Lst<A>> ToList<A>(this TryOptionAsync<A> self) =>
         toList(await self.AsEnumerable());
 
     [Pure]
-    public static async Task<Arr<Either<Exception, A>>> ToArray<A>(this TryOptionAsync<A> self) =>
+    public static async Task<Arr<A>> ToArray<A>(this TryOptionAsync<A> self) =>
         toArray(await self.AsEnumerable());
 
     [Pure]
@@ -1550,12 +1571,33 @@ public static class TryOptionAsyncExtensions
     /// Apply
     /// </summary>
     /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type FB derived from Applicative of B</returns>
+    [Pure]
+    public static TryOptionAsync<B> Apply<A, B>(this Func<A, B> fab, TryOptionAsync<A> fa) =>
+        FTryOptionAsync<A, B>.Inst.Apply(TryOptionAsync(fab), fa);
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
     /// <param name="fa">Applicative a to apply</param>
     /// <param name="fb">Applicative b to apply</param>
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static TryOptionAsync<C> Apply<A, B, C>(this TryOptionAsync<Func<A, B, C>> fabc, TryOptionAsync<A> fa, TryOptionAsync<B> fb) =>
         fabc.Bind(f => FTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa, fb));
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative a to apply</param>
+    /// <param name="fb">Applicative b to apply</param>
+    /// <returns>Applicative of type FC derived from Applicative of C</returns>
+    [Pure]
+    public static TryOptionAsync<C> Apply<A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<A> fa, TryOptionAsync<B> fb) =>
+        FTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa, fb);
 
     /// <summary>
     /// Apply
@@ -1574,8 +1616,28 @@ public static class TryOptionAsyncExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
+    public static TryOptionAsync<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, TryOptionAsync<A> fa) =>
+        FTryOptionAsync<A, B, C>.Inst.Apply(MTryOptionAsync<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa);
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+    [Pure]
     public static TryOptionAsync<Func<B, C>> Apply<A, B, C>(this TryOptionAsync<Func<A, Func<B, C>>> fabc, TryOptionAsync<A> fa) =>
         FTryOptionAsync<A, B, C>.Inst.Apply(fabc, fa);
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+    [Pure]
+    public static TryOptionAsync<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, TryOptionAsync<A> fa) =>
+        FTryOptionAsync<A, B, C>.Inst.Apply(TryOptionAsync(fabc), fa);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa

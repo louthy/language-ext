@@ -58,7 +58,7 @@ public static class RWSExt
     [Pure]
     public static IEnumerable<A> AsEnumerable<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, R env, S state)
         where MonoidW : struct, Monoid<W> =>
-            self.Run(env, state).Value.AsEnumerable().Rights();
+            self.Run(env, state).Value.AsEnumerable();
 
     public static RWS<MonoidW, R, W, S, Unit> Iter<MonoidW, R, W, S, A>(this RWS<MonoidW, R, W, S, A> self, Action<A> action)
         where MonoidW : struct, Monoid<W> =>

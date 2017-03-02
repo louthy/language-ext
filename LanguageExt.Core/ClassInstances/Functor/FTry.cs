@@ -59,4 +59,52 @@ namespace LanguageExt.ClassInstances
         public Try<A> Pure(A x) =>
             MTry<A>.Inst.Return(x);
     }
+
+    public struct FTry<A> : 
+        Functor<Try<A>, Try<A>, A, A>,
+        BiFunctor<Try<A>, Try<A>, Unit, A, A>,
+        Applicative<Try<Func<A, A>>, Try<A>, Try<A>, A, A>,
+        Applicative<Try<Func<A, Func<A, A>>>, Try<Func<A, A>>, Try<A>, Try<A>, Try<A>, A, A, A>
+    {
+        public static readonly FTry<A> Inst = default(FTry<A>);
+
+        [Pure]
+        public Try<A> BiMap(Try<A> ma, Func<Unit, A> fa, Func<A, A> fb) =>
+            FOptional<MTry<A>, MTry<A>, Try<A>, Try<A>, A, A>.Inst.BiMap(ma, fa, fb);
+
+        [Pure]
+        public Try<A> Map(Try<A> ma, Func<A, A> f) =>
+            FOptional<MTry<A>, MTry<A>, Try<A>, Try<A>, A, A>.Inst.Map(ma, f);
+
+        [Pure]
+        public Try<A> Apply(Try<Func<A, A>> fab, Try<A> fa) =>
+            from f in fab
+            from a in fa
+            select f(a);
+
+        [Pure]
+        public Try<A> Pure(A x) =>
+            MTry<A>.Inst.Return(x);
+
+        [Pure]
+        public Try<A> Action(Try<A> fa, Try<A> fb) =>
+            from a in fa
+            from b in fb
+            select b;
+
+        [Pure]
+        public Try<Func<A, A>> Apply(Try<Func<A, Func<A, A>>> fabc, Try<A> fa) =>
+            from f in fabc
+            from a in fa
+            select f(a);
+
+        [Pure]
+        public Try<A> Apply(Try<Func<A, Func<A, A>>> fabc, Try<A> fa, Try<A> fb) =>
+            from f in fabc
+            from a in fa
+            from b in fb
+            select f(a)(b);
+    }
+
+
 }

@@ -6,6 +6,7 @@ using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
+using LanguageExt.ClassInstances;
 
 public static class ListExtensions
 {
@@ -250,39 +251,120 @@ public static class ListExtensions
     /// <summary>
     /// Apply an IEnumerable of values to an IEnumerable of functions
     /// </summary>
-    /// <param name="opt">IEnumerable of functions</param>
-    /// <param name="arg">IEnumerable of argument values</param>
+    /// <param name="fabc">IEnumerable of functions</param>
+    /// <param name="fa">IEnumerable of argument values</param>
     /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
     [Pure]
-    public static IEnumerable<R> Apply<T, R>(this IEnumerable<Func<T, R>> self, IEnumerable<T> arg) =>
-        from f in self
-        from x in arg
-        select f(x);
+    public static IEnumerable<B> Apply<A, B>(this IEnumerable<Func<A, B>> fabc, IEnumerable<A> fa) =>
+        FSeq<A, B>.Inst.Apply(fabc, fa);
+
+    /// <summary>
+    /// Apply an IEnumerable of values to an IEnumerable of functions
+    /// </summary>
+    /// <param name="fabc">IEnumerable of functions</param>
+    /// <param name="fa">IEnumerable of argument values</param>
+    /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
+    [Pure]
+    public static IEnumerable<B> Apply<A, B>(this Func<A, B> fabc, IEnumerable<A> fa) =>
+        FSeq<A, B>.Inst.Apply(new[] { fabc }, fa);
 
     /// <summary>
     /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
     /// </summary>
-    /// <param name="opt">IEnumerable of functions</param>
-    /// <param name="arg">IEnumerable argument values</param>
+    /// <param name="fabc">IEnumerable of functions</param>
+    /// <param name="fa">IEnumerable argument values</param>
     /// <returns>Returns the result of applying the IEnumerable of argument values to the 
     /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
     [Pure]
-    public static IEnumerable<Func<T2, R>> Apply<T1, T2, R>(this IEnumerable<Func<T1, T2, R>> self, IEnumerable<T1> arg) =>
-        from f in self
-        let c = curry(f)
-        from x in arg
-        select c(x);
+    public static IEnumerable<Func<B, C>> Apply<A, B, C>(this IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa) =>
+        FSeq<A, B, C>.Inst.Apply(fabc.Map(curry), fa);
+
+    /// <summary>
+    /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
+    /// </summary>
+    /// <param name="fabc">IEnumerable of functions</param>
+    /// <param name="fa">IEnumerable argument values</param>
+    /// <returns>Returns the result of applying the IEnumerable of argument values to the 
+    /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
+    [Pure]
+    public static IEnumerable<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, IEnumerable<A> fa) =>
+        FSeq<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa);
 
     /// <summary>
     /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
     /// </summary>
-    /// <param name="opt">IEnumerable of functions</param>
-    /// <param name="arg1">IEnumerable of arguments</param>
-    /// <param name="arg2">IEnumerable of arguments</param>
+    /// <param name="fabc">IEnumerable of functions</param>
+    /// <param name="fa">IEnumerable argument values</param>
+    /// <param name="fb">IEnumerable argument values</param>
     /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
     [Pure]
-    public static IEnumerable<R> Apply<T1, T2, R>(this IEnumerable<Func<T1, T2, R>> self, IEnumerable<T1> arg1, IEnumerable<T2> arg2) =>
-        self.Apply(arg1).Apply(arg2);
+    public static IEnumerable<C> Apply<A, B, C>(this IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
+        FSeq<A, B, C>.Inst.Apply(fabc.Map(curry), fa, fb);
+
+    /// <summary>
+    /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
+    /// </summary>
+    /// <param name="fabc">IEnumerable of functions</param>
+    /// <param name="fa">IEnumerable argument values</param>
+    /// <param name="fb">IEnumerable argument values</param>
+    /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
+    [Pure]
+    public static IEnumerable<C> Apply<A, B, C>(this Func<A, B, C> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
+        FSeq<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa, fb);
+
+    /// <summary>
+    /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
+    /// </summary>
+    /// <param name="fabc">IEnumerable of functions</param>
+    /// <param name="fa">IEnumerable argument values</param>
+    /// <returns>Returns the result of applying the IEnumerable of argument values to the 
+    /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
+    [Pure]
+    public static IEnumerable<Func<B, C>> Apply<A, B, C>(this IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa) =>
+        FSeq<A, B, C>.Inst.Apply(fabc, fa);
+
+    /// <summary>
+    /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
+    /// </summary>
+    /// <param name="fabc">IEnumerable of functions</param>
+    /// <param name="fa">IEnumerable argument values</param>
+    /// <returns>Returns the result of applying the IEnumerable of argument values to the 
+    /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
+    [Pure]
+    public static IEnumerable<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, IEnumerable<A> fa) =>
+        FSeq<A, B, C>.Inst.Apply(new[] { fabc }, fa);
+
+    /// <summary>
+    /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
+    /// </summary>
+    /// <param name="fabc">IEnumerable of functions</param>
+    /// <param name="fa">IEnumerable argument values</param>
+    /// <param name="fb">IEnumerable argument values</param>
+    /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
+    [Pure]
+    public static IEnumerable<C> Apply<A, B, C>(this IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
+        FSeq<A, B, C>.Inst.Apply(fabc, fa, fb);
+
+    /// <summary>
+    /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
+    /// </summary>
+    /// <param name="fabc">IEnumerable of functions</param>
+    /// <param name="fa">IEnumerable argument values</param>
+    /// <param name="fb">IEnumerable argument values</param>
+    /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
+    [Pure]
+    public static IEnumerable<C> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
+        FSeq<A, B, C>.Inst.Apply(new[] { fabc }, fa, fb);
+
+    /// <summary>
+    /// Evaluate fa, then fb, ignoring the result of fa
+    /// </summary>
+    /// <param name="fa">Applicative to evaluate first</param>
+    /// <param name="fb">Applicative to evaluate second and then return</param>
+    /// <returns>Applicative of type FB derived from Applicative of B</returns>
+    [Pure]
+    public static IEnumerable<B> Action<A, B>(this IEnumerable<A> fa, IEnumerable<B> fb) =>
+        FSeq<A, B>.Inst.Action(fa, fb);
 
     /// <summary>
     /// Projects the values in the enumerable using a map function into a new enumerable (Select in LINQ).
@@ -684,6 +766,13 @@ public static class ListExtensions
         LanguageExt.List.freeze(list);
 
     /// <summary>
+    /// Convert the enumerable to an immutable array
+    /// </summary>
+    [Pure]
+    public static Arr<A> ToArr<A>(this IEnumerable<A> list) =>
+        new Arr<A>(list);
+
+    /// <summary>
     /// Returns the number of items in the Lst T
     /// </summary>
     /// <typeparam name="T">Item type</typeparam>
@@ -838,27 +927,6 @@ public static class ListExtensions
     [Pure]
     public static Lst<C> SelectMany<A, B, C>(this Lst<A> self, Func<A, Lst<B>> bind, Func<A, B, C> project) =>
         self.Bind(t => bind(t).Map(u => project(t, u)));
-
-    [Pure]
-    public static Lst<C> SelectMany<A, B, C>(this Lst<A> self,
-        Func<A, IEnumerable<B>> bind,
-        Func<A, B, C> project
-        )
-    {
-        if (self.Count == 0) return Lst<C>.Empty;
-        return self.Bind(t => bind(t).Map(u => project(t, u))).Freeze();
-    }
-
-    [Pure]
-    public static Lst<V> SelectMany<T, U, V>(this IEnumerable<T> self,
-        Func<T, Lst<U>> bind,
-        Func<T, U, V> project
-        )
-    {
-        var ta = self.Take(1).ToArray();
-        if (ta.Length == 0) return Lst<V>.Empty;
-        return self.Bind(t => bind(t).Map(u => project(t, u))).Freeze();
-    }
 
     /// <summary>
     /// Take all but the last item in an enumerable

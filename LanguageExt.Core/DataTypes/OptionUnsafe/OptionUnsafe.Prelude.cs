@@ -143,6 +143,16 @@ namespace LanguageExt
         /// Apply
         /// </summary>
         /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type FB derived from Applicative of B</returns>
+        [Pure]
+        public static OptionUnsafe<B> apply<A, B>(Func<A, B> fab, OptionUnsafe<A> fa) =>
+            FOptionUnsafe<A, B>.Inst.Apply(fab, fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
         /// <param name="fa">Applicative a to apply</param>
         /// <param name="fb">Applicative b to apply</param>
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
@@ -151,6 +161,17 @@ namespace LanguageExt
             from x in fabc
             from y in FOptionUnsafe<A, B, C>.Inst.Apply(curry(x), fa, fb)
             select y;
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative a to apply</param>
+        /// <param name="fb">Applicative b to apply</param>
+        /// <returns>Applicative of type FC derived from Applicative of C</returns>
+        [Pure]
+        public static OptionUnsafe<C> apply<A, B, C>(Func<A, B, C> fabc, OptionUnsafe<A> fa, OptionUnsafe<B> fb) =>
+            FOptionUnsafe<A, B, C>.Inst.Apply(curry(fabc), fa, fb);
 
         /// <summary>
         /// Apply
@@ -171,7 +192,27 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
+        public static OptionUnsafe<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, OptionUnsafe<A> fa) =>
+            FOptionUnsafe<A, B, C>.Inst.Apply(curry(fabc), fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+        [Pure]
         public static OptionUnsafe<Func<B, C>> apply<A, B, C>(OptionUnsafe<Func<A, Func<B, C>>> fabc, OptionUnsafe<A> fa) =>
+            FOptionUnsafe<A, B, C>.Inst.Apply(fabc, fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+        [Pure]
+        public static OptionUnsafe<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, OptionUnsafe<A> fa) =>
             FOptionUnsafe<A, B, C>.Inst.Apply(fabc, fa);
 
         /// <summary>

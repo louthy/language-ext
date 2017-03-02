@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
+using System.Threading.Tasks;
 
 namespace LanguageExt
 {
@@ -656,7 +657,7 @@ namespace LanguageExt
         /// </summary>
         [Pure]
         public static IEnumerable<T> seq<T>(Try<T> value) =>
-            value.AsEnumerable().Where(x => x.IsRight).Map(x => x.RightValue);
+            value?.AsEnumerable() ?? new T[0];
 
         /// <summary>
         /// Convert a TryOption to an enumerable
@@ -666,19 +667,30 @@ namespace LanguageExt
         /// value is null : []
         /// </summary>
         [Pure]
-        public static IEnumerable<T> seq2<T>(TryOption<T> value) =>
-            value.AsEnumerable().Where(x => x.IsRight).Map(x => x.RightValue);
+        public static IEnumerable<T> seq<T>(TryOption<T> value) =>
+            value?.AsEnumerable() ?? new T[0];
 
         /// <summary>
         /// Convert a TryOption to an enumerable
-        /// Succ(x) = [either(_,x)]
-        /// Fail(e) = [either(exception,_)]
+        /// Succ(x) = [x]
+        /// Fail(e) = []
         /// None = []
         /// value is null : []
         /// </summary>
         [Pure]
-        public static IEnumerable<Either<Exception, T>> seq<T>(TryOption<T> value) =>
-            value.AsEnumerable();
+        public static Task<IEnumerable<T>> seq<T>(TryAsync<T> value) =>
+            value?.AsEnumerable() ?? Task.FromResult(new T[0].AsEnumerable());
+
+        /// <summary>
+        /// Convert a TryOption to an enumerable
+        /// Succ(x) = [x]
+        /// Fail(e) = []
+        /// None = []
+        /// value is null : []
+        /// </summary>
+        [Pure]
+        public static Task<IEnumerable<T>> seq<T>(TryOptionAsync<T> value) =>
+            value?.AsEnumerable() ?? Task.FromResult(new T[0].AsEnumerable());
 
         /// <summary>
         /// Convert a tuple to an enumerable
@@ -742,5 +754,47 @@ namespace LanguageExt
             tup == null
                 ? new T[0]
                 : new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6, tup.Item7 };
+
+        /// <summary>
+        /// Convert a tuple to an enumerable
+        /// </summary>
+        [Pure]
+        public static IEnumerable<T> seq<T>(ValueTuple<T, T> tup) =>
+            new[] { tup.Item1, tup.Item2 };
+
+        /// <summary>
+        /// Convert a tuple to an enumerable
+        /// </summary>
+        [Pure]
+        public static IEnumerable<T> seq<T>(ValueTuple<T, T, T> tup) =>
+            new[] { tup.Item1, tup.Item2, tup.Item3 };
+
+        /// <summary>
+        /// Convert a tuple to an enumerable
+        /// </summary>
+        [Pure]
+        public static IEnumerable<T> seq<T>(ValueTuple<T, T, T, T> tup) =>
+            new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4 };
+
+        /// <summary>
+        /// Convert a tuple to an enumerable
+        /// </summary>
+        [Pure]
+        public static IEnumerable<T> seq<T>(ValueTuple<T, T, T, T, T> tup) =>
+            new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5 };
+
+        /// <summary>
+        /// Convert a tuple to an enumerable
+        /// </summary>
+        [Pure]
+        public static IEnumerable<T> seq<T>(ValueTuple<T, T, T, T, T, T> tup) =>
+            new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6 };
+
+        /// <summary>
+        /// Convert a tuple to an enumerable
+        /// </summary>
+        [Pure]
+        public static IEnumerable<T> seq<T>(ValueTuple<T, T, T, T, T, T, T> tup) =>
+            new[] { tup.Item1, tup.Item2, tup.Item3, tup.Item4, tup.Item5, tup.Item6, tup.Item7 };
     }
 }

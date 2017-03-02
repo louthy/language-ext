@@ -793,20 +793,5 @@ namespace LanguageExt
             IsSome
                 ? OptionUnsafe<B>.Some(await map(Value))
                 : OptionUnsafe<B>.None;
-
-        /// <summary>
-        /// Monadic bind operation
-        /// </summary>
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public IEnumerable<C> SelectMany<B, C>(
-            Func<A, IEnumerable<B>> bind,
-            Func<A, B, C> project
-            )
-        {
-            if (IsNone) return new C[0];
-            var v = Value;
-            return bind(v).Map(resU => project(v, resU));
-        }
     }
 }

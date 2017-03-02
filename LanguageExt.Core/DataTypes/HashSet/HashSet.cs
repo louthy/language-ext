@@ -12,7 +12,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="A">Key type</typeparam>
     public struct HashSet<A> :
-        IReadOnlyCollection<A>,
+        IEnumerable<A>,
         IEquatable<HashSet<A>>
     {
         public static readonly HashSet<A> Empty = new HashSet<A>(HashSetInternal<OrdDefault<A>, A>.Empty);
@@ -69,10 +69,6 @@ namespace LanguageExt
         [Pure]
         public int Length =>
             Value.Length;
-
-        public object SyncRoot => this;
-        public bool IsSynchronized => true;
-        public bool IsReadOnly => true;
 
         /// <summary>
         /// Maps the values of this set into a new set of values using the
@@ -299,8 +295,6 @@ namespace LanguageExt
         public HashSet<A> RemoveRange(IEnumerable<A> keys) =>
             Wrap(Value.RemoveRange(keys));
 
-        #region IEnumerable interface
-
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
@@ -314,9 +308,7 @@ namespace LanguageExt
             Value.GetEnumerator();
 
         public IEnumerable<A> AsEnumerable() =>
-            Value.AsEnumerable();
-
-        #endregion
+            this;
 
         [Pure]
         public static HashSet<A> operator +(HashSet<A> lhs, HashSet<A> rhs) =>
@@ -493,5 +485,41 @@ namespace LanguageExt
         [Pure]
         public override int GetHashCode() =>
             Value.GetHashCode();
+
+        [Pure]
+        public HashSet<B> Bind<B>(Func<A, HashSet<B>> f)
+        {
+            var self = this;
+
+            IEnumerable<B> Yield()
+            {
+                foreach (var x in self.AsEnumerable())
+                {
+                    foreach (var y in f(x))
+                    {
+                        yield return y;
+                    }
+                }
+            }
+            return new HashSet<B>(Yield(), true);
+        }
+
+        [Pure]
+        public HashSet<C> SelectMany<B, C>(Func<A, HashSet<B>> bind, Func<A, B, C> project)
+        {
+            var self = this;
+
+            IEnumerable<C> Yield()
+            {
+                foreach (var x in self.AsEnumerable())
+                {
+                    foreach (var y in bind(x))
+                    {
+                        yield return project(x, y);
+                    }
+                }
+            }
+            return new HashSet<C>(Yield(), true);
+        }
     }
 }

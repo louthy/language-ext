@@ -844,18 +844,6 @@ namespace LanguageExt
             SelectMany<MEither<L, R>, MEither<L, U>, MEither<L, V>, Either<L, R>, Either<L, U>, Either<L, V>, R, U, V>(this, bind, project);
 
         [Pure]
-        public IEnumerable<V> SelectMany<U, V>(
-            Func<R, IEnumerable<U>> bind,
-            Func<R, U, V> project
-            )
-        {
-            if (IsBottom) return new V[0];
-            if (IsLeft) return new V[0];
-            var r = RightValue;
-            return bind(r).Map(u => project(r, u));
-        }
-
-        [Pure]
         public Either<L, V> Join<U, K, V>(
             Either<L, U> inner,
             Func<R, K> outerKeyMap,

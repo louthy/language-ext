@@ -59,4 +59,51 @@ namespace LanguageExt.ClassInstances
         public TryOption<A> Pure(A x) =>
             MTryOption<A>.Inst.Return(x);
     }
+
+    public struct FTryOption<A> :
+        Functor<TryOption<A>, TryOption<A>, A, A>,
+        BiFunctor<TryOption<A>, TryOption<A>, Unit, A, A>,
+        Applicative<TryOption<Func<A, A>>, TryOption<A>, TryOption<A>, A, A>,
+        Applicative<TryOption<Func<A, Func<A, A>>>, TryOption<Func<A, A>>, TryOption<A>, TryOption<A>, TryOption<A>, A, A, A>
+    {
+        public static readonly FTryOption<A> Inst = default(FTryOption<A>);
+
+        [Pure]
+        public TryOption<A> BiMap(TryOption<A> ma, Func<Unit, A> fa, Func<A, A> fb) =>
+            FOptional<MTryOption<A>, MTryOption<A>, TryOption<A>, TryOption<A>, A, A>.Inst.BiMap(ma, fa, fb);
+
+        [Pure]
+        public TryOption<A> Map(TryOption<A> ma, Func<A, A> f) =>
+            FOptional<MTryOption<A>, MTryOption<A>, TryOption<A>, TryOption<A>, A, A>.Inst.Map(ma, f);
+
+        [Pure]
+        public TryOption<A> Apply(TryOption<Func<A, A>> fab, TryOption<A> fa) =>
+            from f in fab
+            from a in fa
+            select f(a);
+
+        [Pure]
+        public TryOption<A> Pure(A x) =>
+            MTryOption<A>.Inst.Return(x);
+
+        [Pure]
+        public TryOption<A> Action(TryOption<A> fa, TryOption<A> fb) =>
+            from a in fa
+            from b in fb
+            select b;
+
+        [Pure]
+        public TryOption<Func<A, A>> Apply(TryOption<Func<A, Func<A, A>>> fabc, TryOption<A> fa) =>
+            from f in fabc
+            from a in fa
+            select f(a);
+
+        [Pure]
+        public TryOption<A> Apply(TryOption<Func<A, Func<A, A>>> fabc, TryOption<A> fa, TryOption<A> fb) =>
+            from f in fabc
+            from a in fa
+            from b in fb
+            select f(a)(b);
+    }
+
 }

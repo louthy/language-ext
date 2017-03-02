@@ -138,6 +138,18 @@ public static class TryExtensionsAsync
         self.ToAsync().ToOption();
 
     [Pure]
+    public static Task<OptionUnsafe<A>> ToOptionUnsafeAsync<A>(this Try<A> self) =>
+        self.ToAsync().ToOptionUnsafe();
+
+    [Pure]
+    public static Task<Either<Exception, A>> ToEitherAsync<A>(this Try<A> self) =>
+        self.ToAsync().ToEither();
+
+    [Pure]
+    public static Task<EitherUnsafe<Exception, A>> ToEitherUnsafeAsync<A>(this Try<A> self) =>
+        self.ToAsync().ToEitherUnsafe();
+
+    [Pure]
     public static Task<A> IfFailThrowAsync<A>(this Try<A> self) =>
         self.ToAsync().IfFailThrow();
 
@@ -400,15 +412,15 @@ public static class TryExtensionsAsync
         self.FilterAsync(pred);
 
     [Pure]
-    public static Task<IEnumerable<Either<Exception, A>>> AsEnumerableAsync<A>(this Try<A> self) =>
+    public static Task<IEnumerable<A>> AsEnumerableAsync<A>(this Try<A> self) =>
         self.ToAsync().AsEnumerable();
 
     [Pure]
-    public static Task<Lst<Either<Exception, A>>> ToListAsync<A>(this Try<A> self) =>
+    public static Task<Lst<A>> ToListAsync<A>(this Try<A> self) =>
         self.ToAsync().ToList();
 
     [Pure]
-    public static Task<Arr<Either<Exception, A>>> ToArrayAsync<A>(this Try<A> self) =>
+    public static Task<Arr<A>> ToArrayAsync<A>(this Try<A> self) =>
         self.ToAsync().ToArray();
 
     [Pure]

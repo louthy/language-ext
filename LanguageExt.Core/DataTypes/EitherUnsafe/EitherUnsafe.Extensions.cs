@@ -91,6 +91,16 @@ public static class EitherUnsafeExtensions
     /// Apply
     /// </summary>
     /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type FB derived from Applicative of B</returns>
+    [Pure]
+    public static EitherUnsafe<L, B> Apply<L, A, B>(this Func<A, B> fab, EitherUnsafe<L, A> fa) =>
+        FEitherUnsafe<L, A, B>.Inst.Apply(fab, fa);
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
     /// <param name="fa">Applicative a to apply</param>
     /// <param name="fb">Applicative b to apply</param>
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
@@ -104,6 +114,17 @@ public static class EitherUnsafeExtensions
     /// Apply
     /// </summary>
     /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative a to apply</param>
+    /// <param name="fb">Applicative b to apply</param>
+    /// <returns>Applicative of type FC derived from Applicative of C</returns>
+    [Pure]
+    public static EitherUnsafe<L, C> Apply<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, A> fa, EitherUnsafe<L, B> fb) =>
+        FEitherUnsafe<L, A, B, C>.Inst.Apply(curry(fabc), fa, fb);
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
@@ -111,6 +132,16 @@ public static class EitherUnsafeExtensions
         from x in fabc
         from y in FEitherUnsafe<L, A, B, C>.Inst.Apply(curry(x), fa)
         select y;
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+    [Pure]
+    public static EitherUnsafe<L, Func<B, C>> Apply<L, A, B, C>(this Func<A, B, C> fabc, EitherUnsafe<L, A> fa) =>
+        FEitherUnsafe<L, A, B, C>.Inst.Apply(curry(fabc), fa);
 
     /// <summary>
     /// Apply
@@ -206,21 +237,6 @@ public static class EitherUnsafeExtensions
     [Pure]
     public static EitherUnsafe<L, Func<T2, Func<T3, R>>> ParMap<L, T1, T2, T3, R>(this EitherUnsafe<L, T1> self, Func<T1, T2, T3, R> func) =>
         self.Map(curry(func));
-
-    [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static EitherUnsafe<L, V> SelectMany<L, T, U, V>(this IEnumerable<T> self,
-        Func<T, EitherUnsafe<L, U>> bind,
-        Func<T, U, V> project
-        )
-    {
-        var ta = self.Take(1).ToArray();
-        if (ta.Length == 0) return EitherUnsafe<L, V>.Bottom;
-        var u = bind(ta[0]);
-        if (u.IsBottom) return EitherUnsafe<L, V>.Bottom;
-        if (u.IsLeft) return EitherUnsafe<L, V>.Left(u.LeftValue);
-        return project(ta[0], u.RightValue);
-    }
 
     /// <summary>
     /// Match the two states of the Either and return a promise of a non-null R2.

@@ -89,6 +89,16 @@ namespace LanguageExt
         /// Apply
         /// </summary>
         /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type FB derived from Applicative of B</returns>
+        [Pure]
+        public static EitherUnsafe<L, B> apply<L, A, B>(Func<A, B> fab, EitherUnsafe<L, A> fa) =>
+            FEitherUnsafe<L, A, B>.Inst.Apply(fab, fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
         /// <param name="fa">Applicative a to apply</param>
         /// <param name="fb">Applicative b to apply</param>
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
@@ -97,6 +107,17 @@ namespace LanguageExt
             from x in fabc
             from y in FEitherUnsafe<L, A, B, C>.Inst.Apply(curry(x), fa, fb)
             select y;
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative a to apply</param>
+        /// <param name="fb">Applicative b to apply</param>
+        /// <returns>Applicative of type FC derived from Applicative of C</returns>
+        [Pure]
+        public static EitherUnsafe<L, C> apply<L, A, B, C>(Func<A, B, C> fabc, EitherUnsafe<L, A> fa, EitherUnsafe<L, B> fb) =>
+            FEitherUnsafe<L, A, B, C>.Inst.Apply(curry(fabc), fa, fb);
 
         /// <summary>
         /// Apply
@@ -117,7 +138,27 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
+        public static EitherUnsafe<L, Func<B, C>> apply<L, A, B, C>(Func<A, B, C> fabc, EitherUnsafe<L, A> fa) =>
+            FEitherUnsafe<L, A, B, C>.Inst.Apply(curry(fabc), fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+        [Pure]
         public static EitherUnsafe<L, Func<B, C>> apply<L, A, B, C>(EitherUnsafe<L, Func<A, Func<B, C>>> fabc, EitherUnsafe<L, A> fa) =>
+            FEitherUnsafe<L, A, B, C>.Inst.Apply(fabc, fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+        [Pure]
+        public static EitherUnsafe<L, Func<B, C>> apply<L, A, B, C>(Func<A, Func<B, C>> fabc, EitherUnsafe<L, A> fa) =>
             FEitherUnsafe<L, A, B, C>.Inst.Apply(fabc, fa);
 
         /// <summary>

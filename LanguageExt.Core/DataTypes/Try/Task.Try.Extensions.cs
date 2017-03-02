@@ -496,15 +496,15 @@ public static class TaskTryExtensions
         select new Try<A>(() => x);
 
     [Pure]
-    public static Task<IEnumerable<Either<Exception, A>>> AsEnumerable<A>(this Task<Try<A>> self) =>
+    public static Task<IEnumerable<A>> AsEnumerable<A>(this Task<Try<A>> self) =>
         self.ToAsync().AsEnumerable();
 
     [Pure]
-    public static Task<Lst<Either<Exception, A>>> ToList<A>(this Task<Try<A>> self) =>
+    public static Task<Lst<A>> ToList<A>(this Task<Try<A>> self) =>
         self.ToAsync().ToList();
 
     [Pure]
-    public static Task<Arr<Either<Exception, A>>> ToArray<A>(this Task<Try<A>> self) =>
+    public static Task<Arr<A>> ToArray<A>(this Task<Try<A>> self) =>
         self.ToAsync().ToArray();
 
     [Pure]

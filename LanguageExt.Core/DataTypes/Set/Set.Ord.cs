@@ -16,8 +16,7 @@ namespace LanguageExt
     [Serializable]
     public struct Set<OrdA, A> :
         IEnumerable<A>,
-        IEquatable<Set<OrdA, A>>,
-        IReadOnlyCollection<A>
+        IEquatable<Set<OrdA, A>>
         where OrdA : struct, Ord<A>
     {
         public static readonly Set<OrdA, A> Empty = new Set<OrdA, A>(SetInternal<OrdA, A>.Empty);
@@ -51,9 +50,9 @@ namespace LanguageExt
         /// Ctor that takes an initial (distinct) set of items
         /// </summary>
         /// <param name="items"></param>
-        internal Set(IEnumerable<A> items, bool checkUniqueness)
+        internal Set(IEnumerable<A> items, bool tryAdd)
         {
-            value = new SetInternal<OrdA, A>(items, checkUniqueness);
+            value = new SetInternal<OrdA, A>(items, tryAdd);
         }
 
         static Set<OrdA, A> Wrap(SetInternal<OrdA, A> set) =>
@@ -445,6 +444,7 @@ namespace LanguageExt
         /// <summary>
         /// Equality override
         /// </summary>
+        [Pure]
         public override bool Equals(object obj) =>
             obj is Set<OrdA, A> && 
             !ReferenceEquals(obj, null) &&
@@ -456,10 +456,55 @@ namespace LanguageExt
         /// <remarks>
         /// The hash-code is cached after the first read.
         /// </remarks>
+        [Pure]
         public override int GetHashCode() =>
             Value.GetHashCode();
 
+        [Pure]
         public override string ToString() =>
             $"Set[{Count}]";
+
+        [Pure]
+        public IEnumerable<A> AsEnumerable() => this;
+
+        [Pure]
+        public Set<OrdA, A> Where(Func<A, bool> pred) =>
+            Filter(pred);
+
+        [Pure]
+        public Set<OrdB, B> Bind<OrdB, B>(Func<A, Set<OrdB, B>> f) where OrdB : struct, Ord<B>
+        {
+            var self = this;
+
+            IEnumerable<B> Yield()
+            {
+                foreach (var x in self.AsEnumerable())
+                {
+                    foreach (var y in f(x))
+                    {
+                        yield return y;
+                    }
+                }
+            }
+            return new Set<OrdB, B>(Yield(), true);
+        }
+
+        [Pure]
+        public Set<OrdA, A> Bind(Func<A, Set<OrdA, A>> f)
+        {
+            var self = this;
+
+            IEnumerable<A> Yield()
+            {
+                foreach (var x in self.AsEnumerable())
+                {
+                    foreach (var y in f(x))
+                    {
+                        yield return y;
+                    }
+                }
+            }
+            return new Set<OrdA, A>(Yield(), true);
+        }
     }
 }

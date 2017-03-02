@@ -35,19 +35,19 @@ namespace LanguageExt
         public static int Count<OrdK, K, V>(this Map<OrdK, K, V> self) where OrdK : struct, Ord<K> =>
             self.Count;
 
-        [Pure]
-        public static Map<OrdK, K, U> Bind<OrdK, K, T, U>(this Map<OrdK, K, T> self, Func<T, Map<OrdK, K, U>> binder) where OrdK : struct, Ord<K> =>
-            failwith<Map<OrdK, K, U>>("Map<K,V> doesn't support Bind.");
+        //[Pure]
+        //public static Map<OrdK, K, U> Bind<OrdK, K, T, U>(this Map<OrdK, K, T> self, Func<T, Map<OrdK, K, U>> binder) where OrdK : struct, Ord<K> =>
+        //    failwith<Map<OrdK, K, U>>("Map<K,V> doesn't support Bind.");
 
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Map<OrdK, K, U> SelectMany<OrdK, K, T, U>(this Map<OrdK, K, T> self, Func<T, Map<OrdK, K, U>> binder) where OrdK : struct, Ord<K> =>
-            failwith<Map<OrdK, K, U>>("Map<K,V> doesn't support Bind or SelectMany.");
+        //[Pure]
+        //[EditorBrowsable(EditorBrowsableState.Never)]
+        //public static Map<OrdK, K, U> SelectMany<OrdK, K, T, U>(this Map<OrdK, K, T> self, Func<T, Map<OrdK, K, U>> binder) where OrdK : struct, Ord<K> =>
+        //    failwith<Map<OrdK, K, U>>("Map<K,V> doesn't support Bind or SelectMany.");
 
-        [Pure]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Map<OrdK, K, V> SelectMany<OrdK, K, T, U, V>(this Map<OrdK, K, T> self, Func<T, Map<OrdK, K, U>> binder, Func<T, U, V> project) where OrdK : struct, Ord<K> =>
-            failwith<Map<OrdK, K, V>>("Map<K,V> doesn't support Bind or SelectMany.");
+        //[Pure]
+        //[EditorBrowsable(EditorBrowsableState.Never)]
+        //public static Map<OrdK, K, V> SelectMany<OrdK, K, T, U, V>(this Map<OrdK, K, T> self, Func<T, Map<OrdK, K, U>> binder, Func<T, U, V> project) where OrdK : struct, Ord<K> =>
+        //    failwith<Map<OrdK, K, V>>("Map<K,V> doesn't support Bind or SelectMany.");
 
         [Pure]
         public static int Sum<OrdK, K>(this Map<OrdK, K, int> self) where OrdK : struct, Ord<K> =>

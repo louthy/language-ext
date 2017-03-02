@@ -17,7 +17,7 @@ namespace LanguageExt
     /// </summary>
     /// <typeparam name="A">Key type</typeparam>
     public struct HashSet<EqA, A> :
-        IReadOnlyCollection<A>,
+        IEnumerable<A>,
         IEquatable<HashSet<EqA, A>>
         where EqA : struct, Eq<A>
     {
@@ -42,9 +42,9 @@ namespace LanguageExt
         /// Ctor that takes an initial (distinct) set of items
         /// </summary>
         /// <param name="items"></param>
-        internal HashSet(IEnumerable<A> items, bool checkUniqueness = false)
+        internal HashSet(IEnumerable<A> items, bool tryAdd = false)
         {
-            value = new HashSetInternal<EqA, A>(items, checkUniqueness);
+            value = new HashSetInternal<EqA, A>(items, tryAdd);
         }
 
         /// <summary>
@@ -76,10 +76,6 @@ namespace LanguageExt
         [Pure]
         public int Length =>
             Value.Length;
-
-        public object SyncRoot => this;
-        public bool IsSynchronized => true;
-        public bool IsReadOnly => true;
 
         /// <summary>
         /// Maps the values of this set into a new set of values using the
@@ -328,8 +324,6 @@ namespace LanguageExt
         public HashSet<EqA, A> RemoveRange(IEnumerable<A> keys) =>
             Wrap(Value.RemoveRange(keys));
 
-        #region IEnumerable interface
-
         /// <summary>
         /// GetEnumerator - IEnumerable interface
         /// </summary>
@@ -343,9 +337,7 @@ namespace LanguageExt
             Value.GetEnumerator();
 
         public IEnumerable<A> AsEnumerable() =>
-            Value.AsEnumerable();
-
-        #endregion
+            this;
 
         [Pure]
         public static HashSet<EqA, A> operator +(HashSet<EqA, A> lhs, HashSet<EqA, A> rhs) =>
@@ -522,5 +514,41 @@ namespace LanguageExt
         [Pure]
         public override int GetHashCode() =>
             Value.GetHashCode();
+
+        [Pure]
+        public HashSet<EqB, B> Bind<EqB, B>(Func<A, HashSet<EqB, B>> f) where EqB : struct, Eq<B>
+        {
+            var self = this;
+
+            IEnumerable<B> Yield()
+            {
+                foreach (var x in self.AsEnumerable())
+                {
+                    foreach (var y in f(x))
+                    {
+                        yield return y;
+                    }
+                }
+            }
+            return new HashSet<EqB, B>(Yield(), true);
+        }
+
+        [Pure]
+        public HashSet<EqA, A> Bind(Func<A, HashSet<EqA, A>> f)
+        {
+            var self = this;
+
+            IEnumerable<A> Yield()
+            {
+                foreach (var x in self.AsEnumerable())
+                {
+                    foreach (var y in f(x))
+                    {
+                        yield return y;
+                    }
+                }
+            }
+            return new HashSet<EqA, A>(Yield(), true);
+        }
     }
 }

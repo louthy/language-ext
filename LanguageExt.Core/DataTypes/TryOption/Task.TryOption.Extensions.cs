@@ -702,15 +702,15 @@ public static class TaskTryOptionExtensions
         self.ToAsync().Where(pred);
 
     [Pure]
-    public static Task<IEnumerable<Either<Exception, A>>> AsEnumerable<A>(this Task<TryOption<A>> self) =>
+    public static Task<IEnumerable<A>> AsEnumerable<A>(this Task<TryOption<A>> self) =>
         self.ToAsync().AsEnumerable();
 
     [Pure]
-    public static Task<Lst<Either<Exception, A>>> ToList<A>(this Task<TryOption<A>> self) =>
+    public static Task<Lst<A>> ToList<A>(this Task<TryOption<A>> self) =>
         self.ToAsync().ToList();
 
     [Pure]
-    public static Task<Arr<Either<Exception, A>>> ToArray<A>(this Task<TryOption<A>> self) =>
+    public static Task<Arr<A>> ToArray<A>(this Task<TryOption<A>> self) =>
         self.ToAsync().ToArray();
 
     [Pure]

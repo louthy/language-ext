@@ -830,18 +830,6 @@ namespace LanguageExt
             SelectMany<MEitherUnsafe<L, R>, MEitherUnsafe<L, U>, MEitherUnsafe<L, V>, EitherUnsafe<L, R>, EitherUnsafe<L, U>, EitherUnsafe<L, V>, R, U, V>(this, bind, project);
 
         [Pure]
-        public IEnumerable<V> SelectMany<U, V>(
-            Func<R, IEnumerable<U>> bind,
-            Func<R, U, V> project
-            )
-        {
-            if (IsBottom) return new V[0];
-            if (IsLeft) return new V[0];
-            var r = RightValue;
-            return bind(r).Map(u => project(r, u));
-        }
-
-        [Pure]
         public EitherUnsafe<L, V> Join<U, K, V>(
             EitherUnsafe<L, U> inner,
             Func<R, K> outerKeyMap,

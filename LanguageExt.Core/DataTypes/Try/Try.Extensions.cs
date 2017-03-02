@@ -214,6 +214,33 @@ public static class TryExtensions
     };
 
     [Pure]
+    public static OptionUnsafe<A> ToOptionUnsafe<A>(this Try<A> self)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? None
+            : OptionUnsafe<A>.Some(res.Value);
+    }
+
+    [Pure]
+    public static Either<Exception, A> ToEither<A>(this Try<A> self)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? Either<Exception, A>.Left(res.Exception)
+            : Either<Exception, A>.Right(res.Value);
+    }
+
+    [Pure]
+    public static EitherUnsafe<Exception, A> ToEitherUnsafe<A>(this Try<A> self)
+    {
+        var res = self.Try();
+        return res.IsFaulted
+            ? EitherUnsafe<Exception, A>.Left(res.Exception)
+            : EitherUnsafe<Exception, A>.Right(res.Value);
+    }
+
+    [Pure]
     public static A IfFailThrow<A>(this Try<A> self)
     {
         try
@@ -418,25 +445,21 @@ public static class TryExtensions
     };
 
     [Pure]
-    public static IEnumerable<Either<Exception, A>> AsEnumerable<A>(this Try<A> self)
+    public static IEnumerable<A> AsEnumerable<A>(this Try<A> self)
     {
         var res = self.Try();
-        if (res.IsFaulted)
-        {
-            yield return res.Exception;
-        }
-        else
+        if (!res.IsFaulted)
         {
             yield return res.Value;
         }
     }
 
     [Pure]
-    public static Lst<Either<Exception, A>> ToList<A>(this Try<A> self) =>
+    public static Lst<A> ToList<A>(this Try<A> self) =>
         toList(self.AsEnumerable());
 
     [Pure]
-    public static Arr<Either<Exception, A>> ToArray<A>(this Try<A> self) =>
+    public static Arr<A> ToArray<A>(this Try<A> self) =>
         toArray(self.AsEnumerable());
 
     [Pure]
@@ -464,18 +487,6 @@ public static class TryExtensions
             var resT = self();
             return project(resT.Value, bind(resT.Value)().Value);
         };
-
-    [Pure]
-    public static IEnumerable<V> SelectMany<A, U, V>(
-        this Try<A> self, 
-        Func<A, IEnumerable<U>> bind,
-        Func<A, U, V> project
-        )
-    {
-        var resT = self.Try();
-        if (resT.IsFaulted) return new V[0];
-        return bind(resT.Value).Map(resU => project(resT.Value, resU));
-    }
 
     [Pure]
     public static Try<V> Join<A, U, K, V>(
@@ -622,12 +633,33 @@ public static class TryExtensions
     /// Apply
     /// </summary>
     /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type FB derived from Applicative of B</returns>
+    [Pure]
+    public static Try<B> Apply<A, B>(this Func<A, B> fab, Try<A> fa) =>
+        FTry<A, B>.Inst.Apply(Prelude.Try(fab), fa);
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
     /// <param name="fa">Applicative a to apply</param>
     /// <param name="fb">Applicative b to apply</param>
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
     [Pure]
     public static Try<C> Apply<A, B, C>(this Try<Func<A, B, C>> fabc, Try<A> fa, Try<B> fb) =>
         fabc.Bind(f => FTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa, fb));
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative a to apply</param>
+    /// <param name="fb">Applicative b to apply</param>
+    /// <returns>Applicative of type FC derived from Applicative of C</returns>
+    [Pure]
+    public static Try<C> Apply<A, B, C>(this Func<A, B, C> fabc, Try<A> fa, Try<B> fb) =>
+        FTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa, fb);
 
     /// <summary>
     /// Apply
@@ -646,8 +678,28 @@ public static class TryExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
+    public static Try<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, Try<A> fa) =>
+        FTry<A, B, C>.Inst.Apply(MTry<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa);
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+    [Pure]
     public static Try<Func<B, C>> Apply<A, B, C>(this Try<Func<A, Func<B, C>>> fabc, Try<A> fa) =>
         FTry<A, B, C>.Inst.Apply(fabc, fa);
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+    [Pure]
+    public static Try<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, Try<A> fa) =>
+        FTry<A, B, C>.Inst.Apply(Prelude.Try(fabc), fa);
 
     /// <summary>
     /// Evaluate fa, then fb, ignoring the result of fa

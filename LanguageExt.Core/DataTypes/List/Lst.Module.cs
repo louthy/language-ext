@@ -6,6 +6,7 @@ using static LanguageExt.Prelude;
 using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using LanguageExt.TypeClasses;
+using LanguageExt.ClassInstances;
 
 namespace LanguageExt
 {
@@ -976,39 +977,121 @@ namespace LanguageExt
         /// <summary>
         /// Apply an IEnumerable of values to an IEnumerable of functions
         /// </summary>
-        /// <param name="opt">IEnumerable of functions</param>
-        /// <param name="arg">IEnumerable of argument values</param>
+        /// <param name="fabc">IEnumerable of functions</param>
+        /// <param name="fa">IEnumerable of argument values</param>
         /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
         [Pure]
-        public static IEnumerable<R> apply<T, R>(IEnumerable<Func<T, R>> self, IEnumerable<T> arg) =>
-            from f in self
-            from x in arg
-            select f(x);
+        public static IEnumerable<B> apply<A, B>(IEnumerable<Func<A, B>> fabc, IEnumerable<A> fa) =>
+            FSeq<A, B>.Inst.Apply(fabc, fa);
+
+        /// <summary>
+        /// Apply an IEnumerable of values to an IEnumerable of functions
+        /// </summary>
+        /// <param name="fabc">IEnumerable of functions</param>
+        /// <param name="fa">IEnumerable of argument values</param>
+        /// <returns>Returns the result of applying the IEnumerable argument values to the IEnumerable functions</returns>
+        [Pure]
+        public static IEnumerable<B> apply<A, B>(Func<A, B> fabc, IEnumerable<A> fa) =>
+            FSeq<A, B>.Inst.Apply(new[] { fabc }, fa);
 
         /// <summary>
         /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
         /// </summary>
-        /// <param name="opt">IEnumerable of functions</param>
-        /// <param name="arg">IEnumerable argument values</param>
+        /// <param name="fabc">IEnumerable of functions</param>
+        /// <param name="fa">IEnumerable argument values</param>
         /// <returns>Returns the result of applying the IEnumerable of argument values to the 
         /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
         [Pure]
-        public static IEnumerable<Func<T2, R>> apply<T1, T2, R>(IEnumerable<Func<T1, T2, R>> self, IEnumerable<T1> arg) =>
-            from f in self
-            let c = curry(f)
-            from x in arg
-            select c(x);
+        public static IEnumerable<Func<B, C>> apply<A, B, C>(IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa) =>
+            FSeq<A, B, C>.Inst.Apply(fabc.Map(curry), fa);
+
+        /// <summary>
+        /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
+        /// </summary>
+        /// <param name="fabc">IEnumerable of functions</param>
+        /// <param name="fa">IEnumerable argument values</param>
+        /// <returns>Returns the result of applying the IEnumerable of argument values to the 
+        /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
+        [Pure]
+        public static IEnumerable<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, IEnumerable<A> fa) =>
+            FSeq<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa);
 
         /// <summary>
         /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
         /// </summary>
-        /// <param name="opt">IEnumerable of functions</param>
-        /// <param name="arg1">IEnumerable of arguments</param>
-        /// <param name="arg2">IEnumerable of arguments</param>
+        /// <param name="fabc">IEnumerable of functions</param>
+        /// <param name="fa">IEnumerable argument values</param>
+        /// <param name="fb">IEnumerable argument values</param>
         /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
         [Pure]
-        public static IEnumerable<R> apply<T1, T2, R>(IEnumerable<Func<T1, T2, R>> self, IEnumerable<T1> arg1, IEnumerable<T2> arg2) =>
-            self.Apply(arg1).Apply(arg2);
+        public static IEnumerable<C> apply<A, B, C>( IEnumerable<Func<A, B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
+            FSeq<A, B, C>.Inst.Apply(fabc.Map(curry), fa, fb);
+
+        /// <summary>
+        /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
+        /// </summary>
+        /// <param name="fabc">IEnumerable of functions</param>
+        /// <param name="fa">IEnumerable argument values</param>
+        /// <param name="fb">IEnumerable argument values</param>
+        /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
+        [Pure]
+        public static IEnumerable<C> apply<A, B, C>(Func<A, B, C> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
+            FSeq<A, B, C>.Inst.Apply(new[] { curry(fabc) }, fa, fb);
+
+        /// <summary>
+        /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
+        /// </summary>
+        /// <param name="fabc">IEnumerable of functions</param>
+        /// <param name="fa">IEnumerable argument values</param>
+        /// <returns>Returns the result of applying the IEnumerable of argument values to the 
+        /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
+        [Pure]
+        public static IEnumerable<Func<B, C>> apply<A, B, C>(IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa) =>
+            FSeq<A, B, C>.Inst.Apply(fabc, fa);
+
+        /// <summary>
+        /// Apply an IEnumerable of values to an IEnumerable of functions of arity 2
+        /// </summary>
+        /// <param name="fabc">IEnumerable of functions</param>
+        /// <param name="fa">IEnumerable argument values</param>
+        /// <returns>Returns the result of applying the IEnumerable of argument values to the 
+        /// IEnumerable of functions: an IEnumerable of functions of arity 1</returns>
+        [Pure]
+        public static IEnumerable<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, IEnumerable<A> fa) =>
+            FSeq<A, B, C>.Inst.Apply(new[] { fabc }, fa);
+
+        /// <summary>
+        /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
+        /// </summary>
+        /// <param name="fabc">IEnumerable of functions</param>
+        /// <param name="fa">IEnumerable argument values</param>
+        /// <param name="fb">IEnumerable argument values</param>
+        /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
+        [Pure]
+        public static IEnumerable<C> apply<A, B, C>(IEnumerable<Func<A, Func<B, C>>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
+            FSeq<A, B, C>.Inst.Apply(fabc, fa, fb);
+
+        /// <summary>
+        /// Apply IEnumerable of values to an IEnumerable of functions of arity 2
+        /// </summary>
+        /// <param name="fabc">IEnumerable of functions</param>
+        /// <param name="fa">IEnumerable argument values</param>
+        /// <param name="fb">IEnumerable argument values</param>
+        /// <returns>Returns the result of applying the IEnumerables of arguments to the IEnumerable of functions</returns>
+        [Pure]
+        public static IEnumerable<C> apply<A, B, C>(Func<A, Func<B, C>> fabc, IEnumerable<A> fa, IEnumerable<B> fb) =>
+            FSeq<A, B, C>.Inst.Apply(new[] { fabc }, fa, fb);
+
+        /// <summary>
+        /// Evaluate fa, then fb, ignoring the result of fa
+        /// </summary>
+        /// <param name="fa">Applicative to evaluate first</param>
+        /// <param name="fb">Applicative to evaluate second and then return</param>
+        /// <returns>Applicative of type FB derived from Applicative of B</returns>
+        [Pure]
+        public static IEnumerable<B> action<A, B>(IEnumerable<A> fa, IEnumerable<B> fb) =>
+            FSeq<A, B>.Inst.Action(fa, fb);
+
 
         /// <summary>
         /// The tails function returns all final segments of the argument, longest first. For example,

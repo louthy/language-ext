@@ -437,6 +437,7 @@ namespace LanguageExt
         /// <summary>
         /// Equality override
         /// </summary>
+        [Pure]
         public override bool Equals(object obj) =>
             obj is Set<A> && 
             !ReferenceEquals(obj, null) &&
@@ -448,10 +449,60 @@ namespace LanguageExt
         /// <remarks>
         /// The hash-code is cached after the first read.
         /// </remarks>
+        [Pure]
         public override int GetHashCode() =>
             Value.GetHashCode();
 
+        [Pure]
         public override string ToString() =>
             $"Set[{Count}]";
+
+        [Pure]
+        public IEnumerable<A> AsEnumerable() =>
+            this;
+
+        [Pure]
+        public Set<B> Select<B>(Func<A, B> f) =>
+            Map(f);
+
+        [Pure]
+        public Set<A> Where(Func<A, bool> pred) =>
+            Filter(pred);
+
+        [Pure]
+        public Set<B> Bind<B>(Func<A, Set<B>> f)
+        {
+            var self = this;
+
+            IEnumerable<B> Yield()
+            {
+                foreach (var x in self.AsEnumerable())
+                {
+                    foreach (var y in f(x))
+                    {
+                        yield return y;
+                    }
+                }
+            }
+            return new Set<B>(Yield(), true);
+        }
+
+        [Pure]
+        public Set<C> SelectMany<B, C>(Func<A, Set<B>> bind, Func<A, B, C> project)
+        {
+            var self = this;
+
+            IEnumerable<C> Yield()
+            {
+                foreach(var x in self.AsEnumerable())
+                {
+                    foreach(var y in bind(x))
+                    {
+                        yield return project(x, y);
+                    }
+                }
+            }
+            return new Set<C>(Yield(), true);
+        }
     }
 }

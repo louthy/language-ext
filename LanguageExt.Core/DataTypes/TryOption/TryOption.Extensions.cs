@@ -333,6 +333,33 @@ public static class TryOptionExtensions
     }
 
     [Pure]
+    public static OptionUnsafe<A> ToOptionUnsafe<A>(this TryOption<A> self)
+    {
+        var res = TryOptionExtensions.Try(self);
+        return res.IsFaulted
+            ? None
+            : res.Value.ToOptionUnsafe();
+    }
+
+    [Pure]
+    public static Either<Exception, Option<A>> ToEither<A>(this TryOption<A> self)
+    {
+        var res = TryOptionExtensions.Try(self);
+        return res.IsFaulted
+            ? Left<Exception, Option<A>>(res.Exception)
+            : Right<Exception, Option<A>>(res.Value);
+    }
+
+    [Pure]
+    public static EitherUnsafe<Exception, Option<A>> ToEitherUnsafe<A>(this TryOption<A> self)
+    {
+        var res = TryOptionExtensions.Try(self);
+        return res.IsFaulted
+            ? LeftUnsafe<Exception, Option<A>>(res.Exception)
+            : RightUnsafe<Exception, Option<A>>(res.Value);
+    }
+
+    [Pure]
     public static Try<A> ToTry<A>(this TryOption<A> self) => () => 
         self.IfFailThrow();
 
@@ -594,26 +621,21 @@ public static class TryOptionExtensions
     }
 
     [Pure]
-    public static IEnumerable<Either<Exception, A>> AsEnumerable<A>(this TryOption<A> self)
+    public static IEnumerable<A> AsEnumerable<A>(this TryOption<A> self)
     {
         var res = TryOptionExtensions.Try(self);
-
-        if (res.IsFaulted)
-        {
-            yield return res.Exception;
-        }
-        else if (res.Value.IsSome)
+        if (res.Value.IsSome)
         {
             yield return res.Value.Value;
         }
     }
 
     [Pure]
-    public static Lst<Either<Exception, A>> ToList<A>(this TryOption<A> self) =>
+    public static Lst<A> ToList<A>(this TryOption<A> self) =>
         toList(self.AsEnumerable());
 
     [Pure]
-    public static Arr<Either<Exception, A>> ToArray<A>(this TryOption<A> self) =>
+    public static Arr<A> ToArray<A>(this TryOption<A> self) =>
         toArray(self.AsEnumerable());
 
     [Pure]
@@ -649,19 +671,6 @@ public static class TryOptionExtensions
             if (resU.IsNone) return Option<V>.None;
             return project(resT.Value, resU.Value);
         };
-    }
-
-    [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static IEnumerable<V> SelectMany<A, U, V>(
-        this TryOption<A> self,
-        Func<A, IEnumerable<U>> bind,
-        Func<A, U, V> project
-        )
-    {
-        var resT = TryOptionExtensions.Try(self);
-        if (resT.IsFaulted || resT.Value.IsNone) return new V[0];
-        return bind(resT.Value.Value).Map(resU => project(resT.Value.Value, resU));
     }
 
     public static TryOption<V> Join<A, U, K, V>(
@@ -946,6 +955,16 @@ public static class TryOptionExtensions
     /// Apply
     /// </summary>
     /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type FB derived from Applicative of B</returns>
+    [Pure]
+    public static TryOption<B> Apply<A, B>(this Func<A, B> fab, TryOption<A> fa) =>
+        FTryOption<A, B>.Inst.Apply(TryOption(fab), fa);
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
     /// <param name="fa">Applicative a to apply</param>
     /// <param name="fb">Applicative b to apply</param>
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
@@ -957,11 +976,32 @@ public static class TryOptionExtensions
     /// Apply
     /// </summary>
     /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative a to apply</param>
+    /// <param name="fb">Applicative b to apply</param>
+    /// <returns>Applicative of type FC derived from Applicative of C</returns>
+    [Pure]
+    public static TryOption<C> Apply<A, B, C>(this Func<A, B, C> fabc, TryOption<A> fa, TryOption<B> fb) =>
+        FTryOption<A, B, C>.Inst.Apply(MTryOption<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa, fb);
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
     public static TryOption<Func<B, C>> Apply<A, B, C>(this TryOption<Func<A, B, C>> fabc, TryOption<A> fa) =>
         fabc.Bind(f => FTryOption<A, B, C>.Inst.Apply(MTryOption<Func<A, Func<B, C>>>.Inst.Return(curry(f)), fa));
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+    [Pure]
+    public static TryOption<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, TryOption<A> fa) =>
+        FTryOption<A, B, C>.Inst.Apply(MTryOption<Func<A, Func<B, C>>>.Inst.Return(curry(fabc)), fa);
 
     /// <summary>
     /// Apply

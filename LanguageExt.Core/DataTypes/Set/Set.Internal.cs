@@ -69,11 +69,11 @@ namespace LanguageExt
         /// Ctor that takes an initial (distinct) set of items
         /// </summary>
         /// <param name="items"></param>
-        internal SetInternal(IEnumerable<A> items, bool checkUniqueness)
+        internal SetInternal(IEnumerable<A> items, bool tryAdd)
         {
             set = SetItem<A>.Empty;
 
-            if (checkUniqueness)
+            if (tryAdd)
             {
                 foreach (var item in items)
                 {

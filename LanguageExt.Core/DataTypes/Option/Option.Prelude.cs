@@ -228,6 +228,16 @@ namespace LanguageExt
         /// Apply
         /// </summary>
         /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type FB derived from Applicative of B</returns>
+        [Pure]
+        public static Option<B> apply<A, B>(Func<A, B> fab, Option<A> fa) =>
+            FOption<A, B>.Inst.Apply(fab, fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
         /// <param name="fa">Applicative a to apply</param>
         /// <param name="fb">Applicative b to apply</param>
         /// <returns>Applicative of type FC derived from Applicative of C</returns>
@@ -236,6 +246,17 @@ namespace LanguageExt
             from x in fabc
             from y in FOption<A, B, C>.Inst.Apply(curry(x), fa, fb)
             select y;
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative a to apply</param>
+        /// <param name="fb">Applicative b to apply</param>
+        /// <returns>Applicative of type FC derived from Applicative of C</returns>
+        [Pure]
+        public static Option<C> apply<A, B, C>(Func<A, B, C> fabc, Option<A> fa, Option<B> fb) =>
+            FOption<A, B, C>.Inst.Apply(curry(fabc), fa, fb);
 
         /// <summary>
         /// Apply
@@ -256,7 +277,27 @@ namespace LanguageExt
         /// <param name="fa">Applicative to apply</param>
         /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
         [Pure]
+        public static Option<Func<B, C>> apply<A, B, C>(Func<A, B, C> fabc, Option<A> fa) =>
+            FOption<A, B, C>.Inst.Apply(curry(fabc), fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+        [Pure]
         public static Option<Func<B, C>> apply<A, B, C>(Option<Func<A, Func<B, C>>> fabc, Option<A> fa) =>
+            FOption<A, B, C>.Inst.Apply(fabc, fa);
+
+        /// <summary>
+        /// Apply
+        /// </summary>
+        /// <param name="fab">Function to apply the applicative to</param>
+        /// <param name="fa">Applicative to apply</param>
+        /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+        [Pure]
+        public static Option<Func<B, C>> apply<A, B, C>(Func<A, Func<B, C>> fabc, Option<A> fa) =>
             FOption<A, B, C>.Inst.Apply(fabc, fa);
 
         /// <summary>

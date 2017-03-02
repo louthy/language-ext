@@ -106,6 +106,16 @@ public static class OptionExtensions
     /// Apply
     /// </summary>
     /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type FB derived from Applicative of B</returns>
+    [Pure]
+    public static Option<B> Apply<A, B>(this Func<A, B> fab, Option<A> fa) =>
+        FOption<A, B>.Inst.Apply(fab, fa);
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
     /// <param name="fa">Applicative a to apply</param>
     /// <param name="fb">Applicative b to apply</param>
     /// <returns>Applicative of type FC derived from Applicative of C</returns>
@@ -114,6 +124,17 @@ public static class OptionExtensions
         from x in fabc
         from y in FOption<A, B, C>.Inst.Apply(curry(x), fa, fb)
         select y;
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative a to apply</param>
+    /// <param name="fb">Applicative b to apply</param>
+    /// <returns>Applicative of type FC derived from Applicative of C</returns>
+    [Pure]
+    public static Option<C> Apply<A, B, C>(this Func<A, B, C> fabc, Option<A> fa, Option<B> fb) =>
+        FOption<A, B, C>.Inst.Apply(curry(fabc), fa, fb);
 
     /// <summary>
     /// Apply
@@ -134,7 +155,27 @@ public static class OptionExtensions
     /// <param name="fa">Applicative to apply</param>
     /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
     [Pure]
+    public static Option<Func<B, C>> Apply<A, B, C>(this Func<A, B, C> fabc, Option<A> fa) =>
+        FOption<A, B, C>.Inst.Apply(curry(fabc), fa);
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+    [Pure]
     public static Option<Func<B, C>> Apply<A, B, C>(this Option<Func<A, Func<B, C>>> fabc, Option<A> fa) =>
+        FOption<A, B, C>.Inst.Apply(fabc, fa);
+
+    /// <summary>
+    /// Apply
+    /// </summary>
+    /// <param name="fab">Function to apply the applicative to</param>
+    /// <param name="fa">Applicative to apply</param>
+    /// <returns>Applicative of type f(b -> c) derived from Applicative of Func<B, C></returns>
+    [Pure]
+    public static Option<Func<B, C>> Apply<A, B, C>(this Func<A, Func<B, C>> fabc, Option<A> fa) =>
         FOption<A, B, C>.Inst.Apply(fabc, fa);
 
     /// <summary>
@@ -501,23 +542,6 @@ public static class OptionExtensions
         self.IsSome
             ? pred(await self.Value)
             : false;
-
-    /// <summary>
-    /// Monadic bind 
-    /// </summary>
-    [Pure]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public static IEnumerable<Option<C>> SelectMany<A, B, C>(this IEnumerable<A> self,
-        Func<A, Option<B>> bind,
-        Func<A, B, C> project
-        )
-    {
-        foreach(var a in self)
-        {
-            var mb = bind(a);
-            yield return mb.Map(b => project(a, b));
-        }
-    }
 
     [Pure]
     internal static U CheckNullReturn<U>(U value, string location) =>
